@@ -179,7 +179,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API route for chat messages
   app.post('/api/cyber/chat', async (req, res) => {
     try {
-      const { message, userName, scenarioId, config } = req.body;
+      const { message, userName, scenarioId, config, chatHistory } = req.body;
       
       if (!message || !userName) {
         return res.status(400).json({ message: 'Missing required parameters' });
@@ -191,16 +191,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
         responseStyle: config?.responseStyle || "Professionnel"
       });
       
+      // Add the instruction about response evaluation
+      const systemContent = systemPrompt + 
+        "\n\nRÈGLE IMPORTANTE: Réponds comme si tu étais CyberGuide, ne mentionne pas Azure OpenAI ou GPT." +
+        "\n\nÉVALUATION DES RÉPONSES: Évalue rigoureusement la réponse de l'utilisateur. Si elle est incomplète, hors sujet, mal formulée ou peu pertinente, sois direct et franc dans ta critique. N'hésite pas à exiger immédiatement une réponse plus complète ou pertinente. Après trois tentatives infructueuses, mets fin au scénario.";
+      
+      // Create the base messages array
       const messages: ChatCompletionRequestMessage[] = [
         {
           role: "system",
-          content: systemPrompt + "\n\nRÈGLE IMPORTANTE: Réponds comme si tu étais CyberGuide, ne mentionne pas Azure OpenAI ou GPT."
-        },
-        {
-          role: "user",
-          content: `Je suis ${userName}. Le message suivant est en réponse au scénario de cybersécurité en cours (ID: ${scenarioId}): "${message}"`
+          content: systemContent
         }
       ];
+      
+      // Add chat history if provided to maintain context
+      if (chatHistory && Array.isArray(chatHistory) && chatHistory.length > 0) {
+        chatHistory.forEach(item => {
+          if (item.type === 'user' && typeof item.content === 'string') {
+            messages.push({
+              role: "user",
+              content: item.content
+            });
+          } else if (item.type === 'bot' && typeof item.content === 'string') {
+            messages.push({
+              role: "assistant",
+              content: item.content
+            });
+          }
+        });
+      }
+      
+      // Add the current user message
+      messages.push({
+        role: "user",
+        content: `Je suis ${userName}. Le message suivant est en réponse au scénario de cybersécurité en cours (ID: ${scenarioId}): "${message}"`
+      });
       
       const responseContent = await openAIService.getChatCompletion(
         messages, 
@@ -208,10 +233,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         config?.maxTokens || 2000
       );
       
-      // Send response
+      // Check if response indicates scenario termination
+      const isScenarioTerminated = responseContent.toLowerCase().includes("fin du scénario") || 
+                                   responseContent.toLowerCase().includes("recommencer à zéro") ||
+                                   responseContent.toLowerCase().includes("recommencer le scénario");
+      
+      // Send response with termination flag if detected
       res.json({ 
         type: 'bot',
-        content: responseContent
+        content: responseContent,
+        resetScenario: isScenarioTerminated
       });
     } catch (error) {
       console.error('Error processing chat message:', error);

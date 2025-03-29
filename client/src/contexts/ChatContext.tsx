@@ -276,12 +276,19 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsTyping(true);
     
     try {
+      // Get recent chat history to provide context
+      // We filter to only include relevant messages (user and bot) and limit to recent messages
+      const relevantMessages = messages
+        .filter(msg => msg.type === 'user' || msg.type === 'bot')
+        .slice(-10); // Get last 10 messages for context
+      
       // Send message to server for processing
       const response = await apiRequest('POST', '/api/cyber/chat', {
         message: messageText,
         userName,
         scenarioId: scenario.activeScenario?.id,
-        config
+        config,
+        chatHistory: relevantMessages
       });
       
       const data = await response.json();
@@ -306,6 +313,26 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
         
         setMessages(prev => [...prev, botResponse]);
+        
+        // Check if the scenario should be reset based on the API response
+        if (data.resetScenario) {
+          // Wait a moment before resetting so the user can read the final message
+          setTimeout(() => {
+            const resetMessage: ChatMessage = {
+              id: uuidv4(),
+              type: "bot",
+              content: "Le scénario va être réinitialisé. Préparation d'un nouveau scénario...",
+              timestamp: Date.now()
+            };
+            
+            setMessages(prev => [...prev, resetMessage]);
+            
+            // Wait another moment before actual reset
+            setTimeout(() => {
+              handleResetChat();
+            }, 3000);
+          }, 5000);
+        }
       }
     } catch (error) {
       console.error('Error sending message:', error);

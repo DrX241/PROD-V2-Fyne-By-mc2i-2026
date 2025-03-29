@@ -1,0 +1,86 @@
+**POLITIQUE DE SÉCURITÉ RÉSEAU**  
+**Configuration d’un Pare-feu Nouvelle Génération**  
+**Niveau : Débutant**  
+*Contact : Yousra SAIDANI*  
+*Destinataire : Jeff*  
+
+---
+
+### **1. Introduction**
+La sécurité des réseaux est une priorité dans la protection des ressources informatiques. Ce document détaille la politique de configuration d’un pare-feu nouvelle génération (NGFW) dans le cadre d’une formation en cybersécurité. L’objectif est de définir les règles et les bonnes pratiques nécessaires pour sécuriser le réseau tout en assurant une connectivité fluide.
+
+---
+
+### **2. Objectifs**
+- Garantir une protection proactive contre les menaces connues et inconnues (par exemple : attaques par force brute, intrusions, logiciels malveillants).
+- Contrôler et surveiller le trafic réseau entrant et sortant.
+- Implémenter des règles d’accès basées sur les identités, les applications et les adresses IP.
+
+---
+
+### **3. Étapes de Configuration**
+#### **3.1 Préparation**
+- **Accès au pare-feu** : Connectez-vous à l’interface de gestion via HTTPS (ex. https://10.0.0.1/admin). Utilisez des identifiants sécurisés fournis par l’administrateur.
+- **Mise à jour du firmware** : Vérifiez que le pare-feu utilise la dernière version logicielle pour bénéficier des correctifs et des mises à jour de sécurité.
+
+#### **3.2 Configuration des Interfaces Réseau**
+- Configurez l’interface WAN pour la connexion internet avec les paramètres suivant :
+  - Adresse IP : 192.168.1.1  
+  - Masque de sous-réseau : 255.255.255.0  
+  - Passerelle : 192.168.1.254  
+  - DNS primaire : 8.8.8.8  
+  - DNS secondaire : 8.8.4.4  
+- Configurez l’interface LAN pour le réseau interne :  
+  - Adresse IP : 10.0.0.1  
+  - Masque de sous-réseau : 255.255.255.0  
+
+#### **3.3 Création des Règles de Sécurité**
+- **Règle 1 : Bloquer tout le trafic non autorisé.**  
+  Action : Refuser tout trafic non explicitement autorisé.  
+  Application : Par défaut sur toutes les interfaces.
+
+- **Règle 2 : Autoriser le trafic HTTP/HTTPS vers les serveurs web.**  
+  Source : Réseau interne (10.0.0.0/24)  
+  Destination : Serveurs web externes (TCP ports 80 et 443)  
+  Action : Autoriser  
+
+- **Règle 3 : Surveillance du trafic SMTP.**  
+  Source : Réseau interne  
+  Destination : Serveur de messagerie (TCP port 25)  
+  Action : Autoriser avec inspection approfondie.
+
+#### **3.4 Activation des Fonctions Avancées**
+- Activer les fonctions IDS/IPS (Intrusion Detection/Prevention System) pour bloquer les attaques en temps réel.
+- Configurer les filtres URL pour bloquer l’accès aux sites non sécurisés ou inappropriés.
+- Implémenter le contrôle des applications pour autoriser uniquement les outils métier (exemple : Office 365).
+
+---
+
+### **4. Surveillance et Maintenance**
+- Activer les journaux et les rapports pour surveiller le trafic réseau et identifier les anomalies.  
+  Exemple : Exportez les journaux au format CSV pour une analyse régulière.  
+- Planifier des audits trimestriels pour ajuster les règles de sécurité en fonction des menaces émergentes.
+- Tester les sauvegardes de configuration pour garantir la récupération en cas de panne.
+
+---
+
+### **5. Contacts et Support**
+En cas de problème ou pour une aide supplémentaire, contactez :  
+**Yousra SAIDANI**  
+Email : y.saidani@entreprise.com  
+Téléphone : +33 6 12 34 56 78  
+
+---
+
+### **6. Annexes**
+- Documentation du pare-feu NGFW (Lien : https://support.parefeuNGFW.com).  
+- Liste des ports courants à surveiller :  
+  - TCP 22 (SSH)  
+  - TCP 3389 (RDP)  
+  - UDP 53 (DNS)
+
+---
+
+**NOTE :** Suivez scrupuleusement cette politique pour éviter toute faille de sécurité et maintenir un réseau résilient.  
+
+*Document préparé par Yousra SAIDANI.*
