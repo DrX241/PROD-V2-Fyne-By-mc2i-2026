@@ -1,0 +1,84 @@
+J'inciste sur le fait que la structure de dossier doit etre sticttement respecté. Avec un dossier I_AM_CYBER dans la racine et qui va contenir l'ensemble des éléments permettant de faire fonctionner le module. Ceci est important pour ajouter facilement et séparemment les prochains module. Important les system prompt qui permettent de donner une personnalité à l'ia doit aussi etre identifié facileemnt et resté en txt pour que je les modifie facilement. 
+
+Voici les info : 
+
+Je voudrais créer un SaaS appellé "FENY" dédié à la formation immersive grace à des clés API , Endpoint de AzureOpenAI. Dans ce SaaS feny, j'ai un module I AM CYBER qui sera sous forme de chatbot innovant et intelligent qui permettra aux utilisateurs de pouvoir vivre une vraie expériences immervise pour apprendre en s'amusant.
+
+Dans le dossier racine, il faut que tu crées un dossier pour le module I AM CYBER dans lequel on aura tout les éléments de son fonctionnement. C'est important de le selectionner dès maintenant pour facilier l'ajout de d'autre modules qui vont traiter d'autres sujets que la cyber.
+
+Restes focus dans sur la partie agent IA du module I AM CYBER avec les élément du dossier racine I AM CYBER.
+Je t'explique la logique du chatbot que je veux que tu gardes dans un fichier texte que je pourrai modifier à souhait :
+Le chatbot Agent IA démarre en disant bonjour , en se présentant et demande à l'utilisateur son prénom.
+Un fois que l'utilisateur donne son prénom, il lui dis merci et lui souhaite la bienvenue et en lui disant qu'il espère qu'il va bien.
+Ensuite le LLM gtp4o relié au chatbot dis à l'utilisateur en l'apellant par son nom qu'il va lui proposer différents domaines en lien avec la cybersécurité et qui lui invite à faire un choix en cliquant sur un des éléments de la liste.
+
+Une fois le domaine sélectionné, l'IA accuse bonne réceptions et proposes 2 scénarios en lien avec le domaine ainsi que les noms des contacts qui joueront les roles des PNJ et qui seront aussi emeteurs des mails / demandes.
+
+Puis, L'utilisateur sélectionne un sous domaine toujours en cliquant, et directement l'IA analyse tout les éléments de la conversation y compris les paramètres de configuration à avoir sur la droite de l'interface ( température, tokens maximums, niveau de diffuclté, stype de réponse, etc. ; dans le but de créer une vraie mise en situation ou le PNJ présent dans le scénario va envoyer un premier message sous forme de simulation professionelle par mail à l'utilisateur concerné une problématique en lien avec le scénario à gérer. Et le choix du PNJ doit etre cohérent entre le scénario et son poste qu'il occupe.
+Chaque mail est toujours accompagné d'une PJ contenant au maximum une page de données très importantes à prendre en compte car le PNJ analyser anotre capacité à faire réfence au doc en PJ. Je veux un vrai format mail qui ne se condense par avec des bordures de la génération de texte du chatbot. Les PJ sont généré en temps réels par l'IA, stocké dans un dossier documents, puis ajoutés en PJ pour que ce soit clicable, consultable en cliquant pour ouverture dansune nouvelle page.
+
+Dans les mises en situations au lieu d'avoir des noms aléatoire je veux que tu prennes en compte les noms suivants, et je veux toujours que l'IA proposes des scénarios structement différents.
+
+Arnaud Gauthier
+Président
+
+Olivier Hervo
+Directeur Général
+
+Lorenzo Bertola
+Directeur Général Adjoint
+et Directeur du pôle BFA
+
+Anthony Frescal
+Directeur Général Adjoint et
+Directeur du pôle ENERGIES & UTILITIES
+
+Guillaume Lechevallier
+Directeur Général Adjoint et
+Directeur du pôle IMPULSE
+
+Vincent Pascal
+Directeur Général Adjoint et
+Directeur du Développement
+
+Nicolas Paolantonacci
+Senior Partner et
+Directeur du pôle RETAIL & LUXE
+
+Marion Lopez
+Senior Partner et
+Directrice Marketing,
+Communication et RSE
+
+Vincent Terrier
+Senior Partner
+Directeur Financier
+
+Isabelle Dubacq
+Senior Partner
+Directrice des Ressources Humaines
+
+Eddy MISSONI,
+Chef de Projet & Expert IA
+
+Neil LEVIN
+Expert cybersécurité & CFO
+
+Yousra SAIDANI
+Experte Cybersécurité & CFO
+
+Eddy MISSONI IDEMBI
+Expert Data / IA & CTO
+
+Fares SAYADI
+Spécialiste Data / IA
+
+vOICI mes clés Azure Open AI à ajouter dans un fichier .env :
+
+Endpoint : https://eddy-02-2025-azureaiservices017852658000.openai.azure.com/openai/deployments/Eddy-deploy-20-02-2025-gpt-4o/chat/completions?api-version=2025-01-01-preview
+
+Version : 2025-01-01-preview
+
+Clé API : 1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK
+
+Nom déployement : Eddy-deploy-20-02-2025-gpt-4o
