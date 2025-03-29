@@ -27,45 +27,268 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get scenario data - in a real app, this would come from the database
       // For now, we're using hardcoded data matching the client
       const scenarios = [
+        // Formation et sensibilisation
         {
-          id: "network-intrusion",
-          title: "Analyse d'une tentative d'intrusion",
-          domain: "Sécurité des réseaux",
-          contact: {
-            name: "Neil LEVIN",
-            role: "Expert cybersécurité & CFO"
-          },
-          difficulty: "Intermédiaire",
-        },
-        {
-          id: "firewall-config",
-          title: "Configuration d'un pare-feu nouvelle génération",
-          domain: "Sécurité des réseaux",
-          contact: {
-            name: "Yousra SAIDANI",
-            role: "Experte Cybersécurité & CFO"
-          },
-          difficulty: "Débutant",
-        },
-        {
-          id: "vuln-scanning",
-          title: "Audit de vulnérabilités sur un système critique",
-          domain: "Gestion des vulnérabilités",
-          contact: {
-            name: "Lorenzo Bertola",
-            role: "Directeur Général Adjoint et Directeur du pôle BFA"
-          },
-          difficulty: "Expert",
-        },
-        {
-          id: "data-breach",
-          title: "Gestion d'une fuite de données",
-          domain: "Sécurité des données",
+          id: "phishing-simulation",
+          title: "Simulation d'attaque phishing",
+          domain: "Formation et sensibilisation à la cybersécurité",
           contact: {
             name: "Marion Lopez",
             role: "Senior Partner et Directrice Marketing, Communication et RSE"
           },
-          difficulty: "Intermédiaire",
+          difficulty: "Débutant"
+        },
+        {
+          id: "security-training",
+          title: "Programme de formation à la cybersécurité",
+          domain: "Formation et sensibilisation à la cybersécurité",
+          contact: {
+            name: "Isabelle Dubacq",
+            role: "Senior Partner, Directrice des Ressources Humaines"
+          },
+          difficulty: "Intermédiaire"
+        },
+        
+        // OSINT
+        {
+          id: "osint-investigation",
+          title: "Investigation d'une menace potentielle",
+          domain: "L'OSINT",
+          contact: {
+            name: "Neil LEVIN",
+            role: "Expert cybersécurité & CFO"
+          },
+          difficulty: "Intermédiaire"
+        },
+        {
+          id: "digital-footprint",
+          title: "Analyse de l'empreinte numérique",
+          domain: "L'OSINT",
+          contact: {
+            name: "Yousra SAIDANI",
+            role: "Experte Cybersécurité & CFO"
+          },
+          difficulty: "Expert"
+        },
+        
+        // Conformité cyber
+        {
+          id: "gdpr-compliance",
+          title: "Mise en conformité RGPD",
+          domain: "La conformité cyber en entreprise",
+          contact: {
+            name: "Vincent Terrier",
+            role: "Senior Partner, Directeur Financier"
+          },
+          difficulty: "Intermédiaire"
+        },
+        {
+          id: "iso-certification",
+          title: "Préparation à la certification ISO 27001",
+          domain: "La conformité cyber en entreprise",
+          contact: {
+            name: "Vincent Pascal",
+            role: "Directeur Général Adjoint et Directeur du Développement"
+          },
+          difficulty: "Expert"
+        },
+        
+        // Stratégie cyber
+        {
+          id: "cyber-strategy",
+          title: "Élaboration de la stratégie cybersécurité",
+          domain: "Définir une stratégie cyber et sa feuille de route",
+          contact: {
+            name: "Arnaud Gauthier",
+            role: "Président"
+          },
+          difficulty: "Expert"
+        },
+        {
+          id: "security-roadmap",
+          title: "Feuille de route de sécurité",
+          domain: "Définir une stratégie cyber et sa feuille de route",
+          contact: {
+            name: "Olivier Hervo",
+            role: "Directeur Général"
+          },
+          difficulty: "Intermédiaire"
+        },
+        
+        // Gestion de crise
+        {
+          id: "ransomware-crisis",
+          title: "Gestion d'une attaque par ransomware",
+          domain: "Gestion de crise cyber",
+          contact: {
+            name: "Lorenzo Bertola",
+            role: "Directeur Général Adjoint et Directeur du pôle BFA"
+          },
+          difficulty: "Expert"
+        },
+        {
+          id: "crisis-plan",
+          title: "Plan de gestion de crise cyber",
+          domain: "Gestion de crise cyber",
+          contact: {
+            name: "Guillaume Lechevallier",
+            role: "Directeur Général Adjoint et Directeur du pôle IMPULSE"
+          },
+          difficulty: "Intermédiaire"
+        },
+        
+        // Supply Chain
+        {
+          id: "vendor-assessment",
+          title: "Évaluation de la sécurité des fournisseurs",
+          domain: "La sécurité de la supply chain",
+          contact: {
+            name: "Nicolas Paolantonacci",
+            role: "Senior Partner et Directeur du pôle RETAIL & LUXE"
+          },
+          difficulty: "Intermédiaire"
+        },
+        {
+          id: "supply-chain-incident",
+          title: "Incident de sécurité dans la chaîne d'approvisionnement",
+          domain: "La sécurité de la supply chain",
+          contact: {
+            name: "Anthony Frescal",
+            role: "Directeur Général Adjoint et Directeur du pôle ENERGIES & UTILITIES"
+          },
+          difficulty: "Expert"
+        },
+        
+        // IAM
+        {
+          id: "iam-implementation",
+          title: "Mise en place d'une solution IAM",
+          domain: "L'IAM",
+          contact: {
+            name: "Eddy MISSONI",
+            role: "Chef de Projet & Expert IA"
+          },
+          difficulty: "Intermédiaire"
+        },
+        {
+          id: "privileged-access",
+          title: "Gestion des accès privilégiés",
+          domain: "L'IAM",
+          contact: {
+            name: "Eddy MISSONI IDEMBI",
+            role: "Expert Data / IA & CTO"
+          },
+          difficulty: "Expert"
+        },
+        
+        // Cloud Security
+        {
+          id: "cloud-migration",
+          title: "Sécurisation d'une migration vers le cloud",
+          domain: "La cybersécurité dans le cloud",
+          contact: {
+            name: "Fares SAYADI",
+            role: "Spécialiste Data / IA"
+          },
+          difficulty: "Intermédiaire"
+        },
+        {
+          id: "cloud-security-posture",
+          title: "Évaluation de la posture de sécurité cloud",
+          domain: "La cybersécurité dans le cloud",
+          contact: {
+            name: "Yousra SAIDANI",
+            role: "Experte Cybersécurité & CFO"
+          },
+          difficulty: "Expert"
+        },
+        
+        // Données personnelles
+        {
+          id: "data-classification",
+          title: "Classification des données sensibles",
+          domain: "Sécurisation des données personnelles",
+          contact: {
+            name: "Marion Lopez",
+            role: "Senior Partner et Directrice Marketing, Communication et RSE"
+          },
+          difficulty: "Débutant"
+        },
+        {
+          id: "data-breach-response",
+          title: "Réponse à une violation de données personnelles",
+          domain: "Sécurisation des données personnelles",
+          contact: {
+            name: "Vincent Terrier",
+            role: "Senior Partner, Directeur Financier"
+          },
+          difficulty: "Intermédiaire"
+        },
+        
+        // Analyse des vulnérabilités
+        {
+          id: "pentest-planning",
+          title: "Planification d'un test d'intrusion",
+          domain: "Analyse des vulnérabilités et tests de pénétration",
+          contact: {
+            name: "Neil LEVIN",
+            role: "Expert cybersécurité & CFO"
+          },
+          difficulty: "Intermédiaire"
+        },
+        {
+          id: "vuln-management",
+          title: "Programme de gestion des vulnérabilités",
+          domain: "Analyse des vulnérabilités et tests de pénétration",
+          contact: {
+            name: "Yousra SAIDANI",
+            role: "Experte Cybersécurité & CFO"
+          },
+          difficulty: "Expert"
+        },
+        
+        // Gestion des incidents
+        {
+          id: "incident-response",
+          title: "Mise en place d'un processus de réponse aux incidents",
+          domain: "Gestion des incidents de sécurité",
+          contact: {
+            name: "Eddy MISSONI",
+            role: "Chef de Projet & Expert IA"
+          },
+          difficulty: "Intermédiaire"
+        },
+        {
+          id: "security-monitoring",
+          title: "Optimisation de la surveillance de sécurité",
+          domain: "Gestion des incidents de sécurité",
+          contact: {
+            name: "Eddy MISSONI IDEMBI",
+            role: "Expert Data / IA & CTO"
+          },
+          difficulty: "Expert"
+        },
+        
+        // Forensics
+        {
+          id: "forensic-investigation",
+          title: "Investigation numérique après un incident",
+          domain: "Forensics",
+          contact: {
+            name: "Neil LEVIN",
+            role: "Expert cybersécurité & CFO"
+          },
+          difficulty: "Expert"
+        },
+        {
+          id: "evidence-collection",
+          title: "Collecte et préservation des preuves numériques",
+          domain: "Forensics",
+          contact: {
+            name: "Yousra SAIDANI",
+            role: "Experte Cybersécurité & CFO"
+          },
+          difficulty: "Intermédiaire"
         }
       ];
       
@@ -76,22 +299,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Generate a document for the scenario
-      let attachmentType = '';
-      switch (scenarioId) {
-        case 'network-intrusion':
-          attachmentType = 'logs_connexion_suspects';
-          break;
-        case 'firewall-config':
-          attachmentType = 'politique_securite_reseau';
-          break;
-        case 'vuln-scanning':
-          attachmentType = 'rapport_vulnerabilites';
-          break;
-        case 'data-breach':
-          attachmentType = 'rapport_incident_donnees';
-          break;
-        default:
-          attachmentType = 'document_support';
+      let attachmentType = 'document_support';
+      
+      // Déterminer le type de document en fonction du scénario
+      if (scenarioId.includes('phishing')) {
+        attachmentType = 'rapport_phishing';
+      } else if (scenarioId.includes('training')) {
+        attachmentType = 'programme_formation';
+      } else if (scenarioId.includes('osint')) {
+        attachmentType = 'rapport_osint';
+      } else if (scenarioId.includes('footprint')) {
+        attachmentType = 'analyse_empreinte_numerique';
+      } else if (scenarioId.includes('gdpr') || scenarioId.includes('rgpd')) {
+        attachmentType = 'rapport_conformite_rgpd';
+      } else if (scenarioId.includes('iso')) {
+        attachmentType = 'exigences_iso27001';
+      } else if (scenarioId.includes('strategy')) {
+        attachmentType = 'strategie_cybersecurite';
+      } else if (scenarioId.includes('roadmap')) {
+        attachmentType = 'feuille_route_securite';
+      } else if (scenarioId.includes('ransomware')) {
+        attachmentType = 'plan_reponse_ransomware';
+      } else if (scenarioId.includes('crisis')) {
+        attachmentType = 'plan_gestion_crise';
+      } else if (scenarioId.includes('vendor')) {
+        attachmentType = 'questionnaire_fournisseurs';
+      } else if (scenarioId.includes('supply-chain')) {
+        attachmentType = 'rapport_incident_supply_chain';
+      } else if (scenarioId.includes('iam')) {
+        attachmentType = 'specifications_iam';
+      } else if (scenarioId.includes('privileged')) {
+        attachmentType = 'politique_acces_privilegies';
+      } else if (scenarioId.includes('cloud')) {
+        attachmentType = 'checklist_securite_cloud';
+      } else if (scenarioId.includes('data-classification')) {
+        attachmentType = 'guide_classification_donnees';
+      } else if (scenarioId.includes('data-breach')) {
+        attachmentType = 'rapport_violation_donnees';
+      } else if (scenarioId.includes('pentest')) {
+        attachmentType = 'cahier_charges_pentest';
+      } else if (scenarioId.includes('vuln')) {
+        attachmentType = 'rapport_vulnerabilites';
+      } else if (scenarioId.includes('incident-response')) {
+        attachmentType = 'procedure_reponse_incidents';
+      } else if (scenarioId.includes('monitoring')) {
+        attachmentType = 'metriques_surveillance_securite';
+      } else if (scenarioId.includes('forensic')) {
+        attachmentType = 'guide_investigation_forensique';
+      } else if (scenarioId.includes('evidence')) {
+        attachmentType = 'procedures_collecte_preuves';
       }
       
       const document = await documentGenerator.generateDocument(
