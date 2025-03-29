@@ -233,59 +233,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         config?.maxTokens || 2000
       );
       
-      // Check if we need to format this as an email response
-      if (responseContent.toLowerCase().includes("critique") || 
-          responseContent.toLowerCase().includes("pas pertinente") ||
-          responseContent.toLowerCase().includes("incomplète") ||
-          responseContent.toLowerCase().includes("hors sujet") ||
-          responseContent.toLowerCase().includes("mal formulée")) {
-        
-        // Try to extract contact info from the scenario
-        const contact = {
-          name: "Expert Cybersécurité", // Default value
-          role: "Conseiller"            // Default value
-        };
-        
-        if (req.body.scenarioContact && typeof req.body.scenarioContact === 'object') {
-          contact.name = req.body.scenarioContact.name || contact.name;
-          contact.role = req.body.scenarioContact.role || contact.role;
-        }
-        
-        // Check if this is a termination email
-        const isScenarioTerminated = responseContent.includes("FIN_SCENARIO_ECHEC");
-        
-        // Format as email message
-        const emailContent = {
-          id: uuidv4(),
-          from: contact,
-          to: userName || "Utilisateur",
-          subject: isScenarioTerminated ? 
-                  "IMPORTANT : Fin du scénario actuel" : 
-                  "Retour sur votre dernière réponse",
-          date: new Date().toISOString(),
-          body: responseContent.replace("FIN_SCENARIO_ECHEC", "Le scénario actuel va prendre fin dans quelques instants."),
-          attachments: []
-        };
-        
-        // Send as email with termination flag if needed
-        res.json({
-          type: 'email',
-          content: emailContent,
-          resetScenario: isScenarioTerminated
-        });
-      } else {
-        // Check if response indicates scenario termination in normal messages
-        const isScenarioTerminated = responseContent.toLowerCase().includes("fin du scénario") || 
-                                    responseContent.toLowerCase().includes("recommencer à zéro") ||
-                                    responseContent.toLowerCase().includes("recommencer le scénario");
-        
-        // Send response with termination flag if detected
-        res.json({ 
-          type: 'bot',
-          content: responseContent,
-          resetScenario: isScenarioTerminated
-        });
-      }
+      // Check if response indicates scenario termination
+      const isScenarioTerminated = responseContent.toLowerCase().includes("fin du scénario") || 
+                                   responseContent.toLowerCase().includes("recommencer à zéro") ||
+                                   responseContent.toLowerCase().includes("recommencer le scénario");
+      
+      // Send response with termination flag if detected
+      res.json({ 
+        type: 'bot',
+        content: responseContent,
+        resetScenario: isScenarioTerminated
+      });
     } catch (error) {
       console.error('Error processing chat message:', error);
       res.status(500).json({ message: 'Failed to process message' });
