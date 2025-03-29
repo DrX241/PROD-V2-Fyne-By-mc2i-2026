@@ -287,6 +287,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         message: messageText,
         userName,
         scenarioId: scenario.activeScenario?.id,
+        scenarioContact: scenario.contact,
         config,
         chatHistory: relevantMessages
       });
@@ -316,22 +317,50 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Check if the scenario should be reset based on the API response
         if (data.resetScenario) {
-          // Wait a moment before resetting so the user can read the final message
-          setTimeout(() => {
-            const resetMessage: ChatMessage = {
-              id: uuidv4(),
-              type: "bot",
-              content: "Le scénario va être réinitialisé. Préparation d'un nouveau scénario...",
-              timestamp: Date.now()
-            };
+          // Créer un message avec un minuteur de 10 secondes
+          const timerStart = Date.now();
+          const totalTimeMs = 10000; // 10 secondes
+          
+          // Message initial du minuteur
+          const timerMessage: ChatMessage = {
+            id: uuidv4(),
+            type: "bot",
+            content: `Le scénario va être réinitialisé dans 10 secondes...`,
+            timestamp: Date.now()
+          };
+          
+          setMessages(prev => [...prev, timerMessage]);
+          
+          // Mettre à jour le minuteur chaque seconde
+          const timerInterval = setInterval(() => {
+            const elapsedMs = Date.now() - timerStart;
+            const remainingSec = Math.max(0, Math.ceil((totalTimeMs - elapsedMs) / 1000));
             
-            setMessages(prev => [...prev, resetMessage]);
+            // Mettre à jour le message du minuteur
+            setMessages(prev => {
+              const newMessages = [...prev];
+              const timerIndex = newMessages.findIndex(msg => msg.id === timerMessage.id);
+              
+              if (timerIndex !== -1) {
+                newMessages[timerIndex] = {
+                  ...timerMessage,
+                  content: `Le scénario va être réinitialisé dans ${remainingSec} secondes...`
+                };
+              }
+              
+              return newMessages;
+            });
             
-            // Wait another moment before actual reset
-            setTimeout(() => {
-              handleResetChat();
-            }, 3000);
-          }, 5000);
+            // Si le minuteur est terminé, arrêter l'intervalle et réinitialiser
+            if (remainingSec <= 0) {
+              clearInterval(timerInterval);
+              
+              // Réinitialiser le chat
+              setTimeout(() => {
+                handleResetChat();
+              }, 500);
+            }
+          }, 1000);
         }
       }
     } catch (error) {

@@ -1,0 +1,75 @@
+**Rapport d'Incident : Fuite de Données**
+
+---
+
+**Date de l’incident :** 16 novembre 2023  
+**Rédacteur :** Marion Lopez, Analyste en Sécurité des Données  
+**Destinataire :** Équipe Junior - Département Cybersécurité  
+
+---
+
+### **Résumé de l’Incident**
+Le 16 novembre 2023 à 09h45, le système de surveillance des accès a détecté une activité suspecte impliquant un transfert de données non autorisé depuis le serveur principal de gestion des clients (serveur **CRM-SRV01**). Une analyse préliminaire indique que des informations sensibles, notamment des données personnelles (noms, adresses, téléphones), ont été compromises.
+
+---
+
+### **Détails Techniques**
+- **Serveur Impacté :** CRM-SRV01 (IP : 192.168.1.15)  
+- **Volume estimé des données exfiltrées :** 3,2 Go  
+- **Type de données concernées :**  
+  - Noms des clients  
+  - Adresses physiques  
+  - Adresses e-mail  
+  - Numéros de téléphone  
+
+- **Vecteur de l’attaque :**  
+  Une connexion SSH non autorisée (port 22) a été identifiée depuis une adresse IP externe : **203.0.113.45**. L’authentification semble avoir été contournée à l’aide d’une clé SSH compromise.  
+
+- **Chronologie des événements :**  
+  - 09h45 : Activité suspecte détectée par l’outil SIEM (Splunk).  
+  - 09h47 : Détection de la connexion SSH.  
+  - 09h53 : Transfert de données initié vers un serveur externe identifié : **ftp://malicious-server.com**.  
+  - 10h02 : Connexion SSH interrompue après la mise hors ligne du serveur CRM-SRV01 par l’équipe réseau.  
+
+---
+
+### **Mesures Immédiates**
+1. **Isolation du serveur impacté :** CRM-SRV01 a été déconnecté des réseaux internes pour limiter toute propagation.  
+2. **Révocation des clés SSH compromises :** Toutes les clés SSH utilisées sur CRM-SRV01 ont été révoquées.  
+3. **Blocage de l’adresse IP malveillante :** L’adresse IP **203.0.113.45** a été ajoutée à la liste de blocage sur le pare-feu.  
+4. **Notification interne :** Les responsables des données clients et la direction ont été alertés.  
+
+---
+
+### **Analyse Préliminaire**
+- **Cause probable :**  
+  La clé SSH compromise pourrait provenir d’un ancien employé ou d’un accès externe non sécurisé. Aucune tentative brute-force n’a été détectée, suggérant une attaque ciblée reposant sur un exploit préexistant.  
+
+- **Vulnérabilité exploitée :**  
+  Une absence de rotation régulière des clés SSH a été identifiée comme une faille dans les processus de sécurité.  
+
+---
+
+### **Recommandations**
+1. **Audit complet des accès SSH :** Répertorier les utilisateurs ayant des accès SSH actifs et vérifier la validité de leurs permissions.  
+2. **Renforcement des politiques d’authentification :**  
+   - Implémentation de l’authentification multifactorielle (MFA) pour les connexions SSH.  
+   - Rotation trimestrielle des clés SSH.  
+3. **Analyse approfondie des logs :** Examiner les fichiers logs des serveurs pour identifier d’autres activités suspectes.  
+4. **Formation du personnel :** Sensibiliser les équipes à la gestion sécurisée des clés d’accès et aux pratiques de cybersécurité.  
+5. **Plan de communication :** Informer les clients concernés conformément à la réglementation RGPD.  
+
+---
+
+### **Contact**
+Pour toute question ou clarification, veuillez me contacter :  
+**Marion Lopez**  
+Analyste en Sécurité des Données  
+Email : marion.lopez@cybersec-corp.com  
+Téléphone : +33 1 23 45 67 89  
+
+---
+
+**Note :** Une réunion de débriefing est prévue le 17 novembre 2023 à 10h00 pour discuter des actions correctives et de la stratégie de prévention future.  
+
+**Fin du Rapport**
