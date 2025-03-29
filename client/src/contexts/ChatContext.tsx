@@ -15,80 +15,415 @@ import {
 // Initial domains data
 const initialDomains: CyberDomain[] = [
   {
-    id: "network-security",
-    name: "Sécurité des réseaux",
-    description: "Protection de l'infrastructure réseau, détection d'intrusion, VPN, pare-feu",
-    icon: "ri-global-line",
-    iconBgColor: "bg-primary-100",
-    iconColor: "text-primary-600"
+    id: "formation-sensibilisation",
+    name: "Formation et sensibilisation à la cybersécurité",
+    description: "Programmes de formation, sensibilisation des employés, simulation d'attaques",
+    icon: "ri-graduation-cap-line",
+    iconBgColor: "bg-blue-100",
+    iconColor: "text-blue-600"
   },
   {
-    id: "vulnerability-management",
-    name: "Gestion des vulnérabilités",
-    description: "Identification et correction des failles de sécurité, tests d'intrusion",
+    id: "osint",
+    name: "L'OSINT",
+    description: "Open Source Intelligence, collecte et analyse d'informations accessibles publiquement",
+    icon: "ri-search-eye-line",
+    iconBgColor: "bg-indigo-100",
+    iconColor: "text-indigo-600"
+  },
+  {
+    id: "conformite-cyber",
+    name: "La conformité cyber en entreprise",
+    description: "Respect des normes et réglementations en matière de cybersécurité",
+    icon: "ri-file-list-3-line",
+    iconBgColor: "bg-purple-100",
+    iconColor: "text-purple-600"
+  },
+  {
+    id: "strategie-cyber",
+    name: "Définir une stratégie cyber et sa feuille de route",
+    description: "Élaboration et mise en œuvre de stratégies de sécurité",
+    icon: "ri-road-map-line",
+    iconBgColor: "bg-pink-100",
+    iconColor: "text-pink-600"
+  },
+  {
+    id: "gestion-crise",
+    name: "Gestion de crise cyber",
+    description: "Planification et réponse aux incidents de sécurité majeurs",
+    icon: "ri-alarm-warning-line",
+    iconBgColor: "bg-red-100",
+    iconColor: "text-red-600"
+  },
+  {
+    id: "supply-chain",
+    name: "La sécurité de la supply chain",
+    description: "Protection de la chaîne d'approvisionnement contre les cybermenaces",
+    icon: "ri-link-m",
+    iconBgColor: "bg-orange-100",
+    iconColor: "text-orange-600"
+  },
+  {
+    id: "iam",
+    name: "L'IAM",
+    description: "Identity and Access Management, gestion des identités et des accès",
+    icon: "ri-shield-keyhole-line",
+    iconBgColor: "bg-amber-100",
+    iconColor: "text-amber-600"
+  },
+  {
+    id: "cloud-security",
+    name: "La cybersécurité dans le cloud",
+    description: "Sécurisation des environnements cloud et des services SaaS",
+    icon: "ri-cloud-line",
+    iconBgColor: "bg-yellow-100",
+    iconColor: "text-yellow-600"
+  },
+  {
+    id: "donnees-personnelles",
+    name: "Sécurisation des données personnelles",
+    description: "Protection des informations personnelles et respect du RGPD",
+    icon: "ri-profile-line",
+    iconBgColor: "bg-lime-100",
+    iconColor: "text-lime-600"
+  },
+  {
+    id: "analyse-vulnerabilites",
+    name: "Analyse des vulnérabilités et tests de pénétration",
+    description: "Identification des failles et simulation d'attaques",
     icon: "ri-bug-line",
-    iconBgColor: "bg-secondary-100",
-    iconColor: "text-secondary-600"
+    iconBgColor: "bg-green-100",
+    iconColor: "text-green-600"
   },
   {
-    id: "data-security",
-    name: "Sécurité des données",
-    description: "Chiffrement, confidentialité, classification des données, RGPD",
-    icon: "ri-lock-password-line",
-    iconBgColor: "bg-neutral-100",
-    iconColor: "text-neutral-600"
+    id: "gestion-incidents",
+    name: "Gestion des incidents de sécurité",
+    description: "Détection, analyse et réponse aux incidents de sécurité",
+    icon: "ri-service-line",
+    iconBgColor: "bg-emerald-100",
+    iconColor: "text-emerald-600"
+  },
+  {
+    id: "forensics",
+    name: "Forensics",
+    description: "Analyse post-incident et investigation en cybersécurité",
+    icon: "ri-microscope-line",
+    iconBgColor: "bg-teal-100",
+    iconColor: "text-teal-600"
   }
 ];
 
 // Initial scenarios data
 const initialScenarios: CyberScenario[] = [
+  // Formation et sensibilisation
   {
-    id: "network-intrusion",
-    title: "Analyse d'une tentative d'intrusion",
-    description: "Vous êtes responsable sécurité et devez analyser une possible intrusion détectée par les systèmes d'alerte.",
+    id: "phishing-simulation",
+    title: "Simulation d'attaque phishing",
+    description: "Vous devez préparer et exécuter une campagne de simulation de phishing pour évaluer et sensibiliser les employés.",
+    contact: {
+      name: "Marion Lopez",
+      role: "Senior Partner et Directrice Marketing, Communication et RSE"
+    },
+    difficulty: "Débutant",
+    difficultyColor: "bg-green-100 text-green-700",
+    domainId: "formation-sensibilisation"
+  },
+  {
+    id: "security-training",
+    title: "Programme de formation à la cybersécurité",
+    description: "Élaboration d'un programme de formation complet pour les différents niveaux de l'entreprise.",
+    contact: {
+      name: "Isabelle Dubacq",
+      role: "Senior Partner, Directrice des Ressources Humaines"
+    },
+    difficulty: "Intermédiaire",
+    difficultyColor: "bg-orange-100 text-orange-700",
+    domainId: "formation-sensibilisation"
+  },
+  
+  // OSINT
+  {
+    id: "osint-investigation",
+    title: "Investigation d'une menace potentielle",
+    description: "Utilisez l'OSINT pour enquêter sur une menace potentielle visant votre organisation.",
     contact: {
       name: "Neil LEVIN",
       role: "Expert cybersécurité & CFO"
     },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "network-security"
+    domainId: "osint"
   },
   {
-    id: "firewall-config",
-    title: "Configuration d'un pare-feu nouvelle génération",
-    description: "Suite à une mise à jour de l'infrastructure, vous devez établir une nouvelle politique de sécurité réseau.",
+    id: "digital-footprint",
+    title: "Analyse de l'empreinte numérique",
+    description: "Évaluez l'empreinte numérique de votre organisation pour identifier les vulnérabilités exposées publiquement.",
     contact: {
       name: "Yousra SAIDANI",
       role: "Experte Cybersécurité & CFO"
     },
-    difficulty: "Débutant",
-    difficultyColor: "bg-green-100 text-green-700",
-    domainId: "network-security"
+    difficulty: "Expert",
+    difficultyColor: "bg-red-100 text-red-700",
+    domainId: "osint"
+  },
+  
+  // Conformité cyber
+  {
+    id: "gdpr-compliance",
+    title: "Mise en conformité RGPD",
+    description: "Vous devez évaluer et améliorer la conformité RGPD de votre organisation suite à des changements réglementaires.",
+    contact: {
+      name: "Vincent Terrier",
+      role: "Senior Partner, Directeur Financier"
+    },
+    difficulty: "Intermédiaire",
+    difficultyColor: "bg-orange-100 text-orange-700",
+    domainId: "conformite-cyber"
   },
   {
-    id: "vuln-scanning",
-    title: "Audit de vulnérabilités sur un système critique",
-    description: "Vous êtes responsable d'un audit de vulnérabilités sur un système critique de l'entreprise.",
+    id: "iso-certification",
+    title: "Préparation à la certification ISO 27001",
+    description: "Vous préparez votre organisation à une certification ISO 27001 et devez identifier les écarts à combler.",
+    contact: {
+      name: "Vincent Pascal",
+      role: "Directeur Général Adjoint et Directeur du Développement"
+    },
+    difficulty: "Expert",
+    difficultyColor: "bg-red-100 text-red-700",
+    domainId: "conformite-cyber"
+  },
+  
+  // Stratégie cyber
+  {
+    id: "cyber-strategy",
+    title: "Élaboration de la stratégie cybersécurité",
+    description: "Développez une stratégie de cybersécurité complète pour les 3 prochaines années.",
+    contact: {
+      name: "Arnaud Gauthier",
+      role: "Président"
+    },
+    difficulty: "Expert",
+    difficultyColor: "bg-red-100 text-red-700",
+    domainId: "strategie-cyber"
+  },
+  {
+    id: "security-roadmap",
+    title: "Feuille de route de sécurité",
+    description: "Créez une feuille de route détaillée pour mettre en œuvre la nouvelle stratégie de cybersécurité.",
+    contact: {
+      name: "Olivier Hervo",
+      role: "Directeur Général"
+    },
+    difficulty: "Intermédiaire",
+    difficultyColor: "bg-orange-100 text-orange-700",
+    domainId: "strategie-cyber"
+  },
+  
+  // Gestion de crise
+  {
+    id: "ransomware-crisis",
+    title: "Gestion d'une attaque par ransomware",
+    description: "Votre organisation est victime d'une attaque par ransomware. Gérez la crise efficacement.",
     contact: {
       name: "Lorenzo Bertola",
       role: "Directeur Général Adjoint et Directeur du pôle BFA"
     },
     difficulty: "Expert",
     difficultyColor: "bg-red-100 text-red-700",
-    domainId: "vulnerability-management"
+    domainId: "gestion-crise"
   },
   {
-    id: "data-breach",
-    title: "Gestion d'une fuite de données",
-    description: "Un incident de sécurité a causé une fuite de données sensibles. Vous devez gérer la situation.",
+    id: "crisis-plan",
+    title: "Plan de gestion de crise cyber",
+    description: "Élaborez un plan de gestion de crise cyber complet pour votre organisation.",
+    contact: {
+      name: "Guillaume Lechevallier",
+      role: "Directeur Général Adjoint et Directeur du pôle IMPULSE"
+    },
+    difficulty: "Intermédiaire",
+    difficultyColor: "bg-orange-100 text-orange-700",
+    domainId: "gestion-crise"
+  },
+  
+  // Supply Chain
+  {
+    id: "vendor-assessment",
+    title: "Évaluation de la sécurité des fournisseurs",
+    description: "Développez et mettez en œuvre un processus d'évaluation de la sécurité pour vos fournisseurs critiques.",
+    contact: {
+      name: "Nicolas Paolantonacci",
+      role: "Senior Partner et Directeur du pôle RETAIL & LUXE"
+    },
+    difficulty: "Intermédiaire",
+    difficultyColor: "bg-orange-100 text-orange-700",
+    domainId: "supply-chain"
+  },
+  {
+    id: "supply-chain-incident",
+    title: "Incident de sécurité dans la chaîne d'approvisionnement",
+    description: "Un fournisseur critique a subi une violation de données. Évaluez l'impact et prenez les mesures nécessaires.",
+    contact: {
+      name: "Anthony Frescal",
+      role: "Directeur Général Adjoint et Directeur du pôle ENERGIES & UTILITIES"
+    },
+    difficulty: "Expert",
+    difficultyColor: "bg-red-100 text-red-700",
+    domainId: "supply-chain"
+  },
+  
+  // IAM
+  {
+    id: "iam-implementation",
+    title: "Mise en place d'une solution IAM",
+    description: "Vous dirigez l'implémentation d'une nouvelle solution de gestion des identités et des accès.",
+    contact: {
+      name: "Eddy MISSONI",
+      role: "Chef de Projet & Expert IA"
+    },
+    difficulty: "Intermédiaire",
+    difficultyColor: "bg-orange-100 text-orange-700",
+    domainId: "iam"
+  },
+  {
+    id: "privileged-access",
+    title: "Gestion des accès privilégiés",
+    description: "Concevez une stratégie de gestion des accès privilégiés pour réduire les risques de sécurité.",
+    contact: {
+      name: "Eddy MISSONI IDEMBI",
+      role: "Expert Data / IA & CTO"
+    },
+    difficulty: "Expert",
+    difficultyColor: "bg-red-100 text-red-700",
+    domainId: "iam"
+  },
+  
+  // Cloud Security
+  {
+    id: "cloud-migration",
+    title: "Sécurisation d'une migration vers le cloud",
+    description: "Votre entreprise migre ses applications critiques vers le cloud. Assurez la sécurité de cette transition.",
+    contact: {
+      name: "Fares SAYADI",
+      role: "Spécialiste Data / IA"
+    },
+    difficulty: "Intermédiaire",
+    difficultyColor: "bg-orange-100 text-orange-700",
+    domainId: "cloud-security"
+  },
+  {
+    id: "cloud-security-posture",
+    title: "Évaluation de la posture de sécurité cloud",
+    description: "Évaluez et améliorez la posture de sécurité de votre infrastructure cloud multi-fournisseurs.",
+    contact: {
+      name: "Yousra SAIDANI",
+      role: "Experte Cybersécurité & CFO"
+    },
+    difficulty: "Expert",
+    difficultyColor: "bg-red-100 text-red-700",
+    domainId: "cloud-security"
+  },
+  
+  // Données personnelles
+  {
+    id: "data-classification",
+    title: "Classification des données sensibles",
+    description: "Mettez en place un système de classification des données pour protéger les informations sensibles.",
     contact: {
       name: "Marion Lopez",
       role: "Senior Partner et Directrice Marketing, Communication et RSE"
     },
+    difficulty: "Débutant",
+    difficultyColor: "bg-green-100 text-green-700",
+    domainId: "donnees-personnelles"
+  },
+  {
+    id: "data-breach-response",
+    title: "Réponse à une violation de données personnelles",
+    description: "Une violation de données personnelles a été détectée. Gérez la situation conformément au RGPD.",
+    contact: {
+      name: "Vincent Terrier",
+      role: "Senior Partner, Directeur Financier"
+    },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "data-security"
+    domainId: "donnees-personnelles"
+  },
+  
+  // Analyse des vulnérabilités
+  {
+    id: "pentest-planning",
+    title: "Planification d'un test d'intrusion",
+    description: "Préparez et planifiez un test d'intrusion complet pour votre infrastructure critique.",
+    contact: {
+      name: "Neil LEVIN",
+      role: "Expert cybersécurité & CFO"
+    },
+    difficulty: "Intermédiaire",
+    difficultyColor: "bg-orange-100 text-orange-700",
+    domainId: "analyse-vulnerabilites"
+  },
+  {
+    id: "vuln-management",
+    title: "Programme de gestion des vulnérabilités",
+    description: "Développez un programme de gestion des vulnérabilités efficace pour votre organisation.",
+    contact: {
+      name: "Yousra SAIDANI",
+      role: "Experte Cybersécurité & CFO"
+    },
+    difficulty: "Expert",
+    difficultyColor: "bg-red-100 text-red-700",
+    domainId: "analyse-vulnerabilites"
+  },
+  
+  // Gestion des incidents
+  {
+    id: "incident-response",
+    title: "Mise en place d'un processus de réponse aux incidents",
+    description: "Développez et mettez en œuvre un processus de réponse aux incidents de sécurité efficace.",
+    contact: {
+      name: "Eddy MISSONI",
+      role: "Chef de Projet & Expert IA"
+    },
+    difficulty: "Intermédiaire",
+    difficultyColor: "bg-orange-100 text-orange-700",
+    domainId: "gestion-incidents"
+  },
+  {
+    id: "security-monitoring",
+    title: "Optimisation de la surveillance de sécurité",
+    description: "Améliorez les capacités de détection et de surveillance de sécurité de votre organisation.",
+    contact: {
+      name: "Eddy MISSONI IDEMBI",
+      role: "Expert Data / IA & CTO"
+    },
+    difficulty: "Expert",
+    difficultyColor: "bg-red-100 text-red-700",
+    domainId: "gestion-incidents"
+  },
+  
+  // Forensics
+  {
+    id: "forensic-investigation",
+    title: "Investigation numérique après un incident",
+    description: "Menez une investigation numérique complète suite à une intrusion détectée sur vos systèmes.",
+    contact: {
+      name: "Neil LEVIN",
+      role: "Expert cybersécurité & CFO"
+    },
+    difficulty: "Expert",
+    difficultyColor: "bg-red-100 text-red-700",
+    domainId: "forensics"
+  },
+  {
+    id: "evidence-collection",
+    title: "Collecte et préservation des preuves numériques",
+    description: "Établissez un processus robuste pour la collecte et la préservation des preuves numériques.",
+    contact: {
+      name: "Yousra SAIDANI",
+      role: "Experte Cybersécurité & CFO"
+    },
+    difficulty: "Intermédiaire",
+    difficultyColor: "bg-orange-100 text-orange-700",
+    domainId: "forensics"
   }
 ];
 

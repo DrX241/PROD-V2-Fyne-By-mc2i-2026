@@ -39,15 +39,17 @@ CONTACTS À UTILISER DANS LES SCÉNARIOS:
 - Fares SAYADI (Spécialiste Data / IA)
 
 DOMAINES DE CYBERSÉCURITÉ À COUVRIR:
-- Sécurité des réseaux
-- Gestion des vulnérabilités
-- Sécurité des données
-- Protection des infrastructures critiques
-- Réponse aux incidents
-- Sensibilisation et formation à la sécurité
-- Conformité et réglementation
-- Sécurité des applications
-- Analyse des menaces
-- Sécurité du cloud
+- Formation et sensibilisation à la cybersécurité
+- L'OSINT
+- La conformité cyber en entreprise
+- Définir une stratégie cyber et sa feuille de route
+- Gestion de crise cyber
+- La sécurité de la supply chain
+- L'IAM
+- La cybersécurité dans le cloud
+- Sécurisation des données personnelles
+- Analyse des vulnérabilités et tests de pénétration
+- Gestion des incidents de sécurité
+- Forensics
 
 Pour chaque domaine, préparez au moins deux scénarios différents avec des niveaux de difficulté variés.
