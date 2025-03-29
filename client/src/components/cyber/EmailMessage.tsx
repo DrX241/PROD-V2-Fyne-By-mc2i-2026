@@ -1,7 +1,7 @@
+import React, { useState } from "react";
 import { EmailMessageContent } from "../../../I_AM_CYBER/types";
 import { Paperclip } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
-import { useState } from "react";
 
 interface EmailMessageProps {
   email: EmailMessageContent;
