@@ -5,7 +5,7 @@ import DomainSelection from "./DomainSelection";
 import ScenarioSelection from "./ScenarioSelection";
 import EmailMessage from "./EmailMessage";
 import ContextBanner from "./ContextBanner";
-import { Send, Paperclip, Sparkles, BotMessageSquare, UserCircle, RefreshCw } from "lucide-react";
+import { Send, Paperclip, BotMessageSquare, UserCircle, RefreshCw } from "lucide-react";
 
 export default function ChatInterface() {
   const { 
@@ -84,79 +84,64 @@ export default function ChatInterface() {
   };
 
   return (
-    <div className="chat-container">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-100 p-5 sticky top-0 z-10 shadow-sm">
-        <div className="centered-container flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="bg-primary/10 text-primary p-2 rounded-lg">
-              <Sparkles className="h-5 w-5" />
-            </div>
-            <div>
-              <h1 className="font-semibold text-gray-900">CyberGuide</h1>
-              <p className="text-xs text-gray-500 mt-0.5">Formation cybersécurité interactive</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            {userName && (
-              <button 
-                onClick={resetChat}
-                className="flex items-center gap-2 text-sm bg-primary/10 hover:bg-primary/15 text-primary py-2 px-4 rounded-lg transition-colors font-medium"
-              >
-                <RefreshCw className="h-4 w-4" />
-                <span>Nouvelle session</span>
-              </button>
-            )}
-          </div>
+    <div className="h-full flex flex-col">
+      {/* Bannière contextuelle et bouton réinitialisation */}
+      <div className="sticky top-0 z-10">
+        <div className="flex justify-end p-2">
+          {userName && (
+            <button 
+              onClick={resetChat}
+              className="flex items-center gap-2 text-sm bg-primary/10 hover:bg-primary/15 text-primary py-2 px-4 rounded-lg transition-colors font-medium"
+            >
+              <RefreshCw className="h-4 w-4" />
+              <span>Nouvelle session</span>
+            </button>
+          )}
         </div>
+        <ContextBanner />
       </div>
       
-      {/* Bandeau contextuel */}
-      <ContextBanner />
-      
-      {/* Chat messages */}
+      {/* Messages */}
       <div 
-        className="flex-1 overflow-y-auto custom-scrollbar bg-gray-50 w-full" 
+        className="flex-1 overflow-y-auto py-4" 
         ref={chatContainerRef}
       >
-        <div className="centered-container">
-          <div className="message-container py-4">
-            {messages.map((message: any) => (
-              <div key={message.id} className="message-wrapper">
-                {renderMessageContent(message)}
+        <div className="max-w-4xl mx-auto px-4">
+          {messages.map((message: any) => (
+            <div key={message.id} className="mb-6">
+              {renderMessageContent(message)}
+            </div>
+          ))}
+          
+          {/* Indicateur de saisie */}
+          {isTyping && (
+            <div className="flex items-start gap-3 w-full">
+              <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0 mt-1">
+                <BotMessageSquare className="h-4 w-4 text-primary" />
               </div>
-            ))}
-            
-            {/* Typing indicator */}
-            {isTyping && (
-              <div className="flex items-start gap-3 w-full">
-                <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0 mt-1 shadow-sm">
-                  <BotMessageSquare className="h-4 w-4 text-primary" />
-                </div>
-                <div className="chat-message bot flex items-center p-3">
-                  <div className="typing-indicator">
-                    <div className="typing-dot" style={{"--dot-index": "0"} as React.CSSProperties}></div>
-                    <div className="typing-dot" style={{"--dot-index": "1"} as React.CSSProperties}></div>
-                    <div className="typing-dot" style={{"--dot-index": "2"} as React.CSSProperties}></div>
-                  </div>
+              <div className="flex items-center">
+                <div className="typing-indicator">
+                  <div className="typing-dot" style={{"--dot-index": "0"} as React.CSSProperties}></div>
+                  <div className="typing-dot" style={{"--dot-index": "1"} as React.CSSProperties}></div>
+                  <div className="typing-dot" style={{"--dot-index": "2"} as React.CSSProperties}></div>
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Chat input */}
-      <div className="chat-input-container w-full">
-        <div className="centered-container">
-          <form className="flex items-center gap-3 w-full" onSubmit={handleSubmit}>
-            <div className="relative flex-1 w-full">
+      {/* Zone de saisie */}
+      <div className="py-4 border-t border-gray-100">
+        <div className="max-w-4xl mx-auto px-4">
+          <form className="flex items-center gap-3" onSubmit={handleSubmit}>
+            <div className="relative flex-1">
               <input 
                 type="text"
                 ref={inputRef}
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                className="chat-input w-full"
+                className="w-full py-3 px-4 outline-none text-gray-800 focus:ring-0 focus:border-primary transition-colors"
                 placeholder="Tapez votre réponse..."
               />
               <button 
@@ -168,7 +153,7 @@ export default function ChatInterface() {
             </div>
             <button 
               type="submit" 
-              className="bg-primary text-white p-3.5 rounded-full hover:bg-primary/90 flex items-center justify-center transition-colors shadow-sm flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-primary text-white p-3.5 rounded-full hover:bg-primary/90 flex items-center justify-center transition-colors flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={!inputMessage.trim()}
             >
               <Send className="h-5 w-5" />

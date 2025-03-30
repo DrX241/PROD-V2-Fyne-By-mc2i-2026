@@ -55,15 +55,15 @@
 
   /* Chat message styles */
   .chat-message {
-    @apply px-6 py-4 rounded-2xl max-w-[88%] shadow-sm;
+    @apply py-2 max-w-[88%];
   }
 
   .chat-message.user {
-    @apply bg-primary text-primary-foreground ml-auto rounded-tr-none;
+    @apply text-primary-foreground ml-auto;
   }
 
   .chat-message.bot {
-    @apply bg-white border border-gray-100 text-gray-800 mr-auto rounded-tl-none;
+    @apply text-gray-800 mr-0;
   }
 
   /* Typing indicator */
@@ -120,12 +120,11 @@
 
   /* Input area styles */
   .chat-input-container {
-    @apply border-t border-gray-200 py-5 px-6 bg-white sticky bottom-0 shadow-sm;
+    @apply border-t border-gray-200 py-5 px-6 sticky bottom-0;
   }
 
   .chat-input {
-    @apply w-full py-3.5 px-5 pr-12 border border-gray-300 bg-white rounded-full
-           focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all duration-200;
+    @apply w-full py-3.5 px-5 pr-12 outline-none transition-all duration-200 focus:text-primary;
   }
 
   /* Custom scroll */
