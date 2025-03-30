@@ -78,7 +78,7 @@
 
   /* Domain selection styles */
   .domains-row {
-    @apply grid grid-cols-1 sm:grid-cols-3 gap-6 w-full overflow-y-auto max-h-[calc(100vh-200px)];
+    @apply grid grid-cols-1 sm:grid-cols-3 gap-6 w-full overflow-y-auto;
   }
 
   .domain-card {
