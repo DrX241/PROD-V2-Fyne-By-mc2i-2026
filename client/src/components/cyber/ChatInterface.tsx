@@ -84,9 +84,9 @@ export default function ChatInterface() {
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full w-full flex flex-col">
       {/* Bannière contextuelle et bouton réinitialisation */}
-      <div className="sticky top-0 z-10 bg-gray-50">
+      <div className="sticky top-0 z-10 bg-gray-50 w-full">
         <div className="flex justify-end p-2">
           {userName && (
             <button 

@@ -15,13 +15,15 @@ export default function CyberLayout({ children }: CyberLayoutProps) {
   const [showConfig, setShowConfig] = useState(false);
   
   return (
-    <div className="h-screen w-full flex flex-col bg-gray-50">
+    <div className="min-h-screen w-full flex flex-col bg-gray-50">
       <Header />
 
-      <main className="flex-1 flex w-full overflow-hidden" style={{ height: 'calc(100vh - 70px)' }}>
+      <main className="flex-1 flex w-full overflow-hidden">
         {/* Zone principale de contenu */}
-        <div className="flex-1 overflow-y-auto flex">
-          {children}
+        <div className="flex-1 overflow-y-auto flex justify-center">
+          <div className="w-full max-w-5xl">
+            {children}
+          </div>
         </div>
         
         {/* Panneau latéral de config (visible uniquement en desktop) */}
@@ -43,7 +45,7 @@ export default function CyberLayout({ children }: CyberLayoutProps) {
         {!isMobile && (
           <button
             onClick={() => setShowConfig(!showConfig)}
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white border border-gray-100 shadow-sm rounded-l-md p-2 z-10"
+            className="fixed right-0 top-1/2 transform -translate-y-1/2 bg-white border border-gray-100 shadow-sm rounded-l-md p-3 z-20 hover:bg-gray-50"
           >
             <Settings className={`h-5 w-5 text-gray-600 transition-transform ${showConfig ? 'rotate-180' : ''}`} />
           </button>
