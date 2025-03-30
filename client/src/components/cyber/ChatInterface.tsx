@@ -55,11 +55,17 @@ export default function ChatInterface() {
         return (
           <div className="flex items-start gap-3">
             {message.type === 'bot' ? (
-              <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-1">
-                <BotMessageSquare className="h-4 w-4 text-blue-600" />
+              <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0 mt-1 shadow-sm">
+                {message.contactName ? (
+                  <span className="text-primary font-medium text-sm">
+                    {message.contactName.charAt(0)}
+                  </span>
+                ) : (
+                  <BotMessageSquare className="h-4 w-4 text-primary" />
+                )}
               </div>
             ) : (
-              <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 mt-1">
+              <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 mt-1 shadow-sm">
                 <UserCircle className="h-5 w-5 text-gray-600" />
               </div>
             )}
@@ -79,23 +85,23 @@ export default function ChatInterface() {
   return (
     <div className="chat-container">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <div className="bg-blue-100 text-blue-600 p-2 rounded-full">
+      <div className="bg-white border-b border-gray-100 p-5 sticky top-0 z-10 flex items-center justify-between shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="bg-primary/10 text-primary p-2 rounded-lg">
             <Sparkles className="h-5 w-5" />
           </div>
           <div>
             <h1 className="font-semibold text-gray-900">CyberGuide</h1>
-            <p className="text-xs text-gray-500">Formation cybersécurité interactive</p>
+            <p className="text-xs text-gray-500 mt-0.5">Formation cybersécurité interactive</p>
           </div>
         </div>
         <div className="flex items-center gap-4">
           {userName && (
             <button 
               onClick={resetChat}
-              className="flex items-center gap-1 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-1.5 px-3 rounded-full transition-colors"
+              className="flex items-center gap-2 text-sm bg-primary/10 hover:bg-primary/15 text-primary py-2 px-4 rounded-lg transition-colors font-medium"
             >
-              <RefreshCw className="h-3.5 w-3.5" />
+              <RefreshCw className="h-4 w-4" />
               <span>Nouvelle session</span>
             </button>
           )}
@@ -107,7 +113,7 @@ export default function ChatInterface() {
         className="flex-1 overflow-y-auto custom-scrollbar bg-gray-50 w-full" 
         ref={chatContainerRef}
       >
-        <div className="message-container w-full">
+        <div className="message-container w-full py-4">
           {messages.map((message: any) => (
             <div key={message.id} className="message-wrapper w-full">
               {renderMessageContent(message)}
@@ -116,9 +122,9 @@ export default function ChatInterface() {
           
           {/* Typing indicator */}
           {isTyping && (
-            <div className="flex items-start gap-3 w-full max-w-3xl mx-auto">
-              <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-1">
-                <BotMessageSquare className="h-4 w-4 text-blue-600" />
+            <div className="flex items-start gap-3 w-full max-w-4xl mx-auto">
+              <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0 mt-1 shadow-sm">
+                <BotMessageSquare className="h-4 w-4 text-primary" />
               </div>
               <div className="chat-message bot flex items-center p-3">
                 <div className="typing-indicator">
@@ -134,8 +140,8 @@ export default function ChatInterface() {
 
       {/* Chat input */}
       <div className="chat-input-container w-full">
-        <div className="max-w-3xl mx-auto w-full">
-          <form className="flex items-center gap-2 w-full" onSubmit={handleSubmit}>
+        <div className="max-w-4xl mx-auto w-full">
+          <form className="flex items-center gap-3 w-full" onSubmit={handleSubmit}>
             <div className="relative flex-1 w-full">
               <input 
                 type="text"
@@ -147,14 +153,14 @@ export default function ChatInterface() {
               />
               <button 
                 type="button" 
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition-colors"
               >
                 <Paperclip className="h-5 w-5" />
               </button>
             </div>
             <button 
               type="submit" 
-              className="bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 flex items-center justify-center transition-colors shadow-sm flex-shrink-0"
+              className="bg-primary text-white p-3.5 rounded-full hover:bg-primary/90 flex items-center justify-center transition-colors shadow-sm flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={!inputMessage.trim()}
             >
               <Send className="h-5 w-5" />

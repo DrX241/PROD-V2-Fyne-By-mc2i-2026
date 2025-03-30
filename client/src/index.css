@@ -10,27 +10,45 @@
   body {
     @apply font-sans antialiased bg-background text-foreground;
   }
+  
+  /* Amélioration globale des couleurs et des espacements */
+  html, body {
+    @apply overflow-hidden;
+  }
+  
+  /* Effet de soulignement au survol des boutons */
+  .hover-underline {
+    @apply relative;
+  }
+  
+  .hover-underline::after {
+    @apply content-[''] absolute left-0 bottom-0 w-0 h-0.5 bg-primary transition-all duration-300 ease-in-out;
+  }
+  
+  .hover-underline:hover::after {
+    @apply w-full;
+  }
 }
 
 @layer components {
   /* Chat container styles */
   .chat-container {
-    @apply h-full w-full flex flex-col bg-gray-50 rounded-lg;
+    @apply h-full w-full flex flex-col bg-gray-50;
     height: 100%;
   }
 
   /* Message container styles */
   .message-container {
-    @apply p-4 space-y-4;
+    @apply p-4 space-y-6;
   }
 
   .message-wrapper {
-    @apply max-w-3xl mx-auto;
+    @apply max-w-4xl w-full mx-auto;
   }
 
   /* Chat message styles */
   .chat-message {
-    @apply px-5 py-4 rounded-2xl max-w-[85%] shadow-sm;
+    @apply px-6 py-4 rounded-2xl max-w-[88%] shadow-sm;
   }
 
   .chat-message.user {
@@ -73,38 +91,51 @@
 
   /* Email message styles */
   .email-container {
-    @apply bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden max-w-2xl mx-auto;
+    @apply bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden max-w-4xl w-full mx-auto;
   }
 
   .email-header {
-    @apply bg-gray-50 border-b border-gray-200 p-4;
+    @apply bg-gray-50 border-b border-gray-200 p-5;
   }
 
   .email-body {
-    @apply p-5 text-gray-700;
+    @apply p-6 text-gray-700;
   }
 
   .email-attachments {
-    @apply border-t border-gray-200 p-4 flex flex-wrap gap-2 bg-gray-50;
+    @apply border-t border-gray-200 p-5 flex flex-wrap gap-2 bg-gray-50;
   }
 
   .attachment-badge {
-    @apply bg-gray-100 text-gray-700 rounded-full px-3 py-1 text-sm flex items-center gap-2 
-           hover:bg-gray-200 transition-colors cursor-pointer;
+    @apply bg-gray-100 text-gray-700 rounded-full px-3.5 py-1.5 text-sm flex items-center gap-2 
+           hover:bg-gray-200 transition-colors cursor-pointer shadow-sm;
   }
 
   /* Input area styles */
   .chat-input-container {
-    @apply border-t border-gray-200 p-4 bg-white sticky bottom-0;
+    @apply border-t border-gray-200 py-5 px-6 bg-white sticky bottom-0 shadow-sm;
   }
 
   .chat-input {
-    @apply w-full py-3 px-4 pr-12 border border-gray-300 bg-white rounded-full
-           focus:ring-2 focus:ring-primary outline-none;
+    @apply w-full py-3.5 px-5 pr-12 border border-gray-300 bg-white rounded-full
+           focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all duration-200;
   }
 
   /* Custom scroll */
   .custom-scrollbar {
-    @apply overflow-auto;
+    @apply overflow-auto scroll-smooth;
+  }
+  
+  /* Style de la scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    @apply w-2;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full hover:bg-gray-400 transition-colors;
   }
 }

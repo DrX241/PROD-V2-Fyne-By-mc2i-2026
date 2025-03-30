@@ -60,12 +60,14 @@ export default function ChatMessage({ type, content, contactName, contactRole }:
     <div className={`chat-message ${type}`}>
       {/* Afficher les informations du contact pour les messages bot si disponibles */}
       {type === "bot" && contactName && contactRole && (
-        <div className="contact-info mb-2">
-          <div className="font-bold text-indigo-700">{contactName}</div>
-          <div className="text-xs text-gray-600">{contactRole}</div>
+        <div className="contact-info mb-3">
+          <div className="font-bold text-primary">{contactName}</div>
+          <div className="text-xs text-gray-500 mt-0.5">{contactRole}</div>
         </div>
       )}
-      {renderContent()}
+      <div className="prose prose-sm max-w-none">
+        {renderContent()}
+      </div>
     </div>
   );
 }
