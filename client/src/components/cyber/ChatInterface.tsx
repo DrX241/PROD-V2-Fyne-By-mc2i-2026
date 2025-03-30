@@ -86,7 +86,7 @@ export default function ChatInterface() {
   return (
     <div className="h-full flex flex-col">
       {/* Bannière contextuelle et bouton réinitialisation */}
-      <div className="sticky top-0 z-10">
+      <div className="sticky top-0 z-10 bg-gray-50">
         <div className="flex justify-end p-2">
           {userName && (
             <button 
@@ -103,8 +103,9 @@ export default function ChatInterface() {
       
       {/* Messages */}
       <div 
-        className="flex-1 overflow-y-auto py-4" 
+        className="flex-1 overflow-y-auto py-4 px-2" 
         ref={chatContainerRef}
+        style={{ scrollBehavior: 'smooth' }}
       >
         <div className="max-w-4xl mx-auto px-4">
           {messages.map((message: any) => (
@@ -132,7 +133,7 @@ export default function ChatInterface() {
       </div>
 
       {/* Zone de saisie */}
-      <div className="py-4 border-t border-gray-100">
+      <div className="py-3 px-2 border-t border-gray-100 bg-white sticky bottom-0">
         <div className="max-w-4xl mx-auto px-4">
           <form className="flex items-center gap-3" onSubmit={handleSubmit}>
             <div className="relative flex-1">
@@ -141,7 +142,7 @@ export default function ChatInterface() {
                 ref={inputRef}
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                className="w-full py-3 px-4 outline-none text-gray-800 focus:ring-0 focus:border-primary transition-colors"
+                className="w-full py-3 px-4 pr-12 rounded-lg border border-gray-200 outline-none text-gray-800 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 placeholder="Tapez votre réponse..."
               />
               <button 
@@ -153,7 +154,7 @@ export default function ChatInterface() {
             </div>
             <button 
               type="submit" 
-              className="border border-gray-200 text-gray-700 p-3.5 rounded-full hover:border-gray-300 flex items-center justify-center transition-colors flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-primary text-white p-3.5 rounded-full hover:bg-primary/90 flex items-center justify-center transition-colors flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
               disabled={!inputMessage.trim()}
             >
               <Send className="h-5 w-5" />

@@ -131,18 +131,19 @@ export default function ModulesPage() {
               <div 
                 key={module.id} 
                 className={`bg-white p-8 border rounded-xl transition-all duration-300 ${module.color} cursor-pointer h-full flex flex-col`}
+                onClick={() => window.location.href = module.link}
               >
                 <div className={`${module.iconBg} w-20 h-20 rounded-lg flex items-center justify-center mb-6`}>
                   {module.icon}
                 </div>
                 <h2 className="text-2xl font-bold mb-3 text-gray-900">{module.title}</h2>
                 <p className="text-gray-700 mb-6 flex-grow">{module.description}</p>
-                <Link href={module.link}>
+                <a href={module.link} style={{ textDecoration: 'none' }}>
                   <Button className="w-fit mt-auto group bg-white text-gray-800 hover:bg-gray-100">
                     Commencer
                     <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
-                </Link>
+                </a>
               </div>
             ))}
           </div>
