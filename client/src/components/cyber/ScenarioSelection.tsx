@@ -5,14 +5,6 @@ export default function ScenarioSelection() {
   const { scenarios, scenario, selectScenario } = useChatContext();
   
   // Filter scenarios by the active domain
-  console.log("Active domain ID:", scenario.activeDomain?.id);
-  console.log("Available scenario domain IDs:", scenarios.map(s => s.domainId));
-  console.log("Domain ID comparison:", scenarios.map(s => ({ 
-    scenarioDomainId: s.domainId, 
-    activeDomainId: scenario.activeDomain?.id, 
-    matches: s.domainId === scenario.activeDomain?.id 
-  })));
-  
   const filteredScenarios = scenarios.filter(
     (s: any) => s.domainId === scenario.activeDomain?.id
   );
@@ -65,15 +57,11 @@ export default function ScenarioSelection() {
                 <div className="flex items-center text-xs text-gray-500 space-x-4">
                   <div className="flex items-center">
                     <Users className="w-3 h-3 mr-1" />
-                    {s.contacts && s.contacts.length > 0 && (
-                      <span>{s.contacts.find((c: any) => c.id === s.primaryContact)?.name || s.contacts[0].name}</span>
-                    )}
+                    <span>{s.contact.name}</span>
                   </div>
                   <div className="flex items-center">
                     <BarChart3 className="w-3 h-3 mr-1" />
-                    {s.contacts && s.contacts.length > 0 && (
-                      <span>{s.contacts.find((c: any) => c.id === s.primaryContact)?.role || s.contacts[0].role}</span>
-                    )}
+                    <span>{s.contact.role}</span>
                   </div>
                 </div>
               </div>

@@ -4,19 +4,14 @@ import ChatMessage from "./ChatMessage";
 import DomainSelection from "./DomainSelection";
 import ScenarioSelection from "./ScenarioSelection";
 import EmailMessage from "./EmailMessage";
-import NpcMessage from "./NpcMessage";
-import ChatRoom from "./ChatRoom"; 
-import ContactSelector from "./ContactSelector";
 import { Send, Paperclip, Sparkles, BotMessageSquare, UserCircle } from "lucide-react";
 
 export default function ChatInterface() {
   const { 
     messages, 
     sendMessage, 
-    sendMessageToChatRoom,
     isTyping,
-    userName,
-    scenario
+    userName
   } = useChatContext();
   
   const [inputMessage, setInputMessage] = useState("");
@@ -43,14 +38,7 @@ export default function ChatInterface() {
     
     const messageToSend = inputMessage;
     setInputMessage("");
-    
-    // Si une salle de discussion est active, envoyer le message à la salle
-    if (scenario.chatRoomActive) {
-      await sendMessageToChatRoom(messageToSend);
-    } else {
-      // Sinon, envoyer le message normalement
-      await sendMessage(messageToSend);
-    }
+    await sendMessage(messageToSend);
   };
 
   const renderMessageContent = (message: any) => {
@@ -61,10 +49,6 @@ export default function ChatInterface() {
         return <ScenarioSelection />;
       case 'email':
         return <EmailMessage email={message.content} />;
-      case 'npc':
-        return <NpcMessage content={message.content} sender={message.sender} />;
-      case 'chat-room':
-        return <ChatRoom content={message.content} />;
       case 'user':
       case 'bot':
         return (
@@ -86,10 +70,6 @@ export default function ChatInterface() {
     }
   };
 
-  // Récupération des métriques de l'utilisateur
-  const { reputation, budget, successRate } = scenario.metrics;
-  const hasActiveScenario = !!scenario.activeScenario;
-  
   return (
     <div className="chat-container">
       {/* Header */}
@@ -103,30 +83,8 @@ export default function ChatInterface() {
             <p className="text-xs text-gray-500">Formation cybersécurité interactive</p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          {hasActiveScenario && (
-            <div className="flex items-center gap-2 text-sm">
-              <div className="px-2 py-1 bg-green-100 text-green-800 rounded-md">
-                Réputation: {reputation}/100
-              </div>
-              <div className="px-2 py-1 bg-blue-100 text-blue-800 rounded-md">
-                Budget: {budget}€
-              </div>
-              <div className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-md">
-                Réussite: {successRate}%
-              </div>
-            </div>
-          )}
-          {userName && <div className="text-sm text-gray-600">Bonjour, {userName}</div>}
-        </div>
+        {userName && <div className="text-sm text-gray-600">Bonjour, {userName}</div>}
       </div>
-      
-      {/* Contact Selector - Only shown when a scenario is active */}
-      {hasActiveScenario && scenario.activeContacts && scenario.activeContacts.length > 0 && (
-        <div className="bg-white border-b border-gray-100 px-4 py-2">
-          <ContactSelector />
-        </div>
-      )}
       
       {/* Chat messages */}
       <div 
