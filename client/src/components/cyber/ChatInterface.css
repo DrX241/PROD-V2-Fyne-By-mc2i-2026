@@ -19,6 +19,7 @@
   margin: 0.25rem 0;
   line-height: 1.5;
   font-size: 0.95rem;
+  position: relative;
 }
 
 .chat-message.bot {
@@ -28,6 +29,8 @@
   border: 1px solid #e9ecef;
   border-radius: 1rem 1rem 1rem 0;
   color: #1f2937;
+  text-align: left;
+  left: 0;
 }
 
 .chat-message.user {
@@ -38,6 +41,7 @@
   border-radius: 1rem 1rem 0 1rem;
   box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
   text-align: left;
+  right: 0;
 }
 
 .chat-message p {
