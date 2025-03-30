@@ -627,18 +627,197 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Récupérer les scénarios pour avoir le domaine actuel
       // Get scenario data - in a real app, this would come from the database
       const scenarios = [
-        // Formation et sensibilisation
+        // Ingénierie sociale et phishing
         {
-          id: "phishing-simulation",
-          title: "Simulation d'attaque phishing",
-          domain: "Formation et sensibilisation à la cybersécurité",
+          id: "phishing-awareness",
+          title: "Sensibilisation aux attaques de phishing",
+          domain: "Ingénierie sociale et phishing",
           contact: {
             name: "Marion Lopez",
             role: "Senior Partner et Directrice Marketing, Communication et RSE"
           },
           difficulty: "Débutant"
         },
-        // ... autres scénarios (déjà définis plus haut)
+        {
+          id: "social-engineering-incident",
+          title: "Gestion d'un incident d'ingénierie sociale",
+          domain: "Ingénierie sociale et phishing",
+          contact: {
+            name: "Isabelle Dubacq",
+            role: "Senior Partner, Directrice des Ressources Humaines"
+          },
+          difficulty: "Intermédiaire"
+        },
+        {
+          id: "advanced-social-attacks",
+          title: "Prévention des attaques sophistiquées",
+          domain: "Ingénierie sociale et phishing",
+          contact: {
+            name: "Arnaud Gauthier",
+            role: "Président"
+          },
+          difficulty: "Expert"
+        },
+        
+        // Stratégie cyber
+        {
+          id: "security-awareness",
+          title: "Sensibilisation aux enjeux de la stratégie cyber",
+          domain: "Stratégie et gouvernance cybersécurité",
+          contact: {
+            name: "Martin Fournier",
+            role: "Directeur de la Communication"
+          },
+          difficulty: "Débutant"
+        },
+        {
+          id: "security-roadmap",
+          title: "Feuille de route de sécurité",
+          domain: "Stratégie et gouvernance cybersécurité",
+          contact: {
+            name: "Olivier Hervo",
+            role: "Directeur Général"
+          },
+          difficulty: "Intermédiaire"
+        },
+        {
+          id: "cyber-strategy",
+          title: "Élaboration de la stratégie cybersécurité avancée",
+          domain: "Stratégie et gouvernance cybersécurité",
+          contact: {
+            name: "Arnaud Gauthier",
+            role: "Président"
+          },
+          difficulty: "Expert"
+        },
+        
+        // Gestion de crise
+        {
+          id: "crisis-basics",
+          title: "Introduction à la gestion de crise cyber",
+          domain: "Gestion de crise cyber",
+          contact: {
+            name: "Claire Dufour",
+            role: "Responsable Communication de Crise"
+          },
+          difficulty: "Débutant"
+        },
+        {
+          id: "crisis-plan",
+          title: "Plan de gestion de crise cyber",
+          domain: "Gestion de crise cyber",
+          contact: {
+            name: "Guillaume Lechevallier",
+            role: "Directeur Général Adjoint et Directeur du pôle IMPULSE"
+          },
+          difficulty: "Intermédiaire"
+        },
+        {
+          id: "ransomware-crisis",
+          title: "Gestion d'une attaque avancée par ransomware",
+          domain: "Gestion de crise cyber",
+          contact: {
+            name: "Lorenzo Bertola",
+            role: "Directeur Général Adjoint et Directeur du pôle BFA"
+          },
+          difficulty: "Expert"
+        },
+        
+        // Supply Chain
+        {
+          id: "supply-chain-basics",
+          title: "Introduction aux risques de la chaîne d'approvisionnement",
+          domain: "Sécurité de la chaîne d'approvisionnement",
+          contact: {
+            name: "Marie Bernard",
+            role: "Responsable Achats"
+          },
+          difficulty: "Débutant"
+        },
+        {
+          id: "vendor-assessment",
+          title: "Évaluation de la sécurité des fournisseurs",
+          domain: "Sécurité de la chaîne d'approvisionnement",
+          contact: {
+            name: "Nicolas Paolantonacci",
+            role: "Senior Partner et Directeur du pôle RETAIL & LUXE"
+          },
+          difficulty: "Intermédiaire"
+        },
+        {
+          id: "supply-chain-incident",
+          title: "Incident de sécurité dans la chaîne d'approvisionnement",
+          domain: "Sécurité de la chaîne d'approvisionnement",
+          contact: {
+            name: "Anthony Frescal",
+            role: "Directeur Général Adjoint et Directeur du pôle ENERGIES & UTILITIES"
+          },
+          difficulty: "Expert"
+        },
+        
+        // Données personnelles / RGPD
+        {
+          id: "data-classification",
+          title: "Classification des données sensibles",
+          domain: "Protection des données personnelles / RGPD",
+          contact: {
+            name: "Marion Lopez",
+            role: "Senior Partner et Directrice Marketing, Communication et RSE"
+          },
+          difficulty: "Débutant"
+        },
+        {
+          id: "data-breach-response",
+          title: "Réponse à une violation de données personnelles",
+          domain: "Protection des données personnelles / RGPD",
+          contact: {
+            name: "Vincent Terrier",
+            role: "Senior Partner, Directeur Financier"
+          },
+          difficulty: "Intermédiaire"
+        },
+        {
+          id: "rgpd-compliance-program",
+          title: "Programme de conformité RGPD avancé",
+          domain: "Protection des données personnelles / RGPD",
+          contact: {
+            name: "Vincent Pascal",
+            role: "Directeur Général Adjoint et Directeur du Développement"
+          },
+          difficulty: "Expert"
+        },
+        
+        // Gestion des incidents
+        {
+          id: "incident-basics",
+          title: "Introduction à la gestion des incidents",
+          domain: "Gestion des incidents de sécurité",
+          contact: {
+            name: "Philippe Martin",
+            role: "Responsable SOC Junior"
+          },
+          difficulty: "Débutant"
+        },
+        {
+          id: "incident-response",
+          title: "Mise en place d'un processus de réponse aux incidents",
+          domain: "Gestion des incidents de sécurité",
+          contact: {
+            name: "Eddy MISSONI",
+            role: "Chef de Projet & Expert IA"
+          },
+          difficulty: "Intermédiaire"
+        },
+        {
+          id: "security-monitoring",
+          title: "Optimisation de la surveillance de sécurité",
+          domain: "Gestion des incidents de sécurité",
+          contact: {
+            name: "Eddy MISSONI IDEMBI",
+            role: "Expert Data / IA & CTO"
+          },
+          difficulty: "Expert"
+        }
       ];
       
       const scenario = scenarios.find(s => s.id === scenarioId);
