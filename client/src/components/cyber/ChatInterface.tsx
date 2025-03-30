@@ -20,10 +20,20 @@ export default function ChatInterface() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-scroll to the bottom when messages change
+  // Auto-scroll to the bottom when messages change or when typing status changes
   useEffect(() => {
     if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      const scrollToBottom = () => {
+        if (chatContainerRef.current) {
+          chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        }
+      };
+      
+      // Scroll right away
+      scrollToBottom();
+      
+      // Also schedule another scroll after a short delay to ensure all content is rendered
+      setTimeout(scrollToBottom, 100);
     }
   }, [messages, isTyping]);
 
@@ -103,11 +113,11 @@ export default function ChatInterface() {
       
       {/* Messages */}
       <div 
-        className="flex-1 overflow-y-auto py-4 px-2" 
+        className="flex-1 overflow-y-auto py-4 px-2 relative"
         ref={chatContainerRef}
-        style={{ scrollBehavior: 'smooth' }}
+        style={{ scrollBehavior: 'smooth', height: 'calc(100vh - 200px)' }}
       >
-        <div className="max-w-4xl mx-auto px-4">
+        <div className="max-w-4xl mx-auto px-4 w-full">
           {messages.map((message: any) => (
             <div key={message.id} className="mb-6">
               {renderMessageContent(message)}

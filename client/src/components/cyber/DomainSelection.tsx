@@ -32,13 +32,13 @@ export default function DomainSelection() {
           <button
             key={domain.id}
             onClick={() => handleDomainClick(domain.id)}
-            className="domain-card p-4 rounded-lg border border-gray-200 hover:border-blue-500 cursor-pointer transition-all duration-200 flex flex-col items-center text-center min-h-[150px] justify-center"
+            className="domain-card p-4 rounded-lg border border-gray-200 hover:border-blue-500 cursor-pointer transition-all duration-200 flex flex-col items-center text-center min-h-[180px] justify-center"
           >
             <div className="domain-icon-container mb-3">
               {domainIcons[domain.id]}
             </div>
             <div className="w-full">
-              <h3 className="font-bold text-lg md:text-xl text-gray-800 domain-title">{domain.name}</h3>
+              <h3 className="font-bold text-lg md:text-xl text-gray-800 domain-title h-auto min-h-[4rem] flex items-center justify-center">{domain.name}</h3>
             </div>
           </button>
         ))}
