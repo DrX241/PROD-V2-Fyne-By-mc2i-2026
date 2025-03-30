@@ -22,7 +22,7 @@ export default function DomainSelection() {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-4 flex flex-col h-[80vh]">
+    <div className="w-full max-w-6xl mx-auto p-4 flex flex-col h-[calc(100vh-100px)] overflow-y-auto">
       <h2 className="text-2xl font-semibold text-gray-800 mb-8 text-center">
         Choisissez un domaine de cybersécurité
       </h2>

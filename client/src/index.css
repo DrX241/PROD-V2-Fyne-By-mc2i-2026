@@ -10,21 +10,21 @@
   body {
     @apply font-sans antialiased bg-background text-foreground;
   }
-  
+
   /* Amélioration globale des couleurs et des espacements */
   html, body {
     @apply overflow-hidden;
   }
-  
+
   /* Effet de soulignement au survol des boutons */
   .hover-underline {
     @apply relative;
   }
-  
+
   .hover-underline::after {
     @apply content-[''] absolute left-0 bottom-0 w-0 h-0.5 bg-primary transition-all duration-300 ease-in-out;
   }
-  
+
   .hover-underline:hover::after {
     @apply w-full;
   }
@@ -79,17 +79,34 @@
   /* Domain selection styles */
   .domains-row {
     @apply grid grid-cols-1 sm:grid-cols-3 gap-6 w-full overflow-y-auto;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  }
+
+  .domains-row::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .domains-row::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .domains-row::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
   }
 
   .domain-card {
     @apply bg-white rounded-xl border border-gray-200 p-5 shadow-sm transition duration-300 
            hover:shadow-md hover:border-gray-300 cursor-pointer flex-1 min-h-[180px] relative;
   }
-  
+
   .domain-icon-container {
     @apply flex items-center justify-center p-2;
   }
-  
+
   .domain-title {
     @apply leading-tight px-2 line-clamp-3 h-auto min-h-[5rem] flex items-center justify-center text-center text-sm;
   }
@@ -139,29 +156,29 @@
   .custom-scrollbar {
     @apply overflow-auto scroll-smooth;
   }
-  
+
   /* Style de la scrollbar */
   .custom-scrollbar::-webkit-scrollbar {
     @apply w-2;
   }
-  
+
   .custom-scrollbar::-webkit-scrollbar-track {
     @apply bg-transparent;
   }
-  
+
   .custom-scrollbar::-webkit-scrollbar-thumb {
     @apply bg-gray-300 rounded-full hover:bg-gray-400 transition-colors;
   }
-  
+
   /* Classes pour optimiser l'espace */
   .full-width-container {
     @apply max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8;
   }
-  
+
   .context-banner {
     @apply w-full border-b border-gray-100 py-2.5 shadow-sm bg-white;
   }
-  
+
   /* Style pour la barre latérale fixe */
   .sidebar-fixed {
     @apply h-full bg-white border-r border-gray-200;
