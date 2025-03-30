@@ -104,19 +104,19 @@ export default function ChatInterface() {
       
       {/* Chat messages */}
       <div 
-        className="flex-1 overflow-y-auto custom-scrollbar bg-gray-50" 
+        className="flex-1 overflow-y-auto custom-scrollbar bg-gray-50 w-full" 
         ref={chatContainerRef}
       >
-        <div className="message-container">
+        <div className="message-container w-full">
           {messages.map((message: any) => (
-            <div key={message.id} className="message-wrapper">
+            <div key={message.id} className="message-wrapper w-full">
               {renderMessageContent(message)}
             </div>
           ))}
           
           {/* Typing indicator */}
           {isTyping && (
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-3 w-full max-w-3xl mx-auto">
               <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-1">
                 <BotMessageSquare className="h-4 w-4 text-blue-600" />
               </div>
@@ -133,16 +133,16 @@ export default function ChatInterface() {
       </div>
 
       {/* Chat input */}
-      <div className="chat-input-container">
-        <div className="max-w-3xl mx-auto">
-          <form className="flex items-center gap-2" onSubmit={handleSubmit}>
-            <div className="relative flex-1">
+      <div className="chat-input-container w-full">
+        <div className="max-w-3xl mx-auto w-full">
+          <form className="flex items-center gap-2 w-full" onSubmit={handleSubmit}>
+            <div className="relative flex-1 w-full">
               <input 
                 type="text"
                 ref={inputRef}
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                className="chat-input"
+                className="chat-input w-full"
                 placeholder="Tapez votre réponse..."
               />
               <button 
@@ -154,7 +154,7 @@ export default function ChatInterface() {
             </div>
             <button 
               type="submit" 
-              className="bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 flex items-center justify-center transition-colors shadow-sm"
+              className="bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 flex items-center justify-center transition-colors shadow-sm flex-shrink-0"
               disabled={!inputMessage.trim()}
             >
               <Send className="h-5 w-5" />

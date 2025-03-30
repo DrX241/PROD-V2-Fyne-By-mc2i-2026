@@ -8,8 +8,8 @@ export default function Header() {
   const userInitial = userName ? userName.charAt(0).toUpperCase() : "U";
 
   return (
-    <header className="bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+    <header className="bg-white shadow-sm w-full">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
         <div className="flex items-center">
           <div className="flex items-center gap-2">
             <div className="text-primary-600 text-xl font-bold heading">FENY</div>

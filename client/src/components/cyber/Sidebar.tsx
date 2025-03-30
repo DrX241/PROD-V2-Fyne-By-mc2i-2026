@@ -5,7 +5,7 @@ export default function Sidebar() {
   const { resetChat } = useChatContext();
 
   return (
-    <div className="hidden md:flex md:flex-col w-64 bg-white border-r border-gray-200">
+    <div className="hidden md:flex md:flex-col w-64 bg-white border-r border-gray-200 h-full">
       <div className="p-4 border-b border-gray-200">
         <h2 className="heading font-semibold text-neutral-800">Modules</h2>
       </div>

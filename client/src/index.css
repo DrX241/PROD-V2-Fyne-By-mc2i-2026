@@ -15,8 +15,8 @@
 @layer components {
   /* Chat container styles */
   .chat-container {
-    @apply h-full flex flex-col bg-gray-50 rounded-lg;
-    height: calc(100vh - 4rem);
+    @apply h-full w-full flex flex-col bg-gray-50 rounded-lg;
+    height: 100%;
   }
 
   /* Message container styles */
