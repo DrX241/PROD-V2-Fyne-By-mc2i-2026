@@ -100,7 +100,7 @@ export default function ChatInterface() {
         ref={chatContainerRef}
         style={{ scrollBehavior: 'smooth', height: 'calc(100vh - 200px)' }}
       >
-        <div className="max-w-4xl mx-auto px-4 w-full">
+        <div className="max-w-5xl mx-auto px-6 w-full">
           {messages.map((message: any) => (
             <div key={message.id} className="mb-8 animate-fadeIn">
               {renderMessageContent(message)}
@@ -122,7 +122,7 @@ export default function ChatInterface() {
 
       {/* Zone de saisie */}
       <div className="py-4 px-4 bg-gradient-to-r from-blue-900/90 to-indigo-900/90 backdrop-blur-lg border-t border-blue-700/30 sticky bottom-0 shadow-lg">
-        <div className="max-w-4xl mx-auto px-2">
+        <div className="max-w-5xl mx-auto px-6">
           <form className="flex items-center gap-3" onSubmit={handleSubmit}>
             <div className="relative flex-1 group">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>

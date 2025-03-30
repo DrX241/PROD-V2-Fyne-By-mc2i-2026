@@ -63,7 +63,7 @@ export default function ChatMessage({ type, content, contactName, contactRole }:
     : "bg-gradient-to-r from-gray-900/50 to-blue-900/30 border-blue-700/30";
 
   return (
-    <div className="flex items-start gap-3">
+    <div className={`flex items-start gap-3 ${type === 'user' ? 'flex-row-reverse justify-start' : 'flex-row justify-start'} w-full`}>
       {/* Avatar */}
       <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${avatarColor} flex items-center justify-center flex-shrink-0 shadow-glow-sm border border-blue-500/30`}>
         {type === "user" ? (
@@ -74,7 +74,7 @@ export default function ChatMessage({ type, content, contactName, contactRole }:
       </div>
       
       {/* Message content */}
-      <div className={`flex-1 rounded-lg ${messageBgColor} p-4 border backdrop-blur-sm shadow-md`}>
+      <div className={`${type === 'user' ? 'text-right' : 'text-left'} max-w-[75%] rounded-lg ${messageBgColor} p-4 border backdrop-blur-sm shadow-md`}>
         {/* Afficher les informations du contact pour les messages bot si disponibles */}
         {type === "bot" && contactName && contactRole && (
           <div className="mb-3 pb-2 border-b border-blue-700/30">
