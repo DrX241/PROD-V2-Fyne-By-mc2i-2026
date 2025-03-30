@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Paperclip, FileCheck } from "lucide-react";
+import { Paperclip, FileCheck, Users } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 
 // Définir les interfaces temporaires ici en attendant que les modules importés soient disponibles
