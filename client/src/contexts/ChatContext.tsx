@@ -347,6 +347,72 @@ const initialScenarios: CyberScenario[] = [
     difficulty: "Expert",
     difficultyColor: "bg-red-100 text-red-700",
     domainId: "strategie-cyber"
+  },
+  
+  // Données personnelles
+  {
+    id: "data-classification",
+    title: "Classification des données sensibles",
+    description: "Mettez en place un système de classification des données pour protéger les informations sensibles.",
+    contacts: [
+      {
+        id: "contact-22",
+        name: "Marion Lopez",
+        role: "Senior Partner et Directrice Marketing, Communication et RSE",
+        department: "Marketing",
+        email: "marion.lopez@mc2i.fr"
+      },
+      {
+        id: "contact-23",
+        name: "Vincent Terrier",
+        role: "Senior Partner, Directeur Financier",
+        department: "Finance",
+        email: "vincent.terrier@mc2i.fr"
+      },
+      {
+        id: "contact-24",
+        name: "Isabelle Dubacq",
+        role: "Senior Partner, Directrice des Ressources Humaines",
+        department: "RH",
+        email: "isabelle.dubacq@mc2i.fr"
+      }
+    ],
+    primaryContact: "contact-22",
+    difficulty: "Débutant",
+    difficultyColor: "bg-green-100 text-green-700",
+    domainId: "donnees-personnelles"
+  },
+  {
+    id: "data-breach-response",
+    title: "Réponse à une violation de données personnelles",
+    description: "Une violation de données personnelles a été détectée. Gérez la situation conformément au RGPD.",
+    contacts: [
+      {
+        id: "contact-25",
+        name: "Vincent Terrier",
+        role: "Senior Partner, Directeur Financier",
+        department: "Finance",
+        email: "vincent.terrier@mc2i.fr"
+      },
+      {
+        id: "contact-26",
+        name: "Lorenzo Bertola",
+        role: "Directeur Général Adjoint et Directeur du pôle BFA",
+        department: "BFA",
+        email: "lorenzo.bertola@mc2i.fr"
+      },
+      {
+        id: "contact-27",
+        name: "Neil LEVIN",
+        role: "Expert cybersécurité & CFO",
+        department: "Finance",
+        email: "neil.levin@mc2i.fr"
+      }
+    ],
+    primaryContact: "contact-25",
+    difficulty: "Intermédiaire",
+    difficultyColor: "bg-orange-100 text-orange-700",
+    domainId: "donnees-personnelles"
   }
 ];
 
