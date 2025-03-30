@@ -15,12 +15,12 @@ export default function CyberLayout({ children }: CyberLayoutProps) {
   const [showConfig, setShowConfig] = useState(false);
   
   return (
-    <div className="min-h-screen w-full flex flex-col overflow-hidden bg-gray-50">
+    <div className="min-h-screen w-full flex flex-col bg-gray-50">
       <Header />
 
-      <main className="flex-1 flex w-full overflow-hidden">
+      <main className="flex-1 flex w-full overflow-auto">
         {/* Zone principale de contenu */}
-        <div className="flex-1 overflow-hidden flex">
+        <div className="flex-1 overflow-auto flex">
           {children}
         </div>
         

@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import HomeLayout from "@/components/layout/HomeLayout";
+import { Link } from "wouter";
 
 export default function ModulesPage() {
   const modules = [
@@ -76,7 +77,7 @@ export default function ModulesPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-              <span className="text-blue-600">FENY</span> - Votre plateforme d'excellence
+              <span className="text-blue-600">FYNE</span> - Votre plateforme d'excellence
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto mb-10">
               Développez vos compétences professionnelles grâce à des expériences d'apprentissage interactives et immersives
@@ -97,7 +98,7 @@ export default function ModulesPage() {
       <div className="bg-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Pourquoi choisir FENY ?</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Pourquoi choisir FYNE ?</h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
               Notre plateforme offre une expérience d'apprentissage unique, conçue pour développer vos compétences de manière efficace et engageante
             </p>
@@ -129,7 +130,6 @@ export default function ModulesPage() {
             {modules.map((module) => (
               <div 
                 key={module.id} 
-                onClick={() => window.location.href = module.link}
                 className={`bg-white p-8 border rounded-xl transition-all duration-300 ${module.color} cursor-pointer h-full flex flex-col`}
               >
                 <div className={`${module.iconBg} w-20 h-20 rounded-lg flex items-center justify-center mb-6`}>
@@ -137,12 +137,12 @@ export default function ModulesPage() {
                 </div>
                 <h2 className="text-2xl font-bold mb-3 text-gray-900">{module.title}</h2>
                 <p className="text-gray-700 mb-6 flex-grow">{module.description}</p>
-                <Button 
-                  className="w-fit mt-auto group bg-white text-gray-800 hover:bg-gray-100"
-                >
-                  Commencer
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
+                <Link href={module.link}>
+                  <Button className="w-fit mt-auto group bg-white text-gray-800 hover:bg-gray-100">
+                    Commencer
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
               </div>
             ))}
           </div>

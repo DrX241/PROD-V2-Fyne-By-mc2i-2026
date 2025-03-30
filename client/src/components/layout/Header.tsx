@@ -1,6 +1,6 @@
 import { Settings, HelpCircle, Home } from "lucide-react";
 import { useChatContext } from "@/contexts/ChatContext";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import mclogo from "@assets/mc2i.png";
 
 interface HeaderProps {
@@ -18,31 +18,29 @@ export default function Header({ isFeny = false }: HeaderProps) {
     <header className="bg-white shadow-sm w-full border-b border-gray-100">
       <div className="w-full px-5 sm:px-8 py-4 flex items-center justify-between">
         <div className="flex items-center">
-          <div 
-            onClick={() => window.location.href = '/'}
+          <Link href="/"
             className="flex items-center gap-3 cursor-pointer"
           >
             <img src={mclogo} alt="mc2i Logo" className="h-8" />
             <span className="text-neutral-300">|</span>
             <div className="text-blue-600 text-xl font-bold">
-              {isFeny ? 'FENY' : (
+              {isFeny ? 'FYNE' : (
                 location.includes('/cyber') ? 'I AM CYBER' : 
                 location.includes('/data-ia') ? 'I AM DATA & IA' : 
                 location.includes('/amoa') ? 'I AM AMOA' : 
-                'FENY'
+                'FYNE'
               )}
             </div>
-          </div>
+          </Link>
         </div>
         <div className="flex items-center gap-5">
           {!isFeny && (
-            <div
-              onClick={() => window.location.href = '/'}
+            <Link href="/"
               className="text-neutral-500 hover:text-neutral-700 transition-colors duration-200 flex items-center gap-1 cursor-pointer"
             >
               <Home className="h-5 w-5" />
               <span className="hidden sm:inline">Accueil</span>
-            </div>
+            </Link>
           )}
           <button className="text-neutral-500 hover:text-neutral-700 transition-colors duration-200">
             <Settings className="h-5 w-5" />
