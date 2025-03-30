@@ -69,8 +69,8 @@ export default function CyberLayout({ children }: CyberLayoutProps) {
       <Header />
       
       {/* Affichage du statut de connexion */}
-      <div className="absolute top-4 right-4 z-30">
-        <ConnectionStatus workflow_name="Start application" />
+      <div className="fixed bottom-4 right-4 z-30">
+        <ConnectionStatus />
       </div>
       
       {/* Background animation elements */}
