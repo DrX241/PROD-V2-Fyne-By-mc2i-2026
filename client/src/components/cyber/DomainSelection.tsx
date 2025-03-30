@@ -1,4 +1,3 @@
-
 import { useChatContext } from "@/contexts/ChatContext";
 import { 
   AlertTriangle, FileText, Users, 
@@ -22,51 +21,24 @@ export default function DomainSelection() {
     "strategie-cyber": <ShieldCheck className="w-8 h-8 text-pink-500" />,
   };
 
-  // Diviser les domaines en deux rangées
-  const firstRow = domains.slice(0, 3);
-  const secondRow = domains.slice(3, 6);
-
   return (
     <div className="w-full max-w-6xl mx-auto p-4">
       <h2 className="text-2xl font-semibold text-gray-800 mb-8 text-center">
         Choisissez un domaine de cybersécurité
       </h2>
-      
-      {/* Première rangée */}
-      <div className="domains-row mb-6">
-        {firstRow.map((domain: any) => (
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 overflow-y-auto max-h-[70vh]"> {/* Added overflow-y-auto and max-height */}
+        {domains.map((domain: any) => (
           <button
             key={domain.id}
             onClick={() => handleDomainClick(domain.id)}
-            className="domain-card focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="domain-card p-4 rounded-lg border border-gray-200 hover:border-blue-500 cursor-pointer transition-all duration-200 flex flex-col items-center text-center min-h-[150px] justify-center"  {/* Adjusted padding and added min-height */}
           >
-            <div className="flex flex-col items-center justify-center text-center py-4 h-full">
-              <div className="domain-icon-container mb-3">
-                {domainIcons[domain.id]}
-              </div>
-              <div className="w-full">
-                <h3 className="font-bold text-lg md:text-xl text-gray-800 domain-title">{domain.name}</h3>
-              </div>
+            <div className="domain-icon-container mb-3">
+              {domainIcons[domain.id]}
             </div>
-          </button>
-        ))}
-      </div>
-      
-      {/* Seconde rangée */}
-      <div className="domains-row">
-        {secondRow.map((domain: any) => (
-          <button
-            key={domain.id}
-            onClick={() => handleDomainClick(domain.id)}
-            className="domain-card focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <div className="flex flex-col items-center justify-center text-center py-4 h-full">
-              <div className="domain-icon-container mb-3">
-                {domainIcons[domain.id]}
-              </div>
-              <div className="w-full">
-                <h3 className="font-bold text-lg md:text-xl text-gray-800 domain-title">{domain.name}</h3>
-              </div>
+            <div className="w-full">
+              <h3 className="font-bold text-lg md:text-xl text-gray-800 domain-title">{domain.name}</h3>
             </div>
           </button>
         ))}
