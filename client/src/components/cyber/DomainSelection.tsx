@@ -32,7 +32,7 @@ export default function DomainSelection() {
           <button
             key={domain.id}
             onClick={() => handleDomainClick(domain.id)}
-            className="domain-card p-4 rounded-lg border border-gray-200 hover:border-blue-500 cursor-pointer transition-all duration-200 flex flex-col items-center text-center min-h-[150px] justify-center"  {/* Adjusted padding and added min-height */}
+            className="domain-card p-4 rounded-lg border border-gray-200 hover:border-blue-500 cursor-pointer transition-all duration-200 flex flex-col items-center text-center min-h-[150px] justify-center"
           >
             <div className="domain-icon-container mb-3">
               {domainIcons[domain.id]}
