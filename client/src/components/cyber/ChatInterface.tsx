@@ -61,12 +61,12 @@ export default function ChatInterface() {
     <div className="flex-1 flex flex-col bg-white">
       {/* Chat messages */}
       <div 
-        className="flex-1 overflow-y-auto p-4" 
+        className="flex-1 overflow-y-auto" 
         ref={chatContainerRef}
       >
-        <div className="flex flex-col max-w-3xl mx-auto">
+        <div className="message-container">
           {messages.map((message) => (
-            <div key={message.id}>
+            <div key={message.id} className="message-wrapper">
               {renderMessageContent(message)}
             </div>
           ))}
