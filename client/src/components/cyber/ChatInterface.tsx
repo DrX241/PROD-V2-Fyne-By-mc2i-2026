@@ -4,6 +4,7 @@ import ChatMessage from "./ChatMessage";
 import DomainSelection from "./DomainSelection";
 import ScenarioSelection from "./ScenarioSelection";
 import EmailMessage from "./EmailMessage";
+import ContextBanner from "./ContextBanner";
 import { Send, Paperclip, Sparkles, BotMessageSquare, UserCircle, RefreshCw } from "lucide-react";
 
 export default function ChatInterface() {
@@ -107,6 +108,9 @@ export default function ChatInterface() {
           )}
         </div>
       </div>
+      
+      {/* Bandeau contextuel */}
+      <ContextBanner />
       
       {/* Chat messages */}
       <div 
