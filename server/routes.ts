@@ -936,8 +936,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           let hasBusiness = false;
           
           // Parcourir la liste filtrée et sélectionner les experts appropriés
+          // Nous voulons entre 1 et 3 interlocuteurs supplémentaires (2-4 au total avec le contact principal)
           for (const expert of filtered) {
-            if (result.length >= 3) break; // Limiter à 3 interlocuteurs supplémentaires
+            if (result.length >= Math.min(3, filtered.length)) break; // Limiter à 3 interlocuteurs supplémentaires max
             
             const isTechnical = expert.expertise?.toLowerCase().includes('technique') || 
                                expert.expertise?.toLowerCase().includes('cyber') ||
@@ -972,7 +973,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           }
           
-          return result.slice(0, 3); // Limiter à 3 interlocuteurs au maximum
+          // S'assurer qu'il y a au moins 1 interlocuteur supplémentaire (pour un total min de 2 avec le contact principal)
+          // et au maximum 3 interlocuteurs supplémentaires (pour un total max de 4 avec le contact principal)
+          const minAdditionalContacts = 1;
+          if (result.length < minAdditionalContacts && filtered.length > 0) {
+            // Ajouter au moins un contact supplémentaire si disponible
+            while (result.length < minAdditionalContacts && result.length < filtered.length) {
+              const randomIndex = Math.floor(Math.random() * filtered.length);
+              const randomContact = filtered[randomIndex];
+              if (!result.includes(randomContact)) {
+                result.push(randomContact);
+              }
+            }
+          }
+          return result.slice(0, 3); // Limiter à 3 interlocuteurs supplémentaires maximum
         };
         
         const additionalContacts = getAdditionalContacts(scenario.domain, scenario.contact);
@@ -1096,7 +1110,112 @@ export async function registerRoutes(app: Express): Promise<Server> {
                                    responseContent.toLowerCase().includes("recommencer à zéro") ||
                                    responseContent.toLowerCase().includes("recommencer le scénario");
       
-      // Send response with termination flag if detected and include the contact information
+      // Si le scénario est terminé, générer une fiche d'évaluation
+      if (isScenarioTerminated) {
+        try {
+          // Générer une fiche d'évaluation qui résume les performances de l'utilisateur
+          const evaluationPrompt = `
+Tu vas créer une fiche d'évaluation complète pour l'utilisateur ${userName} qui vient de terminer le scénario "${scenario.title}" dans le domaine "${scenario.domain}".
+
+Voici l'historique complet de la conversation:
+${chatHistory ? chatHistory.map(msg => {
+  if (msg.type === 'user') {
+    return `${userName}: ${msg.content}`;
+  } else if (msg.type === 'bot' && msg.contactName) {
+    return `${msg.contactName} (${msg.contactRole}): ${msg.content}`;
+  }
+  return '';
+}).join('\n\n') : ''}
+
+${userName}: ${message}
+
+${respondingContact.name} (${respondingContact.role}): ${responseContent}
+
+Sur la base de cet échange, crée une fiche d'évaluation structurée avec les sections suivantes:
+
+1. ÉVALUATION GLOBALE
+   Synthèse de la performance de l'utilisateur avec une note sur 5 étoiles et un commentaire général.
+
+2. POINTS FORTS
+   Liste 3-4 points spécifiques où l'utilisateur a bien répondu ou fait preuve de bonnes connaissances.
+
+3. AXES D'AMÉLIORATION
+   Liste 3-4 points spécifiques où l'utilisateur pourrait améliorer ses réponses ou ses connaissances.
+
+4. BONNES PRATIQUES
+   Énumère 5-6 bonnes pratiques en cybersécurité qui s'appliquent à ce scénario spécifique.
+
+5. CONCEPTS CLÉS
+   Résume 4-5 concepts importants de cybersécurité que ce scénario a mis en lumière.
+
+6. POINTS À RETENIR
+   Liste 3-4 points essentiels que l'utilisateur devrait retenir de ce scénario pour sa pratique professionnelle.
+
+Format: Utilise des titres clairs et une présentation structurée qui facilite la lecture. Le texte doit être concis, instructif et directement applicable.
+`;
+
+          // Obtenir l'évaluation via l'API OpenAI
+          const evaluationMessages: ChatCompletionRequestMessage[] = [
+            {
+              role: "system",
+              content: "Tu es un expert en cybersécurité chargé d'évaluer la performance des apprenants dans des scénarios de simulation. Tu dois fournir des évaluations objectives, précises et constructives."
+            },
+            {
+              role: "user",
+              content: evaluationPrompt
+            }
+          ];
+
+          // Générer l'évaluation
+          const evaluationContent = await openAIService.getChatCompletion(
+            evaluationMessages,
+            0.7,
+            3000
+          );
+
+          // Générer un PDF avec l'évaluation
+          const evaluationId = `evaluation-${scenarioId}-${Date.now()}.pdf`;
+          const evaluationFileName = path.join(documentsDir, evaluationId);
+          
+          // Créer un document PDF avec l'évaluation
+          await documentGenerator.createEvaluationPDF(
+            evaluationFileName, 
+            evaluationContent, 
+            `Évaluation - ${scenario.title}`,
+            {
+              userName,
+              scenarioTitle: scenario.title,
+              scenarioDomain: scenario.domain,
+              date: new Date().toISOString()
+            }
+          );
+
+          // Ajouter le document d'évaluation à la pièce jointe
+          // Envoyer la réponse avec le drapeau de réinitialisation et le document d'évaluation
+          res.json({
+            type: 'bot',
+            content: responseContent + 
+                    "\n\n**ÉVALUATION FINALE**\n\nJ'ai préparé une évaluation détaillée de votre performance dans ce scénario. Vous pouvez la consulter en cliquant sur la pièce jointe ci-dessous.",
+            resetScenario: true,
+            contactName: respondingContact.name,
+            contactRole: respondingContact.role,
+            scenarioContacts: availableContacts,
+            evaluation: {
+              id: evaluationId,
+              fileName: "Évaluation_Finale.pdf",
+              fileSize: "PDF",
+              fileType: "application/pdf"
+            }
+          });
+          
+          return;
+        } catch (error) {
+          console.error('Error generating evaluation:', error);
+          // En cas d'erreur, continuer sans évaluation
+        }
+      }
+      
+      // Send regular response with contact information
       res.json({ 
         type: 'bot',
         content: responseContent,

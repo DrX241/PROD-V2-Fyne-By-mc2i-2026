@@ -208,6 +208,155 @@ export class DocumentGenerator {
     });
   }
 
+  // Fonction spécifique pour créer un PDF d'évaluation de fin de scénario
+  async createEvaluationPDF(
+    filePath: string,
+    content: string,
+    title: string,
+    context: {
+      userName: string;
+      scenarioTitle: string;
+      scenarioDomain: string;
+      date: string;
+    }
+  ): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      try {
+        // Créer un nouveau document PDF
+        const doc = new PDFDocument({
+          margin: 50,
+          size: 'A4'
+        });
+
+        // Définir la police par défaut
+        doc.font('Helvetica');
+
+        // Pipe le PDF vers un fichier
+        const stream = fs.createWriteStream(filePath);
+        doc.pipe(stream);
+
+        // Chargement du logo mc2i
+        const logoPath = path.join(process.cwd(), 'I_AM_CYBER', 'assets', 'mc2i.png');
+        
+        if (fs.existsSync(logoPath)) {
+          // Positionnement du logo en haut du document, centré
+          const logoWidth = 150; // Largeur du logo en points
+          const pageCenter = doc.page.width / 2;
+          const logoX = pageCenter - (logoWidth / 2);
+          doc.image(logoPath, logoX, doc.y, { width: logoWidth });
+          doc.moveDown(2); // Espace après le logo
+        }
+        
+        // Entête
+        doc.fontSize(24).fillColor('#003366').text("FICHE D'ÉVALUATION", {align: 'center'});
+        doc.moveDown(0.5);
+        
+        // Ligne horizontale sous le titre
+        doc.moveTo(50, doc.y)
+           .lineTo(doc.page.width - 50, doc.y)
+           .stroke('#003366');
+        doc.moveDown(1);
+
+        // Information sur le scénario
+        doc.fontSize(14).fillColor('#003366').text(`Scénario: ${context.scenarioTitle}`, {align: 'center'});
+        doc.fontSize(12).fillColor('#555555').text(`Domaine: ${context.scenarioDomain}`, {align: 'center'});
+        doc.moveDown(1);
+        
+        // Information sur l'utilisateur et la date
+        doc.fontSize(11).fillColor('#333333');
+        doc.text(`Apprenant: ${context.userName}`, {align: 'left'});
+        doc.text(`Date de l'évaluation: ${new Date(context.date).toLocaleDateString()}`, {align: 'left'});
+        doc.moveDown(1.5);
+        
+        // Texte principal - Évaluation structurée
+        doc.fontSize(11).fillColor('#000');
+        
+        // Traiter le contenu ligne par ligne pour une mise en forme améliorée
+        const lines = content.split('\n');
+        let inList = false;
+        
+        lines.forEach(line => {
+          // Traiter les titres principaux (sections numérotées)
+          if (line.match(/^\d+\.\s[A-Z\s]+$/)) {
+            if (inList) {
+              doc.moveDown(0.5);
+              inList = false;
+            }
+            doc.fontSize(14).fillColor('#003366').text(line.trim(), {underline: true});
+            doc.moveDown(0.5);
+          } 
+          // Traiter les éléments en gras (sous-titres)
+          else if (line.match(/^\*\*.*\*\*$/) || line.match(/^__.*__$/)) {
+            if (inList) {
+              doc.moveDown(0.5);
+              inList = false;
+            }
+            const boldText = line.replace(/^\*\*|\*\*$|^__|__$/g, '');
+            doc.fontSize(12).font('Helvetica-Bold').fillColor('#444').text(boldText.trim(), {continued: false});
+            doc.moveDown(0.3);
+            // Retour à la police normale
+            doc.font('Helvetica');
+          }
+          // Traiter les listes à puces - Conserver le format des listes
+          else if (line.match(/^[-*•]\s/)) {
+            const bulletText = line.replace(/^[-*•]\s/, '');
+            doc.fontSize(11).fillColor('#000').text(`• ${bulletText.trim()}`, {indent: 20});
+            doc.moveDown(0.2);
+            inList = true;
+          }
+          // Traiter les étoiles pour l'évaluation
+          else if (line.includes('★')) {
+            if (inList) {
+              doc.moveDown(0.5);
+              inList = false;
+            }
+            doc.fontSize(12).fillColor('#003366').text(line.trim(), {continued: false});
+            doc.moveDown(0.5);
+          }
+          // Traiter les lignes vides
+          else if (line.trim() === '') {
+            if (inList) {
+              doc.moveDown(0.3);
+            } else {
+              doc.moveDown(0.5);
+            }
+          }
+          // Texte normal
+          else {
+            if (inList && !line.match(/^\s+/)) {
+              doc.moveDown(0.5);
+              inList = false;
+            }
+            doc.fontSize(11).fillColor('#000').text(line.trim());
+            doc.moveDown(0.2);
+          }
+        });
+        
+        // Pied de page avec information de confidentialité et copyright
+        const pageHeight = doc.page.height;
+        const footerY = pageHeight - 30;
+        doc.fontSize(8).fillColor('#888');
+        doc.text(`Document généré par I_AM_CYBER - Confidentiel - mc2i © ${new Date().getFullYear()}`, 50, footerY, {
+          align: 'center',
+          width: doc.page.width - 100
+        });
+        
+        // Finaliser le document
+        doc.end();
+        
+        stream.on('finish', () => {
+          resolve();
+        });
+        
+        stream.on('error', (err) => {
+          reject(err);
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
   getDocumentPath(fileName: string): string {
     return path.join(this.documentsDir, fileName);
   }

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Paperclip } from "lucide-react";
+import { Paperclip, FileCheck } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 
 // Définir les interfaces temporaires ici en attendant que les modules importés soient disponibles
@@ -27,6 +27,7 @@ interface EmailContent {
   body: string;
   attachments: EmailAttachment[];
   scenarioContacts?: EmailContact[]; // Liste des interlocuteurs du scénario
+  evaluation?: EmailAttachment; // Pièce jointe d'évaluation finale (si présente)
 }
 
 interface EmailMessageProps {
@@ -218,6 +219,30 @@ export default function EmailMessage({ email }: EmailMessageProps) {
         </div>
       )}
       
+      {/* Afficher l'évaluation finale si présente (pièce jointe spéciale) */}
+      {email?.evaluation && (
+        <div className="email-evaluation mt-6 mb-2 p-4 bg-green-50 rounded-lg border border-green-100">
+          <h4 className="font-medium text-gray-800 mb-2">Évaluation finale</h4>
+          <p className="text-sm text-gray-600 mb-3">
+            Votre performance dans ce scénario a été évaluée. Consultez le document d'évaluation pour découvrir vos points forts, axes d'amélioration et les concepts clés à retenir.
+          </p>
+          {email.evaluation && (
+            <button 
+              className="px-4 py-2 bg-green-600 text-white rounded-md flex items-center space-x-2 hover:bg-green-700 transition-colors"
+              onClick={() => handleAttachmentClick(email.evaluation!.id)}
+              disabled={Boolean(isAttachmentLoading[email.evaluation.id])}
+            >
+              <FileCheck className="h-5 w-5" />
+              <span>Voir mon évaluation complète</span>
+              {isAttachmentLoading[email.evaluation.id] && (
+                <div className="ml-1 h-4 w-4 border-2 border-t-transparent border-white rounded-full animate-spin"></div>
+              )}
+            </button>
+          )}
+        </div>
+      )}
+      
+      {/* Afficher les pièces jointes standards si présentes */}
       {email.attachments && email.attachments.length > 0 && (
         <div className="email-attachments">
           <h4 className="font-medium text-gray-700 mb-2">Pièces jointes</h4>

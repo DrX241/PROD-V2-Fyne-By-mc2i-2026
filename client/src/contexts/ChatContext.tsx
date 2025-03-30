@@ -647,18 +647,26 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // If response contains an email, add it as an email message
       if (data.type === 'email') {
+        const emailContent = data.content as EmailMessageContent;
+        
+        // Si l'email contient une évaluation, vérifions que c'est une pièce jointe valide
+        if (emailContent.evaluation && !emailContent.evaluation.id) {
+          console.warn("Evaluation attachment is missing ID", emailContent.evaluation);
+          delete emailContent.evaluation;
+        }
+        
         const emailMessage: ChatMessage = {
           id: uuidv4(),
           type: "email",
-          content: data.content as EmailMessageContent,
+          content: emailContent,
           timestamp: Date.now()
         };
         
         // Si l'email contient des interlocuteurs, mettons à jour l'état
-        if (data.content.scenarioContacts && Array.isArray(data.content.scenarioContacts)) {
+        if (emailContent.scenarioContacts && Array.isArray(emailContent.scenarioContacts)) {
           setScenario(prev => ({
             ...prev,
-            scenarioContacts: data.content.scenarioContacts
+            scenarioContacts: emailContent.scenarioContacts
           }));
         }
         
