@@ -17,12 +17,15 @@ export default function Layout({ children }: LayoutProps) {
       <Header />
 
       <main className="flex-1 flex w-full overflow-hidden">
-        {!isMobile && <Sidebar />}
+        {!isMobile && (
+          <div className="sidebar-fixed" style={{ width: sidebarWidth }}>
+            <Sidebar />
+          </div>
+        )}
         <div 
-          className="flex-1 overflow-hidden transition-all duration-300 ease-in-out"
-          style={{ marginLeft: isMobile ? "0px" : sidebarWidth }}
+          className="flex-1 overflow-hidden transition-all duration-300 ease-in-out flex justify-center"
         >
-          <div className="h-full overflow-hidden p-0 lg:p-4">
+          <div className="h-full overflow-hidden p-0 lg:p-4 w-full">
             {children}
           </div>
         </div>

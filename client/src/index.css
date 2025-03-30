@@ -39,7 +39,9 @@
 
   /* Container centrés */
   .centered-container {
-    @apply max-w-5xl mx-auto w-full px-4 sm:px-6;
+    @apply max-w-4xl mx-auto w-full px-4 sm:px-6;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   /* Message container styles */
@@ -151,5 +153,13 @@
   
   .context-banner {
     @apply w-full border-b border-gray-100 py-2.5 shadow-sm bg-white;
+  }
+  
+  /* Style pour la barre latérale fixe */
+  .sidebar-fixed {
+    @apply h-full bg-white border-r border-gray-200;
+    position: sticky;
+    top: 0;
+    left: 0;
   }
 }
