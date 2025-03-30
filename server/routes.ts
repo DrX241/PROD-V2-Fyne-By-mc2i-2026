@@ -407,6 +407,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const contentBytes = Buffer.byteLength(document.content, 'utf8');
       const fileSizeKB = Math.round(contentBytes / 1024);
       
+      // Définir les interlocuteurs supplémentaires pour le scénario
+      // Nous allons créer une liste d'interlocuteurs par domaine pour assurer la cohérence
+      const getAdditionalContacts = (domain: string, primaryContact: { name: string, role: string }) => {
+        // Évitons d'avoir le même contact plusieurs fois
+        const additionalContacts = [];
+        
+        // Secteurs spécifiques par domaine
+        if (domain.includes('BFA') || domain.includes('Banque') || domain.toLowerCase().includes('conformité')) {
+          additionalContacts.push({
+            name: "Lorenzo Bertola",
+            role: "Directeur Général Adjoint et Directeur du pôle BFA"
+          });
+        }
+        
+        if (domain.includes('IMPULSE') || domain.includes('Industrie') || domain.includes('Médias') || domain.includes('Santé')) {
+          additionalContacts.push({
+            name: "Guillaume Lechevallier",
+            role: "Directeur Général Adjoint et Directeur du pôle IMPULSE"
+          });
+        }
+        
+        if (domain.includes('Data') || domain.includes('IA') || domain.includes('Intelligence')) {
+          additionalContacts.push({
+            name: "Eddy MISSONI IDEMBI",
+            role: "Expert Data / IA & CTO"
+          }, {
+            name: "Fares SAYADI",
+            role: "Spécialiste Data / IA"
+          });
+        }
+        
+        if (domain.includes('formation') || domain.includes('sensibilisation') || domain.toLowerCase().includes('rh')) {
+          additionalContacts.push({
+            name: "Isabelle Dubacq",
+            role: "Senior Partner, Directrice des Ressources Humaines"
+          });
+        }
+        
+        if (domain.toLowerCase().includes('stratégie') || domain.toLowerCase().includes('direction')) {
+          additionalContacts.push({
+            name: "Arnaud Gauthier",
+            role: "Président"
+          }, {
+            name: "Olivier Hervo",
+            role: "Directeur Général"
+          });
+        }
+        
+        if (domain.toLowerCase().includes('sécurité') || domain.toLowerCase().includes('cyber')) {
+          additionalContacts.push({
+            name: "Neil LEVIN",
+            role: "Expert cybersécurité & CFO"
+          }, {
+            name: "Yousra SAIDANI",
+            role: "Experte Cybersécurité & CFO"
+          });
+        }
+        
+        // Filtrer pour éviter les doublons avec le contact principal
+        return additionalContacts.filter(c => c.name !== primaryContact.name).slice(0, 2);
+      };
+      
+      // Obtenir 2 contacts supplémentaires pertinents pour ce scénario
+      const additionalContacts = getAdditionalContacts(scenario.domain, scenario.contact);
+      
+      // Créer la structure d'interlocuteurs pour ce scénario
+      const scenarioContacts = [scenario.contact, ...additionalContacts];
+      
       // Create email response
       const email = {
         id: uuidv4(),
@@ -422,7 +490,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             fileSize: `${fileSizeKB} KB`,
             fileType: 'application/pdf'
           }
-        ]
+        ],
+        // Ajouter les contacts additionnels qui interviendront dans ce scénario
+        scenarioContacts: scenarioContacts
       };
       
       res.json({ email });
@@ -435,10 +505,107 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API route for chat messages
   app.post('/api/cyber/chat', async (req, res) => {
     try {
-      const { message, userName, scenarioId, config, chatHistory } = req.body;
+      const { message, userName, scenarioId, config, chatHistory, scenarioContacts } = req.body;
       
       if (!message || !userName) {
         return res.status(400).json({ message: 'Missing required parameters' });
+      }
+      
+      // Récupérer les scénarios pour avoir le domaine actuel
+      // Get scenario data - in a real app, this would come from the database
+      const scenarios = [
+        // Formation et sensibilisation
+        {
+          id: "phishing-simulation",
+          title: "Simulation d'attaque phishing",
+          domain: "Formation et sensibilisation à la cybersécurité",
+          contact: {
+            name: "Marion Lopez",
+            role: "Senior Partner et Directrice Marketing, Communication et RSE"
+          },
+          difficulty: "Débutant"
+        },
+        // ... autres scénarios (déjà définis plus haut)
+      ];
+      
+      const scenario = scenarios.find(s => s.id === scenarioId);
+      
+      if (!scenario) {
+        return res.status(404).json({ message: 'Scenario not found' });
+      }
+      
+      // Vérifier si nous avons des contacts disponibles pour le jeu de rôle
+      let availableContacts = scenarioContacts;
+      
+      // Si aucun contact n'est fourni, générer les contacts à partir du domaine
+      if (!availableContacts || !Array.isArray(availableContacts) || availableContacts.length === 0) {
+        const getAdditionalContacts = (domain: string, primaryContact: { name: string, role: string }) => {
+          // Logique déjà définie plus haut
+          const additionalContacts = [];
+          
+          if (domain.includes('BFA') || domain.includes('Banque') || domain.toLowerCase().includes('conformité')) {
+            additionalContacts.push({
+              name: "Lorenzo Bertola",
+              role: "Directeur Général Adjoint et Directeur du pôle BFA"
+            });
+          }
+          
+          // ... autres conditions déjà définies plus haut
+          
+          return additionalContacts.filter(c => c.name !== primaryContact.name).slice(0, 2);
+        };
+        
+        const additionalContacts = getAdditionalContacts(scenario.domain, scenario.contact);
+        availableContacts = [scenario.contact, ...additionalContacts];
+      }
+      
+      // Déterminer quel contact va répondre à cette interaction 
+      // Utilisons l'historique des messages pour déterminer le contact suivant
+      let respondingContact;
+      
+      if (chatHistory && Array.isArray(chatHistory) && chatHistory.length > 0) {
+        // Compter combien de fois chaque contact a déjà répondu
+        const contactResponseCount: {[key: string]: number} = {};
+        
+        // Parcourir l'historique pour compter les réponses de chaque contact
+        chatHistory.forEach(item => {
+          if (item.type === 'bot' && typeof item.content === 'string' && item.contactName) {
+            contactResponseCount[item.contactName] = (contactResponseCount[item.contactName] || 0) + 1;
+          }
+        });
+        
+        // Trouver le contact qui a le moins répondu
+        let minResponses = Infinity;
+        for (const contact of availableContacts) {
+          const count = contactResponseCount[contact.name] || 0;
+          if (count < minResponses) {
+            minResponses = count;
+            respondingContact = contact;
+          }
+        }
+        
+        // Si tous les contacts ont parlé le même nombre de fois, choisir le suivant de manière circulaire
+        if (!respondingContact) {
+          // Trouver le dernier contact qui a parlé
+          let lastContactIndex = 0;
+          for (let i = chatHistory.length - 1; i >= 0; i--) {
+            const item = chatHistory[i];
+            if (item.type === 'bot' && item.contactName) {
+              // Trouver l'index de ce contact
+              const index = availableContacts.findIndex((c: { name: string }) => c.name === item.contactName);
+              if (index !== -1) {
+                lastContactIndex = index;
+                break;
+              }
+            }
+          }
+          
+          // Choisir le contact suivant de manière circulaire
+          respondingContact = availableContacts[(lastContactIndex + 1) % availableContacts.length];
+        }
+      } else {
+        // Pour la première réponse, utiliser le contact principal du scénario
+        respondingContact = availableContacts[0];
       }
       
       // Generate response with Azure OpenAI
@@ -447,9 +614,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         responseStyle: config?.responseStyle || "Professionnel"
       });
       
-      // Add the instruction about response evaluation
+      // Add the instruction about response evaluation and interlocutors
       const systemContent = systemPrompt + 
-        "\n\nRÈGLE IMPORTANTE: Réponds comme si tu étais CyberGuide, ne mentionne pas Azure OpenAI ou GPT." +
+        `\n\nRÈGLE IMPORTANTE: Tu réponds en tant que ${respondingContact.name}, ${respondingContact.role}. Tu ne dois JAMAIS mentionner Azure OpenAI ou GPT.` +
+        "\n\nRÈGLE DU JEU DE RÔLE: Chaque interlocuteur a son propre style et expertise en fonction de son rôle. Adapte le ton, le style et le contenu de la réponse au profil de l'interlocuteur qui répond." +
         "\n\nÉVALUATION DES RÉPONSES: Évalue rigoureusement la réponse de l'utilisateur. Si elle est incomplète, hors sujet, mal formulée ou peu pertinente, sois direct et franc dans ta critique. N'hésite pas à exiger immédiatement une réponse plus complète ou pertinente. Après trois tentatives infructueuses, mets fin au scénario.";
       
       // Create the base messages array
@@ -494,11 +662,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
                                    responseContent.toLowerCase().includes("recommencer à zéro") ||
                                    responseContent.toLowerCase().includes("recommencer le scénario");
       
-      // Send response with termination flag if detected
+      // Send response with termination flag if detected and include the contact information
       res.json({ 
         type: 'bot',
         content: responseContent,
-        resetScenario: isScenarioTerminated
+        resetScenario: isScenarioTerminated,
+        contactName: respondingContact.name,
+        contactRole: respondingContact.role,
+        // Inclure la liste complète des contacts pour le prochain appel
+        scenarioContacts: availableContacts
       });
     } catch (error) {
       console.error('Error processing chat message:', error);

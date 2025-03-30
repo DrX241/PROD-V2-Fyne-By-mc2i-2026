@@ -24,6 +24,7 @@ interface EmailContent {
   date: string;
   body: string;
   attachments: EmailAttachment[];
+  scenarioContacts?: EmailContact[]; // Liste des interlocuteurs du scénario
 }
 
 interface EmailMessageProps {
@@ -175,6 +176,31 @@ export default function EmailMessage({ email }: EmailMessageProps) {
       <div className="email-body">
         {renderBody()}
       </div>
+      
+      {/* Afficher les interlocuteurs du scénario si disponibles */}
+      {email.scenarioContacts && email.scenarioContacts.length > 0 && (
+        <div className="email-interlocutors mt-6 mb-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
+          <h4 className="font-medium text-gray-800 mb-3">Interlocuteurs du scénario</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {email.scenarioContacts.map((contact: EmailContact, index: number) => (
+              <div key={index} className="flex items-center p-2 bg-white rounded-md shadow-sm">
+                <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 mr-3 flex-shrink-0">
+                  <span className="font-semibold text-sm">
+                    {contact.name.split(' ').map((n: string) => n[0]).join('')}
+                  </span>
+                </div>
+                <div>
+                  <h5 className="font-medium text-gray-800">{contact.name}</h5>
+                  <p className="text-gray-500 text-xs">{contact.role}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="text-sm text-gray-600 mt-3">
+            Ces interlocuteurs interviendront dans ce scénario pour vous offrir différentes perspectives et expertises.
+          </p>
+        </div>
+      )}
       
       {email.attachments && email.attachments.length > 0 && (
         <div className="email-attachments">

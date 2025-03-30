@@ -62,7 +62,12 @@ export default function ChatInterface() {
                 <UserCircle className="h-5 w-5 text-gray-600" />
               </div>
             )}
-            <ChatMessage type={message.type} content={message.content as string} />
+            <ChatMessage 
+              type={message.type} 
+              content={message.content as string} 
+              contactName={message.contactName} 
+              contactRole={message.contactRole}
+            />
           </div>
         );
       default:

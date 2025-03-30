@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { apiRequest } from "@/lib/queryClient";
-import {
+import type {
   ChatContextType,
   ChatMessage,
   CyberDomain,
@@ -623,10 +623,19 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         userName,
         scenarioId: scenario.activeScenario?.id,
         config,
-        chatHistory: relevantMessages
+        chatHistory: relevantMessages,
+        scenarioContacts: scenario.scenarioContacts // Transmettre la liste des interlocuteurs
       });
       
       const data = await response.json();
+      
+      // Si nous recevons les contacts du scénario, mettons à jour notre état
+      if (data.scenarioContacts && Array.isArray(data.scenarioContacts)) {
+        setScenario(prev => ({
+          ...prev,
+          scenarioContacts: data.scenarioContacts
+        }));
+      }
       
       // If response contains an email, add it as an email message
       if (data.type === 'email') {
@@ -637,14 +646,24 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           timestamp: Date.now()
         };
         
+        // Si l'email contient des interlocuteurs, mettons à jour l'état
+        if (data.content.scenarioContacts && Array.isArray(data.content.scenarioContacts)) {
+          setScenario(prev => ({
+            ...prev,
+            scenarioContacts: data.content.scenarioContacts
+          }));
+        }
+        
         setMessages(prev => [...prev, emailMessage]);
       } else {
-        // Otherwise add as a regular bot message
+        // Otherwise add as a regular bot message with contact info
         const botResponse: ChatMessage = {
           id: uuidv4(),
           type: "bot",
           content: data.content as string,
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          contactName: data.contactName,
+          contactRole: data.contactRole
         };
         
         setMessages(prev => [...prev, botResponse]);

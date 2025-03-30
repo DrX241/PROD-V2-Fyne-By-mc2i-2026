@@ -1,4 +1,3 @@
-// Domain Types
 export interface CyberDomain {
   id: string;
   name: string;
@@ -8,7 +7,6 @@ export interface CyberDomain {
   iconColor: string;
 }
 
-// Scenario Types
 export interface ScenarioContact {
   name: string;
   role: string;
@@ -22,9 +20,9 @@ export interface CyberScenario {
   difficulty: 'Débutant' | 'Intermédiaire' | 'Expert';
   difficultyColor: string;
   domainId: string;
+  domain?: string; // Ajouté pour la compatibilité avec les routes
 }
 
-// Message Types
 export interface Attachment {
   id: string;
   fileName: string;
@@ -41,6 +39,7 @@ export interface EmailMessageContent {
   date: string;
   body: string;
   attachments: Attachment[];
+  scenarioContacts?: ScenarioContact[]; // Liste des interlocuteurs du scénario
 }
 
 export type MessageType = 'user' | 'bot' | 'email' | 'domain-selection' | 'scenario-selection';
@@ -50,9 +49,10 @@ export interface ChatMessage {
   type: MessageType;
   content: string | EmailMessageContent;
   timestamp: number;
+  contactName?: string; // Nom de l'interlocuteur pour les messages bot
+  contactRole?: string; // Rôle de l'interlocuteur pour les messages bot
 }
 
-// Configuration Types
 export interface AIConfig {
   difficultyLevel: 'Débutant' | 'Intermédiaire' | 'Expert';
   responseStyle: 'Détaillé et pédagogique' | 'Professionnel' | 'Concis et direct';
@@ -64,9 +64,9 @@ export interface ScenarioState {
   activeDomain?: CyberDomain;
   activeScenario?: CyberScenario;
   contact?: ScenarioContact;
+  scenarioContacts?: ScenarioContact[]; // Liste des interlocuteurs du scénario
 }
 
-// Chat Context Types
 export interface ChatContextState {
   messages: ChatMessage[];
   userName: string;

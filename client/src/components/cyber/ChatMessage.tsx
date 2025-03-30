@@ -3,9 +3,11 @@ import React from "react";
 interface ChatMessageProps {
   type: "user" | "bot";
   content: string;
+  contactName?: string;
+  contactRole?: string;
 }
 
-export default function ChatMessage({ type, content }: ChatMessageProps) {
+export default function ChatMessage({ type, content, contactName, contactRole }: ChatMessageProps) {
   // Convert line breaks to paragraph elements
   const formattedContent = content.split('\n').map((line, i) => {
     // If the line starts with a bullet point, make it a list item
@@ -56,6 +58,13 @@ export default function ChatMessage({ type, content }: ChatMessageProps) {
 
   return (
     <div className={`chat-message ${type}`}>
+      {/* Afficher les informations du contact pour les messages bot si disponibles */}
+      {type === "bot" && contactName && contactRole && (
+        <div className="contact-info mb-2">
+          <div className="font-bold text-indigo-700">{contactName}</div>
+          <div className="text-xs text-gray-600">{contactRole}</div>
+        </div>
+      )}
       {renderContent()}
     </div>
   );
