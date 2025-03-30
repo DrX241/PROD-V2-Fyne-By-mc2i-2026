@@ -547,11 +547,19 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const botConfirmation: ChatMessage = {
       id: uuidv4(),
       type: "bot",
-      content: `**Parfait ${userName} !** Vous avez choisi le scénario "${selectedScenario.title}".\n\nJe vais maintenant vous placer dans cette situation d'apprentissage. Vous recevrez bientôt un e-mail de ${selectedScenario.contact.name}, votre interlocuteur pour ce scénario.\n\nPréparez-vous à analyser la situation et à proposer des solutions !`,
+      content: `**Parfait ${userName} !** Vous avez choisi le scénario "${selectedScenario.title}".\n\nJe vais maintenant vous placer dans cette situation d'apprentissage.`,
       timestamp: Date.now()
     };
     
-    setMessages(prev => [...prev, botConfirmation]);
+    // Contexte détaillé avant l'email
+    const scenarioContext: ChatMessage = {
+      id: uuidv4(),
+      type: "bot",
+      content: `**Contexte du scénario :** ${selectedScenario.description}\n\nVous allez interagir avec plusieurs interlocuteurs qui ont des préoccupations différentes liées à ce scénario. Chaque interlocuteur apportera un point de vue unique (finance, cybersécurité, réputation, etc.).\n\nVous recevrez bientôt un e-mail de ${selectedScenario.contact.name}, ${selectedScenario.contact.role}, qui sera votre premier interlocuteur pour ce scénario.\n\nPréparez-vous à analyser la situation et à proposer des solutions adaptées !`,
+      timestamp: Date.now() + 100
+    };
+    
+    setMessages(prev => [...prev, botConfirmation, scenarioContext]);
     
     // Send the scenario selection to the server to generate initial email
     try {

@@ -425,66 +425,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const contentBytes = Buffer.byteLength(document.content, 'utf8');
       const fileSizeKB = Math.round(contentBytes / 1024);
       
-      // Définir les interlocuteurs supplémentaires pour le scénario
-      // Nous allons créer une liste d'interlocuteurs par domaine pour assurer la cohérence
+      // Définir les interlocuteurs supplémentaires pour le scénario avec leurs préoccupations différentes
       const getAdditionalContacts = (domain: string, primaryContact: { name: string, role: string }) => {
         // Évitons d'avoir le même contact plusieurs fois
         const additionalContacts = [];
         
-        // Secteurs spécifiques par domaine
-        if (domain.includes('BFA') || domain.includes('Banque') || domain.toLowerCase().includes('conformité')) {
-          additionalContacts.push({
-            name: "Lorenzo Bertola",
-            role: "Directeur Général Adjoint et Directeur du pôle BFA"
-          });
-        }
+        // Liste des préoccupations possibles
+        const concernTypes = {
+          finance: "S'inquiète principalement de l'impact financier, du budget, des coûts, du ROI et des pertes potentielles",
+          cyber: "Se préoccupe avant tout de la sécurité technique, des vulnérabilités, des solutions et des bonnes pratiques cyber",
+          reputation: "Focalise son attention sur l'impact en termes d'image de marque, de communication et de perception externe",
+          conformite: "Met l'accent sur le respect des lois, règlements et standards applicables",
+          operationnel: "S'intéresse principalement aux impacts sur les opérations et la continuité des activités"
+        };
         
-        if (domain.includes('IMPULSE') || domain.includes('Industrie') || domain.includes('Médias') || domain.includes('Santé')) {
-          additionalContacts.push({
-            name: "Guillaume Lechevallier",
-            role: "Directeur Général Adjoint et Directeur du pôle IMPULSE"
-          });
-        }
+        // Assignation des préoccupations par défaut selon le rôle
+        // Contact financier
+        additionalContacts.push({
+          name: "Vincent Terrier",
+          role: "Senior Partner, Directeur Financier",
+          concern: concernTypes.finance
+        });
         
+        // Contact cyber/technique
+        additionalContacts.push({
+          name: "Neil LEVIN",
+          role: "Expert cybersécurité & CFO",
+          concern: concernTypes.cyber
+        });
+        
+        // Contact réputation/communication
+        additionalContacts.push({
+          name: "Marion Lopez",
+          role: "Senior Partner et Directrice Marketing, Communication et RSE",
+          concern: concernTypes.reputation
+        });
+        
+        // Contact conformité/juridique
+        additionalContacts.push({
+          name: "Vincent Pascal",
+          role: "Directeur Général Adjoint et Directeur du Développement",
+          concern: concernTypes.conformite
+        });
+        
+        // Contact opérationnel
+        additionalContacts.push({
+          name: "Guillaume Lechevallier",
+          role: "Directeur Général Adjoint et Directeur du pôle IMPULSE",
+          concern: concernTypes.operationnel
+        });
+        
+        // Ajout d'experts spécifiques au domaine (sans remplacer les contacts principaux par préoccupation)
         if (domain.includes('Data') || domain.includes('IA') || domain.includes('Intelligence')) {
           additionalContacts.push({
             name: "Eddy MISSONI IDEMBI",
-            role: "Expert Data / IA & CTO"
-          }, {
-            name: "Fares SAYADI",
-            role: "Spécialiste Data / IA"
+            role: "Expert Data / IA & CTO",
+            concern: "S'intéresse aux aspects techniques liés à la data et à l'intelligence artificielle"
           });
         }
         
-        if (domain.includes('formation') || domain.includes('sensibilisation') || domain.toLowerCase().includes('rh')) {
+        if (domain.includes('formation') || domain.includes('sensibilisation')) {
           additionalContacts.push({
             name: "Isabelle Dubacq",
-            role: "Senior Partner, Directrice des Ressources Humaines"
+            role: "Senior Partner, Directrice des Ressources Humaines",
+            concern: "Se préoccupe du développement des compétences et de la sensibilisation des collaborateurs"
           });
         }
         
-        if (domain.toLowerCase().includes('stratégie') || domain.toLowerCase().includes('direction')) {
+        if (domain.toLowerCase().includes('stratégie')) {
           additionalContacts.push({
             name: "Arnaud Gauthier",
-            role: "Président"
-          }, {
-            name: "Olivier Hervo",
-            role: "Directeur Général"
+            role: "Président",
+            concern: "Axé sur la vision globale et stratégique à long terme de l'entreprise"
           });
         }
         
-        if (domain.toLowerCase().includes('sécurité') || domain.toLowerCase().includes('cyber')) {
-          additionalContacts.push({
-            name: "Neil LEVIN",
-            role: "Expert cybersécurité & CFO"
-          }, {
-            name: "Yousra SAIDANI",
-            role: "Experte Cybersécurité & CFO"
-          });
-        }
-        
-        // Filtrer pour éviter les doublons avec le contact principal
-        return additionalContacts.filter(c => c.name !== primaryContact.name).slice(0, 2);
+        // Filtrer pour éviter les doublons avec le contact principal et limiter à 3 interlocuteurs
+        // Nous voulons toujours au moins un contact financier, un contact cyber et un contact réputation
+        return additionalContacts
+          .filter(c => c.name !== primaryContact.name)
+          .sort(() => 0.5 - Math.random()) // Mélanger la liste pour varier les scénarios
+          .slice(0, 3);
       };
       
       // Obtenir 2 contacts supplémentaires pertinents pour ce scénario
@@ -558,19 +579,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Si aucun contact n'est fourni, générer les contacts à partir du domaine
       if (!availableContacts || !Array.isArray(availableContacts) || availableContacts.length === 0) {
         const getAdditionalContacts = (domain: string, primaryContact: { name: string, role: string }) => {
-          // Logique déjà définie plus haut
+          // Utiliser la même logique que celle définie plus haut
           const additionalContacts = [];
           
-          if (domain.includes('BFA') || domain.includes('Banque') || domain.toLowerCase().includes('conformité')) {
-            additionalContacts.push({
-              name: "Lorenzo Bertola",
-              role: "Directeur Général Adjoint et Directeur du pôle BFA"
-            });
-          }
+          // Liste des préoccupations possibles
+          const concernTypes = {
+            finance: "S'inquiète principalement de l'impact financier, du budget, des coûts, du ROI et des pertes potentielles",
+            cyber: "Se préoccupe avant tout de la sécurité technique, des vulnérabilités, des solutions et des bonnes pratiques cyber",
+            reputation: "Focalise son attention sur l'impact en termes d'image de marque, de communication et de perception externe",
+            conformite: "Met l'accent sur le respect des lois, règlements et standards applicables",
+            operationnel: "S'intéresse principalement aux impacts sur les opérations et la continuité des activités"
+          };
           
-          // ... autres conditions déjà définies plus haut
+          // Assignation des préoccupations par défaut selon le rôle
+          // Contact financier
+          additionalContacts.push({
+            name: "Vincent Terrier",
+            role: "Senior Partner, Directeur Financier",
+            concern: concernTypes.finance
+          });
           
-          return additionalContacts.filter(c => c.name !== primaryContact.name).slice(0, 2);
+          // Contact cyber/technique
+          additionalContacts.push({
+            name: "Neil LEVIN",
+            role: "Expert cybersécurité & CFO",
+            concern: concernTypes.cyber
+          });
+          
+          // Contact réputation/communication
+          additionalContacts.push({
+            name: "Marion Lopez",
+            role: "Senior Partner et Directrice Marketing, Communication et RSE",
+            concern: concernTypes.reputation
+          });
+          
+          // Filtrer pour éviter les doublons avec le contact principal et limiter à 3 interlocuteurs
+          return additionalContacts
+            .filter(c => c.name !== primaryContact.name)
+            .sort(() => 0.5 - Math.random()) // Mélanger la liste pour varier les scénarios
+            .slice(0, 3);
         };
         
         const additionalContacts = getAdditionalContacts(scenario.domain, scenario.contact);
@@ -635,7 +682,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Add the instruction about response evaluation and interlocutors
       const systemContent = systemPrompt + 
         `\n\nRÈGLE IMPORTANTE: Tu réponds en tant que ${respondingContact.name}, ${respondingContact.role}. Tu ne dois JAMAIS mentionner Azure OpenAI ou GPT.` +
-        "\n\nRÈGLE DU JEU DE RÔLE: Chaque interlocuteur a son propre style et expertise en fonction de son rôle. Adapte le ton, le style et le contenu de la réponse au profil de l'interlocuteur qui répond." +
+        `\n\nPRÉOCCUPATION PRINCIPALE: ${respondingContact.concern || 'Non spécifiée'}. Chaque interlocuteur a des préoccupations différentes face au même problème.` +
+        "\n\nRÈGLE DU JEU DE RÔLE: Chaque interlocuteur a son propre style et expertise en fonction de son rôle. Adapte le ton, le style et le contenu de la réponse au profil de l'interlocuteur qui répond. Modifie complètement ton approche et ton angle en fonction de la préoccupation principale du contact (finance, cybersécurité, réputation, conformité, etc.)." +
         "\n\nÉVALUATION DES RÉPONSES: Évalue rigoureusement la réponse de l'utilisateur. Si elle est incomplète, hors sujet, mal formulée ou peu pertinente, sois direct et franc dans ta critique. N'hésite pas à exiger immédiatement une réponse plus complète ou pertinente. Après trois tentatives infructueuses, mets fin au scénario.";
       
       // Create the base messages array

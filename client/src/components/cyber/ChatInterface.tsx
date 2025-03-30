@@ -4,14 +4,15 @@ import ChatMessage from "./ChatMessage";
 import DomainSelection from "./DomainSelection";
 import ScenarioSelection from "./ScenarioSelection";
 import EmailMessage from "./EmailMessage";
-import { Send, Paperclip, Sparkles, BotMessageSquare, UserCircle } from "lucide-react";
+import { Send, Paperclip, Sparkles, BotMessageSquare, UserCircle, RefreshCw } from "lucide-react";
 
 export default function ChatInterface() {
   const { 
     messages, 
     sendMessage, 
     isTyping,
-    userName
+    userName,
+    resetChat
   } = useChatContext();
   
   const [inputMessage, setInputMessage] = useState("");
@@ -88,7 +89,17 @@ export default function ChatInterface() {
             <p className="text-xs text-gray-500">Formation cybersécurité interactive</p>
           </div>
         </div>
-        {userName && <div className="text-sm text-gray-600">Bonjour, {userName}</div>}
+        <div className="flex items-center gap-4">
+          {userName && (
+            <button 
+              onClick={resetChat}
+              className="flex items-center gap-1 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-1.5 px-3 rounded-full transition-colors"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              <span>Nouvelle session</span>
+            </button>
+          )}
+        </div>
       </div>
       
       {/* Chat messages */}

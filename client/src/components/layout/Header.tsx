@@ -24,12 +24,9 @@ export default function Header() {
           <button className="text-neutral-500 hover:text-neutral-700">
             <HelpCircle className="h-5 w-5" />
           </button>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-medium">
-              {userInitial}
-            </div>
+          <div className="flex items-center">
             <span className="text-neutral-700 font-medium">
-              {userName || "Utilisateur"}
+              {userName ? `Bonjour ${userName}` : "Bienvenue"}
             </span>
           </div>
         </div>
