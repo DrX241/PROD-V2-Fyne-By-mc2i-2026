@@ -1,0 +1,82 @@
+Voici la liste complète des interlocuteurs actuellement configurés dans le système, avec leurs informations et spécificités :
+
+Secteur Bancaire/Financier (BFA)
+Lorenzo Bertola
+
+Rôle : Directeur Général Adjoint et Directeur du pôle BFA
+Expertise : Cybersécurité dans le secteur bancaire et financier
+Préoccupation : S'inquiète des implications réglementaires spécifiques au secteur financier (ACPR, réglementation bancaire) et de la protection des transactions
+Vincent Terrier
+
+Rôle : Senior Partner, Directeur Financier
+Expertise : Gestion des risques financiers liés aux cyber-attaques
+Préoccupation : Évalue l'impact financier des risques cyber et les investissements nécessaires pour s'en prémunir
+Secteur Industriel/Santé/Public (IMPULSE)
+Guillaume Lechevallier
+
+Rôle : Directeur Général Adjoint et Directeur du pôle IMPULSE
+Expertise : Transformation numérique sécurisée dans les secteurs industriels
+Préoccupation : Préoccupé par la continuité d'activité des systèmes industriels et la protection des infrastructures critiques
+Fares SAYADI
+
+Rôle : Spécialiste Data / IA
+Expertise : Sécurisation des données dans le secteur public et la santé
+Préoccupation : Axé sur la protection des données sensibles et personnelles dans des contextes critiques (santé, défense)
+Secteur Retail & Luxe
+Nicolas Paolantonacci
+
+Rôle : Senior Partner et Directeur du pôle RETAIL & LUXE
+Expertise : Protection des actifs digitaux dans le secteur du luxe
+Préoccupation : Focalisé sur la protection de la propriété intellectuelle et de l'image de marque
+Marion Lopez
+
+Rôle : Senior Partner et Directrice Marketing, Communication et RSE
+Expertise : Communication de crise et gestion de la réputation
+Préoccupation : Préoccupée par l'impact des incidents de sécurité sur l'image et la réputation de l'entreprise
+Secteur Énergie & Utilities
+Anthony Frescal
+Rôle : Directeur Général Adjoint et Directeur du pôle ENERGIES & UTILITIES
+Expertise : Sécurité des infrastructures critiques énergétiques
+Préoccupation : Centré sur la protection des installations industrielles sensibles et la continuité de service des réseaux énergétiques
+Experts Techniques en Cybersécurité
+Neil LEVIN
+
+Rôle : Expert cybersécurité & CFO
+Expertise : Stratégies de défense et solutions techniques de cybersécurité
+Préoccupation : Analyse les vulnérabilités techniques et propose des solutions concrètes pour renforcer la sécurité
+Yousra SAIDANI
+
+Rôle : Experte Cybersécurité & CFO
+Expertise : Analyse forensique et réponse aux incidents
+Préoccupation : Spécialisée dans l'investigation numérique et la résolution technique des incidents
+Experts Data/IA
+Eddy MISSONI IDEMBI
+
+Rôle : Expert Data / IA & CTO
+Expertise : Sécurisation des modèles d'IA et protection des données
+Préoccupation : Préoccupé par les risques spécifiques aux systèmes d'IA (empoisonnement des données, détournement des modèles)
+Eddy MISSONI (semble être un doublon)
+
+Rôle : Chef de Projet & Expert IA
+Pas d'expertise ou préoccupation spécifique définie dans le code actuel
+Experts en Conformité et Juridique
+Vincent Pascal
+Rôle : Directeur Général Adjoint et Directeur du Développement
+Expertise : Conformité réglementaire en matière de cybersécurité
+Préoccupation : Veille au respect des lois, normes et standards (RGPD, NIS2, ISO27001)
+Direction Générale
+Arnaud Gauthier
+
+Rôle : Président
+Expertise : Vision stratégique et gouvernance de la cybersécurité
+Préoccupation : Centré sur les enjeux stratégiques à long terme et la responsabilité du conseil d'administration
+Olivier Hervo
+
+Rôle : Directeur Général
+Expertise : Arbitrage risques/opportunités en matière de sécurité
+Préoccupation : Recherche l'équilibre entre sécurité et développement business, protection et innovation
+Ressources Humaines
+Isabelle Dubacq
+Rôle : Senior Partner, Directrice des Ressources Humaines
+Expertise : Formation et sensibilisation des collaborateurs
+Préoccupation : Préoccupée par le facteur humain dans la cybersécurité et le développement d'une culture de sécurité

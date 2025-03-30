@@ -65,8 +65,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Sensibilisation aux enjeux de la stratégie cyber",
           domain: "Stratégie et gouvernance cybersécurité",
           contact: {
-            name: "Martin Fournier",
-            role: "Directeur de la Communication"
+            name: "Marion Lopez",
+            role: "Senior Partner et Directrice Marketing, Communication et RSE"
           },
           difficulty: "Débutant"
         },
@@ -97,8 +97,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Introduction à la gestion de crise cyber",
           domain: "Gestion de crise cyber",
           contact: {
-            name: "Claire Dufour",
-            role: "Responsable Communication de Crise"
+            name: "Nosing Doeuk",
+            role: "Senior Partner - Directeur du pôle DIXIT"
           },
           difficulty: "Débutant"
         },
@@ -193,8 +193,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Introduction à la gestion des incidents",
           domain: "Gestion des incidents de sécurité",
           contact: {
-            name: "Philippe Martin",
-            role: "Responsable SOC Junior"
+            name: "Florent Le Strat",
+            role: "Senior Manager - Spécialiste Cybersécurité"
           },
           difficulty: "Débutant"
         },
@@ -539,7 +539,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
         
         // Sélection des interlocuteurs en fonction du domaine du scénario
-        let relevantExperts = [];
+        let relevantExperts: any[] = [];
         
         // 1. Analyse du domaine pour déterminer les expertises pertinentes
         if (domain.toLowerCase().includes('finance') || domain.toLowerCase().includes('banque') || domain.toLowerCase().includes('paiement')) {
@@ -726,8 +726,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Sensibilisation aux enjeux de la stratégie cyber",
           domain: "Stratégie et gouvernance cybersécurité",
           contact: {
-            name: "Martin Fournier",
-            role: "Directeur de la Communication"
+            name: "Marion Lopez",
+            role: "Senior Partner et Directrice Marketing, Communication et RSE"
           },
           difficulty: "Débutant"
         },
@@ -758,8 +758,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Introduction à la gestion de crise cyber",
           domain: "Gestion de crise cyber",
           contact: {
-            name: "Claire Dufour",
-            role: "Responsable Communication de Crise"
+            name: "Nosing Doeuk",
+            role: "Senior Partner - Directeur du pôle DIXIT"
           },
           difficulty: "Débutant"
         },
@@ -854,8 +854,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Introduction à la gestion des incidents",
           domain: "Gestion des incidents de sécurité",
           contact: {
-            name: "Philippe Martin",
-            role: "Responsable SOC Junior"
+            name: "Florent Le Strat",
+            role: "Senior Manager - Spécialiste Cybersécurité"
           },
           difficulty: "Débutant"
         },
@@ -1027,7 +1027,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           };
           
           // Sélection des interlocuteurs en fonction du domaine du scénario
-          let relevantExperts = [];
+          let relevantExperts: any[] = [];
           
           // 1. Analyse du domaine pour déterminer les expertises pertinentes
           if (domain.toLowerCase().includes('finance') || domain.toLowerCase().includes('banque') || domain.toLowerCase().includes('paiement')) {
@@ -1374,7 +1374,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 Tu vas créer une fiche d'évaluation complète pour l'utilisateur ${userName} qui vient de terminer le scénario "${scenario.title}" dans le domaine "${scenario.domain}", dans le secteur d'activité ${secteurActivite}.
 
 Voici l'historique complet de la conversation:
-${chatHistory ? chatHistory.map(msg => {
+${chatHistory ? chatHistory.map((msg: any) => {
   if (msg.type === 'user') {
     return `${userName}: ${msg.content}`;
   } else if (msg.type === 'bot' && msg.contactName) {
