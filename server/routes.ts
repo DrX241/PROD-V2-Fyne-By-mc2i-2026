@@ -33,8 +33,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Sensibilisation aux attaques de phishing",
           domain: "Ingénierie sociale et phishing",
           contact: {
-            name: "Neil Desai",
-            role: "Consultant Senior Cybersécurité"
+            name: "Marion Lopez",
+            role: "Senior Partner et Directrice Marketing, Communication et RSE"
           },
           difficulty: "Débutant"
         },
@@ -327,7 +327,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         else if (scenario.contact.name === "Guillaume Lechevallier" || scenario.contact.name === "Fares SAYADI") {
           secteurActivite = 'INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)';
         }
-        else if (scenario.contact.name === "Nicolas Paolantonacci" || scenario.contact.name === "Neil Desai") {
+        else if (scenario.contact.name === "Nicolas Paolantonacci" || scenario.contact.name === "Marion Lopez") {
           secteurActivite = 'RETAIL & LUXE';
         }
         else if (scenario.contact.name === "Anthony Frescal") {
@@ -452,10 +452,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
               concern: "Focalisé sur la protection de la propriété intellectuelle et de l'image de marque"
             },
             {
-              name: "Neil Desai",
-              role: "Consultant Senior Cybersécurité",
-              expertise: "Analyse des failles de sécurité et tests d'intrusion",
-              concern: "Préoccupé par les vulnérabilités techniques et les failles de sécurité exploitables"
+              name: "Marion Lopez",
+              role: "Senior Partner et Directrice Marketing, Communication et RSE",
+              expertise: "Communication de crise et gestion de la réputation",
+              concern: "Préoccupée par l'impact des incidents de sécurité sur l'image et la réputation de l'entreprise"
             }
           ],
           
@@ -694,8 +694,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Sensibilisation aux attaques de phishing",
           domain: "Ingénierie sociale et phishing",
           contact: {
-            name: "Neil Desai",
-            role: "Consultant Senior Cybersécurité"
+            name: "Marion Lopez",
+            role: "Senior Partner et Directrice Marketing, Communication et RSE"
           },
           difficulty: "Débutant"
         },
@@ -822,8 +822,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Classification des données sensibles",
           domain: "Protection des données personnelles / RGPD",
           contact: {
-            name: "Yousra Nafaa",
-            role: "Consultante Cybersécurité"
+            name: "Marion Lopez",
+            role: "Senior Partner et Directrice Marketing, Communication et RSE"
           },
           difficulty: "Débutant"
         },
@@ -1255,7 +1255,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         else if (scenario?.domain?.toLowerCase().includes('retail') || 
                 scenario?.domain?.toLowerCase().includes('luxe') || 
                 respondingContact.name === "Nicolas Paolantonacci" || 
-                respondingContact.name === "Julien Grimault") {
+                respondingContact.name === "Marion Lopez") {
           secteurActivite = 'RETAIL & LUXE';
         }
         else if (scenario?.domain?.toLowerCase().includes('énergie') || 
