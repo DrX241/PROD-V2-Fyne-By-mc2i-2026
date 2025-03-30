@@ -64,29 +64,12 @@ export default function ChatInterface() {
       case 'user':
       case 'bot':
         return (
-          <div className={`flex items-start gap-3 ${message.type === 'user' ? 'flex-row-reverse' : ''}`}>
-            {message.type === 'bot' ? (
-              <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0 mt-1">
-                {message.contactName ? (
-                  <span className="text-primary font-medium text-sm">
-                    {message.contactName.charAt(0)}
-                  </span>
-                ) : (
-                  <BotMessageSquare className="h-4 w-4 text-primary" />
-                )}
-              </div>
-            ) : (
-              <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 mt-1">
-                <UserCircle className="h-5 w-5 text-gray-600" />
-              </div>
-            )}
-            <ChatMessage 
-              type={message.type} 
-              content={message.content as string} 
-              contactName={message.contactName} 
-              contactRole={message.contactRole}
-            />
-          </div>
+          <ChatMessage 
+            type={message.type} 
+            content={message.content as string} 
+            contactName={message.contactName} 
+            contactRole={message.contactRole}
+          />
         );
       default:
         return null;
@@ -126,16 +109,11 @@ export default function ChatInterface() {
           
           {/* Indicateur de saisie */}
           {isTyping && (
-            <div className="flex items-start gap-3 w-full animate-pulse">
-              <div className="w-10 h-10 rounded-full bg-blue-700/30 border border-blue-500/20 flex items-center justify-center flex-shrink-0 mt-1 shadow-glow-sm">
-                <BotMessageSquare className="h-5 w-5 text-blue-300" />
-              </div>
-              <div className="flex items-center">
-                <div className="typing-indicator-cyber">
-                  <div className="typing-dot-cyber" style={{"--dot-index": "0"} as React.CSSProperties}></div>
-                  <div className="typing-dot-cyber" style={{"--dot-index": "1"} as React.CSSProperties}></div>
-                  <div className="typing-dot-cyber" style={{"--dot-index": "2"} as React.CSSProperties}></div>
-                </div>
+            <div className="typing-indicator-container mt-4 ml-12 animate-pulse">
+              <div className="typing-indicator-cyber">
+                <div className="typing-dot-cyber" style={{"--dot-index": "0"} as React.CSSProperties}></div>
+                <div className="typing-dot-cyber" style={{"--dot-index": "1"} as React.CSSProperties}></div>
+                <div className="typing-dot-cyber" style={{"--dot-index": "2"} as React.CSSProperties}></div>
               </div>
             </div>
           )}
