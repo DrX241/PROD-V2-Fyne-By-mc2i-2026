@@ -286,6 +286,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
         responseStyle: config?.responseStyle || "Professionnel"
       });
       
+      // Déterminer le secteur d'activité en fonction du domaine et du titre du scénario
+      let secteurActivite = '';
+      
+      if (scenario.domain.toLowerCase().includes('finance') || 
+          scenario.domain.toLowerCase().includes('banque') ||
+          scenario.title.toLowerCase().includes('finance') ||
+          scenario.title.toLowerCase().includes('banque') ||
+          scenario.title.toLowerCase().includes('fraude')) {
+        secteurActivite = 'BANCAIRE/FINANCIER (BFA)';
+      } 
+      else if (scenario.domain.toLowerCase().includes('santé') || 
+               scenario.domain.toLowerCase().includes('industriel') || 
+               scenario.domain.toLowerCase().includes('public') ||
+               scenario.title.toLowerCase().includes('santé') ||
+               scenario.title.toLowerCase().includes('industriel') ||
+               scenario.title.toLowerCase().includes('patient') ||
+               scenario.title.toLowerCase().includes('médical')) {
+        secteurActivite = 'INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)';
+      }
+      else if (scenario.domain.toLowerCase().includes('retail') || 
+               scenario.domain.toLowerCase().includes('luxe') ||
+               scenario.domain.toLowerCase().includes('commerce') ||
+               scenario.title.toLowerCase().includes('marque') ||
+               scenario.title.toLowerCase().includes('retail')) {
+        secteurActivite = 'RETAIL & LUXE';
+      }
+      else if (scenario.domain.toLowerCase().includes('énergie') || 
+               scenario.domain.toLowerCase().includes('energie') ||
+               scenario.domain.toLowerCase().includes('utilities') ||
+               scenario.title.toLowerCase().includes('énergie') ||
+               scenario.title.toLowerCase().includes('production')) {
+        secteurActivite = 'ÉNERGIE & UTILITIES';
+      }
+      else {
+        // Par défaut, attribuer un secteur en fonction du contact principal
+        if (scenario.contact.name === "Lorenzo Bertola" || scenario.contact.name === "Vincent Terrier") {
+          secteurActivite = 'BANCAIRE/FINANCIER (BFA)';
+        }
+        else if (scenario.contact.name === "Guillaume Lechevallier" || scenario.contact.name === "Fares SAYADI") {
+          secteurActivite = 'INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)';
+        }
+        else if (scenario.contact.name === "Nicolas Paolantonacci" || scenario.contact.name === "Marion Lopez") {
+          secteurActivite = 'RETAIL & LUXE';
+        }
+        else if (scenario.contact.name === "Anthony Frescal") {
+          secteurActivite = 'ÉNERGIE & UTILITIES';
+        }
+        else {
+          // Si toujours pas de correspondance, choisir aléatoirement
+          const secteurs = ['BANCAIRE/FINANCIER (BFA)', 'INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)', 'RETAIL & LUXE', 'ÉNERGIE & UTILITIES'];
+          secteurActivite = secteurs[Math.floor(Math.random() * secteurs.length)];
+        }
+      }
+
       const messages: ChatCompletionRequestMessage[] = [
         {
           role: "system",
@@ -298,7 +352,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           - L'email doit être adressé à ${userName}
           - Le niveau de difficulté est ${scenario.difficulty}
           - Une pièce jointe nommée "${document.fileName}" est disponible avec des informations détaillées
-          - L'email doit mettre en place le contexte du scénario et demander une action de la part de ${userName}
+          - Le secteur d'activité pour ce scénario est: ${secteurActivite}
+          - L'email doit créer un contexte d'entreprise spécifique et réaliste lié à ce secteur
+          - Inventez un nom d'entreprise cohérent pour ce secteur
+          - Intégrez des problématiques et enjeux propres à ce secteur d'activité
+          - Faites référence à des contraintes réglementaires ou standards spécifiques au secteur
+          - Mentionnez au moins un enjeu business concret lié à la problématique cybersécurité
+          - L'email doit mettre en place un contexte riche et demander une action de la part de ${userName}
+          - Assurez-vous que le style d'écriture corresponde parfaitement au rôle du contact
           - Rédige uniquement l'email, pas de commentaires ou d'explications`
         }
       ];
@@ -1145,6 +1206,93 @@ export async function registerRoutes(app: Express): Promise<Server> {
         responseStyle: config?.responseStyle || "Professionnel"
       });
       
+      // Déterminer le secteur d'activité actuel en fonction de l'historique
+      let secteurActivite = '';
+      
+      // Trouver le secteur à partir de l'historique de chat s'il existe
+      if (chatHistory && chatHistory.length > 0) {
+        for (const msg of chatHistory) {
+          if (msg.type === 'email' && typeof msg.content === 'object') {
+            const body = msg.content.body || '';
+            
+            if (body.includes('banque') || body.includes('financier') || body.includes('assurance') || 
+                body.includes('ACPR') || body.includes('KYC') || body.includes('AML') || body.includes('PCI-DSS')) {
+              secteurActivite = 'BANCAIRE/FINANCIER (BFA)';
+              break;
+            }
+            else if (body.includes('industrie') || body.includes('santé') || body.includes('public') || 
+                     body.includes('patient') || body.includes('OT/IT') || body.includes('système industriel')) {
+              secteurActivite = 'INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)';
+              break;
+            }
+            else if (body.includes('retail') || body.includes('luxe') || body.includes('marque') || 
+                     body.includes('e-commerce') || body.includes('boutique') || body.includes('client')) {
+              secteurActivite = 'RETAIL & LUXE';
+              break;
+            }
+            else if (body.includes('énergie') || body.includes('utilities') || body.includes('infrastructure critique') || 
+                     body.includes('SCADA') || body.includes('production')) {
+              secteurActivite = 'ÉNERGIE & UTILITIES';
+              break;
+            }
+          }
+        }
+      }
+      
+      // Si aucun secteur n'a été trouvé, baser sur le domaine et le rôle du répondant
+      if (!secteurActivite) {
+        if (scenario?.domain?.toLowerCase().includes('finance') || 
+            respondingContact.name === "Lorenzo Bertola" || 
+            respondingContact.name === "Vincent Terrier") {
+          secteurActivite = 'BANCAIRE/FINANCIER (BFA)';
+        }
+        else if (scenario?.domain?.toLowerCase().includes('industriel') || 
+                scenario?.domain?.toLowerCase().includes('santé') || 
+                respondingContact.name === "Guillaume Lechevallier" || 
+                respondingContact.name === "Fares SAYADI") {
+          secteurActivite = 'INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)';
+        }
+        else if (scenario?.domain?.toLowerCase().includes('retail') || 
+                scenario?.domain?.toLowerCase().includes('luxe') || 
+                respondingContact.name === "Nicolas Paolantonacci" || 
+                respondingContact.name === "Marion Lopez") {
+          secteurActivite = 'RETAIL & LUXE';
+        }
+        else if (scenario?.domain?.toLowerCase().includes('énergie') || 
+                respondingContact.name === "Anthony Frescal") {
+          secteurActivite = 'ÉNERGIE & UTILITIES';
+        }
+        else {
+          // Choisir en fonction du premier message s'il s'agit d'un email
+          if (chatHistory && chatHistory.length > 0 && chatHistory[0].type === 'email') {
+            const firstEmailContent = chatHistory[0].content;
+            if (typeof firstEmailContent === 'object' && firstEmailContent.body) {
+              const body = firstEmailContent.body.toLowerCase();
+              
+              if (body.includes('banque') || body.includes('financ')) {
+                secteurActivite = 'BANCAIRE/FINANCIER (BFA)';
+              }
+              else if (body.includes('industri') || body.includes('santé') || body.includes('public')) {
+                secteurActivite = 'INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)';
+              }
+              else if (body.includes('retail') || body.includes('luxe') || body.includes('marque')) {
+                secteurActivite = 'RETAIL & LUXE';
+              }
+              else if (body.includes('énerg') || body.includes('utiliti')) {
+                secteurActivite = 'ÉNERGIE & UTILITIES';
+              }
+              else {
+                // Choix par défaut
+                secteurActivite = 'BANCAIRE/FINANCIER (BFA)';
+              }
+            }
+          } else {
+            // Choix par défaut si pas d'historique
+            secteurActivite = 'BANCAIRE/FINANCIER (BFA)';
+          }
+        }
+      }
+      
       // Add the instruction about response evaluation and interlocutors
       const systemContent = systemPrompt + 
         `\n\nRÈGLE IMPORTANTE: Tu réponds en tant que ${respondingContact.name}, ${respondingContact.role}. Tu ne dois JAMAIS mentionner Azure OpenAI ou GPT.` +
@@ -1153,17 +1301,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         `\n\nPRÉOCCUPATION PRINCIPALE: ${respondingContact.concern || 'Non spécifiée'}. Chaque interlocuteur a des préoccupations différentes face à la même problématique cyber.` +
         
-        "\n\nDIVERSITÉ DES EXPERTISES: Les différents interlocuteurs dans ce scénario représentent une diversité d'expertises :" +
-        "\n- Expertise métier : connaissance approfondie d'un secteur d'activité (banque, industrie, santé...)" +
-        "\n- Expertise technologique : maîtrise d'aspects techniques spécifiques (cybersécurité, IA, cloud...)" +
-        "\n- Expertise sectorielle : vision globale sur un secteur économique (énergie, retail, services publics...)" +
-        "\n- Expertise fonctionnelle : perspective liée à une fonction dans l'entreprise (direction, RH, finance...)" +
+        `\n\nCONTEXTE SECTORIEL: Ce scénario se déroule dans le secteur ${secteurActivite}. Adapte ton vocabulaire, tes références et tes exemples à ce secteur d'activité spécifique.` +
         
-        "\n\nCONTEXTUALISATION CYBER: La problématique centrale du scénario est TOUJOURS un enjeu de cybersécurité contextualisé dans un environnement métier ou sectoriel spécifique. Garde cette problématique cyber au centre de tes réponses, tout en l'abordant selon ton angle d'expertise." +
+        "\n\nRÈGLES D'ADAPTATION SECTORIELLE:" +
+        "\n1. Utilise des termes spécifiques au secteur dans tes réponses" +
+        "\n2. Fais référence aux réglementations et standards propres à ce secteur" +
+        "\n3. Adapte tes exemples et cas d'usage au contexte spécifique de ce secteur" +
+        "\n4. Évoque des préoccupations business et opérationnelles pertinentes pour ce secteur" +
+        "\n5. Utilise un vocabulaire adapté à ton rôle et à ton niveau hiérarchique" +
         
-        "\n\nRÈGLE DU JEU DE RÔLE: Tu dois absolument adapter ton style de communication, ton vocabulaire et tes préoccupations à ton profil. Un expert cybersécurité ne parle pas comme un directeur financier ou un responsable marketing. Modifie complètement ton approche et ton angle d'analyse en fonction de ton rôle et de tes préoccupations principales." +
+        "\n\nCONTEXTUALISATION CYBER: La problématique centrale du scénario est TOUJOURS un enjeu de cybersécurité contextualisé dans un environnement métier ou sectoriel spécifique. Garde cette problématique cyber au centre de tes réponses, tout en l'abordant selon ton angle d'expertise et le contexte sectoriel." +
         
-        "\n\nÉVALUATION DES RÉPONSES: Évalue rigoureusement la réponse de l'utilisateur. Si elle est incomplète, hors sujet, mal formulée ou peu pertinente, sois direct et franc dans ta critique. N'hésite pas à exiger immédiatement une réponse plus complète ou pertinente. Après trois tentatives infructueuses, mets fin au scénario.";
+        "\n\nRÈGLE DU JEU DE RÔLE AVANCÉ: Tu dois absolument adapter ton style de communication, ton vocabulaire et tes préoccupations à ton profil et au secteur. Un expert cybersécurité dans le secteur bancaire ne parle pas comme un directeur financier dans le secteur industriel. Modifie complètement ton approche en fonction de ton rôle, du contexte sectoriel et de tes préoccupations principales." +
+        
+        "\n\nÉVALUATION DES RÉPONSES: Évalue rigoureusement la réponse de l'utilisateur. Si elle est incomplète, hors sujet, mal formulée ou peu pertinente, sois direct et franc dans ta critique. N'hésite pas à exiger immédiatement une réponse plus complète ou pertinente. Après trois tentatives infructueuses, mets fin au scénario." +
+        
+        `\n\nINTERDICTION ABSOLUE: Ne jamais dire "En tant que [nom], je..." ou "Dans mon rôle de [fonction], je...". Incarne directement le personnage, parle naturellement comme le ferait cette personne dans son contexte professionnel.`;
       
       // Create the base messages array
       const messages: ChatCompletionRequestMessage[] = [
