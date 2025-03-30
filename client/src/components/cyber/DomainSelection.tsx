@@ -1,12 +1,8 @@
+
 import { useChatContext } from "@/contexts/ChatContext";
 
 export default function DomainSelection() {
-  const { domains } = useChatContext();
-
-  const selectDomain = (domainId: string) => {
-    //Implementation to handle domain selection.  This needs to be defined based on the application's logic
-    console.log("Selected domain:", domainId);
-  };
+  const { domains, selectDomain } = useChatContext();
 
   const handleDomainClick = (domainId: string) => {
     selectDomain(domainId);
