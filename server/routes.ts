@@ -33,8 +33,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Sensibilisation aux attaques de phishing",
           domain: "Ingénierie sociale et phishing",
           contact: {
-            name: "Marion Lopez",
-            role: "Senior Partner et Directrice Marketing, Communication et RSE"
+            name: "Neil Desai",
+            role: "Consultant Senior Cybersécurité"
           },
           difficulty: "Débutant"
         },
@@ -65,8 +65,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Sensibilisation aux enjeux de la stratégie cyber",
           domain: "Stratégie et gouvernance cybersécurité",
           contact: {
-            name: "Marion Lopez",
-            role: "Senior Partner et Directrice Marketing, Communication et RSE"
+            name: "Julien Grimault",
+            role: "Senior Partner - Directeur d'unité, Sponsor du centre d'expertise Cybersécurité"
           },
           difficulty: "Débutant"
         },
@@ -161,8 +161,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Classification des données sensibles",
           domain: "Protection des données personnelles / RGPD",
           contact: {
-            name: "Marion Lopez",
-            role: "Senior Partner et Directrice Marketing, Communication et RSE"
+            name: "Yousra Benahmed",
+            role: "Consultante Senior Cybersécurité"
           },
           difficulty: "Débutant"
         },
@@ -193,8 +193,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Introduction à la gestion des incidents",
           domain: "Gestion des incidents de sécurité",
           contact: {
-            name: "Florent Le Strat",
-            role: "Senior Manager - Spécialiste Cybersécurité"
+            name: "Neil Desai",
+            role: "Consultant Senior Cybersécurité"
           },
           difficulty: "Débutant"
         },
@@ -327,7 +327,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         else if (scenario.contact.name === "Guillaume Lechevallier" || scenario.contact.name === "Fares SAYADI") {
           secteurActivite = 'INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)';
         }
-        else if (scenario.contact.name === "Nicolas Paolantonacci" || scenario.contact.name === "Marion Lopez") {
+        else if (scenario.contact.name === "Nicolas Paolantonacci" || scenario.contact.name === "Neil Desai") {
           secteurActivite = 'RETAIL & LUXE';
         }
         else if (scenario.contact.name === "Anthony Frescal") {
@@ -452,10 +452,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
               concern: "Focalisé sur la protection de la propriété intellectuelle et de l'image de marque"
             },
             {
-              name: "Marion Lopez",
-              role: "Senior Partner et Directrice Marketing, Communication et RSE",
-              expertise: "Communication de crise et gestion de la réputation",
-              concern: "Préoccupée par l'impact des incidents de sécurité sur l'image et la réputation de l'entreprise"
+              name: "Neil Desai",
+              role: "Consultant Senior Cybersécurité",
+              expertise: "Analyse des failles de sécurité et tests d'intrusion",
+              concern: "Préoccupé par les vulnérabilités techniques et les failles de sécurité exploitables"
             }
           ],
           
@@ -694,8 +694,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Sensibilisation aux attaques de phishing",
           domain: "Ingénierie sociale et phishing",
           contact: {
-            name: "Marion Lopez",
-            role: "Senior Partner et Directrice Marketing, Communication et RSE"
+            name: "Neil Desai",
+            role: "Consultant Senior Cybersécurité"
           },
           difficulty: "Débutant"
         },
@@ -726,8 +726,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Sensibilisation aux enjeux de la stratégie cyber",
           domain: "Stratégie et gouvernance cybersécurité",
           contact: {
-            name: "Marion Lopez",
-            role: "Senior Partner et Directrice Marketing, Communication et RSE"
+            name: "Julien Grimault",
+            role: "Senior Partner - Directeur d'unité, Sponsor du centre d'expertise Cybersécurité"
           },
           difficulty: "Débutant"
         },
@@ -822,8 +822,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Classification des données sensibles",
           domain: "Protection des données personnelles / RGPD",
           contact: {
-            name: "Marion Lopez",
-            role: "Senior Partner et Directrice Marketing, Communication et RSE"
+            name: "Yousra Nafaa",
+            role: "Consultante Cybersécurité"
           },
           difficulty: "Débutant"
         },
@@ -854,8 +854,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Introduction à la gestion des incidents",
           domain: "Gestion des incidents de sécurité",
           contact: {
-            name: "Florent Le Strat",
-            role: "Senior Manager - Spécialiste Cybersécurité"
+            name: "Yousra Benahmed",
+            role: "Consultante Senior Cybersécurité"
           },
           difficulty: "Débutant"
         },
@@ -940,10 +940,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 concern: "Focalisé sur la protection de la propriété intellectuelle et de l'image de marque"
               },
               {
-                name: "Marion Lopez",
-                role: "Senior Partner et Directrice Marketing, Communication et RSE",
-                expertise: "Communication de crise et gestion de la réputation",
-                concern: "Préoccupée par l'impact des incidents de sécurité sur l'image et la réputation de l'entreprise"
+                name: "Julien Grimault",
+                role: "Senior Partner - Directeur d'unité, Sponsor du centre d'expertise Cybersécurité",
+                expertise: "Gouvernance et stratégie de cybersécurité",
+                concern: "Préoccupé par la conformité aux normes et l'intégration de la cybersécurité dans la stratégie globale de l'entreprise"
               }
             ],
             
@@ -1255,7 +1255,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         else if (scenario?.domain?.toLowerCase().includes('retail') || 
                 scenario?.domain?.toLowerCase().includes('luxe') || 
                 respondingContact.name === "Nicolas Paolantonacci" || 
-                respondingContact.name === "Marion Lopez") {
+                respondingContact.name === "Julien Grimault") {
           secteurActivite = 'RETAIL & LUXE';
         }
         else if (scenario?.domain?.toLowerCase().includes('énergie') || 
