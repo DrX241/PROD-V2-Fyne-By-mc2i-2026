@@ -86,26 +86,28 @@ export default function ChatInterface() {
   return (
     <div className="chat-container">
       {/* Header */}
-      <div className="bg-white border-b border-gray-100 p-5 sticky top-0 z-10 flex items-center justify-between shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/10 text-primary p-2 rounded-lg">
-            <Sparkles className="h-5 w-5" />
+      <div className="bg-white border-b border-gray-100 p-5 sticky top-0 z-10 shadow-sm">
+        <div className="full-width-container flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="bg-primary/10 text-primary p-2 rounded-lg">
+              <Sparkles className="h-5 w-5" />
+            </div>
+            <div>
+              <h1 className="font-semibold text-gray-900">CyberGuide</h1>
+              <p className="text-xs text-gray-500 mt-0.5">Formation cybersécurité interactive</p>
+            </div>
           </div>
-          <div>
-            <h1 className="font-semibold text-gray-900">CyberGuide</h1>
-            <p className="text-xs text-gray-500 mt-0.5">Formation cybersécurité interactive</p>
+          <div className="flex items-center gap-4">
+            {userName && (
+              <button 
+                onClick={resetChat}
+                className="flex items-center gap-2 text-sm bg-primary/10 hover:bg-primary/15 text-primary py-2 px-4 rounded-lg transition-colors font-medium"
+              >
+                <RefreshCw className="h-4 w-4" />
+                <span>Nouvelle session</span>
+              </button>
+            )}
           </div>
-        </div>
-        <div className="flex items-center gap-4">
-          {userName && (
-            <button 
-              onClick={resetChat}
-              className="flex items-center gap-2 text-sm bg-primary/10 hover:bg-primary/15 text-primary py-2 px-4 rounded-lg transition-colors font-medium"
-            >
-              <RefreshCw className="h-4 w-4" />
-              <span>Nouvelle session</span>
-            </button>
-          )}
         </div>
       </div>
       
@@ -126,7 +128,7 @@ export default function ChatInterface() {
           
           {/* Typing indicator */}
           {isTyping && (
-            <div className="flex items-start gap-3 w-full max-w-4xl mx-auto">
+            <div className="flex items-start gap-3 w-full">
               <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0 mt-1 shadow-sm">
                 <BotMessageSquare className="h-4 w-4 text-primary" />
               </div>
@@ -144,7 +146,7 @@ export default function ChatInterface() {
 
       {/* Chat input */}
       <div className="chat-input-container w-full">
-        <div className="max-w-4xl mx-auto w-full">
+        <div className="full-width-container">
           <form className="flex items-center gap-3 w-full" onSubmit={handleSubmit}>
             <div className="relative flex-1 w-full">
               <input 

@@ -39,11 +39,11 @@
 
   /* Message container styles */
   .message-container {
-    @apply p-4 space-y-6;
+    @apply p-4 space-y-6 max-w-7xl w-full mx-auto;
   }
 
   .message-wrapper {
-    @apply max-w-4xl w-full mx-auto;
+    @apply w-full mx-auto;
   }
 
   /* Chat message styles */
@@ -71,7 +71,7 @@
 
   /* Domain selection styles */
   .domain-grid {
-    @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4 max-w-4xl mx-auto;
+    @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4 max-w-7xl mx-auto;
   }
 
   .domain-card {
@@ -91,7 +91,7 @@
 
   /* Email message styles */
   .email-container {
-    @apply bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden max-w-4xl w-full mx-auto;
+    @apply bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden max-w-6xl w-full mx-auto;
   }
 
   .email-header {
@@ -137,5 +137,14 @@
   
   .custom-scrollbar::-webkit-scrollbar-thumb {
     @apply bg-gray-300 rounded-full hover:bg-gray-400 transition-colors;
+  }
+  
+  /* Classes pour optimiser l'espace */
+  .full-width-container {
+    @apply max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .context-banner {
+    @apply w-full border-b border-gray-100 py-2.5 shadow-sm bg-white;
   }
 }

@@ -35,8 +35,8 @@ export default function ContextBanner() {
   const difficultyClass = getDifficultyClass(scenario.activeScenario.difficulty);
   
   return (
-    <div className="bg-white border-b border-gray-100 py-2.5 px-5 shadow-sm">
-      <div className="max-w-4xl mx-auto flex items-center justify-between">
+    <div className="context-banner">
+      <div className="full-width-container flex items-center justify-between">
         {/* Informations sur le domaine et le scénario */}
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
