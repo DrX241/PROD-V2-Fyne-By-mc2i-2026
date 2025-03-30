@@ -33,23 +33,23 @@ export default function ConnectionStatus() {
   return (
     <div className={cn(
       "flex items-center px-3 py-1 rounded-full text-xs font-medium",
-      status === 'connected' ? "bg-blue-800/40 text-white border border-blue-500/30" :
+      status === 'connected' ? "bg-green-800/40 text-white border border-green-500/30" :
       status === 'reconnecting' ? "bg-yellow-800/40 text-white border border-yellow-500/30" :
       "bg-red-800/40 text-white border border-red-500/30"
     )}>
       {status === 'connected' ? (
         <>
-          <Wifi className="w-3 h-3 mr-1" />
+          <Wifi className="w-3 h-3 mr-1 text-green-400" />
           <span>FYNE connecté</span>
         </>
       ) : status === 'reconnecting' ? (
         <>
-          <AlertTriangle className="w-3 h-3 mr-1" />
+          <AlertTriangle className="w-3 h-3 mr-1 text-yellow-400" />
           <span>Reconnexion en cours...</span>
         </>
       ) : (
         <>
-          <WifiOff className="w-3 h-3 mr-1" />
+          <WifiOff className="w-3 h-3 mr-1 text-red-400" />
           <span>FYNE déconnecté</span>
         </>
       )}
