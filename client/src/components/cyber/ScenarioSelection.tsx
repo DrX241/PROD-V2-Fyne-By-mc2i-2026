@@ -57,11 +57,15 @@ export default function ScenarioSelection() {
                 <div className="flex items-center text-xs text-gray-500 space-x-4">
                   <div className="flex items-center">
                     <Users className="w-3 h-3 mr-1" />
-                    <span>{s.contact.name}</span>
+                    {s.contacts && s.contacts.length > 0 && (
+                      <span>{s.contacts.find((c: any) => c.id === s.primaryContact)?.name || s.contacts[0].name}</span>
+                    )}
                   </div>
                   <div className="flex items-center">
                     <BarChart3 className="w-3 h-3 mr-1" />
-                    <span>{s.contact.role}</span>
+                    {s.contacts && s.contacts.length > 0 && (
+                      <span>{s.contacts.find((c: any) => c.id === s.primaryContact)?.role || s.contacts[0].role}</span>
+                    )}
                   </div>
                 </div>
               </div>

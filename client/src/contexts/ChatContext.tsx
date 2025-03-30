@@ -115,7 +115,7 @@ const initialDomains: CyberDomain[] = [
   }
 ];
 
-// Initial scenarios data
+// Initial scenarios data - Avec le nouveau format
 const initialScenarios: CyberScenario[] = [
   // Formation et sensibilisation
   {
@@ -132,17 +132,17 @@ const initialScenarios: CyberScenario[] = [
       },
       {
         id: "contact-2",
-        name: "Paul Dubois",
-        role: "Responsable de la Sécurité Informatique",
-        department: "IT",
-        email: "paul.dubois@mc2i.fr"
+        name: "Vincent Terrier",
+        role: "Senior Partner, Directeur Financier",
+        department: "Finance",
+        email: "vincent.terrier@mc2i.fr"
       },
       {
         id: "contact-3",
-        name: "Sophie Martin",
-        role: "Chef de projet sensibilisation",
-        department: "Formation",
-        email: "sophie.martin@mc2i.fr"
+        name: "Eddy MISSONI",
+        role: "Chef de Projet & Expert IA",
+        department: "IT",
+        email: "eddy.missoni@mc2i.fr"
       }
     ],
     primaryContact: "contact-1",
@@ -164,17 +164,17 @@ const initialScenarios: CyberScenario[] = [
       },
       {
         id: "contact-5",
-        name: "Julien Renard",
-        role: "Chef de projet formation",
-        department: "Formation",
-        email: "julien.renard@mc2i.fr"
+        name: "Olivier Hervo",
+        role: "Directeur Général",
+        department: "Direction",
+        email: "olivier.hervo@mc2i.fr"
       },
       {
         id: "contact-6",
-        name: "Léa Petit",
-        role: "Experte cybersécurité",
-        department: "IT",
-        email: "lea.petit@mc2i.fr"
+        name: "Neil LEVIN",
+        role: "Expert cybersécurité & CFO",
+        department: "Finance",
+        email: "neil.levin@mc2i.fr"
       }
     ],
     primaryContact: "contact-4",
@@ -198,17 +198,17 @@ const initialScenarios: CyberScenario[] = [
       },
       {
         id: "contact-8",
-        name: "Christophe Bernard",
-        role: "Analyste OSINT",
-        department: "Sécurité",
-        email: "christophe.bernard@mc2i.fr"
+        name: "Vincent Pascal",
+        role: "Directeur Général Adjoint et Directeur du Développement",
+        department: "Développement",
+        email: "vincent.pascal@mc2i.fr"
       },
       {
         id: "contact-9",
-        name: "Émilie Fabre",
-        role: "Directrice communication",
+        name: "Marion Lopez",
+        role: "Senior Partner et Directrice Marketing, Communication et RSE",
         department: "Communication",
-        email: "emilie.fabre@mc2i.fr"
+        email: "marion.lopez@mc2i.fr"
       }
     ],
     primaryContact: "contact-7",
@@ -230,23 +230,123 @@ const initialScenarios: CyberScenario[] = [
       },
       {
         id: "contact-11",
-        name: "Mehdi Alaoui",
-        role: "Expert en sécurité offensive",
-        department: "Cybersécurité",
-        email: "mehdi.alaoui@mc2i.fr"
+        name: "Eddy MISSONI IDEMBI",
+        role: "Expert Data / IA & CTO",
+        department: "IT",
+        email: "eddy.missoni.idembi@mc2i.fr"
       },
       {
         id: "contact-12",
-        name: "Clara Nguyen",
-        role: "Responsable marketing digital",
-        department: "Marketing",
-        email: "clara.nguyen@mc2i.fr"
+        name: "Fares SAYADI",
+        role: "Spécialiste Data / IA",
+        department: "IT",
+        email: "fares.sayadi@mc2i.fr"
       }
     ],
     primaryContact: "contact-10",
     difficulty: "Expert",
     difficultyColor: "bg-red-100 text-red-700",
     domainId: "osint"
+  },
+  
+  // Conformité cyber
+  {
+    id: "gdpr-compliance",
+    title: "Mise en conformité RGPD",
+    description: "Vous devez évaluer et améliorer la conformité RGPD de votre organisation suite à des changements réglementaires.",
+    contacts: [
+      {
+        id: "contact-13",
+        name: "Vincent Terrier",
+        role: "Senior Partner, Directeur Financier",
+        department: "Finance",
+        email: "vincent.terrier@mc2i.fr"
+      },
+      {
+        id: "contact-14",
+        name: "Isabelle Dubacq",
+        role: "Senior Partner, Directrice des Ressources Humaines",
+        department: "RH",
+        email: "isabelle.dubacq@mc2i.fr"
+      },
+      {
+        id: "contact-15",
+        name: "Lorenzo Bertola",
+        role: "Directeur Général Adjoint et Directeur du pôle BFA",
+        department: "BFA",
+        email: "lorenzo.bertola@mc2i.fr"
+      }
+    ],
+    primaryContact: "contact-13",
+    difficulty: "Intermédiaire",
+    difficultyColor: "bg-orange-100 text-orange-700",
+    domainId: "conformite-cyber"
+  },
+  {
+    id: "iso-certification",
+    title: "Préparation à la certification ISO 27001",
+    description: "Vous préparez votre organisation à une certification ISO 27001 et devez identifier les écarts à combler.",
+    contacts: [
+      {
+        id: "contact-16",
+        name: "Vincent Pascal",
+        role: "Directeur Général Adjoint et Directeur du Développement",
+        department: "Développement",
+        email: "vincent.pascal@mc2i.fr"
+      },
+      {
+        id: "contact-17",
+        name: "Neil LEVIN",
+        role: "Expert cybersécurité & CFO",
+        department: "Finance",
+        email: "neil.levin@mc2i.fr"
+      },
+      {
+        id: "contact-18",
+        name: "Anthony Frescal",
+        role: "Directeur Général Adjoint et Directeur du pôle ENERGIES & UTILITIES",
+        department: "Énergie",
+        email: "anthony.frescal@mc2i.fr"
+      }
+    ],
+    primaryContact: "contact-16",
+    difficulty: "Expert",
+    difficultyColor: "bg-red-100 text-red-700",
+    domainId: "conformite-cyber"
+  },
+  
+  // Stratégie cyber
+  {
+    id: "cyber-strategy",
+    title: "Élaboration de la stratégie cybersécurité",
+    description: "Développez une stratégie de cybersécurité complète pour les 3 prochaines années.",
+    contacts: [
+      {
+        id: "contact-19",
+        name: "Arnaud Gauthier",
+        role: "Président",
+        department: "Direction",
+        email: "arnaud.gauthier@mc2i.fr"
+      },
+      {
+        id: "contact-20",
+        name: "Olivier Hervo",
+        role: "Directeur Général",
+        department: "Direction",
+        email: "olivier.hervo@mc2i.fr"
+      },
+      {
+        id: "contact-21",
+        name: "Yousra SAIDANI",
+        role: "Experte Cybersécurité & CFO",
+        department: "Finance",
+        email: "yousra.saidani@mc2i.fr"
+      }
+    ],
+    primaryContact: "contact-19",
+    difficulty: "Expert",
+    difficultyColor: "bg-red-100 text-red-700",
+    domainId: "strategie-cyber"
   }
 ];
 
