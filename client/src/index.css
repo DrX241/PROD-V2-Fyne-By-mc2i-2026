@@ -37,13 +37,18 @@
     height: 100%;
   }
 
+  /* Container centrés */
+  .centered-container {
+    @apply max-w-5xl mx-auto w-full px-4 sm:px-6;
+  }
+
   /* Message container styles */
   .message-container {
-    @apply p-4 space-y-6 max-w-7xl w-full mx-auto;
+    @apply p-4 space-y-6 w-full;
   }
 
   .message-wrapper {
-    @apply w-full mx-auto;
+    @apply w-full;
   }
 
   /* Chat message styles */

@@ -87,7 +87,7 @@ export default function ChatInterface() {
     <div className="chat-container">
       {/* Header */}
       <div className="bg-white border-b border-gray-100 p-5 sticky top-0 z-10 shadow-sm">
-        <div className="full-width-container flex items-center justify-between">
+        <div className="centered-container flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="bg-primary/10 text-primary p-2 rounded-lg">
               <Sparkles className="h-5 w-5" />
@@ -119,34 +119,36 @@ export default function ChatInterface() {
         className="flex-1 overflow-y-auto custom-scrollbar bg-gray-50 w-full" 
         ref={chatContainerRef}
       >
-        <div className="message-container w-full py-4">
-          {messages.map((message: any) => (
-            <div key={message.id} className="message-wrapper w-full">
-              {renderMessageContent(message)}
-            </div>
-          ))}
-          
-          {/* Typing indicator */}
-          {isTyping && (
-            <div className="flex items-start gap-3 w-full">
-              <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0 mt-1 shadow-sm">
-                <BotMessageSquare className="h-4 w-4 text-primary" />
+        <div className="centered-container">
+          <div className="message-container py-4">
+            {messages.map((message: any) => (
+              <div key={message.id} className="message-wrapper">
+                {renderMessageContent(message)}
               </div>
-              <div className="chat-message bot flex items-center p-3">
-                <div className="typing-indicator">
-                  <div className="typing-dot" style={{"--dot-index": "0"} as React.CSSProperties}></div>
-                  <div className="typing-dot" style={{"--dot-index": "1"} as React.CSSProperties}></div>
-                  <div className="typing-dot" style={{"--dot-index": "2"} as React.CSSProperties}></div>
+            ))}
+            
+            {/* Typing indicator */}
+            {isTyping && (
+              <div className="flex items-start gap-3 w-full">
+                <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0 mt-1 shadow-sm">
+                  <BotMessageSquare className="h-4 w-4 text-primary" />
+                </div>
+                <div className="chat-message bot flex items-center p-3">
+                  <div className="typing-indicator">
+                    <div className="typing-dot" style={{"--dot-index": "0"} as React.CSSProperties}></div>
+                    <div className="typing-dot" style={{"--dot-index": "1"} as React.CSSProperties}></div>
+                    <div className="typing-dot" style={{"--dot-index": "2"} as React.CSSProperties}></div>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
       {/* Chat input */}
       <div className="chat-input-container w-full">
-        <div className="full-width-container">
+        <div className="centered-container">
           <form className="flex items-center gap-3 w-full" onSubmit={handleSubmit}>
             <div className="relative flex-1 w-full">
               <input 

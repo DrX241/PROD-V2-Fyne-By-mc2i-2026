@@ -36,7 +36,7 @@ export default function ContextBanner() {
   
   return (
     <div className="context-banner">
-      <div className="full-width-container flex items-center justify-between">
+      <div className="centered-container flex items-center justify-between">
         {/* Informations sur le domaine et le scénario */}
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
