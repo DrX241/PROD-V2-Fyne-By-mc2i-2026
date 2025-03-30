@@ -153,8 +153,9 @@ export class DocumentGenerator {
             doc.fontSize(14).fillColor('#003366').text(titleText.trim(), {underline: true});
             doc.moveDown(0.5);
           } 
-          // Traiter les sous-titres ou éléments qui étaient en gras
+          // Traiter les sous-titres ou éléments en gras
           else if (line.match(/^\*\*.*\*\*$/) || line.match(/^__.*__$/)) {
+            // Enlever les marqueurs de gras et garder seulement le texte
             const boldText = line.replace(/^\*\*|\*\*$|^__|__$/g, '');
             doc.fontSize(12).font('Helvetica-Bold').fillColor('#444').text(boldText.trim(), {continued: false});
             doc.moveDown(0.3);
@@ -291,6 +292,7 @@ export class DocumentGenerator {
               doc.moveDown(0.5);
               inList = false;
             }
+            // Supprimer les marqueurs ** ou __ et garder le texte
             const boldText = line.replace(/^\*\*|\*\*$|^__|__$/g, '');
             doc.fontSize(12).font('Helvetica-Bold').fillColor('#444').text(boldText.trim(), {continued: false});
             doc.moveDown(0.3);
