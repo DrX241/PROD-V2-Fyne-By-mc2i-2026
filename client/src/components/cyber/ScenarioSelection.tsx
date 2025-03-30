@@ -41,33 +41,20 @@ export default function ScenarioSelection() {
             className="scenario-card w-full text-left focus:outline-none focus:ring-2 focus:ring-blue-500"
             onClick={() => handleScenarioClick(s.id)}
           >
-            <div className="flex items-start gap-4">
+            <div className="flex items-center justify-between p-2">
               <div className="flex-1">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-medium text-gray-800">{s.title}</h3>
-                  <span 
-                    className={`difficulty-badge ${getDifficultyStyles(s.difficulty)}`}
-                  >
-                    {s.difficulty}
-                  </span>
-                </div>
-                
-                <p className="text-gray-600 text-sm mb-3 line-clamp-2">{s.description}</p>
-                
-                <div className="flex items-center text-xs text-gray-500 space-x-4">
-                  <div className="flex items-center">
-                    <Users className="w-3 h-3 mr-1" />
-                    <span>{s.contact.name}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <BarChart3 className="w-3 h-3 mr-1" />
-                    <span>{s.contact.role}</span>
-                  </div>
-                </div>
+                <h3 className="font-bold text-lg text-gray-800">{s.title}</h3>
               </div>
               
-              <div className="self-center text-blue-600">
-                <ArrowRight className="w-5 h-5" />
+              <div className="flex items-center gap-3">
+                <span 
+                  className={`difficulty-badge ${getDifficultyStyles(s.difficulty)}`}
+                >
+                  {s.difficulty}
+                </span>
+                <div className="text-blue-600">
+                  <ArrowRight className="w-5 h-5" />
+                </div>
               </div>
             </div>
           </button>

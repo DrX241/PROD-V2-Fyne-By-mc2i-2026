@@ -41,13 +41,12 @@ export default function DomainSelection() {
               onClick={() => handleDomainClick(domain.id)}
               className="domain-card focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <div className="flex items-center space-x-3">
-                <div className={`w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center`}>
+              <div className="flex flex-col items-center justify-center text-center py-3">
+                <div className={`w-14 h-14 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-3`}>
                   {icon}
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-medium text-gray-800">{domain.name}</h3>
-                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">{domain.description}</p>
+                <div className="w-full">
+                  <h3 className="font-bold text-lg text-gray-800">{domain.name}</h3>
                 </div>
               </div>
             </button>
