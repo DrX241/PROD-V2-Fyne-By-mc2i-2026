@@ -1,34 +1,21 @@
 import Header from "./Header";
-import Sidebar from "@/components/cyber/Sidebar";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useLocation } from "wouter";
 
 interface LayoutProps {
   children: React.ReactNode;
+  showSidebar?: boolean;
 }
 
-export default function Layout({ children }: LayoutProps) {
-  const isMobile = useIsMobile();
-  
-  // Largeur de la barre latérale adaptée au design
-  const sidebarWidth = isMobile ? "0px" : "260px";
+export default function Layout({ children, showSidebar = false }: LayoutProps) {
+  const [location] = useLocation();
+  const moduleName = location.split('/')[1] || '';
   
   return (
-    <div className="h-screen w-screen flex flex-col overflow-hidden bg-gray-50">
+    <div className="min-h-screen w-full flex flex-col overflow-x-hidden bg-gray-50">
       <Header />
 
-      <main className="flex-1 flex w-full overflow-hidden">
-        {!isMobile && (
-          <div className="sidebar-fixed" style={{ width: sidebarWidth }}>
-            <Sidebar />
-          </div>
-        )}
-        <div 
-          className="flex-1 overflow-hidden transition-all duration-300 ease-in-out flex justify-center"
-        >
-          <div className="h-full overflow-hidden p-0 lg:p-4 w-full">
-            {children}
-          </div>
-        </div>
+      <main className="flex-1 w-full">
+        {children}
       </main>
     </div>
   );

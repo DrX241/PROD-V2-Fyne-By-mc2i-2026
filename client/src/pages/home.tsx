@@ -1,10 +1,10 @@
-import Layout from "@/components/layout/Layout";
+import CyberLayout from "@/components/layout/CyberLayout";
 import ChatInterface from "@/components/cyber/ChatInterface";
 
 export default function Home() {
   return (
-    <Layout>
+    <CyberLayout>
       <ChatInterface />
-    </Layout>
+    </CyberLayout>
   );
 }

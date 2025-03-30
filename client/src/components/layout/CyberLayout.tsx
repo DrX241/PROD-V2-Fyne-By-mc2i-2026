@@ -1,0 +1,54 @@
+import Header from "./Header";
+import { useIsMobile } from "@/hooks/use-mobile";
+import ConfigPanel from "@/components/cyber/ConfigPanel";
+import { useChatContext } from "@/contexts/ChatContext";
+import { useState } from "react";
+import { ChevronRight, Settings } from "lucide-react";
+
+interface CyberLayoutProps {
+  children: React.ReactNode;
+}
+
+export default function CyberLayout({ children }: CyberLayoutProps) {
+  const { scenario } = useChatContext();
+  const isMobile = useIsMobile();
+  const [showConfig, setShowConfig] = useState(false);
+  
+  return (
+    <div className="min-h-screen w-full flex flex-col overflow-hidden bg-gray-50">
+      <Header />
+
+      <main className="flex-1 flex w-full overflow-hidden">
+        {/* Zone principale de contenu */}
+        <div className="flex-1 overflow-hidden flex">
+          {children}
+        </div>
+        
+        {/* Panneau latéral de config (visible uniquement en desktop) */}
+        {!isMobile ? (
+          <div 
+            className={`bg-white border-l border-gray-100 transition-all duration-300 ${
+              showConfig ? 'w-80' : 'w-0 opacity-0'
+            } overflow-hidden`}
+          >
+            {showConfig && (
+              <div className="p-4 h-full">
+                <ConfigPanel />
+              </div>
+            )}
+          </div>
+        ) : null}
+        
+        {/* Bouton pour ouvrir/fermer le panneau de config */}
+        {!isMobile && (
+          <button
+            onClick={() => setShowConfig(!showConfig)}
+            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white border border-gray-100 shadow-sm rounded-l-md p-2 z-10"
+          >
+            <Settings className={`h-5 w-5 text-gray-600 transition-transform ${showConfig ? 'rotate-180' : ''}`} />
+          </button>
+        )}
+      </main>
+    </div>
+  );
+}
