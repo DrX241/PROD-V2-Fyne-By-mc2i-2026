@@ -1,6 +1,5 @@
 import Header from "./Header";
 import Sidebar from "@/components/cyber/Sidebar";
-import ConfigPanel from "@/components/cyber/ConfigPanel";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -14,7 +13,6 @@ export default function Layout({ children }: LayoutProps) {
       <main className="flex-1 flex overflow-hidden">
         <Sidebar />
         {children}
-        <ConfigPanel />
       </main>
     </div>
   );

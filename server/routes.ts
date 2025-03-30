@@ -418,9 +418,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         attachments: [
           {
             id: document.fileName,
-            fileName: `${attachmentType}.txt`,
+            fileName: `${attachmentType}.pdf`,
             fileSize: `${fileSizeKB} KB`,
-            fileType: 'text/plain'
+            fileType: 'application/pdf'
           }
         ]
       };
@@ -516,11 +516,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Document not found' });
       }
       
-      const content = fs.readFileSync(documentPath, 'utf8');
+      // Déterminer le type de contenu en fonction de l'extension du fichier
+      const isPDF = documentId.toLowerCase().endsWith('.pdf');
       
-      res.setHeader('Content-Type', 'text/plain');
-      res.setHeader('Content-Disposition', `attachment; filename=${documentId}`);
-      res.send(content);
+      if (isPDF) {
+        // Servir le fichier PDF
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=${documentId}`);
+        fs.createReadStream(documentPath).pipe(res);
+      } else {
+        // Servir le fichier texte
+        const content = fs.readFileSync(documentPath, 'utf8');
+        res.setHeader('Content-Type', 'text/plain');
+        res.setHeader('Content-Disposition', `attachment; filename=${documentId}`);
+        res.send(content);
+      }
     } catch (error) {
       console.error('Error downloading document:', error);
       res.status(500).json({ message: 'Failed to download document' });
