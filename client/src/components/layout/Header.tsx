@@ -1,5 +1,7 @@
-import { Settings, HelpCircle, Shield } from "lucide-react";
+import { Settings, HelpCircle, Shield, Home } from "lucide-react";
 import { useChatContext } from "@/contexts/ChatContext";
+import { Link } from "wouter";
+import mclogo from "@assets/mc2i.png";
 
 export default function Header() {
   const { userName } = useChatContext();
@@ -11,16 +13,21 @@ export default function Header() {
     <header className="bg-white shadow-sm w-full border-b border-gray-100">
       <div className="w-full px-5 sm:px-8 py-4 flex items-center justify-between">
         <div className="flex items-center">
-          <div className="flex items-center gap-3">
-            <div className="bg-primary/10 text-primary p-1.5 rounded-md">
-              <Shield className="h-5 w-5" />
-            </div>
-            <div className="text-primary text-xl font-bold heading hover-underline cursor-pointer">FENY</div>
-            <span className="text-neutral-300">|</span>
-            <div className="text-secondary text-lg font-medium hover-underline cursor-pointer">I AM CYBER</div>
-          </div>
+          <Link href="/">
+            <a className="flex items-center gap-3">
+              <img src={mclogo} alt="mc2i Logo" className="h-8" />
+              <span className="text-neutral-300">|</span>
+              <div className="text-primary text-lg font-bold heading">I AM CYBER</div>
+            </a>
+          </Link>
         </div>
         <div className="flex items-center gap-5">
+          <Link href="/">
+            <a className="text-neutral-500 hover:text-neutral-700 transition-colors duration-200 flex items-center gap-1">
+              <Home className="h-5 w-5" />
+              <span className="hidden sm:inline">Accueil</span>
+            </a>
+          </Link>
           <button className="text-neutral-500 hover:text-neutral-700 transition-colors duration-200">
             <Settings className="h-5 w-5" />
           </button>
