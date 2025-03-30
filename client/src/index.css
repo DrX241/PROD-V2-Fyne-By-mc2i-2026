@@ -11,3 +11,100 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+@layer components {
+  /* Chat container styles */
+  .chat-container {
+    @apply h-full flex flex-col bg-gray-50 rounded-lg;
+    height: calc(100vh - 4rem);
+  }
+
+  /* Message container styles */
+  .message-container {
+    @apply p-4 space-y-4;
+  }
+
+  .message-wrapper {
+    @apply max-w-3xl mx-auto;
+  }
+
+  /* Chat message styles */
+  .chat-message {
+    @apply px-5 py-4 rounded-2xl max-w-[85%] shadow-sm;
+  }
+
+  .chat-message.user {
+    @apply bg-primary text-primary-foreground ml-auto rounded-tr-none;
+  }
+
+  .chat-message.bot {
+    @apply bg-white border border-gray-100 text-gray-800 mr-auto rounded-tl-none;
+  }
+
+  /* Typing indicator */
+  .typing-indicator {
+    @apply flex items-center space-x-1;
+  }
+
+  .typing-dot {
+    @apply h-2 w-2 bg-gray-400 rounded-full animate-pulse;
+    animation-delay: calc(var(--dot-index, 0) * 0.2s);
+  }
+
+  /* Domain selection styles */
+  .domain-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4 max-w-4xl mx-auto;
+  }
+
+  .domain-card {
+    @apply bg-white rounded-xl border border-gray-200 p-4 shadow-sm transition duration-300 
+           hover:shadow-md hover:border-gray-300 cursor-pointer;
+  }
+
+  /* Scenario selection styles */
+  .scenario-card {
+    @apply bg-white rounded-xl border border-gray-200 p-4 shadow-sm transition duration-300
+           hover:shadow-md hover:border-gray-300 cursor-pointer flex flex-col;
+  }
+
+  .difficulty-badge {
+    @apply px-2 py-0.5 text-xs font-medium rounded-full;
+  }
+
+  /* Email message styles */
+  .email-container {
+    @apply bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden max-w-2xl mx-auto;
+  }
+
+  .email-header {
+    @apply bg-gray-50 border-b border-gray-200 p-4;
+  }
+
+  .email-body {
+    @apply p-5 text-gray-700;
+  }
+
+  .email-attachments {
+    @apply border-t border-gray-200 p-4 flex flex-wrap gap-2 bg-gray-50;
+  }
+
+  .attachment-badge {
+    @apply bg-gray-100 text-gray-700 rounded-full px-3 py-1 text-sm flex items-center gap-2 
+           hover:bg-gray-200 transition-colors cursor-pointer;
+  }
+
+  /* Input area styles */
+  .chat-input-container {
+    @apply border-t border-gray-200 p-4 bg-white sticky bottom-0;
+  }
+
+  .chat-input {
+    @apply w-full py-3 px-4 pr-12 border border-gray-300 bg-white rounded-full
+           focus:ring-2 focus:ring-primary outline-none;
+  }
+
+  /* Custom scroll */
+  .custom-scrollbar {
+    @apply overflow-auto;
+  }
+}

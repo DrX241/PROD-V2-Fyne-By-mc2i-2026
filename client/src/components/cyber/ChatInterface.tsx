@@ -4,14 +4,14 @@ import ChatMessage from "./ChatMessage";
 import DomainSelection from "./DomainSelection";
 import ScenarioSelection from "./ScenarioSelection";
 import EmailMessage from "./EmailMessage";
-import { Send } from "lucide-react";
-import { Paperclip } from "lucide-react";
+import { Send, Paperclip, Sparkles, BotMessageSquare, UserCircle } from "lucide-react";
 
 export default function ChatInterface() {
   const { 
     messages, 
     sendMessage, 
-    isTyping
+    isTyping,
+    userName
   } = useChatContext();
   
   const [inputMessage, setInputMessage] = useState("");
@@ -51,21 +51,48 @@ export default function ChatInterface() {
         return <EmailMessage email={message.content} />;
       case 'user':
       case 'bot':
-        return <ChatMessage type={message.type} content={message.content as string} />;
+        return (
+          <div className="flex items-start gap-3">
+            {message.type === 'bot' ? (
+              <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-1">
+                <BotMessageSquare className="h-4 w-4 text-blue-600" />
+              </div>
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 mt-1">
+                <UserCircle className="h-5 w-5 text-gray-600" />
+              </div>
+            )}
+            <ChatMessage type={message.type} content={message.content as string} />
+          </div>
+        );
       default:
         return null;
     }
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-white">
+    <div className="chat-container">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10 flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <div className="bg-blue-100 text-blue-600 p-2 rounded-full">
+            <Sparkles className="h-5 w-5" />
+          </div>
+          <div>
+            <h1 className="font-semibold text-gray-900">CyberGuide</h1>
+            <p className="text-xs text-gray-500">Formation cybersécurité interactive</p>
+          </div>
+        </div>
+        {userName && <div className="text-sm text-gray-600">Bonjour, {userName}</div>}
+      </div>
+      
       {/* Chat messages */}
       <div 
-        className="flex-1 overflow-y-auto" 
+        className="flex-1 overflow-y-auto custom-scrollbar bg-gray-50" 
         ref={chatContainerRef}
       >
         <div className="message-container">
-          {messages.map((message) => (
+          {messages.map((message: any) => (
             <div key={message.id} className="message-wrapper">
               {renderMessageContent(message)}
             </div>
@@ -73,11 +100,16 @@ export default function ChatInterface() {
           
           {/* Typing indicator */}
           {isTyping && (
-            <div className="chat-message bot flex items-center p-4 mt-2">
-              <div className="typing-indicator">
-                <div className="typing-dot"></div>
-                <div className="typing-dot"></div>
-                <div className="typing-dot"></div>
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-1">
+                <BotMessageSquare className="h-4 w-4 text-blue-600" />
+              </div>
+              <div className="chat-message bot flex items-center p-3">
+                <div className="typing-indicator">
+                  <div className="typing-dot" style={{"--dot-index": "0"} as React.CSSProperties}></div>
+                  <div className="typing-dot" style={{"--dot-index": "1"} as React.CSSProperties}></div>
+                  <div className="typing-dot" style={{"--dot-index": "2"} as React.CSSProperties}></div>
+                </div>
               </div>
             </div>
           )}
@@ -85,7 +117,7 @@ export default function ChatInterface() {
       </div>
 
       {/* Chat input */}
-      <div className="border-t border-gray-200 p-4 bg-white">
+      <div className="chat-input-container">
         <div className="max-w-3xl mx-auto">
           <form className="flex items-center gap-2" onSubmit={handleSubmit}>
             <div className="relative flex-1">
@@ -94,7 +126,7 @@ export default function ChatInterface() {
                 ref={inputRef}
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                className="w-full py-3 px-4 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                className="chat-input"
                 placeholder="Tapez votre réponse..."
               />
               <button 
@@ -106,7 +138,8 @@ export default function ChatInterface() {
             </div>
             <button 
               type="submit" 
-              className="bg-primary-600 text-white p-3 rounded-lg hover:bg-primary-700 flex items-center justify-center"
+              className="bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 flex items-center justify-center transition-colors shadow-sm"
+              disabled={!inputMessage.trim()}
             >
               <Send className="h-5 w-5" />
             </button>

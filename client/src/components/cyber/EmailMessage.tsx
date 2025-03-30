@@ -1,10 +1,33 @@
 import React, { useState } from "react";
-import { EmailMessageContent } from "../../../I_AM_CYBER/types";
 import { Paperclip } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 
+// Définir les interfaces temporaires ici en attendant que les modules importés soient disponibles
+interface EmailAttachment {
+  id: string;
+  fileName: string;
+  fileSize: string;
+  fileType: string;
+  content?: string;
+}
+
+interface EmailContact {
+  name: string;
+  role: string;
+}
+
+interface EmailContent {
+  id: string;
+  from: EmailContact;
+  to: string;
+  subject: string;
+  date: string;
+  body: string;
+  attachments: EmailAttachment[];
+}
+
 interface EmailMessageProps {
-  email: EmailMessageContent;
+  email: EmailContent;
 }
 
 export default function EmailMessage({ email }: EmailMessageProps) {
@@ -32,7 +55,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = email.attachments.find(a => a.id === attachmentId)?.fileName || 'document.txt';
+      a.download = email.attachments.find((a: EmailAttachment) => a.id === attachmentId)?.fileName || 'document.txt';
       a.click();
       
       window.URL.revokeObjectURL(url);
@@ -44,7 +67,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
   };
 
   // Convert email body text to paragraphs
-  const formattedBody = email.body.split('\n').map((line, i) => {
+  const formattedBody = email.body.split('\n').map((line: string, i: number) => {
     if (line.trim() === '') return <div key={i} className="h-4"></div>;
     
     // Handle bullet points or numbered lists
@@ -68,14 +91,14 @@ export default function EmailMessage({ email }: EmailMessageProps) {
     let isOrderedList = false;
     let listKey = 0;
     
-    formattedBody.forEach((element, index) => {
+    formattedBody.forEach((element: React.ReactNode, index: number) => {
       if (React.isValidElement(element) && element.type === 'li') {
         // Check if this is a numbered list item
         const originalLine = email.body.split('\n')[index];
         const isNumbered = originalLine.trim().match(/^\d+\.\s/);
         
         // If switching list types, close current list and start new one
-        if (isNumbered !== isOrderedList && currentList.length > 0) {
+        if ((isNumbered === null) !== isOrderedList && currentList.length > 0) {
           result.push(
             isOrderedList ? 
               <ol key={`list-${listKey++}`} className="list-decimal mb-3">{currentList}</ol> : 
@@ -114,53 +137,62 @@ export default function EmailMessage({ email }: EmailMessageProps) {
 
   return (
     <div className="my-4 email-container">
-      <div className="email-header p-4 rounded-t-lg">
-        <div className="flex items-center justify-between mb-2">
+      <div className="email-header">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center">
-            <div className="w-10 h-10 bg-neutral-200 rounded-full flex items-center justify-center text-neutral-600 mr-3">
-              <span className="font-medium">
-                {email.from.name.split(' ').map(n => n[0]).join('')}
+            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mr-3">
+              <span className="font-semibold">
+                {email.from.name.split(' ').map((n: string) => n[0]).join('')}
               </span>
             </div>
             <div>
-              <h3 className="font-medium text-neutral-800">{email.from.name}</h3>
-              <p className="text-neutral-500 text-sm">{email.from.role}</p>
+              <h3 className="font-medium text-gray-800">{email.from.name}</h3>
+              <p className="text-gray-500 text-sm">{email.from.role}</p>
             </div>
           </div>
-          <div className="text-neutral-500 text-sm">
+          <div className="text-gray-500 text-sm">
             {formatDate(email.date)}
           </div>
         </div>
-        <div className="flex items-center">
-          <p className="font-medium text-neutral-800">À : </p>
-          <p className="ml-2 text-neutral-700">{email.to}</p>
-        </div>
-        <div className="flex items-center mt-1">
-          <p className="font-medium text-neutral-800">Objet : </p>
-          <p className="ml-2 text-neutral-700">{email.subject}</p>
+        
+        <div className="space-y-1 border-t border-gray-100 pt-3">
+          <div className="flex">
+            <p className="font-medium text-gray-700 w-16">À :</p>
+            <p className="text-gray-800">{email.to}</p>
+          </div>
+          <div className="flex">
+            <p className="font-medium text-gray-700 w-16">Objet :</p>
+            <p className="text-gray-800 font-medium">{email.subject}</p>
+          </div>
         </div>
       </div>
-      <div className="p-4">
+      
+      <div className="email-body">
         {renderBody()}
       </div>
+      
       {email.attachments && email.attachments.length > 0 && (
-        <div className="p-4 border-t border-gray-200">
-          {email.attachments.map((attachment) => (
-            <div key={attachment.id} className="flex items-center">
-              <Paperclip className="text-neutral-500 mr-2 h-5 w-5" />
+        <div className="email-attachments">
+          <h4 className="font-medium text-gray-700 mb-2">Pièces jointes</h4>
+          <div className="flex flex-wrap gap-2">
+            {email.attachments.map((attachment: EmailAttachment) => (
               <button 
+                key={attachment.id}
+                className="attachment-badge"
                 onClick={() => handleAttachmentClick(attachment.id)}
                 disabled={isAttachmentLoading[attachment.id]}
-                className="text-primary-600 hover:text-primary-700 font-medium"
               >
-                {attachment.fileName}
+                <Paperclip className="h-4 w-4" />
+                <span>
+                  {attachment.fileName}
+                  <span className="text-gray-500 ml-1">({attachment.fileSize})</span>
+                </span>
+                {isAttachmentLoading[attachment.id] && (
+                  <div className="ml-1 h-3 w-3 border-2 border-t-transparent border-blue-500 rounded-full animate-spin"></div>
+                )}
               </button>
-              <span className="text-neutral-500 text-sm ml-2">({attachment.fileSize})</span>
-              {isAttachmentLoading[attachment.id] && (
-                <span className="ml-2 text-neutral-500 text-sm">Chargement...</span>
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
     </div>
