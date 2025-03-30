@@ -411,7 +411,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const email = {
         id: uuidv4(),
         from: scenario.contact,
-        to: userName,
+        to: `${userName}@mc2i.fr`,
         subject,
         date: new Date().toISOString(),
         body,
@@ -520,15 +520,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const isPDF = documentId.toLowerCase().endsWith('.pdf');
       
       if (isPDF) {
-        // Servir le fichier PDF
+        // Servir le fichier PDF pour affichage dans le navigateur
         res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename=${documentId}`);
+        res.setHeader('Content-Disposition', `inline; filename=${documentId}`);
         fs.createReadStream(documentPath).pipe(res);
       } else {
         // Servir le fichier texte
         const content = fs.readFileSync(documentPath, 'utf8');
         res.setHeader('Content-Type', 'text/plain');
-        res.setHeader('Content-Disposition', `attachment; filename=${documentId}`);
+        res.setHeader('Content-Disposition', `inline; filename=${documentId}`);
         res.send(content);
       }
     } catch (error) {

@@ -48,19 +48,10 @@ export default function EmailMessage({ email }: EmailMessageProps) {
     try {
       setIsAttachmentLoading((prev) => ({ ...prev, [attachmentId]: true }));
       
-      const response = await apiRequest('GET', `/api/cyber/documents/${attachmentId}`, undefined);
-      const blob = await response.blob();
-      
-      // Create a downloadable link
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = email.attachments.find((a: EmailAttachment) => a.id === attachmentId)?.fileName || 'document.txt';
-      a.click();
-      
-      window.URL.revokeObjectURL(url);
+      // Ouvrir directement le PDF dans un nouvel onglet
+      window.open(`/api/cyber/documents/${attachmentId}`, '_blank');
     } catch (error) {
-      console.error('Error downloading attachment:', error);
+      console.error('Error opening attachment:', error);
     } finally {
       setIsAttachmentLoading((prev) => ({ ...prev, [attachmentId]: false }));
     }
@@ -79,6 +70,20 @@ export default function EmailMessage({ email }: EmailMessageProps) {
     const numberedListMatch = line.trim().match(/^(\d+\.)\s(.+)/);
     if (numberedListMatch) {
       return <li key={i} className="ml-6 mb-1">{numberedListMatch[2]}</li>;
+    }
+    
+    // Check for bold text (surrounded by ** or __) and convert to <strong>
+    if (line.trim().match(/^\*\*.*\*\*$/) || line.trim().match(/^__.*__$/)) {
+      const boldText = line.replace(/^\*\*|\*\*$|^__|__$/g, '');
+      return <p key={i} className="mb-3 font-medium">{boldText}</p>;
+    }
+    
+    // Check for inline bold text and convert to <strong>
+    if (line.includes('**') || line.includes('__')) {
+      // Remplacer **text** par du texte en gras
+      const processedLine = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                               .replace(/__(.*?)__/g, '<strong>$1</strong>');
+      return <p key={i} className="mb-3" dangerouslySetInnerHTML={{ __html: processedLine }} />;
     }
     
     return <p key={i} className="mb-3">{line}</p>;

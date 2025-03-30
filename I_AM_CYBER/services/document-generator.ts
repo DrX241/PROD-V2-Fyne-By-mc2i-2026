@@ -92,9 +92,13 @@ export class DocumentGenerator {
           info: {
             Title: documentType,
             Author: this.companyName,
-            Subject: context.scenario
+            Subject: context.scenario,
+            Creator: 'I AM CYBER Platform'
           }
         });
+        
+        // Définir la police par défaut
+        doc.font('Helvetica');
 
         // Pipe le PDF vers un fichier
         const stream = fs.createWriteStream(filePath);
@@ -137,11 +141,13 @@ export class DocumentGenerator {
             doc.fontSize(14).fillColor('#003366').text(titleText.trim(), {underline: true});
             doc.moveDown(0.5);
           } 
-          // Traiter les sous-titres ou éléments en gras
+          // Traiter les sous-titres ou éléments qui étaient en gras
           else if (line.match(/^\*\*.*\*\*$/) || line.match(/^__.*__$/)) {
             const boldText = line.replace(/^\*\*|\*\*$|^__|__$/g, '');
-            doc.fontSize(12).fillColor('#444').text(boldText.trim(), {continued: false});
+            doc.fontSize(12).font('Helvetica-Bold').fillColor('#444').text(boldText.trim(), {continued: false});
             doc.moveDown(0.3);
+            // Retour à la police normale
+            doc.font('Helvetica');
           }
           // Traiter les listes à puces
           else if (line.match(/^[-*•]\s/)) {
