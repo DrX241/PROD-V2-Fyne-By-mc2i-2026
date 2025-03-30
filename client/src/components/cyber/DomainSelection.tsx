@@ -42,11 +42,8 @@ export default function DomainSelection() {
               className="domain-card focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <div className="flex flex-col items-center justify-center text-center py-3">
-                <div className={`w-14 h-14 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-3`}>
-                  {icon}
-                </div>
                 <div className="w-full">
-                  <h3 className="font-bold text-lg text-gray-800">{domain.name}</h3>
+                  <h3 className="font-bold text-xl text-gray-800">{domain.name}</h3>
                 </div>
               </div>
             </button>

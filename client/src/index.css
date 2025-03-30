@@ -82,7 +82,7 @@
   }
 
   .domain-card {
-    @apply bg-white rounded-xl border border-gray-200 p-4 shadow-sm transition duration-300 
+    @apply bg-white rounded-xl border border-gray-200 p-6 shadow-sm transition duration-300 
            hover:shadow-md hover:border-gray-300 cursor-pointer;
   }
 
