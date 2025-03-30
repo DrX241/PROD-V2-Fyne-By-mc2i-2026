@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import fs from 'fs';
@@ -303,7 +303,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       ];
       
-      const emailContent = await openAIService.getChatCompletion(
+      const emailContent = await openAIService.getChatCompletionWithCache(
         messages, 
         config?.temperature || 0.7, 
         config?.maxTokens || 2000
@@ -1196,7 +1196,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         content: `Je suis ${userName}. Le message suivant est en réponse au scénario de cybersécurité en cours (ID: ${scenarioId}): "${message}"`
       });
       
-      const responseContent = await openAIService.getChatCompletion(
+      const responseContent = await openAIService.getChatCompletionWithCache(
         messages, 
         config?.temperature || 0.7, 
         config?.maxTokens || 2000
@@ -1264,7 +1264,7 @@ Format: Utilise des titres clairs et une présentation structurée qui facilite 
           ];
 
           // Générer l'évaluation
-          const evaluationContent = await openAIService.getChatCompletion(
+          const evaluationContent = await openAIService.getChatCompletionWithCache(
             evaluationMessages,
             0.7,
             3000
@@ -1382,6 +1382,26 @@ Format: Utilise des titres clairs et une présentation structurée qui facilite 
     } catch (error) {
       console.error('Error listing documents:', error);
       res.status(500).json({ message: 'Failed to list documents' });
+    }
+  });
+
+  // API route pour vérifier le statut de la connexion à Azure OpenAI
+  app.get('/api/cyber/status', async (req: Request, res: Response) => {
+    try {
+      const isConnected = await openAIService.checkConnection();
+      res.json({
+        status: isConnected ? 'connected' : 'disconnected',
+        lastCheck: openAIService.getLastConnectionCheck(),
+        apiEndpoint: process.env.AZURE_OPENAI_ENDPOINT ? 'configured' : 'default',
+        time: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error checking API status:', error);
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to check API connection',
+        time: new Date().toISOString()
+      });
     }
   });
 

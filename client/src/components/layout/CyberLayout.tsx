@@ -1,6 +1,7 @@
 import Header from "./Header";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ConfigPanel from "@/components/cyber/ConfigPanel";
+import ConnectionStatus from "@/components/cyber/ConnectionStatus";
 import { useChatContext } from "@/contexts/ChatContext";
 import { useState, useEffect } from "react";
 import { ShieldCheck, Settings, Lock, AlertCircle, Shield, Cpu, Code, Server, Database } from "lucide-react";
@@ -66,6 +67,11 @@ export default function CyberLayout({ children }: CyberLayoutProps) {
   return (
     <div className="h-screen w-full flex flex-col bg-gradient-to-br from-gray-900 via-blue-950 to-gray-900 text-white">
       <Header />
+      
+      {/* Affichage du statut de connexion */}
+      <div className="absolute top-4 right-4 z-30">
+        <ConnectionStatus workflow_name="Start application" />
+      </div>
       
       {/* Background animation elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden opacity-50">
