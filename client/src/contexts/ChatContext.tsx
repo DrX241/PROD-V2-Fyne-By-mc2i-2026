@@ -9,8 +9,11 @@ import {
   AIConfig,
   ScenarioState,
   EmailMessageContent,
-  ScenarioContact
-} from "../../I_AM_CYBER/types";
+  ScenarioContact,
+  NpcMessageContent,
+  ChatRoomContent,
+  UserMetrics
+} from "@shared/schema";
 
 // Initial domains data
 const initialDomains: CyberDomain[] = [
@@ -119,10 +122,30 @@ const initialScenarios: CyberScenario[] = [
     id: "phishing-simulation",
     title: "Simulation d'attaque phishing",
     description: "Vous devez préparer et exécuter une campagne de simulation de phishing pour évaluer et sensibiliser les employés.",
-    contact: {
-      name: "Marion Lopez",
-      role: "Senior Partner et Directrice Marketing, Communication et RSE"
-    },
+    contacts: [
+      {
+        id: "contact-1",
+        name: "Marion Lopez",
+        role: "Senior Partner et Directrice Marketing, Communication et RSE",
+        department: "Marketing",
+        email: "marion.lopez@mc2i.fr"
+      },
+      {
+        id: "contact-2",
+        name: "Paul Dubois",
+        role: "Responsable de la Sécurité Informatique",
+        department: "IT",
+        email: "paul.dubois@mc2i.fr"
+      },
+      {
+        id: "contact-3",
+        name: "Sophie Martin",
+        role: "Chef de projet sensibilisation",
+        department: "Formation",
+        email: "sophie.martin@mc2i.fr"
+      }
+    ],
+    primaryContact: "contact-1",
     difficulty: "Débutant",
     difficultyColor: "bg-green-100 text-green-700",
     domainId: "formation-sensibilisation"
@@ -131,10 +154,30 @@ const initialScenarios: CyberScenario[] = [
     id: "security-training",
     title: "Programme de formation à la cybersécurité",
     description: "Élaboration d'un programme de formation complet pour les différents niveaux de l'entreprise.",
-    contact: {
-      name: "Isabelle Dubacq",
-      role: "Senior Partner, Directrice des Ressources Humaines"
-    },
+    contacts: [
+      {
+        id: "contact-4",
+        name: "Isabelle Dubacq",
+        role: "Senior Partner, Directrice des Ressources Humaines",
+        department: "RH",
+        email: "isabelle.dubacq@mc2i.fr"
+      },
+      {
+        id: "contact-5",
+        name: "Julien Renard",
+        role: "Chef de projet formation",
+        department: "Formation",
+        email: "julien.renard@mc2i.fr"
+      },
+      {
+        id: "contact-6",
+        name: "Léa Petit",
+        role: "Experte cybersécurité",
+        department: "IT",
+        email: "lea.petit@mc2i.fr"
+      }
+    ],
+    primaryContact: "contact-4",
     difficulty: "Intermédiaire",
     difficultyColor: "bg-orange-100 text-orange-700",
     domainId: "formation-sensibilisation"
@@ -145,10 +188,30 @@ const initialScenarios: CyberScenario[] = [
     id: "osint-investigation",
     title: "Investigation d'une menace potentielle",
     description: "Utilisez l'OSINT pour enquêter sur une menace potentielle visant votre organisation.",
-    contact: {
-      name: "Neil LEVIN",
-      role: "Expert cybersécurité & CFO"
-    },
+    contacts: [
+      {
+        id: "contact-7",
+        name: "Neil LEVIN",
+        role: "Expert cybersécurité & CFO",
+        department: "Finance",
+        email: "neil.levin@mc2i.fr"
+      },
+      {
+        id: "contact-8",
+        name: "Christophe Bernard",
+        role: "Analyste OSINT",
+        department: "Sécurité",
+        email: "christophe.bernard@mc2i.fr"
+      },
+      {
+        id: "contact-9",
+        name: "Émilie Fabre",
+        role: "Directrice communication",
+        department: "Communication",
+        email: "emilie.fabre@mc2i.fr"
+      }
+    ],
+    primaryContact: "contact-7",
     difficulty: "Intermédiaire",
     difficultyColor: "bg-orange-100 text-orange-700",
     domainId: "osint"
@@ -157,273 +220,33 @@ const initialScenarios: CyberScenario[] = [
     id: "digital-footprint",
     title: "Analyse de l'empreinte numérique",
     description: "Évaluez l'empreinte numérique de votre organisation pour identifier les vulnérabilités exposées publiquement.",
-    contact: {
-      name: "Yousra SAIDANI",
-      role: "Experte Cybersécurité & CFO"
-    },
+    contacts: [
+      {
+        id: "contact-10",
+        name: "Yousra SAIDANI",
+        role: "Experte Cybersécurité & CFO",
+        department: "Finance",
+        email: "yousra.saidani@mc2i.fr"
+      },
+      {
+        id: "contact-11",
+        name: "Mehdi Alaoui",
+        role: "Expert en sécurité offensive",
+        department: "Cybersécurité",
+        email: "mehdi.alaoui@mc2i.fr"
+      },
+      {
+        id: "contact-12",
+        name: "Clara Nguyen",
+        role: "Responsable marketing digital",
+        department: "Marketing",
+        email: "clara.nguyen@mc2i.fr"
+      }
+    ],
+    primaryContact: "contact-10",
     difficulty: "Expert",
     difficultyColor: "bg-red-100 text-red-700",
     domainId: "osint"
-  },
-  
-  // Conformité cyber
-  {
-    id: "gdpr-compliance",
-    title: "Mise en conformité RGPD",
-    description: "Vous devez évaluer et améliorer la conformité RGPD de votre organisation suite à des changements réglementaires.",
-    contact: {
-      name: "Vincent Terrier",
-      role: "Senior Partner, Directeur Financier"
-    },
-    difficulty: "Intermédiaire",
-    difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "conformite-cyber"
-  },
-  {
-    id: "iso-certification",
-    title: "Préparation à la certification ISO 27001",
-    description: "Vous préparez votre organisation à une certification ISO 27001 et devez identifier les écarts à combler.",
-    contact: {
-      name: "Vincent Pascal",
-      role: "Directeur Général Adjoint et Directeur du Développement"
-    },
-    difficulty: "Expert",
-    difficultyColor: "bg-red-100 text-red-700",
-    domainId: "conformite-cyber"
-  },
-  
-  // Stratégie cyber
-  {
-    id: "cyber-strategy",
-    title: "Élaboration de la stratégie cybersécurité",
-    description: "Développez une stratégie de cybersécurité complète pour les 3 prochaines années.",
-    contact: {
-      name: "Arnaud Gauthier",
-      role: "Président"
-    },
-    difficulty: "Expert",
-    difficultyColor: "bg-red-100 text-red-700",
-    domainId: "strategie-cyber"
-  },
-  {
-    id: "security-roadmap",
-    title: "Feuille de route de sécurité",
-    description: "Créez une feuille de route détaillée pour mettre en œuvre la nouvelle stratégie de cybersécurité.",
-    contact: {
-      name: "Olivier Hervo",
-      role: "Directeur Général"
-    },
-    difficulty: "Intermédiaire",
-    difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "strategie-cyber"
-  },
-  
-  // Gestion de crise
-  {
-    id: "ransomware-crisis",
-    title: "Gestion d'une attaque par ransomware",
-    description: "Votre organisation est victime d'une attaque par ransomware. Gérez la crise efficacement.",
-    contact: {
-      name: "Lorenzo Bertola",
-      role: "Directeur Général Adjoint et Directeur du pôle BFA"
-    },
-    difficulty: "Expert",
-    difficultyColor: "bg-red-100 text-red-700",
-    domainId: "gestion-crise"
-  },
-  {
-    id: "crisis-plan",
-    title: "Plan de gestion de crise cyber",
-    description: "Élaborez un plan de gestion de crise cyber complet pour votre organisation.",
-    contact: {
-      name: "Guillaume Lechevallier",
-      role: "Directeur Général Adjoint et Directeur du pôle IMPULSE"
-    },
-    difficulty: "Intermédiaire",
-    difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "gestion-crise"
-  },
-  
-  // Supply Chain
-  {
-    id: "vendor-assessment",
-    title: "Évaluation de la sécurité des fournisseurs",
-    description: "Développez et mettez en œuvre un processus d'évaluation de la sécurité pour vos fournisseurs critiques.",
-    contact: {
-      name: "Nicolas Paolantonacci",
-      role: "Senior Partner et Directeur du pôle RETAIL & LUXE"
-    },
-    difficulty: "Intermédiaire",
-    difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "supply-chain"
-  },
-  {
-    id: "supply-chain-incident",
-    title: "Incident de sécurité dans la chaîne d'approvisionnement",
-    description: "Un fournisseur critique a subi une violation de données. Évaluez l'impact et prenez les mesures nécessaires.",
-    contact: {
-      name: "Anthony Frescal",
-      role: "Directeur Général Adjoint et Directeur du pôle ENERGIES & UTILITIES"
-    },
-    difficulty: "Expert",
-    difficultyColor: "bg-red-100 text-red-700",
-    domainId: "supply-chain"
-  },
-  
-  // IAM
-  {
-    id: "iam-implementation",
-    title: "Mise en place d'une solution IAM",
-    description: "Vous dirigez l'implémentation d'une nouvelle solution de gestion des identités et des accès.",
-    contact: {
-      name: "Eddy MISSONI",
-      role: "Chef de Projet & Expert IA"
-    },
-    difficulty: "Intermédiaire",
-    difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "iam"
-  },
-  {
-    id: "privileged-access",
-    title: "Gestion des accès privilégiés",
-    description: "Concevez une stratégie de gestion des accès privilégiés pour réduire les risques de sécurité.",
-    contact: {
-      name: "Eddy MISSONI IDEMBI",
-      role: "Expert Data / IA & CTO"
-    },
-    difficulty: "Expert",
-    difficultyColor: "bg-red-100 text-red-700",
-    domainId: "iam"
-  },
-  
-  // Cloud Security
-  {
-    id: "cloud-migration",
-    title: "Sécurisation d'une migration vers le cloud",
-    description: "Votre entreprise migre ses applications critiques vers le cloud. Assurez la sécurité de cette transition.",
-    contact: {
-      name: "Fares SAYADI",
-      role: "Spécialiste Data / IA"
-    },
-    difficulty: "Intermédiaire",
-    difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "cloud-security"
-  },
-  {
-    id: "cloud-security-posture",
-    title: "Évaluation de la posture de sécurité cloud",
-    description: "Évaluez et améliorez la posture de sécurité de votre infrastructure cloud multi-fournisseurs.",
-    contact: {
-      name: "Yousra SAIDANI",
-      role: "Experte Cybersécurité & CFO"
-    },
-    difficulty: "Expert",
-    difficultyColor: "bg-red-100 text-red-700",
-    domainId: "cloud-security"
-  },
-  
-  // Données personnelles
-  {
-    id: "data-classification",
-    title: "Classification des données sensibles",
-    description: "Mettez en place un système de classification des données pour protéger les informations sensibles.",
-    contact: {
-      name: "Marion Lopez",
-      role: "Senior Partner et Directrice Marketing, Communication et RSE"
-    },
-    difficulty: "Débutant",
-    difficultyColor: "bg-green-100 text-green-700",
-    domainId: "donnees-personnelles"
-  },
-  {
-    id: "data-breach-response",
-    title: "Réponse à une violation de données personnelles",
-    description: "Une violation de données personnelles a été détectée. Gérez la situation conformément au RGPD.",
-    contact: {
-      name: "Vincent Terrier",
-      role: "Senior Partner, Directeur Financier"
-    },
-    difficulty: "Intermédiaire",
-    difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "donnees-personnelles"
-  },
-  
-  // Analyse des vulnérabilités
-  {
-    id: "pentest-planning",
-    title: "Planification d'un test d'intrusion",
-    description: "Préparez et planifiez un test d'intrusion complet pour votre infrastructure critique.",
-    contact: {
-      name: "Neil LEVIN",
-      role: "Expert cybersécurité & CFO"
-    },
-    difficulty: "Intermédiaire",
-    difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "analyse-vulnerabilites"
-  },
-  {
-    id: "vuln-management",
-    title: "Programme de gestion des vulnérabilités",
-    description: "Développez un programme de gestion des vulnérabilités efficace pour votre organisation.",
-    contact: {
-      name: "Yousra SAIDANI",
-      role: "Experte Cybersécurité & CFO"
-    },
-    difficulty: "Expert",
-    difficultyColor: "bg-red-100 text-red-700",
-    domainId: "analyse-vulnerabilites"
-  },
-  
-  // Gestion des incidents
-  {
-    id: "incident-response",
-    title: "Mise en place d'un processus de réponse aux incidents",
-    description: "Développez et mettez en œuvre un processus de réponse aux incidents de sécurité efficace.",
-    contact: {
-      name: "Eddy MISSONI",
-      role: "Chef de Projet & Expert IA"
-    },
-    difficulty: "Intermédiaire",
-    difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "gestion-incidents"
-  },
-  {
-    id: "security-monitoring",
-    title: "Optimisation de la surveillance de sécurité",
-    description: "Améliorez les capacités de détection et de surveillance de sécurité de votre organisation.",
-    contact: {
-      name: "Eddy MISSONI IDEMBI",
-      role: "Expert Data / IA & CTO"
-    },
-    difficulty: "Expert",
-    difficultyColor: "bg-red-100 text-red-700",
-    domainId: "gestion-incidents"
-  },
-  
-  // Forensics
-  {
-    id: "forensic-investigation",
-    title: "Investigation numérique après un incident",
-    description: "Menez une investigation numérique complète suite à une intrusion détectée sur vos systèmes.",
-    contact: {
-      name: "Neil LEVIN",
-      role: "Expert cybersécurité & CFO"
-    },
-    difficulty: "Expert",
-    difficultyColor: "bg-red-100 text-red-700",
-    domainId: "forensics"
-  },
-  {
-    id: "evidence-collection",
-    title: "Collecte et préservation des preuves numériques",
-    description: "Établissez un processus robuste pour la collecte et la préservation des preuves numériques.",
-    contact: {
-      name: "Yousra SAIDANI",
-      role: "Experte Cybersécurité & CFO"
-    },
-    difficulty: "Intermédiaire",
-    difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "forensics"
   }
 ];
 
@@ -435,8 +258,21 @@ const initialConfig: AIConfig = {
   maxTokens: 2000
 };
 
+// Initial metrics
+const initialMetrics: UserMetrics = {
+  reputation: 50,
+  budget: 10000,
+  successRate: 0,
+  responseQuality: 0,
+  level: 1,
+  completedScenarios: []
+};
+
 // Initial scenario state
-const initialScenarioState: ScenarioState = {};
+const initialScenarioState: ScenarioState = {
+  metrics: initialMetrics,
+  chatRoomActive: false
+};
 
 // Create context
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -480,7 +316,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       timestamp: Date.now()
     };
     
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     
     // Simulate bot response
     setTimeout(() => {
@@ -498,7 +334,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         timestamp: Date.now()
       };
       
-      setMessages(prev => [...prev, botResponse, domainSelection]);
+      setMessages((prev) => [...prev, botResponse, domainSelection]);
       setIsTyping(false);
     }, 1000);
   };
@@ -509,13 +345,13 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!selectedDomain) return;
     
     setIsTyping(true);
-    setScenario(prev => ({ ...prev, activeDomain: selectedDomain }));
+    setScenario((prev) => ({ ...prev, activeDomain: selectedDomain }));
     
     // Bot confirmation message
     const botConfirmation: ChatMessage = {
       id: uuidv4(),
       type: "bot",
-      content: `**Excellent choix, ${userName} !** Vous avez sélectionné la **${selectedDomain.name}**.\n\nJ'ai deux scénarios intéressants à vous proposer. Choisissez celui qui vous intéresse le plus :`,
+      content: `Excellent choix, ${userName} ! Vous avez sélectionné la ${selectedDomain.name}.\n\nJ'ai deux scénarios intéressants à vous proposer. Choisissez celui qui vous intéresse le plus :`,
       timestamp: Date.now()
     };
     
@@ -527,7 +363,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       timestamp: Date.now()
     };
     
-    setMessages(prev => [...prev, botConfirmation, scenarioSelection]);
+    setMessages((prev) => [...prev, botConfirmation, scenarioSelection]);
     setIsTyping(false);
   };
 
@@ -535,23 +371,27 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const handleSelectScenario = async (scenarioId: string) => {
     const selectedScenario = initialScenarios.find(s => s.id === scenarioId);
     if (!selectedScenario) return;
+
+    const primaryContactId = selectedScenario.primaryContact;
+    const primaryContact = selectedScenario.contacts.find(c => c.id === primaryContactId);
     
     setIsTyping(true);
-    setScenario(prev => ({ 
+    setScenario((prev) => ({ 
       ...prev, 
       activeScenario: selectedScenario,
-      contact: selectedScenario.contact
+      activeContacts: selectedScenario.contacts,
+      currentContactId: primaryContactId
     }));
     
     // Bot confirmation message
     const botConfirmation: ChatMessage = {
       id: uuidv4(),
       type: "bot",
-      content: `**Parfait ${userName} !** Vous avez choisi le scénario "${selectedScenario.title}".\n\nJe vais maintenant vous placer dans cette situation d'apprentissage. Vous recevrez bientôt un e-mail de ${selectedScenario.contact.name}, votre interlocuteur pour ce scénario.\n\nPréparez-vous à analyser la situation et à proposer des solutions !`,
+      content: `Parfait ${userName} ! Vous avez choisi le scénario "${selectedScenario.title}".\n\nJe vais maintenant vous placer dans cette situation d'apprentissage. Vous recevrez bientôt un e-mail de ${primaryContact?.name}, votre interlocuteur principal pour ce scénario.\n\nPréparez-vous à analyser la situation et à proposer des solutions !`,
       timestamp: Date.now()
     };
     
-    setMessages(prev => [...prev, botConfirmation]);
+    setMessages((prev) => [...prev, botConfirmation]);
     
     // Send the scenario selection to the server to generate initial email
     try {
@@ -571,7 +411,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         timestamp: Date.now()
       };
       
-      setMessages(prev => [...prev, emailMessage]);
+      setMessages((prev) => [...prev, emailMessage]);
     } catch (error) {
       console.error('Error starting scenario:', error);
       
@@ -583,7 +423,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         timestamp: Date.now()
       };
       
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, errorMessage]);
     }
     
     setIsTyping(false);
@@ -607,7 +447,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       timestamp: Date.now()
     };
     
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setIsTyping(true);
     
     try {
@@ -637,7 +477,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           timestamp: Date.now()
         };
         
-        setMessages(prev => [...prev, emailMessage]);
+        setMessages((prev) => [...prev, emailMessage]);
       } else {
         // Otherwise add as a regular bot message
         const botResponse: ChatMessage = {
@@ -647,7 +487,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           timestamp: Date.now()
         };
         
-        setMessages(prev => [...prev, botResponse]);
+        setMessages((prev) => [...prev, botResponse]);
         
         // Check if the scenario should be reset based on the API response
         if (data.resetScenario) {
@@ -660,7 +500,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
               timestamp: Date.now()
             };
             
-            setMessages(prev => [...prev, resetMessage]);
+            setMessages((prev) => [...prev, resetMessage]);
             
             // Wait another moment before actual reset
             setTimeout(() => {
@@ -680,15 +520,267 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         timestamp: Date.now()
       };
       
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, errorMessage]);
     }
     
     setIsTyping(false);
   };
 
+  // Handler to send a message to a specific contact
+  const handleSendMessageToContact = async (messageText: string, contactId: string) => {
+    if (!messageText.trim() || !contactId) return;
+    
+    const activeContacts = scenario.activeContacts;
+    if (!activeContacts) return;
+    
+    const contact = activeContacts.find(c => c.id === contactId);
+    if (!contact) return;
+    
+    // Set this contact as current
+    setScenario((prev) => ({
+      ...prev,
+      currentContactId: contactId
+    }));
+    
+    // Add user message
+    const userMessage: ChatMessage = {
+      id: uuidv4(),
+      type: "user",
+      content: messageText,
+      timestamp: Date.now()
+    };
+    
+    setMessages((prev) => [...prev, userMessage]);
+    setIsTyping(true);
+    
+    try {
+      // Get recent chat history for context
+      const relevantMessages = messages
+        .filter(msg => msg.type === 'user' || msg.type === 'npc')
+        .slice(-10);
+      
+      // Send to API
+      const response = await apiRequest('POST', '/api/cyber/contact-chat', {
+        message: messageText,
+        userName,
+        scenarioId: scenario.activeScenario?.id,
+        contactId,
+        config,
+        chatHistory: relevantMessages
+      });
+      
+      const data = await response.json();
+      
+      // Create NPC message
+      const npcContent: NpcMessageContent = {
+        contactId,
+        text: data.content
+      };
+      
+      const npcMessage: ChatMessage = {
+        id: uuidv4(),
+        type: "npc",
+        content: npcContent,
+        timestamp: Date.now(),
+        sender: contact
+      };
+      
+      setMessages((prev) => [...prev, npcMessage]);
+      
+      // Update metrics if provided
+      if (data.metrics) {
+        handleUpdateMetrics(data.metrics);
+      }
+    } catch (error) {
+      console.error('Error sending message to contact:', error);
+      
+      // Add error message
+      const errorMessage: ChatMessage = {
+        id: uuidv4(),
+        type: "bot",
+        content: "Je suis désolé, une erreur s'est produite lors de la communication avec ce contact. Veuillez réessayer.",
+        timestamp: Date.now()
+      };
+      
+      setMessages((prev) => [...prev, errorMessage]);
+    }
+    
+    setIsTyping(false);
+  };
+
+  // Handler to send a message to a chat room
+  const handleSendMessageToChatRoom = async (messageText: string) => {
+    if (!messageText.trim() || !scenario.chatRoomActive) return;
+    
+    const activeContacts = scenario.activeContacts;
+    if (!activeContacts) return;
+    
+    // Add user message
+    const userMessage: ChatMessage = {
+      id: uuidv4(),
+      type: "user",
+      content: messageText,
+      timestamp: Date.now()
+    };
+    
+    setMessages((prev) => [...prev, userMessage]);
+    setIsTyping(true);
+    
+    try {
+      // Find the most recent chat room message for context
+      const lastChatRoomMessage = [...messages]
+        .reverse()
+        .find(msg => msg.type === 'chat-room');
+      
+      let chatRoomContent: ChatRoomContent;
+      
+      if (lastChatRoomMessage && typeof lastChatRoomMessage.content !== 'string') {
+        // Cast to ChatRoomContent (we know it's this type since we filtered by type)
+        chatRoomContent = lastChatRoomMessage.content as ChatRoomContent;
+        
+        // Add user message to the chat room
+        chatRoomContent.messages.push({
+          contactId: 'user',
+          text: messageText,
+          timestamp: Date.now()
+        });
+      } else {
+        // Create new chat room if none exists
+        chatRoomContent = {
+          participants: activeContacts,
+          messages: [{
+            contactId: 'user',
+            text: messageText,
+            timestamp: Date.now()
+          }]
+        };
+      }
+      
+      // Send to API
+      const response = await apiRequest('POST', '/api/cyber/chatroom', {
+        message: messageText,
+        userName,
+        scenarioId: scenario.activeScenario?.id,
+        participants: activeContacts.map(c => c.id),
+        config,
+        chatHistory: chatRoomContent.messages.slice(-10)
+      });
+      
+      const data = await response.json();
+      
+      // Add responses from contacts to chat room
+      for (const response of data.responses) {
+        chatRoomContent.messages.push({
+          contactId: response.contactId,
+          text: response.content,
+          timestamp: Date.now() + chatRoomContent.messages.length * 100 // Stagger timestamps
+        });
+      }
+      
+      // Create new chat room message
+      const chatRoomMessage: ChatMessage = {
+        id: uuidv4(),
+        type: "chat-room",
+        content: chatRoomContent,
+        timestamp: Date.now()
+      };
+      
+      setMessages((prev) => {
+        // Replace previous chat room message if it exists
+        if (lastChatRoomMessage) {
+          return prev.filter(msg => msg.id !== lastChatRoomMessage.id).concat(chatRoomMessage);
+        }
+        return [...prev, chatRoomMessage];
+      });
+      
+      // Update metrics if provided
+      if (data.metrics) {
+        handleUpdateMetrics(data.metrics);
+      }
+    } catch (error) {
+      console.error('Error sending message to chat room:', error);
+      
+      // Add error message
+      const errorMessage: ChatMessage = {
+        id: uuidv4(),
+        type: "bot",
+        content: "Je suis désolé, une erreur s'est produite lors de la communication dans la salle de discussion. Veuillez réessayer.",
+        timestamp: Date.now()
+      };
+      
+      setMessages((prev) => [...prev, errorMessage]);
+    }
+    
+    setIsTyping(false);
+  };
+
+  // Handler to update metrics
+  const handleUpdateMetrics = (newMetrics: Partial<UserMetrics>) => {
+    setScenario((prev) => ({
+      ...prev,
+      metrics: {
+        ...prev.metrics,
+        ...newMetrics
+      }
+    }));
+  };
+
+  // Handler to activate chat room
+  const handleActivateChatRoom = (participantIds: string[]) => {
+    if (!scenario.activeContacts) return;
+    
+    const participants = scenario.activeContacts.filter(c => 
+      participantIds.includes(c.id)
+    );
+    
+    if (participants.length === 0) return;
+    
+    setScenario((prev) => ({
+      ...prev,
+      chatRoomActive: true
+    }));
+    
+    // Create initial chat room message
+    const chatRoomContent: ChatRoomContent = {
+      participants,
+      messages: [{
+        contactId: 'system',
+        text: "Bienvenue dans la salle de discussion. Vous pouvez maintenant échanger avec tous les participants.",
+        timestamp: Date.now()
+      }]
+    };
+    
+    const chatRoomMessage: ChatMessage = {
+      id: uuidv4(),
+      type: "chat-room",
+      content: chatRoomContent,
+      timestamp: Date.now()
+    };
+    
+    setMessages((prev) => [...prev, chatRoomMessage]);
+  };
+
+  // Handler to deactivate chat room
+  const handleDeactivateChatRoom = () => {
+    setScenario((prev) => ({
+      ...prev,
+      chatRoomActive: false
+    }));
+    
+    // Add message about leaving the chat room
+    const infoMessage: ChatMessage = {
+      id: uuidv4(),
+      type: "bot",
+      content: "Vous avez quitté la salle de discussion. Vous pouvez maintenant communiquer individuellement avec les différents contacts.",
+      timestamp: Date.now()
+    };
+    
+    setMessages((prev) => [...prev, infoMessage]);
+  };
+
   // Handler to update configuration
   const handleUpdateConfig = (newConfig: Partial<AIConfig>) => {
-    setConfig(prev => ({ ...prev, ...newConfig }));
+    setConfig((prev) => ({ ...prev, ...newConfig }));
   };
 
   // Handler to reset the chat
@@ -714,7 +806,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         selectDomain: handleSelectDomain,
         selectScenario: handleSelectScenario,
         sendMessage: handleSendMessage,
+        sendMessageToContact: handleSendMessageToContact,
+        sendMessageToChatRoom: handleSendMessageToChatRoom,
         updateConfig: handleUpdateConfig,
+        updateMetrics: handleUpdateMetrics,
+        activateChatRoom: handleActivateChatRoom,
+        deactivateChatRoom: handleDeactivateChatRoom,
         resetChat: handleResetChat
       }}
     >
