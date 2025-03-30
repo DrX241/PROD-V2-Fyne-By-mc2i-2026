@@ -54,9 +54,9 @@ export default function ChatInterface() {
       case 'user':
       case 'bot':
         return (
-          <div className="flex items-start gap-3">
+          <div className={`flex items-start gap-3 ${message.type === 'user' ? 'flex-row-reverse' : ''}`}>
             {message.type === 'bot' ? (
-              <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0 mt-1 shadow-sm">
+              <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0 mt-1">
                 {message.contactName ? (
                   <span className="text-primary font-medium text-sm">
                     {message.contactName.charAt(0)}
@@ -66,7 +66,7 @@ export default function ChatInterface() {
                 )}
               </div>
             ) : (
-              <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 mt-1 shadow-sm">
+              <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 mt-1">
                 <UserCircle className="h-5 w-5 text-gray-600" />
               </div>
             )}
