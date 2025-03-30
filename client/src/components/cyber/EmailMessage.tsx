@@ -73,7 +73,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
       return <li key={i} className="ml-6 mb-1">{numberedListMatch[2]}</li>;
     }
     
-    // Check for bold text (surrounded by ** or __) and convert to <strong>
+    // Traiter le texte en gras sans les ** ou __ en début et fin de mail
     if (line.trim().match(/^\*\*.*\*\*$/) || line.trim().match(/^__.*__$/)) {
       const boldText = line.replace(/^\*\*|\*\*$|^__|__$/g, '');
       return <p key={i} className="mb-3 font-medium">{boldText}</p>;

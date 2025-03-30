@@ -104,6 +104,18 @@ export class DocumentGenerator {
         const stream = fs.createWriteStream(filePath);
         doc.pipe(stream);
 
+        // Chargement du logo mc2i
+        const logoPath = path.join(process.cwd(), 'I_AM_CYBER', 'assets', 'mc2i.png');
+        
+        if (fs.existsSync(logoPath)) {
+          // Positionnement du logo en haut du document, centré
+          const logoWidth = 150; // Largeur du logo en points
+          const pageCenter = doc.page.width / 2;
+          const logoX = pageCenter - (logoWidth / 2);
+          doc.image(logoPath, logoX, doc.y, { width: logoWidth });
+          doc.moveDown(2); // Espace après le logo
+        }
+        
         // Entête avec logo d'entreprise
         doc.fontSize(24).fillColor('#003366').text(this.companyName, {align: 'center'});
         doc.moveDown(0.5);

@@ -393,15 +393,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Parse email content to extract subject and body
       const subjectMatch = emailContent.match(/Objet\s*:(.+?)(?:\n|$)/i);
-      const subject = subjectMatch ? subjectMatch[1].trim() : `Concernant: ${scenario.title}`;
+      // Supprimer les ** du sujet s'ils existent
+      let subject = subjectMatch ? subjectMatch[1].trim() : `Concernant: ${scenario.title}`;
+      subject = subject.replace(/^\*\*|\*\*$/g, '').replace(/^__|\__$/g, '');
       
       // Remove any email headers from the content
-      const body = emailContent
+      let body = emailContent
         .replace(/De\s*:.*?(?:\n|$)/gi, '')
         .replace(/À\s*:.*?(?:\n|$)/gi, '')
         .replace(/Objet\s*:.*?(?:\n|$)/gi, '')
         .replace(/Date\s*:.*?(?:\n|$)/gi, '')
         .trim();
+        
+      // Supprimer les ** au début et à la fin du corps de l'email
+      const lines = body.split('\n');
+      if (lines.length > 0) {
+        // Traitement de la première ligne
+        if (lines[0].trim().startsWith('**') && lines[0].trim().endsWith('**')) {
+          lines[0] = lines[0].trim().replace(/^\*\*|\*\*$/g, '');
+        }
+        
+        // Traitement de la dernière ligne
+        if (lines.length > 1 && lines[lines.length - 1].trim().startsWith('**') && lines[lines.length - 1].trim().endsWith('**')) {
+          lines[lines.length - 1] = lines[lines.length - 1].trim().replace(/^\*\*|\*\*$/g, '');
+        }
+        
+        body = lines.join('\n');
+      }
       
       // Format file size based on content length
       const contentBytes = Buffer.byteLength(document.content, 'utf8');
