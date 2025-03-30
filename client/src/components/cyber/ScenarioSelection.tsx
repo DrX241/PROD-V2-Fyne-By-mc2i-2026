@@ -5,6 +5,14 @@ export default function ScenarioSelection() {
   const { scenarios, scenario, selectScenario } = useChatContext();
   
   // Filter scenarios by the active domain
+  console.log("Active domain ID:", scenario.activeDomain?.id);
+  console.log("Available scenario domain IDs:", scenarios.map(s => s.domainId));
+  console.log("Domain ID comparison:", scenarios.map(s => ({ 
+    scenarioDomainId: s.domainId, 
+    activeDomainId: scenario.activeDomain?.id, 
+    matches: s.domainId === scenario.activeDomain?.id 
+  })));
+  
   const filteredScenarios = scenarios.filter(
     (s: any) => s.domainId === scenario.activeDomain?.id
   );
