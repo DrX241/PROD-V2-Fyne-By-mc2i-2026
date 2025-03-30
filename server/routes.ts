@@ -593,14 +593,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // S'assurer que nous avons une diversité de préoccupations
         additionalContacts.push(...relevantExperts);
         
+        // Rendre aléatoire la sélection des PNJ pour tous les scénarios
+        // Mélanger toutes les options disponibles
+        const allContacts: Array<{
+          name: string;
+          role: string;
+          expertise: string;
+          concern: string;
+        }> = [];
+        
+        // Ajouter tous les experts sectoriels disponibles
+        Object.values(sectorExperts).forEach(sectorGroup => {
+          allContacts.push(...sectorGroup);
+        });
+        
+        // Ajouter tous les experts techniques disponibles
+        Object.values(technicalExperts).forEach(techGroup => {
+          allContacts.push(...techGroup);
+        });
+        
+        // Ajouter les experts de rôles
+        Object.values(roleExperts).forEach(roleGroup => {
+          allContacts.push(...roleGroup);
+        });
+        
         // Filtrer pour éviter les doublons avec le contact principal
-        // Et assurer une diversité d'expertises (technique, business, réglementaire)
-        const filtered = additionalContacts
+        // Et éviter les rôles similaires (pas deux experts cyber, pas deux DG, etc.)
+        const usedRoles = new Set([primaryContact.role.split(',')[0].trim()]);
+        
+        const filtered = allContacts
           .filter(c => c.name !== primaryContact.name)
-          .sort(() => 0.5 - Math.random()); // Mélanger pour varier les scénarios
+          .filter(c => {
+            const baseRole = c.role.split(',')[0].trim();
+            if (usedRoles.has(baseRole)) return false;
+            usedRoles.add(baseRole);
+            return true;
+          })
+          .sort(() => 0.5 - Math.random()); // Mélanger pour sélection aléatoire
         
         // Sélectionner 3-4 interlocuteurs pertinents avec des perspectives diverses
-        // On s'assure d'avoir au moins un expert technique et un expert métier
         const result = [];
         let hasTechnical = false;
         let hasBusiness = false;

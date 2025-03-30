@@ -76,17 +76,25 @@ export default function EmailMessage({ email }: EmailMessageProps) {
       return <li key={i} className="ml-6 mb-1">{numberedListMatch[2]}</li>;
     }
     
-    // Traiter le texte en gras sans les ** ou __ en début et fin de mail
+    // Traitement amélioré pour les titres et sous-titres (qui étaient en markdown)
     if (line.trim().match(/^\*\*.*\*\*$/) || line.trim().match(/^__.*__$/)) {
       const boldText = line.replace(/^\*\*|\*\*$|^__|__$/g, '');
-      return <p key={i} className="mb-3 font-medium">{boldText}</p>;
+      return <p key={i} className="mb-3 font-medium text-blue-800">{boldText}</p>;
     }
     
-    // Check for inline bold text and convert to <strong>
+    // Convertir tout le markdown en HTML correct
     if (line.includes('**') || line.includes('__')) {
+      // Convertir le markdown en HTML propre
+      let processedLine = line;
+      
       // Remplacer **text** par du texte en gras
-      const processedLine = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                               .replace(/__(.*?)__/g, '<strong>$1</strong>');
+      processedLine = processedLine.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      processedLine = processedLine.replace(/__(.*?)__/g, '<strong>$1</strong>');
+      
+      // Ajouter d'autres conversions markdown au besoin (italique, etc.)
+      processedLine = processedLine.replace(/\*(.*?)\*/g, '<em>$1</em>');
+      processedLine = processedLine.replace(/_(.*?)_/g, '<em>$1</em>');
+      
       return <p key={i} className="mb-3" dangerouslySetInnerHTML={{ __html: processedLine }} />;
     }
     
