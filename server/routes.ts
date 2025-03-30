@@ -203,8 +203,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Mise en place d'un processus de réponse aux incidents",
           domain: "Gestion des incidents de sécurité",
           contact: {
-            name: "Eddy MISSONI",
-            role: "Chef de Projet & Expert IA"
+            name: "Eddy MISSONI IDEMBI",
+            role: "Expert Data / IA & CTO"
           },
           difficulty: "Intermédiaire"
         },
@@ -864,8 +864,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Mise en place d'un processus de réponse aux incidents",
           domain: "Gestion des incidents de sécurité",
           contact: {
-            name: "Eddy MISSONI",
-            role: "Chef de Projet & Expert IA"
+            name: "Eddy MISSONI IDEMBI",
+            role: "Expert Data / IA & CTO"
           },
           difficulty: "Intermédiaire"
         },
@@ -1310,6 +1310,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         "\n4. Évoque des préoccupations business et opérationnelles pertinentes pour ce secteur" +
         "\n5. Utilise un vocabulaire adapté à ton rôle et à ton niveau hiérarchique" +
         
+        "\n\nOBJECTIFS PÉDAGOGIQUES DU SCÉNARIO:" +
+        "\n1. Identifie 2-3 compétences clés que l'apprenant doit développer dans ce scénario" +
+        "\n2. Mentionne clairement les enjeux de cybersécurité spécifiques à ce secteur d'activité" +
+        "\n3. Évalue la capacité de l'apprenant à adapter ses solutions au contexte sectoriel" +
+        "\n4. Prépare-toi à fournir un bilan des apprentissages à la fin du scénario" +
+        
         "\n\nCONTEXTUALISATION CYBER: La problématique centrale du scénario est TOUJOURS un enjeu de cybersécurité contextualisé dans un environnement métier ou sectoriel spécifique. Garde cette problématique cyber au centre de tes réponses, tout en l'abordant selon ton angle d'expertise et le contexte sectoriel." +
         
         "\n\nRÈGLE DU JEU DE RÔLE AVANCÉ: Tu dois absolument adapter ton style de communication, ton vocabulaire et tes préoccupations à ton profil et au secteur. Un expert cybersécurité dans le secteur bancaire ne parle pas comme un directeur financier dans le secteur industriel. Modifie complètement ton approche en fonction de ton rôle, du contexte sectoriel et de tes préoccupations principales." +
@@ -1346,7 +1352,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Add the current user message
       messages.push({
         role: "user",
-        content: `Je suis ${userName}. Le message suivant est en réponse au scénario de cybersécurité en cours (ID: ${scenarioId}): "${message}"`
+        content: `Je suis ${userName}. Le message suivant est en réponse au scénario de cybersécurité en cours (ID: ${scenarioId}, secteur: ${secteurActivite}): "${message}"`
       });
       
       const responseContent = await openAIService.getChatCompletionWithCache(
@@ -1365,7 +1371,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           // Générer une fiche d'évaluation qui résume les performances de l'utilisateur
           const evaluationPrompt = `
-Tu vas créer une fiche d'évaluation complète pour l'utilisateur ${userName} qui vient de terminer le scénario "${scenario.title}" dans le domaine "${scenario.domain}".
+Tu vas créer une fiche d'évaluation complète pour l'utilisateur ${userName} qui vient de terminer le scénario "${scenario.title}" dans le domaine "${scenario.domain}", dans le secteur d'activité ${secteurActivite}.
 
 Voici l'historique complet de la conversation:
 ${chatHistory ? chatHistory.map(msg => {
@@ -1384,24 +1390,30 @@ ${respondingContact.name} (${respondingContact.role}): ${responseContent}
 Sur la base de cet échange, crée une fiche d'évaluation structurée avec les sections suivantes:
 
 1. ÉVALUATION GLOBALE
-   Synthèse de la performance de l'utilisateur avec une note sur 5 étoiles et un commentaire général.
+   Synthèse de la performance de l'utilisateur avec une note sur 5 étoiles et un commentaire général adapté au contexte sectoriel (${secteurActivite}).
 
 2. POINTS FORTS
-   Liste 3-4 points spécifiques où l'utilisateur a bien répondu ou fait preuve de bonnes connaissances.
+   Liste 3-4 points spécifiques où l'utilisateur a bien répondu ou fait preuve de bonnes connaissances, en lien avec les enjeux du secteur.
 
 3. AXES D'AMÉLIORATION
    Liste 3-4 points spécifiques où l'utilisateur pourrait améliorer ses réponses ou ses connaissances.
 
 4. BONNES PRATIQUES
-   Énumère 5-6 bonnes pratiques en cybersécurité qui s'appliquent à ce scénario spécifique.
+   Énumère 5-6 bonnes pratiques en cybersécurité qui s'appliquent à ce scénario spécifique et à ce secteur d'activité.
 
 5. CONCEPTS CLÉS
-   Résume 4-5 concepts importants de cybersécurité que ce scénario a mis en lumière.
+   Résume 4-5 concepts importants de cybersécurité que ce scénario a mis en lumière, adaptés au contexte sectoriel.
 
-6. POINTS À RETENIR
-   Liste 3-4 points essentiels que l'utilisateur devrait retenir de ce scénario pour sa pratique professionnelle.
+6. COMPÉTENCES ACQUISES
+   Liste 3-4 compétences concrètes que l'utilisateur a pu développer à travers ce scénario.
 
-Format: Utilise des titres clairs et une présentation structurée qui facilite la lecture. Le texte doit être concis, instructif et directement applicable.
+7. APPLICATIONS PRATIQUES
+   Propose 3-4 façons d'appliquer ces connaissances dans un contexte professionnel réel.
+
+8. RESSOURCES POUR APPROFONDIR
+   Suggère quelques ressources (types de formations, certifications, articles) pour approfondir la thématique.
+
+Format: Utilise des titres clairs et une présentation structurée qui facilite la lecture. Le texte doit être concis, instructif et directement applicable, avec des références spécifiques au secteur ${secteurActivite}.
 `;
 
           // Obtenir l'évaluation via l'API OpenAI

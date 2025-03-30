@@ -36,11 +36,12 @@ CONTACTS À UTILISER DANS LES SCÉNARIOS:
 - Marion Lopez (Senior Partner et Directrice Marketing, Communication et RSE)
 - Vincent Terrier (Senior Partner, Directeur Financier)
 - Isabelle Dubacq (Senior Partner, Directrice des Ressources Humaines)
-- Eddy MISSONI (Chef de Projet & Expert IA)
 - Neil LEVIN (Expert cybersécurité & CFO)
 - Yousra SAIDANI (Experte Cybersécurité & CFO)
 - Eddy MISSONI IDEMBI (Expert Data / IA & CTO)
 - Fares SAYADI (Spécialiste Data / IA)
+
+IMPORTANT: Pour chaque scénario, n'utilisez jamais plus d'un contact avec des rôles similaires (par exemple, ne jamais inclure deux experts en cybersécurité ou deux directeurs financiers dans un même scénario).
 
 CONTEXTES SECTORIELS À ADAPTER:
 
@@ -86,4 +87,12 @@ Pour chaque scénario, vous devez créer un contexte d'entreprise spécifique av
 - Un écosystème de partenaires/fournisseurs cohérent
 - Une culture d'entreprise adaptée au contexte
 
-Chaque interlocuteur doit s'exprimer avec un vocabulaire et des préoccupations parfaitement adaptés à son poste, son secteur et son expertise.
+OBJECTIFS PÉDAGOGIQUES:
+Dans chaque scénario, vous devez:
+- Annoncer clairement les compétences et connaissances qui seront mises à l'épreuve
+- Préciser ce que l'apprenant apprendra à l'issue du scénario
+- Adapter le niveau de complexité à la difficulté choisie (Débutant, Intermédiaire, Expert)
+- Terminer chaque scénario par un bilan des apprentissages acquis
+- Inclure des recommandations pour approfondir le sujet traité
+
+Chaque interlocuteur doit s'exprimer avec un vocabulaire et des préoccupations parfaitement adaptés à son poste, son secteur et son expertise. Les interlocuteurs doivent sembler réels et cohérents, pas génériques.
