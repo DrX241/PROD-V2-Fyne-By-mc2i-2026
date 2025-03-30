@@ -425,87 +425,243 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const contentBytes = Buffer.byteLength(document.content, 'utf8');
       const fileSizeKB = Math.round(contentBytes / 1024);
       
-      // Définir les interlocuteurs supplémentaires pour le scénario avec leurs préoccupations différentes
+      // Définir les interlocuteurs supplémentaires pour le scénario avec des expertises métier, technologiques et sectorielles diverses
       const getAdditionalContacts = (domain: string, primaryContact: { name: string, role: string }) => {
         // Évitons d'avoir le même contact plusieurs fois
         const additionalContacts = [];
         
-        // Liste des préoccupations possibles
-        const concernTypes = {
-          finance: "S'inquiète principalement de l'impact financier, du budget, des coûts, du ROI et des pertes potentielles",
-          cyber: "Se préoccupe avant tout de la sécurité technique, des vulnérabilités, des solutions et des bonnes pratiques cyber",
-          reputation: "Focalise son attention sur l'impact en termes d'image de marque, de communication et de perception externe",
-          conformite: "Met l'accent sur le respect des lois, règlements et standards applicables",
-          operationnel: "S'intéresse principalement aux impacts sur les opérations et la continuité des activités"
+        // Experts par secteur d'activité
+        const sectorExperts = {
+          // Secteur bancaire et financier
+          BFA: [
+            {
+              name: "Lorenzo Bertola",
+              role: "Directeur Général Adjoint et Directeur du pôle BFA",
+              expertise: "Cybersécurité dans le secteur bancaire et financier",
+              concern: "S'inquiète des implications réglementaires spécifiques au secteur financier (ACPR, réglementation bancaire) et de la protection des transactions"
+            },
+            {
+              name: "Vincent Terrier",
+              role: "Senior Partner, Directeur Financier",
+              expertise: "Gestion des risques financiers liés aux cyber-attaques",
+              concern: "Évalue l'impact financier des risques cyber et les investissements nécessaires pour s'en prémunir"
+            }
+          ],
+          
+          // Secteur IMPULSE (industrie, médias, mobilité, secteur public, santé)
+          IMPULSE: [
+            {
+              name: "Guillaume Lechevallier",
+              role: "Directeur Général Adjoint et Directeur du pôle IMPULSE",
+              expertise: "Transformation numérique sécurisée dans les secteurs industriels",
+              concern: "Préoccupé par la continuité d'activité des systèmes industriels et la protection des infrastructures critiques"
+            },
+            {
+              name: "Fares SAYADI",
+              role: "Spécialiste Data / IA",
+              expertise: "Sécurisation des données dans le secteur public et la santé",
+              concern: "Axé sur la protection des données sensibles et personnelles dans des contextes critiques (santé, défense)"
+            }
+          ],
+          
+          // Secteur Retail & Luxe
+          RETAIL: [
+            {
+              name: "Nicolas Paolantonacci",
+              role: "Senior Partner et Directeur du pôle RETAIL & LUXE",
+              expertise: "Protection des actifs digitaux dans le secteur du luxe",
+              concern: "Focalisé sur la protection de la propriété intellectuelle et de l'image de marque"
+            },
+            {
+              name: "Marion Lopez",
+              role: "Senior Partner et Directrice Marketing, Communication et RSE",
+              expertise: "Communication de crise et gestion de la réputation",
+              concern: "Préoccupée par l'impact des incidents de sécurité sur l'image et la réputation de l'entreprise"
+            }
+          ],
+          
+          // Secteur Energie & Utilities
+          ENERGY: [
+            {
+              name: "Anthony Frescal",
+              role: "Directeur Général Adjoint et Directeur du pôle ENERGIES & UTILITIES",
+              expertise: "Sécurité des infrastructures critiques énergétiques",
+              concern: "Centré sur la protection des installations industrielles sensibles et la continuité de service des réseaux énergétiques"
+            }
+          ]
         };
         
-        // Assignation des préoccupations par défaut selon le rôle
-        // Contact financier
-        additionalContacts.push({
-          name: "Vincent Terrier",
-          role: "Senior Partner, Directeur Financier",
-          concern: concernTypes.finance
-        });
+        // Experts par expertise technique
+        const technicalExperts = {
+          // Expertise en cybersécurité
+          CYBER: [
+            {
+              name: "Neil LEVIN",
+              role: "Expert cybersécurité & CFO",
+              expertise: "Stratégies de défense et solutions techniques de cybersécurité",
+              concern: "Analyse les vulnérabilités techniques et propose des solutions concrètes pour renforcer la sécurité"
+            },
+            {
+              name: "Yousra SAIDANI",
+              role: "Experte Cybersécurité & CFO",
+              expertise: "Analyse forensique et réponse aux incidents",
+              concern: "Spécialisée dans l'investigation numérique et la résolution technique des incidents"
+            }
+          ],
+          
+          // Expertise en Data/IA
+          DATA: [
+            {
+              name: "Eddy MISSONI IDEMBI",
+              role: "Expert Data / IA & CTO",
+              expertise: "Sécurisation des modèles d'IA et protection des données",
+              concern: "Préoccupé par les risques spécifiques aux systèmes d'IA (empoisonnement des données, détournement des modèles)"
+            }
+          ],
+          
+          // Expertise en conformité et juridique
+          COMPLIANCE: [
+            {
+              name: "Vincent Pascal",
+              role: "Directeur Général Adjoint et Directeur du Développement",
+              expertise: "Conformité réglementaire en matière de cybersécurité",
+              concern: "Veille au respect des lois, normes et standards (RGPD, NIS2, ISO27001)"
+            }
+          ]
+        };
         
-        // Contact cyber/technique
-        additionalContacts.push({
-          name: "Neil LEVIN",
-          role: "Expert cybersécurité & CFO",
-          concern: concernTypes.cyber
-        });
+        // Experts par fonction dans l'entreprise
+        const roleExperts = {
+          // Direction générale
+          EXECUTIVE: [
+            {
+              name: "Arnaud Gauthier",
+              role: "Président",
+              expertise: "Vision stratégique et gouvernance de la cybersécurité",
+              concern: "Centré sur les enjeux stratégiques à long terme et la responsabilité du conseil d'administration"
+            },
+            {
+              name: "Olivier Hervo",
+              role: "Directeur Général",
+              expertise: "Arbitrage risques/opportunités en matière de sécurité",
+              concern: "Recherche l'équilibre entre sécurité et développement business, protection et innovation"
+            }
+          ],
+          
+          // Ressources humaines
+          HR: [
+            {
+              name: "Isabelle Dubacq",
+              role: "Senior Partner, Directrice des Ressources Humaines",
+              expertise: "Formation et sensibilisation des collaborateurs",
+              concern: "Préoccupée par le facteur humain dans la cybersécurité et le développement d'une culture de sécurité"
+            }
+          ]
+        };
         
-        // Contact réputation/communication
-        additionalContacts.push({
-          name: "Marion Lopez",
-          role: "Senior Partner et Directrice Marketing, Communication et RSE",
-          concern: concernTypes.reputation
-        });
+        // Sélection des interlocuteurs en fonction du domaine du scénario
+        let relevantExperts = [];
         
-        // Contact conformité/juridique
-        additionalContacts.push({
-          name: "Vincent Pascal",
-          role: "Directeur Général Adjoint et Directeur du Développement",
-          concern: concernTypes.conformite
-        });
-        
-        // Contact opérationnel
-        additionalContacts.push({
-          name: "Guillaume Lechevallier",
-          role: "Directeur Général Adjoint et Directeur du pôle IMPULSE",
-          concern: concernTypes.operationnel
-        });
-        
-        // Ajout d'experts spécifiques au domaine (sans remplacer les contacts principaux par préoccupation)
-        if (domain.includes('Data') || domain.includes('IA') || domain.includes('Intelligence')) {
-          additionalContacts.push({
-            name: "Eddy MISSONI IDEMBI",
-            role: "Expert Data / IA & CTO",
-            concern: "S'intéresse aux aspects techniques liés à la data et à l'intelligence artificielle"
-          });
+        // 1. Analyse du domaine pour déterminer les expertises pertinentes
+        if (domain.toLowerCase().includes('finance') || domain.toLowerCase().includes('banque') || domain.toLowerCase().includes('paiement')) {
+          relevantExperts = relevantExperts.concat(sectorExperts.BFA);
         }
         
-        if (domain.includes('formation') || domain.includes('sensibilisation')) {
-          additionalContacts.push({
-            name: "Isabelle Dubacq",
-            role: "Senior Partner, Directrice des Ressources Humaines",
-            concern: "Se préoccupe du développement des compétences et de la sensibilisation des collaborateurs"
-          });
+        if (domain.toLowerCase().includes('industriel') || domain.toLowerCase().includes('santé') || domain.toLowerCase().includes('public')) {
+          relevantExperts = relevantExperts.concat(sectorExperts.IMPULSE);
         }
         
-        if (domain.toLowerCase().includes('stratégie')) {
-          additionalContacts.push({
-            name: "Arnaud Gauthier",
-            role: "Président",
-            concern: "Axé sur la vision globale et stratégique à long terme de l'entreprise"
-          });
+        if (domain.toLowerCase().includes('retail') || domain.toLowerCase().includes('luxe') || domain.toLowerCase().includes('marque')) {
+          relevantExperts = relevantExperts.concat(sectorExperts.RETAIL);
         }
         
-        // Filtrer pour éviter les doublons avec le contact principal et limiter à 3 interlocuteurs
-        // Nous voulons toujours au moins un contact financier, un contact cyber et un contact réputation
-        return additionalContacts
+        if (domain.toLowerCase().includes('énergie') || domain.toLowerCase().includes('infrastructure critique')) {
+          relevantExperts = relevantExperts.concat(sectorExperts.ENERGY);
+        }
+        
+        // Aspects techniques
+        if (domain.toLowerCase().includes('technique') || domain.toLowerCase().includes('sécurité') || domain.toLowerCase().includes('cyber')) {
+          relevantExperts = relevantExperts.concat(technicalExperts.CYBER);
+        }
+        
+        if (domain.toLowerCase().includes('data') || domain.toLowerCase().includes('ia') || domain.toLowerCase().includes('intelligence')) {
+          relevantExperts = relevantExperts.concat(technicalExperts.DATA);
+        }
+        
+        if (domain.toLowerCase().includes('conformité') || domain.toLowerCase().includes('rgpd') || domain.toLowerCase().includes('juridique')) {
+          relevantExperts = relevantExperts.concat(technicalExperts.COMPLIANCE);
+        }
+        
+        // Aspects fonctionnels
+        if (domain.toLowerCase().includes('stratégie') || domain.toLowerCase().includes('gouvernance')) {
+          relevantExperts = relevantExperts.concat(roleExperts.EXECUTIVE);
+        }
+        
+        if (domain.toLowerCase().includes('formation') || domain.toLowerCase().includes('sensibilisation') || domain.toLowerCase().includes('humain')) {
+          relevantExperts = relevantExperts.concat(roleExperts.HR);
+        }
+        
+        // Si aucun expert spécifique n'a été identifié, inclure des experts généraux
+        if (relevantExperts.length === 0) {
+          // Toujours inclure au moins un expert technique en cybersécurité
+          relevantExperts = relevantExperts.concat(technicalExperts.CYBER);
+          
+          // Ajouter un responsable financier et un responsable communication
+          relevantExperts.push(sectorExperts.BFA[1]); // Directeur Financier
+          relevantExperts.push(sectorExperts.RETAIL[1]); // Directrice Communication
+        }
+        
+        // S'assurer que nous avons une diversité de préoccupations
+        additionalContacts.push(...relevantExperts);
+        
+        // Filtrer pour éviter les doublons avec le contact principal
+        // Et assurer une diversité d'expertises (technique, business, réglementaire)
+        const filtered = additionalContacts
           .filter(c => c.name !== primaryContact.name)
-          .sort(() => 0.5 - Math.random()) // Mélanger la liste pour varier les scénarios
-          .slice(0, 3);
+          .sort(() => 0.5 - Math.random()); // Mélanger pour varier les scénarios
+        
+        // Sélectionner 3-4 interlocuteurs pertinents avec des perspectives diverses
+        // On s'assure d'avoir au moins un expert technique et un expert métier
+        const result = [];
+        let hasTechnical = false;
+        let hasBusiness = false;
+        
+        // Parcourir la liste filtrée et sélectionner les experts appropriés
+        for (const expert of filtered) {
+          if (result.length >= 3) break; // Limiter à 3 interlocuteurs supplémentaires
+          
+          const isTechnical = expert.expertise.toLowerCase().includes('technique') || 
+                             expert.expertise.toLowerCase().includes('cyber') ||
+                             expert.expertise.toLowerCase().includes('sécurité');
+                             
+          const isBusiness = expert.expertise.toLowerCase().includes('stratégie') || 
+                            expert.expertise.toLowerCase().includes('financier') ||
+                            expert.expertise.toLowerCase().includes('marketing');
+          
+          if (isTechnical && !hasTechnical) {
+            result.push(expert);
+            hasTechnical = true;
+            continue;
+          }
+          
+          if (isBusiness && !hasBusiness) {
+            result.push(expert);
+            hasBusiness = true;
+            continue;
+          }
+          
+          // Si nous avons déjà des experts techniques et business, ajouter d'autres experts
+          if (hasTechnical && hasBusiness) {
+            result.push(expert);
+          }
+          
+          // Si nous n'avons pas encore rempli nos quotas techniques/business, ajouter quand même
+          if (!hasTechnical || !hasBusiness) {
+            result.push(expert);
+          }
+        }
+        
+        return result.slice(0, 3); // Limiter à 3 interlocuteurs au maximum
       };
       
       // Obtenir 2 contacts supplémentaires pertinents pour ce scénario
@@ -578,46 +734,245 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Si aucun contact n'est fourni, générer les contacts à partir du domaine
       if (!availableContacts || !Array.isArray(availableContacts) || availableContacts.length === 0) {
+        // Réutiliser la même fonction définie plus haut pour la génération des contacts
+        // mais nous la redéfinissons ici pour éviter des problèmes de portée
         const getAdditionalContacts = (domain: string, primaryContact: { name: string, role: string }) => {
-          // Utiliser la même logique que celle définie plus haut
           const additionalContacts = [];
           
-          // Liste des préoccupations possibles
-          const concernTypes = {
-            finance: "S'inquiète principalement de l'impact financier, du budget, des coûts, du ROI et des pertes potentielles",
-            cyber: "Se préoccupe avant tout de la sécurité technique, des vulnérabilités, des solutions et des bonnes pratiques cyber",
-            reputation: "Focalise son attention sur l'impact en termes d'image de marque, de communication et de perception externe",
-            conformite: "Met l'accent sur le respect des lois, règlements et standards applicables",
-            operationnel: "S'intéresse principalement aux impacts sur les opérations et la continuité des activités"
+          // Experts par secteur d'activité
+          const sectorExperts = {
+            // Secteur bancaire et financier
+            BFA: [
+              {
+                name: "Lorenzo Bertola",
+                role: "Directeur Général Adjoint et Directeur du pôle BFA",
+                expertise: "Cybersécurité dans le secteur bancaire et financier",
+                concern: "S'inquiète des implications réglementaires spécifiques au secteur financier (ACPR, réglementation bancaire) et de la protection des transactions"
+              },
+              {
+                name: "Vincent Terrier",
+                role: "Senior Partner, Directeur Financier",
+                expertise: "Gestion des risques financiers liés aux cyber-attaques",
+                concern: "Évalue l'impact financier des risques cyber et les investissements nécessaires pour s'en prémunir"
+              }
+            ],
+            
+            // Secteur IMPULSE (industrie, médias, mobilité, secteur public, santé)
+            IMPULSE: [
+              {
+                name: "Guillaume Lechevallier",
+                role: "Directeur Général Adjoint et Directeur du pôle IMPULSE",
+                expertise: "Transformation numérique sécurisée dans les secteurs industriels",
+                concern: "Préoccupé par la continuité d'activité des systèmes industriels et la protection des infrastructures critiques"
+              },
+              {
+                name: "Fares SAYADI",
+                role: "Spécialiste Data / IA",
+                expertise: "Sécurisation des données dans le secteur public et la santé",
+                concern: "Axé sur la protection des données sensibles et personnelles dans des contextes critiques (santé, défense)"
+              }
+            ],
+            
+            // Secteur Retail & Luxe
+            RETAIL: [
+              {
+                name: "Nicolas Paolantonacci",
+                role: "Senior Partner et Directeur du pôle RETAIL & LUXE",
+                expertise: "Protection des actifs digitaux dans le secteur du luxe",
+                concern: "Focalisé sur la protection de la propriété intellectuelle et de l'image de marque"
+              },
+              {
+                name: "Marion Lopez",
+                role: "Senior Partner et Directrice Marketing, Communication et RSE",
+                expertise: "Communication de crise et gestion de la réputation",
+                concern: "Préoccupée par l'impact des incidents de sécurité sur l'image et la réputation de l'entreprise"
+              }
+            ],
+            
+            // Secteur Energie & Utilities
+            ENERGY: [
+              {
+                name: "Anthony Frescal",
+                role: "Directeur Général Adjoint et Directeur du pôle ENERGIES & UTILITIES",
+                expertise: "Sécurité des infrastructures critiques énergétiques",
+                concern: "Centré sur la protection des installations industrielles sensibles et la continuité de service des réseaux énergétiques"
+              }
+            ]
           };
           
-          // Assignation des préoccupations par défaut selon le rôle
-          // Contact financier
-          additionalContacts.push({
-            name: "Vincent Terrier",
-            role: "Senior Partner, Directeur Financier",
-            concern: concernTypes.finance
-          });
+          // Experts par expertise technique
+          const technicalExperts = {
+            // Expertise en cybersécurité
+            CYBER: [
+              {
+                name: "Neil LEVIN",
+                role: "Expert cybersécurité & CFO",
+                expertise: "Stratégies de défense et solutions techniques de cybersécurité",
+                concern: "Analyse les vulnérabilités techniques et propose des solutions concrètes pour renforcer la sécurité"
+              },
+              {
+                name: "Yousra SAIDANI",
+                role: "Experte Cybersécurité & CFO",
+                expertise: "Analyse forensique et réponse aux incidents",
+                concern: "Spécialisée dans l'investigation numérique et la résolution technique des incidents"
+              }
+            ],
+            
+            // Expertise en Data/IA
+            DATA: [
+              {
+                name: "Eddy MISSONI IDEMBI",
+                role: "Expert Data / IA & CTO",
+                expertise: "Sécurisation des modèles d'IA et protection des données",
+                concern: "Préoccupé par les risques spécifiques aux systèmes d'IA (empoisonnement des données, détournement des modèles)"
+              }
+            ],
+            
+            // Expertise en conformité et juridique
+            COMPLIANCE: [
+              {
+                name: "Vincent Pascal",
+                role: "Directeur Général Adjoint et Directeur du Développement",
+                expertise: "Conformité réglementaire en matière de cybersécurité",
+                concern: "Veille au respect des lois, normes et standards (RGPD, NIS2, ISO27001)"
+              }
+            ]
+          };
           
-          // Contact cyber/technique
-          additionalContacts.push({
-            name: "Neil LEVIN",
-            role: "Expert cybersécurité & CFO",
-            concern: concernTypes.cyber
-          });
+          // Experts par fonction dans l'entreprise
+          const roleExperts = {
+            // Direction générale
+            EXECUTIVE: [
+              {
+                name: "Arnaud Gauthier",
+                role: "Président",
+                expertise: "Vision stratégique et gouvernance de la cybersécurité",
+                concern: "Centré sur les enjeux stratégiques à long terme et la responsabilité du conseil d'administration"
+              },
+              {
+                name: "Olivier Hervo",
+                role: "Directeur Général",
+                expertise: "Arbitrage risques/opportunités en matière de sécurité",
+                concern: "Recherche l'équilibre entre sécurité et développement business, protection et innovation"
+              }
+            ],
+            
+            // Ressources humaines
+            HR: [
+              {
+                name: "Isabelle Dubacq",
+                role: "Senior Partner, Directrice des Ressources Humaines",
+                expertise: "Formation et sensibilisation des collaborateurs",
+                concern: "Préoccupée par le facteur humain dans la cybersécurité et le développement d'une culture de sécurité"
+              }
+            ]
+          };
           
-          // Contact réputation/communication
-          additionalContacts.push({
-            name: "Marion Lopez",
-            role: "Senior Partner et Directrice Marketing, Communication et RSE",
-            concern: concernTypes.reputation
-          });
+          // Sélection des interlocuteurs en fonction du domaine du scénario
+          let relevantExperts = [];
           
-          // Filtrer pour éviter les doublons avec le contact principal et limiter à 3 interlocuteurs
-          return additionalContacts
+          // 1. Analyse du domaine pour déterminer les expertises pertinentes
+          if (domain.toLowerCase().includes('finance') || domain.toLowerCase().includes('banque') || domain.toLowerCase().includes('paiement')) {
+            relevantExperts = relevantExperts.concat(sectorExperts.BFA);
+          }
+          
+          if (domain.toLowerCase().includes('industriel') || domain.toLowerCase().includes('santé') || domain.toLowerCase().includes('public')) {
+            relevantExperts = relevantExperts.concat(sectorExperts.IMPULSE);
+          }
+          
+          if (domain.toLowerCase().includes('retail') || domain.toLowerCase().includes('luxe') || domain.toLowerCase().includes('marque')) {
+            relevantExperts = relevantExperts.concat(sectorExperts.RETAIL);
+          }
+          
+          if (domain.toLowerCase().includes('énergie') || domain.toLowerCase().includes('infrastructure critique')) {
+            relevantExperts = relevantExperts.concat(sectorExperts.ENERGY);
+          }
+          
+          // Aspects techniques
+          if (domain.toLowerCase().includes('technique') || domain.toLowerCase().includes('sécurité') || domain.toLowerCase().includes('cyber')) {
+            relevantExperts = relevantExperts.concat(technicalExperts.CYBER);
+          }
+          
+          if (domain.toLowerCase().includes('data') || domain.toLowerCase().includes('ia') || domain.toLowerCase().includes('intelligence')) {
+            relevantExperts = relevantExperts.concat(technicalExperts.DATA);
+          }
+          
+          if (domain.toLowerCase().includes('conformité') || domain.toLowerCase().includes('rgpd') || domain.toLowerCase().includes('juridique')) {
+            relevantExperts = relevantExperts.concat(technicalExperts.COMPLIANCE);
+          }
+          
+          // Aspects fonctionnels
+          if (domain.toLowerCase().includes('stratégie') || domain.toLowerCase().includes('gouvernance')) {
+            relevantExperts = relevantExperts.concat(roleExperts.EXECUTIVE);
+          }
+          
+          if (domain.toLowerCase().includes('formation') || domain.toLowerCase().includes('sensibilisation') || domain.toLowerCase().includes('humain')) {
+            relevantExperts = relevantExperts.concat(roleExperts.HR);
+          }
+          
+          // Si aucun expert spécifique n'a été identifié, inclure des experts généraux
+          if (relevantExperts.length === 0) {
+            // Toujours inclure au moins un expert technique en cybersécurité
+            relevantExperts = relevantExperts.concat(technicalExperts.CYBER);
+            
+            // Ajouter un responsable financier et un responsable communication
+            relevantExperts.push(sectorExperts.BFA[1]); // Directeur Financier
+            relevantExperts.push(sectorExperts.RETAIL[1]); // Directrice Communication
+          }
+          
+          // S'assurer que nous avons une diversité de préoccupations
+          additionalContacts.push(...relevantExperts);
+          
+          // Filtrer pour éviter les doublons avec le contact principal
+          // Et assurer une diversité d'expertises (technique, business, réglementaire)
+          const filtered = additionalContacts
             .filter(c => c.name !== primaryContact.name)
-            .sort(() => 0.5 - Math.random()) // Mélanger la liste pour varier les scénarios
-            .slice(0, 3);
+            .sort(() => 0.5 - Math.random()); // Mélanger pour varier les scénarios
+          
+          // Sélectionner 3-4 interlocuteurs pertinents avec des perspectives diverses
+          // On s'assure d'avoir au moins un expert technique et un expert métier
+          const result = [];
+          let hasTechnical = false;
+          let hasBusiness = false;
+          
+          // Parcourir la liste filtrée et sélectionner les experts appropriés
+          for (const expert of filtered) {
+            if (result.length >= 3) break; // Limiter à 3 interlocuteurs supplémentaires
+            
+            const isTechnical = expert.expertise?.toLowerCase().includes('technique') || 
+                               expert.expertise?.toLowerCase().includes('cyber') ||
+                               expert.expertise?.toLowerCase().includes('sécurité') ||
+                               (expert.concern?.toLowerCase().includes('tech') || false);
+                               
+            const isBusiness = expert.expertise?.toLowerCase().includes('stratégie') || 
+                              expert.expertise?.toLowerCase().includes('financier') ||
+                              expert.expertise?.toLowerCase().includes('marketing') ||
+                              (expert.concern?.toLowerCase().includes('financ') || false);
+            
+            if (isTechnical && !hasTechnical) {
+              result.push(expert);
+              hasTechnical = true;
+              continue;
+            }
+            
+            if (isBusiness && !hasBusiness) {
+              result.push(expert);
+              hasBusiness = true;
+              continue;
+            }
+            
+            // Si nous avons déjà des experts techniques et business, ajouter d'autres experts
+            if (hasTechnical && hasBusiness) {
+              result.push(expert);
+            }
+            
+            // Si nous n'avons pas encore rempli nos quotas techniques/business, ajouter quand même
+            if (!hasTechnical || !hasBusiness) {
+              result.push(expert);
+            }
+          }
+          
+          return result.slice(0, 3); // Limiter à 3 interlocuteurs au maximum
         };
         
         const additionalContacts = getAdditionalContacts(scenario.domain, scenario.contact);
@@ -682,8 +1037,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Add the instruction about response evaluation and interlocutors
       const systemContent = systemPrompt + 
         `\n\nRÈGLE IMPORTANTE: Tu réponds en tant que ${respondingContact.name}, ${respondingContact.role}. Tu ne dois JAMAIS mentionner Azure OpenAI ou GPT.` +
-        `\n\nPRÉOCCUPATION PRINCIPALE: ${respondingContact.concern || 'Non spécifiée'}. Chaque interlocuteur a des préoccupations différentes face au même problème.` +
-        "\n\nRÈGLE DU JEU DE RÔLE: Chaque interlocuteur a son propre style et expertise en fonction de son rôle. Adapte le ton, le style et le contenu de la réponse au profil de l'interlocuteur qui répond. Modifie complètement ton approche et ton angle en fonction de la préoccupation principale du contact (finance, cybersécurité, réputation, conformité, etc.)." +
+        
+        `\n\nEXPERTISE SPÉCIFIQUE: ${respondingContact.expertise || 'Non spécifiée'}. Tu possèdes une expertise unique qui doit transparaître dans tes réponses.` +
+        
+        `\n\nPRÉOCCUPATION PRINCIPALE: ${respondingContact.concern || 'Non spécifiée'}. Chaque interlocuteur a des préoccupations différentes face à la même problématique cyber.` +
+        
+        "\n\nDIVERSITÉ DES EXPERTISES: Les différents interlocuteurs dans ce scénario représentent une diversité d'expertises :" +
+        "\n- Expertise métier : connaissance approfondie d'un secteur d'activité (banque, industrie, santé...)" +
+        "\n- Expertise technologique : maîtrise d'aspects techniques spécifiques (cybersécurité, IA, cloud...)" +
+        "\n- Expertise sectorielle : vision globale sur un secteur économique (énergie, retail, services publics...)" +
+        "\n- Expertise fonctionnelle : perspective liée à une fonction dans l'entreprise (direction, RH, finance...)" +
+        
+        "\n\nCONTEXTUALISATION CYBER: La problématique centrale du scénario est TOUJOURS un enjeu de cybersécurité contextualisé dans un environnement métier ou sectoriel spécifique. Garde cette problématique cyber au centre de tes réponses, tout en l'abordant selon ton angle d'expertise." +
+        
+        "\n\nRÈGLE DU JEU DE RÔLE: Tu dois absolument adapter ton style de communication, ton vocabulaire et tes préoccupations à ton profil. Un expert cybersécurité ne parle pas comme un directeur financier ou un responsable marketing. Modifie complètement ton approche et ton angle d'analyse en fonction de ton rôle et de tes préoccupations principales." +
+        
         "\n\nÉVALUATION DES RÉPONSES: Évalue rigoureusement la réponse de l'utilisateur. Si elle est incomplète, hors sujet, mal formulée ou peu pertinente, sois direct et franc dans ta critique. N'hésite pas à exiger immédiatement une réponse plus complète ou pertinente. Après trois tentatives infructueuses, mets fin au scénario.";
       
       // Create the base messages array

@@ -14,7 +14,8 @@ interface EmailAttachment {
 interface EmailContact {
   name: string;
   role: string;
-  concern?: string;  // Préoccupation principale de l'interlocuteur
+  expertise?: string;  // Expertise spécifique de l'interlocuteur
+  concern?: string;    // Préoccupation principale de l'interlocuteur
 }
 
 interface EmailContent {
@@ -193,11 +194,18 @@ export default function EmailMessage({ email }: EmailMessageProps) {
                 <div className="w-full">
                   <h5 className="font-medium text-gray-800">{contact.name}</h5>
                   <p className="text-gray-500 text-xs mb-1">{contact.role}</p>
-                  {contact.concern && (
-                    <div className="mt-1 p-1.5 rounded-md bg-gray-50 border border-gray-100">
-                      <p className="text-xs text-gray-700">
-                        <span className="font-medium">Préoccupation principale:</span> {contact.concern}
-                      </p>
+                  {(contact.expertise || contact.concern) && (
+                    <div className="mt-1 p-1.5 rounded-md bg-gray-50 border border-gray-100 space-y-1">
+                      {contact.expertise && (
+                        <p className="text-xs text-gray-700">
+                          <span className="font-medium">Expertise:</span> {contact.expertise}
+                        </p>
+                      )}
+                      {contact.concern && (
+                        <p className="text-xs text-gray-700">
+                          <span className="font-medium">Préoccupation principale:</span> {contact.concern}
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>
@@ -205,7 +213,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
             ))}
           </div>
           <p className="text-sm text-gray-600 mt-3">
-            Ces interlocuteurs interviendront dans ce scénario pour vous présenter différentes perspectives. Chacun a ses propres préoccupations (financières, techniques, réputationnelles...) face à la même problématique, reflétant la réalité des enjeux en cybersécurité.
+            Ces interlocuteurs interviendront dans ce scénario pour vous offrir différentes perspectives sur la problématique cyber centrale. Chacun d'eux apporte une expertise spécifique (métier, technologique ou sectorielle) et a ses propres préoccupations (financières, techniques, réputationnelles...) face aux enjeux de cybersécurité.
           </p>
         </div>
       )}
