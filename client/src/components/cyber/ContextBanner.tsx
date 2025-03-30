@@ -36,9 +36,10 @@ export default function ContextBanner() {
   
   return (
     <div className="context-banner">
-      <div className="centered-container flex items-center justify-between">
-        {/* Informations sur le domaine et le scénario */}
-        <div className="flex items-center gap-4">
+      <div className="centered-container flex items-center justify-end">
+        {/* Toutes les informations sur la droite */}
+        <div className="flex items-center gap-3">
+          {/* Informations sur le domaine et le scénario */}
           <div className="flex items-center gap-2">
             <Info className="h-4 w-4 text-neutral-500" />
             <div className="flex items-center">
@@ -51,13 +52,12 @@ export default function ContextBanner() {
               </span>
             </div>
           </div>
+          
           <div className={`text-xs px-2 py-0.5 rounded-full font-medium inline-flex items-center justify-center ${difficultyClass}`}>
             {scenario.activeScenario.difficulty}
           </div>
-        </div>
-        
-        {/* Interlocuteurs du scénario */}
-        <div className="flex items-center gap-3">
+          
+          {/* Interlocuteurs du scénario */}
           {scenario.scenarioContacts && scenario.scenarioContacts.length > 0 ? (
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4 text-neutral-500" />
@@ -81,7 +81,7 @@ export default function ContextBanner() {
           )}
           
           {/* Indicateurs clés */}
-          <div className="flex items-center gap-3 ml-4">
+          <div className="flex items-center gap-3 ml-2">
             <div className="flex items-center gap-2">
               <span className="text-xs text-neutral-500">Confiance:</span>
               <div className="w-20 h-1.5 bg-gray-200 rounded-full">

@@ -142,6 +142,18 @@ const initialScenarios: CyberScenario[] = [
   
   // OSINT
   {
+    id: "osint-basics",
+    title: "Initiation à l'OSINT - Sources publiques",
+    description: "Découvrez les bases de l'OSINT en utilisant des sources publiques pour collecter des informations sur votre entreprise.",
+    contact: {
+      name: "Sophie Martin",
+      role: "Responsable Communication"
+    },
+    difficulty: "Débutant",
+    difficultyColor: "bg-green-100 text-green-700",
+    domainId: "osint"
+  },
+  {
     id: "osint-investigation",
     title: "Investigation d'une menace potentielle",
     description: "Utilisez l'OSINT pour enquêter sur une menace potentielle visant votre organisation.",
@@ -155,7 +167,7 @@ const initialScenarios: CyberScenario[] = [
   },
   {
     id: "digital-footprint",
-    title: "Analyse de l'empreinte numérique",
+    title: "Analyse avancée de l'empreinte numérique",
     description: "Évaluez l'empreinte numérique de votre organisation pour identifier les vulnérabilités exposées publiquement.",
     contact: {
       name: "Yousra SAIDANI",
@@ -167,6 +179,18 @@ const initialScenarios: CyberScenario[] = [
   },
   
   // Conformité cyber
+  {
+    id: "compliance-basics",
+    title: "Initiation aux normes de conformité cyber",
+    description: "Découvrez les principales réglementations et normes de cybersécurité qui s'appliquent à votre secteur.",
+    contact: {
+      name: "Julie Moreau",
+      role: "Responsable Qualité"
+    },
+    difficulty: "Débutant",
+    difficultyColor: "bg-green-100 text-green-700",
+    domainId: "conformite-cyber"
+  },
   {
     id: "gdpr-compliance",
     title: "Mise en conformité RGPD",
@@ -194,15 +218,15 @@ const initialScenarios: CyberScenario[] = [
   
   // Stratégie cyber
   {
-    id: "cyber-strategy",
-    title: "Élaboration de la stratégie cybersécurité",
-    description: "Développez une stratégie de cybersécurité complète pour les 3 prochaines années.",
+    id: "security-awareness",
+    title: "Sensibilisation aux enjeux de la stratégie cyber",
+    description: "Identifiez les enjeux principaux de sécurité pour votre entreprise et communiquez leur importance.",
     contact: {
-      name: "Arnaud Gauthier",
-      role: "Président"
+      name: "Martin Fournier",
+      role: "Directeur de la Communication"
     },
-    difficulty: "Expert",
-    difficultyColor: "bg-red-100 text-red-700",
+    difficulty: "Débutant",
+    difficultyColor: "bg-green-100 text-green-700",
     domainId: "strategie-cyber"
   },
   {
@@ -217,18 +241,30 @@ const initialScenarios: CyberScenario[] = [
     difficultyColor: "bg-orange-100 text-orange-700",
     domainId: "strategie-cyber"
   },
-  
-  // Gestion de crise
   {
-    id: "ransomware-crisis",
-    title: "Gestion d'une attaque par ransomware",
-    description: "Votre organisation est victime d'une attaque par ransomware. Gérez la crise efficacement.",
+    id: "cyber-strategy",
+    title: "Élaboration de la stratégie cybersécurité avancée",
+    description: "Développez une stratégie de cybersécurité complète pour les 3 prochaines années.",
     contact: {
-      name: "Lorenzo Bertola",
-      role: "Directeur Général Adjoint et Directeur du pôle BFA"
+      name: "Arnaud Gauthier",
+      role: "Président"
     },
     difficulty: "Expert",
     difficultyColor: "bg-red-100 text-red-700",
+    domainId: "strategie-cyber"
+  },
+  
+  // Gestion de crise
+  {
+    id: "crisis-basics",
+    title: "Introduction à la gestion de crise cyber",
+    description: "Apprenez les principes fondamentaux de la gestion d'une crise cybersécurité et identifiez les rôles clés.",
+    contact: {
+      name: "Claire Dufour",
+      role: "Responsable Communication de Crise"
+    },
+    difficulty: "Débutant",
+    difficultyColor: "bg-green-100 text-green-700",
     domainId: "gestion-crise"
   },
   {
@@ -243,8 +279,32 @@ const initialScenarios: CyberScenario[] = [
     difficultyColor: "bg-orange-100 text-orange-700",
     domainId: "gestion-crise"
   },
+  {
+    id: "ransomware-crisis",
+    title: "Gestion d'une attaque avancée par ransomware",
+    description: "Votre organisation est victime d'une attaque par ransomware. Gérez la crise efficacement.",
+    contact: {
+      name: "Lorenzo Bertola",
+      role: "Directeur Général Adjoint et Directeur du pôle BFA"
+    },
+    difficulty: "Expert",
+    difficultyColor: "bg-red-100 text-red-700",
+    domainId: "gestion-crise"
+  },
   
   // Supply Chain
+  {
+    id: "supply-chain-basics",
+    title: "Introduction aux risques de la chaîne d'approvisionnement",
+    description: "Découvrez les principes fondamentaux de la sécurité dans la chaîne d'approvisionnement.",
+    contact: {
+      name: "Marie Bernard",
+      role: "Responsable Achats"
+    },
+    difficulty: "Débutant",
+    difficultyColor: "bg-green-100 text-green-700",
+    domainId: "supply-chain"
+  },
   {
     id: "vendor-assessment",
     title: "Évaluation de la sécurité des fournisseurs",
@@ -272,6 +332,18 @@ const initialScenarios: CyberScenario[] = [
   
   // IAM
   {
+    id: "iam-basics",
+    title: "Les bases de la gestion des identités et des accès",
+    description: "Découvrez les principes fondamentaux de l'IAM et son importance pour la sécurité.",
+    contact: {
+      name: "Thomas Mercier",
+      role: "Administrateur Système"
+    },
+    difficulty: "Débutant",
+    difficultyColor: "bg-green-100 text-green-700",
+    domainId: "iam"
+  },
+  {
     id: "iam-implementation",
     title: "Mise en place d'une solution IAM",
     description: "Vous dirigez l'implémentation d'une nouvelle solution de gestion des identités et des accès.",
@@ -297,6 +369,18 @@ const initialScenarios: CyberScenario[] = [
   },
   
   // Cloud Security
+  {
+    id: "cloud-basics",
+    title: "Comprendre les fondamentaux de la sécurité cloud",
+    description: "Découvrez les principes de base de la sécurité dans le cloud et les responsabilités partagées.",
+    contact: {
+      name: "Alex Laurent",
+      role: "Ingénieur Cloud"
+    },
+    difficulty: "Débutant",
+    difficultyColor: "bg-green-100 text-green-700",
+    domainId: "cloud-security"
+  },
   {
     id: "cloud-migration",
     title: "Sécurisation d'une migration vers le cloud",
@@ -350,6 +434,18 @@ const initialScenarios: CyberScenario[] = [
   
   // Analyse des vulnérabilités
   {
+    id: "vuln-basics",
+    title: "Introduction à l'analyse des vulnérabilités",
+    description: "Découvrez les principes de base de l'identification et de l'analyse des vulnérabilités.",
+    contact: {
+      name: "Sarah Dubois",
+      role: "Analyste en Cybersécurité Junior"
+    },
+    difficulty: "Débutant",
+    difficultyColor: "bg-green-100 text-green-700",
+    domainId: "analyse-vulnerabilites"
+  },
+  {
     id: "pentest-planning",
     title: "Planification d'un test d'intrusion",
     description: "Préparez et planifiez un test d'intrusion complet pour votre infrastructure critique.",
@@ -375,6 +471,18 @@ const initialScenarios: CyberScenario[] = [
   },
   
   // Gestion des incidents
+  {
+    id: "incident-basics",
+    title: "Introduction à la gestion des incidents",
+    description: "Découvrez les principes fondamentaux de détection et de réponse aux incidents de sécurité.",
+    contact: {
+      name: "Philippe Martin",
+      role: "Responsable SOC Junior"
+    },
+    difficulty: "Débutant",
+    difficultyColor: "bg-green-100 text-green-700",
+    domainId: "gestion-incidents"
+  },
   {
     id: "incident-response",
     title: "Mise en place d'un processus de réponse aux incidents",
@@ -402,15 +510,15 @@ const initialScenarios: CyberScenario[] = [
   
   // Forensics
   {
-    id: "forensic-investigation",
-    title: "Investigation numérique après un incident",
-    description: "Menez une investigation numérique complète suite à une intrusion détectée sur vos systèmes.",
+    id: "forensics-basics",
+    title: "Introduction à l'investigation numérique",
+    description: "Découvrez les principes fondamentaux de l'investigation numérique et de l'analyse post-incident.",
     contact: {
-      name: "Neil LEVIN",
-      role: "Expert cybersécurité & CFO"
+      name: "Jean Dubois",
+      role: "Technicien en Investigation Numérique"
     },
-    difficulty: "Expert",
-    difficultyColor: "bg-red-100 text-red-700",
+    difficulty: "Débutant",
+    difficultyColor: "bg-green-100 text-green-700",
     domainId: "forensics"
   },
   {
@@ -423,6 +531,18 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-orange-100 text-orange-700",
+    domainId: "forensics"
+  },
+  {
+    id: "forensic-investigation",
+    title: "Investigation numérique après un incident",
+    description: "Menez une investigation numérique complète suite à une intrusion détectée sur vos systèmes.",
+    contact: {
+      name: "Neil LEVIN",
+      role: "Expert cybersécurité & CFO"
+    },
+    difficulty: "Expert",
+    difficultyColor: "bg-red-100 text-red-700",
     domainId: "forensics"
   }
 ];
@@ -515,7 +635,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const botConfirmation: ChatMessage = {
       id: uuidv4(),
       type: "bot",
-      content: `**Excellent choix, ${userName} !** Vous avez sélectionné la **${selectedDomain.name}**.\n\nJ'ai deux scénarios intéressants à vous proposer. Choisissez celui qui vous intéresse le plus :`,
+      content: `**Excellent choix, ${userName} !** Vous avez sélectionné la **${selectedDomain.name}**.\n\nJ'ai plusieurs scénarios de différents niveaux à vous proposer. Choisissez celui qui vous intéresse le plus :`,
       timestamp: Date.now()
     };
     
