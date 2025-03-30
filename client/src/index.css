@@ -55,15 +55,15 @@
 
   /* Chat message styles */
   .chat-message {
-    @apply py-2 max-w-[88%];
+    @apply py-2 max-w-[88%] bg-transparent;
   }
 
   .chat-message.user {
-    @apply text-gray-800 ml-auto justify-end text-right;
+    @apply text-gray-800 ml-auto justify-end text-right bg-transparent;
   }
 
   .chat-message.bot {
-    @apply text-gray-800 mr-0;
+    @apply text-gray-800 mr-0 bg-transparent;
   }
 
   /* Typing indicator */
