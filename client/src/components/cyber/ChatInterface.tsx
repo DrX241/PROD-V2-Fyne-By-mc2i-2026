@@ -94,14 +94,14 @@ export default function ChatInterface() {
   };
 
   return (
-    <div className="h-full w-full flex flex-col">
+    <div className="h-full w-full flex flex-col text-blue-50">
       {/* Bannière contextuelle et bouton réinitialisation */}
-      <div className="sticky top-0 z-10 bg-gray-50 w-full">
+      <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-900/80 to-indigo-900/80 backdrop-blur-md border-b border-blue-700/30 w-full shadow-md">
         <div className="flex justify-end p-2">
           {userName && (
             <button 
               onClick={resetChat}
-              className="flex items-center gap-2 text-sm bg-primary/10 hover:bg-primary/15 text-primary py-2 px-4 rounded-lg transition-colors font-medium"
+              className="flex items-center gap-2 text-sm bg-blue-900/50 hover:bg-blue-800/70 text-blue-100 py-2 px-4 rounded-lg transition-all duration-300 font-medium border border-blue-700/50 shadow-inner"
             >
               <RefreshCw className="h-4 w-4" />
               <span>Nouvelle session</span>
@@ -110,31 +110,31 @@ export default function ChatInterface() {
         </div>
         <ContextBanner />
       </div>
-      
+
       {/* Messages */}
       <div 
-        className="flex-1 overflow-y-auto py-4 px-2 relative"
+        className="flex-1 overflow-y-auto py-6 px-4 relative scrollbar-cyber"
         ref={chatContainerRef}
         style={{ scrollBehavior: 'smooth', height: 'calc(100vh - 200px)' }}
       >
         <div className="max-w-4xl mx-auto px-4 w-full">
           {messages.map((message: any) => (
-            <div key={message.id} className="mb-6">
+            <div key={message.id} className="mb-8 animate-fadeIn">
               {renderMessageContent(message)}
             </div>
           ))}
           
           {/* Indicateur de saisie */}
           {isTyping && (
-            <div className="flex items-start gap-3 w-full">
-              <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0 mt-1">
-                <BotMessageSquare className="h-4 w-4 text-primary" />
+            <div className="flex items-start gap-3 w-full animate-pulse">
+              <div className="w-10 h-10 rounded-full bg-blue-700/30 border border-blue-500/20 flex items-center justify-center flex-shrink-0 mt-1 shadow-glow-sm">
+                <BotMessageSquare className="h-5 w-5 text-blue-300" />
               </div>
               <div className="flex items-center">
-                <div className="typing-indicator">
-                  <div className="typing-dot" style={{"--dot-index": "0"} as React.CSSProperties}></div>
-                  <div className="typing-dot" style={{"--dot-index": "1"} as React.CSSProperties}></div>
-                  <div className="typing-dot" style={{"--dot-index": "2"} as React.CSSProperties}></div>
+                <div className="typing-indicator-cyber">
+                  <div className="typing-dot-cyber" style={{"--dot-index": "0"} as React.CSSProperties}></div>
+                  <div className="typing-dot-cyber" style={{"--dot-index": "1"} as React.CSSProperties}></div>
+                  <div className="typing-dot-cyber" style={{"--dot-index": "2"} as React.CSSProperties}></div>
                 </div>
               </div>
             </div>
@@ -143,31 +143,32 @@ export default function ChatInterface() {
       </div>
 
       {/* Zone de saisie */}
-      <div className="py-3 px-2 border-t border-gray-100 bg-white sticky bottom-0">
-        <div className="max-w-4xl mx-auto px-4">
+      <div className="py-4 px-4 bg-gradient-to-r from-blue-900/90 to-indigo-900/90 backdrop-blur-lg border-t border-blue-700/30 sticky bottom-0 shadow-lg">
+        <div className="max-w-4xl mx-auto px-2">
           <form className="flex items-center gap-3" onSubmit={handleSubmit}>
-            <div className="relative flex-1">
+            <div className="relative flex-1 group">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
               <input 
                 type="text"
                 ref={inputRef}
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                className="w-full py-3 px-4 pr-12 rounded-lg border border-gray-200 outline-none text-gray-800 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                className="relative w-full py-3.5 px-4 pr-12 rounded-lg bg-gray-900/70 border border-blue-700/50 outline-none text-blue-50 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all placeholder:text-blue-300/50"
                 placeholder="Tapez votre réponse..."
               />
               <button 
                 type="button" 
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition-colors"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-blue-400/70 hover:text-blue-300 transition-colors"
               >
                 <Paperclip className="h-5 w-5" />
               </button>
             </div>
             <button 
               type="submit" 
-              className="bg-primary text-white p-3.5 rounded-full hover:bg-primary/90 flex items-center justify-center transition-colors flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white p-4 rounded-full flex items-center justify-center transition-all duration-300 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg disabled:shadow-none disabled:bg-blue-900/50 group"
               disabled={!inputMessage.trim()}
             >
-              <Send className="h-5 w-5" />
+              <Send className="h-5 w-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </button>
           </form>
         </div>

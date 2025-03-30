@@ -1,8 +1,13 @@
 import { useChatContext } from "@/contexts/ChatContext";
-import { ArrowRight, Users, BarChart3 } from "lucide-react";
+import { 
+  ArrowRight, Users, Shield, ShieldAlert, 
+  AlertTriangle, Clock, Brain, ChevronRight 
+} from "lucide-react";
+import { useState } from "react";
 
 export default function ScenarioSelection() {
   const { scenarios, scenario, selectScenario } = useChatContext();
+  const [hoveredScenario, setHoveredScenario] = useState<string | null>(null);
   
   // Filter scenarios by the active domain
   const filteredScenarios = scenarios.filter(
@@ -14,51 +19,141 @@ export default function ScenarioSelection() {
   };
 
   // Fonction pour obtenir les couleurs basées sur la difficulté
-  const getDifficultyStyles = (difficulty: string) => {
+  const getDifficultyConfig = (difficulty: string) => {
     switch (difficulty) {
       case 'Débutant':
-        return 'bg-green-100 text-green-700';
+        return {
+          icon: <Shield className="w-4 h-4 mr-1" />,
+          bgColor: "bg-green-900/40",
+          textColor: "text-green-300",
+          borderColor: "border-green-700/30",
+          label: "Débutant"
+        };
       case 'Intermédiaire':
-        return 'bg-amber-100 text-amber-700';
+        return {
+          icon: <ShieldAlert className="w-4 h-4 mr-1" />,
+          bgColor: "bg-amber-900/40",
+          textColor: "text-amber-300",
+          borderColor: "border-amber-700/30",
+          label: "Intermédiaire"
+        };
       case 'Expert':
-        return 'bg-red-100 text-red-700';
+        return {
+          icon: <AlertTriangle className="w-4 h-4 mr-1" />,
+          bgColor: "bg-red-900/40",
+          textColor: "text-red-300",
+          borderColor: "border-red-700/30",
+          label: "Expert"
+        };
       default:
-        return 'bg-gray-100 text-gray-700';
+        return {
+          icon: <Shield className="w-4 h-4 mr-1" />,
+          bgColor: "bg-gray-900/40",
+          textColor: "text-gray-300",
+          borderColor: "border-gray-700/30",
+          label: difficulty
+        };
     }
   };
 
+  // Choisir l'icône en fonction du domaine actif pour afficher des éléments visuels thématiques
+  const getDomainConfig = () => {
+    const domainId = scenario.activeDomain?.id;
+    const domainName = scenario.activeDomain?.name;
+    
+    switch (domainId) {
+      case 'gestion-crise':
+        return {
+          color: "from-red-900/30 to-red-700/10",
+          accentColor: "text-red-300",
+          borderColor: "border-red-700/20",
+          icon: <AlertTriangle className="w-6 h-6 text-red-300 mb-2" />
+        };
+      case 'donnees-personnelles':
+        return {
+          color: "from-emerald-900/30 to-emerald-700/10",
+          accentColor: "text-emerald-300",
+          borderColor: "border-emerald-700/20",
+          icon: <Shield className="w-6 h-6 text-emerald-300 mb-2" />
+        };
+      default:
+        return {
+          color: "from-blue-900/30 to-blue-700/10",
+          accentColor: "text-blue-300",
+          borderColor: "border-blue-700/20",
+          icon: <Shield className="w-6 h-6 text-blue-300 mb-2" />
+        };
+    }
+  };
+
+  const domainConfig = getDomainConfig();
+
   return (
-    <div className="w-full max-w-3xl mx-auto p-4">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">Sélectionnez un scénario</h2>
-      <p className="text-gray-600 text-center mb-6">
-        {scenario.activeDomain?.name} — {filteredScenarios.length} scénarios disponibles
-      </p>
+    <div className="w-full max-w-4xl mx-auto px-6 py-8">
+      <div className={`text-center mb-10 p-6 rounded-xl bg-gradient-to-br ${domainConfig.color} backdrop-blur-sm border ${domainConfig.borderColor}`}>
+        <div className="flex flex-col items-center">
+          {domainConfig.icon}
+          <h2 className="text-2xl font-bold text-blue-50 mb-3">
+            Sélectionnez un scénario de {scenario.activeDomain?.name}
+          </h2>
+        </div>
+        <p className={`${domainConfig.accentColor} mb-3`}>
+          {filteredScenarios.length} scénarios disponibles
+        </p>
+        <div className="flex justify-center space-x-6 mt-4">
+          <div className="flex items-center">
+            <Clock className="w-4 h-4 mr-2 text-blue-400" />
+            <span className="text-blue-200 text-sm">15-20 min/scénario</span>
+          </div>
+          <div className="flex items-center">
+            <Brain className="w-4 h-4 mr-2 text-blue-400" />
+            <span className="text-blue-200 text-sm">Apprentissage pratique</span>
+          </div>
+          <div className="flex items-center">
+            <Users className="w-4 h-4 mr-2 text-blue-400" />
+            <span className="text-blue-200 text-sm">PNJ réalistes</span>
+          </div>
+        </div>
+      </div>
       
       <div className="space-y-4">
-        {filteredScenarios.map((s: any) => (
-          <button 
-            key={s.id}
-            className="scenario-card w-full text-left focus:outline-none focus:ring-2 focus:ring-blue-500"
-            onClick={() => handleScenarioClick(s.id)}
-          >
-            <div className="flex items-center justify-between p-2">
-              <div className="flex-1">
-                <h3 className="font-bold text-lg text-gray-800">{s.title}</h3>
-              </div>
-              
-              <div className="flex items-center gap-3">
-                <span 
-                  className={`difficulty-badge ${getDifficultyStyles(s.difficulty)}`}
-                >
-                  {s.difficulty}
-                </span>
-                <div className="text-blue-600">
-                  <ArrowRight className="w-5 h-5" />
+        {filteredScenarios.map((s: any) => {
+          const diffConfig = getDifficultyConfig(s.difficulty);
+          const isHovered = hoveredScenario === s.id;
+          
+          return (
+            <button 
+              key={s.id}
+              className="w-full text-left focus:outline-none focus:ring-1 focus:ring-blue-500/50 group"
+              onClick={() => handleScenarioClick(s.id)}
+              onMouseEnter={() => setHoveredScenario(s.id)}
+              onMouseLeave={() => setHoveredScenario(null)}
+            >
+              <div className="relative flex items-center justify-between p-5 rounded-xl bg-gray-900/40 backdrop-blur-sm border border-blue-800/30 hover:border-blue-600/40 transition-all duration-300 shadow-md hover:shadow-xl group-hover:-translate-y-0.5">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-transparent to-blue-600/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                
+                <div className="flex-1 relative z-10">
+                  <h3 className="font-bold text-xl text-blue-100 group-hover:text-blue-50 transition-colors">{s.title}</h3>
+                  {isHovered && (
+                    <p className="mt-2 text-blue-300/90 text-sm">
+                      Cliquez pour commencer ce scénario.
+                    </p>
+                  )}
+                </div>
+                
+                <div className="flex items-center gap-4 relative z-10">
+                  <span className={`flex items-center px-3 py-1 rounded-md ${diffConfig.bgColor} ${diffConfig.textColor} border ${diffConfig.borderColor} text-xs font-medium shadow-glow-sm`}>
+                    {diffConfig.icon}
+                    {diffConfig.label}
+                  </span>
+                  <div className="text-blue-400 group-hover:text-blue-300 transition-all duration-300 transform group-hover:translate-x-1">
+                    <ChevronRight className="w-5 h-5" />
+                  </div>
                 </div>
               </div>
-            </div>
-          </button>
-        ))}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
