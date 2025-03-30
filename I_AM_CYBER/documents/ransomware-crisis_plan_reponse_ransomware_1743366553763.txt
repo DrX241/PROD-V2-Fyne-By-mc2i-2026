@@ -1,0 +1,66 @@
+---
+
+**PLAN DE RÉPONSE À UNE ATTAQUE PAR RANSOMWARE**  
+**Document de formation - Niveau Expert**  
+**Domaine : Gestion de crise cyber**  
+**Contact : Lorenzo Bertola**  
+**Destinataire : Eddy**  
+**Date : [Insérer la date]**  
+
+---
+
+### **Contexte de l'attaque**  
+Une attaque avancée par ransomware a été détectée sur l'infrastructure informatique de l’entreprise. Les premiers indicateurs montrent que plusieurs systèmes critiques ont été chiffrés, rendant les données et applications inaccessibles. Les attaquants ont laissé une note de rançon exigeant un paiement en cryptomonnaie (monnaie spécifiée : Bitcoin) dans un délai de 72 heures pour obtenir les clés de déchiffrement. Des menaces de divulgation publique des données sensibles volées ont également été mentionnées.
+
+Les journaux d’événements initiaux suggèrent que l’intrusion a pu commencer via une campagne de phishing ciblée, exploitant des vulnérabilités connues dans les systèmes de messagerie. Des activités de mouvement latéral et d’exfiltration de données ont ensuite été identifiées. Le ransomware semble être une variante de **LockBit 3.0**, connue pour ses capacités d’évasion avancées et son efficacité dans les environnements hybrides.
+
+---
+
+### **Impact identifié**  
+#### **Systèmes touchés**  
+- Serveur ERP principal (Microsoft Dynamics).  
+- Bases de données SQL critiques hébergées sur des machines virtuelles Hyper-V.  
+- Plusieurs postes de travail exécutant des processus financiers.  
+- Systèmes de sauvegarde en ligne compromis (problèmes d’intégrité).  
+
+#### **Conséquences immédiates**  
+- Interruption des opérations commerciales (facturation, gestion des stocks, traitement des commandes).  
+- Risque de non-conformité réglementaire (ex. : RGPD pour les données personnelles).  
+- Potentielle atteinte à la réputation, en cas de divulgation des données clients ou partenaires.  
+
+---
+
+### **Indicateurs techniques**  
+- **Fichiers chiffrés** : Extensions .LOCKBIT identifiées.  
+- **Communication réseau suspecte** : Trafic vers des adresses IP externes non autorisées (analyse des flux réseau en cours).  
+- **Artefacts détectés** : Scripts PowerShell non signés exécutés depuis des répertoires temporaires.  
+- **Hash malveillant identifié** : SHA-256 correspondant au binaire du ransomware (cf. base VirusTotal).  
+- **Note de rançon** : Fichier texte nommé "README_FOR_DECRYPT.txt" trouvé sur plusieurs systèmes.  
+
+---
+
+### **Questions clés pour la gestion de crise**  
+1. **Évaluation des sauvegardes** : Les sauvegardes disponibles sont-elles intactes et accessibles ? Quelle est leur date ?  
+2. **Isolation des systèmes** : Quelles mesures d’isolation immédiates doivent être prises pour limiter la propagation ?  
+3. **Analyse des vecteurs d’intrusion** : Comment le ransomware a-t-il pénétré l’environnement ? Des vulnérabilités ou des erreurs humaines ont-elles été exploitées ?  
+4. **Communication interne/externe** : Quel message doit être communiqué aux employés, aux parties prenantes, et éventuellement au public ?  
+5. **Décision sur la rançon** : Quels sont les risques associés au paiement ou au non-paiement de la rançon ? Comment évaluer la fiabilité des attaquants ?  
+6. **Coordination avec les autorités** : Quels organismes ou partenaires externes (CERT, forces de l’ordre) doivent être contactés ?  
+
+---
+
+### **Historique et références utiles**  
+- **LockBit 3.0** : Identifié pour la première fois en 2022, cette version du ransomware inclut des fonctionnalités telles que la double extorsion (chiffrement + divulgation) et des mécanismes anti-recherche.  
+- **Incidents similaires** : Étude de cas de l’attaque contre une entreprise logistique mondiale en 2023 (rapport disponible via Lorenzo Bertola).  
+- **Guides techniques** : Documentation NIST (National Institute of Standards and Technology) sur la gestion des attaques par ransomware.  
+
+---
+
+### **Prochaines étapes**  
+Eddy, veuillez analyser les informations ci-dessus et proposer une stratégie de réponse adaptée à ce scénario. Votre plan devrait inclure des mesures à court terme pour contenir l’attaque, ainsi que des actions à moyen et long terme pour restaurer les systèmes et renforcer la sécurité globale. N’hésitez pas à consulter les ressources annexes (disponibles auprès de Lorenzo Bertola).  
+
+---
+
+**Fin du document**
+
+---

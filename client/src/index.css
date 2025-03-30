@@ -49,6 +49,37 @@
     box-shadow: 0 0 20px 2px rgba(59, 130, 246, 0.3);
   }
   
+  /* Classe pour effet de traînée */
+  .cyber-icon-trail {
+    position: relative;
+  }
+  
+  .cyber-icon-trail::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: inherit;
+    filter: blur(15px);
+    opacity: 0.7;
+    z-index: -1;
+    transform: scale(1.4) translateX(-5px);
+    animation: trailEffect 2s ease-in-out infinite alternate;
+  }
+  
+  @keyframes trailEffect {
+    0% {
+      opacity: 0.4;
+      transform: scale(1.4) translateX(-5px);
+    }
+    100% {
+      opacity: 0.7;
+      transform: scale(1.6) translateX(-8px);
+    }
+  }
+  
   .shadow-glow-lg {
     box-shadow: 0 0 30px 3px rgba(59, 130, 246, 0.4);
   }
@@ -109,6 +140,26 @@
       transform: scale(1.5);
       opacity: 0;
     }
+  }
+  
+  /* Animation de pulsation lente pour les éléments d'arrière-plan */
+  @keyframes pulse-slow {
+    0% {
+      opacity: 0.15;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.3;
+      transform: scale(1.05);
+    }
+    100% {
+      opacity: 0.15;
+      transform: scale(1);
+    }
+  }
+  
+  .animate-pulse-slow {
+    animation: pulse-slow 5s ease-in-out infinite;
   }
   
   /* Chat container styles */
