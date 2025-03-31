@@ -8,36 +8,19 @@ async function throwIfResNotOk(res: Response) {
 }
 
 export async function apiRequest(
+  method: string,
   url: string,
-  options?: {
-    method?: string;
-    body?: string;
-    headers?: Record<string, string>;
-  }
-): Promise<any> {
+  data?: unknown | undefined,
+): Promise<Response> {
   const res = await fetch(url, {
-    method: options?.method || 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options?.headers || {})
-    },
-    body: options?.body,
+    method,
+    headers: data ? { "Content-Type": "application/json" } : {},
+    body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });
 
   await throwIfResNotOk(res);
-  
-  // Pour les requêtes DELETE ou les autres qui ne renvoient pas de contenu
-  if (res.status === 204) {
-    return null;
-  }
-  
-  // Pour toutes les autres requêtes, essayer de parser le JSON
-  try {
-    return await res.json();
-  } catch (e) {
-    return null;
-  }
+  return res;
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
