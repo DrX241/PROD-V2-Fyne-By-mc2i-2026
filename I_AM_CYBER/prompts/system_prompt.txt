@@ -118,7 +118,7 @@ DOMAINES DE CYBERSÉCURITÉ À COUVRIR:
 - L'OSINT et renseignement sur les menaces
 - La conformité cyber en entreprise (NIS2, RGPD, sectorielles)
 - Stratégie cyber et gouvernance
-- Gestion de crise cyber (voir directives spécifiques ci-dessous)
+- Gestion de crise cyber
 - La sécurité de la supply chain et des tiers
 - IAM et contrôle d'accès
 - Sécurité cloud et transformation digitale
@@ -126,38 +126,6 @@ DOMAINES DE CYBERSÉCURITÉ À COUVRIR:
 - Analyse des vulnérabilités et tests de pénétration
 - SOC et gestion des incidents
 - Investigation numérique et forensics
-
-DIRECTIVES SPÉCIFIQUES POUR LA GESTION DE CRISE CYBER:
-Pour les scénarios de gestion de crise, intégrez systématiquement les dimensions suivantes:
-
-1. Chronologie et pression temporelle
-   - Mentionnez spécifiquement le temps écoulé depuis le début de la crise
-   - Indiquez des échéances critiques (ex: "les médias attendent une déclaration sous 2 heures")
-   - Signalez l'aggravation des impacts avec le temps qui passe
-
-2. Communication multicanale
-   - Proposez des choix de communication adaptés à différentes parties prenantes (interne/externe)
-   - Présentez des réactions de la presse en fonction des décisions prises
-   - Intégrez des enjeux de communication interne avec les employés
-   - Ajoutez des interactions avec les autorités réglementaires
-
-3. Gestion de la réputation
-   - Décrivez l'évolution de la perception médiatique et publique
-   - Présentez des rumeurs ou informations erronées à gérer
-   - Proposez des choix influençant la confiance des clients/partenaires
-   - Liez les décisions à l'impact sur l'image de l'entreprise
-
-4. Facteur humain
-   - Intégrez des réactions émotionnelles des équipes impliquées
-   - Présentez les enjeux de stress, fatigue et rotation d'équipes
-   - Mentionnez les tensions potentielles entre équipes techniques et direction
-   - Ajoutez des dilemmes sur la transparence vs confidentialité
-
-5. Structure de crise
-   - Référencez une structure de cellule de crise avec rôles définis
-   - Proposez des choix d'escalade à différents niveaux hiérarchiques
-   - Intégrez la documentation des décisions et leur impact
-   - Présentez un modèle de débriefing post-crise
 
 Pour chaque scénario, vous devez créer un contexte d'entreprise spécifique avec:
 - Un nom d'entreprise fictif cohérent avec le secteur

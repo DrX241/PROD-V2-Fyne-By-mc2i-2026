@@ -31,31 +31,6 @@ export interface Attachment {
   content?: string;
 }
 
-export interface CrisisTimeInfo {
-  elapsedTime?: string;    // Temps écoulé depuis le début de crise
-  deadlines?: string[];    // Échéances critiques à venir
-  pressureLevel?: 'low' | 'medium' | 'high' | 'critical'; // Niveau de pression temporelle
-}
-
-export interface CrisisMediaInfo {
-  currentTone?: 'neutral' | 'concerned' | 'critical' | 'hostile'; // Ton médiatique actuel
-  publicPerception?: number;  // De 0 (désastreux) à 100 (excellent)
-  pendingRequests?: string[]; // Demandes médias en attente
-}
-
-export interface CrisisTeamInfo {
-  stressLevel?: 'normal' | 'elevated' | 'high' | 'burnout'; // Niveau de stress des équipes
-  availableExperts?: string[]; // Experts disponibles
-  teamRotation?: boolean;      // Rotation d'équipe nécessaire
-}
-
-export interface CrisisInfo {
-  timeInfo?: CrisisTimeInfo;
-  mediaInfo?: CrisisMediaInfo;
-  teamInfo?: CrisisTeamInfo;
-  activePhase?: 'detection' | 'analyse' | 'confinement' | 'eradication' | 'retablissement' | 'retour';
-}
-
 export interface EmailMessageContent {
   id: string;
   from: ScenarioContact;
@@ -65,7 +40,6 @@ export interface EmailMessageContent {
   body: string;
   attachments: Attachment[];
   scenarioContacts?: ScenarioContact[]; // Liste des interlocuteurs du scénario
-  crisisInfo?: CrisisInfo;  // Informations spécifiques à la gestion de crise
 }
 
 export type MessageType = 'user' | 'bot' | 'email' | 'domain-selection' | 'scenario-selection';
