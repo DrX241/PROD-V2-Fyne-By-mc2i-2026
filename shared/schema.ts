@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -8,10 +8,24 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
 });
 
+export const customScenarios = pgTable("custom_scenarios", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  domain: text("domain").notNull(),
+  difficulty: text("difficulty", { enum: ["debutant", "intermediaire", "expert"] }).notNull(),
+  isPublic: boolean("is_public").notNull().default(true),
+  originalDescription: text("original_description").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  steps: jsonb("steps").notNull()
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
 });
+
+export const insertCustomScenarioSchema = createInsertSchema(customScenarios);
 
 // Chat types for Azure OpenAI API
 export type ChatCompletionRequestMessage = {
