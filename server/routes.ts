@@ -6,7 +6,7 @@ import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { openAIService } from "../I_AM_CYBER/services/openai";
 import { documentGenerator } from "../I_AM_CYBER/services/document-generator";
-import { ChatCompletionRequestMessage } from "../shared/schema";
+import { ChatCompletionRequestMessage, customScenarioSchema } from "../shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Ensure the documents directory exists
@@ -1745,5 +1745,202 @@ Nous allons recommencer le scénario depuis le début pour nous reconcentrer sur
   });
 
   const httpServer = createServer(app);
+  // API routes for custom scenarios
+  app.get('/api/custom-scenarios', async (req, res) => {
+    try {
+      const scenarios = await storage.getCustomScenarios();
+      res.json(scenarios);
+    } catch (error) {
+      console.error('Error getting custom scenarios:', error);
+      res.status(500).json({ message: 'Failed to retrieve custom scenarios' });
+    }
+  });
+
+  app.get('/api/custom-scenarios/:id', async (req, res) => {
+    try {
+      const scenario = await storage.getCustomScenarioById(req.params.id);
+      if (!scenario) {
+        return res.status(404).json({ message: 'Custom scenario not found' });
+      }
+      res.json(scenario);
+    } catch (error) {
+      console.error('Error getting custom scenario:', error);
+      res.status(500).json({ message: 'Failed to retrieve custom scenario' });
+    }
+  });
+
+  app.post('/api/custom-scenarios', async (req, res) => {
+    try {
+      const scenarioData = req.body;
+      
+      // Generate scenario structure from OpenAI
+      const systemPrompt = `You are an expert scenario designer for a cybersecurity learning platform. 
+      Your task is to create a structured scenario based on the provided description.
+      
+      The scenario should follow this structure:
+      1. An initial welcome message from the main contact person
+      2. A clear mission or challenge related to the domain
+      3. Progressive steps that guide the learner through the scenario
+      4. Appropriate responses based on user inputs
+      
+      Format your response as a valid JSON object following this structure exactly:
+      {
+        "name": "Scenario title",
+        "description": "Brief description for display",
+        "domain": "One of the main cybersecurity domains",
+        "difficulty": "debutant|intermediaire|expert",
+        "steps": [
+          {
+            "id": "unique_step_id",
+            "type": "message|email|system",
+            "actor": {
+              "name": "Contact person name",
+              "role": "Professional role"
+            },
+            "content": "Message content",
+            "expectations": ["expected user response 1", "expected user response 2"],
+            "nextStep": "id_of_next_step"
+          }
+        ]
+      }`;
+      
+      const messages: ChatCompletionRequestMessage[] = [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: `Create a cybersecurity scenario based on this description: ${scenarioData.originalDescription}` }
+      ];
+      
+      const completion = await openAIService.getChatCompletion(
+        messages,
+        0.7,
+        3000
+      );
+      
+      // Parse the JSON response
+      let scenarioStructure;
+      try {
+        // Find JSON content between ```json and ``` if it exists
+        const jsonMatch = completion.match(/```json\n([\s\S]*?)\n```/) || completion.match(/```\n([\s\S]*?)\n```/);
+        const jsonContent = jsonMatch ? jsonMatch[1] : completion;
+        
+        // Parse the JSON
+        scenarioStructure = JSON.parse(jsonContent);
+        
+        // Add required fields
+        scenarioStructure.isPublic = scenarioData.isPublic || false;
+        scenarioStructure.originalDescription = scenarioData.originalDescription;
+        
+        // Validate the scenario structure
+        const validatedScenario = customScenarioSchema.parse(scenarioStructure);
+        
+        // Create the scenario
+        const createdScenario = await storage.createCustomScenario(validatedScenario);
+        res.status(201).json(createdScenario);
+      } catch (error: any) {
+        console.error('Error creating custom scenario:', error);
+        res.status(400).json({ 
+          message: 'Failed to create custom scenario', 
+          error: error.message || 'Unknown error',
+          rawResponse: completion
+        });
+      }
+    } catch (error) {
+      console.error('Error in scenario generation:', error);
+      res.status(500).json({ message: 'Failed to generate scenario' });
+    }
+  });
+
+  app.put('/api/custom-scenarios/:id', async (req, res) => {
+    try {
+      const updatedScenario = await storage.updateCustomScenario(req.params.id, req.body);
+      if (!updatedScenario) {
+        return res.status(404).json({ message: 'Custom scenario not found' });
+      }
+      res.json(updatedScenario);
+    } catch (error) {
+      console.error('Error updating custom scenario:', error);
+      res.status(500).json({ message: 'Failed to update custom scenario' });
+    }
+  });
+
+  app.delete('/api/custom-scenarios/:id', async (req, res) => {
+    try {
+      const success = await storage.deleteCustomScenario(req.params.id);
+      if (!success) {
+        return res.status(404).json({ message: 'Custom scenario not found' });
+      }
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error deleting custom scenario:', error);
+      res.status(500).json({ message: 'Failed to delete custom scenario' });
+    }
+  });
+  
+  // API route to preview a scenario without saving it
+  app.post('/api/custom-scenarios/preview', async (req, res) => {
+    try {
+      const description = req.body.description;
+      
+      if (!description) {
+        return res.status(400).json({ message: 'Description is required' });
+      }
+      
+      const systemPrompt = `You are an expert scenario designer for a cybersecurity learning platform. 
+      Your task is to create a structured scenario based on the provided description.
+      
+      The scenario should follow this structure:
+      1. An initial welcome message from the main contact person
+      2. A clear mission or challenge related to the domain
+      3. Progressive steps that guide the learner through the scenario
+      4. Appropriate responses based on user inputs
+      
+      Format your response as a valid JSON object following this structure exactly:
+      {
+        "name": "Scenario title",
+        "description": "Brief description for display",
+        "domain": "One of the main cybersecurity domains",
+        "difficulty": "debutant|intermediaire|expert",
+        "steps": [
+          {
+            "id": "unique_step_id",
+            "type": "message|email|system",
+            "actor": {
+              "name": "Contact person name",
+              "role": "Professional role"
+            },
+            "content": "Message content",
+            "expectations": ["expected user response 1", "expected user response 2"],
+            "nextStep": "id_of_next_step"
+          }
+        ]
+      }`;
+      
+      const messages: ChatCompletionRequestMessage[] = [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: `Create a cybersecurity scenario based on this description: ${description}` }
+      ];
+      
+      const completion = await openAIService.getChatCompletion(
+        messages,
+        0.7,
+        3000
+      );
+      
+      // Find JSON content between ```json and ``` if it exists
+      const jsonMatch = completion.match(/```json\n([\s\S]*?)\n```/) || completion.match(/```\n([\s\S]*?)\n```/);
+      const jsonContent = jsonMatch ? jsonMatch[1] : completion;
+      
+      // Parse the JSON
+      const scenarioStructure = JSON.parse(jsonContent);
+      
+      res.json(scenarioStructure);
+    } catch (error: any) {
+      console.error('Error generating scenario preview:', error);
+      res.status(500).json({ 
+        message: 'Failed to generate scenario preview', 
+        error: error.message || 'Unknown error'
+      });
+    }
+  });
+
   return httpServer;
 }

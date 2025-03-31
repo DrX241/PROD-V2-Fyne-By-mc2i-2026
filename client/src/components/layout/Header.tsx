@@ -1,4 +1,4 @@
-import { Home } from "lucide-react";
+import { Home, Settings } from "lucide-react";
 import { useChatContext } from "@/contexts/ChatContext";
 import { useLocation, Link } from "wouter";
 import mclogo from "@assets/mc2i.png";
@@ -40,6 +40,14 @@ export default function Header({ isFeny = false }: HeaderProps) {
             >
               <Home className="h-5 w-5" />
               <span className="hidden sm:inline">Accueil</span>
+            </Link>
+          )}
+          {isFeny && (
+            <Link href="/admin/scenarios"
+              className="text-neutral-500 hover:text-neutral-700 transition-colors duration-200 flex items-center gap-1 cursor-pointer"
+            >
+              <Settings className="h-5 w-5" />
+              <span className="hidden sm:inline">Admin</span>
             </Link>
           )}
           <div className="flex items-center gap-2">
