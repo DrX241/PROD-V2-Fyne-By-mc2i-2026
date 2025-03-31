@@ -93,6 +93,18 @@ export class DocumentGenerator {
   private async createPDF(filePath: string, content: string, documentType: string, context: any): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
+        // Limiter le contenu pour qu'il tienne sur une seule page
+        const contentLines = content.split('\n');
+        let limitedContent = '';
+        const maxLines = 45; // Nombre maximum de lignes pour que le contenu tienne sur une page
+        
+        // Si le contenu est trop long, le réduire et ajouter une note
+        if (contentLines.length > maxLines) {
+          const reducedContent = contentLines.slice(0, maxLines);
+          limitedContent = reducedContent.join('\n') + '\n\n(Suite du contenu non affichée pour respecter la limite d\'une page)';
+          content = limitedContent;
+        }
+        
         const doc = new PDFDocument({ 
           margins: { top: 50, bottom: 50, left: 50, right: 50 },
           info: {
@@ -229,6 +241,18 @@ export class DocumentGenerator {
   ): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       try {
+        // Limiter le contenu pour qu'il tienne sur une seule page
+        const contentLines = content.split('\n');
+        let limitedContent = '';
+        const maxLines = 60; // Nombre maximum de lignes pour que le contenu de l'évaluation tienne sur une page
+        
+        // Si le contenu est trop long, le réduire et ajouter une note
+        if (contentLines.length > maxLines) {
+          const reducedContent = contentLines.slice(0, maxLines);
+          limitedContent = reducedContent.join('\n') + '\n\n(Suite du contenu non affichée pour respecter la limite d\'une page)';
+          content = limitedContent;
+        }
+        
         // Créer un nouveau document PDF
         const doc = new PDFDocument({
           margin: 50,

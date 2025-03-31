@@ -1183,29 +1183,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Utilisons l'historique des messages pour déterminer le contact suivant
       let respondingContact;
       
+      // Vérifier si l'utilisateur a déjà envoyé des messages hors sujet
+      // Pour cela, nous comptons les avertissements dans l'historique
+      let offTopicCount = 0;
+      let shouldResetScenario = false;
+      
+      if (chatHistory && Array.isArray(chatHistory)) {
+        offTopicCount = chatHistory.filter(msg => 
+          msg.type === 'bot' && 
+          typeof msg.content === 'string' && 
+          (msg.content.toLowerCase().includes("hors sujet") || 
+           msg.content.toLowerCase().includes("hors contexte") ||
+           msg.content.toLowerCase().includes("recentrer la discussion") ||
+           msg.content.toLowerCase().includes("ne correspond pas au scénario") ||
+           msg.content.toLowerCase().includes("je ne comprends pas le lien") ||
+           msg.content.toLowerCase().includes("sans rapport avec"))
+        ).length;
+        
+        // Si le message actuel est très court ou semble hors sujet
+        const isLikelyOffTopic = message.length < 25 || 
+                                message.toLowerCase().includes("gpt") ||
+                                message.toLowerCase().includes("assistant") ||
+                                message.toLowerCase().includes("ia") ||
+                                message.toLowerCase().includes("intelligence artificielle") ||
+                                message.toLowerCase().includes("chatbot") ||
+                                message.toLowerCase().includes("programme");
+        
+        // Si l'utilisateur a déjà eu un avertissement et que le message actuel est potentiellement hors sujet
+        // OU si l'utilisateur a déjà eu 2 avertissements
+        if ((offTopicCount >= 1 && isLikelyOffTopic) || offTopicCount >= 2) {
+          shouldResetScenario = true;
+        }
+      }
+      
       if (chatHistory && Array.isArray(chatHistory) && chatHistory.length > 0) {
         // Vérifier si c'est la première réponse de l'utilisateur après l'email initial
-        // Pattern: [email - user] → nous voulons un PNJ niveau 2 pour répondre
+        // Pattern: [email - user] → nous voulons que le même PNJ (PNJ 1) réponde d'abord
         if (chatHistory.length === 2 && chatHistory[0].type === 'email' && chatHistory[1].type === 'user') {
-          // Pour la première réponse de l'utilisateur, choisir un contact niveau 2
-          // Trouver un contact différent du premier qui a envoyé l'email, avec une expertise technique ou business
+          // Pour la première réponse de l'utilisateur, on garde le même contact initial (PNJ 1)
+          // qui a envoyé le premier mail pour continuité de l'échange
           const firstContact = availableContacts[0];
-          const level2Contacts = availableContacts.filter(contact => 
-            contact.name !== firstContact.name && 
-            (contact.expertise?.toLowerCase().includes('technique') || 
-             contact.expertise?.toLowerCase().includes('stratégie') ||
-             contact.expertise?.toLowerCase().includes('business') ||
-             contact.expertise?.toLowerCase().includes('cyber') ||
-             contact.expertise?.toLowerCase().includes('sécurité'))
-          );
           
-          if (level2Contacts.length > 0) {
-            // Sélectionner aléatoirement un de ces contacts
-            respondingContact = level2Contacts[Math.floor(Math.random() * level2Contacts.length)];
-          } else {
-            // Si aucun contact n'est trouvé, prendre le second contact disponible
-            respondingContact = availableContacts.length > 1 ? availableContacts[1] : availableContacts[0];
-          }
+          // Vérifier si la présentation de l'utilisateur est suffisante
+          const userPresentation = chatHistory[1].content;
+          const containsPresentation = typeof userPresentation === 'string' && 
+            (userPresentation.length > 50 || // Texte suffisamment long
+             userPresentation.toLowerCase().includes('je suis') ||
+             userPresentation.toLowerCase().includes('je m\'appelle') ||
+             userPresentation.toLowerCase().includes('je viens de') ||
+             userPresentation.toLowerCase().includes('expérience') ||
+             userPresentation.toLowerCase().includes('formation') ||
+             userPresentation.toLowerCase().includes('travaillé') ||
+             userPresentation.toLowerCase().includes('étudi') ||
+             userPresentation.toLowerCase().includes('compétences') ||
+             userPresentation.toLowerCase().includes('connaissance'));
+          
+          // Si l'utilisateur ne s'est pas présenté, on utilisera le même contact
+          // pour le relancer (logique gérée dans le prompt)
+          respondingContact = firstContact;
         } else {
           // Pour les interactions suivantes, comportement standard
           // Compter combien de fois chaque contact a déjà répondu
@@ -1403,20 +1438,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Add the current user message
-      // Pour la première réponse après une présentation, demandons au PNJ niveau 2 de présenter un problème concret
+      // Pour la première réponse après une présentation, vérifier si l'utilisateur s'est bien présenté
+      // Si oui, le même PNJ (niveau 1) répondra avec une mission, sinon il redemandera une présentation
       if (chatHistory && chatHistory.length === 2 && chatHistory[0].type === 'email' && chatHistory[1].type === 'user') {
+        // Vérifier si la présentation de l'utilisateur est suffisante
+        const userPresentation = chatHistory[1].content;
+        const containsPresentation = typeof userPresentation === 'string' && 
+          (userPresentation.length > 50 || // Texte suffisamment long
+           userPresentation.toLowerCase().includes('je suis') ||
+           userPresentation.toLowerCase().includes('je m\'appelle') ||
+           userPresentation.toLowerCase().includes('je viens de') ||
+           userPresentation.toLowerCase().includes('expérience') ||
+           userPresentation.toLowerCase().includes('formation') ||
+           userPresentation.toLowerCase().includes('travaillé') ||
+           userPresentation.toLowerCase().includes('étudi') ||
+           userPresentation.toLowerCase().includes('compétences') ||
+           userPresentation.toLowerCase().includes('connaissance'));
+        
+        if (containsPresentation) {
+          // L'utilisateur s'est bien présenté, on lui donne la première mission
+          messages.push({
+            role: "user",
+            content: `Je suis ${userName} et je viens de me présenter. Voici ma présentation : "${message}"
+            
+            DIRECTIVE SPÉCIALE: Tu es le même PNJ (${respondingContact.name}) qui a envoyé le premier email de bienvenue. Tu dois maintenant assigner une première mission à ${userName} après avoir accusé réception de sa présentation.
+            
+            Ta réponse DOIT:
+            1. Commencer par un bref remerciement pour la présentation en mentionnant spécifiquement un ou deux éléments de sa présentation
+            2. Présenter un problème concret et urgent lié à la cybersécurité dans le contexte du scénario "${scenario.title}" dans le domaine "${scenario.domain}"
+            3. Lister avec des puces (maximum 3) les actions ou attentes précises que tu as envers ${userName}
+            4. Maintenir un ton professionnel mais accessible, en utilisant toujours le tutoiement
+            5. Être concise et directe (maximum 200 mots)`
+          });
+        } else {
+          // L'utilisateur ne s'est pas suffisamment présenté, on lui redemande
+          messages.push({
+            role: "user",
+            content: `Je suis ${userName} et voici ma réponse à ta demande de présentation: "${message}"
+            
+            DIRECTIVE SPÉCIALE: Tu es le même PNJ (${respondingContact.name}) qui a envoyé le premier email de bienvenue. Tu constates que l'utilisateur ne s'est pas suffisamment présenté (pas de parcours, formations, expériences mentionnées).
+            
+            Ta réponse DOIT:
+            1. Être amicale mais ferme, en expliquant que pour mieux adapter le scénario, tu as besoin d'en savoir plus sur son parcours, ses expériences et compétences
+            2. Redemander à l'utilisateur de se présenter plus en détail, avec des questions spécifiques pour le guider
+            3. Maintenir un ton professionnel mais accessible, en utilisant toujours le tutoiement
+            4. Être concise (maximum 150 mots)`
+          });
+        }
+      } else if (chatHistory && chatHistory.length === 4 && 
+                 chatHistory[0].type === 'email' && 
+                 chatHistory[1].type === 'user' && 
+                 chatHistory[2].type === 'bot' && 
+                 chatHistory[3].type === 'user') {
+        // C'est la réponse à la première mission, maintenant on fait intervenir un PNJ niveau 2 différent
         messages.push({
           role: "user",
-          content: `Je suis ${userName} et je viens de me présenter. Voici ma présentation : "${message}"
+          content: `Je suis ${userName} et je viens de répondre à la première mission. Voici ma réponse : "${message}"
           
-          DIRECTIVE SPÉCIALE: Tu es un PNJ de niveau 2 (${respondingContact.name}) et tu dois répondre en te présentant brièvement, puis en exposant DIRECTEMENT un problème concret à résoudre lié au scénario "${scenario.title}" dans le domaine "${scenario.domain}".
+          DIRECTIVE SPÉCIALE: Tu es un nouveau PNJ (niveau 2) différent du premier PNJ. Tu es ${respondingContact.name} et tu dois analyser la réponse de l'utilisateur à la première mission et poursuivre le scénario.
           
           Ta réponse DOIT:
           1. Commencer par une brève présentation de toi-même (2 lignes maximum)
-          2. Présenter un problème concret et urgent lié à la cybersécurité dans le contexte du scénario, en utilisant le tutoiement
-          3. Lister avec des puces (maximum 3) les actions ou attentes précises que tu as envers ${userName}
-          4. Maintenir un ton professionnel mais accessible, en utilisant toujours le tutoiement
-          5. Être concise et directe (maximum 200 mots)`
+          2. Donner ton avis sur la réponse de l'utilisateur (points forts, éventuelles lacunes)
+          3. Poursuivre le scénario en présentant un nouveau problème ou défi liés au scénario
+          4. Lister avec des puces (maximum 3) les actions ou attentes précises que tu as envers ${userName}
+          5. Maintenir un ton professionnel mais accessible, en utilisant toujours le tutoiement
+          6. Être concise et directe (maximum 200 mots)`
         });
       } else {
         messages.push({
@@ -1547,16 +1634,33 @@ Format: Utilise des titres clairs et une présentation structurée qui facilite 
         }
       }
       
-      // Send regular response with contact information
-      res.json({ 
-        type: 'bot',
-        content: responseContent,
-        resetScenario: isScenarioTerminated,
-        contactName: respondingContact.name,
-        contactRole: respondingContact.role,
-        // Inclure la liste complète des contacts pour le prochain appel
-        scenarioContacts: availableContacts
-      });
+      // Si le scénario doit être réinitialisé à cause de messages hors sujet
+      if (shouldResetScenario) {
+        // Dans ce cas, on envoie une réponse spéciale indiquant la réinitialisation
+        res.json({
+          type: 'bot',
+          content: `Je constate que nous nous éloignons du contexte de ce scénario dans le domaine "${scenario.domain}". 
+
+Après deux réponses inadaptées au contexte, je suis contraint de mettre fin à cette simulation.
+
+Nous allons recommencer le scénario depuis le début pour nous reconcentrer sur la problématique principale.`,
+          resetScenario: true,
+          contactName: "Marion Lopez",
+          contactRole: "Senior Partner et Directrice Marketing, Communication et RSE",
+          scenarioContacts: availableContacts
+        });
+      } else {
+        // Réponse standard
+        res.json({ 
+          type: 'bot',
+          content: responseContent,
+          resetScenario: isScenarioTerminated,
+          contactName: respondingContact.name,
+          contactRole: respondingContact.role,
+          // Inclure la liste complète des contacts pour le prochain appel
+          scenarioContacts: availableContacts
+        });
+      }
     } catch (error) {
       console.error('Error processing chat message:', error);
       res.status(500).json({ message: 'Failed to process message' });
