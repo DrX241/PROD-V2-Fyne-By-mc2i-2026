@@ -49,7 +49,7 @@ export default function Header({ isFeny = false }: HeaderProps) {
             <HelpCircle className="h-5 w-5" />
           </button>
           <div className="flex items-center gap-2">
-            {userName ? (
+            {userName && (
               <>
                 <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-medium">
                   {userInitial}
@@ -58,8 +58,6 @@ export default function Header({ isFeny = false }: HeaderProps) {
                   Bonjour {userName}
                 </span>
               </>
-            ) : (
-              <span className="text-neutral-700 font-medium">Bienvenue</span>
             )}
           </div>
         </div>
