@@ -1,4 +1,4 @@
-import { Settings, HelpCircle, Home } from "lucide-react";
+import { Home } from "lucide-react";
 import { useChatContext } from "@/contexts/ChatContext";
 import { useLocation, Link } from "wouter";
 import mclogo from "@assets/mc2i.png";
@@ -42,12 +42,6 @@ export default function Header({ isFeny = false }: HeaderProps) {
               <span className="hidden sm:inline">Accueil</span>
             </Link>
           )}
-          <button className="text-neutral-500 hover:text-neutral-700 transition-colors duration-200">
-            <Settings className="h-5 w-5" />
-          </button>
-          <button className="text-neutral-500 hover:text-neutral-700 transition-colors duration-200">
-            <HelpCircle className="h-5 w-5" />
-          </button>
           <div className="flex items-center gap-2">
             {userName && (
               <>
