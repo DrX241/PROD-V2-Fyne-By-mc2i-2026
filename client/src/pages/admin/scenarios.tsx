@@ -367,12 +367,12 @@ export default function AdminScenariosPage() {
 
                       {/* Affichage de la structure JSON ou de la prévisualisation */}
                       {previewMode === 'json' ? (
-                        <pre className="bg-gray-100 p-4 rounded-md overflow-y-auto text-sm max-h-[70vh]" style={{overflowY: 'auto'}}>
+                        <pre className="bg-gray-100 p-4 rounded-md text-sm max-h-[70vh] overflow-auto">
                           {JSON.stringify(generatedStructure, null, 2)}
                         </pre>
                       ) : (
-                        <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-2" style={{overflowY: 'auto'}}>
-                          <h3 className="font-semibold text-lg sticky top-0 bg-white py-2">Déroulement du scénario</h3>
+                        <div className="space-y-6 max-h-[70vh] overflow-auto pr-2" style={{scrollbarWidth: 'thin'}}>
+                          <h3 className="font-semibold text-lg sticky top-0 bg-white py-2 z-10">Déroulement du scénario</h3>
                           
                           {generatedStructure.steps.map((step: any, index: number) => (
                             <div key={step.id} className="border rounded-md p-4 bg-white">
@@ -412,20 +412,23 @@ export default function AdminScenariosPage() {
                         </div>
                       )}
 
-                      <div className="flex justify-end gap-4 mt-6">
+                      <div className="flex justify-end gap-4 mt-6 sticky bottom-0 bg-white py-4 border-t z-10">
                         <Button 
                           variant="outline" 
                           onClick={() => setCurrentTab('write')}
+                          size="lg"
                         >
                           Retour à l'édition
                         </Button>
                         <Button 
                           onClick={saveScenario} 
                           disabled={isLoading}
-                          className="gap-2"
+                          className="gap-2 font-semibold"
+                          size="lg"
+                          variant="default"
                         >
                           {isLoading ? "Sauvegarde en cours..." : "Sauvegarder le scénario"}
-                          <Save className="h-4 w-4" />
+                          <Save className="h-5 w-5" />
                         </Button>
                       </div>
                     </CardContent>
