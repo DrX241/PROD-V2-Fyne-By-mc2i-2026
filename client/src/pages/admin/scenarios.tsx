@@ -367,12 +367,12 @@ export default function AdminScenariosPage() {
 
                       {/* Affichage de la structure JSON ou de la prévisualisation */}
                       {previewMode === 'json' ? (
-                        <pre className="bg-gray-100 p-4 rounded-md overflow-auto text-sm max-h-[600px]">
+                        <pre className="bg-gray-100 p-4 rounded-md overflow-y-auto text-sm max-h-[70vh]" style={{overflowY: 'auto'}}>
                           {JSON.stringify(generatedStructure, null, 2)}
                         </pre>
                       ) : (
-                        <div className="space-y-6 overflow-auto max-h-[600px]">
-                          <h3 className="font-semibold text-lg">Déroulement du scénario</h3>
+                        <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-2" style={{overflowY: 'auto'}}>
+                          <h3 className="font-semibold text-lg sticky top-0 bg-white py-2">Déroulement du scénario</h3>
                           
                           {generatedStructure.steps.map((step: any, index: number) => (
                             <div key={step.id} className="border rounded-md p-4 bg-white">
