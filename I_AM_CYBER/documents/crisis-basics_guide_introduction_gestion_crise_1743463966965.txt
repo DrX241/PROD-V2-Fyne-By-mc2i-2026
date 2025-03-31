@@ -1,0 +1,42 @@
+---
+
+**GUIDE D’INTRODUCTION À LA GESTION DE CRISE CYBER**  
+**Domaine : Gestion de crise cyber**  
+**Niveau : Débutant**  
+**Contact : Nosing Doeuk**  
+
+---
+
+### Contexte  
+Dans un environnement numérique en constante évolution, une crise cyber peut survenir à tout moment. Il est essentiel pour les organisations d’avoir une structure claire et réactive pour atténuer les impacts opérationnels, financiers et réputationnels d’un incident. Ce guide fournit une introduction aux principes fondamentaux de la gestion de crise cyber.
+
+---
+
+### Cadre de la gestion de crise  
+1. **Identification de l’incident**  
+   - Définir les symptômes critiques : interruption des services, fuite de données, activité inhabituelle.  
+   - Prioriser l’analyse des alertes provenant des outils SIEM et des rapports de sécurité.
+
+2. **Activation de la cellule de crise**  
+   - Identifier les rôles clés : Responsable cybersécurité, DSI, juridique, communication.  
+   - Mobiliser les ressources essentielles pour une réponse rapide et coordonnée.  
+
+3. **Communication interne et externe**  
+   - Maintenir une ligne directe pour les communications internes.  
+   - Préparer un message de gestion de crise pour les parties prenantes externes, sans divulgation excessive.  
+
+---
+
+### Points techniques essentiels  
+- **Journalisation :** Vérifiez que les logs critiques (pare-feu, EDR, SIEM) sont accessibles et intacts.  
+- **Isolation :** Identifiez les zones infectées pour limiter la propagation des menaces.  
+- **Plan de continuité :** Évaluez les systèmes redondants et les sauvegardes disponibles.  
+
+---
+
+### Ressources  
+Pour toute question ou besoin de clarification, veuillez contacter Nosing Doeuk.  
+
+---
+
+**Destinataire : Zed**  

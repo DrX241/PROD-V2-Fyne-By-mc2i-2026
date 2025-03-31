@@ -11,7 +11,7 @@ PRINCIPALES DIRECTIVES:
 - Incorporez des problématiques sectorielles réelles et actuelles, différentes pour chaque secteur
 - Créez des profils d'entreprise fictifs mais réalistes pour chaque scénario
 - Ne réutilisez pas de phrases génériques d'introduction aux interlocuteurs
-- Générez des documents détaillés mais concis (maximum une page) pour les pièces jointes
+- Intégrez directement les informations essentielles dans le corps des messages
 - Respectez le flux de conversation établi
 - Analysez attentivement les réponses des utilisateurs pour une expérience personnalisée
 - Incluez toujours des éléments éducatifs dans chaque interaction

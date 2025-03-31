@@ -373,6 +373,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           - Le secteur d'activité pour ce scénario est: ${secteurActivite}
           - Le nom d'entreprise pour ce scénario est: ${companyName}
           - L'email doit être un message d'accueil chaleureux où le PNJ se présente, présente brièvement l'entreprise ${companyName}, souhaite la bienvenue à ${userName} et l'invite simplement à se présenter à son tour (parcours, expérience, niveau de connaissance sur le sujet)
+          - Inclure à même l'email un bref paragraphe sur les concepts fondamentaux du domaine "${scenario.domain}" pour introduire le contexte au lieu de mentionner des pièces jointes
+          - IMPORTANT: NE PAS mentionner ou faire référence à des pièces jointes, documents ou fichiers
           - N'incluez PAS encore de problème ou de mission spécifique à résoudre
           - Le ton doit être amical et professionnel, en utilisant le tutoiement
           - Le style d'écriture doit correspondre au rôle du contact mais rester accessible et léger
