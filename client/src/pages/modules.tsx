@@ -3,7 +3,7 @@ import {
   ShieldCheck, Database, ListChecks, Plus, ArrowRight, 
   BarChart4, Users, Award, Zap, BrainCircuit, Bot, 
   Sparkles, Star, BookOpen, Brain, Rocket, Target, TrendingUp,
-  CircleUserRound, Cpu, AreaChart
+  CircleUserRound, Cpu, AreaChart, Clock, AlertTriangle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import HomeLayout from "@/components/layout/HomeLayout";
@@ -89,6 +89,17 @@ export default function ModulesPage() {
       color: "border-blue-200 hover:shadow-xl hover:scale-105 hover:border-blue-300",
       link: "/cyber",
       bgGradient: "bg-gradient-to-br from-blue-50 to-blue-100"
+    },
+    {
+      id: "arcade",
+      title: "ARCADE CRISE",
+      description: "Entraînez-vous à la gestion de crise cyber en temps réel avec des scénarios chronométrés et des contextes réalistes.",
+      icon: <Clock className="w-12 h-12 text-white" />,
+      iconBg: "bg-red-600",
+      color: "border-red-200 hover:shadow-xl hover:scale-105 hover:border-red-300",
+      link: "/cyber/arcade-crise",
+      bgGradient: "bg-gradient-to-br from-red-50 to-red-100",
+      badge: "Nouveau"
     },
     {
       id: "data-ia",
