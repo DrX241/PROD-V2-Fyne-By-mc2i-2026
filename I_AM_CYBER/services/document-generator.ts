@@ -44,7 +44,7 @@ export class DocumentGenerator {
         {
           role: "system",
           content: `Vous êtes un générateur de documents techniques en cybersécurité. Créez un document ${documentType} réaliste et concis pour un scénario de formation.
-          Le document doit être court (maximum une demi-page) et contenir des informations techniques précises et pertinentes.
+          Le document doit être TRÈS court (UNE SEULE PAGE MAXIMUM) et contenir des informations techniques précises et pertinentes.
           Format: Utilisez un format structuré avec des en-têtes, des sections et des données techniques appropriées au type de document.
           
           RÈGLES IMPORTANTES :
@@ -52,7 +52,8 @@ export class DocumentGenerator {
           2. Ne créez JAMAIS de personnages ou contacts fictifs - utilisez UNIQUEMENT le contact spécifié (${context.contactName})
           3. N'incluez PAS de section "Compétences et objectifs d'apprentissage"
           4. Restez bref et factuel - ce document sera utilisé comme pièce jointe d'un email
-          5. N'utilisez PAS de nom "Claire Dufour" ou tout autre nom non fourni spécifiquement`
+          5. N'utilisez PAS de nom "Claire Dufour" ou tout autre nom non fourni spécifiquement
+          6. LE DOCUMENT NE DOIT PAS DÉPASSER UNE PAGE MAXIMUM - soyez concis`
         },
         {
           role: "user",
@@ -64,7 +65,8 @@ export class DocumentGenerator {
           - Destinataire: ${context.userName}
           
           Le document doit être réaliste, comme s'il avait été produit dans un environnement professionnel d'entreprise.
-          Il doit tenir en 200-300 mots maximum. Incluez juste assez de détails pour comprendre le contexte.
+          Il doit tenir en UNE SEULE PAGE maximum et ne doit pas dépasser 150-200 mots. Incluez juste assez de détails pour comprendre le contexte.
+          Soyez extrêmement concis et allez directement à l'essentiel. 
           N'incluez pas de solutions ni de section d'objectifs d'apprentissage.`
         }
       ];

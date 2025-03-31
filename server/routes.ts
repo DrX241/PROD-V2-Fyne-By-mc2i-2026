@@ -347,17 +347,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         {
           role: "user",
-          content: `Générez un email COURT et CONCIS (maximum 200 mots) pour le scénario "${scenario.title}" dans le domaine "${scenario.domain}" avec les détails suivants:
+          content: `Générez un email COURT et ACCUEILLANT (maximum 150 mots) pour le scénario "${scenario.title}" dans le domaine "${scenario.domain}" avec les détails suivants:
           - L'email doit provenir de ${scenario.contact.name} (${scenario.contact.role})
-          - L'email doit être adressé à ${userName}
+          - L'email doit être adressé à ${userName} en utilisant le tutoiement ("tu") 
           - Une pièce jointe nommée "${document.fileName}" est disponible avec des informations détaillées
           - Le secteur d'activité pour ce scénario est: ${secteurActivite}
           - Inventez un nom d'entreprise cohérent pour ce secteur
-          - Soyez bref et direct - mentionnez un enjeu business et une contrainte réglementaire succinctement
-          - L'email doit demander une action claire et précise de la part de ${userName}
-          - Le style d'écriture doit correspondre au rôle du contact
-          - NE PAS inclure de section "Compétences et objectifs d'apprentissage" dans l'email
-          - L'email doit tenir en un paragraphe d'introduction, un paragraphe de contexte, et un paragraphe de conclusion avec la demande d'action
+          - L'email doit être un message d'accueil chaleureux où le PNJ se présente, souhaite la bienvenue à ${userName} et l'invite simplement à se présenter à son tour (parcours, expérience, niveau de connaissance sur le sujet)
+          - N'incluez PAS encore de problème ou de mission spécifique à résoudre
+          - Le ton doit être amical et professionnel, en utilisant le tutoiement
+          - Le style d'écriture doit correspondre au rôle du contact mais rester accessible et léger
           - Rédigez uniquement l'email, pas de commentaires ou d'explications`
         }
       ];
@@ -1185,44 +1184,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let respondingContact;
       
       if (chatHistory && Array.isArray(chatHistory) && chatHistory.length > 0) {
-        // Compter combien de fois chaque contact a déjà répondu
-        const contactResponseCount: {[key: string]: number} = {};
-        
-        // Parcourir l'historique pour compter les réponses de chaque contact
-        chatHistory.forEach(item => {
-          if (item.type === 'bot' && typeof item.content === 'string' && item.contactName) {
-            contactResponseCount[item.contactName] = (contactResponseCount[item.contactName] || 0) + 1;
+        // Vérifier si c'est la première réponse de l'utilisateur après l'email initial
+        // Pattern: [email - user] → nous voulons un PNJ niveau 2 pour répondre
+        if (chatHistory.length === 2 && chatHistory[0].type === 'email' && chatHistory[1].type === 'user') {
+          // Pour la première réponse de l'utilisateur, choisir un contact niveau 2
+          // Trouver un contact différent du premier qui a envoyé l'email, avec une expertise technique ou business
+          const firstContact = availableContacts[0];
+          const level2Contacts = availableContacts.filter(contact => 
+            contact.name !== firstContact.name && 
+            (contact.expertise?.toLowerCase().includes('technique') || 
+             contact.expertise?.toLowerCase().includes('stratégie') ||
+             contact.expertise?.toLowerCase().includes('business') ||
+             contact.expertise?.toLowerCase().includes('cyber') ||
+             contact.expertise?.toLowerCase().includes('sécurité'))
+          );
+          
+          if (level2Contacts.length > 0) {
+            // Sélectionner aléatoirement un de ces contacts
+            respondingContact = level2Contacts[Math.floor(Math.random() * level2Contacts.length)];
+          } else {
+            // Si aucun contact n'est trouvé, prendre le second contact disponible
+            respondingContact = availableContacts.length > 1 ? availableContacts[1] : availableContacts[0];
           }
-        });
-        
-        // Trouver le contact qui a le moins répondu
-        let minResponses = Infinity;
-        for (const contact of availableContacts) {
-          const count = contactResponseCount[contact.name] || 0;
-          if (count < minResponses) {
-            minResponses = count;
-            respondingContact = contact;
-          }
-        }
-        
-        // Si tous les contacts ont parlé le même nombre de fois, choisir le suivant de manière circulaire
-        if (!respondingContact) {
-          // Trouver le dernier contact qui a parlé
-          let lastContactIndex = 0;
-          for (let i = chatHistory.length - 1; i >= 0; i--) {
-            const item = chatHistory[i];
-            if (item.type === 'bot' && item.contactName) {
-              // Trouver l'index de ce contact
-              const index = availableContacts.findIndex((c: { name: string }) => c.name === item.contactName);
-              if (index !== -1) {
-                lastContactIndex = index;
-                break;
-              }
+        } else {
+          // Pour les interactions suivantes, comportement standard
+          // Compter combien de fois chaque contact a déjà répondu
+          const contactResponseCount: {[key: string]: number} = {};
+          
+          // Parcourir l'historique pour compter les réponses de chaque contact
+          chatHistory.forEach(item => {
+            if (item.type === 'bot' && typeof item.content === 'string' && item.contactName) {
+              contactResponseCount[item.contactName] = (contactResponseCount[item.contactName] || 0) + 1;
+            }
+          });
+          
+          // Trouver le contact qui a le moins répondu
+          let minResponses = Infinity;
+          for (const contact of availableContacts as Array<{name: string, role: string, expertise?: string, concern?: string}>) {
+            const count = contactResponseCount[contact.name] || 0;
+            if (count < minResponses) {
+              minResponses = count;
+              respondingContact = contact;
             }
           }
           
-          // Choisir le contact suivant de manière circulaire
-          respondingContact = availableContacts[(lastContactIndex + 1) % availableContacts.length];
+          // Si tous les contacts ont parlé le même nombre de fois, choisir le suivant de manière circulaire
+          if (!respondingContact) {
+            // Trouver le dernier contact qui a parlé
+            let lastContactIndex = 0;
+            for (let i = chatHistory.length - 1; i >= 0; i--) {
+              const item = chatHistory[i];
+              if (item.type === 'bot' && item.contactName) {
+                // Trouver l'index de ce contact
+                const index = availableContacts.findIndex((c: { name: string }) => c.name === item.contactName);
+                if (index !== -1) {
+                  lastContactIndex = index;
+                  break;
+                }
+              }
+            }
+            
+            // Choisir le contact suivant de manière circulaire
+            respondingContact = availableContacts[(lastContactIndex + 1) % availableContacts.length];
+          }
         }
       } else {
         // Pour la première réponse, utiliser le contact principal du scénario
@@ -1379,10 +1403,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Add the current user message
-      messages.push({
-        role: "user",
-        content: `Je suis ${userName}. Le message suivant est en réponse au scénario de cybersécurité en cours (ID: ${scenarioId}, secteur: ${secteurActivite}): "${message}"`
-      });
+      // Pour la première réponse après une présentation, demandons au PNJ niveau 2 de présenter un problème concret
+      if (chatHistory && chatHistory.length === 2 && chatHistory[0].type === 'email' && chatHistory[1].type === 'user') {
+        messages.push({
+          role: "user",
+          content: `Je suis ${userName} et je viens de me présenter. Voici ma présentation : "${message}"
+          
+          DIRECTIVE SPÉCIALE: Tu es un PNJ de niveau 2 (${respondingContact.name}) et tu dois répondre en te présentant brièvement, puis en exposant DIRECTEMENT un problème concret à résoudre lié au scénario "${scenario.title}" dans le domaine "${scenario.domain}".
+          
+          Ta réponse DOIT:
+          1. Commencer par une brève présentation de toi-même (2 lignes maximum)
+          2. Présenter un problème concret et urgent lié à la cybersécurité dans le contexte du scénario, en utilisant le tutoiement
+          3. Lister avec des puces (maximum 3) les actions ou attentes précises que tu as envers ${userName}
+          4. Maintenir un ton professionnel mais accessible, en utilisant toujours le tutoiement
+          5. Être concise et directe (maximum 200 mots)`
+        });
+      } else {
+        messages.push({
+          role: "user",
+          content: `Je suis ${userName}. Le message suivant est en réponse au scénario de cybersécurité en cours (ID: ${scenarioId}, secteur: ${secteurActivite}): "${message}"`
+        });
+      }
       
       const responseContent = await openAIService.getChatCompletionWithCache(
         messages, 
