@@ -517,9 +517,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data.type === 'email') {
         const emailContent = data.content as EmailMessageContent;
         
-        // Si l'email contient une évaluation, vérifions que c'est une pièce jointe valide
+        // Si l'email contient une évaluation, vérifions qu'elle est valide
         if (emailContent.evaluation && !emailContent.evaluation.id) {
-          console.warn("Evaluation attachment is missing ID", emailContent.evaluation);
+          console.warn("Evaluation is missing ID", emailContent.evaluation);
           delete emailContent.evaluation;
         }
         

@@ -232,59 +232,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Scenario not found' });
       }
       
-      // Generate a document for the scenario
-      let attachmentType = 'document_support';
-      
-      // Déterminer le type de document en fonction du scénario
-      if (scenarioId.includes('phishing')) {
-        attachmentType = 'rapport_phishing';
-      } else if (scenarioId.includes('social-engineering')) {
-        attachmentType = 'guide_prevention_ingenierie_sociale';
-      } else if (scenarioId.includes('advanced-social')) {
-        attachmentType = 'strategies_avancees_prevention';
-      } else if (scenarioId.includes('security-awareness')) {
-        attachmentType = 'guide_sensibilisation_cybersecurite';
-      } else if (scenarioId.includes('roadmap')) {
-        attachmentType = 'feuille_route_securite';
-      } else if (scenarioId.includes('cyber-strategy')) {
-        attachmentType = 'strategie_cybersecurite';
-      } else if (scenarioId.includes('crisis-basics')) {
-        attachmentType = 'guide_introduction_gestion_crise'; 
-      } else if (scenarioId.includes('crisis-plan')) {
-        attachmentType = 'plan_gestion_crise';
-      } else if (scenarioId.includes('ransomware')) {
-        attachmentType = 'plan_reponse_ransomware';
-      } else if (scenarioId.includes('supply-chain-basics')) {
-        attachmentType = 'introduction_securite_supply_chain';
-      } else if (scenarioId.includes('vendor')) {
-        attachmentType = 'questionnaire_fournisseurs';
-      } else if (scenarioId.includes('supply-chain-incident')) {
-        attachmentType = 'rapport_incident_supply_chain';
-      } else if (scenarioId.includes('data-classification')) {
-        attachmentType = 'guide_classification_donnees';
-      } else if (scenarioId.includes('data-breach')) {
-        attachmentType = 'rapport_violation_donnees';
-      } else if (scenarioId.includes('rgpd-compliance')) {
-        attachmentType = 'rapport_conformite_rgpd';
-      } else if (scenarioId.includes('incident-basics')) {
-        attachmentType = 'introduction_gestion_incidents';
-      } else if (scenarioId.includes('incident-response')) {
-        attachmentType = 'procedure_reponse_incidents';
-      } else if (scenarioId.includes('monitoring')) {
-        attachmentType = 'metriques_surveillance_securite';
-      }
-      
-      const document = await documentGenerator.generateDocument(
-        scenarioId,
-        attachmentType,
-        {
-          domain: scenario.domain,
-          scenario: scenario.title,
-          userName,
-          contactName: scenario.contact.name,
-          difficultyLevel: scenario.difficulty
-        }
-      );
+      // Les informations de contexte et d'introduction sont maintenant intégrées directement dans les messages
+      // et ne nécessitent plus la génération de documents séparés
       
       // Generate email content with Azure OpenAI
       const systemPrompt = await openAIService.generateSystemPrompt({
@@ -418,7 +367,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         body = lines.join('\n');
       }
       
-      // Plus de gestion de pièces jointes
+      // Les informations sont maintenant intégrées directement dans le message
       
       // Définir les interlocuteurs supplémentaires pour le scénario avec des expertises métier, technologiques et sectorielles diverses
       const getAdditionalContacts = (domain: string, primaryContact: { name: string, role: string }) => {
@@ -704,7 +653,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         subject,
         date: new Date().toISOString(),
         body,
-        // Supprimer complètement les pièces jointes
         // Ajouter les contacts additionnels qui interviendront dans ce scénario
         scenarioContacts: scenarioContacts
       };
@@ -1586,12 +1534,12 @@ Format: Utilise des titres clairs et une présentation structurée qui facilite 
             }
           );
 
-          // Ajouter le document d'évaluation à la pièce jointe
+          // Inclure l'évaluation directement dans le message
           // Envoyer la réponse avec le drapeau de réinitialisation et le document d'évaluation
           res.json({
             type: 'bot',
             content: responseContent + 
-                    "\n\n**ÉVALUATION FINALE**\n\nJ'ai préparé une évaluation détaillée de votre performance dans ce scénario. Vous pouvez la consulter en cliquant sur la pièce jointe ci-dessous.",
+                    "\n\n**ÉVALUATION FINALE**\n\nVoici mon évaluation détaillée de votre performance dans ce scénario :",
             resetScenario: true,
             contactName: respondingContact.name,
             contactRole: respondingContact.role,
