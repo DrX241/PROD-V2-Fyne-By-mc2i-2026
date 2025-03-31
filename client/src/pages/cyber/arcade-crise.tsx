@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { 
   Clock, AlertTriangle, BarChart, Users, CheckCircle, 
-  ChevronRight, Lightbulb, BadgeAlert, ArrowLeft, Layers
+  ChevronRight, Lightbulb, BadgeAlert, ArrowLeft, Layers,
+  Mail, MessageSquare, Video, Radio, Camera, PieChart, Building,
+  DollarSign, Shield, User, Play, Pause, RotateCcw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -20,15 +22,30 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import CyberLayout from "@/components/layout/CyberLayout";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { useChatContext } from "@/contexts/ChatContext";
 import { Link } from "wouter";
+import CyberLayout from "@/components/layout/CyberLayout";
 import { CrisisInfo, ChatMessage, MessageType } from "../../../shared/schema";
 
 // Composant pour le chronomètre
@@ -304,29 +321,104 @@ const crisisScenarios = [
 // Interface principale de la page
 export default function ArcadeCrise() {
   const { messages, sendMessage } = useChatContext();
-  const [selectedCompanyType, setSelectedCompanyType] = useState("");
-  const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
+  const [selectedScenario, setSelectedScenario] = useState<string | null>("ransomware");
+  const [selectedCompanyType, setSelectedCompanyType] = useState("banking");
   const [isSimulationActive, setIsSimulationActive] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+  const [timerMinutes, setTimerMinutes] = useState(5);
+  const [timerSeconds, setTimerSeconds] = useState(0);
+  const [timerRunning, setTimerRunning] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
-  // État de la crise simulée (exemple statique pour la démonstration)
+  // État des médias pour les demandes d'interview
+  const [mediaRequests, setMediaRequests] = useState([
+    {
+      id: "tv-interview",
+      type: "TV",
+      source: "France Info",
+      title: "Interview en direct",
+      description: "Demande d'interview en direct concernant l'incident de sécurité",
+      status: "pending",
+      icon: <Video className="h-5 w-5" />,
+      deadline: "15 minutes",
+      impact: "Fort impact médiatique"
+    },
+    {
+      id: "newspaper-comment",
+      type: "Presse",
+      source: "Le Monde",
+      title: "Commentaire pour article",
+      description: "Sollicitation de commentaires officiels pour un article à paraître demain",
+      status: "pending",
+      icon: <Mail className="h-5 w-5" />,
+      deadline: "2 heures",
+      impact: "Influence l'opinion publique"
+    }
+  ]);
+  
+  // État des PNJ pour les interactions
+  const [stakeholders, setStakeholders] = useState([
+    {
+      id: "ceo",
+      name: "Jean Martin",
+      role: "PDG",
+      avatar: "JM",
+      priority: "high",
+      concern: "Impact sur la réputation de l'entreprise",
+      message: "J'ai besoin d'un point de situation immédiat. Le conseil d'administration s'inquiète.",
+      status: "waiting",
+      budget: 100,
+      trust: 75
+    },
+    {
+      id: "ciso",
+      name: "Marie Dubois",
+      role: "RSSI",
+      avatar: "MD",
+      priority: "high",
+      concern: "Mesures techniques à déployer",
+      message: "Nous avons besoin de ressources supplémentaires pour contenir la menace.",
+      status: "available",
+      budget: 100,
+      trust: 90
+    },
+    {
+      id: "comms",
+      name: "Thomas Lefebvre",
+      role: "Dir. Communication",
+      avatar: "TL",
+      priority: "medium",
+      concern: "Stratégie de communication externe",
+      message: "Les médias me harcèlent. Quelle est notre ligne officielle?",
+      status: "available",
+      budget: 100,
+      trust: 85
+    }
+  ]);
+  
+  // Gestion des dialogues
+  const [activeDialog, setActiveDialog] = useState<string | null>(null);
+  const [dialogContent, setDialogContent] = useState<any>(null);
+  const [userResponse, setUserResponse] = useState("");
+  
+  // État de la crise simulée
   const [crisisInfo, setCrisisInfo] = useState<CrisisInfo>({
     timeInfo: {
-      elapsedTime: "01:45:30",
-      deadlines: ["Communiqué de presse (30 min)", "Brief direction (2h)"],
-      pressureLevel: "high"
+      elapsedTime: "00:00:00",
+      deadlines: ["Communiqué de presse (30 min)", "Brief direction (15 min)"],
+      pressureLevel: "medium"
     },
     mediaInfo: {
-      currentTone: "critical",
-      publicPerception: 42,
-      pendingRequests: ["Interview TV nationale", "Commentaires pour article de presse"]
+      currentTone: "concerned",
+      publicPerception: 60,
+      pendingRequests: ["France Info: Interview en direct", "Le Monde: Commentaire pour article"]
     },
     teamInfo: {
       stressLevel: "elevated",
       availableExperts: ["RSSI", "Expert forensique", "Communication de crise"],
-      teamRotation: true
+      teamRotation: false
     },
-    activePhase: "confinement"
+    activePhase: "analyse"
   });
 
   // Récupérer les messages de la simulation actuelle
