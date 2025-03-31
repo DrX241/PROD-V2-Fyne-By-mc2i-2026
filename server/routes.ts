@@ -1552,7 +1552,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                                    responseContent.toLowerCase().includes("recommencer le scénario");
 
       // Si le scénario est terminé, générer une fiche d'évaluation
-      if (isScenarioTerminated)json and ``` if it exists
+      if (isScenarioTerminated) {
         const jsonMatch = completion.match(/```json\n([\s\S]*?)\n```/) || completion.match(/```\n([\s\S]*?)\n```/);
         const jsonContent = jsonMatch ? jsonMatch[1] : completion;
 
