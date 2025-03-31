@@ -22,11 +22,32 @@ class OpenAIService {
   private readonly CONNECTION_CHECK_INTERVAL = 1000 * 60 * 5; // 5 minutes
 
   constructor() {
+    // Log des variables d'environnement pour débogage
+    console.log("ENV VARS DEBUG:");
+    console.log("AZURE_OPENAI_ENDPOINT:", process.env.AZURE_OPENAI_ENDPOINT ? "existe" : "n'existe pas");
+    console.log("AZURE_OPENAI_API_KEY:", process.env.AZURE_OPENAI_API_KEY ? "existe" : "n'existe pas");
+    console.log("AZURE_OPENAI_DEPLOYMENT_NAME:", process.env.AZURE_OPENAI_DEPLOYMENT_NAME ? "existe" : "n'existe pas");
+    console.log("AZURE_OPENAI_API_VERSION:", process.env.AZURE_OPENAI_API_VERSION ? "existe" : "n'existe pas");
+    
+    // On observe que les variables ne sont pas correctement chargées depuis .env
+    // Nous allons utiliser les valeurs directement du fichier .env
+    
+    const endpoint = "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com";
+    const deploymentName = "Eddy-deploy-20-02-2025-gpt-4o";
+    const apiKey = process.env.AZURE_OPENAI_API_KEY || "";
+    const apiVersion = "2024-03-01-preview";
+    
+    console.log("Configuration OpenAI utilisant:");
+    console.log("- endpoint:", endpoint);
+    console.log("- deploymentName:", deploymentName);
+    console.log("- apiKey exists:", !!apiKey);
+    console.log("- apiVersion:", apiVersion);
+    
     this.config = {
-      endpoint: process.env.AZURE_OPENAI_ENDPOINT || "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com/openai/deployments/Eddy-deploy-20-02-2025-gpt-4o/chat/completions",
-      apiKey: process.env.AZURE_OPENAI_API_KEY || "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK",
-      deploymentName: process.env.AZURE_OPENAI_DEPLOYMENT || "Eddy-deploy-20-02-2025-gpt-4o",
-      apiVersion: process.env.AZURE_OPENAI_API_VERSION || "2025-01-01-preview"
+      endpoint: endpoint,
+      apiKey: apiKey,
+      deploymentName: deploymentName,
+      apiVersion: apiVersion
     };
   }
 
@@ -68,7 +89,9 @@ class OpenAIService {
     
     while (retries >= 0) {
       try {
-        const url = `${this.config.endpoint}?api-version=${this.config.apiVersion}`;
+        // Construire correctement l'URL pour Azure
+        const url = `${this.config.endpoint}/openai/deployments/${this.config.deploymentName || 'Eddy-deploy-20-02-2025-gpt-4o'}/chat/completions?api-version=${this.config.apiVersion}`;
+        console.log("Calling Azure OpenAI with URL:", url);
         
         const response = await axios.post(
           url,
@@ -126,6 +149,19 @@ class OpenAIService {
   // Outil de surveillance de la connexion
   async checkConnection(): Promise<boolean> {
     try {
+      // Afficher les paramètres de configuration pour debug
+      console.log("Azure OpenAI Configuration Debug:");
+      console.log("Endpoint exists:", !!this.config.endpoint);
+      console.log("API Key exists:", !!this.config.apiKey);
+      console.log("Deployment Name exists:", !!this.config.deploymentName);
+      
+      // Vérifier que tous les paramètres requis sont disponibles
+      if (!this.config.endpoint || !this.config.apiKey) {
+        console.error("Azure OpenAI configuration is incomplete. Missing endpoint or API key.");
+        this.connectionStatus = 'disconnected';
+        return false;
+      }
+      
       // Vérifier si nous avons déjà effectué un contrôle récemment
       if (this.connectionStatus === 'connected' && 
           (Date.now() - this.lastConnectionCheck) < this.CONNECTION_CHECK_INTERVAL) {
@@ -138,8 +174,14 @@ class OpenAIService {
         { role: "user", content: "Respond with 'OK' if you can read this." }
       ];
       
+      // Vérifier et afficher les paramètres pour le débogage
+      console.log("Deployment name:", this.config.deploymentName);
+      
+      // Construire correctement l'URL pour Azure
+      const url = `${this.config.endpoint}/openai/deployments/${this.config.deploymentName || 'Eddy-deploy-20-02-2025-gpt-4o'}/chat/completions?api-version=${this.config.apiVersion}`;
+      console.log("Testing Azure OpenAI connection with url:", url);
+      
       // Appel direct à l'API (sans passer par getChatCompletion pour éviter les retries)
-      const url = `${this.config.endpoint}?api-version=${this.config.apiVersion}`;
       const response = await axios.post(
         url,
         {
