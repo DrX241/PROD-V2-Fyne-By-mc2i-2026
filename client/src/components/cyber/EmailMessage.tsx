@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Paperclip, FileCheck, Users } from "lucide-react";
+import { Paperclip, FileCheck, Users, Clock, AlertTriangle, BarChart, UsersRound } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 
 // Définir les interfaces temporaires ici en attendant que les modules importés soient disponibles
@@ -18,6 +18,31 @@ interface EmailContact {
   concern?: string;    // Préoccupation principale de l'interlocuteur
 }
 
+interface TimeInfo {
+  elapsedTime?: string;    // Temps écoulé depuis le début de crise
+  deadlines?: string[];    // Échéances critiques à venir
+  pressureLevel?: 'low' | 'medium' | 'high' | 'critical'; // Niveau de pression temporelle
+}
+
+interface MediaInfo {
+  currentTone?: 'neutral' | 'concerned' | 'critical' | 'hostile'; // Ton médiatique actuel
+  publicPerception?: number;  // De 0 (désastreux) à 100 (excellent)
+  pendingRequests?: string[]; // Demandes médias en attente
+}
+
+interface TeamInfo {
+  stressLevel?: 'normal' | 'elevated' | 'high' | 'burnout'; // Niveau de stress des équipes
+  availableExperts?: string[]; // Experts disponibles
+  teamRotation?: boolean;      // Rotation d'équipe nécessaire
+}
+
+interface CrisisInfo {
+  timeInfo?: TimeInfo;
+  mediaInfo?: MediaInfo;
+  teamInfo?: TeamInfo;
+  activePhase?: 'detection' | 'analyse' | 'confinement' | 'eradication' | 'retablissement' | 'retour';
+}
+
 interface EmailContent {
   id: string;
   from: EmailContact;
@@ -28,6 +53,7 @@ interface EmailContent {
   attachments: EmailAttachment[];
   scenarioContacts?: EmailContact[]; // Liste des interlocuteurs du scénario
   evaluation?: EmailAttachment; // Pièce jointe d'évaluation finale (si présente)
+  crisisInfo?: CrisisInfo;      // Informations spécifiques à la gestion de crise
 }
 
 interface EmailMessageProps {
@@ -235,6 +261,211 @@ export default function EmailMessage({ email }: EmailMessageProps) {
             <p className="text-sm text-blue-300/90 mt-4">
               Ces interlocuteurs interviendront dans ce scénario pour vous offrir différentes perspectives sur la problématique cyber centrale.
             </p>
+          </div>
+        )}
+        
+        {/* Crisis Info Panel */}
+        {email.crisisInfo && (
+          <div className="mx-6 my-4 p-5 bg-red-900/30 rounded-lg border border-red-700/30 backdrop-blur-sm">
+            <h4 className="font-bold text-red-100 mb-4 flex items-center">
+              <AlertTriangle className="mr-2 h-5 w-5 text-red-400" />
+              <span>Statut de la crise</span>
+            </h4>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Time Information */}
+              {email.crisisInfo.timeInfo && (
+                <div className="p-3 bg-red-900/20 rounded-lg border border-red-800/30">
+                  <h5 className="text-sm font-bold text-red-200 mb-2 flex items-center">
+                    <Clock className="mr-1.5 h-4 w-4" />
+                    <span>Chronologie</span>
+                  </h5>
+                  
+                  {email.crisisInfo.timeInfo.elapsedTime && (
+                    <div className="mb-2">
+                      <p className="text-xs text-red-300">Temps écoulé:</p>
+                      <p className="text-sm font-medium text-red-100">{email.crisisInfo.timeInfo.elapsedTime}</p>
+                    </div>
+                  )}
+                  
+                  {email.crisisInfo.timeInfo.pressureLevel && (
+                    <div className="mb-2">
+                      <p className="text-xs text-red-300">Niveau de pression:</p>
+                      <div className="mt-1">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                          ${email.crisisInfo.timeInfo.pressureLevel === 'low' ? 'bg-blue-900/50 text-blue-200' : 
+                            email.crisisInfo.timeInfo.pressureLevel === 'medium' ? 'bg-yellow-900/50 text-yellow-200' : 
+                            email.crisisInfo.timeInfo.pressureLevel === 'high' ? 'bg-orange-900/50 text-orange-200' : 
+                            'bg-red-900/50 text-red-200'}`
+                        }>
+                          {email.crisisInfo.timeInfo.pressureLevel === 'low' ? 'Faible' : 
+                           email.crisisInfo.timeInfo.pressureLevel === 'medium' ? 'Modérée' : 
+                           email.crisisInfo.timeInfo.pressureLevel === 'high' ? 'Élevée' : 
+                           'Critique'}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {email.crisisInfo.timeInfo.deadlines && email.crisisInfo.timeInfo.deadlines.length > 0 && (
+                    <div>
+                      <p className="text-xs text-red-300 mb-1">Échéances critiques:</p>
+                      <ul className="text-xs text-red-100 space-y-1">
+                        {email.crisisInfo.timeInfo.deadlines.map((deadline, index) => (
+                          <li key={index} className="flex items-start">
+                            <span className="inline-block w-1 h-1 rounded-full bg-red-400 mt-1.5 mr-1.5"></span>
+                            <span>{deadline}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {/* Media Information */}
+              {email.crisisInfo.mediaInfo && (
+                <div className="p-3 bg-red-900/20 rounded-lg border border-red-800/30">
+                  <h5 className="text-sm font-bold text-red-200 mb-2 flex items-center">
+                    <BarChart className="mr-1.5 h-4 w-4" />
+                    <span>Impact médiatique</span>
+                  </h5>
+                  
+                  {email.crisisInfo.mediaInfo.currentTone && (
+                    <div className="mb-2">
+                      <p className="text-xs text-red-300">Ton médiatique:</p>
+                      <div className="mt-1">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                          ${email.crisisInfo.mediaInfo.currentTone === 'neutral' ? 'bg-blue-900/50 text-blue-200' : 
+                            email.crisisInfo.mediaInfo.currentTone === 'concerned' ? 'bg-yellow-900/50 text-yellow-200' : 
+                            email.crisisInfo.mediaInfo.currentTone === 'critical' ? 'bg-orange-900/50 text-orange-200' : 
+                            'bg-red-900/50 text-red-200'}`
+                        }>
+                          {email.crisisInfo.mediaInfo.currentTone === 'neutral' ? 'Neutre' : 
+                           email.crisisInfo.mediaInfo.currentTone === 'concerned' ? 'Inquiet' : 
+                           email.crisisInfo.mediaInfo.currentTone === 'critical' ? 'Critique' : 
+                           'Hostile'}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {email.crisisInfo.mediaInfo.publicPerception !== undefined && (
+                    <div className="mb-2">
+                      <p className="text-xs text-red-300">Perception publique:</p>
+                      <div className="mt-1.5 w-full bg-gray-900/50 rounded-full h-1.5">
+                        <div 
+                          className={`h-1.5 rounded-full ${
+                            email.crisisInfo.mediaInfo.publicPerception < 30 ? 'bg-red-500' : 
+                            email.crisisInfo.mediaInfo.publicPerception < 60 ? 'bg-yellow-500' : 
+                            'bg-green-500'
+                          }`} 
+                          style={{ width: `${email.crisisInfo.mediaInfo.publicPerception}%` }}
+                        ></div>
+                      </div>
+                      <p className="text-right text-xs text-red-300 mt-0.5">
+                        {email.crisisInfo.mediaInfo.publicPerception}/100
+                      </p>
+                    </div>
+                  )}
+                  
+                  {email.crisisInfo.mediaInfo.pendingRequests && email.crisisInfo.mediaInfo.pendingRequests.length > 0 && (
+                    <div>
+                      <p className="text-xs text-red-300 mb-1">Demandes médias en attente:</p>
+                      <ul className="text-xs text-red-100 space-y-1">
+                        {email.crisisInfo.mediaInfo.pendingRequests.map((request, index) => (
+                          <li key={index} className="flex items-start">
+                            <span className="inline-block w-1 h-1 rounded-full bg-red-400 mt-1.5 mr-1.5"></span>
+                            <span>{request}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {/* Team Information */}
+              {email.crisisInfo.teamInfo && (
+                <div className="p-3 bg-red-900/20 rounded-lg border border-red-800/30">
+                  <h5 className="text-sm font-bold text-red-200 mb-2 flex items-center">
+                    <UsersRound className="mr-1.5 h-4 w-4" />
+                    <span>Équipes</span>
+                  </h5>
+                  
+                  {email.crisisInfo.teamInfo.stressLevel && (
+                    <div className="mb-2">
+                      <p className="text-xs text-red-300">Niveau de stress:</p>
+                      <div className="mt-1">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                          ${email.crisisInfo.teamInfo.stressLevel === 'normal' ? 'bg-blue-900/50 text-blue-200' : 
+                            email.crisisInfo.teamInfo.stressLevel === 'elevated' ? 'bg-yellow-900/50 text-yellow-200' : 
+                            email.crisisInfo.teamInfo.stressLevel === 'high' ? 'bg-orange-900/50 text-orange-200' : 
+                            'bg-red-900/50 text-red-200'}`
+                        }>
+                          {email.crisisInfo.teamInfo.stressLevel === 'normal' ? 'Normal' : 
+                           email.crisisInfo.teamInfo.stressLevel === 'elevated' ? 'Élevé' : 
+                           email.crisisInfo.teamInfo.stressLevel === 'high' ? 'Intense' : 
+                           'Burnout'}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {email.crisisInfo.teamInfo.teamRotation !== undefined && (
+                    <div className="mb-2">
+                      <p className="text-xs text-red-300">Rotation nécessaire:</p>
+                      <p className="text-sm font-medium text-red-100">
+                        {email.crisisInfo.teamInfo.teamRotation ? 'Oui' : 'Non'}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {email.crisisInfo.teamInfo.availableExperts && email.crisisInfo.teamInfo.availableExperts.length > 0 && (
+                    <div>
+                      <p className="text-xs text-red-300 mb-1">Experts disponibles:</p>
+                      <ul className="text-xs text-red-100 space-y-1">
+                        {email.crisisInfo.teamInfo.availableExperts.map((expert, index) => (
+                          <li key={index} className="flex items-start">
+                            <span className="inline-block w-1 h-1 rounded-full bg-red-400 mt-1.5 mr-1.5"></span>
+                            <span>{expert}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            {/* Phase information */}
+            {email.crisisInfo.activePhase && (
+              <div className="mt-4 pt-3 border-t border-red-800/30">
+                <p className="text-xs text-red-300">Phase active de gestion de crise:</p>
+                <div className="mt-2 relative">
+                  <div className="h-2 bg-gray-800/70 rounded-full">
+                    <div 
+                      className="h-2 bg-gradient-to-r from-red-600 to-red-400 rounded-full"
+                      style={{ 
+                        width: `${email.crisisInfo.activePhase === 'detection' ? 16.7 :
+                               email.crisisInfo.activePhase === 'analyse' ? 33.4 :
+                               email.crisisInfo.activePhase === 'confinement' ? 50.1 :
+                               email.crisisInfo.activePhase === 'eradication' ? 66.8 :
+                               email.crisisInfo.activePhase === 'retablissement' ? 83.5 : 100}%` 
+                      }}
+                    ></div>
+                  </div>
+                  <div className="flex justify-between text-xs text-red-400 mt-1">
+                    <span className={email.crisisInfo.activePhase === 'detection' ? 'font-bold text-red-200' : ''}>Détection</span>
+                    <span className={email.crisisInfo.activePhase === 'analyse' ? 'font-bold text-red-200' : ''}>Analyse</span>
+                    <span className={email.crisisInfo.activePhase === 'confinement' ? 'font-bold text-red-200' : ''}>Confinement</span>
+                    <span className={email.crisisInfo.activePhase === 'eradication' ? 'font-bold text-red-200' : ''}>Éradication</span>
+                    <span className={email.crisisInfo.activePhase === 'retablissement' ? 'font-bold text-red-200' : ''}>Rétablissement</span>
+                    <span className={email.crisisInfo.activePhase === 'retour' ? 'font-bold text-red-200' : ''}>Retour d'exp.</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
         

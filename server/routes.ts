@@ -24,6 +24,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Missing required parameters' });
       }
       
+      // Si c'est un scénario de gestion de crise, ajoutons les informations de crise
+      const isCrisisScenario = scenarioId.includes('crisis');
+      
       // Get scenario data - in a real app, this would come from the database
       // For now, we're using hardcoded data matching the client
       const scenarios = [
@@ -680,7 +683,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Créer la structure d'interlocuteurs pour ce scénario
       const scenarioContacts = [scenario.contact, ...additionalContacts];
       
-      // Create email response
+      // Create email response with crisis info if needed
       const email = {
         id: uuidv4(),
         from: scenario.contact,
@@ -699,6 +702,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Ajouter les contacts additionnels qui interviendront dans ce scénario
         scenarioContacts: scenarioContacts
       };
+      
+      // Ajouter les informations de crise si c'est un scénario de crise
+      if (isCrisisScenario) {
+        // Créer la structure d'informations de crise
+        email.crisisInfo = {
+          timeInfo: {
+            elapsedTime: "00:15:00", // 15 minutes depuis le début de la crise
+            pressureLevel: "medium",
+            deadlines: [
+              "Réponse aux parties prenantes internes attendue dans les 2 heures",
+              "Communication externe à préparer avant 17h00",
+              "Réunion de crise dans 45 minutes"
+            ]
+          },
+          mediaInfo: {
+            currentTone: "concerned",
+            publicPerception: 65, // Sur 100
+            pendingRequests: [
+              "Demande d'interview par France Info",
+              "Demande de communiqué de presse par Les Échos"
+            ]
+          },
+          teamInfo: {
+            stressLevel: "elevated",
+            teamRotation: false,
+            availableExperts: [
+              "Responsable sécurité (RSSI)",
+              "Expert forensique",
+              "Responsable juridique",
+              "Responsable communication"
+            ]
+          },
+          activePhase: "analyse"
+        };
+      }
       
       res.json({ email });
     } catch (error) {
