@@ -35,12 +35,12 @@ export default function Header({ isFeny = false }: HeaderProps) {
         </div>
         <div className="flex items-center gap-5">
           {!isFeny && (
-            <a href="/"
+            <Link href="/"
               className="text-neutral-500 hover:text-neutral-700 transition-colors duration-200 flex items-center gap-1 cursor-pointer"
             >
               <Home className="h-5 w-5" />
               <span className="hidden sm:inline">Accueil</span>
-            </a>
+            </Link>
           )}
           <button className="text-neutral-500 hover:text-neutral-700 transition-colors duration-200">
             <Settings className="h-5 w-5" />

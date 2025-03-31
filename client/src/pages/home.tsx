@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'wouter';
+import React, { useState } from 'react';
+import { Link, useLocation } from 'wouter';
 import HomeLayout from "@/components/layout/HomeLayout";
 import { 
   ShieldCheck, Database, ListChecks, Plus, ArrowRight, 
@@ -10,109 +10,6 @@ import { Button } from "@/components/ui/button";
 import { useChatContext } from "@/contexts/ChatContext";
 import { motion } from "framer-motion";
 import mcLogoPath from "@assets/mc2i.png";
-
-// Animation de l'effet de particules IA
-const AIParticlesEffect = () => {
-  const [particles, setParticles] = useState<Array<{x: number, y: number, size: number, speed: number, opacity: number}>>([]);
-  
-  useEffect(() => {
-    // Générer des particules aléatoires
-    const generateParticles = () => {
-      const newParticles = [];
-      for (let i = 0; i < 60; i++) {
-        newParticles.push({
-          x: Math.random() * 100,
-          y: Math.random() * 100,
-          size: 1 + Math.random() * 3,
-          speed: 0.05 + Math.random() * 0.1,
-          opacity: 0.2 + Math.random() * 0.5
-        });
-      }
-      return newParticles;
-    };
-    
-    setParticles(generateParticles());
-    
-    const interval = setInterval(() => {
-      setParticles(prevParticles => prevParticles.map(particle => ({
-        ...particle,
-        y: particle.y - particle.speed,
-        x: particle.x + Math.sin(particle.y / 10) * 0.1,
-        opacity: particle.y < 0 ? (0.7 + Math.random() * 0.3) : particle.opacity
-      })).map(particle => {
-        if (particle.y < -5) {
-          return {
-            ...particle,
-            y: 105,
-            x: Math.random() * 100
-          };
-        }
-        return particle;
-      }));
-    }, 50);
-    
-    return () => clearInterval(interval);
-  }, []);
-  
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {particles.map((particle, idx) => (
-        <div
-          key={idx}
-          className="absolute rounded-full bg-blue-400"
-          style={{
-            left: `${particle.x}%`,
-            top: `${particle.y}%`,
-            width: `${particle.size}px`,
-            height: `${particle.size}px`,
-            opacity: particle.opacity,
-            boxShadow: `0 0 ${particle.size * 2}px ${particle.size / 2}px rgba(59, 130, 246, ${particle.opacity})`
-          }}
-        />
-      ))}
-    </div>
-  );
-};
-
-// Animation d'icônes flottantes
-const FloatingIcons = () => {
-  const icons = [
-    { icon: <ShieldCheck size={28} />, color: "text-blue-500/80", delay: 0 },
-    { icon: <Database size={28} />, color: "text-purple-500/80", delay: 1.2 },
-    { icon: <BrainCircuit size={28} />, color: "text-indigo-500/80", delay: 0.5 },
-    { icon: <Bot size={28} />, color: "text-emerald-500/80", delay: 2 },
-    { icon: <Sparkles size={28} />, color: "text-amber-500/80", delay: 1 }
-  ];
-  
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {icons.map((icon, idx) => (
-        <motion.div
-          key={idx}
-          className={`absolute ${icon.color} bg-white/10 backdrop-blur-md p-3 rounded-xl shadow-lg border border-white/20`}
-          style={{
-            left: `${15 + (idx * 15)}%`,
-            top: `${20 + (idx * 10)}%`,
-          }}
-          initial={{ y: 0, opacity: 0.7 }}
-          animate={{ 
-            y: [0, -15, 0], 
-            opacity: [0.7, 1, 0.7],
-            rotateZ: [0, idx % 2 === 0 ? 5 : -5, 0]
-          }}
-          transition={{ 
-            duration: 5 + idx, 
-            repeat: Infinity, 
-            delay: icon.delay,
-            ease: "easeInOut"
-          }}
-        >
-          {icon.icon}
-        </motion.div>
-      ))}
-    </div>
-  );
-};
 
 // Carte de module avec animation
 const ModuleCard = ({ 
@@ -136,11 +33,10 @@ const ModuleCard = ({
   
   return (
     <motion.div
-      className={`relative overflow-hidden rounded-2xl shadow-lg ${bgColor} border border-${color}/10 transition-all duration-300 h-full flex flex-col`}
+      className={`relative overflow-hidden rounded-2xl shadow-lg ${bgColor} border border-gray-200 transition-all duration-300 h-full flex flex-col`}
       whileHover={{ 
         y: -8,
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
-        borderColor: `rgba(var(--${color}-rgb), 0.5)`
+        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)'
       }}
       onHoverStart={() => setIsHover(true)}
       onHoverEnd={() => setIsHover(false)}
@@ -277,10 +173,8 @@ export default function Home() {
   
   return (
     <HomeLayout>
-      {/* Hero Section avec animation de particules */}
+      {/* Hero Section */}
       <div className="relative bg-gradient-to-br from-gray-900 via-indigo-900 to-blue-900 overflow-hidden">
-        <AIParticlesEffect />
-        <FloatingIcons />
         
         <div className="max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8 lg:py-28 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -316,13 +210,15 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.3 }}
               >
-                <Button 
-                  size="lg" 
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg border-0"
-                >
-                  Explorer les modules
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
+                <Link href="/modules">
+                  <Button 
+                    size="lg" 
+                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg border-0"
+                  >
+                    Explorer les modules
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
                 <Button 
                   size="lg" 
                   variant="outline" 
@@ -463,13 +359,15 @@ export default function Home() {
             </p>
             
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Button 
-                size="lg" 
-                className="bg-white hover:bg-gray-100 text-blue-700"
-              >
-                Explorer les modules
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
+              <Link href="/modules">
+                <Button 
+                  size="lg" 
+                  className="bg-white hover:bg-gray-100 text-blue-700"
+                >
+                  Explorer les modules
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
               <Button 
                 size="lg" 
                 variant="outline" 
