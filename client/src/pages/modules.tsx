@@ -14,7 +14,7 @@ import mcLogoPath from "@assets/mc2i.png";
 // Animation de machine learning
 const AIAnimation = () => {
   const [dots, setDots] = useState<Array<{x: number, y: number, opacity: number, size: number}>>([]);
-  
+
   useEffect(() => {
     const generateRandomDots = () => {
       const newDots = [];
@@ -28,9 +28,9 @@ const AIAnimation = () => {
       }
       return newDots;
     };
-    
+
     setDots(generateRandomDots());
-    
+
     const interval = setInterval(() => {
       setDots(dots => dots.map(dot => ({
         ...dot,
@@ -39,10 +39,10 @@ const AIAnimation = () => {
         opacity: 0.2 + Math.random() * 0.8
       })));
     }, 50);
-    
+
     return () => clearInterval(interval);
   }, []);
-  
+
   return (
     <div className="relative w-full h-full">
       <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-indigo-900/30 rounded-3xl overflow-hidden">
@@ -60,7 +60,7 @@ const AIAnimation = () => {
             }}
           />
         ))}
-        
+
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="relative w-24 h-24 md:w-32 md:h-32">
             <div className="absolute inset-0 rounded-full border-4 border-blue-300/30 animate-ping" />
@@ -193,15 +193,15 @@ export default function ModulesPage() {
                 </div>
                 <span className="text-blue-300 font-medium">Propulsé par l'intelligence artificielle</span>
               </div>
-              
+
               <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">
                 Transformez votre <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300">potentiel</span> avec FYNE
               </h1>
-              
+
               <p className="text-xl text-blue-100 mb-8 leading-relaxed max-w-xl">
                 Explorez une nouvelle dimension d'apprentissage interactif grâce à nos modules d'intelligence artificielle avancés qui s'adaptent à votre progression.
               </p>
-              
+
               <div className="flex flex-wrap gap-4 mb-8">
                 <Button 
                   size="lg" 
@@ -219,7 +219,7 @@ export default function ModulesPage() {
                   Découvrir FYNE
                 </Button>
               </div>
-              
+
               <div className="flex flex-wrap items-center gap-4">
                 <span className="text-blue-200">Utilisé par :</span>
                 <img src={mcLogoPath} alt="mc2i" className="h-8" />
@@ -235,10 +235,10 @@ export default function ModulesPage() {
                 </div>
               </div>
             </div>
-            
+
             <div className="order-1 lg:order-2 h-[400px] md:h-[500px] relative">
               <AIAnimation />
-              
+
               {/* Floating tech icons */}
               <div className="absolute inset-0">
                 {techIcons.map((icon, index) => (
@@ -293,7 +293,7 @@ export default function ModulesPage() {
               Notre technologie d'IA générative crée un environnement d'apprentissage personnalisé et hautement interactif
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
             {features.map((feature, index) => (
               <div 
@@ -320,7 +320,7 @@ export default function ModulesPage() {
               Découvrez comment FYNE transforme l'apprentissage professionnel
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
             {testimonials.map((testimonial, index) => (
               <div 
@@ -358,7 +358,7 @@ export default function ModulesPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 xl:gap-12 mb-16 max-w-6xl mx-auto">
             {modules.map((module) => (
               <div 
                 key={module.id}
@@ -461,7 +461,7 @@ export default function ModulesPage() {
               </ul>
             </div>
           </div>
-          
+
           <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center mb-4 md:mb-0">
               <div className="text-2xl font-bold mr-2 text-blue-400">FYNE</div>
