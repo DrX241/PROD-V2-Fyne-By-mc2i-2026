@@ -1,0 +1,152 @@
+2025-03-31 18:24:23.26
+e82bbd62
+User
+Error checking Azure OpenAI connection: TypeError: Invalid URL
+2025-03-31 18:24:23.26
+e82bbd62
+User
+at new URL (node:internal/url:806:29)
+2025-03-31 18:24:23.26
+e82bbd62
+User
+at dispatchHttpRequest (file:///home/runner/workspace/node_modules/axios/lib/adapters/http.js:232:20)
+2025-03-31 18:24:23.26
+e82bbd62
+User
+at file:///home/runner/workspace/node_modules/axios/lib/adapters/http.js:152:5
+2025-03-31 18:24:23.26
+e82bbd62
+User
+at new Promise ()
+2025-03-31 18:24:23.26
+e82bbd62
+User
+at wrapAsync (file:///home/runner/workspace/node_modules/axios/lib/adapters/http.js:132:10)
+2025-03-31 18:24:23.26
+e82bbd62
+User
+at http (file:///home/runner/workspace/node_modules/axios/lib/adapters/http.js:170:10)
+2025-03-31 18:24:23.26
+e82bbd62
+User
+at Axios.dispatchRequest (file:///home/runner/workspace/node_modules/axios/lib/core/dispatchRequest.js:51:10)
+2025-03-31 18:24:23.26
+e82bbd62
+User
+at Axios._request (file:///home/runner/workspace/node_modules/axios/lib/core/Axios.js:187:33)
+2025-03-31 18:24:23.26
+e82bbd62
+User
+at Axios.request (file:///home/runner/workspace/node_modules/axios/lib/core/Axios.js:40:25)
+2025-03-31 18:24:23.26
+e82bbd62
+User
+at Axios.httpMethod [as post] (file:///home/runner/workspace/node_modules/axios/lib/core/Axios.js:226:19)
+2025-03-31 18:24:23.26
+e82bbd62
+User
+at Axios.request (file:///home/runner/workspace/node_modules/axios/lib/core/Axios.js:45:41)
+2025-03-31 18:24:23.26
+e82bbd62
+User
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-03-31 18:24:23.26
+e82bbd62
+User
+at async OpenAIService.checkConnection (file:///home/runner/workspace/dist/index.js:106:24)
+2025-03-31 18:24:23.26
+e82bbd62
+User
+at async file:///home/runner/workspace/dist/index.js:1685:27 {
+2025-03-31 18:24:23.26
+e82bbd62
+User
+code: 'ERR_INVALID_URL',
+2025-03-31 18:24:23.26
+e82bbd62
+User
+input: '1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK?api-version=2025-01-01-preview'
+2025-03-31 18:24:23.26
+e82bbd62
+User
+}
+2025-03-31 18:24:23.26
+e82bbd62
+User
+4:24:23 PM [express] GET /api/cyber/status 200 in 3ms :: {"status":"disconnected","lastCheck":0,"api…
+2025-03-31 18:25:10.67
+e82bbd62
+User
+Error checking Azure OpenAI connection: TypeError: Invalid URL
+2025-03-31 18:25:10.67
+e82bbd62
+User
+at new URL (node:internal/url:806:29)
+2025-03-31 18:25:10.67
+e82bbd62
+User
+at dispatchHttpRequest (file:///home/runner/workspace/node_modules/axios/lib/adapters/http.js:232:20)
+2025-03-31 18:25:10.67
+e82bbd62
+User
+at file:///home/runner/workspace/node_modules/axios/lib/adapters/http.js:152:5
+2025-03-31 18:25:10.67
+e82bbd62
+User
+at new Promise ()
+2025-03-31 18:25:10.67
+e82bbd62
+User
+at wrapAsync (file:///home/runner/workspace/node_modules/axios/lib/adapters/http.js:132:10)
+2025-03-31 18:25:10.67
+e82bbd62
+User
+at http (file:///home/runner/workspace/node_modules/axios/lib/adapters/http.js:170:10)
+2025-03-31 18:25:10.67
+e82bbd62
+User
+at Axios.dispatchRequest (file:///home/runner/workspace/node_modules/axios/lib/core/dispatchRequest.js:51:10)
+2025-03-31 18:25:10.67
+e82bbd62
+User
+at Axios._request (file:///home/runner/workspace/node_modules/axios/lib/core/Axios.js:187:33)
+2025-03-31 18:25:10.67
+e82bbd62
+User
+at Axios.request (file:///home/runner/workspace/node_modules/axios/lib/core/Axios.js:40:25)
+2025-03-31 18:25:10.67
+e82bbd62
+User
+at Axios.httpMethod [as post] (file:///home/runner/workspace/node_modules/axios/lib/core/Axios.js:226:19)
+2025-03-31 18:25:10.67
+e82bbd62
+User
+at Axios.request (file:///home/runner/workspace/node_modules/axios/lib/core/Axios.js:45:41)
+2025-03-31 18:25:10.67
+e82bbd62
+User
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-03-31 18:25:10.67
+e82bbd62
+User
+at async OpenAIService.checkConnection (file:///home/runner/workspace/dist/index.js:106:24)
+2025-03-31 18:25:10.67
+e82bbd62
+User
+at async file:///home/runner/workspace/dist/index.js:1685:27 {
+2025-03-31 18:25:10.67
+e82bbd62
+User
+code: 'ERR_INVALID_URL',
+2025-03-31 18:25:10.67
+e82bbd62
+User
+input: '1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK?api-version=2025-01-01-preview'
+2025-03-31 18:25:10.67
+e82bbd62
+User
+}
+2025-03-31 18:25:10.67
+e82bbd62
+User
+4:25:10 PM [express] GET /api/cyber/status 200 in 2ms :: {"status":"disconnected","lastCheck":0,"api…

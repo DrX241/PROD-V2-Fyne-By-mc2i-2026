@@ -43,25 +43,29 @@ export class DocumentGenerator {
       const messages: ChatCompletionRequestMessage[] = [
         {
           role: "system",
-          content: `Vous êtes un générateur de documents techniques en cybersécurité. Créez un document ${documentType} réaliste et détaillé pour un scénario de formation. 
-          Le document doit faire au maximum une page et contenir des informations techniques précises et pertinentes.
+          content: `Vous êtes un générateur de documents techniques en cybersécurité. Créez un document ${documentType} réaliste et concis pour un scénario de formation.
+          Le document doit être court (maximum une demi-page) et contenir des informations techniques précises et pertinentes.
           Format: Utilisez un format structuré avec des en-têtes, des sections et des données techniques appropriées au type de document.
           
-          IMPORTANT: Ne fournissez PAS de solutions ou de réponses directes aux problèmes. Ce document sera utilisé dans un contexte de formation où l'utilisateur doit réfléchir par lui-même.
-          Incluez seulement le contexte, les détails du problème, et éventuellement quelques éléments historiques ou références utiles.`
+          RÈGLES IMPORTANTES :
+          1. Ne fournissez PAS de solutions ou de réponses directes aux problèmes
+          2. Ne créez JAMAIS de personnages ou contacts fictifs - utilisez UNIQUEMENT le contact spécifié (${context.contactName})
+          3. N'incluez PAS de section "Compétences et objectifs d'apprentissage"
+          4. Restez bref et factuel - ce document sera utilisé comme pièce jointe d'un email
+          5. N'utilisez PAS de nom "Claire Dufour" ou tout autre nom non fourni spécifiquement`
         },
         {
           role: "user",
-          content: `Générez un document "${documentType}" pour un scénario de formation en cybersécurité avec les détails suivants:
+          content: `Générez un document "${documentType}" bref et concis pour un scénario de formation en cybersécurité avec les détails suivants:
           - Domaine: ${context.domain}
           - Scénario: ${context.scenario}
           - Niveau de difficulté: ${context.difficultyLevel}
-          - Contact: ${context.contactName}
+          - Contact: ${context.contactName} (IMPORTANT: n'inventez PAS d'autres contacts)
           - Destinataire: ${context.userName}
           
           Le document doit être réaliste, comme s'il avait été produit dans un environnement professionnel d'entreprise.
-          Incluez suffisamment de détails pour que l'utilisateur puisse comprendre le problème, mais ne donnez PAS de solutions.
-          L'objectif est que l'utilisateur réfléchisse par lui-même à la solution.`
+          Il doit tenir en 200-300 mots maximum. Incluez juste assez de détails pour comprendre le contexte.
+          N'incluez pas de solutions ni de section d'objectifs d'apprentissage.`
         }
       ];
 

@@ -347,20 +347,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         {
           role: "user",
-          content: `Générez un email initial pour le scénario "${scenario.title}" dans le domaine "${scenario.domain}" avec les détails suivants:
+          content: `Générez un email COURT et CONCIS (maximum 200 mots) pour le scénario "${scenario.title}" dans le domaine "${scenario.domain}" avec les détails suivants:
           - L'email doit provenir de ${scenario.contact.name} (${scenario.contact.role})
           - L'email doit être adressé à ${userName}
-          - Le niveau de difficulté est ${scenario.difficulty}
           - Une pièce jointe nommée "${document.fileName}" est disponible avec des informations détaillées
           - Le secteur d'activité pour ce scénario est: ${secteurActivite}
-          - L'email doit créer un contexte d'entreprise spécifique et réaliste lié à ce secteur
           - Inventez un nom d'entreprise cohérent pour ce secteur
-          - Intégrez des problématiques et enjeux propres à ce secteur d'activité
-          - Faites référence à des contraintes réglementaires ou standards spécifiques au secteur
-          - Mentionnez au moins un enjeu business concret lié à la problématique cybersécurité
-          - L'email doit mettre en place un contexte riche et demander une action de la part de ${userName}
-          - Assurez-vous que le style d'écriture corresponde parfaitement au rôle du contact
-          - Rédige uniquement l'email, pas de commentaires ou d'explications`
+          - Soyez bref et direct - mentionnez un enjeu business et une contrainte réglementaire succinctement
+          - L'email doit demander une action claire et précise de la part de ${userName}
+          - Le style d'écriture doit correspondre au rôle du contact
+          - NE PAS inclure de section "Compétences et objectifs d'apprentissage" dans l'email
+          - L'email doit tenir en un paragraphe d'introduction, un paragraphe de contexte, et un paragraphe de conclusion avec la demande d'action
+          - Rédigez uniquement l'email, pas de commentaires ou d'explications`
         }
       ];
       
