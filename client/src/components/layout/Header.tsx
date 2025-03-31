@@ -1,6 +1,6 @@
 import { Settings, HelpCircle, Home } from "lucide-react";
 import { useChatContext } from "@/contexts/ChatContext";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import mclogo from "@assets/mc2i.png";
 
 interface HeaderProps {

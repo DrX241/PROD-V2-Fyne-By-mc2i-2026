@@ -10,7 +10,8 @@ import { ChatProvider } from "./contexts/ChatContext";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={ModulesPage} />
+      <Route path="/" component={Home} />
+      <Route path="/modules" component={ModulesPage} />
       <Route path="/cyber" component={Home} />
       <Route path="/data-ia" component={NotYetImplemented} />
       <Route path="/amoa" component={NotYetImplemented} />
