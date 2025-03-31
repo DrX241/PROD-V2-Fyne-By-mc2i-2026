@@ -6,10 +6,9 @@ import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { openAIService } from "../I_AM_CYBER/services/openai";
 import { documentGenerator } from "../I_AM_CYBER/services/document-generator";
-import { ChatCompletionRequestMessage, customScenarioSchema } from "../shared/schema";
+import { ChatCompletionRequestMessage, customScenarioSchema, customScenarios } from "../shared/schema";
 import express from 'express';
 import { db } from './db';
-import { scenarios } from '../shared/schema';
 
 const customScenarioRouter = express.Router();
 
@@ -21,11 +20,16 @@ customScenarioRouter.post('/api/scenarios/custom', async (req, res) => {
       return res.status(400).json({ error: 'Le nom et la description sont requis' });
     }
 
-    await db.insert(scenarios).values({
+    await db.insert(customScenarios).values({
+      id: uuidv4(),
       name,
       description,
-      type: 'custom',
+      domain: 'Personnalisé',
+      difficulty: 'debutant',
+      isPublic: true,
+      originalDescription: description,
       createdAt: new Date(),
+      steps: []
     });
 
     res.status(201).json({ message: 'Scénario créé avec succès' });
@@ -1553,29 +1557,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Si le scénario est terminé, générer une fiche d'évaluation
       if (isScenarioTerminated) {
-        const jsonMatch = completion.match(/```json\n([\s\S]*?)\n```/) || completion.match(/```\n([\s\S]*?)\n```/);
-        const jsonContent = jsonMatch ? jsonMatch[1] : completion;
+        try {
+          const jsonMatch = completion.match(/```json\n([\s\S]*?)\n```/) || completion.match(/```\n([\s\S]*?)\n```/);
+          const jsonContent = jsonMatch ? jsonMatch[1] : completion;
 
-        // Parse the JSON
-        scenarioStructure = JSON.parse(jsonContent);
+          // Parse the JSON
+          scenarioStructure = JSON.parse(jsonContent);
 
-        // Add required fields
-        scenarioStructure.isPublic = scenarioData.isPublic || false;
-        scenarioStructure.originalDescription = scenarioData.originalDescription;
+          // Add required fields
+          scenarioStructure.isPublic = scenarioData.isPublic || false;
+          scenarioStructure.originalDescription = scenarioData.originalDescription;
 
-        // Validate the scenario structure
-        const validatedScenario = customScenarioSchema.parse(scenarioStructure);
+          // Validate the scenario structure
+          const validatedScenario = customScenarioSchema.parse(scenarioStructure);
 
-        // Create the scenario
-        const createdScenario = await storage.createCustomScenario(validatedScenario);
-        res.status(201).json(createdScenario);
-      } catch (error: any) {
-        console.error('Error creating custom scenario:', error);
-        res.status(400).json({
-          message: 'Failed to create custom scenario',
-          error: error.message || 'Unknown error',
-          rawResponse: completion
-        });
+          // Create the scenario
+          const createdScenario = await storage.createCustomScenario(validatedScenario);
+          res.status(201).json(createdScenario);
+        } catch (error: any) {
+          console.error('Error creating custom scenario:', error);
+          res.status(400).json({
+            message: 'Failed to create custom scenario',
+            error: error.message || 'Unknown error',
+            rawResponse: completion
+          });
+        }
       }
     } catch (error) {
       console.error('Error in scenario generation:', error);
@@ -1660,4 +1666,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
 
       // Find JSON content between ```json and ``` if it exists
-      const jsonMatch = completion.match(/```json\n([\s\S]*?)\n```/) || completion.match(/```\n([\s\S]*?)\n
+      try {
+        const jsonMatch = completion.match(/```json\n([\s\S]*?)\n```/) || completion.match(/```\n([\s\S]*?)\n```/);
+        const jsonContent = jsonMatch ? jsonMatch[1] : completion;
+        
+        // Parse the JSON
+        const scenarioStructure = JSON.parse(jsonContent);
+        
+        // Return the preview to the client
+        res.json(scenarioStructure);
+      } catch (error: any) {
+        console.error('Error parsing scenario preview:', error);
+        res.status(400).json({ 
+          message: 'Failed to parse scenario preview', 
+          error: error.message || 'Unknown error',
+          rawResponse: completion 
+        });
+      }
+    } catch (error: any) {
+      console.error('Error in scenario preview:', error);
+      res.status(500).json({ message: 'Failed to generate scenario preview', error: error.message });
+    }
+  });
