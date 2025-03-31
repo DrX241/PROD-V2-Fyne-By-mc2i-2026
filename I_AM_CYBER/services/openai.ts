@@ -22,11 +22,22 @@ class OpenAIService {
   private readonly CONNECTION_CHECK_INTERVAL = 1000 * 60 * 5; // 5 minutes
 
   constructor() {
+    // Définir explicitement les valeurs au lieu d'utiliser process.env
+    const endpoint = "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com";
+    const apiKey = "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK";
+    const deploymentName = "Eddy-deploy-20-02-2025-gpt-4o";
+    const apiVersion = "2024-03-01-preview";
+    
+    // S'assurer que l'endpoint ne se termine pas par un slash
+    const cleanEndpoint = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint;
+    
+    console.log("OpenAI Service initialized with endpoint:", cleanEndpoint);
+    
     this.config = {
-      endpoint: process.env.AZURE_OPENAI_ENDPOINT || "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com/openai/deployments/Eddy-deploy-20-02-2025-gpt-4o/chat/completions",
-      apiKey: process.env.AZURE_OPENAI_API_KEY || "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK",
-      deploymentName: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "Eddy-deploy-20-02-2025-gpt-4o",
-      apiVersion: process.env.AZURE_OPENAI_API_VERSION || "2025-01-01-preview"
+      endpoint: cleanEndpoint,
+      apiKey,
+      deploymentName,
+      apiVersion
     };
   }
 
@@ -68,7 +79,7 @@ class OpenAIService {
     
     while (retries >= 0) {
       try {
-        const url = `${this.config.endpoint}?api-version=${this.config.apiVersion}`;
+        const url = `${this.config.endpoint}/openai/deployments/${this.config.deploymentName}/chat/completions?api-version=${this.config.apiVersion}`;
         
         const response = await axios.post(
           url,
@@ -139,7 +150,7 @@ class OpenAIService {
       ];
       
       // Appel direct à l'API (sans passer par getChatCompletion pour éviter les retries)
-      const url = `${this.config.endpoint}?api-version=${this.config.apiVersion}`;
+      const url = `${this.config.endpoint}/openai/deployments/${this.config.deploymentName}/chat/completions?api-version=${this.config.apiVersion}`;
       const response = await axios.post(
         url,
         {
