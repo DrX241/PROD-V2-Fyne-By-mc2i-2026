@@ -5,7 +5,7 @@ import DomainSelection from "./DomainSelection";
 import ScenarioSelection from "./ScenarioSelection";
 import EmailMessage from "./EmailMessage";
 import ContextBanner from "./ContextBanner";
-import { Send, Paperclip, BotMessageSquare, UserCircle, RefreshCw } from "lucide-react";
+import { Send, Paperclip, BotMessageSquare, UserCircle, RefreshCw, ChevronDown } from "lucide-react";
 
 export default function ChatInterface() {
   const { 
@@ -20,22 +20,42 @@ export default function ChatInterface() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-scroll to the bottom when messages change or when typing status changes
+  // Nous avons désactivé le défilement automatique pour donner à l'utilisateur le contrôle
+  // de la barre de défilement. Un bouton de défilement manuel vers le bas est disponible.
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  
+  // Détection de la position de défilement pour montrer/cacher le bouton
   useEffect(() => {
+    if (!chatContainerRef.current) return;
+    
+    const handleScroll = () => {
+      if (!chatContainerRef.current) return;
+      
+      const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
+      const isScrolledUp = scrollHeight - scrollTop - clientHeight > 100;
+      setShowScrollButton(isScrolledUp);
+    };
+    
+    // Vérifier la position initiale
+    handleScroll();
+    
+    // Ajouter un écouteur de défilement
+    chatContainerRef.current.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      chatContainerRef.current?.removeEventListener('scroll', handleScroll);
+    };
+  }, [messages]);
+  
+  // Fonction pour faire défiler vers le bas manuellement
+  const scrollToBottom = () => {
     if (chatContainerRef.current) {
-      const scrollToBottom = () => {
-        if (chatContainerRef.current) {
-          chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-        }
-      };
-      
-      // Scroll right away
-      scrollToBottom();
-      
-      // Also schedule another scroll after a short delay to ensure all content is rendered
-      setTimeout(scrollToBottom, 100);
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
     }
-  }, [messages, isTyping]);
+  };
 
   // Focus input on load
   useEffect(() => {
@@ -51,6 +71,10 @@ export default function ChatInterface() {
     const messageToSend = inputMessage;
     setInputMessage("");
     await sendMessage(messageToSend);
+    
+    // Lorsque l'utilisateur envoie un message, nous lui proposons de défiler vers le bas
+    // sans forcer le défilement automatique
+    setShowScrollButton(true);
   };
 
   const renderMessageContent = (message: any) => {
@@ -118,6 +142,18 @@ export default function ChatInterface() {
             </div>
           )}
         </div>
+        
+        {/* Bouton de défilement vers le bas */}
+        {showScrollButton && (
+          <button 
+            onClick={scrollToBottom}
+            className="fixed right-6 bottom-24 bg-gradient-to-r from-blue-600 to-indigo-600 p-3 rounded-full shadow-lg z-20 text-white hover:from-blue-700 hover:to-indigo-700 animate-fadeIn transition-all"
+            title="Défiler vers le bas"
+            aria-label="Défiler vers le bas de la conversation"
+          >
+            <ChevronDown className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
       {/* Zone de saisie */}
