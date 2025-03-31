@@ -419,11 +419,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       timestamp: Date.now()
     };
     
-    // Contexte détaillé avant l'email
+    // Contexte générique du scénario généré dynamiquement
     const scenarioContext: ChatMessage = {
       id: uuidv4(),
       type: "bot",
-      content: `**Contexte du scénario :** ${selectedScenario.description}\n\nVous allez interagir avec plusieurs interlocuteurs qui ont des préoccupations différentes liées à ce scénario. Chaque interlocuteur apportera un point de vue unique (finance, cybersécurité, réputation, etc.).\n\nVous recevrez bientôt un e-mail de ${selectedScenario.contact.name}, ${selectedScenario.contact.role}, qui sera votre premier interlocuteur pour ce scénario.\n\nPréparez-vous à analyser la situation et à proposer des solutions adaptées !`,
+      content: `**Contexte du scénario :** ${selectedScenario.description}\n\nVous allez interagir avec plusieurs interlocuteurs qui ont des préoccupations différentes liées à ce scénario. Chaque interlocuteur apportera un point de vue unique en fonction de ses préoccupations.\n\nVous recevrez bientôt un premier mail.\n\nPréparez-vous à analyser la situation et à proposer des solutions adaptées ! N'oubliez pas, chacune de vos réponses aura un impact sur le scénario.`,
       timestamp: Date.now() + 100
     };
     
