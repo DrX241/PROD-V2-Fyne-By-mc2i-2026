@@ -14,6 +14,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   if (!fs.existsSync(documentsDir)) {
     fs.mkdirSync(documentsDir, { recursive: true });
   }
+  
+  // Ensure the HTML directory exists
+  const htmlDir = path.join(process.cwd(), 'I_AM_CYBER', 'html');
+  if (!fs.existsSync(htmlDir)) {
+    fs.mkdirSync(htmlDir, { recursive: true });
+  }
 
   // API route for starting a scenario
   app.post('/api/cyber/start-scenario', async (req, res) => {
@@ -340,6 +346,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
+      // Générer un nom d'entreprise cohérent avec le secteur d'activité
+      let companyName = '';
+      if (secteurActivite === 'BANCAIRE/FINANCIER (BFA)') {
+        companyName = "SECURE FINANCE SOLUTIONS";
+      } else if (secteurActivite === 'INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)') {
+        companyName = "HEALTH & INDUSTRY SHIELD";
+      } else if (secteurActivite === 'RETAIL & LUXE') {
+        companyName = "ELITE RETAIL SECURITY";
+      } else if (secteurActivite === 'ÉNERGIE & UTILITIES') {
+        companyName = "ENERGY SHIELD SYSTEMS";
+      } else {
+        companyName = "CYBER SECURE SOLUTIONS";
+      }
+
+      // Générer un document HTML simple pour le premier email
+      const htmlDocument = await documentGenerator.generateWelcomeHTML(
+        scenarioId,
+        companyName
+      );
+
       const messages: ChatCompletionRequestMessage[] = [
         {
           role: "system",
@@ -350,9 +376,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           content: `Générez un email COURT et ACCUEILLANT (maximum 150 mots) pour le scénario "${scenario.title}" dans le domaine "${scenario.domain}" avec les détails suivants:
           - L'email doit provenir de ${scenario.contact.name} (${scenario.contact.role})
           - L'email doit être adressé à ${userName} en utilisant le tutoiement ("tu") 
-          - Une pièce jointe nommée "${document.fileName}" est disponible avec des informations détaillées
+          - Une pièce jointe nommée "Présentation ${companyName}" est disponible avec le logo et le nom de l'entreprise
           - Le secteur d'activité pour ce scénario est: ${secteurActivite}
-          - Inventez un nom d'entreprise cohérent pour ce secteur
+          - Le nom d'entreprise pour ce scénario est: ${companyName}
           - L'email doit être un message d'accueil chaleureux où le PNJ se présente, souhaite la bienvenue à ${userName} et l'invite simplement à se présenter à son tour (parcours, expérience, niveau de connaissance sur le sujet)
           - N'incluez PAS encore de problème ou de mission spécifique à résoudre
           - Le ton doit être amical et professionnel, en utilisant le tutoiement
@@ -370,7 +396,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Parse email content to extract subject and body
       const subjectMatch = emailContent.match(/Objet\s*:(.+?)(?:\n|$)/i);
       // Supprimer les ** du sujet s'ils existent
-      let subject = subjectMatch ? subjectMatch[1].trim() : `Concernant: ${scenario.title}`;
+      let subject = subjectMatch ? subjectMatch[1].trim() : `Bienvenue chez ${companyName}`;
       subject = subject.replace(/^\*\*|\*\*$/g, '').replace(/^__|\__$/g, '');
       
       // Remove any email headers from the content
@@ -398,7 +424,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Format file size based on content length
-      const contentBytes = Buffer.byteLength(document.content, 'utf8');
+      const contentBytes = Buffer.byteLength(htmlDocument.content, 'utf8');
       const fileSizeKB = Math.round(contentBytes / 1024);
       
       // Définir les interlocuteurs supplémentaires pour le scénario avec des expertises métier, technologiques et sectorielles diverses
@@ -687,10 +713,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         body,
         attachments: [
           {
-            id: document.fileName,
-            fileName: `${attachmentType}.pdf`,
+            id: htmlDocument.fileName,
+            fileName: `Présentation_${companyName.replace(/\s+/g, '_')}.html`,
             fileSize: `${fileSizeKB} KB`,
-            fileType: 'application/pdf'
+            fileType: 'text/html'
           }
         ],
         // Ajouter les contacts additionnels qui interviendront dans ce scénario
@@ -1634,22 +1660,37 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
   app.get('/api/cyber/documents/:id', (req, res) => {
     try {
       const documentId = req.params.id;
-      const documentPath = path.join(documentsDir, documentId);
       
-      if (!fs.existsSync(documentPath)) {
-        return res.status(404).json({ message: 'Document not found' });
+      // Vérifier d'abord dans le répertoire des documents
+      let documentPath = path.join(documentsDir, documentId);
+      let documentExists = fs.existsSync(documentPath);
+      
+      // Si le document n'existe pas dans le répertoire documents, vérifier dans le répertoire html
+      if (!documentExists) {
+        documentPath = path.join(htmlDir, documentId);
+        documentExists = fs.existsSync(documentPath);
+        
+        if (!documentExists) {
+          return res.status(404).json({ message: 'Document not found' });
+        }
       }
       
       // Déterminer le type de contenu en fonction de l'extension du fichier
-      const isPDF = documentId.toLowerCase().endsWith('.pdf');
+      const fileExtension = path.extname(documentId).toLowerCase();
       
-      if (isPDF) {
+      if (fileExtension === '.pdf') {
         // Servir le fichier PDF pour affichage dans le navigateur
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `inline; filename=${documentId}`);
         fs.createReadStream(documentPath).pipe(res);
+      } else if (fileExtension === '.html') {
+        // Servir le fichier HTML
+        const content = fs.readFileSync(documentPath, 'utf8');
+        res.setHeader('Content-Type', 'text/html');
+        res.setHeader('Content-Disposition', `inline; filename=${documentId}`);
+        res.send(content);
       } else {
-        // Servir le fichier texte
+        // Servir le fichier texte par défaut
         const content = fs.readFileSync(documentPath, 'utf8');
         res.setHeader('Content-Type', 'text/plain');
         res.setHeader('Content-Disposition', `inline; filename=${documentId}`);
@@ -1665,22 +1706,43 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
   app.get('/api/cyber/documents', (req, res) => {
     try {
       // List all files in the documents directory
-      const files = fs.readdirSync(documentsDir);
+      const pdfFiles = fs.existsSync(documentsDir) ? fs.readdirSync(documentsDir) : [];
       
-      // Get file stats for each document
-      const documents = files.map(fileName => {
+      // List all files in the html directory
+      const htmlFiles = fs.existsSync(htmlDir) ? fs.readdirSync(htmlDir) : [];
+      
+      // Get file stats for each document (PDF)
+      const pdfDocuments = pdfFiles.map(fileName => {
         const filePath = path.join(documentsDir, fileName);
         const stats = fs.statSync(filePath);
         
         return {
           id: fileName,
           fileName,
+          fileType: 'application/pdf',
           date: stats.mtime,
           size: stats.size
         };
       });
       
-      res.json(documents);
+      // Get file stats for each document (HTML)
+      const htmlDocuments = htmlFiles.map(fileName => {
+        const filePath = path.join(htmlDir, fileName);
+        const stats = fs.statSync(filePath);
+        
+        return {
+          id: fileName,
+          fileName,
+          fileType: 'text/html',
+          date: stats.mtime,
+          size: stats.size
+        };
+      });
+      
+      // Combine both lists
+      const allDocuments = [...pdfDocuments, ...htmlDocuments];
+      
+      res.json(allDocuments);
     } catch (error) {
       console.error('Error listing documents:', error);
       res.status(500).json({ message: 'Failed to list documents' });

@@ -8,15 +8,20 @@ export class DocumentGenerator {
   private documentsDir: string;
   // Nom de l'entreprise fictive à afficher sur les documents
   private companyName: string = "CYBER SECURE SOLUTIONS";
+  private htmlDir: string;
 
   constructor() {
     this.documentsDir = path.join(process.cwd(), 'I_AM_CYBER', 'documents');
+    this.htmlDir = path.join(process.cwd(), 'I_AM_CYBER', 'html');
     this.ensureDirectoryExists();
   }
 
   private ensureDirectoryExists(): void {
     if (!fs.existsSync(this.documentsDir)) {
       fs.mkdirSync(this.documentsDir, { recursive: true });
+    }
+    if (!fs.existsSync(this.htmlDir)) {
+      fs.mkdirSync(this.htmlDir, { recursive: true });
     }
   }
 
@@ -404,6 +409,124 @@ export class DocumentGenerator {
   listDocuments(): string[] {
     this.ensureDirectoryExists();
     return fs.readdirSync(this.documentsDir);
+  }
+
+  // Fonction pour générer une pièce jointe HTML simple avec juste le nom de l'entreprise
+  async generateWelcomeHTML(
+    scenarioId: string,
+    companyName: string
+  ): Promise<{ fileName: string, content: string }> {
+    try {
+      // Generate unique filename
+      const timestamp = Date.now();
+      const htmlFileName = `${scenarioId}_bienvenue_${timestamp}.html`;
+      const htmlFilePath = path.join(this.htmlDir, htmlFileName);
+
+      // Crée un contenu HTML élégant avec le nom de l'entreprise
+      const htmlContent = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bienvenue chez ${companyName}</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #333;
+    }
+    .container {
+      width: 100%;
+      max-width: 800px;
+      padding: 3rem;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    .logo {
+      max-width: 220px;
+      margin-bottom: 2rem;
+    }
+    h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: #003366;
+      font-family: 'Georgia', serif;
+    }
+    .tagline {
+      font-size: 1.2rem;
+      font-weight: 300;
+      color: #666;
+      margin-bottom: 2rem;
+      font-style: italic;
+    }
+    .border-bottom {
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #003366, transparent);
+      margin: 2rem 0;
+    }
+    .footer {
+      font-size: 0.85rem;
+      color: #999;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Logo mc2i -->
+    <img src="data:image/png;base64,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" alt="Logo mc2i" class="logo">
+    
+    <h1>${companyName}</h1>
+    <p class="tagline">Excellence et innovation dans le domaine de la cybersécurité</p>
+    
+    <div class="border-bottom"></div>
+    
+    <div class="footer">
+      <p>${companyName} &copy; ${new Date().getFullYear()} - Document confidentiel</p>
+      <p>Généré par la plateforme I AM CYBER de mc2i</p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+      // Sauvegarder le fichier HTML
+      fs.writeFileSync(htmlFilePath, htmlContent);
+
+      return {
+        fileName: htmlFileName,
+        content: htmlContent
+      };
+    } catch (error) {
+      console.error('Error generating HTML welcome document:', error);
+      throw new Error(`Failed to generate welcome HTML document`);
+    }
+  }
+
+  // Fonction pour obtenir le chemin d'un fichier HTML
+  getHTMLPath(fileName: string): string {
+    return path.join(this.htmlDir, fileName);
+  }
+
+  // Fonction pour obtenir le contenu d'un fichier HTML
+  getHTMLContent(fileName: string): string {
+    const filePath = this.getHTMLPath(fileName);
+    if (!fs.existsSync(filePath)) {
+      throw new Error(`HTML document not found: ${fileName}`);
+    }
+    return fs.readFileSync(filePath, 'utf8');
   }
 }
 
