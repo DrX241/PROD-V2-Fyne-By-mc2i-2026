@@ -25,7 +25,7 @@ class OpenAIService {
     this.config = {
       endpoint: process.env.AZURE_OPENAI_ENDPOINT || "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com/openai/deployments/Eddy-deploy-20-02-2025-gpt-4o/chat/completions",
       apiKey: process.env.AZURE_OPENAI_API_KEY || "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK",
-      deploymentName: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "Eddy-deploy-20-02-2025-gpt-4o",
+      deploymentName: process.env.AZURE_OPENAI_DEPLOYMENT || "Eddy-deploy-20-02-2025-gpt-4o",
       apiVersion: process.env.AZURE_OPENAI_API_VERSION || "2025-01-01-preview"
     };
   }
