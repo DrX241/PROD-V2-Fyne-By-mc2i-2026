@@ -308,34 +308,25 @@ export default function ArcadeCrise() {
   const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
   const [isSimulationActive, setIsSimulationActive] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
-  const [isFullScreen, setIsFullScreen] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(300); // 5 minutes en secondes
-  const [timerActive, setTimerActive] = useState(false);
-  const [financialImpact, setFinancialImpact] = useState(0); // En milliers d'euros
-  const [reputationScore, setReputationScore] = useState(100); // 0-100
-  const [userRole, setUserRole] = useState("RSSI"); // Rôle par défaut
-  const [incomingMessages, setIncomingMessages] = useState<{channel: string; from: string; urgent: boolean; read: boolean}[]>([]);
-  const [gameOver, setGameOver] = useState(false);
-  const [gameOverReason, setGameOverReason] = useState("");
   
-  // État de la crise simulée
+  // État de la crise simulée (exemple statique pour la démonstration)
   const [crisisInfo, setCrisisInfo] = useState<CrisisInfo>({
     timeInfo: {
-      elapsedTime: "00:00:00",
-      deadlines: ["Communiqué de presse (4 min)", "Brief direction (3 min)"],
-      pressureLevel: "medium"
+      elapsedTime: "01:45:30",
+      deadlines: ["Communiqué de presse (30 min)", "Brief direction (2h)"],
+      pressureLevel: "high"
     },
     mediaInfo: {
-      currentTone: "concerned",
-      publicPerception: 75,
+      currentTone: "critical",
+      publicPerception: 42,
       pendingRequests: ["Interview TV nationale", "Commentaires pour article de presse"]
     },
     teamInfo: {
       stressLevel: "elevated",
       availableExperts: ["RSSI", "Expert forensique", "Communication de crise"],
-      teamRotation: false
+      teamRotation: true
     },
-    activePhase: "detection"
+    activePhase: "confinement"
   });
 
   // Récupérer les messages de la simulation actuelle
@@ -343,130 +334,21 @@ export default function ArcadeCrise() {
     (msg: ChatMessage) => msg.type === "email" || msg.type === "user" || msg.type === "bot"
   );
 
-  // Fonction pour formater le temps restant
-  const formatTimeRemaining = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  // Gérer le chronomètre
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    
-    if (timerActive && timeRemaining > 0) {
-      interval = setInterval(() => {
-        setTimeRemaining(prev => {
-          const newTime = prev - 1;
-          
-          // Mettre à jour la pression temporelle
-          if (newTime < 60) {
-            setCrisisInfo(prev => ({
-              ...prev,
-              timeInfo: {
-                ...prev.timeInfo!,
-                pressureLevel: 'critical',
-                elapsedTime: formatTimeRemaining(300 - newTime)
-              }
-            }));
-          } else if (newTime < 120) {
-            setCrisisInfo(prev => ({
-              ...prev,
-              timeInfo: {
-                ...prev.timeInfo!,
-                pressureLevel: 'high',
-                elapsedTime: formatTimeRemaining(300 - newTime)
-              }
-            }));
-          }
-          
-          // Gérer les impacts financiers et de réputation au fil du temps
-          if (newTime % 30 === 0) { // Toutes les 30 secondes
-            // Impact financier croissant
-            setFinancialImpact(prev => prev + Math.floor(Math.random() * 50 + 20));
-            
-            // Baisse de réputation
-            setReputationScore(prev => Math.max(0, prev - Math.floor(Math.random() * 5 + 1)));
-          }
-          
-          // Ajouter des messages entrants aléatoires
-          if (newTime % 45 === 0 && newTime > 0) { // Toutes les 45 secondes
-            const newMessage = {
-              channel: ['email', 'chat', 'téléphone'][Math.floor(Math.random() * 3)],
-              from: ['DSI', 'PDG', 'Responsable Communication', 'Presse', 'Équipe technique'][Math.floor(Math.random() * 5)],
-              urgent: Math.random() > 0.6,
-              read: false
-            };
-            setIncomingMessages(prev => [...prev, newMessage]);
-          }
-          
-          return newTime;
-        });
-      }, 1000);
-    } else if (timeRemaining <= 0 && timerActive) {
-      // Temps écoulé - conséquence de la fin du jeu
-      setGameOver(true);
-      setGameOverReason("Temps écoulé : la crise a échappé à votre contrôle");
-      setTimerActive(false);
-    }
-    
-    return () => clearInterval(interval);
-  }, [timerActive, timeRemaining]);
-
   const startSimulation = async () => {
     if (!selectedCompanyType || !selectedScenario) return;
     
     setIsSimulationActive(true);
-    setTimerActive(true);
-    
-    // Activer le mode plein écran pour l'immersion
-    const element = document.documentElement;
-    if (element.requestFullscreen) {
-      element.requestFullscreen();
-      setIsFullScreen(true);
-    }
-    
-    // Initialiser les données de simulation
-    setTimeRemaining(300); // 5 minutes
-    setFinancialImpact(0);
-    setReputationScore(100);
-    setGameOver(false);
-    setGameOverReason("");
-    
-    // Ajouter un premier message d'urgence
-    setIncomingMessages([
-      {
-        channel: 'email',
-        from: 'Cellule de crise',
-        urgent: true,
-        read: false
-      }
-    ]);
     
     // Envoyer un message pour démarrer la simulation
     const scenario = crisisScenarios.find(s => s.id === selectedScenario);
     const company = companyTypes.find(c => c.id === selectedCompanyType);
     
-    await sendMessage(`URGENT: Début de crise! ${scenario?.title} détectée dans l'entreprise du secteur ${company?.name}. En tant que ${userRole}, vous devez coordonner la réponse immédiate. Vous avez 5 minutes pour stabiliser la situation. Les conséquences de vos décisions (ou absence de décision) impacteront directement l'entreprise.`);
+    await sendMessage(`Démarrer une simulation de crise: ${scenario?.title} dans le secteur ${company?.name}. Utiliser le contexte de crise pour suivre la progression.`);
   };
 
   const resetSimulation = () => {
-    // Quitter le mode plein écran si actif
-    if (isFullScreen && document.exitFullscreen) {
-      document.exitFullscreen();
-      setIsFullScreen(false);
-    }
-    
     setIsSimulationActive(false);
-    setTimerActive(false);
-    setTimeRemaining(300);
     setSelectedScenario(null);
-    setFinancialImpact(0);
-    setReputationScore(100);
-    setGameOver(false);
-    setGameOverReason("");
-    setIncomingMessages([]);
-    
     // Réinitialiser l'état de crise
     setCrisisInfo({
       timeInfo: {
@@ -708,172 +590,39 @@ export default function ArcadeCrise() {
 
               <TabsContent value="chat" className="mt-0">
                 <div className="bg-white p-6 rounded-lg border shadow-sm">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold">Communication en cours</h2>
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center">
-                        <div className="h-3 w-3 rounded-full bg-green-500 mr-1.5"></div>
-                        <span className="text-sm text-gray-700">Actif</span>
-                      </div>
-                      <div className="text-sm text-gray-700 font-mono px-3 py-1 bg-gray-100 rounded">
-                        {formatTimeRemaining(timeRemaining)}
+                  <h2 className="text-lg font-semibold mb-4">Communication en cours</h2>
+                  <p className="text-gray-600 mb-6">
+                    Utilisez l'interface de chat I AM CYBER standard pour communiquer avec les acteurs de la crise.
+                    Les mises à jour du tableau de bord se feront automatiquement en fonction de vos actions.
+                  </p>
+                  
+                  <div className="bg-blue-50 border border-blue-200 rounded-md p-4 text-blue-800 mb-6">
+                    <div className="flex items-start">
+                      <CheckCircle className="w-5 h-5 mr-2 text-blue-600 mt-0.5" />
+                      <div>
+                        <p className="font-medium mb-1">La simulation est active</p>
+                        <p className="text-sm">
+                          Le module I AM CYBER standard est maintenant configuré en mode crise. 
+                          Toute votre interaction se fera via l'interface habituelle, mais avec le contexte de crise activé.
+                        </p>
                       </div>
                     </div>
                   </div>
                   
-                  {gameOver ? (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
-                      <div className="flex items-start">
-                        <AlertTriangle className="w-6 h-6 text-red-500 mr-3 mt-1" />
-                        <div>
-                          <h3 className="text-lg font-bold text-red-700 mb-2">Simulation terminée</h3>
-                          <p className="text-red-700 mb-4">{gameOverReason}</p>
-                          <Button variant="outline" onClick={resetSimulation} className="bg-white">
-                            Redémarrer la simulation
-                          </Button>
-                        </div>
-                      </div>
+                  <div className="border rounded-lg p-6 bg-slate-50">
+                    <p className="text-center text-gray-500 mb-4">
+                      Basculez vers l'onglet "Tableau de bord" pour voir les indicateurs de crise en temps réel.
+                    </p>
+                    <div className="flex justify-center">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setActiveTab("overview")}
+                        className="text-blue-600 hover:bg-blue-50"
+                      >
+                        Voir le tableau de bord
+                      </Button>
                     </div>
-                  ) : (
-                    <>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        {/* Chronomètre et infos critiques */}
-                        <Card className="bg-black text-white shadow-md overflow-hidden">
-                          <CardHeader className="pb-0 bg-gray-900">
-                            <div className="flex justify-between items-center">
-                              <CardTitle className="text-white">Chronométrage</CardTitle>
-                              <span className="text-2xl font-mono text-red-500">{formatTimeRemaining(timeRemaining)}</span>
-                            </div>
-                          </CardHeader>
-                          <CardContent className="pt-2">
-                            <div className="space-y-3">
-                              <div className="flex justify-between text-xs">
-                                <span>Impact financier</span>
-                                <span className="text-red-400">-{financialImpact}K€</span>
-                              </div>
-                              <Progress value={100 - (financialImpact/10)} className="h-1.5 bg-gray-800" />
-                              
-                              <div className="flex justify-between text-xs mt-2">
-                                <span>Réputation</span>
-                                <span className={reputationScore > 70 ? "text-green-400" : reputationScore > 40 ? "text-amber-400" : "text-red-400"}>
-                                  {reputationScore}%
-                                </span>
-                              </div>
-                              <Progress value={reputationScore} className="h-1.5 bg-gray-800" />
-                              
-                              {incomingMessages.filter(m => !m.read).length > 0 && (
-                                <div className="mt-2 p-2 bg-gray-800 rounded text-xs animate-pulse border border-red-500/40">
-                                  {incomingMessages.filter(m => !m.read).length} message(s) urgent(s) en attente
-                                </div>
-                              )}
-                            </div>
-                          </CardContent>
-                        </Card>
-                        
-                        {/* Liste des messages */}
-                        <Card className="md:col-span-2">
-                          <CardHeader className="pb-2">
-                            <CardTitle>Messagerie</CardTitle>
-                            <CardDescription>Communications urgentes et critiques</CardDescription>
-                          </CardHeader>
-                          <CardContent className="max-h-[200px] overflow-y-auto">
-                            {incomingMessages.length > 0 ? (
-                              <div className="space-y-2">
-                                {incomingMessages.map((msg, idx) => (
-                                  <div 
-                                    key={idx} 
-                                    className={`p-3 border rounded-md flex justify-between items-start ${
-                                      msg.read ? 'bg-gray-50 border-gray-200' : 
-                                      msg.urgent ? 'bg-red-50 border-red-200' : 'bg-blue-50 border-blue-200'
-                                    }`}
-                                  >
-                                    <div>
-                                      <div className="flex items-center mb-1">
-                                        {msg.urgent && !msg.read && <BadgeAlert className="w-4 h-4 text-red-500 mr-1" />}
-                                        <span className="font-medium text-sm">{msg.from}</span>
-                                        <span className="text-xs text-gray-500 ml-2">via {msg.channel}</span>
-                                      </div>
-                                      <p className="text-xs text-gray-700">
-                                        Message en attente. Cliquez pour répondre immédiatement.
-                                      </p>
-                                    </div>
-                                    <Button 
-                                      variant="outline" 
-                                      size="sm"
-                                      className="text-xs"
-                                      onClick={() => {
-                                        // Marquer comme lu
-                                        setIncomingMessages(prev => 
-                                          prev.map((m, i) => i === idx ? {...m, read: true} : m)
-                                        );
-                                        // Ouvrir la conversation
-                                        setActiveTab("overview");
-                                      }}
-                                    >
-                                      Traiter
-                                    </Button>
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <div className="text-center py-10 text-gray-500">
-                                <p>Aucun message en attente</p>
-                              </div>
-                            )}
-                          </CardContent>
-                        </Card>
-                      </div>
-                      
-                      <div className="bg-slate-900 p-4 rounded-lg mb-6">
-                        <div className="flex items-center justify-between mb-3">
-                          <h3 className="text-white font-medium">Votre rôle: {userRole}</h3>
-                          <div>
-                            <span className="text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full">
-                              Temps restant: {formatTimeRemaining(timeRemaining)}
-                            </span>
-                          </div>
-                        </div>
-                        <p className="text-sm text-gray-300 mb-4">
-                          En tant que {userRole}, vous devez coordonner la réponse à cette crise. Vos décisions auront un impact direct sur l'entreprise.
-                          Si vous ignorez les messages urgents ou prenez des décisions inappropriées, vous pourriez être remplacé ou la crise pourrait s'aggraver.
-                        </p>
-                        <div className="flex space-x-2">
-                          <Button 
-                            variant="outline" 
-                            onClick={() => setActiveTab("overview")}
-                            className="text-white border-white/20 hover:bg-white/10"
-                          >
-                            Tableau de bord
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            className="bg-red-700 hover:bg-red-800"
-                            onClick={() => {
-                              setGameOver(true);
-                              setGameOverReason("Vous avez abandonné votre poste en pleine crise.");
-                              setTimerActive(false);
-                            }}
-                          >
-                            Abandonner la gestion
-                          </Button>
-                        </div>
-                      </div>
-                      
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-blue-800">
-                        <div className="flex items-start">
-                          <Lightbulb className="w-5 h-5 mr-2 text-blue-600 mt-0.5" />
-                          <div>
-                            <p className="font-medium mb-1">Contexte de simulation immersive</p>
-                            <p className="text-sm">
-                              Cette simulation en temps réel vous place dans un contexte de crise avec de vrais impacts mesurables.
-                              Les PNJ et interlocuteurs ont des préoccupations et priorités différentes que vous devrez gérer.
-                              Un échec à répondre correctement pourrait vous faire sortir du scénario.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  )}
+                  </div>
                 </div>
               </TabsContent>
             </Tabs>
