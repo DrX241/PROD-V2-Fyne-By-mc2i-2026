@@ -702,7 +702,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         subject,
         date: new Date().toISOString(),
         body,
-        attachments: [],
+        // Supprimer complètement les pièces jointes
         // Ajouter les contacts additionnels qui interviendront dans ce scénario
         scenarioContacts: scenarioContacts
       };

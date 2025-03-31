@@ -38,7 +38,6 @@ export interface EmailMessageContent {
   subject: string;
   date: string;
   body: string;
-  attachments: Attachment[];
   scenarioContacts?: ScenarioContact[]; // Liste des interlocuteurs du scénario
 }
 

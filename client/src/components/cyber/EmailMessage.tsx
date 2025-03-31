@@ -1,16 +1,8 @@
 import React, { useState } from "react";
-import { Paperclip, FileCheck, Users } from "lucide-react";
+import { Users } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 
 // Définir les interfaces temporaires ici en attendant que les modules importés soient disponibles
-interface EmailAttachment {
-  id: string;
-  fileName: string;
-  fileSize: string;
-  fileType: string;
-  content?: string;
-}
-
 interface EmailContact {
   name: string;
   role: string;
@@ -25,9 +17,7 @@ interface EmailContent {
   subject: string;
   date: string;
   body: string;
-  attachments: EmailAttachment[];
   scenarioContacts?: EmailContact[]; // Liste des interlocuteurs du scénario
-  evaluation?: EmailAttachment; // Pièce jointe d'évaluation finale (si présente)
 }
 
 interface EmailMessageProps {
@@ -35,8 +25,6 @@ interface EmailMessageProps {
 }
 
 export default function EmailMessage({ email }: EmailMessageProps) {
-  const [isAttachmentLoading, setIsAttachmentLoading] = useState<{[key: string]: boolean}>({});
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('fr-FR', {
@@ -46,19 +34,6 @@ export default function EmailMessage({ email }: EmailMessageProps) {
       hour: 'numeric',
       minute: 'numeric'
     }).format(date);
-  };
-
-  const handleAttachmentClick = async (attachmentId: string) => {
-    try {
-      setIsAttachmentLoading((prev) => ({ ...prev, [attachmentId]: true }));
-      
-      // Ouvrir directement le PDF dans un nouvel onglet
-      window.open(`/api/cyber/documents/${attachmentId}`, '_blank');
-    } catch (error) {
-      console.error('Error opening attachment:', error);
-    } finally {
-      setIsAttachmentLoading((prev) => ({ ...prev, [attachmentId]: false }));
-    }
   };
 
   // Convert email body text to paragraphs
@@ -235,61 +210,6 @@ export default function EmailMessage({ email }: EmailMessageProps) {
             <p className="text-xs sm:text-sm text-white mt-3 sm:mt-4">
               Ces interlocuteurs interviendront dans ce scénario pour vous offrir différentes perspectives sur la problématique cyber centrale.
             </p>
-          </div>
-        )}
-        
-        {/* Evaluation */}
-        {email?.evaluation && (
-          <div className="mx-3 sm:mx-6 my-3 sm:my-4 p-3 sm:p-5 bg-green-900/30 rounded-lg border border-green-700/30 backdrop-blur-sm">
-            <h4 className="font-bold text-white mb-2 sm:mb-3 flex items-center text-sm sm:text-base">
-              <FileCheck className="mr-1.5 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5 text-white" />
-              <span>Évaluation finale</span>
-            </h4>
-            <p className="text-xs sm:text-sm text-white mb-3 sm:mb-4">
-              Votre performance dans ce scénario a été évaluée. Consultez le document d'évaluation pour découvrir vos points forts, axes d'amélioration et les concepts clés à retenir.
-            </p>
-            {email.evaluation && (
-              <button 
-                className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-green-700 to-emerald-700 hover:from-green-800 hover:to-emerald-800 text-white rounded-md flex items-center space-x-1.5 sm:space-x-2 transition-all duration-300 shadow-md hover:shadow-glow-sm border border-green-600/50 text-xs sm:text-sm"
-                onClick={() => handleAttachmentClick(email.evaluation!.id)}
-                disabled={Boolean(isAttachmentLoading[email.evaluation.id])}
-              >
-                <FileCheck className="h-4 w-4 sm:h-5 sm:w-5" />
-                <span>Voir mon évaluation complète</span>
-                {isAttachmentLoading[email.evaluation.id] && (
-                  <div className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4 border-2 border-t-transparent border-white rounded-full animate-spin"></div>
-                )}
-              </button>
-            )}
-          </div>
-        )}
-        
-        {/* Attachments */}
-        {email.attachments && email.attachments.length > 0 && (
-          <div className="border-t border-blue-800/40 p-3 sm:p-5 bg-gray-900/50">
-            <h4 className="font-medium text-white mb-2 sm:mb-3 flex items-center text-sm sm:text-base">
-              <Paperclip className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
-              <span>Pièces jointes</span>
-            </h4>
-            <div className="flex flex-wrap gap-2 sm:gap-3">
-              {email.attachments.map((attachment: EmailAttachment) => (
-                <button 
-                  key={attachment.id}
-                  className="flex items-center gap-1.5 sm:gap-2 bg-blue-900/50 hover:bg-blue-800/60 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full transition-all duration-300 border border-blue-700/40 hover:border-blue-600/50 shadow-md hover:shadow-glow-sm text-xs sm:text-sm"
-                  onClick={() => handleAttachmentClick(attachment.id)}
-                  disabled={isAttachmentLoading[attachment.id]}
-                >
-                  <Paperclip className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
-                  <span>
-                    {attachment.fileName}
-                    <span className="text-white ml-1 sm:ml-1.5">({attachment.fileSize})</span>
-                  </span>
-                  {isAttachmentLoading[attachment.id] && (
-                    <div className="ml-1 h-2.5 w-2.5 sm:h-3 sm:w-3 border-2 border-t-transparent border-white rounded-full animate-spin"></div>
-                  )}
-                </button>
-              ))}
-            </div>
           </div>
         )}
       </div>
