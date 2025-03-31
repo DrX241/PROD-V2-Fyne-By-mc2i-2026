@@ -1183,38 +1183,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Utilisons l'historique des messages pour déterminer le contact suivant
       let respondingContact;
       
-      // Vérifier si l'utilisateur a déjà envoyé des messages hors sujet
-      // Pour cela, nous comptons les avertissements dans l'historique
+      // Version simplifiée : on ne réinitialise plus le scénario en cas de messages hors sujet
+      // On laisse l'IA répondre de manière appropriée
       let offTopicCount = 0;
       let shouldResetScenario = false;
       
-      if (chatHistory && Array.isArray(chatHistory)) {
-        offTopicCount = chatHistory.filter(msg => 
-          msg.type === 'bot' && 
-          typeof msg.content === 'string' && 
-          (msg.content.toLowerCase().includes("hors sujet") || 
-           msg.content.toLowerCase().includes("hors contexte") ||
-           msg.content.toLowerCase().includes("recentrer la discussion") ||
-           msg.content.toLowerCase().includes("ne correspond pas au scénario") ||
-           msg.content.toLowerCase().includes("je ne comprends pas le lien") ||
-           msg.content.toLowerCase().includes("sans rapport avec"))
-        ).length;
-        
-        // Si le message actuel est très court ou semble hors sujet
-        const isLikelyOffTopic = message.length < 25 || 
-                                message.toLowerCase().includes("gpt") ||
-                                message.toLowerCase().includes("assistant") ||
-                                message.toLowerCase().includes("ia") ||
-                                message.toLowerCase().includes("intelligence artificielle") ||
-                                message.toLowerCase().includes("chatbot") ||
-                                message.toLowerCase().includes("programme");
-        
-        // Si l'utilisateur a déjà eu un avertissement et que le message actuel est potentiellement hors sujet
-        // OU si l'utilisateur a déjà eu 2 avertissements
-        if ((offTopicCount >= 1 && isLikelyOffTopic) || offTopicCount >= 2) {
-          shouldResetScenario = true;
-        }
-      }
+      // Note: Logique de détection des messages hors sujet désactivée pour simplifier l'expérience utilisateur
+      // L'IA pourra toujours guider l'utilisateur si nécessaire mais sans réinitialiser le scénario
       
       if (chatHistory && Array.isArray(chatHistory) && chatHistory.length > 0) {
         // Vérifier si c'est la première réponse de l'utilisateur après l'email initial
@@ -1408,7 +1383,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         "\n\nRÈGLE DU JEU DE RÔLE AVANCÉ: Tu dois absolument adapter ton style de communication, ton vocabulaire et tes préoccupations à ton profil et au secteur. Un expert cybersécurité dans le secteur bancaire ne parle pas comme un directeur financier dans le secteur industriel. Modifie complètement ton approche en fonction de ton rôle, du contexte sectoriel et de tes préoccupations principales." +
         
-        "\n\nÉVALUATION DES RÉPONSES: Évalue rigoureusement la réponse de l'utilisateur. Si elle est incomplète, hors sujet, mal formulée ou peu pertinente, sois direct et franc dans ta critique. N'hésite pas à exiger immédiatement une réponse plus complète ou pertinente. Après trois tentatives infructueuses, mets fin au scénario." +
+        "\n\nÉVALUATION DES RÉPONSES: Guide l'utilisateur avec bienveillance. Valorise ses réponses et complète-les si nécessaire. Même si la réponse est imparfaite, trouve-y des éléments positifs pour encourager l'apprentissage. Si besoin, suggère des améliorations de façon constructive et pédagogique." +
         
         `\n\nINTERDICTION ABSOLUE: Ne jamais dire "En tant que [nom], je..." ou "Dans mon rôle de [fonction], je...". Incarne directement le personnage, parle naturellement comme le ferait cette personne dans son contexte professionnel.`;
       
@@ -1441,19 +1416,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Pour la première réponse après une présentation, vérifier si l'utilisateur s'est bien présenté
       // Si oui, le même PNJ (niveau 1) répondra avec une mission, sinon il redemandera une présentation
       if (chatHistory && chatHistory.length === 2 && chatHistory[0].type === 'email' && chatHistory[1].type === 'user') {
-        // Vérifier si la présentation de l'utilisateur est suffisante
+        // Version simplifiée : on considère toute réponse comme une présentation valide
+        // Cela évite de bloquer l'utilisateur s'il ne se présente pas "correctement"
         const userPresentation = chatHistory[1].content;
-        const containsPresentation = typeof userPresentation === 'string' && 
-          (userPresentation.length > 50 || // Texte suffisamment long
-           userPresentation.toLowerCase().includes('je suis') ||
-           userPresentation.toLowerCase().includes('je m\'appelle') ||
-           userPresentation.toLowerCase().includes('je viens de') ||
-           userPresentation.toLowerCase().includes('expérience') ||
-           userPresentation.toLowerCase().includes('formation') ||
-           userPresentation.toLowerCase().includes('travaillé') ||
-           userPresentation.toLowerCase().includes('étudi') ||
-           userPresentation.toLowerCase().includes('compétences') ||
-           userPresentation.toLowerCase().includes('connaissance'));
+        const containsPresentation = typeof userPresentation === 'string' && userPresentation.length > 10;
         
         if (containsPresentation) {
           // L'utilisateur s'est bien présenté, on lui donne la première mission
@@ -1461,14 +1427,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
             role: "user",
             content: `Je suis ${userName} et je viens de me présenter. Voici ma présentation : "${message}"
             
-            DIRECTIVE SPÉCIALE: Tu es le même PNJ (${respondingContact.name}) qui a envoyé le premier email de bienvenue. Tu dois maintenant assigner une première mission à ${userName} après avoir accusé réception de sa présentation.
+            DIRECTIVE SPÉCIALE: Tu es le même PNJ (${respondingContact.name}) qui a envoyé le premier email de bienvenue. Tu dois maintenant donner une mission simple à ${userName}.
             
             Ta réponse DOIT:
-            1. Commencer par un bref remerciement pour la présentation en mentionnant spécifiquement un ou deux éléments de sa présentation
-            2. Présenter un problème concret et urgent lié à la cybersécurité dans le contexte du scénario "${scenario.title}" dans le domaine "${scenario.domain}"
-            3. Lister avec des puces (maximum 3) les actions ou attentes précises que tu as envers ${userName}
-            4. Maintenir un ton professionnel mais accessible, en utilisant toujours le tutoiement
-            5. Être concise et directe (maximum 200 mots)`
+            1. Remercier brièvement l'utilisateur pour sa présentation
+            2. Présenter un problème de cybersécurité simple lié au scénario "${scenario.title}"
+            3. Expliquer clairement ce que tu attends de ${userName}
+            4. Utiliser un ton amical avec tutoiement
+            5. Être très concise (maximum 100 mots)`
           });
         } else {
           // L'utilisateur ne s'est pas suffisamment présenté, on lui redemande
@@ -1495,15 +1461,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           role: "user",
           content: `Je suis ${userName} et je viens de répondre à la première mission. Voici ma réponse : "${message}"
           
-          DIRECTIVE SPÉCIALE: Tu es un nouveau PNJ (niveau 2) différent du premier PNJ. Tu es ${respondingContact.name} et tu dois analyser la réponse de l'utilisateur à la première mission et poursuivre le scénario.
+          DIRECTIVE SPÉCIALE: Tu es un nouveau PNJ (${respondingContact.name}) qui intervient maintenant dans la conversation.
           
           Ta réponse DOIT:
-          1. Commencer par une brève présentation de toi-même (2 lignes maximum)
-          2. Donner ton avis sur la réponse de l'utilisateur (points forts, éventuelles lacunes)
-          3. Poursuivre le scénario en présentant un nouveau problème ou défi liés au scénario
-          4. Lister avec des puces (maximum 3) les actions ou attentes précises que tu as envers ${userName}
-          5. Maintenir un ton professionnel mais accessible, en utilisant toujours le tutoiement
-          6. Être concise et directe (maximum 200 mots)`
+          1. Te présenter brièvement
+          2. Donner ton avis simple sur la réponse de l'utilisateur 
+          3. Poser une nouvelle question ou donner une nouvelle tâche
+          4. Utiliser un ton amical avec tutoiement
+          5. Être très concise (maximum 100 mots)`
         });
       } else {
         messages.push({
@@ -1639,11 +1604,9 @@ Format: Utilise des titres clairs et une présentation structurée qui facilite 
         // Dans ce cas, on envoie une réponse spéciale indiquant la réinitialisation
         res.json({
           type: 'bot',
-          content: `Je constate que nous nous éloignons du contexte de ce scénario dans le domaine "${scenario.domain}". 
+          content: `Je vois que nous nous éloignons un peu du sujet principal. 
 
-Après deux réponses inadaptées au contexte, je suis contraint de mettre fin à cette simulation.
-
-Nous allons recommencer le scénario depuis le début pour nous reconcentrer sur la problématique principale.`,
+Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${scenario.domain}".`,
           resetScenario: true,
           contactName: "Marion Lopez",
           contactRole: "Senior Partner et Directrice Marketing, Communication et RSE",
