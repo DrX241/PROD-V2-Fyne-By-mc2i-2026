@@ -1,0 +1,72 @@
+**Plan de Gestion de Crise Cyber - Simulation d'Attaque DDoS**  
+**Secteur : Transport & Logistique**  
+**Niveau de difficulté : Intermédiaire**  
+**Contact : Guillaume Lechevallier**  
+
+---
+
+### **1. Contexte de la crise**  
+Le secteur Transport & Logistique est particulièrement vulnérable aux attaques de type DDoS (Distributed Denial of Service) en raison de sa dépendance critique aux systèmes numériques pour la gestion des flux, des communications et des opérations en temps réel. Ces attaques visent à saturer les ressources des systèmes informatiques, rendant les services indisponibles et perturbant gravement les opérations.  
+
+Dans ce scénario, une attaque DDoS a été détectée ciblant la plateforme de suivi des colis et le système de communication interne d'une entreprise fictive nommée "TransLog Corporation". L'attaque a débuté à 02h45 du matin, entraînant une indisponibilité totale des services numériques. Les clients ne peuvent plus suivre leurs expéditions, et les communications entre les centres logistiques sont interrompues.  
+
+---
+
+### **2. Objectifs de la simulation**  
+- **Évaluer la réponse initiale** : Identifier les étapes prises lors de la détection de l'attaque.  
+- **Tester la coordination interne** : Examiner la communication entre les équipes techniques, opérationnelles et de direction.  
+- **Analyser les processus décisionnels** : Observer comment les priorités sont établies et les ressources sont mobilisées.  
+- **Examiner la gestion des parties prenantes externes** : Tester la communication avec les clients, partenaires et médias.  
+
+---
+
+### **3. Détail technique de l'attaque**  
+- **Type d'attaque :** DDoS volumétrique.  
+- **Vecteur utilisé :** Amplification UDP via serveurs NTP non sécurisés.  
+- **Volume de trafic :** 1,2 Tbps (terrabit par seconde), saturant les routeurs et les serveurs frontaux de la plateforme.  
+- **Cible principale :** Domaine public de la plateforme de suivi des colis (track.translogcorp.com) et réseau interne utilisé pour les communications inter-centres.  
+- **Impact observé :**  
+  - 100 % d'indisponibilité des services numériques.  
+  - Retards significatifs dans les opérations logistiques.  
+  - Augmentation des appels entrants au service client (+450 % en 3 heures).  
+
+---
+
+### **4. Historique des événements**  
+| **Heure**   | **Événement**                                 | **Action entreprise**                    |  
+|-------------|-----------------------------------------------|------------------------------------------|  
+| 02h45       | Détection d'un trafic anormal sur le réseau.  | Aucun, l'alerte automatique est ignorée. |  
+| 03h00       | Saturation complète des serveurs.             | Équipe technique alertée.                |  
+| 03h30       | Les centres logistiques signalent des retards.| Escalade vers le responsable IT.         |  
+| 04h00       | Augmentation du trafic entrant au service client. | Début de communication externe limitée. |  
+| 06h00       | Les médias locaux commencent à diffuser l'information. | Aucun plan de communication activé.     |  
+
+---
+
+### **5. Ressources disponibles**  
+- **Équipe technique :** 5 ingénieurs réseau, 3 analystes sécurité.  
+- **Outils :**  
+  - Firewall avec capacité d'atténuation DDoS (non configuré pour amplification UDP).  
+  - SIEM (Security Information and Event Management) pour la collecte des logs.  
+  - Accès limité à un service de mitigation DDoS externe (contrat non activé).  
+- **Documentation :** Procédures internes de gestion des crises cyber (dernière mise à jour : 18 mois).  
+
+---
+
+### **6. Points critiques à examiner**  
+- **Détection et analyse :** Quels mécanismes d'alerte sont en place et comment sont-ils exploités ?  
+- **Communication interne :** Comment les informations circulent-elles entre les équipes et la direction ?  
+- **Communication externe :** Quel message transmettre aux clients et aux médias sans aggraver les impacts ?  
+- **Coordination avec des tiers :** Existe-t-il un protocole pour activer les services de mitigation DDoS externes ?  
+- **Plan de continuité :** Quels processus alternatifs peuvent être activés pour maintenir une partie des opérations ?  
+
+---
+
+### **7. Tâche pour les participants**  
+Les participants doivent élaborer un plan d'action immédiat, identifier les lacunes dans la réponse initiale, et proposer des améliorations pour les prochaines étapes. Ils devront également évaluer les conséquences à moyen et long terme de l'attaque sur les opérations et la réputation de "TransLog Corporation".  
+
+**Contact pour assistance durant la simulation :** Guillaume Lechevallier (guillaume.lechevallier@translogcorp.com).  
+
+---  
+
+**Document créé dans le cadre de la formation à la gestion de crise cyber**.
