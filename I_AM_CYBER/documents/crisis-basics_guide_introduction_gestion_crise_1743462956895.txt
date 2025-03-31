@@ -1,0 +1,37 @@
+---
+
+**Guide d'introduction à la gestion de crise cyber**  
+**Domaine : Gestion de crise cyber**  
+**Destinataire : Eddy**  
+**Contact : Nosing Doeuk**  
+
+---
+
+### Contexte  
+La gestion de crise cyber implique la coordination rapide et efficace pour répondre à des incidents numériques majeurs. Ces crises peuvent inclure des violations de données, des attaques par ransomware ou des interruptions opérationnelles dues à des cyberattaques. Une réponse inappropriée ou retardée peut engendrer des conséquences financières, juridiques et réputationnelles graves.
+
+---
+
+### Principes fondamentaux  
+1. **Identification de l'incident** : Définir clairement la nature et l'étendue de la menace (ex. : perte de données, compromission réseau).  
+2. **Activation de la cellule de crise** : Mobiliser rapidement les parties prenantes clés (IT, juridique, communication).  
+3. **Priorisation des actions** : Mise en œuvre des mesures immédiates pour contenir l’incident (ex. : isolation des systèmes affectés).  
+4. **Communication interne et externe** : Une stratégie claire pour informer les employés et, si nécessaire, les partenaires ou le public.  
+5. **Documentation en temps réel** : Consigner chaque décision et action dans un registre dédié pour permettre une analyse post-crise.
+
+---
+
+### Ressources essentielles  
+- **Plan de réponse aux incidents** : Un document préétabli décrivant les étapes à suivre.  
+- **Outils de monitoring** : Logiciels de détection et de gestion des menaces.  
+- **Contacts clés** : Liste des membres de la cellule de crise et des partenaires externes.
+
+---
+
+### Points de vigilance  
+- Ne pas divulguer d’informations sensibles sans validation.  
+- Éviter toute action pouvant aggraver la situation (ex. : modifications réseau non autorisées).  
+
+Pour toute question ou clarification, veuillez contacter **Nosing Doeuk**.
+
+---

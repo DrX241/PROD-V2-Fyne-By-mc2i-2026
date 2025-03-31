@@ -358,13 +358,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         companyName = "ENERGY SHIELD SYSTEMS";
       } else {
         companyName = "CYBER SECURE SOLUTIONS";
-      }
-
-      // Générer un document HTML simple pour le premier email
-      const htmlDocument = await documentGenerator.generateWelcomeHTML(
-        scenarioId,
-        companyName
-      );
+      };
 
       const messages: ChatCompletionRequestMessage[] = [
         {
@@ -376,10 +370,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           content: `Générez un email COURT et ACCUEILLANT (maximum 150 mots) pour le scénario "${scenario.title}" dans le domaine "${scenario.domain}" avec les détails suivants:
           - L'email doit provenir de ${scenario.contact.name} (${scenario.contact.role})
           - L'email doit être adressé à ${userName} en utilisant le tutoiement ("tu") 
-          - Une pièce jointe nommée "Présentation ${companyName}" est disponible avec le logo et le nom de l'entreprise
           - Le secteur d'activité pour ce scénario est: ${secteurActivite}
           - Le nom d'entreprise pour ce scénario est: ${companyName}
-          - L'email doit être un message d'accueil chaleureux où le PNJ se présente, souhaite la bienvenue à ${userName} et l'invite simplement à se présenter à son tour (parcours, expérience, niveau de connaissance sur le sujet)
+          - L'email doit être un message d'accueil chaleureux où le PNJ se présente, présente brièvement l'entreprise ${companyName}, souhaite la bienvenue à ${userName} et l'invite simplement à se présenter à son tour (parcours, expérience, niveau de connaissance sur le sujet)
           - N'incluez PAS encore de problème ou de mission spécifique à résoudre
           - Le ton doit être amical et professionnel, en utilisant le tutoiement
           - Le style d'écriture doit correspondre au rôle du contact mais rester accessible et léger
@@ -423,9 +416,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         body = lines.join('\n');
       }
       
-      // Format file size based on content length
-      const contentBytes = Buffer.byteLength(htmlDocument.content, 'utf8');
-      const fileSizeKB = Math.round(contentBytes / 1024);
+      // Plus de gestion de pièces jointes
       
       // Définir les interlocuteurs supplémentaires pour le scénario avec des expertises métier, technologiques et sectorielles diverses
       const getAdditionalContacts = (domain: string, primaryContact: { name: string, role: string }) => {
@@ -711,14 +702,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         subject,
         date: new Date().toISOString(),
         body,
-        attachments: [
-          {
-            id: htmlDocument.fileName,
-            fileName: `Présentation_${companyName.replace(/\s+/g, '_')}.html`,
-            fileSize: `${fileSizeKB} KB`,
-            fileType: 'text/html'
-          }
-        ],
+        attachments: [],
         // Ajouter les contacts additionnels qui interviendront dans ce scénario
         scenarioContacts: scenarioContacts
       };
