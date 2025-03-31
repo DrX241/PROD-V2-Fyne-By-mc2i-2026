@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { useChatContext } from "@/contexts/ChatContext";
 import { 
   AlertTriangle, FileText, Users, 
@@ -5,7 +6,6 @@ import {
   Shield, FileKey, UserCheck, 
   Binary, Lock, Fingerprint
 } from "lucide-react";
-import { useState } from "react";
 
 export default function DomainSelection() {
   const { domains, selectDomain } = useChatContext();
@@ -68,21 +68,21 @@ export default function DomainSelection() {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-6 py-8 flex flex-col h-[calc(100vh-150px)]">
-      <div className="text-center mb-10">
-        <h2 className="text-3xl font-bold text-blue-50 mb-3">
+    <div className="w-full max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-8 flex flex-col h-[calc(100vh-150px)]">
+      <div className="text-center mb-6 sm:mb-10">
+        <h2 className="text-xl sm:text-3xl font-bold text-blue-50 mb-2 sm:mb-3">
           Choisissez un domaine de cybersécurité
         </h2>
-        <p className="text-blue-300 max-w-3xl mx-auto">
+        <p className="text-blue-300 max-w-3xl mx-auto text-sm sm:text-base">
           Sélectionnez le domaine dans lequel vous souhaitez améliorer vos compétences. 
           Chaque domaine propose des scénarios adaptés à différents niveaux d'expertise.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4 overflow-y-auto scrollbar-cyber max-h-[calc(100vh-300px)]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 mt-2 sm:mt-4 overflow-y-auto scrollbar-cyber max-h-[calc(100vh-250px)] sm:max-h-[calc(100vh-300px)]">
         {domains.map((domain: any) => {
           const config = domainConfig[domain.id] || {
-            icon: <Lock className="w-10 h-10 text-blue-300" />,
+            icon: <Lock className="w-6 h-6 sm:w-10 sm:h-10 text-blue-300" />,
             bgGradient: "from-blue-900/50 via-blue-800/30 to-blue-900/50",
             borderColor: "border-blue-700/30",
             glowColor: "text-blue-200",
@@ -99,17 +99,19 @@ export default function DomainSelection() {
               onMouseLeave={() => setHoveredDomain(null)}
               className={`group relative bg-gradient-to-br ${config.bgGradient} backdrop-blur-sm border ${config.borderColor} 
                 rounded-xl overflow-hidden shadow-lg ${config.shadowColor} hover:shadow-xl 
-                transition-all duration-500 flex flex-col items-center text-center p-6 min-h-[220px] justify-between
-                hover:-translate-y-1 hover:scale-[1.02]`}
+                transition-all duration-500 flex flex-col items-center text-center p-4 sm:p-6 min-h-[160px] sm:min-h-[220px] justify-between
+                hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98]`}
             >
               {/* Background glow effect */}
               <div className={`absolute inset-0 bg-gradient-to-br ${config.bgGradient} opacity-0 group-hover:opacity-30 transition-opacity duration-500`}></div>
               
               {/* Icon */}
-              <div className={`relative z-10 w-20 h-20 rounded-full bg-gray-900/50 border ${config.borderColor} 
-                flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-500
+              <div className={`relative z-10 w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-gray-900/50 border ${config.borderColor} 
+                flex items-center justify-center mb-3 sm:mb-5 group-hover:scale-110 transition-transform duration-500
                 shadow-glow-md`}>
-                {config.icon}
+                {React.cloneElement(config.icon as React.ReactElement, { 
+                  className: `w-6 h-6 sm:w-10 sm:h-10 ${(config.icon as React.ReactElement).props.className.split(' ').filter((c: string) => c.includes('text-')).join(' ')}` 
+                })}
                 
                 {/* Pulsing ring effect on hover */}
                 {isHovered && (
@@ -119,13 +121,13 @@ export default function DomainSelection() {
               
               {/* Domain name */}
               <div className="relative z-10 w-full">
-                <h3 className={`font-bold text-xl ${config.glowColor} h-auto flex items-center justify-center leading-snug px-2`}>
+                <h3 className={`font-bold text-base sm:text-xl ${config.glowColor} h-auto flex items-center justify-center leading-snug px-2`}>
                   {domain.name}
                 </h3>
                 
-                {/* Description on hover */}
-                <p className="mt-2 text-sm text-blue-200/80 opacity-0 group-hover:opacity-100 transition-opacity duration-500 h-0 group-hover:h-auto overflow-hidden">
-                  Explorez les scénarios dans le domaine de {domain.name.toLowerCase()}
+                {/* Description on hover - visible by default on mobile */}
+                <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-blue-200/80 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-500 sm:h-0 sm:group-hover:h-auto overflow-hidden">
+                  Explorez les scénarios dans ce domaine
                 </p>
               </div>
             </button>

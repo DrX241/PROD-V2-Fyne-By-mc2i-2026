@@ -96,20 +96,20 @@ export default function ChatInterface() {
 
       {/* Messages */}
       <div 
-        className="flex-1 overflow-y-auto py-6 px-4 relative scrollbar-cyber"
+        className="flex-1 overflow-y-auto py-4 sm:py-6 px-2 sm:px-4 relative scrollbar-cyber"
         ref={chatContainerRef}
         style={{ scrollBehavior: 'smooth', height: 'calc(100vh - 200px)' }}
       >
-        <div className="max-w-5xl mx-auto px-6 w-full">
+        <div className="w-full max-w-5xl mx-auto px-2 sm:px-6">
           {messages.map((message: any) => (
-            <div key={message.id} className="mb-8 animate-fadeIn">
+            <div key={message.id} className="mb-6 sm:mb-8 animate-fadeIn">
               {renderMessageContent(message)}
             </div>
           ))}
           
           {/* Indicateur de saisie */}
           {isTyping && (
-            <div className="typing-indicator-container mt-4 ml-12 animate-pulse">
+            <div className="typing-indicator-container mt-3 sm:mt-4 ml-8 sm:ml-12 animate-pulse">
               <div className="typing-indicator-cyber">
                 <div className="typing-dot-cyber" style={{"--dot-index": "0"} as React.CSSProperties}></div>
                 <div className="typing-dot-cyber" style={{"--dot-index": "1"} as React.CSSProperties}></div>
@@ -121,9 +121,9 @@ export default function ChatInterface() {
       </div>
 
       {/* Zone de saisie */}
-      <div className="py-4 px-4 bg-gradient-to-r from-blue-900/90 to-indigo-900/90 backdrop-blur-lg border-t border-blue-700/30 sticky bottom-0 shadow-lg">
-        <div className="max-w-5xl mx-auto px-6">
-          <form className="flex items-center gap-3" onSubmit={handleSubmit}>
+      <div className="py-3 sm:py-4 px-2 sm:px-4 bg-gradient-to-r from-blue-900/90 to-indigo-900/90 backdrop-blur-lg border-t border-blue-700/30 sticky bottom-0 shadow-lg">
+        <div className="max-w-5xl mx-auto px-2 sm:px-6">
+          <form className="flex items-center gap-2 sm:gap-3" onSubmit={handleSubmit}>
             <div className="relative flex-1 group">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
               <input 
@@ -131,22 +131,22 @@ export default function ChatInterface() {
                 ref={inputRef}
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                className="relative w-full py-3.5 px-4 pr-12 rounded-lg bg-gray-900/70 border border-blue-700/50 outline-none text-blue-50 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all placeholder:text-blue-300/50"
+                className="relative w-full py-2.5 sm:py-3.5 px-3 sm:px-4 pr-10 sm:pr-12 rounded-lg bg-gray-900/70 border border-blue-700/50 outline-none text-blue-50 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all placeholder:text-blue-300/50 text-sm sm:text-base"
                 placeholder="Tapez votre réponse..."
               />
               <button 
                 type="button" 
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-blue-400/70 hover:text-blue-300 transition-colors"
+                className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 text-blue-400/70 hover:text-blue-300 transition-colors"
               >
-                <Paperclip className="h-5 w-5" />
+                <Paperclip className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
             </div>
             <button 
               type="submit" 
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white p-4 rounded-full flex items-center justify-center transition-all duration-300 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg disabled:shadow-none disabled:bg-blue-900/50 group"
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white p-3 sm:p-4 rounded-full flex items-center justify-center transition-all duration-300 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg disabled:shadow-none disabled:bg-blue-900/50 group"
               disabled={!inputMessage.trim()}
             >
-              <Send className="h-5 w-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              <Send className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </button>
           </form>
         </div>

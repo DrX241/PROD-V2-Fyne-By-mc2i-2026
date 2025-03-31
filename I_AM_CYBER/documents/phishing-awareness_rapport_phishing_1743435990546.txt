@@ -1,0 +1,63 @@
+**RAPPORT D'INCIDENT PHISHING**  
+**Date:** [Insérer la date]  
+**Préparé par:** Marion Lopez  
+**Destinataire:** Maxim  
+
+---
+
+### **1. Objet du rapport**  
+Ce rapport vise à analyser et documenter un incident de phishing survenu au sein de l’entreprise, dans le cadre d’une sensibilisation aux attaques basées sur l’ingénierie sociale. Les informations détaillées ci-dessous permettront d’évaluer les techniques utilisées par l’attaquant et de formuler des recommandations pour prévenir de futures tentatives.
+
+---
+
+### **2. Contexte et description de l’incident**  
+Le 15 septembre 2023 à 10h45, un employé du département Finance a signalé avoir reçu un email suspect de la part d’un expéditeur prétendant être "Service IT Entreprise" avec l’adresse email **support_it@entreprise-securite.com**. L’email indiquait une mise à jour urgente des identifiants de connexion en raison d’une "tentative de piratage détectée sur le réseau".
+
+L’email contenait :  
+- **Objet :** "Compte verrouillé – Action requise immédiatement !"  
+- **Corps du message :**  
+  > "Cher utilisateur,  
+  > Nous avons détecté une tentative de connexion non autorisée à votre compte. Pour protéger vos données, votre compte a été temporairement verrouillé. Veuillez cliquer sur le lien ci-dessous pour réinitialiser votre mot de passe et garantir l’accès sécurisé à votre compte :  
+  > [www.entreprise-securite.com/reset]  
+  > Merci de votre coopération.  
+  > Service IT Entreprise."  
+
+- **Pièces jointes :** Aucune.  
+
+---
+
+### **3. Analyse technique**  
+- **Adresse de l’expéditeur :** L’adresse email utilise un domaine qui ressemble à celui de l’entreprise mais n’est pas valide. Le domaine légitime de l’entreprise est **@entreprise.com**, tandis que l’adresse utilisée ici est **@entreprise-securite.com**.  
+- **Lien hypertexte :** En survolant le lien dans l’email, il redirige vers une URL externe : **http://phishingsite.com/reset**. Cette adresse n’est pas liée aux infrastructures officielles de l’entreprise.  
+- **Style et contenu :** L’email utilise un ton urgent et alarmiste, une méthode classique en ingénierie sociale pour pousser la victime à agir rapidement sans réfléchir.  
+- **Authenticité :** Le logo IT de l’entreprise a été reproduit dans l’en-tête de l’email, mais présente une qualité d’image inférieure et des différences dans les couleurs.  
+
+---
+
+### **4. Impact potentiel**  
+Si un utilisateur clique sur le lien et fournit ses identifiants, l’attaquant pourrait :  
+1. Compromettre les données sensibles accessibles via le compte de l’utilisateur.  
+2. Escalader les privilèges en utilisant les identifiants volés pour accéder à d’autres systèmes critiques.  
+3. Déployer des malwares ou exploiter les accès pour des activités malveillantes.  
+
+---
+
+### **5. Éléments supplémentaires**  
+- **Historique des attaques similaires :** Les attaques de phishing exploitant l’ingénierie sociale représentent 90 % des cyberincidents signalés en 2022 (source : Rapport CyberThreat 2022).  
+- **Tactiques courantes :** Utilisation de domaines similaires, création de faux portails de connexion, exploitation psychologique via des messages urgents.  
+
+---
+
+### **6. Questions pour réflexion**  
+1. Quels éléments dans cet email peuvent indiquer qu’il s’agit d’une tentative de phishing ?  
+2. Comment pourriez-vous vérifier l’authenticité de l’expéditeur et du lien fourni ?  
+3. Quels mécanismes de prévention ou d’identification des attaques pourraient être mis en place pour éviter ce type d’incidents ?  
+
+---
+
+**Contact pour suivi :**  
+Marion Lopez  
+Responsable Cybersécurité  
+[Insérer contact professionnel]  
+
+**Fin du rapport**

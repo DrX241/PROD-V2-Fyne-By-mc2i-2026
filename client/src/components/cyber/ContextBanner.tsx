@@ -65,41 +65,41 @@ export default function ContextBanner() {
   
   return (
     <div className="backdrop-blur-sm border-b border-blue-700/30 shadow-lg">
-      <div className="max-w-6xl mx-auto w-full px-4 py-3 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto w-full px-2 sm:px-4 py-2 sm:py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
         {/* Domaine et scénario - à gauche */}
-        <div className="flex items-center gap-4">
-          <div className="bg-blue-900/60 p-2 rounded-lg border border-blue-700/50 shadow-glow-sm">
-            <Info className="h-5 w-5 text-blue-300" />
+        <div className="flex items-center gap-2 sm:gap-4">
+          <div className="bg-blue-900/60 p-1.5 sm:p-2 rounded-lg border border-blue-700/50 shadow-glow-sm">
+            <Info className="h-4 w-4 sm:h-5 sm:w-5 text-blue-300" />
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wider text-blue-400 font-semibold mb-0.5">
+            <p className="text-[10px] sm:text-xs uppercase tracking-wider text-blue-400 font-semibold mb-0.5">
               {scenario.activeDomain.name}
             </p>
-            <h3 className="text-sm font-bold text-blue-50 flex items-center">
+            <h3 className="text-xs sm:text-sm font-bold text-blue-50 flex items-center">
               {scenario.activeScenario.title}
             </h3>
           </div>
         </div>
         
         {/* Informations sur la droite */}
-        <div className="flex items-center gap-5">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-5">
           {/* Badge de difficulté */}
-          <div className={`text-xs px-3 py-1 rounded-md font-medium inline-flex items-center justify-center ${difficultyClass} shadow-glow-sm`}>
+          <div className={`text-[10px] sm:text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-md font-medium inline-flex items-center justify-center ${difficultyClass} shadow-glow-sm`}>
             {difficultyIcon}
             {scenario.activeScenario.difficulty}
           </div>
           
           {/* Interlocuteurs du scénario */}
           {scenario.scenarioContacts && scenario.scenarioContacts.length > 0 ? (
-            <div className="flex items-center gap-3">
-              <div className="bg-blue-900/60 p-1.5 rounded-lg border border-blue-700/50 shadow-glow-sm">
-                <Users className="h-4 w-4 text-blue-300" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="bg-blue-900/60 p-1 sm:p-1.5 rounded-lg border border-blue-700/50 shadow-glow-sm">
+                <Users className="h-3 w-3 sm:h-4 sm:w-4 text-blue-300" />
               </div>
-              <div className="flex -space-x-3 overflow-hidden">
+              <div className="flex -space-x-2 sm:-space-x-3 overflow-hidden">
                 {scenario.scenarioContacts.map((contact: ScenarioContact, index: number) => (
                   <div 
                     key={index}
-                    className="w-7 h-7 rounded-full bg-blue-800/70 flex items-center justify-center text-xs border border-blue-500/40 shadow-glow-sm"
+                    className="w-5 h-5 sm:w-7 sm:h-7 rounded-full bg-blue-800/70 flex items-center justify-center text-[10px] sm:text-xs border border-blue-500/40 shadow-glow-sm"
                     title={`${contact.name} - ${contact.role}`}
                   >
                     <span className="text-blue-200 font-medium">{contact.name.charAt(0)}</span>
@@ -109,8 +109,8 @@ export default function ContextBanner() {
             </div>
           ) : null}
           
-          {/* Indicateurs clés */}
-          <div className="flex items-center gap-5 bg-blue-900/40 p-2 rounded-lg border border-blue-700/40">
+          {/* Indicateurs clés - Cachés sur mobile, visibles sur tablette/desktop */}
+          <div className="hidden sm:flex items-center gap-5 bg-blue-900/40 p-2 rounded-lg border border-blue-700/40">
             <div className="flex items-center gap-3">
               <BarChart3 className="h-4 w-4 text-blue-400" />
               
