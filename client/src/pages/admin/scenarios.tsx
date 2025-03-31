@@ -13,16 +13,22 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 
-export default function AdminScenariosPage() {
+const AdminScenariosPage = () => {
   const { toast } = useToast();
-  
+
+  const containerStyle = {
+    height: 'calc(100vh - 80px)',
+    overflowY: 'auto',
+    padding: '20px'
+  };
+
   // États pour la création de scénario
   const [scenarioName, setScenarioName] = useState('');
   const [domainId, setDomainId] = useState('');
   const [difficulty, setDifficulty] = useState('intermediaire');
   const [description, setDescription] = useState('');
   const [isPublic, setIsPublic] = useState(true);
-  
+
   // États pour l'affichage et le traitement
   const [isLoading, setIsLoading] = useState(false);
   const [generatedStructure, setGeneratedStructure] = useState<any>(null);
@@ -48,11 +54,11 @@ export default function AdminScenariosPage() {
           description,
         }),
       });
-      
+
       setGeneratedStructure(response);
       setCurrentTab('preview');
       setIsLoading(false);
-      
+
       toast({
         title: "Prévisualisation générée",
         description: "La structure du scénario a été générée avec succès.",
@@ -87,30 +93,30 @@ export default function AdminScenariosPage() {
         originalDescription: description,
         isPublic
       };
-      
+
       // Si le nom a été modifié, utiliser celui saisi par l'utilisateur
       if (scenarioName) {
         scenarioToSave.name = scenarioName;
       }
-      
+
       // Si le domaine a été spécifié, l'ajouter
       if (domainId) {
         scenarioToSave.domain = domainId;
       }
-      
+
       // Envoi au serveur
       await apiRequest('/api/custom-scenarios', {
         method: 'POST',
         body: JSON.stringify(scenarioToSave),
       });
-      
+
       setIsLoading(false);
       toast({
         title: "Scénario sauvegardé",
         description: "Le scénario a été sauvegardé avec succès et est maintenant disponible.",
         variant: "default"
       });
-      
+
       // Redirection vers la liste des scénarios personnalisés
       setTimeout(() => {
         window.location.href = '/custom';
@@ -126,7 +132,7 @@ export default function AdminScenariosPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100" style={containerStyle}>
       {/* Header avec navigation */}
       <header className="bg-white shadow-sm border-b border-slate-200">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
@@ -373,7 +379,7 @@ export default function AdminScenariosPage() {
                       ) : (
                         <div className="space-y-6 max-h-[70vh] overflow-auto pr-2" style={{scrollbarWidth: 'thin'}}>
                           <h3 className="font-semibold text-lg sticky top-0 bg-white py-2 z-10">Déroulement du scénario</h3>
-                          
+
                           {generatedStructure.steps.map((step: any, index: number) => (
                             <div key={step.id} className="border rounded-md p-4 bg-white">
                               <div className="flex justify-between items-start mb-2">
@@ -387,16 +393,16 @@ export default function AdminScenariosPage() {
                                 </div>
                                 <span className="text-xs text-gray-500">{step.id}</span>
                               </div>
-                              
+
                               {step.actor && (
                                 <div className="mb-2">
                                   <span className="font-medium">{step.actor.name}</span>
                                   <span className="text-gray-500 text-sm ml-2">({step.actor.role})</span>
                                 </div>
                               )}
-                              
+
                               <p className="text-gray-700 mb-2">{step.content}</p>
-                              
+
                               {step.expectations && step.expectations.length > 0 && (
                                 <div className="mt-2">
                                   <span className="text-xs font-medium text-gray-500">Attentes:</span>
@@ -448,4 +454,6 @@ export default function AdminScenariosPage() {
       </footer>
     </div>
   );
-}
+};
+
+export default AdminScenariosPage;
