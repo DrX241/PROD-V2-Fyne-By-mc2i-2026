@@ -517,6 +517,12 @@ const OnboardingChat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [currentStep, setCurrentStep] = useState<OnboardingStep>('welcome');
+  interface Question {
+    question: string;
+    options: string[];
+    correct: number;
+  }
+  
   const [playerData, setPlayerData] = useState({
     name: '',
     avatar: '',
@@ -525,7 +531,8 @@ const OnboardingChat: React.FC = () => {
     difficulty: '',
     testAnswers: [] as { questionIndex: number; answer: number; correct: boolean }[],
     currentQuestionIndex: 0,
-    testCompleted: false
+    testCompleted: false,
+    questions: [] as Question[]
   });
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -766,70 +773,143 @@ Comment puis-je vous appeler ?`,
     }, 800);
   };
 
-  // Commencer le test
-  const startTest = () => {
-    // Difficulté pour le test basée sur la sélection de l'utilisateur
-    const difficultyMap: {[key: string]: string} = {
-      'beginner': 'beginner',
-      'intermediate': 'intermediate',
-      'expert': 'expert'
-    };
-    
-    const difficultyKey = difficultyMap[playerData.difficulty];
-    const moduleId = playerData.module;
-    
-    // Préparer la première question
-    const moduleQuestions = questions[moduleId as keyof typeof questions][difficultyKey as keyof typeof questions[keyof typeof questions]];
-    
-    if (moduleQuestions && moduleQuestions.length > 0) {
-      const firstQuestion = moduleQuestions[0];
+  // Commencer le test avec des questions générées par l'API
+  const startTest = async () => {
+    setLoading(true);
+    try {
+      // Difficulté pour le test basée sur la sélection de l'utilisateur
+      const difficultyMap: {[key: string]: string} = {
+        'beginner': 'débutant',
+        'intermediate': 'intermédiaire',
+        'expert': 'expert'
+      };
       
-      setTimeout(() => {
-        addMessage({
-          id: generateId(),
-          type: 'ai',
-          content: `Question 1/${moduleQuestions.length}: ${firstQuestion.question}`,
-          sender: 'I AM CYBER',
-          avatar: '/avatars/ai-assistant.png'
-        });
-
-        // Afficher les options de réponse
-        addMessage({
-          id: generateId(),
-          type: 'question',
-          content: JSON.stringify({
-            questionIndex: 0,
-            options: firstQuestion.options
-          }),
-        });
-      }, 800);
+      const difficultyLevel = difficultyMap[playerData.difficulty];
+      const moduleName = modules.find(m => m.id === playerData.module)?.name || playerData.module;
+      
+      // Appel à l'API pour générer les questions
+      const response = await axios.post('/api/cyber/generate-questions', {
+        module: moduleName,
+        difficulty: difficultyLevel,
+        count: 4 // Exactement 4 questions
+      });
+      
+      // Récupérer les questions générées
+      const generatedQuestions = response.data.questions;
+      
+      // Mettre à jour les données du joueur avec le module de questions
+      setPlayerData({
+        ...playerData,
+        questions: generatedQuestions
+      });
+      
+      // Afficher la première question
+      if (generatedQuestions && generatedQuestions.length > 0) {
+        const firstQuestion = generatedQuestions[0];
+        
+        setTimeout(() => {
+          addMessage({
+            id: generateId(),
+            type: 'ai',
+            content: `Question 1/4: ${firstQuestion.question}`,
+            sender: 'I AM CYBER',
+            avatar: playerData.avatar ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${playerData.avatar}` : '/avatars/ai-assistant.png'
+          });
+  
+          // Afficher les options de réponse
+          addMessage({
+            id: generateId(),
+            type: 'question',
+            content: JSON.stringify({
+              questionIndex: 0,
+              options: firstQuestion.options
+            }),
+          });
+        }, 800);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la génération des questions:', error);
+      
+      // Fallback en cas d'erreur: utiliser des questions prédéfinies
+      toast({
+        title: "Information",
+        description: "Utilisation de questions prédéfinies suite à un problème de connexion.",
+        variant: "default"
+      });
+      
+      // Utiliser les questions prédéfinies comme fallback
+      const difficultyKey = playerData.difficulty;
+      const moduleId = playerData.module;
+      const moduleQuestions = questions[moduleId as keyof typeof questions][difficultyKey as keyof typeof questions[keyof typeof questions]];
+      
+      if (moduleQuestions && moduleQuestions.length > 0) {
+        const firstQuestion = moduleQuestions[0];
+        
+        setTimeout(() => {
+          addMessage({
+            id: generateId(),
+            type: 'ai',
+            content: `Question 1/4: ${firstQuestion.question}`,
+            sender: 'I AM CYBER',
+            avatar: playerData.avatar ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${playerData.avatar}` : '/avatars/ai-assistant.png'
+          });
+  
+          // Afficher les options de réponse
+          addMessage({
+            id: generateId(),
+            type: 'question',
+            content: JSON.stringify({
+              questionIndex: 0,
+              options: firstQuestion.options
+            }),
+          });
+        }, 800);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Gérer la réponse à une question
+  // Gérer la réponse à une question (utilisant les questions générées via API)
   const handleAnswerQuestion = (questionIndex: number, answerIndex: number) => {
-    // Difficulté pour le test basée sur la sélection de l'utilisateur
-    const difficultyMap: {[key: string]: string} = {
-      'beginner': 'beginner',
-      'intermediate': 'intermediate',
-      'expert': 'expert'
-    };
-    
-    const difficultyKey = difficultyMap[playerData.difficulty];
-    const moduleId = playerData.module;
-    
-    // Obtenir la question actuelle
-    const moduleQuestions = questions[moduleId as keyof typeof questions][difficultyKey as keyof typeof questions[keyof typeof questions]];
-    const currentQuestion = moduleQuestions[questionIndex];
-    
-    // Vérifier si la réponse est correcte
-    const isCorrect = answerIndex === currentQuestion.correct;
-    
-    // Ajouter la réponse au tableau des réponses
-    const updatedAnswers = [
-      ...playerData.testAnswers,
-      { questionIndex, answer: answerIndex, correct: isCorrect }
-    ];
+    // Vérifie si nous avons des questions générées par l'API
+    if (playerData.questions && playerData.questions.length > 0) {
+      // Utiliser les questions générées par l'API
+      const currentQuestion = playerData.questions[questionIndex];
+      
+      // Vérifier si la réponse est correcte
+      const isCorrect = answerIndex === currentQuestion.correct;
+      
+      // Ajouter la réponse au tableau des réponses
+      const updatedAnswers = [
+        ...playerData.testAnswers,
+        { questionIndex, answer: answerIndex, correct: isCorrect }
+      ];
+    } else {
+      // Fallback aux questions prédéfinies si l'API a échoué
+      // Difficulté pour le test basée sur la sélection de l'utilisateur
+      const difficultyMap: {[key: string]: string} = {
+        'beginner': 'beginner',
+        'intermediate': 'intermediate',
+        'expert': 'expert'
+      };
+      
+      const difficultyKey = difficultyMap[playerData.difficulty];
+      const moduleId = playerData.module;
+      
+      // Obtenir la question actuelle
+      const moduleQuestions = questions[moduleId as keyof typeof questions][difficultyKey as keyof typeof questions[keyof typeof questions]];
+      const currentQuestion = moduleQuestions[questionIndex];
+      
+      // Vérifier si la réponse est correcte
+      const isCorrect = answerIndex === currentQuestion.correct;
+      
+      // Ajouter la réponse au tableau des réponses
+      const updatedAnswers = [
+        ...playerData.testAnswers,
+        { questionIndex, answer: answerIndex, correct: isCorrect }
+      ];
+    }
     
     // Mettre à jour les données du joueur
     setPlayerData({
@@ -926,8 +1006,8 @@ Pour mieux comprendre:
         avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=IAMCYBER'
       });
       
-      // Vérifier s'il reste des questions (maximum 4 questions)
-      const maxQuestions = Math.min(moduleQuestions.length, 4);
+      // Toujours utiliser 4 questions pour le test
+      const maxQuestions = 4;
       if (questionIndex + 1 < maxQuestions) {
         // Prochaine question
         const nextQuestion = moduleQuestions[questionIndex + 1];

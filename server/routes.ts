@@ -1609,6 +1609,69 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
     }
   });
   
+  // API route pour générer des questions de test
+  app.post('/api/cyber/generate-questions', async (req: Request, res: Response) => {
+    try {
+      const { module, difficulty, count = 4 } = req.body;
+      
+      if (!module || !difficulty) {
+        return res.status(400).json({ error: 'Module et difficulté sont requis' });
+      }
+      
+      // Construction du prompt pour l'API
+      const systemPrompt = `Vous êtes un expert en cybersécurité spécialisé dans la création de questionnaires d'évaluation.
+Générez exactement ${count} questions à choix multiples sur le sujet "${module}" pour un niveau "${difficulty}".
+Chaque question doit avoir exactement 4 options de réponse, dont une seule est correcte.
+Retournez UNIQUEMENT un tableau JSON avec le format suivant, sans aucun texte explicatif:
+[
+  {
+    "question": "Texte de la question",
+    "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+    "correct": 0 // index de la bonne réponse (de 0 à 3)
+  },
+  ...
+]`;
+      
+      const messages: ChatCompletionRequestMessage[] = [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: `Générez ${count} questions sur ${module} pour un niveau ${difficulty}` }
+      ];
+      
+      // Appel à l'API OpenAI
+      const questionsContent = await openAIService.getChatCompletion(
+        messages,
+        0.7,  // temperature
+        2000  // maxTokens
+      );
+      
+      // Parse le résultat JSON
+      let questions;
+      try {
+        questions = JSON.parse(questionsContent);
+        
+        // Validation: on vérifie que nous avons bien le nombre demandé de questions
+        if (!Array.isArray(questions) || questions.length !== count) {
+          throw new Error(`Format de questions invalide ou nombre incorrect (${questions.length} au lieu de ${count})`);
+        }
+        
+        // Vérification supplémentaire de chaque question
+        questions.forEach((q, index) => {
+          if (!q.question || !Array.isArray(q.options) || q.options.length !== 4 || typeof q.correct !== 'number') {
+            throw new Error(`Question ${index + 1} a un format invalide`);
+          }
+        });
+        
+        res.json({ questions });
+      } catch (error) {
+        console.error('Erreur lors du parsing des questions:', error);
+        res.status(500).json({ error: 'Erreur lors de la génération des questions' });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la génération des questions:', error);
+      res.status(500).json({ error: 'Erreur lors de la génération des questions' });
+    }
+  });
+
   // API route pour configurer un nouveau joueur
   app.post('/api/cyber/setup-player', async (req: Request, res: Response) => {
     try {
