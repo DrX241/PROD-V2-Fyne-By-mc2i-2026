@@ -19,23 +19,7 @@ export type ChatCompletionRequestMessage = {
   content: string;
 };
 
-// Document types
-export interface Document {
-  id: string;
-  fileName: string;
-  content: string;
-  createdAt: Date;
-  scenarioId: string;
-}
-
-// Insert schemas for documents
-export const documentSchema = z.object({
-  id: z.string(),
-  fileName: z.string(),
-  content: z.string(),
-  createdAt: z.date(),
-  scenarioId: z.string()
-});
+// Les définitions de documents ont été supprimées car nous n'utilisons plus de pièces jointes
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;

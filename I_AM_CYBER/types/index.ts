@@ -23,13 +23,7 @@ export interface CyberScenario {
   domain?: string; // Ajouté pour la compatibilité avec les routes
 }
 
-export interface Attachment {
-  id: string;
-  fileName: string;
-  fileSize: string;
-  fileType: string;
-  content?: string;
-}
+// Interface Attachment supprimée car nous n'utilisons plus de pièces jointes
 
 export interface EmailMessageContent {
   id: string;

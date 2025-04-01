@@ -5,21 +5,12 @@ import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { openAIService } from "../I_AM_CYBER/services/openai";
-import { documentGenerator } from "../I_AM_CYBER/services/document-generator";
+// Import de document-generator supprimé car nous n'utilisons plus de pièces jointes
 import { ChatCompletionRequestMessage } from "../shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Ensure the documents directory exists
-  const documentsDir = path.join(process.cwd(), 'I_AM_CYBER', 'documents');
-  if (!fs.existsSync(documentsDir)) {
-    fs.mkdirSync(documentsDir, { recursive: true });
-  }
-  
-  // Ensure the HTML directory exists
-  const htmlDir = path.join(process.cwd(), 'I_AM_CYBER', 'html');
-  if (!fs.existsSync(htmlDir)) {
-    fs.mkdirSync(htmlDir, { recursive: true });
-  }
+  // Nous n'avons plus besoin des répertoires de documents et HTML
+  // car nous n'utilisons plus de pièces jointes
 
   // API route for starting a scenario
   app.post('/api/cyber/start-scenario', async (req, res) => {
@@ -1517,25 +1508,11 @@ Format: Utilise des titres clairs et une présentation structurée qui facilite 
             3000
           );
 
-          // Générer un PDF avec l'évaluation
-          const evaluationId = `evaluation-${scenarioId}-${Date.now()}.pdf`;
-          const evaluationFileName = path.join(documentsDir, evaluationId);
-          
-          // Créer un document PDF avec l'évaluation
-          await documentGenerator.createEvaluationPDF(
-            evaluationFileName, 
-            evaluationContent, 
-            `Évaluation - ${scenario.title}`,
-            {
-              userName,
-              scenarioTitle: scenario.title,
-              scenarioDomain: scenario.domain,
-              date: new Date().toISOString()
-            }
-          );
+          // Nous n'avons plus besoin de générer un PDF avec l'évaluation
+          // L'évaluation est directement incluse dans le message final
 
           // Inclure l'évaluation directement dans le message
-          // Envoyer la réponse avec le drapeau de réinitialisation et le document d'évaluation
+          // Envoyer la réponse avec le drapeau de réinitialisation
           res.json({
             type: 'bot',
             content: responseContent + 
@@ -1544,12 +1521,7 @@ Format: Utilise des titres clairs et une présentation structurée qui facilite 
             contactName: respondingContact.name,
             contactRole: respondingContact.role,
             scenarioContacts: availableContacts,
-            evaluation: {
-              id: evaluationId,
-              fileName: "Évaluation_Finale.pdf",
-              fileSize: "PDF",
-              fileType: "application/pdf"
-            }
+            evaluation: evaluationContent
           });
           
           return;
@@ -1590,98 +1562,9 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
     }
   });
 
-  // API route for downloading documents
-  app.get('/api/cyber/documents/:id', (req, res) => {
-    try {
-      const documentId = req.params.id;
-      
-      // Vérifier d'abord dans le répertoire des documents
-      let documentPath = path.join(documentsDir, documentId);
-      let documentExists = fs.existsSync(documentPath);
-      
-      // Si le document n'existe pas dans le répertoire documents, vérifier dans le répertoire html
-      if (!documentExists) {
-        documentPath = path.join(htmlDir, documentId);
-        documentExists = fs.existsSync(documentPath);
-        
-        if (!documentExists) {
-          return res.status(404).json({ message: 'Document not found' });
-        }
-      }
-      
-      // Déterminer le type de contenu en fonction de l'extension du fichier
-      const fileExtension = path.extname(documentId).toLowerCase();
-      
-      if (fileExtension === '.pdf') {
-        // Servir le fichier PDF pour affichage dans le navigateur
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `inline; filename=${documentId}`);
-        fs.createReadStream(documentPath).pipe(res);
-      } else if (fileExtension === '.html') {
-        // Servir le fichier HTML
-        const content = fs.readFileSync(documentPath, 'utf8');
-        res.setHeader('Content-Type', 'text/html');
-        res.setHeader('Content-Disposition', `inline; filename=${documentId}`);
-        res.send(content);
-      } else {
-        // Servir le fichier texte par défaut
-        const content = fs.readFileSync(documentPath, 'utf8');
-        res.setHeader('Content-Type', 'text/plain');
-        res.setHeader('Content-Disposition', `inline; filename=${documentId}`);
-        res.send(content);
-      }
-    } catch (error) {
-      console.error('Error downloading document:', error);
-      res.status(500).json({ message: 'Failed to download document' });
-    }
-  });
+  // Route de téléchargement de documents supprimée car nous n'utilisons plus de pièces jointes
 
-  // API route for listing documents
-  app.get('/api/cyber/documents', (req, res) => {
-    try {
-      // List all files in the documents directory
-      const pdfFiles = fs.existsSync(documentsDir) ? fs.readdirSync(documentsDir) : [];
-      
-      // List all files in the html directory
-      const htmlFiles = fs.existsSync(htmlDir) ? fs.readdirSync(htmlDir) : [];
-      
-      // Get file stats for each document (PDF)
-      const pdfDocuments = pdfFiles.map(fileName => {
-        const filePath = path.join(documentsDir, fileName);
-        const stats = fs.statSync(filePath);
-        
-        return {
-          id: fileName,
-          fileName,
-          fileType: 'application/pdf',
-          date: stats.mtime,
-          size: stats.size
-        };
-      });
-      
-      // Get file stats for each document (HTML)
-      const htmlDocuments = htmlFiles.map(fileName => {
-        const filePath = path.join(htmlDir, fileName);
-        const stats = fs.statSync(filePath);
-        
-        return {
-          id: fileName,
-          fileName,
-          fileType: 'text/html',
-          date: stats.mtime,
-          size: stats.size
-        };
-      });
-      
-      // Combine both lists
-      const allDocuments = [...pdfDocuments, ...htmlDocuments];
-      
-      res.json(allDocuments);
-    } catch (error) {
-      console.error('Error listing documents:', error);
-      res.status(500).json({ message: 'Failed to list documents' });
-    }
-  });
+  // Route de listage des documents supprimée car nous n'utilisons plus de pièces jointes
 
   // API route pour vérifier le statut de la connexion à Azure OpenAI
   app.get('/api/cyber/status', async (req: Request, res: Response) => {

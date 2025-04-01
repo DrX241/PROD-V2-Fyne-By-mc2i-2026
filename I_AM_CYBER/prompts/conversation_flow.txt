@@ -35,7 +35,6 @@ FLUX DE CONVERSATION POUR LE MODULE I AM CYBER
      * Informations d'en-tête (expéditeur, destinataire, objet, date)
      * Corps du message décrivant la situation/problème
      * Une demande claire adressée à l'utilisateur
-   - Joignez toujours un document (généré dynamiquement) contenant des informations supplémentaires importantes
 
 7. DIALOGUE INTERACTIF
    - Analysez la réponse de l'utilisateur à l'email
@@ -57,7 +56,6 @@ FLUX DE CONVERSATION POUR LE MODULE I AM CYBER
 RÈGLES IMPORTANTES:
 - Utilisez toujours le prénom de l'utilisateur quand vous vous adressez à lui
 - Vérifiez que les emails semblent authentiques (format, ton, signature)
-- Les documents joints doivent être générés de manière dynamique et contenir des informations pertinentes
 - Adaptez le niveau de technicité selon le paramètre de difficulté choisi
 - Tenez compte du style de réponse sélectionné (détaillé, professionnel, concis)
 - Les réponses doivent être éducatives même en cas d'erreur de l'utilisateur
