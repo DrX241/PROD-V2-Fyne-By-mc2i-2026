@@ -6,6 +6,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import ModulesPage from "@/pages/modules";
 import CyberPage from "@/pages/cyber";
+import CyberSimulation from "@/pages/cyber-simulation";
 import CyberOnboarding from "@/pages/cyber-onboarding";
 import CyberOnboardingChat from "@/pages/cyber-onboarding-chat";
 import CyberOnboardingNew from "@/pages/cyber-onboarding-new";
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/cyber-onboarding" component={CyberOnboarding} />
       <Route path="/cyber-onboarding-chat" component={CyberOnboardingChat} />
       <Route path="/cyber-onboarding-new" component={CyberOnboardingNew} />
+      <Route path="/cyber-simulation" component={CyberSimulation} />
       <Route path="/data-ia" component={NotYetImplemented} />
       <Route path="/amoa" component={NotYetImplemented} />
       <Route path="/custom" component={NotYetImplemented} />

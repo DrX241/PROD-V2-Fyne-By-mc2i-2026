@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Shield as ShieldIcon, Database, ListChecks, Activity, Zap, AlertTriangle } from "lucide-react";
+import { Shield, Shield as ShieldIcon, Database, ListChecks, Activity, Zap, AlertTriangle, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { useChatContext } from "@/contexts/ChatContext";
 
@@ -152,7 +152,7 @@ export default function CyberOnboardingNew() {
     if (savedData) {
       const parsedData = JSON.parse(savedData);
       if (parsedData.onboardingComplete) {
-        setLocation('/cyber');
+        setLocation('/cyber-simulation');
       }
     }
   }, [setLocation]);
@@ -317,8 +317,8 @@ export default function CyberOnboardingNew() {
       // Envoyer au serveur
       await axios.post('/api/cyber/setup-player', playerConfig);
       
-      // Rediriger vers la page principale
-      setLocation('/cyber');
+      // Rediriger vers la simulation
+      setLocation('/cyber-simulation');
     } catch (error) {
       console.error('Erreur lors de la finalisation de l\'onboarding:', error);
       toast({
@@ -334,9 +334,20 @@ export default function CyberOnboardingNew() {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 flex flex-col">
       <div className="max-w-4xl w-full mx-auto flex-grow flex flex-col">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">I AM CYBER</h1>
-          <p className="text-gray-600">Votre parcours de formation en cybersécurité commence ici</p>
+        <div className="flex justify-between items-center mb-8">
+          <Button
+            variant="ghost"
+            onClick={() => window.location.href = '/'}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft size={16} />
+            Retour à l'accueil
+          </Button>
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-900">I AM CYBER</h1>
+            <p className="text-gray-600">Votre parcours de formation en cybersécurité commence ici</p>
+          </div>
+          <div className="w-32"></div> {/* Élément vide pour équilibrer la mise en page */}
         </div>
         
         <Card className="flex-grow flex flex-col">
