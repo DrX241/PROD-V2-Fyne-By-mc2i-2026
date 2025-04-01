@@ -1574,6 +1574,8 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
         status: isConnected ? 'connected' : 'disconnected',
         lastCheck: openAIService.getLastConnectionCheck(),
         apiEndpoint: process.env.AZURE_OPENAI_ENDPOINT ? 'configured' : 'default',
+        currentApiKey: openAIService.getCurrentConfigType(),
+        modelName: openAIService.getCurrentModelName(),
         time: new Date().toISOString()
       });
     } catch (error) {
@@ -1582,6 +1584,34 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
         status: 'error',
         message: 'Failed to check API connection',
         time: new Date().toISOString()
+      });
+    }
+  });
+  
+  // API route pour basculer entre les clés API
+  app.post('/api/cyber/switch-api-key', (req: Request, res: Response) => {
+    try {
+      const { keyType } = req.body;
+      
+      if (keyType !== 'primary' && keyType !== 'secondary') {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Invalid key type. Must be "primary" or "secondary"'
+        });
+      }
+      
+      openAIService.switchApiKey(keyType);
+      
+      res.json({
+        status: 'success',
+        currentApiKey: keyType,
+        modelName: openAIService.getCurrentModelName()
+      });
+    } catch (error) {
+      console.error('Error switching API key:', error);
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to switch API key'
       });
     }
   });
