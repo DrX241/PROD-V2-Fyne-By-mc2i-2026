@@ -177,6 +177,7 @@ export default function CyberMissions() {
     if (mission && mission.status !== 'locked') {
       setActiveMissionId(missionId);
       setCurrentMission(mission);
+      setLocation('/cyber-mission');
     }
   };
 
