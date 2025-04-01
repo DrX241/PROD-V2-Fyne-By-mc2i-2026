@@ -114,7 +114,7 @@ export default function Home() {
       color: "bg-blue-600",
       bgColor: "bg-gradient-to-br from-blue-50 to-blue-100",
       accentColor: "bg-blue-500",
-      linkTo: localStorage.getItem('cyberPlayerData') ? "/cyber" : "/cyber-onboarding-chat"
+      linkTo: localStorage.getItem('cyberPlayerData') ? "/cyber" : "/cyber-onboarding-new"
     },
     {
       title: "I AM DATA & IA",
