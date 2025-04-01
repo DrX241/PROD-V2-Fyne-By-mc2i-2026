@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { openAIService } from "../I_AM_CYBER/services/openai";
+import { openAIService, ApiKeyType } from "../I_AM_CYBER/services/openai";
 // Import de document-generator supprimé car nous n'utilisons plus de pièces jointes
 import { ChatCompletionRequestMessage } from "../shared/schema";
 
@@ -1584,20 +1584,20 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
   // API route pour basculer entre les clés API
   app.post('/api/cyber/switch-api-key', (req: Request, res: Response) => {
     try {
-      const { keyType } = req.body;
+      const { type } = req.body;
       
-      if (keyType !== 'primary' && keyType !== 'secondary') {
+      if (type !== 'primary' && type !== 'secondary') {
         return res.status(400).json({
           status: 'error',
           message: 'Invalid key type. Must be "primary" or "secondary"'
         });
       }
       
-      openAIService.switchApiKey(keyType);
+      openAIService.switchApiKey(type as ApiKeyType);
       
       res.json({
         status: 'success',
-        currentApiKey: keyType,
+        currentApiKey: type,
         modelName: openAIService.getCurrentModelName()
       });
     } catch (error) {
