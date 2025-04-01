@@ -6,6 +6,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import ModulesPage from "@/pages/modules";
 import CyberPage from "@/pages/cyber";
+import TunnelPage from "@/pages/tunnel";
 import { ChatProvider } from "./contexts/ChatContext";
 
 function Router() {
@@ -14,6 +15,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/modules" component={ModulesPage} />
       <Route path="/cyber" component={CyberPage} />
+      <Route path="/tunnel" component={TunnelPage} />
       <Route path="/data-ia" component={NotYetImplemented} />
       <Route path="/amoa" component={NotYetImplemented} />
       <Route path="/custom" component={NotYetImplemented} />

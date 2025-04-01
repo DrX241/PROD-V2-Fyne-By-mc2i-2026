@@ -16,9 +16,7 @@ L'utilisateur doit pouvoir **apprendre en s'amusant**. L'expérience doit rester
 - Elle envoie un email d'accueil chaleureux présentant l'entreprise fictive.
 - L'utilisateur reçoit cet email directement dans l'interface.
 - L'utilisateur doit ensuite **rédiger un email de réponse** contenant obligatoirement :
-  - Une brève présentation de son **parcours académique**,
-  - Une description de son **expérience professionnelle**,
-  - Et une **auto-évaluation de son niveau en cybersécurité**.
+  - Une description de son **expérience professionnelle dans la cyber**,
 - Isabelle précise dans son message initial que ces informations sont nécessaires pour adapter la mission au profil.
 
 #### 2. ANALYSE DE LA PRÉSENTATION
