@@ -318,7 +318,7 @@ export default function CyberOnboardingNew() {
       await axios.post('/api/cyber/setup-player', playerConfig);
       
       // Rediriger vers la nouvelle interface de simulation
-      setLocation('/cyber-simulation-interface');
+      setLocation('/cyber-simulation');
     } catch (error) {
       console.error('Erreur lors de la finalisation de l\'onboarding:', error);
       toast({
