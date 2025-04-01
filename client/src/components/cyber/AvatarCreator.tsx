@@ -162,10 +162,4 @@ export const AvatarSelector: React.FC<AvatarSelectorProps> = ({
   );
 };
 
-export default {
-  avatars,
-  AvatarDisplay,
-  AvatarSelector,
-  saveAvatars,
-  getAvatarById
-};
+// Ne pas exporter l'objet par défaut, uniquement les exports nommés

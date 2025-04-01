@@ -241,19 +241,20 @@ export default function CyberOnboardingNew() {
     const isCorrect = answerIndex === currentQuestion.correct;
     
     // Ajouter la réponse aux données du joueur
-    const updatedAnswers = [
+    const newAnswers = [
       ...playerData.testAnswers,
       { questionIndex: currentQuestionIndex, answer: answerIndex, correct: isCorrect }
     ];
     
-    setPlayerData({...playerData, testAnswers: updatedAnswers});
+    // Mise à jour de l'état avec les nouvelles réponses
+    setPlayerData({...playerData, testAnswers: newAnswers});
     
     // Passer à la question suivante ou terminer le test
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
       // Test terminé, calculer le score
-      const correctCount = updatedAnswers.filter(a => a.correct).length;
+      const correctCount = newAnswers.filter(a => a.correct).length;
       const scorePercentage = (correctCount / questions.length) * 100;
       
       // Déterminer le niveau final en fonction du score
@@ -271,7 +272,7 @@ export default function CyberOnboardingNew() {
       // Mettre à jour les données du joueur
       setPlayerData({
         ...playerData, 
-        testAnswers: updatedAnswers,
+        testAnswers: newAnswers,
         finalLevel,
         testCompleted: true
       });
