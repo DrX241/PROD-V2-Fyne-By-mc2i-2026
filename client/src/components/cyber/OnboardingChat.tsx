@@ -531,8 +531,19 @@ const OnboardingChat: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  // Vérifier si l'utilisateur a déjà complété l'onboarding
+  // Vérifier si l'utilisateur souhaite réinitialiser ou effectuer à nouveau l'onboarding
   useEffect(() => {
+    // Récupérer le paramètre URL 'reset' s'il existe
+    const params = new URLSearchParams(window.location.search);
+    const resetParam = params.get('reset');
+    
+    // Si le paramètre reset est présent, supprimer les données d'onboarding
+    if (resetParam === 'true') {
+      localStorage.removeItem('cyberPlayerData');
+      return;
+    }
+    
+    // Vérifier si l'utilisateur a déjà complété l'onboarding
     const savedData = localStorage.getItem('cyberPlayerData');
     
     // Si l'utilisateur a déjà complété l'onboarding, passer directement à la page principale
@@ -1047,7 +1058,7 @@ Je vais maintenant vous connecter à Isabelle Dubacq, la Directrice des Ressourc
       setLoading(true);
       
       // Enregistrer la configuration du joueur
-      await axios.post('/api/cyber/setup-player', {
+      const playerConfig = {
         name: playerData.name,
         avatar: playerData.avatar,
         role: playerData.role,
@@ -1062,8 +1073,16 @@ Je vais maintenant vous connecter à Isabelle Dubacq, la Directrice des Ressourc
           score: correctAnswers,
           total: totalQuestions,
           percentage: scorePercentage
-        }
-      });
+        },
+        onboardingComplete: true,
+        timestamp: Date.now() // Ajouter un timestamp pour suivre la date de création du profil
+      };
+      
+      // Sauvegarder dans localStorage pour persistance côté client
+      localStorage.setItem('cyberPlayerData', JSON.stringify(playerConfig));
+      
+      // Envoyer au serveur
+      await axios.post('/api/cyber/setup-player', playerConfig);
     } catch (error) {
       console.error('Erreur lors de l\'enregistrement du profil:', error);
       toast({
@@ -1079,15 +1098,8 @@ Je vais maintenant vous connecter à Isabelle Dubacq, la Directrice des Ressourc
   // Commencer la mission après l'onboarding
   const startMission = async () => {
     try {
-      // Stocker les données de session en local storage pour une persistance à travers les navigations
-      localStorage.setItem('cyberPlayerData', JSON.stringify({
-        name: playerData.name,
-        avatar: playerData.avatar,
-        role: playerData.role,
-        moduleId: playerData.module,
-        finalLevel: finalLevel,
-        onboardingComplete: true
-      }));
+      // Utiliser les données déjà stockées dans localStorage lors de l'étape précédente
+      // Pas besoin de sauvegarder à nouveau car nous l'avons déjà fait
       
       // Rediriger vers la page principale de cyber
       navigate('/cyber');
