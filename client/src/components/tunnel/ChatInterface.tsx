@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Send, ChevronDown, Loader2, ArrowLeft } from "lucide-react";
 import { v4 as uuidv4 } from 'uuid';
+import ChatMessage from "./ChatMessage";
 
 // Interface de l'expert
 interface TunnelExpert {
@@ -135,36 +136,20 @@ export default function ChatInterface({
         ref={chatContainerRef}
         style={{ scrollBehavior: 'smooth', minHeight: '300px' }}
       >
-        <div className="w-full px-4">
+        <div className="w-full px-4 space-y-4">
           {messages.length === 0 ? (
             <div className="text-center p-6 text-gray-400">
               <p>Commencez à discuter avec {currentExpert.name}</p>
             </div>
           ) : (
             messages.map((message) => (
-              <div 
-                key={message.id} 
-                className={`mb-4 ${message.type === 'user-chat' ? 'text-right' : ''}`}
-              >
-                <div 
-                  className={`
-                    inline-block max-w-[85%] rounded-xl p-3 
-                    ${message.type === 'user-chat' 
-                      ? 'bg-amber-600/20 text-white ml-auto' 
-                      : 'bg-gray-700/40 text-gray-100 mr-auto'
-                    }
-                  `}
-                >
-                  {message.type === 'expert-chat' && (
-                    <div className="text-xs text-amber-400/80 mb-1">
-                      {message.expertName || currentExpert.name}
-                    </div>
-                  )}
-                  <div className="text-sm whitespace-pre-wrap">
-                    {message.content}
-                  </div>
-                </div>
-              </div>
+              <ChatMessage
+                key={message.id}
+                type={message.type}
+                content={message.content}
+                expertName={message.expertName || currentExpert.name}
+                expertRole={message.expertRole || currentExpert.role}
+              />
             ))
           )}
           
