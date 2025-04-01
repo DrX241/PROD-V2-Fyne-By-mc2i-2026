@@ -7,6 +7,7 @@ import Home from "@/pages/home";
 import ModulesPage from "@/pages/modules";
 import CyberPage from "@/pages/cyber";
 import CyberOnboarding from "@/pages/cyber-onboarding";
+import CyberOnboardingChat from "@/pages/cyber-onboarding-chat";
 import { ChatProvider } from "./contexts/ChatContext";
 
 function Router() {
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/modules" component={ModulesPage} />
       <Route path="/cyber" component={CyberPage} />
       <Route path="/cyber-onboarding" component={CyberOnboarding} />
+      <Route path="/cyber-onboarding-chat" component={CyberOnboardingChat} />
       <Route path="/data-ia" component={NotYetImplemented} />
       <Route path="/amoa" component={NotYetImplemented} />
       <Route path="/custom" component={NotYetImplemented} />
