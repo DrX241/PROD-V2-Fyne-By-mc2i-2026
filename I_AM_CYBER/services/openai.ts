@@ -28,54 +28,35 @@ class OpenAIService {
   
   constructor() {
     try {
-      // Récupérer le nom des modèles (avec valeurs par défaut)
-      const primaryModelName = process.env.AZURE_OPENAI_MODEL_NAME || "GPT-4o";
-      const secondaryModelName = process.env.AZURE_OPENAI_MODEL_NAME_SECONDARY || "GPT-4o-mini";
-      
-      // Récupération des endpoints
-      const primaryEndpoint = process.env.AZURE_OPENAI_ENDPOINT || "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com";
-      const secondaryEndpoint = process.env.AZURE_OPENAI_ENDPOINT_SECONDARY || "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com";
-      
-      // S'assurer que les endpoints ne se terminent pas par un slash
-      const cleanPrimaryEndpoint = primaryEndpoint.endsWith('/') ? primaryEndpoint.slice(0, -1) : primaryEndpoint;
-      const cleanSecondaryEndpoint = secondaryEndpoint.endsWith('/') ? secondaryEndpoint.slice(0, -1) : secondaryEndpoint;
-      
-      // Récupérer les autres paramètres de configuration
-      const primaryApiKey = process.env.AZURE_OPENAI_API_KEY || "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK";
-      const primaryDeploymentName = process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "Eddy-deploy-20-02-2025-gpt-4o";
-      const primaryApiVersion = process.env.AZURE_OPENAI_API_VERSION || "2024-03-01-preview";
-      
-      const secondaryApiKey = process.env.AZURE_OPENAI_API_KEY_SECONDARY || "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK";
-      const secondaryDeploymentName = process.env.AZURE_OPENAI_DEPLOYMENT_NAME_SECONDARY || "Eddy-02-2025-gpt-4o-mini";
-      const secondaryApiVersion = process.env.AZURE_OPENAI_API_VERSION_SECONDARY || "2024-12-01-preview";
-      
-      console.log(`OpenAI Service initialized with primary model: ${primaryModelName}`);
-      console.log(`OpenAI Service initialized with secondary model: ${secondaryModelName}`);
-      
-      this.primaryConfig = {
-        endpoint: cleanPrimaryEndpoint,
-        apiKey: primaryApiKey,
-        deploymentName: primaryDeploymentName,
-        apiVersion: primaryApiVersion,
-        modelName: primaryModelName
-      };
-      
-      this.secondaryConfig = {
-        endpoint: cleanSecondaryEndpoint,
-        apiKey: secondaryApiKey,
-        deploymentName: secondaryDeploymentName,
-        apiVersion: secondaryApiVersion,
-        modelName: secondaryModelName
-      };
-    } catch (error) {
-      console.error("Error initializing OpenAI Service:", error);
-      // Initialiser avec des valeurs par défaut en cas d'erreur
+      // Utiliser directement les valeurs fournies par l'utilisateur (configuration primaire - GPT-4o)
       this.primaryConfig = {
         endpoint: "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com",
         apiKey: "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK",
         deploymentName: "Eddy-deploy-20-02-2025-gpt-4o",
-        apiVersion: "2024-03-01-preview",
-        modelName: "GPT-4o"
+        apiVersion: "2024-12-01-preview",
+        modelName: "gpt-4o"
+      };
+      
+      // Configuration secondaire - GPT-4o-mini
+      this.secondaryConfig = {
+        endpoint: "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com",
+        apiKey: "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK",
+        deploymentName: "Eddy-02-2025-gpt-4o-mini",
+        apiVersion: "2024-12-01-preview",
+        modelName: "gpt-4o-mini"
+      };
+      
+      console.log(`OpenAI Service initialized with primary model: ${this.primaryConfig.modelName}`);
+      console.log(`OpenAI Service initialized with secondary model: ${this.secondaryConfig.modelName}`);
+    } catch (error) {
+      console.error("Error initializing OpenAI Service:", error);
+      // Initialiser avec les mêmes valeurs en cas d'erreur
+      this.primaryConfig = {
+        endpoint: "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com",
+        apiKey: "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK",
+        deploymentName: "Eddy-deploy-20-02-2025-gpt-4o",
+        apiVersion: "2024-12-01-preview",
+        modelName: "gpt-4o"
       };
       
       this.secondaryConfig = {
@@ -83,7 +64,7 @@ class OpenAIService {
         apiKey: "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK",
         deploymentName: "Eddy-02-2025-gpt-4o-mini",
         apiVersion: "2024-12-01-preview",
-        modelName: "GPT-4o-mini"
+        modelName: "gpt-4o-mini"
       };
     }
   }
