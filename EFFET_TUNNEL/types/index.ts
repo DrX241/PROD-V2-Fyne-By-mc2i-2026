@@ -38,6 +38,14 @@ export interface DecisionOption {
   appropriateRoles?: ProfessionalRole[]; // Rôles pour lesquels cette option est particulièrement pertinente
 }
 
+// Expert/PNJ disponible pour l'interaction
+export interface TunnelExpert {
+  name: string;
+  role: string;
+  expertise: string;
+  background?: string; // Information supplémentaire sur l'expert
+}
+
 // Situation dans l'arbre de décision
 export interface TunnelSituation {
   id: string;
@@ -49,6 +57,7 @@ export interface TunnelSituation {
   tutorialContent?: string; // Contenu pédagogique optionnel lié à cette situation
   nextSituationIds?: Record<string, string>; // Mapping des options vers les situations suivantes
   isFinal?: boolean; // Indique si c'est une situation finale (conclusion)
+  experts?: TunnelExpert[]; // Liste des experts disponibles pour discuter pendant cette situation
 }
 
 // Scénario complet
@@ -60,6 +69,7 @@ export interface TunnelScenario {
   relevantSectors: BusinessSector[];
   situations: TunnelSituation[]; // Toutes les situations possibles dans ce scénario
   initialSituationId: string; // ID de la situation de départ
+  experts?: TunnelExpert[]; // Liste des experts disponibles pour ce scénario
 }
 
 // État de la session utilisateur
@@ -74,7 +84,7 @@ export interface TunnelSessionState {
 }
 
 // Message dans la conversation
-export type TunnelMessageType = 'situation' | 'user-choice' | 'tutorial' | 'expert' | 'system';
+export type TunnelMessageType = 'situation' | 'user-choice' | 'tutorial' | 'expert' | 'system' | 'user-chat' | 'expert-chat';
 
 export interface TunnelMessage {
   id: string;
@@ -92,6 +102,8 @@ export interface TunnelContextState {
   scenarios: TunnelScenario[];
   isLoading: boolean;
   error?: string;
+  currentExpert?: TunnelExpert; // Expert actuellement sélectionné pour le chat
+  isChatMode: boolean; // Indique si l'interface est en mode chat ou en mode décision
 }
 
 export interface TunnelContextActions {
@@ -100,6 +112,9 @@ export interface TunnelContextActions {
   makeDecision: (optionId: string) => void;
   restartScenario: () => void;
   resetSession: () => void;
+  toggleChatMode: () => void; // Basculer entre le mode chat et le mode décision
+  selectExpert: (expertName: string) => void; // Sélectionner un expert pour discuter
+  sendChatMessage: (message: string) => Promise<void>; // Envoyer un message à l'expert sélectionné
 }
 
 export type TunnelContextType = TunnelContextState & TunnelContextActions;

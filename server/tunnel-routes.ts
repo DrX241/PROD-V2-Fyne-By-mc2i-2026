@@ -8,7 +8,8 @@ import {
   ProfessionalRole, 
   BusinessSector,
   DecisionOption,
-  TunnelSessionState
+  TunnelSessionState,
+  TunnelExpert
 } from "../EFFET_TUNNEL/types";
 
 // Map pour stocker les sessions des utilisateurs (en mémoire pour l'instant)
@@ -268,6 +269,118 @@ export function registerTunnelRoutes(app: Express) {
       console.error('Error fetching session:', error);
       res.status(500).json({ 
         message: 'Failed to fetch session', 
+        error: error.message 
+      });
+    }
+  });
+
+  // Endpoint pour récupérer les experts disponibles pour une session
+  app.get('/api/tunnel/experts/:sessionId', (req: Request, res: Response) => {
+    try {
+      const { sessionId } = req.params;
+
+      if (!sessionId) {
+        return res.status(400).json({ message: 'Session ID is required' });
+      }
+
+      // Récupérer la session utilisateur
+      const session = userSessions.get(sessionId);
+      if (!session) {
+        return res.status(404).json({ message: 'Session not found' });
+      }
+
+      // Récupérer les experts disponibles pour la situation actuelle
+      let availableExperts: TunnelExpert[] = [];
+
+      // Priorité aux experts de la situation actuelle
+      if (session.currentSituation?.experts?.length) {
+        availableExperts = [...session.currentSituation.experts];
+      }
+      // Sinon, utiliser les experts du scénario
+      else if (session.currentScenario?.experts?.length) {
+        availableExperts = [...session.currentScenario.experts];
+      }
+      // Fallback: créer un expert par défaut si aucun expert n'est défini
+      else {
+        // Utiliser l'expert présentant la situation actuelle
+        if (session.currentSituation) {
+          availableExperts = [{
+            name: session.currentSituation.expertName,
+            role: session.currentSituation.expertRole,
+            expertise: "Expert en cybersécurité"
+          }];
+        }
+      }
+
+      res.json({ experts: availableExperts });
+    } catch (error: any) {
+      console.error('Error fetching experts:', error);
+      res.status(500).json({ 
+        message: 'Failed to fetch experts', 
+        error: error.message 
+      });
+    }
+  });
+
+  // Endpoint pour le chat avec un expert
+  app.post('/api/tunnel/chat', async (req: Request, res: Response) => {
+    try {
+      const { sessionId, message, expertName } = req.body;
+
+      if (!sessionId || !message || !expertName) {
+        return res.status(400).json({ 
+          message: 'Session ID, message content, and expert name are required' 
+        });
+      }
+
+      // Récupérer la session utilisateur
+      const session = userSessions.get(sessionId);
+      if (!session) {
+        return res.status(404).json({ message: 'Session not found' });
+      }
+
+      // Trouver l'expert demandé
+      let expert: TunnelExpert | undefined;
+      
+      // Chercher d'abord dans les experts de la situation actuelle
+      if (session.currentSituation?.experts) {
+        expert = session.currentSituation.experts.find(e => e.name === expertName);
+      }
+      
+      // Sinon chercher dans les experts du scénario
+      if (!expert && session.currentScenario?.experts) {
+        expert = session.currentScenario.experts.find(e => e.name === expertName);
+      }
+      
+      // Si toujours pas trouvé, utiliser l'expert présentant la situation actuelle
+      if (!expert && session.currentSituation) {
+        expert = {
+          name: session.currentSituation.expertName,
+          role: session.currentSituation.expertRole,
+          expertise: "Expert en cybersécurité"
+        };
+      }
+
+      if (!expert) {
+        return res.status(404).json({ message: 'Expert not found' });
+      }
+
+      // Générer une réponse de l'expert via l'IA
+      const expertResponse = await tunnelAIService.generateExpertResponse(
+        message,
+        expert,
+        session
+      );
+
+      res.json({
+        expertName: expert.name,
+        expertRole: expert.role,
+        response: expertResponse
+      });
+    } catch (error: any) {
+      console.error('Error generating expert response:', error);
+      res.status(500).json({ 
+        message: 'Failed to generate expert response', 
         error: error.message 
       });
     }

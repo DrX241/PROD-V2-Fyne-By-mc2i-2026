@@ -6,7 +6,8 @@ import {
   ProfessionalRole, 
   BusinessSector, 
   DecisionOption, 
-  TunnelSessionState 
+  TunnelSessionState,
+  TunnelExpert
 } from '../types';
 import { ChatCompletionRequestMessage } from '../../shared/schema';
 import fs from 'fs';
@@ -344,6 +345,62 @@ FORMAT DU DEBRIEFING:
       return debriefingContent;
     } catch (error) {
       console.error('Error generating debriefing:', error);
+      throw error;
+    }
+  }
+
+  // Génère une réponse d'un expert à un message de l'utilisateur
+  async generateExpertResponse(
+    message: string,
+    expert: TunnelExpert,
+    session: TunnelSessionState
+  ): Promise<string> {
+    try {
+      const masterPrompt = await this.getMasterPrompt();
+      
+      const situationDescription = session.currentSituation 
+        ? `${session.currentSituation.title}\n${session.currentSituation.description}`
+        : "Situation en cours non disponible";
+      
+      const messages: ChatCompletionRequestMessage[] = [
+        {
+          role: "system",
+          content: `${masterPrompt}
+
+Tu incarnes ${expert.name}, ${expert.role}, un expert en ${expert.expertise}. 
+Tu interagis avec un utilisateur qui joue le rôle de ${session.selectedRole} dans le secteur ${session.selectedSector}, avec un niveau d'expertise ${session.selectedLevel}.
+
+CONTEXTE ACTUEL:
+- Scénario: ${session.currentScenario?.title || "Non spécifié"}
+- Situation actuelle: ${situationDescription}
+- Parcours: L'utilisateur a traversé ${session.decisionPath.length} situations
+
+CONSIGNES:
+1. Réponds de manière concise et claire
+2. Adapte ton niveau de détail technique à l'expertise de l'utilisateur
+3. Fournis des explications précises et factuelles
+4. Reste dans ton rôle d'expert avec ton domaine de spécialité
+5. Évite de faire des choix à la place de l'utilisateur
+6. Ne mentionne pas que tu es une IA ou un assistant virtuel
+7. Utilise un français formel et professionnel
+8. N'utilise pas de formules de salutation ou de conclusion excessives`
+        },
+        {
+          role: "user",
+          content: message
+        }
+      ];
+
+      // Obtenir la réponse de l'IA
+      const expertResponse = await openAIService.getChatCompletionWithCache(
+        messages,
+        0.7,
+        1500
+      );
+      
+      return expertResponse;
+    } catch (error) {
+      console.error('Error generating expert response:', error);
       throw error;
     }
   }
