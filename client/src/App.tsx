@@ -13,6 +13,7 @@ import CyberOnboardingNew from "@/pages/cyber-onboarding-new";
 import CyberMissions from "@/pages/cyber-missions";
 import CyberSingleMission from "@/pages/cyber-single-mission";
 import CyberMissionSimulation from "@/pages/cyber-mission-simulation";
+import CyberSimulationInterface from "@/pages/cyber-simulation-interface";
 import { ChatProvider } from "./contexts/ChatContext";
 
 function Router() {
@@ -28,6 +29,7 @@ function Router() {
       <Route path="/cyber-missions" component={CyberMissions} />
       <Route path="/cyber-mission" component={CyberSingleMission} />
       <Route path="/cyber-mission-simulation" component={CyberMissionSimulation} />
+      <Route path="/cyber-simulation-interface" component={CyberSimulationInterface} />
       <Route path="/data-ia" component={NotYetImplemented} />
       <Route path="/amoa" component={NotYetImplemented} />
       <Route path="/custom" component={NotYetImplemented} />
