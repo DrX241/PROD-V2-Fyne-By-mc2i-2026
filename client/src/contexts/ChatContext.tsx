@@ -74,6 +74,21 @@ export interface ScenarioState {
   scenarioContacts?: ScenarioContact[];
 }
 
+// Types pour les missions
+export interface Mission {
+  id: string;
+  title: string;
+  description: string;
+  type: string;
+  difficulty: 'Débutant' | 'Intermédiaire' | 'Expert';
+  contactName: string;
+  contactRole: string;
+  contactAvatar: string;
+  status: 'locked' | 'available' | 'in-progress' | 'completed';
+  domain: string;
+  badgeId?: string;
+}
+
 export interface ChatContextType {
   messages: ChatMessage[];
   userName: string;
@@ -82,12 +97,17 @@ export interface ChatContextType {
   config: AIConfig;
   domains: CyberDomain[];
   scenarios: CyberScenario[];
+  avatarId: string;
+  playerRole: string;
+  difficultyLevel: string;
+  currentMission: Mission | null;
   setUserName: (name: string) => void;
   selectDomain: (domainId: string) => void;
   selectScenario: (scenarioId: string) => void;
   sendMessage: (message: string) => void;
   updateConfig: (config: Partial<AIConfig>) => void;
   resetChat: () => void;
+  setCurrentMission: (mission: Mission) => void;
 }
 
 // Initial domains data
@@ -399,7 +419,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return "";
   });
   
-  const [userAvatar, setUserAvatar] = useState<string>(() => {
+  const [avatarId, setAvatarId] = useState<string>(() => {
     // Initialiser à partir du localStorage si disponible
     const savedData = localStorage.getItem('cyberPlayerData');
     if (savedData) {
@@ -409,7 +429,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return "";
   });
   
-  const [userRole, setUserRole] = useState<string>(() => {
+  const [playerRole, setPlayerRole] = useState<string>(() => {
     // Initialiser à partir du localStorage si disponible
     const savedData = localStorage.getItem('cyberPlayerData');
     if (savedData) {
@@ -419,7 +439,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return "";
   });
   
-  const [userLevel, setUserLevel] = useState<string>(() => {
+  const [difficultyLevel, setDifficultyLevel] = useState<string>(() => {
     // Initialiser à partir du localStorage si disponible
     const savedData = localStorage.getItem('cyberPlayerData');
     if (savedData) {
@@ -428,6 +448,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     return "Débutant";
   });
+  
+  const [currentMission, setCurrentMission] = useState<Mission | null>(null);
   
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [scenario, setScenario] = useState<ScenarioState>(initialScenarioState);
@@ -451,7 +473,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const initialMessage: ChatMessage = {
           id: uuidv4(),
           type: "bot",
-          content: `Bonjour ${userName} ! Je suis Isabelle Dubacq, Directrice des Ressources Humaines chez Cyber Secure Solutions.\n\nJe suis ravie de vous accueillir au sein de notre équipe ! J'ai examiné votre profil et je suis impressionnée par vos compétences en tant que ${userRole}.\n\nD'après l'évaluation que vous avez passée, vous avez un niveau "${userLevel}" en cybersécurité, ce qui correspond parfaitement à nos besoins actuels.\n\nNous allons vous confier une première mission adaptée à votre profil. Comment vous sentez-vous pour commencer cette aventure avec nous ?`,
+          content: `Bonjour ${userName} ! Je suis Isabelle Dubacq, Directrice des Ressources Humaines chez Cyber Secure Solutions.\n\nJe suis ravie de vous accueillir au sein de notre équipe ! J'ai examiné votre profil et je suis impressionnée par vos compétences en tant que ${playerRole}.\n\nD'après l'évaluation que vous avez passée, vous avez un niveau "${difficultyLevel}" en cybersécurité, ce qui correspond parfaitement à nos besoins actuels.\n\nNous allons vous confier une première mission adaptée à votre profil. Comment vous sentez-vous pour commencer cette aventure avec nous ?`,
           timestamp: Date.now(),
           contactName: "Isabelle Dubacq",
           contactRole: "Directrice des Ressources Humaines",
@@ -474,7 +496,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsInitialized(true);
       }
     }
-  }, [isInitialized, onboardingComplete, userName, userRole, userLevel]);
+  }, [isInitialized, onboardingComplete, userName, playerRole, difficultyLevel]);
 
   // Handler to set the user's name
   const handleSetUserName = (name: string) => {
@@ -756,6 +778,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         config,
         domains: initialDomains,
         scenarios: initialScenarios,
+        avatarId,
+        playerRole,
+        difficultyLevel,
+        currentMission,
+        setCurrentMission,
         setUserName: handleSetUserName,
         selectDomain: handleSelectDomain,
         selectScenario: handleSelectScenario,
