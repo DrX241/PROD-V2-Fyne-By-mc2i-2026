@@ -5,7 +5,7 @@ import DomainSelection from "./DomainSelection";
 import ScenarioSelection from "./ScenarioSelection";
 import EmailMessage from "./EmailMessage";
 import ContextBanner from "./ContextBanner";
-import { Send, Paperclip, BotMessageSquare, UserCircle, RefreshCw, ChevronDown } from "lucide-react";
+import { Send, MessageSquare, UserCircle, RefreshCw, ChevronDown } from "lucide-react";
 
 export default function ChatInterface() {
   const { 
@@ -17,8 +17,9 @@ export default function ChatInterface() {
   } = useChatContext();
   
   const [inputMessage, setInputMessage] = useState("");
+  const [suggestedMessages, setSuggestedMessages] = useState<string[]>([]);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Nous avons désactivé le défilement automatique pour donner à l'utilisateur le contrôle
   // de la barre de défilement. Un bouton de défilement manuel vers le bas est disponible.
@@ -57,12 +58,65 @@ export default function ChatInterface() {
     }
   };
 
+  // Gestion des suggestions de messages basées sur le contexte actuel
+  useEffect(() => {
+    // Pas de suggestions avant d'avoir un nom d'utilisateur
+    if (!userName) {
+      setSuggestedMessages([]);
+      return;
+    }
+
+    // Générer des suggestions basées sur le contexte de la conversation
+    const lastMessage = messages[messages.length - 1];
+    if (!lastMessage) return;
+
+    if (messages.length === 1 && lastMessage.type === 'bot') {
+      // Première interaction - suggestions pour se présenter
+      setSuggestedMessages([
+        `Bonjour, je m'appelle ${userName}. Je suis [votre rôle/fonction] avec une expérience de [X années] dans le domaine de la cybersécurité.`,
+        `Bonjour, je suis ${userName}, [votre rôle/fonction]. J'ai des connaissances en cybersécurité et j'aimerais approfondir ce sujet.`,
+        `Bonjour, je suis ${userName}. Je travaille dans [secteur d'activité] et je souhaite développer mes compétences en cybersécurité.`
+      ]);
+    } else if (messages.length > 1 && lastMessage.type === 'bot' && 
+               (typeof lastMessage.content === 'string' && lastMessage.content.includes("mission"))) {
+      // Après réception d'une mission
+      setSuggestedMessages([
+        "Je comprends la situation. Quelles sont les principales informations dont j'ai besoin pour résoudre ce problème ?",
+        "Je vais m'occuper de ce problème. Pouvez-vous me préciser les contraintes ou délais à respecter ?",
+        "Je vais analyser cette situation. Y a-t-il des ressources ou des personnes spécifiques que je devrais consulter ?"
+      ]);
+    } else {
+      // Par défaut dans la conversation
+      setSuggestedMessages([
+        "Pourriez-vous me donner plus de contexte sur cette situation ?",
+        "Je comprends. Quelles seraient les prochaines étapes à suivre ?",
+        "Merci pour ces informations. Comment devrais-je aborder ce problème ?"
+      ]);
+    }
+  }, [messages, userName]);
+
   // Focus input on load
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
+    if (textareaRef.current) {
+      textareaRef.current.focus();
     }
   }, []);
+
+  // Gérer les entrées clavier, notamment Shift+Enter
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter') {
+      if (e.shiftKey) {
+        // Shift+Enter - ajouter une nouvelle ligne
+        return; // Comportement par défaut (insertion d'un saut de ligne)
+      } else {
+        // Enter simple - envoyer le message
+        e.preventDefault(); // Empêcher le saut de ligne
+        if (inputMessage.trim()) {
+          handleSubmit(e);
+        }
+      }
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,6 +129,14 @@ export default function ChatInterface() {
     // Lorsque l'utilisateur envoie un message, nous lui proposons de défiler vers le bas
     // sans forcer le défilement automatique
     setShowScrollButton(true);
+  };
+  
+  // Fonction pour utiliser une suggestion
+  const useSuggestion = (suggestion: string) => {
+    setInputMessage(suggestion);
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
   };
 
   const renderMessageContent = (message: any) => {
@@ -156,26 +218,44 @@ export default function ChatInterface() {
         )}
       </div>
 
+      {/* Zone de suggestions de messages */}
+      {suggestedMessages.length > 0 && (
+        <div className="py-2 px-2 sm:px-4 bg-gradient-to-r from-blue-950/90 to-indigo-950/90 border-t border-blue-800/30">
+          <div className="max-w-5xl mx-auto px-2 sm:px-6">
+            <div className="flex flex-wrap gap-2">
+              {suggestedMessages.map((suggestion, index) => (
+                <button
+                  key={index}
+                  onClick={() => useSuggestion(suggestion)}
+                  className="text-sm bg-blue-800/50 hover:bg-blue-700/70 text-blue-100 py-2 px-3 rounded-lg transition-all duration-300 border border-blue-700/50 text-left flex-shrink min-w-0 max-w-full md:max-w-md overflow-hidden"
+                >
+                  <span className="line-clamp-1">{suggestion}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Zone de saisie */}
       <div className="py-3 sm:py-4 px-2 sm:px-4 bg-gradient-to-r from-blue-900/90 to-indigo-900/90 backdrop-blur-lg border-t border-blue-700/30 sticky bottom-0 shadow-lg">
         <div className="max-w-5xl mx-auto px-2 sm:px-6">
-          <form className="flex items-center gap-2 sm:gap-3" onSubmit={handleSubmit}>
+          <form className="flex items-start gap-2 sm:gap-3" onSubmit={handleSubmit}>
             <div className="relative flex-1 group">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
-              <input 
-                type="text"
-                ref={inputRef}
+              <textarea 
+                ref={textareaRef}
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                className="relative w-full py-2.5 sm:py-3.5 px-3 sm:px-4 pr-10 sm:pr-12 rounded-lg bg-gray-900/70 border border-blue-700/50 outline-none text-blue-50 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all placeholder:text-blue-300/50 text-sm sm:text-base"
-                placeholder="Tapez votre réponse..."
+                onKeyDown={handleKeyDown}
+                rows={1}
+                className="relative w-full py-2.5 sm:py-3.5 px-3 sm:px-4 pr-10 sm:pr-12 rounded-lg bg-gray-900/70 border border-blue-700/50 outline-none text-blue-50 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all placeholder:text-blue-300/50 text-sm sm:text-base resize-none overflow-auto"
+                placeholder="Tapez votre réponse... (Shift+Entrée pour aller à la ligne)"
+                style={{ minHeight: "2.5rem", maxHeight: "8rem" }}
               />
-              <button 
-                type="button" 
-                className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 text-blue-400/70 hover:text-blue-300 transition-colors"
-              >
-                <Paperclip className="h-4 w-4 sm:h-5 sm:w-5" />
-              </button>
+              <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
+                <span className="text-xs text-blue-400/60 hidden sm:inline">Shift+Entrée = nouvelle ligne</span>
+              </div>
             </div>
             <button 
               type="submit" 

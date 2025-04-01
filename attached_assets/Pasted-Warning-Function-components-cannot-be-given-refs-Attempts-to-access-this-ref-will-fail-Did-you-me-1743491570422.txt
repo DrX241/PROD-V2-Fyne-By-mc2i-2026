@@ -1,0 +1,30 @@
+Warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?
+
+Check the render method of `SlotClone`.
+    at Badge (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/components/ui/badge.tsx:35:18)
+    at https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TQG5UYZM.js?v=f435ceff:52:11
+    at https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TQG5UYZM.js?v=f435ceff:33:11
+    at https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WBLKM3DM.js?v=f435ceff:115:13
+    at https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TQG5UYZM.js?v=f435ceff:52:11
+    at https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TQG5UYZM.js?v=f435ceff:33:11
+    at https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WBLKM3DM.js?v=f435ceff:115:13
+    at https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=f435ceff:2036:13
+    at https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=f435ceff:2429:13
+    at Provider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WBLKM3DM.js?v=f435ceff:39:15)
+    at Provider2 (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=f435ceff:1934:15)
+    at Popper (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=f435ceff:2028:11)
+    at Tooltip (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=f435ceff:2347:5)
+    at Provider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WBLKM3DM.js?v=f435ceff:39:15)
+    at TooltipProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=f435ceff:2303:5)
+    at div
+    at ConnectionStatus (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/components/cyber/ConnectionStatus.tsx:32:31)
+    at div
+    at div
+    at CyberLayout (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/components/layout/CyberLayout.tsx?t=1743488496130:21:39)
+    at CyberPage
+    at Route (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=f435ceff:323:16)
+    at Switch (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=f435ceff:379:17)
+    at Router
+    at ChatProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/ChatContext.tsx:303:32)
+    at QueryClientProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=f435ceff:2805:3)
+    at App

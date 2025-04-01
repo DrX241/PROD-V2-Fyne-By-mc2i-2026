@@ -300,6 +300,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         companyName = "CYBER SECURE SOLUTIONS";
       };
 
+      // Nous définissons maintenant une personne RH comme premier contact, quel que soit le scénario
+      const rhContact = {
+        name: "Isabelle Dubacq",
+        role: "Senior Partner, Directrice des Ressources Humaines",
+        expertise: "Formation et sensibilisation des collaborateurs",
+        concern: "Préoccupée par le facteur humain dans la cybersécurité et le développement d'une culture de sécurité"
+      };
+
       const messages: ChatCompletionRequestMessage[] = [
         {
           role: "system",
@@ -308,16 +316,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         {
           role: "user",
           content: `Générez un email COURT et ACCUEILLANT (maximum 150 mots) pour le scénario "${scenario.title}" dans le domaine "${scenario.domain}" avec les détails suivants:
-          - L'email doit provenir de ${scenario.contact.name} (${scenario.contact.role})
+          - L'email doit provenir de ${rhContact.name} (${rhContact.role})
           - L'email doit être adressé à ${userName} en utilisant le tutoiement ("tu") 
           - Le secteur d'activité pour ce scénario est: ${secteurActivite}
           - Le nom d'entreprise pour ce scénario est: ${companyName}
-          - L'email doit être un message d'accueil chaleureux où le PNJ se présente, présente brièvement l'entreprise ${companyName}, souhaite la bienvenue à ${userName} et l'invite simplement à se présenter à son tour (parcours, expérience, niveau de connaissance sur le sujet)
-          - Inclure à même l'email un bref paragraphe sur les concepts fondamentaux du domaine "${scenario.domain}" pour introduire le contexte au lieu de mentionner des pièces jointes
+          - L'email doit être un message d'accueil chaleureux où le PNJ se présente, présente brièvement l'entreprise ${companyName}
+          - IMPORTANT: Invite explicitement ${userName} à se présenter en détaillant son parcours, son expérience professionnelle et son niveau de connaissance en cybersécurité
+          - Précise que ces informations sont nécessaires pour adapter la mission à son profil
+          - Mentionne brièvement que suite à cette présentation, ${userName} sera mis(e) en contact avec ${scenario.contact.name} (${scenario.contact.role}) pour sa mission
           - IMPORTANT: NE PAS mentionner ou faire référence à des pièces jointes, documents ou fichiers
           - N'incluez PAS encore de problème ou de mission spécifique à résoudre
-          - Le ton doit être amical et professionnel, en utilisant le tutoiement
-          - Le style d'écriture doit correspondre au rôle du contact mais rester accessible et léger
+          - Le ton doit être chaleureux, accueillant et professionnel, en utilisant le tutoiement
+          - Le style d'écriture doit correspondre au rôle de Directrice RH: bienveillant mais professionnel
           - Rédigez uniquement l'email, pas de commentaires ou d'explications`
         }
       ];
@@ -633,18 +643,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Obtenir 2 contacts supplémentaires pertinents pour ce scénario
       const additionalContacts = getAdditionalContacts(scenario.domain, scenario.contact);
       
-      // Créer la structure d'interlocuteurs pour ce scénario
-      const scenarioContacts = [scenario.contact, ...additionalContacts];
+      // Créer la structure d'interlocuteurs pour ce scénario - le contact RH est toujours le premier interlocuteur
+      // S'assurer que le contact RH n'est pas déjà dans la liste des contacts du scénario
+      const contactsWithoutRH = [scenario.contact, ...additionalContacts].filter(contact => 
+        contact.name !== rhContact.name
+      );
       
-      // Create email response
+      // Ajouter le contact RH en premier
+      const scenarioContacts = [rhContact, ...contactsWithoutRH];
+      
+      // Create email response - le premier message vient toujours de la RH
       const email = {
         id: uuidv4(),
-        from: scenario.contact,
+        from: rhContact,
         to: `${userName}@mc2i.fr`,
         subject,
         date: new Date().toISOString(),
         body,
-        // Ajouter les contacts additionnels qui interviendront dans ce scénario
+        // Ajouter les contacts qui interviendront dans ce scénario, en commençant par la RH
         scenarioContacts: scenarioContacts
       };
       
@@ -1367,39 +1383,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Pour la première réponse après une présentation, vérifier si l'utilisateur s'est bien présenté
       // Si oui, le même PNJ (niveau 1) répondra avec une mission, sinon il redemandera une présentation
       if (chatHistory && chatHistory.length === 2 && chatHistory[0].type === 'email' && chatHistory[1].type === 'user') {
-        // Version simplifiée : on considère toute réponse comme une présentation valide
-        // Cela évite de bloquer l'utilisateur s'il ne se présente pas "correctement"
-        const userPresentation = chatHistory[1].content;
-        const containsPresentation = typeof userPresentation === 'string' && userPresentation.length > 10;
+        // Vérifier si l'utilisateur s'est bien présenté en mentionnant son parcours, son expérience et son niveau de connaissances
+        const userPresentation = typeof chatHistory[1].content === 'string' ? chatHistory[1].content.toLowerCase() : '';
         
-        if (containsPresentation) {
-          // L'utilisateur s'est bien présenté, on lui donne la première mission
+        // Vérifier la présence des informations clés dans la présentation
+        const mentionsParcours = userPresentation.includes('parcours') || 
+                                userPresentation.includes('formation') || 
+                                userPresentation.includes('étude') || 
+                                userPresentation.includes('diplôme') ||
+                                userPresentation.includes('école');
+                                
+        const mentionsExperience = userPresentation.includes('expérience') || 
+                                  userPresentation.includes('travail') || 
+                                  userPresentation.includes('poste') || 
+                                  userPresentation.includes('métier') ||
+                                  userPresentation.includes('entreprise') ||
+                                  userPresentation.includes('projet');
+                                  
+        const mentionsNiveau = userPresentation.includes('niveau') || 
+                              userPresentation.includes('connaissance') || 
+                              userPresentation.includes('compétence') || 
+                              userPresentation.includes('maîtrise') ||
+                              userPresentation.includes('cyber') ||
+                              userPresentation.includes('sécurité');
+                              
+        // Vérifier aussi la longueur minimale de la présentation
+        const presentationLongue = userPresentation.length > 100;
+        
+        // Considérer la présentation comme valide si elle contient au moins 2 des 3 éléments clés et est suffisamment longue
+        const presentationValide = presentationLongue && ((mentionsParcours && mentionsExperience) || 
+                                                         (mentionsParcours && mentionsNiveau) || 
+                                                         (mentionsExperience && mentionsNiveau));
+        
+        if (presentationValide) {
+          // L'utilisateur s'est bien présenté, la RH va le remercier et passer au contact du scénario
           messages.push({
             role: "user",
             content: `Je suis ${userName} et je viens de me présenter. Voici ma présentation : "${message}"
             
-            DIRECTIVE SPÉCIALE: Tu es le même PNJ (${respondingContact.name}) qui a envoyé le premier email de bienvenue. Tu dois maintenant donner une mission simple à ${userName}.
+            DIRECTIVE SPÉCIALE: Tu es ${respondingContact.name}, la Directrice RH qui a envoyé le premier email de bienvenue. Tu dois maintenant remercier ${userName} pour sa présentation complète et le mettre en contact avec ${scenario.contact.name}, ${scenario.contact.role} pour sa mission.
             
             Ta réponse DOIT:
-            1. Remercier brièvement l'utilisateur pour sa présentation
-            2. Présenter un problème de cybersécurité simple lié au scénario "${scenario.title}"
-            3. Expliquer clairement ce que tu attends de ${userName}
-            4. Utiliser un ton amical avec tutoiement
-            5. Être très concise (maximum 100 mots)`
+            1. Remercier chaleureusement l'utilisateur pour sa présentation complète
+            2. Faire un bref commentaire personnalisé sur son parcours ou son expérience
+            3. Annoncer que tu vas maintenant le mettre en contact avec ${scenario.contact.name} (${scenario.contact.role}) qui lui présentera sa mission
+            4. Utiliser un ton bienveillant et encourageant avec tutoiement
+            5. Être concise (maximum 120 mots)`
           });
         } else {
-          // L'utilisateur ne s'est pas suffisamment présenté, on lui redemande
+          // L'utilisateur ne s'est pas suffisamment présenté, la RH lui redemande
           messages.push({
             role: "user",
             content: `Je suis ${userName} et voici ma réponse à ta demande de présentation: "${message}"
             
-            DIRECTIVE SPÉCIALE: Tu es le même PNJ (${respondingContact.name}) qui a envoyé le premier email de bienvenue. Tu constates que l'utilisateur ne s'est pas suffisamment présenté (pas de parcours, formations, expériences mentionnées).
+            DIRECTIVE SPÉCIALE: Tu es ${respondingContact.name}, la Directrice RH qui a envoyé le premier email de bienvenue. Tu constates que l'utilisateur ne s'est pas suffisamment présenté.
+            
+            Informations manquantes : ${!mentionsParcours ? "parcours/formation" : ""} ${!mentionsExperience ? "expérience professionnelle" : ""} ${!mentionsNiveau ? "niveau de connaissance en cybersécurité" : ""} ${!presentationLongue ? "présentation trop courte" : ""}
             
             Ta réponse DOIT:
-            1. Être amicale mais ferme, en expliquant que pour mieux adapter le scénario, tu as besoin d'en savoir plus sur son parcours, ses expériences et compétences
-            2. Redemander à l'utilisateur de se présenter plus en détail, avec des questions spécifiques pour le guider
-            3. Maintenir un ton professionnel mais accessible, en utilisant toujours le tutoiement
-            4. Être concise (maximum 150 mots)`
+            1. Être amicale mais ferme, en expliquant que pour adapter la mission à son profil, tu as besoin d'informations plus complètes
+            2. Préciser EXACTEMENT quelles informations manquent dans sa présentation (parcours/formation, expérience professionnelle, niveau de connaissance en cybersécurité)
+            3. Redemander à l'utilisateur de se présenter plus en détail, avec des questions précises sur les éléments manquants
+            4. Maintenir un ton professionnel mais accessible, en utilisant toujours le tutoiement
+            5. Être concise (maximum 150 mots)`
           });
         }
       } else if (chatHistory && chatHistory.length === 4 && 
@@ -1407,20 +1453,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
                  chatHistory[1].type === 'user' && 
                  chatHistory[2].type === 'bot' && 
                  chatHistory[3].type === 'user') {
-        // C'est la réponse à la première mission, maintenant on fait intervenir un PNJ niveau 2 différent
-        messages.push({
-          role: "user",
-          content: `Je suis ${userName} et je viens de répondre à la première mission. Voici ma réponse : "${message}"
-          
-          DIRECTIVE SPÉCIALE: Tu es un nouveau PNJ (${respondingContact.name}) qui intervient maintenant dans la conversation.
-          
-          Ta réponse DOIT:
-          1. Te présenter brièvement
-          2. Donner ton avis simple sur la réponse de l'utilisateur 
-          3. Poser une nouvelle question ou donner une nouvelle tâche
-          4. Utiliser un ton amical avec tutoiement
-          5. Être très concise (maximum 100 mots)`
-        });
+        // C'est la réponse à l'email de la RH et à sa validation de la présentation
+        // Maintenant, le contact principal du scénario se présente et expose son problème
+        
+        // Vérifier si le dernier message de bot (index 2) était de la part de la RH
+        const lastBotMessage = chatHistory[2];
+        const wasFromHR = lastBotMessage.contactName && 
+                         lastBotMessage.contactName.includes("Isabelle") && 
+                         lastBotMessage.contactRole && 
+                         lastBotMessage.contactRole.includes("Ressources Humaines");
+        
+        if (wasFromHR) {
+          // C'est bien la suite de la présentation validée par la RH, faire intervenir le contact principal du scénario
+          messages.push({
+            role: "user",
+            content: `Je suis ${userName} et j'ai été accueilli par la Directrice RH qui m'a mis en contact avec toi. Voici ma dernière réponse : "${message}"
+            
+            DIRECTIVE SPÉCIALE: Tu es ${respondingContact.name} (${respondingContact.role}), le contact principal pour ce scénario "${scenario.title}". C'est la première fois que tu interviens dans la conversation après que la RH ait fait les présentations.
+            
+            Ta réponse DOIT:
+            1. Te présenter brièvement et professionnellement (qui tu es, ton rôle)
+            2. Exposer clairement un problème de cybersécurité lié au scénario "${scenario.title}" (contexte, enjeux, problématique)
+            3. Utiliser maximum 3 paragraphes courts et inclure si pertinent 2-3 bullet points pour structurer la mission
+            4. Préciser EXPLICITEMENT la structure attendue dans la réponse de l'utilisateur (ex: analyse, recommandations, plan d'action...)
+            5. Utiliser un ton professionnel mais accessible avec tutoiement
+            6. Adapter ton langage au secteur ${secteurActivite}
+            7. Rester concis (maximum 200 mots)`
+          });
+        } else {
+          // C'est probablement une réponse à une mission déjà en cours
+          messages.push({
+            role: "user",
+            content: `Je suis ${userName} et je viens de répondre à ta question. Voici ma réponse : "${message}"
+            
+            DIRECTIVE SPÉCIALE: Tu es ${respondingContact.name} (${respondingContact.role}), et tu continues la conversation sur le scénario "${scenario.title}".
+            
+            Ta réponse DOIT:
+            1. Donner ton avis détaillé sur la réponse de l'utilisateur (points forts, manques éventuels)
+            2. Poser une nouvelle question plus précise ou donner une nouvelle tâche en lien avec la problématique
+            3. Si pertinent, ajouter un élément nouveau à la situation pour la faire évoluer
+            4. Utiliser un ton professionnel avec tutoiement
+            5. Adapter ton expertise à ton rôle de ${respondingContact.role}
+            6. Rester concis (maximum 150 mots)`
+          });
+        }
+        
       } else {
         messages.push({
           role: "user",
