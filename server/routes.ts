@@ -7,12 +7,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { openAIService } from "../I_AM_CYBER/services/openai";
 // Import de document-generator supprimé car nous n'utilisons plus de pièces jointes
 import { ChatCompletionRequestMessage } from "../shared/schema";
-// Import des routes pour le module Effet Tunnel
-import { registerTunnelRoutes } from "./tunnel-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Enregistrer les routes pour le module Effet Tunnel
-  registerTunnelRoutes(app);
   // Nous n'avons plus besoin des répertoires de documents et HTML
   // car nous n'utilisons plus de pièces jointes
 
