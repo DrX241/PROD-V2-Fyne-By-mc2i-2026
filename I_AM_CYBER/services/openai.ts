@@ -19,7 +19,7 @@ export type ApiKeyType = 'primary' | 'secondary';
 class OpenAIService {
   private primaryConfig: OpenAIConfig;
   private secondaryConfig: OpenAIConfig;
-  private currentConfig: ApiKeyType = 'secondary';
+  private currentConfig: ApiKeyType = 'primary';
   private responseCache: Map<string, CachedResponse> = new Map();
   private readonly CACHE_TTL = 1000 * 60 * 60; // 1 heure en millisecondes
   private connectionStatus: 'connected' | 'disconnected' | 'reconnecting' = 'disconnected';
@@ -32,64 +32,23 @@ class OpenAIService {
       const primaryModelName = process.env.AZURE_OPENAI_MODEL_NAME || "GPT-4o";
       const secondaryModelName = process.env.AZURE_OPENAI_MODEL_NAME_SECONDARY || "GPT-4o-mini";
       
-      // Récupération des endpoints - Utiliser des valeurs connues pour le développement
-      let primaryEndpoint = "https://example-primary.openai.azure.com";
-      let secondaryEndpoint = "https://example-secondary.openai.azure.com";
-      
-      // Vérifier si les variables d'environnement sont définies
-      if (process.env.AZURE_OPENAI_ENDPOINT) {
-        primaryEndpoint = process.env.AZURE_OPENAI_ENDPOINT;
-        console.log("Using environment variable for primary endpoint");
-      }
-      
-      if (process.env.AZURE_OPENAI_ENDPOINT_SECONDARY) {
-        secondaryEndpoint = process.env.AZURE_OPENAI_ENDPOINT_SECONDARY;
-        console.log("Using environment variable for secondary endpoint");
-      }
+      // Récupération des endpoints
+      const primaryEndpoint = process.env.AZURE_OPENAI_ENDPOINT || "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com";
+      const secondaryEndpoint = process.env.AZURE_OPENAI_ENDPOINT_SECONDARY || "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com";
       
       // S'assurer que les endpoints ne se terminent pas par un slash
       const cleanPrimaryEndpoint = primaryEndpoint.endsWith('/') ? primaryEndpoint.slice(0, -1) : primaryEndpoint;
       const cleanSecondaryEndpoint = secondaryEndpoint.endsWith('/') ? secondaryEndpoint.slice(0, -1) : secondaryEndpoint;
       
-      // Récupérer les autres paramètres de configuration avec des valeurs factices pour le développement
-      let primaryApiKey = "primary-api-key-placeholder";
-      let primaryDeploymentName = "gpt4o-deployment";
-      let primaryApiVersion = "2024-03-01-preview";
+      // Récupérer les autres paramètres de configuration
+      const primaryApiKey = process.env.AZURE_OPENAI_API_KEY || "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK";
+      const primaryDeploymentName = process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "Eddy-deploy-20-02-2025-gpt-4o";
+      const primaryApiVersion = process.env.AZURE_OPENAI_API_VERSION || "2024-03-01-preview";
       
-      let secondaryApiKey = "secondary-api-key-placeholder";
-      let secondaryDeploymentName = "gpt4o-mini-deployment";
-      let secondaryApiVersion = "2024-03-01-preview";
+      const secondaryApiKey = process.env.AZURE_OPENAI_API_KEY_SECONDARY || "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK";
+      const secondaryDeploymentName = process.env.AZURE_OPENAI_DEPLOYMENT_NAME_SECONDARY || "Eddy-02-2025-gpt-4o-mini";
+      const secondaryApiVersion = process.env.AZURE_OPENAI_API_VERSION_SECONDARY || "2024-12-01-preview";
       
-      // Vérifier si les variables d'environnement sont définies
-      if (process.env.AZURE_OPENAI_API_KEY) {
-        primaryApiKey = process.env.AZURE_OPENAI_API_KEY;
-        console.log("Using environment variable for primary API key");
-      }
-      
-      if (process.env.AZURE_OPENAI_DEPLOYMENT_NAME) {
-        primaryDeploymentName = process.env.AZURE_OPENAI_DEPLOYMENT_NAME;
-        console.log("Using environment variable for primary deployment name");
-      }
-      
-      if (process.env.AZURE_OPENAI_API_VERSION) {
-        primaryApiVersion = process.env.AZURE_OPENAI_API_VERSION;
-        console.log("Using environment variable for primary API version");
-      }
-      
-      if (process.env.AZURE_OPENAI_API_KEY_SECONDARY) {
-        secondaryApiKey = process.env.AZURE_OPENAI_API_KEY_SECONDARY;
-        console.log("Using environment variable for secondary API key");
-      }
-      
-      if (process.env.AZURE_OPENAI_DEPLOYMENT_NAME_SECONDARY) {
-        secondaryDeploymentName = process.env.AZURE_OPENAI_DEPLOYMENT_NAME_SECONDARY;
-        console.log("Using environment variable for secondary deployment name");
-      }
-      
-      if (process.env.AZURE_OPENAI_API_VERSION_SECONDARY) {
-        secondaryApiVersion = process.env.AZURE_OPENAI_API_VERSION_SECONDARY;
-        console.log("Using environment variable for secondary API version");
-      }
       console.log(`OpenAI Service initialized with primary model: ${primaryModelName}`);
       console.log(`OpenAI Service initialized with secondary model: ${secondaryModelName}`);
       
@@ -112,18 +71,18 @@ class OpenAIService {
       console.error("Error initializing OpenAI Service:", error);
       // Initialiser avec des valeurs par défaut en cas d'erreur
       this.primaryConfig = {
-        endpoint: "https://example-primary.openai.azure.com",
-        apiKey: "primary-api-key-placeholder",
-        deploymentName: "gpt4o-deployment",
+        endpoint: "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com",
+        apiKey: "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK",
+        deploymentName: "Eddy-deploy-20-02-2025-gpt-4o",
         apiVersion: "2024-03-01-preview",
         modelName: "GPT-4o"
       };
       
       this.secondaryConfig = {
-        endpoint: "https://example-secondary.openai.azure.com",
-        apiKey: "secondary-api-key-placeholder",
-        deploymentName: "gpt4o-mini-deployment",
-        apiVersion: "2024-03-01-preview",
+        endpoint: "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com",
+        apiKey: "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK",
+        deploymentName: "Eddy-02-2025-gpt-4o-mini",
+        apiVersion: "2024-12-01-preview",
         modelName: "GPT-4o-mini"
       };
     }
@@ -267,15 +226,7 @@ class OpenAIService {
       const config = this.getCurrentConfig();
       
       // Appel direct à l'API (sans passer par getChatCompletion pour éviter les retries)
-      console.log("Checking API connection with config:", { 
-        endpoint: config.endpoint, 
-        deploymentName: config.deploymentName,
-        apiVersion: config.apiVersion 
-      });
-      
       const url = `${config.endpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
-      console.log("Full API URL:", url);
-      
       const response = await axios.post(
         url,
         {
