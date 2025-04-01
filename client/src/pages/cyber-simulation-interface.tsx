@@ -416,9 +416,17 @@ ${currentMission.contactName}
         
         {/* Contenu de l'onglet actif */}
         <div className="flex-1 overflow-auto">
-          <TabsContent value="emails" className="m-0 h-full" hidden={activeTab !== 'emails'}>
-            <div className="h-full flex">
-              {/* Liste des emails */}
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'emails' | 'chat' | 'files' | 'missions' | 'terminal')}>
+            <TabsList className="hidden">
+              <TabsTrigger value="emails">Emails</TabsTrigger>
+              <TabsTrigger value="chat">Chat</TabsTrigger>
+              <TabsTrigger value="files">Fichiers</TabsTrigger>
+              <TabsTrigger value="missions">Missions</TabsTrigger>
+              <TabsTrigger value="terminal">Terminal</TabsTrigger>
+            </TabsList>
+            <TabsContent value="emails" className="m-0 h-full">
+              <div className="h-full flex">
+                {/* Liste des emails */}
               <div className={`w-1/3 border-r ${activeMessageId ? 'hidden md:block' : ''}`}>
                 <div className="p-4">
                   <h2 className="text-lg font-semibold flex items-center">
@@ -543,7 +551,7 @@ ${currentMission.contactName}
             </div>
           </TabsContent>
           
-          <TabsContent value="chat" className="m-0 h-full" hidden={activeTab !== 'chat'}>
+          <TabsContent value="chat" className="m-0 h-full">
             <div className="h-full flex">
               {/* Affichage du chat */}
               {activeChatId && activeContact ? (
@@ -572,7 +580,7 @@ ${currentMission.contactName}
             </div>
           </TabsContent>
           
-          <TabsContent value="files" className="m-0 h-full" hidden={activeTab !== 'files'}>
+          <TabsContent value="files" className="m-0 h-full">
             <div className="p-6">
               <h2 className="text-xl font-semibold mb-4">Fichiers</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -605,7 +613,7 @@ ${currentMission.contactName}
             </div>
           </TabsContent>
           
-          <TabsContent value="missions" className="m-0 h-full" hidden={activeTab !== 'missions'}>
+          <TabsContent value="missions" className="m-0 h-full">
             <div className="p-6">
               <h2 className="text-xl font-semibold mb-4">Missions en cours</h2>
               
@@ -657,7 +665,7 @@ ${currentMission.contactName}
             </div>
           </TabsContent>
           
-          <TabsContent value="terminal" className="m-0 h-full" hidden={activeTab !== 'terminal'}>
+          <TabsContent value="terminal" className="m-0 h-full">
             <div className="p-4 bg-black text-green-400 font-mono h-full">
               <div className="mb-2">
                 <p>{`${companyName} Terminal v1.0`}</p>
@@ -682,6 +690,7 @@ ${currentMission.contactName}
               </div>
             </div>
           </TabsContent>
+          </Tabs>
         </div>
       </main>
     </div>
