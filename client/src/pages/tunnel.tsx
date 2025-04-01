@@ -54,14 +54,19 @@ const TunnelPage = () => {
     
     setLoading(true);
     try {
-      const response = await apiRequest('/api/tunnel/initialize', {
+      const response = await fetch('/api/tunnel/initialize', {
         method: 'POST',
-        data: { role, level, sector, scenarioType }
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ role, level, sector, scenarioType })
       });
       
-      setSessionId(response.sessionId);
-      setCurrentSituation(response.initialSituation);
-      setDecisionPath([response.initialSituation.id]);
+      const data = await response.json();
+      
+      setSessionId(data.sessionId);
+      setCurrentSituation(data.initialSituation);
+      setDecisionPath([data.initialSituation.id]);
       setMessages([
         {
           id: 'welcome',
@@ -69,9 +74,9 @@ const TunnelPage = () => {
           content: `Bienvenue dans le module EFFET TUNNEL. Vous incarnez un(e) ${role} avec un niveau ${level} dans le secteur ${sector}.`
         },
         {
-          id: 'situation-' + response.initialSituation.id,
+          id: 'situation-' + data.initialSituation.id,
           type: 'situation',
-          content: response.initialSituation
+          content: data.initialSituation
         }
       ]);
       setInitialized(true);
@@ -104,19 +109,24 @@ const TunnelPage = () => {
         }
       ]);
       
-      const response = await apiRequest('/api/tunnel/make-decision', {
+      const response = await fetch('/api/tunnel/make-decision', {
         method: 'POST',
-        data: { sessionId, optionId }
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sessionId, optionId })
       });
       
+      const data = await response.json();
+      
       // Si c'est la fin du scénario
-      if (response.isFinal) {
+      if (data.isFinal) {
         setMessages(prev => [
           ...prev,
           {
             id: 'situation-final',
             type: 'situation',
-            content: response.situation || { 
+            content: data.situation || { 
               title: "Fin du scénario", 
               description: "Vous avez terminé ce scénario." 
             }
@@ -124,18 +134,18 @@ const TunnelPage = () => {
           {
             id: 'debriefing',
             type: 'tutorial',
-            content: response.debriefing
+            content: data.debriefing
           }
         ]);
       } else {
         // Ajouter le tutoriel si disponible
-        if (response.situation.tutorialContent) {
+        if (data.situation.tutorialContent) {
           setMessages(prev => [
             ...prev,
             {
-              id: 'tutorial-' + response.situation.id,
+              id: 'tutorial-' + data.situation.id,
               type: 'tutorial',
-              content: response.situation.tutorialContent
+              content: data.situation.tutorialContent
             }
           ]);
         }
@@ -144,14 +154,14 @@ const TunnelPage = () => {
         setMessages(prev => [
           ...prev,
           {
-            id: 'situation-' + response.situation.id,
+            id: 'situation-' + data.situation.id,
             type: 'situation',
-            content: response.situation
+            content: data.situation
           }
         ]);
         
-        setCurrentSituation(response.situation);
-        setDecisionPath(response.decisionPath);
+        setCurrentSituation(data.situation);
+        setDecisionPath(data.decisionPath);
       }
     } catch (error) {
       console.error('Error making decision:', error);
@@ -171,13 +181,18 @@ const TunnelPage = () => {
     
     setLoading(true);
     try {
-      const response = await apiRequest('/api/tunnel/reset-scenario', {
+      const response = await fetch('/api/tunnel/reset-scenario', {
         method: 'POST',
-        data: { sessionId }
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sessionId })
       });
       
-      setCurrentSituation(response.situation);
-      setDecisionPath(response.decisionPath);
+      const data = await response.json();
+      
+      setCurrentSituation(data.situation);
+      setDecisionPath(data.decisionPath);
       setMessages([
         {
           id: 'reset',
@@ -185,9 +200,9 @@ const TunnelPage = () => {
           content: "Le scénario a été réinitialisé."
         },
         {
-          id: 'situation-' + response.situation.id,
+          id: 'situation-' + data.situation.id,
           type: 'situation',
-          content: response.situation
+          content: data.situation
         }
       ]);
     } catch (error) {
