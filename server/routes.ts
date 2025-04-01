@@ -1694,9 +1694,9 @@ Retournez UNIQUEMENT un tableau JSON avec le format suivant, sans aucun texte ex
         moduleId,
         selectedDifficulty,
         finalLevel,
-        testScore: testResults.score,
-        testTotal: testResults.total,
-        scorePercentage: testResults.percentage,
+        testScore: testResults?.score || 0,
+        testTotal: testResults?.total || 0,
+        scorePercentage: testResults?.percentage || 0,
         missionProgress: {
           currentMission: "",
           missionsCompleted: [],
@@ -1704,15 +1704,9 @@ Retournez UNIQUEMENT un tableau JSON avec le format suivant, sans aucun texte ex
         }
       };
       
-      // Enregistrer dans la session
-      if (!req.session.cyberPlayer) {
-        req.session.cyberPlayer = playerData;
-      } else {
-        req.session.cyberPlayer = {
-          ...req.session.cyberPlayer,
-          ...playerData
-        };
-      }
+      // Nous n'utilisons plus req.session car cela nécessite express-session
+      // Au lieu de cela, nous renvoyons simplement les données au client
+      // qui les stockera dans localStorage
       
       res.json({
         status: 'success',

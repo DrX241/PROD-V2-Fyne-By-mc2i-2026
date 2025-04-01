@@ -27,15 +27,7 @@ interface PlayerData {
   testCompleted: boolean;
 }
 
-// Liste d'avatars disponibles
-const avatars = [
-  { id: "avatar1", src: "/avatars/avatar1.png", fallback: "A1" },
-  { id: "avatar2", src: "/avatars/avatar2.png", fallback: "A2" },
-  { id: "avatar3", src: "/avatars/avatar3.png", fallback: "A3" },
-  { id: "avatar4", src: "/avatars/avatar4.png", fallback: "A4" },
-  { id: "avatar5", src: "/avatars/avatar5.png", fallback: "A5" },
-  { id: "avatar6", src: "/avatars/avatar6.png", fallback: "A6" },
-];
+import { avatars, AvatarSelector, AvatarDisplay } from "@/components/cyber/AvatarCreator";
 
 // Liste de rôles disponibles
 const roles = [
@@ -393,22 +385,11 @@ export default function CyberOnboardingNew() {
                   <p className="text-gray-600">Sélectionnez un personnage qui vous représente</p>
                 </div>
                 
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 max-w-2xl mx-auto">
-                  {avatars.map((avatar) => (
-                    <div 
-                      key={avatar.id}
-                      onClick={() => handleAvatarSelect(avatar.id)}
-                      className={`cursor-pointer transition-all flex flex-col items-center p-3 rounded-lg ${
-                        playerData.avatar === avatar.id ? 'bg-blue-100 ring-2 ring-blue-500' : 'hover:bg-gray-100'
-                      }`}
-                    >
-                      <Avatar className="h-16 w-16 mb-2">
-                        <AvatarImage src={avatar.src} alt="Avatar" />
-                        <AvatarFallback>{avatar.fallback}</AvatarFallback>
-                      </Avatar>
-                      <span className="text-sm text-gray-500">{avatar.fallback}</span>
-                    </div>
-                  ))}
+                <div className="max-w-2xl mx-auto">
+                  <AvatarSelector 
+                    selectedAvatar={playerData.avatar} 
+                    onSelectAvatar={handleAvatarSelect} 
+                  />
                 </div>
                 
                 <div className="flex justify-center mt-8">
