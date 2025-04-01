@@ -91,6 +91,16 @@ export default function ModulesPage() {
       bgGradient: "bg-gradient-to-br from-blue-50 to-blue-100"
     },
     {
+      id: "tunnel",
+      title: "EFFET TUNNEL",
+      description: "Explorez des scénarios où chacune de vos décisions modifie le cours de l'histoire. Interagissez avec un tuteur pédagogique entre les missions.",
+      icon: <ArrowRight className="w-12 h-12 text-white" />,
+      iconBg: "bg-amber-600",
+      color: "border-amber-200 hover:shadow-xl hover:scale-105 hover:border-amber-300",
+      link: "/tunnel",
+      bgGradient: "bg-gradient-to-br from-amber-50 to-amber-100"
+    },
+    {
       id: "data-ia",
       title: "I AM DATA & IA",
       description: "Maîtrisez les concepts de data science et d'intelligence artificielle grâce à des cas pratiques et des simulations avancées.",

@@ -109,6 +109,15 @@ export default function Home() {
       linkTo: "/cyber"
     },
     {
+      title: "EFFET TUNNEL",
+      description: "Explorez des scénarios où chacune de vos décisions influence le cours de l'histoire. Bénéficiez d'explications pédagogiques entre les missions.",
+      icon: <ArrowRight className="w-8 h-8 text-white" />,
+      color: "bg-amber-600",
+      bgColor: "bg-gradient-to-br from-amber-50 to-amber-100",
+      accentColor: "bg-amber-500",
+      linkTo: "/tunnel"
+    },
+    {
       title: "I AM DATA & IA",
       description: "Maîtrisez les concepts avancés de data science et d'intelligence artificielle à travers des simulations pratiques et des défis concrets.",
       icon: <Database className="w-8 h-8 text-white" />,
