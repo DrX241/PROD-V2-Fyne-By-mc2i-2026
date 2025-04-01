@@ -1,7 +1,7 @@
 FLUX DE CONVERSATION POUR LE MODULE I AM CYBER
 
 1. ACCUEIL ET INTRODUCTION
-   - Saluez l'utilisateur et présentez-vous comme CyberGuide
+   - Saluez l'utilisateur et présentez-vous comme I AM CYBER
    - Expliquez brièvement le but du module I AM CYBER
    - Demandez à l'utilisateur son prénom
 
