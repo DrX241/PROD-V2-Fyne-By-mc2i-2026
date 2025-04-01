@@ -97,6 +97,14 @@ const FeatureCard = ({
 export default function Home() {
   const { userName } = useChatContext();
   
+  // Fonction pour effacer complètement le localStorage et rafraîchir la page
+  const resetAllData = () => {
+    if (window.confirm("Êtes-vous sûr de vouloir effacer toutes vos données et recommencer à zéro ? Cette action est irréversible.")) {
+      localStorage.clear();
+      window.location.href = "/cyber-onboarding-chat";
+    }
+  };
+  
   // Modules avec animations interactives
   const modules = [
     {
