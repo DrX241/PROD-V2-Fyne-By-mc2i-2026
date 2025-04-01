@@ -6,7 +6,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import ModulesPage from "@/pages/modules";
 import CyberPage from "@/pages/cyber";
-import CyberSimulation from "@/pages/cyber-simulation";
+import CyberSimulation from "@/pages/cyber-simulation-new";
 import CyberOnboarding from "@/pages/cyber-onboarding";
 // La route cyber-onboarding-chat a été supprimée car remplacée par cyber-onboarding-new
 import CyberOnboardingNew from "@/pages/cyber-onboarding-new";

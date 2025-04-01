@@ -419,51 +419,52 @@ export default function CyberSimulation() {
                   </h2>
                   
                   <div className="max-h-[70vh] overflow-y-auto pr-2">
-                  {emails.length === 0 ? (
-                    <div className="text-center py-10">
-                      <p className="text-gray-500">Aucun email pour le moment</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {emails.map(email => (
-                        <div 
-                          key={email.id}
-                          className={`p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition ${!email.isRead ? 'bg-blue-50 border-blue-200' : 'bg-white'}`}
-                          onClick={() => markAsRead(email.id, 'email')}
-                        >
-                          <div className="flex items-start justify-between mb-2">
-                            <div>
-                              <h3 className="font-bold">{email.subject}</h3>
-                              <p className="text-sm text-gray-600">
-                                De: {email.sender} {email.senderRole ? `(${email.senderRole})` : ''}
-                              </p>
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {email.timestamp.toLocaleTimeString()} - {email.timestamp.toLocaleDateString()}
-                            </div>
-                          </div>
-                          <p className="text-sm whitespace-pre-wrap">{email.content}</p>
-                          
-                          {email.attachments && email.attachments.length > 0 && (
-                            <div className="mt-2">
-                              <p className="text-sm font-medium">Pièces jointes:</p>
-                              <div className="flex flex-wrap gap-2 mt-1">
-                                {email.attachments.map(attachment => (
-                                  <div 
-                                    key={attachment}
-                                    className="px-3 py-1 bg-gray-100 rounded-full text-sm flex items-center"
-                                  >
-                                    <FileText className="h-3 w-3 mr-1" />
-                                    {attachment}
-                                  </div>
-                                ))}
+                    {emails.length === 0 ? (
+                      <div className="text-center py-10">
+                        <p className="text-gray-500">Aucun email pour le moment</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {emails.map(email => (
+                          <div 
+                            key={email.id}
+                            className={`p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition ${!email.isRead ? 'bg-blue-50 border-blue-200' : 'bg-white'}`}
+                            onClick={() => markAsRead(email.id, 'email')}
+                          >
+                            <div className="flex items-start justify-between mb-2">
+                              <div>
+                                <h3 className="font-bold">{email.subject}</h3>
+                                <p className="text-sm text-gray-600">
+                                  De: {email.sender} {email.senderRole ? `(${email.senderRole})` : ''}
+                                </p>
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {email.timestamp.toLocaleTimeString()} - {email.timestamp.toLocaleDateString()}
                               </div>
                             </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                            <p className="text-sm whitespace-pre-wrap">{email.content}</p>
+                            
+                            {email.attachments && email.attachments.length > 0 && (
+                              <div className="mt-2">
+                                <p className="text-sm font-medium">Pièces jointes:</p>
+                                <div className="flex flex-wrap gap-2 mt-1">
+                                  {email.attachments.map(attachment => (
+                                    <div 
+                                      key={attachment}
+                                      className="px-3 py-1 bg-gray-100 rounded-full text-sm flex items-center"
+                                    >
+                                      <FileText className="h-3 w-3 mr-1" />
+                                      {attachment}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -532,82 +533,84 @@ export default function CyberSimulation() {
                     Missions
                   </h2>
                   
-                  {missions.length === 0 ? (
-                    <div className="text-center py-10">
-                      <p className="text-gray-500">Aucune mission disponible pour le moment</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {missions.map(mission => (
-                        <div 
-                          key={mission.id}
-                          className={`p-4 border rounded-lg ${
-                            mission.status === 'active' ? 'bg-blue-50 border-blue-200' : 
-                            mission.status === 'completed' ? 'bg-green-50 border-green-200' : 
-                            'bg-white'
-                          }`}
-                        >
-                          <div className="flex justify-between items-start mb-2">
-                            <h3 className="font-bold">{mission.title}</h3>
-                            <div className={`px-2 py-1 rounded-full text-xs ${
-                              mission.status === 'active' ? 'bg-blue-100 text-blue-800' : 
-                              mission.status === 'completed' ? 'bg-green-100 text-green-800' : 
-                              'bg-yellow-100 text-yellow-800'
-                            }`}>
-                              {mission.status === 'active' ? 'En cours' : 
-                               mission.status === 'completed' ? 'Terminée' : 
-                               'En attente'}
+                  <div className="max-h-[70vh] overflow-y-auto pr-2">
+                    {missions.length === 0 ? (
+                      <div className="text-center py-10">
+                        <p className="text-gray-500">Aucune mission disponible pour le moment</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {missions.map(mission => (
+                          <div 
+                            key={mission.id}
+                            className={`p-4 border rounded-lg ${
+                              mission.status === 'active' ? 'bg-blue-50 border-blue-200' : 
+                              mission.status === 'completed' ? 'bg-green-50 border-green-200' : 
+                              'bg-white'
+                            }`}
+                          >
+                            <div className="flex justify-between items-start mb-2">
+                              <h3 className="font-bold">{mission.title}</h3>
+                              <div className={`px-2 py-1 rounded-full text-xs ${
+                                mission.status === 'active' ? 'bg-blue-100 text-blue-800' : 
+                                mission.status === 'completed' ? 'bg-green-100 text-green-800' : 
+                                'bg-yellow-100 text-yellow-800'
+                              }`}>
+                                {mission.status === 'active' ? 'En cours' : 
+                                 mission.status === 'completed' ? 'Terminée' : 
+                                 'En attente'}
+                              </div>
                             </div>
-                          </div>
-                          
-                          <p className="text-sm text-gray-600 mb-2">{mission.description}</p>
-                          
-                          <div className="flex flex-wrap gap-y-2 gap-x-4 text-sm text-gray-500 mb-4">
-                            <div className="flex items-center">
-                              <User className="h-4 w-4 mr-1" />
-                              {mission.contact.name} ({mission.contact.role})
+                            
+                            <p className="text-sm text-gray-600 mb-2">{mission.description}</p>
+                            
+                            <div className="flex flex-wrap gap-y-2 gap-x-4 text-sm text-gray-500 mb-4">
+                              <div className="flex items-center">
+                                <User className="h-4 w-4 mr-1" />
+                                {mission.contact.name} ({mission.contact.role})
+                              </div>
+                              <div className="flex items-center">
+                                <CalendarDays className="h-4 w-4 mr-1" />
+                                {mission.timestamp.toLocaleDateString()}
+                              </div>
+                              <div className="flex items-center">
+                                <Zap className="h-4 w-4 mr-1" />
+                                Difficulté: {mission.difficulty}
+                              </div>
                             </div>
-                            <div className="flex items-center">
-                              <CalendarDays className="h-4 w-4 mr-1" />
-                              {mission.timestamp.toLocaleDateString()}
-                            </div>
-                            <div className="flex items-center">
-                              <Zap className="h-4 w-4 mr-1" />
-                              Difficulté: {mission.difficulty}
-                            </div>
-                          </div>
-                          
-                          {mission.status === 'pending' && (
-                            <Button 
-                              onClick={() => startMission(mission.id)}
-                              className="w-full sm:w-auto"
-                            >
-                              Commencer la mission
-                            </Button>
-                          )}
-                          
-                          {mission.status === 'active' && (
-                            <div className="flex flex-col sm:flex-row gap-2">
+                            
+                            {mission.status === 'pending' && (
                               <Button 
-                                variant="outline"
+                                onClick={() => startMission(mission.id)}
                                 className="w-full sm:w-auto"
-                                onClick={() => setActiveTab('files')}
                               >
-                                Consulter les documents
+                                Commencer la mission
                               </Button>
-                              <Button 
-                                variant="outline"
-                                className="w-full sm:w-auto"
-                                onClick={() => setActiveTab('chat')}
-                              >
-                                Contacter {mission.contact.name}
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                            )}
+                            
+                            {mission.status === 'active' && (
+                              <div className="flex flex-col sm:flex-row gap-2">
+                                <Button 
+                                  variant="outline"
+                                  className="w-full sm:w-auto"
+                                  onClick={() => setActiveTab('files')}
+                                >
+                                  Consulter les documents
+                                </Button>
+                                <Button 
+                                  variant="outline"
+                                  className="w-full sm:w-auto"
+                                  onClick={() => setActiveTab('chat')}
+                                >
+                                  Contacter {mission.contact.name}
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -734,10 +737,14 @@ export default function CyberSimulation() {
 // Fonctions utilitaires
 function getRoleName(roleId: string): string {
   const roles: Record<string, string> = {
-    'security-analyst': 'Analyste en cybersécurité',
-    'risk-manager': 'Gestionnaire de risques',
-    'incident-responder': 'Répondeur d\'incidents',
-    'compliance-officer': 'Responsable conformité'
+    'security-analyst': 'Analyste de sécurité',
+    'security-engineer': 'Ingénieur sécurité',
+    'security-consultant': 'Consultant cybersécurité',
+    'security-manager': 'Responsable sécurité',
+    'data-protection-officer': 'Délégué à la protection des données',
+    'security-auditor': 'Auditeur sécurité',
+    'red-team': 'Équipe rouge (Red Team)',
+    'blue-team': 'Équipe bleue (Blue Team)'
   };
   
   return roles[roleId] || roleId;
@@ -745,10 +752,12 @@ function getRoleName(roleId: string): string {
 
 function getModuleName(moduleId: string): string {
   const modules: Record<string, string> = {
-    'crisis': 'Gestion de crise cyber',
-    'gdpr': 'Protection des données personnelles / RGPD',
+    'crisis-management': 'Gestion de crise cyber',
+    'data-protection': 'Protection des données personnelles',
     'social-engineering': 'Ingénierie sociale et phishing',
-    'incidents': 'Gestion des incidents de sécurité'
+    'incident-handling': 'Gestion des incidents de sécurité',
+    'supply-chain': 'Sécurité de la chaîne d\'approvisionnement',
+    'governance': 'Stratégie et gouvernance cybersécurité'
   };
   
   return modules[moduleId] || moduleId;
@@ -756,68 +765,89 @@ function getModuleName(moduleId: string): string {
 
 function getExpertByModule(moduleId: string): string {
   const experts: Record<string, string> = {
-    'crisis': 'Lorenzo Bertola',
-    'gdpr': 'Marion Lopez',
-    'social-engineering': 'Yousra Benahmed',
-    'incidents': 'Eddy Missoni Idembi'
+    'crisis-management': 'Richard Farkas',
+    'data-protection': 'Sophie Niel',
+    'social-engineering': 'Marc Dubois',
+    'incident-handling': 'Eddy Missoni',
+    'supply-chain': 'Leila Hakimi',
+    'governance': 'François Bernard'
   };
   
-  return experts[moduleId] || 'Julien Grimault';
+  return experts[moduleId] || 'Olivier Dupont';
 }
 
 function getExpertRole(expertName: string): string {
   const roles: Record<string, string> = {
-    'Lorenzo Bertola': 'Directeur du pôle BFA',
-    'Marion Lopez': 'Directrice Marketing, Communication et RSE',
-    'Yousra Benahmed': 'Consultante Senior Cybersécurité',
-    'Eddy Missoni Idembi': 'Expert Data / IA & CTO',
-    'Julien Grimault': 'Directeur d\'unité, Sponsor du centre d\'expertise Cybersécurité'
+    'Richard Farkas': 'Directeur de la Réponse aux Incidents',
+    'Sophie Niel': 'DPO / Juriste spécialisée RGPD',
+    'Marc Dubois': 'Expert en Sécurité Humaine',
+    'Eddy Missoni': 'Expert Data / IA & CTO',
+    'Leila Hakimi': 'Responsable Sécurité des Fournisseurs',
+    'François Bernard': 'RSSI / Directeur Cybersécurité',
+    'Olivier Dupont': 'Mentor Cybersécurité'
   };
   
-  return roles[expertName] || 'Expert Cybersécurité';
+  return roles[expertName] || 'Spécialiste Cybersécurité';
 }
 
 function generateMissionContent(moduleId: string, level: string): string {
-  let content = '';
+  // Contenu générique pour la mission, à personnaliser selon le module et le niveau
+  return `MISSION CONFIDENTIELLE - ${level.toUpperCase()}
   
-  if (moduleId === 'crisis') {
-    content = `MISSION: SIMULATION DE GESTION DE CRISE CYBER\n\nNiveau: ${level}\n\nObjectif:\nVous allez participer à une simulation de crise cyber qui testera vos compétences en coordination, communication et prise de décision sous pression.\n\nContexte:\nL'entreprise SimTech, client important de notre cabinet, a détecté des activités suspectes sur son réseau. Une investigation préliminaire indique qu'il pourrait s'agir d'une compromission majeure affectant les systèmes critiques. Le PDG vous a contacté pour obtenir une assistance immédiate.\n\nTâches:\n1. Analyser la situation initiale et établir une évaluation préliminaire
-2. Identifier les parties prenantes à impliquer dans la cellule de crise
-3. Proposer un plan de communication interne et externe
-4. Établir les priorités d'action technique et organisationnelle
+Module: ${getModuleName(moduleId)}
 
-Documents disponibles:\n- Rapport initial d'incident\n- Cartographie des systèmes critiques\n- Procédures de gestion de crise existantes\n\nÀ rendre:\n- Analyse de la situation\n- Composition de la cellule de crise\n- Plan de communication\n- Plan d'action priorisé`;
-  } else if (moduleId === 'gdpr') {
-    content = `MISSION: AUDIT DE CONFORMITÉ RGPD\n\nNiveau: ${level}\n\nObjectif:\nVous devez réaliser un audit de conformité RGPD pour une entreprise de e-commerce et proposer un plan d'action pour remédier aux non-conformités.\n\nContexte:\nLuxuria est une entreprise de vente en ligne de produits de luxe qui opère dans toute l'Europe. Elle collecte et traite de nombreuses données personnelles de ses clients (noms, adresses, informations de carte bancaire, historiques d'achat, préférences, etc.). Suite à une plainte d'un client concernant la gestion de ses données personnelles, la direction souhaite s'assurer de sa conformité au RGPD.\n\nTâches:\n1. Identifier les traitements de données à risques
-2. Évaluer les mesures de sécurité actuelles
-3. Vérifier les procédures d'exercice des droits des personnes
-4. Analyser les contrats avec les sous-traitants
-5. Proposer des actions correctives prioritaires
+Objectif: En tant que ${level === 'debutant' ? 'nouvel arrivant' : level === 'expert' ? 'expert' : 'professionnel'} dans notre équipe, votre mission consistera à analyser un scénario de ${getModuleName(moduleId)} et à proposer des solutions adaptées.
 
-Documents disponibles:\n- Registre des traitements\n- Politique de confidentialité actuelle\n- Contrats types avec les sous-traitants\n\nÀ rendre:\n- Rapport d'audit\n- Plan d'action priorisé\n- Recommandations pour la mise en conformité`;
-  } else if (moduleId === 'social-engineering') {
-    content = `MISSION: CAMPAGNE DE SENSIBILISATION AU PHISHING\n\nNiveau: ${level}\n\nObjectif:\nConcevoir et proposer une campagne de sensibilisation efficace contre le phishing et l'ingénierie sociale pour une institution financière.\n\nContexte:\nGlobalBank, une banque internationale, a récemment été victime de plusieurs incidents liés à des attaques de phishing ciblant à la fois ses employés et ses clients. Certaines attaques ont réussi à tromper des employés qui ont divulgué des informations sensibles ou installé des logiciels malveillants. La direction souhaite renforcer la vigilance de l'ensemble du personnel et éduquer ses clients.\n\nTâches:\n1. Analyser les types d'attaques de phishing les plus courants dans le secteur bancaire
-2. Concevoir un programme de sensibilisation adapté aux différents profils (direction, équipes IT, personnel en contact avec la clientèle, etc.)
-3. Proposer des outils et méthodes pour tester le niveau de vigilance
-4. Élaborer une stratégie de communication pour les clients
+Description:
+${getMissionDescription(moduleId, level)}
 
-Documents disponibles:\n- Exemples d'emails de phishing reçus\n- Organigramme de l'entreprise\n- Résultats d'un audit de sécurité précédent\n\nÀ rendre:\n- Plan de sensibilisation détaillé\n- Exemples de supports pédagogiques\n- Proposition de tests d'hameçonnage simulés\n- Indicateurs de performance pour mesurer l'efficacité`;
-  } else if (moduleId === 'incidents') {
-    content = `MISSION: ANALYSE ET TRAITEMENT D'UN INCIDENT DE SÉCURITÉ\n\nNiveau: ${level}\n\nObjectif:\nAnalyser un incident de sécurité récent, identifier les causes, évaluer l'impact et proposer des mesures correctives.\n\nContexte:\nTechSolutions, une entreprise de services informatiques, a détecté un accès non autorisé à son serveur de développement. Des fichiers contenant du code source ont potentiellement été exfiltrés. L'incident a été détecté il y a 48 heures lors d'une vérification de routine des journaux système.\n\nTâches:\n1. Analyser les journaux et indicateurs de compromission fournis
-2. Déterminer le vecteur d'attaque initial et la méthode de propagation
-3. Évaluer l'étendue de la compromission et les données potentiellement affectées
-4. Proposer un plan de remédiation immédiat
-5. Recommander des mesures préventives pour éviter que ce type d'incident ne se reproduise
+Livrables attendus:
+1. Analyse détaillée de la situation
+2. Identification des risques et vulnérabilités
+3. Proposition de mesures correctives
+4. Plan d'action recommandé
 
-Documents disponibles:\n- Journaux d'accès au serveur\n- Rapport de l'analyse préliminaire\n- Liste des modifications de fichiers suspectes\n- Cartographie simplifiée du réseau\n\nÀ rendre:\n- Rapport d'analyse d'incident\n- Chronologie de l'attaque\n- Plan de remédiation\n- Recommandations de sécurité à court et moyen terme`;
-  } else {
-    content = `MISSION: ÉVALUATION DE LA MATURITÉ CYBERSÉCURITÉ\n\nNiveau: ${level}\n\nObjectif:\nÉvaluer le niveau de maturité en cybersécurité d'une organisation et proposer une feuille de route d'amélioration.\n\nContexte:\nMediciTech est une entreprise de taille moyenne spécialisée dans le développement de logiciels pour le secteur médical. Dans le cadre de son développement, l'entreprise souhaite renforcer sa posture de sécurité globale pour protéger les données sensibles qu'elle traite et répondre aux exigences réglementaires de son secteur.\n\nTâches:\n1. Évaluer la maturité actuelle selon un référentiel reconnu (NIST, ISO 27001, etc.)
-2. Identifier les forces et les faiblesses principales
-3. Analyser les risques spécifiques liés au secteur d'activité
-4. Proposer une feuille de route pragmatique adaptée aux ressources de l'entreprise
+Contactez votre référent ${getExpertByModule(moduleId)} pour toute question ou clarification.
 
-Documents disponibles:\n- Autoévaluation réalisée par l'équipe IT\n- Politique de sécurité existante\n- Résultats du dernier audit technique\n- Organigramme et budget IT\n\nÀ rendre:\n- Rapport d'évaluation de maturité\n- Analyse des écarts\n- Feuille de route sur 18 mois\n- Proposition budgétaire`;
-  }
-  
-  return content;
+Niveau de confidentialité: ${level === 'expert' ? 'Niveau 3 - Strictement confidentiel' : level === 'intermediaire' ? 'Niveau 2 - Confidentiel' : 'Niveau 1 - Interne'}
+
+Bon courage dans votre mission.`;
+}
+
+function getMissionDescription(moduleId: string, level: string): string {
+  const descriptions: Record<string, Record<string, string>> = {
+    'crisis-management': {
+      'debutant': 'Notre entreprise vient de détecter une tentative d\'intrusion sur notre réseau. Les premiers signes indiquent qu\'il pourrait s\'agir d\'une attaque ciblée, mais nous n\'avons pas encore confirmé si des données ont été compromises. Vous devez aider l\'équipe à préparer les premières étapes de la réponse à incident.',
+      'intermediaire': 'Une attaque de ransomware a touché notre système de gestion des stocks. Les attaquants demandent une rançon de 50.000€ pour débloquer les données. Certains systèmes critiques sont affectés, mais les sauvegardes récentes semblent intactes. Vous devez coordonner notre réponse à cette crise.',
+      'expert': 'Notre entreprise fait face à une attaque sophistiquée de type APT (Advanced Persistent Threat). Les attaquants ont maintenu une présence discrète dans nos systèmes depuis plusieurs mois et ont potentiellement accédé à des informations sensibles concernant nos produits en développement. La presse commence à avoir vent de l\'incident. Vous devez gérer cette crise complexe qui touche à la fois les aspects techniques, juridiques et de communication.'
+    },
+    'data-protection': {
+      'debutant': 'Notre application mobile collecte des données de géolocalisation des utilisateurs pour améliorer nos services. Nous devons nous assurer que cette collecte est conforme au RGPD avant le lancement prévu le mois prochain. Vous devez analyser les pratiques actuelles et proposer des ajustements si nécessaire.',
+      'intermediaire': 'Un collaborateur a signalé avoir accidentellement envoyé un fichier contenant des données personnelles de clients à un destinataire externe. Le fichier contient des noms, adresses email et historiques d\'achat de près de 500 clients. Vous devez évaluer la situation et recommander les actions appropriées selon le RGPD.',
+      'expert': 'Suite à une restructuration, notre entreprise envisage de transférer l\'ensemble de ses bases de données clients vers un nouveau fournisseur de cloud computing basé aux États-Unis. Ces données concernent des citoyens européens et incluent des informations sensibles comme des données de santé pour certaines de nos applications. Vous devez analyser les implications juridiques et proposer une stratégie de conformité complète.'
+    },
+    'incident-handling': {
+      'debutant': 'Un employé du service comptabilité a signalé avoir cliqué sur un lien dans un email qu\'il croyait provenir du directeur financier. Son ordinateur montre maintenant un comportement inhabituel (ralentissements, popups). Vous devez analyser la situation et recommander les premières actions.',
+      'intermediaire': 'Notre équipe de sécurité a détecté une activité inhabituelle sur nos serveurs web, avec un trafic anormalement élevé vers notre base de données clients. Les premiers indicateurs suggèrent une tentative d\'extraction de données via une vulnérabilité SQL. Vous devez coordonner la réponse à cet incident.',
+      'expert': 'Nous avons détecté la présence d\'un malware avancé sur plusieurs systèmes critiques de l\'entreprise. L\'analyse préliminaire suggère qu\'il s\'agit d\'un outil d\'espionnage industriel ciblant spécifiquement nos données de R&D. Le malware semble avoir contourné nos défenses traditionnelles et opère depuis plusieurs semaines. Vous devez diriger l\'investigation complète et la remédiation de cet incident majeur.'
+    },
+    'social-engineering': {
+      'debutant': 'Nous avons reçu plusieurs signalements d\'emails suspects demandant aux employés de réinitialiser leurs mots de passe. Ces emails semblent imiter notre service informatique. Vous devez analyser ces tentatives et proposer des mesures pour sensibiliser les employés.',
+      'intermediaire': 'Un inconnu s\'est présenté au service d\'accueil en se faisant passer pour un technicien de maintenance informatique et a tenté d\'accéder à notre salle serveur. Bien qu\'il ait été stoppé par la sécurité, cet incident révèle des failles dans nos procédures. Vous devez analyser ce scénario et renforcer nos défenses contre le social engineering physique.',
+      'expert': 'Notre entreprise a été victime d\'une attaque sophistiquée de type whaling/CEO fraud. L\'attaquant a réussi à se faire passer pour le PDG auprès du directeur financier, ce qui a conduit à un virement frauduleux de 2M€. L\'attaque a combiné plusieurs techniques d\'ingénierie sociale, y compris l\'usurpation d\'emails, des appels téléphoniques et une connaissance approfondie de l\'organisation interne. Vous devez analyser cette attaque complexe et concevoir une stratégie globale pour prévenir ce type d\'incident.'
+    },
+    'supply-chain': {
+      'debutant': 'Nous envisageons d\'intégrer un nouveau fournisseur de services cloud pour notre système de gestion de projet. Vous devez évaluer les risques potentiels de sécurité liés à cette intégration et proposer un questionnaire d\'évaluation pour ce fournisseur.',
+      'intermediaire': 'L\'un de nos fournisseurs critiques de composants logiciels a signalé avoir subi une intrusion dans leurs systèmes. Bien qu\'ils affirment que les données clients n\'ont pas été compromises, nous devons évaluer l\'impact potentiel sur notre chaîne d\'approvisionnement et notre sécurité. Vous devez proposer un plan d\'action.',
+      'expert': 'Nous développons une nouvelle plateforme IoT critique qui intègre des composants matériels et logiciels de plus de 20 fournisseurs différents, certains basés dans des régions géopolitiquement sensibles. Ce produit sera déployé dans des infrastructures critiques de nos clients. Vous devez concevoir une stratégie complète de sécurité de la chaîne d\'approvisionnement pour ce projet, en tenant compte des risques techniques, organisationnels et géopolitiques.'
+    },
+    'governance': {
+      'debutant': 'Notre startup en pleine croissance n\'a pas encore formalisé ses politiques de sécurité. La direction souhaite mettre en place les fondations d\'une bonne gouvernance cyber. Vous devez proposer un cadre initial adapté à notre taille et notre secteur.',
+      'intermediaire': 'Notre entreprise prépare une certification ISO 27001 dans les 12 prochains mois. Vous devez évaluer notre niveau actuel de maturité en matière de gouvernance de la sécurité et identifier les principales lacunes à combler pour atteindre cette certification.',
+      'expert': 'Suite à une fusion-acquisition, nous devons intégrer deux cultures de sécurité très différentes. La société acquise opère dans un secteur hautement régulé avec des exigences strictes, tandis que notre approche a toujours été plus flexible. De plus, nous envisageons une expansion internationale qui nous soumettra à de nouvelles réglementations. Vous devez concevoir une stratégie de gouvernance unifiée qui réponde à ces défis complexes.'
+    }
+  };
+
+  return descriptions[moduleId]?.[level] || 
+    'Vous êtes chargé d\'analyser les pratiques de sécurité actuelles et de proposer des améliorations basées sur les meilleures pratiques du secteur.';
 }
