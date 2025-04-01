@@ -1379,131 +1379,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Add the current user message
-      // Pour la première réponse après une présentation, vérifier si l'utilisateur s'est bien présenté
-      // Si oui, le même PNJ (niveau 1) répondra avec une mission, sinon il redemandera une présentation
-      if (chatHistory && chatHistory.length === 2 && chatHistory[0].type === 'email' && chatHistory[1].type === 'user') {
-        // Vérifier si l'utilisateur s'est bien présenté en mentionnant son parcours, son expérience et son niveau de connaissances
-        const userPresentation = typeof chatHistory[1].content === 'string' ? chatHistory[1].content.toLowerCase() : '';
-        
-        // Vérifier la présence des informations clés dans la présentation
-        const mentionsParcours = userPresentation.includes('parcours') || 
-                                userPresentation.includes('formation') || 
-                                userPresentation.includes('étude') || 
-                                userPresentation.includes('diplôme') ||
-                                userPresentation.includes('école');
-                                
-        const mentionsExperience = userPresentation.includes('expérience') || 
-                                  userPresentation.includes('travail') || 
-                                  userPresentation.includes('poste') || 
-                                  userPresentation.includes('métier') ||
-                                  userPresentation.includes('entreprise') ||
-                                  userPresentation.includes('projet');
-                                  
-        const mentionsNiveau = userPresentation.includes('niveau') || 
-                              userPresentation.includes('connaissance') || 
-                              userPresentation.includes('compétence') || 
-                              userPresentation.includes('maîtrise') ||
-                              userPresentation.includes('cyber') ||
-                              userPresentation.includes('sécurité');
-                              
-        // Vérifier aussi la longueur minimale de la présentation
-        const presentationLongue = userPresentation.length > 100;
-        
-        // Considérer la présentation comme valide si elle contient au moins 2 des 3 éléments clés et est suffisamment longue
-        const presentationValide = presentationLongue && ((mentionsParcours && mentionsExperience) || 
-                                                         (mentionsParcours && mentionsNiveau) || 
-                                                         (mentionsExperience && mentionsNiveau));
-        
-        if (presentationValide) {
-          // L'utilisateur s'est bien présenté, la RH va le remercier et passer au contact du scénario
-          messages.push({
-            role: "user",
-            content: `Je suis ${userName} et je viens de me présenter. Voici ma présentation : "${message}"
-            
-            DIRECTIVE SPÉCIALE: Tu es ${respondingContact.name}, la Directrice RH qui a envoyé le premier email de bienvenue. Tu dois maintenant remercier ${userName} pour sa présentation complète et le mettre en contact avec ${scenario.contact.name}, ${scenario.contact.role} pour sa mission.
-            
-            Ta réponse DOIT:
-            1. Remercier chaleureusement l'utilisateur pour sa présentation complète
-            2. Faire un bref commentaire personnalisé sur son parcours ou son expérience
-            3. Annoncer que tu vas maintenant le mettre en contact avec ${scenario.contact.name} (${scenario.contact.role}) qui lui présentera sa mission
-            4. Utiliser un ton bienveillant et encourageant avec tutoiement
-            5. Être concise (maximum 120 mots)`
-          });
-        } else {
-          // L'utilisateur ne s'est pas suffisamment présenté, la RH lui redemande
-          messages.push({
-            role: "user",
-            content: `Je suis ${userName} et voici ma réponse à ta demande de présentation: "${message}"
-            
-            DIRECTIVE SPÉCIALE: Tu es ${respondingContact.name}, la Directrice RH qui a envoyé le premier email de bienvenue. Tu constates que l'utilisateur ne s'est pas suffisamment présenté.
-            
-            Informations manquantes : ${!mentionsParcours ? "parcours/formation" : ""} ${!mentionsExperience ? "expérience professionnelle" : ""} ${!mentionsNiveau ? "niveau de connaissance en cybersécurité" : ""} ${!presentationLongue ? "présentation trop courte" : ""}
-            
-            Ta réponse DOIT:
-            1. Être amicale mais ferme, en expliquant que pour adapter la mission à son profil, tu as besoin d'informations plus complètes
-            2. Préciser EXACTEMENT quelles informations manquent dans sa présentation (parcours/formation, expérience professionnelle, niveau de connaissance en cybersécurité)
-            3. Redemander à l'utilisateur de se présenter plus en détail, avec des questions précises sur les éléments manquants
-            4. Maintenir un ton professionnel mais accessible, en utilisant toujours le tutoiement
-            5. Être concise (maximum 150 mots)`
-          });
-        }
-      } else if (chatHistory && chatHistory.length === 4 && 
-                 chatHistory[0].type === 'email' && 
-                 chatHistory[1].type === 'user' && 
-                 chatHistory[2].type === 'bot' && 
-                 chatHistory[3].type === 'user') {
-        // C'est la réponse à l'email de la RH et à sa validation de la présentation
-        // Maintenant, le contact principal du scénario se présente et expose son problème
-        
-        // Vérifier si le dernier message de bot (index 2) était de la part de la RH
-        const lastBotMessage = chatHistory[2];
-        const wasFromHR = lastBotMessage.contactName && 
-                         lastBotMessage.contactName.includes("Isabelle") && 
-                         lastBotMessage.contactRole && 
-                         lastBotMessage.contactRole.includes("Ressources Humaines");
-        
-        if (wasFromHR) {
-          // C'est bien la suite de la présentation validée par la RH, faire intervenir le contact principal du scénario
-          messages.push({
-            role: "user",
-            content: `Je suis ${userName} et j'ai été accueilli par la Directrice RH qui m'a mis en contact avec toi. Voici ma dernière réponse : "${message}"
-            
-            DIRECTIVE SPÉCIALE: Tu es ${respondingContact.name} (${respondingContact.role}), le contact principal pour ce scénario "${scenario.title}". C'est la première fois que tu interviens dans la conversation après que la RH ait fait les présentations.
-            
-            Ta réponse DOIT:
-            1. Te présenter brièvement et professionnellement (qui tu es, ton rôle)
-            2. Exposer clairement un problème de cybersécurité lié au scénario "${scenario.title}" (contexte, enjeux, problématique)
-            3. Utiliser maximum 3 paragraphes courts et inclure si pertinent 2-3 bullet points pour structurer la mission
-            4. Préciser EXPLICITEMENT la structure attendue dans la réponse de l'utilisateur (ex: analyse, recommandations, plan d'action...)
-            5. Utiliser un ton professionnel mais accessible avec tutoiement
-            6. Adapter ton langage au secteur ${secteurActivite}
-            7. Rester concis (maximum 200 mots)`
-          });
-        } else {
-          // C'est probablement une réponse à une mission déjà en cours
-          messages.push({
-            role: "user",
-            content: `Je suis ${userName} et je viens de répondre à ta question. Voici ma réponse : "${message}"
-            
-            DIRECTIVE SPÉCIALE: Tu es ${respondingContact.name} (${respondingContact.role}), et tu continues la conversation sur le scénario "${scenario.title}".
-            
-            Ta réponse DOIT:
-            1. Donner ton avis détaillé sur la réponse de l'utilisateur (points forts, manques éventuels)
-            2. Poser une nouvelle question plus précise ou donner une nouvelle tâche en lien avec la problématique
-            3. Si pertinent, ajouter un élément nouveau à la situation pour la faire évoluer
-            4. Utiliser un ton professionnel avec tutoiement
-            5. Adapter ton expertise à ton rôle de ${respondingContact.role}
-            6. Rester concis (maximum 150 mots)`
-          });
-        }
-        
-      } else {
-        messages.push({
-          role: "user",
-          content: `Je suis ${userName}. Le message suivant est en réponse au scénario de cybersécurité en cours (ID: ${scenarioId}, secteur: ${secteurActivite}): "${message}"`
-        });
-      }
+      // Ajout du message utilisateur avec les métadonnées du contexte actuel
+      // Le fichier master_prompt.txt contient toute la logique de comportement de l'IA et du flux de conversation
+      
+      // Contexte de la conversation (pattern du flux)
+      const isFirstResponse = chatHistory && chatHistory.length === 2 && chatHistory[0].type === 'email' && chatHistory[1].type === 'user';
+      const isPresentationValidation = chatHistory && chatHistory.length === 4 && 
+                                     chatHistory[0].type === 'email' && 
+                                     chatHistory[1].type === 'user' && 
+                                     chatHistory[2].type === 'bot' && 
+                                     chatHistory[3].type === 'user';
+      
+      // Ajouter des métadonnées structurées pour aider l'IA à suivre le flux de conversation
+      const contextMetadata = {
+        userName: userName,
+        message: message,
+        scenarioId: scenarioId,
+        scenarioTitle: scenario.title,
+        domain: scenario.domain,
+        secteur: secteurActivite,
+        contactName: respondingContact.name,
+        contactRole: respondingContact.role,
+        expertContactName: scenario.contact.name,
+        expertContactRole: scenario.contact.role,
+        conversationState: isFirstResponse ? "VALIDATION_PRESENTATION" :
+                          isPresentationValidation ? "MISSION_INTRODUCTION" : "CONVERSATION_STANDARD",
+        messageHistoryLength: chatHistory ? chatHistory.length : 0
+      };
+      
+      // Créer un message unique qui contient toutes les informations nécessaires
+      messages.push({
+        role: "user",
+        content: `Je suis ${userName} et voici mon message : "${message}"
+
+MÉTADONNÉES DE CONTEXTE:
+${JSON.stringify(contextMetadata, null, 2)}
+
+Utilise les métadonnées ci-dessus et le master prompt pour déterminer comment répondre selon le flux de conversation défini.
+Si c'est la validation d'une présentation, vérifie que la présentation contient les informations nécessaires.
+Si c'est l'introduction de la mission, présente-toi et explique clairement le problème.
+Adapte toujours ton style de communication à ton rôle et au secteur d'activité.`
+      });
       
       const responseContent = await openAIService.getChatCompletionWithCache(
         messages, 

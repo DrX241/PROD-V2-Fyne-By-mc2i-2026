@@ -262,16 +262,20 @@ class OpenAIService {
     responseStyle?: string; 
   } = {}): Promise<string> {
     try {
-      // Read the base system prompt from file
+      // Read the master prompt from file
       const fs = await import('fs');
       const path = await import('path');
-      const systemPromptPath = path.join(process.cwd(), 'I_AM_CYBER', 'prompts', 'system_prompt.txt');
-      let systemPrompt = fs.readFileSync(systemPromptPath, 'utf8');
+      
+      // Chemin du prompt principal qui définit le comportement global de l'IA
+      const masterPromptPath = path.join(process.cwd(), 'I_AM_CYBER', 'prompts', 'master_prompt.txt');
+      
+      // Lire le prompt maître - celui-ci contient toutes les instructions de comportement
+      let systemPrompt = fs.readFileSync(masterPromptPath, 'utf8');
       
       // Add configuration specific instructions
       const { difficultyLevel = "Intermédiaire", responseStyle = "Professionnel" } = configParams;
       
-      systemPrompt += `\n\nCONFIGURATION ACTUELLE:`;
+      systemPrompt += `\n\n# CONFIGURATION ACTUELLE:`;
       systemPrompt += `\n- Niveau de difficulté: ${difficultyLevel}`;
       systemPrompt += `\n- Style de réponse: ${responseStyle}`;
       
