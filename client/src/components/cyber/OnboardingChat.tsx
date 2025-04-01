@@ -531,8 +531,21 @@ const OnboardingChat: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  // Automatiquement afficher le message d'accueil
+  // Vérifier si l'utilisateur a déjà complété l'onboarding
   useEffect(() => {
+    const savedData = localStorage.getItem('cyberPlayerData');
+    
+    // Si l'utilisateur a déjà complété l'onboarding, passer directement à la page principale
+    if (savedData) {
+      const playerData = JSON.parse(savedData);
+      if (playerData.onboardingComplete) {
+        // Rediriger directement vers la page principale
+        navigate('/cyber');
+        return;
+      }
+    }
+    
+    // Sinon, afficher le message d'accueil
     if (messages.length === 0) {
       addMessage({
         id: generateId(),
@@ -545,7 +558,7 @@ Comment puis-je vous appeler ?`,
       });
       setCurrentStep('name');
     }
-  }, []);
+  }, [messages.length, navigate]);
 
   // Faire défiler vers le bas lorsque de nouveaux messages sont ajoutés
   useEffect(() => {
@@ -814,20 +827,97 @@ Comment puis-je vous appeler ?`,
       currentQuestionIndex: questionIndex + 1
     });
     
-    // Réponse de l'assistant à la réponse de l'utilisateur
+    // Réponse de l'assistant avec explications détaillées selon la question
     setTimeout(() => {
+      // Préparation des explications pédagogiques
+      let explanation = "";
+      
+      // Explications personnalisées selon le module et la question
+      if (moduleId === 'crisis') {
+        if (questionIndex === 0) { // Première question sur la gestion de crise
+          if (isCorrect) {
+            explanation = `Excellente réponse ! L'isolation des systèmes affectés est cruciale pour contenir la propagation d'une menace. 
+
+🔍 En détail:
+• C'est une approche de confinement qui limite la portée de l'incident
+• Ce principe est recommandé par l'ANSSI et le NIST SP 800-61
+• En isolant rapidement, vous préservez les preuves numériques pour l'analyse ultérieure
+
+📚 Pour approfondir: Consultez le "Guide d'hygiène informatique" de l'ANSSI ou le cadre de réponse aux incidents NIST.`;
+          } else {
+            explanation = `La bonne réponse était : "Isoler les systèmes affectés".
+
+🔍 Pourquoi c'est important:
+• Formater les systèmes détruirait des preuves essentielles
+• Contacter la presse prématurément peut nuire à la réputation
+• Payer une rançon est généralement déconseillé par les autorités
+
+📚 Pour approfondir: Consultez le guide "Computer Security Incident Handling Guide" (NIST SP 800-61) qui détaille ces principes.`;
+          }
+        } else { // Autres questions du module crise
+          if (isCorrect) {
+            explanation = `Très bonne réponse !
+
+Ressources complémentaires:
+• ANSSI: "Organisation de la réponse aux incidents de sécurité"
+• ISO/IEC 27035: Norme de gestion des incidents de sécurité
+• CERT-FR: Bulletins et recommandations sur les incidents majeurs`;
+          } else {
+            explanation = `La bonne réponse était : "${currentQuestion.options[currentQuestion.correct]}".
+
+Ressources utiles pour mieux comprendre ce concept:
+• "Computer Security Incident Handling Guide" du NIST
+• Framework de réponse aux incidents du SANS Institute
+• Les webinaires de CyberPeace Institute sur la gestion de crise`;
+          }
+        }
+      } else if (moduleId === 'gdpr') {
+        if (isCorrect) {
+          explanation = `Excellente connaissance du RGPD !
+
+Pour approfondir:
+• Site de la CNIL: guides pratiques et recommandations
+• EUR-Lex: texte intégral du RGPD (Règlement 2016/679)
+• EDPB (European Data Protection Board): lignes directrices actualisées`;
+        } else {
+          explanation = `La bonne réponse était : "${currentQuestion.options[currentQuestion.correct]}".
+
+Pour mieux comprendre:
+• Le site de la CNIL propose des explications accessibles sur ce point
+• L'article concerné du RGPD aborde cette question en détail
+• Le MOOC de la CNIL sur le RGPD couvre ce sujet dans le module 3`;
+        }
+      } else {
+        // Explications génériques pour les autres modules
+        if (isCorrect) {
+          explanation = `Excellente réponse ! Vous maîtrisez bien ce concept.
+
+Pour approfondir vos connaissances sur ce sujet:
+• Les publications de l'ANSSI fournissent des guides détaillés
+• La plateforme OpenClassrooms propose des modules complémentaires 
+• Les forums comme r/cybersecurity offrent des discussions de cas réels`;
+        } else {
+          explanation = `La bonne réponse était : "${currentQuestion.options[currentQuestion.correct]}".
+
+Pour mieux comprendre:
+• Cette notion est expliquée en détail dans plusieurs ressources comme CyberEDU
+• Le MOOC SecNumAcadémie de l'ANSSI couvre ce concept dans son module 2
+• Le livre "Cybersecurity Blue Team Toolkit" de Nadean Tanner traite ce sujet en profondeur`;
+        }
+      }
+      
+      // Envoi du message avec l'explication
       addMessage({
         id: generateId(),
         type: 'ai',
-        content: isCorrect 
-          ? "Bonne réponse ! Continuons avec la question suivante."
-          : `Pas tout à fait. La bonne réponse était : "${currentQuestion.options[currentQuestion.correct]}". Continuons avec la question suivante.`,
+        content: explanation,
         sender: 'I AM CYBER',
-        avatar: '/avatars/ai-assistant.png'
+        avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=IAMCYBER'
       });
       
-      // Vérifier s'il reste des questions
-      if (questionIndex + 1 < moduleQuestions.length) {
+      // Vérifier s'il reste des questions (maximum 4 questions)
+      const maxQuestions = Math.min(moduleQuestions.length, 4);
+      if (questionIndex + 1 < maxQuestions) {
         // Prochaine question
         const nextQuestion = moduleQuestions[questionIndex + 1];
         
@@ -835,9 +925,9 @@ Comment puis-je vous appeler ?`,
           addMessage({
             id: generateId(),
             type: 'ai',
-            content: `Question ${questionIndex + 2}/${moduleQuestions.length}: ${nextQuestion.question}`,
+            content: `Question ${questionIndex + 2}/${maxQuestions}: ${nextQuestion.question}`,
             sender: 'I AM CYBER',
-            avatar: '/avatars/ai-assistant.png'
+            avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=IAMCYBER'
           });
   
           // Afficher les options de réponse
@@ -849,10 +939,23 @@ Comment puis-je vous appeler ?`,
               options: nextQuestion.options
             }),
           });
-        }, 1000);
+        }, 2000);
       } else {
-        // Test terminé
-        completeTest();
+        // Test terminé - ajouter un message de transition
+        setTimeout(() => {
+          addMessage({
+            id: generateId(),
+            type: 'ai',
+            content: "Félicitations ! Vous avez terminé l'évaluation. Je vais maintenant analyser vos réponses pour déterminer votre niveau et vous fournir des ressources personnalisées...",
+            sender: 'I AM CYBER',
+            avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=IAMCYBER'
+          });
+          
+          // Démarrer l'animation de "chargement"
+          setTimeout(() => {
+            completeTest();
+          }, 1500);
+        }, 1500);
       }
     }, 800);
   };
@@ -865,30 +968,61 @@ Comment puis-je vous appeler ?`,
     const scorePercentage = (correctAnswers / totalQuestions) * 100;
     
     // Déterminer le niveau final
-    let finalLevel;
+    let level;
     if (playerData.difficulty === 'expert') {
-      finalLevel = scorePercentage >= 50 ? "Expert" : "Intermédiaire";
+      level = scorePercentage >= 50 ? "Expert" : "Intermédiaire";
     } else if (playerData.difficulty === 'intermediate') {
-      if (scorePercentage >= 75) finalLevel = "Expert";
-      else if (scorePercentage >= 40) finalLevel = "Intermédiaire";
-      else finalLevel = "Débutant";
+      if (scorePercentage >= 75) level = "Expert";
+      else if (scorePercentage >= 40) level = "Intermédiaire";
+      else level = "Débutant";
     } else {
-      finalLevel = scorePercentage >= 75 ? "Intermédiaire" : "Débutant";
+      level = scorePercentage >= 75 ? "Intermédiaire" : "Débutant";
     }
     
+    // Mettre à jour l'état du niveau final
+    setFinalLevel(level);
+    
     setTimeout(() => {
+      // Message de fin d'évaluation avec conseils personnalisés selon le niveau
+      let feedbackMessage = '';
+      
+      if (level === "Expert") {
+        feedbackMessage = `Félicitations ! Vous avez démontré une excellente compréhension de la ${modules.find(m => m.id === playerData.module)?.name}.
+
+Votre score de ${Math.round(scorePercentage)}% révèle un niveau de connaissances avancé. Pour les experts comme vous, je recommande :
+• Approfondir vos connaissances en consultant les dernières publications de l'ANSSI et du NIST
+• Explorer des certifications comme CISSP ou OSCP si ce n'est pas déjà fait
+• Participer à des war games et CTF pour affiner vos compétences pratiques
+
+En fonction de votre expertise, vous serez confronté à des scénarios complexes qui mettront vraiment au défi vos compétences.`;
+      } else if (level === "Intermédiaire") {
+        feedbackMessage = `Bravo ! Vous avez démontré une bonne maîtrise des concepts de la ${modules.find(m => m.id === playerData.module)?.name}.
+
+Votre score de ${Math.round(scorePercentage)}% révèle un niveau de connaissances solide. Voici quelques recommandations pour progresser :
+• Consultez les ressources de base de l'ANSSI et du NIST pour renforcer vos connaissances
+• Considérez des certifications comme Security+ ou SSCP pour structurer votre apprentissage
+• Pratiquez régulièrement sur des plateformes comme TryHackMe ou HackTheBox
+
+À votre niveau, vous recevrez des missions avec un bon équilibre entre challenge et accompagnement.`;
+      } else {
+        feedbackMessage = `Bienvenue dans le monde de la cybersécurité ! Vous faites vos premiers pas dans la ${modules.find(m => m.id === playerData.module)?.name}.
+
+Votre score de ${Math.round(scorePercentage)}% reflète un niveau débutant, mais ne vous inquiétez pas ! Voici des ressources pour progresser :
+• Commencez par les guides de l'ANSSI pour le grand public
+• Explorez les fondamentaux sur des sites comme CyberIni ou OpenClassrooms
+• Familiarisez-vous avec les concepts de base en consultant des chaînes YouTube comme Micode ou Underscore_
+
+Vous recevrez des missions adaptées qui vous permettront d'apprendre progressivement tout en restant motivé.`;
+      }
+      
       addMessage({
         id: generateId(),
         type: 'ai',
-        content: `Félicitations ! Vous avez terminé l'évaluation.
+        content: `${feedbackMessage}
 
-Score : ${correctAnswers}/${totalQuestions} (${Math.round(scorePercentage)}%)
-
-En fonction de vos réponses, votre niveau a été défini à : ${finalLevel}
-
-Je vais maintenant vous connecter à Isabelle Dubacq, la Directrice des Ressources Humaines, qui vous présentera votre premier défi.`,
+Je vais maintenant vous connecter à Isabelle Dubacq, la Directrice des Ressources Humaines, qui vous présentera votre premier défi. Elle a déjà été informée de votre profil, de vos compétences en ${roles.find(r => r.id === playerData.role)?.name} et de votre niveau d'expertise.`,
         sender: 'I AM CYBER',
-        avatar: '/avatars/ai-assistant.png'
+        avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=IAMCYBER'
       });
       
       // Mettre à jour l'état pour indiquer que le test est terminé
@@ -906,7 +1040,7 @@ Je vais maintenant vous connecter à Isabelle Dubacq, la Directrice des Ressourc
           type: 'options',
           content: 'start_mission',
         });
-      }, 1500);
+      }, 2000);
     }, 1000);
     
     try {
@@ -943,9 +1077,32 @@ Je vais maintenant vous connecter à Isabelle Dubacq, la Directrice des Ressourc
   };
 
   // Commencer la mission après l'onboarding
-  const startMission = () => {
-    navigate('/cyber');
+  const startMission = async () => {
+    try {
+      // Stocker les données de session en local storage pour une persistance à travers les navigations
+      localStorage.setItem('cyberPlayerData', JSON.stringify({
+        name: playerData.name,
+        avatar: playerData.avatar,
+        role: playerData.role,
+        moduleId: playerData.module,
+        finalLevel: finalLevel,
+        onboardingComplete: true
+      }));
+      
+      // Rediriger vers la page principale de cyber
+      navigate('/cyber');
+    } catch (error) {
+      console.error('Erreur lors de la transition vers la mission:', error);
+      toast({
+        title: "Erreur",
+        description: "Un problème est survenu lors de la préparation de votre mission.",
+        variant: "destructive"
+      });
+    }
   };
+  
+  // État pour stocker le niveau final déterminé
+  const [finalLevel, setFinalLevel] = useState<string>("");
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 flex flex-col">
