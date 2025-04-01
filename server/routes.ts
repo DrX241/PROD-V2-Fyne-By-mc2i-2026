@@ -1608,6 +1608,61 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
       });
     }
   });
+  
+  // API route pour configurer un nouveau joueur
+  app.post('/api/cyber/setup-player', async (req: Request, res: Response) => {
+    try {
+      const { 
+        name, 
+        avatar, 
+        role, 
+        module: moduleId, 
+        selectedDifficulty, 
+        finalLevel, 
+        testResults 
+      } = req.body;
+      
+      // Stockage des données du joueur en mémoire pour le moment
+      // On pourrait les sauvegarder en base de données par la suite
+      const playerData = {
+        name,
+        avatar,
+        role,
+        moduleId,
+        selectedDifficulty,
+        finalLevel,
+        testScore: testResults.score,
+        testTotal: testResults.total,
+        scorePercentage: testResults.percentage,
+        missionProgress: {
+          currentMission: "",
+          missionsCompleted: [],
+          achievements: []
+        }
+      };
+      
+      // Enregistrer dans la session
+      if (!req.session.cyberPlayer) {
+        req.session.cyberPlayer = playerData;
+      } else {
+        req.session.cyberPlayer = {
+          ...req.session.cyberPlayer,
+          ...playerData
+        };
+      }
+      
+      res.json({
+        status: 'success',
+        player: playerData
+      });
+    } catch (error) {
+      console.error('Error setting up player:', error);
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to set up player'
+      });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;
