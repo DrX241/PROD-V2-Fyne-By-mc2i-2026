@@ -8,7 +8,7 @@ import ModulesPage from "@/pages/modules";
 import CyberPage from "@/pages/cyber";
 import CyberSimulation from "@/pages/cyber-simulation";
 import CyberOnboarding from "@/pages/cyber-onboarding";
-import CyberOnboardingChat from "@/pages/cyber-onboarding-chat";
+// La route cyber-onboarding-chat a été supprimée car remplacée par cyber-onboarding-new
 import CyberOnboardingNew from "@/pages/cyber-onboarding-new";
 import { ChatProvider } from "./contexts/ChatContext";
 
@@ -19,7 +19,7 @@ function Router() {
       <Route path="/modules" component={ModulesPage} />
       <Route path="/cyber" component={CyberPage} />
       <Route path="/cyber-onboarding" component={CyberOnboarding} />
-      <Route path="/cyber-onboarding-chat" component={CyberOnboardingChat} />
+      {/* Route supprimée car remplacée par /cyber-onboarding-new */}
       <Route path="/cyber-onboarding-new" component={CyberOnboardingNew} />
       <Route path="/cyber-simulation" component={CyberSimulation} />
       <Route path="/data-ia" component={NotYetImplemented} />

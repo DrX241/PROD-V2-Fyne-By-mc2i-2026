@@ -58,7 +58,7 @@ export default function Header({ isFeny = false }: HeaderProps) {
                   onClick={() => {
                     if (window.confirm("Êtes-vous sûr de vouloir effacer toutes vos données et recommencer à zéro ? Cette action est irréversible.")) {
                       localStorage.clear();
-                      window.location.href = "/cyber-onboarding-chat";
+                      window.location.href = "/";
                     }
                   }}
                   className="text-red-500 hover:text-red-700 ml-2"
