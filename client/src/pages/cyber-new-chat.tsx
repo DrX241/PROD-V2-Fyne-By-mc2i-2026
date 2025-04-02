@@ -100,10 +100,13 @@ export default function CyberNewChat() {
         
         // Ajouter un message de bienvenue système si aucun message n'est présent
         if (messagesData.messages && messagesData.messages.length === 0) {
+          // Récupérer le nom du profil
+          const profileName = localStorage.getItem('cyberNewProfileName') || 'utilisateur';
+          
           const welcomeMessage: ChatMessage = {
             id: Date.now().toString(),
             type: 'system',
-            content: 'Bienvenue dans le chat I AM CYBER. Je suis Claire, votre mentor en cybersécurité. Comment puis-je vous aider aujourd\'hui?',
+            content: `Bienvenue ${profileName} dans le chat I AM CYBER. Je suis Claire, votre mentor en cybersécurité. Comment puis-je vous aider aujourd'hui?`,
             timestamp: Date.now()
           };
           
@@ -236,10 +239,13 @@ export default function CyberNewChat() {
       
       // Ajouter un message de bienvenue système si aucun message n'est présent
       if (messagesData.messages && messagesData.messages.length === 0) {
+        // Récupérer le nom du profil
+        const profileName = localStorage.getItem('cyberNewProfileName') || 'utilisateur';
+        
         const welcomeMessage: ChatMessage = {
           id: Date.now().toString(),
           type: 'system',
-          content: 'Chat réinitialisé. Comment puis-je vous aider aujourd\'hui?',
+          content: `Chat réinitialisé. ${profileName}, comment puis-je vous aider aujourd'hui?`,
           timestamp: Date.now()
         };
         

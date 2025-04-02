@@ -128,16 +128,17 @@ export default function CyberNewOnboarding() {
 
       const profileData = await response.json();
       
-      // Stocker l'ID du profil dans le localStorage
+      // Stocker l'ID du profil et le nom dans le localStorage
       localStorage.setItem('cyberNewProfileId', profileData.id);
+      localStorage.setItem('cyberNewProfileName', name);
 
       toast({
         title: "Profil créé avec succès !",
         description: "Bienvenue dans I AM CYBER NEW.",
       });
 
-      // Rediriger vers le tableau de bord
-      setLocation('/cyber-new-dashboard');
+      // Rediriger directement vers l'interface de chat au lieu du tableau de bord
+      setLocation('/cyber-new-chat');
     } catch (err) {
       console.error(err);
       setError(err instanceof Error ? err.message : "Une erreur s'est produite");
