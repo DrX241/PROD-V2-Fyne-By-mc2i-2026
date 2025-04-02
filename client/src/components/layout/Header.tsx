@@ -46,11 +46,7 @@ export default function Header({ isFeny = false }: HeaderProps) {
   );
 
   return (
-    <header className={`w-full fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      isScrolled 
-        ? "bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200/50" 
-        : "bg-transparent"
-    }`}>
+    <header className="w-full fixed top-0 left-0 right-0 z-50 bg-gradient-to-br from-gray-900 via-indigo-900 to-blue-900">
       {/* Barre supérieure avec effet de dégradé */}
       <div className="h-1 w-full bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600"></div>
       
@@ -64,14 +60,11 @@ export default function Header({ isFeny = false }: HeaderProps) {
           className="flex items-center"
         >
           <a href="/" className="flex items-center gap-3 cursor-pointer group">
-            <div className="relative overflow-hidden rounded-full p-0.5 bg-gradient-to-r from-blue-500 to-indigo-600">
-              <img src={mclogo} alt="mc2i Logo" className="h-10 w-auto relative z-10 bg-white rounded-full p-1 transition-transform duration-500 group-hover:scale-110" />
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-80 transition-opacity duration-500 animate-spin-slow"></div>
+            <div className="relative overflow-hidden rounded-full">
+              <img src={mclogo} alt="mc2i Logo" className="h-10 w-auto relative z-10 transition-transform duration-500 group-hover:scale-110" />
             </div>
             <span className="text-neutral-300">|</span>
-            <div className={`font-bold text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r ${
-              isScrolled ? "from-blue-700 to-indigo-700" : "from-white to-blue-100"
-            }`}>
+            <div className="font-bold text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-100">
               {logoText}
             </div>
           </a>
@@ -90,9 +83,7 @@ export default function Header({ isFeny = false }: HeaderProps) {
               >
                 <a 
                   href="/" 
-                  className={`group flex items-center gap-1 font-medium transition-colors px-1 py-2 border-b-2 border-transparent hover:border-blue-500 ${
-                    isScrolled ? "text-gray-800 hover:text-blue-700" : "text-white hover:text-blue-200"
-                  }`}
+                  className="group flex items-center gap-1 font-medium transition-colors px-1 py-2 border-b-2 border-transparent hover:border-blue-500 text-white hover:text-blue-200"
                 >
                   {item}
                   <ChevronDown className="h-4 w-4 transition-transform group-hover:rotate-180" />
@@ -109,11 +100,7 @@ export default function Header({ isFeny = false }: HeaderProps) {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setSearchOpen(!searchOpen)}
-              className={`p-2 rounded-full transition-colors ${
-                isScrolled 
-                  ? "hover:bg-gray-100 text-gray-600" 
-                  : "hover:bg-white/10 text-white"
-              }`}
+              className="p-2 rounded-full transition-colors hover:bg-white/10 text-white"
             >
               <Search className="h-5 w-5" />
             </motion.button>
@@ -124,12 +111,8 @@ export default function Header({ isFeny = false }: HeaderProps) {
               transition={{ delay: 0.6, duration: 0.3 }}
             >
               <Button 
-                variant={isScrolled ? "default" : "secondary"}
-                className={
-                  isScrolled 
-                    ? "bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white shadow-md" 
-                    : "bg-white text-blue-700 hover:bg-blue-50"
-                }
+                variant="secondary"
+                className="bg-white text-blue-700 hover:bg-blue-50"
               >
                 Commencer
               </Button>
@@ -141,11 +124,7 @@ export default function Header({ isFeny = false }: HeaderProps) {
         <div className="flex md:hidden items-center">
           <button 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className={`p-2 rounded-full transition-colors ${
-              isScrolled 
-                ? "hover:bg-gray-100 text-gray-600" 
-                : "hover:bg-white/10 text-white"
-            }`}
+            className="p-2 rounded-full transition-colors hover:bg-white/10 text-white"
           >
             {mobileMenuOpen ? 
               <X className="h-6 w-6" /> : 

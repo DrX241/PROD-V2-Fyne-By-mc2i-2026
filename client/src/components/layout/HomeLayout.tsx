@@ -71,10 +71,10 @@ export default function HomeLayout({ children }: HomeLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col bg-slate-50">
+    <div className="min-h-screen w-full flex flex-col bg-slate-50 overflow-auto">
       <Header isFeny={true} />
 
-      <main className="flex-1 w-full overflow-x-hidden pt-24">
+      <main className="flex-1 w-full pt-24">
         {children}
       </main>
 
@@ -110,8 +110,8 @@ export default function HomeLayout({ children }: HomeLayoutProps) {
             {/* Logo et description de FYNE */}
             <motion.div variants={itemAnimation} className="space-y-6">
               <div className="flex items-center gap-3">
-                <div className="relative overflow-hidden rounded-full p-0.5 bg-gradient-to-r from-blue-400 to-indigo-500">
-                  <img src={mclogo} alt="mc2i Logo" className="h-10 w-auto bg-blue-950 rounded-full p-1" />
+                <div className="relative overflow-hidden rounded-full">
+                  <img src={mclogo} alt="mc2i Logo" className="h-10 w-auto" />
                 </div>
                 <div className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-indigo-300">
                   FYNE

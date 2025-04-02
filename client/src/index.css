@@ -13,7 +13,7 @@
 
   /* Amélioration globale des couleurs et des espacements */
   html, body {
-    @apply overflow-hidden;
+    @apply overflow-x-hidden;
   }
 
   /* Effet de soulignement au survol des boutons */
