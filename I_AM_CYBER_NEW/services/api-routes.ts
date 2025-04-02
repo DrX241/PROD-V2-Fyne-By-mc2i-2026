@@ -221,24 +221,48 @@ export function registerIAmCyberRoutes(app: Express): void {
       
       // Si c'est un message utilisateur, générer une réponse du PNJ
       if (type === 'user') {
-        // Dans une implémentation réelle, ici on devrait :
-        // 1. Préparer le prompt pour l'IA avec conversationHandler.prepareAIPrompt(conversationId)
-        // 2. Envoyer le prompt à l'API OpenAI pour obtenir une réponse
-        // 3. Ajouter la réponse du PNJ à la conversation
-        
-        // Pour l'instant, on simule une réponse
+        // Utiliser le service OpenAI pour obtenir une réponse
         const conversation = conversationHandler.getConversation(conversationId);
         
         if (conversation) {
           const npc = conversation.currentNPC;
           
-          // Simuler un délai de traitement (non implémenté ici)
+          // Préparer le prompt pour l'IA
+          const prompt = conversationHandler.prepareAIPrompt(conversationId);
           
-          // Ajouter une réponse simulée
+          // Utiliser le service OpenAI (importé depuis I_AM_CYBER OLD temporairement)
+          const openAIService = require('../../I_AM_CYBER OLD/services/openai').openAIService;
+          
+          // Appeler l'API OpenAI
+          openAIService.getChatCompletion([
+            { role: "system", content: prompt },
+            { role: "user", content: message }
+          ], 0.7, 800).then((aiResponse: string) => {
+            // Ajouter la réponse de l'IA à la conversation
+            conversationHandler.addMessageToConversation(
+              conversationId,
+              'bot',
+              aiResponse,
+              npc.name,
+              npc.role
+            );
+          }).catch((error: any) => {
+            console.error("Erreur lors de l'appel à l'API OpenAI:", error);
+            // En cas d'erreur, ajouter un message d'erreur
+            conversationHandler.addMessageToConversation(
+              conversationId,
+              'bot',
+              "Je suis désolé, mais je rencontre des difficultés de connexion. Pourriez-vous reformuler votre message?",
+              npc.name,
+              npc.role
+            );
+          });
+          
+          // Ajouter un message temporaire pendant le traitement
           const responseMessage = conversationHandler.addMessageToConversation(
             conversationId,
             'bot',
-            `Je suis ${npc.name}, ${npc.role}. Voici ma réponse simulée à votre message : "${message}"`,
+            "Je réfléchis à votre message...",
             npc.name,
             npc.role
           );

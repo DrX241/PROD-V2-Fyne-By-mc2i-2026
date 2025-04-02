@@ -167,8 +167,53 @@ export default function CyberNewChat() {
       
       const data = await response.json();
       
-      // Mettre à jour les messages
+      // Mettre à jour les messages et le NPC
       setMessages(data.messages || []);
+      if (data.currentNPC) {
+        setNPC(data.currentNPC);
+      }
+      
+      // Ajout d'un polling pour récupérer la réponse de l'IA
+      const pollForResponse = async () => {
+        try {
+          const pollResponse = await fetch(`/api/cyber/new/conversations/${conversationId}/messages`);
+          if (!pollResponse.ok) {
+            throw new Error('Erreur lors de la récupération des messages');
+          }
+          
+          const pollData = await pollResponse.json();
+          
+          // Vérifier si la réponse de l'IA est arrivée
+          const userMessageIndex = pollData.messages.findIndex((msg: ChatMessage) => 
+            msg.id === tempMessage.id
+          );
+          
+          const hasAiResponse = pollData.messages.some((msg: ChatMessage, index: number) => 
+            index > userMessageIndex && msg.type === 'bot' && msg.content !== "Je réfléchis à votre message..."
+          );
+          
+          if (hasAiResponse) {
+            // Mettre à jour les messages avec la réponse de l'IA
+            setMessages(pollData.messages);
+            setIsSending(false);
+          } else {
+            // Continuer le polling
+            setTimeout(pollForResponse, 1000);
+          }
+        } catch (error) {
+          console.error("Erreur pendant le polling:", error);
+          setIsSending(false);
+        }
+      };
+      
+      // Démarrer le polling seulement si la réponse est en attente
+      const waitingForResponse = data.messages.some((msg: ChatMessage) => 
+        msg.type === 'bot' && msg.content === "Je réfléchis à votre message..."
+      );
+      
+      if (waitingForResponse) {
+        setTimeout(pollForResponse, 1000);
+      }
       
     } catch (error) {
       console.error(error);

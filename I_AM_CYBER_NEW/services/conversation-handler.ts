@@ -35,7 +35,8 @@ class ConversationHandler {
       contextualData: {
         activeMission,
         userLevel: userProfile.level.toString(),
-        previousInteractions: []
+        previousInteractions: [],
+        userProfile
       }
     };
 
@@ -198,25 +199,29 @@ class ConversationHandler {
     // Récupérer le template du PNJ et remplacer les variables
     let prompt = currentNPC.promptTemplate
       .replace('{lastMessages}', lastMessages)
-      .replace('{userLevel}', contextualData.userLevel);
+      .replace('{userName}', contextualData.userProfile?.name || 'utilisateur')
+      .replace('{userLevel}', contextualData.userLevel || 'Débutant');
 
     // Ajouter les informations de mission si disponible
     if (contextualData.activeMission) {
       const mission = contextualData.activeMission;
       prompt = prompt
-        .replace('{mission.title}', mission.title)
+        .replace('{mission.title}', mission.title || 'Formation en cybersécurité')
         .replace(
           '{mission.objectives.filter(o => !o.completed).map(o => o.description).join(\', \')}',
-          mission.objectives
+          (mission.objectives || [])
             .filter(o => !o.completed)
             .map(o => o.description)
             .join(', ')
         );
     } else {
       prompt = prompt
-        .replace('{mission.title}', 'Aucune mission active')
-        .replace('{mission.objectives.filter(o => !o.completed).map(o => o.description).join(\', \')}', 'Aucun objectif actif');
+        .replace('{mission.title}', 'Formation en cybersécurité')
+        .replace('{mission.objectives.filter(o => !o.completed).map(o => o.description).join(\', \')}', 'Introduction à la cybersécurité');
     }
+    
+    // Traiter toutes les autres variables qui pourraient être présentes
+    prompt = prompt.replace(/\{[^}]+\}/g, 'Information non disponible');
 
     return prompt;
   }
