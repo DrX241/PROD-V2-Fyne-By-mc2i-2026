@@ -1,0 +1,229 @@
+import { Express, Request, Response } from 'express';
+import { conversationHandler } from './conversation-handler';
+import { userProfileHandler } from './user-profile-handler';
+import { missionHandler } from './mission-handler';
+import { getMissionById, getAvailableMissions, getNPCById } from '../data';
+
+/**
+ * Enregistre les routes API pour le module I AM CYBER NEW
+ * @param app Application Express
+ */
+export function registerIAmCyberRoutes(app: Express): void {
+  // API pour créer un profil utilisateur
+  app.post('/api/cyber/new/profile', (req: Request, res: Response) => {
+    try {
+      const { name, avatarId, roleId } = req.body;
+      
+      if (!name || !avatarId || !roleId) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+      
+      const profile = userProfileHandler.createUserProfile(name, avatarId, roleId);
+      
+      return res.status(201).json(profile);
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message });
+    }
+  });
+
+  // API pour récupérer un profil utilisateur
+  app.get('/api/cyber/new/profile/:profileId', (req: Request, res: Response) => {
+    try {
+      const { profileId } = req.params;
+      
+      const profile = userProfileHandler.getUserProfile(profileId);
+      
+      if (!profile) {
+        return res.status(404).json({ error: 'Profile not found' });
+      }
+      
+      return res.status(200).json(profile);
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message });
+    }
+  });
+
+  // API pour récupérer les missions disponibles
+  app.get('/api/cyber/new/missions/available', (req: Request, res: Response) => {
+    try {
+      const missions = getAvailableMissions();
+      
+      return res.status(200).json(missions);
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message });
+    }
+  });
+
+  // API pour commencer une mission
+  app.post('/api/cyber/new/missions/start', (req: Request, res: Response) => {
+    try {
+      const { profileId, missionId } = req.body;
+      
+      if (!profileId || !missionId) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+      
+      const mission = missionHandler.startMission(profileId, missionId);
+      
+      return res.status(200).json(mission);
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message });
+    }
+  });
+
+  // API pour récupérer la mission active
+  app.get('/api/cyber/new/missions/active/:profileId', (req: Request, res: Response) => {
+    try {
+      const { profileId } = req.params;
+      
+      const mission = missionHandler.getActiveMission(profileId);
+      
+      if (!mission) {
+        return res.status(404).json({ error: 'No active mission found' });
+      }
+      
+      return res.status(200).json(mission);
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message });
+    }
+  });
+
+  // API pour valider un objectif de mission par quiz
+  app.post('/api/cyber/new/missions/validate-quiz', (req: Request, res: Response) => {
+    try {
+      const { profileId, objectiveId, answers } = req.body;
+      
+      if (!profileId || !objectiveId || !answers) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+      
+      const result = missionHandler.validateQuizObjective(profileId, objectiveId, answers);
+      
+      return res.status(200).json(result);
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message });
+    }
+  });
+
+  // API pour créer une conversation
+  app.post('/api/cyber/new/conversations', (req: Request, res: Response) => {
+    try {
+      const { profileId, npcId, missionId } = req.body;
+      
+      if (!profileId || !npcId) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+      
+      const profile = userProfileHandler.getUserProfile(profileId);
+      
+      if (!profile) {
+        return res.status(404).json({ error: 'Profile not found' });
+      }
+      
+      let mission;
+      if (missionId) {
+        mission = getMissionById(missionId);
+        if (!mission) {
+          return res.status(404).json({ error: 'Mission not found' });
+        }
+      } else {
+        mission = missionHandler.getActiveMission(profileId);
+      }
+      
+      const conversationId = conversationHandler.createConversation(npcId, profile, mission);
+      
+      return res.status(201).json({ conversationId });
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message });
+    }
+  });
+
+  // API pour envoyer un message dans une conversation
+  app.post('/api/cyber/new/conversations/:conversationId/messages', (req: Request, res: Response) => {
+    try {
+      const { conversationId } = req.params;
+      const { message, type } = req.body;
+      
+      if (!message || !type) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+      
+      // Ajouter le message à la conversation
+      const sentMessage = conversationHandler.addMessageToConversation(
+        conversationId,
+        type,
+        message
+      );
+      
+      // Si c'est un message utilisateur, générer une réponse du PNJ
+      if (type === 'user') {
+        // Dans une implémentation réelle, ici on devrait :
+        // 1. Préparer le prompt pour l'IA avec conversationHandler.prepareAIPrompt(conversationId)
+        // 2. Envoyer le prompt à l'API OpenAI pour obtenir une réponse
+        // 3. Ajouter la réponse du PNJ à la conversation
+        
+        // Pour l'instant, on simule une réponse
+        const conversation = conversationHandler.getConversation(conversationId);
+        
+        if (conversation) {
+          const npc = conversation.currentNPC;
+          
+          // Simuler un délai de traitement (non implémenté ici)
+          
+          // Ajouter une réponse simulée
+          const responseMessage = conversationHandler.addMessageToConversation(
+            conversationId,
+            'bot',
+            `Je suis ${npc.name}, ${npc.role}. Voici ma réponse simulée à votre message : "${message}"`,
+            npc.name,
+            npc.role
+          );
+          
+          // Renvoyer tous les messages de la conversation
+          const messages = conversationHandler.getConversationMessages(conversationId);
+          
+          return res.status(200).json({ messages });
+        }
+      }
+      
+      const messages = conversationHandler.getConversationMessages(conversationId);
+      
+      return res.status(200).json({ messages });
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message });
+    }
+  });
+
+  // API pour récupérer les messages d'une conversation
+  app.get('/api/cyber/new/conversations/:conversationId/messages', (req: Request, res: Response) => {
+    try {
+      const { conversationId } = req.params;
+      
+      const messages = conversationHandler.getConversationMessages(conversationId);
+      
+      return res.status(200).json(messages);
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message });
+    }
+  });
+
+  // API pour changer le PNJ d'une conversation
+  app.post('/api/cyber/new/conversations/:conversationId/change-npc', (req: Request, res: Response) => {
+    try {
+      const { conversationId } = req.params;
+      const { npcId } = req.body;
+      
+      if (!npcId) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+      
+      conversationHandler.changeNPC(conversationId, npcId);
+      
+      const messages = conversationHandler.getConversationMessages(conversationId);
+      
+      return res.status(200).json({ messages });
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message });
+    }
+  });
+}

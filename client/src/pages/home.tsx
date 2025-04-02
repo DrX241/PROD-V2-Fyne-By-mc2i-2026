@@ -105,13 +105,13 @@ export default function Home() {
   // Modules avec animations interactives
   const modules = [
     {
-      title: "I AM CYBER",
+      title: "I AM CYBER NEW",
       description: "Immergez-vous dans des scénarios de cybersécurité interactifs guidés par l'IA pour développer vos compétences face aux menaces numériques réelles.",
       icon: <ShieldCheck className="w-8 h-8 text-white" />,
       color: "bg-blue-600",
       bgColor: "bg-gradient-to-br from-blue-50 to-blue-100",
       accentColor: "bg-blue-500",
-      linkTo: "#"
+      linkTo: "/cyber-new-onboarding"
     },
     {
       title: "I AM DATA & IA",
@@ -215,7 +215,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.3 }}
               >
-                <Link href="/">
+                <Link href="/cyber-new-onboarding">
                   <Button 
                     size="lg" 
                     className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg border-0"
@@ -354,7 +354,7 @@ export default function Home() {
             </p>
             
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link href="/">
+              <Link href="/cyber-new-onboarding">
                 <Button 
                   size="lg" 
                   className="bg-white hover:bg-gray-100 text-blue-700"
