@@ -110,8 +110,8 @@ export function registerIAmCyberRoutes(app: Express): void {
     try {
       const { profileId, npcId, missionId } = req.body;
       
-      if (!profileId || !npcId) {
-        return res.status(400).json({ error: 'Missing required fields' });
+      if (!profileId) {
+        return res.status(400).json({ error: 'Profile ID is required' });
       }
       
       const profile = userProfileHandler.getUserProfile(profileId);
@@ -121,16 +121,33 @@ export function registerIAmCyberRoutes(app: Express): void {
       }
       
       let mission;
+      let effectiveNpcId = npcId;
+      
+      // Récupérer la mission
       if (missionId) {
         mission = getMissionById(missionId);
         if (!mission) {
           return res.status(404).json({ error: 'Mission not found' });
         }
+        
+        // Si npcId n'est pas fourni, utiliser le PNJ principal de la mission
+        if (!effectiveNpcId && mission.primaryNPC) {
+          effectiveNpcId = mission.primaryNPC;
+        }
       } else {
         mission = missionHandler.getActiveMission(profileId);
+        if (mission && !effectiveNpcId && mission.primaryNPC) {
+          effectiveNpcId = mission.primaryNPC;
+        }
       }
       
-      const conversationId = conversationHandler.createConversation(npcId, profile, mission);
+      // Vérifier qu'on a un NPC à ce stade
+      if (!effectiveNpcId) {
+        return res.status(400).json({ error: 'NPC ID is required' });
+      }
+      
+      // Créer la conversation
+      const conversationId = conversationHandler.createConversation(effectiveNpcId, profile, mission);
       
       return res.status(201).json({ conversationId });
     } catch (error: any) {
@@ -199,9 +216,36 @@ export function registerIAmCyberRoutes(app: Express): void {
     try {
       const { conversationId } = req.params;
       
+      // Récupérer la conversation complète pour avoir accès aux données comme le NPC actuel et la mission
+      const conversation = conversationHandler.getConversation(conversationId);
+      if (!conversation) {
+        return res.status(404).json({ error: 'Conversation not found' });
+      }
+      
+      // Récupérer les messages
       const messages = conversationHandler.getConversationMessages(conversationId);
       
-      return res.status(200).json(messages);
+      // Récupérer les NPCs disponibles pour la mission si elle existe
+      let availableNPCs = [conversation.currentNPC];
+      if (conversation.contextualData.activeMission) {
+        const mission = conversation.contextualData.activeMission;
+        if (mission.supportNPCs && mission.supportNPCs.length > 0) {
+          // Ajouter les NPCs de support à la liste
+          const supportNPCs = mission.supportNPCs
+            .map(npcId => getNPCById(npcId))
+            .filter(npc => npc !== undefined);
+          
+          availableNPCs = [conversation.currentNPC, ...supportNPCs];
+        }
+      }
+      
+      // Retourner l'ensemble des données nécessaires au client
+      return res.status(200).json({ 
+        messages, 
+        mission: conversation.contextualData.activeMission,
+        currentNPC: conversation.currentNPC,
+        availableNPCs
+      });
     } catch (error: any) {
       return res.status(400).json({ error: error.message });
     }

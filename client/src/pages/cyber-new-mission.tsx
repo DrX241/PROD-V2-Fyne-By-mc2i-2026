@@ -98,6 +98,9 @@ export default function CyberNewMission() {
           return;
         }
         
+        // Par défaut, utiliser le mentor principal (idéalement récupéré depuis une API, mais pour le moment on utilise une constante)
+        const defaultNpcId = 'mentor-claire'; // ID du mentor principal
+        
         // Simulation d'une conversation existante ou création d'une nouvelle
         const convResponse = await fetch('/api/cyber/new/conversations', {
           method: 'POST',
@@ -106,7 +109,8 @@ export default function CyberNewMission() {
           },
           body: JSON.stringify({
             profileId,
-            missionId: params.id
+            missionId: params.id,
+            npcId: defaultNpcId // Ajout de l'ID du NPC par défaut
           }),
         });
         
@@ -115,23 +119,56 @@ export default function CyberNewMission() {
         }
         
         const convData = await convResponse.json();
-        setConversationId(convData.id);
+        const conversationId = convData.id || convData.conversationId;
+        setConversationId(conversationId);
+        
+        console.log("Conversation créée avec succès, ID:", conversationId);
         
         // Récupérer les messages de la conversation
-        const messagesResponse = await fetch(`/api/cyber/new/conversations/${convData.id}/messages`);
-        if (!messagesResponse.ok) {
-          throw new Error('Erreur lors de la récupération des messages');
+        if (!conversationId) {
+          throw new Error('Impossible de créer une conversation: ID non reçu');
         }
         
-        const { messages, mission, currentNPC, availableNPCs } = await messagesResponse.json();
+        let missionData = null;
+        let currentNPCData = null;
+        let availableNPCsData = null;
+        let messagesData = [];
         
-        setMission(mission);
-        setCurrentNPC(currentNPC);
-        setAvailableNPCs(availableNPCs);
-        setMessages(messages);
+        try {
+          console.log(`Récupération des messages pour la conversation ${conversationId}`);
+          const messagesResponse = await fetch(`/api/cyber/new/conversations/${conversationId}/messages`);
+          
+          if (!messagesResponse.ok) {
+            const errorText = await messagesResponse.text();
+            console.error("Erreur API:", errorText);
+            throw new Error(`Erreur lors de la récupération des messages: ${errorText}`);
+          }
+          
+          const responseData = await messagesResponse.json();
+          console.log("Données reçues de l'API:", responseData);
+          
+          // Assurer que toutes les données sont présentes
+          if (!responseData.messages || !responseData.currentNPC || !responseData.availableNPCs) {
+            console.error("Données manquantes dans la réponse:", responseData);
+            throw new Error("Données incomplètes reçues de l'API");
+          }
+          
+          messagesData = responseData.messages;
+          missionData = responseData.mission;
+          currentNPCData = responseData.currentNPC;
+          availableNPCsData = responseData.availableNPCs;
+        } catch (error) {
+          console.error("Erreur lors de la récupération des messages:", error);
+          throw error;
+        }
+        
+        setMission(missionData);
+        setCurrentNPC(currentNPCData);
+        setAvailableNPCs(availableNPCsData);
+        setMessages(messagesData);
         
         // Créer un message de bienvenue si c'est une nouvelle conversation
-        if (messages.length === 0) {
+        if (messagesData.length === 0) {
           // Ce message sera ajouté par le serveur
         }
       } catch (err) {
