@@ -18,6 +18,7 @@ interface EmailContent {
   date: string;
   body: string;
   scenarioContacts?: EmailContact[]; // Liste des interlocuteurs du scénario
+  isRead?: boolean; // Added isRead property
 }
 
 interface EmailMessageProps {
@@ -39,40 +40,40 @@ export default function EmailMessage({ email }: EmailMessageProps) {
   // Convert email body text to paragraphs
   const formattedBody = email.body.split('\n').map((line: string, i: number) => {
     if (line.trim() === '') return <div key={i} className="h-4"></div>;
-    
+
     // Handle bullet points or numbered lists
     if (line.trim().match(/^[•\-*]\s/)) {
       return <li key={i} className="ml-6 mb-1 text-white">{line.replace(/^[•\-*]\s/, '')}</li>;
     }
-    
+
     // Check for numbered list items
     const numberedListMatch = line.trim().match(/^(\d+\.)\s(.+)/);
     if (numberedListMatch) {
       return <li key={i} className="ml-6 mb-1 text-white">{numberedListMatch[2]}</li>;
     }
-    
+
     // Traitement amélioré pour les titres et sous-titres (qui étaient en markdown)
     if (line.trim().match(/^\*\*.*\*\*$/) || line.trim().match(/^__.*__$/)) {
       const boldText = line.replace(/^\*\*|\*\*$|^__|__$/g, '');
       return <p key={i} className="mb-3 font-medium text-white">{boldText}</p>;
     }
-    
+
     // Convertir tout le markdown en HTML correct
     if (line.includes('**') || line.includes('__')) {
       // Convertir le markdown en HTML propre
       let processedLine = line;
-      
+
       // Remplacer **text** par du texte en gras
       processedLine = processedLine.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>');
       processedLine = processedLine.replace(/__(.*?)__/g, '<strong class="text-white">$1</strong>');
-      
+
       // Ajouter d'autres conversions markdown au besoin (italique, etc.)
       processedLine = processedLine.replace(/\*(.*?)\*/g, '<em class="text-white">$1</em>');
       processedLine = processedLine.replace(/_(.*?)_/g, '<em class="text-white">$1</em>');
-      
+
       return <p key={i} className="mb-3 text-white" dangerouslySetInnerHTML={{ __html: processedLine }} />;
     }
-    
+
     return <p key={i} className="mb-3 text-white">{line}</p>;
   });
 
@@ -82,13 +83,13 @@ export default function EmailMessage({ email }: EmailMessageProps) {
     let currentList: JSX.Element[] = [];
     let isOrderedList = false;
     let listKey = 0;
-    
+
     formattedBody.forEach((element: React.ReactNode, index: number) => {
       if (React.isValidElement(element) && element.type === 'li') {
         // Check if this is a numbered list item
         const originalLine = email.body.split('\n')[index];
         const isNumbered = originalLine.trim().match(/^\d+\.\s/);
-        
+
         // If switching list types, close current list and start new one
         if ((isNumbered === null) !== isOrderedList && currentList.length > 0) {
           result.push(
@@ -98,7 +99,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
           );
           currentList = [];
         }
-        
+
         isOrderedList = Boolean(isNumbered);
         currentList.push(element);
       } else {
@@ -114,7 +115,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
         result.push(element);
       }
     });
-    
+
     // Add any remaining list items
     if (currentList.length > 0) {
       result.push(
@@ -123,7 +124,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
           <ul key={`list-${listKey++}`} className="list-disc mb-3 text-white">{currentList}</ul>
       );
     }
-    
+
     return result;
   };
 
@@ -148,7 +149,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
               {formatDate(email.date)}
             </div>
           </div>
-          
+
           <div className="space-y-2 sm:space-y-3 pt-3 border-t border-blue-700/30">
             <div className="flex flex-wrap sm:flex-nowrap">
               <p className="font-medium text-white w-12 sm:w-16 text-sm sm:text-base">À :</p>
@@ -156,16 +157,16 @@ export default function EmailMessage({ email }: EmailMessageProps) {
             </div>
             <div className="flex flex-wrap sm:flex-nowrap">
               <p className="font-medium text-white w-12 sm:w-16 text-sm sm:text-base">Objet :</p>
-              <p className="text-white font-medium text-sm sm:text-base">{email.subject}</p>
+              <p className={`text-white font-medium text-sm sm:text-base ${!email.isRead ? 'underline' : ''}`}>{email.subject}</p>
             </div>
           </div>
         </div>
-        
+
         {/* Email Body */}
         <div className="p-4 sm:p-6 text-white prose prose-invert max-w-none prose-blue text-sm sm:text-base">
           {renderBody()}
         </div>
-        
+
         {/* Zone de réponse */}
         <div className="p-4 sm:p-6 border-t border-blue-700/30">
           <ChatInterface
@@ -186,7 +187,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
               <Users className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-white" />
               <span>Interlocuteurs du scénario</span>
             </h4>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {email.scenarioContacts.map((contact: EmailContact, index: number) => (
                 <div 
@@ -219,7 +220,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
                 </div>
               ))}
             </div>
-            
+
             <p className="text-xs sm:text-sm text-white mt-3 sm:mt-4">
               Ces interlocuteurs interviendront dans ce scénario pour vous offrir différentes perspectives sur la problématique cyber centrale.
             </p>
