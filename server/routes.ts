@@ -301,12 +301,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         companyName = "CYBER SECURE SOLUTIONS";
       };
 
-      // Nous définissons maintenant une personne RH comme premier contact, quel que soit le scénario
-      const rhContact = {
-        name: "Isabelle Dubacq",
-        role: "Senior Partner, Directrice des Ressources Humaines",
-        expertise: "Formation et sensibilisation des collaborateurs",
-        concern: "Préoccupée par le facteur humain dans la cybersécurité et le développement d'une culture de sécurité"
+      // Utiliser le contact principal du scénario comme premier interlocuteur
+      const contactPrincipal = {
+        name: scenario.contact.name,
+        role: scenario.contact.role,
+        expertise: "Expertise spécifique au domaine du scénario",
+        concern: "Préoccupations liées aux enjeux cyber dans son domaine d'expertise"
       };
 
       const messages: ChatCompletionRequestMessage[] = [
@@ -317,18 +317,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         {
           role: "user",
           content: `Générez un email COURT et ACCUEILLANT (maximum 150 mots) pour le scénario "${scenario.title}" dans le domaine "${scenario.domain}" avec les détails suivants:
-          - L'email doit provenir de ${rhContact.name} (${rhContact.role})
+          - L'email doit provenir de ${contactPrincipal.name} (${contactPrincipal.role})
           - L'email doit être adressé à ${userName} en utilisant le tutoiement ("tu") 
           - Le secteur d'activité pour ce scénario est: ${secteurActivite}
           - Le nom d'entreprise pour ce scénario est: ${companyName}
           - L'email doit être un message d'accueil chaleureux où le PNJ se présente, présente brièvement l'entreprise ${companyName}
           - IMPORTANT: Invite explicitement ${userName} à se présenter en détaillant son parcours, son expérience professionnelle et son niveau de connaissance en cybersécurité
           - Précise que ces informations sont nécessaires pour adapter la mission à son profil
-          - Mentionne brièvement que suite à cette présentation, ${userName} sera mis(e) en contact avec ${scenario.contact.name} (${scenario.contact.role}) pour sa mission
+          - Mentionne brièvement que ces informations sont nécessaires pour mieux adapter le scénario à son profil
           - IMPORTANT: NE PAS mentionner ou faire référence à des pièces jointes, documents ou fichiers
           - N'incluez PAS encore de problème ou de mission spécifique à résoudre
           - Le ton doit être chaleureux, accueillant et professionnel, en utilisant le tutoiement
-          - Le style d'écriture doit correspondre au rôle de Directrice RH: bienveillant mais professionnel
+          - Le style d'écriture doit correspondre au rôle de ${contactPrincipal.role}: professionnel et adapté
           - Rédigez uniquement l'email, pas de commentaires ou d'explications`
         }
       ];
@@ -644,25 +644,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Obtenir 2 contacts supplémentaires pertinents pour ce scénario
       const additionalContacts = getAdditionalContacts(scenario.domain, scenario.contact);
       
-      // Créer la structure d'interlocuteurs pour ce scénario - le contact RH est toujours le premier interlocuteur
-      // S'assurer que le contact RH n'est pas déjà dans la liste des contacts du scénario
-      const contactsWithoutRH = [scenario.contact, ...additionalContacts].filter(contact => 
-        contact.name !== rhContact.name
-      );
-      
-      // Limiter à un total de 2 interlocuteurs maximum, quels qu'ils soient
+      // Créer la structure d'interlocuteurs pour ce scénario
+      // Limiter à un total de 2 interlocuteurs maximum
+      // Le contact principal du scénario est toujours inclus
       const scenarioContacts = [scenario.contact];
       
-      // Sélectionner un seul contact supplémentaire si besoin (priorité au contact le plus pertinent parmi ceux générés)
-      if (additionalContacts.length > 0 && scenario.contact.name !== rhContact.name) {
-        // Si le contact principal n'est pas Isabelle, ajouter Isabelle ou un autre contact
-        if (Math.random() > 0.3) { // 70% du temps, inclure Isabelle Dubacq
-          scenarioContacts.push(rhContact);
-        } else if (additionalContacts.length > 0) { // 30% du temps, choisir un autre expert
-          scenarioContacts.push(additionalContacts[0]);
-        }
-      } else if (additionalContacts.length > 0) {
-        // Si le contact principal est Isabelle, ajouter un seul contact supplémentaire
+      // Ajouter au maximum un seul contact supplémentaire
+      if (additionalContacts.length > 0) {
+        // Ajouter le premier contact supplémentaire généré
         scenarioContacts.push(additionalContacts[0]);
       }
       
