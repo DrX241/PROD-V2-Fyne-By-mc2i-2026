@@ -64,7 +64,7 @@ export default function CyberNewChat() {
           return;
         }
         
-        // Créer une conversation de base avec l'assistant principal
+        // Créer une conversation avec Isabelle, la DRH
         const response = await fetch('/api/cyber/new/conversations', {
           method: 'POST',
           headers: {
@@ -72,7 +72,7 @@ export default function CyberNewChat() {
           },
           body: JSON.stringify({
             profileId,
-            npcId: 'mentor-claire'
+            npcId: 'drh-isabelle'
           }),
         });
         
@@ -106,7 +106,7 @@ export default function CyberNewChat() {
           const welcomeMessage: ChatMessage = {
             id: Date.now().toString(),
             type: 'system',
-            content: `Bienvenue ${profileName} dans le chat I AM CYBER. Je suis Claire, votre mentor en cybersécurité. Comment puis-je vous aider aujourd'hui?`,
+            content: `Bienvenue ${profileName} dans notre programme de sensibilisation à la cybersécurité. Je suis Isabelle Martin, Directrice des Ressources Humaines. C'est moi qui vous accompagnerai tout au long de ce parcours pour vous aider à comprendre les bonnes pratiques de sécurité dans notre entreprise.`,
             timestamp: Date.now()
           };
           
@@ -211,7 +211,7 @@ export default function CyberNewChat() {
         },
         body: JSON.stringify({
           profileId,
-          npcId: npc?.id || 'mentor-claire'
+          npcId: 'drh-isabelle'
         }),
       });
       
@@ -286,7 +286,7 @@ export default function CyberNewChat() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-md">
+      <header className="bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md">
         <div className="max-w-4xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-4">
@@ -298,7 +298,7 @@ export default function CyberNewChat() {
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Tableau de bord
               </Button>
-              <h1 className="text-xl font-bold">I AM CYBER Chat</h1>
+              <h1 className="text-xl font-bold">Chat avec Isabelle Martin - DRH</h1>
             </div>
             
             <div className="flex items-center space-x-2">
@@ -336,8 +336,8 @@ export default function CyberNewChat() {
           <Card className="shadow-md">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center">
-                <MessageSquare className="mr-2 h-5 w-5 text-blue-500" />
-                Assistant Cybersécurité
+                <MessageSquare className="mr-2 h-5 w-5 text-pink-500" />
+                Formation Cybersécurité - Conversation avec la DRH
               </CardTitle>
               <Separator />
             </CardHeader>
@@ -350,7 +350,7 @@ export default function CyberNewChat() {
                     className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     {message.type === 'system' && (
-                      <div className="bg-blue-50 text-blue-800 rounded-lg p-3 max-w-[85%] text-sm">
+                      <div className="bg-pink-50 text-pink-800 rounded-lg p-3 max-w-[85%] text-sm">
                         <p>{message.content}</p>
                       </div>
                     )}
@@ -365,7 +365,7 @@ export default function CyberNewChat() {
                         </Avatar>
                         
                         <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
-                          <div className="text-xs text-blue-600 font-medium mb-1">
+                          <div className="text-xs text-pink-600 font-medium mb-1">
                             {message.contactName || npc?.name || 'Assistant'} • {message.contactRole || npc?.role || 'Conseiller'}
                           </div>
                           <p className="text-gray-800 whitespace-pre-line">{message.content}</p>
@@ -375,12 +375,12 @@ export default function CyberNewChat() {
                     
                     {message.type === 'user' && (
                       <div className="flex space-x-2 max-w-[85%]">
-                        <div className="bg-blue-600 text-white rounded-lg p-3">
+                        <div className="bg-purple-600 text-white rounded-lg p-3">
                           <p>{message.content}</p>
                         </div>
                         
                         <Avatar className="h-8 w-8 mt-1">
-                          <AvatarFallback className="bg-blue-700 text-white">
+                          <AvatarFallback className="bg-purple-700 text-white">
                             <User className="h-4 w-4" />
                           </AvatarFallback>
                         </Avatar>
@@ -402,9 +402,9 @@ export default function CyberNewChat() {
                       
                       <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
                         <div className="flex items-center space-x-1">
-                          <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                          <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '250ms' }}></div>
-                          <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '500ms' }}></div>
+                          <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                          <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '250ms' }}></div>
+                          <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '500ms' }}></div>
                         </div>
                       </div>
                     </div>
