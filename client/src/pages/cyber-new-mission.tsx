@@ -85,12 +85,23 @@ export default function CyberNewMission() {
   
   // Effet pour récupérer les données de la mission et créer une conversation
   useEffect(() => {
+    // Variable pour éviter les mises à jour d'état après démontage du composant
+    let isMounted = true;
+    // Variable pour éviter les appels en boucle
+    let isInitialLoad = true;
+    
     const fetchMissionData = async () => {
-      if (!params?.id) return;
+      // Ne pas charger à nouveau si on est déjà en chargement ou si on a déjà une conversation
+      if (isLoading || (!isInitialLoad && conversationId)) return;
       
       setIsLoading(true);
+      
       try {
-        // Simuler la récupération des données de mission et la création d'une conversation
+        if (!params?.id) {
+          throw new Error('ID de mission manquant');
+        }
+        
+        // Récupérer l'ID de profil
         const profileId = localStorage.getItem('cyberNewProfileId');
         
         if (!profileId) {
@@ -98,10 +109,10 @@ export default function CyberNewMission() {
           return;
         }
         
-        // Par défaut, utiliser le mentor principal (idéalement récupéré depuis une API, mais pour le moment on utilise une constante)
-        const defaultNpcId = 'mentor-claire'; // ID du mentor principal
+        // ID du mentor principal, si nécessaire
+        const defaultNpcId = 'mentor-claire';
         
-        // Simulation d'une conversation existante ou création d'une nouvelle
+        // Créer une conversation une seule fois
         const convResponse = await fetch('/api/cyber/new/conversations', {
           method: 'POST',
           headers: {
@@ -110,7 +121,7 @@ export default function CyberNewMission() {
           body: JSON.stringify({
             profileId,
             missionId: params.id,
-            npcId: defaultNpcId // Ajout de l'ID du NPC par défaut
+            npcId: defaultNpcId
           }),
         });
         
@@ -119,68 +130,71 @@ export default function CyberNewMission() {
         }
         
         const convData = await convResponse.json();
-        const conversationId = convData.id || convData.conversationId;
-        setConversationId(conversationId);
         
-        console.log("Conversation créée avec succès, ID:", conversationId);
+        // Vérifier que le composant est toujours monté avant de mettre à jour l'état
+        if (!isMounted) return;
         
-        // Récupérer les messages de la conversation
-        if (!conversationId) {
-          throw new Error('Impossible de créer une conversation: ID non reçu');
+        // Obtenir l'ID de conversation
+        const newConversationId = convData.conversationId;
+        
+        if (!newConversationId) {
+          throw new Error('ID de conversation non reçu du serveur');
         }
         
-        let missionData = null;
-        let currentNPCData = null;
-        let availableNPCsData = null;
-        let messagesData = [];
+        // Stocker l'ID de conversation
+        console.log("Conversation créée avec succès, ID:", newConversationId);
+        setConversationId(newConversationId);
         
-        try {
-          console.log(`Récupération des messages pour la conversation ${conversationId}`);
-          const messagesResponse = await fetch(`/api/cyber/new/conversations/${conversationId}/messages`);
-          
-          if (!messagesResponse.ok) {
-            const errorText = await messagesResponse.text();
-            console.error("Erreur API:", errorText);
-            throw new Error(`Erreur lors de la récupération des messages: ${errorText}`);
-          }
-          
-          const responseData = await messagesResponse.json();
-          console.log("Données reçues de l'API:", responseData);
-          
-          // Assurer que toutes les données sont présentes
-          if (!responseData.messages || !responseData.currentNPC || !responseData.availableNPCs) {
-            console.error("Données manquantes dans la réponse:", responseData);
-            throw new Error("Données incomplètes reçues de l'API");
-          }
-          
-          messagesData = responseData.messages;
-          missionData = responseData.mission;
-          currentNPCData = responseData.currentNPC;
-          availableNPCsData = responseData.availableNPCs;
-        } catch (error) {
-          console.error("Erreur lors de la récupération des messages:", error);
-          throw error;
+        // Récupérer les messages et les données associées
+        const messagesResponse = await fetch(`/api/cyber/new/conversations/${newConversationId}/messages`);
+        
+        if (!messagesResponse.ok) {
+          const errorText = await messagesResponse.text();
+          throw new Error(`Erreur lors de la récupération des messages: ${errorText}`);
         }
         
-        setMission(missionData);
-        setCurrentNPC(currentNPCData);
-        setAvailableNPCs(availableNPCsData);
-        setMessages(messagesData);
+        const responseData = await messagesResponse.json();
         
-        // Créer un message de bienvenue si c'est une nouvelle conversation
-        if (messagesData.length === 0) {
-          // Ce message sera ajouté par le serveur
+        // Vérifier que le composant est toujours monté avant de mettre à jour l'état
+        if (!isMounted) return;
+        
+        console.log("Données reçues de l'API:", responseData);
+        
+        // Vérifier la présence des données nécessaires
+        if (!responseData.messages || !responseData.currentNPC || !responseData.availableNPCs) {
+          throw new Error("Données incomplètes reçues de l'API");
         }
+        
+        // Mettre à jour l'état avec les données reçues
+        setMission(responseData.mission);
+        setCurrentNPC(responseData.currentNPC);
+        setAvailableNPCs(responseData.availableNPCs);
+        setMessages(responseData.messages);
+        
       } catch (err) {
-        console.error(err);
-        setError(err instanceof Error ? err.message : 'Une erreur inattendue s\'est produite');
+        // Vérifier que le composant est toujours monté avant de mettre à jour l'état d'erreur
+        if (isMounted) {
+          console.error(err);
+          setError(err instanceof Error ? err.message : 'Une erreur inattendue s\'est produite');
+        }
       } finally {
-        setIsLoading(false);
+        // Marquer comme non-initial pour éviter les rechargements inutiles
+        isInitialLoad = false;
+        
+        // Mettre fin au chargement si le composant est toujours monté
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchMissionData();
-  }, [params, setLocation]);
+    
+    // Fonction de nettoyage pour éviter les mises à jour d'état après démontage
+    return () => {
+      isMounted = false;
+    };
+  }, [params?.id, isLoading, conversationId, setLocation]);
 
   // Effet pour faire défiler vers le bas lorsque de nouveaux messages sont ajoutés
   useEffect(() => {
