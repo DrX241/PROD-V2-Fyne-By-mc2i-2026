@@ -25,27 +25,27 @@ class OpenAIService {
   private connectionStatus: 'connected' | 'disconnected' | 'reconnecting' = 'disconnected';
   private lastConnectionCheck: number = 0;
   private readonly CONNECTION_CHECK_INTERVAL = 1000 * 60 * 5; // 5 minutes
-  
+
   constructor() {
     try {
       // Utiliser directement les valeurs fournies par l'utilisateur (configuration primaire - GPT-4o)
       this.primaryConfig = {
         endpoint: "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com",
-        apiKey: "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK",
+        apiKey: process.env.AZURE_OPENAI_API_KEY || "",
         deploymentName: "Eddy-deploy-20-02-2025-gpt-4o",
         apiVersion: "2024-12-01-preview",
         modelName: "gpt-4o"
       };
-      
+
       // Configuration secondaire - GPT-4o-mini
       this.secondaryConfig = {
         endpoint: "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com",
-        apiKey: "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK",
+        apiKey: process.env.AZURE_OPENAI_API_KEY_SECONDARY || "",
         deploymentName: "Eddy-02-2025-gpt-4o-mini",
         apiVersion: "2024-12-01-preview",
         modelName: "gpt-4o-mini"
       };
-      
+
       console.log(`OpenAI Service initialized with primary model: ${this.primaryConfig.modelName}`);
       console.log(`OpenAI Service initialized with secondary model: ${this.secondaryConfig.modelName}`);
     } catch (error) {
@@ -53,22 +53,22 @@ class OpenAIService {
       // Initialiser avec les mêmes valeurs en cas d'erreur
       this.primaryConfig = {
         endpoint: "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com",
-        apiKey: "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK",
+        apiKey: process.env.AZURE_OPENAI_API_KEY || "",
         deploymentName: "Eddy-deploy-20-02-2025-gpt-4o",
         apiVersion: "2024-12-01-preview",
         modelName: "gpt-4o"
       };
-      
+
       this.secondaryConfig = {
         endpoint: "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com",
-        apiKey: "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK",
+        apiKey: process.env.AZURE_OPENAI_API_KEY_SECONDARY || "",
         deploymentName: "Eddy-02-2025-gpt-4o-mini",
         apiVersion: "2024-12-01-preview",
         modelName: "gpt-4o-mini"
       };
     }
   }
-  
+
   // Méthode pour basculer entre les configurations
   switchApiKey(type: ApiKeyType): void {
     this.currentConfig = type;
@@ -76,17 +76,17 @@ class OpenAIService {
     this.lastConnectionCheck = 0; // Forcer une vérification de connexion
     console.log(`Switched to ${type} API key (${this.getCurrentConfig().modelName})`);
   }
-  
+
   // Obtenir la configuration active
   getCurrentConfig(): OpenAIConfig {
     return this.currentConfig === 'primary' ? this.primaryConfig : this.secondaryConfig;
   }
-  
+
   // Obtenir le type de configuration actuelle
   getCurrentConfigType(): ApiKeyType {
     return this.currentConfig;
   }
-  
+
   // Obtenir le nom du modèle actuel pour l'affichage
   getCurrentModelName(): string {
     return this.getCurrentConfig().modelName;
@@ -99,23 +99,23 @@ class OpenAIService {
     maxTokens: number = 2000
   ): Promise<string> {
     const cacheKey = this.getCacheKey(messages, temperature, maxTokens);
-    
+
     // Vérifier si la réponse est dans le cache et toujours valide
     const cachedResponse = this.responseCache.get(cacheKey);
     if (cachedResponse && (Date.now() - cachedResponse.timestamp) < this.CACHE_TTL) {
       console.log("Using cached response");
       return cachedResponse.content;
     }
-    
+
     // Sinon, appeler l'API
     const content = await this.getChatCompletion(messages, temperature, maxTokens);
-    
+
     // Mettre en cache la réponse
     this.responseCache.set(cacheKey, {
       content,
       timestamp: Date.now()
     });
-    
+
     return content;
   }
 
@@ -128,13 +128,13 @@ class OpenAIService {
     let retries = 3; // Nombre maximal de tentatives
     let delay = 1000; // Délai initial en ms
     const config = this.getCurrentConfig();
-    
+
     while (retries >= 0) {
       try {
         const url = `${config.endpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
-        
+
         console.log(`Using ${config.modelName} model for this request`);
-        
+
         const response = await axios.post(
           url,
           {
@@ -155,12 +155,12 @@ class OpenAIService {
         // Mise à jour du statut de connexion
         this.connectionStatus = 'connected';
         this.lastConnectionCheck = Date.now();
-        
+
         return response.data.choices[0].message.content;
       } catch (error) {
         retries--;
         console.error(`Error calling Azure OpenAI ${config.modelName} (retries left: ${retries}):`, error);
-        
+
         if (axios.isAxiosError(error)) {
           // Si c'est une erreur 429 (rate limit) ou une erreur 5xx (serveur)
           if (error.response && (error.response.status === 429 || error.response.status >= 500)) {
@@ -176,15 +176,15 @@ class OpenAIService {
           console.error("Response data:", error.response?.data);
           console.error("Response status:", error.response?.status);
         }
-        
+
         this.connectionStatus = 'disconnected';
-        
+
         if (retries < 0) {
           throw new Error(`Failed to get completion from Azure OpenAI ${config.modelName} after multiple attempts`);
         }
       }
     }
-    
+
     throw new Error(`Failed to get completion from Azure OpenAI ${config.modelName}`);
   }
 
@@ -196,16 +196,16 @@ class OpenAIService {
           (Date.now() - this.lastConnectionCheck) < this.CONNECTION_CHECK_INTERVAL) {
         return true;
       }
-      
+
       // Simple message pour tester la connexion
       const testMessage: ChatCompletionRequestMessage[] = [
         { role: "system", content: "You are a helpful assistant." },
         { role: "user", content: "Respond with 'OK' if you can read this." }
       ];
-      
+
       // Obtenir la configuration active
       const config = this.getCurrentConfig();
-      
+
       // Appel direct à l'API (sans passer par getChatCompletion pour éviter les retries)
       const url = `${config.endpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
       const response = await axios.post(
@@ -224,11 +224,11 @@ class OpenAIService {
           timeout: 10000 // Timeout court pour le health check
         }
       );
-      
+
       const success = !!response.data.choices[0].message.content;
       this.connectionStatus = success ? 'connected' : 'disconnected';
       this.lastConnectionCheck = Date.now();
-      
+
       console.log(`Azure OpenAI connection status (${config.modelName}): ${this.connectionStatus}`);
       return success;
     } catch (error) {
@@ -265,32 +265,32 @@ class OpenAIService {
       // Read the master prompt from file
       const fs = await import('fs');
       const path = await import('path');
-      
+
       // Chemin du prompt principal qui définit le comportement global de l'IA
       const masterPromptPath = path.join(process.cwd(), 'I_AM_CYBER', 'prompts', 'master_prompt.txt');
-      
+
       // Lire le prompt maître - celui-ci contient toutes les instructions de comportement
       let systemPrompt = fs.readFileSync(masterPromptPath, 'utf8');
-      
+
       // Add configuration specific instructions
       const { difficultyLevel = "Intermédiaire", responseStyle = "Professionnel" } = configParams;
-      
+
       systemPrompt += `\n\n# CONFIGURATION ACTUELLE:`;
       systemPrompt += `\n- Niveau de difficulté: ${difficultyLevel}`;
       systemPrompt += `\n- Style de réponse: ${responseStyle}`;
-      
+
       if (difficultyLevel === "Débutant") {
         systemPrompt += `\n\nComme il s'agit d'un niveau débutant, utilisez un langage accessible, évitez le jargon technique trop complexe et fournissez plus d'explications pour les concepts clés.`;
       } else if (difficultyLevel === "Expert") {
         systemPrompt += `\n\nComme il s'agit d'un niveau expert, utilisez une terminologie technique précise et supposez que l'utilisateur a une bonne compréhension des concepts de cybersécurité. Proposez des défis plus complexes.`;
       }
-      
+
       if (responseStyle === "Détaillé et pédagogique") {
         systemPrompt += `\n\nAdoptez un style détaillé et pédagogique. Fournissez des explications complètes et contextuelles.`;
       } else if (responseStyle === "Concis et direct") {
         systemPrompt += `\n\nAdoptez un style concis et direct. Allez droit au but et évitez les détails superflus.`;
       }
-      
+
       return systemPrompt;
     } catch (error) {
       console.error("Error generating system prompt:", error);
