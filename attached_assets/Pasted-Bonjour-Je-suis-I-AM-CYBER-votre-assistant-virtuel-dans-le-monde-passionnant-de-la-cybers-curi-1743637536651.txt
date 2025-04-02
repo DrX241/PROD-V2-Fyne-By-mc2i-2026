@@ -1,0 +1,223 @@
+Bonjour !
+
+Je suis I AM CYBER, votre assistant virtuel dans le monde passionnant de la cybersécurité. Je suis là pour vous accompagner dans une expérience d'apprentissage immersive et interactive.
+
+Comment puis-je vous appeler ?
+
+Je m'appelle Eddy
+
+Merci Eddy ! Ravi de vous rencontrer. J'espère que vous allez bien aujourd'hui.
+
+Nous allons explorer ensemble différents aspects de la cybersécurité. Veuillez choisir un domaine qui vous intéresse parmi les options suivantes :
+
+Choisissez un domaine de cybersécurité
+Sélectionnez le domaine dans lequel vous souhaitez améliorer vos compétences. Chaque domaine propose des scénarios adaptés à différents niveaux d'expertise.
+
+
+Gestion de crise cyber
+
+
+Protection des données personnelles / RGPD
+
+
+Ingénierie sociale et phishing
+
+
+Gestion des incidents de sécurité
+
+
+Sécurité de la chaîne d'approvisionnement
+
+
+Stratégie et gouvernance cybersécurité
+
+Excellent choix, Eddy ! Vous avez sélectionné la Sécurité de la chaîne d'approvisionnement.
+
+J'ai plusieurs scénarios de différents niveaux à vous proposer. Choisissez celui qui vous intéresse le plus :
+
+Sélectionnez un scénario de Sécurité de la chaîne d'approvisionnement
+3 scénarios disponibles
+
+15-20 min/scénario
+Apprentissage pratique
+PNJ réalistes
+
+Introduction aux risques de la chaîne d'approvisionnement
+Cliquez pour commencer ce scénario
+
+Débutant
+
+Évaluation de la sécurité des fournisseurs
+Cliquez pour commencer ce scénario
+
+Intermédiaire
+
+Incident de sécurité dans la chaîne d'approvisionnement
+Cliquez pour commencer ce scénario
+
+Expert
+Parfait Eddy ! Vous avez choisi le scénario "Incident de sécurité dans la chaîne d'approvisionnement".
+
+Je vais maintenant vous placer dans cette situation d'apprentissage.
+
+Contexte du scénario : Un fournisseur critique a subi une violation de données. Évaluez l'impact et prenez les mesures nécessaires.
+
+Vous allez interagir avec plusieurs interlocuteurs qui ont des préoccupations différentes liées à ce scénario. Chaque interlocuteur apportera un point de vue unique en fonction de ses préoccupations.
+
+Vous recevrez bientôt un premier mail.
+
+Préparez-vous à analyser la situation et à proposer des solutions adaptées ! N'oubliez pas, chacune de vos réponses aura un impact sur le scénario.
+
+AF
+Anthony Frescal
+Directeur Général Adjoint et Directeur du pôle ENERGIES & UTILITIES
+
+03/04/2025 01:37
+À :
+
+Eddy@mc2i.fr
+
+Objet :
+
+Bienvenue chez ENERGY SHIELD SYSTEMS
+
+Bonjour Eddy,
+
+Je suis Anthony Frescal, Directeur Général Adjoint et responsable du pôle Énergies & Utilities chez ENERGY SHIELD SYSTEMS. Nous sommes spécialisés dans la sécurisation des infrastructures critiques du secteur énergétique, assurant la continuité de service tout en protégeant les réseaux contre les menaces émergentes.
+
+Afin de te proposer une expérience parfaitement adaptée, pourrais-tu me partager ton parcours académique, ton expérience professionnelle et ton niveau de connaissance en cybersécurité ? Ces informations nous permettront de calibrer au mieux la prochaine étape.
+
+Je suis ravi de te compter parmi nous et impatient de découvrir ton profil.
+
+À très bientôt,
+
+Anthony Frescal
+
+Directeur Général Adjoint
+
+ENERGY SHIELD SYSTEMS
+
+Interlocuteurs du scénario
+AF
+Anthony Frescal
+Directeur Général Adjoint et Directeur du pôle ENERGIES & UTILITIES
+
+ML
+Marion Lopez
+Senior Partner et Directrice Marketing, Communication et RSE
+
+Expertise: Communication de crise et gestion de la réputation
+
+Préoccupation: Préoccupée par l'impact des incidents de sécurité sur l'image et la réputation de l'entreprise
+
+Ces interlocuteurs interviendront dans ce scénario pour vous offrir différentes perspectives sur la problématique cyber centrale.
+
+Je suis débutant en cyber sécurité
+
+Anthony Frescal
+Directeur Général Adjoint et Directeur du pôle ENERGIES & UTILITIES
+Merci pour ta réponse, Eddy. Je vois que tu te positionnes comme débutant en cybersécurité. C'est une excellente opportunité pour apprendre et développer tes compétences dans ce domaine essentiel, surtout dans un secteur aussi critique que l'énergie et les utilities.
+
+Nous allons travailler ensemble sur ce scénario. Voici le contexte précis :
+
+Un fournisseur clé de notre chaîne d'approvisionnement a subi une violation de ses données. Cela pourrait avoir un impact direct sur nos opérations, notamment en termes de continuité de service et de sécurité des infrastructures critiques.
+
+Les enjeux principaux à considérer sont :
+
+L'évaluation des risques liés à cette violation.
+La mise en place de mesures pour protéger nos systèmes et nos clients.
+La garantie de la continuité des opérations malgré cet incident.
+Ta première mission :
+
+Peux-tu me dire, selon toi, quelles informations essentielles il serait judicieux de collecter auprès du fournisseur pour évaluer l'impact de cette violation ? Même si tu débutes, essaie de réfléchir en termes de ce qui pourrait affecter nos systèmes ou nos clients.
+
+Je suis là pour te guider, donc n'hésite pas à proposer des idées, même si elles te semblent simples !
+
+Il faudrait lui demander depuis quand ses systems sont attaqués, quel est l'état actuel du fonctionnement, est ce qu'on a demandé une rançon
+
+Yousra SAIDANI
+Experte Cybersécurité & CFO
+Merci Eddy pour ta réponse ! Tu as soulevé des points pertinents, même pour un débutant, et cela montre que tu réfléchis déjà dans la bonne direction. Voici mon retour :
+
+### Ce que tu as bien identifié :
+
+1. Depuis quand les systèmes sont attaqués : C'est une information clé pour comprendre la timeline de l'incident et évaluer jusqu'où l'attaque a pu progresser.
+
+2. L'état actuel du fonctionnement : Très important pour savoir si le fournisseur est toujours opérationnel ou si cela affecte directement nos propres activités.
+
+3. Demande de rançon : Si une rançon a été demandée, cela indiquerait une attaque de type ransomware, un type d'incident malheureusement fréquent.
+
+### Ce qu'on peut compléter :
+
+En plus de ces points, voici quelques autres informations qu'il serait intéressant de demander au fournisseur :
+
+**Quels systèmes ont été touchés ?** Cela nous permettra de savoir s'il s'agit de données sensibles ou de systèmes critiques.
+**Quels types de données ont été compromises ?** Dans le secteur bancaire, cela pourrait inclure des données clients, des informations financières ou des identifiants d'accès.
+**Quels contrôles de sécurité ont été mis en place avant l'incident ?** Cela nous aidera à évaluer s'il y a eu des failles dans leurs mesures de sécurité.
+**Le fournisseur a-t-il prévenu les autorités compétentes ?** Cela est crucial pour des raisons de conformité, notamment avec les réglementations comme le RGPD ou la directive NIS2.
+--
+Action suivante :
+
+Je t'invite à réfléchir à cette question :
+
+Si le fournisseur nous informe que des données sensibles liées à nos clients ont été compromises, quelles seraient, selon toi, les premières actions à entreprendre pour limiter l'impact sur notre entreprise et nos clients ?
+
+Tu peux partager tes idées, même si elles te semblent basiques. Je suis là pour t'accompagner et t'aider à structurer ta réflexion. 😊
+
+Il faudrait sans doute limiter les contact avec ce fournisseur, faire des sauvegarde de notre coté,
+
+Anthony Frescal
+Directeur Général Adjoint et Directeur du pôle ENERGIES & UTILITIES
+Merci Eddy pour cette réponse ! Tu as déjà identifié deux mesures importantes, et c’est un bon début. Permets-moi de te donner un retour pour approfondir ta réflexion.
+
+### Ce que tu as bien identifié :
+
+1. Limiter les contacts avec le fournisseur : C’est une mesure prudente pour éviter que l’attaque ou ses impacts ne se propagent à nos propres systèmes. Cela montre que tu as conscience des risques liés à l'interconnexion des systèmes.
+
+2. Faire des sauvegardes de notre côté : C’est une excellente initiative ! Les sauvegardes sont essentielles pour garantir que nous pouvons récupérer nos données en cas de problème.
+
+### Ce que l’on peut compléter :
+
+En plus de ces actions, voici d’autres mesures à envisager dans une telle situation :
+
+**Isoler les accès réseau du fournisseur** : Si ce fournisseur utilise des connexions directes à nos systèmes, il serait crucial de suspendre temporairement ces accès pour éviter toute contamination.
+**Effectuer une analyse de nos propres systèmes** : S’assurer que l’incident n’a pas déjà impacté nos infrastructures ou compromis des données.
+**Informer les équipes internes** : Les collaborateurs doivent être sensibilisés à ne pas interagir avec le fournisseur (emails, fichiers partagés, etc.) tant que nous n’avons pas une vision claire de la situation.
+**Évaluer les implications légales et réglementaires** : Dans le secteur de l’énergie, les données sensibles et les infrastructures critiques doivent être protégées conformément aux réglementations comme NIS2 ou RGPD. Si des données liées à nos clients ou à nos opérations ont été compromises, des déclarations pourraient être nécessaires auprès des autorités compétentes.
+--
+Question suivante :
+
+Imaginons que le fournisseur critique nous informe qu’une partie de ses données a été volée, notamment des informations techniques sur nos infrastructures (ex. : schémas de nos réseaux électriques).
+
+À ton avis, quelles seraient les actions prioritaires pour protéger nos infrastructures contre une éventuelle exploitation malveillante de ces données ?
+
+Je t’encourage à réfléchir à cette situation et à proposer des idées, même simples. Chaque réflexion est une étape vers une meilleure maîtrise de la cybersécurité. 😊
+
+Il faudrait les abandonner
+
+Yousra SAIDANI
+Experte Cybersécurité & CFO
+Merci, Eddy, pour cette réponse directe. L'idée d'abandonner un fournisseur après un incident de sécurité est une réaction qui peut sembler logique pour protéger l'entreprise, mais dans le secteur bancaire, où les partenariats sont souvent stratégiques et réglementés, cela demande une approche plus nuancée.
+
+### Pourquoi "abandonner" n'est pas toujours la meilleure solution immédiate :
+
+1. Temps de transition et impact opérationnel : Si ce fournisseur joue un rôle crucial dans nos opérations, le remplacer pourrait entraîner des interruptions importantes, ce qui serait préjudiciable pour nos clients et notre activité.
+
+2. Engagement contractuel et réglementaire : Dans le secteur bancaire, les contrats avec les fournisseurs incluent souvent des clauses spécifiques en cas d'incident. Ne pas respecter ces clauses pourrait avoir des conséquences juridiques ou financières.
+
+3. Collaboration pour améliorer la sécurité : Travailler avec le fournisseur pour corriger les failles pourrait être plus efficace à court terme que de rompre immédiatement le partenariat.
+
+--
+### Une approche plus équilibrée :
+
+Voici ce que nous pourrions envisager avant de prendre une décision aussi radicale :
+
+**Évaluation des mesures correctives proposées par le fournisseur** : Ont-ils mis en place des actions pour remédier à l'incident et prévenir de futurs problèmes ?
+**Audit de sécurité complet** : Collaborer avec eux pour auditer leurs systèmes et s'assurer qu'ils respectent des normes de sécurité strictes.
+**Plan de transition** : Si nous décidons de ne plus travailler avec eux, il serait important d'avoir un plan de transition pour migrer leurs tâches vers un autre fournisseur, sans perturber nos activités.
+--
+### Question suivante :
+
+Si nous décidons de continuer à travailler temporairement avec ce fournisseur tout en évaluant nos options, quelles mesures de sécurité supplémentaires pourrions-nous mettre en place pour minimiser les risques liés à cette collaboration ?
+
+N'hésite pas à partager tes idées, même si elles te semblent basiques. Nous construirons une stratégie ensemble. 😊

@@ -644,14 +644,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const additionalContacts = getAdditionalContacts(scenario.domain, scenario.contact);
       
       // Créer la structure d'interlocuteurs pour ce scénario
-      // Limiter à un total de 2 interlocuteurs maximum
+      // Limiter à un total de 3 interlocuteurs maximum
       // Le contact principal du scénario est toujours inclus
       const scenarioContacts = [scenario.contact];
       
-      // Ajouter au maximum un seul contact supplémentaire
+      // Ajouter jusqu'à deux contacts supplémentaires (pour un total de 3 maximum)
       if (additionalContacts.length > 0) {
         // Ajouter le premier contact supplémentaire généré
         scenarioContacts.push(additionalContacts[0]);
+        
+        // Si disponible, ajouter un deuxième contact supplémentaire
+        if (additionalContacts.length > 1) {
+          scenarioContacts.push(additionalContacts[1]);
+        }
       }
       
       // Create email response - le premier message vient toujours du contact principal du scénario
@@ -662,7 +667,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         subject,
         date: new Date().toISOString(),
         body,
-        // Ajouter les contacts qui interviendront dans ce scénario (maximum 2 au total)
+        // Ajouter les contacts qui interviendront dans ce scénario (maximum 3 au total)
         scenarioContacts: scenarioContacts
       };
       
@@ -1146,10 +1151,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         const additionalContacts = getAdditionalContacts(scenario.domain, scenario.contact);
         
-        // Limiter à 2 interlocuteurs au total
+        // Limiter à 3 interlocuteurs au total
         if (additionalContacts.length > 0) {
-          // Si nous avons des contacts supplémentaires, n'en ajouter qu'un seul
-          availableContacts = [scenario.contact, additionalContacts[0]];
+          // Si nous avons un contact supplémentaire, l'ajouter
+          if (additionalContacts.length > 1) {
+            // Si nous avons au moins deux contacts supplémentaires, en ajouter deux
+            availableContacts = [scenario.contact, additionalContacts[0], additionalContacts[1]];
+          } else {
+            // Sinon ajouter seulement le premier contact supplémentaire
+            availableContacts = [scenario.contact, additionalContacts[0]];
+          }
         } else {
           // Sinon, utiliser uniquement le contact principal
           availableContacts = [scenario.contact];

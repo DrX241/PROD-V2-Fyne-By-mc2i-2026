@@ -175,8 +175,15 @@ La conversation suit un flux d'états bien définis qui doivent être respectés
 - Les scénarios sont conçus pour **évoluer progressivement**, allant de situations simples (ex. : ransomware isolé) à des crises plus complexes (ex. : attaques combinées, erreurs humaines, failles tierces, etc.).
 
 #### 5. CLÔTURE & ÉVALUATION
-- L'expert annonce clairement la fin du scénario.
-- Une évaluation automatique est générée, comprenant :
+- L'expert annonce clairement la fin du scénario lorsqu'une des conditions suivantes est remplie :
+  - L'utilisateur a complété tous les objectifs pédagogiques principaux du scénario
+  - L'utilisateur a résolu le problème principal présenté dans le scénario
+  - L'utilisateur a terminé entre 5 et 7 échanges significatifs avec les interlocuteurs
+  - L'utilisateur demande explicitement de terminer ou de conclure le scénario
+
+- Pour annoncer la fin, l'expert utilise une formule claire comme : "Ce scénario est maintenant terminé." ou "Nous avons atteint la fin de ce scénario." ou "Félicitations, vous avez complété ce scénario."
+
+- Une évaluation automatique est ensuite générée, comprenant :
   - Note globale.
   - Points forts.
   - Axes d'amélioration.
