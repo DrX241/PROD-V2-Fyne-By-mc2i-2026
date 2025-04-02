@@ -10,7 +10,7 @@ import type {
   ScenarioState,
   EmailMessageContent,
   ScenarioContact
-} from "../../I_AM_CYBER/types";
+} from "@shared/types/cyber";
 
 // Initial domains data
 const initialDomains: CyberDomain[] = [

@@ -598,14 +598,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           })
           .sort(() => 0.5 - Math.random()); // Mélanger pour sélection aléatoire
         
-        // Sélectionner 3-4 interlocuteurs pertinents avec des perspectives diverses
+        // Sélectionner 2 interlocuteurs maximum en plus d'Isabelle
         const result = [];
         let hasTechnical = false;
         let hasBusiness = false;
         
         // Parcourir la liste filtrée et sélectionner les experts appropriés
         for (const expert of filtered) {
-          if (result.length >= 3) break; // Limiter à 3 interlocuteurs supplémentaires
+          if (result.length >= 2) break; // Limiter à 2 interlocuteurs supplémentaires
           
           const isTechnical = expert.expertise.toLowerCase().includes('technique') || 
                              expert.expertise.toLowerCase().includes('cyber') ||
@@ -638,7 +638,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
         
-        return result.slice(0, 3); // Limiter à 3 interlocuteurs au maximum
+        return result.slice(0, 2); // Limiter à 2 interlocuteurs au maximum
       };
       
       // Obtenir 2 contacts supplémentaires pertinents pour ce scénario
@@ -1140,7 +1140,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }
             }
           }
-          return result.slice(0, 3); // Limiter à 3 interlocuteurs supplémentaires maximum
+          return result.slice(0, 2); // Limiter à 2 interlocuteurs supplémentaires maximum
         };
         
         const additionalContacts = getAdditionalContacts(scenario.domain, scenario.contact);
