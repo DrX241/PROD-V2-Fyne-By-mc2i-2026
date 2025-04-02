@@ -95,74 +95,44 @@ export default function CyberNewChat() {
     setIsSending(true);
     
     try {
-      // Simuler une réponse de l'IA (à remplacer par un vrai appel API)
-      setTimeout(() => {
-        const botResponse: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          type: 'bot',
-          content: generateBotResponse(messageInput, chatConfig),
-          timestamp: Date.now() + 1
-        };
-        
-        setMessages(prevMessages => [...prevMessages, botResponse]);
-        setIsSending(false);
-      }, 1500); // Simuler un délai de réponse
+      // Appel à l'API pour obtenir une réponse
+      const response = await fetch('/api/cyber/simple-chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userMessage.content,
+          config: chatConfig
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erreur lors de la communication avec le serveur');
+      }
+      
+      const data = await response.json();
+      
+      const botResponse: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        type: 'bot',
+        content: data.response || "Désolé, je n'ai pas pu générer une réponse. Veuillez réessayer.",
+        timestamp: Date.now() + 1
+      };
+      
+      setMessages(prevMessages => [...prevMessages, botResponse]);
+      setIsSending(false);
       
     } catch (error) {
       console.error(error);
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Une erreur s'est produite lors de l'envoi du message",
+        description: error instanceof Error ? error.message : "Une erreur s'est produite lors de l'envoi du message",
       });
       setIsSending(false);
     }
-  };
-  
-  // Fonction simple pour générer une réponse basée sur la configuration
-  // A remplacer par une vrai appel API
-  const generateBotResponse = (userInput: string, config: AIConfig): string => {
-    const responsePrefix = config.difficultyLevel === 'Expert' 
-      ? "En tant qu'expert, je vous suggère de considérer que "
-      : config.difficultyLevel === 'Débutant'
-        ? "Pour vous aider à comprendre simplement, "
-        : "Voici une analyse équilibrée: ";
-        
-    const responseStyle = config.responseStyle === 'Détaillé et pédagogique'
-      ? " Laissez-moi vous expliquer en détail pourquoi c'est important et comment l'appliquer."
-      : config.responseStyle === 'Concis et direct'
-        ? " Voici les points essentiels à retenir."
-        : " Voici une explication professionnelle de la situation.";
-    
-    // Thèmes de cybersécurité courants pour les réponses
-    const cyberTopics = [
-      "La sécurité des mots de passe est fondamentale. Utilisez des mots de passe uniques et complexes pour chaque compte.",
-      "Les attaques de phishing restent l'une des méthodes les plus courantes pour compromettre des systèmes.",
-      "La sécurité n'est pas seulement une question technique, mais aussi une question de comportement et de sensibilisation.",
-      "Les mises à jour logicielles régulières sont essentielles pour se protéger contre les vulnérabilités connues.",
-      "L'authentification à deux facteurs ajoute une couche de sécurité supplémentaire à vos comptes."
-    ];
-    
-    // Choisir un thème aléatoire en fonction de l'entrée utilisateur
-    const inputLower = userInput.toLowerCase();
-    let responseContent = "";
-    
-    if (inputLower.includes("mot de passe") || inputLower.includes("password")) {
-      responseContent = cyberTopics[0];
-    } else if (inputLower.includes("phishing") || inputLower.includes("email") || inputLower.includes("arnaque")) {
-      responseContent = cyberTopics[1];
-    } else if (inputLower.includes("comportement") || inputLower.includes("sensibilisation")) {
-      responseContent = cyberTopics[2];
-    } else if (inputLower.includes("mise à jour") || inputLower.includes("update") || inputLower.includes("patch")) {
-      responseContent = cyberTopics[3];
-    } else if (inputLower.includes("authentification") || inputLower.includes("2fa") || inputLower.includes("deux facteurs")) {
-      responseContent = cyberTopics[4];
-    } else {
-      // Réponse générique si aucun mot-clé n'est détecté
-      responseContent = cyberTopics[Math.floor(Math.random() * cyberTopics.length)];
-    }
-    
-    return responsePrefix + responseContent + responseStyle;
   };
   
   const handleKeyPress = (e: React.KeyboardEvent) => {

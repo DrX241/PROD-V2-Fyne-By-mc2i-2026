@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { openAIService, ApiKeyType } from "../I_AM_CYBER OLD/services/openai";
 // Import de document-generator supprimé car nous n'utilisons plus de pièces jointes
 import { ChatCompletionRequestMessage } from "../shared/schema";
+import OpenAI from 'openai';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Nous n'avons plus besoin des répertoires de documents et HTML
@@ -1606,6 +1607,74 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
         status: 'error',
         message: 'Failed to switch API key'
       });
+    }
+  });
+  
+  // Initialisation du client OpenAI pour le chat immersif
+  const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+  
+  // API route pour le chat immersif
+  app.post('/api/cyber/simple-chat', async (req: Request, res: Response) => {
+    try {
+      const { message, config } = req.body;
+      
+      if (!message) {
+        return res.status(400).json({ message: 'Message requis pour le chat' });
+      }
+      
+      // Construire un prompt système basé sur la configuration
+      let systemPrompt = "Tu es un assistant spécialisé en cybersécurité qui aide les utilisateurs à comprendre et à se protéger contre les menaces informatiques.";
+      
+      // Ajuster le prompt selon le niveau de difficulté
+      if (config?.difficultyLevel === 'Débutant') {
+        systemPrompt += " Tu utilises un langage simple et accessible, en évitant le jargon technique. Tu expliques les concepts de cybersécurité de manière basique pour les débutants.";
+      } else if (config?.difficultyLevel === 'Expert') {
+        systemPrompt += " Tu utilises un vocabulaire technique précis et tu apportes des informations détaillées et approfondies sur les sujets de cybersécurité pour un public expert.";
+      } else {
+        systemPrompt += " Tu adaptes ton langage pour un public ayant des connaissances intermédiaires en informatique, en expliquant les termes techniques lorsque nécessaire.";
+      }
+      
+      // Ajuster le prompt selon le style de réponse
+      if (config?.responseStyle === 'Détaillé et pédagogique') {
+        systemPrompt += " Tes réponses sont détaillées et pédagogiques, avec des explications complètes et des exemples concrets pour illustrer les concepts.";
+      } else if (config?.responseStyle === 'Concis et direct') {
+        systemPrompt += " Tes réponses sont concises et directes, allant droit au but sans détours inutiles, en te concentrant sur l'essentiel.";
+      } else {
+        systemPrompt += " Ton style de communication est professionnel et équilibré, ni trop verbeux ni trop concis.";
+      }
+      
+      systemPrompt += " Tu réponds toujours en français.";
+      
+      // Appel à l'API OpenAI
+      const completion = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo", // Modèle par défaut
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: message }
+        ],
+        temperature: config?.temperature || 0.7,
+        max_tokens: config?.maxTokens || 800,
+      });
+      
+      // Envoi de la réponse au client
+      res.json({ 
+        response: completion.choices[0].message.content,
+        usage: completion.usage
+      });
+      
+    } catch (error: any) {
+      console.error('Erreur lors de la communication avec OpenAI:', error);
+      
+      // Gestion des erreurs spécifiques d'OpenAI
+      if (error.status === 401) {
+        res.status(401).json({ error: 'Erreur d\'authentification API. Vérifiez votre clé API.' });
+      } else if (error.status === 429) {
+        res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
+      } else {
+        res.status(500).json({ error: 'Erreur lors de la génération de la réponse' });
+      }
     }
   });
   
