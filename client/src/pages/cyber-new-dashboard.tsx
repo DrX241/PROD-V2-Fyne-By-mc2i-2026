@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { 
   ShieldCheck, User, Award, ArrowLeft, Settings, 
-  LogOut, ChevronRight, Sparkles, Clock, CheckCircle2
+  LogOut, ChevronRight, Sparkles, Clock, CheckCircle2,
+  MessageSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -231,6 +232,16 @@ export default function CyberNewDashboard() {
             </div>
             
             <div className="flex items-center space-x-4">
+              <Button 
+                variant="outline" 
+                className="text-white border-white hover:bg-white/20" 
+                size="sm"
+                onClick={() => setLocation('/cyber-new-chat')}
+              >
+                <MessageSquare className="mr-2 h-4 w-4" />
+                Chatbot
+              </Button>
+              
               <div className="flex items-center space-x-2">
                 <Avatar className="h-10 w-10 border-2 border-white">
                   <AvatarImage 

@@ -4,7 +4,7 @@ import HomeLayout from "@/components/layout/HomeLayout";
 import { 
   ShieldCheck, Database, ListChecks, Plus, ArrowRight, 
   BrainCircuit, Bot, Sparkles, ShieldAlert, Zap, 
-  Laptop, Package, Server
+  Laptop, Package, Server, MessageSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -112,6 +112,15 @@ export default function Home() {
       bgColor: "bg-gradient-to-br from-blue-50 to-blue-100",
       accentColor: "bg-blue-500",
       linkTo: "/cyber-new-onboarding"
+    },
+    {
+      title: "I AM CYBER CHAT",
+      description: "Communiquez directement avec nos experts IA en cybersécurité pour obtenir des réponses instantanées à toutes vos questions.",
+      icon: <MessageSquare className="w-8 h-8 text-white" />,
+      color: "bg-green-600",
+      bgColor: "bg-gradient-to-br from-green-50 to-green-100",
+      accentColor: "bg-green-500",
+      linkTo: "/cyber-new-chat"
     },
     {
       title: "I AM DATA & IA",

@@ -7,6 +7,7 @@ import Home from "@/pages/home";
 import CyberNewOnboarding from "@/pages/cyber-new-onboarding";
 import CyberNewDashboard from "@/pages/cyber-new-dashboard";
 import CyberNewMission from "@/pages/cyber-new-mission";
+import CyberNewChat from "@/pages/cyber-new-chat";
 
 function Router() {
   return (
@@ -15,6 +16,7 @@ function Router() {
       <Route path="/cyber-new-onboarding" component={CyberNewOnboarding} />
       <Route path="/cyber-new-dashboard" component={CyberNewDashboard} />
       <Route path="/cyber-new-mission/:id" component={CyberNewMission} />
+      <Route path="/cyber-new-chat" component={CyberNewChat} />
       <Route component={NotFound} />
     </Switch>
   );
