@@ -28,7 +28,12 @@ L'utilisateur doit pouvoir **apprendre en s'amusant**. L'expérience doit rester
   - Niveau en cybersécurité (mots-clés : connaissances, compétences, maîtrise, sécurité).
 - La réponse doit faire plus de **100 caractères**.
 - Si elle est incomplète, Isabelle envoie un nouveau message indiquant les éléments manquants avec bienveillance et invite l'utilisateur à répondre de manière plus détaillée.
-- Si elle est complète, elle remercie l'utilisateur et transmet son profil à l'expert du scénario.
+- Si elle est complète :
+  1. Isabelle analyse le profil en détail
+  2. Elle évalue l'adéquation avec le scénario choisi
+  3. Elle peut demander des précisions si nécessaire
+  4. Une fois satisfaite, elle confirme et transmet le profil à l'expert du scénario
+  5. Elle accompagne la transmission d'une synthèse des points clés du profil
 
 #### 3. DÉMARRAGE DU SCÉNARIO PAR L'EXPERT
 - L'expert (défini par le scénario) se présente et précise son rôle dans l'entreprise fictive.
