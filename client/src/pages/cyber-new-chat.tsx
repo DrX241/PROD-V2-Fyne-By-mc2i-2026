@@ -150,13 +150,14 @@ export default function CyberNewChat() {
     
     try {
       // Envoyer le message à l'API
+      // Correction: Utiliser 'message' et non 'content' pour respecter l'API
       const response = await fetch(`/api/cyber/new/conversations/${conversationId}/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: tempMessage.content,
+          message: messageInput,  // Utiliser directement messageInput ici
           type: 'user'
         }),
       });
