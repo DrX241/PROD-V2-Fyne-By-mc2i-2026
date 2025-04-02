@@ -146,8 +146,8 @@ const difficultyLevels = [
 export default function CyberOnboardingNew() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { setUserName } = useChatContext();
-  
+  const { setUserName, addMessage } = useChatContext(); // Added addMessage
+
   // États du processus d'onboarding
   const [step, setStep] = useState<
     | "name"
@@ -160,7 +160,7 @@ export default function CyberOnboardingNew() {
     | "test-result" 
     | "completed"
   >("name");
-  
+
   const [playerData, setPlayerData] = useState<PlayerData>({
     name: "",
     avatar: "",
@@ -170,22 +170,22 @@ export default function CyberOnboardingNew() {
     testAnswers: [],
     testCompleted: false
   });
-  
+
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Vérifier si l'utilisateur a déjà complété l'onboarding
   useEffect(() => {
     // Vérifier s'il y a un paramètre reset dans l'URL
     const params = new URLSearchParams(window.location.search);
     const resetParam = params.get('reset');
-    
+
     if (resetParam === 'true') {
       localStorage.removeItem('cyberPlayerData');
       return;
     }
-    
+
     // Vérifier si l'utilisateur a déjà complété l'onboarding
     const savedData = localStorage.getItem('cyberPlayerData');
     if (savedData) {
@@ -195,7 +195,7 @@ export default function CyberOnboardingNew() {
       }
     }
   }, [setLocation]);
-  
+
   // Fonction pour gérer l'entrée du nom
   const handleNameSubmit = (name: string) => {
     if (!name.trim()) {
@@ -206,36 +206,36 @@ export default function CyberOnboardingNew() {
       });
       return;
     }
-    
+
     setPlayerData({...playerData, name});
     setUserName(name);
     setStep("avatar");
   };
-  
+
   // Fonction pour sélectionner un avatar
   const handleAvatarSelect = (avatarId: string) => {
     setPlayerData({...playerData, avatar: avatarId});
     setStep("role");
   };
-  
+
   // Fonction pour sélectionner un rôle
   const handleRoleSelect = (roleId: string) => {
     setPlayerData({...playerData, role: roleId});
     setStep("module");
   };
-  
+
   // Fonction pour sélectionner un module
   const handleModuleSelect = (moduleId: string) => {
     setPlayerData({...playerData, module: moduleId});
     setStep("difficulty");
   };
-  
+
   // Fonction pour sélectionner un niveau de difficulté
   const handleDifficultySelect = (difficultyId: string) => {
     setPlayerData({...playerData, difficulty: difficultyId});
     setStep("test-intro");
   };
-  
+
   // Fonction pour démarrer le test
   const handleStartTest = async () => {
     setIsLoading(true);
@@ -246,17 +246,18 @@ export default function CyberOnboardingNew() {
         'intermediate': 'intermédiaire',
         'expert': 'expert'
       };
-      
+
       const difficultyLevel = difficultyMap[playerData.difficulty];
       const moduleName = modules.find(m => m.id === playerData.module)?.name || "";
-      
+
       // Appel à l'API pour générer les questions
       const response = await axios.post('/api/cyber/generate-questions', {
         module: moduleName,
         difficulty: difficultyLevel,
-        count: 4 // Exactement 4 questions
+        count: 4, // Exactement 4 questions
+        unique: true // S'assurer que les questions sont uniques
       });
-      
+
       // Récupérer les questions générées
       setQuestions(response.data.questions);
       setCurrentQuestionIndex(0);
@@ -272,22 +273,36 @@ export default function CyberOnboardingNew() {
       setIsLoading(false);
     }
   };
-  
+
   // Fonction pour gérer les réponses aux questions
   const handleAnswerQuestion = (answerIndex: number) => {
     // Vérifier si la réponse est correcte
     const currentQuestion = questions[currentQuestionIndex];
     const isCorrect = answerIndex === currentQuestion.correct;
-    
+
     // Ajouter la réponse aux données du joueur
     const newAnswers = [
       ...playerData.testAnswers,
       { questionIndex: currentQuestionIndex, answer: answerIndex, correct: isCorrect }
     ];
-    
+
     // Mise à jour de l'état avec les nouvelles réponses
     setPlayerData({...playerData, testAnswers: newAnswers});
-    
+
+    // Ajouter un message dans le chat
+    addMessage({
+      id: generateId(),
+      type: 'ai',
+      content: `${isCorrect ? '✅ Excellent !' : '❌ Pas tout à fait.'}\n\n${currentQuestion.explanation}\n\n${
+        isCorrect 
+          ? '🎯 Continuons avec la prochaine question !'
+          : '💡 Ne vous découragez pas, c\'est en apprenant de nos erreurs qu\'on progresse.'
+      }`,
+      sender: 'I AM CYBER',
+      avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=IAMCYBER'
+    });
+
+
     // Passer à la question suivante ou terminer le test
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
@@ -295,7 +310,7 @@ export default function CyberOnboardingNew() {
       // Test terminé, calculer le score
       const correctCount = newAnswers.filter(a => a.correct).length;
       const scorePercentage = (correctCount / questions.length) * 100;
-      
+
       // Déterminer le niveau final en fonction du score
       let finalLevel;
       if (playerData.difficulty === 'expert') {
@@ -307,7 +322,7 @@ export default function CyberOnboardingNew() {
       } else {
         finalLevel = scorePercentage >= 75 ? "Intermédiaire" : "Débutant";
       }
-      
+
       // Mettre à jour les données du joueur
       setPlayerData({
         ...playerData, 
@@ -315,12 +330,12 @@ export default function CyberOnboardingNew() {
         finalLevel,
         testCompleted: true
       });
-      
+
       // Passer à l'étape de résultat
       setStep("test-result");
     }
   };
-  
+
   // Fonction pour finaliser l'onboarding et commencer la mission
   const handleCompletedOnboarding = async () => {
     setIsLoading(true);
@@ -328,7 +343,7 @@ export default function CyberOnboardingNew() {
       const correctAnswers = playerData.testAnswers.filter(a => a.correct).length;
       const totalQuestions = playerData.testAnswers.length;
       const scorePercentage = (correctAnswers / totalQuestions) * 100;
-      
+
       // Configuration complète du joueur
       const playerConfig = {
         name: playerData.name,
@@ -349,13 +364,13 @@ export default function CyberOnboardingNew() {
         onboardingComplete: true,
         timestamp: Date.now()
       };
-      
+
       // Sauvegarder dans localStorage
       localStorage.setItem('cyberPlayerData', JSON.stringify(playerConfig));
-      
+
       // Envoyer au serveur
       await axios.post('/api/cyber/setup-player', playerConfig);
-      
+
       // Rediriger vers la nouvelle interface de simulation
       setLocation('/cyber-simulation');
     } catch (error) {
@@ -369,7 +384,11 @@ export default function CyberOnboardingNew() {
       setIsLoading(false);
     }
   };
-  
+
+  const generateId = () => {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 flex flex-col">
       <div className="max-w-4xl w-full mx-auto flex-grow flex flex-col">
@@ -388,7 +407,7 @@ export default function CyberOnboardingNew() {
           </div>
           <div className="w-32"></div> {/* Élément vide pour équilibrer la mise en page */}
         </div>
-        
+
         <Card className="flex-grow flex flex-col">
           <CardContent className="p-6 flex-grow flex flex-col">
             {/* Étape 1: Nom */}
@@ -403,7 +422,7 @@ export default function CyberOnboardingNew() {
                   <ShieldIcon className="w-16 h-16 text-blue-600 mx-auto mb-4" />
                   <h2 className="text-2xl font-bold mb-2">Bienvenue dans I AM CYBER</h2>
                   <p className="text-gray-600 mb-6">Pour commencer, dites-nous comment vous vous appelez</p>
-                  
+
                   <input
                     type="text"
                     placeholder="Votre nom"
@@ -412,7 +431,7 @@ export default function CyberOnboardingNew() {
                     onChange={(e) => setPlayerData({...playerData, name: e.target.value})}
                     onKeyDown={(e) => e.key === 'Enter' && handleNameSubmit(playerData.name)}
                   />
-                  
+
                   <Button 
                     onClick={() => handleNameSubmit(playerData.name)}
                     className="w-full"
@@ -422,7 +441,7 @@ export default function CyberOnboardingNew() {
                 </div>
               </motion.div>
             )}
-            
+
             {/* Étape 2: Avatar */}
             {step === "avatar" && (
               <motion.div 
@@ -435,14 +454,14 @@ export default function CyberOnboardingNew() {
                   <h2 className="text-2xl font-bold mb-2">Choisissez votre avatar</h2>
                   <p className="text-gray-600">Sélectionnez un personnage qui vous représente</p>
                 </div>
-                
+
                 <div className="max-w-2xl mx-auto">
                   <AvatarSelector 
                     selectedAvatar={playerData.avatar} 
                     onSelectAvatar={handleAvatarSelect} 
                   />
                 </div>
-                
+
                 <div className="flex justify-center mt-8">
                   <Button 
                     onClick={() => setStep("name")}
@@ -460,7 +479,7 @@ export default function CyberOnboardingNew() {
                 </div>
               </motion.div>
             )}
-            
+
             {/* Étape 3: Rôle */}
             {step === "role" && (
               <motion.div 
@@ -473,7 +492,7 @@ export default function CyberOnboardingNew() {
                   <h2 className="text-2xl font-bold mb-2">Sélectionnez votre rôle</h2>
                   <p className="text-gray-600">Choisissez un rôle qui vous intéresse pour cette formation</p>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
                   {roles.map((role) => (
                     <div 
@@ -493,7 +512,7 @@ export default function CyberOnboardingNew() {
                     </div>
                   ))}
                 </div>
-                
+
                 <div className="flex justify-center mt-8">
                   <Button 
                     onClick={() => setStep("avatar")}
@@ -511,7 +530,7 @@ export default function CyberOnboardingNew() {
                 </div>
               </motion.div>
             )}
-            
+
             {/* Étape 4: Module */}
             {step === "module" && (
               <motion.div 
@@ -524,7 +543,7 @@ export default function CyberOnboardingNew() {
                   <h2 className="text-2xl font-bold mb-2">Choisissez un module</h2>
                   <p className="text-gray-600">Sélectionnez le domaine de la cybersécurité que vous souhaitez explorer</p>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
                   {modules.map((module) => (
                     <div 
@@ -544,7 +563,7 @@ export default function CyberOnboardingNew() {
                     </div>
                   ))}
                 </div>
-                
+
                 <div className="flex justify-center mt-8">
                   <Button 
                     onClick={() => setStep("role")}
@@ -562,7 +581,7 @@ export default function CyberOnboardingNew() {
                 </div>
               </motion.div>
             )}
-            
+
             {/* Étape 5: Difficulté */}
             {step === "difficulty" && (
               <motion.div 
@@ -575,7 +594,7 @@ export default function CyberOnboardingNew() {
                   <h2 className="text-2xl font-bold mb-2">Niveau de difficulté</h2>
                   <p className="text-gray-600">Choisissez le niveau qui correspond le mieux à votre expérience</p>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
                   {difficultyLevels.map((level) => (
                     <div 
@@ -590,7 +609,7 @@ export default function CyberOnboardingNew() {
                     </div>
                   ))}
                 </div>
-                
+
                 <div className="flex justify-center mt-8">
                   <Button 
                     onClick={() => setStep("module")}
@@ -608,7 +627,7 @@ export default function CyberOnboardingNew() {
                 </div>
               </motion.div>
             )}
-            
+
             {/* Étape 6: Introduction au test */}
             {step === "test-intro" && (
               <motion.div 
@@ -624,7 +643,7 @@ export default function CyberOnboardingNew() {
                     Avant de commencer votre formation, nous allons évaluer votre niveau actuel en 
                     {" "}{modules.find(m => m.id === playerData.module)?.name} avec 4 questions.
                   </p>
-                  
+
                   <div className="flex justify-center">
                     <Button 
                       onClick={() => setStep("difficulty")}
@@ -643,7 +662,7 @@ export default function CyberOnboardingNew() {
                 </div>
               </motion.div>
             )}
-            
+
             {/* Étape 7: Questions du test */}
             {step === "test-questions" && questions.length > 0 && (
               <motion.div 
@@ -661,9 +680,9 @@ export default function CyberOnboardingNew() {
                         {difficultyLevels.find(d => d.id === playerData.difficulty)?.name}
                       </span>
                     </div>
-                    
+
                     <h2 className="text-xl font-bold mb-6">{questions[currentQuestionIndex].question}</h2>
-                    
+
                     <div className="space-y-3">
                       {questions[currentQuestionIndex].options.map((option, index) => (
                         <div 
@@ -679,7 +698,7 @@ export default function CyberOnboardingNew() {
                 </div>
               </motion.div>
             )}
-            
+
             {/* Étape 8: Résultat du test */}
             {step === "test-result" && (
               <motion.div 
@@ -691,7 +710,7 @@ export default function CyberOnboardingNew() {
                 <div className="text-center max-w-md mb-8">
                   <ShieldIcon className="w-16 h-16 text-blue-600 mx-auto mb-4" />
                   <h2 className="text-2xl font-bold mb-2">Résultats de l'évaluation</h2>
-                  
+
                   <div className="bg-blue-50 rounded-lg p-4 mb-6 text-left">
                     <p className="font-medium mb-2">
                       Score: {playerData.testAnswers.filter(a => a.correct).length}/
@@ -700,21 +719,21 @@ export default function CyberOnboardingNew() {
                     <p className="font-medium mb-4">
                       Niveau déterminé: <span className="text-blue-600">{playerData.finalLevel}</span>
                     </p>
-                    
+
                     {playerData.finalLevel === "Expert" && (
                       <p className="text-sm text-gray-700">
                         Félicitations ! Vous avez démontré une excellente compréhension de la {modules.find(m => m.id === playerData.module)?.name}.
                         Vous serez confronté à des scénarios complexes qui mettront vraiment au défi vos compétences.
                       </p>
                     )}
-                    
+
                     {playerData.finalLevel === "Intermédiaire" && (
                       <p className="text-sm text-gray-700">
                         Bravo ! Vous avez démontré une bonne maîtrise des concepts de la {modules.find(m => m.id === playerData.module)?.name}.
                         Vous recevrez des missions avec un bon équilibre entre challenge et accompagnement.
                       </p>
                     )}
-                    
+
                     {playerData.finalLevel === "Débutant" && (
                       <p className="text-sm text-gray-700">
                         Bienvenue dans le monde de la cybersécurité ! Vous faites vos premiers pas dans la {modules.find(m => m.id === playerData.module)?.name}.
@@ -722,12 +741,12 @@ export default function CyberOnboardingNew() {
                       </p>
                     )}
                   </div>
-                  
+
                   <p className="text-gray-600 mb-6">
                     Vous allez maintenant être mis en relation avec Isabelle Dubacq, Directrice des Ressources Humaines,
                     qui vous présentera votre premier défi.
                   </p>
-                  
+
                   <Button 
                     onClick={handleCompletedOnboarding}
                     className="w-full"

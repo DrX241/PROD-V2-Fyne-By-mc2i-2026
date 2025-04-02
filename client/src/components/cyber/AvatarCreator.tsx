@@ -16,7 +16,7 @@ interface CyberAvatar {
 // Fonction pour générer les avatars
 function generateAvatars(): CyberAvatar[] {
   // Types d'avatars disponibles
-  const avatarVariants: AvatarVariant[] = ['marble', 'beam', 'pixel', 'sunset', 'ring', 'bauhaus'];
+  const avatarVariants: AvatarVariant[] = ['beam', 'pixel', 'bauhaus', 'ring', 'sunset', 'marble'];
 
   // Palettes de couleurs pour les avatars
   const colorPalettes = [
@@ -40,10 +40,10 @@ function generateAvatars(): CyberAvatar[] {
   for (let i = 0; i < 12; i++) {
     const variantIndex = i % avatarVariants.length;
     const paletteIndex = Math.floor(i / 2) % colorPalettes.length;
-    
+
     // Utiliser un nom unique pour chaque avatar
     const name = `avatar${i + 1}`;
-    
+
     result.push({
       id: `avatar${i + 1}`,
       variant: avatarVariants[variantIndex],
@@ -52,7 +52,7 @@ function generateAvatars(): CyberAvatar[] {
       fallback: `A${i + 1}`,
     });
   }
-  
+
   return result;
 }
 
@@ -77,7 +77,7 @@ export const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
   className = "" 
 }) => {
   const avatar = getAvatarById(avatarId);
-  
+
   // Déterminer la taille en fonction du paramètre
   const sizeMap = {
     sm: 32,
@@ -85,7 +85,7 @@ export const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
     lg: 64,
     xl: 96
   };
-  
+
   const sizeValue = sizeMap[size];
   const sizeClass = {
     sm: "h-8 w-8",
@@ -93,7 +93,7 @@ export const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
     lg: "h-16 w-16",
     xl: "h-24 w-24"
   }[size];
-  
+
   return (
     <div className={`${sizeClass} ${className} overflow-hidden rounded-full`}>
       <BoringAvatar
