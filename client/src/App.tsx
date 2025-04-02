@@ -4,31 +4,49 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
-import CyberNewOnboarding from "@/pages/cyber-new-onboarding";
-import CyberNewDashboard from "@/pages/cyber-new-dashboard";
-import CyberNewMission from "@/pages/cyber-new-mission";
-import CyberNewChat from "@/pages/cyber-new-chat";
-import CyberChatConfig from "@/pages/cyber-chat-config";
+import ModulesPage from "@/pages/modules";
+import CyberPage from "@/pages/cyber";
+import { ChatProvider } from "./contexts/ChatContext";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/cyber-new-onboarding" component={CyberNewOnboarding} />
-      <Route path="/cyber-new-dashboard" component={CyberNewDashboard} />
-      <Route path="/cyber-new-mission/:id" component={CyberNewMission} />
-      <Route path="/cyber-new-chat" component={CyberNewChat} />
-      <Route path="/cyber-chat-config" component={CyberChatConfig} />
+      <Route path="/modules" component={ModulesPage} />
+      <Route path="/cyber" component={CyberPage} />
+      <Route path="/data-ia" component={NotYetImplemented} />
+      <Route path="/amoa" component={NotYetImplemented} />
+      <Route path="/custom" component={NotYetImplemented} />
       <Route component={NotFound} />
     </Switch>
+  );
+}
+
+// Composant temporaire pour les modules non encore implémentés
+function NotYetImplemented() {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 px-4">
+      <h1 className="text-3xl font-bold mb-4 text-gray-900">Module en développement</h1>
+      <p className="text-xl text-gray-600 mb-8 text-center max-w-md">
+        Ce module est actuellement en cours de développement et sera disponible prochainement.
+      </p>
+      <a 
+        href="/" 
+        className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+      >
+        Retour à l'accueil
+      </a>
+    </div>
   );
 }
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router />
-      <Toaster />
+      <ChatProvider>
+        <Router />
+        <Toaster />
+      </ChatProvider>
     </QueryClientProvider>
   );
 }

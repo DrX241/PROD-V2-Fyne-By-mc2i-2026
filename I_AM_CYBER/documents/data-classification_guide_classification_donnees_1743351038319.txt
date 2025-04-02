@@ -1,0 +1,85 @@
+---
+
+**GUIDE DE CLASSIFICATION DES DONNÉES**  
+**Domaine : Sécurisation des données personnelles**  
+**Destinataire : Eddy**  
+**Contact : Marion Lopez**  
+**Niveau de difficulté : Débutant**  
+
+---
+
+### Introduction
+
+La classification des données est une étape essentielle pour sécuriser les informations personnelles et sensibles dans un environnement professionnel. Elle permet de déterminer la criticité des données, de leur appliquer des mesures de protection adéquates et de répondre aux exigences légales et réglementaires. Ce guide présente un cadre simplifié pour identifier, catégoriser et gérer les données sensibles au sein de l'entreprise.
+
+---
+
+### Contexte
+
+Dans le cadre de la réglementation en matière de protection des données personnelles (ex. RGPD, HIPAA), les entreprises doivent être en mesure d'identifier, de catégoriser et de protéger les informations sensibles, telles que les données personnelles des clients, des employés et des partenaires. Une mauvaise gestion ou une absence de classification des données peut entraîner des risques importants : fuite de données, non-conformité légale, perte de réputation ou sanctions financières.
+
+Dans votre rôle, vous êtes chargé de mettre en place une stratégie de classification des données pour l'équipe marketing, qui traite des informations personnelles comme les adresses e-mail, les numéros de téléphone et les préférences des clients.
+
+---
+
+### Étapes de Classification des Données
+
+1. **Identification des Données**  
+   - Examinez les types de données collectées et stockées par votre équipe.  
+   - Posez-vous les questions suivantes : quelles données sont personnelles ? Quelles données pourraient être considérées comme sensibles ?  
+
+2. **Évaluation des Risques**  
+   - Analysez les impacts potentiels en cas de divulgation, modification ou perte des données.  
+   - Classez les données selon leur criticité : faible, moyenne, élevée.  
+
+3. **Catégorisation**  
+   - Regroupez les données identifiées en catégories, par exemple :  
+     - **Public** : Informations non sensibles accessibles à tous.  
+     - **Confidentiel** : Données personnelles ou professionnelles nécessitant une protection.  
+     - **Restreint** : Données hautement sensibles (ex. numéros de sécurité sociale, données bancaires).  
+
+4. **Documentation**  
+   - Documentez les types de données dans un registre ou tableau. Incluez :  
+     - Description des données.
+     - Niveau de sensibilité.  
+     - Localisation (système, base de données, etc.).  
+
+5. **Mise en Place de Politiques**  
+   - Élaborez des directives claires pour le traitement des données selon leur niveau de classification.  
+   - Définissez des règles d'accès et de stockage (ex. chiffrement, limitation des permissions).
+
+---
+
+### Problématique à Explorer
+
+Pour l'équipe marketing, vous devez :  
+- Identifier les principaux types de données sensibles qu'elle traite.  
+- Déterminer les impacts potentiels d’une mauvaise gestion de ces données.  
+- Élaborer une méthode de classification adaptée au contexte de l’équipe.  
+
+**Questions à considérer :**  
+- Quels outils ou technologies pourraient être utiles pour identifier et gérer les données sensibles ?  
+- Comment garantir que les données classées comme "Restreint" ne soient pas accessibles par des tiers non autorisés ?  
+- Quelles parties prenantes doivent être impliquées dans la mise en place de cette classification ?
+
+---
+
+### Points de Référence
+
+- **RGPD** : Article 5 - Principes relatifs au traitement des données personnelles.  
+- **ISO/IEC 27001** : Norme internationale sur la gestion de la sécurité de l'information.  
+- **NIST Guidelines** : Framework pour la gestion des risques liés aux données.  
+
+---
+
+### Conclusion
+
+La classification des données est un processus stratégique qui contribue à la sécurité globale de l’information et à la conformité réglementaire. La première étape consiste à comprendre le cycle de vie des données personnelles au sein de votre équipe et à les organiser selon leur niveau de sensibilité. Les résultats de votre analyse serviront de base pour définir des politiques de gestion et des mesures de protection adaptées.
+
+Pour toute question ou clarification, contactez Marion Lopez.
+
+---
+
+**Fin du document**  
+
+---

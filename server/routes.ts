@@ -4,10 +4,9 @@ import { storage } from "./storage";
 import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { openAIService, ApiKeyType } from "../I_AM_CYBER OLD/services/openai";
+import { openAIService } from "../I_AM_CYBER/services/openai";
 // Import de document-generator supprimé car nous n'utilisons plus de pièces jointes
 import { ChatCompletionRequestMessage } from "../shared/schema";
-import OpenAI from 'openai';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Nous n'avons plus besoin des répertoires de documents et HTML
@@ -1585,20 +1584,20 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
   // API route pour basculer entre les clés API
   app.post('/api/cyber/switch-api-key', (req: Request, res: Response) => {
     try {
-      const { type } = req.body;
+      const { keyType } = req.body;
       
-      if (type !== 'primary' && type !== 'secondary') {
+      if (keyType !== 'primary' && keyType !== 'secondary') {
         return res.status(400).json({
           status: 'error',
           message: 'Invalid key type. Must be "primary" or "secondary"'
         });
       }
       
-      openAIService.switchApiKey(type as ApiKeyType);
+      openAIService.switchApiKey(keyType);
       
       res.json({
         status: 'success',
-        currentApiKey: type,
+        currentApiKey: keyType,
         modelName: openAIService.getCurrentModelName()
       });
     } catch (error) {
@@ -1609,187 +1608,7 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
       });
     }
   });
-  
-  // Initialisation du client OpenAI pour le chat immersif
-  const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
-  
-  // API route pour le chat immersif
-  app.post('/api/cyber/simple-chat', async (req: Request, res: Response) => {
-    try {
-      const { message, config } = req.body;
-      
-      if (!message) {
-        return res.status(400).json({ message: 'Message requis pour le chat' });
-      }
-      
-      // Construire un prompt système basé sur la configuration
-      let systemPrompt = "Tu es un assistant spécialisé en cybersécurité qui aide les utilisateurs à comprendre et à se protéger contre les menaces informatiques.";
-      
-      // Ajuster le prompt selon le niveau de difficulté
-      if (config?.difficultyLevel === 'Débutant') {
-        systemPrompt += " Tu utilises un langage simple et accessible, en évitant le jargon technique. Tu expliques les concepts de cybersécurité de manière basique pour les débutants.";
-      } else if (config?.difficultyLevel === 'Expert') {
-        systemPrompt += " Tu utilises un vocabulaire technique précis et tu apportes des informations détaillées et approfondies sur les sujets de cybersécurité pour un public expert.";
-      } else {
-        systemPrompt += " Tu adaptes ton langage pour un public ayant des connaissances intermédiaires en informatique, en expliquant les termes techniques lorsque nécessaire.";
-      }
-      
-      // Ajuster le prompt selon le style de réponse
-      if (config?.responseStyle === 'Détaillé et pédagogique') {
-        systemPrompt += " Tes réponses sont détaillées et pédagogiques, avec des explications complètes et des exemples concrets pour illustrer les concepts.";
-      } else if (config?.responseStyle === 'Concis et direct') {
-        systemPrompt += " Tes réponses sont concises et directes, allant droit au but sans détours inutiles, en te concentrant sur l'essentiel.";
-      } else {
-        systemPrompt += " Ton style de communication est professionnel et équilibré, ni trop verbeux ni trop concis.";
-      }
-      
-      systemPrompt += " Tu réponds toujours en français.";
-      
-      // Appel à l'API OpenAI
-      const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo", // Modèle par défaut
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: message }
-        ],
-        temperature: config?.temperature || 0.7,
-        max_tokens: config?.maxTokens || 800,
-      });
-      
-      // Envoi de la réponse au client
-      res.json({ 
-        response: completion.choices[0].message.content,
-        usage: completion.usage
-      });
-      
-    } catch (error: any) {
-      console.error('Erreur lors de la communication avec OpenAI:', error);
-      
-      // Gestion des erreurs spécifiques d'OpenAI
-      if (error.status === 401) {
-        res.status(401).json({ error: 'Erreur d\'authentification API. Vérifiez votre clé API.' });
-      } else if (error.status === 429) {
-        res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
-      } else {
-        res.status(500).json({ error: 'Erreur lors de la génération de la réponse' });
-      }
-    }
-  });
-  
-  // API route pour générer des questions de test
-  app.post('/api/cyber/generate-questions', async (req: Request, res: Response) => {
-    try {
-      const { module, difficulty, count = 4 } = req.body;
-      
-      if (!module || !difficulty) {
-        return res.status(400).json({ error: 'Module et difficulté sont requis' });
-      }
-      
-      // Construction du prompt pour l'API
-      const systemPrompt = `Vous êtes un expert en cybersécurité spécialisé dans la création de questionnaires d'évaluation.
-Générez exactement ${count} questions à choix multiples sur le sujet "${module}" pour un niveau "${difficulty}".
-Chaque question doit avoir exactement 4 options de réponse, dont une seule est correcte.
-Retournez UNIQUEMENT un tableau JSON avec le format suivant, sans aucun texte explicatif:
-[
-  {
-    "question": "Texte de la question",
-    "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
-    "correct": 0 // index de la bonne réponse (de 0 à 3)
-  },
-  ...
-]`;
-      
-      const messages: ChatCompletionRequestMessage[] = [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: `Générez ${count} questions sur ${module} pour un niveau ${difficulty}` }
-      ];
-      
-      // Appel à l'API OpenAI
-      const questionsContent = await openAIService.getChatCompletion(
-        messages,
-        0.7,  // temperature
-        2000  // maxTokens
-      );
-      
-      // Parse le résultat JSON
-      let questions;
-      try {
-        questions = JSON.parse(questionsContent);
-        
-        // Validation: on vérifie que nous avons bien le nombre demandé de questions
-        if (!Array.isArray(questions) || questions.length !== count) {
-          throw new Error(`Format de questions invalide ou nombre incorrect (${questions.length} au lieu de ${count})`);
-        }
-        
-        // Vérification supplémentaire de chaque question
-        questions.forEach((q, index) => {
-          if (!q.question || !Array.isArray(q.options) || q.options.length !== 4 || typeof q.correct !== 'number') {
-            throw new Error(`Question ${index + 1} a un format invalide`);
-          }
-        });
-        
-        res.json({ questions });
-      } catch (error) {
-        console.error('Erreur lors du parsing des questions:', error);
-        res.status(500).json({ error: 'Erreur lors de la génération des questions' });
-      }
-    } catch (error) {
-      console.error('Erreur lors de la génération des questions:', error);
-      res.status(500).json({ error: 'Erreur lors de la génération des questions' });
-    }
-  });
 
-  // API route pour configurer un nouveau joueur
-  app.post('/api/cyber/setup-player', async (req: Request, res: Response) => {
-    try {
-      const { 
-        name, 
-        avatar, 
-        role, 
-        module: moduleId, 
-        selectedDifficulty, 
-        finalLevel, 
-        testResults 
-      } = req.body;
-      
-      // Stockage des données du joueur en mémoire pour le moment
-      // On pourrait les sauvegarder en base de données par la suite
-      const playerData = {
-        name,
-        avatar,
-        role,
-        moduleId,
-        selectedDifficulty,
-        finalLevel,
-        testScore: testResults?.score || 0,
-        testTotal: testResults?.total || 0,
-        scorePercentage: testResults?.percentage || 0,
-        missionProgress: {
-          currentMission: "",
-          missionsCompleted: [],
-          achievements: []
-        }
-      };
-      
-      // Nous n'utilisons plus req.session car cela nécessite express-session
-      // Au lieu de cela, nous renvoyons simplement les données au client
-      // qui les stockera dans localStorage
-      
-      res.json({
-        status: 'success',
-        player: playerData
-      });
-    } catch (error) {
-      console.error('Error setting up player:', error);
-      res.status(500).json({
-        status: 'error',
-        message: 'Failed to set up player'
-      });
-    }
-  });
-  
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -1,0 +1,98 @@
+**Document Technique: Specifications_IAM**  
+**Mise en place d'une solution IAM (Identity and Access Management)**  
+**Niveau: Intermédiaire**  
+**Contact: Eddy MISSONI**  
+**Destinataire: Eddy MISSONI**  
+
+---
+
+### **1. Introduction**  
+Ce document détaille les spécifications techniques pour la mise en place d'une solution IAM dans un environnement professionnel. L'objectif est de fournir une architecture robuste permettant de gérer les identités, les accès utilisateurs et les contrôles d'autorisation dans une infrastructure hybride (sur site et cloud).  
+
+---
+
+### **2. Objectifs du projet**  
+- Centraliser la gestion des identités et des accès pour tous les systèmes, applications et services.  
+- Automatiser les processus d'approvisionnement et de désapprovisionnement des utilisateurs.  
+- Garantir la conformité avec les normes de sécurité telles que ISO 27001 et RGPD.  
+- Intégrer une authentification multi-facteurs (MFA) pour renforcer la sécurité des accès.  
+- Mettre en place des politiques de gestion granulaire des rôles et droits (RBAC).  
+
+---
+
+### **3. Environnement technique**  
+#### **3.1. Systèmes et applications concernés**  
+- Active Directory (AD) pour la gestion des identités sur site.  
+- Azure AD pour les identités cloud.  
+- Applications métiers internes (ERP, CRM).  
+- Plateformes SaaS (Microsoft 365, Salesforce).  
+
+#### **3.2. Infrastructure existante**  
+- Serveurs AD sous Windows Server 2019.  
+- Connectivité via VPN sécurisé entre le site et le cloud Azure.  
+- Politique de gestion des certificats (PKI) en place.  
+
+#### **3.3. Middleware et outils requis**  
+- **Outil IAM recommandé**: Okta ou Ping Identity (choix à valider).  
+- Connecteurs pour synchronisation entre AD et Azure AD.  
+- Module de gestion des API pour les intégrations SaaS.  
+
+---
+
+### **4. Spécifications techniques**  
+#### **4.1. Authentification et sécurité**  
+- **Authentification**:  
+  - Support des protocoles OAuth 2.0, SAML 2.0 et OpenID Connect.  
+  - Configuration de MFA obligatoire pour les accès externes et sensibles.  
+- **Gestion des mots de passe**:  
+  - Politique de rotation tous les 90 jours.  
+  - Complexité minimale (12 caractères, majuscules, minuscules, chiffres, caractères spéciaux).  
+
+#### **4.2. Gestion des rôles et permissions (RBAC)**  
+- Création de groupes basés sur les fonctions métiers (ex. Finance, IT, RH).  
+- Application de permissions strictes selon le principe du moindre privilège.  
+- Gestion des rôles dynamiques avec des attributs utilisateur (ex. département, statut actif/inactif).  
+
+#### **4.3. Surveillance et audit**  
+- Journaux d'activité IAM envoyés vers un SIEM (Splunk ou Elastic Stack).  
+- Détection des connexions suspectes (ex. localisation géographique anormale).  
+- Rapports mensuels sur l'accès aux ressources critiques.  
+
+---
+
+### **5. Étapes de mise en œuvre**  
+1. **Phase 1: Analyse et conception**  
+   - Audit des identités existantes et des systèmes d’accès.  
+   - Définition des rôles et des politiques RBAC.  
+   - Validation des outils et connecteurs (Okta/Ping Identity).  
+
+2. **Phase 2: Déploiement initial**  
+   - Installation et configuration de la solution IAM.  
+   - Synchronisation AD/Azure AD.  
+   - Mise en place de MFA pour les utilisateurs critiques.  
+
+3. **Phase 3: Tests et validation**  
+   - Scénarios de tests fonctionnels et de sécurité.  
+   - Validation des processus de provisioning/déprovisioning.  
+
+4. **Phase 4: Formation des utilisateurs et documentation**  
+   - Formation des administrateurs IAM.  
+   - Documentation des politiques de sécurité et des processus.  
+
+---
+
+### **6. Exigences de conformité**  
+- Respect des directives RGPD pour le traitement des données personnelles.  
+- Mise en œuvre des contrôles ISO 27001 pour la gestion des accès.  
+- Traçabilité des actions administratives via des journaux détaillés.  
+
+---
+
+### **7. Contact et suivi**  
+**Responsable du projet**: Eddy MISSONI  
+**Email**: eddy.missoni@entreprise.com  
+**Téléphone**: +33 6 01 02 03 04  
+
+---
+
+**Document validé par le département IT**  

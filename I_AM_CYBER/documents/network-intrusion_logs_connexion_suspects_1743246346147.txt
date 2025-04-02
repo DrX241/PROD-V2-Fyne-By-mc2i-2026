@@ -1,0 +1,86 @@
+# RAPPORT TECHNIQUE : LOGS DE CONNEXIONS SUSPECTES  
+**Domaine : Sécurité des réseaux**  
+**Scénario : Analyse d'une tentative d'intrusion**  
+**Contact : Neil LEVIN**  
+**Destinataire : Eddy**  
+
+---
+
+**Contexte**  
+Ce rapport présente l'analyse des logs réseau suite à une alerte déclenchée par le système de détection d'intrusion (IDS) sur le segment de réseau interne. Les données ci-dessous mettent en lumière des connexions suspectes sur le serveur de production (IP : 192.168.10.25).  
+
+---
+
+## 1. **Résumé des évènements détectés**  
+**Date de l'incident** : 2023-10-12  
+**Heure de détection initiale** : 14:35:48 UTC  
+**Source de l'alerte** : Snort IDS  
+
+**Description de l'activité suspecte** :  
+- Plusieurs tentatives de connexion SSH non autorisées.  
+- Protocole utilisé : TCP  
+- Tentative de brute force détectée sur le service SSH (port 22).  
+
+---
+
+## 2. **Détails des logs suspectes**  
+
+| **Timestamp (UTC)** | **Source IP**   | **Destination IP** | **Port** | **Protocole** | **Status**              | **Description**              |
+|----------------------|-----------------|--------------------|----------|---------------|-------------------------|------------------------------|
+| 2023-10-12 14:35:48 | 203.0.113.45    | 192.168.10.25      | 22       | TCP           | Failed Authentication   | Tentative de connexion SSH. |
+| 2023-10-12 14:36:01 | 203.0.113.45    | 192.168.10.25      | 22       | TCP           | Failed Authentication   | Tentative de brute force.   |
+| 2023-10-12 14:36:15 | 203.0.113.90    | 192.168.10.25      | 22       | TCP           | Failed Authentication   | Connexion infructueuse.     |
+| 2023-10-12 14:37:03 | 198.51.100.30   | 192.168.10.25      | 22       | TCP           | Failed Authentication   | Tentative de bruteforce.    |
+| 2023-10-12 14:38:50 | 203.0.113.45    | 192.168.10.25      | 22       | TCP           | Blocked by Firewall     | IP bloquée par règles ACL.  |
+
+---
+
+## 3. **Analyse et observations**  
+
+1. **Source IP suspecte :**  
+   - L'adresse IP `203.0.113.45` a été impliquée dans plusieurs tentatives de connexion SSH échouées. Cette IP est associée à un réseau public connu pour des activités malveillantes.  
+
+2. **Brute force SSH :**  
+   - Les logs indiquent un comportement typique de brute force, avec des tentatives fréquentes et rapprochées. L'attaquant semble utiliser des outils automatisés pour essayer de deviner les identifiants de connexion.  
+
+3. **Activation de la règle ACL (Firewall) :**  
+   - La dernière tentative à partir de l'IP `203.0.113.45` a été bloquée par une règle de pare-feu dynamique (surveillance IDS).  
+
+4. **Autres IP suspectes :**  
+   - Les adresses `203.0.113.90` et `198.51.100.30` ont également tenté de se connecter au serveur SSH, ce qui suggère une attaque coordonnée ou multiple.  
+
+---
+
+## 4. **Recommandations**  
+
+1. **Blocage des IP suspectes** :  
+   - Ajouter `203.0.113.45`, `203.0.113.90`, et `198.51.100.30` à la liste noire sur le pare-feu.  
+
+2. **Renforcement de la sécurité SSH** :  
+   - Désactiver les connexions SSH par mot de passe.  
+   - Activer l'authentification par clé publique uniquement.  
+
+3. **Surveillance accrue** :  
+   - Mettre en place une surveillance continue pour détecter toute activité suspecte provenant de ces IP ou de réseaux similaires.  
+
+4. **Mise à jour des règles IDS :**  
+   - Ajuster les règles pour détecter et bloquer plus rapidement les attaques de brute force.  
+
+5. **Audit des logs système** :  
+   - Examiner les logs du serveur de production pour identifier toute activité suspecte antérieure à l'incident.  
+
+---
+
+## 5. **Actions immédiates prises**  
+
+- Règles de blocage temporaires appliquées sur le pare-feu.  
+- Rapport envoyé à l'équipe de réponse aux incidents.  
+- Évaluation des configurations SSH en cours.  
+
+---
+
+**Contact pour suivi : Neil LEVIN (n.levin@cybercorp.com)**  
+**Destinataire : Eddy**  
+
+--- 
+**Note** : Veuillez analyser ces informations et confirmer la mise en œuvre des recommandations. Une réunion de débriefing sur cet incident est prévue demain à 10h00.  

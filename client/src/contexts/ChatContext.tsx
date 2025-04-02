@@ -1,114 +1,16 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { apiRequest } from "@/lib/queryClient";
-
-// Types définitions pour éviter les erreurs d'importation
-export interface ChatMessage {
-  id: string;
-  type: 'bot' | 'user' | 'email' | 'domain-selection' | 'scenario-selection' | 'question';
-  content: string | EmailMessageContent;
-  timestamp: number;
-  contactName?: string;
-  contactRole?: string;
-  avatar?: string;
-}
-
-export interface EmailMessageContent {
-  subject: string;
-  from: {
-    name: string;
-    email: string;
-    role?: string;
-  };
-  to: string;
-  body: string;
-  attachments?: string[];
-  scenarioContacts?: ScenarioContact[];
-  evaluation?: any;
-}
-
-export interface ScenarioContact {
-  id: string;
-  name: string;
-  role: string;
-  email?: string;
-  avatarUrl?: string;
-}
-
-export interface CyberDomain {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  iconBgColor: string;
-  iconColor: string;
-}
-
-export interface CyberScenario {
-  id: string;
-  title: string;
-  description: string;
-  contact: {
-    name: string;
-    role: string;
-  };
-  difficulty: string;
-  difficultyColor: string;
-  domainId: string;
-}
-
-export interface AIConfig {
-  difficultyLevel: string;
-  responseStyle: string;
-  temperature: number;
-  maxTokens: number;
-}
-
-export interface ScenarioState {
-  activeDomain?: CyberDomain;
-  activeScenario?: CyberScenario;
-  contact?: {
-    name: string;
-    role: string;
-  };
-  scenarioContacts?: ScenarioContact[];
-}
-
-// Types pour les missions
-export interface Mission {
-  id: string;
-  title: string;
-  description: string;
-  type: string;
-  difficulty: 'Débutant' | 'Intermédiaire' | 'Expert';
-  contactName: string;
-  contactRole: string;
-  contactAvatar: string;
-  status: 'locked' | 'available' | 'in-progress' | 'completed';
-  domain: string;
-  badgeId?: string;
-}
-
-export interface ChatContextType {
-  messages: ChatMessage[];
-  userName: string;
-  isTyping: boolean;
-  scenario: ScenarioState;
-  config: AIConfig;
-  domains: CyberDomain[];
-  scenarios: CyberScenario[];
-  avatarId: string;
-  playerRole: string;
-  difficultyLevel: string;
-  currentMission: Mission | null;
-  setUserName: (name: string) => void;
-  selectDomain: (domainId: string) => void;
-  selectScenario: (scenarioId: string) => void;
-  sendMessage: (message: string) => void;
-  updateConfig: (config: Partial<AIConfig>) => void;
-  resetChat: () => void;
-  setCurrentMission: (mission: Mission) => void;
-}
+import type {
+  ChatContextType,
+  ChatMessage,
+  CyberDomain,
+  CyberScenario,
+  AIConfig,
+  ScenarioState,
+  EmailMessageContent,
+  ScenarioContact
+} from "../../I_AM_CYBER/types";
 
 // Initial domains data
 const initialDomains: CyberDomain[] = [
@@ -409,94 +311,27 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [userName, setUserName] = useState<string>(() => {
-    // Initialiser à partir du localStorage si disponible
-    const savedData = localStorage.getItem('cyberPlayerData');
-    if (savedData) {
-      const playerData = JSON.parse(savedData);
-      return playerData.name || "";
-    }
-    return "";
-  });
-  
-  const [avatarId, setAvatarId] = useState<string>(() => {
-    // Initialiser à partir du localStorage si disponible
-    const savedData = localStorage.getItem('cyberPlayerData');
-    if (savedData) {
-      const playerData = JSON.parse(savedData);
-      return playerData.avatar || "";
-    }
-    return "";
-  });
-  
-  const [playerRole, setPlayerRole] = useState<string>(() => {
-    // Initialiser à partir du localStorage si disponible
-    const savedData = localStorage.getItem('cyberPlayerData');
-    if (savedData) {
-      const playerData = JSON.parse(savedData);
-      return playerData.role || "";
-    }
-    return "";
-  });
-  
-  const [difficultyLevel, setDifficultyLevel] = useState<string>(() => {
-    // Initialiser à partir du localStorage si disponible
-    const savedData = localStorage.getItem('cyberPlayerData');
-    if (savedData) {
-      const playerData = JSON.parse(savedData);
-      return playerData.finalLevel || "Débutant";
-    }
-    return "Débutant";
-  });
-  
-  const [currentMission, setCurrentMission] = useState<Mission | null>(null);
-  
+  const [userName, setUserName] = useState<string>("");
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [scenario, setScenario] = useState<ScenarioState>(initialScenarioState);
   const [config, setConfig] = useState<AIConfig>(initialConfig);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [onboardingComplete, setOnboardingComplete] = useState<boolean>(() => {
-    // Vérifier si l'onboarding est complet
-    const savedData = localStorage.getItem('cyberPlayerData');
-    if (savedData) {
-      const playerData = JSON.parse(savedData);
-      return playerData.onboardingComplete || false;
-    }
-    return false;
-  });
 
-  // Initialize the chat with the appropriate message based on onboarding status
+  // Initialize the chat with a welcome message
   useEffect(() => {
     if (!isInitialized) {
-      if (onboardingComplete && userName) {
-        // Si l'onboarding est complet, commencer directement avec Isabelle (RH)
-        const initialMessage: ChatMessage = {
-          id: uuidv4(),
-          type: "bot",
-          content: `Bonjour ${userName} ! Je suis Isabelle Dubacq, Directrice des Ressources Humaines chez Cyber Secure Solutions.\n\nJe suis ravie de vous accueillir au sein de notre équipe ! J'ai examiné votre profil et je suis impressionnée par vos compétences en tant que ${playerRole}.\n\nD'après l'évaluation que vous avez passée, vous avez un niveau "${difficultyLevel}" en cybersécurité, ce qui correspond parfaitement à nos besoins actuels.\n\nNous allons vous confier une première mission adaptée à votre profil. Comment vous sentez-vous pour commencer cette aventure avec nous ?`,
-          timestamp: Date.now(),
-          contactName: "Isabelle Dubacq",
-          contactRole: "Directrice des Ressources Humaines",
-          avatar: "https://api.dicebear.com/7.x/personas/svg?seed=IsabelleDubacq"
-        };
-        
-        setMessages([initialMessage]);
-        setIsInitialized(true);
-      } else {
-        // Sinon, afficher le message d'accueil standard
-        const initialMessage: ChatMessage = {
-          id: uuidv4(),
-          type: "bot",
-          content: "Bonjour !\n\nJe suis CyberGuide, votre assistant virtuel dans le monde passionnant de la cybersécurité. Je suis là pour vous accompagner dans une expérience d'apprentissage immersive et interactive.\n\nComment puis-je vous appeler ?",
-          timestamp: Date.now(),
-          avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=IAMCYBER"
-        };
-        
-        setMessages([initialMessage]);
-        setIsInitialized(true);
-      }
+      // Initial welcome message
+      const initialMessage: ChatMessage = {
+        id: uuidv4(),
+        type: "bot",
+        content: "Bonjour !\n\nJe suis CyberGuide, votre assistant virtuel dans le monde passionnant de la cybersécurité. Je suis là pour vous accompagner dans une expérience d'apprentissage immersive et interactive.\n\nComment puis-je vous appeler ?",
+        timestamp: Date.now()
+      };
+      
+      setMessages([initialMessage]);
+      setIsInitialized(true);
     }
-  }, [isInitialized, onboardingComplete, userName, playerRole, difficultyLevel]);
+  }, [isInitialized]);
 
   // Handler to set the user's name
   const handleSetUserName = (name: string) => {
@@ -778,11 +613,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         config,
         domains: initialDomains,
         scenarios: initialScenarios,
-        avatarId,
-        playerRole,
-        difficultyLevel,
-        currentMission,
-        setCurrentMission,
         setUserName: handleSetUserName,
         selectDomain: handleSelectDomain,
         selectScenario: handleSelectScenario,

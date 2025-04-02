@@ -1,0 +1,77 @@
+**Document Technique : Logs de Connexion Suspects**  
+**Domaine : Sécurité des Réseaux**  
+**Scénario : Analyse d'une tentative d'intrusion**  
+**Contact : Neil LEVIN**  
+**Destinataire : Eddy**  
+
+---
+
+### **1. Contexte**
+Le service de surveillance réseau a détecté des anomalies dans les connexions entrantes sur le serveur de production **srv-web01**. Ces anomalies pourraient être liées à une tentative d'intrusion. Nous avons isolé les logs pertinents pour une analyse approfondie.  
+
+---
+
+### **2. Détails Techniques des Logs**
+Les données ci-dessous ont été extraites des journaux de connexion du pare-feu (FortiGate 200E) et du serveur ciblé (Apache 2.4).  
+
+#### **2.1. Logs du pare-feu**
+Source : FortiGate 200E  
+Filtrage : Connexions suspectes détectées par règles IPS (Intrusion Prevention System).  
+```
+Timestamp       | Source IP       | Destination IP | Port    | Protocol | Action   | Details
+2023-10-01 02:15:43 | 192.168.45.12 | 172.16.0.10    | 443     | HTTPS    | Blocked  | Suspicious User-Agent: 'Mozilla/5.0 (Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36'
+2023-10-01 02:17:12 | 185.220.101.8 | 172.16.0.10    | 22      | SSH      | Blocked  | Multiple failed login attempts (5 attempts in 30 seconds).
+2023-10-01 02:18:50 | 198.51.100.14 | 172.16.0.10    | 8080    | HTTP     | Blocked  | Known malicious IP flagged by Threat Intelligence.
+```
+
+#### **2.2. Logs du serveur Apache**
+Source : srv-web01 (Apache 2.4)  
+Filtrage : Connexions entrantes avec anomalies détectées via analyse des User-Agent et des requêtes.  
+```
+Timestamp       | IP Address     | HTTP Method | URI Requested          | Response Code | User-Agent
+2023-10-01 02:15:43 | 192.168.45.12 | GET         | /admin/login.php       | 403           | 'Mozilla/5.0 (Linux x86_64)...'
+2023-10-01 02:17:12 | 185.220.101.8 | POST        | /wp-login.php          | 401           | 'curl/7.58.0'
+2023-10-01 02:18:50 | 198.51.100.14 | GET         | /etc/passwd            | 403           | 'Mozilla/5.0 (Windows NT)...'
+```
+
+---
+
+### **3. Analyse Préliminaire**
+#### **3.1. IP suspectes**
+- **192.168.45.12** : IP interne, pourrait indiquer une compromission interne ou un faux User-Agent.
+- **185.220.101.8** : IP associée à un réseau Tor. Activité suspecte, notamment sur le port SSH.
+- **198.51.100.14** : Adresse IP reportée comme malveillante dans les bases de Threat Intelligence.
+
+#### **3.2. Observations**
+- Tentative d'accès à des fichiers sensibles (/etc/passwd) par l'IP **198.51.100.14**.
+- Activité brute-force sur le port SSH par **185.220.101.8**.
+- Connexion suspecte avec un faux User-Agent simulant un navigateur légitime par **192.168.45.12**.
+
+#### **3.3. Indicateurs de Compromission (IoC)**
+- IP répétitive dans les logs.
+- Présence d’outils automatisés (curl, scripts).
+- Tentatives d'accès à des fichiers critiques ou interfaces d'administration.
+
+---
+
+### **4. Actions Recommandées**
+1. **Blocage des IP suspectes** : Ajouter les adresses IP **185.220.101.8** et **198.51.100.14** à la liste noire sur le pare-feu.
+2. **Audit interne** : Vérifier les connexions internes pour l'adresse IP **192.168.45.12**.
+3. **Renforcement du SSH** : Activer la règle de limitation des tentatives de connexion pour le port 22.
+4. **Analyse complémentaire** : Passer les logs sur un outil de corrélation (SIEM) pour identifier d'autres schémas suspects.
+5. **Mise à jour des signatures** : Vérifier et mettre à jour les bases de Threat Intelligence et IPS.
+6. **Informez l'équipe SOC** : Partagez ces logs pour une analyse approfondie.
+
+---
+
+### **5. Contact**
+Pour toute question ou assistance technique, veuillez me contacter :  
+**Neil LEVIN**  
+**Email** : neil.levin@xyzcompany.com  
+**Tel** : +33 6 12 34 56 78  
+
+---
+
+**Document préparé par** : Neil LEVIN  
+**Destinataire** : Eddy  
+Date : 2023-10-01

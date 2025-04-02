@@ -1,0 +1,84 @@
+---
+
+**Document Technique : Plan de Réponse Ransomware**  
+**Domaine : Gestion de Crise Cyber**  
+**Scénario : Gestion d'une Attaque Avancée par Ransomware**  
+**Niveau : Expert**  
+**Contact : Lorenzo Bertola**  
+**Destinataire : Eddy**  
+
+---
+
+### **Contexte de l'incident**  
+Le réseau de l'entreprise a été compromis par une attaque avancée de type ransomware. Les premiers indicateurs montrent que le ransomware utilisé est une variante sophistiquée capable de chiffrer non seulement les fichiers locaux mais également les ressources partagées sur le réseau. L'attaque semble avoir été initiée via un email contenant une pièce jointe malveillante exploitant une vulnérabilité dans un logiciel tiers installé sur les machines utilisateur.  
+
+L'attaquant a employé des techniques de mouvement latéral pour infecter plusieurs segments du réseau avant de déclencher le chiffrement. Une note de rançon a été identifiée sur plusieurs postes, exigeant un paiement en cryptomonnaie sous 72 heures, avec des menaces d'exfiltration et publication de données sensibles si le paiement n'est pas effectué.
+
+---
+
+### **Détails techniques**  
+1. **Vecteur d'infection suspecté** :  
+   - Email de phishing ciblé contenant une pièce jointe malveillante.  
+   - Exploitation d'une vulnérabilité connue dans une application utilisée par les employés.  
+
+2. **Comportement du ransomware** :  
+   - Chiffrement des fichiers avec un algorithme AES-256.  
+   - Note de rançon déposée sous forme de fichier texte (.txt) dans les répertoires infectés.  
+   - Communication via un serveur C2 (Command and Control) non identifié.  
+
+3. **Impact initial constaté** :  
+   - Plusieurs postes de travail compromis.  
+   - Serveurs de fichiers affectés (partages réseau verrouillés).  
+   - Interruption des opérations métiers critiques.  
+
+4. **Indicateurs de compromission (IOC)** :  
+   - Fichiers avec extension .encrypted.  
+   - Processus suspects identifiés : `ransom-agent.exe`, `crypto-loader.dll`.  
+   - Connexions réseau anormales vers des adresses IP externes (non autorisées).  
+
+5. **Contexte historique** :  
+   - Ce type de ransomware a été signalé dans des attaques similaires contre des entreprises du secteur financier et industriel en 2022.  
+   - Les attaquants ont tendance à utiliser des techniques de double extorsion (chiffrement + menace de publication) pour maximiser la pression sur les victimes.  
+
+---
+
+### **Objectifs de la gestion de crise**  
+- **Limiter les dégâts** : Identifier les machines compromises et isoler les segments infectés du réseau.  
+- **Protection des données sensibles** : Minimiser le risque que des données critiques soient exfiltrées ou diffusées.  
+- **Rétablissement des opérations** : Élaborer un plan de reprise des systèmes impactés tout en assurant la sécurité future.  
+- **Communication interne/externe** : Gérer les équipes internes et les parties prenantes externes (clients, partenaires, presse).  
+
+---
+
+### **Éléments à analyser**  
+1. **Étendue de l'infection** :  
+   - Quels segments du réseau sont touchés ?  
+   - Existe-t-il des sauvegardes disponibles et intactes ?  
+
+2. **Mécanisme d'entrée** :  
+   - Comment le ransomware a-t-il pénétré le réseau ?  
+   - Quels utilisateurs ou systèmes ont servi de points d'entrée initiaux ?  
+
+3. **Actions immédiates** :  
+   - Quels processus doivent être stoppés ?  
+   - Quelles ressources doivent être isolées immédiatement ?  
+
+4. **Communication avec l'attaquant** :  
+   - Les canaux de communication mentionnés dans la note de rançon sont-ils actifs ?  
+   - Quel niveau de menace représente l'exfiltration des données ?  
+
+---
+
+### **Ressources disponibles**  
+- **Équipe technique** : Lorenzo Bertola (contact principal).  
+- **Documentation** : Historique des sauvegardes, politique de sécurité actuelle, liste des machines et logiciels déployés.  
+- **Outils** : Solution de détection et réponse (EDR), analyse réseau, journalisation des événements.  
+
+---
+
+### **Note importante**  
+Aucune décision n’a été prise concernant le paiement de la rançon. Cette option, bien qu’éthiquement et légalement complexe, ne doit pas être exclue avant une évaluation approfondie des impacts et des alternatives.  
+
+---
+
+Fin du document.  
