@@ -1,5 +1,4 @@
 import { Home, Trash2 } from "lucide-react";
-import { useChatContext } from "@/contexts/ChatContext";
 import { useLocation, Link } from "wouter";
 import mclogo from "@assets/mc2i.png";
 import { Button } from "@/components/ui/button";
@@ -9,11 +8,7 @@ interface HeaderProps {
 }
 
 export default function Header({ isFeny = false }: HeaderProps) {
-  const { userName } = useChatContext();
   const [location] = useLocation();
-  
-  // Get the first letter of the username for the avatar
-  const userInitial = userName ? userName.charAt(0).toUpperCase() : "U";
 
   return (
     <header className="bg-white shadow-sm w-full border-b border-gray-100">
@@ -44,30 +39,20 @@ export default function Header({ isFeny = false }: HeaderProps) {
             </Link>
           )}
           <div className="flex items-center gap-2">
-            {userName && (
-              <>
-                <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-medium">
-                  {userInitial}
-                </div>
-                <span className="text-neutral-700 font-medium hidden sm:inline-block">
-                  Bonjour {userName}
-                </span>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => {
-                    if (window.confirm("Êtes-vous sûr de vouloir effacer toutes vos données et recommencer à zéro ? Cette action est irréversible.")) {
-                      localStorage.clear();
-                      window.location.href = "/";
-                    }
-                  }}
-                  className="text-red-500 hover:text-red-700 ml-2"
-                >
-                  <Trash2 className="h-4 w-4 mr-1" />
-                  <span className="hidden md:inline">Réinitialiser</span>
-                </Button>
-              </>
-            )}
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => {
+                if (window.confirm("Êtes-vous sûr de vouloir effacer toutes vos données et recommencer à zéro ? Cette action est irréversible.")) {
+                  localStorage.clear();
+                  window.location.href = "/";
+                }
+              }}
+              className="text-red-500 hover:text-red-700 ml-2"
+            >
+              <Trash2 className="h-4 w-4 mr-1" />
+              <span className="hidden md:inline">Réinitialiser</span>
+            </Button>
           </div>
         </div>
       </div>

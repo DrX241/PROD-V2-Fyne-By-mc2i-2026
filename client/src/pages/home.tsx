@@ -7,7 +7,6 @@ import {
   Users, Award, Brain, Laptop, Package, Target
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useChatContext } from "@/contexts/ChatContext";
 import { motion } from "framer-motion";
 import mcLogoPath from "@assets/mc2i.png";
 
@@ -95,13 +94,11 @@ const FeatureCard = ({
 };
 
 export default function Home() {
-  const { userName } = useChatContext();
-  
   // Fonction pour effacer complètement le localStorage et rafraîchir la page
   const resetAllData = () => {
     if (window.confirm("Êtes-vous sûr de vouloir effacer toutes vos données et recommencer à zéro ? Cette action est irréversible.")) {
       localStorage.clear();
-      window.location.href = "/cyber-onboarding-chat";
+      window.location.href = "/";
     }
   };
   
@@ -114,7 +111,7 @@ export default function Home() {
       color: "bg-blue-600",
       bgColor: "bg-gradient-to-br from-blue-50 to-blue-100",
       accentColor: "bg-blue-500",
-      linkTo: localStorage.getItem('cyberPlayerData') ? "/cyber-simulation" : "/cyber-onboarding-new"
+      linkTo: "#"
     },
     {
       title: "I AM DATA & IA",

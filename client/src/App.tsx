@@ -4,32 +4,11 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
-import ModulesPage from "@/pages/modules";
-import CyberPage from "@/pages/cyber";
-import CyberSimulation from "@/pages/cyber-simulation-new";
-import CyberOnboarding from "@/pages/cyber-onboarding";
-// La route cyber-onboarding-chat a été supprimée car remplacée par cyber-onboarding-new
-import CyberOnboardingNew from "@/pages/cyber-onboarding-new";
-import CyberMissions from "@/pages/cyber-missions";
-import CyberSingleMission from "@/pages/cyber-single-mission";
-import CyberMissionSimulation from "@/pages/cyber-mission-simulation";
-import CyberSimulationInterface from "@/pages/cyber-simulation-interface";
-import { ChatProvider } from "./contexts/ChatContext";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/modules" component={ModulesPage} />
-      <Route path="/cyber" component={CyberPage} />
-      <Route path="/cyber-onboarding" component={CyberOnboarding} />
-      {/* Route supprimée car remplacée par /cyber-onboarding-new */}
-      <Route path="/cyber-onboarding-new" component={CyberOnboardingNew} />
-      <Route path="/cyber-simulation" component={CyberSimulation} />
-      <Route path="/cyber-missions" component={CyberMissions} />
-      <Route path="/cyber-mission" component={CyberSingleMission} />
-      <Route path="/cyber-mission-simulation" component={CyberMissionSimulation} />
-      <Route path="/cyber-simulation-interface" component={CyberSimulationInterface} />
       <Route path="/data-ia" component={NotYetImplemented} />
       <Route path="/amoa" component={NotYetImplemented} />
       <Route path="/custom" component={NotYetImplemented} />
@@ -59,10 +38,8 @@ function NotYetImplemented() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ChatProvider>
-        <Router />
-        <Toaster />
-      </ChatProvider>
+      <Router />
+      <Toaster />
     </QueryClientProvider>
   );
 }
