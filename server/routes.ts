@@ -650,18 +650,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         contact.name !== rhContact.name
       );
       
-      // Ajouter le contact RH en premier
-      const scenarioContacts = [rhContact, ...contactsWithoutRH];
+      // Limiter à un total de 2 interlocuteurs maximum, quels qu'ils soient
+      const scenarioContacts = [scenario.contact];
       
-      // Create email response - le premier message vient toujours de la RH
+      // Sélectionner un seul contact supplémentaire si besoin (priorité au contact le plus pertinent parmi ceux générés)
+      if (additionalContacts.length > 0 && scenario.contact.name !== rhContact.name) {
+        // Si le contact principal n'est pas Isabelle, ajouter Isabelle ou un autre contact
+        if (Math.random() > 0.3) { // 70% du temps, inclure Isabelle Dubacq
+          scenarioContacts.push(rhContact);
+        } else if (additionalContacts.length > 0) { // 30% du temps, choisir un autre expert
+          scenarioContacts.push(additionalContacts[0]);
+        }
+      } else if (additionalContacts.length > 0) {
+        // Si le contact principal est Isabelle, ajouter un seul contact supplémentaire
+        scenarioContacts.push(additionalContacts[0]);
+      }
+      
+      // Create email response - le premier message vient toujours du contact principal du scénario
       const email = {
         id: uuidv4(),
-        from: rhContact,
+        from: scenarioContacts[0], // Utiliser le premier contact de la liste (le contact principal du scénario)
         to: `${userName}@mc2i.fr`,
         subject,
         date: new Date().toISOString(),
         body,
-        // Ajouter les contacts qui interviendront dans ce scénario, en commençant par la RH
+        // Ajouter les contacts qui interviendront dans ce scénario (maximum 2 au total)
         scenarioContacts: scenarioContacts
       };
       
@@ -1144,7 +1157,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
         
         const additionalContacts = getAdditionalContacts(scenario.domain, scenario.contact);
-        availableContacts = [scenario.contact, ...additionalContacts];
+        
+        // Limiter à 2 interlocuteurs au total
+        if (additionalContacts.length > 0) {
+          // Si nous avons des contacts supplémentaires, n'en ajouter qu'un seul
+          availableContacts = [scenario.contact, additionalContacts[0]];
+        } else {
+          // Sinon, utiliser uniquement le contact principal
+          availableContacts = [scenario.contact];
+        }
       }
       
       // Déterminer quel contact va répondre à cette interaction 
