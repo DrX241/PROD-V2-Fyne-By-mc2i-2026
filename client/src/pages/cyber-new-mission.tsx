@@ -87,12 +87,10 @@ export default function CyberNewMission() {
   useEffect(() => {
     // Variable pour éviter les mises à jour d'état après démontage du composant
     let isMounted = true;
-    // Variable pour éviter les appels en boucle
-    let isInitialLoad = true;
     
     const fetchMissionData = async () => {
       // Ne pas charger à nouveau si on est déjà en chargement ou si on a déjà une conversation
-      if (isLoading || (!isInitialLoad && conversationId)) return;
+      if (isLoading || conversationId) return;
       
       setIsLoading(true);
       
@@ -101,6 +99,39 @@ export default function CyberNewMission() {
           throw new Error('ID de mission manquant');
         }
         
+        // OPTIMISATION: Vérifier d'abord si les données sont déjà en cache dans le localStorage
+        const cachedDataString = localStorage.getItem('cyber_mission_data');
+        
+        if (cachedDataString) {
+          try {
+            const cachedData = JSON.parse(cachedDataString);
+            const cacheAge = Date.now() - (cachedData.timestamp || 0);
+            
+            // Utiliser le cache si les données sont récentes (moins de 5 minutes) et si c'est la bonne mission
+            if (cacheAge < 5 * 60 * 1000 && cachedData.mission && cachedData.mission.id === params.id) {
+              console.log("Utilisation des données mises en cache pour un chargement rapide");
+              
+              // Remplir directement les états avec les données du cache
+              setConversationId(cachedData.conversationId);
+              setMessages(cachedData.messages || []);
+              setMission(cachedData.mission || null);
+              setCurrentNPC(cachedData.currentNPC || null);
+              setAvailableNPCs(cachedData.availableNPCs || []);
+              
+              // Marquer comme chargé et sortir de la fonction
+              setIsLoading(false);
+              return;
+            } else {
+              console.log("Cache expiré ou mission différente");
+              localStorage.removeItem('cyber_mission_data');
+            }
+          } catch (error) {
+            console.error("Erreur lors de la lecture du cache:", error);
+            localStorage.removeItem('cyber_mission_data');
+          }
+        }
+        
+        // Si pas de cache valide, charger normalement
         // Récupérer l'ID de profil
         const profileId = localStorage.getItem('cyberNewProfileId');
         
@@ -171,6 +202,16 @@ export default function CyberNewMission() {
         setAvailableNPCs(responseData.availableNPCs);
         setMessages(responseData.messages);
         
+        // Mettre en cache les données pour les prochains chargements
+        localStorage.setItem('cyber_mission_data', JSON.stringify({
+          mission: responseData.mission,
+          conversationId: newConversationId,
+          messages: responseData.messages,
+          currentNPC: responseData.currentNPC,
+          availableNPCs: responseData.availableNPCs,
+          timestamp: Date.now()
+        }));
+        
       } catch (err) {
         // Vérifier que le composant est toujours monté avant de mettre à jour l'état d'erreur
         if (isMounted) {
@@ -178,9 +219,6 @@ export default function CyberNewMission() {
           setError(err instanceof Error ? err.message : 'Une erreur inattendue s\'est produite');
         }
       } finally {
-        // Marquer comme non-initial pour éviter les rechargements inutiles
-        isInitialLoad = false;
-        
         // Mettre fin au chargement si le composant est toujours monté
         if (isMounted) {
           setIsLoading(false);

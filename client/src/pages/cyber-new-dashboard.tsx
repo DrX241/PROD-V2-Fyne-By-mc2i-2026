@@ -95,6 +95,9 @@ export default function CyberNewDashboard() {
     if (!userProfile) return;
     
     try {
+      // Afficher un indicateur visuel pendant le chargement
+      setIsLoading(true);
+      
       const response = await fetch('/api/cyber/new/missions/start', {
         method: 'POST',
         headers: {
@@ -108,6 +111,7 @@ export default function CyberNewDashboard() {
       
       if (!response.ok) throw new Error('Erreur lors du démarrage de la mission');
       
+      // Récupérer toutes les données en une seule fois (mission, conversation, messages, etc.)
       const missionData = await response.json();
       
       // Mettre à jour la liste des missions
@@ -117,11 +121,24 @@ export default function CyberNewDashboard() {
           : mission
       ));
       
+      // Stocker les données dans le localStorage pour un chargement ultra-rapide dans la page mission
+      // Cela évite les appels API supplémentaires lors du chargement de la page mission
+      localStorage.setItem('cyber_mission_data', JSON.stringify({
+        mission: missionData.mission,
+        conversationId: missionData.conversationId,
+        messages: missionData.messages,
+        currentNPC: missionData.currentNPC,
+        availableNPCs: missionData.availableNPCs,
+        timestamp: Date.now() // Pour permettre d'invalider le cache si nécessaire
+      }));
+      
       // Rediriger vers la page de la mission
       setLocation(`/cyber-new-mission/${missionId}`);
     } catch (err) {
       console.error(err);
       setError(err instanceof Error ? err.message : 'Une erreur s\'est produite');
+    } finally {
+      setIsLoading(false);
     }
   };
 

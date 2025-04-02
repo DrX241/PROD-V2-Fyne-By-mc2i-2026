@@ -54,7 +54,7 @@ export function registerIAmCyberRoutes(app: Express): void {
     }
   });
 
-  // API pour commencer une mission
+  // API pour commencer une mission et initialiser la conversation en une seule requête
   app.post('/api/cyber/new/missions/start', (req: Request, res: Response) => {
     try {
       const { profileId, missionId } = req.body;
@@ -63,9 +63,56 @@ export function registerIAmCyberRoutes(app: Express): void {
         return res.status(400).json({ error: 'Missing required fields' });
       }
       
+      // Récupérer la mission et le profil
       const mission = missionHandler.startMission(profileId, missionId);
+      const profile = userProfileHandler.getUserProfile(profileId);
       
-      return res.status(200).json(mission);
+      if (!profile) {
+        return res.status(404).json({ error: 'Profile not found' });
+      }
+      
+      // Créer une conversation directement
+      const defaultNpcId = mission.primaryNPC;
+      
+      if (!defaultNpcId) {
+        return res.status(400).json({ error: 'No primary NPC defined for this mission' });
+      }
+      
+      // Créer la conversation avec le PNJ principal
+      const conversationId = conversationHandler.createConversation(
+        defaultNpcId,
+        profile,
+        mission
+      );
+      
+      // Récupérer la conversation et ses messages
+      const conversation = conversationHandler.getConversation(conversationId);
+      if (!conversation) {
+        return res.status(500).json({ error: 'Failed to create conversation' });
+      }
+      
+      const messages = conversationHandler.getConversationMessages(conversationId);
+      
+      // Récupérer les PNJs disponibles
+      let availableNPCs = [conversation.currentNPC];
+      if (mission.supportNPCs && mission.supportNPCs.length > 0) {
+        const supportNPCs = mission.supportNPCs
+          .map(npcId => getNPCById(npcId))
+          .filter(npc => npc !== undefined);
+        
+        if (supportNPCs.length > 0) {
+          availableNPCs = [conversation.currentNPC, ...supportNPCs];
+        }
+      }
+      
+      // Renvoyer toutes les données en une seule réponse pour éviter les allers-retours
+      return res.status(200).json({
+        mission,
+        conversationId,
+        messages,
+        currentNPC: conversation.currentNPC,
+        availableNPCs
+      });
     } catch (error: any) {
       return res.status(400).json({ error: error.message });
     }
