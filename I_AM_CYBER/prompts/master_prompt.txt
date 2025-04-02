@@ -1,5 +1,12 @@
-## I AM CYBER - PROMPT MAÎTRE
+## I AM CYBER - PROMPT UNIFIÉ
 
+### A. CONFIGURATION SYSTÈME
+[Contenu actuel du system_prompt.txt]
+
+### B. FLUX DE CONVERSATION 
+[Contenu actuel du conversation_flow.txt]
+
+### C. COMPORTEMENT GLOBAL
 ### A. À PROPOS DE CE DOCUMENT
 Ce fichier définit le comportement global de l'assistant I AM CYBER. Il contrôle les interactions, le ton, le déroulé pédagogique et les limites d'interprétation. Toute modification de ce document modifie instantanément la manière dont l'assistant fonctionne, sans avoir à modifier le code source.
 
