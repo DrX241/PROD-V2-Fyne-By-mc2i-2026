@@ -110,7 +110,7 @@ export default function HomeLayout({ children }: HomeLayoutProps) {
             {/* Logo et description de FYNE */}
             <motion.div variants={itemAnimation} className="space-y-6">
               <div className="flex items-center gap-3">
-                <div className="relative overflow-hidden rounded-full">
+                <div className="relative">
                   <img src={mclogo} alt="mc2i Logo" className="h-10 w-auto" />
                 </div>
                 <div className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-indigo-300">

@@ -60,8 +60,8 @@ export default function Header({ isFeny = false }: HeaderProps) {
           className="flex items-center"
         >
           <a href="/" className="flex items-center gap-3 cursor-pointer group">
-            <div className="relative overflow-hidden rounded-full">
-              <img src={mclogo} alt="mc2i Logo" className="h-10 w-auto relative z-10 transition-transform duration-500 group-hover:scale-110" />
+            <div className="relative">
+              <img src={mclogo} alt="mc2i Logo" className="h-10 w-auto transition-transform duration-500 group-hover:scale-110" />
             </div>
             <span className="text-neutral-300">|</span>
             <div className="font-bold text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-100">
