@@ -120,7 +120,7 @@ export default function Home() {
       color: "bg-purple-600",
       bgColor: "bg-gradient-to-br from-purple-50 to-purple-100",
       accentColor: "bg-purple-500",
-      linkTo: "/data-ia"
+      linkTo: "/"
     },
     {
       title: "I AM AMOA",
@@ -129,7 +129,7 @@ export default function Home() {
       color: "bg-emerald-600",
       bgColor: "bg-gradient-to-br from-emerald-50 to-emerald-100",
       accentColor: "bg-emerald-500",
-      linkTo: "/amoa"
+      linkTo: "/"
     },
     {
       title: "Soyez qui vous voulez",
@@ -138,7 +138,7 @@ export default function Home() {
       color: "bg-rose-600",
       bgColor: "bg-gradient-to-br from-rose-50 to-rose-100",
       accentColor: "bg-rose-500",
-      linkTo: "/custom"
+      linkTo: "/"
     }
   ];
   
@@ -215,7 +215,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.3 }}
               >
-                <Link href="/modules">
+                <Link href="/">
                   <Button 
                     size="lg" 
                     className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg border-0"
@@ -354,7 +354,7 @@ export default function Home() {
             </p>
             
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link href="/modules">
+              <Link href="/">
                 <Button 
                   size="lg" 
                   className="bg-white hover:bg-gray-100 text-blue-700"
