@@ -166,6 +166,19 @@ export default function EmailMessage({ email }: EmailMessageProps) {
           {renderBody()}
         </div>
         
+        {/* Zone de réponse */}
+        <div className="p-4 sm:p-6 border-t border-blue-700/30">
+          <ChatInterface
+            contactName={email.from.name}
+            contactRole={email.from.role || ""}
+            userAvatar="avatar1"
+            userName="Vous"
+            userRole="Apprenant"
+            height="h-[400px]"
+            initialMessage={`Je suis prêt(e) à répondre à votre email concernant "${email.subject}"`}
+          />
+        </div>
+
         {/* Interlocuteurs */}
         {email.scenarioContacts && email.scenarioContacts.length > 0 && (
           <div className="mx-3 sm:mx-6 my-3 sm:my-4 p-3 sm:p-5 bg-blue-900/40 rounded-lg border border-blue-700/30 backdrop-blur-sm">
