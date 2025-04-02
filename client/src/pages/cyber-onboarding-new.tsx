@@ -5,7 +5,22 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Shield as ShieldIcon, Database, ListChecks, Activity, Zap, AlertTriangle, ArrowLeft } from "lucide-react";
+import { 
+  Shield, 
+  Shield as ShieldIcon, 
+  Database, 
+  ListChecks, 
+  Activity, 
+  Zap, 
+  AlertTriangle, 
+  ArrowLeft,
+  CheckCircle, 
+  User, 
+  LockIcon, 
+  LinkIcon,
+  FileText,
+  SearchIcon
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { useChatContext } from "@/contexts/ChatContext";
 
@@ -34,26 +49,38 @@ const roles = [
   {
     id: "security-analyst",
     name: "Analyste en cybersécurité",
-    description: "Expert en détection et analyse des menaces et incidents de sécurité",
-    icon: <Shield className="h-5 w-5 text-blue-600" />
+    description: "Expert en détection et analyse des menaces et vulnérabilités informatiques",
+    icon: <SearchIcon className="h-5 w-5 text-blue-600" />
   },
   {
     id: "risk-manager",
     name: "Gestionnaire de risques",
-    description: "Spécialiste en évaluation et gestion des risques de cybersécurité",
+    description: "Spécialiste en évaluation et traitement des risques liés à la sécurité des systèmes",
     icon: <Activity className="h-5 w-5 text-emerald-600" />
   },
   {
     id: "incident-responder",
-    name: "Répondeur d'incidents",
-    description: "Expert en réponse aux incidents et crises de cybersécurité",
+    name: "Expert en réponse aux incidents",
+    description: "Professionnel de la gestion et résolution des incidents de sécurité",
     icon: <Zap className="h-5 w-5 text-amber-600" />
   },
   {
     id: "compliance-officer",
     name: "Responsable conformité",
-    description: "Spécialiste des normes, réglementations et audits de cybersécurité",
+    description: "Spécialiste des normes, réglementations et audits de sécurité informatique",
     icon: <ListChecks className="h-5 w-5 text-purple-600" />
+  },
+  {
+    id: "security-architect",
+    name: "Architecte en cybersécurité",
+    description: "Concepteur de solutions de sécurité robustes pour les infrastructures IT",
+    icon: <FileText className="h-5 w-5 text-rose-600" />
+  },
+  {
+    id: "ciso",
+    name: "Directeur de la sécurité (RSSI)",
+    description: "Responsable de la vision stratégique et de la gouvernance de la sécurité",
+    icon: <Shield className="h-5 w-5 text-indigo-600" />
   },
 ];
 
@@ -67,21 +94,33 @@ const modules = [
   },
   {
     id: "gdpr",
-    name: "Protection des données personnelles / RGPD",
-    description: "Principes et mise en œuvre de la conformité au Règlement Général sur la Protection des Données",
-    icon: <Shield className="h-5 w-5 text-green-600" />
+    name: "Protection des données personnelles",
+    description: "Conformité au RGPD et bonnes pratiques de protection des informations personnelles",
+    icon: <CheckCircle className="h-5 w-5 text-green-600" />
   },
   {
     id: "social-engineering",
     name: "Ingénierie sociale et phishing",
     description: "Identification et prévention des techniques de manipulation psychologique",
-    icon: <Shield className="h-5 w-5 text-purple-600" />
+    icon: <User className="h-5 w-5 text-purple-600" />
   },
   {
     id: "incidents",
     name: "Gestion des incidents de sécurité",
     description: "Détection, réponse et analyse des incidents de sécurité informatique",
-    icon: <Shield className="h-5 w-5 text-amber-600" />
+    icon: <Zap className="h-5 w-5 text-amber-600" />
+  },
+  {
+    id: "ransomware",
+    name: "Protection contre les ransomwares",
+    description: "Stratégies de prévention et plans de réponse face aux attaques par rançongiciel",
+    icon: <LockIcon className="h-5 w-5 text-indigo-600" />
+  },
+  {
+    id: "supply-chain",
+    name: "Sécurité de la chaîne d'approvisionnement",
+    description: "Évaluation et atténuation des risques liés aux fournisseurs et partenaires",
+    icon: <LinkIcon className="h-5 w-5 text-blue-600" />
   },
 ];
 
