@@ -3,8 +3,8 @@ import { Link, useLocation } from 'wouter';
 import HomeLayout from "@/components/layout/HomeLayout";
 import { 
   ShieldCheck, Database, ListChecks, Plus, ArrowRight, 
-  BrainCircuit, Bot, Sparkles, Star, BookOpen, Zap, 
-  Users, Award, Brain, Laptop, Package, Target
+  BrainCircuit, Bot, Sparkles, ShieldAlert, Zap, 
+  Laptop, Package, Server
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -239,18 +239,8 @@ export default function Home() {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.7, delay: 0.5 }}
               >
-                <span className="text-blue-200">Utilisé par :</span>
+                <span className="text-blue-200">En partenariat avec :</span>
                 <img src={mcLogoPath} alt="mc2i" className="h-8" />
-                <div className="flex items-center -space-x-2">
-                  {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-medium border-2 border-indigo-900">
-                      {i}
-                    </div>
-                  ))}
-                  <div className="w-8 h-8 rounded-full bg-blue-800 flex items-center justify-center text-white text-xs font-medium border-2 border-indigo-900 ml-1">
-                    +50
-                  </div>
-                </div>
               </motion.div>
             </div>
             
@@ -360,7 +350,7 @@ export default function Home() {
               Prêt à transformer votre parcours professionnel ?
             </h2>
             <p className="text-xl text-blue-100 mb-10 max-w-3xl mx-auto">
-              Rejoignez plus de 1000 professionnels qui ont déjà révolutionné leur façon d'apprendre
+              Améliorez vos compétences professionnelles avec une méthodologie d'apprentissage révolutionnaire
             </p>
             
             <div className="flex flex-col sm:flex-row justify-center gap-4">
@@ -385,30 +375,63 @@ export default function Home() {
         </div>
       </div>
       
-      {/* Section Statistiques */}
+      {/* Section Technologie */}
       <div className="bg-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { value: "95%", label: "Satisfaction", icon: <Star size={24} className="text-amber-500" /> },
-              { value: "78%", label: "Amélioration des compétences", icon: <Target size={24} className="text-emerald-500" /> },
-              { value: "4.8/5", label: "Note moyenne", icon: <Award size={24} className="text-rose-500" /> },
-              { value: "+1000", label: "Utilisateurs actifs", icon: <Users size={24} className="text-indigo-500" /> }
-            ].map((stat, index) => (
-              <motion.div
-                key={index}
-                className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -5, boxShadow: '0 10px 30px rgba(0, 0, 0, 0.05)' }}
-              >
-                <div className="mb-2">{stat.icon}</div>
-                <div className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</div>
-                <div className="text-gray-600 text-sm">{stat.label}</div>
-              </motion.div>
-            ))}
+          <div className="text-center mb-10">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+              Une technologie <span className="text-blue-600">de pointe</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Notre plateforme SaaS repose sur les dernières technologies d'intelligence artificielle
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <motion.div
+              className="bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-xl shadow-sm border border-blue-200"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              whileHover={{ y: -5, boxShadow: '0 10px 30px rgba(0, 0, 0, 0.05)' }}
+            >
+              <BrainCircuit size={32} className="text-blue-600 mb-4" />
+              <h3 className="text-xl font-bold text-gray-900 mb-2">IA Générative Avancée</h3>
+              <p className="text-gray-700">
+                Nos modèles de langage les plus récents permettent une interaction naturelle et adaptée à chaque contexte professionnel.
+              </p>
+            </motion.div>
+            
+            <motion.div
+              className="bg-gradient-to-br from-purple-50 to-purple-100 p-8 rounded-xl shadow-sm border border-purple-200"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              viewport={{ once: true }}
+              whileHover={{ y: -5, boxShadow: '0 10px 30px rgba(0, 0, 0, 0.05)' }}
+            >
+              <ShieldAlert size={32} className="text-purple-600 mb-4" />
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Sécurité des Données</h3>
+              <p className="text-gray-700">
+                Un environnement sécurisé pour vos données sensibles, avec un chiffrement de bout en bout et conformité RGPD.
+              </p>
+            </motion.div>
+            
+            <motion.div
+              className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-8 rounded-xl shadow-sm border border-emerald-200"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              viewport={{ once: true }}
+              whileHover={{ y: -5, boxShadow: '0 10px 30px rgba(0, 0, 0, 0.05)' }}
+            >
+              <Zap size={32} className="text-emerald-600 mb-4" />
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Performance Optimale</h3>
+              <p className="text-gray-700">
+                Infrastructure cloud évolutive qui s'adapte automatiquement à vos besoins pour des performances constantes.
+              </p>
+            </motion.div>
           </div>
         </div>
       </div>

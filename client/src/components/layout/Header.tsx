@@ -39,20 +39,7 @@ export default function Header({ isFeny = false }: HeaderProps) {
             </Link>
           )}
           <div className="flex items-center gap-2">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => {
-                if (window.confirm("Êtes-vous sûr de vouloir effacer toutes vos données et recommencer à zéro ? Cette action est irréversible.")) {
-                  localStorage.clear();
-                  window.location.href = "/";
-                }
-              }}
-              className="text-red-500 hover:text-red-700 ml-2"
-            >
-              <Trash2 className="h-4 w-4 mr-1" />
-              <span className="hidden md:inline">Réinitialiser</span>
-            </Button>
+            {/* Espace pour de futures fonctionnalités comme un menu utilisateur */}
           </div>
         </div>
       </div>
