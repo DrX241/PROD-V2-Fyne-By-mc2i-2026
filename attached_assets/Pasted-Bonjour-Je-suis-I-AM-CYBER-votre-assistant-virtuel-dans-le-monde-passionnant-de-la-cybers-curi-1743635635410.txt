@@ -1,0 +1,136 @@
+Bonjour !
+
+Je suis I AM CYBER, votre assistant virtuel dans le monde passionnant de la cybersécurité. Je suis là pour vous accompagner dans une expérience d'apprentissage immersive et interactive.
+
+Comment puis-je vous appeler ?
+
+Je m'appelle Eddy
+
+Merci Eddy ! Ravi de vous rencontrer. J'espère que vous allez bien aujourd'hui.
+
+Nous allons explorer ensemble différents aspects de la cybersécurité. Veuillez choisir un domaine qui vous intéresse parmi les options suivantes :
+
+Choisissez un domaine de cybersécurité
+Sélectionnez le domaine dans lequel vous souhaitez améliorer vos compétences. Chaque domaine propose des scénarios adaptés à différents niveaux d'expertise.
+
+
+Gestion de crise cyber
+
+
+Protection des données personnelles / RGPD
+
+
+Ingénierie sociale et phishing
+
+
+Gestion des incidents de sécurité
+
+
+Sécurité de la chaîne d'approvisionnement
+
+
+Stratégie et gouvernance cybersécurité
+
+Excellent choix, Eddy ! Vous avez sélectionné la Gestion de crise cyber.
+
+J'ai plusieurs scénarios de différents niveaux à vous proposer. Choisissez celui qui vous intéresse le plus :
+
+Sélectionnez un scénario de Gestion de crise cyber
+3 scénarios disponibles
+
+15-20 min/scénario
+Apprentissage pratique
+PNJ réalistes
+
+Introduction à la gestion de crise cyber
+Cliquez pour commencer ce scénario
+
+Débutant
+
+Plan de gestion de crise cyber
+Cliquez pour commencer ce scénario
+
+Intermédiaire
+
+Gestion d'une attaque avancée par ransomware
+Cliquez pour commencer ce scénario
+
+Expert
+Parfait Eddy ! Vous avez choisi le scénario "Gestion d'une attaque avancée par ransomware".
+
+Je vais maintenant vous placer dans cette situation d'apprentissage.
+
+Contexte du scénario : Votre organisation est victime d'une attaque par ransomware. Gérez la crise efficacement.
+
+Vous allez interagir avec plusieurs interlocuteurs qui ont des préoccupations différentes liées à ce scénario. Chaque interlocuteur apportera un point de vue unique en fonction de ses préoccupations.
+
+Vous recevrez bientôt un premier mail.
+
+Préparez-vous à analyser la situation et à proposer des solutions adaptées ! N'oubliez pas, chacune de vos réponses aura un impact sur le scénario.
+
+LB
+Lorenzo Bertola
+Directeur Général Adjoint et Directeur du pôle BFA
+
+03/04/2025 01:11
+À :
+
+Eddy@mc2i.fr
+
+Objet :
+
+Bienvenue chez Secure Finance Solutions !
+
+Bonjour Eddy,
+
+Je suis Lorenzo Bertola, Directeur Général Adjoint et responsable du pôle BFA chez Secure Finance Solutions. Nous accompagnons les acteurs du secteur bancaire et financier dans leur transformation numérique tout en veillant à la robustesse de leur cybersécurité.
+
+Pour que nous puissions te proposer une mission parfaitement adaptée à ton profil, pourrais-tu te présenter en quelques lignes ? J’aimerais en savoir davantage sur ton parcours, ton expérience professionnelle et ton niveau de connaissance en cybersécurité.
+
+Ces informations seront précieuses pour personnaliser ton expérience et maximiser l’impact de cette aventure.
+
+Au plaisir de te lire et de travailler ensemble,
+
+Lorenzo
+
+Interlocuteurs du scénario
+LB
+Lorenzo Bertola
+Directeur Général Adjoint et Directeur du pôle BFA
+
+AG
+Arnaud Gauthier
+Président
+
+Expertise: Vision stratégique et gouvernance de la cybersécurité
+
+Préoccupation: Centré sur les enjeux stratégiques à long terme et la responsabilité du conseil d'administration
+
+Ces interlocuteurs interviendront dans ce scénario pour vous offrir différentes perspectives sur la problématique cyber centrale.
+
+Eddy, je suis un débutant en cyber
+
+Lorenzo Bertola
+Directeur Général Adjoint et Directeur du pôle BFA
+Bonjour Eddy,
+
+Tout d'abord, merci pour cette introduction rapide. Je suis Lorenzo Bertola, Directeur Général Adjoint et Directeur du pôle BFA. Ravi de te compter parmi nous pour cette mission.
+
+Dans ce scénario, nous allons plonger dans une situation critique : notre organisation, active dans le secteur bancaire, fait face à une attaque par ransomware sophistiquée. Ce type de menace peut paralyser nos systèmes, compromettre les données sensibles de nos clients et, par conséquent, entacher notre réputation et notre conformité réglementaire.
+
+Contexte de la mission :
+
+Un ransomware a infecté plusieurs systèmes critiques, rendant certaines opérations bancaires totalement inaccessibles.
+Les attaquants demandent une rançon en échange de la clé de déchiffrement, tout en menaçant de publier des données sensibles si leurs exigences ne sont pas satisfaites.
+Nous devons gérer cette crise efficacement, minimiser les impacts pour nos clients et restaurer nos opérations rapidement.
+Ta mission :
+
+1. Identifier les premières actions prioritaires à mettre en œuvre pour contenir la menace.
+
+2. Proposer une stratégie pour décider si nous devons payer ou non la rançon (en prenant en compte les risques financiers, juridiques et éthiques).
+
+3. Suggérer des mesures pour éviter qu'une telle situation ne se reproduise à l’avenir.
+
+Je sais que tu te considères comme débutant en cybersécurité, mais ne t’inquiète pas, je suis là pour te guider et t’aider à développer tes compétences tout au long de cette mission. Dis-moi, selon toi, quelles pourraient être les premières étapes logiques à entreprendre dans une telle situation ?
+
+À toi de jouer, Eddy !

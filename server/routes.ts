@@ -323,8 +323,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           - Le nom d'entreprise pour ce scénario est: ${companyName}
           - L'email doit être un message d'accueil chaleureux où le PNJ se présente, présente brièvement l'entreprise ${companyName}
           - IMPORTANT: Invite explicitement ${userName} à se présenter en détaillant son parcours, son expérience professionnelle et son niveau de connaissance en cybersécurité
-          - Précise que ces informations sont nécessaires pour adapter la mission à son profil
-          - Mentionne brièvement que ces informations sont nécessaires pour mieux adapter le scénario à son profil
+          - Précise que ces informations sont nécessaires pour mieux adapter la mission à son profil
           - IMPORTANT: NE PAS mentionner ou faire référence à des pièces jointes, documents ou fichiers
           - N'incluez PAS encore de problème ou de mission spécifique à résoudre
           - Le ton doit être chaleureux, accueillant et professionnel, en utilisant le tutoiement
@@ -1427,9 +1426,13 @@ MÉTADONNÉES DE CONTEXTE:
 ${JSON.stringify(contextMetadata, null, 2)}
 
 Utilise les métadonnées ci-dessus et le master prompt pour déterminer comment répondre selon le flux de conversation défini.
-Si c'est la validation d'une présentation, vérifie que la présentation contient les informations nécessaires.
-Si c'est l'introduction de la mission, présente-toi et explique clairement le problème.
-Adapte toujours ton style de communication à ton rôle et au secteur d'activité.`
+
+IMPORTANT:
+- SI c'est la validation d'une présentation (VALIDATION_PRESENTATION), vérifie que la présentation contient les informations nécessaires. NE TE PRÉSENTE PAS À NOUVEAU car tu l'as déjà fait dans le premier email.
+- SI c'est l'introduction de la mission (MISSION_INTRODUCTION), présente directement le problème SANS TE PRÉSENTER À NOUVEAU (c'est inutile car tu l'as déjà fait dans le premier email).
+- SI c'est une conversation standard (CONVERSATION_STANDARD), reste dans le contexte et réponds à la question.
+
+Adapte toujours ton style de communication à ton rôle (${respondingContact.role}) et au secteur d'activité (${secteurActivite}).`
       });
       
       const responseContent = await openAIService.getChatCompletionWithCache(
