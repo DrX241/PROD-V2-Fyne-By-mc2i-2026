@@ -105,6 +105,15 @@ export default function Home() {
   // Modules avec animations interactives
   const modules = [
     {
+      title: "I AM CYBER",
+      description: "Immergez-vous dans des simulations de cybersécurité avec notre chatbot IA personnalisable et développez vos compétences en sécurité informatique.",
+      icon: <ShieldCheck className="w-8 h-8 text-white" />,
+      color: "bg-blue-600",
+      bgColor: "bg-gradient-to-br from-blue-50 to-blue-100",
+      accentColor: "bg-blue-500",
+      linkTo: "/cyber-chat-config"
+    },
+    {
       title: "I AM DATA & IA",
       description: "Maîtrisez les concepts avancés de data science et d'intelligence artificielle à travers des simulations pratiques et des défis concrets.",
       icon: <Database className="w-8 h-8 text-white" />,
@@ -285,6 +294,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
+                className={index === 0 ? "md:col-span-2 lg:col-span-1" : ""}
               >
                 <ModuleCard {...module} />
               </motion.div>

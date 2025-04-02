@@ -7,7 +7,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { openAIService, ApiKeyType } from "../I_AM_CYBER OLD/services/openai";
 // Import de document-generator supprimé car nous n'utilisons plus de pièces jointes
 import { ChatCompletionRequestMessage } from "../shared/schema";
-import { initializeIAmCyberNew } from "../I_AM_CYBER_NEW";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Nous n'avons plus besoin des répertoires de documents et HTML
@@ -1722,9 +1721,6 @@ Retournez UNIQUEMENT un tableau JSON avec le format suivant, sans aucun texte ex
     }
   });
   
-  // Initialiser le module I AM CYBER NEW
-  initializeIAmCyberNew(app);
-
   const httpServer = createServer(app);
   return httpServer;
 }

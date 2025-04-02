@@ -8,6 +8,7 @@ import CyberNewOnboarding from "@/pages/cyber-new-onboarding";
 import CyberNewDashboard from "@/pages/cyber-new-dashboard";
 import CyberNewMission from "@/pages/cyber-new-mission";
 import CyberNewChat from "@/pages/cyber-new-chat";
+import CyberChatConfig from "@/pages/cyber-chat-config";
 
 function Router() {
   return (
@@ -17,6 +18,7 @@ function Router() {
       <Route path="/cyber-new-dashboard" component={CyberNewDashboard} />
       <Route path="/cyber-new-mission/:id" component={CyberNewMission} />
       <Route path="/cyber-new-chat" component={CyberNewChat} />
+      <Route path="/cyber-chat-config" component={CyberChatConfig} />
       <Route component={NotFound} />
     </Switch>
   );

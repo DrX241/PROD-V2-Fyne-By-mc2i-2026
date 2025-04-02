@@ -7,7 +7,8 @@ import {
   Loader2,
   Bot,
   MessageSquare,
-  RefreshCw
+  RefreshCw,
+  Settings
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -37,6 +38,14 @@ interface NPC {
   avatar: string;
 }
 
+// Type pour la configuration du chatbot
+interface AIConfig {
+  difficultyLevel: string;
+  responseStyle: string;
+  temperature: number;
+  maxTokens: number;
+}
+
 export default function CyberNewChat() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -49,6 +58,26 @@ export default function CyberNewChat() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [chatConfig, setChatConfig] = useState<AIConfig>({
+    difficultyLevel: 'Intermédiaire',
+    responseStyle: 'Détaillé et pédagogique',
+    temperature: 0.7,
+    maxTokens: 800
+  });
+  
+  // Effet pour charger la configuration
+  useEffect(() => {
+    // Récupérer la configuration du localStorage
+    const savedConfig = localStorage.getItem('cyberChatConfig');
+    if (savedConfig) {
+      try {
+        const parsedConfig = JSON.parse(savedConfig);
+        setChatConfig(parsedConfig);
+      } catch (error) {
+        console.error('Erreur lors du chargement de la configuration:', error);
+      }
+    }
+  }, []);
   
   // Effet pour initialiser le chat
   useEffect(() => {
@@ -149,8 +178,7 @@ export default function CyberNewChat() {
     setIsSending(true);
     
     try {
-      // Envoyer le message à l'API
-      // Correction: Utiliser 'message' et non 'content' pour respecter l'API
+      // Envoyer le message à l'API avec la configuration
       const response = await fetch(`/api/cyber/new/conversations/${conversationId}/messages`, {
         method: 'POST',
         headers: {
@@ -158,7 +186,8 @@ export default function CyberNewChat() {
         },
         body: JSON.stringify({
           message: messageInput,  // Utiliser directement messageInput ici
-          type: 'user'
+          type: 'user',
+          config: chatConfig  // Envoyer la configuration du chatbot
         }),
       });
       
@@ -361,16 +390,27 @@ export default function CyberNewChat() {
                 </div>
               )}
               
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="border-white/30 text-white hover:bg-white/20"
-                onClick={resetChat}
-                disabled={isLoading}
-              >
-                <RefreshCw className="h-3.5 w-3.5 mr-1" />
-                Réinitialiser
-              </Button>
+              <div className="flex space-x-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="border-white/30 text-white hover:bg-white/20"
+                  onClick={() => setLocation('/cyber-chat-config')}
+                >
+                  <Settings className="h-3.5 w-3.5 mr-1" />
+                  Paramètres
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="border-white/30 text-white hover:bg-white/20"
+                  onClick={resetChat}
+                  disabled={isLoading}
+                >
+                  <RefreshCw className="h-3.5 w-3.5 mr-1" />
+                  Réinitialiser
+                </Button>
+              </div>
             </div>
           </div>
         </div>
