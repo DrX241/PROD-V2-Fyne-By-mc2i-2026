@@ -9,6 +9,7 @@ import { openAIService } from "../I_AM_CYBER/services/openai";
 // Import de document-generator supprimé car nous n'utilisons plus de pièces jointes
 import { ChatCompletionRequestMessage } from "../shared/schema";
 import { evaluateDecision } from "./cyberDefenseEvaluator";
+import { handleAmoaChat, evaluateAmoaDecision } from "./amoaService";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Nous n'avons plus besoin des répertoires de documents et HTML
@@ -1855,6 +1856,16 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
         res.status(500).json({ error: 'Erreur lors de la génération de la réponse' });
       }
     }
+  });
+
+  // API pour les conversations du module AMOA
+  app.post('/api/amoa/chat', async (req: Request, res: Response) => {
+    handleAmoaChat(req, res);
+  });
+
+  // API pour l'évaluation des décisions AMOA
+  app.post('/api/amoa/evaluate-decision', async (req: Request, res: Response) => {
+    evaluateAmoaDecision(req, res);
   });
 
   const server = createServer(app);
