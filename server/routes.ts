@@ -1862,4 +1862,6 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
     }
   });
 
-  // API pour les communications liées aux missions de défense cyber
+  const server = createServer(app);
+  return server;
+}
