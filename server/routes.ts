@@ -1606,6 +1606,256 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
     }
   });
   
+  // API pour les conversations du module Cyber Defense
+  app.post('/api/cyber-defense/chat', async (req: Request, res: Response) => {
+    try {
+      const { 
+        userMessage, 
+        missionId, 
+        missionContext, 
+        currentObjective, 
+        previousMessages, 
+        targetContact,
+        temperature,
+        maxTokens
+      } = req.body;
+      
+      if (!userMessage) {
+        return res.status(400).json({ message: 'Message utilisateur requis' });
+      }
+      
+      // Construire le prompt système pour la mission
+      const missionPrompt = `Tu es "I AM CYBER", un assistant spécialisé en cybersécurité qui simule une mission de défense cyber.
+      
+Tu dois jouer le rôle d'un expert en cybersécurité qui interagit avec l'utilisateur dans le cadre de la mission suivante:
+- Titre: ${missionContext.title}
+- Scénario: ${missionContext.scenario}
+- Difficulté: ${missionContext.difficulty}
+- L'utilisateur joue le rôle de: ${missionContext.userRole}
+- Objectif actuel: ${missionContext.objectives[currentObjective]?.description || "Non défini"}
+
+Directives pour la réponse:
+1. Réponds en utilisant un ton professionnel mais accessible
+2. Adapte ton niveau technique à la difficulté de la mission (${missionContext.difficulty})
+3. Utilise les connaissances à jour en matière de bonnes pratiques de cybersécurité
+4. Si l'utilisateur mentionne spécifiquement un contact (${targetContact || "aucun"}), réponds en tant que cette personne
+5. Si l'utilisateur semble prêt à prendre une décision importante, fournir une structure de décision claire
+6. Évite de mentionner que tu es une IA ou un assistant, reste dans ton rôle
+`;
+
+      // Préparer les messages pour l'API
+      const messages: ChatCompletionRequestMessage[] = [
+        { role: "system", content: missionPrompt },
+        ...previousMessages.map((msg: any) => ({
+          role: msg.role,
+          content: msg.content
+        })),
+        { role: "user", content: userMessage }
+      ];
+      
+      // Appeler l'API OpenAI
+      const response = await openAIService.getChatCompletionWithCache(
+        messages,
+        temperature || 0.7,
+        maxTokens || 1000
+      );
+      
+      // Analyser le contenu de la réponse pour déterminer le contact et le style
+      let sender = "Expert";
+      let senderRole = "Cybersécurité";
+      
+      // Si un contact spécifique a été ciblé, utiliser ce contact comme expéditeur
+      if (targetContact) {
+        const contact = missionContext.contacts.find((c: any) => c.name === targetContact);
+        if (contact) {
+          sender = contact.name;
+          senderRole = contact.role;
+        }
+      } else {
+        // Sinon, déterminer un contact approprié en fonction du contexte
+        const keyword = userMessage.toLowerCase();
+        
+        // Associer des mots-clés aux contacts pour une réponse contextuelle
+        for (const contact of missionContext.contacts) {
+          const expertise = contact.expertise.toLowerCase();
+          if (keyword.includes(expertise.split(' ')[0]) || 
+              keyword.includes(contact.name.split(' ')[0].toLowerCase())) {
+            sender = contact.name;
+            senderRole = contact.role;
+            break;
+          }
+        }
+      }
+      
+      // Déterminer s'il faut déclencher une décision
+      let decision = null;
+      const shouldTriggerDecision = response.toLowerCase().includes('décision') || 
+                                   response.toLowerCase().includes('choix') ||
+                                   response.toLowerCase().includes('options') ||
+                                   response.toLowerCase().includes('alternatives');
+      
+      if (shouldTriggerDecision && missionContext.objectives[currentObjective]?.decisions?.length > 0) {
+        // Prendre la première décision disponible pour l'objectif actuel
+        decision = missionContext.objectives[currentObjective].decisions[0];
+      }
+      
+      // Déterminer si une réponse additionnelle d'un autre contact est appropriée
+      let additionalResponse = null;
+      const shouldAddColleagueResponse = Math.random() > 0.7; // 30% de chance d'avoir une réponse additionnelle
+      
+      if (shouldAddColleagueResponse && !decision) {
+        // Sélectionner un contact différent du premier répondant
+        const availableContacts = missionContext.contacts.filter((c: any) => c.name !== sender);
+        
+        if (availableContacts.length > 0) {
+          const selectedContact = availableContacts[Math.floor(Math.random() * availableContacts.length)];
+          
+          // Créer un prompt pour la réponse additionnelle
+          const colleaguePrompt = `
+Tu es ${selectedContact.name}, ${selectedContact.role} dans l'entreprise. 
+Tu dois réagir brièvement (2-3 phrases maximum) au message de ${sender} qui vient de dire: "${response}".
+Ta réaction doit être cohérente avec ton rôle et ton expertise en ${selectedContact.expertise}.
+Réponds directement sans introduction ni formule de politesse, comme si tu intervenais dans une conversation.`;
+
+          const colleagueMessages: ChatCompletionRequestMessage[] = [
+            { role: "system", content: colleaguePrompt },
+            { role: "user", content: "Génère une réaction courte et professionnelle" }
+          ];
+          
+          const colleagueResponse = await openAIService.getChatCompletionWithCache(
+            colleagueMessages,
+            0.8, // Légèrement plus créatif
+            200  // Réponse courte
+          );
+          
+          additionalResponse = {
+            response: colleagueResponse,
+            sender: selectedContact.name,
+            senderRole: selectedContact.role
+          };
+        }
+      }
+      
+      // Retourner la réponse complète
+      res.json({
+        response,
+        sender,
+        senderRole,
+        additionalResponse,
+        decision
+      });
+      
+    } catch (error: any) {
+      console.error('Error generating cyber defense response:', error);
+      res.status(500).json({ 
+        error: error.message || 'Error generating cyber defense response'
+      });
+    }
+  });
+  
+  // API pour évaluer les décisions prises dans le module Cyber Defense
+  app.post('/api/cyber-defense/evaluate-decision', async (req: Request, res: Response) => {
+    try {
+      const { 
+        missionId, 
+        missionContext, 
+        decisionId, 
+        choiceId, 
+        currentObjective,
+        userRole
+      } = req.body;
+      
+      if (!missionId || !decisionId || !choiceId) {
+        return res.status(400).json({ message: 'Informations de décision requises' });
+      }
+      
+      // Trouver la décision et l'option choisie
+      const objective = missionContext.objectives.find((obj: any) => obj.id === currentObjective);
+      const decision = objective?.decisions.find((d: any) => d.id === decisionId);
+      const choice = decision?.options.find((opt: any) => opt.id === choiceId);
+      
+      if (!decision || !choice) {
+        return res.status(404).json({ message: 'Décision ou choix non trouvé' });
+      }
+      
+      // Mettre à jour la mission avec le choix effectué
+      const updatedMission = { ...missionContext };
+      const objectiveIndex = updatedMission.objectives.findIndex((obj: any) => obj.id === currentObjective);
+      const decisionIndex = updatedMission.objectives[objectiveIndex].decisions.findIndex((d: any) => d.id === decisionId);
+      
+      // Marquer la décision comme prise
+      updatedMission.objectives[objectiveIndex].decisions[decisionIndex].madeChoice = choiceId;
+      
+      // Ajuster le score de la mission
+      updatedMission.currentScore = (updatedMission.currentScore || 0) + choice.score;
+      
+      // Déterminer si l'objectif est complété (ici nous considérons qu'une bonne décision complète l'objectif)
+      const objectiveCompleted = choice.score > 0;
+      
+      // Si l'objectif est complété, le marquer comme tel
+      if (objectiveCompleted) {
+        updatedMission.objectives[objectiveIndex].completed = true;
+      }
+      
+      // Sélectionner un superviseur pour l'évaluation
+      const supervisor = missionContext.supervisors?.[Math.floor(Math.random() * missionContext.supervisors.length)] || {
+        name: "Direction",
+        role: "Comité de direction"
+      };
+      
+      // Générer l'évaluation de la décision avec OpenAI
+      const evaluationPrompt = `
+Tu es ${supervisor.name}, ${supervisor.role} dans une organisation. Tu dois évaluer une décision prise par ${userRole} dans le cadre d'une mission de cybersécurité.
+
+Contexte de la décision:
+- Mission: ${missionContext.title}
+- Objectif: ${objective?.description}
+- Décision à prendre: ${decision.description}
+- Option choisie: ${choice.text}
+
+Conséquences connues de ce choix:
+- Points positifs: ${choice.consequences.positive.join(', ')}
+- Points négatifs: ${choice.consequences.negative.join(', ')}
+- Impact sur le score: ${choice.score > 0 ? 'Positif' : choice.score < 0 ? 'Négatif' : 'Neutre'}
+
+Ta tâche:
+Rédige une évaluation concise (3-4 phrases) de cette décision du point de vue de ${supervisor.name}. 
+${choice.score > 0 ? 'Félicite pour ce bon choix tout en soulignant les aspects positifs.' : 
+  choice.score < 0 ? 'Soulève poliment les problèmes de ce choix et suggère ce qui aurait pu être mieux fait.' : 
+  'Donne un feedback nuancé, reconnaissant les aspects positifs mais suggérant des améliorations.'}
+
+Réponds directement à la première personne comme si tu étais ${supervisor.name} qui s'adresse au ${userRole}.`;
+
+      const evaluationMessages: ChatCompletionRequestMessage[] = [
+        { role: "system", content: evaluationPrompt },
+        { role: "user", content: "Génère une évaluation professionnelle de cette décision" }
+      ];
+      
+      const evaluationContent = await openAIService.getChatCompletionWithCache(
+        evaluationMessages,
+        0.7,
+        400
+      );
+      
+      // Retourner l'évaluation et la mission mise à jour
+      res.json({
+        evaluation: {
+          content: evaluationContent,
+          supervisor: supervisor.name,
+          supervisorRole: supervisor.role,
+          objectiveCompleted
+        },
+        updatedMission
+      });
+      
+    } catch (error: any) {
+      console.error('Error evaluating decision:', error);
+      res.status(500).json({ 
+        error: error.message || 'Error evaluating decision'
+      });
+    }
+  });
+  
   // API route pour basculer entre les clés API
   app.post('/api/cyber/switch-api-key', (req: Request, res: Response) => {
     try {
@@ -1711,248 +1961,253 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
     }
   });
 
-  // Nouvel endpoint pour le module Cyber Defense
-  app.post('/api/cyber-defense/chat', async (req, res) => {
+  // API pour les communications liées aux missions de défense cyber
+  app.post('/api/cyber-defense/chat', async (req: Request, res: Response) => {
     try {
       const { 
         userMessage, 
         missionId, 
         missionContext, 
-        currentObjective,
-        previousMessages = [],
-        targetContact = null, // Nouveau: PNJ ciblé explicitement par l'utilisateur (facultatif)
-        temperature = 0.8, 
-        maxTokens = 1000 
-      } = req.body;
-
-      if (!userMessage || !missionId) {
-        return res.status(400).json({ error: 'Message et identifiant de mission sont requis' });
-      }
-
-      // Construction du prompt système pour le contexte de la mission
-      let systemPrompt = `Tu es un assistant IA dans une simulation de gestion de crise cyber avec le contexte suivant:
-
-CONTEXTE DE LA MISSION:
-- Titre: ${missionContext.title}
-- Scénario: ${missionContext.scenario}
-- Objectif actuel: ${missionContext.objectives[currentObjective]}
-
-RÔLE DU JOUEUR:
-L'utilisateur joue le rôle du RSSI (Responsable de la Sécurité des Systèmes d'Information) de l'entreprise. En tant que RSSI:
-- Tu es le décideur principal responsable de la gestion de cette crise
-- Les personnages ci-dessous sont sous ta direction et attendent tes instructions
-- Tu as l'autorité pour prendre les décisions finales concernant les mesures de sécurité
-
-PERSONNAGES DISPONIBLES:
-${missionContext.contacts.map((contact: { name: string, role: string, expertise: string }) => 
-  `- ${contact.name} (${contact.role}): ${contact.expertise}`
-).join('\n')}
-
-STRUCTURE HIÉRARCHIQUE:
-- Le RSSI (l'utilisateur) dirige l'équipe de gestion de crise
-- Sophie Dupont (Analyste SOC) et Marc Lefort (Administrateur Système) sont sous la direction directe du RSSI
-- Jeanne Martin (Responsable Communication) collabore avec l'équipe mais doit valider ses actions avec le RSSI
-
-INSTRUCTIONS:
-1. Réponds comme UN SEUL personnage à la fois, celui qui est le plus pertinent pour répondre à la question
-2. Si l'utilisateur s'adresse directement à un personnage spécifique, utilise ce personnage
-3. Sois concis, clair et direct - évite les longues explications inutiles
-4. Évite le formatage excessif (comme trop de texte en gras avec ** ou trop de puces)
-5. Utilise des phrases courtes et un langage accessible
-6. N'écris JAMAIS au nom de plusieurs personnages dans une même réponse
-
-FORMAT DE RÉPONSE:
-- Présente l'information de manière claire et structurée
-- Utilise des listes à puces pour organiser l'information quand c'est pertinent
-- Limite l'utilisation du gras aux éléments vraiment importants
-- Ton et style: professionnel mais conversationnel, comme dans une situation de crise réelle
-- Formule des recommandations pratiques et concrètes
-
-IMPORTANT: Ne réponds qu'au nom d'UN SEUL personnage, même si la situation pourrait impliquer plusieurs experts.`;
-
-      // Ajuster le prompt si un PNJ spécifique est ciblé
-      if (targetContact) {
-        systemPrompt += `\n\nL'utilisateur s'adresse spécifiquement à ${targetContact}. Ta réponse doit venir de ce personnage uniquement.`;
-      }
-
-      // Construction des messages pour l'API OpenAI
-      let messages = [
-        { role: "system", content: systemPrompt }
-      ];
-
-      // Extraire le PNJ ciblé à partir du message de l'utilisateur si non spécifié
-      let detectedTarget = targetContact;
-      if (!detectedTarget) {
-        const lowerCaseMessage = userMessage.toLowerCase();
-        for (const contact of missionContext.contacts) {
-          const firstName = contact.name.split(' ')[0].toLowerCase();
-          const lastName = contact.name.split(' ').length > 1 ? contact.name.split(' ')[1].toLowerCase() : '';
-          
-          if (lowerCaseMessage.includes(firstName) || (lastName && lowerCaseMessage.includes(lastName))) {
-            detectedTarget = contact.name;
-            break;
-          }
-        }
-      }
-
-      // Ajout du target dans le message utilisateur si détecté
-      let processedUserMessage = userMessage;
-      if (detectedTarget) {
-        processedUserMessage = `[Message adressé à ${detectedTarget}] ${userMessage}`;
-      }
-
-      // Ajout des messages précédents pour maintenir le contexte
-      if (previousMessages && previousMessages.length > 0) {
-        for (const msg of previousMessages.slice(-6)) { // Limiter à 6 derniers messages pour éviter d'atteindre les limites du contexte
-          messages.push({
-            role: msg.role,
-            content: msg.role === 'assistant' && msg.sender 
-              ? `[${msg.sender} - ${msg.senderRole}]: ${msg.content}`
-              : msg.content
-          });
-        }
-      }
-
-      // Ajout du message de l'utilisateur
-      messages.push({ role: "user", content: processedUserMessage });
-
-      // Appel à l'API OpenAI
-      const completion = await openAIService.getChatCompletion(
-        messages as ChatCompletionRequestMessage[],
+        currentObjective, 
+        previousMessages, 
+        targetContact,
         temperature,
         maxTokens
+      } = req.body;
+      
+      if (!userMessage) {
+        return res.status(400).json({ message: 'Message utilisateur requis' });
+      }
+      
+      // Construire le prompt système pour la mission
+      const missionPrompt = `Tu es "I AM CYBER", un assistant spécialisé en cybersécurité qui simule une mission de défense cyber.
+      
+Tu dois jouer le rôle d'un expert en cybersécurité qui interagit avec l'utilisateur dans le cadre de la mission suivante:
+- Titre: ${missionContext.title}
+- Scénario: ${missionContext.scenario}
+- Difficulté: ${missionContext.difficulty}
+- L'utilisateur joue le rôle de: ${missionContext.userRole}
+- Objectif actuel: ${missionContext.objectives[currentObjective]?.description || "Non défini"}
+
+Directives pour la réponse:
+1. Réponds en utilisant un ton professionnel mais accessible
+2. Adapte ton niveau technique à la difficulté de la mission (${missionContext.difficulty})
+3. Utilise les connaissances à jour en matière de bonnes pratiques de cybersécurité
+4. Si l'utilisateur mentionne spécifiquement un contact (${targetContact || "aucun"}), réponds en tant que cette personne
+5. Si l'utilisateur semble prêt à prendre une décision importante, fournir une structure de décision claire
+6. Évite de mentionner que tu es une IA ou un assistant, reste dans ton rôle
+`;
+
+      // Préparer les messages pour l'API
+      const messages: ChatCompletionRequestMessage[] = [
+        { role: "system", content: missionPrompt },
+        ...previousMessages.map((msg: any) => ({
+          role: msg.role,
+          content: msg.content
+        })),
+        { role: "user", content: userMessage }
+      ];
+      
+      // Appeler l'API OpenAI
+      const response = await openAIService.getChatCompletionWithCache(
+        messages,
+        temperature || 0.7,
+        maxTokens || 1000
       );
-
-      // Extraction du nom du personnage et de sa réponse
-      let responseContent = completion;
-      let sender = '';
-      let senderRole = '';
-
-      // Essayer d'extraire le nom et le rôle du personnage du format [Nom - Rôle]: Message
-      const responseMatch = responseContent.match(/^\[([^\]-]+)\s*-\s*([^\]]+)\]:\s*([\s\S]+)$/);
-      if (responseMatch) {
-        sender = responseMatch[1].trim();
-        senderRole = responseMatch[2].trim();
-        responseContent = responseMatch[3].trim();
+      
+      // Analyser le contenu de la réponse pour déterminer le contact et le style
+      let sender = "Expert";
+      let senderRole = "Cybersécurité";
+      
+      // Si un contact spécifique a été ciblé, utiliser ce contact comme expéditeur
+      if (targetContact) {
+        const contact = missionContext.contacts.find((c: any) => c.name === targetContact);
+        if (contact) {
+          sender = contact.name;
+          senderRole = contact.role;
+        }
       } else {
-        // Rechercher parmi les contacts disponibles
+        // Sinon, déterminer un contact approprié en fonction du contexte
+        const keyword = userMessage.toLowerCase();
+        
+        // Associer des mots-clés aux contacts pour une réponse contextuelle
         for (const contact of missionContext.contacts) {
-          if (responseContent.includes(contact.name) && (responseContent.includes(contact.role) || responseContent.includes(contact.role.split(' ')[0]))) {
+          const expertise = contact.expertise.toLowerCase();
+          if (keyword.includes(expertise.split(' ')[0]) || 
+              keyword.includes(contact.name.split(' ')[0].toLowerCase())) {
             sender = contact.name;
             senderRole = contact.role;
-            // Essayer de nettoyer la réponse si possible
-            const cleanMatch = responseContent.match(new RegExp(`${contact.name}\\s*\\([^)]*\\):\\s*([\s\S]+)`));
-            if (cleanMatch) {
-              responseContent = cleanMatch[1].trim();
-            }
             break;
           }
         }
-
-        // Si un personnage était ciblé mais n'a pas été détecté dans la réponse
-        if (detectedTarget && !sender) {
-          const targetContact = missionContext.contacts.find((c: any) => c.name === detectedTarget);
-          if (targetContact) {
-            sender = targetContact.name;
-            senderRole = targetContact.role;
-          }
-        }
-
-        // Si aucun contact n'est trouvé, utiliser un contact pertinent selon le contexte actuel
-        if (!sender) {
-          // Choix basé sur l'objectif actuel
-          if (currentObjective === 0 || userMessage.toLowerCase().includes('log') || userMessage.toLowerCase().includes('analyse')) {
-            // Pour l'évaluation de la compromission, privilégier l'analyste SOC
-            const analyste = missionContext.contacts.find((c: any) => c.role.includes('SOC') || c.role.includes('Analyste'));
-            if (analyste) {
-              sender = analyste.name;
-              senderRole = analyste.role;
-            }
-          } else if (currentObjective === 1 || userMessage.toLowerCase().includes('système') || userMessage.toLowerCase().includes('accès')) {
-            // Pour la contention, privilégier l'admin système
-            const admin = missionContext.contacts.find((c: any) => c.role.includes('Système') || c.role.includes('Admin'));
-            if (admin) {
-              sender = admin.name;
-              senderRole = admin.role;
-            }
-          } else if (currentObjective === 2 || userMessage.toLowerCase().includes('communi') || userMessage.toLowerCase().includes('informer')) {
-            // Pour la communication, privilégier le responsable communication
-            const comm = missionContext.contacts.find((c: any) => c.role.includes('Communication'));
-            if (comm) {
-              sender = comm.name;
-              senderRole = comm.role;
-            }
-          } else {
-            // Par défaut, choisir un contact aléatoire mais pertinent
-            const randomContact = missionContext.contacts[Math.floor(Math.random() * missionContext.contacts.length)];
-            sender = randomContact.name;
-            senderRole = randomContact.role;
-          }
-        }
       }
-
-      // Nettoyer le texte des balises markdown superflues
-      responseContent = responseContent
-        .replace(/^\*\*([^*]+)\*\*:/gm, '$1:') // Enlever le gras des titres de section
-        .replace(/\*\*\*\*/g, '') // Enlever les doubles **
-        .replace(/\*\*([^*]+)\*\*([^a-zA-Z0-9])/g, '$1$2') // Réduire l'usage du gras
-        .replace(/\n\s*\n\s*\n/g, '\n\n'); // Réduire les espaces excessifs
-
-      // Ajouter occasionnellement une réaction d'un autre PNJ
-      let additionalResponse = null;
-      const shouldAddReaction = Math.random() < 0.3; // 30% de chance
       
-      if (shouldAddReaction && messages.length > 3) {
-        // Sélectionner un PNJ différent pour la réaction
+      // Déterminer s'il faut déclencher une décision
+      let decision = null;
+      const shouldTriggerDecision = response.toLowerCase().includes('décision') || 
+                                   response.toLowerCase().includes('choix') ||
+                                   response.toLowerCase().includes('options') ||
+                                   response.toLowerCase().includes('alternatives');
+      
+      if (shouldTriggerDecision && missionContext.objectives[currentObjective]?.decisions?.length > 0) {
+        // Prendre la première décision disponible pour l'objectif actuel
+        decision = missionContext.objectives[currentObjective].decisions[0];
+      }
+      
+      // Déterminer si une réponse additionnelle d'un autre contact est appropriée
+      let additionalResponse = null;
+      const shouldAddColleagueResponse = Math.random() > 0.7; // 30% de chance d'avoir une réponse additionnelle
+      
+      if (shouldAddColleagueResponse && !decision) {
+        // Sélectionner un contact différent du premier répondant
         const availableContacts = missionContext.contacts.filter((c: any) => c.name !== sender);
+        
         if (availableContacts.length > 0) {
-          const reactingContact = availableContacts[Math.floor(Math.random() * availableContacts.length)];
+          const selectedContact = availableContacts[Math.floor(Math.random() * availableContacts.length)];
           
-          // Générer une brève réaction basée sur le contexte
-          const reactionPrompt = `
-Tu es ${reactingContact.name}, ${reactingContact.role} dans une équipe de gestion de crise cybersécurité.
-Ton collègue ${sender} vient de dire au RSSI: "${responseContent.substring(0, 200)}..."
+          // Créer un prompt pour la réponse additionnelle
+          const colleaguePrompt = `
+Tu es ${selectedContact.name}, ${selectedContact.role} dans l'entreprise. 
+Tu dois réagir brièvement (2-3 phrases maximum) au message de ${sender} qui vient de dire: "${response}".
+Ta réaction doit être cohérente avec ton rôle et ton expertise en ${selectedContact.expertise}.
+Réponds directement sans introduction ni formule de politesse, comme si tu intervenais dans une conversation.`;
 
-Donne une très brève réaction (maximum 2 phrases) ou complément d'information en tant que ${reactingContact.name}.
-Ta réponse doit être concise et apporter une nouvelle perspective ou information. Ne répète pas ce que ${sender} a déjà dit.`;
-
-          try {
-            const reactionResponse = await openAIService.getChatCompletion(
-              [{ role: "system", content: reactionPrompt },
-               { role: "user", content: "Quelle est ta réaction à ce message, en une ou deux phrases?" }] as ChatCompletionRequestMessage[],
-              0.7,
-              200
-            );
-            
-            additionalResponse = {
-              response: reactionResponse.replace(/^.*?:\s*/g, '').trim(), // Enlever les préfixes éventuels
-              sender: reactingContact.name,
-              senderRole: reactingContact.role
-            };
-          } catch (error) {
-            console.log('Erreur lors de la génération de la réaction:', error);
-            // Si erreur, pas de réaction additionnelle
-          }
+          const colleagueMessages: ChatCompletionRequestMessage[] = [
+            { role: "system", content: colleaguePrompt },
+            { role: "user", content: "Génère une réaction courte et professionnelle" }
+          ];
+          
+          const colleagueResponse = await openAIService.getChatCompletionWithCache(
+            colleagueMessages,
+            0.8, // Légèrement plus créatif
+            200  // Réponse courte
+          );
+          
+          additionalResponse = {
+            response: colleagueResponse,
+            sender: selectedContact.name,
+            senderRole: selectedContact.role
+          };
         }
       }
-
+      
+      // Retourner la réponse complète
       res.json({
-        response: responseContent,
+        response,
         sender,
         senderRole,
-        additionalResponse
+        additionalResponse,
+        decision
       });
-    } catch (error: any) {
-      console.error('Erreur lors de la communication avec Azure OpenAI pour cyber defense:', error);
       
-      // Gestion des erreurs spécifiques d'OpenAI
-      if (error.status === 401) {
-        res.status(401).json({ error: 'Erreur d\'authentification API Azure. Vérifiez votre clé API.' });
-      } else if (error.status === 429) {
-        res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
-      } else {
-        res.status(500).json({ error: 'Erreur lors de la génération de la réponse' });
+    } catch (error: any) {
+      console.error('Error generating cyber defense response:', error);
+      res.status(500).json({ 
+        error: error.message || 'Error generating cyber defense response'
+      });
+    }
+  });
+  
+  // API pour évaluer les décisions prises dans le module Cyber Defense
+  app.post('/api/cyber-defense/evaluate-decision', async (req: Request, res: Response) => {
+    try {
+      const { 
+        missionId, 
+        missionContext, 
+        decisionId, 
+        choiceId, 
+        currentObjective,
+        userRole
+      } = req.body;
+      
+      if (!missionId || !decisionId || !choiceId) {
+        return res.status(400).json({ message: 'Informations de décision requises' });
       }
+      
+      // Trouver la décision et l'option choisie
+      const objective = missionContext.objectives.find((obj: any) => obj.id === currentObjective);
+      const decision = objective?.decisions.find((d: any) => d.id === decisionId);
+      const choice = decision?.options.find((opt: any) => opt.id === choiceId);
+      
+      if (!decision || !choice) {
+        return res.status(404).json({ message: 'Décision ou choix non trouvé' });
+      }
+      
+      // Mettre à jour la mission avec le choix effectué
+      const updatedMission = { ...missionContext };
+      const objectiveIndex = updatedMission.objectives.findIndex((obj: any) => obj.id === currentObjective);
+      const decisionIndex = updatedMission.objectives[objectiveIndex].decisions.findIndex((d: any) => d.id === decisionId);
+      
+      // Marquer la décision comme prise
+      updatedMission.objectives[objectiveIndex].decisions[decisionIndex].madeChoice = choiceId;
+      
+      // Ajuster le score de la mission
+      updatedMission.currentScore = (updatedMission.currentScore || 0) + choice.score;
+      
+      // Déterminer si l'objectif est complété (ici nous considérons qu'une bonne décision complète l'objectif)
+      const objectiveCompleted = choice.score > 0;
+      
+      // Si l'objectif est complété, le marquer comme tel
+      if (objectiveCompleted) {
+        updatedMission.objectives[objectiveIndex].completed = true;
+      }
+      
+      // Sélectionner un superviseur pour l'évaluation
+      const supervisor = missionContext.supervisors?.[Math.floor(Math.random() * missionContext.supervisors.length)] || {
+        name: "Direction",
+        role: "Comité de direction"
+      };
+      
+      // Générer l'évaluation de la décision avec OpenAI
+      const evaluationPrompt = `
+Tu es ${supervisor.name}, ${supervisor.role} dans une organisation. Tu dois évaluer une décision prise par ${userRole} dans le cadre d'une mission de cybersécurité.
+
+Contexte de la décision:
+- Mission: ${missionContext.title}
+- Objectif: ${objective?.description}
+- Décision à prendre: ${decision.description}
+- Option choisie: ${choice.text}
+
+Conséquences connues de ce choix:
+- Points positifs: ${choice.consequences.positive.join(', ')}
+- Points négatifs: ${choice.consequences.negative.join(', ')}
+- Impact sur le score: ${choice.score > 0 ? 'Positif' : choice.score < 0 ? 'Négatif' : 'Neutre'}
+
+Ta tâche:
+Rédige une évaluation concise (3-4 phrases) de cette décision du point de vue de ${supervisor.name}. 
+${choice.score > 0 ? 'Félicite pour ce bon choix tout en soulignant les aspects positifs.' : 
+  choice.score < 0 ? 'Soulève poliment les problèmes de ce choix et suggère ce qui aurait pu être mieux fait.' : 
+  'Donne un feedback nuancé, reconnaissant les aspects positifs mais suggérant des améliorations.'}
+
+Réponds directement à la première personne comme si tu étais ${supervisor.name} qui s'adresse au ${userRole}.`;
+
+      const evaluationMessages: ChatCompletionRequestMessage[] = [
+        { role: "system", content: evaluationPrompt },
+        { role: "user", content: "Génère une évaluation professionnelle de cette décision" }
+      ];
+      
+      const evaluationContent = await openAIService.getChatCompletionWithCache(
+        evaluationMessages,
+        0.7,
+        400
+      );
+      
+      // Retourner l'évaluation et la mission mise à jour
+      res.json({
+        evaluation: {
+          content: evaluationContent,
+          supervisor: supervisor.name,
+          supervisorRole: supervisor.role,
+          objectiveCompleted
+        },
+        updatedMission
+      });
+      
+    } catch (error: any) {
+      console.error('Error evaluating decision:', error);
+      res.status(500).json({ 
+        error: error.message || 'Error evaluating decision'
+      });
     }
   });
 

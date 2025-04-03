@@ -17,32 +17,15 @@ import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import { useChatContext } from '@/contexts/ChatContext';
 
-// Types
-interface Message {
-  id: string;
-  role: "system" | "user" | "assistant";
-  content: string;
-  sender?: string;
-  senderRole?: string;
-  timestamp: number;
-  additionalResponse?: boolean; // Indique si ce message est une réaction à un message précédent
-}
-
-interface Mission {
-  id: string;
-  title: string;
-  description: string;
-  difficulty: "Débutant" | "Intermédiaire" | "Expert";
-  duration: string;
-  tags: string[];
-  scenario: string;
-  objectives: string[];
-  contacts: Array<{
-    name: string;
-    role: string;
-    expertise: string;
-  }>;
-}
+// Import des types depuis le module partagé
+import { 
+  Mission, 
+  Message, 
+  Contact, 
+  Objective, 
+  Decision 
+} from '../../../shared/types/cyber';
+import { cyberDefenseMissions, getMissionById, exampleMission } from '../data/cyber-defense-missions';
 
 // Mapping des couleurs de fond en fonction du niveau de difficulté
 const difficultyColor = {
@@ -174,40 +157,21 @@ export default function CyberDefenseMission() {
   const [currentObjective, setCurrentObjective] = useState(0);
   const { userName } = useChatContext();
   
-  // Données de la mission (à terme, ces données devraient être chargées dynamiquement en fonction de l'ID de mission)
-  const mission: Mission = {
-    id: missionId || '',
-    title: "Contrer une campagne de phishing massive",
-    description: "Une campagne de phishing sophistiquée cible les employés de votre entreprise. En tant que responsable de la sécurité, vous devez prendre rapidement les bonnes décisions pour limiter l'impact et protéger l'organisation.",
-    difficulty: "Débutant",
-    duration: "15-20 min",
-    tags: ["Phishing", "Sensibilisation", "Communication de crise"],
-    scenario: "Une vague de messages frauduleux contenant des liens malveillants est envoyée aux employés de CyberTech Solutions sous couvert d'une urgence concernant leurs avantages sociaux. Plusieurs collaborateurs ont déjà cliqué sur les liens et fourni leurs identifiants professionnels. L'équipe cybersécurité commence à détecter des connexions suspectes provenant de localisations inhabituelles.",
-    objectives: [
-      "Évaluer l'ampleur de la compromission",
-      "Contenir la menace et bloquer l'attaque",
-      "Mettre en place une communication efficace",
-      "Récupérer les systèmes affectés",
-      "Proposer des mesures préventives"
-    ],
-    contacts: [
-      {
-        name: "Sophie Dupont",
-        role: "Analyste SOC",
-        expertise: "Détection d'intrusion et analyse de logs"
-      },
-      {
-        name: "Marc Lefort",
-        role: "Administrateur Système",
-        expertise: "Infrastructure et gestion des accès"
-      },
-      {
-        name: "Jeanne Martin",
-        role: "Responsable Communication",
-        expertise: "Communication interne et gestion de crise"
+  // Charger la mission à partir de l'ID ou utiliser la mission d'exemple
+  const [mission, setMission] = useState<Mission>(exampleMission);
+  const [currentDecision, setCurrentDecision] = useState<Decision | null>(null);
+  const [showDecisionOptions, setShowDecisionOptions] = useState(false);
+  const [currentObjectiveIndex, setCurrentObjectiveIndex] = useState(0);
+  
+  // Charger la mission en fonction de l'ID
+  useEffect(() => {
+    if (missionId) {
+      const loadedMission = getMissionById(missionId);
+      if (loadedMission) {
+        setMission(loadedMission);
       }
-    ]
-  };
+    }
+  }, [missionId]);
   
   // Initialisation de la mission
   useEffect(() => {
@@ -220,15 +184,15 @@ export default function CyberDefenseMission() {
 
 Bonjour ${userName || "RSSI"},
 
-Nous sommes le ${new Date().toLocaleDateString()} et notre équipe vient de détecter une campagne de phishing sophistiquée ciblant les employés de CyberTech Solutions.
+Nous sommes le ${new Date().toLocaleDateString()} et notre équipe vient de détecter une situation critique qui requiert votre attention immédiate.
 
-En tant que RSSI (Responsable de la Sécurité des Systèmes d'Information), vous dirigez l'équipe de gestion de crise et êtes le décideur principal. Les membres de l'équipe suivent vos directives et attendent vos instructions.
+En tant que ${mission.userRole}, vous êtes responsable de la gestion de cette situation. Les membres de l'équipe suivent vos directives et attendent vos instructions.
 
 Contexte:
 ${mission.scenario}
 
 Vos objectifs:
-${mission.objectives.map((obj, i) => `${i+1}. ${obj}`).join('\n')}
+${mission.objectives.map((obj, i) => `${i+1}. ${obj.description}`).join('\n')}
 
 Votre équipe est mobilisée et attend vos instructions. Comment souhaitez-vous procéder ?`,
         sender: "Système",
@@ -324,7 +288,8 @@ Vous pouvez vous adresser directement à un membre de l'équipe en mentionnant s
         response: responseContent, 
         sender, 
         senderRole,
-        additionalResponse // Récupération de la réponse additionnelle
+        additionalResponse, // Récupération de la réponse additionnelle
+        decision // Nouvelle propriété pour les décisions
       } = response.data;
       
       // Mettre à jour la progression en fonction des mots-clés dans la réponse et l'objectif actuel
@@ -434,6 +399,14 @@ Souhaitez-vous :
         return newMessages;
       });
       setLoading(false);
+      
+      // Si une décision est demandée, afficher le panneau de décision
+      if (decision) {
+        setCurrentDecision(decision);
+        setTimeout(() => {
+          setShowDecisionOptions(true);
+        }, 1000); // Délai d'animation pour permettre au message de s'afficher
+      }
       
     } catch (error) {
       console.error('Error sending message:', error);
@@ -554,6 +527,125 @@ Souhaitez-vous :
               )}
             </div>
             
+            {/* Panneau de décision */}
+            {showDecisionOptions && currentDecision && (
+              <div className="border-t border-gray-200 bg-gray-50 p-4">
+                <div className="mb-3">
+                  <h3 className="font-semibold text-lg mb-2">{currentDecision.description}</h3>
+                  <p className="text-gray-600 text-sm mb-4">Votre décision aura un impact sur le déroulement de la mission</p>
+                  
+                  <div className="space-y-3">
+                    {currentDecision.options.map(option => (
+                      <button
+                        key={option.id}
+                        className="w-full text-left bg-white border border-gray-300 hover:bg-gray-50 p-3 rounded-md transition-colors"
+                        onClick={async () => {
+                          // Traiter le choix
+                          setShowDecisionOptions(false);
+                          setLoading(true);
+                          
+                          // Ajouter le message de décision
+                          const decisionMessage: Message = {
+                            id: uuidv4(),
+                            role: "user",
+                            content: `J'ai décidé de : ${option.text}`,
+                            timestamp: Date.now()
+                          };
+                          
+                          setMessages(prev => [...prev, decisionMessage]);
+                          
+                          try {
+                            // Appel à l'API pour évaluer la décision
+                            const response = await axios.post('/api/cyber-defense/evaluate-decision', {
+                              missionId: mission.id,
+                              missionContext: mission,
+                              decisionId: currentDecision.id,
+                              choiceId: option.id,
+                              currentObjective: currentObjectiveIndex,
+                              userRole: mission.userRole
+                            });
+                            
+                            const { evaluation, updatedMission } = response.data;
+                            
+                            // Mettre à jour la mission avec les nouvelles informations
+                            setMission(updatedMission);
+                            
+                            // Créer le message d'évaluation
+                            const evaluationMessage: Message = {
+                              id: uuidv4(),
+                              role: "assistant",
+                              content: evaluation.content,
+                              sender: evaluation.supervisor,
+                              senderRole: evaluation.supervisorRole,
+                              timestamp: Date.now(),
+                              evaluation: true
+                            };
+                            
+                            setMessages(prev => [...prev, evaluationMessage]);
+                            
+                            // Si l'objectif est complété, passer au suivant
+                            if (evaluation.objectiveCompleted) {
+                              setCurrentObjectiveIndex(prev => prev + 1);
+                              setProgress(prev => Math.min(100, prev + Math.floor(100 / mission.objectives.length)));
+                              
+                              // Message de félicitations pour l'objectif complété
+                              const completionMessage: Message = {
+                                id: uuidv4(),
+                                role: "assistant",
+                                content: `Objectif complété : ${mission.objectives[currentObjectiveIndex].description}`,
+                                sender: "Système",
+                                senderRole: "Progression",
+                                timestamp: Date.now()
+                              };
+                              
+                              setMessages(prev => [...prev, completionMessage]);
+                            }
+                            
+                            setLoading(false);
+                            
+                          } catch (error) {
+                            console.error('Error evaluating decision:', error);
+                            setLoading(false);
+                            
+                            // Message d'erreur
+                            const errorMessage: Message = {
+                              id: uuidv4(),
+                              role: "assistant",
+                              content: "Une erreur s'est produite lors de l'évaluation de votre décision.",
+                              sender: "Système",
+                              senderRole: "Erreur",
+                              timestamp: Date.now()
+                            };
+                            
+                            setMessages(prev => [...prev, errorMessage]);
+                          }
+                        }}
+                      >
+                        <div className="font-medium">{option.text}</div>
+                        {option.score > 0 ? (
+                          <div className="text-xs mt-1 text-green-600">Impact: +{option.score} points</div>
+                        ) : option.score < 0 ? (
+                          <div className="text-xs mt-1 text-red-600">Impact: {option.score} points</div>
+                        ) : (
+                          <div className="text-xs mt-1 text-gray-500">Impact neutre</div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="flex justify-end">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setShowDecisionOptions(false)}
+                  >
+                    Annuler
+                  </Button>
+                </div>
+              </div>
+            )}
+            
             {/* Input */}
             <div className="border-t border-gray-200 bg-white p-4">
               <form onSubmit={handleSubmit} className="flex space-x-2">
@@ -563,11 +655,11 @@ Souhaitez-vous :
                   onChange={(e) => setUserInput(e.target.value)}
                   placeholder="Tapez votre message..."
                   className="flex-1 py-2 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  disabled={loading}
+                  disabled={loading || showDecisionOptions}
                 />
                 <Button 
                   type="submit" 
-                  disabled={loading || !userInput.trim()}
+                  disabled={loading || !userInput.trim() || showDecisionOptions}
                   className="bg-green-600 hover:bg-green-700"
                 >
                   <Send className="h-5 w-5" />
@@ -611,7 +703,7 @@ Souhaitez-vous :
                                 ? 'text-gray-900 font-medium'
                                 : 'text-gray-600'
                           }`}>
-                            {objective}
+                            {objective.description}
                           </p>
                         </div>
                       </div>
@@ -703,7 +795,7 @@ Souhaitez-vous :
                               ? 'text-gray-900 font-medium'
                               : 'text-gray-600'
                         }`}>
-                          {objective}
+                          {objective.description}
                         </p>
                       </div>
                     </div>

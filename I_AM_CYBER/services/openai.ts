@@ -28,43 +28,49 @@ class OpenAIService {
   
   constructor() {
     try {
-      // Utiliser directement les valeurs fournies par l'utilisateur (configuration primaire - GPT-4o)
+      // Récupérer la clé API OpenAI depuis les variables d'environnement
+      const apiKey = process.env.OPENAI_API_KEY || "";
+      console.log("Using API key starting with:", apiKey.substring(0, 5) + "...");
+      
+      // Configuration primaire - Utiliser OpenAI directement au lieu d'Azure
       this.primaryConfig = {
-        endpoint: "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com",
-        apiKey: "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK",
-        deploymentName: "Eddy-deploy-20-02-2025-gpt-4o",
-        apiVersion: "2024-12-01-preview",
+        endpoint: "https://api.openai.com/v1",
+        apiKey: apiKey,
+        deploymentName: "gpt-4o",
+        apiVersion: "2023-05-15",  // Version de l'API OpenAI
         modelName: "gpt-4o"
       };
       
-      // Configuration secondaire - GPT-4o-mini
+      // Configuration secondaire - Utiliser un modèle moins coûteux
       this.secondaryConfig = {
-        endpoint: "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com",
-        apiKey: "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK",
-        deploymentName: "Eddy-02-2025-gpt-4o-mini",
-        apiVersion: "2024-12-01-preview",
-        modelName: "gpt-4o-mini"
+        endpoint: "https://api.openai.com/v1",
+        apiKey: apiKey,
+        deploymentName: "gpt-3.5-turbo",
+        apiVersion: "2023-05-15",
+        modelName: "gpt-3.5-turbo"
       };
       
       console.log(`OpenAI Service initialized with primary model: ${this.primaryConfig.modelName}`);
       console.log(`OpenAI Service initialized with secondary model: ${this.secondaryConfig.modelName}`);
     } catch (error) {
       console.error("Error initializing OpenAI Service:", error);
-      // Initialiser avec les mêmes valeurs en cas d'erreur
+      // Utiliser une clé API de secours ou des valeurs par défaut en cas d'erreur
+      const apiKey = process.env.OPENAI_API_KEY || "";
+      
       this.primaryConfig = {
-        endpoint: "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com",
-        apiKey: "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK",
-        deploymentName: "Eddy-deploy-20-02-2025-gpt-4o",
-        apiVersion: "2024-12-01-preview",
+        endpoint: "https://api.openai.com/v1",
+        apiKey: apiKey,
+        deploymentName: "gpt-4o",
+        apiVersion: "2023-05-15",
         modelName: "gpt-4o"
       };
       
       this.secondaryConfig = {
-        endpoint: "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com",
-        apiKey: "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK",
-        deploymentName: "Eddy-02-2025-gpt-4o-mini",
-        apiVersion: "2024-12-01-preview",
-        modelName: "gpt-4o-mini"
+        endpoint: "https://api.openai.com/v1",
+        apiKey: apiKey,
+        deploymentName: "gpt-3.5-turbo",
+        apiVersion: "2023-05-15",
+        modelName: "gpt-3.5-turbo"
       };
     }
   }
@@ -131,23 +137,29 @@ class OpenAIService {
     
     while (retries >= 0) {
       try {
-        const url = `${config.endpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
+        // URL et headers différents selon que nous utilisons OpenAI ou Azure
+        let url, headers;
+        
+        // Configuration pour OpenAI standard (pas Azure)
+        url = `${config.endpoint}/chat/completions`;
+        headers = {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${config.apiKey}`
+        };
         
         console.log(`Using ${config.modelName} model for this request`);
         
         const response = await axios.post(
           url,
           {
+            model: config.deploymentName, // Pour OpenAI, on utilise "model" et non "deployment"
             messages,
             temperature,
             max_tokens: maxTokens,
             stream: false
           },
           {
-            headers: {
-              "Content-Type": "application/json",
-              "api-key": config.apiKey
-            },
+            headers,
             timeout: 30000 // Timeout de 30 secondes
           }
         );
@@ -159,7 +171,7 @@ class OpenAIService {
         return response.data.choices[0].message.content;
       } catch (error) {
         retries--;
-        console.error(`Error calling Azure OpenAI ${config.modelName} (retries left: ${retries}):`, error);
+        console.error(`Error calling OpenAI ${config.modelName} (retries left: ${retries}):`, error);
         
         if (axios.isAxiosError(error)) {
           // Si c'est une erreur 429 (rate limit) ou une erreur 5xx (serveur)
@@ -180,12 +192,12 @@ class OpenAIService {
         this.connectionStatus = 'disconnected';
         
         if (retries < 0) {
-          throw new Error(`Failed to get completion from Azure OpenAI ${config.modelName} after multiple attempts`);
+          throw new Error(`Failed to get completion from OpenAI ${config.modelName} after multiple attempts`);
         }
       }
     }
     
-    throw new Error(`Failed to get completion from Azure OpenAI ${config.modelName}`);
+    throw new Error(`Failed to get completion from OpenAI ${config.modelName}`);
   }
 
   // Outil de surveillance de la connexion
@@ -207,10 +219,11 @@ class OpenAIService {
       const config = this.getCurrentConfig();
       
       // Appel direct à l'API (sans passer par getChatCompletion pour éviter les retries)
-      const url = `${config.endpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
+      const url = `${config.endpoint}/chat/completions`;
       const response = await axios.post(
         url,
         {
+          model: config.deploymentName,
           messages: testMessage,
           temperature: 0.1,
           max_tokens: 10,
@@ -219,7 +232,7 @@ class OpenAIService {
         {
           headers: {
             "Content-Type": "application/json",
-            "api-key": config.apiKey
+            "Authorization": `Bearer ${config.apiKey}`
           },
           timeout: 10000 // Timeout court pour le health check
         }
@@ -229,10 +242,10 @@ class OpenAIService {
       this.connectionStatus = success ? 'connected' : 'disconnected';
       this.lastConnectionCheck = Date.now();
       
-      console.log(`Azure OpenAI connection status (${config.modelName}): ${this.connectionStatus}`);
+      console.log(`OpenAI connection status (${config.modelName}): ${this.connectionStatus}`);
       return success;
     } catch (error) {
-      console.error("Error checking Azure OpenAI connection:", error);
+      console.error("Error checking OpenAI connection:", error);
       this.connectionStatus = 'disconnected';
       return false;
     }
