@@ -39,6 +39,54 @@ export const exampleMission: Mission = {
   userRole: "RSSI (Responsable de la Sécurité des Systèmes d'Information)",
   currentScore: 0,
   
+  // Compétences requises et suivies durant cette mission
+  requiredSkills: ["gestion_crise", "analyse_risque", "communication", "decision_rapide", "forensique"],
+  skillsProgress: [
+    {
+      id: "gestion_crise",
+      name: "Gestion de crise",
+      description: "Capacité à gérer une situation d'urgence et à coordonner les actions",
+      category: "leadership",
+      level: 0,
+      icon: "Shield"
+    },
+    {
+      id: "analyse_risque",
+      name: "Analyse de risque",
+      description: "Capacité à identifier et évaluer les menaces potentielles",
+      category: "analyse",
+      level: 0,
+      icon: "AlertTriangle"
+    },
+    {
+      id: "communication",
+      name: "Communication de crise",
+      description: "Capacité à communiquer efficacement avec les parties prenantes",
+      category: "communication",
+      level: 0,
+      icon: "MessageCircle"
+    },
+    {
+      id: "decision_rapide",
+      name: "Prise de décision sous pression",
+      description: "Capacité à prendre des décisions éclairées en situation d'urgence",
+      category: "leadership",
+      level: 0,
+      icon: "Timer"
+    },
+    {
+      id: "forensique",
+      name: "Analyse forensique",
+      description: "Capacité à analyser les preuves numériques d'une attaque",
+      category: "technique",
+      level: 0,
+      icon: "Microscope"
+    }
+  ],
+  
+  // Événements d'apprentissage survenus durant la mission
+  learningEvents: [],
+  
   // Contacts disponibles pour cette mission
   contacts: [
     marionLopez,

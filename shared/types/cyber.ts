@@ -36,6 +36,29 @@ export interface Objective {
   requiredSkills?: string[]; // Compétences nécessaires pour réussir
 }
 
+// Définition des compétences mesurables
+export interface Skill {
+  id: string;
+  name: string;
+  description: string;
+  category: "technique" | "communication" | "leadership" | "analyse" | "stratégie";
+  level: number; // 0-100
+  icon?: string; // Nom de l'icône Lucide
+}
+
+// Définition d'un événement d'apprentissage
+export interface LearningEvent {
+  id: string;
+  timestamp: number;
+  description: string;
+  skillsImpacted: Array<{
+    skillId: string;
+    gainedPoints: number;
+  }>;
+  relatedDecisionId?: string;
+  relatedObjectiveId?: string;
+}
+
 export interface Mission {
   id: string;
   title: string;
@@ -55,6 +78,9 @@ export interface Mission {
     penalties: string[]; // Pénalités potentielles pour une mauvaise performance
   };
   currentScore?: number; // Score actuel accumulé par l'utilisateur
+  requiredSkills?: string[]; // Compétences recommandées pour cette mission
+  skillsProgress?: Skill[]; // Progression des compétences durant cette mission
+  learningEvents?: LearningEvent[]; // Événements d'apprentissage
 }
 
 export interface Message {
