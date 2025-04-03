@@ -25,6 +25,7 @@ interface Message {
   sender?: string;
   senderRole?: string;
   timestamp: number;
+  additionalResponse?: boolean; // Indique si ce message est une réaction à un message précédent
 }
 
 interface Mission {
@@ -51,42 +52,111 @@ const difficultyColor = {
 };
 
 // Composant pour un message dans le chat
-const ChatMessage = ({ message }: { message: Message }) => {
+const ChatMessage = ({ message, additionalResponse = null }: { 
+  message: Message, 
+  additionalResponse?: Message | null 
+}) => {
   const isUser = message.role === 'user';
+  const isSystem = message.sender === 'Système';
   
+  // Format du contenu avec Markdown simplifié
+  const formatContent = (content: string) => {
+    // Convertir les titres
+    let formattedContent = content
+      .replace(/^# (.*$)/gm, '<h1 class="text-xl font-bold mb-2">$1</h1>')
+      .replace(/^## (.*$)/gm, '<h2 class="text-lg font-semibold mb-1">$1</h2>')
+      .replace(/^### (.*$)/gm, '<h3 class="text-md font-medium mb-1">$1</h3>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')  // Gras
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')              // Italique
+      .replace(/```([\s\S]*?)```/g, '<pre class="bg-gray-800 text-gray-200 p-2 rounded my-2 overflow-auto text-sm">$1</pre>') // Code block
+      .replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1 rounded">$1</code>'); // Inline code
+      
+    // Listes à puces
+    formattedContent = formattedContent.replace(/^\s*[-•]\s+(.*$)/gm, '<li class="ml-4">$1</li>');
+    formattedContent = formattedContent.replace(/(<li.*?<\/li>)(?:\s*\n\s*)?(<li)/g, '$1$2');
+    formattedContent = formattedContent.replace(/(<li.*?<\/li>)(\s*\n\s*)?([^<])/g, '$1</ul>$3');
+    formattedContent = formattedContent.replace(/(?:^|\n)(<li)/g, '\n<ul>$1');
+    
+    // Listes numérotées
+    formattedContent = formattedContent.replace(/^\s*(\d+)\.\s+(.*$)/gm, '<li value="$1" class="ml-4">$2</li>');
+    formattedContent = formattedContent.replace(/(<li value=.*?<\/li>)(?:\s*\n\s*)?(<li value)/g, '$1$2');
+    formattedContent = formattedContent.replace(/(<li value=.*?<\/li>)(\s*\n\s*)?([^<])/g, '$1</ol>$3');
+    formattedContent = formattedContent.replace(/(?:^|\n)(<li value)/g, '\n<ol>$1');
+    
+    // Convertir les sauts de ligne simples en <br>
+    formattedContent = formattedContent.replace(/\n/g, '<br>');
+    
+    return formattedContent;
+  };
+  
+  // Déterminer la classe d'arrière-plan
+  let bgColorClass = isUser 
+    ? 'bg-green-600 text-white' 
+    : isSystem 
+      ? 'bg-blue-600 text-white' 
+      : 'bg-gray-100 text-gray-800';
+  
+  // Déterminer les classes pour les coins arrondis
+  let roundedClass = isUser
+    ? 'rounded-tl-xl rounded-tr-none rounded-bl-xl rounded-br-xl'
+    : 'rounded-tr-xl rounded-tl-none rounded-bl-xl rounded-br-xl';
+
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
-      <div className={`flex ${isUser ? 'flex-row-reverse' : 'flex-row'} items-start max-w-3xl`}>
-        {!isUser && message.sender && (
-          <Avatar className="mt-1 mr-3">
-            <AvatarFallback className="bg-blue-100 text-blue-700">
-              {message.sender.split(' ').map(word => word[0]).join('')}
-            </AvatarFallback>
-          </Avatar>
-        )}
-        
-        <div className={`${isUser 
-          ? 'bg-green-600 text-white rounded-tl-xl rounded-tr-none'
-          : 'bg-gray-100 text-gray-800 rounded-tr-xl rounded-tl-none'
-        } rounded-bl-xl rounded-br-xl p-4 shadow-sm`}
-        >
+    <>
+      <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`} key={message.id}>
+        <div className={`flex ${isUser ? 'flex-row-reverse' : 'flex-row'} items-start max-w-3xl`}>
           {!isUser && message.sender && (
-            <div className="flex items-center mb-2">
-              <span className="font-semibold">{message.sender}</span>
-              {message.senderRole && (
-                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full ml-2">
-                  {message.senderRole}
-                </span>
-              )}
-            </div>
+            <Avatar className="mt-1 mr-3">
+              <AvatarFallback className={`${isSystem ? 'bg-blue-200 text-blue-800' : 'bg-blue-100 text-blue-700'}`}>
+                {message.sender === 'Système' ? 'SYS' : message.sender.split(' ').map(word => word[0]).join('')}
+              </AvatarFallback>
+            </Avatar>
           )}
-          <div className="whitespace-pre-wrap">{message.content}</div>
-          <div className={`text-xs mt-2 ${isUser ? 'text-green-200' : 'text-gray-500'}`}>
-            {new Date(message.timestamp).toLocaleTimeString()}
+          
+          <div className={`${bgColorClass} ${roundedClass} p-4 shadow-sm`}>
+            {!isUser && message.sender && (
+              <div className="flex items-center mb-2">
+                <span className="font-semibold">{message.sender}</span>
+                {message.senderRole && (
+                  <span className={`text-xs ${isSystem ? 'bg-blue-300 text-blue-900' : 'bg-blue-100 text-blue-700'} px-2 py-0.5 rounded-full ml-2`}>
+                    {message.senderRole}
+                  </span>
+                )}
+              </div>
+            )}
+            <div className="markdown-content" dangerouslySetInnerHTML={{ __html: formatContent(message.content) }} />
+            <div className={`text-xs mt-2 ${isUser ? 'text-green-200' : isSystem ? 'text-blue-200' : 'text-gray-500'}`}>
+              {new Date(message.timestamp).toLocaleTimeString()}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+      
+      {/* Affichage d'une réaction additionnelle si présente */}
+      {additionalResponse && (
+        <div className="flex justify-start mb-4 ml-8">
+          <div className="flex flex-row items-start max-w-3xl">
+            <Avatar className="mt-1 mr-3">
+              <AvatarFallback className="bg-blue-100 text-blue-700">
+                {additionalResponse.sender && additionalResponse.sender.split(' ').map(word => word[0]).join('')}
+              </AvatarFallback>
+            </Avatar>
+            
+            <div className="bg-gray-50 text-gray-800 rounded-xl p-3 shadow-sm border border-gray-200">
+              <div className="flex items-center mb-1">
+                <span className="font-semibold">{additionalResponse.sender || 'Collègue'}</span>
+                <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full ml-2">
+                  {additionalResponse.senderRole || 'Expert'}
+                </span>
+              </div>
+              <div className="text-sm italic">
+                {additionalResponse.content || ""}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
@@ -142,41 +212,55 @@ export default function CyberDefenseMission() {
   // Initialisation de la mission
   useEffect(() => {
     if (messages.length === 0) {
-      // Message d'introduction de présentation du scénario
+      // Message d'introduction présentant le contexte, le rôle du joueur et la mission
       const introMessage: Message = {
         id: uuidv4(),
         role: "assistant",
         content: `# Alerte de Cybersécurité
-        
-Bonjour ${userName || "Responsable Cybersécurité"},
 
-Nous sommes le ${new Date().toLocaleDateString()} et une campagne de phishing sophistiquée vient d'être détectée ciblant les employés de CyberTech Solutions. Plusieurs collaborateurs ont déjà cliqué sur les liens malveillants et fourni leurs identifiants.
+Bonjour ${userName || "RSSI"},
 
-En tant que responsable cybersécurité, vous êtes chargé(e) de gérer cette crise.
+Nous sommes le ${new Date().toLocaleDateString()} et notre équipe vient de détecter une campagne de phishing sophistiquée ciblant les employés de CyberTech Solutions.
 
-**Contexte:**
+En tant que RSSI (Responsable de la Sécurité des Systèmes d'Information), vous dirigez l'équipe de gestion de crise et êtes le décideur principal. Les membres de l'équipe suivent vos directives et attendent vos instructions.
+
+Contexte:
 ${mission.scenario}
 
-**Vos objectifs:**
+Vos objectifs:
 ${mission.objectives.map((obj, i) => `${i+1}. ${obj}`).join('\n')}
 
 Votre équipe est mobilisée et attend vos instructions. Comment souhaitez-vous procéder ?`,
+        sender: "Système",
+        senderRole: "Briefing de mission",
         timestamp: Date.now()
       };
       
-      // Message de présentation des contacts disponibles
+      // Message de présentation des contacts disponibles avec une clara hiérarchie
       const contactMessage: Message = {
         id: uuidv4(),
         role: "assistant",
-        content: `**Interlocuteurs disponibles:**
-        
-Vous pouvez échanger avec les experts suivants pour les aider à prendre les bonnes décisions :
+        content: `# Structure de l'équipe de crise
+
+Votre équipe est composée des experts suivants:
 
 ${mission.contacts.map(contact => 
-  `- **${contact.name}** (${contact.role}) - ${contact.expertise}`
+  `• ${contact.name} (${contact.role}) - ${contact.expertise}`
 ).join('\n')}
 
-Pour commencer, vous pourriez demander un rapport de situation à Sophie Dupont (Analyste SOC) ou discuter de mesures immédiates avec Marc Lefort (Administrateur Système).`,
+Structure hiérarchique:
+• Vous (RSSI) dirigez l'équipe et prenez les décisions finales
+• Sophie Dupont et Marc Lefort sont sous votre supervision directe
+• Jeanne Martin collabore avec l'équipe mais doit valider ses actions avec vous
+
+Pour démarrer cette mission, vous pouvez:
+• Demander un rapport de situation à Sophie Dupont 
+• Discuter des mesures immédiates avec Marc Lefort
+• Préparer la communication de crise avec Jeanne Martin
+
+Vous pouvez vous adresser directement à un membre de l'équipe en mentionnant son nom.`,
+        sender: "Système",
+        senderRole: "Briefing de mission",
         timestamp: Date.now()
       };
       
@@ -211,6 +295,19 @@ Pour commencer, vous pourriez demander un rapport de situation à Sophie Dupont 
       // Préparer les 5 derniers messages pour le contexte tout en limitant la taille
       const recentMessages = messages.slice(-5);
       
+      // Détection si le message est adressé à un PNJ spécifique
+      let targetContact = null;
+      const lowerCaseInput = userInput.toLowerCase();
+      for (const contact of mission.contacts) {
+        const firstName = contact.name.split(' ')[0].toLowerCase();
+        const lastName = contact.name.split(' ').length > 1 ? contact.name.split(' ')[1].toLowerCase() : '';
+        
+        if (lowerCaseInput.includes(firstName) || (lastName && lowerCaseInput.includes(lastName))) {
+          targetContact = contact.name;
+          break;
+        }
+      }
+      
       // Appel à l'API pour obtenir une réponse des personnages
       const response = await axios.post('/api/cyber-defense/chat', {
         userMessage: userInput,
@@ -218,11 +315,17 @@ Pour commencer, vous pourriez demander un rapport de situation à Sophie Dupont 
         missionContext: mission,
         currentObjective: currentObjective,
         previousMessages: recentMessages,
+        targetContact: targetContact, // Ajouter le PNJ ciblé si détecté
         temperature: 0.8,
         maxTokens: 1000
       });
       
-      const { response: responseContent, sender, senderRole } = response.data;
+      const { 
+        response: responseContent, 
+        sender, 
+        senderRole,
+        additionalResponse // Récupération de la réponse additionnelle
+      } = response.data;
       
       // Mettre à jour la progression en fonction des mots-clés dans la réponse et l'objectif actuel
       // Objectif 1: Évaluer l'ampleur de la compromission
@@ -300,7 +403,7 @@ Souhaitez-vous :
         }, 2000);
       }
       
-      // Créer le message de réponse
+      // Créer le message de réponse principal
       const botMessage: Message = {
         id: uuidv4(),
         role: "assistant",
@@ -310,8 +413,25 @@ Souhaitez-vous :
         timestamp: Date.now()
       };
       
-      // Ajouter la réponse aux messages
-      setMessages(prev => [...prev, botMessage]);
+      // Si une réponse additionnelle est présente, créer un message supplémentaire
+      let updatedMessages = [...messages, botMessage];
+      
+      if (additionalResponse) {
+        const additionalMessage: Message = {
+          id: uuidv4(),
+          role: "assistant",
+          content: additionalResponse.response || "",
+          sender: additionalResponse.sender || "Collègue",
+          senderRole: additionalResponse.senderRole || "Expert",
+          timestamp: Date.now() + 500, // légèrement décalé pour l'ordre d'affichage
+          additionalResponse: true // Marquer comme réponse additionnelle
+        };
+        
+        updatedMessages.push(additionalMessage);
+      }
+      
+      // Ajouter la réponse (et éventuellement la réaction) aux messages
+      setMessages(updatedMessages);
       setLoading(false);
       
     } catch (error) {
@@ -404,9 +524,24 @@ Souhaitez-vous :
               className="flex-1 overflow-y-auto p-4 md:p-6"
               style={{ maxHeight: 'calc(100vh - 64px - 80px)' }}
             >
-              {messages.map(message => (
-                <ChatMessage key={message.id} message={message} />
-              ))}
+              {messages.map((message, index) => {
+                // Vérifier si le message suivant est une réaction additionnelle
+                const hasAdditionalResponse = index < messages.length - 1 && 
+                  messages[index + 1].additionalResponse === true;
+                
+                // Si ce message a une réponse additionnelle, l'afficher
+                if (message.additionalResponse === true) {
+                  return null; // Ne pas afficher les réactions additionnelles comme des messages indépendants
+                }
+                
+                return (
+                  <ChatMessage 
+                    key={message.id} 
+                    message={message} 
+                    additionalResponse={hasAdditionalResponse ? messages[index + 1] : null} 
+                  />
+                );
+              })}
               
               {loading && (
                 <div className="flex justify-start mb-4">

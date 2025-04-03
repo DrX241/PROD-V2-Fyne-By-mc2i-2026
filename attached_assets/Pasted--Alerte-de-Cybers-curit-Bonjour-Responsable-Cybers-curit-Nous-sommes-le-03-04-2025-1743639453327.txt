@@ -1,0 +1,121 @@
+# Alerte de Cybersécurité
+        
+Bonjour Responsable Cybersécurité,
+
+Nous sommes le 03/04/2025 et une campagne de phishing sophistiquée vient d'être détectée ciblant les employés de CyberTech Solutions. Plusieurs collaborateurs ont déjà cliqué sur les liens malveillants et fourni leurs identifiants.
+
+En tant que responsable cybersécurité, vous êtes chargé(e) de gérer cette crise.
+
+**Contexte:**
+Une vague de messages frauduleux contenant des liens malveillants est envoyée aux employés de CyberTech Solutions sous couvert d'une urgence concernant leurs avantages sociaux. Plusieurs collaborateurs ont déjà cliqué sur les liens et fourni leurs identifiants professionnels. L'équipe cybersécurité commence à détecter des connexions suspectes provenant de localisations inhabituelles.
+
+**Vos objectifs:**
+1. Évaluer l'ampleur de la compromission
+2. Contenir la menace et bloquer l'attaque
+3. Mettre en place une communication efficace
+4. Récupérer les systèmes affectés
+5. Proposer des mesures préventives
+
+Votre équipe est mobilisée et attend vos instructions. Comment souhaitez-vous procéder ?
+02:14:54
+**Interlocuteurs disponibles:**
+        
+Vous pouvez échanger avec les experts suivants pour les aider à prendre les bonnes décisions :
+
+- **Sophie Dupont** (Analyste SOC) - Détection d'intrusion et analyse de logs
+- **Marc Lefort** (Administrateur Système) - Infrastructure et gestion des accès
+- **Jeanne Martin** (Responsable Communication) - Communication interne et gestion de crise
+
+Pour commencer, vous pourriez demander un rapport de situation à Sophie Dupont (Analyste SOC) ou discuter de mesures immédiates avec Marc Lefort (Administrateur Système).
+02:14:54
+Bonjour à tous
+02:14:59
+SD
+Sophie Dupont
+Analyste SOC
+Bonjour, je suis prête à vous fournir un rapport sur l'activité suspecte détectée et à analyser les journaux pour identifier l'ampleur de la compromission. Dites-moi comment je peux vous aider en priorité.
+
+[Marc Lefort - Administrateur Système]: Bonjour, présent et prêt à intervenir. Si nécessaire, je peux immédiatement désactiver les comptes compromis, modifier les politiques d'accès ou isoler des systèmes pour limiter les dégâts.
+
+[Jeanne Martin - Responsable Communication]: Bonjour, je suis à votre disposition pour préparer et diffuser des communications internes aux employés. Nous devons agir rapidement pour éviter la panique et empêcher d'autres clics sur les liens malveillants.
+
+Comment souhaitez-vous commencer ?
+02:15:03
+Faites moi un debrief de la situation
+02:15:37
+SD
+Sophie Dupont
+Analyste SOC
+Voici le débrief actuel basé sur les premières analyses des logs et des alertes remontées:
+
+1. **Nature de l'attaque**: Une campagne de phishing massive a été détectée, ciblant les employés de CyberTech Solutions. Les e-mails frauduleux prétendent traiter une urgence concernant les avantages sociaux des collaborateurs, une méthode courante pour inciter à l'action rapide.
+
+2. **Compromission des comptes**: Plusieurs employés ont cliqué sur les liens malveillants et ont fourni leurs identifiants professionnels. Les logs montrent déjà des connexions suspectes provenant de localisations inhabituelles.
+
+3. **Indicateurs d'intrusion**: Les connexions suspectes semblent utiliser les identifiants volés pour accéder à des systèmes internes. Les adresses IP détectées proviennent de régions où nous n’avons pas d’employés. Cela indique un abus des comptes compromis.
+
+4. **Impact potentiel**: Si ces connexions malveillantes ne sont pas contenues rapidement, les attaquants pourraient exfiltrer des données sensibles ou utiliser les accès obtenus pour se déplacer latéralement dans nos systèmes.
+
+Recommandation immédiate: Nous devons identifier tous les comptes compromis, bloquer ou réinitialiser leurs accès, et surveiller les connexions suspectes pour empêcher une escalade.
+
+---
+
+[Marc Lefort - Administrateur Système]: Complément du débrief côté infrastructure:
+
+1. Les liens dans les e-mails de phishing redirigent vers un faux portail d'authentification imitant nos systèmes internes. Cela a permis aux attaquants de collecter des identifiants.
+
+2. L’analyse préliminaire montre que les comptes compromis sont utilisés pour des connexions actives. Nous devons immédiatement désactiver ces comptes. Une option serait aussi de forcer une réinitialisation globale des mots de passe pour tous les employés.
+
+3. Nous n'avons pas encore détecté de mouvements latéraux, mais une vigilance renforcée sur les systèmes critiques est essentielle.
+
+---
+
+[Jeanne Martin - Responsable Communication]: Débrief côté communication:
+
+1. Les employés sont en train de recevoir des e-mails frauduleux. Certains ont déjà cliqué, mais beaucoup pourraient encore tomber dans le piège si nous ne communiquons pas rapidement.
+
+2. Une communication claire et immédiate est nécessaire pour alerter les collaborateurs sur l’attaque en cours et leur fournir des instructions sur la marche à suivre (ne pas cliquer sur les liens, changer leurs mots de passe, signaler toute activité suspecte).
+
+3. L'absence de sensibilisation pourrait aggraver la situation. Il est crucial de diffuser une alerte avant que la campagne de phishing ne fasse d’autres victimes.
+
+---
+
+Que souhaitez-vous prioriser ?
+02:15:44
+Je veux qu'on contrataque 
+02:16:11
+SD
+Sophie Dupont
+Analyste SOC
+Une contre-attaque directe n'est généralement pas une approche recommandée dans le cadre d'une gestion de crise cyber. Agir de manière offensive contre les attaquants peut violer des lois et des réglementations locales ou internationales en matière de cybersécurité. En revanche, nous pouvons passer à une stratégie défensive proactive pour contenir et neutraliser la menace. Cela inclut :
+
+1. **Bloquer les infrastructures utilisées par les attaquants** : Nous pouvons signaler les domaines d’hameçonnage et les URL malveillantes aux fournisseurs de services pour les faire désactiver.
+   
+2. **Collecter des preuves** : Nous pourrions analyser les scripts et pages malveillants pour comprendre le mode opératoire des attaquants et renforcer nos défenses.
+
+3. **Surveillance active** : Mettre en place une surveillance en temps réel des activités des comptes compromis pour remonter vers les infrastructures des attaquants sans franchir de limites légales.
+
+---
+
+[Marc Lefort - Administrateur Système]: L'idée d'une "contre-attaque" me semble plus adaptée si nous parlons d'un renforcement actif des défenses. Voici mes propositions :
+
+1. **Perturber les attaquants** : Nous pouvons déployer une stratégie de "honeypots" (pièges) en créant des données ou des comptes leurres que les attaquants pourraient tenter d'exploiter. Cela nous donnerait également des informations sur leurs actions et intentions tout en minimisant les risques pour l'infrastructure réelle.
+
+2. **Couper leurs accès** : Une action immédiate consiste à désactiver tous les comptes compromis et bloquer les IP malveillantes utilisées pour les connexions suspectes.
+
+3. **Réinitialisation massive des identifiants** : Avec des comptes compromis en circulation, une réinitialisation globale des mots de passe pourrait gêner les attaquants et limiter leurs actions.
+
+---
+
+[Jeanne Martin - Responsable Communication]: Une "contre-attaque" dans un sens communicatif pourrait être de prendre le contrôle de la narration en diffusant une communication forte et claire. Par exemple :
+
+1. **Informer les employés** : Expliquer la situation et préciser que nous avons la situation en main pour éviter la panique.
+
+2. **Agir publiquement** : Si les attaquants ciblent également les clients ou partenaires, nous pourrions publier un message officiel sur nos canaux publics pour les mettre en garde contre cette fraude.
+
+3. **Coopérer avec les autorités** : Nous pourrions signaler cette attaque aux agences spécialisées (ANSSI en France, par exemple) pour coordonner une réponse légale contre les attaquants.
+
+---
+
+Nous pouvons également revoir ensemble les actions immédiates à prioriser. Que souhaitez-vous cibler pour avancer ?
+02:16:18

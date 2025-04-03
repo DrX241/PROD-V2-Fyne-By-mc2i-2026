@@ -1688,6 +1688,7 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
         ],
         temperature: config?.temperature || 0.7,
         max_tokens: config?.maxTokens || 800,
+        model: "gpt-3.5-turbo",
       });
       
       // Envoi de la réponse au client
@@ -1719,6 +1720,7 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
         missionContext, 
         currentObjective,
         previousMessages = [],
+        targetContact = null, // Nouveau: PNJ ciblé explicitement par l'utilisateur (facultatif)
         temperature = 0.8, 
         maxTokens = 1000 
       } = req.body;
@@ -1729,36 +1731,79 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
 
       // Construction du prompt système pour le contexte de la mission
       let systemPrompt = `Tu es un assistant IA dans une simulation de gestion de crise cyber avec le contexte suivant:
-      
-Mission: ${missionContext.title}
-Scénario: ${missionContext.scenario}
-Objectif actuel: ${missionContext.objectives[currentObjective]}
 
-Tu dois aider l'utilisateur à accomplir sa mission en jouant le rôle des différents personnages de l'équipe.
-Voici les personnages disponibles et leurs rôles:
-${missionContext.contacts.map(contact => 
+CONTEXTE DE LA MISSION:
+- Titre: ${missionContext.title}
+- Scénario: ${missionContext.scenario}
+- Objectif actuel: ${missionContext.objectives[currentObjective]}
+
+RÔLE DU JOUEUR:
+L'utilisateur joue le rôle du RSSI (Responsable de la Sécurité des Systèmes d'Information) de l'entreprise. En tant que RSSI:
+- Tu es le décideur principal responsable de la gestion de cette crise
+- Les personnages ci-dessous sont sous ta direction et attendent tes instructions
+- Tu as l'autorité pour prendre les décisions finales concernant les mesures de sécurité
+
+PERSONNAGES DISPONIBLES:
+${missionContext.contacts.map((contact: { name: string, role: string, expertise: string }) => 
   `- ${contact.name} (${contact.role}): ${contact.expertise}`
 ).join('\n')}
 
-Instructions:
-1. Choisis le personnage le plus approprié pour répondre à la question/demande de l'utilisateur
-2. Les réponses doivent être informatives, réalistes et correspondre à l'expertise du personnage
-3. Fournis des conseils et des options pour progresser dans le scénario
-4. Ton format de réponse sera structuré avec le nom et le rôle du personnage au début, puis le contenu de sa réponse
+STRUCTURE HIÉRARCHIQUE:
+- Le RSSI (l'utilisateur) dirige l'équipe de gestion de crise
+- Sophie Dupont (Analyste SOC) et Marc Lefort (Administrateur Système) sont sous la direction directe du RSSI
+- Jeanne Martin (Responsable Communication) collabore avec l'équipe mais doit valider ses actions avec le RSSI
 
-Format de réponse: [Nom - Rôle]: Contenu de la réponse
+INSTRUCTIONS:
+1. Réponds comme UN SEUL personnage à la fois, celui qui est le plus pertinent pour répondre à la question
+2. Si l'utilisateur s'adresse directement à un personnage spécifique, utilise ce personnage
+3. Sois concis, clair et direct - évite les longues explications inutiles
+4. Évite le formatage excessif (comme trop de texte en gras avec ** ou trop de puces)
+5. Utilise des phrases courtes et un langage accessible
+6. N'écris JAMAIS au nom de plusieurs personnages dans une même réponse
 
-Conserve un ton sérieux et réaliste, adapté à une situation de crise en cybersécurité.
-Tu es un outil de formation pour aider les apprenants à comprendre la gestion d'incident de sécurité.`;
+FORMAT DE RÉPONSE:
+- Présente l'information de manière claire et structurée
+- Utilise des listes à puces pour organiser l'information quand c'est pertinent
+- Limite l'utilisation du gras aux éléments vraiment importants
+- Ton et style: professionnel mais conversationnel, comme dans une situation de crise réelle
+- Formule des recommandations pratiques et concrètes
+
+IMPORTANT: Ne réponds qu'au nom d'UN SEUL personnage, même si la situation pourrait impliquer plusieurs experts.`;
+
+      // Ajuster le prompt si un PNJ spécifique est ciblé
+      if (targetContact) {
+        systemPrompt += `\n\nL'utilisateur s'adresse spécifiquement à ${targetContact}. Ta réponse doit venir de ce personnage uniquement.`;
+      }
 
       // Construction des messages pour l'API OpenAI
       let messages = [
         { role: "system", content: systemPrompt }
       ];
 
+      // Extraire le PNJ ciblé à partir du message de l'utilisateur si non spécifié
+      let detectedTarget = targetContact;
+      if (!detectedTarget) {
+        const lowerCaseMessage = userMessage.toLowerCase();
+        for (const contact of missionContext.contacts) {
+          const firstName = contact.name.split(' ')[0].toLowerCase();
+          const lastName = contact.name.split(' ').length > 1 ? contact.name.split(' ')[1].toLowerCase() : '';
+          
+          if (lowerCaseMessage.includes(firstName) || (lastName && lowerCaseMessage.includes(lastName))) {
+            detectedTarget = contact.name;
+            break;
+          }
+        }
+      }
+
+      // Ajout du target dans le message utilisateur si détecté
+      let processedUserMessage = userMessage;
+      if (detectedTarget) {
+        processedUserMessage = `[Message adressé à ${detectedTarget}] ${userMessage}`;
+      }
+
       // Ajout des messages précédents pour maintenir le contexte
       if (previousMessages && previousMessages.length > 0) {
-        for (const msg of previousMessages.slice(-8)) { // Limiter à 8 derniers messages pour éviter d'atteindre les limites du contexte
+        for (const msg of previousMessages.slice(-6)) { // Limiter à 6 derniers messages pour éviter d'atteindre les limites du contexte
           messages.push({
             role: msg.role,
             content: msg.role === 'assistant' && msg.sender 
@@ -1769,11 +1814,11 @@ Tu es un outil de formation pour aider les apprenants à comprendre la gestion d
       }
 
       // Ajout du message de l'utilisateur
-      messages.push({ role: "user", content: userMessage });
+      messages.push({ role: "user", content: processedUserMessage });
 
       // Appel à l'API OpenAI
       const completion = await openAIService.getChatCompletion(
-        messages,
+        messages as ChatCompletionRequestMessage[],
         temperature,
         maxTokens
       );
@@ -1792,11 +1837,11 @@ Tu es un outil de formation pour aider les apprenants à comprendre la gestion d
       } else {
         // Rechercher parmi les contacts disponibles
         for (const contact of missionContext.contacts) {
-          if (responseContent.includes(contact.name) && responseContent.includes(contact.role)) {
+          if (responseContent.includes(contact.name) && (responseContent.includes(contact.role) || responseContent.includes(contact.role.split(' ')[0]))) {
             sender = contact.name;
             senderRole = contact.role;
             // Essayer de nettoyer la réponse si possible
-            const cleanMatch = responseContent.match(new RegExp(`${contact.name}\\s*\\(${contact.role}\\):\\s*([\s\S]+)`));
+            const cleanMatch = responseContent.match(new RegExp(`${contact.name}\\s*\\([^)]*\\):\\s*([\s\S]+)`));
             if (cleanMatch) {
               responseContent = cleanMatch[1].trim();
             }
@@ -1804,18 +1849,98 @@ Tu es un outil de formation pour aider les apprenants à comprendre la gestion d
           }
         }
 
-        // Si aucun contact n'est trouvé, utiliser un contact aléatoire
+        // Si un personnage était ciblé mais n'a pas été détecté dans la réponse
+        if (detectedTarget && !sender) {
+          const targetContact = missionContext.contacts.find((c: any) => c.name === detectedTarget);
+          if (targetContact) {
+            sender = targetContact.name;
+            senderRole = targetContact.role;
+          }
+        }
+
+        // Si aucun contact n'est trouvé, utiliser un contact pertinent selon le contexte actuel
         if (!sender) {
-          const randomContact = missionContext.contacts[Math.floor(Math.random() * missionContext.contacts.length)];
-          sender = randomContact.name;
-          senderRole = randomContact.role;
+          // Choix basé sur l'objectif actuel
+          if (currentObjective === 0 || userMessage.toLowerCase().includes('log') || userMessage.toLowerCase().includes('analyse')) {
+            // Pour l'évaluation de la compromission, privilégier l'analyste SOC
+            const analyste = missionContext.contacts.find((c: any) => c.role.includes('SOC') || c.role.includes('Analyste'));
+            if (analyste) {
+              sender = analyste.name;
+              senderRole = analyste.role;
+            }
+          } else if (currentObjective === 1 || userMessage.toLowerCase().includes('système') || userMessage.toLowerCase().includes('accès')) {
+            // Pour la contention, privilégier l'admin système
+            const admin = missionContext.contacts.find((c: any) => c.role.includes('Système') || c.role.includes('Admin'));
+            if (admin) {
+              sender = admin.name;
+              senderRole = admin.role;
+            }
+          } else if (currentObjective === 2 || userMessage.toLowerCase().includes('communi') || userMessage.toLowerCase().includes('informer')) {
+            // Pour la communication, privilégier le responsable communication
+            const comm = missionContext.contacts.find((c: any) => c.role.includes('Communication'));
+            if (comm) {
+              sender = comm.name;
+              senderRole = comm.role;
+            }
+          } else {
+            // Par défaut, choisir un contact aléatoire mais pertinent
+            const randomContact = missionContext.contacts[Math.floor(Math.random() * missionContext.contacts.length)];
+            sender = randomContact.name;
+            senderRole = randomContact.role;
+          }
+        }
+      }
+
+      // Nettoyer le texte des balises markdown superflues
+      responseContent = responseContent
+        .replace(/^\*\*([^*]+)\*\*:/gm, '$1:') // Enlever le gras des titres de section
+        .replace(/\*\*\*\*/g, '') // Enlever les doubles **
+        .replace(/\*\*([^*]+)\*\*([^a-zA-Z0-9])/g, '$1$2') // Réduire l'usage du gras
+        .replace(/\n\s*\n\s*\n/g, '\n\n'); // Réduire les espaces excessifs
+
+      // Ajouter occasionnellement une réaction d'un autre PNJ
+      let additionalResponse = null;
+      const shouldAddReaction = Math.random() < 0.3; // 30% de chance
+      
+      if (shouldAddReaction && messages.length > 3) {
+        // Sélectionner un PNJ différent pour la réaction
+        const availableContacts = missionContext.contacts.filter((c: any) => c.name !== sender);
+        if (availableContacts.length > 0) {
+          const reactingContact = availableContacts[Math.floor(Math.random() * availableContacts.length)];
+          
+          // Générer une brève réaction basée sur le contexte
+          const reactionPrompt = `
+Tu es ${reactingContact.name}, ${reactingContact.role} dans une équipe de gestion de crise cybersécurité.
+Ton collègue ${sender} vient de dire au RSSI: "${responseContent.substring(0, 200)}..."
+
+Donne une très brève réaction (maximum 2 phrases) ou complément d'information en tant que ${reactingContact.name}.
+Ta réponse doit être concise et apporter une nouvelle perspective ou information. Ne répète pas ce que ${sender} a déjà dit.`;
+
+          try {
+            const reactionResponse = await openAIService.getChatCompletion(
+              [{ role: "system", content: reactionPrompt },
+               { role: "user", content: "Quelle est ta réaction à ce message, en une ou deux phrases?" }] as ChatCompletionRequestMessage[],
+              0.7,
+              200
+            );
+            
+            additionalResponse = {
+              response: reactionResponse.replace(/^.*?:\s*/g, '').trim(), // Enlever les préfixes éventuels
+              sender: reactingContact.name,
+              senderRole: reactingContact.role
+            };
+          } catch (error) {
+            console.log('Erreur lors de la génération de la réaction:', error);
+            // Si erreur, pas de réaction additionnelle
+          }
         }
       }
 
       res.json({
         response: responseContent,
         sender,
-        senderRole
+        senderRole,
+        additionalResponse
       });
     } catch (error: any) {
       console.error('Erreur lors de la communication avec Azure OpenAI pour cyber defense:', error);
