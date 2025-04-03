@@ -414,24 +414,25 @@ Souhaitez-vous :
       };
       
       // Si une réponse additionnelle est présente, créer un message supplémentaire
-      let updatedMessages = [...messages, botMessage];
-      
-      if (additionalResponse) {
-        const additionalMessage: Message = {
-          id: uuidv4(),
-          role: "assistant",
-          content: additionalResponse.response || "",
-          sender: additionalResponse.sender || "Collègue",
-          senderRole: additionalResponse.senderRole || "Expert",
-          timestamp: Date.now() + 500, // légèrement décalé pour l'ordre d'affichage
-          additionalResponse: true // Marquer comme réponse additionnelle
-        };
+      setMessages(prev => {
+        const newMessages = [...prev, botMessage];
         
-        updatedMessages.push(additionalMessage);
-      }
-      
-      // Ajouter la réponse (et éventuellement la réaction) aux messages
-      setMessages(updatedMessages);
+        if (additionalResponse) {
+          const additionalMessage: Message = {
+            id: uuidv4(),
+            role: "assistant",
+            content: additionalResponse.response || "",
+            sender: additionalResponse.sender || "Collègue",
+            senderRole: additionalResponse.senderRole || "Expert",
+            timestamp: Date.now() + 500, // légèrement décalé pour l'ordre d'affichage
+            additionalResponse: true // Marquer comme réponse additionnelle
+          };
+          
+          newMessages.push(additionalMessage);
+        }
+        
+        return newMessages;
+      });
       setLoading(false);
       
     } catch (error) {

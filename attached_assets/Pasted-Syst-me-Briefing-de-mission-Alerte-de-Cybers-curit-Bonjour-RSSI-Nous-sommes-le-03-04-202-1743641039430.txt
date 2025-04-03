@@ -1,0 +1,73 @@
+Système
+Briefing de mission
+Alerte de Cybersécurité
+
+
+Bonjour RSSI,
+
+Nous sommes le 03/04/2025 et notre équipe vient de détecter une campagne de phishing sophistiquée ciblant les employés de CyberTech Solutions.
+
+En tant que RSSI (Responsable de la Sécurité des Systèmes d'Information), vous dirigez l'équipe de gestion de crise et êtes le décideur principal. Les membres de l'équipe suivent vos directives et attendent vos instructions.
+
+Contexte:
+Une vague de messages frauduleux contenant des liens malveillants est envoyée aux employés de CyberTech Solutions sous couvert d'une urgence concernant leurs avantages sociaux. Plusieurs collaborateurs ont déjà cliqué sur les liens et fourni leurs identifiants professionnels. L'équipe cybersécurité commence à détecter des connexions suspectes provenant de localisations inhabituelles.
+
+Vos objectifs:
+Évaluer l'ampleur de la compromission
+Contenir la menace et bloquer l'attaque
+
+Mettre en place une communication efficace
+Récupérer les systèmes affectés
+
+Proposer des mesures préventives
+Votre équipe est mobilisée et attend vos instructions. Comment souhaitez-vous procéder ?
+02:37:58
+SYS
+Système
+Briefing de mission
+Structure de l'équipe de crise
+
+
+Votre équipe est composée des experts suivants:
+Sophie Dupont (Analyste SOC) - Détection d'intrusion et analyse de logs
+Marc Lefort (Administrateur Système) - Infrastructure et gestion des accès
+
+Jeanne Martin (Responsable Communication) - Communication interne et gestion de crise
+Structure hiérarchique:
+Vous (RSSI) dirigez l'équipe et prenez les décisions finales
+Sophie Dupont et Marc Lefort sont sous votre supervision directe
+
+Jeanne Martin collabore avec l'équipe mais doit valider ses actions avec vous
+Pour démarrer cette mission, vous pouvez:
+Demander un rapport de situation à Sophie Dupont
+Discuter des mesures immédiates avec Marc Lefort
+
+Préparer la communication de crise avec Jeanne Martin
+Vous pouvez vous adresser directement à un membre de l'équipe en mentionnant son nom.
+02:37:58
+SD
+Sophie Dupont
+Analyste SOC
+Bonjour, je vais bien malgré la situation critique. Merci de demander. Je suis prête à vous fournir toutes les informations nécessaires pour évaluer et contenir cette attaque. Que souhaitez-vous que je vérifie en priorité ?
+02:39:09
+JM
+Jeanne Martin
+Responsable Communication
+[Jeanne Martin - Responsable Communication]
+
+Oui, j'ai préparé une ébauche de communication interne pour informer les employés et limiter la propagation de l'incident. Voici les points clés :
+Message principal : Une tentative de phishing a été détectée. Ne cliquez sur aucun lien suspect lié aux avantages sociaux.
+Instructions immédiates : Signalez tout email suspect à l'équipe cybersécurité et changez votre mot de passe si vous avez cliqué sur un lien.
+
+Assurance : Nous prenons des mesures pour sécuriser vos comptes et vous tiendrons informés régulièrement.
+Je suis en attente de votre validation pour diffuser le message. Souhaitez-vous y ajouter ou modifier quelque chose ?
+02:42:20
+JM
+Jeanne Martin
+Responsable Communication
+Bien reçu, je diffuse immédiatement la communication interne via email, la messagerie instantanée de l'entreprise et l'intranet. Je m'assurerai également que les managers relaient l'information dans leurs équipes. Je vous tiens informé des retours ou des questions des employés.
+02:42:54
+ML
+Marc Lefort
+Administrateur Système
+Je propose qu'on ajoute une notification push via l'application mobile interne, pour toucher rapidement les collaborateurs en déplacement ou hors poste de travail.
