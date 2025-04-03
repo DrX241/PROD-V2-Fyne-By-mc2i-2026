@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import HomeLayout from "@/components/layout/HomeLayout";
 import { 
-  ShieldCheck, Database, ListChecks, Plus, ArrowRight, 
+  ShieldCheck, Shield, Database, ListChecks, Plus, ArrowRight, 
   BrainCircuit, Bot, Sparkles, Star, BookOpen, Zap, 
   Users, Award, Brain, Laptop, Package, Target
 } from "lucide-react";
@@ -107,6 +107,15 @@ export default function Home() {
       bgColor: "bg-gradient-to-br from-blue-50 to-blue-100",
       accentColor: "bg-blue-500",
       linkTo: "/cyber"
+    },
+    {
+      title: "CYBER DEFENSE",
+      description: "Prenez les commandes et affrontez des menaces cybernétiques avancées dans un environnement de simulation tactique où vous êtes l'acteur principal.",
+      icon: <Shield className="w-8 h-8 text-white" />,
+      color: "bg-green-600",
+      bgColor: "bg-gradient-to-br from-green-50 to-green-100",
+      accentColor: "bg-green-500",
+      linkTo: "/cyber-defense"
     },
     {
       title: "I AM DATA & IA",
