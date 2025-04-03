@@ -8,10 +8,7 @@ import ModulesPage from "@/pages/modules";
 import CyberPage from "@/pages/cyber";
 import CyberDefensePage from "@/pages/cyber-defense";
 import CyberDefenseMissionPage from "@/pages/cyber-defense-mission";
-import AmoaPage from "@/pages/amoa";
-import AmoaMissionPage from "@/pages/amoa-mission";
 import { ChatProvider } from "./contexts/ChatContext";
-import { AmoaProvider } from "./contexts/AmoaContext";
 
 function Router() {
   return (
@@ -22,8 +19,7 @@ function Router() {
       <Route path="/cyber-defense" component={CyberDefensePage} />
       <Route path="/cyber-defense/mission/:id" component={CyberDefenseMissionPage} />
       <Route path="/data-ia" component={NotYetImplemented} />
-      <Route path="/amoa" component={AmoaPage} />
-      <Route path="/amoa-mission" component={AmoaMissionPage} />
+      <Route path="/amoa" component={NotYetImplemented} />
       <Route path="/custom" component={NotYetImplemented} />
       <Route component={NotFound} />
     </Switch>
@@ -52,10 +48,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ChatProvider>
-        <AmoaProvider>
-          <Router />
-          <Toaster />
-        </AmoaProvider>
+        <Router />
+        <Toaster />
       </ChatProvider>
     </QueryClientProvider>
   );
