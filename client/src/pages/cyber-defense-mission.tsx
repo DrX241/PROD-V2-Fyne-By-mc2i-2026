@@ -191,7 +191,7 @@ Pour commencer, vous pourriez demander un rapport de situation à Sophie Dupont 
     }
   }, [messages]);
   
-  // Gérer l'envoi de messages
+  // Gérer l'envoi de messages via l'API
   const handleSendMessage = async () => {
     if (!userInput.trim()) return;
     
@@ -208,106 +208,74 @@ Pour commencer, vous pourriez demander un rapport de situation à Sophie Dupont 
     setLoading(true);
     
     try {
-      // Plutôt que d'appeler Azure OpenAI directement (ce qui sera implémenté plus tard),
-      // nous simulons la réponse pour illustrer le fonctionnement
+      // Préparer les 5 derniers messages pour le contexte tout en limitant la taille
+      const recentMessages = messages.slice(-5);
       
-      // Exemple de réponse simulée (à remplacer par l'appel API réel)
-      setTimeout(() => {
-        let responseContent = '';
-        let sender = '';
-        let senderRole = '';
+      // Appel à l'API pour obtenir une réponse des personnages
+      const response = await axios.post('/api/cyber-defense/chat', {
+        userMessage: userInput,
+        missionId: mission.id,
+        missionContext: mission,
+        currentObjective: currentObjective,
+        previousMessages: recentMessages,
+        temperature: 0.8,
+        maxTokens: 1000
+      });
+      
+      const { response: responseContent, sender, senderRole } = response.data;
+      
+      // Mettre à jour la progression en fonction des mots-clés dans la réponse et l'objectif actuel
+      // Objectif 1: Évaluer l'ampleur de la compromission
+      if (currentObjective === 0 && 
+          (responseContent.toLowerCase().includes('logs') || 
+           responseContent.toLowerCase().includes('détect') || 
+           responseContent.toLowerCase().includes('compromis') || 
+           responseContent.toLowerCase().includes('analyse'))) {
+        setCurrentObjective(1);
+        setProgress(20);
+      } 
+      // Objectif 2: Contenir la menace et bloquer l'attaque
+      else if (currentObjective === 1 && 
+               (responseContent.toLowerCase().includes('bloqu') || 
+                responseContent.toLowerCase().includes('contenir') || 
+                responseContent.toLowerCase().includes('limiter') || 
+                responseContent.toLowerCase().includes('pare-feu'))) {
+        setCurrentObjective(2);
+        setProgress(40);
+      } 
+      // Objectif 3: Mettre en place une communication efficace
+      else if (currentObjective === 2 && 
+               (responseContent.toLowerCase().includes('communication') || 
+                responseContent.toLowerCase().includes('informer') || 
+                responseContent.toLowerCase().includes('alert') || 
+                responseContent.toLowerCase().includes('message'))) {
+        setCurrentObjective(3);
+        setProgress(60);
+      }
+      // Objectif 4: Récupérer les systèmes affectés
+      else if (currentObjective === 3 && 
+               (responseContent.toLowerCase().includes('récupér') || 
+                responseContent.toLowerCase().includes('restaur') || 
+                responseContent.toLowerCase().includes('sauvegardes') || 
+                responseContent.toLowerCase().includes('réparation'))) {
+        setCurrentObjective(4);
+        setProgress(80);
+      }
+      // Objectif 5: Proposer des mesures préventives
+      else if (currentObjective === 4 && 
+               (responseContent.toLowerCase().includes('préventi') || 
+                responseContent.toLowerCase().includes('futur') || 
+                responseContent.toLowerCase().includes('recommend') || 
+                responseContent.toLowerCase().includes('améliorer'))) {
+        setProgress(100);
         
-        // Simulating different responses based on user input and previous messages
-        if (userInput.toLowerCase().includes('sophie') || userInput.toLowerCase().includes('analyse') || userInput.toLowerCase().includes('logs')) {
-          sender = 'Sophie Dupont';
-          senderRole = 'Analyste SOC';
-          responseContent = `D'après mon analyse préliminaire des logs, nous avons détecté 27 clics sur le lien malveillant au cours des deux dernières heures. 12 utilisateurs ont entré leurs identifiants sur la page frauduleuse, dont 3 administrateurs systèmes.
-
-Nous observons des tentatives de connexion suspectes sur notre VPN et notre serveur de messagerie avec ces identifiants compromis. J'ai temporairement bloqué ces comptes pour limiter les dégâts.
-
-Le mail de phishing semble provenir d'une adresse imitant notre service RH, avec un ton d'urgence concernant une "modification immédiate des avantages sociaux". Nous avons récupéré un échantillon du mail et analysé le domaine frauduleux : benefits-cybertech-solutions.com, enregistré il y a seulement 48 heures.
-
-Que souhaitez-vous que nous fassions en priorité ?`;
-          
-          // Progression à jour
-          if (currentObjective === 0) {
-            setCurrentObjective(1);
-            setProgress(20);
-          }
-        } 
-        else if (userInput.toLowerCase().includes('marc') || userInput.toLowerCase().includes('admin') || userInput.toLowerCase().includes('système') || userInput.toLowerCase().includes('systeme')) {
-          sender = 'Marc Lefort';
-          senderRole = 'Administrateur Système';
-          responseContent = `À la demande de Sophie, j'ai déjà bloqué l'accès aux comptes compromis identifiés. Si vous l'autorisez, je peux également :
-
-1. Forcer une réinitialisation des mots de passe pour l'ensemble des utilisateurs (mesure drastique mais efficace)
-2. Bloquer l'accès au domaine frauduleux au niveau de notre pare-feu
-3. Activer temporairement l'authentification à double facteur pour tous les accès distants
-4. Surveiller en temps réel les activités suspectes sur le réseau
-
-Certaines de ces mesures pourraient perturber les opérations normales de l'entreprise, mais limiteraient considérablement la portée de l'attaque. Quelles actions souhaitez-vous que je mette en œuvre immédiatement ?`;
-          
-          if (currentObjective === 1) {
-            setCurrentObjective(2);
-            setProgress(40);
-          }
-        } 
-        else if (userInput.toLowerCase().includes('jeanne') || userInput.toLowerCase().includes('communication') || userInput.toLowerCase().includes('informer')) {
-          sender = 'Jeanne Martin';
-          senderRole = 'Responsable Communication';
-          responseContent = `Je peux préparer plusieurs types de communications :
-
-1. Une alerte immédiate à tous les employés concernant cette tentative de phishing, avec des captures d'écran du mail frauduleux pour qu'ils puissent l'identifier
-2. Des instructions claires sur la façon de signaler tout comportement suspect
-3. Un modèle de communication pour les employés dont les comptes ont été compromis
-4. Une communication pour la direction générale sur la situation et nos actions
-
-Comment souhaitez-vous procéder ? Avez-vous des consignes particulières concernant le ton ou le contenu de ces communications ?`;
-          
-          if (currentObjective === 2) {
-            setCurrentObjective(3);
-            setProgress(60);
-          }
-        }
-        else if (userInput.toLowerCase().includes('récupération') || userInput.toLowerCase().includes('récupérer') || userInput.toLowerCase().includes('restauration') || userInput.toLowerCase().includes('restaurer')) {
-          sender = 'Marc Lefort';
-          senderRole = 'Administrateur Système';
-          responseContent = `Pour la récupération des systèmes affectés, voici ce que nous pouvons mettre en place :
-
-1. J'ai préparé une procédure de restauration sécurisée pour les comptes compromis
-2. Nous avons isolé les postes de travail qui présentent un comportement suspect
-3. Les sauvegardes sont disponibles et prêtes à être utilisées si nécessaire
-4. Nous pouvons déployer un outil de détection supplémentaire pour identifier d'éventuels malwares
-
-Avec votre autorisation, nous allons commencer la procédure de récupération.`;
-          
-          if (currentObjective === 3) {
-            setCurrentObjective(4);
-            setProgress(80);
-          }
-        }
-        else if (userInput.toLowerCase().includes('prévention') || userInput.toLowerCase().includes('prévenir') || userInput.toLowerCase().includes('mesures') || userInput.toLowerCase().includes('avenir')) {
-          sender = 'Sophie Dupont';
-          senderRole = 'Analyste SOC';
-          responseContent = `Basé sur cet incident, je recommande les mesures préventives suivantes :
-
-1. Renforcer la formation de sensibilisation au phishing pour tous les employés, avec des simulations régulières
-2. Déployer un système d'analyse des e-mails plus performant avec filtrage avancé
-3. Mettre en place l'authentification multi-facteurs pour tous les utilisateurs
-4. Revoir nos procédures d'escalade et notre plan de réponse aux incidents
-5. Effectuer un audit de sécurité complet pour identifier d'autres vulnérabilités potentielles
-
-Ces mesures nous aideront à mieux nous préparer face à de futures tentatives similaires.`;
-          
-          if (currentObjective === 4) {
-            setProgress(100);
-            
-            // Ajouter un message de conclusion après 2 secondes
-            setTimeout(() => {
-              const conclusionMessage: Message = {
-                id: uuidv4(),
-                role: "assistant",
-                content: `# Mission terminée !
+        // Après un court délai, ajouter un message de conclusion si tous les objectifs sont atteints
+        setTimeout(() => {
+          if (progress === 100) {
+            const conclusionMessage: Message = {
+              id: uuidv4(),
+              role: "assistant",
+              content: `# Mission terminée !
 
 Félicitations ${userName || "Responsable"} ! Vous avez géré avec succès l'incident de phishing qui ciblait CyberTech Solutions.
 
@@ -324,38 +292,42 @@ Souhaitez-vous :
 1. Revoir cette mission
 2. Essayer une autre mission
 3. Revenir à l'accueil`,
-                timestamp: Date.now()
-              };
-              
-              setMessages(prev => [...prev, conclusionMessage]);
-            }, 2000);
+              timestamp: Date.now()
+            };
+            
+            setMessages(prev => [...prev, conclusionMessage]);
           }
-        }
-        else {
-          // Réponse générique
-          const randomContact = mission.contacts[Math.floor(Math.random() * mission.contacts.length)];
-          sender = randomContact.name;
-          senderRole = randomContact.role;
-          responseContent = `Je comprends votre demande. Notre équipe est mobilisée pour contrer cette attaque de phishing. 
-
-Pourriez-vous préciser quelles informations vous recherchez ou quelles actions vous souhaitez que nous mettions en place ? Nous avons plusieurs options disponibles selon l'aspect de la crise que vous souhaitez traiter en priorité.`;
-        }
-        
-        const botMessage: Message = {
-          id: uuidv4(),
-          role: "assistant",
-          content: responseContent,
-          sender,
-          senderRole,
-          timestamp: Date.now()
-        };
-        
-        setMessages(prev => [...prev, botMessage]);
-        setLoading(false);
-      }, 1500);
+        }, 2000);
+      }
+      
+      // Créer le message de réponse
+      const botMessage: Message = {
+        id: uuidv4(),
+        role: "assistant",
+        content: responseContent,
+        sender,
+        senderRole,
+        timestamp: Date.now()
+      };
+      
+      // Ajouter la réponse aux messages
+      setMessages(prev => [...prev, botMessage]);
+      setLoading(false);
       
     } catch (error) {
       console.error('Error sending message:', error);
+      
+      // Message d'erreur en cas d'échec de l'API
+      const errorMessage: Message = {
+        id: uuidv4(),
+        role: "assistant",
+        content: "Désolé, une erreur s'est produite lors de la communication avec l'équipe. Veuillez réessayer.",
+        sender: "Système",
+        senderRole: "Assistance",
+        timestamp: Date.now()
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
       setLoading(false);
     }
   };

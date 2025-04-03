@@ -1710,6 +1710,127 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
     }
   });
 
+  // Nouvel endpoint pour le module Cyber Defense
+  app.post('/api/cyber-defense/chat', async (req, res) => {
+    try {
+      const { 
+        userMessage, 
+        missionId, 
+        missionContext, 
+        currentObjective,
+        previousMessages = [],
+        temperature = 0.8, 
+        maxTokens = 1000 
+      } = req.body;
+
+      if (!userMessage || !missionId) {
+        return res.status(400).json({ error: 'Message et identifiant de mission sont requis' });
+      }
+
+      // Construction du prompt système pour le contexte de la mission
+      let systemPrompt = `Tu es un assistant IA dans une simulation de gestion de crise cyber avec le contexte suivant:
+      
+Mission: ${missionContext.title}
+Scénario: ${missionContext.scenario}
+Objectif actuel: ${missionContext.objectives[currentObjective]}
+
+Tu dois aider l'utilisateur à accomplir sa mission en jouant le rôle des différents personnages de l'équipe.
+Voici les personnages disponibles et leurs rôles:
+${missionContext.contacts.map(contact => 
+  `- ${contact.name} (${contact.role}): ${contact.expertise}`
+).join('\n')}
+
+Instructions:
+1. Choisis le personnage le plus approprié pour répondre à la question/demande de l'utilisateur
+2. Les réponses doivent être informatives, réalistes et correspondre à l'expertise du personnage
+3. Fournis des conseils et des options pour progresser dans le scénario
+4. Ton format de réponse sera structuré avec le nom et le rôle du personnage au début, puis le contenu de sa réponse
+
+Format de réponse: [Nom - Rôle]: Contenu de la réponse
+
+Conserve un ton sérieux et réaliste, adapté à une situation de crise en cybersécurité.
+Tu es un outil de formation pour aider les apprenants à comprendre la gestion d'incident de sécurité.`;
+
+      // Construction des messages pour l'API OpenAI
+      let messages = [
+        { role: "system", content: systemPrompt }
+      ];
+
+      // Ajout des messages précédents pour maintenir le contexte
+      if (previousMessages && previousMessages.length > 0) {
+        for (const msg of previousMessages.slice(-8)) { // Limiter à 8 derniers messages pour éviter d'atteindre les limites du contexte
+          messages.push({
+            role: msg.role,
+            content: msg.role === 'assistant' && msg.sender 
+              ? `[${msg.sender} - ${msg.senderRole}]: ${msg.content}`
+              : msg.content
+          });
+        }
+      }
+
+      // Ajout du message de l'utilisateur
+      messages.push({ role: "user", content: userMessage });
+
+      // Appel à l'API OpenAI
+      const completion = await openAIService.getChatCompletion(
+        messages,
+        temperature,
+        maxTokens
+      );
+
+      // Extraction du nom du personnage et de sa réponse
+      let responseContent = completion;
+      let sender = '';
+      let senderRole = '';
+
+      // Essayer d'extraire le nom et le rôle du personnage du format [Nom - Rôle]: Message
+      const responseMatch = responseContent.match(/^\[([^\]-]+)\s*-\s*([^\]]+)\]:\s*([\s\S]+)$/);
+      if (responseMatch) {
+        sender = responseMatch[1].trim();
+        senderRole = responseMatch[2].trim();
+        responseContent = responseMatch[3].trim();
+      } else {
+        // Rechercher parmi les contacts disponibles
+        for (const contact of missionContext.contacts) {
+          if (responseContent.includes(contact.name) && responseContent.includes(contact.role)) {
+            sender = contact.name;
+            senderRole = contact.role;
+            // Essayer de nettoyer la réponse si possible
+            const cleanMatch = responseContent.match(new RegExp(`${contact.name}\\s*\\(${contact.role}\\):\\s*([\s\S]+)`));
+            if (cleanMatch) {
+              responseContent = cleanMatch[1].trim();
+            }
+            break;
+          }
+        }
+
+        // Si aucun contact n'est trouvé, utiliser un contact aléatoire
+        if (!sender) {
+          const randomContact = missionContext.contacts[Math.floor(Math.random() * missionContext.contacts.length)];
+          sender = randomContact.name;
+          senderRole = randomContact.role;
+        }
+      }
+
+      res.json({
+        response: responseContent,
+        sender,
+        senderRole
+      });
+    } catch (error: any) {
+      console.error('Erreur lors de la communication avec Azure OpenAI pour cyber defense:', error);
+      
+      // Gestion des erreurs spécifiques d'OpenAI
+      if (error.status === 401) {
+        res.status(401).json({ error: 'Erreur d\'authentification API Azure. Vérifiez votre clé API.' });
+      } else if (error.status === 429) {
+        res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
+      } else {
+        res.status(500).json({ error: 'Erreur lors de la génération de la réponse' });
+      }
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
