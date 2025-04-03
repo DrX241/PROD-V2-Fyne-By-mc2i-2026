@@ -30,47 +30,59 @@ class OpenAIService {
     try {
       // Récupérer la clé API OpenAI depuis les variables d'environnement
       const apiKey = process.env.OPENAI_API_KEY || "";
-      console.log("Using API key starting with:", apiKey.substring(0, 5) + "...");
       
-      // Configuration primaire - Utiliser OpenAI directement au lieu d'Azure
+      // Récupérer les noms des modèles depuis les variables d'environnement ou utiliser les valeurs par défaut
+      const primaryModel = process.env.PRIMARY_MODEL || "gpt-4o";
+      const secondaryModel = process.env.SECONDARY_MODEL || "gpt-4o-mini";
+      
+      if (apiKey && apiKey.length > 5) {
+        console.log("Using API key starting with:", apiKey.substring(0, 5) + "...");
+      } else {
+        console.log("Warning: No valid OpenAI API key found in environment variables");
+      }
+      
+      // Configuration primaire - Utiliser OpenAI directement
       this.primaryConfig = {
         endpoint: "https://api.openai.com/v1",
         apiKey: apiKey,
-        deploymentName: "gpt-4o",
-        apiVersion: "2023-05-15",  // Version de l'API OpenAI
-        modelName: "gpt-4o"
+        deploymentName: primaryModel,
+        apiVersion: "2023-05-15",
+        modelName: primaryModel
       };
       
       // Configuration secondaire - Utiliser un modèle moins coûteux
       this.secondaryConfig = {
         endpoint: "https://api.openai.com/v1",
         apiKey: apiKey,
-        deploymentName: "gpt-3.5-turbo",
+        deploymentName: secondaryModel,
         apiVersion: "2023-05-15",
-        modelName: "gpt-3.5-turbo"
+        modelName: secondaryModel
       };
       
       console.log(`OpenAI Service initialized with primary model: ${this.primaryConfig.modelName}`);
       console.log(`OpenAI Service initialized with secondary model: ${this.secondaryConfig.modelName}`);
     } catch (error) {
       console.error("Error initializing OpenAI Service:", error);
-      // Utiliser une clé API de secours ou des valeurs par défaut en cas d'erreur
+      
+      // Valeurs par défaut en cas d'erreur
       const apiKey = process.env.OPENAI_API_KEY || "";
+      const primaryModel = process.env.PRIMARY_MODEL || "gpt-4o";
+      const secondaryModel = process.env.SECONDARY_MODEL || "gpt-4o-mini";
       
       this.primaryConfig = {
         endpoint: "https://api.openai.com/v1",
         apiKey: apiKey,
-        deploymentName: "gpt-4o",
+        deploymentName: primaryModel,
         apiVersion: "2023-05-15",
-        modelName: "gpt-4o"
+        modelName: primaryModel
       };
       
       this.secondaryConfig = {
         endpoint: "https://api.openai.com/v1",
         apiKey: apiKey,
-        deploymentName: "gpt-3.5-turbo",
+        deploymentName: secondaryModel,
         apiVersion: "2023-05-15",
-        modelName: "gpt-3.5-turbo"
+        modelName: secondaryModel
       };
     }
   }

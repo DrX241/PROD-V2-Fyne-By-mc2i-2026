@@ -1785,18 +1785,13 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
     }
   });
 
-  // Initialisation du client OpenAI pour le chat immersif avec Azure OpenAI
-  
-  const azureApiKey = "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK";
-  const azureEndpoint = "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com/";
-  const azureDeploymentId = "Eddy-deploy-20-02-2025-gpt-4o"; // Utilisation du modèle principal
-  const azureApiVersion = "2024-12-01-preview";
+  // Initialisation du client OpenAI pour le chat immersif
+  const apiKey = process.env.OPENAI_API_KEY || "";
+  const primaryModel = process.env.PRIMARY_MODEL || "gpt-4o";
   
   const openai = new OpenAI({
-    apiKey: azureApiKey,
-    baseURL: `${azureEndpoint}openai/deployments/${azureDeploymentId}`,
-    defaultQuery: { "api-version": azureApiVersion },
-    defaultHeaders: { "api-key": azureApiKey },
+    apiKey: apiKey,
+    baseURL: "https://api.openai.com/v1",
   });
   
   // API route pour le chat immersif
@@ -1831,7 +1826,7 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
       
       systemPrompt += " Tu réponds toujours en français.";
       
-      // Appel à l'API Azure OpenAI
+      // Appel à l'API OpenAI
       const completion = await openai.chat.completions.create({
         messages: [
           { role: "system", content: systemPrompt },
@@ -1839,7 +1834,7 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
         ],
         temperature: config?.temperature || 0.7,
         max_tokens: config?.maxTokens || 800,
-        model: "gpt-3.5-turbo",
+        model: primaryModel,
       });
       
       // Envoi de la réponse au client
@@ -1849,11 +1844,11 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
       });
       
     } catch (error: any) {
-      console.error('Erreur lors de la communication avec Azure OpenAI:', error);
+      console.error('Erreur lors de la communication avec OpenAI:', error);
       
       // Gestion des erreurs spécifiques d'OpenAI
       if (error.status === 401) {
-        res.status(401).json({ error: 'Erreur d\'authentification API Azure. Vérifiez votre clé API.' });
+        res.status(401).json({ error: 'Erreur d\'authentification API OpenAI. Vérifiez votre clé API.' });
       } else if (error.status === 429) {
         res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
       } else {
