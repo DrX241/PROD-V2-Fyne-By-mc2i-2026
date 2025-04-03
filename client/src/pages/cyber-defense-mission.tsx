@@ -770,15 +770,15 @@ Souhaitez-vous :
           <div className="hidden md:block w-80 bg-white border-l border-gray-200 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 64px)' }}>
             <div className="p-6">
               <Tabs defaultValue="objectives">
-                <TabsList className="w-full">
-                  <TabsTrigger value="objectives" className="flex-1">
-                    <ListTodo className="h-4 w-4 mr-2" /> Objectifs
+                <TabsList className="w-full flex flex-wrap">
+                  <TabsTrigger value="objectives" className="flex-1 min-w-[33%] flex items-center justify-center">
+                    <ListTodo className="h-4 w-4 mr-1 md:mr-2" /> <span className="hidden md:inline">Objectifs</span>
                   </TabsTrigger>
-                  <TabsTrigger value="brief" className="flex-1">
-                    <FileCheck className="h-4 w-4 mr-2" /> Briefing
+                  <TabsTrigger value="brief" className="flex-1 min-w-[33%] flex items-center justify-center">
+                    <FileCheck className="h-4 w-4 mr-1 md:mr-2" /> <span className="hidden md:inline">Briefing</span>
                   </TabsTrigger>
-                  <TabsTrigger value="dashboard" className="flex-1">
-                    <BarChart className="h-4 w-4 mr-2" /> Compétences
+                  <TabsTrigger value="dashboard" className="flex-1 min-w-[33%] flex items-center justify-center">
+                    <BarChart className="h-4 w-4 mr-1 md:mr-2" /> <span className="hidden md:inline">Compétences</span>
                   </TabsTrigger>
                 </TabsList>
                 
@@ -943,15 +943,15 @@ Souhaitez-vous :
             </div>
             
             <Tabs defaultValue="objectives" className="flex-1">
-              <TabsList className="w-full">
-                <TabsTrigger value="objectives" className="flex-1">
-                  <ListTodo className="h-4 w-4 mr-2" /> Objectifs
+              <TabsList className="w-full flex flex-wrap">
+                <TabsTrigger value="objectives" className="flex-1 min-w-[33%]">
+                  <ListTodo className="h-4 w-4 mr-1 sm:mr-2" /> <span className="hidden xs:inline">Objectifs</span>
                 </TabsTrigger>
-                <TabsTrigger value="brief" className="flex-1">
-                  <FileCheck className="h-4 w-4 mr-2" /> Briefing
+                <TabsTrigger value="brief" className="flex-1 min-w-[33%]">
+                  <FileCheck className="h-4 w-4 mr-1 sm:mr-2" /> <span className="hidden xs:inline">Briefing</span>
                 </TabsTrigger>
-                <TabsTrigger value="dashboard" className="flex-1">
-                  <BarChart className="h-4 w-4 mr-2" /> Compétences
+                <TabsTrigger value="dashboard" className="flex-1 min-w-[33%]">
+                  <BarChart className="h-4 w-4 mr-1 sm:mr-2" /> <span className="hidden xs:inline">Compétences</span>
                 </TabsTrigger>
               </TabsList>
               
