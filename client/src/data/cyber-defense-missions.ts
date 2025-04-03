@@ -1,4 +1,15 @@
-import { Mission, Contact, Objective, Decision, availableContacts, getContactByName } from '../../../shared/types/cyber';
+import { 
+  Mission, 
+  Contact, 
+  Objective, 
+  Decision, 
+  availableContacts, 
+  getContactByName,
+  getExecutiveContacts,
+  getEvaluators,
+  getEvaluatorsByDomain,
+  getDirectContacts
+} from '../../../shared/types/cyber';
 import { v4 as uuidv4 } from 'uuid';
 
 // Récupérer les contacts spécifiques par leur nom
@@ -11,6 +22,10 @@ const julienGrimault = getContactByName('Julien Grimault')!;
 const nosingDoeuk = getContactByName('Nosing Doeuk')!;
 const thomasMercier = getContactByName('Thomas Mercier')!;
 const sarahDumont = getContactByName('Sarah Dumont')!;
+
+// Récupérer les groupes de contacts par rôle
+const executives = getExecutiveContacts();
+const evaluators = getEvaluators();
 
 // Exemple de mission complexe avec évaluation des décisions
 export const exampleMission: Mission = {

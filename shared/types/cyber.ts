@@ -6,6 +6,9 @@ export interface Contact {
   expertise: string;
   shortBio?: string;
   responseStyle?: string; // Style de communication du PNJ (formel, technique, etc.)
+  isExecutive?: boolean; // Indique si le contact est un supérieur hiérarchique
+  canEvaluate?: boolean; // Indique si le contact peut évaluer les décisions de l'utilisateur
+  evaluationDomain?: string; // Domaine d'expertise pour l'évaluation (finances, communication, technique, etc.)
 }
 
 export interface Decision {
@@ -72,69 +75,100 @@ export interface Message {
 export const availableContacts: Contact[] = [
   {
     name: "Marion Lopez",
-    role: "Directrice Communication et Marketing",
+    role: "Directeur communication et marketing",
     expertise: "Communication de crise, gestion de l'image, relations publiques",
-    responseStyle: "Orientée vers l'image externe et l'impact médiatique"
+    responseStyle: "Orientée vers l'image externe et l'impact médiatique",
+    isExecutive: true,
+    canEvaluate: true,
+    evaluationDomain: "communication"
   },
   {
     name: "Arnaud Gauthier",
     role: "Président",
     expertise: "Stratégie d'entreprise, gestion des risques majeurs, leadership",
-    responseStyle: "Directif, centré sur les résultats et la réputation de l'entreprise"
+    responseStyle: "Directif, centré sur les résultats et la réputation de l'entreprise",
+    isExecutive: true,
+    canEvaluate: true,
+    evaluationDomain: "stratégie"
   },
   {
     name: "Olivier Hervo",
     role: "Directeur Général",
     expertise: "Opérations, gestion d'entreprise, supervision des pôles",
-    responseStyle: "Orienté solutions, pragmatique, centré sur la continuité d'activité"
+    responseStyle: "Orienté solutions, pragmatique, centré sur la continuité d'activité",
+    isExecutive: true,
+    canEvaluate: true,
+    evaluationDomain: "opérations"
   },
   {
     name: "Lorenzo Bertola",
     role: "Directeur Général Adjoint et Directeur du pôle BFA",
     expertise: "Banque, Finance, Assurance, conformité réglementaire",
-    responseStyle: "Analytique, attentif aux impacts réglementaires et financiers"
+    responseStyle: "Analytique, attentif aux impacts réglementaires et financiers",
+    isExecutive: true,
+    canEvaluate: true,
+    evaluationDomain: "finance"
   },
   {
     name: "Anthony Frescal",
     role: "Directeur Général Adjoint et Directeur du pôle ENERGIES & UTILITIES",
     expertise: "Infrastructures critiques, énergie, services essentiels",
-    responseStyle: "Technique, focus sur la résilience des systèmes critiques"
+    responseStyle: "Technique, focus sur la résilience des systèmes critiques",
+    isExecutive: true,
+    canEvaluate: true,
+    evaluationDomain: "infrastructure"
   },
   {
     name: "Vincent Pascal",
     role: "Directeur Général Adjoint et Directeur du Développement",
     expertise: "Stratégie de croissance, innovation, nouvelles opportunités",
-    responseStyle: "Visionnaire, orienté vers les opportunités d'innovation et d'expansion"
+    responseStyle: "Visionnaire, orienté vers les opportunités d'innovation et d'expansion",
+    isExecutive: true,
+    canEvaluate: true,
+    evaluationDomain: "innovation"
   },
   {
     name: "Guillaume Lechevallier",
     role: "Directeur Général Adjoint et Directeur du pôle IMPULSE",
     expertise: "Industrie, Médias, Mobilités, Secteur Public, Protection Sociale, Santé",
-    responseStyle: "Diplomate, conscient des enjeux politiques et sociaux"
+    responseStyle: "Diplomate, conscient des enjeux politiques et sociaux",
+    isExecutive: true,
+    canEvaluate: true,
+    evaluationDomain: "relations"
   },
   {
     name: "Julien Grimault",
     role: "Senior Partner et Sponsor Cybersécurité",
     expertise: "Stratégie de cybersécurité, gouvernance, risques cyber",
-    responseStyle: "Expert technique, centré sur les meilleures pratiques de sécurité"
+    responseStyle: "Expert technique, centré sur les meilleures pratiques de sécurité",
+    isExecutive: true,
+    canEvaluate: true,
+    evaluationDomain: "cybersécurité"
   },
   {
     name: "Nosing Doeuk",
     role: "Senior Partner et Directeur DIXIT",
     expertise: "Data & IA, Cybersécurité et UX BFA",
-    responseStyle: "Innovant, à la pointe des technologies, orienté données"
+    responseStyle: "Innovant, à la pointe des technologies, orienté données",
+    isExecutive: true,
+    canEvaluate: true,
+    evaluationDomain: "technologie"
   },
   {
     name: "Thomas Mercier",
     role: "Responsable CERT",
     expertise: "Réponse aux incidents, analyse forensique, threat hunting",
-    responseStyle: "Technique, précis, méthodique dans la résolution d'incidents"
+    responseStyle: "Technique, précis, méthodique dans la résolution d'incidents",
+    isExecutive: false,
+    canEvaluate: false
   },
   {
     name: "Sarah Dumont",
     role: "Juriste Spécialisée RGPD",
     expertise: "Conformité légale, protection des données, notification d'incidents",
-    responseStyle: "Factuelle, centrée sur la conformité légale et les obligations réglementaires"
+    responseStyle: "Factuelle, centrée sur la conformité légale et les obligations réglementaires",
+    isExecutive: false,
+    canEvaluate: false
   }
 ];
 
@@ -153,4 +187,23 @@ export function getRandomContacts(count: number, exclude: string[] = []): Contac
   
   const shuffled = [...availableForSelection].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count);
+}
+
+export function getExecutiveContacts(): Contact[] {
+  return availableContacts.filter(contact => contact.isExecutive === true);
+}
+
+export function getEvaluators(): Contact[] {
+  return availableContacts.filter(contact => contact.canEvaluate === true);
+}
+
+export function getEvaluatorsByDomain(domain: string): Contact[] {
+  return availableContacts.filter(
+    contact => contact.canEvaluate === true && 
+    contact.evaluationDomain?.toLowerCase() === domain.toLowerCase()
+  );
+}
+
+export function getDirectContacts(): Contact[] {
+  return availableContacts.filter(contact => contact.isExecutive !== true);
 }
