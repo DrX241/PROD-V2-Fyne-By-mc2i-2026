@@ -340,11 +340,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsTyping(true);
     setUserName(name);
     
-    // Add user's name message
+    // Add user's name message - Utiliser le texte tel qu'il a été saisi
+    // sans ajouter automatiquement "Je m'appelle"
     const userMessage: ChatMessage = {
       id: uuidv4(),
       type: "user",
-      content: `Je m'appelle ${name}`,
+      content: name, // Utiliser le nom tel quel, sans préfixe
       timestamp: Date.now()
     };
     
