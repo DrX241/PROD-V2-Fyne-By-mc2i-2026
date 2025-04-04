@@ -68,18 +68,17 @@ export default function DomainSelection() {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-8 flex flex-col h-[calc(100vh-150px)]">
-      <div className="text-center mb-6 sm:mb-10">
-        <h2 className="text-xl sm:text-3xl font-bold text-blue-50 mb-2 sm:mb-3">
-          Choisissez un domaine de cybersécurité
+    <div className="w-full max-w-6xl mx-auto px-3 sm:px-6 py-3 sm:py-5 flex flex-col">
+      <div className="text-center mb-4 sm:mb-6">
+        <h2 className="text-lg sm:text-2xl font-bold text-blue-50 mb-1 sm:mb-2">
+          Modules d'Excellence Cyber
         </h2>
-        <p className="text-blue-300 max-w-3xl mx-auto text-sm sm:text-base">
-          Sélectionnez le domaine dans lequel vous souhaitez améliorer vos compétences. 
-          Chaque domaine propose des scénarios adaptés à différents niveaux d'expertise.
+        <p className="text-blue-300 max-w-3xl mx-auto text-xs sm:text-sm">
+          Sélectionnez un domaine pour améliorer vos compétences avec des scénarios adaptés.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 mt-2 sm:mt-4 overflow-y-auto scrollbar-cyber max-h-[calc(100vh-250px)] sm:max-h-[calc(100vh-300px)]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-2 sm:mt-3 overflow-visible">
         {domains.map((domain: any) => {
           const config = domainConfig[domain.id] || {
             icon: <Lock className="w-6 h-6 sm:w-10 sm:h-10 text-blue-300" />,
@@ -99,18 +98,18 @@ export default function DomainSelection() {
               onMouseLeave={() => setHoveredDomain(null)}
               className={`group relative bg-gradient-to-br ${config.bgGradient} backdrop-blur-sm border ${config.borderColor} 
                 rounded-xl overflow-hidden shadow-lg ${config.shadowColor} hover:shadow-xl 
-                transition-all duration-500 flex flex-col items-center text-center p-4 sm:p-6 min-h-[160px] sm:min-h-[220px] justify-between
+                transition-all duration-500 flex flex-col items-center text-center p-3 sm:p-4 min-h-[130px] sm:min-h-[180px] justify-between
                 hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98]`}
             >
               {/* Background glow effect */}
               <div className={`absolute inset-0 bg-gradient-to-br ${config.bgGradient} opacity-0 group-hover:opacity-30 transition-opacity duration-500`}></div>
               
               {/* Icon */}
-              <div className={`relative z-10 w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-gray-900/50 border ${config.borderColor} 
-                flex items-center justify-center mb-3 sm:mb-5 group-hover:scale-110 transition-transform duration-500
+              <div className={`relative z-10 w-10 h-10 sm:w-16 sm:h-16 rounded-full bg-gray-900/50 border ${config.borderColor} 
+                flex items-center justify-center mb-2 sm:mb-3 group-hover:scale-110 transition-transform duration-500
                 shadow-glow-md`}>
                 {React.cloneElement(config.icon as React.ReactElement, { 
-                  className: `w-6 h-6 sm:w-10 sm:h-10 ${(config.icon as React.ReactElement).props.className.split(' ').filter((c: string) => c.includes('text-')).join(' ')}` 
+                  className: `w-5 h-5 sm:w-8 sm:h-8 ${(config.icon as React.ReactElement).props.className.split(' ').filter((c: string) => c.includes('text-')).join(' ')}` 
                 })}
                 
                 {/* Pulsing ring effect on hover */}
@@ -121,7 +120,7 @@ export default function DomainSelection() {
               
               {/* Domain name */}
               <div className="relative z-10 w-full">
-                <h3 className={`font-bold text-base sm:text-xl ${config.glowColor} h-auto flex items-center justify-center leading-snug px-2`}>
+                <h3 className={`font-bold text-sm sm:text-lg ${config.glowColor} h-auto flex items-center justify-center leading-snug px-1`}>
                   {domain.name}
                 </h3>
                 
