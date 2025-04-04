@@ -1826,11 +1826,28 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
       
       systemPrompt += " Tu réponds toujours en français.";
       
+      // Traitement du message pour extraire le nom si c'est une présentation
+      let processedMessage = message;
+      let extractionInfo = "";
+      
+      // Si le message contient "Je m'appelle" ou variation, extraire le nom
+      const nameRegex = /(?:je\s+m['']\s*appelle)\s+(.+?)(?:\.|\s*$)/i;
+      const nameMatch = message.match(nameRegex);
+      
+      if (nameMatch && nameMatch[1]) {
+        const extractedName = nameMatch[1].trim();
+        // Ajouter des métadonnées pour l'IA afin qu'elle sache comment appeler l'utilisateur
+        extractionInfo = `\n\nNOM_UTILISATEUR_EXTRAIT: ${extractedName}\n(Utilise ce nom pour t'adresser à l'utilisateur directement, sans répéter "Je m'appelle" dans ta réponse)`;
+        
+        // Garder le message original pour le contexte
+        processedMessage = message;
+      }
+      
       // Appel à l'API OpenAI
       const completion = await openai.chat.completions.create({
         messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: message }
+          { role: "system", content: systemPrompt + extractionInfo },
+          { role: "user", content: processedMessage }
         ],
         temperature: config?.temperature || 0.7,
         max_tokens: config?.maxTokens || 800,
