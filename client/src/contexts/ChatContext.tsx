@@ -72,7 +72,7 @@ const initialScenarios: CyberScenario[] = [
     title: "Sensibilisation aux attaques de phishing",
     description: "Apprenez à identifier les différents types d'attaques de phishing et les techniques de manipulation utilisées.",
     contact: {
-      name: "Marion Lopez",
+      name: "Yousra Saidani",
       role: "Senior Partner et Directrice Marketing, Communication et RSE"
     },
     difficulty: "Débutant",
@@ -224,7 +224,7 @@ const initialScenarios: CyberScenario[] = [
     title: "Classification des données sensibles",
     description: "Mettez en place un système de classification des données pour protéger les informations sensibles.",
     contact: {
-      name: "Marion Lopez",
+      name: "Yousra Saidani",
       role: "Senior Partner et Directrice Marketing, Communication et RSE"
     },
     difficulty: "Débutant",
