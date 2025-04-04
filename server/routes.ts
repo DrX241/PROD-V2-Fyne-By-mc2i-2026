@@ -1803,58 +1803,77 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
         return res.status(400).json({ message: 'Message requis pour le chat' });
       }
       
-      // Charger le prompt maître avec la configuration de l'IA
-      let systemPrompt = "";
+      // Utiliser le service OpenAI d'Azure au lieu de l'API standard
       try {
-        systemPrompt = await openAIService.generateSystemPrompt({
+        // Générer les messages pour la conversation
+        const systemPrompt = await openAIService.generateSystemPrompt({
           difficultyLevel: config?.difficultyLevel || "Intermédiaire",
           responseStyle: config?.responseStyle || "Professionnel"
         });
-      } catch (error) {
-        console.error("Erreur lors du chargement du prompt maître:", error);
         
-        // Utiliser un prompt par défaut en cas d'erreur
-        systemPrompt = "Tu es un assistant spécialisé en cybersécurité qui aide les utilisateurs à comprendre et à se protéger contre les menaces informatiques.";
-      }
-      
-      // Personnaliser avec le nom d'utilisateur si disponible
-      if (userName) {
-        systemPrompt += `\n\nL'utilisateur avec qui tu interagis s'appelle ${userName}. Utilise son prénom à l'occasion pour personnaliser tes réponses.`;
-      }
-      
-      // Si un interlocuteur spécifique est défini (pour le mode simulation)
-      if (interlocutor && interlocutor !== 'I AM CYBER') {
-        systemPrompt += `\n\nDans cette conversation, tu incarnes ${interlocutor}, un expert en cybersécurité. Adapte ton style et ton expertise en conséquence.`;
-      }
-      
-      // Appel à l'API OpenAI
-      const completion = await openai.chat.completions.create({
-        messages: [
-          { role: "system", content: systemPrompt },
+        // Ajouter le contexte du nom d'utilisateur si disponible
+        let fullSystemPrompt = systemPrompt;
+        if (userName) {
+          fullSystemPrompt += `\n\nL'utilisateur avec qui tu interagis s'appelle ${userName}. Utilise son prénom à l'occasion pour personnaliser tes réponses.`;
+        }
+        
+        // Si un interlocuteur spécifique est défini (pour le mode simulation)
+        if (interlocutor && interlocutor !== 'I AM CYBER') {
+          fullSystemPrompt += `\n\nDans cette conversation, tu incarnes ${interlocutor}, un expert en cybersécurité. Adapte ton style et ton expertise en conséquence.`;
+        }
+        
+        // Préparer les messages pour l'API
+        const messages: ChatCompletionRequestMessage[] = [
+          { role: "system", content: fullSystemPrompt },
           { role: "user", content: message }
-        ],
-        temperature: config?.temperature || 0.7,
-        max_tokens: config?.maxTokens || 800,
-        model: primaryModel,
-      });
+        ];
+        
+        // Utiliser le service Azure OpenAI configuré
+        const responseText = await openAIService.getChatCompletionWithCache(
+          messages,
+          config?.temperature || 0.7,
+          config?.maxTokens || 800
+        );
       
-      // Envoi de la réponse au client
-      res.json({ 
-        response: completion.choices[0].message.content,
-        usage: completion.usage
-      });
-      
-    } catch (error: any) {
-      console.error('Erreur lors de la communication avec OpenAI:', error);
-      
-      // Gestion des erreurs spécifiques d'OpenAI
-      if (error.status === 401) {
-        res.status(401).json({ error: 'Erreur d\'authentification API OpenAI. Vérifiez votre clé API.' });
-      } else if (error.status === 429) {
-        res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
-      } else {
-        res.status(500).json({ error: 'Erreur lors de la génération de la réponse' });
+        // Envoi de la réponse au client
+        res.json({ 
+          response: responseText,
+          model: openAIService.getCurrentModelName()
+        });
+        
+      } catch (error: any) {
+        console.error('Erreur lors de la communication avec Azure OpenAI:', error);
+        
+        // Utiliser l'API OpenAI standard en fallback en cas d'erreur avec Azure
+        try {
+          console.log("Tentative de fallback vers l'API OpenAI standard...");
+          
+          // Message de fallback simplifié sans utiliser l'API standard à cause des problèmes de typage
+          const fallbackResponse = "Je suis désolé, une erreur s'est produite lors de la communication avec le serveur. Veuillez réessayer ou contacter le support technique si l'erreur persiste.";
+          
+          // Envoi de la réponse du fallback au client
+          res.json({ 
+            response: fallbackResponse,
+            model: "Fallback message",
+            fallback: true
+          });
+          
+        } catch (fallbackError) {
+          console.error('Erreur lors du fallback vers l\'API OpenAI standard:', fallbackError);
+          
+          // Gestion des erreurs pour toutes les tentatives
+          res.status(500).json({ 
+            error: 'Erreur lors de la génération de la réponse',
+            details: error.message
+          });
+        }
       }
+    } catch (outerError: any) {
+      console.error('Erreur dans la route /api/cyber/simple-chat:', outerError);
+      res.status(500).json({ 
+        error: 'Erreur serveur lors du traitement de la requête',
+        details: outerError.message
+      });
     }
   });
 
