@@ -1887,48 +1887,18 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
         return nameParts[startIndex];
       };
       
-      // Approche beaucoup plus simple et directe - regarder directement dans le message complet
+      // Extraction simple du prénom
       const directExtraction = (message: string): string | null => {
-        // Supprimer toutes les expressions d'introduction répétées
         let processedMsg = message.toLowerCase();
         
-        // Cas spécial pour "Je m'appelle Je m'appelle Eddy"
-        if (processedMsg.includes("je m'appelle je m'appelle") || 
-            processedMsg.includes("je m'appelle je suis") ||
-            processedMsg.includes("je suis je m'appelle")) {
-          
-          console.log("Detected multiple introduction phrases");
-          
-          // Supprimer toutes les formules d'introduction pour isoler le nom
-          const introRegex = /(je\s+suis|je\s+m['']\s*appelle)\s+/gi;
-          let cleanText = processedMsg;
-          
-          while (introRegex.test(cleanText)) {
-            cleanText = cleanText.replace(introRegex, "");
-            introRegex.lastIndex = 0;
-          }
-          
-          console.log("Cleaned text after removing intros:", cleanText);
-          
-          // Extraire le premier mot restant
-          const firstWord = cleanText.trim().split(/\s+/)[0];
-          if (firstWord) {
-            // Remettre la première lettre en majuscule pour la politesse
-            return firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
-          }
-        }
+        // Supprimer toutes les formules d'introduction pour ne garder que le prénom
+        const introRegex = /(je\s+suis|je\s+m['']\s*appelle)\s+/gi;
+        let cleanText = processedMsg.replace(introRegex, '');
         
-        // Cas normal avec une seule formule d'introduction
-        const jesuisRegex = /je\s+suis\s+([a-zÀ-ÿ]+)/i;
-        const jemappelleRegex = /je\s+m['']\s*appelle\s+([a-zÀ-ÿ]+)/i;
-        
-        const jesuisMatch = processedMsg.match(jesuisRegex);
-        const jemappelleMatch = processedMsg.match(jemappelleRegex);
-        
-        if (jemappelleMatch && jemappelleMatch[1]) {
-          return jemappelleMatch[1].charAt(0).toUpperCase() + jemappelleMatch[1].slice(1);
-        } else if (jesuisMatch && jesuisMatch[1]) {
-          return jesuisMatch[1].charAt(0).toUpperCase() + jesuisMatch[1].slice(1);
+        // Prendre le premier mot restant comme prénom
+        const firstWord = cleanText.trim().split(/\s+/)[0];
+        if (firstWord) {
+          return firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
         }
         
         return null;
