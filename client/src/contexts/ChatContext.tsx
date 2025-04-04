@@ -14,21 +14,39 @@ import type {
 
 /**
  * Fonction utilitaire pour extraire le prénom d'un texte contenant potentiellement 
- * des formules d'introduction comme "Je suis" ou "Je m'appelle"
+ * des formules d'introduction comme "Je suis", "Je m'appelle", "Mon nom est", etc.
  */
 const extractFirstName = (input: string): string => {
   if (!input) return "";
   
-  const cleanedInput = input.trim().toLowerCase();
+  // Étape 1: Nettoyer l'entrée
+  let cleanedInput = input.trim().toLowerCase();
   
-  // Supprimer les formules d'introduction comme "Je suis" ou "Je m'appelle"
-  const introPattern = /(je\s+suis|je\s+m['']\s*appelle)\s+/gi;
-  const cleanedName = cleanedInput.replace(introPattern, '');
+  // Étape 2: Liste étendue des patterns d'introduction à supprimer
+  const introPatterns = [
+    /(je\s+suis)/gi,
+    /(je\s+m['']\s*appelle)/gi,
+    /(mon\s+nom\s+est)/gi,
+    /(mon\s+prénom\s+est)/gi,
+    /(je\s+me\s+prénomme)/gi,
+    /(je\s+me\s+nomme)/gi,
+    /(je\s+me\s+présente)/gi,
+    /(c'est)/gi,
+    /(moi\s+c'est)/gi
+  ];
   
-  // Extraire le premier mot (prénom)
-  const firstWord = cleanedName.split(/\s+/)[0];
+  // Étape 3: Supprimer toutes les formules d'introduction
+  for (const pattern of introPatterns) {
+    cleanedInput = cleanedInput.replace(pattern, '');
+  }
   
-  // Mettre la première lettre en majuscule
+  // Étape 4: Supprimer les caractères de ponctuation et espaces excessifs
+  cleanedInput = cleanedInput.replace(/[,.;:!?]/g, '').trim();
+  
+  // Étape 5: Extraire le premier mot (prénom)
+  const firstWord = cleanedInput.split(/\s+/)[0];
+  
+  // Étape 6: Mettre la première lettre en majuscule
   return firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
 };
 
