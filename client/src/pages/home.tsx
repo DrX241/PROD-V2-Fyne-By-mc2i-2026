@@ -281,9 +281,16 @@ export default function Home() {
         </div>
       </div>
       
-      {/* Section Modules */}
-      <div className="bg-white py-16 lg:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Section Modules d'Excellence - Mise en avant */}
+      <div className="relative bg-gradient-to-b from-blue-50 to-white py-16 lg:py-24 overflow-hidden">
+        {/* Éléments décoratifs */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+          <div className="absolute top-10 left-10 w-64 h-64 bg-blue-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+          <div className="absolute top-10 right-10 w-72 h-72 bg-indigo-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute bottom-10 left-1/3 w-80 h-80 bg-cyan-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-16">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -291,10 +298,20 @@ export default function Home() {
               transition={{ duration: 0.7 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-                Nos modules <span className="text-blue-600">d'excellence</span>
+              <div className="inline-block mb-4">
+                <span className="px-4 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800">
+                  Découvrez nos solutions
+                </span>
+              </div>
+              <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+                Nos modules <span className="text-blue-600 relative">
+                  d'excellence
+                  <svg className="absolute bottom-0 left-0 w-full" height="5" viewBox="0 0 200 5" preserveAspectRatio="none">
+                    <path d="M0 5 Q 40 0, 80 2 T 160 3 T 200 0 V 5 H 0 Z" fill="rgba(59, 130, 246, 0.3)" />
+                  </svg>
+                </span>
               </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light leading-relaxed">
                 Une expérience d'apprentissage nouvelle génération, adaptée à vos besoins professionnels
               </p>
             </motion.div>
@@ -308,10 +325,25 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
+                className="transform hover:scale-105 transition-transform duration-300"
               >
                 <ModuleCard {...module} />
               </motion.div>
             ))}
+          </div>
+          
+          <div className="mt-16 text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              viewport={{ once: true }}
+            >
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                Explorer tous nos modules
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </motion.div>
           </div>
         </div>
       </div>
@@ -437,10 +469,15 @@ export default function Home() {
               </p>
               <div className="flex space-x-4">
                 {/* Icônes médias sociaux */}
-                {['facebook', 'twitter', 'linkedin', 'github'].map(social => (
-                  <a key={social} href="#" className="text-gray-400 hover:text-blue-400 transition-colors">
+                {[
+                  { name: 'LinkedIn', icon: 'L' },
+                  { name: 'Twitter', icon: 'T' },
+                  { name: 'Instagram', icon: 'I' },
+                  { name: 'YouTube', icon: 'Y' }
+                ].map(social => (
+                  <a key={social.name} href="#" className="text-gray-400 hover:text-blue-400 transition-colors">
                     <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
-                      {social[0].toUpperCase()}
+                      {social.icon}
                     </div>
                   </a>
                 ))}
@@ -512,31 +549,7 @@ export default function Home() {
         </div>
       </footer>
       
-      {/* Banner flottante avec animation pour améliorer l'immersion */}
-      <motion.div 
-        className="fixed bottom-8 right-8 z-50 bg-white rounded-xl shadow-xl p-4 border border-blue-100 max-w-xs"
-        initial={{ opacity: 0, y: 50, scale: 0.9 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ 
-          duration: 0.7,
-          delay: 2 // Apparaît après un délai
-        }}
-      >
-        <div className="flex items-start">
-          <div className="bg-blue-50 rounded-full p-2 mr-3">
-            <BrainCircuit className="h-6 w-6 text-blue-600" />
-          </div>
-          <div>
-            <h3 className="font-medium text-gray-900 mb-1">IA Assistant disponible</h3>
-            <p className="text-gray-600 text-sm mb-3">
-              Notre assistant IA est prêt à répondre à vos questions et vous guider à travers nos modules
-            </p>
-            <Button size="sm" className="w-full">
-              Démarrer une conversation
-            </Button>
-          </div>
-        </div>
-      </motion.div>
+      {/* Suppression de la bannière flottante */}
     </HomeLayout>
   );
 }
