@@ -5,7 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import ModulesPage from "@/pages/modules";
-import CyberPage from "@/pages/cyber";
+import CyberModeSelection from "@/pages/cyber-mode-selection";
+import CyberAgentPage from "@/pages/cyber-agent";
 import CyberDefensePage from "@/pages/cyber-defense";
 import CyberDefenseMissionPage from "@/pages/cyber-defense-mission";
 import { ChatProvider } from "./contexts/ChatContext";
@@ -15,7 +16,8 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/modules" component={ModulesPage} />
-      <Route path="/cyber" component={CyberPage} />
+      <Route path="/cyber" component={CyberModeSelection} />
+      <Route path="/cyber/agent" component={CyberAgentPage} />
       <Route path="/cyber-defense" component={CyberDefensePage} />
       <Route path="/cyber-defense/mission/:id" component={CyberDefenseMissionPage} />
       <Route path="/data-ia" component={NotYetImplemented} />
