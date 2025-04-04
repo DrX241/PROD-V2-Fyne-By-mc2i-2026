@@ -1832,14 +1832,47 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
       
       // Fonction pour nettoyer et extraire uniquement le prénom
       const extractRealName = (fullNameText: string): string => {
-        // Supprime les formulations de type "Je suis" ou "Je m'appelle"
-        let cleanName = fullNameText.replace(/^(je\s+suis|je\s+m['']\s*appelle)\s+/i, "");
+        console.log("Extracting real name from:", fullNameText);
         
-        // Si le nom contient encore "je suis" ou "je m'appelle" après le début
-        cleanName = cleanName.replace(/(je\s+suis|je\s+m['']\s*appelle)\s+/i, "");
+        // Cas spécifique: répétition "Je m'appelle Je m'appelle Eddy"
+        const repeatedPattern = /je\s+m['']\s*appelle\s+je\s+m['']\s*appelle\s+([a-zA-ZÀ-ÿ]+)/i;
+        const repeatedMatch = fullNameText.match(repeatedPattern);
+        if (repeatedMatch && repeatedMatch[1]) {
+          console.log("Matched repeated pattern, extracted:", repeatedMatch[1]);
+          return repeatedMatch[1];
+        }
         
-        // Prendre uniquement le premier mot (prénom)
-        const nameParts = cleanName.split(/\s+/);
+        // Cas spécifique: "Je m'appelle Je suis Eddy"
+        const mixedPattern = /je\s+m['']\s*appelle\s+je\s+suis\s+([a-zA-ZÀ-ÿ]+)/i;
+        const mixedMatch = fullNameText.match(mixedPattern);
+        if (mixedMatch && mixedMatch[1]) {
+          console.log("Matched mixed pattern, extracted:", mixedMatch[1]);
+          return mixedMatch[1];
+        }
+        
+        // Cas spécifique: "Je suis Je m'appelle Eddy"
+        const reverseMixedPattern = /je\s+suis\s+je\s+m['']\s*appelle\s+([a-zA-ZÀ-ÿ]+)/i;
+        const reverseMixedMatch = fullNameText.match(reverseMixedPattern);
+        if (reverseMixedMatch && reverseMixedMatch[1]) {
+          console.log("Matched reverse mixed pattern, extracted:", reverseMixedMatch[1]);
+          return reverseMixedMatch[1];
+        }
+        
+        // Enlever toutes les formules d'introduction pour garder seulement le dernier mot
+        let cleanText = fullNameText;
+        
+        // Supprimer récursivement les expressions d'introduction jusqu'à ce qu'il n'y en ait plus
+        const introPattern = /(je\s+suis|je\s+m['']\s*appelle)\s+/gi;
+        while (introPattern.test(cleanText)) {
+          cleanText = cleanText.replace(introPattern, "");
+          // Reset le regex pour la prochaine itération
+          introPattern.lastIndex = 0;
+        }
+        
+        console.log("After removing all intros:", cleanText);
+        
+        // Prendre uniquement le premier mot qui reste (prénom)
+        const nameParts = cleanText.split(/\s+/);
         
         // Si le premier "mot" est un article/préposition, prendre le suivant
         const skipWords = ["le", "la", "les", "un", "une", "des", "de", "du", "d'", "l'"];
@@ -1849,25 +1882,63 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
           startIndex = 1;
         }
         
+        console.log("Final extraction:", nameParts[startIndex]);
         return nameParts[startIndex];
       };
       
-      // Patterns courants pour les présentations
-      const patternJeSuis = /je\s+suis\s+([^,.!?\n]+)/i;
-      const patternJeMAppelle = /je\s+m['']\s*appelle\s+([^,.!?\n]+)/i;
+      // Approche beaucoup plus simple et directe - regarder directement dans le message complet
+      const directExtraction = (message: string): string | null => {
+        // Supprimer toutes les expressions d'introduction répétées
+        let processedMsg = message.toLowerCase();
+        
+        // Cas spécial pour "Je m'appelle Je m'appelle Eddy"
+        if (processedMsg.includes("je m'appelle je m'appelle") || 
+            processedMsg.includes("je m'appelle je suis") ||
+            processedMsg.includes("je suis je m'appelle")) {
+          
+          console.log("Detected multiple introduction phrases");
+          
+          // Supprimer toutes les formules d'introduction pour isoler le nom
+          const introRegex = /(je\s+suis|je\s+m['']\s*appelle)\s+/gi;
+          let cleanText = processedMsg;
+          
+          while (introRegex.test(cleanText)) {
+            cleanText = cleanText.replace(introRegex, "");
+            introRegex.lastIndex = 0;
+          }
+          
+          console.log("Cleaned text after removing intros:", cleanText);
+          
+          // Extraire le premier mot restant
+          const firstWord = cleanText.trim().split(/\s+/)[0];
+          if (firstWord) {
+            // Remettre la première lettre en majuscule pour la politesse
+            return firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
+          }
+        }
+        
+        // Cas normal avec une seule formule d'introduction
+        const jesuisRegex = /je\s+suis\s+([a-zÀ-ÿ]+)/i;
+        const jemappelleRegex = /je\s+m['']\s*appelle\s+([a-zÀ-ÿ]+)/i;
+        
+        const jesuisMatch = processedMsg.match(jesuisRegex);
+        const jemappelleMatch = processedMsg.match(jemappelleRegex);
+        
+        if (jemappelleMatch && jemappelleMatch[1]) {
+          return jemappelleMatch[1].charAt(0).toUpperCase() + jemappelleMatch[1].slice(1);
+        } else if (jesuisMatch && jesuisMatch[1]) {
+          return jesuisMatch[1].charAt(0).toUpperCase() + jesuisMatch[1].slice(1);
+        }
+        
+        return null;
+      };
       
-      // Tester les différents patterns
-      const jesuisMatch = message.match(patternJeSuis);
-      const jemappelleMatch = message.match(patternJeMAppelle);
+      // Extraction directe du nom dans le message complet
+      const directName = directExtraction(message);
       
-      // Prioriser "Je m'appelle" sur "Je suis" si les deux sont présents
-      if (jemappelleMatch && jemappelleMatch[1]) {
-        const extractedName = extractRealName(jemappelleMatch[0]);
-        extractionInfo = `\n\nNOM_UTILISATEUR_EXTRAIT: ${extractedName}\n(Utilise uniquement ce prénom pour t'adresser à l'utilisateur directement, ne répète pas la formule d'introduction)`;
-        processedMessage = message;
-      } else if (jesuisMatch && jesuisMatch[1]) {
-        const extractedName = extractRealName(jesuisMatch[0]);
-        extractionInfo = `\n\nNOM_UTILISATEUR_EXTRAIT: ${extractedName}\n(Utilise uniquement ce prénom pour t'adresser à l'utilisateur directement, ne répète pas la formule d'introduction)`;
+      if (directName) {
+        console.log("Extracted name directly:", directName);
+        extractionInfo = `\n\nNOM_UTILISATEUR_EXTRAIT: ${directName}\n(Utilise uniquement ce prénom pour t'adresser à l'utilisateur directement, ne répète jamais "Je m'appelle" ou "Je suis" dans ta réponse)`;
         processedMessage = message;
       }
       
