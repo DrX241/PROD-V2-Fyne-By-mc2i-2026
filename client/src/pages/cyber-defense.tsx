@@ -1,71 +1,37 @@
 import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { 
-  Shield, AlertTriangle, Database, FileWarning, Users, User, ScrollText,
-  AlertCircle, Clock, Zap, MessageSquare, Filter, ArrowRight, GraduationCap, Network
+  Shield, AlertTriangle, Database, FileWarning, Users, User, 
+  AlertCircle, Clock, Zap, MessageSquare, Filter, ArrowRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import HomeLayout from '@/components/layout/HomeLayout';
-import { cyberDefenseMissions } from '@/data/cyber-defense-missions';
 
-// Type pour la carte de mission simplifiée
-interface SimpleMission {
+interface Mission {
   id: string;
   title: string;
   description: string;
   difficulty: "Débutant" | "Intermédiaire" | "Expert";
   duration: string;
   tags: string[];
-  icon?: "phishing" | "ransomware" | "data-breach" | "social-engineering" | "apt" | "zero-day" | "rgpd" | "compliance" | "data-governance";
+  icon: "phishing" | "ransomware" | "data-breach" | "social-engineering" | "apt" | "zero-day";
 }
 
-// Fonction pour déduire une icône à partir des tags de la mission
-const getIconFromTags = (tags: string[]): "phishing" | "ransomware" | "data-breach" | "social-engineering" | "apt" | "zero-day" | "rgpd" | "compliance" | "data-governance" => {
-  const tagLowerCase = tags.map(tag => tag.toLowerCase());
-  
-  if (tagLowerCase.includes("phishing")) return "phishing";
-  if (tagLowerCase.includes("ransomware")) return "ransomware";
-  if (tagLowerCase.includes("rgpd") || tagLowerCase.includes("gdpr")) return "rgpd";
-  if (tagLowerCase.includes("données") || tagLowerCase.includes("data-breach") || tagLowerCase.includes("protection des données")) return "data-breach";
-  if (tagLowerCase.includes("social") || tagLowerCase.includes("ingénierie sociale")) return "social-engineering";
-  if (tagLowerCase.includes("apt") || tagLowerCase.includes("menace persistante")) return "apt";
-  if (tagLowerCase.includes("zero-day") || tagLowerCase.includes("vulnérabilité")) return "zero-day";
-  if (tagLowerCase.includes("conformité") || tagLowerCase.includes("compliance")) return "compliance";
-  if (tagLowerCase.includes("gouvernance") || tagLowerCase.includes("governance")) return "data-governance";
-  
-  // Par défaut
-  return "data-breach";
-};
-
 // Composant pour la carte de mission
-const MissionCard = ({ mission }: { mission: SimpleMission }) => {
+const MissionCard = ({ mission }: { mission: Mission }) => {
   const [isHover, setIsHover] = useState(false);
   
   // Mapping des icônes
-  const iconMap: Record<string, React.ReactNode> = {
+  const iconMap = {
     "phishing": <AlertCircle className="w-5 h-5" />,
     "ransomware": <FileWarning className="w-5 h-5" />,
     "data-breach": <Database className="w-5 h-5" />,
     "social-engineering": <Users className="w-5 h-5" />,
     "apt": <AlertTriangle className="w-5 h-5" />,
-    "zero-day": <Zap className="w-5 h-5" />,
-    "rgpd": <ScrollText className="w-5 h-5" />,
-    "compliance": <GraduationCap className="w-5 h-5" />,
-    "data-governance": <Network className="w-5 h-5" />
-  };
-  
-  // Obtenir l'icône appropriée avec gestion des cas par défaut
-  const getIcon = () => {
-    if (mission.icon && iconMap[mission.icon]) {
-      return iconMap[mission.icon];
-    }
-    
-    // Essayer de déterminer l'icône à partir des tags
-    const iconFromTags = getIconFromTags(mission.tags);
-    return iconMap[iconFromTags] || <Database className="w-5 h-5" />; // Icône par défaut
+    "zero-day": <Zap className="w-5 h-5" />
   };
   
   // Mapping des couleurs de fond en fonction du niveau de difficulté
@@ -88,7 +54,7 @@ const MissionCard = ({ mission }: { mission: SimpleMission }) => {
       <div className="p-6 flex flex-col h-full">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
-            {getIcon()}
+            {iconMap[mission.icon]}
           </div>
           <Badge className={difficultyColor[mission.difficulty]}>
             {mission.difficulty}
@@ -126,15 +92,63 @@ const MissionCard = ({ mission }: { mission: SimpleMission }) => {
 };
 
 export default function CyberDefense() {
-  // Convertir les missions du format complexe au format simplifié pour l'affichage
-  const missions: SimpleMission[] = cyberDefenseMissions.map(mission => ({
-    id: mission.id,
-    title: mission.title,
-    description: mission.description,
-    difficulty: mission.difficulty as "Débutant" | "Intermédiaire" | "Expert",
-    duration: mission.duration,
-    tags: mission.tags
-  }));
+  // Liste des missions disponibles
+  const missions: Mission[] = [
+    {
+      id: "phishing-campaign",
+      title: "Contrer une campagne de phishing massive",
+      description: "Une campagne de phishing sophistiquée cible les employés de votre entreprise. En tant que responsable de la sécurité, vous devez prendre rapidement les bonnes décisions pour limiter l'impact et protéger l'organisation.",
+      difficulty: "Débutant",
+      duration: "15-20 min",
+      tags: ["Phishing", "Sensibilisation", "Communication de crise"],
+      icon: "phishing"
+    },
+    {
+      id: "ransomware-attack",
+      title: "Gestion d'une attaque par ransomware",
+      description: "Des fichiers critiques ont été chiffrés et une demande de rançon a été reçue. Coordonnez la réponse à l'incident en prenant des décisions cruciales entre paiement, restauration et analyse forensique.",
+      difficulty: "Intermédiaire",
+      duration: "25-30 min",
+      tags: ["Ransomware", "Gestion de crise", "Continuité d'activité"],
+      icon: "ransomware"
+    },
+    {
+      id: "data-breach",
+      title: "Fuite de données sensibles",
+      description: "Une fuite de données clients a été détectée. Dirigez l'équipe d'investigation pour comprendre l'étendue du problème, limiter les dégâts et communiquer efficacement auprès des parties prenantes.",
+      difficulty: "Intermédiaire",
+      duration: "20-25 min",
+      tags: ["Protection des données", "RGPD", "Communication"],
+      icon: "data-breach"
+    },
+    {
+      id: "social-engineering",
+      title: "Infiltration par ingénierie sociale",
+      description: "Un attaquant a réussi à obtenir des informations sensibles en se faisant passer pour un membre de la direction. Découvrez comment l'attaque s'est déroulée et mettez en place les mesures correctives.",
+      difficulty: "Débutant",
+      duration: "15-20 min",
+      tags: ["Ingénierie sociale", "Formation", "Procédures"],
+      icon: "social-engineering"
+    },
+    {
+      id: "apt-defense",
+      title: "Détection d'une APT (Advanced Persistent Threat)",
+      description: "Des activités suspectes indiquent la présence d'un acteur malveillant sophistiqué dans votre réseau depuis plusieurs mois. Dirigez l'investigation et la réponse à cette menace avancée.",
+      difficulty: "Expert",
+      duration: "30-40 min",
+      tags: ["APT", "Threat hunting", "Analyse de compromission"],
+      icon: "apt"
+    },
+    {
+      id: "zero-day-vuln",
+      title: "Exploitation d'une vulnérabilité zero-day",
+      description: "Une vulnérabilité critique non documentée a été exploitée dans votre infrastructure. Gérez la situation d'urgence en collaborant avec différentes équipes et prestataires externes.",
+      difficulty: "Expert",
+      duration: "25-35 min",
+      tags: ["Vulnérabilité", "Patch management", "Analyse d'exploitation"],
+      icon: "zero-day"
+    }
+  ];
   
   const [filter, setFilter] = useState<string>("all");
   
@@ -177,7 +191,7 @@ export default function CyberDefense() {
                 transition={{ duration: 0.7, delay: 0.3 }}
               >
                 <div className="flex flex-col">
-                  <span className="text-3xl font-bold">{missions.length}</span>
+                  <span className="text-3xl font-bold">6</span>
                   <span className="text-green-200">Missions</span>
                 </div>
                 <div className="flex flex-col">
