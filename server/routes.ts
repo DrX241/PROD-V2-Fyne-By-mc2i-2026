@@ -1797,34 +1797,35 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
   // API route pour le chat immersif
   app.post('/api/cyber/simple-chat', async (req: Request, res: Response) => {
     try {
-      const { message, config } = req.body;
+      const { message, userName, interlocutor, config } = req.body;
       
       if (!message) {
         return res.status(400).json({ message: 'Message requis pour le chat' });
       }
       
-      // Construire un prompt système basé sur la configuration
-      let systemPrompt = "Tu es un assistant spécialisé en cybersécurité qui aide les utilisateurs à comprendre et à se protéger contre les menaces informatiques.";
-      
-      // Ajuster le prompt selon le niveau de difficulté
-      if (config?.difficultyLevel === 'Débutant') {
-        systemPrompt += " Tu utilises un langage simple et accessible, en évitant le jargon technique. Tu expliques les concepts de cybersécurité de manière basique pour les débutants.";
-      } else if (config?.difficultyLevel === 'Expert') {
-        systemPrompt += " Tu utilises un vocabulaire technique précis et tu apportes des informations détaillées et approfondies sur les sujets de cybersécurité pour un public expert.";
-      } else {
-        systemPrompt += " Tu adaptes ton langage pour un public ayant des connaissances intermédiaires en informatique, en expliquant les termes techniques lorsque nécessaire.";
+      // Charger le prompt maître avec la configuration de l'IA
+      let systemPrompt = "";
+      try {
+        systemPrompt = await openAIService.generateSystemPrompt({
+          difficultyLevel: config?.difficultyLevel || "Intermédiaire",
+          responseStyle: config?.responseStyle || "Professionnel"
+        });
+      } catch (error) {
+        console.error("Erreur lors du chargement du prompt maître:", error);
+        
+        // Utiliser un prompt par défaut en cas d'erreur
+        systemPrompt = "Tu es un assistant spécialisé en cybersécurité qui aide les utilisateurs à comprendre et à se protéger contre les menaces informatiques.";
       }
       
-      // Ajuster le prompt selon le style de réponse
-      if (config?.responseStyle === 'Détaillé et pédagogique') {
-        systemPrompt += " Tes réponses sont détaillées et pédagogiques, avec des explications complètes et des exemples concrets pour illustrer les concepts.";
-      } else if (config?.responseStyle === 'Concis et direct') {
-        systemPrompt += " Tes réponses sont concises et directes, allant droit au but sans détours inutiles, en te concentrant sur l'essentiel.";
-      } else {
-        systemPrompt += " Ton style de communication est professionnel et équilibré, ni trop verbeux ni trop concis.";
+      // Personnaliser avec le nom d'utilisateur si disponible
+      if (userName) {
+        systemPrompt += `\n\nL'utilisateur avec qui tu interagis s'appelle ${userName}. Utilise son prénom à l'occasion pour personnaliser tes réponses.`;
       }
       
-      systemPrompt += " Tu réponds toujours en français.";
+      // Si un interlocuteur spécifique est défini (pour le mode simulation)
+      if (interlocutor && interlocutor !== 'I AM CYBER') {
+        systemPrompt += `\n\nDans cette conversation, tu incarnes ${interlocutor}, un expert en cybersécurité. Adapte ton style et ton expertise en conséquence.`;
+      }
       
       // Appel à l'API OpenAI
       const completion = await openai.chat.completions.create({

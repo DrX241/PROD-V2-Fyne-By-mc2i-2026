@@ -24,17 +24,23 @@ const ChatInterface: React.FC = () => {
   const { currentInterlocutor } = useInterlocutors();
   const { updateSkill } = useSkills();
   
-  // Message de bienvenue par défaut
+  // States pour le dialogue initial
+  const [userName, setUserName] = useState<string>('');
+  const [hasAskedName, setHasAskedName] = useState<boolean>(false);
+  const [hasGreeted, setHasGreeted] = useState<boolean>(false);
+  
+  // Message de bienvenue par défaut et dialogue initial
   useEffect(() => {
     if (messages.length === 0) {
       setMessages([
         {
           id: '1',
-          content: "Bonjour, je suis I AM CYBER, votre assistant virtuel dans le monde passionnant de la cybersécurité ! Je suis là pour vous aider à développer vos compétences et à naviguer dans les scénarios de crise. Comment puis-je vous assister aujourd'hui ?",
+          content: "Bonjour, je suis I AM CYBER, votre assistant virtuel dans le monde passionnant de la cybersécurité ! Pour personnaliser notre interaction, pourriez-vous me dire comment vous vous appelez ?",
           role: 'assistant',
           timestamp: Date.now()
         }
       ]);
+      setHasAskedName(true);
     }
   }, []);
   
@@ -77,13 +83,40 @@ const ChatInterface: React.FC = () => {
     setInput('');
     setIsLoading(true);
     
+    // Gérer la demande de nom en premier
+    if (hasAskedName && !hasGreeted) {
+      setUserName(input.trim());
+      setHasGreeted(true);
+      
+      // Simuler un délai de frappe
+      setIsTyping(true);
+      
+      // Réponse personnalisée avec le nom
+      setTimeout(() => {
+        setIsTyping(false);
+        
+        const greetingMessage: MessageType = {
+          id: (Date.now() + 1).toString(),
+          content: `Ravi de vous rencontrer, ${input.trim()} ! Je suis là pour vous accompagner dans le monde passionnant de la cybersécurité. Comment puis-je vous aider aujourd'hui ?`,
+          role: 'assistant',
+          timestamp: Date.now()
+        };
+        
+        setMessages(prevMessages => [...prevMessages, greetingMessage]);
+        setIsLoading(false);
+      }, 1000);
+      
+      return;
+    }
+    
     try {
       // Simuler un délai de frappe
       setIsTyping(true);
       
-      // Appel API
+      // Appel API avec le nom d'utilisateur si disponible
       const response = await axios.post('/api/cyber/simple-chat', {
         message: input,
+        userName: userName, // Envoyer le nom pour personnalisation
         interlocutor: currentInterlocutor?.name || 'I AM CYBER'
       });
       
