@@ -1834,17 +1834,18 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
       const extractRealName = (fullNameText: string): string => {
         console.log("Extracting real name from:", fullNameText);
         
-        // Cas spécifique: répétition "Je m'appelle Je m'appelle Eddy"
-        const repeatedPattern = /je\s+m['']\s*appelle\s+je\s+m['']\s*appelle\s+([a-zA-ZÀ-ÿ]+)/i;
-        const repeatedMatch = fullNameText.match(repeatedPattern);
-        if (repeatedMatch && repeatedMatch[1]) {
-          console.log("Matched repeated pattern, extracted:", repeatedMatch[1]);
-          return repeatedMatch[1];
+        // Simplifier l'extraction en cherchant le dernier mot après "je m'appelle"
+        const simplePattern = /je\s+m['']\s*appelle\s+([a-zA-ZÀ-ÿ]+)(?:\s|$)/i;
+        const match = fullNameText.match(simplePattern);
+        
+        if (match && match[1]) {
+          console.log("Extracted name:", match[1]);
+          return match[1];
         }
         
-        // Cas spécifique: "Je m'appelle Je suis Eddy"
-        const mixedPattern = /je\s+m['']\s*appelle\s+je\s+suis\s+([a-zA-ZÀ-ÿ]+)/i;
-        const mixedMatch = fullNameText.match(mixedPattern);
+        // Fallback: prendre le dernier mot si le pattern n'est pas trouvé
+        const words = fullNameText.trim().split(/\s+/);
+        return words[words.length - 1];
         if (mixedMatch && mixedMatch[1]) {
           console.log("Matched mixed pattern, extracted:", mixedMatch[1]);
           return mixedMatch[1];
