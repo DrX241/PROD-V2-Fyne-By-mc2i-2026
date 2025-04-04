@@ -1,207 +1,231 @@
-import { useState, useRef, useEffect } from "react";
-import { useChatContext } from "@/contexts/ChatContext";
-import ChatMessage from "./ChatMessage";
-import DomainSelection from "./DomainSelection";
-import ScenarioSelection from "./ScenarioSelection";
-import EmailMessage from "./EmailMessage";
-import ContextBanner from "./ContextBanner";
-import { Send, RefreshCw, ChevronDown } from "lucide-react";
+import React, { useState, useRef, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Send, ChevronDown, Loader2, Clock, BotIcon } from 'lucide-react';
+import { MessageCircle, MessageCircleOff } from 'lucide-react';
+import axios from 'axios';
+import { useSkills } from '@/contexts/SkillsContext';
+import { useInterlocutors } from '@/contexts/InterlocutorContext';
 
-export default function ChatInterface() {
-  const { 
-    messages, 
-    sendMessage, 
-    isTyping,
-    userName,
-    resetChat
-  } = useChatContext();
-  
-  const [inputMessage, setInputMessage] = useState("");
-  const chatContainerRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+type MessageType = {
+  id: string;
+  content: string;
+  role: 'user' | 'assistant' | 'system';
+  timestamp: number;
+};
 
-  // Nous avons désactivé le défilement automatique pour donner à l'utilisateur le contrôle
-  // de la barre de défilement. Un bouton de défilement manuel vers le bas est disponible.
-  const [showScrollButton, setShowScrollButton] = useState(false);
+const ChatInterface: React.FC = () => {
+  const [messages, setMessages] = useState<MessageType[]>([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected'>('disconnected');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  // Détection de la position de défilement pour montrer/cacher le bouton
+  const { currentInterlocutor } = useInterlocutors();
+  const { updateSkill } = useSkills();
+  
+  // Message de bienvenue par défaut
   useEffect(() => {
-    if (!chatContainerRef.current) return;
-    
-    const handleScroll = () => {
-      if (!chatContainerRef.current) return;
-      
-      const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
-      const isScrolledUp = scrollHeight - scrollTop - clientHeight > 100;
-      setShowScrollButton(isScrolledUp);
-    };
-    
-    // Vérifier la position initiale
-    handleScroll();
-    
-    // Ajouter un écouteur de défilement
-    chatContainerRef.current.addEventListener('scroll', handleScroll);
-    
-    return () => {
-      chatContainerRef.current?.removeEventListener('scroll', handleScroll);
-    };
-  }, [messages]);
-  
-  // Fonction pour faire défiler vers le bas manuellement
-  const scrollToBottom = () => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTo({
-        top: chatContainerRef.current.scrollHeight,
-        behavior: 'smooth'
-      });
-    }
-  };
-
-  // Focus input on load
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.focus();
+    if (messages.length === 0) {
+      setMessages([
+        {
+          id: '1',
+          content: "Bonjour, je suis I AM CYBER, votre assistant virtuel dans le monde passionnant de la cybersécurité ! Je suis là pour vous aider à développer vos compétences et à naviguer dans les scénarios de crise. Comment puis-je vous assister aujourd'hui ?",
+          role: 'assistant',
+          timestamp: Date.now()
+        }
+      ]);
     }
   }, []);
-
-  // Gérer les entrées clavier, notamment Shift+Enter
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter') {
-      if (e.shiftKey) {
-        // Shift+Enter - ajouter une nouvelle ligne
-        return; // Comportement par défaut (insertion d'un saut de ligne)
-      } else {
-        // Enter simple - envoyer le message
-        e.preventDefault(); // Empêcher le saut de ligne
-        if (inputMessage.trim()) {
-          handleSubmit(e);
-        }
+  
+  // Vérifier le statut de connexion
+  useEffect(() => {
+    const checkStatus = async () => {
+      try {
+        const response = await axios.get('/api/cyber/status');
+        setConnectionStatus(response.data.status);
+      } catch (error) {
+        setConnectionStatus('disconnected');
       }
-    }
-  };
-
+    };
+    
+    checkStatus();
+    const interval = setInterval(checkStatus, 60000); // Vérifier toutes les minutes
+    
+    return () => clearInterval(interval);
+  }, []);
+  
+  // Défiler vers le bas à chaque nouveau message
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+  
+  // Soumettre un message
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputMessage.trim() === "") return;
     
-    const messageToSend = inputMessage;
-    setInputMessage("");
-    await sendMessage(messageToSend);
+    if (!input.trim() || isLoading) return;
     
-    // Lorsque l'utilisateur envoie un message, nous lui proposons de défiler vers le bas
-    // sans forcer le défilement automatique
-    setShowScrollButton(true);
-  };
-
-  const renderMessageContent = (message: any) => {
-    switch (message.type) {
-      case 'domain-selection':
-        return <DomainSelection />;
-      case 'scenario-selection':
-        return <ScenarioSelection />;
-      case 'email':
-        return <EmailMessage email={message.content} />;
-      case 'user':
-      case 'bot':
-        return (
-          <ChatMessage 
-            type={message.type} 
-            content={message.content as string} 
-            contactName={message.contactName} 
-            contactRole={message.contactRole}
-          />
-        );
-      default:
-        return null;
+    const userMessage: MessageType = {
+      id: Date.now().toString(),
+      content: input,
+      role: 'user',
+      timestamp: Date.now()
+    };
+    
+    setMessages(prevMessages => [...prevMessages, userMessage]);
+    setInput('');
+    setIsLoading(true);
+    
+    try {
+      // Simuler un délai de frappe
+      setIsTyping(true);
+      
+      // Appel API
+      const response = await axios.post('/api/cyber/simple-chat', {
+        message: input,
+        interlocutor: currentInterlocutor?.name || 'I AM CYBER'
+      });
+      
+      // Ajouter un délai pour simuler la frappe
+      setTimeout(() => {
+        setIsTyping(false);
+        
+        const assistantMessage: MessageType = {
+          id: (Date.now() + 1).toString(),
+          content: response.data.response,
+          role: 'assistant',
+          timestamp: Date.now()
+        };
+        
+        setMessages(prevMessages => [...prevMessages, assistantMessage]);
+        setIsLoading(false);
+        
+        // Simuler l'amélioration des compétences
+        if (Math.random() > 0.7) {
+          const skillIds = ['skill1', 'skill2', 'skill3', 'skill4', 'skill5', 'skill6'];
+          const randomSkill = skillIds[Math.floor(Math.random() * skillIds.length)];
+          const improvement = Math.floor(Math.random() * 5) + 1;
+          
+          updateSkill(randomSkill, improvement);
+        }
+      }, 1000);
+      
+    } catch (error) {
+      setIsTyping(false);
+      setIsLoading(false);
+      
+      const errorMessage: MessageType = {
+        id: (Date.now() + 1).toString(),
+        content: "Désolé, une erreur s'est produite lors de la communication avec l'assistant. Veuillez réessayer.",
+        role: 'system',
+        timestamp: Date.now()
+      };
+      
+      setMessages(prevMessages => [...prevMessages, errorMessage]);
     }
   };
-
+  
   return (
-    <div className="h-full w-full flex flex-col text-blue-50">
-      {/* Bannière contextuelle et bouton réinitialisation */}
-      <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-900/80 to-indigo-900/80 backdrop-blur-md border-b border-blue-700/30 w-full shadow-md">
-        <div className="flex justify-end p-2">
-          {userName && (
-            <button 
-              onClick={resetChat}
-              className="flex items-center gap-2 text-sm bg-blue-900/50 hover:bg-blue-800/70 text-blue-100 py-2 px-4 rounded-lg transition-all duration-300 font-medium border border-blue-700/50 shadow-inner"
-            >
-              <RefreshCw className="h-4 w-4" />
-              <span>Nouvelle session</span>
-            </button>
-          )}
+    <div className="flex flex-col h-full bg-gray-900/50 border-r border-blue-900/30">
+      {/* Statut de connexion */}
+      <div className={`px-4 py-2 flex justify-between items-center ${connectionStatus === 'connected' ? 'bg-green-900/20' : 'bg-red-900/20'}`}>
+        <div className="flex items-center">
+          <div className={`w-2 h-2 rounded-full mr-2 ${connectionStatus === 'connected' ? 'bg-green-500' : 'bg-red-500'}`}></div>
+          <span className="text-sm text-blue-200">
+            {connectionStatus === 'connected' ? 'Connecté à Azure OpenAI' : 'Déconnecté'}
+          </span>
         </div>
-        <ContextBanner />
+        <div className="text-sm text-blue-300">
+          {currentInterlocutor ? `Interlocuteur: ${currentInterlocutor.name}` : 'I AM CYBER'}
+        </div>
       </div>
-
-      {/* Messages */}
-      <div 
-        className="flex-1 overflow-y-auto py-4 sm:py-6 px-2 sm:px-4 relative scrollbar-cyber"
-        ref={chatContainerRef}
-        style={{ scrollBehavior: 'smooth', height: 'calc(100vh - 200px)' }}
-      >
-        <div className="w-full max-w-5xl mx-auto px-2 sm:px-6">
-          {messages.map((message: any) => (
-            <div key={message.id} className="mb-6 sm:mb-8 animate-fadeIn">
-              {renderMessageContent(message)}
-            </div>
-          ))}
-          
-          {/* Indicateur de saisie */}
-          {isTyping && (
-            <div className="typing-indicator-container mt-3 sm:mt-4 ml-8 sm:ml-12 animate-pulse">
-              <div className="typing-indicator-cyber">
-                <div className="typing-dot-cyber" style={{"--dot-index": "0"} as React.CSSProperties}></div>
-                <div className="typing-dot-cyber" style={{"--dot-index": "1"} as React.CSSProperties}></div>
-                <div className="typing-dot-cyber" style={{"--dot-index": "2"} as React.CSSProperties}></div>
+      
+      {/* Zone de messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.map(message => (
+          <div 
+            key={message.id}
+            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+          >
+            <div 
+              className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                message.role === 'user' 
+                  ? 'bg-blue-600 text-white' 
+                  : message.role === 'system'
+                    ? 'bg-red-900/50 text-red-100 border border-red-800/50'
+                    : 'bg-gray-800 text-gray-100'
+              }`}
+            >
+              {message.content}
+              <div className="text-xs mt-1 opacity-70 flex items-center">
+                <Clock className="w-3 h-3 mr-1" />
+                {new Date(message.timestamp).toLocaleTimeString()}
               </div>
             </div>
-          )}
+          </div>
+        ))}
+        
+        {isTyping && (
+          <div className="flex justify-start">
+            <div className="bg-gray-800 text-gray-100 rounded-lg px-4 py-2 max-w-[80%]">
+              <div className="flex space-x-2">
+                <div className="w-2 h-2 rounded-full bg-blue-400 animate-bounce"></div>
+                <div className="w-2 h-2 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-2 h-2 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        <div ref={messagesEndRef} />
+      </div>
+      
+      {/* Formulaire de saisie */}
+      <form onSubmit={handleSubmit} className="p-4 border-t border-blue-900/30 bg-gray-900/70">
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Saisissez votre message..."
+              className="w-full px-4 py-2 bg-gray-800 border border-blue-900/30 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white"
+              disabled={isLoading}
+            />
+            {isLoading && <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-blue-400 animate-spin" />}
+          </div>
+          <Button 
+            type="submit" 
+            disabled={isLoading || !input.trim()}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            <Send className="h-5 w-5" />
+          </Button>
         </div>
         
-        {/* Bouton de défilement vers le bas */}
-        {showScrollButton && (
-          <button 
-            onClick={scrollToBottom}
-            className="fixed right-6 bottom-24 bg-gradient-to-r from-blue-600 to-indigo-600 p-3 rounded-full shadow-lg z-20 text-white hover:from-blue-700 hover:to-indigo-700 animate-fadeIn transition-all"
-            title="Défiler vers le bas"
-            aria-label="Défiler vers le bas de la conversation"
-          >
-            <ChevronDown className="h-5 w-5" />
-          </button>
-        )}
-      </div>
-
-      {/* Zone de saisie */}
-      <div className="py-3 sm:py-4 px-2 sm:px-4 bg-gradient-to-r from-blue-900/90 to-indigo-900/90 backdrop-blur-lg border-t border-blue-700/30 sticky bottom-0 shadow-lg">
-        <div className="max-w-5xl mx-auto px-2 sm:px-6">
-          <form className="flex items-start gap-2 sm:gap-3" onSubmit={handleSubmit}>
-            <div className="relative flex-1 group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
-              <textarea 
-                ref={textareaRef}
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyDown={handleKeyDown}
-                rows={1}
-                className="relative w-full py-2.5 sm:py-3.5 px-3 sm:px-4 pr-10 sm:pr-12 rounded-lg bg-gray-900/70 border border-blue-700/50 outline-none text-blue-50 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all placeholder:text-blue-300/50 text-sm sm:text-base resize-none overflow-auto"
-                placeholder="Tapez votre réponse... (Shift+Entrée pour aller à la ligne)"
-                style={{ minHeight: "2.5rem", maxHeight: "8rem" }}
-              />
-              <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
-                <span className="text-xs text-blue-400/60 hidden sm:inline">Shift+Entrée = nouvelle ligne</span>
+        <div className="flex justify-between mt-2 text-xs text-blue-400">
+          <div className="flex items-center">
+            <BotIcon className="w-4 h-4 mr-1" />
+            <span>GPT-4o</span>
+          </div>
+          <div>
+            {connectionStatus === 'connected' ? (
+              <div className="flex items-center text-green-400">
+                <MessageCircle className="w-4 h-4 mr-1" />
+                <span>Assistant disponible</span>
               </div>
-            </div>
-            <button 
-              type="submit" 
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white p-3 sm:p-4 rounded-full flex items-center justify-center transition-all duration-300 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg disabled:shadow-none disabled:bg-blue-900/50 group"
-              disabled={!inputMessage.trim()}
-            >
-              <Send className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            </button>
-          </form>
+            ) : (
+              <div className="flex items-center text-red-400">
+                <MessageCircleOff className="w-4 h-4 mr-1" />
+                <span>Assistant indisponible</span>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      </form>
     </div>
   );
-}
+};
+
+export default ChatInterface;

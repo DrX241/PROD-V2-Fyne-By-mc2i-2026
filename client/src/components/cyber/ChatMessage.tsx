@@ -1,5 +1,7 @@
 import React from "react";
 import { BotMessageSquare, User } from "lucide-react";
+import Avatar from "@/components/cyber/profile/AvatarGenerator";
+import { useInterlocutors } from "@/contexts/InterlocutorContext";
 
 interface ChatMessageProps {
   type: "user" | "bot";
@@ -9,6 +11,30 @@ interface ChatMessageProps {
 }
 
 export default function ChatMessage({ type, content, contactName, contactRole }: ChatMessageProps) {
+  const { getInterlocutorById } = useInterlocutors();
+  
+  // Convertir le nom du contact en ID d'interlocuteur (normaliser)
+  const getInterlocutorId = (name?: string) => {
+    if (!name) return 'i-am-cyber';
+    
+    // Conversion simple du nom en ID (en minuscules, avec des tirets)
+    return name.toLowerCase().replace(/ /g, '-');
+  };
+  
+  // Obtenir l'interlocuteur par ID
+  const interlocutorId = getInterlocutorId(contactName);
+  const interlocutor = getInterlocutorById(interlocutorId);
+  
+  // Si l'interlocuteur n'est pas trouvé, créer un interlocuteur temporaire
+  const tempInterlocutor = interlocutor || {
+    id: interlocutorId,
+    name: contactName || 'I AM CYBER',
+    role: contactRole || 'Assistant',
+    avatarUrl: '',
+    description: '',
+    backgroundColor: 'bg-blue-900',
+    textColor: 'text-blue-100'
+  };
   // Convert line breaks to paragraph elements
   const formattedContent = content.split('\n').map((line, i) => {
     // If the line starts with a bullet point, make it a list item
@@ -65,13 +91,19 @@ export default function ChatMessage({ type, content, contactName, contactRole }:
   return (
     <div className={`flex items-start gap-2 sm:gap-3 ${type === 'user' ? 'flex-row-reverse justify-start' : 'flex-row justify-start'} w-full`}>
       {/* Avatar */}
-      <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br ${avatarColor} flex items-center justify-center flex-shrink-0 shadow-glow-sm border border-blue-500/30`}>
-        {type === "user" ? (
+      {type === "user" ? (
+        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br ${avatarColor} flex items-center justify-center flex-shrink-0 shadow-glow-sm border border-blue-500/30`}>
           <User className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
-        ) : (
-          <BotMessageSquare className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
-        )}
-      </div>
+        </div>
+      ) : (
+        <Avatar
+          interlocutor={tempInterlocutor}
+          size="sm"
+          showStatus={true}
+          statusType="online"
+          className="flex-shrink-0"
+        />
+      )}
       
       {/* Message content */}
       <div className={`${type === 'user' ? 'text-right' : 'text-left'} max-w-[85%] sm:max-w-[75%] rounded-lg ${messageBgColor} p-3 sm:p-4 border backdrop-blur-sm shadow-md`}>
