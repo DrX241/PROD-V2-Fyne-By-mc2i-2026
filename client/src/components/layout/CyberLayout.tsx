@@ -20,8 +20,10 @@ export default function CyberLayout({ children }: CyberLayoutProps) {
 
       <main className="flex-1 flex w-full overflow-hidden relative z-10" style={{ height: 'calc(100vh - 70px)' }}>
         {/* Zone principale de contenu */}
-        <div className="flex-1 h-full overflow-hidden">
-          {children}
+        <div className="flex-1 overflow-y-auto flex justify-center">
+          <div className="w-full max-w-5xl overflow-y-auto backdrop-blur-sm bg-black/10 rounded-lg shadow-xl my-4 mx-4">
+            {children}
+          </div>
         </div>
       </main>
     </div>

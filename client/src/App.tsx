@@ -9,8 +9,6 @@ import CyberPage from "@/pages/cyber";
 import CyberDefensePage from "@/pages/cyber-defense";
 import CyberDefenseMissionPage from "@/pages/cyber-defense-mission";
 import { ChatProvider } from "./contexts/ChatContext";
-import { SkillsProvider } from "./contexts/SkillsContext";
-import { InterlocutorsProvider } from "./contexts/InterlocutorContext";
 
 function Router() {
   return (
@@ -49,14 +47,10 @@ function NotYetImplemented() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <SkillsProvider>
-        <InterlocutorsProvider>
-          <ChatProvider>
-            <Router />
-            <Toaster />
-          </ChatProvider>
-        </InterlocutorsProvider>
-      </SkillsProvider>
+      <ChatProvider>
+        <Router />
+        <Toaster />
+      </ChatProvider>
     </QueryClientProvider>
   );
 }

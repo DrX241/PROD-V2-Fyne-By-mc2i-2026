@@ -1797,83 +1797,63 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
   // API route pour le chat immersif
   app.post('/api/cyber/simple-chat', async (req: Request, res: Response) => {
     try {
-      const { message, userName, interlocutor, config } = req.body;
+      const { message, config } = req.body;
       
       if (!message) {
         return res.status(400).json({ message: 'Message requis pour le chat' });
       }
       
-      // Utiliser le service OpenAI d'Azure au lieu de l'API standard
-      try {
-        // Générer les messages pour la conversation
-        const systemPrompt = await openAIService.generateSystemPrompt({
-          difficultyLevel: config?.difficultyLevel || "Intermédiaire",
-          responseStyle: config?.responseStyle || "Professionnel"
-        });
-        
-        // Ajouter le contexte du nom d'utilisateur si disponible
-        let fullSystemPrompt = systemPrompt;
-        if (userName) {
-          fullSystemPrompt += `\n\nL'utilisateur avec qui tu interagis s'appelle ${userName}. Utilise son prénom à l'occasion pour personnaliser tes réponses.`;
-        }
-        
-        // Si un interlocuteur spécifique est défini (pour le mode simulation)
-        if (interlocutor && interlocutor !== 'I AM CYBER') {
-          fullSystemPrompt += `\n\nDans cette conversation, tu incarnes ${interlocutor}, un expert en cybersécurité. Adapte ton style et ton expertise en conséquence.`;
-        }
-        
-        // Préparer les messages pour l'API
-        const messages: ChatCompletionRequestMessage[] = [
-          { role: "system", content: fullSystemPrompt },
-          { role: "user", content: message }
-        ];
-        
-        // Utiliser le service Azure OpenAI configuré
-        const responseText = await openAIService.getChatCompletionWithCache(
-          messages,
-          config?.temperature || 0.7,
-          config?.maxTokens || 800
-        );
+      // Construire un prompt système basé sur la configuration
+      let systemPrompt = "Tu es un assistant spécialisé en cybersécurité qui aide les utilisateurs à comprendre et à se protéger contre les menaces informatiques.";
       
-        // Envoi de la réponse au client
-        res.json({ 
-          response: responseText,
-          model: openAIService.getCurrentModelName()
-        });
-        
-      } catch (error: any) {
-        console.error('Erreur lors de la communication avec Azure OpenAI:', error);
-        
-        // Utiliser l'API OpenAI standard en fallback en cas d'erreur avec Azure
-        try {
-          console.log("Tentative de fallback vers l'API OpenAI standard...");
-          
-          // Message de fallback simplifié sans utiliser l'API standard à cause des problèmes de typage
-          const fallbackResponse = "Je suis désolé, une erreur s'est produite lors de la communication avec le serveur. Veuillez réessayer ou contacter le support technique si l'erreur persiste.";
-          
-          // Envoi de la réponse du fallback au client
-          res.json({ 
-            response: fallbackResponse,
-            model: "Fallback message",
-            fallback: true
-          });
-          
-        } catch (fallbackError) {
-          console.error('Erreur lors du fallback vers l\'API OpenAI standard:', fallbackError);
-          
-          // Gestion des erreurs pour toutes les tentatives
-          res.status(500).json({ 
-            error: 'Erreur lors de la génération de la réponse',
-            details: error.message
-          });
-        }
+      // Ajuster le prompt selon le niveau de difficulté
+      if (config?.difficultyLevel === 'Débutant') {
+        systemPrompt += " Tu utilises un langage simple et accessible, en évitant le jargon technique. Tu expliques les concepts de cybersécurité de manière basique pour les débutants.";
+      } else if (config?.difficultyLevel === 'Expert') {
+        systemPrompt += " Tu utilises un vocabulaire technique précis et tu apportes des informations détaillées et approfondies sur les sujets de cybersécurité pour un public expert.";
+      } else {
+        systemPrompt += " Tu adaptes ton langage pour un public ayant des connaissances intermédiaires en informatique, en expliquant les termes techniques lorsque nécessaire.";
       }
-    } catch (outerError: any) {
-      console.error('Erreur dans la route /api/cyber/simple-chat:', outerError);
-      res.status(500).json({ 
-        error: 'Erreur serveur lors du traitement de la requête',
-        details: outerError.message
+      
+      // Ajuster le prompt selon le style de réponse
+      if (config?.responseStyle === 'Détaillé et pédagogique') {
+        systemPrompt += " Tes réponses sont détaillées et pédagogiques, avec des explications complètes et des exemples concrets pour illustrer les concepts.";
+      } else if (config?.responseStyle === 'Concis et direct') {
+        systemPrompt += " Tes réponses sont concises et directes, allant droit au but sans détours inutiles, en te concentrant sur l'essentiel.";
+      } else {
+        systemPrompt += " Ton style de communication est professionnel et équilibré, ni trop verbeux ni trop concis.";
+      }
+      
+      systemPrompt += " Tu réponds toujours en français.";
+      
+      // Appel à l'API OpenAI
+      const completion = await openai.chat.completions.create({
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: message }
+        ],
+        temperature: config?.temperature || 0.7,
+        max_tokens: config?.maxTokens || 800,
+        model: primaryModel,
       });
+      
+      // Envoi de la réponse au client
+      res.json({ 
+        response: completion.choices[0].message.content,
+        usage: completion.usage
+      });
+      
+    } catch (error: any) {
+      console.error('Erreur lors de la communication avec OpenAI:', error);
+      
+      // Gestion des erreurs spécifiques d'OpenAI
+      if (error.status === 401) {
+        res.status(401).json({ error: 'Erreur d\'authentification API OpenAI. Vérifiez votre clé API.' });
+      } else if (error.status === 429) {
+        res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
+      } else {
+        res.status(500).json({ error: 'Erreur lors de la génération de la réponse' });
+      }
     }
   });
 
