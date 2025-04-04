@@ -101,21 +101,12 @@ export default function Home() {
   const modules = [
     {
       title: "I AM CYBER",
-      description: "Immergez-vous dans des scénarios de cybersécurité interactifs guidés par l'IA pour développer vos compétences face aux menaces numériques réelles.",
+      description: "Immergez-vous dans des simulations de cybersécurité interactives et choisissez entre le mode agent IA conversationnel ou les scénarios tactiques de défense.",
       icon: <ShieldCheck className="w-8 h-8 text-white" />,
       color: "bg-blue-600",
       bgColor: "bg-gradient-to-br from-blue-50 to-blue-100",
       accentColor: "bg-blue-500",
       linkTo: "/cyber"
-    },
-    {
-      title: "CYBER DEFENSE",
-      description: "Prenez les commandes et affrontez des menaces cybernétiques avancées dans un environnement de simulation tactique où vous êtes l'acteur principal.",
-      icon: <Shield className="w-8 h-8 text-white" />,
-      color: "bg-green-600",
-      bgColor: "bg-gradient-to-br from-green-50 to-green-100",
-      accentColor: "bg-green-500",
-      linkTo: "/cyber-defense"
     },
     {
       title: "I AM DATA & IA",
