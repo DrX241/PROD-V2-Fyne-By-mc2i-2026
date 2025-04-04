@@ -38,13 +38,13 @@ export default function CyberModeSelection() {
 
   return (
     <HomeLayout>
-      <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gray-900">
+      <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-gray-900 to-blue-900">
         {/* Arrière-plan cybersécurité */}
-        <div className="absolute inset-0 w-full h-full opacity-20">
+        <div className="absolute inset-0 w-full h-full">
           {/* Grille numérique */}
-          <div className="absolute inset-0 z-0 grid grid-cols-12 grid-rows-12 gap-4 opacity-10">
+          <div className="absolute inset-0 z-0 grid grid-cols-12 grid-rows-12 gap-4 opacity-30">
             {Array.from({ length: 144 }).map((_, i) => (
-              <div key={i} className="bg-blue-500 rounded-md opacity-20"></div>
+              <div key={i} className="bg-blue-500 rounded-md opacity-10"></div>
             ))}
           </div>
           
@@ -54,8 +54,8 @@ export default function CyberModeSelection() {
             <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <linearGradient id="grid-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.1" />
-                  <stop offset="100%" stopColor="#60a5fa" stopOpacity="0.3" />
+                  <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4" />
+                  <stop offset="100%" stopColor="#60a5fa" stopOpacity="0.7" />
                 </linearGradient>
               </defs>
               {/* Lignes horizontales */}
@@ -67,7 +67,7 @@ export default function CyberModeSelection() {
                   x2="100%" 
                   y2={i * 120 + (Math.random() * 50)} 
                   stroke="url(#grid-gradient)" 
-                  strokeWidth="1"
+                  strokeWidth="1.5"
                 />
               ))}
               {/* Lignes verticales */}
@@ -79,7 +79,7 @@ export default function CyberModeSelection() {
                   x2={i * 120 + (Math.random() * 50)} 
                   y2="100%" 
                   stroke="url(#grid-gradient)" 
-                  strokeWidth="1"
+                  strokeWidth="1.5"
                 />
               ))}
               {/* Cercles pour représenter des noeuds */}
@@ -88,9 +88,9 @@ export default function CyberModeSelection() {
                   key={`c-${i}`}
                   cx={Math.random() * 100 + "%"}
                   cy={Math.random() * 100 + "%"}
-                  r={Math.random() * 5 + 2}
+                  r={Math.random() * 5 + 3}
                   fill="#60a5fa"
-                  opacity="0.3"
+                  opacity="0.6"
                 />
               ))}
             </svg>
@@ -98,20 +98,48 @@ export default function CyberModeSelection() {
 
           {/* Animation des bits */}
           <div className="absolute inset-0 overflow-hidden">
-            {Array.from({ length: 20 }).map((_, i) => (
+            {Array.from({ length: 40 }).map((_, i) => (
               <div 
                 key={`bit-${i}`}
-                className="absolute text-blue-400 opacity-20 animate-float"
+                className="absolute text-blue-300 font-bold animate-float"
                 style={{
                   left: `${Math.random() * 100}%`,
                   top: `${Math.random() * 100}%`,
                   animationDelay: `${Math.random() * 5}s`,
                   animationDuration: `${Math.random() * 5 + 10}s`,
-                  fontSize: `${Math.random() * 12 + 12}px`
+                  fontSize: `${Math.random() * 14 + 12}px`,
+                  opacity: Math.random() * 0.3 + 0.4
                 }}
               >
                 {Math.random() > 0.5 ? "1" : "0"}
               </div>
+            ))}
+          </div>
+
+          {/* Hexagones de cybersécurité */}
+          <div className="absolute inset-0 overflow-hidden">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <svg 
+                key={`hex-${i}`}
+                className="absolute animate-float"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  width: `${Math.random() * 40 + 40}px`,
+                  height: `${Math.random() * 40 + 40}px`,
+                  animationDelay: `${Math.random() * 5}s`,
+                  animationDuration: `${Math.random() * 10 + 15}s`,
+                  opacity: Math.random() * 0.2 + 0.1
+                }}
+                viewBox="0 0 100 100"
+              >
+                <polygon 
+                  points="50,3 100,28 100,72 50,97 3,72 3,28" 
+                  fill="none" 
+                  stroke="#60a5fa" 
+                  strokeWidth="3"
+                />
+              </svg>
             ))}
           </div>
         </div>
