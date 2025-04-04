@@ -389,9 +389,14 @@ export default function Home() {
         </div>
       </div>
       
-      {/* Section Statistiques */}
-      <div className="bg-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Section Statistiques avec effet de parallaxe */}
+      <div className="bg-white py-16 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute -left-10 -top-10 w-40 h-40 rounded-full bg-blue-600"></div>
+          <div className="absolute right-0 top-1/3 w-60 h-60 rounded-full bg-indigo-600"></div>
+          <div className="absolute left-1/3 bottom-0 w-40 h-40 rounded-full bg-purple-600"></div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               { value: "95%", label: "Satisfaction", icon: <Star size={24} className="text-amber-500" /> },
@@ -401,12 +406,12 @@ export default function Home() {
             ].map((stat, index) => (
               <motion.div
                 key={index}
-                className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center"
+                className="bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-md border border-gray-100 flex flex-col items-center text-center"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                whileHover={{ y: -5, boxShadow: '0 10px 30px rgba(0, 0, 0, 0.05)' }}
+                whileHover={{ y: -5, boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)' }}
               >
                 <div className="mb-2">{stat.icon}</div>
                 <div className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</div>
@@ -416,6 +421,122 @@ export default function Home() {
           </div>
         </div>
       </div>
+      
+      {/* Section Footer - Ajout d'un footer professionnel */}
+      <footer className="bg-gray-900 text-white pt-16 pb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+            {/* Logo et description */}
+            <div className="col-span-1 md:col-span-1">
+              <div className="flex items-center mb-4">
+                <BrainCircuit className="h-8 w-8 text-blue-400 mr-2" />
+                <span className="text-xl font-bold">FYNE</span>
+              </div>
+              <p className="text-gray-400 mb-4">
+                Une plateforme d'apprentissage nouvelle génération alimentée par l'intelligence artificielle avancée
+              </p>
+              <div className="flex space-x-4">
+                {/* Icônes médias sociaux */}
+                {['facebook', 'twitter', 'linkedin', 'github'].map(social => (
+                  <a key={social} href="#" className="text-gray-400 hover:text-blue-400 transition-colors">
+                    <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
+                      {social[0].toUpperCase()}
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+            
+            {/* Liens rapides */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-gray-300">Modules</h3>
+              <ul className="space-y-2">
+                {['I AM CYBER', 'CYBER DEFENSE', 'I AM DATA & IA', 'I AM AMOA', 'Personnalisé'].map(link => (
+                  <li key={link}>
+                    <a href="#" className="text-gray-400 hover:text-blue-300 transition-colors">
+                      {link}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            {/* Support */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-gray-300">Support</h3>
+              <ul className="space-y-2">
+                {['Documentation', 'FAQ', 'Communauté', 'Tutoriels', 'Contact'].map(link => (
+                  <li key={link}>
+                    <a href="#" className="text-gray-400 hover:text-blue-300 transition-colors">
+                      {link}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            {/* Newsletter */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-gray-300">Restez informé</h3>
+              <p className="text-gray-400 mb-4">
+                Recevez les dernières mises à jour sur nos modules et fonctionnalités
+              </p>
+              <div className="flex">
+                <input
+                  type="email"
+                  placeholder="Votre email"
+                  className="bg-gray-800 border border-gray-700 text-gray-300 px-3 py-2 rounded-l-md w-full focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+                <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-r-md transition-colors">
+                  <ArrowRight className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          {/* Barre de séparation */}
+          <div className="border-t border-gray-800 pt-8 pb-4">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <p className="text-gray-500 text-sm mb-4 md:mb-0">
+                © {new Date().getFullYear()} FYNE. Tous droits réservés.
+              </p>
+              <div className="flex space-x-6">
+                {['Conditions d\'utilisation', 'Politique de confidentialité', 'Cookies'].map(item => (
+                  <a key={item} href="#" className="text-gray-500 hover:text-gray-300 text-sm transition-colors">
+                    {item}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+      
+      {/* Banner flottante avec animation pour améliorer l'immersion */}
+      <motion.div 
+        className="fixed bottom-8 right-8 z-50 bg-white rounded-xl shadow-xl p-4 border border-blue-100 max-w-xs"
+        initial={{ opacity: 0, y: 50, scale: 0.9 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ 
+          duration: 0.7,
+          delay: 2 // Apparaît après un délai
+        }}
+      >
+        <div className="flex items-start">
+          <div className="bg-blue-50 rounded-full p-2 mr-3">
+            <BrainCircuit className="h-6 w-6 text-blue-600" />
+          </div>
+          <div>
+            <h3 className="font-medium text-gray-900 mb-1">IA Assistant disponible</h3>
+            <p className="text-gray-600 text-sm mb-3">
+              Notre assistant IA est prêt à répondre à vos questions et vous guider à travers nos modules
+            </p>
+            <Button size="sm" className="w-full">
+              Démarrer une conversation
+            </Button>
+          </div>
+        </div>
+      </motion.div>
     </HomeLayout>
   );
 }

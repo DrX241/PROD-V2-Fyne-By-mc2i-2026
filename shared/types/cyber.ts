@@ -36,27 +36,74 @@ export interface Objective {
   requiredSkills?: string[]; // Compétences nécessaires pour réussir
 }
 
+// Types de compétences cybersécurité
+export type SkillCategory = 
+  | "technique" 
+  | "communication" 
+  | "leadership" 
+  | "analyse" 
+  | "stratégie" 
+  | "juridique" 
+  | "gestion_crise";
+
+// Niveaux de maîtrise des compétences
+export type SkillLevel = 
+  | "débutant" 
+  | "intermédiaire" 
+  | "avancé" 
+  | "expert";
+
+// Badge obtenu suite à une progression significative
+export interface SkillBadge {
+  id: string;
+  name: string;
+  description: string;
+  imageUrl?: string;
+  requiredLevel: number; // Niveau requis pour obtenir ce badge
+  dateObtained?: number; // Timestamp d'obtention
+  category: SkillCategory;
+}
+
 // Définition des compétences mesurables
 export interface Skill {
   id: string;
   name: string;
   description: string;
-  category: "technique" | "communication" | "leadership" | "analyse" | "stratégie";
+  category: SkillCategory;
   level: number; // 0-100
   icon?: string; // Nom de l'icône Lucide
+  badges?: SkillBadge[]; // Badges débloqués pour cette compétence
+  levelLabel?: SkillLevel; // Label textuel du niveau actuel
+  lastProgress?: number; // Timestamp de la dernière progression
+  recommendations?: string[]; // Conseils pour améliorer cette compétence
 }
+
+// Type d'événement d'apprentissage
+export type LearningEventType = 
+  | "decision_made" 
+  | "objective_completed" 
+  | "knowledge_acquired" 
+  | "feedback_received"
+  | "challenge_completed"
+  | "simulation_success"
+  | "expert_advice_applied";
 
 // Définition d'un événement d'apprentissage
 export interface LearningEvent {
   id: string;
   timestamp: number;
   description: string;
+  type: LearningEventType;
   skillsImpacted: Array<{
     skillId: string;
     gainedPoints: number;
+    newLevel?: number; // Nouveau niveau après gain
+    badgeUnlocked?: string; // ID du badge débloqué si applicable
   }>;
   relatedDecisionId?: string;
   relatedObjectiveId?: string;
+  feedback?: string; // Commentaire du système sur cet événement d'apprentissage
+  importance: "low" | "medium" | "high"; // Importance de cet événement d'apprentissage
 }
 
 export interface Mission {
@@ -232,4 +279,143 @@ export function getEvaluatorsByDomain(domain: string): Contact[] {
 
 export function getDirectContacts(): Contact[] {
   return availableContacts.filter(contact => contact.isExecutive !== true);
+}
+
+// Fonctions utilitaires pour les compétences
+export function getSkillLevelLabel(level: number): SkillLevel {
+  if (level < 25) return "débutant";
+  if (level < 50) return "intermédiaire";
+  if (level < 80) return "avancé";
+  return "expert";
+}
+
+export function calculateGlobalSkillProgress(skills: Skill[]): number {
+  if (!skills || skills.length === 0) return 0;
+  
+  const totalPoints = skills.reduce((acc, skill) => acc + skill.level, 0);
+  const maxPossiblePoints = skills.length * 100;
+  
+  return Math.round((totalPoints / maxPossiblePoints) * 100);
+}
+
+export function getSkillsRecommendations(skill: Skill): string[] {
+  // Recommandations par défaut selon la catégorie de compétence
+  const defaultRecommendations: Record<SkillCategory, string[]> = {
+    technique: [
+      "Approfondissez vos connaissances des outils d'analyse forensique",
+      "Pratiquez l'identification des indicateurs de compromission",
+      "Explorez les techniques avancées de détection d'intrusion"
+    ],
+    communication: [
+      "Améliorez votre communication en situation de crise",
+      "Pratiquez la vulgarisation des concepts techniques",
+      "Développez des stratégies de communication inter-équipes"
+    ],
+    leadership: [
+      "Renforcez votre prise de décision sous pression",
+      "Développez des compétences de coordination d'équipe",
+      "Améliorez la délégation et la supervision des tâches critiques"
+    ],
+    analyse: [
+      "Approfondissez vos compétences d'analyse de risque",
+      "Développez une méthodologie structurée d'investigation",
+      "Pratiquez l'analyse des causes profondes d'incidents"
+    ],
+    stratégie: [
+      "Améliorez l'élaboration de plans de réponse aux incidents",
+      "Développez une vision holistique de la sécurité",
+      "Apprenez à aligner la cybersécurité avec les objectifs business"
+    ],
+    juridique: [
+      "Approfondissez vos connaissances des obligations réglementaires",
+      "Développez des compétences en notification d'incidents",
+      "Maîtrisez les aspects juridiques de la gestion de crise"
+    ],
+    gestion_crise: [
+      "Améliorez vos compétences en coordination d'équipes multidisciplinaires",
+      "Développez des stratégies de continuité d'activité",
+      "Pratiquez les simulations de crise avec différents scénarios"
+    ]
+  };
+  
+  // Si des recommandations personnalisées existent, les utiliser
+  if (skill.recommendations && skill.recommendations.length > 0) {
+    return skill.recommendations;
+  }
+  
+  // Sinon, retourner les recommandations par défaut pour cette catégorie
+  return defaultRecommendations[skill.category] || [];
+}
+
+// Générer un badge lorsqu'un niveau significatif est atteint
+export function generateBadgeForSkillLevel(skill: Skill): SkillBadge | null {
+  // Seuils pour obtenir des badges
+  const badgeThresholds = [25, 50, 75, 100];
+  
+  // Si le niveau actuel ne correspond pas à un seuil, ne pas générer de badge
+  const threshold = badgeThresholds.find(t => skill.level >= t && (!skill.lastProgress || skill.level - skill.lastProgress < t));
+  if (!threshold) return null;
+  
+  // Noms des badges par niveau
+  const badgeNames: Record<number, string> = {
+    25: "Initié",
+    50: "Qualifié",
+    75: "Expert",
+    100: "Maître"
+  };
+  
+  // Descriptions des badges par catégorie et niveau
+  const badgeDescriptions: Record<SkillCategory, Record<number, string>> = {
+    technique: {
+      25: "Vous maîtrisez les bases des outils techniques de cybersécurité",
+      50: "Vous êtes capable d'utiliser efficacement les outils d'analyse et de détection",
+      75: "Vous êtes un expert dans l'utilisation avancée des outils techniques",
+      100: "Vous êtes un maître incontesté des technologies de cybersécurité"
+    },
+    communication: {
+      25: "Vous savez communiquer efficacement sur les sujets de base",
+      50: "Vous êtes capable de vulgariser des concepts techniques complexes",
+      75: "Vous excellez dans la communication stratégique en situation de crise",
+      100: "Vous êtes un communicant d'exception en cybersécurité"
+    },
+    leadership: {
+      25: "Vous savez diriger une équipe dans des situations standard",
+      50: "Vous êtes capable de coordonner efficacement des équipes multidisciplinaires",
+      75: "Vous excellez dans le leadership en situation de crise",
+      100: "Vous êtes un leader visionnaire en cybersécurité"
+    },
+    analyse: {
+      25: "Vous maîtrisez les bases de l'analyse de risque",
+      50: "Vous êtes capable d'analyser des situations complexes avec méthodologie",
+      75: "Vous excellez dans l'analyse approfondie des menaces avancées",
+      100: "Vous êtes un analyste d'exception capable de déceler les patterns les plus subtils"
+    },
+    stratégie: {
+      25: "Vous savez élaborer des stratégies de défense de base",
+      50: "Vous êtes capable de développer des plans de défense efficaces",
+      75: "Vous excellez dans l'élaboration de stratégies de sécurité holistiques",
+      100: "Vous êtes un stratège d'exception en cybersécurité"
+    },
+    juridique: {
+      25: "Vous comprenez les bases légales de la cybersécurité",
+      50: "Vous êtes capable d'identifier les implications juridiques complexes",
+      75: "Vous excellez dans l'application des cadres réglementaires",
+      100: "Vous êtes une référence en matière de droit appliqué à la cybersécurité"
+    },
+    gestion_crise: {
+      25: "Vous savez réagir efficacement aux incidents mineurs",
+      50: "Vous êtes capable de gérer des crises de moyenne envergure",
+      75: "Vous excellez dans la coordination de réponse aux incidents majeurs",
+      100: "Vous êtes un expert incontesté de la gestion de crise cybernétique"
+    }
+  };
+  
+  return {
+    id: `${skill.id}_${threshold}`,
+    name: `${badgeNames[threshold]} en ${skill.name}`,
+    description: badgeDescriptions[skill.category][threshold] || `Vous avez atteint un niveau ${badgeNames[threshold]} dans cette compétence`,
+    requiredLevel: threshold,
+    dateObtained: Date.now(),
+    category: skill.category
+  };
 }

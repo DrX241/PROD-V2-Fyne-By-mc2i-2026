@@ -26,7 +26,12 @@ import {
   Objective, 
   Decision,
   Skill,
-  LearningEvent
+  LearningEvent,
+  SkillBadge,
+  getSkillLevelLabel,
+  calculateGlobalSkillProgress,
+  getSkillsRecommendations,
+  generateBadgeForSkillLevel
 } from '../../../shared/types/cyber';
 import { cyberDefenseMissions, getMissionById, exampleMission } from '../data/cyber-defense-missions';
 
@@ -303,7 +308,13 @@ Vous pouvez vous adresser directement à un membre de l'équipe en mentionnant s
           id: uuidv4(),
           timestamp: Date.now(),
           description,
-          skillsImpacted: [{ skillId, gainedPoints }],
+          type: "objective_completed",
+          importance: "medium",
+          skillsImpacted: [{ 
+            skillId, 
+            gainedPoints,
+            newLevel: Math.min(100, (mission.skillsProgress?.find(s => s.id === skillId)?.level || 0) + gainedPoints)
+          }],
           relatedObjectiveId: mission.objectives[currentObjective]?.id
         };
         
@@ -1019,27 +1030,68 @@ Souhaitez-vous :
                 <h3 className="text-lg font-semibold mb-3">Tableau de bord des compétences</h3>
                 
                 {/* Résumé des compétences */}
-                <div className="bg-blue-50 p-3 rounded-md mb-4">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-md mb-4 border border-blue-100">
                   <div className="flex items-center mb-2">
-                    <Brain className="h-5 w-5 text-blue-600 mr-2" />
-                    <h4 className="font-medium">Progression globale</h4>
+                    <div className="bg-blue-600 p-2 rounded-full mr-3">
+                      <Brain className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-gray-900">Progression globale</h4>
+                      <p className="text-xs text-gray-600">Niveau de maîtrise cybersécurité</p>
+                    </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">Développez vos compétences en cybersécurité en complétant les objectifs de la mission.</p>
-                  <Progress value={progress} className="h-2 mb-1" />
-                  <p className="text-xs text-gray-500 text-right">{progress}% complété</p>
+                  <p className="text-sm text-gray-700 mb-3 mt-1">
+                    Développez vos compétences en cybersécurité en complétant les objectifs de mission et en prenant des décisions éclairées.
+                  </p>
+                  
+                  {/* Progress bar with improved visuals */}
+                  <div className="relative mb-1">
+                    <Progress 
+                      value={mission.skillsProgress ? calculateGlobalSkillProgress(mission.skillsProgress) : progress} 
+                      className="h-3 rounded-full" 
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-xs font-medium text-white drop-shadow-md">
+                        {mission.skillsProgress ? calculateGlobalSkillProgress(mission.skillsProgress) : progress}%
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between text-xs text-gray-500 mb-1">
+                    <span>Débutant</span>
+                    <span>Intermédiaire</span>
+                    <span>Expert</span>
+                  </div>
+                  
+                  {/* Latest events */}
+                  {mission.learningEvents && mission.learningEvents.length > 0 && (
+                    <div className="mt-3 pt-3 border-t border-blue-100">
+                      <p className="text-xs font-medium text-gray-700 mb-2">Derniers apprentissages:</p>
+                      <div className="space-y-1">
+                        {mission.learningEvents.slice(-2).map((event, idx) => (
+                          <div key={idx} className="flex items-start text-xs">
+                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 mr-2 flex-shrink-0"></div>
+                            <div className="text-gray-600">{event.description}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
-                {/* Liste des compétences avec leur progression */}
-                <div className="space-y-3">
+                {/* Liste des compétences avec leur progression - version améliorée */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                   {mission.skillsProgress?.map((skill, idx) => {
-                    // Simule la progression des compétences en fonction de l'avancement de la mission
-                    const skillLevel = Math.min(100, Math.round(progress * (0.5 + Math.random() * 0.5)));
+                    // Utilise le niveau réel des compétences au lieu de simuler
+                    const skillLevel = skill.level || 0;
+                    // Obtient le label texte du niveau
+                    const skillLevelText = getSkillLevelLabel(skillLevel);
                     
                     // Détermine la couleur de la barre de progression en fonction du niveau
                     let progressColor = "bg-blue-600";
-                    if (skillLevel < 30) progressColor = "bg-red-500";
-                    else if (skillLevel < 70) progressColor = "bg-amber-500";
-                    else if (skillLevel >= 90) progressColor = "bg-green-500";
+                    if (skillLevel < 25) progressColor = "bg-red-500";
+                    else if (skillLevel < 50) progressColor = "bg-amber-500";
+                    else if (skillLevel < 75) progressColor = "bg-green-500";
+                    else progressColor = "bg-emerald-500";
                     
                     // Détermine l'icône en fonction de la catégorie de compétence
                     let SkillIcon = Shield;
@@ -1047,54 +1099,153 @@ Souhaitez-vous :
                     else if (skill.category === "communication") SkillIcon = MessageCircle;
                     else if (skill.category === "analyse") SkillIcon = AlertTriangle;
                     else if (skill.category === "leadership") SkillIcon = Users;
+                    else if (skill.category === "juridique") SkillIcon = FileCheck;
+                    else if (skill.category === "gestion_crise") SkillIcon = Timer;
+                    
+                    // Vérifie si un badge est disponible pour cette compétence
+                    const hasBadges = skill.badges && skill.badges.length > 0;
+                    // Simule la possibilité d'un nouveau badge à obtenir
+                    const canEarnBadge = skillLevel >= 25 && (!hasBadges || skillLevel >= 50);
                     
                     return (
-                      <div key={idx} className="bg-gray-50 p-3 rounded-md">
-                        <div className="flex items-center mb-2">
-                          <div className="bg-white p-1.5 rounded-full mr-2 shadow-sm">
-                            <SkillIcon className="h-4 w-4 text-blue-600" />
+                      <motion.div 
+                        key={idx} 
+                        className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 overflow-hidden"
+                        whileHover={{ y: -2, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)' }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <div className="flex justify-between items-start mb-3">
+                          <div className="flex items-center">
+                            <div className={`p-2 rounded-lg ${progressColor} bg-opacity-10 mr-3`}>
+                              <SkillIcon className={`h-5 w-5 ${progressColor.replace('bg-', 'text-')}`} />
+                            </div>
+                            <div>
+                              <h4 className="font-medium text-gray-900">{skill.name}</h4>
+                              <p className="text-xs text-gray-500 capitalize">{skill.category.replace('_', ' ')}</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-medium text-sm">{skill.name}</p>
-                            <p className="text-xs text-gray-500">{skill.category}</p>
+                          
+                          {/* Badge ou niveau */}
+                          <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            skillLevel < 25 ? 'bg-red-100 text-red-800' : 
+                            skillLevel < 50 ? 'bg-amber-100 text-amber-800' : 
+                            skillLevel < 75 ? 'bg-green-100 text-green-800' : 
+                            'bg-emerald-100 text-emerald-800'
+                          }`}>
+                            {skillLevelText}
                           </div>
                         </div>
-                        <p className="text-xs text-gray-600 mb-2">{skill.description}</p>
-                        <div className="w-full bg-gray-200 rounded-full h-2 mb-1">
-                          <div 
-                            className={`${progressColor} h-2 rounded-full transition-all duration-500`}
-                            style={{ width: `${skillLevel}%` }}
-                          ></div>
+                        
+                        <p className="text-xs text-gray-600 mb-3">{skill.description}</p>
+                        
+                        <div className="relative mb-1">
+                          <div className="w-full bg-gray-100 rounded-full h-2.5">
+                            <div 
+                              className={`${progressColor} h-2.5 rounded-full transition-all duration-500`}
+                              style={{ width: `${skillLevel}%` }}
+                            ></div>
+                          </div>
+                          <div className="absolute inset-y-0 right-0 flex items-center pr-1">
+                            <span className="text-[10px] font-medium text-gray-700">{skillLevel}%</span>
+                          </div>
                         </div>
-                        <div className="flex justify-between text-xs text-gray-500">
-                          <span>Niveau</span>
-                          <span>{skillLevel}/100</span>
-                        </div>
-                      </div>
+                        
+                        {/* Badges obtenus et à venir */}
+                        {hasBadges && (
+                          <div className="mt-3 pt-2 border-t border-gray-100">
+                            <p className="text-xs font-medium text-gray-700 mb-2 flex items-center">
+                              <Award className="h-3 w-3 mr-1 text-amber-500" />
+                              Badges obtenus:
+                            </p>
+                            <div className="flex flex-wrap gap-1">
+                              {skill.badges?.map((badge, i) => (
+                                <Badge key={i} variant="outline" className="text-[10px] bg-amber-50 border-amber-200 text-amber-800">
+                                  {badge.name}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Prochain badge à obtenir */}
+                        {canEarnBadge && (
+                          <div className="mt-2 text-xs text-gray-500 flex items-center">
+                            <Target className="h-3 w-3 mr-1 text-blue-500" />
+                            <span>
+                              {skillLevel < 25 ? "Prochain badge à 25%" : 
+                               skillLevel < 50 ? "Prochain badge à 50%" : 
+                               skillLevel < 75 ? "Prochain badge à 75%" : 
+                               "Badge ultime à 100%"}
+                            </span>
+                          </div>
+                        )}
+                      </motion.div>
                     );
                   })}
                 </div>
                 
-                {/* Section des conseils et recommandations */}
-                <div className="mt-4 border-t pt-4 pb-8">
-                  <h4 className="text-md font-medium mb-2 flex items-center">
-                    <Award className="h-4 w-4 mr-2 text-blue-600" />
-                    Recommandations d'amélioration
+                {/* Section des recommandations personnalisées */}
+                <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-4 border border-gray-200 mt-4 mb-8">
+                  <h4 className="text-md font-medium mb-3 flex items-center">
+                    <Brain className="h-5 w-5 mr-2 text-indigo-600" />
+                    Recommandations d'amélioration personnalisées
                   </h4>
-                  <ul className="space-y-2 text-sm text-gray-700">
-                    <li className="flex items-start">
-                      <Target className="h-4 w-4 mr-2 text-blue-600 mt-0.5 flex-shrink-0" />
-                      <span>Concentrez-vous sur l'analyse détaillée des systèmes compromis avant toute action</span>
-                    </li>
-                    <li className="flex items-start">
-                      <Target className="h-4 w-4 mr-2 text-blue-600 mt-0.5 flex-shrink-0" />
-                      <span>Améliorez votre communication avec les différentes parties prenantes</span>
-                    </li>
-                    <li className="flex items-start">
-                      <Target className="h-4 w-4 mr-2 text-blue-600 mt-0.5 flex-shrink-0" />
-                      <span>Envisagez des mesures préventives plus complètes pour renforcer la sécurité</span>
-                    </li>
-                  </ul>
+                  
+                  <div className="space-y-3">
+                    {mission.skillsProgress?.slice(0, 3).map((skill, idx) => {
+                      // Obtient les recommandations pour cette compétence
+                      const recommendations = getSkillsRecommendations(skill).slice(0, 2);
+                      return (
+                        <div key={idx} className="bg-white rounded-md p-3 shadow-sm">
+                          <div className="flex items-center mb-2">
+                            <div className={`w-2 h-2 rounded-full mr-2 ${
+                              skill.level < 30 ? 'bg-red-500' : 
+                              skill.level < 60 ? 'bg-amber-500' : 
+                              'bg-green-500'
+                            }`}></div>
+                            <p className="font-medium text-sm text-gray-900">{skill.name}</p>
+                          </div>
+                          <ul className="space-y-1.5">
+                            {recommendations.map((rec, i) => (
+                              <li key={i} className="flex items-start text-xs text-gray-700">
+                                <Target className="h-3 w-3 mr-1.5 text-indigo-500 mt-0.5 flex-shrink-0" />
+                                <span>{rec}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                  {/* Événements d'apprentissage */}
+                  {mission.learningEvents && mission.learningEvents.length > 0 && (
+                    <div className="mt-4 pt-3 border-t border-gray-200">
+                      <h5 className="text-sm font-medium mb-2 flex items-center">
+                        <LineChart className="h-4 w-4 mr-1.5 text-indigo-600" />
+                        Historique de progression
+                      </h5>
+                      <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+                        {mission.learningEvents.slice().reverse().map((event, idx) => (
+                          <div key={idx} className="bg-white/60 p-2 rounded border border-gray-100 text-xs">
+                            <div className="flex justify-between items-start">
+                              <p className="font-medium text-gray-900">{event.description}</p>
+                              <span className="text-gray-500 whitespace-nowrap ml-2">
+                                {new Date(event.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                              </span>
+                            </div>
+                            <div className="mt-1 flex items-center gap-2">
+                              {event.skillsImpacted.map((impact, i) => (
+                                <Badge key={i} variant="outline" className="text-[10px] bg-blue-50 border-blue-200 text-blue-700">
+                                  +{impact.gainedPoints} points
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </TabsContent>
             </Tabs>
