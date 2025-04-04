@@ -12,6 +12,26 @@ import type {
   ScenarioContact
 } from "@shared/types/cyber";
 
+/**
+ * Fonction utilitaire pour extraire le prénom d'un texte contenant potentiellement 
+ * des formules d'introduction comme "Je suis" ou "Je m'appelle"
+ */
+const extractFirstName = (input: string): string => {
+  if (!input) return "";
+  
+  const cleanedInput = input.trim().toLowerCase();
+  
+  // Supprimer les formules d'introduction comme "Je suis" ou "Je m'appelle"
+  const introPattern = /(je\s+suis|je\s+m['']\s*appelle)\s+/gi;
+  const cleanedName = cleanedInput.replace(introPattern, '');
+  
+  // Extraire le premier mot (prénom)
+  const firstWord = cleanedName.split(/\s+/)[0];
+  
+  // Mettre la première lettre en majuscule
+  return firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
+};
+
 // Initial domains data
 const initialDomains: CyberDomain[] = [
   {
@@ -353,10 +373,13 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // Simulate bot response
     setTimeout(() => {
+      // Obtenir le prénom extrait
+      const firstName = extractFirstName(name);
+      
       const botResponse: ChatMessage = {
         id: uuidv4(),
         type: "bot",
-        content: `Merci ${name} ! Ravi de vous rencontrer. J'espère que vous allez bien aujourd'hui.\n\nNous allons explorer ensemble différents aspects de la cybersécurité. Veuillez choisir un domaine qui vous intéresse parmi les options suivantes :`,
+        content: `Merci ${firstName} ! Ravi de vous rencontrer. J'espère que vous allez bien aujourd'hui.\n\nNous allons explorer ensemble différents aspects de la cybersécurité. Veuillez choisir un domaine qui vous intéresse parmi les options suivantes :`,
         timestamp: Date.now()
       };
       
@@ -381,10 +404,13 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setScenario(prev => ({ ...prev, activeDomain: selectedDomain }));
     
     // Bot confirmation message
+    // Obtenir le prénom extrait
+    const firstName = extractFirstName(userName);
+    
     const botConfirmation: ChatMessage = {
       id: uuidv4(),
       type: "bot",
-      content: `**Excellent choix, ${userName} !** Vous avez sélectionné la **${selectedDomain.name}**.\n\nJ'ai plusieurs scénarios de différents niveaux à vous proposer. Choisissez celui qui vous intéresse le plus :`,
+      content: `**Excellent choix, ${firstName} !** Vous avez sélectionné la **${selectedDomain.name}**.\n\nJ'ai plusieurs scénarios de différents niveaux à vous proposer. Choisissez celui qui vous intéresse le plus :`,
       timestamp: Date.now()
     };
     
@@ -413,19 +439,21 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }));
     
     // Bot confirmation message
+    // Obtenir le prénom extrait
+    const firstName = extractFirstName(userName);
+    
     const botConfirmation: ChatMessage = {
       id: uuidv4(),
       type: "bot",
-      content: `**Parfait ${userName} !** Vous avez choisi le scénario "${selectedScenario.title}".\n\nJe vais maintenant vous placer dans cette situation d'apprentissage.`,
+      content: `**Parfait, ${firstName} !** Vous avez sélectionné le scénario **${selectedScenario.name}**.\n\nVoici le contexte de ce scenario :`,
       timestamp: Date.now()
     };
     
-    // Contexte générique du scénario généré dynamiquement
     const scenarioContext: ChatMessage = {
       id: uuidv4(),
-      type: "bot",
-      content: `**Contexte du scénario :** ${selectedScenario.description}\n\nVous allez interagir avec plusieurs interlocuteurs qui ont des préoccupations différentes liées à ce scénario. Chaque interlocuteur apportera un point de vue unique en fonction de ses préoccupations.\n\nVous recevrez bientôt un premier mail.\n\nPréparez-vous à analyser la situation et à proposer des solutions adaptées ! N'oubliez pas, chacune de vos réponses aura un impact sur le scénario.`,
-      timestamp: Date.now() + 100
+      type: "scenario-context",
+      content: selectedScenario.description,
+      timestamp: Date.now()
     };
     
     setMessages(prev => [...prev, botConfirmation, scenarioContext]);
