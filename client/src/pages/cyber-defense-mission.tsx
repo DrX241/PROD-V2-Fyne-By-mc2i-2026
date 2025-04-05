@@ -38,7 +38,7 @@ import { cyberDefenseMissions, getMissionById, exampleMission } from '../data/cy
 // Mapping des couleurs de fond en fonction du niveau de difficulté
 const difficultyColor = {
   "Débutant": "bg-green-100 text-green-800",
-  "Intermédiaire": "bg-amber-100 text-amber-800",
+  "Intermédiaire": "bg-[#006a9e]/10 text-[#006a9e]",
   "Expert": "bg-red-100 text-red-800"
 };
 
@@ -1088,7 +1088,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                     // Détermine la couleur de la barre de progression en fonction du niveau
                     let progressColor = "bg-blue-600";
                     if (skillLevel < 25) progressColor = "bg-red-500";
-                    else if (skillLevel < 50) progressColor = "bg-amber-500";
+                    else if (skillLevel < 50) progressColor = "bg-[#006a9e]/70";
                     else if (skillLevel < 75) progressColor = "bg-green-500";
                     else progressColor = "bg-emerald-500";
                     
@@ -1127,7 +1127,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                           {/* Badge ou niveau */}
                           <div className={`px-2 py-1 rounded-full text-xs font-medium ${
                             skillLevel < 25 ? 'bg-red-100 text-red-800' : 
-                            skillLevel < 50 ? 'bg-amber-100 text-amber-800' : 
+                            skillLevel < 50 ? 'bg-[#006a9e]/10 text-[#006a9e]' : 
                             skillLevel < 75 ? 'bg-green-100 text-green-800' : 
                             'bg-emerald-100 text-emerald-800'
                           }`}>
@@ -1153,12 +1153,12 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                         {hasBadges && (
                           <div className="mt-3 pt-2 border-t border-gray-100">
                             <p className="text-xs font-medium text-gray-700 mb-2 flex items-center">
-                              <Award className="h-3 w-3 mr-1 text-amber-500" />
+                              <Award className="h-3 w-3 mr-1 text-[#006a9e]" />
                               Badges obtenus:
                             </p>
                             <div className="flex flex-wrap gap-1">
                               {skill.badges?.map((badge, i) => (
-                                <Badge key={i} variant="outline" className="text-[10px] bg-amber-50 border-amber-200 text-amber-800">
+                                <Badge key={i} variant="outline" className="text-[10px] bg-[#006a9e]/10 border-[#006a9e]/30 text-[#006a9e]">
                                   {badge.name}
                                 </Badge>
                               ))}
@@ -1199,7 +1199,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                           <div className="flex items-center mb-2">
                             <div className={`w-2 h-2 rounded-full mr-2 ${
                               skill.level < 30 ? 'bg-red-500' : 
-                              skill.level < 60 ? 'bg-amber-500' : 
+                              skill.level < 60 ? 'bg-[#006a9e]' : 
                               'bg-green-500'
                             }`}></div>
                             <p className="font-medium text-sm text-gray-900">{skill.name}</p>
