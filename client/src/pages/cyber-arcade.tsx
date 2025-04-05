@@ -52,6 +52,14 @@ export default function CyberArcade() {
       gradient: 'from-purple-700 to-purple-900'
     },
     {
+      id: 'pca-crisis-mode',
+      title: 'PCA Crisis Mode',
+      description: "Simulation d'un PCA face à un incident majeur. Coordonnez votre réponse avec DG, RSSI, Communication et Juridique face à un rançongiciel ou une attaque interne.",
+      difficulty: 'Difficile',
+      icon: <Target className="w-10 h-10 text-white" />,
+      gradient: 'from-red-700 to-red-900'
+    },
+    {
       id: 'incident-response',
       title: 'Incident Response Challenge',
       description: "Simulation de réponse à incident en temps limité. Identifiez les menaces et rétablissez la sécurité.",
