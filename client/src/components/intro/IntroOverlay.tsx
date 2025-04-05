@@ -9,8 +9,9 @@ interface IntroOverlayProps {
 const IntroOverlay: React.FC<IntroOverlayProps> = ({ onComplete }) => {
   const { showIntro, setShowIntro, setIntroCompleted } = useIntroContext();
 
-  // Quand l'animation est terminée
+  // Quand l'animation est terminée ou quand on clique sur Skip
   const handleAnimationComplete = () => {
+    console.log("Animation terminée, passage à l'application principale");
     setShowIntro(false);
     setIntroCompleted(true);
     if (onComplete) {

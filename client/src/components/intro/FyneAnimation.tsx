@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useIntroContext } from '../../contexts/IntroContext';
 
 const FyneAnimation = () => {
+  const { setShowIntro, setIntroCompleted } = useIntroContext();
   const [stage, setStage] = useState(0);
   const [complete, setComplete] = useState(false);
   const [typedSlogan, setTypedSlogan] = useState('');
@@ -98,7 +100,12 @@ const FyneAnimation = () => {
                 typeMessage();
               } else {
                 // Tous les messages ont été affichés, terminer la séquence
-                setTimeout(() => setComplete(true), 1500);
+                setTimeout(() => {
+                  setComplete(true);
+                  // Terminer l'animation et permettre l'affichage de l'application
+                  setShowIntro(false);
+                  setIntroCompleted(true);
+                }, 1500);
               }
             }, 1000);
           }
@@ -107,11 +114,16 @@ const FyneAnimation = () => {
       
       typeMessage();
       
-      // Définir un timeout pour passer à l'état complet après un certain temps
-      const timer = setTimeout(() => setComplete(true), 8000);
+      // Définir un timeout pour passer à l'état complet après un certain temps (avec une durée plus courte pour les tests)
+      const timer = setTimeout(() => {
+        setComplete(true);
+        // Terminer l'animation et permettre l'affichage de l'application
+        setShowIntro(false);
+        setIntroCompleted(true);
+      }, 8000);
       return () => clearTimeout(timer);
     }
-  }, [stage, typedSlogan]);
+  }, [stage, typedSlogan, setShowIntro, setIntroCompleted]);
 
   // Variants pour les animations Framer Motion
   const letterVariants = {
