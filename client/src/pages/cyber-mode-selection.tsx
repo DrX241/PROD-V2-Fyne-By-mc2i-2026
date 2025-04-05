@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
-import { Shield, MessageSquare, Bot, ArrowRight, Command, User } from 'lucide-react';
+import { Shield, MessageSquare, Bot, ArrowRight, Command, User, Joystick, BrainCircuit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
 
@@ -33,6 +33,14 @@ export default function CyberModeSelection() {
       icon: <Shield className="w-12 h-12 text-green-100" />,
       gradient: 'from-green-700 to-green-900',
       destination: '/cyber-defense'
+    },
+    {
+      id: 'arcade',
+      title: 'ARCADE',
+      description: "Testez vos competences en cybersecurite a travers une collection de mini-jeux interactifs et ludiques avec l'IA comme guide et adversaire.",
+      icon: <Joystick className="w-12 h-12 text-purple-100" />,
+      gradient: 'from-purple-700 to-purple-900',
+      destination: '/cyber/arcade'
     }
   ];
 
@@ -189,7 +197,11 @@ export default function CyberModeSelection() {
                       
                       <div className="flex items-center mt-auto">
                         <Button 
-                          className={`bg-white hover:bg-opacity-90 transition-all group ${mode.id === 'agent-ia' ? 'text-blue-700' : 'text-green-700'}`}
+                          className={`bg-white hover:bg-opacity-90 transition-all group ${
+                            mode.id === 'agent-ia' ? 'text-blue-700' : 
+                            mode.id === 'cyber-defense' ? 'text-green-700' : 
+                            'text-purple-700'
+                          }`}
                           size="lg"
                         >
                           Commencer
@@ -205,10 +217,14 @@ export default function CyberModeSelection() {
                           <MessageSquare className="w-10 h-10 text-white" />
                           <Command className="w-10 h-10 text-white" />
                         </>
-                      ) : (
+                      ) : mode.id === 'cyber-defense' ? (
                         <>
                           <Shield className="w-10 h-10 text-white" />
                           <User className="w-10 h-10 text-white" />
+                        </>
+                      ) : (
+                        <>
+                          <Joystick className="w-10 h-10 text-white" />
                         </>
                       )}
                     </div>
@@ -225,7 +241,7 @@ export default function CyberModeSelection() {
             className="text-center mt-12"
           >
             <p className="text-sm text-blue-300">
-              Les deux modes utilisent l'intelligence artificielle pour creer des experiences d'apprentissage immersives et adaptatives.
+              Les trois modes utilisent l'intelligence artificielle pour creer des experiences d'apprentissage immersives et adaptatives.
             </p>
           </motion.div>
         </div>

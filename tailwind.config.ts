@@ -115,12 +115,36 @@ export default {
             transform: "translate(0px, 0px) scale(1)",
           },
         },
+        "pulse-glow": {
+          "0%": {
+            boxShadow: "0 0 5px rgba(148, 76, 231, 0.5), 0 0 10px rgba(148, 76, 231, 0.2)",
+          },
+          "50%": {
+            boxShadow: "0 0 20px rgba(148, 76, 231, 0.7), 0 0 30px rgba(148, 76, 231, 0.4)",
+          },
+          "100%": {
+            boxShadow: "0 0 5px rgba(148, 76, 231, 0.5), 0 0 10px rgba(148, 76, 231, 0.2)",
+          },
+        },
+        "game-float": {
+          "0%": {
+            transform: "translateY(0px)",
+          },
+          "50%": {
+            transform: "translateY(-8px)",
+          },
+          "100%": {
+            transform: "translateY(0px)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "float": "float 10s ease-in-out infinite",
         "blob": "blob 25s ease-in-out infinite",
+        "pulse-glow": "pulse-glow 2s ease-in-out infinite",
+        "game-float": "game-float 3s ease-in-out infinite",
       },
     },
   },
