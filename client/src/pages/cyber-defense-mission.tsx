@@ -217,7 +217,7 @@ Votre équipe est mobilisée et attend vos instructions. Comment souhaitez-vous 
 Votre équipe est composée des experts suivants:
 
 ${mission.contacts.map(contact => 
-  `• ${contact.name} (${contact.role}) - ${contact.expertise}`
+  `• ${contact && contact.name ? contact.name : 'Contact'} ${contact && contact.role ? `(${contact.role})` : ''} ${contact && contact.expertise ? `- ${contact.expertise}` : ''}`
 ).join('\n')}
 
 Structure hiérarchique:
@@ -271,6 +271,7 @@ Vous pouvez vous adresser directement à un membre de l'équipe en mentionnant s
       let targetContact = null;
       const lowerCaseInput = userInput.toLowerCase();
       for (const contact of mission.contacts) {
+        if (!contact || !contact.name) continue;
         const firstName = contact.name.split(' ')[0].toLowerCase();
         const lastName = contact.name.split(' ').length > 1 ? contact.name.split(' ')[1].toLowerCase() : '';
         
@@ -841,13 +842,13 @@ Souhaitez-vous :
                           <div className="flex items-center mb-1">
                             <Avatar className="w-6 h-6 mr-2">
                               <AvatarFallback className="text-xs bg-blue-100 text-blue-700">
-                                {contact.name.split(' ').map(word => word[0]).join('')}
+                                {contact && contact.name ? contact.name.split(' ').map(word => word[0]).join('') : 'NC'}
                               </AvatarFallback>
                             </Avatar>
-                            <p className="font-medium">{contact.name}</p>
+                            <p className="font-medium">{contact && contact.name ? contact.name : 'Contact Non Défini'}</p>
                           </div>
-                          <p className="text-sm text-gray-600">{contact.role}</p>
-                          <p className="text-xs text-gray-500 mt-1">{contact.expertise}</p>
+                          <p className="text-sm text-gray-600">{contact && contact.role ? contact.role : 'Rôle non défini'}</p>
+                          <p className="text-xs text-gray-500 mt-1">{contact && contact.expertise ? contact.expertise : 'Expertise non définie'}</p>
                         </div>
                       ))}
                     </div>
@@ -1013,13 +1014,13 @@ Souhaitez-vous :
                         <div className="flex items-center mb-1">
                           <Avatar className="w-6 h-6 mr-2">
                             <AvatarFallback className="text-xs bg-blue-100 text-blue-700">
-                              {contact.name.split(' ').map(word => word[0]).join('')}
+                              {contact && contact.name ? contact.name.split(' ').map(word => word[0]).join('') : 'NC'}
                             </AvatarFallback>
                           </Avatar>
-                          <p className="font-medium">{contact.name}</p>
+                          <p className="font-medium">{contact && contact.name ? contact.name : 'Contact Non Défini'}</p>
                         </div>
-                        <p className="text-sm text-gray-600">{contact.role}</p>
-                        <p className="text-xs text-gray-500 mt-1">{contact.expertise}</p>
+                        <p className="text-sm text-gray-600">{contact && contact.role ? contact.role : 'Rôle non défini'}</p>
+                        <p className="text-xs text-gray-500 mt-1">{contact && contact.expertise ? contact.expertise : 'Expertise non définie'}</p>
                       </div>
                     ))}
                   </div>

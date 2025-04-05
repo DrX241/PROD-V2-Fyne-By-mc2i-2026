@@ -247,15 +247,19 @@ export const availableContacts: Contact[] = [
 
 // Fonctions utilitaires
 export function getContactByName(name: string): Contact | undefined {
+  if (!name) return undefined;
+  
   return availableContacts.find(contact => 
-    contact.name.toLowerCase() === name.toLowerCase() ||
-    contact.name.split(' ')[0].toLowerCase() === name.toLowerCase()
+    contact && contact.name && (
+      contact.name.toLowerCase() === name.toLowerCase() ||
+      contact.name.split(' ')[0].toLowerCase() === name.toLowerCase()
+    )
   );
 }
 
 export function getRandomContacts(count: number, exclude: string[] = []): Contact[] {
   const availableForSelection = availableContacts.filter(
-    contact => !exclude.includes(contact.name)
+    contact => contact && contact.name && !exclude.includes(contact.name)
   );
   
   const shuffled = [...availableForSelection].sort(() => 0.5 - Math.random());
@@ -263,22 +267,24 @@ export function getRandomContacts(count: number, exclude: string[] = []): Contac
 }
 
 export function getExecutiveContacts(): Contact[] {
-  return availableContacts.filter(contact => contact.isExecutive === true);
+  return availableContacts.filter(contact => contact && contact.isExecutive === true);
 }
 
 export function getEvaluators(): Contact[] {
-  return availableContacts.filter(contact => contact.canEvaluate === true);
+  return availableContacts.filter(contact => contact && contact.canEvaluate === true);
 }
 
 export function getEvaluatorsByDomain(domain: string): Contact[] {
+  if (!domain) return [];
+  
   return availableContacts.filter(
-    contact => contact.canEvaluate === true && 
-    contact.evaluationDomain?.toLowerCase() === domain.toLowerCase()
+    contact => contact && contact.canEvaluate === true && 
+    contact.evaluationDomain && contact.evaluationDomain.toLowerCase() === domain.toLowerCase()
   );
 }
 
 export function getDirectContacts(): Contact[] {
-  return availableContacts.filter(contact => contact.isExecutive !== true);
+  return availableContacts.filter(contact => contact && contact.isExecutive !== true);
 }
 
 // Fonctions utilitaires pour les compétences
