@@ -31,8 +31,8 @@ export default function CyberModeSelection() {
       id: 'cyber-defense',
       title: 'CYBER DEFENSE',
       description: "Prenez les commandes face aux menaces cybernetiques. Dans ce mode, vous decidez des actions a entreprendre tandis que les personnages non-joueurs executent vos directives.",
-      icon: <Shield className="w-12 h-12 text-green-100" />,
-      gradient: 'from-green-700 to-green-900',
+      icon: <Shield className="w-12 h-12 text-blue-100" />,
+      gradient: 'from-[#006a9e] to-[#004e78]',
       destination: '/cyber-defense'
     },
     {
@@ -189,7 +189,7 @@ export default function CyberModeSelection() {
                         <div className="absolute inset-0 bg-white opacity-10 animate-pulse"></div>
                         <div className={`absolute -inset-1 rounded-2xl ${
                           mode.id === 'agent-ia' ? 'bg-blue-500' : 
-                          mode.id === 'cyber-defense' ? 'bg-green-500' : 
+                          mode.id === 'cyber-defense' ? 'bg-[#006a9e]' : 
                           'bg-purple-500'
                         } opacity-30 blur-xl animate-pulse-glow`}></div>
                       </>
@@ -208,7 +208,7 @@ export default function CyberModeSelection() {
                         <Button 
                           className={`bg-white hover:bg-opacity-90 transition-all group ${
                             mode.id === 'agent-ia' ? 'text-blue-700' : 
-                            mode.id === 'cyber-defense' ? 'text-green-700' : 
+                            mode.id === 'cyber-defense' ? 'text-[#006a9e]' : 
                             'text-purple-700'
                           }`}
                           size="lg"

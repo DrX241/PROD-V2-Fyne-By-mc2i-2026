@@ -37,9 +37,9 @@ export default function ContextBanner() {
       case "Débutant":
         return "bg-[#006a9e]/40 text-[#8bbdd0] border border-[#006a9e]/30";
       case "Intermédiaire":
-        return "bg-orange-900/40 text-orange-300 border border-orange-700/30";
+        return "bg-[#006a9e]/30 text-[#8bbdd0] border border-[#006a9e]/30";
       case "Expert":
-        return "bg-red-900/40 text-red-300 border border-red-700/30";
+        return "bg-[#006a9e]/40 text-[#8bbdd0] border border-[#006a9e]/30";
       default:
         return "bg-gray-900/40 text-gray-300 border border-gray-700/30";
     }

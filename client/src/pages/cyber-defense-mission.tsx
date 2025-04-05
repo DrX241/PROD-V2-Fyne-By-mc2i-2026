@@ -633,7 +633,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                         className={`h-full transition-all ${
                           confidenceLevel > 70 ? 'bg-[#006a9e]' : 
                           confidenceLevel > 40 ? 'bg-[#006a9e]/70' : 
-                          'bg-red-500'
+                          'bg-[#006a9e]/50'
                         }`}
                         style={{ width: `${confidenceLevel}%` }}
                       />
@@ -963,13 +963,13 @@ Si votre niveau de confiance continue de baisser, votre poste pourrait être rec
                   <div className={`p-3 rounded-md mb-4 ${
                     confidenceLevel > 70 ? 'bg-[#006a9e]/5' : 
                     confidenceLevel > 30 ? 'bg-[#006a9e]/5' : 
-                    'bg-red-50'
+                    'bg-[#006a9e]/10'
                   }`}>
                     <div className="flex items-center mb-2">
                       <Shield className={`h-5 w-5 mr-2 ${
                         confidenceLevel > 70 ? 'text-[#006a9e]' : 
                         confidenceLevel > 30 ? 'text-[#006a9e]/70' : 
-                        'text-red-500'
+                        'text-[#006a9e]/50'
                       }`} />
                       <h4 className="font-medium">Niveau de confiance</h4>
                     </div>

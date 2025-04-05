@@ -79,13 +79,13 @@ export default function ConnectionStatus() {
     <div className="flex items-center space-x-2">
       <div className={cn(
         "flex items-center px-3 py-1 rounded-full text-xs font-medium",
-        status === 'connected' ? "bg-green-800/40 text-white border border-green-500/30" :
+        status === 'connected' ? "bg-[#006a9e]/40 text-white border border-[#006a9e]/30" :
         status === 'reconnecting' ? "bg-yellow-800/40 text-white border border-yellow-500/30" :
-        "bg-red-800/40 text-white border border-red-500/30"
+        "bg-[#006a9e]/40 text-white border border-[#006a9e]/30"
       )}>
         {status === 'connected' ? (
           <>
-            <Wifi className="w-3 h-3 mr-1 text-green-400" />
+            <Wifi className="w-3 h-3 mr-1 text-[#006a9e]" />
             <span>FYNE connecté</span>
           </>
         ) : status === 'reconnecting' ? (
@@ -95,7 +95,7 @@ export default function ConnectionStatus() {
           </>
         ) : (
           <>
-            <WifiOff className="w-3 h-3 mr-1 text-red-400" />
+            <WifiOff className="w-3 h-3 mr-1 text-[#006a9e]" />
             <span>FYNE déconnecté</span>
           </>
         )}

@@ -57,8 +57,8 @@ const initialDomains: CyberDomain[] = [
     name: "Gestion de crise cyber",
     description: "Préparation et réponse aux incidents de sécurité majeurs",
     icon: "ri-alarm-warning-line",
-    iconBgColor: "bg-red-100",
-    iconColor: "text-red-600"
+    iconBgColor: "bg-[#006a9e]/10",
+    iconColor: "text-[#006a9e]"
   },
   {
     id: "donnees-personnelles",
@@ -114,7 +114,7 @@ const initialScenarios: CyberScenario[] = [
       role: "Senior Partner et Directrice Marketing, Communication et RSE"
     },
     difficulty: "Débutant",
-    difficultyColor: "bg-green-100 text-green-700",
+    difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
     domainId: "ingenierie-sociale"
   },
   {
@@ -126,7 +126,7 @@ const initialScenarios: CyberScenario[] = [
       role: "Senior Partner, Directrice des Ressources Humaines"
     },
     difficulty: "Intermédiaire",
-    difficultyColor: "bg-orange-100 text-orange-700",
+    difficultyColor: "bg-[#006a9e]/10 text-[#006a9e]",
     domainId: "ingenierie-sociale"
   },
   {
@@ -138,7 +138,7 @@ const initialScenarios: CyberScenario[] = [
       role: "Président"
     },
     difficulty: "Expert",
-    difficultyColor: "bg-red-100 text-red-700",
+    difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
     domainId: "ingenierie-sociale"
   },
   
@@ -152,7 +152,7 @@ const initialScenarios: CyberScenario[] = [
       role: "Directeur de la Communication"
     },
     difficulty: "Débutant",
-    difficultyColor: "bg-green-100 text-green-700",
+    difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
     domainId: "strategie-cyber"
   },
   {
@@ -164,7 +164,7 @@ const initialScenarios: CyberScenario[] = [
       role: "Directeur Général"
     },
     difficulty: "Intermédiaire",
-    difficultyColor: "bg-orange-100 text-orange-700",
+    difficultyColor: "bg-[#006a9e]/10 text-[#006a9e]",
     domainId: "strategie-cyber"
   },
   {
@@ -176,7 +176,7 @@ const initialScenarios: CyberScenario[] = [
       role: "Président"
     },
     difficulty: "Expert",
-    difficultyColor: "bg-red-100 text-red-700",
+    difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
     domainId: "strategie-cyber"
   },
   
@@ -190,7 +190,7 @@ const initialScenarios: CyberScenario[] = [
       role: "Responsable Communication de Crise"
     },
     difficulty: "Débutant",
-    difficultyColor: "bg-green-100 text-green-700",
+    difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
     domainId: "gestion-crise"
   },
   {
@@ -214,7 +214,7 @@ const initialScenarios: CyberScenario[] = [
       role: "Directeur Général Adjoint et Directeur du pôle BFA"
     },
     difficulty: "Expert",
-    difficultyColor: "bg-red-100 text-red-700",
+    difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
     domainId: "gestion-crise"
   },
   
@@ -228,7 +228,7 @@ const initialScenarios: CyberScenario[] = [
       role: "Responsable Achats"
     },
     difficulty: "Débutant",
-    difficultyColor: "bg-green-100 text-green-700",
+    difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
     domainId: "supply-chain"
   },
   {
@@ -252,7 +252,7 @@ const initialScenarios: CyberScenario[] = [
       role: "Directeur Général Adjoint et Directeur du pôle ENERGIES & UTILITIES"
     },
     difficulty: "Expert",
-    difficultyColor: "bg-red-100 text-red-700",
+    difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
     domainId: "supply-chain"
   },
   
@@ -266,7 +266,7 @@ const initialScenarios: CyberScenario[] = [
       role: "Senior Partner et Directrice Marketing, Communication et RSE"
     },
     difficulty: "Débutant",
-    difficultyColor: "bg-green-100 text-green-700",
+    difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
     domainId: "donnees-personnelles"
   },
   {
@@ -290,7 +290,7 @@ const initialScenarios: CyberScenario[] = [
       role: "Directeur Général Adjoint et Directeur du Développement"
     },
     difficulty: "Expert",
-    difficultyColor: "bg-red-100 text-red-700",
+    difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
     domainId: "donnees-personnelles"
   },
   
@@ -304,7 +304,7 @@ const initialScenarios: CyberScenario[] = [
       role: "Responsable SOC Junior"
     },
     difficulty: "Débutant",
-    difficultyColor: "bg-green-100 text-green-700",
+    difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
     domainId: "gestion-incidents"
   },
   {
@@ -328,7 +328,7 @@ const initialScenarios: CyberScenario[] = [
       role: "Expert Data / IA & CTO"
     },
     difficulty: "Expert",
-    difficultyColor: "bg-red-100 text-red-700",
+    difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
     domainId: "gestion-incidents"
   }
 ];

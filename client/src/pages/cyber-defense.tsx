@@ -47,7 +47,7 @@ const MissionCard = ({ mission }: { mission: Mission }) => {
   const difficultyColor = {
     "Débutant": "bg-[#00afab]/20 text-[#00afab]",
     "Intermédiaire": "bg-[#46cada]/20 text-[#006a9e]",
-    "Expert": "bg-[#dd0061]/20 text-[#dd0061]"
+    "Expert": "bg-[#006a9e]/20 text-[#006a9e]"
   };
   
   return (
@@ -357,10 +357,10 @@ export default function CyberDefense() {
                     </TabsTrigger>
                     <TabsTrigger 
                       value="expert" 
-                      className="border-b-2 border-transparent text-[#dd0061]/60 hover:text-[#dd0061]/80
-                                data-[state=active]:bg-[#dd0061]/20 
-                                data-[state=active]:text-[#dd0061] 
-                                data-[state=active]:border-[#dd0061] 
+                      className="border-b-2 border-transparent text-[#006a9e]/60 hover:text-[#006a9e]/80
+                                data-[state=active]:bg-[#006a9e]/20 
+                                data-[state=active]:text-[#006a9e] 
+                                data-[state=active]:border-[#006a9e] 
                                 data-[state=active]:font-medium"
                     >
                       Expert

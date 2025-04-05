@@ -40,9 +40,9 @@ export default function ScenarioSelection() {
       case 'Expert':
         return {
           icon: <AlertTriangle className="w-4 h-4 mr-1" />,
-          bgColor: "bg-red-900/40",
-          textColor: "text-red-300",
-          borderColor: "border-red-700/30",
+          bgColor: "bg-[#006a9e]/40",
+          textColor: "text-[#8bbdd0]",
+          borderColor: "border-[#006a9e]/30",
           label: "Expert"
         };
       default:
@@ -64,10 +64,10 @@ export default function ScenarioSelection() {
     switch (domainId) {
       case 'gestion-crise':
         return {
-          color: "from-red-900/30 to-red-700/10",
-          accentColor: "text-red-300",
-          borderColor: "border-red-700/20",
-          icon: <AlertTriangle className="w-6 h-6 text-red-300 mb-2" />
+          color: "from-[#006a9e]/30 to-[#003a5d]/10",
+          accentColor: "text-[#8bbdd0]",
+          borderColor: "border-[#006a9e]/20",
+          icon: <AlertTriangle className="w-6 h-6 text-[#8bbdd0] mb-2" />
         };
       case 'donnees-personnelles':
         return {
@@ -78,10 +78,10 @@ export default function ScenarioSelection() {
         };
       default:
         return {
-          color: "from-blue-900/30 to-blue-700/10",
-          accentColor: "text-blue-300",
-          borderColor: "border-blue-700/20",
-          icon: <Shield className="w-6 h-6 text-blue-300 mb-2" />
+          color: "from-[#006a9e]/30 to-[#003a5d]/10",
+          accentColor: "text-[#8bbdd0]",
+          borderColor: "border-[#006a9e]/20",
+          icon: <Shield className="w-6 h-6 text-[#8bbdd0] mb-2" />
         };
     }
   };

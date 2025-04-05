@@ -28,7 +28,7 @@ const ARCADE_GAMES = {
   'password-guardian': {
     title: 'Password Guardian',
     description: "Créez des mots de passe que l'IA tentera de déchiffrer. Apprenez les meilleures pratiques de sécurité des mots de passe.",
-    gradient: 'from-green-700 to-green-900',
+    gradient: 'from-[#006a9e] to-[#004e78]',
     icon: <Shield className="w-6 h-6" />,
     details: {
       objectif: "Comprendre les principes de création de mots de passe sécurisés et les méthodes utilisées pour les pirater.",
@@ -235,7 +235,7 @@ export default function CyberArcadeGame() {
                       <div 
                         key={index} 
                         className={`p-4 rounded-lg border ${
-                          index === 0 ? 'border-green-500 bg-green-900/20' : 
+                          index === 0 ? 'border-[#006a9e] bg-[#006a9e]/20' : 
                           index === 1 ? 'border-yellow-500 bg-yellow-900/20' : 
                           'border-red-500 bg-red-900/20'
                         }`}

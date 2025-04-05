@@ -38,7 +38,7 @@ export default function CyberArcade() {
       description: "Créez des mots de passe que l'IA tentera de déchiffrer. Apprenez les meilleures pratiques de sécurité des mots de passe.",
       difficulty: 'Facile',
       icon: <LockKeyhole className="w-10 h-10 text-white" />,
-      gradient: 'from-green-700 to-green-900'
+      gradient: 'from-[#006a9e] to-[#004e78]'
     },
     {
       id: 'firewall-defense',
@@ -72,7 +72,7 @@ export default function CyberArcade() {
       description: "Testez vos connaissances en cybersécurité à travers une série de quiz interactifs adaptés à votre niveau. L'IA adapte les questions selon vos réponses.",
       difficulty: 'Facile',
       icon: <GraduationCap className="w-10 h-10 text-white" />,
-      gradient: 'from-emerald-600 to-green-800',
+      gradient: 'from-[#006a9e] to-[#004e78]',
       comingSoon: true
     },
     
@@ -94,7 +94,7 @@ export default function CyberArcade() {
       description: "Identifiez et protégez les données personnelles dans différents scénarios. Un jeu ludique pour comprendre les enjeux du RGPD.",
       difficulty: 'Facile',
       icon: <FileKey className="w-10 h-10 text-white" />,
-      gradient: 'from-green-600 to-emerald-800',
+      gradient: 'from-[#006a9e] to-[#004e78]',
       comingSoon: true
     },
     
@@ -249,7 +249,7 @@ export default function CyberArcade() {
                 <div className={`bg-gradient-to-br ${game.gradient} p-6 h-full`}>
                   {/* Badge de difficulté */}
                   <div className={`absolute top-3 right-3 text-xs font-semibold py-1 px-2 rounded-full 
-                    ${game.difficulty === 'Facile' ? 'bg-green-200 text-green-800' : 
+                    ${game.difficulty === 'Facile' ? 'bg-[#006a9e]/20 text-[#006a9e]' : 
                      game.difficulty === 'Moyen' ? 'bg-amber-200 text-amber-800' : 
                      'bg-rose-200 text-rose-800'}`}
                   >
