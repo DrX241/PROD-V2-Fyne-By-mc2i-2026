@@ -131,7 +131,7 @@ export default function CyberArcadeGame() {
                 Retourner à l'arcade
               </Button>
             </Link>
-            <Link href="/cyber/home">
+            <Link href="/cyber">
               <Button variant="outline" className="border-purple-600 text-purple-300 hover:bg-purple-900/20">
                 <Shield className="mr-2 h-4 w-4" />
                 Retour à I AM CYBER
@@ -167,7 +167,7 @@ export default function CyberArcadeGame() {
               <ArrowLeft className="mr-2 h-4 w-4" />
               Retour à l'arcade
             </Link>
-            <Link href="/cyber/home" className="inline-flex items-center text-purple-300 hover:text-white transition-colors">
+            <Link href="/cyber" className="inline-flex items-center text-purple-300 hover:text-white transition-colors">
               <Shield className="mr-2 h-4 w-4" />
               Retour à I AM CYBER
             </Link>
@@ -265,7 +265,7 @@ export default function CyberArcadeGame() {
                     Retourner à l'arcade
                   </Button>
                 </Link>
-                <Link href="/cyber/home">
+                <Link href="/cyber">
                   <Button variant="outline" className="border-purple-600 text-purple-300 hover:bg-purple-900/20">
                     <Shield className="mr-2 h-4 w-4" />
                     Retour à I AM CYBER

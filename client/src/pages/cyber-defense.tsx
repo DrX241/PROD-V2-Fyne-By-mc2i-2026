@@ -162,7 +162,7 @@ export default function CyberDefense() {
       {/* Hero section */}
       <div className="bg-gradient-to-br from-[#003a5d] to-[#006a9e] text-white">
         <div className="max-w-7xl mx-auto px-4 pt-6 pb-16 sm:px-6 lg:px-8 lg:pb-24">
-          <Link href="/cyber/home" className="inline-flex items-center text-[#46cada] hover:text-white mb-8 transition-colors">
+          <Link href="/cyber" className="inline-flex items-center text-[#46cada] hover:text-white mb-8 transition-colors">
             <ArrowLeft className="mr-2 h-5 w-5" />
             Retour à I AM CYBER
           </Link>
