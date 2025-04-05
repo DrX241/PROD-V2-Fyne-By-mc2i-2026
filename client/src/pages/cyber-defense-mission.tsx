@@ -839,7 +839,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                         <div key={idx} className="bg-gray-50 p-3 rounded-md">
                           <div className="flex items-center mb-1">
                             <Avatar className="w-6 h-6 mr-2">
-                              <AvatarFallback className="text-xs bg-blue-100 text-blue-700">
+                              <AvatarFallback className="text-xs bg-[#006a9e]/10 text-[#006a9e]">
                                 {contact && contact.name ? contact.name.split(' ').map(word => word[0]).join('') : 'NC'}
                               </AvatarFallback>
                             </Avatar>
@@ -857,9 +857,9 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                   <h3 className="text-lg font-semibold mb-3 text-[#006a9e]">Tableau de bord des compétences</h3>
                   
                   {/* Résumé des compétences */}
-                  <div className="bg-blue-50 p-3 rounded-md mb-4">
+                  <div className="bg-[#006a9e]/5 p-3 rounded-md mb-4">
                     <div className="flex items-center mb-2">
-                      <Brain className="h-5 w-5 text-blue-600 mr-2" />
+                      <Brain className="h-5 w-5 text-[#006a9e] mr-2" />
                       <h4 className="font-medium">Progression globale</h4>
                     </div>
                     <p className="text-sm text-gray-600 mb-2">Développez vos compétences en cybersécurité en complétant les objectifs de la mission.</p>
@@ -1011,7 +1011,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                       <div key={idx} className="bg-gray-50 p-3 rounded-md">
                         <div className="flex items-center mb-1">
                           <Avatar className="w-6 h-6 mr-2">
-                            <AvatarFallback className="text-xs bg-blue-100 text-blue-700">
+                            <AvatarFallback className="text-xs bg-[#006a9e]/10 text-[#006a9e]">
                               {contact && contact.name ? contact.name.split(' ').map(word => word[0]).join('') : 'NC'}
                             </AvatarFallback>
                           </Avatar>
@@ -1029,7 +1029,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                 <h3 className="text-lg font-semibold mb-3 text-[#006a9e]">Tableau de bord des compétences</h3>
                 
                 {/* Résumé des compétences */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-md mb-4 border border-blue-100">
+                <div className="bg-gradient-to-r from-[#006a9e]/5 to-[#006a9e]/10 p-4 rounded-md mb-4 border border-[#006a9e]/10">
                   <div className="flex items-center mb-2">
                     <div className="bg-[#006a9e] p-2 rounded-full mr-3">
                       <Brain className="h-5 w-5 text-white" />
@@ -1063,12 +1063,12 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                   
                   {/* Latest events */}
                   {mission.learningEvents && mission.learningEvents.length > 0 && (
-                    <div className="mt-3 pt-3 border-t border-blue-100">
+                    <div className="mt-3 pt-3 border-t border-[#006a9e]/10">
                       <p className="text-xs font-medium text-gray-700 mb-2">Derniers apprentissages:</p>
                       <div className="space-y-1">
                         {mission.learningEvents.slice(-2).map((event, idx) => (
                           <div key={idx} className="flex items-start text-xs">
-                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 mr-2 flex-shrink-0"></div>
+                            <div className="w-1.5 h-1.5 rounded-full bg-[#006a9e] mt-1.5 mr-2 flex-shrink-0"></div>
                             <div className="text-gray-600">{event.description}</div>
                           </div>
                         ))}
