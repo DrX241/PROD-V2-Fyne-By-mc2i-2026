@@ -161,6 +161,7 @@ export default function CyberDefenseMission() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState('');
   const [progress, setProgress] = useState(0);
+  const [confidenceLevel, setConfidenceLevel] = useState(100);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentObjective, setCurrentObjective] = useState(0);
   const { userName } = useChatContext();
@@ -184,7 +185,7 @@ export default function CyberDefenseMission() {
   // Initialisation de la mission
   useEffect(() => {
     if (messages.length === 0) {
-      // Message d'introduction présentant le contexte, le rôle du joueur et la mission - format professionnel et concis
+      // Message d'introduction présentant le contexte, le rôle du joueur et la mission - format concis
       const introMessage: Message = {
         id: uuidv4(),
         role: "assistant",
@@ -199,36 +200,36 @@ ${userName || "RSSI"}, une situation critique requiert votre intervention imméd
 ${mission.scenario}
 
 **OBJECTIFS:**
-${mission.objectives.map((obj, i) => `${i+1}. ${obj.description}`).join('\n')}
+- ${mission.objectives.map(obj => obj.description).join('\n- ')}
 
-Votre équipe est mobilisée et attend vos instructions.`,
+Votre équipe attend vos instructions.`,
         sender: "Système",
         senderRole: "Briefing de mission",
         timestamp: Date.now()
       };
       
-      // Message de présentation des contacts - format plus structuré et professionnel
+      // Message de présentation des contacts - format d'organigramme simplifié
       const contactMessage: Message = {
         id: uuidv4(),
         role: "assistant",
         content: `**STRUCTURE DE L'ÉQUIPE DE CRISE**
 
-**Composition de l'équipe:**
-${mission.contacts.map(contact => 
-  `• **${contact && contact.name ? contact.name : 'Contact'}** ${contact && contact.role ? `- ${contact.role}` : ''} ${contact && contact.expertise ? `(${contact.expertise})` : ''}`
-).join('\n')}
+**Vous (${mission.userRole})** - Responsable principal de la gestion de crise
+${mission.contacts.map(contact => {
+  if (!contact || !contact.name) return '';
+  const role = contact.role ? contact.role : '';
+  const expertise = contact.expertise ? `(${contact.expertise})` : '';
+  return `- **${contact.name}** - ${role} ${expertise}`;
+}).filter(line => line !== '').join('\n')}
 
-**Chaîne de commandement:**
-• Vous dirigez l'équipe et validez les décisions stratégiques
-• Les experts techniques opèrent sous votre supervision
-• Les communications externes doivent être approuvées par vous
+**Règles d'engagement:**
+- Les membres sous votre supervision exécuteront vos ordres directs
+- Mentionnez le nom d'un membre pour lui donner des instructions spécifiques
+- Vos décisions affecteront votre niveau de confiance et votre réputation
 
-**Actions immédiates possibles:**
-• Demander une analyse technique de la situation
-• Élaborer un plan de containment
-• Préparer la communication de crise
-
-Pour interagir avec un membre spécifique, mentionnez son nom dans votre message.`,
+**Conséquences possibles:**
+- Mauvaises décisions: baisse de confiance, convocation par le conseil d'administration
+- Bonnes décisions: renforcement de votre position, reconnaissance professionnelle`,
         sender: "Système",
         senderRole: "Briefing de mission",
         timestamp: Date.now() + 100
@@ -579,6 +580,19 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                     <div className="text-sm text-gray-600 mb-1">Progression</div>
                     <Progress value={progress} className="w-40 h-2" />
                   </div>
+                  <div className="mr-4">
+                    <div className="text-sm text-gray-600 mb-1">Niveau de confiance</div>
+                    <div className="w-40 h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full transition-all ${
+                          confidenceLevel > 70 ? 'bg-[#006a9e]' : 
+                          confidenceLevel > 40 ? 'bg-[#006a9e]/70' : 
+                          'bg-red-500'
+                        }`}
+                        style={{ width: `${confidenceLevel}%` }}
+                      />
+                    </div>
+                  </div>
                   <div>
                     <Badge variant="outline" className="ml-2 border-[#006a9e]/30 text-[#006a9e]">
                       {progress === 100 ? (
@@ -677,6 +691,37 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                             
                             // Mettre à jour la mission avec les nouvelles informations
                             setMission(updatedMission);
+                            
+                            // Ajuster le niveau de confiance en fonction de la qualité de la décision
+                            if (option.score < 0) {
+                              // Diminuer la confiance pour les mauvaises décisions
+                              setConfidenceLevel(prevLevel => Math.max(0, prevLevel + option.score * 5));
+                              
+                              // Si le niveau de confiance devient trop bas, déclencher une convocation avec le conseil
+                              if (confidenceLevel < 30) {
+                                setTimeout(() => {
+                                  const boardMessage: Message = {
+                                    id: uuidv4(),
+                                    role: "assistant",
+                                    content: `**CONVOCATION DU CONSEIL D'ADMINISTRATION**
+                                    
+Le conseil d'administration de l'entreprise vous convoque d'urgence suite aux décisions prises pendant cette crise.
+
+Votre gestion de la situation est remise en question et vos choix ont considérablement affecté la confiance que la direction place en vous.
+
+Si votre niveau de confiance continue de baisser, votre poste pourrait être reconsidéré.`,
+                                    sender: "Président du Conseil",
+                                    senderRole: "Direction",
+                                    timestamp: Date.now() + 1000
+                                  };
+                                  
+                                  setMessages(prev => [...prev, boardMessage]);
+                                }, 4000);
+                              }
+                            } else if (option.score > 0) {
+                              // Augmenter légèrement la confiance pour les bonnes décisions
+                              setConfidenceLevel(prevLevel => Math.min(100, prevLevel + option.score * 2));
+                            }
                             
                             // Créer le message d'évaluation
                             const evaluationMessage: Message = {
@@ -866,6 +911,39 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                     <p className="text-sm text-gray-600 mb-2">Développez vos compétences en cybersécurité en complétant les objectifs de la mission.</p>
                     <Progress value={progress} className="h-2 mb-1" />
                     <p className="text-xs text-gray-500 text-right">{progress}% complété</p>
+                  </div>
+                  
+                  {/* Jauge de confiance */}
+                  <div className={`p-3 rounded-md mb-4 ${
+                    confidenceLevel > 70 ? 'bg-[#006a9e]/5' : 
+                    confidenceLevel > 30 ? 'bg-[#006a9e]/5' : 
+                    'bg-red-50'
+                  }`}>
+                    <div className="flex items-center mb-2">
+                      <Shield className={`h-5 w-5 mr-2 ${
+                        confidenceLevel > 70 ? 'text-[#006a9e]' : 
+                        confidenceLevel > 30 ? 'text-[#006a9e]/70' : 
+                        'text-red-500'
+                      }`} />
+                      <h4 className="font-medium">Niveau de confiance</h4>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-2">
+                      {confidenceLevel > 70 ? 'Excellente confiance de la direction et des équipes.' : 
+                       confidenceLevel > 50 ? 'Bonne confiance générale, continuez sur cette voie.' :
+                       confidenceLevel > 30 ? 'Niveau de confiance mitigé, améliorez vos décisions.' :
+                       'Confiance très faible, votre position est menacée.'}
+                    </p>
+                    <div className="w-full bg-gray-200 rounded-full h-2 mb-1">
+                      <div 
+                        className={`h-2 rounded-full transition-all duration-500 ${
+                          confidenceLevel > 70 ? 'bg-[#006a9e]' : 
+                          confidenceLevel > 40 ? 'bg-[#006a9e]/70' : 
+                          'bg-red-500'
+                        }`}
+                        style={{ width: `${confidenceLevel}%` }}
+                      ></div>
+                    </div>
+                    <p className="text-xs text-gray-500 text-right">{confidenceLevel}% confiance</p>
                   </div>
                   
                   {/* Liste des compétences avec leur progression */}
