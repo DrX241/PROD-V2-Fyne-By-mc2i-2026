@@ -793,7 +793,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                 </TabsList>
                 
                 <TabsContent value="objectives" className="pt-4">
-                  <h3 className="text-lg font-semibold mb-3">Objectifs de la mission</h3>
+                  <h3 className="text-lg font-semibold mb-3 text-[#006a9e]">Objectifs de la mission</h3>
                   <div className="space-y-3">
                     {mission.objectives.map((objective, idx) => (
                       <div key={idx} className="flex items-start">
@@ -829,7 +829,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                 </TabsContent>
                 
                 <TabsContent value="brief" className="pt-4">
-                  <h3 className="text-lg font-semibold mb-3">Briefing</h3>
+                  <h3 className="text-lg font-semibold mb-3 text-[#006a9e]">Briefing</h3>
                   <div className="prose prose-sm">
                     <p className="text-gray-700 mb-4">{mission.scenario}</p>
                     
@@ -854,7 +854,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                 </TabsContent>
                 
                 <TabsContent value="dashboard" className="pt-4">
-                  <h3 className="text-lg font-semibold mb-3">Tableau de bord des compétences</h3>
+                  <h3 className="text-lg font-semibold mb-3 text-[#006a9e]">Tableau de bord des compétences</h3>
                   
                   {/* Résumé des compétences */}
                   <div className="bg-blue-50 p-3 rounded-md mb-4">
@@ -971,7 +971,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                   <p className="text-xs text-gray-500">{progress}% complété</p>
                 </div>
                 
-                <h3 className="text-lg font-semibold mb-3">Objectifs de la mission</h3>
+                <h3 className="text-lg font-semibold mb-3 text-[#006a9e]">Objectifs de la mission</h3>
                 <div className="space-y-3">
                   {mission.objectives.map((objective, idx) => (
                     <div key={idx} className="flex items-start">
@@ -1001,7 +1001,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
               </TabsContent>
               
               <TabsContent value="brief" className="pt-4">
-                <h3 className="text-lg font-semibold mb-3">Briefing</h3>
+                <h3 className="text-lg font-semibold mb-3 text-[#006a9e]">Briefing</h3>
                 <div className="prose prose-sm">
                   <p className="text-gray-700 mb-4">{mission.scenario}</p>
                   
@@ -1026,7 +1026,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
               </TabsContent>
               
               <TabsContent value="dashboard" className="pt-4 overflow-y-auto">
-                <h3 className="text-lg font-semibold mb-3">Tableau de bord des compétences</h3>
+                <h3 className="text-lg font-semibold mb-3 text-[#006a9e]">Tableau de bord des compétences</h3>
                 
                 {/* Résumé des compétences */}
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-md mb-4 border border-blue-100">
