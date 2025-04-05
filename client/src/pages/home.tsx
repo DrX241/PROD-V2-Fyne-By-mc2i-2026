@@ -103,7 +103,7 @@ export default function Home() {
       title: "I AM CYBER",
       description: "Immergez-vous dans des simulations de cybersécurité interactives et choisissez entre le mode agent IA conversationnel ou les scénarios tactiques de défense.",
       icon: <ShieldCheck className="w-8 h-8 text-white" />,
-      color: "bg-blue-600",
+      color: "bg-[#006a9e]",
       bgColor: "bg-gradient-to-br from-blue-50 to-blue-100",
       accentColor: "bg-blue-500",
       linkTo: "/cyber"
@@ -112,27 +112,27 @@ export default function Home() {
       title: "I AM DATA & IA",
       description: "Maîtrisez les concepts avancés de data science et d'intelligence artificielle à travers des simulations pratiques et des défis concrets.",
       icon: <Database className="w-8 h-8 text-white" />,
-      color: "bg-purple-600",
-      bgColor: "bg-gradient-to-br from-purple-50 to-purple-100",
-      accentColor: "bg-purple-500",
+      color: "bg-blue-700",
+      bgColor: "bg-gradient-to-br from-blue-50 to-blue-100",
+      accentColor: "bg-blue-600",
       linkTo: "/data-ia"
     },
     {
       title: "I AM AMOA",
       description: "Perfectionnez vos compétences en assistance à maîtrise d'ouvrage avec des experts virtuels qui vous guideront à travers des cas complexes.",
       icon: <ListChecks className="w-8 h-8 text-white" />,
-      color: "bg-emerald-600",
-      bgColor: "bg-gradient-to-br from-emerald-50 to-emerald-100",
-      accentColor: "bg-emerald-500",
+      color: "bg-blue-600",
+      bgColor: "bg-gradient-to-br from-blue-50 to-blue-100",
+      accentColor: "bg-blue-500",
       linkTo: "/amoa"
     },
     {
       title: "Soyez qui vous voulez",
       description: "Créez votre propre parcours d'apprentissage personnalisé avec notre IA générative qui s'adapte à vos besoins spécifiques et objectifs professionnels.",
       icon: <Plus className="w-8 h-8 text-white" />,
-      color: "bg-rose-600",
-      bgColor: "bg-gradient-to-br from-rose-50 to-rose-100",
-      accentColor: "bg-rose-500",
+      color: "bg-blue-800",
+      bgColor: "bg-gradient-to-br from-blue-50 to-blue-100",
+      accentColor: "bg-blue-700",
       linkTo: "/custom"
     }
   ];
@@ -192,7 +192,7 @@ export default function Home() {
                 transition={{ duration: 0.7 }}
               >
                 Transformez votre 
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400"> expertise professionnelle</span> avec FYNE
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400"> expertise professionnelle</span> avec <span className="text-[#006a9e]">FYNE</span>
               </motion.h1>
               
               <motion.p 
@@ -330,7 +330,7 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.4 }}
               viewport={{ once: true }}
             >
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+              <Button size="lg" className="bg-[#006a9e] hover:bg-blue-700">
                 Explorer tous nos modules
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
@@ -350,7 +350,7 @@ export default function Home() {
               viewport={{ once: true }}
             >
               <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-                Une expérience d'apprentissage <span className="text-blue-600">inégalée</span>
+                Une expérience d'apprentissage <span className="text-[#006a9e]">inégalée</span>
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
                 Notre technologie d'IA générative crée un environnement personnalisé qui s'adapte à vos besoins
@@ -375,7 +375,7 @@ export default function Home() {
       </div>
       
       {/* Call-to-Action */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 py-16">
+      <div className="bg-gradient-to-r from-[#006a9e] to-blue-800 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -394,7 +394,7 @@ export default function Home() {
               <Link href="/modules">
                 <Button 
                   size="lg" 
-                  className="bg-white hover:bg-gray-100 text-blue-700"
+                  className="bg-white hover:bg-gray-100 text-[#006a9e]"
                 >
                   Explorer les modules
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -415,17 +415,17 @@ export default function Home() {
       {/* Section Statistiques avec effet de parallaxe */}
       <div className="bg-white py-16 relative overflow-hidden">
         <div className="absolute inset-0 opacity-5">
-          <div className="absolute -left-10 -top-10 w-40 h-40 rounded-full bg-blue-600"></div>
-          <div className="absolute right-0 top-1/3 w-60 h-60 rounded-full bg-indigo-600"></div>
-          <div className="absolute left-1/3 bottom-0 w-40 h-40 rounded-full bg-purple-600"></div>
+          <div className="absolute -left-10 -top-10 w-40 h-40 rounded-full bg-[#006a9e]"></div>
+          <div className="absolute right-0 top-1/3 w-60 h-60 rounded-full bg-blue-700"></div>
+          <div className="absolute left-1/3 bottom-0 w-40 h-40 rounded-full bg-blue-800"></div>
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { value: "95%", label: "Satisfaction", icon: <Star size={24} className="text-amber-500" /> },
-              { value: "78%", label: "Amélioration des compétences", icon: <Target size={24} className="text-emerald-500" /> },
-              { value: "4.8/5", label: "Note moyenne", icon: <Award size={24} className="text-rose-500" /> },
-              { value: "+1000", label: "Utilisateurs actifs", icon: <Users size={24} className="text-indigo-500" /> }
+              { value: "95%", label: "Satisfaction", icon: <Star size={24} className="text-[#006a9e]" /> },
+              { value: "78%", label: "Amélioration des compétences", icon: <Target size={24} className="text-[#006a9e]" /> },
+              { value: "4.8/5", label: "Note moyenne", icon: <Award size={24} className="text-[#006a9e]" /> },
+              { value: "+1000", label: "Utilisateurs actifs", icon: <Users size={24} className="text-[#006a9e]" /> }
             ].map((stat, index) => (
               <motion.div
                 key={index}
@@ -452,9 +452,12 @@ export default function Home() {
             {/* Logo et description */}
             <div className="col-span-1 md:col-span-1">
               <div className="flex items-center mb-4">
-                <BrainCircuit className="h-8 w-8 text-blue-400 mr-2" />
+                <BrainCircuit className="h-8 w-8 text-[#006a9e] mr-2" />
                 <span className="text-xl font-bold">FYNE</span>
               </div>
+              <p className="text-[#006a9e] font-medium mb-2">
+                Feel Your Next Experience
+              </p>
               <p className="text-gray-400 mb-4">
                 Une plateforme d'apprentissage nouvelle génération alimentée par l'intelligence artificielle avancée
               </p>
@@ -466,7 +469,7 @@ export default function Home() {
                   { name: 'Instagram', icon: 'I' },
                   { name: 'YouTube', icon: 'Y' }
                 ].map(social => (
-                  <a key={social.name} href="#" className="text-gray-400 hover:text-blue-400 transition-colors">
+                  <a key={social.name} href="#" className="text-gray-400 hover:text-[#006a9e] transition-colors">
                     <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
                       {social.icon}
                     </div>
@@ -481,7 +484,7 @@ export default function Home() {
               <ul className="space-y-2">
                 {['I AM CYBER', 'CYBER DEFENSE', 'I AM DATA & IA', 'I AM AMOA', 'Personnalisé'].map(link => (
                   <li key={link}>
-                    <a href="#" className="text-gray-400 hover:text-blue-300 transition-colors">
+                    <a href="#" className="text-gray-400 hover:text-[#006a9e] transition-colors">
                       {link}
                     </a>
                   </li>
@@ -495,7 +498,7 @@ export default function Home() {
               <ul className="space-y-2">
                 {['Documentation', 'FAQ', 'Communauté', 'Tutoriels', 'Contact'].map(link => (
                   <li key={link}>
-                    <a href="#" className="text-gray-400 hover:text-blue-300 transition-colors">
+                    <a href="#" className="text-gray-400 hover:text-[#006a9e] transition-colors">
                       {link}
                     </a>
                   </li>
@@ -515,7 +518,7 @@ export default function Home() {
                   placeholder="Votre email"
                   className="bg-gray-800 border border-gray-700 text-gray-300 px-3 py-2 rounded-l-md w-full focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
-                <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-r-md transition-colors">
+                <button className="bg-[#006a9e] hover:bg-blue-700 px-4 py-2 rounded-r-md transition-colors">
                   <ArrowRight className="h-5 w-5" />
                 </button>
               </div>
@@ -530,7 +533,7 @@ export default function Home() {
               </p>
               <div className="flex space-x-6">
                 {['Conditions d\'utilisation', 'Politique de confidentialité', 'Cookies'].map(item => (
-                  <a key={item} href="#" className="text-gray-500 hover:text-gray-300 text-sm transition-colors">
+                  <a key={item} href="#" className="text-gray-500 hover:text-[#006a9e] text-sm transition-colors">
                     {item}
                   </a>
                 ))}

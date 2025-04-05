@@ -12,6 +12,8 @@ import CyberDefenseMissionPage from "@/pages/cyber-defense-mission";
 import CyberArcade from "@/pages/cyber-arcade";
 import CyberArcadeGame from "@/pages/cyber-arcade-game";
 import { ChatProvider } from "./contexts/ChatContext";
+import { IntroProvider } from "./contexts/IntroContext";
+import IntroOverlay from "./components/intro/IntroOverlay";
 
 function Router() {
   return (
@@ -53,10 +55,13 @@ function NotYetImplemented() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ChatProvider>
-        <Router />
-        <Toaster />
-      </ChatProvider>
+      <IntroProvider>
+        <ChatProvider>
+          <Router />
+          <IntroOverlay />
+          <Toaster />
+        </ChatProvider>
+      </IntroProvider>
     </QueryClientProvider>
   );
 }
