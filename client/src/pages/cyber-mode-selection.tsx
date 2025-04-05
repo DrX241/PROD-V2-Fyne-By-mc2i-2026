@@ -168,14 +168,14 @@ export default function CyberModeSelection() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-8 px-4 sm:px-6 max-w-7xl mx-auto">
             {cyberModes.map((mode, index) => (
-              <Link key={mode.id} href={mode.destination}>
+              <Link key={mode.id} href={mode.destination} className="flex h-full">
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: index * 0.2 }}
-                  className={`relative overflow-hidden rounded-2xl shadow-xl cursor-pointer transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl`}
+                  className={`relative overflow-hidden rounded-2xl shadow-xl cursor-pointer transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl h-full w-full flex-1`}
                   onMouseEnter={() => setHoveredMode(mode.id)}
                   onMouseLeave={() => setHoveredMode(null)}
                 >
@@ -183,7 +183,14 @@ export default function CyberModeSelection() {
                   <div className={`bg-gradient-to-br ${mode.gradient} p-8 sm:p-10 h-full`}>
                     {/* Glow effect on hover */}
                     {hoveredMode === mode.id && (
-                      <div className="absolute inset-0 bg-white opacity-10 animate-pulse"></div>
+                      <>
+                        <div className="absolute inset-0 bg-white opacity-10 animate-pulse"></div>
+                        <div className={`absolute -inset-1 rounded-2xl ${
+                          mode.id === 'agent-ia' ? 'bg-blue-500' : 
+                          mode.id === 'cyber-defense' ? 'bg-green-500' : 
+                          'bg-purple-500'
+                        } opacity-30 blur-xl animate-pulse-glow`}></div>
+                      </>
                     )}
                     
                     <div className="flex flex-col h-full relative z-10">

@@ -117,13 +117,16 @@ export default {
         },
         "pulse-glow": {
           "0%": {
-            boxShadow: "0 0 5px rgba(148, 76, 231, 0.5), 0 0 10px rgba(148, 76, 231, 0.2)",
+            opacity: "0.3",
+            filter: "blur(8px)",
           },
           "50%": {
-            boxShadow: "0 0 20px rgba(148, 76, 231, 0.7), 0 0 30px rgba(148, 76, 231, 0.4)",
+            opacity: "0.4",
+            filter: "blur(12px)",
           },
           "100%": {
-            boxShadow: "0 0 5px rgba(148, 76, 231, 0.5), 0 0 10px rgba(148, 76, 231, 0.2)",
+            opacity: "0.3",
+            filter: "blur(8px)",
           },
         },
         "game-float": {
