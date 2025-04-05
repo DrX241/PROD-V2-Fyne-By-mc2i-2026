@@ -914,7 +914,7 @@ Si votre niveau de confiance continue de baisser, votre poste pourrait être rec
                   </div>
                   
                   <div className="mt-6">
-                    <h4 className="text-sm font-medium text-gray-500 mb-2">Progression</h4>
+                    <h4 className="text-sm font-medium text-[#006a9e] mb-2">Progression</h4>
                     <Progress value={progress} className="h-2 mb-1" />
                     <p className="text-xs text-gray-500">{progress}% complété</p>
                   </div>
@@ -925,7 +925,7 @@ Si votre niveau de confiance continue de baisser, votre poste pourrait être rec
                   <div className="prose prose-sm">
                     <p className="text-gray-700 mb-4">{mission.scenario}</p>
                     
-                    <h4 className="text-md font-medium mb-2">Contacts disponibles</h4>
+                    <h4 className="text-md font-medium text-[#006a9e] mb-2">Contacts disponibles</h4>
                     <div className="space-y-3">
                       {mission.contacts.map((contact, idx) => (
                         <div key={idx} className="bg-gray-50 p-3 rounded-md">
@@ -952,7 +952,7 @@ Si votre niveau de confiance continue de baisser, votre poste pourrait être rec
                   <div className="bg-[#006a9e]/5 p-3 rounded-md mb-4">
                     <div className="flex items-center mb-2">
                       <Brain className="h-5 w-5 text-[#006a9e] mr-2" />
-                      <h4 className="font-medium">Progression globale</h4>
+                      <h4 className="font-medium text-[#006a9e]">Progression globale</h4>
                     </div>
                     <p className="text-sm text-gray-600 mb-2">Développez vos compétences en cybersécurité en complétant les objectifs de la mission.</p>
                     <Progress value={progress} className="h-2 mb-1" />
@@ -971,7 +971,7 @@ Si votre niveau de confiance continue de baisser, votre poste pourrait être rec
                         confidenceLevel > 30 ? 'text-[#006a9e]/70' : 
                         'text-[#006a9e]/50'
                       }`} />
-                      <h4 className="font-medium">Niveau de confiance</h4>
+                      <h4 className="font-medium text-[#006a9e]">Niveau de confiance</h4>
                     </div>
                     <p className="text-sm text-gray-600 mb-2">
                       {confidenceLevel > 70 ? 'Excellente confiance de la direction et des équipes.' : 
@@ -984,7 +984,7 @@ Si votre niveau de confiance continue de baisser, votre poste pourrait être rec
                         className={`h-2 rounded-full transition-all duration-500 ${
                           confidenceLevel > 70 ? 'bg-[#006a9e]' : 
                           confidenceLevel > 40 ? 'bg-[#006a9e]/70' : 
-                          'bg-red-500'
+                          'bg-[#006a9e]/50'
                         }`}
                         style={{ width: `${confidenceLevel}%` }}
                       ></div>
@@ -1040,7 +1040,7 @@ Si votre niveau de confiance continue de baisser, votre poste pourrait être rec
                   
                   {/* Section des conseils et recommandations */}
                   <div className="mt-4 border-t pt-4">
-                    <h4 className="text-md font-medium mb-2 flex items-center">
+                    <h4 className="text-md font-medium text-[#006a9e] mb-2 flex items-center">
                       <Award className="h-4 w-4 mr-2 text-[#006a9e]" />
                       Recommandations d'amélioration
                     </h4>
@@ -1130,7 +1130,7 @@ Si votre niveau de confiance continue de baisser, votre poste pourrait être rec
                 <div className="prose prose-sm">
                   <p className="text-gray-700 mb-4">{mission.scenario}</p>
                   
-                  <h4 className="text-md font-medium mb-2">Contacts disponibles</h4>
+                  <h4 className="text-md font-medium text-[#006a9e] mb-2">Contacts disponibles</h4>
                   <div className="space-y-3">
                     {mission.contacts.map((contact, idx) => (
                       <div key={idx} className="bg-gray-50 p-3 rounded-md">
@@ -1160,7 +1160,7 @@ Si votre niveau de confiance continue de baisser, votre poste pourrait être rec
                       <Brain className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900">Progression globale</h4>
+                      <h4 className="font-medium text-[#006a9e]">Progression globale</h4>
                       <p className="text-xs text-gray-600">Niveau de maîtrise cybersécurité</p>
                     </div>
                   </div>
@@ -1244,7 +1244,7 @@ Si votre niveau de confiance continue de baisser, votre poste pourrait être rec
                               <SkillIcon className={`h-5 w-5 ${progressColor.replace('bg-', 'text-')}`} />
                             </div>
                             <div>
-                              <h4 className="font-medium text-gray-900">{skill.name}</h4>
+                              <h4 className="font-medium text-[#006a9e]">{skill.name}</h4>
                               <p className="text-xs text-gray-500 capitalize">{skill.category.replace('_', ' ')}</p>
                             </div>
                           </div>
@@ -1310,7 +1310,7 @@ Si votre niveau de confiance continue de baisser, votre poste pourrait être rec
                 
                 {/* Section des recommandations personnalisées */}
                 <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-4 border border-gray-200 mt-4 mb-8">
-                  <h4 className="text-md font-medium mb-3 flex items-center">
+                  <h4 className="text-md font-medium text-[#006a9e] mb-3 flex items-center">
                     <Brain className="h-5 w-5 mr-2 text-[#006a9e]" />
                     Recommandations d'amélioration personnalisées
                   </h4>
