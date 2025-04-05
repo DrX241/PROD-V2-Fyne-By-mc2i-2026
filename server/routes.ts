@@ -1666,29 +1666,31 @@ Directives pour la réponse:
       let senderRole = "Cybersécurité";
       
       // Si un contact spécifique a été ciblé, utiliser ce contact comme expéditeur
-      if (targetContact) {
-        const contact = missionContext.contacts.find((c: any) => c.name === targetContact);
+      if (targetContact && missionContext && missionContext.contacts && Array.isArray(missionContext.contacts)) {
+        const contact = missionContext.contacts.find((c: any) => c && c.name === targetContact);
         if (contact) {
           sender = contact.name;
-          senderRole = contact.role;
+          senderRole = contact.role || "Expert";
         }
       } else {
         // Sinon, déterminer un contact approprié en fonction du contexte
         const keyword = userMessage.toLowerCase();
         
         // Associer des mots-clés aux contacts pour une réponse contextuelle
-        for (const contact of missionContext.contacts) {
-          // Vérifier si le contact et ses propriétés existent avant d'y accéder
-          if (!contact) continue;
-          
-          const expertise = contact.expertise ? contact.expertise.toLowerCase() : '';
-          const contactName = contact.name ? contact.name.toLowerCase() : '';
-          
-          if ((expertise && keyword.includes(expertise.split(' ')[0])) || 
-              (contactName && keyword.includes(contactName.split(' ')[0]))) {
-            sender = contact.name;
-            senderRole = contact.role || "Expert";
-            break;
+        if (missionContext && missionContext.contacts && Array.isArray(missionContext.contacts)) {
+          for (const contact of missionContext.contacts) {
+            // Vérifier si le contact et ses propriétés existent avant d'y accéder
+            if (!contact) continue;
+            
+            const expertise = contact.expertise ? contact.expertise.toLowerCase() : '';
+            const contactName = contact.name ? contact.name.toLowerCase() : '';
+            
+            if ((expertise && keyword.includes(expertise.split(' ')[0])) || 
+                (contactName && keyword.includes(contactName.split(' ')[0]))) {
+              sender = contact.name;
+              senderRole = contact.role || "Expert";
+              break;
+            }
           }
         }
       }
@@ -1700,7 +1702,11 @@ Directives pour la réponse:
                                    response.toLowerCase().includes('options') ||
                                    response.toLowerCase().includes('alternatives');
       
-      if (shouldTriggerDecision && missionContext.objectives[currentObjective]?.decisions?.length > 0) {
+      if (shouldTriggerDecision && missionContext && missionContext.objectives && 
+          Array.isArray(missionContext.objectives) && 
+          missionContext.objectives[currentObjective] && 
+          missionContext.objectives[currentObjective].decisions && 
+          missionContext.objectives[currentObjective].decisions.length > 0) {
         // Prendre la première décision disponible pour l'objectif actuel
         decision = missionContext.objectives[currentObjective].decisions[0];
       }
@@ -1709,11 +1715,11 @@ Directives pour la réponse:
       let additionalResponse = null;
       const shouldAddColleagueResponse = Math.random() > 0.7; // 30% de chance d'avoir une réponse additionnelle
       
-      if (shouldAddColleagueResponse && !decision) {
+      if (shouldAddColleagueResponse && !decision && missionContext && missionContext.contacts && Array.isArray(missionContext.contacts)) {
         // Sélectionner un contact différent du premier répondant
-        const availableContacts = missionContext.contacts.filter((c: any) => c.name !== sender);
+        const availableContacts = missionContext.contacts.filter((c: any) => c && c.name !== sender);
         
-        if (availableContacts.length > 0) {
+        if (availableContacts && availableContacts.length > 0) {
           const selectedContact = availableContacts[Math.floor(Math.random() * availableContacts.length)];
           
           // Créer un prompt pour la réponse additionnelle
