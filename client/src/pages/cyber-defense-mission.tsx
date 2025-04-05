@@ -142,17 +142,17 @@ const ChatMessage = ({ message, additionalResponse = null }: {
 
   return (
     <>
-      <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`} key={message.id}>
-        <div className={`flex ${isUser ? 'flex-row-reverse' : 'flex-row'} items-start max-w-3xl`}>
+      <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4 w-full`} key={message.id}>
+        <div className={`flex ${isUser ? 'flex-row-reverse' : 'flex-row'} items-start w-full max-w-4xl sm:max-w-5xl md:max-w-6xl`}>
           {!isUser && message.sender && (
-            <Avatar className="mt-1 mr-3">
+            <Avatar className="mt-1 mr-3 flex-shrink-0">
               <AvatarFallback className="bg-white text-[#006a9e]">
                 {message.sender === 'Système' ? 'SYS' : message.sender.split(' ').map(word => word[0]).join('')}
               </AvatarFallback>
             </Avatar>
           )}
           
-          <div className={`${bgColorClass} ${roundedClass} p-4 shadow-sm`}>
+          <div className={`${bgColorClass} ${roundedClass} p-4 shadow-sm w-full sm:w-auto sm:min-w-[70%]`}>
             {!isUser && message.sender && (
               <div className="flex items-center mb-2">
                 <span className="font-semibold">{message.sender}</span>
@@ -163,7 +163,7 @@ const ChatMessage = ({ message, additionalResponse = null }: {
                 )}
               </div>
             )}
-            <div className="markdown-content" dangerouslySetInnerHTML={{ __html: formatContent(message.content) }} />
+            <div className="markdown-content text-justify" dangerouslySetInnerHTML={{ __html: formatContent(message.content) }} />
             <div className={`text-xs mt-2 ${isUser ? 'text-white opacity-80' : isSystem ? 'text-white opacity-80' : 'text-[#061019] opacity-60'}`}>
               {new Date(message.timestamp).toLocaleTimeString()}
             </div>
@@ -173,22 +173,22 @@ const ChatMessage = ({ message, additionalResponse = null }: {
       
       {/* Affichage d'une réaction additionnelle si présente */}
       {additionalResponse && (
-        <div className="flex justify-start mb-4 ml-4 md:ml-8">
-          <div className="flex flex-row items-start max-w-3xl">
-            <Avatar className="mt-1 mr-2">
+        <div className="flex justify-start mb-4 ml-4 md:ml-8 w-full">
+          <div className="flex flex-row items-start w-full max-w-4xl sm:max-w-5xl md:max-w-6xl">
+            <Avatar className="mt-1 mr-2 flex-shrink-0">
               <AvatarFallback className="bg-[#006a9e]/10 text-[#006a9e] border border-[#006a9e]/20">
                 {additionalResponse.sender && additionalResponse.sender.split(' ').map(word => word[0]).join('')}
               </AvatarFallback>
             </Avatar>
             
-            <div className="bg-[#f0f9fc] text-gray-800 rounded-xl p-3 shadow-sm border border-[#006a9e]/20">
+            <div className="bg-[#f0f9fc] text-gray-800 rounded-xl p-3 shadow-sm border border-[#006a9e]/20 w-full sm:w-auto sm:min-w-[70%]">
               <div className="flex items-center mb-1">
                 <span className="font-semibold text-[#006a9e]">{additionalResponse.sender || 'Collègue'}</span>
                 <span className="text-xs bg-white text-[#006a9e] px-2 py-0.5 rounded-full ml-2 border border-[#006a9e]/20">
                   {additionalResponse.senderRole || 'Expert'}
                 </span>
               </div>
-              <div className="text-sm">
+              <div className="text-sm text-justify">
                 {additionalResponse.content || ""}
               </div>
             </div>
