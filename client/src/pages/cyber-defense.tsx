@@ -36,9 +36,9 @@ const MissionCard = ({ mission }: { mission: Mission }) => {
   
   // Mapping des couleurs de fond en fonction du niveau de difficulté
   const difficultyColor = {
-    "Débutant": "bg-green-100 text-green-800",
-    "Intermédiaire": "bg-amber-100 text-amber-800",
-    "Expert": "bg-red-100 text-red-800"
+    "Débutant": "bg-[#00afab]/20 text-[#00afab]",
+    "Intermédiaire": "bg-[#46cada]/20 text-[#006a9e]",
+    "Expert": "bg-[#dd0061]/20 text-[#dd0061]"
   };
   
   return (
@@ -53,7 +53,7 @@ const MissionCard = ({ mission }: { mission: Mission }) => {
     >
       <div className="p-6 flex flex-col h-full">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
+          <div className="w-10 h-10 rounded-lg bg-[#006a9e]/10 flex items-center justify-center text-[#006a9e]">
             {iconMap[mission.icon]}
           </div>
           <Badge className={difficultyColor[mission.difficulty]}>
@@ -79,7 +79,7 @@ const MissionCard = ({ mission }: { mission: Mission }) => {
           <Link href={`/cyber-defense/mission/${mission.id}`}>
             <Button 
               variant="default" 
-              className="w-full bg-green-600 hover:bg-green-700 group"
+              className="w-full bg-[#006a9e] hover:bg-[#003a5d] group"
             >
               Commencer la mission
               <ArrowRight className={`ml-2 transition-all duration-300 ${isHover ? 'translate-x-1' : ''}`} />
@@ -160,11 +160,11 @@ export default function CyberDefense() {
   return (
     <HomeLayout>
       {/* Hero section */}
-      <div className="bg-gradient-to-br from-green-900 to-green-700 text-white">
+      <div className="bg-gradient-to-br from-[#003a5d] to-[#006a9e] text-white">
         <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <Badge className="bg-green-600/40 text-green-100 border-green-500/30 mb-6">
+              <Badge className="bg-[#00afab]/40 text-[#e6f7f7] border-[#00afab]/30 mb-6">
                 Nouveau module
               </Badge>
               <motion.h1 
@@ -176,7 +176,7 @@ export default function CyberDefense() {
                 CYBER DEFENSE
               </motion.h1>
               <motion.p 
-                className="text-xl text-green-100 mb-8 max-w-xl"
+                className="text-xl text-[#e6f7f7] mb-8 max-w-xl"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.2 }}
@@ -192,15 +192,15 @@ export default function CyberDefense() {
               >
                 <div className="flex flex-col">
                   <span className="text-3xl font-bold">6</span>
-                  <span className="text-green-200">Missions</span>
+                  <span className="text-[#46cada]">Missions</span>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-3xl font-bold">3</span>
-                  <span className="text-green-200">Niveaux</span>
+                  <span className="text-[#46cada]">Niveaux</span>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-3xl font-bold">15+</span>
-                  <span className="text-green-200">PNJ</span>
+                  <span className="text-[#46cada]">PNJ</span>
                 </div>
               </motion.div>
             </div>
@@ -212,7 +212,7 @@ export default function CyberDefense() {
               transition={{ duration: 0.8 }}
             >
               <div className="relative w-64 h-64 lg:w-80 lg:h-80">
-                <div className="absolute inset-0 bg-green-500/30 rounded-full animate-pulse"></div>
+                <div className="absolute inset-0 bg-[#46cada]/30 rounded-full animate-pulse"></div>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Shield className="w-32 h-32 lg:w-40 lg:h-40 text-white" />
                 </div>
@@ -237,16 +237,16 @@ export default function CyberDefense() {
               <div className="mt-6 lg:mt-0">
                 <Tabs defaultValue="all" value={filter} onValueChange={setFilter}>
                   <TabsList className="bg-white border border-gray-200">
-                    <TabsTrigger value="all" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700">
+                    <TabsTrigger value="all" className="data-[state=active]:bg-[#006a9e]/10 data-[state=active]:text-[#006a9e]">
                       Toutes
                     </TabsTrigger>
-                    <TabsTrigger value="débutant" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700">
+                    <TabsTrigger value="débutant" className="data-[state=active]:bg-[#006a9e]/10 data-[state=active]:text-[#006a9e]">
                       Débutant
                     </TabsTrigger>
-                    <TabsTrigger value="intermédiaire" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700">
+                    <TabsTrigger value="intermédiaire" className="data-[state=active]:bg-[#006a9e]/10 data-[state=active]:text-[#006a9e]">
                       Intermédiaire
                     </TabsTrigger>
-                    <TabsTrigger value="expert" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700">
+                    <TabsTrigger value="expert" className="data-[state=active]:bg-[#006a9e]/10 data-[state=active]:text-[#006a9e]">
                       Expert
                     </TabsTrigger>
                   </TabsList>
@@ -296,17 +296,17 @@ export default function CyberDefense() {
               {
                 title: "1. Choisissez une mission",
                 description: "Sélectionnez parmi différents scénarios de cybersécurité, chacun avec son niveau de complexité et ses enjeux spécifiques.",
-                icon: <Shield size={40} className="text-green-600" />
+                icon: <Shield size={40} className="text-[#006a9e]" />
               },
               {
                 title: "2. Analysez et décidez",
                 description: "Évaluez la situation, interagissez avec votre équipe virtuelle et prenez des décisions critiques qui influenceront l'évolution du scénario.",
-                icon: <User size={40} className="text-green-600" />
+                icon: <User size={40} className="text-[#006a9e]" />
               },
               {
                 title: "3. Observez les résultats",
                 description: "Voyez les conséquences de vos choix se dérouler et adaptez votre stratégie en fonction des nouvelles informations et défis.",
-                icon: <MessageSquare size={40} className="text-green-600" />
+                icon: <MessageSquare size={40} className="text-[#006a9e]" />
               }
             ].map((step, i) => (
               <motion.div
@@ -329,7 +329,7 @@ export default function CyberDefense() {
       </div>
       
       {/* CTA */}
-      <div className="bg-gradient-to-r from-green-700 to-green-900 py-16">
+      <div className="bg-gradient-to-r from-[#003a5d] to-[#006a9e] py-16">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -340,14 +340,14 @@ export default function CyberDefense() {
             <h2 className="text-3xl font-bold text-white mb-6">
               Prêt à relever le défi ?
             </h2>
-            <p className="text-xl text-green-100 mb-8 max-w-3xl mx-auto">
+            <p className="text-xl text-[#e6f7f7] mb-8 max-w-3xl mx-auto">
               Mettez à l'épreuve vos compétences en cybersécurité dans des situations réalistes et développez votre capacité à prendre des décisions sous pression.
             </p>
             
             <Link href="#missions">
               <Button 
                 size="lg" 
-                className="bg-white hover:bg-gray-100 text-green-700"
+                className="bg-white hover:bg-gray-100 text-[#006a9e]"
               >
                 Choisir une mission
                 <ArrowRight className="ml-2 h-5 w-5" />
