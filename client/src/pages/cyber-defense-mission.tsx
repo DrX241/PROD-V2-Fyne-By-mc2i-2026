@@ -38,8 +38,8 @@ import { cyberDefenseMissions, getMissionById, exampleMission } from '../data/cy
 // Mapping des couleurs de fond en fonction du niveau de difficulté
 const difficultyColor = {
   "Débutant": "bg-[#006a9e]/10 text-[#006a9e]",
-  "Intermédiaire": "bg-amber-100 text-amber-800",
-  "Expert": "bg-red-100 text-red-800"
+  "Intermédiaire": "bg-[#006a9e]/20 text-[#006a9e]/90",
+  "Expert": "bg-[#006a9e]/30 text-[#006a9e]"
 };
 
 // Composant pour un message dans le chat
@@ -560,7 +560,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                     <Badge className={difficultyColor[mission.difficulty]}>
                       {mission.difficulty}
                     </Badge>
-                    <Badge variant="outline">
+                    <Badge variant="outline" className="border-[#006a9e]/30 text-[#006a9e]">
                       <Clock className="w-3.5 h-3.5 mr-1" /> {mission.duration}
                     </Badge>
                   </div>
@@ -580,7 +580,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                     <Progress value={progress} className="w-40 h-2" />
                   </div>
                   <div>
-                    <Badge variant="outline" className="ml-2">
+                    <Badge variant="outline" className="ml-2 border-[#006a9e]/30 text-[#006a9e]">
                       {progress === 100 ? (
                         <span className="flex items-center text-[#006a9e]">
                           <CheckCircle className="w-3.5 h-3.5 mr-1" /> Complété
