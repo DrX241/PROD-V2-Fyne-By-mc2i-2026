@@ -249,26 +249,6 @@ ${mission.scenario}
 **OBJECTIFS:**
 - ${mission.objectives.map(obj => obj.description).join('\n- ')}
 
-Votre équipe attend vos instructions.`,
-        sender: "Système",
-        senderRole: "Briefing de mission",
-        timestamp: Date.now()
-      };
-      
-      // Message de présentation des contacts - format d'organigramme simplifié
-      const contactMessage: Message = {
-        id: uuidv4(),
-        role: "assistant",
-        content: `**STRUCTURE DE L'ÉQUIPE DE CRISE**
-
-**Vous (${mission.userRole})** - Responsable principal de la gestion de crise
-${mission.contacts.map(contact => {
-  if (!contact || !contact.name) return '';
-  const role = contact.role ? contact.role : '';
-  const expertise = contact.expertise ? `(${contact.expertise})` : '';
-  return `- **${contact.name}** - ${role} ${expertise}`;
-}).filter(line => line !== '').join('\n')}
-
 **Règles d'engagement:**
 - Les membres sous votre supervision exécuteront vos ordres directs
 - Mentionnez le nom d'un membre pour lui donner des instructions spécifiques
@@ -276,13 +256,15 @@ ${mission.contacts.map(contact => {
 
 **Conséquences possibles:**
 - Mauvaises décisions: baisse de confiance, convocation par le conseil d'administration
-- Bonnes décisions: renforcement de votre position, reconnaissance professionnelle`,
+- Bonnes décisions: renforcement de votre position, reconnaissance professionnelle
+
+Votre équipe attend vos instructions.`,
         sender: "Système",
         senderRole: "Briefing de mission",
-        timestamp: Date.now() + 100
+        timestamp: Date.now()
       };
       
-      setMessages([introMessage, contactMessage]);
+      setMessages([introMessage]);
     }
   }, [mission, userName, messages.length]);
   
