@@ -15,7 +15,7 @@ export default function ChatMessage({ type, content, contactName, contactRole }:
     const paragraphs = content.split('\n\n');
     
     return (
-      <div className="space-y-3">
+      <div className="space-y-2">
         {paragraphs.map((paragraph, idx) => {
           const trimmedParagraph = paragraph.trim();
           
@@ -37,7 +37,7 @@ export default function ChatMessage({ type, content, contactName, contactRole }:
                 if (!content) return null;
                 
                 return (
-                  <li key={i} className="ml-1 text-white my-1">
+                  <li key={i} className="ml-1 my-1 text-gray-800">
                     {processStrongText(content)}
                   </li>
                 );
@@ -45,8 +45,8 @@ export default function ChatMessage({ type, content, contactName, contactRole }:
             
             return (
               <div key={idx} className="mb-1">
-                {title && <p className="font-medium text-white mb-1">{processStrongText(title)}</p>}
-                <ul className="list-disc pl-5 marker:text-blue-300 space-y-1">
+                {title && <p className="font-medium mb-1 text-gray-800">{processStrongText(title)}</p>}
+                <ul className="list-disc pl-5 marker:text-[#006a9e] space-y-1">
                   {listItems}
                 </ul>
               </div>
@@ -55,7 +55,7 @@ export default function ChatMessage({ type, content, contactName, contactRole }:
           
           // Mise en forme des paragraphes normaux
           return (
-            <p key={idx} className="text-white">
+            <p key={idx} className="text-gray-800">
               {processStrongText(trimmedParagraph)}
             </p>
           );
@@ -71,24 +71,24 @@ export default function ChatMessage({ type, content, contactName, contactRole }:
     const parts = text.split(/(\*\*.*?\*\*)/g);
     return parts.map((part, i) => {
       if (part.startsWith('**') && part.endsWith('**')) {
-        return <strong key={i} className="text-blue-200 font-semibold">{part.slice(2, -2)}</strong>;
+        return <strong key={i} className="text-[#006a9e] font-semibold">{part.slice(2, -2)}</strong>;
       }
       return part;
     });
   };
 
   // Couleurs avec contraste optimal
-  const avatarColor = type === "user" ? "from-indigo-600 to-blue-600" : "from-blue-700 to-indigo-800";
+  const avatarColor = type === "user" ? "bg-[#006a9e]/90" : "bg-[#006a9e]";
   
   // Message de l'utilisateur ou de l'assistant
   const messageBgColor = type === "user" 
-    ? "bg-gradient-to-r from-blue-600/20 to-indigo-600/20 border-indigo-500/50" 
-    : "bg-gradient-to-r from-gray-900/80 to-blue-900/60 border-blue-700/50";
+    ? "bg-gray-100 border-gray-300" 
+    : "bg-white border-[#006a9e]/20";
 
   return (
-    <div className={`flex items-start gap-2 sm:gap-3 ${type === 'user' ? 'flex-row-reverse justify-start' : 'flex-row justify-start'} w-full`}>
+    <div className={`flex items-start gap-2 sm:gap-3 mb-4 ${type === 'user' ? 'flex-row-reverse justify-start' : 'flex-row justify-start'} w-full`}>
       {/* Avatar */}
-      <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br ${avatarColor} flex items-center justify-center flex-shrink-0 shadow-glow-sm border border-blue-500/40`}>
+      <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full ${avatarColor} flex items-center justify-center flex-shrink-0 shadow-sm border border-[#006a9e]/20`}>
         {type === "user" ? (
           <User className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
         ) : (
@@ -97,16 +97,16 @@ export default function ChatMessage({ type, content, contactName, contactRole }:
       </div>
       
       {/* Message content */}
-      <div className={`${type === 'user' ? 'text-right' : 'text-left'} max-w-[85%] sm:max-w-[75%] rounded-lg ${messageBgColor} p-3 sm:p-4 border backdrop-blur-sm shadow-md`}>
+      <div className={`${type === 'user' ? 'text-right' : 'text-left'} max-w-[85%] sm:max-w-[80%] rounded-lg ${messageBgColor} p-3 sm:p-4 border shadow-sm`}>
         {/* Afficher les informations du contact pour les messages bot si disponibles */}
         {type === "bot" && contactName && contactRole && (
-          <div className="mb-3 pb-2 border-b border-blue-700/40">
-            <div className="font-bold text-blue-100 text-sm sm:text-base">{contactName}</div>
-            <div className="text-[10px] sm:text-xs text-blue-200/90">{contactRole}</div>
+          <div className="mb-2 pb-2 border-b border-[#006a9e]/10">
+            <div className="font-bold text-[#006a9e] text-sm sm:text-base">{contactName}</div>
+            <div className="text-[10px] sm:text-xs text-gray-600">{contactRole}</div>
           </div>
         )}
         
-        <div className="text-white text-sm sm:text-base leading-relaxed">
+        <div className="text-sm sm:text-base leading-relaxed">
           {formatContent()}
         </div>
       </div>

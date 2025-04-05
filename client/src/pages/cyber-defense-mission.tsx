@@ -130,13 +130,15 @@ const ChatMessage = ({ message, additionalResponse = null }: {
   let bgColorClass = isUser 
     ? 'bg-[#006a9e] text-white' // Pantone 7469C pour l'utilisateur 
     : isSystem 
-      ? 'bg-[#004a70] text-white' // Pantone 7469C plus foncé pour le système
-      : 'bg-white text-[#061019]'; // Fond blanc et texte Pantone Black 6C pour les autres
+      ? 'bg-[#004a70] text-white' // Variante plus foncée pour le système
+      : message.evaluation
+        ? 'bg-[#d8f0f8] text-gray-800 border border-[#006a9e]/20' // Fond clair pour les évaluations
+        : 'bg-white text-gray-800 border border-[#006a9e]/10'; // Fond blanc pour les autres messages
   
   // Déterminer les classes pour les coins arrondis
   let roundedClass = isUser
-    ? 'rounded-tl-xl rounded-tr-none rounded-bl-xl rounded-br-xl'
-    : 'rounded-tr-xl rounded-tl-none rounded-bl-xl rounded-br-xl';
+    ? 'rounded-tl-xl rounded-tr-sm rounded-bl-xl rounded-br-xl'
+    : 'rounded-tr-xl rounded-tl-sm rounded-bl-xl rounded-br-xl';
 
   return (
     <>
@@ -171,18 +173,18 @@ const ChatMessage = ({ message, additionalResponse = null }: {
       
       {/* Affichage d'une réaction additionnelle si présente */}
       {additionalResponse && (
-        <div className="flex justify-start mb-4 ml-8">
+        <div className="flex justify-start mb-4 ml-4 md:ml-8">
           <div className="flex flex-row items-start max-w-3xl">
-            <Avatar className="mt-1 mr-3">
-              <AvatarFallback className="bg-white text-[#006a9e] border border-[#006a9e]">
+            <Avatar className="mt-1 mr-2">
+              <AvatarFallback className="bg-[#006a9e]/10 text-[#006a9e] border border-[#006a9e]/20">
                 {additionalResponse.sender && additionalResponse.sender.split(' ').map(word => word[0]).join('')}
               </AvatarFallback>
             </Avatar>
             
-            <div className="bg-white text-[#061019] rounded-xl p-3 shadow-sm border border-[#006a9e]">
+            <div className="bg-[#f0f9fc] text-gray-800 rounded-xl p-3 shadow-sm border border-[#006a9e]/20">
               <div className="flex items-center mb-1">
-                <span className="font-semibold">{additionalResponse.sender || 'Collègue'}</span>
-                <span className="text-xs bg-white text-[#006a9e] px-2 py-0.5 rounded-full ml-2 border border-[#006a9e]">
+                <span className="font-semibold text-[#006a9e]">{additionalResponse.sender || 'Collègue'}</span>
+                <span className="text-xs bg-white text-[#006a9e] px-2 py-0.5 rounded-full ml-2 border border-[#006a9e]/20">
                   {additionalResponse.senderRole || 'Expert'}
                 </span>
               </div>
@@ -591,17 +593,17 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
       <div className="min-h-screen bg-gray-50 flex flex-col">
         {/* Header avec informations de la mission */}
         <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="w-full mx-auto px-2 sm:px-4 py-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <Link href="/cyber-defense">
-                  <Button variant="ghost" size="icon" className="mr-3 text-[#006a9e] hover:text-[#006a9e]/90 hover:bg-[#006a9e]/10">
+                  <Button variant="ghost" size="icon" className="mr-2 text-[#006a9e] hover:text-[#006a9e]/90 hover:bg-[#006a9e]/10">
                     <ArrowLeft className="h-5 w-5" />
                   </Button>
                 </Link>
                 <div>
                   <h1 className="text-xl font-bold text-gray-900 hidden md:block">{mission.title}</h1>
-                  <h1 className="text-lg font-bold text-gray-900 md:hidden">Mission en cours</h1>
+                  <h1 className="text-md font-bold text-gray-900 md:hidden">{mission.title}</h1>
                   <div className="flex items-center mt-1 space-x-2">
                     <Badge className={difficultyColor[mission.difficulty]}>
                       {mission.difficulty}
@@ -613,7 +615,16 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                 </div>
               </div>
               
-              <div className="md:hidden">
+              <div className="md:hidden flex items-center">
+                <Badge variant="outline" className="mr-2 border-[#006a9e]/30 text-[#006a9e]">
+                  {progress === 100 ? (
+                    <span className="flex items-center text-[#006a9e]">
+                      <CheckCircle className="w-3.5 h-3.5 mr-1" /> Complété
+                    </span>
+                  ) : (
+                    <span>Objectif {Math.min(currentObjective + 1, mission.objectives.length)}/{mission.objectives.length}</span>
+                  )}
+                </Badge>
                 <Button variant="outline" size="icon" onClick={() => setMobileMenuOpen(true)} className="border-[#006a9e]/30 text-[#006a9e] hover:bg-[#006a9e]/10 hover:text-[#006a9e]">
                   <Menu className="h-5 w-5" />
                 </Button>
@@ -623,11 +634,11 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                 <div className="flex items-center">
                   <div className="mr-4">
                     <div className="text-sm text-gray-600 mb-1">Progression</div>
-                    <Progress value={progress} className="w-40 h-2" />
+                    <Progress value={progress} className="w-32 h-2" />
                   </div>
                   <div className="mr-4">
                     <div className="text-sm text-gray-600 mb-1">Niveau de confiance</div>
-                    <div className="w-40 h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="w-32 h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div 
                         className={`h-full transition-all ${
                           confidenceLevel > 70 ? 'bg-[#006a9e]' : 
@@ -656,14 +667,14 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
         </div>
         
         {/* Contenu principal */}
-        <div className="flex-1 flex flex-col md:flex-row">
+        <div className="flex-1 flex flex-col md:flex-row h-[calc(100vh-64px)]">
           {/* Chat */}
-          <div className="flex-1 flex flex-col max-w-full">
+          <div className="flex-1 flex flex-col w-full">
             {/* Messages */}
             <div 
               ref={chatContainerRef}
-              className="flex-1 overflow-y-auto p-4 md:p-6"
-              style={{ maxHeight: 'calc(100vh - 64px - 80px)' }}
+              className="flex-1 overflow-y-auto p-2 md:p-4"
+              style={{ height: 'calc(100vh - 130px)' }}
             >
               {messages.map((message, index) => {
                 // Vérifier si le message suivant est une réaction additionnelle
@@ -868,8 +879,8 @@ Si votre niveau de confiance continue de baisser, votre poste pourrait être rec
           </div>
           
           {/* Sidebar with mission details - Hidden on mobile */}
-          <div className="hidden md:block w-80 bg-white border-l border-gray-200 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 64px)' }}>
-            <div className="p-6">
+          <div className="hidden md:block w-72 xl:w-80 bg-white border-l border-gray-200 overflow-y-auto" style={{ height: 'calc(100vh - 64px)' }}>
+            <div className="p-3 md:p-4">
               <Tabs defaultValue="objectives">
                 <TabsList className="w-full flex flex-wrap">
                   <TabsTrigger value="objectives" className="flex-1 min-w-[33%] flex items-center justify-center">
