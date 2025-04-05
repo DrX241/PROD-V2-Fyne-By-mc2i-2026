@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { 
   Shield, AlertTriangle, Database, FileWarning, Users, User, 
-  AlertCircle, Clock, Zap, MessageSquare, Filter, ArrowRight
+  AlertCircle, Clock, Zap, MessageSquare, Filter, ArrowRight, ArrowLeft
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -161,7 +161,12 @@ export default function CyberDefense() {
     <HomeLayout>
       {/* Hero section */}
       <div className="bg-gradient-to-br from-[#003a5d] to-[#006a9e] text-white">
-        <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 pt-6 pb-16 sm:px-6 lg:px-8 lg:pb-24">
+          <Link href="/cyber/home" className="inline-flex items-center text-[#46cada] hover:text-white mb-8 transition-colors">
+            <ArrowLeft className="mr-2 h-5 w-5" />
+            Retour à I AM CYBER
+          </Link>
+          
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <Badge className="bg-[#00afab]/40 text-[#e6f7f7] border-[#00afab]/30 mb-6">

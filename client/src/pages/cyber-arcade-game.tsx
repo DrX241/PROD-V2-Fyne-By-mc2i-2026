@@ -124,12 +124,20 @@ export default function CyberArcadeGame() {
               Le jeu que vous recherchez n'existe pas ou n'est pas encore disponible.
             </AlertDescription>
           </Alert>
-          <Link href="/cyber/arcade">
-            <Button className="mt-8 bg-purple-600 hover:bg-purple-700">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Retourner à l'arcade
-            </Button>
-          </Link>
+          <div className="flex gap-4 mt-8">
+            <Link href="/cyber/arcade">
+              <Button className="bg-purple-600 hover:bg-purple-700">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Retourner à l'arcade
+              </Button>
+            </Link>
+            <Link href="/cyber/home">
+              <Button variant="outline" className="border-purple-600 text-purple-300 hover:bg-purple-900/20">
+                <Shield className="mr-2 h-4 w-4" />
+                Retour à I AM CYBER
+              </Button>
+            </Link>
+          </div>
         </div>
       </HomeLayout>
     );
@@ -154,10 +162,16 @@ export default function CyberArcadeGame() {
         
         {/* Contenu principal */}
         <div className="relative z-10 max-w-6xl mx-auto px-4 py-12 sm:px-6 sm:py-16">
-          <Link href="/cyber/arcade" className="inline-flex items-center text-white hover:text-gray-200 mb-8 transition-colors">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Retour à l'arcade
-          </Link>
+          <div className="flex flex-wrap gap-4 mb-8">
+            <Link href="/cyber/arcade" className="inline-flex items-center text-white hover:text-gray-200 transition-colors">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Retour à l'arcade
+            </Link>
+            <Link href="/cyber/home" className="inline-flex items-center text-purple-300 hover:text-white transition-colors">
+              <Shield className="mr-2 h-4 w-4" />
+              Retour à I AM CYBER
+            </Link>
+          </div>
           
           {loading ? (
             <div className="flex flex-col items-center justify-center py-20">
@@ -244,11 +258,17 @@ export default function CyberArcadeGame() {
                 </div>
               </div>
               
-              <div className="mt-8 flex justify-center">
+              <div className="mt-8 flex justify-center gap-4">
                 <Link href="/cyber/arcade">
                   <Button className="bg-purple-700 hover:bg-purple-800">
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Retourner à l'arcade
+                  </Button>
+                </Link>
+                <Link href="/cyber/home">
+                  <Button variant="outline" className="border-purple-600 text-purple-300 hover:bg-purple-900/20">
+                    <Shield className="mr-2 h-4 w-4" />
+                    Retour à I AM CYBER
                   </Button>
                 </Link>
               </div>
