@@ -62,14 +62,60 @@ const ChatMessage = ({ message, additionalResponse = null }: {
       .replace(/```([\s\S]*?)```/g, '<pre class="bg-gray-800 text-gray-200 p-2 rounded my-2 overflow-auto text-sm">$1</pre>') // Code block
       .replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1 rounded">$1</code>'); // Inline code
       
-    // Listes à puces
-    formattedContent = formattedContent.replace(/^\s*[-•]\s+(.*$)/gm, '<li class="ml-4">$1</li>');
-    formattedContent = formattedContent.replace(/(<li.*?<\/li>)(?:\s*\n\s*)?(<li)/g, '$1$2');
-    formattedContent = formattedContent.replace(/(<li.*?<\/li>)(\s*\n\s*)?([^<])/g, '$1</ul>$3');
-    formattedContent = formattedContent.replace(/(?:^|\n)(<li)/g, '\n<ul>$1');
+    // Préparation des listes à puces
+    const lines = formattedContent.split('\n');
+    const newLines: string[] = [];
+    let inBulletList = false;
+    let inNumberedList = false;
     
-    // Listes numérotées
-    formattedContent = formattedContent.replace(/^\s*(\d+)\.\s+(.*$)/gm, '<li value="$1" class="ml-4">$2</li>');
+    // Traitement ligne par ligne pour une meilleure gestion des listes
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const trimmedLine = line.trim();
+      
+      // Lignes de liste à puces (tirets ou points)
+      if (trimmedLine.match(/^[-•]\s+.*/)) {
+        const bulletContent = trimmedLine.replace(/^[-•]\s+/, '');
+        if (!inBulletList) {
+          newLines.push('<ul class="list-disc pl-5 my-2">');
+          inBulletList = true;
+        }
+        newLines.push(`<li>${bulletContent}</li>`);
+      } 
+      // Lignes de liste numérotée
+      else if (trimmedLine.match(/^\d+\.\s+.*/)) {
+        const numContent = trimmedLine.replace(/^\d+\.\s+/, '');
+        const num = trimmedLine.match(/^(\d+)\./)?.[1] || '1';
+        if (!inNumberedList) {
+          newLines.push('<ol class="list-decimal pl-5 my-2">');
+          inNumberedList = true;
+        }
+        newLines.push(`<li value="${num}">${numContent}</li>`);
+      }
+      // Autres lignes
+      else {
+        // Fermer les listes ouvertes si nécessaire
+        if (inBulletList) {
+          newLines.push('</ul>');
+          inBulletList = false;
+        }
+        if (inNumberedList) {
+          newLines.push('</ol>');
+          inNumberedList = false;
+        }
+        newLines.push(line);
+      }
+    }
+    
+    // Fermer les listes si elles sont toujours ouvertes à la fin
+    if (inBulletList) {
+      newLines.push('</ul>');
+    }
+    if (inNumberedList) {
+      newLines.push('</ol>');
+    }
+    
+    formattedContent = newLines.join('\n');
     formattedContent = formattedContent.replace(/(<li value=.*?<\/li>)(?:\s*\n\s*)?(<li value)/g, '$1$2');
     formattedContent = formattedContent.replace(/(<li value=.*?<\/li>)(\s*\n\s*)?([^<])/g, '$1</ol>$3');
     formattedContent = formattedContent.replace(/(?:^|\n)(<li value)/g, '\n<ol>$1');
