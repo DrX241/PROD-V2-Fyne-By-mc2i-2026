@@ -1086,11 +1086,11 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                     const skillLevelText = getSkillLevelLabel(skillLevel);
                     
                     // Détermine la couleur de la barre de progression en fonction du niveau
-                    let progressColor = "bg-blue-600";
-                    if (skillLevel < 25) progressColor = "bg-red-500";
+                    let progressColor = "bg-[#006a9e]";
+                    if (skillLevel < 25) progressColor = "bg-[#006a9e]/40";
                     else if (skillLevel < 50) progressColor = "bg-[#006a9e]/70";
-                    else if (skillLevel < 75) progressColor = "bg-green-500";
-                    else progressColor = "bg-emerald-500";
+                    else if (skillLevel < 75) progressColor = "bg-[#006a9e]";
+                    else progressColor = "bg-[#006a9e]";
                     
                     // Détermine l'icône en fonction de la catégorie de compétence
                     let SkillIcon = Shield;
@@ -1126,10 +1126,10 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                           
                           {/* Badge ou niveau */}
                           <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            skillLevel < 25 ? 'bg-red-100 text-red-800' : 
+                            skillLevel < 25 ? 'bg-[#006a9e]/5 text-[#006a9e]/80' : 
                             skillLevel < 50 ? 'bg-[#006a9e]/10 text-[#006a9e]' : 
-                            skillLevel < 75 ? 'bg-green-100 text-green-800' : 
-                            'bg-emerald-100 text-emerald-800'
+                            skillLevel < 75 ? 'bg-[#006a9e]/15 text-[#006a9e]' : 
+                            'bg-[#006a9e]/20 text-[#006a9e]'
                           }`}>
                             {skillLevelText}
                           </div>
@@ -1198,9 +1198,9 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                         <div key={idx} className="bg-white rounded-md p-3 shadow-sm">
                           <div className="flex items-center mb-2">
                             <div className={`w-2 h-2 rounded-full mr-2 ${
-                              skill.level < 30 ? 'bg-red-500' : 
+                              skill.level < 30 ? 'bg-[#006a9e]/50' : 
                               skill.level < 60 ? 'bg-[#006a9e]' : 
-                              'bg-green-500'
+                              'bg-[#006a9e]'
                             }`}></div>
                             <p className="font-medium text-sm text-gray-900">{skill.name}</p>
                           </div>
