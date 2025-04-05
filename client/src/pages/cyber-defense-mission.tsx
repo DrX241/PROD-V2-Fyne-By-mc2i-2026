@@ -184,56 +184,54 @@ export default function CyberDefenseMission() {
   // Initialisation de la mission
   useEffect(() => {
     if (messages.length === 0) {
-      // Message d'introduction présentant le contexte, le rôle du joueur et la mission
+      // Message d'introduction présentant le contexte, le rôle du joueur et la mission - format professionnel et concis
       const introMessage: Message = {
         id: uuidv4(),
         role: "assistant",
-        content: `# Alerte de Cybersécurité
+        content: `**ALERTE DE CYBERSÉCURITÉ**
 
-Bonjour ${userName || "RSSI"},
+${userName || "RSSI"}, une situation critique requiert votre intervention immédiate.
 
-Nous sommes le ${new Date().toLocaleDateString()} et notre équipe vient de détecter une situation critique qui requiert votre attention immédiate.
+**Date:** ${new Date().toLocaleDateString()}
+**Rôle:** ${mission.userRole}
 
-En tant que ${mission.userRole}, vous êtes responsable de la gestion de cette situation. Les membres de l'équipe suivent vos directives et attendent vos instructions.
-
-Contexte:
+**CONTEXTE:**
 ${mission.scenario}
 
-Vos objectifs:
+**OBJECTIFS:**
 ${mission.objectives.map((obj, i) => `${i+1}. ${obj.description}`).join('\n')}
 
-Votre équipe est mobilisée et attend vos instructions. Comment souhaitez-vous procéder ?`,
+Votre équipe est mobilisée et attend vos instructions.`,
         sender: "Système",
         senderRole: "Briefing de mission",
         timestamp: Date.now()
       };
       
-      // Message de présentation des contacts disponibles avec une clara hiérarchie
+      // Message de présentation des contacts - format plus structuré et professionnel
       const contactMessage: Message = {
         id: uuidv4(),
         role: "assistant",
-        content: `# Structure de l'équipe de crise
+        content: `**STRUCTURE DE L'ÉQUIPE DE CRISE**
 
-Votre équipe est composée des experts suivants:
-
+**Composition de l'équipe:**
 ${mission.contacts.map(contact => 
-  `• ${contact && contact.name ? contact.name : 'Contact'} ${contact && contact.role ? `(${contact.role})` : ''} ${contact && contact.expertise ? `- ${contact.expertise}` : ''}`
+  `• **${contact && contact.name ? contact.name : 'Contact'}** ${contact && contact.role ? `- ${contact.role}` : ''} ${contact && contact.expertise ? `(${contact.expertise})` : ''}`
 ).join('\n')}
 
-Structure hiérarchique:
-• Vous (RSSI) dirigez l'équipe et prenez les décisions finales
-• Sophie Dupont et Marc Lefort sont sous votre supervision directe
-• Jeanne Martin collabore avec l'équipe mais doit valider ses actions avec vous
+**Chaîne de commandement:**
+• Vous dirigez l'équipe et validez les décisions stratégiques
+• Les experts techniques opèrent sous votre supervision
+• Les communications externes doivent être approuvées par vous
 
-Pour démarrer cette mission, vous pouvez:
-• Demander un rapport de situation à Sophie Dupont 
-• Discuter des mesures immédiates avec Marc Lefort
-• Préparer la communication de crise avec Jeanne Martin
+**Actions immédiates possibles:**
+• Demander une analyse technique de la situation
+• Élaborer un plan de containment
+• Préparer la communication de crise
 
-Vous pouvez vous adresser directement à un membre de l'équipe en mentionnant son nom.`,
+Pour interagir avec un membre spécifique, mentionnez son nom dans votre message.`,
         sender: "Système",
         senderRole: "Briefing de mission",
-        timestamp: Date.now()
+        timestamp: Date.now() + 100
       };
       
       setMessages([introMessage, contactMessage]);
@@ -453,23 +451,23 @@ Vous pouvez vous adresser directement à un membre de l'équipe en mentionnant s
             const conclusionMessage: Message = {
               id: uuidv4(),
               role: "assistant",
-              content: `# Mission terminée !
+              content: `**MISSION TERMINÉE**
 
-Félicitations ${userName || "Responsable"} ! Vous avez géré avec succès l'incident de phishing qui ciblait CyberTech Solutions.
+Félicitations ${userName || "Responsable"} ! Incident de cybersécurité résolu avec succès.
 
-**Vos réalisations :**
-✅ Évaluation rapide de l'ampleur de la compromission
-✅ Mise en place de mesures de containment efficaces
-✅ Établissement d'une communication claire avec les parties prenantes
-✅ Récupération des systèmes affectés
-✅ Proposition de mesures préventives pertinentes
+**RÉSULTATS:**
+✅ Analyse complète des systèmes compromis
+✅ Containment efficace de la menace
+✅ Communication précise avec les parties prenantes
+✅ Restauration des services impactés
+✅ Implémentation de mesures préventives
 
-Cette expérience démontre l'importance d'une réponse coordonnée face aux menaces de phishing, qui restent l'un des vecteurs d'attaque les plus courants. Votre leadership a permis de limiter l'impact de cet incident et de renforcer la posture de sécurité de l'organisation.
+Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la posture de sécurité globale de l'organisation.
 
-Souhaitez-vous :
-1. Revoir cette mission
-2. Essayer une autre mission
-3. Revenir à l'accueil`,
+**OPTIONS:**
+• Revoir cette mission
+• Explorer d'autres scénarios
+• Retourner à l'écran principal`,
               timestamp: Date.now()
             };
             
