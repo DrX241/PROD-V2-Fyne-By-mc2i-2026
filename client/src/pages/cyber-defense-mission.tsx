@@ -80,12 +80,12 @@ const ChatMessage = ({ message, additionalResponse = null }: {
     return formattedContent;
   };
   
-  // Déterminer la classe d'arrière-plan
+  // Déterminer la classe d'arrière-plan avec la palette officielle
   let bgColorClass = isUser 
-    ? 'bg-green-600 text-white' 
+    ? 'bg-[#006a9e] text-white' // Pantone 7469C pour l'utilisateur
     : isSystem 
-      ? 'bg-blue-600 text-white' 
-      : 'bg-gray-100 text-gray-800';
+      ? 'bg-[#dd0061] text-white' // Pantone Robine Red pour le système
+      : 'bg-white text-[#061019]'; // Fond blanc et texte Pantone Black 6C pour autres
   
   // Déterminer les classes pour les coins arrondis
   let roundedClass = isUser
@@ -98,7 +98,7 @@ const ChatMessage = ({ message, additionalResponse = null }: {
         <div className={`flex ${isUser ? 'flex-row-reverse' : 'flex-row'} items-start max-w-3xl`}>
           {!isUser && message.sender && (
             <Avatar className="mt-1 mr-3">
-              <AvatarFallback className={`${isSystem ? 'bg-blue-200 text-blue-800' : 'bg-blue-100 text-blue-700'}`}>
+              <AvatarFallback className={`${isSystem ? 'bg-white text-[#dd0061]' : 'bg-white text-[#006a9e]'}`}>
                 {message.sender === 'Système' ? 'SYS' : message.sender.split(' ').map(word => word[0]).join('')}
               </AvatarFallback>
             </Avatar>
@@ -109,14 +109,14 @@ const ChatMessage = ({ message, additionalResponse = null }: {
               <div className="flex items-center mb-2">
                 <span className="font-semibold">{message.sender}</span>
                 {message.senderRole && (
-                  <span className={`text-xs ${isSystem ? 'bg-blue-300 text-blue-900' : 'bg-blue-100 text-blue-700'} px-2 py-0.5 rounded-full ml-2`}>
+                  <span className={`text-xs ${isSystem ? 'bg-white text-[#dd0061]' : 'bg-white text-[#006a9e]'} px-2 py-0.5 rounded-full ml-2 border ${isSystem ? 'border-[#dd0061]' : 'border-[#006a9e]'}`}>
                     {message.senderRole}
                   </span>
                 )}
               </div>
             )}
             <div className="markdown-content" dangerouslySetInnerHTML={{ __html: formatContent(message.content) }} />
-            <div className={`text-xs mt-2 ${isUser ? 'text-green-200' : isSystem ? 'text-blue-200' : 'text-gray-500'}`}>
+            <div className={`text-xs mt-2 ${isUser ? 'text-white opacity-80' : isSystem ? 'text-white opacity-80' : 'text-[#061019] opacity-60'}`}>
               {new Date(message.timestamp).toLocaleTimeString()}
             </div>
           </div>
@@ -128,19 +128,19 @@ const ChatMessage = ({ message, additionalResponse = null }: {
         <div className="flex justify-start mb-4 ml-8">
           <div className="flex flex-row items-start max-w-3xl">
             <Avatar className="mt-1 mr-3">
-              <AvatarFallback className="bg-blue-100 text-blue-700">
+              <AvatarFallback className="bg-white text-[#006a9e] border border-[#006a9e]">
                 {additionalResponse.sender && additionalResponse.sender.split(' ').map(word => word[0]).join('')}
               </AvatarFallback>
             </Avatar>
             
-            <div className="bg-gray-50 text-gray-800 rounded-xl p-3 shadow-sm border border-gray-200">
+            <div className="bg-white text-[#061019] rounded-xl p-3 shadow-sm border border-[#006a9e]">
               <div className="flex items-center mb-1">
                 <span className="font-semibold">{additionalResponse.sender || 'Collègue'}</span>
-                <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full ml-2">
+                <span className="text-xs bg-white text-[#006a9e] px-2 py-0.5 rounded-full ml-2 border border-[#006a9e]">
                   {additionalResponse.senderRole || 'Expert'}
                 </span>
               </div>
-              <div className="text-sm italic">
+              <div className="text-sm">
                 {additionalResponse.content || ""}
               </div>
             </div>
@@ -768,7 +768,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                 <Button 
                   type="submit" 
                   disabled={loading || !userInput.trim() || showDecisionOptions}
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-[#006a9e] hover:bg-[#006a9e]/90"
                 >
                   <Send className="h-5 w-5" />
                 </Button>
@@ -799,9 +799,9 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                       <div key={idx} className="flex items-start">
                         <div className={`flex-shrink-0 w-5 h-5 rounded-full mr-3 flex items-center justify-center ${
                           currentObjective > idx 
-                            ? 'bg-green-500 text-white' 
+                            ? 'bg-[#006a9e] text-white' 
                             : currentObjective === idx 
-                              ? 'bg-blue-500 text-white'
+                              ? 'bg-[#dd0061] text-white'
                               : 'bg-gray-200'
                         }`}>
                           {currentObjective > idx && <CheckCircle className="w-4 h-4" />}
@@ -874,10 +874,10 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                       const skillLevel = Math.min(100, Math.round(progress * (0.5 + Math.random() * 0.5)));
                       
                       // Détermine la couleur de la barre de progression en fonction du niveau
-                      let progressColor = "bg-blue-600";
-                      if (skillLevel < 30) progressColor = "bg-red-500";
-                      else if (skillLevel < 70) progressColor = "bg-amber-500";
-                      else if (skillLevel >= 90) progressColor = "bg-green-500";
+                      let progressColor = "bg-[#006a9e]";  // Utilise notre couleur primaire Pantone 7469C
+                      if (skillLevel < 30) progressColor = "bg-[#dd0061]";  // Utilise notre couleur secondaire Pantone Robine Red
+                      else if (skillLevel < 70) progressColor = "bg-[#dd0061]/70";
+                      else if (skillLevel >= 90) progressColor = "bg-[#006a9e]/90";
                       
                       // Détermine l'icône en fonction de la catégorie de compétence
                       let SkillIcon = Shield;
@@ -890,7 +890,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                         <div key={idx} className="bg-gray-50 p-3 rounded-md">
                           <div className="flex items-center mb-2">
                             <div className="bg-white p-1.5 rounded-full mr-2 shadow-sm">
-                              <SkillIcon className="h-4 w-4 text-blue-600" />
+                              <SkillIcon className="h-4 w-4 text-[#006a9e]" />
                             </div>
                             <div>
                               <p className="font-medium text-sm">{skill.name}</p>
@@ -916,20 +916,20 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                   {/* Section des conseils et recommandations */}
                   <div className="mt-4 border-t pt-4">
                     <h4 className="text-md font-medium mb-2 flex items-center">
-                      <Award className="h-4 w-4 mr-2 text-blue-600" />
+                      <Award className="h-4 w-4 mr-2 text-[#006a9e]" />
                       Recommandations d'amélioration
                     </h4>
                     <ul className="space-y-2 text-sm text-gray-700">
                       <li className="flex items-start">
-                        <Target className="h-4 w-4 mr-2 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <Target className="h-4 w-4 mr-2 text-[#006a9e] mt-0.5 flex-shrink-0" />
                         <span>Concentrez-vous sur l'analyse détaillée des systèmes compromis avant toute action</span>
                       </li>
                       <li className="flex items-start">
-                        <Target className="h-4 w-4 mr-2 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <Target className="h-4 w-4 mr-2 text-[#006a9e] mt-0.5 flex-shrink-0" />
                         <span>Améliorez votre communication avec les différentes parties prenantes</span>
                       </li>
                       <li className="flex items-start">
-                        <Target className="h-4 w-4 mr-2 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <Target className="h-4 w-4 mr-2 text-[#006a9e] mt-0.5 flex-shrink-0" />
                         <span>Envisagez des mesures préventives plus complètes pour renforcer la sécurité</span>
                       </li>
                     </ul>
@@ -977,9 +977,9 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                     <div key={idx} className="flex items-start">
                       <div className={`flex-shrink-0 w-5 h-5 rounded-full mr-3 flex items-center justify-center ${
                         currentObjective > idx 
-                          ? 'bg-green-500 text-white' 
+                          ? 'bg-[#006a9e] text-white' 
                           : currentObjective === idx 
-                            ? 'bg-blue-500 text-white'
+                            ? 'bg-[#dd0061] text-white'
                             : 'bg-gray-200'
                       }`}>
                         {currentObjective > idx && <CheckCircle className="w-4 h-4" />}
@@ -1031,7 +1031,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                 {/* Résumé des compétences */}
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-md mb-4 border border-blue-100">
                   <div className="flex items-center mb-2">
-                    <div className="bg-blue-600 p-2 rounded-full mr-3">
+                    <div className="bg-[#006a9e] p-2 rounded-full mr-3">
                       <Brain className="h-5 w-5 text-white" />
                     </div>
                     <div>
@@ -1169,7 +1169,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                         {/* Prochain badge à obtenir */}
                         {canEarnBadge && (
                           <div className="mt-2 text-xs text-gray-500 flex items-center">
-                            <Target className="h-3 w-3 mr-1 text-blue-500" />
+                            <Target className="h-3 w-3 mr-1 text-[#006a9e]" />
                             <span>
                               {skillLevel < 25 ? "Prochain badge à 25%" : 
                                skillLevel < 50 ? "Prochain badge à 50%" : 
@@ -1186,7 +1186,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                 {/* Section des recommandations personnalisées */}
                 <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-4 border border-gray-200 mt-4 mb-8">
                   <h4 className="text-md font-medium mb-3 flex items-center">
-                    <Brain className="h-5 w-5 mr-2 text-indigo-600" />
+                    <Brain className="h-5 w-5 mr-2 text-[#006a9e]" />
                     Recommandations d'amélioration personnalisées
                   </h4>
                   
@@ -1207,7 +1207,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                           <ul className="space-y-1.5">
                             {recommendations.map((rec, i) => (
                               <li key={i} className="flex items-start text-xs text-gray-700">
-                                <Target className="h-3 w-3 mr-1.5 text-indigo-500 mt-0.5 flex-shrink-0" />
+                                <Target className="h-3 w-3 mr-1.5 text-[#006a9e] mt-0.5 flex-shrink-0" />
                                 <span>{rec}</span>
                               </li>
                             ))}
@@ -1221,7 +1221,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                   {mission.learningEvents && mission.learningEvents.length > 0 && (
                     <div className="mt-4 pt-3 border-t border-gray-200">
                       <h5 className="text-sm font-medium mb-2 flex items-center">
-                        <LineChart className="h-4 w-4 mr-1.5 text-indigo-600" />
+                        <LineChart className="h-4 w-4 mr-1.5 text-[#006a9e]" />
                         Historique de progression
                       </h5>
                       <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
@@ -1235,7 +1235,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                             </div>
                             <div className="mt-1 flex items-center gap-2">
                               {event.skillsImpacted.map((impact, i) => (
-                                <Badge key={i} variant="outline" className="text-[10px] bg-blue-50 border-blue-200 text-blue-700">
+                                <Badge key={i} variant="outline" className="text-[10px] bg-[#006a9e]/10 border-[#006a9e]/30 text-[#006a9e]">
                                   +{impact.gainedPoints} points
                                 </Badge>
                               ))}
