@@ -1678,11 +1678,16 @@ Directives pour la réponse:
         
         // Associer des mots-clés aux contacts pour une réponse contextuelle
         for (const contact of missionContext.contacts) {
-          const expertise = contact.expertise.toLowerCase();
-          if (keyword.includes(expertise.split(' ')[0]) || 
-              keyword.includes(contact.name.split(' ')[0].toLowerCase())) {
+          // Vérifier si le contact et ses propriétés existent avant d'y accéder
+          if (!contact) continue;
+          
+          const expertise = contact.expertise ? contact.expertise.toLowerCase() : '';
+          const contactName = contact.name ? contact.name.toLowerCase() : '';
+          
+          if ((expertise && keyword.includes(expertise.split(' ')[0])) || 
+              (contactName && keyword.includes(contactName.split(' ')[0]))) {
             sender = contact.name;
-            senderRole = contact.role;
+            senderRole = contact.role || "Expert";
             break;
           }
         }
@@ -1713,9 +1718,9 @@ Directives pour la réponse:
           
           // Créer un prompt pour la réponse additionnelle
           const colleaguePrompt = `
-Tu es ${selectedContact.name}, ${selectedContact.role} dans l'entreprise. 
+Tu es ${selectedContact.name || 'un expert'}, ${selectedContact.role || 'spécialiste'} dans l'entreprise. 
 Tu dois réagir brièvement (2-3 phrases maximum) au message de ${sender} qui vient de dire: "${response}".
-Ta réaction doit être cohérente avec ton rôle et ton expertise en ${selectedContact.expertise}.
+Ta réaction doit être cohérente avec ton rôle ${selectedContact.expertise ? `et ton expertise en ${selectedContact.expertise}` : ''}.
 Réponds directement sans introduction ni formule de politesse, comme si tu intervenais dans une conversation.`;
 
           const colleagueMessages: ChatCompletionRequestMessage[] = [
@@ -1843,14 +1848,6 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
           return match[1];
         }
         
-        // Fallback: prendre le dernier mot si le pattern n'est pas trouvé
-        const words = fullNameText.trim().split(/\s+/);
-        return words[words.length - 1];
-        if (mixedMatch && mixedMatch[1]) {
-          console.log("Matched mixed pattern, extracted:", mixedMatch[1]);
-          return mixedMatch[1];
-        }
-        
         // Cas spécifique: "Je suis Je m'appelle Eddy"
         const reverseMixedPattern = /je\s+suis\s+je\s+m['']\s*appelle\s+([a-zA-ZÀ-ÿ]+)/i;
         const reverseMixedMatch = fullNameText.match(reverseMixedPattern);
@@ -1881,6 +1878,12 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
         
         if (nameParts.length > 1 && skipWords.includes(nameParts[0].toLowerCase())) {
           startIndex = 1;
+        }
+        
+        // Fallback: prendre le dernier mot si aucun mot approprié n'est trouvé
+        if (!nameParts[startIndex]) {
+          const words = fullNameText.trim().split(/\s+/);
+          return words[words.length - 1] || "utilisateur";
         }
         
         console.log("Final extraction:", nameParts[startIndex]);

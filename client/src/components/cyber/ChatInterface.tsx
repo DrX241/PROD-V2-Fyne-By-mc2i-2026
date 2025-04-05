@@ -184,7 +184,7 @@ export default function ChatInterface() {
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
                 rows={1}
-                className="relative w-full py-2.5 sm:py-3.5 px-3 sm:px-4 pr-10 sm:pr-12 rounded-lg bg-gray-900/70 border border-blue-700/50 outline-none text-blue-50 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all placeholder:text-blue-300/50 text-sm sm:text-base resize-none overflow-auto"
+                className="relative w-full py-2.5 sm:py-3.5 px-3 sm:px-4 pr-10 sm:pr-12 rounded-lg bg-white border border-blue-700/50 outline-none text-black focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all placeholder:text-gray-500/80 text-sm sm:text-base resize-none overflow-auto"
                 placeholder="Tapez votre réponse... (Shift+Entrée pour aller à la ligne)"
                 style={{ minHeight: "2.5rem", maxHeight: "8rem" }}
               />

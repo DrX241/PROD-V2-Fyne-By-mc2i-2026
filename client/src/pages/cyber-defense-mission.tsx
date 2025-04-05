@@ -126,12 +126,12 @@ const ChatMessage = ({ message, additionalResponse = null }: {
     return formattedContent;
   };
   
-  // Déterminer la classe d'arrière-plan avec la palette officielle
+  // Déterminer la classe d'arrière-plan avec la palette officielle et des couleurs différentes pour chacun
   let bgColorClass = isUser 
-    ? 'bg-[#006a9e] text-white' // Pantone 7469C pour l'utilisateur
+    ? 'bg-[#006a9e] text-white' // Pantone 7469C pour l'utilisateur 
     : isSystem 
-      ? 'bg-[#006a9e] text-white' // Pantone 7469C pour le système aussi (plus de rouge)
-      : 'bg-white text-[#061019]'; // Fond blanc et texte Pantone Black 6C pour autres
+      ? 'bg-[#004a70] text-white' // Pantone 7469C plus foncé pour le système
+      : 'bg-white text-[#061019]'; // Fond blanc et texte Pantone Black 6C pour les autres
   
   // Déterminer les classes pour les coins arrondis
   let roundedClass = isUser
