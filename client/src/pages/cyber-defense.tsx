@@ -237,16 +237,44 @@ export default function CyberDefense() {
               <div className="mt-6 lg:mt-0">
                 <Tabs defaultValue="all" value={filter} onValueChange={setFilter}>
                   <TabsList className="bg-white border border-gray-200">
-                    <TabsTrigger value="all" className="data-[state=active]:bg-[#006a9e]/10 data-[state=active]:text-[#006a9e]">
+                    <TabsTrigger 
+                      value="all" 
+                      className="border-b-2 border-transparent text-[#006a9e]/60 hover:text-[#006a9e]/80
+                                data-[state=active]:bg-[#006a9e]/10 
+                                data-[state=active]:text-[#006a9e] 
+                                data-[state=active]:border-[#006a9e] 
+                                data-[state=active]:font-medium"
+                    >
                       Toutes
                     </TabsTrigger>
-                    <TabsTrigger value="débutant" className="data-[state=active]:bg-[#00afab]/20 data-[state=active]:text-[#00afab]">
+                    <TabsTrigger 
+                      value="débutant" 
+                      className="border-b-2 border-transparent text-[#00afab]/60 hover:text-[#00afab]/80
+                                data-[state=active]:bg-[#00afab]/20 
+                                data-[state=active]:text-[#00afab] 
+                                data-[state=active]:border-[#00afab] 
+                                data-[state=active]:font-medium"
+                    >
                       Débutant
                     </TabsTrigger>
-                    <TabsTrigger value="intermédiaire" className="data-[state=active]:bg-[#46cada]/20 data-[state=active]:text-[#006a9e]">
+                    <TabsTrigger 
+                      value="intermédiaire" 
+                      className="border-b-2 border-transparent text-[#006a9e]/60 hover:text-[#006a9e]/80
+                                data-[state=active]:bg-[#46cada]/20 
+                                data-[state=active]:text-[#006a9e] 
+                                data-[state=active]:border-[#006a9e] 
+                                data-[state=active]:font-medium"
+                    >
                       Intermédiaire
                     </TabsTrigger>
-                    <TabsTrigger value="expert" className="data-[state=active]:bg-[#dd0061]/20 data-[state=active]:text-[#dd0061]">
+                    <TabsTrigger 
+                      value="expert" 
+                      className="border-b-2 border-transparent text-[#dd0061]/60 hover:text-[#dd0061]/80
+                                data-[state=active]:bg-[#dd0061]/20 
+                                data-[state=active]:text-[#dd0061] 
+                                data-[state=active]:border-[#dd0061] 
+                                data-[state=active]:font-medium"
+                    >
                       Expert
                     </TabsTrigger>
                   </TabsList>
