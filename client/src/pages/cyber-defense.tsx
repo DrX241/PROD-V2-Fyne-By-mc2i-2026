@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { 
   Shield, AlertTriangle, Database, FileWarning, Users, User, 
-  AlertCircle, Clock, Zap, MessageSquare, Filter, ArrowRight, ArrowLeft
+  AlertCircle, Clock, Zap, MessageSquare, Filter, ArrowRight, ArrowLeft,
+  Network, ClipboardCheck, KeyRound, Cloud, AlertOctagon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -17,7 +18,8 @@ interface Mission {
   difficulty: "Débutant" | "Intermédiaire" | "Expert";
   duration: string;
   tags: string[];
-  icon: "phishing" | "ransomware" | "data-breach" | "social-engineering" | "apt" | "zero-day";
+  icon: "phishing" | "ransomware" | "data-breach" | "social-engineering" | "apt" | "zero-day" | "strategy" | "compliance" | "supply-chain" | "identity" | "cloud" | "crisis";
+  comingSoon?: boolean;
 }
 
 // Composant pour la carte de mission
@@ -31,7 +33,13 @@ const MissionCard = ({ mission }: { mission: Mission }) => {
     "data-breach": <Database className="w-5 h-5" />,
     "social-engineering": <Users className="w-5 h-5" />,
     "apt": <AlertTriangle className="w-5 h-5" />,
-    "zero-day": <Zap className="w-5 h-5" />
+    "zero-day": <Zap className="w-5 h-5" />,
+    "strategy": <Network className="w-5 h-5" />,
+    "compliance": <ClipboardCheck className="w-5 h-5" />,
+    "supply-chain": <ArrowRight className="w-5 h-5" />,
+    "identity": <KeyRound className="w-5 h-5" />,
+    "cloud": <Cloud className="w-5 h-5" />,
+    "crisis": <AlertOctagon className="w-5 h-5" />
   };
   
   // Mapping des couleurs de fond en fonction du niveau de difficulté
@@ -94,6 +102,7 @@ const MissionCard = ({ mission }: { mission: Mission }) => {
 export default function CyberDefense() {
   // Liste des missions disponibles
   const missions: Mission[] = [
+    // Missions existantes
     {
       id: "phishing-campaign",
       title: "Contrer une campagne de phishing massive",
@@ -147,6 +156,78 @@ export default function CyberDefense() {
       duration: "25-35 min",
       tags: ["Vulnérabilité", "Patch management", "Analyse d'exploitation"],
       icon: "zero-day"
+    },
+    
+    // Nouvelles missions - Stratégie cyber
+    {
+      id: "cyber-strategy",
+      title: "Définir la stratégie cybersécurité",
+      description: "En tant que RSSI, élaborez une stratégie de cybersécurité adaptée aux besoins de l'entreprise en tenant compte des contraintes budgétaires, réglementaires et opérationnelles.",
+      difficulty: "Intermédiaire",
+      duration: "25-30 min",
+      tags: ["Stratégie cyber", "Gouvernance", "Planification"],
+      icon: "strategy",
+      comingSoon: true
+    },
+    
+    // Conformité cyber
+    {
+      id: "cyber-compliance",
+      title: "Audit de conformité réglementaire",
+      description: "Votre entreprise fait face à un audit de conformité cybersécurité. Préparez votre organisation pour répondre aux exigences réglementaires et éviter les sanctions.",
+      difficulty: "Intermédiaire",
+      duration: "20-25 min",
+      tags: ["Conformité", "Audit", "Réglementation"],
+      icon: "compliance",
+      comingSoon: true
+    },
+    
+    // Sécurité supply chain
+    {
+      id: "supply-chain-security",
+      title: "Compromission dans la chaîne d'approvisionnement",
+      description: "Un fournisseur stratégique a été compromis, exposant potentiellement votre entreprise à des risques. Gérez cette crise affectant votre chaîne d'approvisionnement informatique.",
+      difficulty: "Expert",
+      duration: "25-35 min",
+      tags: ["Supply Chain", "Fournisseurs", "Analyse de risques"],
+      icon: "supply-chain",
+      comingSoon: true
+    },
+    
+    // IAM (Identity & Access Management)
+    {
+      id: "identity-breach",
+      title: "Compromission des accès privilégiés",
+      description: "Les identifiants d'un administrateur système ont été compromis. Menez l'enquête et mettez en place une stratégie de gestion des identités et des accès plus robuste.",
+      difficulty: "Intermédiaire",
+      duration: "20-30 min",
+      tags: ["IAM", "Accès privilégiés", "Authentification"],
+      icon: "identity",
+      comingSoon: true
+    },
+    
+    // Cybersécurité cloud
+    {
+      id: "cloud-security-incident",
+      title: "Incident de sécurité dans le cloud",
+      description: "Une configuration incorrecte a exposé des données sensibles stockées dans votre infrastructure cloud. Menez l'investigation et établissez un plan de remédiation.",
+      difficulty: "Expert",
+      duration: "25-35 min",
+      tags: ["Cloud", "Configuration", "Données sensibles"],
+      icon: "cloud",
+      comingSoon: true
+    },
+    
+    // Gestion de crise avancée
+    {
+      id: "major-crisis",
+      title: "Crise cybersécurité majeure",
+      description: "Une attaque sophistiquée à grande échelle affecte toutes les opérations de l'entreprise. Dirigez la cellule de crise et prenez des décisions stratégiques sous pression.",
+      difficulty: "Expert",
+      duration: "30-40 min",
+      tags: ["Gestion de crise", "Communication", "Reprise d'activité"],
+      icon: "crisis",
+      comingSoon: true
     }
   ];
   

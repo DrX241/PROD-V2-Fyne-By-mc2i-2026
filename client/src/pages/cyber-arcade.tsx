@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
-import { TerminalSquare, Target, LockKeyhole, Network, BrainCircuit, Users, Shield, Joystick, ArrowLeft, ArrowRight } from 'lucide-react';
+import { 
+  TerminalSquare, Target, LockKeyhole, Network, BrainCircuit, Users, Shield, Joystick, 
+  ArrowLeft, ArrowRight, Scroll as GraduationCap, Search, FileKey, Bug, SearchCheck 
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
 
@@ -19,6 +22,7 @@ export default function CyberArcade() {
   const [hoveredGame, setHoveredGame] = useState<string | null>(null);
 
   const arcadeGames: GameOption[] = [
+    // Jeux existants et fonctionnels
     {
       id: 'phishing-detective',
       title: 'Detective de Phishing',
@@ -59,6 +63,63 @@ export default function CyberArcade() {
       icon: <Target className="w-10 h-10 text-white" />,
       gradient: 'from-red-700 to-red-900'
     },
+    
+    // Nouveaux jeux - Formation et sensibilisation
+    {
+      id: 'cyber-quiz',
+      title: 'Cyber Quiz Challenge',
+      description: "Testez vos connaissances en cybersécurité à travers une série de quiz interactifs adaptés à votre niveau. L'IA adapte les questions selon vos réponses.",
+      difficulty: 'Facile',
+      icon: <GraduationCap className="w-10 h-10 text-white" />,
+      gradient: 'from-emerald-600 to-green-800',
+      comingSoon: true
+    },
+    
+    // OSINT
+    {
+      id: 'osint-investigator',
+      title: 'OSINT Investigator',
+      description: "Menez l'enquête en utilisant uniquement des sources d'information ouvertes. Découvrez comment les attaquants peuvent exploiter les informations publiques.",
+      difficulty: 'Moyen',
+      icon: <Search className="w-10 h-10 text-white" />,
+      gradient: 'from-blue-600 to-indigo-800',
+      comingSoon: true
+    },
+    
+    // Données personnelles
+    {
+      id: 'personal-data-guardian',
+      title: 'Gardien des Données Personnelles',
+      description: "Identifiez et protégez les données personnelles dans différents scénarios. Un jeu ludique pour comprendre les enjeux du RGPD.",
+      difficulty: 'Facile',
+      icon: <FileKey className="w-10 h-10 text-white" />,
+      gradient: 'from-green-600 to-emerald-800',
+      comingSoon: true
+    },
+    
+    // Analyse vulnérabilités
+    {
+      id: 'vulnerability-hunter',
+      title: 'Vulnerability Hunter',
+      description: "Parcourez un environnement virtuel pour identifier et corriger différentes vulnérabilités de sécurité dans le code et les configurations.",
+      difficulty: 'Difficile',
+      icon: <Bug className="w-10 h-10 text-white" />,
+      gradient: 'from-orange-600 to-red-700',
+      comingSoon: true
+    },
+    
+    // Forensics
+    {
+      id: 'digital-forensics',
+      title: 'Digital Detective',
+      description: "Menez une investigation numérique pour reconstituer un incident de sécurité. Analysez les preuves numériques et remontez jusqu'à la source de l'attaque.",
+      difficulty: 'Difficile',
+      icon: <SearchCheck className="w-10 h-10 text-white" />,
+      gradient: 'from-indigo-700 to-purple-900',
+      comingSoon: true
+    },
+    
+    // Gestion incidents
     {
       id: 'incident-response',
       title: 'Incident Response Challenge',
@@ -68,6 +129,8 @@ export default function CyberArcade() {
       gradient: 'from-red-700 to-rose-900',
       comingSoon: true
     },
+    
+    // Jeux à remplacer ou à garder pour compléter les 10
     {
       id: 'social-engineering',
       title: 'Social Engineering Simulator',
@@ -75,15 +138,6 @@ export default function CyberArcade() {
       difficulty: 'Moyen',
       icon: <Users className="w-10 h-10 text-white" />,
       gradient: 'from-cyan-600 to-teal-700',
-      comingSoon: true
-    },
-    {
-      id: 'blockchain-challenge',
-      title: 'Blockchain Challenge',
-      description: "Explorez les concepts de blockchain et de sécurité des transactions numériques à travers une série de défis interactifs.",
-      difficulty: 'Difficile',
-      icon: <Network className="w-10 h-10 text-white" />,
-      gradient: 'from-blue-800 to-indigo-900',
       comingSoon: true
     },
     {
@@ -102,15 +156,6 @@ export default function CyberArcade() {
       difficulty: 'Difficile',
       icon: <BrainCircuit className="w-10 h-10 text-white" />,
       gradient: 'from-slate-700 to-gray-900',
-      comingSoon: true
-    },
-    {
-      id: 'bug-bounty-hunter',
-      title: 'Bug Bounty Hunter',
-      description: "Apprenez à identifier les vulnérabilités dans des applications web simulées et comment les corriger efficacement.",
-      difficulty: 'Difficile',
-      icon: <Joystick className="w-10 h-10 text-white" />,
-      gradient: 'from-emerald-700 to-green-900',
       comingSoon: true
     }
   ];
