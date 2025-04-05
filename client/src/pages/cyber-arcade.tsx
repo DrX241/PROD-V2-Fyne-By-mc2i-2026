@@ -184,10 +184,13 @@ export default function CyberArcade() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className={`relative overflow-hidden rounded-xl shadow-lg transform transition-all duration-300 hover:-translate-y-2 ${game.comingSoon ? 'opacity-70' : ''}`}
+                className={`relative overflow-hidden rounded-xl shadow-lg transform transition-all duration-300 hover:-translate-y-2 ${game.comingSoon ? 'opacity-70' : 'cursor-pointer hover:shadow-purple-500/30 hover:shadow-xl'}`}
                 onMouseEnter={() => setHoveredGame(game.id)}
                 onMouseLeave={() => setHoveredGame(null)}
               >
+                {!game.comingSoon && (
+                  <Link href={`/cyber/arcade/${game.id}`} className="absolute inset-0 z-10 cursor-pointer"></Link>
+                )}
                 <div className={`bg-gradient-to-br ${game.gradient} p-6 h-full`}>
                   {/* Badge de difficulté */}
                   <div className={`absolute top-3 right-3 text-xs font-semibold py-1 px-2 rounded-full 
@@ -207,7 +210,14 @@ export default function CyberArcade() {
                   
                   {/* Glow effect on hover */}
                   {hoveredGame === game.id && (
-                    <div className="absolute inset-0 bg-white opacity-10 animate-pulse"></div>
+                    <>
+                      <div className="absolute inset-0 bg-white opacity-10 animate-pulse"></div>
+                      {!game.comingSoon && (
+                        <div className="absolute top-4 left-4 bg-purple-500 text-white text-xs font-semibold py-1 px-2 rounded-full">
+                          Cliquez pour jouer
+                        </div>
+                      )}
+                    </>
                   )}
                   
                   <div className="flex flex-col h-full">
@@ -227,15 +237,14 @@ export default function CyberArcade() {
                         Bientôt disponible
                       </Button>
                     ) : (
-                      <Link href={`/cyber/arcade/${game.id}`}>
-                        <Button 
-                          className="mt-auto bg-white hover:bg-gray-100 text-gray-900 w-full justify-center"
-                          size="sm"
-                        >
-                          Commencer
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </Link>
+                      <Button 
+                        className="mt-auto bg-white hover:bg-gray-100 text-gray-900 w-full justify-center relative z-20"
+                        size="sm"
+                        onClick={() => window.location.href = `/cyber/arcade/${game.id}`}
+                      >
+                        Commencer
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
                     )}
                   </div>
                 </div>
