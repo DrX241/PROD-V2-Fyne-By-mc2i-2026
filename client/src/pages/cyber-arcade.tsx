@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
+import PageTitle from '@/components/utils/PageTitle';
 
 interface GameOption {
   id: string;
@@ -162,6 +163,7 @@ export default function CyberArcade() {
 
   return (
     <HomeLayout>
+      <PageTitle title="CYBER ARCADE" />
       <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-purple-900 via-gray-900 to-black">
         {/* Arrière-plan arcade */}
         <div className="absolute inset-0 w-full h-full">

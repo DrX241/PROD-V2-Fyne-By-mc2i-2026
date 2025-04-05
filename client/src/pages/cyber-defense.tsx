@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import HomeLayout from '@/components/layout/HomeLayout';
+import PageTitle from '@/components/utils/PageTitle';
 
 interface Mission {
   id: string;
@@ -240,6 +241,7 @@ export default function CyberDefense() {
   
   return (
     <HomeLayout>
+      <PageTitle title="CYBER DEFENSE" />
       {/* Hero section */}
       <div className="bg-gradient-to-br from-[#003a5d] to-[#006a9e] text-white">
         <div className="max-w-7xl mx-auto px-4 pt-6 pb-16 sm:px-6 lg:px-8 lg:pb-24">

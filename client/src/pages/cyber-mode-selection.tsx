@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Shield, MessageSquare, Bot, ArrowRight, Command, User, Joystick, BrainCircuit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
+import PageTitle from '@/components/utils/PageTitle';
 
 interface ModeOption {
   id: string;
@@ -46,6 +47,7 @@ export default function CyberModeSelection() {
 
   return (
     <HomeLayout>
+      <PageTitle title="I AM CYBER" />
       <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-gray-900 to-blue-900">
         {/* Arrière-plan cybersécurité */}
         <div className="absolute inset-0 w-full h-full">
