@@ -854,7 +854,7 @@ Si votre niveau de confiance continue de baisser, votre poste pourrait être rec
                   value={userInput}
                   onChange={(e) => setUserInput(e.target.value)}
                   placeholder="Tapez votre message..."
-                  className="flex-1 py-2 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#006a9e] focus:border-transparent"
+                  className="flex-1 py-2 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#006a9e] focus:border-transparent text-black"
                   disabled={loading || showDecisionOptions}
                 />
                 <Button 
