@@ -35,7 +35,7 @@ export default function ContextBanner() {
   const getDifficultyClass = (difficulty: string) => {
     switch (difficulty) {
       case "Débutant":
-        return "bg-green-900/40 text-green-300 border border-green-700/30";
+        return "bg-[#006a9e]/40 text-[#8bbdd0] border border-[#006a9e]/30";
       case "Intermédiaire":
         return "bg-orange-900/40 text-orange-300 border border-orange-700/30";
       case "Expert":

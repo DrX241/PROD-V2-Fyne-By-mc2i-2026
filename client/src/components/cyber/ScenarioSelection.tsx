@@ -24,9 +24,9 @@ export default function ScenarioSelection() {
       case 'Débutant':
         return {
           icon: <Shield className="w-4 h-4 mr-1" />,
-          bgColor: "bg-green-900/40",
-          textColor: "text-green-300",
-          borderColor: "border-green-700/30",
+          bgColor: "bg-[#006a9e]/40",
+          textColor: "text-[#8bbdd0]",
+          borderColor: "border-[#006a9e]/30",
           label: "Débutant"
         };
       case 'Intermédiaire':
@@ -71,10 +71,10 @@ export default function ScenarioSelection() {
         };
       case 'donnees-personnelles':
         return {
-          color: "from-emerald-900/30 to-emerald-700/10",
-          accentColor: "text-emerald-300",
-          borderColor: "border-emerald-700/20",
-          icon: <Shield className="w-6 h-6 text-emerald-300 mb-2" />
+          color: "from-[#006a9e]/30 to-[#006a9e]/10",
+          accentColor: "text-[#8bbdd0]",
+          borderColor: "border-[#006a9e]/20",
+          icon: <Shield className="w-6 h-6 text-[#8bbdd0] mb-2" />
         };
       default:
         return {

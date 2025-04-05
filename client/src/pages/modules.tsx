@@ -105,10 +105,10 @@ export default function ModulesPage() {
       title: "I AM AMOA",
       description: "Perfectionnez vos compétences en assistance à maîtrise d'ouvrage et gestion de projet avec des mentors virtuels experts.",
       icon: <ListChecks className="w-12 h-12 text-white" />,
-      iconBg: "bg-emerald-600",
-      color: "border-emerald-200 hover:shadow-xl hover:scale-105 hover:border-emerald-300",
+      iconBg: "bg-[#006a9e]",
+      color: "border-blue-200 hover:shadow-xl hover:scale-105 hover:border-blue-300",
       link: "/amoa",
-      bgGradient: "bg-gradient-to-br from-emerald-50 to-emerald-100"
+      bgGradient: "bg-gradient-to-br from-blue-50 to-blue-100"
     },
     {
       id: "custom",
@@ -147,7 +147,7 @@ export default function ModulesPage() {
 
   const stats = [
     { value: "95%", label: "Taux de satisfaction", icon: <Star className="h-8 w-8 text-amber-500" /> },
-    { value: "78%", label: "Amélioration des compétences", icon: <TrendingUp className="h-8 w-8 text-emerald-500" /> },
+    { value: "78%", label: "Amélioration des compétences", icon: <TrendingUp className="h-8 w-8 text-[#006a9e]" /> },
     { value: "4.8/5", label: "Note moyenne", icon: <Target className="h-8 w-8 text-rose-500" /> },
     { value: "97%", label: "Application pratique", icon: <Rocket className="h-8 w-8 text-indigo-500" /> }
   ];
@@ -176,7 +176,7 @@ export default function ModulesPage() {
     <Cpu key="cpu" className="h-10 w-10 text-blue-500/70" />,
     <Bot key="bot" className="h-10 w-10 text-indigo-500/70" />,
     <Brain key="brain" className="h-10 w-10 text-purple-500/70" />,
-    <Database key="database" className="h-10 w-10 text-emerald-500/70" />,
+    <Database key="database" className="h-10 w-10 text-[#006a9e]/70" />,
     <AreaChart key="chart" className="h-10 w-10 text-rose-500/70" />
   ];
 

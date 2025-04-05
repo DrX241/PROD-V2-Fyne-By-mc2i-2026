@@ -25,17 +25,17 @@ export default function DomainSelection() {
   }> = {
     "gestion-crise": {
       icon: <AlertTriangle className="w-10 h-10 text-red-300" />,
-      bgGradient: "from-red-900/50 via-red-800/30 to-red-900/50",
+      bgGradient: "from-slate-900/50 via-slate-800/30 to-slate-900/50",
       borderColor: "border-red-700/30",
       glowColor: "text-red-200",
       shadowColor: "shadow-red-500/10"
     },
     "donnees-personnelles": {
-      icon: <FileKey className="w-10 h-10 text-emerald-300" />,
-      bgGradient: "from-emerald-900/50 via-emerald-800/30 to-emerald-900/50",
-      borderColor: "border-emerald-700/30",
-      glowColor: "text-emerald-200",
-      shadowColor: "shadow-emerald-500/10"
+      icon: <FileKey className="w-10 h-10 text-[#8bbdd0]" />,
+      bgGradient: "from-[#006a9e]/50 via-[#006a9e]/30 to-[#006a9e]/50",
+      borderColor: "border-[#006a9e]/30",
+      glowColor: "text-[#8bbdd0]",
+      shadowColor: "shadow-[#006a9e]/10"
     },
     "ingenierie-sociale": {
       icon: <UserCheck className="w-10 h-10 text-amber-300" />,

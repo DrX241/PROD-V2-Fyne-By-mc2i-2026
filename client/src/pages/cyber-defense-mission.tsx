@@ -37,8 +37,8 @@ import { cyberDefenseMissions, getMissionById, exampleMission } from '../data/cy
 
 // Mapping des couleurs de fond en fonction du niveau de difficulté
 const difficultyColor = {
-  "Débutant": "bg-green-100 text-green-800",
-  "Intermédiaire": "bg-[#006a9e]/10 text-[#006a9e]",
+  "Débutant": "bg-[#006a9e]/10 text-[#006a9e]",
+  "Intermédiaire": "bg-amber-100 text-amber-800",
   "Expert": "bg-red-100 text-red-800"
 };
 
