@@ -935,7 +935,7 @@ Si votre niveau de confiance continue de baisser, votre poste pourrait être rec
                                 {contact && contact.name ? contact.name.split(' ').map(word => word[0]).join('') : 'NC'}
                               </AvatarFallback>
                             </Avatar>
-                            <p className="font-medium">{contact && contact.name ? contact.name : 'Contact Non Défini'}</p>
+                            <p className="font-medium text-[#006a9e]">{contact && contact.name ? contact.name : 'Contact Non Défini'}</p>
                           </div>
                           <p className="text-sm text-gray-600">{contact && contact.role ? contact.role : 'Rôle non défini'}</p>
                           <p className="text-xs text-gray-500 mt-1">{contact && contact.expertise ? contact.expertise : 'Expertise non définie'}</p>
@@ -1018,7 +1018,7 @@ Si votre niveau de confiance continue de baisser, votre poste pourrait être rec
                               <SkillIcon className="h-4 w-4 text-[#006a9e]" />
                             </div>
                             <div>
-                              <p className="font-medium text-sm">{skill.name}</p>
+                              <p className="font-medium text-sm text-[#006a9e]">{skill.name}</p>
                               <p className="text-xs text-gray-500">{skill.category}</p>
                             </div>
                           </div>
@@ -1140,7 +1140,7 @@ Si votre niveau de confiance continue de baisser, votre poste pourrait être rec
                               {contact && contact.name ? contact.name.split(' ').map(word => word[0]).join('') : 'NC'}
                             </AvatarFallback>
                           </Avatar>
-                          <p className="font-medium">{contact && contact.name ? contact.name : 'Contact Non Défini'}</p>
+                          <p className="font-medium text-[#006a9e]">{contact && contact.name ? contact.name : 'Contact Non Défini'}</p>
                         </div>
                         <p className="text-sm text-gray-600">{contact && contact.role ? contact.role : 'Rôle non défini'}</p>
                         <p className="text-xs text-gray-500 mt-1">{contact && contact.expertise ? contact.expertise : 'Expertise non définie'}</p>
@@ -1327,7 +1327,7 @@ Si votre niveau de confiance continue de baisser, votre poste pourrait être rec
                               skill.level < 60 ? 'bg-[#006a9e]' : 
                               'bg-[#006a9e]'
                             }`}></div>
-                            <p className="font-medium text-sm text-gray-900">{skill.name}</p>
+                            <p className="font-medium text-sm text-[#006a9e]">{skill.name}</p>
                           </div>
                           <ul className="space-y-1.5">
                             {recommendations.map((rec, i) => (
@@ -1345,7 +1345,7 @@ Si votre niveau de confiance continue de baisser, votre poste pourrait être rec
                   {/* Événements d'apprentissage */}
                   {mission.learningEvents && mission.learningEvents.length > 0 && (
                     <div className="mt-4 pt-3 border-t border-gray-200">
-                      <h5 className="text-sm font-medium mb-2 flex items-center">
+                      <h5 className="text-sm font-medium text-[#006a9e] mb-2 flex items-center">
                         <LineChart className="h-4 w-4 mr-1.5 text-[#006a9e]" />
                         Historique de progression
                       </h5>
@@ -1353,7 +1353,7 @@ Si votre niveau de confiance continue de baisser, votre poste pourrait être rec
                         {mission.learningEvents.slice().reverse().map((event, idx) => (
                           <div key={idx} className="bg-white/60 p-2 rounded border border-gray-100 text-xs">
                             <div className="flex justify-between items-start">
-                              <p className="font-medium text-gray-900">{event.description}</p>
+                              <p className="font-medium text-[#006a9e]">{event.description}</p>
                               <span className="text-gray-500 whitespace-nowrap ml-2">
                                 {new Date(event.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                               </span>
