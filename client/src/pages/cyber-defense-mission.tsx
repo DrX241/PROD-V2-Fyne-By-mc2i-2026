@@ -216,7 +216,6 @@ export default function CyberDefenseMission() {
   const [mission, setMission] = useState<Mission>(exampleMission);
   const [currentDecision, setCurrentDecision] = useState<Decision | null>(null);
   const [showDecisionOptions, setShowDecisionOptions] = useState(false);
-  const [currentObjectiveIndex, setCurrentObjectiveIndex] = useState(0);
   
   // Charger la mission en fonction de l'ID
   useEffect(() => {
@@ -646,7 +645,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                           <CheckCircle className="w-3.5 h-3.5 mr-1" /> Complété
                         </span>
                       ) : (
-                        <span>Objectif {currentObjective + 1}/{mission.objectives.length}</span>
+                        <span>Objectif {Math.min(currentObjective + 1, mission.objectives.length)}/{mission.objectives.length}</span>
                       )}
                     </Badge>
                   </div>
@@ -729,7 +728,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                               missionContext: mission,
                               decisionId: currentDecision.id,
                               choiceId: option.id,
-                              currentObjective: currentObjectiveIndex,
+                              currentObjective: currentObjective,
                               userRole: mission.userRole
                             });
                             
@@ -784,14 +783,14 @@ Si votre niveau de confiance continue de baisser, votre poste pourrait être rec
                             
                             // Si l'objectif est complété, passer au suivant
                             if (evaluation.objectiveCompleted) {
-                              setCurrentObjectiveIndex(prev => prev + 1);
+                              setCurrentObjective(prev => prev + 1);
                               setProgress(prev => Math.min(100, prev + Math.floor(100 / mission.objectives.length)));
                               
                               // Message de félicitations pour l'objectif complété
                               const completionMessage: Message = {
                                 id: uuidv4(),
                                 role: "assistant",
-                                content: `Objectif complété : ${mission.objectives[currentObjectiveIndex].description}`,
+                                content: `Objectif complété : ${mission.objectives[currentObjective].description}`,
                                 sender: "Système",
                                 senderRole: "Progression",
                                 timestamp: Date.now()
