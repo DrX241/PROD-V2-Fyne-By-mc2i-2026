@@ -84,7 +84,7 @@ const ChatMessage = ({ message, additionalResponse = null }: {
   let bgColorClass = isUser 
     ? 'bg-[#006a9e] text-white' // Pantone 7469C pour l'utilisateur
     : isSystem 
-      ? 'bg-[#dd0061] text-white' // Pantone Robine Red pour le système
+      ? 'bg-[#006a9e] text-white' // Pantone 7469C pour le système aussi (plus de rouge)
       : 'bg-white text-[#061019]'; // Fond blanc et texte Pantone Black 6C pour autres
   
   // Déterminer les classes pour les coins arrondis
@@ -98,7 +98,7 @@ const ChatMessage = ({ message, additionalResponse = null }: {
         <div className={`flex ${isUser ? 'flex-row-reverse' : 'flex-row'} items-start max-w-3xl`}>
           {!isUser && message.sender && (
             <Avatar className="mt-1 mr-3">
-              <AvatarFallback className={`${isSystem ? 'bg-white text-[#dd0061]' : 'bg-white text-[#006a9e]'}`}>
+              <AvatarFallback className="bg-white text-[#006a9e]">
                 {message.sender === 'Système' ? 'SYS' : message.sender.split(' ').map(word => word[0]).join('')}
               </AvatarFallback>
             </Avatar>
@@ -109,7 +109,7 @@ const ChatMessage = ({ message, additionalResponse = null }: {
               <div className="flex items-center mb-2">
                 <span className="font-semibold">{message.sender}</span>
                 {message.senderRole && (
-                  <span className={`text-xs ${isSystem ? 'bg-white text-[#dd0061]' : 'bg-white text-[#006a9e]'} px-2 py-0.5 rounded-full ml-2 border ${isSystem ? 'border-[#dd0061]' : 'border-[#006a9e]'}`}>
+                  <span className="text-xs bg-white text-[#006a9e] px-2 py-0.5 rounded-full ml-2 border border-[#006a9e]">
                     {message.senderRole}
                   </span>
                 )}
@@ -582,7 +582,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                   <div>
                     <Badge variant="outline" className="ml-2">
                       {progress === 100 ? (
-                        <span className="flex items-center text-green-600">
+                        <span className="flex items-center text-[#006a9e]">
                           <CheckCircle className="w-3.5 h-3.5 mr-1" /> Complété
                         </span>
                       ) : (
@@ -731,9 +731,9 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                       >
                         <div className="font-medium">{option.text}</div>
                         {option.score > 0 ? (
-                          <div className="text-xs mt-1 text-green-600">Impact: +{option.score} points</div>
+                          <div className="text-xs mt-1 text-[#006a9e]">Impact: +{option.score} points</div>
                         ) : option.score < 0 ? (
-                          <div className="text-xs mt-1 text-red-600">Impact: {option.score} points</div>
+                          <div className="text-xs mt-1 text-[#006a9e]/80">Impact: {option.score} points</div>
                         ) : (
                           <div className="text-xs mt-1 text-gray-500">Impact neutre</div>
                         )}
@@ -762,7 +762,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                   value={userInput}
                   onChange={(e) => setUserInput(e.target.value)}
                   placeholder="Tapez votre message..."
-                  className="flex-1 py-2 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="flex-1 py-2 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#006a9e] focus:border-transparent"
                   disabled={loading || showDecisionOptions}
                 />
                 <Button 
@@ -801,7 +801,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                           currentObjective > idx 
                             ? 'bg-[#006a9e] text-white' 
                             : currentObjective === idx 
-                              ? 'bg-[#dd0061] text-white'
+                              ? 'bg-[#006a9e]/80 text-white'
                               : 'bg-gray-200'
                         }`}>
                           {currentObjective > idx && <CheckCircle className="w-4 h-4" />}
@@ -875,8 +875,8 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                       
                       // Détermine la couleur de la barre de progression en fonction du niveau
                       let progressColor = "bg-[#006a9e]";  // Utilise notre couleur primaire Pantone 7469C
-                      if (skillLevel < 30) progressColor = "bg-[#dd0061]";  // Utilise notre couleur secondaire Pantone Robine Red
-                      else if (skillLevel < 70) progressColor = "bg-[#dd0061]/70";
+                      if (skillLevel < 30) progressColor = "bg-[#006a9e]/50";  
+                      else if (skillLevel < 70) progressColor = "bg-[#006a9e]/80";
                       else if (skillLevel >= 90) progressColor = "bg-[#006a9e]/90";
                       
                       // Détermine l'icône en fonction de la catégorie de compétence
@@ -979,7 +979,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                         currentObjective > idx 
                           ? 'bg-[#006a9e] text-white' 
                           : currentObjective === idx 
-                            ? 'bg-[#dd0061] text-white'
+                            ? 'bg-[#006a9e]/80 text-white'
                             : 'bg-gray-200'
                       }`}>
                         {currentObjective > idx && <CheckCircle className="w-4 h-4" />}
