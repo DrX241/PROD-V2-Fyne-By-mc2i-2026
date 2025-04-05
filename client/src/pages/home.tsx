@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import HomeLayout from "@/components/layout/HomeLayout";
 import { 
@@ -8,8 +8,9 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useChatContext } from "@/contexts/ChatContext";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import mcLogoPath from "@assets/mc2i.png";
+import { useIntroContext } from "@/contexts/IntroContext";
 
 // Carte de module avec animation
 const ModuleCard = ({ 
@@ -94,8 +95,12 @@ const FeatureCard = ({
   );
 };
 
+// Importation du composant d'animation inline pour la page d'accueil
+import FyneAnimationInline from "@/components/intro/FyneAnimationInline";
+
 export default function Home() {
   const { userName } = useChatContext();
+  const [animationDone, setAnimationDone] = useState(false);
   
   // Modules avec animations interactives
   const modules = [
@@ -192,8 +197,17 @@ export default function Home() {
                 transition={{ duration: 0.7 }}
               >
                 Transformez votre 
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400"> expertise professionnelle</span> avec <span className="text-[#006a9e]">FYNE</span>
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400"> expertise professionnelle</span> avec 
               </motion.h1>
+              
+              {/* Animation FYNE intégrée directement dans la page */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 1.0 }}
+              >
+                <FyneAnimationInline />
+              </motion.div>
               
               <motion.p 
                 className="text-xl text-blue-100 mb-8 max-w-xl"
