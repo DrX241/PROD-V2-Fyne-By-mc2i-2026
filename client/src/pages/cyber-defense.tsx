@@ -240,13 +240,13 @@ export default function CyberDefense() {
                     <TabsTrigger value="all" className="data-[state=active]:bg-[#006a9e]/10 data-[state=active]:text-[#006a9e]">
                       Toutes
                     </TabsTrigger>
-                    <TabsTrigger value="débutant" className="data-[state=active]:bg-[#006a9e]/10 data-[state=active]:text-[#006a9e]">
+                    <TabsTrigger value="débutant" className="data-[state=active]:bg-[#00afab]/20 data-[state=active]:text-[#00afab]">
                       Débutant
                     </TabsTrigger>
-                    <TabsTrigger value="intermédiaire" className="data-[state=active]:bg-[#006a9e]/10 data-[state=active]:text-[#006a9e]">
+                    <TabsTrigger value="intermédiaire" className="data-[state=active]:bg-[#46cada]/20 data-[state=active]:text-[#006a9e]">
                       Intermédiaire
                     </TabsTrigger>
-                    <TabsTrigger value="expert" className="data-[state=active]:bg-[#006a9e]/10 data-[state=active]:text-[#006a9e]">
+                    <TabsTrigger value="expert" className="data-[state=active]:bg-[#dd0061]/20 data-[state=active]:text-[#dd0061]">
                       Expert
                     </TabsTrigger>
                   </TabsList>
