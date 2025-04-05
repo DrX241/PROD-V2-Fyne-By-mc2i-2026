@@ -184,7 +184,7 @@ export default function CyberArcade() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className={`relative overflow-hidden rounded-xl shadow-lg transform transition-all duration-300 hover:-translate-y-2 hover:animate-pulse-glow ${game.comingSoon ? 'opacity-70' : ''}`}
+                className={`relative overflow-hidden rounded-xl shadow-lg transform transition-all duration-300 hover:-translate-y-2 ${game.comingSoon ? 'opacity-70' : ''}`}
                 onMouseEnter={() => setHoveredGame(game.id)}
                 onMouseLeave={() => setHoveredGame(null)}
               >
@@ -218,14 +218,25 @@ export default function CyberArcade() {
                     <h2 className="text-xl font-bold text-white mb-2">{game.title}</h2>
                     <p className="text-sm text-gray-100 mb-6 flex-grow">{game.description}</p>
                     
-                    <Button 
-                      className="mt-auto bg-white hover:bg-gray-100 text-gray-900"
-                      size="sm"
-                      disabled={game.comingSoon}
-                    >
-                      {game.comingSoon ? 'Bientôt disponible' : 'Commencer'}
-                      {!game.comingSoon && <ArrowRight className="ml-2 h-4 w-4" />}
-                    </Button>
+                    {game.comingSoon ? (
+                      <Button 
+                        className="mt-auto bg-white hover:bg-gray-100 text-gray-900 opacity-50 cursor-not-allowed"
+                        size="sm"
+                        disabled
+                      >
+                        Bientôt disponible
+                      </Button>
+                    ) : (
+                      <Link href={`/cyber/arcade/${game.id}`}>
+                        <Button 
+                          className="mt-auto bg-white hover:bg-gray-100 text-gray-900 w-full justify-center"
+                          size="sm"
+                        >
+                          Commencer
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </Link>
+                    )}
                   </div>
                 </div>
               </motion.div>
