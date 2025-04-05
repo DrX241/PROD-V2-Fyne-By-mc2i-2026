@@ -549,7 +549,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <Link href="/cyber-defense">
-                  <Button variant="ghost" size="icon" className="mr-3">
+                  <Button variant="ghost" size="icon" className="mr-3 text-[#006a9e] hover:text-[#006a9e]/90 hover:bg-[#006a9e]/10">
                     <ArrowLeft className="h-5 w-5" />
                   </Button>
                 </Link>
@@ -568,7 +568,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
               </div>
               
               <div className="md:hidden">
-                <Button variant="outline" size="icon" onClick={() => setMobileMenuOpen(true)}>
+                <Button variant="outline" size="icon" onClick={() => setMobileMenuOpen(true)} className="border-[#006a9e]/30 text-[#006a9e] hover:bg-[#006a9e]/10 hover:text-[#006a9e]">
                   <Menu className="h-5 w-5" />
                 </Button>
               </div>
@@ -747,6 +747,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
                     variant="outline" 
                     size="sm" 
                     onClick={() => setShowDecisionOptions(false)}
+                    className="border-[#006a9e]/30 text-[#006a9e] hover:bg-[#006a9e]/10 hover:text-[#006a9e]"
                   >
                     Annuler
                   </Button>
@@ -947,7 +948,7 @@ Votre gestion coordonnée a permis de minimiser l'impact et de renforcer la post
           <div className="h-full flex flex-col">
             <div className="flex justify-between items-center py-4">
               <h2 className="text-xl font-bold">Détails de la mission</h2>
-              <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
+              <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)} className="text-[#006a9e] hover:text-[#006a9e]/90 hover:bg-[#006a9e]/10">
                 <X className="h-5 w-5" />
               </Button>
             </div>
