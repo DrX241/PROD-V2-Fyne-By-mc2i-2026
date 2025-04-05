@@ -59,8 +59,8 @@ const MissionCard = ({ mission }: { mission: Mission }) => {
           <Badge className={difficultyColor[mission.difficulty]}>
             {mission.difficulty}
           </Badge>
-          <Badge variant="outline" className="ml-auto">
-            <Clock className="w-3.5 h-3.5 mr-1" /> {mission.duration}
+          <Badge variant="outline" className="ml-auto bg-white border-[#006a9e]/30 text-[#006a9e]">
+            <Clock className="w-3.5 h-3.5 mr-1 text-[#006a9e]" /> {mission.duration}
           </Badge>
         </div>
         
@@ -69,7 +69,7 @@ const MissionCard = ({ mission }: { mission: Mission }) => {
         
         <div className="mt-4 flex flex-wrap gap-2 mb-6">
           {mission.tags.map((tag, i) => (
-            <span key={i} className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
+            <span key={i} className="text-xs px-2 py-1 bg-[#46cada]/10 text-[#006a9e] font-medium rounded-full border border-[#46cada]/20">
               {tag}
             </span>
           ))}
