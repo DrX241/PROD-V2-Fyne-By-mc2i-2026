@@ -1,24 +1,11 @@
 import React, { useState } from "react";
 import { Users } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import { ScenarioContact, EmailMessageContent } from "@shared/types/cyber";
 
-// Définir les interfaces temporaires ici en attendant que les modules importés soient disponibles
-interface EmailContact {
-  name: string;
-  role: string;
-  expertise?: string;  // Expertise spécifique de l'interlocuteur
-  concern?: string;    // Préoccupation principale de l'interlocuteur
-}
-
-interface EmailContent {
-  id: string;
-  from: EmailContact;
-  to: string;
-  subject: string;
-  date: string;
-  body: string;
-  scenarioContacts?: EmailContact[]; // Liste des interlocuteurs du scénario
-}
+// Types aliases pour simplifier la transition
+type EmailContact = ScenarioContact;
+type EmailContent = EmailMessageContent;
 
 interface EmailMessageProps {
   email: EmailContent;

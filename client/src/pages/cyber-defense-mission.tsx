@@ -21,18 +21,74 @@ import { useChatContext } from '@/contexts/ChatContext';
 // Import des types depuis le module partagé
 import { 
   Mission, 
-  Message, 
   Contact, 
   Objective, 
   Decision,
-  Skill,
-  LearningEvent,
-  SkillBadge,
-  getSkillLevelLabel,
-  calculateGlobalSkillProgress,
-  getSkillsRecommendations,
-  generateBadgeForSkillLevel
+  calculateGlobalSkillProgress
 } from '../../../shared/types/cyber';
+
+// Types temporaires pour compléter les besoins de la page
+interface Message {
+  id: string;
+  senderId: string;
+  content: string;
+  timestamp: number;
+  sender?: Contact;
+}
+
+interface Skill {
+  id: string;
+  name: string;
+  description: string;
+  level: number;
+  progress: number;
+  category: string;
+}
+
+interface LearningEvent {
+  id: string;
+  title: string;
+  description: string;
+  skills: string[];
+  completed: boolean;
+  timestamp?: number;
+}
+
+interface SkillBadge {
+  id: string;
+  title: string;
+  description: string;
+  iconName: string;
+  level: number;
+  skillId: string;
+  createdAt: number;
+}
+
+// Fonctions temporaires pour compléter les besoins de la page
+const getSkillLevelLabel = (level: number): string => {
+  const labels = ["Débutant", "Intermédiaire", "Avancé", "Expert", "Maître"];
+  return labels[Math.min(level - 1, labels.length - 1)];
+};
+
+const getSkillsRecommendations = (skills: Skill[]): string[] => {
+  return [
+    "Participez à un exercice de simulation d'incident pour améliorer vos compétences en réponse aux incidents",
+    "Suivez une formation sur les dernières techniques d'ingénierie sociale",
+    "Pratiquez l'analyse de vulnérabilités sur un environnement de test"
+  ];
+};
+
+const generateBadgeForSkillLevel = (skill: Skill): SkillBadge => {
+  return {
+    id: uuidv4(),
+    title: `${skill.name} - Niveau ${skill.level}`,
+    description: `Badge obtenu pour avoir atteint le niveau ${skill.level} en ${skill.name}`,
+    iconName: "shield",
+    level: skill.level,
+    skillId: skill.id,
+    createdAt: Date.now()
+  };
+};
 import { cyberDefenseMissions, getMissionById, phishingMission } from '../data/cyber-defense-missions';
 
 // Mapping des couleurs de fond en fonction du niveau de difficulté

@@ -1,0 +1,69 @@
+Bonjour !
+
+Je suis I AM CYBER, votre assistant virtuel dans le monde passionnant de la cybersécurité. Je suis là pour vous accompagner dans une expérience d'apprentissage immersive et interactive.
+
+Comment puis-je vous appeler ?
+
+Eddy
+
+Merci Eddy ! Ravi de vous rencontrer. J'espère que vous allez bien aujourd'hui.
+
+Nous allons explorer ensemble différents aspects de la cybersécurité. Veuillez choisir un domaine qui vous intéresse parmi les options suivantes :
+
+Modules d'Excellence Cyber
+Sélectionnez un domaine pour améliorer vos compétences avec des scénarios adaptés.
+
+
+Gestion de crise cyber
+
+
+Protection des données personnelles / RGPD
+
+
+Ingénierie sociale et phishing
+
+
+Gestion des incidents de sécurité
+
+
+Sécurité de la chaîne d'approvisionnement
+
+
+Stratégie et gouvernance cybersécurité
+
+Excellent choix, Eddy ! Vous avez sélectionné la Protection des données personnelles / RGPD.
+
+J'ai plusieurs scénarios de différents niveaux à vous proposer. Choisissez celui qui vous intéresse le plus :
+
+Sélectionnez un scénario de Protection des données personnelles / RGPD
+3 scénarios disponibles
+
+15-20 min/scénario
+Apprentissage pratique
+PNJ réalistes
+
+Classification des données sensibles
+Cliquez pour commencer ce scénario
+
+Débutant
+
+Réponse à une violation de données personnelles
+Cliquez pour commencer ce scénario
+
+Intermédiaire
+
+Programme de conformité RGPD avancé
+Cliquez pour commencer ce scénario
+
+Expert
+Parfait, Eddy ! Vous avez sélectionné le scénario Classification des données sensibles.
+
+Voici le contexte de ce scenario :
+
+Système
+Contexte de mission
+Mettez en place un système de classification des données pour protéger les informations sensibles.
+
+Je suis désolé, une erreur s'est produite lors de la génération du scénario. Cela peut être dû à une interruption de la connexion à l'API Azure OpenAI.
+
+Veuillez vérifier que l'indicateur FYNE est vert (connecté) et réessayer. Si le problème persiste, veuillez contacter l'administrateur système.
