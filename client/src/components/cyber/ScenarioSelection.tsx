@@ -11,7 +11,7 @@ export default function ScenarioSelection() {
   
   // Filter scenarios by the active domain
   const filteredScenarios = scenarios.filter(
-    (s: any) => s.domainId === scenario.activeDomain?.id
+    (s: any) => s.domain === scenario.activeDomain?.id
   );
 
   const handleScenarioClick = (scenarioId: string) => {
