@@ -11,6 +11,7 @@ import { ChatCompletionRequestMessage } from "../shared/schema";
 import { evaluateDecision } from "./cyberDefenseEvaluator";
 import immersiveRoutes from "./routes/immersive-simulation";
 import cyberAscensionRoutes from "./routes/cyber-ascension";
+import { analyzeCyberArchitecture } from "./routes/cyber-architect";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Nous n'avons plus besoin des répertoires de documents et HTML
@@ -715,10 +716,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API route for chat messages
   app.post('/api/cyber/chat', async (req, res) => {
     try {
-      const { message, userName, scenarioId, config, chatHistory, scenarioContacts } = req.body;
+      const { message, userName, scenarioId, config, chatHistory, scenarioContacts, isEconomyMode } = req.body;
       
       if (!message || !userName) {
         return res.status(400).json({ message: 'Missing required parameters' });
+      }
+      
+      // Si le mode économie est activé, utiliser le modèle secondaire
+      if (isEconomyMode) {
+        openAIService.switchApiKey('secondary');
+      } else {
+        openAIService.switchApiKey('primary');
       }
       
       // Récupérer les scénarios pour avoir le domaine actuel
@@ -1658,8 +1666,16 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
         previousMessages, 
         targetContact,
         temperature,
-        maxTokens
+        maxTokens,
+        isEconomyMode
       } = req.body;
+        
+      // Si le mode économie est activé, utiliser le modèle secondaire
+      if (isEconomyMode) {
+        openAIService.switchApiKey('secondary');
+      } else {
+        openAIService.switchApiKey('primary');
+      }
       
       if (!userMessage) {
         return res.status(400).json({ message: 'Message utilisateur requis' });
@@ -1952,10 +1968,17 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
   // API route pour le chat immersif
   app.post('/api/cyber/simple-chat', async (req: Request, res: Response) => {
     try {
-      const { message, config } = req.body;
+      const { message, config, isEconomyMode } = req.body;
       
       if (!message) {
         return res.status(400).json({ message: 'Message requis pour le chat' });
+      }
+      
+      // Si le mode économie est activé, utiliser le modèle secondaire
+      if (isEconomyMode) {
+        openAIService.switchApiKey('secondary');
+      } else {
+        openAIService.switchApiKey('primary');
       }
       
       // Construire un prompt système basé sur la configuration
@@ -2100,6 +2123,9 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
   // Enregistrement des routes d'immersion cyber pour la nouvelle version
   app.use('/api/immersive-simulation', immersiveRoutes);
   app.use('/api/cyber-ascension', cyberAscensionRoutes);
+  
+  // Cyber Architect API - Nouveau jeu d'architecture réseau
+  app.post('/api/cyber-architect/analyze', analyzeCyberArchitecture);
 
   const server = createServer(app);
   return server;
