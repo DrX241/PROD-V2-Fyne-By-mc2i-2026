@@ -436,9 +436,9 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({ difficulty = 
         const attackType = wave.attackTypes[Math.floor(Math.random() * wave.attackTypes.length)];
         const targetNode = nodes[Math.floor(Math.random() * nodes.length)];
         
-        // Création d'une nouvelle attaque
+        // Création d'une nouvelle attaque avec un ID unique utilisant timestamp
         const newAttack: Attack = {
-          id: `attack-${waveIndex}-${i}`,
+          id: `attack-${waveIndex}-${i}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
           type: attackType,
           strength: wave.strength,
           speed: wave.speed,
