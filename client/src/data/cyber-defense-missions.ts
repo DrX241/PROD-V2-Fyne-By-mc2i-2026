@@ -35,7 +35,9 @@ export const exampleMission: Mission = {
   difficulty: "Intermédiaire",
   duration: "45-60 min",
   tags: ["Ransomware", "Gestion de crise", "Incident Response"],
-  scenario: "ELITE RETAIL SECURITY, entreprise leader dans le secteur du luxe, vient de détecter une activité suspecte sur plusieurs serveurs critiques. Certains fichiers semblent être chiffrés et un message de rançon est apparu sur plusieurs postes de travail. En tant que RSSI, vous devez coordonner la réponse à cet incident, identifier l'étendue de la compromission et prendre des décisions cruciales pour protéger les actifs de l'entreprise.",
+  scenario: "Une activité suspecte a été détectée sur plusieurs serveurs critiques. Certains fichiers semblent être chiffrés et un message de rançon est apparu sur plusieurs postes de travail. En tant que RSSI, vous devez coordonner la réponse à cet incident, identifier l'étendue de la compromission et prendre des décisions cruciales pour protéger les actifs de l'entreprise.",
+  companyName: "ELITE RETAIL SECURITY",
+  secteurActivite: "RETAIL & LUXE",
   userRole: "RSSI (Responsable de la Sécurité des Systèmes d'Information)",
   currentScore: 0,
   
@@ -374,7 +376,9 @@ export const dataClassificationMission: Mission = {
   difficulty: "Débutant",
   duration: "30-45 min",
   tags: ["RGPD", "Protection des données", "Classification", "Gouvernance"],
-  scenario: "HEALTH & INDUSTRY SHIELD, société spécialisée dans les solutions de santé connectée, fait face à une transformation numérique majeure et accumule de plus en plus de données sensibles. Suite à une demande de la direction générale, vous êtes chargé(e) d'établir un système de classification des données qui permettra de respecter les exigences du RGPD et de limiter les risques de fuites d'informations sensibles. Votre mission est d'élaborer et de présenter cette stratégie de classification.",
+  scenario: "Une société spécialisée dans les solutions de santé connectée fait face à une transformation numérique majeure et accumule de plus en plus de données sensibles. Suite à une demande de la direction générale, vous êtes chargé(e) d'établir un système de classification des données qui permettra de respecter les exigences du RGPD et de limiter les risques de fuites d'informations sensibles. Votre mission est d'élaborer et de présenter cette stratégie de classification.",
+  companyName: "HEALTH & INDUSTRY SHIELD",
+  secteurActivite: "INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)",
   userRole: "DPO (Délégué à la Protection des Données)",
   currentScore: 0,
   
@@ -708,7 +712,9 @@ export const dataBreachResponseMission: Mission = {
   difficulty: "Intermédiaire",
   duration: "40-60 min",
   tags: ["RGPD", "Gestion d'incident", "Notification", "Données personnelles"],
-  scenario: "SECURE FINANCE SOLUTIONS, établissement financier de taille moyenne, vient de détecter une intrusion dans sa base de données clients. Une analyse préliminaire indique que des données personnelles et financières de près de 5000 clients ont potentiellement été compromises. En tant que DPO, vous devez coordonner la réponse à cet incident conformément aux exigences du RGPD et limiter l'impact sur la réputation de l'entreprise et ses clients.",
+  scenario: "Un établissement financier de taille moyenne vient de détecter une intrusion dans sa base de données clients. Une analyse préliminaire indique que des données personnelles et financières de près de 5000 clients ont potentiellement été compromises. En tant que DPO, vous devez coordonner la réponse à cet incident conformément aux exigences du RGPD et limiter l'impact sur la réputation de l'entreprise et ses clients.",
+  companyName: "SECURE FINANCE SOLUTIONS",
+  secteurActivite: "BANCAIRE/FINANCIER (BFA)",
   userRole: "DPO (Délégué à la Protection des Données)",
   currentScore: 0,
   
@@ -1046,7 +1052,9 @@ export const rgpdComplianceProgramMission: Mission = {
   difficulty: "Expert",
   duration: "60-90 min",
   tags: ["RGPD", "Conformité", "Gouvernance", "International"],
-  scenario: "CYBER SECURE SOLUTIONS, entreprise internationale de services numériques, souhaite renforcer sa conformité RGPD face à son expansion en Europe. Avec des filiales dans 12 pays européens et des transferts de données fréquents, l'entreprise fait face à des défis complexes en matière de protection des données. En tant que Chief Privacy Officer nouvellement nommé, vous devez concevoir et déployer un programme de conformité RGPD harmonisé à l'échelle du groupe, tout en respectant les spécificités locales.",
+  scenario: "Une entreprise internationale de services numériques souhaite renforcer sa conformité RGPD face à son expansion en Europe. Avec des filiales dans 12 pays européens et des transferts de données fréquents, l'entreprise fait face à des défis complexes en matière de protection des données. En tant que Chief Privacy Officer nouvellement nommé, vous devez concevoir et déployer un programme de conformité RGPD harmonisé à l'échelle du groupe, tout en respectant les spécificités locales.",
+  companyName: "CYBER SECURE SOLUTIONS",
+  secteurActivite: "ÉNERGIE & UTILITIES",
   userRole: "Chief Privacy Officer (CPO)",
   currentScore: 0,
   

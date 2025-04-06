@@ -114,6 +114,8 @@ export interface Mission {
   duration: string;
   tags: string[];
   scenario: string;
+  companyName: string; // Nom de l'entreprise
+  secteurActivite: string; // Secteur d'activité
   objectives: Objective[];
   contacts: Contact[];
   supervisors: Contact[]; // Responsables qui évaluent les performances

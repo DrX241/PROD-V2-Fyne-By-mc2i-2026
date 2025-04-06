@@ -21,6 +21,9 @@ interface Mission {
   tags: string[];
   icon: "phishing" | "ransomware" | "data-breach" | "social-engineering" | "apt" | "zero-day" | "strategy" | "compliance" | "supply-chain" | "identity" | "cloud" | "crisis";
   comingSoon?: boolean;
+  companyName: string;
+  secteurActivite: string;
+  scenario: string;
 }
 
 // Composant pour la carte de mission
@@ -74,6 +77,7 @@ const MissionCard = ({ mission }: { mission: Mission }) => {
         </div>
         
         <h3 className="text-xl font-bold mb-2 text-gray-900">{mission.title}</h3>
+        <p className="text-gray-500 text-xs mb-2">{mission.companyName} - {mission.secteurActivite}</p>
         <p className="text-gray-600 mb-4 text-sm flex-grow">{mission.description}</p>
         
         <div className="mt-4 flex flex-wrap gap-2 mb-6">
@@ -111,7 +115,10 @@ export default function CyberDefense() {
       difficulty: "Débutant",
       duration: "15-20 min",
       tags: ["Phishing", "Sensibilisation", "Communication de crise"],
-      icon: "phishing"
+      icon: "phishing",
+      companyName: "ELITE RETAIL SECURITY",
+      secteurActivite: "RETAIL & LUXE",
+      scenario: "Une campagne de phishing sophistiquée cible les employés de votre entreprise. Vous devez agir rapidement pour limiter l'impact."
     },
     {
       id: "ransomware-attack",
@@ -120,7 +127,10 @@ export default function CyberDefense() {
       difficulty: "Intermédiaire",
       duration: "25-30 min",
       tags: ["Ransomware", "Gestion de crise", "Continuité d'activité"],
-      icon: "ransomware"
+      icon: "ransomware",
+      companyName: "SECURE FINANCE SOLUTIONS",
+      secteurActivite: "BANCAIRE/FINANCIER (BFA)",
+      scenario: "Des fichiers critiques ont été chiffrés et une demande de rançon a été reçue. Coordonnez la réponse à cet incident."
     },
     {
       id: "data-breach",
@@ -129,7 +139,10 @@ export default function CyberDefense() {
       difficulty: "Intermédiaire",
       duration: "20-25 min",
       tags: ["Protection des données", "RGPD", "Communication"],
-      icon: "data-breach"
+      icon: "data-breach",
+      companyName: "HEALTH & INDUSTRY SHIELD",
+      secteurActivite: "INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)",
+      scenario: "Une fuite de données clients a été détectée. Dirigez l'équipe d'investigation pour limiter les dégâts."
     },
     {
       id: "social-engineering",
@@ -138,7 +151,10 @@ export default function CyberDefense() {
       difficulty: "Débutant",
       duration: "15-20 min",
       tags: ["Ingénierie sociale", "Formation", "Procédures"],
-      icon: "social-engineering"
+      icon: "social-engineering",
+      companyName: "CYBER SECURE SOLUTIONS",
+      secteurActivite: "ÉNERGIE & UTILITIES",
+      scenario: "Un attaquant a réussi à obtenir des informations sensibles en se faisant passer pour un membre de la direction."
     },
     {
       id: "apt-defense",
@@ -147,7 +163,10 @@ export default function CyberDefense() {
       difficulty: "Expert",
       duration: "30-40 min",
       tags: ["APT", "Threat hunting", "Analyse de compromission"],
-      icon: "apt"
+      icon: "apt",
+      companyName: "ELITE RETAIL SECURITY",
+      secteurActivite: "RETAIL & LUXE",
+      scenario: "Des activités suspectes indiquent la présence d'un acteur malveillant sophistiqué dans votre réseau depuis plusieurs mois."
     },
     {
       id: "zero-day-vuln",
@@ -156,7 +175,10 @@ export default function CyberDefense() {
       difficulty: "Expert",
       duration: "25-35 min",
       tags: ["Vulnérabilité", "Patch management", "Analyse d'exploitation"],
-      icon: "zero-day"
+      icon: "zero-day",
+      companyName: "SECURE FINANCE SOLUTIONS",
+      secteurActivite: "BANCAIRE/FINANCIER (BFA)",
+      scenario: "Une vulnérabilité critique non documentée a été exploitée dans votre infrastructure. Gérez la situation d'urgence."
     },
     
     // Nouvelles missions - Stratégie cyber
@@ -168,6 +190,9 @@ export default function CyberDefense() {
       duration: "25-30 min",
       tags: ["Stratégie cyber", "Gouvernance", "Planification"],
       icon: "strategy",
+      companyName: "CYBER SECURE SOLUTIONS",
+      secteurActivite: "ÉNERGIE & UTILITIES",
+      scenario: "Élaborez une stratégie de cybersécurité adaptée aux besoins de l'entreprise.",
       comingSoon: true
     },
     
@@ -180,6 +205,9 @@ export default function CyberDefense() {
       duration: "20-25 min",
       tags: ["Conformité", "Audit", "Réglementation"],
       icon: "compliance",
+      companyName: "HEALTH & INDUSTRY SHIELD",
+      secteurActivite: "INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)",
+      scenario: "Préparez votre organisation pour répondre aux exigences réglementaires et éviter les sanctions.",
       comingSoon: true
     },
     
@@ -192,6 +220,9 @@ export default function CyberDefense() {
       duration: "25-35 min",
       tags: ["Supply Chain", "Fournisseurs", "Analyse de risques"],
       icon: "supply-chain",
+      companyName: "ELITE RETAIL SECURITY",
+      secteurActivite: "RETAIL & LUXE",
+      scenario: "Un fournisseur stratégique a été compromis, exposant potentiellement votre entreprise à des risques.",
       comingSoon: true
     },
     
@@ -204,6 +235,9 @@ export default function CyberDefense() {
       duration: "20-30 min",
       tags: ["IAM", "Accès privilégiés", "Authentification"],
       icon: "identity",
+      companyName: "SECURE FINANCE SOLUTIONS",
+      secteurActivite: "BANCAIRE/FINANCIER (BFA)",
+      scenario: "Les identifiants d'un administrateur système ont été compromis. Menez l'enquête et résolvez la situation.",
       comingSoon: true
     },
     
@@ -216,6 +250,9 @@ export default function CyberDefense() {
       duration: "25-35 min",
       tags: ["Cloud", "Configuration", "Données sensibles"],
       icon: "cloud",
+      companyName: "HEALTH & INDUSTRY SHIELD",
+      secteurActivite: "INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)",
+      scenario: "Une configuration incorrecte a exposé des données sensibles stockées dans votre infrastructure cloud.",
       comingSoon: true
     },
     
@@ -228,6 +265,9 @@ export default function CyberDefense() {
       duration: "30-40 min",
       tags: ["Gestion de crise", "Communication", "Reprise d'activité"],
       icon: "crisis",
+      companyName: "CYBER SECURE SOLUTIONS",
+      secteurActivite: "ÉNERGIE & UTILITIES",
+      scenario: "Une attaque sophistiquée à grande échelle affecte toutes les opérations de l'entreprise.",
       comingSoon: true
     }
   ];
