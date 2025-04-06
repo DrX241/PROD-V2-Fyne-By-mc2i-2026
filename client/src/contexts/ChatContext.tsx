@@ -463,7 +463,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const botConfirmation: ChatMessage = {
       id: uuidv4(),
       type: "bot",
-      content: `**Parfait, ${firstName} !** Vous avez sélectionné le scénario **${selectedScenario.name}**.\n\nVoici le contexte de ce scenario :`,
+      content: `**Parfait, ${firstName} !** Vous avez sélectionné le scénario **${selectedScenario.title}**.\n\nVoici le contexte de ce scenario :`,
       timestamp: Date.now()
     };
     
