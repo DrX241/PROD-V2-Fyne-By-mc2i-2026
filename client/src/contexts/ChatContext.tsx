@@ -345,7 +345,7 @@ const initialConfig: AIConfig = {
 const initialScenarioState: ScenarioState = {};
 
 // Create context
-export const ChatContext = createContext<ChatContextType | undefined>(undefined);
+const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -354,7 +354,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [scenario, setScenario] = useState<ScenarioState>(initialScenarioState);
   const [config, setConfig] = useState<AIConfig>(initialConfig);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [isEconomyMode, setIsEconomyMode] = useState(false);
 
   // Initialize the chat with a welcome message
   useEffect(() => {
@@ -594,8 +593,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           scenarioId: scenario.activeScenario?.id,
           config,
           chatHistory: relevantMessages,
-          scenarioContacts: scenario.scenarioContacts, // Transmettre la liste des interlocuteurs
-          isEconomyMode // Transmettre l'état du mode économie
+          scenarioContacts: scenario.scenarioContacts // Transmettre la liste des interlocuteurs
         })
       });
       
@@ -698,11 +696,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setConfig(prev => ({ ...prev, ...newConfig }));
   };
 
-  // Handler to toggle economy mode
-  const handleToggleEconomyMode = (value: boolean) => {
-    setIsEconomyMode(value);
-  };
-
   // Handler to reset the chat
   const handleResetChat = () => {
     setMessages([]);
@@ -722,14 +715,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         config,
         domains: initialDomains,
         scenarios: initialScenarios,
-        isEconomyMode,
         setUserName: handleSetUserName,
         selectDomain: handleSelectDomain,
         selectScenario: handleSelectScenario,
         sendMessage: handleSendMessage,
         updateConfig: handleUpdateConfig,
-        resetChat: handleResetChat,
-        toggleEconomyMode: handleToggleEconomyMode
+        resetChat: handleResetChat
       }}
     >
       {children}

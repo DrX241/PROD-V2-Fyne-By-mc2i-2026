@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
-import { Shield, MessageSquare, Bot, ArrowRight, Command, User, Joystick, BrainCircuit, Rocket, Network } from 'lucide-react';
+import { Shield, MessageSquare, Bot, ArrowRight, Command, User, Joystick, BrainCircuit, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';

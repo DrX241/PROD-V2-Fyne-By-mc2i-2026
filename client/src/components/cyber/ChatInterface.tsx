@@ -5,7 +5,6 @@ import DomainSelection from "./DomainSelection";
 import ScenarioSelection from "./ScenarioSelection";
 import EmailMessage from "./EmailMessage";
 import ContextBanner from "./ContextBanner";
-import { EconomyModeToggle } from "@/components/ui/economy-mode-toggle";
 import { Send, RefreshCw, ChevronDown } from "lucide-react";
 
 export default function ChatInterface() {
@@ -130,10 +129,7 @@ export default function ChatInterface() {
     <div className="h-full w-full flex flex-col text-blue-50">
       {/* Bannière contextuelle et bouton réinitialisation */}
       <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-900/80 to-indigo-900/80 backdrop-blur-md border-b border-blue-700/30 w-full shadow-md">
-        <div className="flex justify-between items-center p-2">
-          <div className="flex items-center">
-            <EconomyModeToggle />
-          </div>
+        <div className="flex justify-end p-2">
           {userName && (
             <button 
               onClick={resetChat}

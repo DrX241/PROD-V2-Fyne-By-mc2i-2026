@@ -220,9 +220,6 @@ export interface CyberDomain {
   id: string;
   name: string;
   description: string;
-  icon?: string;
-  iconBgColor?: string;
-  iconColor?: string;
 }
 
 export interface CyberScenario {
@@ -230,7 +227,6 @@ export interface CyberScenario {
   domain: string;
   title: string;
   difficulty: string;
-  difficultyColor?: string;
   description?: string;
   contact: {
     name: string;
@@ -256,12 +252,10 @@ export interface ChatContextType {
   config: AIConfig;
   domains: CyberDomain[];
   scenarios: CyberScenario[];
-  isEconomyMode: boolean;
   setUserName: (name: string) => void;
   selectDomain: (domain: CyberDomain) => void;
   selectScenario: (scenario: CyberScenario) => void;
   sendMessage: (message: string) => void;
   updateConfig: (config: Partial<AIConfig>) => void;
   resetChat: () => void;
-  toggleEconomyMode: (value: boolean) => void;
 }
