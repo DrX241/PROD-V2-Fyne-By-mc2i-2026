@@ -28,27 +28,25 @@ class OpenAIService {
   
   constructor() {
     try {
-      // Correction - Utiliser une véritable clé API (format attendu)
-      const apiKey = "9ce7e70bc0974199846a69e394db1aef"; // En général, les clés Azure sont plus courtes
+      // Utiliser la véritable clé API fournie par l'utilisateur
+      const apiKey = "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK";
       
-      // Corriger l'URL de l'endpoint Azure
+      // Endpoint Azure correct
       const azureEndpoint = "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com";
       
       // Assurez-vous que l'URL se termine par un slash
       const baseEndpoint = azureEndpoint.endsWith('/') ? azureEndpoint : `${azureEndpoint}/`;
       
-      // Versions API correctes pour Azure
-      const primaryApiVersion = "2023-05-15"; // Version stable pour GPT-4
-      const secondaryApiVersion = "2023-05-15"; // Même version pour les deux modèles
+      // Versions API exactes fournies par l'utilisateur
+      const primaryApiVersion = "2025-01-01-preview"; // GPT-4o
+      const secondaryApiVersion = "2024-12-01-preview"; // GPT-4o-mini
       
-      // Configuration pour GPT-4o (nom du déploiement sur Azure)
+      // Noms de déploiement exacts fournis par l'utilisateur
       const gpt4oDeployment = "Eddy-deploy-20-02-2025-gpt-4o";
-      
-      // Configuration pour GPT-4o-mini (nom du déploiement sur Azure)
       const gpt4oMiniDeployment = "Eddy-02-2025-gpt-4o-mini";
       
-      console.log("Initializing Azure OpenAI Service with fallback configurations");
-      console.log(`API Key format: ${apiKey.substring(0, 5)}...`);
+      console.log("Initializing Azure OpenAI Service with user-provided configurations");
+      console.log(`API Key: ****** (HIDDEN)`);
       console.log(`Endpoint: ${baseEndpoint}`);
       
       // Configuration primaire - GPT-4o
@@ -193,7 +191,8 @@ class OpenAIService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'api-key': config.apiKey
+          'api-key': config.apiKey,
+          'Authorization': `Bearer ${config.apiKey}`
         },
         body: JSON.stringify(requestData)
       });
@@ -289,12 +288,13 @@ class OpenAIService {
         temperature: 0
       };
       
-      // Appeler l'API Azure OpenAI
+      // Appeler l'API Azure OpenAI avec le header d'authentification correct
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'api-key': config.apiKey
+          'api-key': config.apiKey,
+          'Authorization': `Bearer ${config.apiKey}`
         },
         body: JSON.stringify(testMessage),
         // Utiliser un timeout court pour éviter de bloquer trop longtemps
