@@ -36,20 +36,20 @@ export default function CyberModeSelection() {
       destination: '/cyber-defense'
     },
     {
-      id: 'cyber-ascension',
-      title: 'CYBER ASCENSION',
-      description: "Développez vos compétences cybersécurité à travers 15 niveaux de difficulté progressive avec contenu généré dynamiquement par l'IA.",
-      icon: <Rocket className="w-12 h-12 text-blue-100" />,
-      gradient: 'from-blue-600 to-blue-800',
-      destination: '/cyber-ascension'
-    },
-    {
       id: 'arcade',
       title: 'ARCADE',
       description: "Testez vos competences en cybersecurite a travers une collection de mini-jeux interactifs et ludiques avec l'IA comme guide et adversaire.",
       icon: <Joystick className="w-12 h-12 text-purple-100" />,
       gradient: 'from-purple-700 to-purple-900',
       destination: '/cyber/arcade'
+    },
+    {
+      id: 'cyber-ascension',
+      title: 'CYBER ASCENSION',
+      description: "Développez vos compétences cybersécurité à travers 15 niveaux de difficulté progressive. Contenu généré dynamiquement par l'IA.",
+      icon: <Rocket className="w-12 h-12 text-blue-100" />,
+      gradient: 'from-blue-600/50 to-blue-800/50',
+      destination: '/cyber-ascension'
     }
   ];
 
@@ -180,7 +180,7 @@ export default function CyberModeSelection() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-8 px-4 sm:px-6 max-w-7xl mx-auto">
             {cyberModes.map((mode, index) => (
-              <Link key={mode.id} href={mode.destination} className="flex h-full">
+              <Link key={mode.id} href={mode.id === 'cyber-ascension' ? '#' : mode.destination} className="flex h-full" onClick={(e) => mode.id === 'cyber-ascension' && e.preventDefault()}>
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -213,17 +213,24 @@ export default function CyberModeSelection() {
                       <p className="text-blue-100 mb-8 text-lg flex-grow">{mode.description}</p>
                       
                       <div className="flex items-center mt-auto">
-                        <Button 
-                          className={`bg-white hover:bg-opacity-90 transition-all group ${
-                            mode.id === 'agent-ia' ? 'text-blue-700' : 
-                            mode.id === 'cyber-defense' ? 'text-[#006a9e]' : 
-                            'text-purple-700'
-                          }`}
-                          size="lg"
-                        >
-                          Commencer
-                          <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
-                        </Button>
+                        {mode.id === 'cyber-ascension' ? (
+                          <div className="bg-blue-900/60 text-white px-4 py-2 rounded-md flex items-center">
+                            <span className="animate-pulse mr-2">•</span>
+                            Bientôt disponible
+                          </div>
+                        ) : (
+                          <Button 
+                            className={`bg-white hover:bg-opacity-90 transition-all group ${
+                              mode.id === 'agent-ia' ? 'text-blue-700' : 
+                              mode.id === 'cyber-defense' ? 'text-[#006a9e]' : 
+                              'text-purple-700'
+                            }`}
+                            size="lg"
+                          >
+                            Commencer
+                            <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+                          </Button>
+                        )}
                       </div>
                     </div>
                     
