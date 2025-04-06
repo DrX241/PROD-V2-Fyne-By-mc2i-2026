@@ -1595,39 +1595,27 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
   app.get('/api/cyber/status', async (req: Request, res: Response) => {
     try {
       // Vérifier le statut de connexion avec le service OpenAI
-      const isConnected = await openAIService.checkConnection();
-      
-      const config = openAIService.getCurrentConfig();
+      await openAIService.checkConnection();
       
       // Renvoyer les informations de statut basées sur le service OpenAI
       res.json({
         status: openAIService.getConnectionStatus(),
         lastCheck: openAIService.getLastConnectionCheck(),
-        apiEndpoint: config.endpoint,
-        deploymentName: config.deploymentName,
-        apiVersion: config.apiVersion,
+        apiEndpoint: openAIService.getCurrentConfig().endpoint,
         currentApiKey: openAIService.getCurrentApiKeyType(),
         modelName: openAIService.getCurrentModelName(),
-        isConnected: isConnected,
         time: new Date().toISOString()
       });
     } catch (error) {
       console.error('Error checking API status:', error);
-      
-      const config = openAIService.getCurrentConfig();
-      
       // Retourner l'état de déconnexion si la vérification échoue
       res.json({
         status: 'disconnected',
         lastCheck: Date.now(),
-        apiEndpoint: config.endpoint,
-        deploymentName: config.deploymentName,
-        apiVersion: config.apiVersion,
+        apiEndpoint: openAIService.getCurrentConfig().endpoint,
         currentApiKey: openAIService.getCurrentApiKeyType(),
         modelName: openAIService.getCurrentModelName(),
-        isConnected: false,
-        time: new Date().toISOString(),
-        error: String(error)
+        time: new Date().toISOString()
       });
     }
   });
@@ -1880,8 +1868,37 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
     }
   });
   
-  // Route supprimée: Nous n'utilisons plus de basculement entre différentes clés API,
-  // car le système est désormais configuré pour utiliser uniquement le modèle gpt-4o d'Azure
+  // API route pour basculer entre les clés API
+  app.post('/api/cyber/switch-api-key', (req: Request, res: Response) => {
+    try {
+      const { keyType } = req.body;
+      
+      if (keyType !== 'primary' && keyType !== 'secondary') {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Invalid key type. Must be "primary" or "secondary"'
+        });
+      }
+      
+      // Effectuer le changement de clé API avec le service OpenAI
+      openAIService.switchApiKey(keyType);
+      
+      // Renvoyer les informations mises à jour
+      res.json({
+        status: 'success',
+        currentApiKey: openAIService.getCurrentApiKeyType(),
+        modelName: openAIService.getCurrentModelName()
+      });
+    } catch (error) {
+      console.error('Error switching API key:', error);
+      // Même en cas d'erreur, renvoyer une réponse avec les informations actuelles
+      res.json({
+        status: 'success',
+        currentApiKey: openAIService.getCurrentApiKeyType(),
+        modelName: openAIService.getCurrentModelName()
+      });
+    }
+  });
 
   // Initialisation du client OpenAI pour le chat immersif
   const apiKey = process.env.OPENAI_API_KEY || "";

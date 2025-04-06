@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Wifi, WifiOff, AlertTriangle } from 'lucide-react';
+import { Wifi, WifiOff, AlertTriangle, RefreshCw, CircleOff } from 'lucide-react';
+import { apiRequest } from '@/lib/queryClient';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   Tooltip,
@@ -9,11 +11,14 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 
+type ApiKeyType = 'primary' | 'secondary';
+
 export default function ConnectionStatus() {
   const [status, setStatus] = useState<'connected' | 'disconnected' | 'reconnecting' | 'checking'>('checking');
   const [lastCheck, setLastCheck] = useState<string | null>(null);
-  // GPT-4o est désormais le seul modèle utilisé
+  const [currentKey, setCurrentKey] = useState<ApiKeyType>('primary');
   const [modelName, setModelName] = useState<string>('GPT-4o');
+  const [switchingKey, setSwitchingKey] = useState<boolean>(false);
   
   const checkStatus = async () => {
     try {
@@ -31,11 +36,47 @@ export default function ConnectionStatus() {
       // Utiliser les données réelles de l'API
       setStatus(data.status);
       setLastCheck(data.time);
+      setCurrentKey(data.currentApiKey || 'primary');
       setModelName(data.modelName || 'GPT-4o');
     } catch (error) {
       console.error('Error checking connection status:', error);
       // En cas d'erreur, indiquer déconnecté
       setStatus('disconnected');
+    }
+  };
+  
+  const switchApiKey = async () => {
+    try {
+      setSwitchingKey(true);
+      // Basculer vers l'autre clé
+      const newKeyType: ApiKeyType = currentKey === 'primary' ? 'secondary' : 'primary';
+      
+      // Envoi de la requête au serveur
+      const response = await fetch('/api/cyber/switch-api-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ keyType: newKeyType })
+      });
+      
+      if (!response.ok) {
+        console.error(`Error switching API key: ${response.status} ${response.statusText}`);
+        throw new Error(`Erreur lors du changement de modèle: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      // Mettre à jour l'état avec les données réelles retournées par le serveur
+      setCurrentKey(data.currentApiKey || newKeyType);
+      setModelName(data.modelName || (newKeyType === 'primary' ? 'GPT-4o' : 'GPT-4o-mini'));
+      
+      // Vérifier l'état de la connexion après le changement
+      setTimeout(checkStatus, 500);
+    } catch (error) {
+      console.error('Error switching API key:', error);
+      // En cas d'erreur, ne pas changer l'état et vérifier la connexion
+      setTimeout(checkStatus, 500);
+    } finally {
+      setSwitchingKey(false);
     }
   };
   
@@ -48,6 +89,10 @@ export default function ConnectionStatus() {
     
     return () => clearInterval(interval);
   }, []);
+
+  const getKeyLabel = (key: ApiKeyType): string => {
+    return key === 'primary' ? 'Standard' : 'Économique';
+  };
   
   return (
     <div className="flex items-center space-x-2">
@@ -80,13 +125,43 @@ export default function ConnectionStatus() {
           <TooltipTrigger asChild>
             <Badge 
               variant="outline" 
-              className="py-1 text-xs font-medium bg-blue-800/40 text-white border border-blue-500/30"
+              className={cn(
+                "py-1 text-xs font-medium",
+                currentKey === 'primary' 
+                  ? "bg-blue-800/40 hover:bg-blue-800/60 text-white border border-blue-500/30" 
+                  : "bg-purple-800/40 hover:bg-purple-800/60 text-white border border-purple-500/30"
+              )}
             >
               {modelName}
             </Badge>
           </TooltipTrigger>
           <TooltipContent>
-            <p>GPT-4o</p>
+            <p>Mode {getKeyLabel(currentKey)}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+      
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-7 w-7" 
+              onClick={switchApiKey}
+              disabled={switchingKey || status === 'checking' || status === 'reconnecting'}
+            >
+              {switchingKey ? (
+                <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+              ) : status === 'disconnected' ? (
+                <CircleOff className="h-3.5 w-3.5" />
+              ) : (
+                <RefreshCw className="h-3.5 w-3.5" />
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Basculer vers le mode {getKeyLabel(currentKey === 'primary' ? 'secondary' : 'primary')}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
