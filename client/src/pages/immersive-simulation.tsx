@@ -7,7 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { Shield, Clock, Building, User, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
-import { ImmersiveScenario } from '@/types/immersive-cyber';
+import { ImmersiveScenario } from '../types/immersive-cyber';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function ImmersiveSimulation() {
@@ -106,7 +106,7 @@ export default function ImmersiveSimulation() {
               <div className="mt-4">
                 <h4 className="text-sm font-semibold mb-2">Objectifs d'apprentissage :</h4>
                 <ul className="text-sm list-disc pl-5 space-y-1">
-                  {scenario.learningObjectives.slice(0, 2).map((objective, index) => (
+                  {scenario.learningObjectives.slice(0, 2).map((objective: string, index: number) => (
                     <li key={index} className="line-clamp-1">{objective}</li>
                   ))}
                   {scenario.learningObjectives.length > 2 && (

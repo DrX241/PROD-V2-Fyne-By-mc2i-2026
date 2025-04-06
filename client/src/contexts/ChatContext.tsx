@@ -478,10 +478,13 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // Send the scenario selection to the server to generate initial email
     try {
-      const response = await apiRequest('POST', '/api/cyber/start-scenario', {
-        scenarioId,
-        userName,
-        config
+      const response = await apiRequest<any>('/api/cyber/start-scenario', {
+        method: 'POST',
+        body: JSON.stringify({
+          scenarioId,
+          userName,
+          config
+        })
       });
       
       const data = await response.json();
@@ -541,13 +544,16 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .slice(-10); // Get last 10 messages for context
       
       // Send message to server for processing
-      const response = await apiRequest('POST', '/api/cyber/chat', {
-        message: messageText,
-        userName,
-        scenarioId: scenario.activeScenario?.id,
-        config,
-        chatHistory: relevantMessages,
-        scenarioContacts: scenario.scenarioContacts // Transmettre la liste des interlocuteurs
+      const response = await apiRequest<any>('/api/cyber/chat', {
+        method: 'POST',
+        body: JSON.stringify({
+          message: messageText,
+          userName,
+          scenarioId: scenario.activeScenario?.id,
+          config,
+          chatHistory: relevantMessages,
+          scenarioContacts: scenario.scenarioContacts // Transmettre la liste des interlocuteurs
+        })
       });
       
       const data = await response.json();

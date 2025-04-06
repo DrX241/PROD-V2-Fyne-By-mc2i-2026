@@ -31,7 +31,7 @@ import {
   NPCCharacter,
   Notification as SimNotification,
   ImmersiveConversation
-} from '@/types/immersive-cyber';
+} from '../types/immersive-cyber';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
@@ -82,7 +82,7 @@ export default function ImmersiveSession() {
   // Mutation pour prendre une décision
   const decisionMutation = useMutation({
     mutationFn: async (decisionId: string) => {
-      return apiRequest(`/api/immersive-simulation/sessions/${params?.id}/decisions`, {
+      return apiRequest<{success: boolean}>(`/api/immersive-simulation/sessions/${params?.id}/decisions`, {
         method: 'POST',
         body: JSON.stringify({
           decisionId
@@ -102,7 +102,7 @@ export default function ImmersiveSession() {
   // Mutation pour démarrer une conversation
   const startConversationMutation = useMutation({
     mutationFn: async (characterId: string) => {
-      return apiRequest(`/api/immersive-simulation/sessions/${params?.id}/conversations`, {
+      return apiRequest<{success: boolean, conversation: ImmersiveConversation}>(`/api/immersive-simulation/sessions/${params?.id}/conversations`, {
         method: 'POST',
         body: JSON.stringify({
           characterId
@@ -123,7 +123,7 @@ export default function ImmersiveSession() {
     mutationFn: async (content: string) => {
       if (!currentConversation) return null;
       
-      return apiRequest(`/api/immersive-simulation/conversations/${currentConversation.id}/messages`, {
+      return apiRequest<{success: boolean, conversation: ImmersiveConversation}>(`/api/immersive-simulation/conversations/${currentConversation.id}/messages`, {
         method: 'POST',
         body: JSON.stringify({
           content,
@@ -672,7 +672,7 @@ export default function ImmersiveSession() {
                                 {decision.impacts.map((impact, i) => (
                                   <div key={i} className="flex items-center justify-between text-sm">
                                     <span>{impact.metricId.charAt(0).toUpperCase() + impact.metricId.slice(1).replace(/([A-Z])/g, ' $1')}</span>
-                                    <Badge variant={impact.change > 0 ? 'success' : impact.change < 0 ? 'destructive' : 'outline'}>
+                                    <Badge variant={impact.change > 0 ? 'secondary' : impact.change < 0 ? 'destructive' : 'outline'}>
                                       {impact.change > 0 ? '+' : ''}{impact.change}
                                     </Badge>
                                   </div>

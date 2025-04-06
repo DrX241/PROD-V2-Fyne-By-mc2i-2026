@@ -9,7 +9,7 @@ import { AlertCircle, ChevronLeft, BuildingIcon, Users, Target, Clock, ShieldAle
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { ImmersiveScenario, UserRole } from '@/types/immersive-cyber';
+import { ImmersiveScenario, UserRole } from '../types/immersive-cyber';
 import { apiRequest } from '@/lib/queryClient';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -103,7 +103,7 @@ export default function ImmersiveScenarioDetail() {
     setIsStarting(true);
     
     try {
-      const response = await apiRequest('/api/immersive-simulation/sessions', {
+      const response = await apiRequest<{success: boolean, session: any, message?: string}>('/api/immersive-simulation/sessions', {
         method: 'POST',
         body: JSON.stringify({
           scenarioId: scenario.id,
@@ -142,7 +142,8 @@ export default function ImmersiveScenarioDetail() {
       TechnicalLead: "Responsable technique",
       HumanResourcesManager: "Directeur des ressources humaines",
       LegalAdvisor: "Conseiller juridique",
-      BusinessContinuityManager: "Responsable de la continuité d'activité"
+      BusinessContinuityManager: "Responsable de la continuité d'activité",
+      ExternalExpert: "Expert externe"
     };
     return translations[role] || role;
   };
@@ -156,7 +157,8 @@ export default function ImmersiveScenarioDetail() {
       TechnicalLead: "Vous dirigez les aspects techniques de la réponse à l'incident et mettez en œuvre les solutions de remédiation.",
       HumanResourcesManager: "Vous gérez les aspects humains de la crise et veillez au bien-être des employés tout en facilitant la communication interne.",
       LegalAdvisor: "Vous conseillez l'équipe sur les aspects juridiques et réglementaires de la gestion de crise et des obligations de notification.",
-      BusinessContinuityManager: "Vous êtes chargé de maintenir les opérations critiques et de minimiser l'impact de la crise sur l'activité de l'entreprise."
+      BusinessContinuityManager: "Vous êtes chargé de maintenir les opérations critiques et de minimiser l'impact de la crise sur l'activité de l'entreprise.",
+      ExternalExpert: "En tant qu'expert externe, vous apportez une expertise spécialisée et un regard neutre pour aider l'organisation à gérer efficacement la crise."
     };
     return descriptions[role] || "Aucune description disponible pour ce rôle.";
   };
