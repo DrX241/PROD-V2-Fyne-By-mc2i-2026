@@ -45,9 +45,9 @@ const MissionCard = ({ mission }: { mission: Mission }) => {
   
   // Mapping des couleurs de fond en fonction du niveau de difficulté
   const difficultyColor = {
-    "Débutant": "bg-[#00afab]/20 text-[#00afab]",
-    "Intermédiaire": "bg-[#46cada]/20 text-[#006a9e]",
-    "Expert": "bg-[#006a9e]/20 text-[#006a9e]"
+    "Débutant": "bg-[#006a9e]/10 text-[#006a9e]",
+    "Intermédiaire": "bg-[#006a9e]/20 text-[#006a9e]",
+    "Expert": "bg-[#006a9e]/30 text-[#006a9e]"
   };
   
   return (
@@ -78,7 +78,7 @@ const MissionCard = ({ mission }: { mission: Mission }) => {
         
         <div className="mt-4 flex flex-wrap gap-2 mb-6">
           {mission.tags.map((tag, i) => (
-            <span key={i} className="text-xs px-2 py-1 bg-[#46cada]/10 text-[#006a9e] font-medium rounded-full border border-[#46cada]/20">
+            <span key={i} className="text-xs px-2 py-1 bg-[#006a9e]/10 text-[#006a9e] font-medium rounded-full border border-[#006a9e]/20">
               {tag}
             </span>
           ))}
@@ -245,14 +245,14 @@ export default function CyberDefense() {
       {/* Hero section */}
       <div className="bg-gradient-to-br from-[#003a5d] to-[#006a9e] text-white">
         <div className="max-w-7xl mx-auto px-4 pt-6 pb-16 sm:px-6 lg:px-8 lg:pb-24">
-          <Link href="/cyber" className="inline-flex items-center text-[#46cada] hover:text-white mb-8 transition-colors">
+          <Link href="/cyber" className="inline-flex items-center text-white hover:text-[#006a9e] mb-8 transition-colors">
             <ArrowLeft className="mr-2 h-5 w-5" />
             Retour à I AM CYBER
           </Link>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <Badge className="bg-[#00afab]/40 text-[#e6f7f7] border-[#00afab]/30 mb-6">
+              <Badge className="bg-[#006a9e]/40 text-white border-[#006a9e]/30 mb-6">
                 Nouveau module
               </Badge>
               <motion.h1 
@@ -264,7 +264,7 @@ export default function CyberDefense() {
                 CYBER DEFENSE
               </motion.h1>
               <motion.p 
-                className="text-xl text-[#e6f7f7] mb-8 max-w-xl"
+                className="text-xl text-white mb-8 max-w-xl"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.2 }}
@@ -279,16 +279,16 @@ export default function CyberDefense() {
                 transition={{ duration: 0.7, delay: 0.3 }}
               >
                 <div className="flex flex-col">
-                  <span className="text-3xl font-bold">6</span>
-                  <span className="text-[#46cada]">Missions</span>
+                  <span className="text-3xl font-bold">5</span>
+                  <span className="text-[#006a9e]">Missions</span>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-3xl font-bold">3</span>
-                  <span className="text-[#46cada]">Niveaux</span>
+                  <span className="text-[#006a9e]">Niveaux</span>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-3xl font-bold">15+</span>
-                  <span className="text-[#46cada]">PNJ</span>
+                  <span className="text-3xl font-bold">11+</span>
+                  <span className="text-[#006a9e]">PNJ</span>
                 </div>
               </motion.div>
             </div>
@@ -300,7 +300,7 @@ export default function CyberDefense() {
               transition={{ duration: 0.8 }}
             >
               <div className="relative w-64 h-64 lg:w-80 lg:h-80">
-                <div className="absolute inset-0 bg-[#46cada]/30 rounded-full animate-pulse"></div>
+                <div className="absolute inset-0 bg-[#006a9e]/30 rounded-full animate-pulse"></div>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Shield className="w-32 h-32 lg:w-40 lg:h-40 text-white" />
                 </div>
@@ -337,10 +337,10 @@ export default function CyberDefense() {
                     </TabsTrigger>
                     <TabsTrigger 
                       value="débutant" 
-                      className="border-b-2 border-transparent text-[#00afab]/60 hover:text-[#00afab]/80
-                                data-[state=active]:bg-[#00afab]/20 
-                                data-[state=active]:text-[#00afab] 
-                                data-[state=active]:border-[#00afab] 
+                      className="border-b-2 border-transparent text-[#006a9e]/60 hover:text-[#006a9e]/80
+                                data-[state=active]:bg-[#006a9e]/20 
+                                data-[state=active]:text-[#006a9e] 
+                                data-[state=active]:border-[#006a9e] 
                                 data-[state=active]:font-medium"
                     >
                       Débutant
@@ -348,7 +348,7 @@ export default function CyberDefense() {
                     <TabsTrigger 
                       value="intermédiaire" 
                       className="border-b-2 border-transparent text-[#006a9e]/60 hover:text-[#006a9e]/80
-                                data-[state=active]:bg-[#46cada]/20 
+                                data-[state=active]:bg-[#006a9e]/20 
                                 data-[state=active]:text-[#006a9e] 
                                 data-[state=active]:border-[#006a9e] 
                                 data-[state=active]:font-medium"
@@ -456,7 +456,7 @@ export default function CyberDefense() {
             <h2 className="text-3xl font-bold text-white mb-6">
               Prêt à relever le défi ?
             </h2>
-            <p className="text-xl text-[#e6f7f7] mb-8 max-w-3xl mx-auto">
+            <p className="text-xl text-white mb-8 max-w-3xl mx-auto">
               Mettez à l'épreuve vos compétences en cybersécurité dans des situations réalistes et développez votre capacité à prendre des décisions sous pression.
             </p>
             
