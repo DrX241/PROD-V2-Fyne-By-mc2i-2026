@@ -6,7 +6,7 @@ import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import OpenAI from 'openai';
 import { openAIService } from "../I_AM_CYBER/services/openai";
-// Import de document-generator supprimé car nous n'utilisons plus de pièces jointes
+import { missionGenerator } from "../I_AM_CYBER/services/mission-generator";
 import { ChatCompletionRequestMessage } from "../shared/schema";
 import { evaluateDecision } from "./cyberDefenseEvaluator";
 
@@ -1767,6 +1767,54 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
   
   // API pour évaluer les décisions prises dans le module Cyber Defense
   app.post("/api/cyber-defense/evaluate-decision", evaluateDecision);
+  
+  // API route pour générer dynamiquement une mission via l'IA
+  app.post('/api/cyber-defense/generate-mission', async (req: Request, res: Response) => {
+    try {
+      const { difficultyLevel } = req.body;
+      
+      if (!difficultyLevel || !['Débutant', 'Intermédiaire', 'Expert'].includes(difficultyLevel)) {
+        return res.status(400).json({ 
+          message: 'Niveau de difficulté invalide. Utilisez: Débutant, Intermédiaire ou Expert' 
+        });
+      }
+      
+      // Générer une mission dynamique via l'IA
+      const mission = await missionGenerator.generateMission(difficultyLevel as any);
+      
+      return res.json({ mission });
+    } catch (error) {
+      console.error('Erreur lors de la génération de mission:', error);
+      return res.status(500).json({ 
+        message: 'Une erreur est survenue lors de la génération de la mission',
+        error: (error as Error).message 
+      });
+    }
+  });
+  
+  // API route pour tester la génération de mission avec des paramètres simplifiés
+  app.get('/api/cyber-defense/test-generate-mission/:level', async (req: Request, res: Response) => {
+    try {
+      const { level } = req.params;
+      const difficultyLevel = level === 'beginner' ? 'Débutant' : level === 'expert' ? 'Expert' : 'Intermédiaire';
+      
+      console.log(`Test de génération de mission de niveau ${difficultyLevel}...`);
+      
+      // Générer une mission dynamique via l'IA
+      const mission = await missionGenerator.generateMission(difficultyLevel as any);
+      
+      return res.json({ 
+        message: `Mission de niveau ${difficultyLevel} générée avec succès`,
+        mission 
+      });
+    } catch (error) {
+      console.error('Erreur lors du test de génération de mission:', error);
+      return res.status(500).json({ 
+        message: 'Une erreur est survenue lors de la génération de la mission',
+        error: (error as Error).message 
+      });
+    }
+  });
   
   // API route pour basculer entre les clés API
   app.post('/api/cyber/switch-api-key', (req: Request, res: Response) => {
