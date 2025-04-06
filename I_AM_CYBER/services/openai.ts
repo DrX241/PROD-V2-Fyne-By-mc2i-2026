@@ -207,9 +207,8 @@ class OpenAIService {
         const errorText = await response.text();
         console.error(`Azure OpenAI API error (${response.status}): ${errorText}`);
         
-        // Si on a une erreur d'API, on bascule vers la réponse simulée
-        console.warn("Falling back to simulated response");
-        return this.getSimulatedResponse(messages);
+        // Lever une erreur avec les détails pour permettre à l'application de la gérer
+        throw new Error(`Erreur lors de l'appel à l'API Azure OpenAI (${response.status}): ${errorText}`);
       }
       
       // Analyser la réponse JSON
@@ -224,13 +223,16 @@ class OpenAIService {
         return data.choices[0].message.content || "";
       } else {
         console.error("Invalid response format from Azure OpenAI API:", data);
-        return this.getSimulatedResponse(messages);
+        throw new Error("Format de réponse invalide de l'API Azure OpenAI");
       }
     } catch (error) {
       console.error("Error calling Azure OpenAI API:", error);
       
-      // En cas d'erreur, utiliser la réponse simulée comme fallback
-      return this.getSimulatedResponse(messages);
+      // Mettre à jour l'état de connexion
+      this.connectionStatus = 'disconnected';
+      
+      // Propager l'erreur pour permettre à l'application de la gérer
+      throw error;
     }
   }
   
@@ -319,10 +321,9 @@ class OpenAIService {
     } catch (error) {
       console.error("Error checking connection to Azure OpenAI:", error);
       
-      // En cas d'erreur, simuler une connexion réussie pour permettre 
-      // à l'application de fonctionner en mode dégradé
-      this.connectionStatus = 'connected';
-      return true;
+      // En cas d'erreur, marquer comme déconnecté
+      this.connectionStatus = 'disconnected';
+      return false;
     }
   }
 
