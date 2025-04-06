@@ -92,7 +92,13 @@ class OpenAIService {
     console.log(`Azure OpenAI Service initialized with secondary model: ${this.secondaryConfig.modelName}`);
     
     // Vérification initiale de la connexion avec le service Azure OpenAI
-    console.log(`Checking connection to Azure OpenAI at: ${this.primaryConfig.endpoint}/openai/deployments/${this.primaryConfig.deploymentName}/chat/completions?api-version=${this.primaryConfig.apiVersion}`);
+    // Formatage correct de l'URL : suppression des doubles slashes
+    let baseEndpoint = this.primaryConfig.endpoint;
+    if (baseEndpoint.endsWith('/')) {
+      baseEndpoint = baseEndpoint.slice(0, -1);
+    }
+    
+    console.log(`Checking connection to Azure OpenAI at: ${baseEndpoint}/openai/deployments/${this.primaryConfig.deploymentName}/chat/completions?api-version=${this.primaryConfig.apiVersion}`);
     
     this.checkConnection();
   }
