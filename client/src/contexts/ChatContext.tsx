@@ -58,7 +58,8 @@ const initialDomains: CyberDomain[] = [
     description: "Préparation et réponse aux incidents de sécurité majeurs",
     icon: "ri-alarm-warning-line",
     iconBgColor: "bg-[#006a9e]/10",
-    iconColor: "text-[#006a9e]"
+    iconColor: "text-[#006a9e]",
+    scenarios: ["crisis-basics", "crisis-plan", "ransomware-crisis"]
   },
   {
     id: "donnees-personnelles",
@@ -66,7 +67,8 @@ const initialDomains: CyberDomain[] = [
     description: "Mise en conformité RGPD et gestion des violations de données",
     icon: "ri-profile-line",
     iconBgColor: "bg-lime-100",
-    iconColor: "text-lime-600"
+    iconColor: "text-lime-600",
+    scenarios: ["data-classification", "data-breach-response", "rgpd-compliance-program"]
   },
   {
     id: "ingenierie-sociale",
@@ -74,7 +76,8 @@ const initialDomains: CyberDomain[] = [
     description: "Détection et prévention des tentatives de manipulation humaine",
     icon: "ri-user-voice-line",
     iconBgColor: "bg-amber-100",
-    iconColor: "text-amber-600"
+    iconColor: "text-amber-600",
+    scenarios: ["phishing-awareness", "social-engineering-incident", "advanced-social-attacks"]
   },
   {
     id: "gestion-incidents",
@@ -82,7 +85,8 @@ const initialDomains: CyberDomain[] = [
     description: "Détection, analyse et résolution des incidents de sécurité",
     icon: "ri-service-line",
     iconBgColor: "bg-emerald-100",
-    iconColor: "text-emerald-600"
+    iconColor: "text-emerald-600",
+    scenarios: ["incident-basics", "incident-response", "security-monitoring"]
   },
   {
     id: "supply-chain",
@@ -90,7 +94,8 @@ const initialDomains: CyberDomain[] = [
     description: "Protection contre les risques liés aux fournisseurs et partenaires",
     icon: "ri-link-m",
     iconBgColor: "bg-orange-100",
-    iconColor: "text-orange-600"
+    iconColor: "text-orange-600",
+    scenarios: ["supply-chain-basics", "vendor-assessment", "supply-chain-incident"]
   },
   {
     id: "strategie-cyber",
@@ -98,7 +103,8 @@ const initialDomains: CyberDomain[] = [
     description: "Élaboration et mise en œuvre d'une stratégie de défense numérique",
     icon: "ri-road-map-line",
     iconBgColor: "bg-pink-100",
-    iconColor: "text-pink-600"
+    iconColor: "text-pink-600",
+    scenarios: ["security-awareness", "security-roadmap", "cyber-strategy"]
   }
 ];
 
@@ -115,7 +121,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Débutant",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "ingenierie-sociale"
+    domain: "ingenierie-sociale"
   },
   {
     id: "social-engineering-incident",
@@ -127,7 +133,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-[#006a9e]/10 text-[#006a9e]",
-    domainId: "ingenierie-sociale"
+    domain: "ingenierie-sociale"
   },
   {
     id: "advanced-social-attacks",
@@ -139,7 +145,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Expert",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "ingenierie-sociale"
+    domain: "ingenierie-sociale"
   },
   
   // Stratégie cyber
@@ -153,7 +159,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Débutant",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "strategie-cyber"
+    domain: "strategie-cyber"
   },
   {
     id: "security-roadmap",
@@ -165,7 +171,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-[#006a9e]/10 text-[#006a9e]",
-    domainId: "strategie-cyber"
+    domain: "strategie-cyber"
   },
   {
     id: "cyber-strategy",
@@ -177,7 +183,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Expert",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "strategie-cyber"
+    domain: "strategie-cyber"
   },
   
   // Gestion de crise
@@ -191,7 +197,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Débutant",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "gestion-crise"
+    domain: "gestion-crise"
   },
   {
     id: "crisis-plan",
@@ -203,7 +209,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "gestion-crise"
+    domain: "gestion-crise"
   },
   {
     id: "ransomware-crisis",
@@ -215,7 +221,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Expert",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "gestion-crise"
+    domain: "gestion-crise"
   },
   
   // Supply Chain
@@ -229,7 +235,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Débutant",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "supply-chain"
+    domain: "supply-chain"
   },
   {
     id: "vendor-assessment",
@@ -241,7 +247,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "supply-chain"
+    domain: "supply-chain"
   },
   {
     id: "supply-chain-incident",
@@ -253,7 +259,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Expert",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "supply-chain"
+    domain: "supply-chain"
   },
   
   // Données personnelles / RGPD
@@ -267,7 +273,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Débutant",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "donnees-personnelles"
+    domain: "donnees-personnelles"
   },
   {
     id: "data-breach-response",
@@ -279,7 +285,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "donnees-personnelles"
+    domain: "donnees-personnelles"
   },
   {
     id: "rgpd-compliance-program",
@@ -291,7 +297,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Expert",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "donnees-personnelles"
+    domain: "donnees-personnelles"
   },
   
   // Gestion des incidents
@@ -305,7 +311,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Débutant",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "gestion-incidents"
+    domain: "gestion-incidents"
   },
   {
     id: "incident-response",
@@ -317,7 +323,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "gestion-incidents"
+    domain: "gestion-incidents"
   },
   {
     id: "security-monitoring",
@@ -329,20 +335,28 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Expert",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "gestion-incidents"
+    domain: "gestion-incidents"
   }
 ];
 
 // Initial configuration
 const initialConfig: AIConfig = {
-  difficultyLevel: "Intermédiaire",
-  responseStyle: "Professionnel",
+  model: "gpt-4o",
   temperature: 0.7,
   maxTokens: 2000
 };
 
 // Initial scenario state
-const initialScenarioState: ScenarioState = {};
+const initialScenarioState: ScenarioState = {
+  activeDomain: null,
+  activeScenario: null,
+  contact: null,
+  scenarioContacts: [],
+  currentMessageIndex: 0,
+  showingIntro: true,
+  trustLevel: 75, // Niveau de confiance initial (0-100)
+  missionProgress: 0 // Progression de la mission (0-100)
+};
 
 // Create context
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -556,7 +570,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data.scenarioContacts && Array.isArray(data.scenarioContacts)) {
         setScenario(prev => ({
           ...prev,
-          scenarioContacts: data.scenarioContacts
+          scenarioContacts: data.scenarioContacts || []
         }));
       }
       
@@ -581,7 +595,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (emailContent.scenarioContacts && Array.isArray(emailContent.scenarioContacts)) {
           setScenario(prev => ({
             ...prev,
-            scenarioContacts: emailContent.scenarioContacts
+            scenarioContacts: emailContent.scenarioContacts || []
           }));
         }
         
@@ -637,8 +651,27 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Handler to update configuration
+  // Handler pour mettre à jour la configuration
   const handleUpdateConfig = (newConfig: Partial<AIConfig>) => {
     setConfig(prev => ({ ...prev, ...newConfig }));
+  };
+  
+  // Handler pour mettre à jour le niveau de confiance
+  const updateTrustLevel = (change: number) => {
+    setScenario(prev => {
+      // Limiter le niveau de confiance entre 0 et 100
+      const newTrustLevel = Math.max(0, Math.min(100, (prev.trustLevel || 75) + change));
+      return { ...prev, trustLevel: newTrustLevel };
+    });
+  };
+  
+  // Handler pour mettre à jour la progression de la mission
+  const updateMissionProgress = (newProgress: number) => {
+    setScenario(prev => {
+      // Limiter la progression entre 0 et 100
+      const progress = Math.max(0, Math.min(100, newProgress));
+      return { ...prev, missionProgress: progress };
+    });
   };
 
   // Handler to reset the chat
