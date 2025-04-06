@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'wouter';
+import { Link, useParams, Route } from 'wouter';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Info, Shield, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import FirewallDefensePage from './games/FirewallDefensePage';
 
 // Définition des types de jeux d'arcade
 const ARCADE_GAMES = {
@@ -247,16 +248,34 @@ export default function CyberArcadeGame() {
                 </div>
               )}
               
-              <div className="bg-purple-900 bg-opacity-50 rounded-lg p-8 flex flex-col items-center justify-center min-h-[200px]">
-                <h3 className="text-2xl font-bold text-white mb-4">Jeu en développement</h3>
-                <p className="text-center text-gray-300 mb-6">
-                  Nous travaillons activement sur ce jeu pour vous offrir une expérience d'apprentissage immersive.
-                  Revenez bientôt pour découvrir la version complète !
-                </p>
-                <div className="animate-pulse">
-                  <Info className="w-12 h-12 text-purple-300" />
+{gameId === 'firewall-defense' ? (
+                <div className="bg-amber-900 bg-opacity-50 rounded-lg p-8 flex flex-col items-center justify-center">
+                  <h3 className="text-2xl font-bold text-white mb-4">Firewall Defense</h3>
+                  <p className="text-center text-gray-300 mb-6">
+                    Protégez votre réseau contre des vagues d'attaques avec ce jeu de tower defense. 
+                    Placez stratégiquement vos défenses pour contrer les différentes menaces.
+                  </p>
+                  <Link href="/games/firewall-defense">
+                    <Button 
+                      size="lg"
+                      className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-6 text-lg shadow-lg"
+                    >
+                      Lancer le jeu
+                    </Button>
+                  </Link>
                 </div>
-              </div>
+              ) : (
+                <div className="bg-purple-900 bg-opacity-50 rounded-lg p-8 flex flex-col items-center justify-center min-h-[200px]">
+                  <h3 className="text-2xl font-bold text-white mb-4">Jeu en développement</h3>
+                  <p className="text-center text-gray-300 mb-6">
+                    Nous travaillons activement sur ce jeu pour vous offrir une expérience d'apprentissage immersive.
+                    Revenez bientôt pour découvrir la version complète !
+                  </p>
+                  <div className="animate-pulse">
+                    <Info className="w-12 h-12 text-purple-300" />
+                  </div>
+                </div>
+              )}
               
               <div className="mt-8 flex justify-center gap-4">
                 <Link href="/cyber/arcade">

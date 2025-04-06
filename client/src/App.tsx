@@ -11,6 +11,7 @@ import CyberDefensePage from "@/pages/cyber-defense";
 import CyberDefenseMissionPage from "@/pages/cyber-defense-mission";
 import CyberArcade from "@/pages/cyber-arcade";
 import CyberArcadeGame from "@/pages/cyber-arcade-game";
+import FirewallDefensePage from "@/pages/games/FirewallDefensePage";
 import { ChatProvider } from "./contexts/ChatContext";
 
 function Router() {
@@ -22,6 +23,7 @@ function Router() {
       <Route path="/cyber/agent" component={CyberAgentPage} />
       <Route path="/cyber/arcade" component={CyberArcade} />
       <Route path="/cyber/arcade/:gameId" component={CyberArcadeGame} />
+      <Route path="/games/firewall-defense" component={FirewallDefensePage} />
       <Route path="/cyber-defense" component={CyberDefensePage} />
       <Route path="/cyber-defense/mission/:id" component={CyberDefenseMissionPage} />
       <Route path="/data-ia" component={NotYetImplemented} />
