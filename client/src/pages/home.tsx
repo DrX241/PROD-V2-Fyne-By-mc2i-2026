@@ -219,13 +219,6 @@ export default function Home() {
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  className="bg-white/10 text-white border-white/20 hover:bg-white/20"
-                >
-                  En savoir plus
-                </Button>
               </motion.div>
               
               <motion.div 
