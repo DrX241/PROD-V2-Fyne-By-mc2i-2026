@@ -12,6 +12,9 @@ import CyberDefenseMissionPage from "@/pages/cyber-defense-mission";
 import CyberArcade from "@/pages/cyber-arcade";
 import CyberArcadeGame from "@/pages/cyber-arcade-game";
 import FirewallDefensePage from "@/pages/games/FirewallDefensePage";
+import ImmersiveSimulation from "@/pages/immersive-simulation";
+import ImmersiveScenarioDetail from "@/pages/immersive-scenario-detail";
+import ImmersiveSession from "@/pages/immersive-session";
 import { ChatProvider } from "./contexts/ChatContext";
 
 function Router() {
@@ -26,6 +29,9 @@ function Router() {
       <Route path="/games/firewall-defense" component={FirewallDefensePage} />
       <Route path="/cyber-defense" component={CyberDefensePage} />
       <Route path="/cyber-defense/mission/:id" component={CyberDefenseMissionPage} />
+      <Route path="/immersive-simulation" component={ImmersiveSimulation} />
+      <Route path="/immersive-simulation/:id" component={ImmersiveScenarioDetail} />
+      <Route path="/immersive-simulation/session/:id" component={ImmersiveSession} />
       <Route path="/data-ia" component={NotYetImplemented} />
       <Route path="/amoa" component={NotYetImplemented} />
       <Route path="/custom" component={NotYetImplemented} />

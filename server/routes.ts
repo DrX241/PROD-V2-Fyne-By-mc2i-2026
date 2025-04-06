@@ -9,6 +9,7 @@ import { openAIService } from "../I_AM_CYBER/services/openai";
 import { missionGenerator } from "../I_AM_CYBER/services/mission-generator";
 import { ChatCompletionRequestMessage } from "../shared/schema";
 import { evaluateDecision } from "./cyberDefenseEvaluator";
+import immersiveRoutes from "./routes/immersive-simulation";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Nous n'avons plus besoin des répertoires de documents et HTML
@@ -2039,6 +2040,9 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
       }
     }
   });
+
+  // Enregistrement des routes d'immersion cyber pour la nouvelle version
+  app.use('/api/immersive-simulation', immersiveRoutes);
 
   const server = createServer(app);
   return server;
