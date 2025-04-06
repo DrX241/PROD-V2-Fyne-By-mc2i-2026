@@ -25,6 +25,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Missing required parameters' });
       }
       
+      console.log(`Starting scenario ${scenarioId} for user ${userName}...`);
+      
       // Get scenario data - in a real app, this would come from the database
       // For now, we're using hardcoded data matching the client
       const scenarios = [
@@ -354,6 +356,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .replace(/Objet\s*:.*?(?:\n|$)/gi, '')
         .replace(/Date\s*:.*?(?:\n|$)/gi, '')
         .trim();
+        
+      console.log(`Email body generated for ${userName} in scenario ${scenarioId}:`, body);
         
       // Supprimer les ** au début et à la fin du corps de l'email
       const lines = body.split('\n');

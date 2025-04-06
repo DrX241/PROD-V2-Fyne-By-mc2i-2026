@@ -489,6 +489,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       const data = await response.json();
       
+      // Vérifier que l'email existe bien dans la réponse
+      if (!data.email) {
+        throw new Error("Erreur: Le serveur n'a pas retourné de contenu d'email valide");
+      }
+
       // Add the email message
       const emailMessage: ChatMessage = {
         id: uuidv4(),

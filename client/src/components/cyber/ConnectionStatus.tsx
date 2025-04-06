@@ -84,8 +84,8 @@ export default function ConnectionStatus() {
     // Vérifier au chargement
     checkStatus();
     
-    // Puis vérifier toutes les 2 minutes
-    const interval = setInterval(checkStatus, 2 * 60 * 1000);
+    // Puis vérifier toutes les minutes
+    const interval = setInterval(checkStatus, 60 * 1000);
     
     return () => clearInterval(interval);
   }, []);
