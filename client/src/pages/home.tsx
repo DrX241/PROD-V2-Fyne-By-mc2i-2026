@@ -186,7 +186,7 @@ export default function Home() {
               </div>
               
               <motion.h1 
-                className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6"
+                className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6 font-cyber-title tracking-wide"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7 }}
@@ -196,7 +196,7 @@ export default function Home() {
               </motion.h1>
               
               <motion.p 
-                className="text-xl text-blue-100 mb-8 max-w-xl"
+                className="text-xl text-blue-100 mb-8 max-w-xl font-cyber-body tracking-wide leading-relaxed"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.2 }}
@@ -255,11 +255,11 @@ export default function Home() {
               viewport={{ once: true }}
             >
               <div className="inline-block mb-4">
-                <span className="px-4 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800">
+                <span className="px-4 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800 font-cyber-accent tracking-wide">
                   Découvrez nos solutions
                 </span>
               </div>
-              <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+              <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4 tracking-tight font-cyber-title">
                 Nos modules <span className="text-blue-600 relative">
                   d'excellence
                   <svg className="absolute bottom-0 left-0 w-full" height="5" viewBox="0 0 200 5" preserveAspectRatio="none">
@@ -267,7 +267,7 @@ export default function Home() {
                   </svg>
                 </span>
               </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light leading-relaxed">
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto font-cyber-body leading-relaxed">
                 Une expérience d'apprentissage nouvelle génération, adaptée à vos besoins professionnels
               </p>
             </motion.div>
@@ -302,10 +302,10 @@ export default function Home() {
               transition={{ duration: 0.7 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 font-cyber-title tracking-wide">
                 Une expérience d'apprentissage <span className="text-blue-600">inégalée</span>
               </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto font-cyber-body">
                 Notre technologie d'IA générative crée un environnement personnalisé qui s'adapte à vos besoins
               </p>
             </motion.div>
@@ -336,10 +336,10 @@ export default function Home() {
             transition={{ duration: 0.7 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6 font-cyber-title tracking-wide">
               Prêt à transformer votre parcours professionnel ?
             </h2>
-            <p className="text-xl text-blue-100 mb-10 max-w-3xl mx-auto">
+            <p className="text-xl text-blue-100 mb-10 max-w-3xl mx-auto font-cyber-body">
               Rejoignez plus de 1000 professionnels qui ont déjà révolutionné leur façon d'apprendre
             </p>
             
@@ -373,8 +373,8 @@ export default function Home() {
                 whileHover={{ y: -5, boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)' }}
               >
                 <div className="mb-2">{stat.icon}</div>
-                <div className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</div>
-                <div className="text-gray-600 text-sm">{stat.label}</div>
+                <div className="text-3xl font-bold text-gray-900 mb-1 font-cyber-title">{stat.value}</div>
+                <div className="text-gray-600 text-sm font-cyber-body">{stat.label}</div>
               </motion.div>
             ))}
           </div>
@@ -389,9 +389,9 @@ export default function Home() {
             <div className="col-span-1 md:col-span-1">
               <div className="flex items-center mb-4">
                 <BrainCircuit className="h-8 w-8 text-blue-400 mr-2" />
-                <span className="text-xl font-bold">FYNE</span>
+                <span className="text-xl font-bold font-cyber-title tracking-wide">FYNE</span>
               </div>
-              <p className="text-gray-400 mb-4">
+              <p className="text-gray-400 mb-4 font-cyber-body">
                 Une plateforme d'apprentissage nouvelle génération alimentée par l'intelligence artificielle avancée
               </p>
               <div className="flex space-x-4">
@@ -413,7 +413,7 @@ export default function Home() {
             
             {/* Liens rapides */}
             <div>
-              <h3 className="text-lg font-semibold mb-4 text-gray-300">Modules</h3>
+              <h3 className="text-lg font-semibold mb-4 text-gray-300 font-cyber-accent">Modules</h3>
               <ul className="space-y-2">
                 {['I AM CYBER', 'CYBER DEFENSE', 'I AM DATA & IA', 'I AM AMOA', 'Personnalisé'].map(link => (
                   <li key={link}>
@@ -427,7 +427,7 @@ export default function Home() {
             
             {/* Support */}
             <div>
-              <h3 className="text-lg font-semibold mb-4 text-gray-300">Support</h3>
+              <h3 className="text-lg font-semibold mb-4 text-gray-300 font-cyber-accent">Support</h3>
               <ul className="space-y-2">
                 {['Documentation', 'FAQ', 'Communauté', 'Tutoriels', 'Contact'].map(link => (
                   <li key={link}>
@@ -441,8 +441,8 @@ export default function Home() {
             
             {/* Newsletter */}
             <div>
-              <h3 className="text-lg font-semibold mb-4 text-gray-300">Restez informé</h3>
-              <p className="text-gray-400 mb-4">
+              <h3 className="text-lg font-semibold mb-4 text-gray-300 font-cyber-accent">Restez informé</h3>
+              <p className="text-gray-400 mb-4 font-cyber-body">
                 Recevez les dernières mises à jour sur nos modules et fonctionnalités
               </p>
               <div className="flex">
@@ -461,12 +461,12 @@ export default function Home() {
           {/* Barre de séparation */}
           <div className="border-t border-gray-800 pt-8 pb-4">
             <div className="flex flex-col md:flex-row justify-between items-center">
-              <p className="text-gray-500 text-sm mb-4 md:mb-0">
+              <p className="text-gray-500 text-sm mb-4 md:mb-0 font-cyber-body">
                 © {new Date().getFullYear()} FYNE. Tous droits réservés.
               </p>
               <div className="flex space-x-6">
                 {['Conditions d\'utilisation', 'Politique de confidentialité', 'Cookies'].map(item => (
-                  <a key={item} href="#" className="text-gray-500 hover:text-gray-300 text-sm transition-colors">
+                  <a key={item} href="#" className="text-gray-500 hover:text-gray-300 text-sm transition-colors font-cyber-body">
                     {item}
                   </a>
                 ))}

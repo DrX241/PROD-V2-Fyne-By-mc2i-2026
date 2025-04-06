@@ -12,6 +12,9 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.37.0",
+    "@fontsource/exo-2": "^5.2.5",
+    "@fontsource/orbitron": "^5.2.5",
+    "@fontsource/rajdhani": "^5.2.5",
     "@hookform/resolvers": "^3.9.1",
     "@jridgewell/trace-mapping": "^0.3.25",
     "@neondatabase/serverless": "^0.10.4",
@@ -61,6 +64,7 @@
     "input-otp": "^1.2.4",
     "lucide-react": "^0.453.0",
     "memorystore": "^1.6.7",
+    "openai": "^4.91.1",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "pdfjs-dist": "^5.0.375",
