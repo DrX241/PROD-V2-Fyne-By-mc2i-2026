@@ -23,27 +23,25 @@ export default function ConnectionStatus() {
   const checkStatus = async () => {
     try {
       setStatus('checking');
-      const data = await fetch('/api/cyber/status')
-        .then(response => response.json())
-        .catch(err => {
-          console.error(err);
-          return {
-            status: 'connected',
-            time: new Date().toISOString(),
-            currentApiKey: 'primary',
-            modelName: 'GPT-4o'
-          };
-        });
+      const response = await fetch('/api/cyber/status');
       
+      if (!response.ok) {
+        console.error(`Error response: ${response.status} ${response.statusText}`);
+        setStatus('disconnected');
+        return;
+      }
+      
+      const data = await response.json();
+      
+      // Utiliser les données réelles de l'API
       setStatus(data.status);
       setLastCheck(data.time);
       setCurrentKey(data.currentApiKey || 'primary');
       setModelName(data.modelName || 'GPT-4o');
     } catch (error) {
       console.error('Error checking connection status:', error);
-      // Même en cas d'erreur, garder l'état connected
-      setStatus('connected');
-      setModelName('GPT-4o');
+      // En cas d'erreur, indiquer déconnecté
+      setStatus('disconnected');
     }
   };
   
@@ -53,31 +51,30 @@ export default function ConnectionStatus() {
       // Basculer vers l'autre clé
       const newKeyType: ApiKeyType = currentKey === 'primary' ? 'secondary' : 'primary';
       
-      // Requête directe sans passer par apiRequest pour éviter les erreurs
-      const data = await fetch('/api/cyber/switch-api-key', {
+      // Envoi de la requête au serveur
+      const response = await fetch('/api/cyber/switch-api-key', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ keyType: newKeyType })
-      })
-      .then(response => response.json())
-      .catch(err => {
-        console.error(err);
-        return {
-          status: 'success',
-          currentApiKey: newKeyType,
-          modelName: newKeyType === 'primary' ? 'GPT-4o' : 'GPT-4o-mini'
-        };
       });
       
-      // Même en cas d'erreur côté serveur, simuler une réponse réussie côté client
+      if (!response.ok) {
+        console.error(`Error switching API key: ${response.status} ${response.statusText}`);
+        throw new Error(`Erreur lors du changement de modèle: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      // Mettre à jour l'état avec les données réelles retournées par le serveur
       setCurrentKey(data.currentApiKey || newKeyType);
       setModelName(data.modelName || (newKeyType === 'primary' ? 'GPT-4o' : 'GPT-4o-mini'));
+      
+      // Vérifier l'état de la connexion après le changement
+      setTimeout(checkStatus, 500);
     } catch (error) {
       console.error('Error switching API key:', error);
-      // Même en cas d'erreur, effectuer le changement de modèle côté client
-      const newKeyType: ApiKeyType = currentKey === 'primary' ? 'secondary' : 'primary';
-      setCurrentKey(newKeyType);
-      setModelName(newKeyType === 'primary' ? 'GPT-4o' : 'GPT-4o-mini');
+      // En cas d'erreur, ne pas changer l'état et vérifier la connexion
+      setTimeout(checkStatus, 500);
     } finally {
       setSwitchingKey(false);
     }

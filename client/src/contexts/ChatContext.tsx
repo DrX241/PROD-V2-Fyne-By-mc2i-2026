@@ -501,11 +501,21 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error('Error starting scenario:', error);
       
-      // Fallback message if there's an error
+      // Détermine le message d'erreur détaillé
+      let errorDetail = "";
+      if (error instanceof Error) {
+        errorDetail = error.message;
+      } else if (typeof error === 'object' && error !== null) {
+        errorDetail = JSON.stringify(error);
+      } else {
+        errorDetail = String(error);
+      }
+      
+      // Message d'erreur plus informatif
       const errorMessage: ChatMessage = {
         id: uuidv4(),
         type: "bot",
-        content: "Je suis désolé, une erreur s'est produite lors de la génération du scénario. Veuillez réessayer.",
+        content: "Je suis désolé, une erreur s'est produite lors de la génération du scénario. Cela peut être dû à une interruption de la connexion à l'API Azure OpenAI.\n\nVeuillez vérifier que l'indicateur FYNE est vert (connecté) et réessayer. Si le problème persiste, veuillez contacter l'administrateur système.",
         timestamp: Date.now()
       };
       
@@ -628,11 +638,21 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error('Error sending message:', error);
       
-      // Add error message
+      // Détermine le message d'erreur détaillé
+      let errorDetail = "";
+      if (error instanceof Error) {
+        errorDetail = error.message;
+      } else if (typeof error === 'object' && error !== null) {
+        errorDetail = JSON.stringify(error);
+      } else {
+        errorDetail = String(error);
+      }
+      
+      // Message d'erreur plus informatif
       const errorMessage: ChatMessage = {
         id: uuidv4(),
         type: "bot",
-        content: "Je suis désolé, une erreur s'est produite lors du traitement de votre message. Veuillez réessayer.",
+        content: "Je suis désolé, une erreur s'est produite lors du traitement de votre message. Cela peut être dû à une interruption de la connexion à l'API Azure OpenAI.\n\nVeuillez vérifier que l'indicateur FYNE est vert (connecté) et réessayer. Si le problème persiste, veuillez contacter l'administrateur système.",
         timestamp: Date.now()
       };
       

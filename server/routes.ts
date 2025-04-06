@@ -1604,13 +1604,13 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
       });
     } catch (error) {
       console.error('Error checking API status:', error);
-      // Même en cas d'erreur, renvoyer un statut connecté en mode simulé
+      // Retourner l'état de déconnexion si la vérification échoue
       res.json({
-        status: 'connected',
+        status: 'disconnected',
         lastCheck: Date.now(),
-        apiEndpoint: 'default',
-        currentApiKey: 'primary',
-        modelName: 'GPT-4o (Simulé)',
+        apiEndpoint: openAIService.getCurrentConfig().endpoint,
+        currentApiKey: openAIService.getCurrentApiKeyType(),
+        modelName: openAIService.getCurrentModelName(),
         time: new Date().toISOString()
       });
     }

@@ -156,7 +156,7 @@ class OpenAIService {
       return cachedResponse.content;
     }
     
-    // Sinon, appeler l'API
+    // Toujours appeler l'API réelle - nous n'utilisons plus de réponses simulées
     const content = await this.getChatCompletion(messages, temperature, maxTokens);
     
     // Mettre en cache la réponse
@@ -236,37 +236,11 @@ class OpenAIService {
     }
   }
   
-  // Méthode de secours pour générer des réponses simulées si l'API est indisponible
+  // Cette méthode n'est plus utilisée - Nous utilisons toujours l'API réelle
+  // Conservée uniquement comme référence, mais jamais appelée
   private getSimulatedResponse(messages: ChatCompletionRequestMessage[]): string {
-    console.log("Using simulated response as fallback");
-    console.log(`Current model (simulated): ${this.getCurrentModelName()}`);
-    
-    // Obtenir le dernier message de l'utilisateur
-    const userMessage = messages.filter(m => m.role === 'user').pop()?.content || '';
-    
-    // Générer une réponse simulée en fonction du contenu du message utilisateur
-    if (userMessage.toLowerCase().includes('hello') || userMessage.toLowerCase().includes('bonjour')) {
-      return "Bonjour ! Je suis FYNE, votre agent IA spécialisé en cybersécurité. Comment puis-je vous aider aujourd'hui ?";
-    } 
-    else if (userMessage.toLowerCase().includes('help') || userMessage.toLowerCase().includes('aide')) {
-      return "Je suis là pour vous aider avec toutes vos questions concernant la cybersécurité. Vous pouvez me demander des informations sur la protection des données, les menaces actuelles, les bonnes pratiques de sécurité, ou tout autre sujet lié à la cybersécurité.";
-    }
-    else if (userMessage.toLowerCase().includes('phishing')) {
-      return "Le phishing est une technique de cyberattaque où les attaquants se font passer pour des entités de confiance afin d'obtenir des informations sensibles. Pour vous protéger contre le phishing, soyez vigilant face aux emails non sollicités, vérifiez l'URL des sites web avant de saisir vos informations, et ne cliquez pas sur des liens suspects.";
-    }
-    else if (userMessage.toLowerCase().includes('ransomware')) {
-      return "Un ransomware est un type de logiciel malveillant qui chiffre vos fichiers et exige une rançon pour les déchiffrer. Pour vous protéger, effectuez régulièrement des sauvegardes de vos données, maintenez vos systèmes à jour, et utilisez un antivirus fiable. En cas d'infection, isolez immédiatement l'appareil du réseau.";
-    }
-    else if (userMessage.toLowerCase().includes('password') || userMessage.toLowerCase().includes('mot de passe')) {
-      return "Pour créer un mot de passe sécurisé, utilisez au moins 12 caractères avec un mélange de lettres majuscules et minuscules, chiffres et symboles. Évitez d'utiliser des informations personnelles facilement devinables. Utilisez un gestionnaire de mots de passe pour stocker vos identifiants en toute sécurité et activez l'authentification à deux facteurs lorsque c'est possible.";
-    }
-    else if (userMessage.toLowerCase().includes('firewall') || userMessage.toLowerCase().includes('pare-feu')) {
-      return "Un pare-feu (firewall) est un système de sécurité qui surveille et contrôle le trafic réseau entrant et sortant selon des règles de sécurité prédéfinies. Il constitue une barrière essentielle entre votre réseau interne et les menaces extérieures. Assurez-vous que votre pare-feu est correctement configuré et régulièrement mis à jour.";
-    } 
-    else {
-      // Réponse générique pour tout autre message
-      return "Je comprends votre question sur la cybersécurité. En tant qu'assistant IA spécialisé, je peux vous fournir des informations et des conseils adaptés à vos besoins. Pour des réponses plus précises, n'hésitez pas à me poser des questions spécifiques sur les aspects de la cybersécurité qui vous intéressent.";
-    }
+    // En cas d'erreur de l'API, nous préférons lever une exception plutôt que de simuler
+    throw new Error("Les réponses simulées ne sont plus prises en charge - Impossible de se connecter à l'API OpenAI");
   }
 
   // Vérifier la connexion à Azure OpenAI
