@@ -17,7 +17,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API route for starting a scenario
   app.post('/api/cyber/start-scenario', async (req, res) => {
     try {
-      console.log('start-scenario request body:', req.body);
       const { scenarioId, userName, config } = req.body;
       
       if (!scenarioId || !userName) {
@@ -318,21 +317,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         {
           role: "user",
-          content: `Générez un email professionnel de briefing de mission (maximum 250 mots) pour le scénario "${scenario.title}" dans le domaine "${scenario.domain}" avec les détails suivants:
+          content: `Générez un email COURT et ACCUEILLANT (maximum 150 mots) pour le scénario "${scenario.title}" dans le domaine "${scenario.domain}" avec les détails suivants:
           - L'email doit provenir de ${contactPrincipal.name} (${contactPrincipal.role})
           - L'email doit être adressé à ${userName} en utilisant le tutoiement ("tu") 
           - Le secteur d'activité pour ce scénario est: ${secteurActivite}
           - Le nom d'entreprise pour ce scénario est: ${companyName}
-          - STRUCTURE DE L'EMAIL:
-            1. Brève présentation du PNJ et de l'entreprise ${companyName}
-            2. Présentation claire et précise du contexte et des objectifs de la mission
-            3. Description des critères d'évaluation et de réussite de la mission
-            4. Mention explicite que l'évaluation commence dès la première réponse à ce message
-            5. Information sur la durée limitée de la mission (20 minutes)
-            6. Consigne ou question initiale pour démarrer la mission immédiatement
-          - IMPORTANT: NE PAS demander à l'utilisateur de se présenter ou de détailler son parcours
-          - IMPORTANT: Inclure des puces (- ou •) pour les objectifs et critères d'évaluation
-          - IMPORTANT: Le ton doit être concis, professionnel et direct, en utilisant le tutoiement
+          - L'email doit être un message d'accueil chaleureux où le PNJ se présente, présente brièvement l'entreprise ${companyName}
+          - IMPORTANT: Invite explicitement ${userName} à se présenter en détaillant son parcours, son expérience professionnelle et son niveau de connaissance en cybersécurité
+          - Précise que ces informations sont nécessaires pour mieux adapter la mission à son profil
+          - IMPORTANT: NE PAS mentionner ou faire référence à des pièces jointes, documents ou fichiers
+          - N'incluez PAS encore de problème ou de mission spécifique à résoudre
+          - Le ton doit être chaleureux, accueillant et professionnel, en utilisant le tutoiement
           - Le style d'écriture doit correspondre au rôle de ${contactPrincipal.role}: professionnel et adapté
           - Rédigez uniquement l'email, pas de commentaires ou d'explications`
         }
@@ -667,10 +662,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Create email response - le premier message vient toujours du contact principal du scénario
       const email = {
-        from: scenarioContacts[0].name,
-        fromRole: scenarioContacts[0].role,
+        id: uuidv4(),
+        from: scenarioContacts[0], // Utiliser le premier contact de la liste (le contact principal du scénario)
         to: `${userName}@mc2i.fr`,
         subject,
+        date: new Date().toISOString(),
         body,
         // Ajouter les contacts qui interviendront dans ce scénario (maximum 3 au total)
         scenarioContacts: scenarioContacts
@@ -686,7 +682,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API route for chat messages
   app.post('/api/cyber/chat', async (req, res) => {
     try {
-      console.log('chat request body:', req.body);
       const { message, userName, scenarioId, config, chatHistory, scenarioContacts } = req.body;
       
       if (!message || !userName) {
