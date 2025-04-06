@@ -1,5 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { openAIService } from '../../I_AM_CYBER/services/openai';
+import { cyberAscensionGenerator } from '../../I_AM_CYBER/services/cyber-ascension-generator';
 import { AscensionThemeDetails, LevelChallenge, LevelAttempt, UserAscensionProgress } from '../../client/src/types/cyber-ascension';
 
 const router = Router();
@@ -212,9 +213,19 @@ router.get('/themes/:themeId/levels/:levelId', async (req: Request, res: Respons
     }
     
     try {
-      // Utiliser l'IA pour générer dynamiquement le contenu du niveau
-      // Mais utiliser un fallback en cas d'erreur
-      const challenge = await generateLevelChallenge(theme, level);
+      // Utiliser le générateur de niveau CYBER ASCENSION
+      const challenge = await cyberAscensionGenerator.generateLevel(
+        theme.id,
+        level.id,
+        level.difficulty,
+        {
+          // Profil utilisateur pour la génération personnalisée
+          completedLevels: theme.levels.filter(l => l.completed).length,
+          // Par défaut, pas d'infos sur les forces et faiblesses
+          strengths: [],
+          weaknesses: []
+        }
+      );
       
       res.json({
         success: true,
@@ -272,37 +283,140 @@ router.post('/attempts', async (req: Request, res: Response) => {
       });
     }
     
-    // Simuler la vérification des réponses et le calcul du score
-    // Dans une implémentation réelle, vous vérifieriez les réponses par rapport aux défis générés
-    const success = Math.random() > 0.3; // Simulation de réussite/échec
-    const score = success ? Math.floor(Math.random() * 50) + 50 : Math.floor(Math.random() * 30) + 20;
+    // Récupérer le thème et le niveau concernés
+    const theme = availableThemes.find(t => t.id === attemptData.themeId);
     
-    // Mise à jour des données utilisateur (simulation)
-    // Dans une vraie implémentation, vous mettriez à jour la base de données
+    if (!theme) {
+      return res.status(404).json({
+        success: false,
+        message: 'Thème non trouvé'
+      });
+    }
     
-    // Créer un objet de progression mis à jour
+    const level = theme.levels.find(l => l.id === attemptData.levelId);
+    
+    if (!level) {
+      return res.status(404).json({
+        success: false,
+        message: 'Niveau non trouvé'
+      });
+    }
+    
+    // Génération (ou récupération depuis la base de données) du challenge
+    let challenge: LevelChallenge;
+    
+    try {
+      // Dans un cas réel, on récupérerait le challenge existant depuis une base de données
+      // Ici, on le génère à nouveau (moins efficace mais plus simple pour la démo)
+      challenge = await cyberAscensionGenerator.generateLevel(
+        theme.id,
+        level.id,
+        level.difficulty,
+        {
+          completedLevels: theme.levels.filter(l => l.completed).length,
+          strengths: [],
+          weaknesses: []
+        }
+      );
+    } catch (error) {
+      console.error('Erreur lors de la récupération du challenge, utilisation du fallback:', error);
+      challenge = createFallbackChallenge(theme, level);
+    }
+    
+    let feedbackResult;
+    
+    // Si la tentative contient une réponse textuelle, générer un feedback avec l'IA
+    if (attemptData.userResponse) {
+      try {
+        feedbackResult = await cyberAscensionGenerator.generateFeedback(
+          theme.id,
+          level.id,
+          challenge,
+          attemptData.userResponse
+        );
+      } catch (error) {
+        console.error('Erreur lors de la génération du feedback:', error);
+        // Feedback par défaut en cas d'erreur
+        feedbackResult = {
+          feedback: "Une erreur s'est produite lors de l'analyse de votre réponse. Votre progression a néanmoins été enregistrée.",
+          strengths: ["Réponse fournie"],
+          improvements: ["Impossible d'analyser complètement votre réponse"],
+          score: 70,
+          progression: 'next'
+        };
+      }
+    } else if (attemptData.answers && attemptData.answers.length > 0) {
+      // Si c'est un quiz, calculer le score à partir des réponses
+      const totalQuestions = attemptData.answers.length;
+      const correctAnswers = attemptData.answers.filter(a => a.correct).length;
+      const score = Math.round((correctAnswers / totalQuestions) * 100);
+      
+      feedbackResult = {
+        feedback: `Vous avez répondu correctement à ${correctAnswers} questions sur ${totalQuestions}.`,
+        strengths: correctAnswers > 0 ? ["Bonnes réponses sur certaines questions"] : ["Tentative effectuée"],
+        improvements: correctAnswers < totalQuestions ? ["Revoir les questions incorrectes"] : [],
+        score: score,
+        progression: score >= 70 ? 'next' : (score >= 40 ? 'retry' : 'previous')
+      };
+    } else {
+      // Cas par défaut si ni réponse textuelle ni réponses à des questions
+      feedbackResult = {
+        feedback: "Aucune réponse fournie. Veuillez essayer à nouveau.",
+        strengths: [],
+        improvements: ["Fournir une réponse complète"],
+        score: 0,
+        progression: 'retry'
+      };
+    }
+    
+    // Mise à jour de l'objet tentative avec le feedback généré
+    const updatedAttempt: LevelAttempt = {
+      ...attemptData,
+      endTime: Date.now(),
+      score: feedbackResult.score,
+      success: feedbackResult.progression === 'next',
+      feedback: feedbackResult.feedback,
+      strengths: feedbackResult.strengths,
+      improvements: feedbackResult.improvements,
+      progression: feedbackResult.progression
+    };
+    
+    // Dans une vraie implémentation, on sauvegarderait la tentative en base de données
+    
+    // Mettre à jour la progression de l'utilisateur
+    // Dans une implémentation réelle, ceci modifierait les données en base de données
+    if (updatedAttempt.success) {
+      // Si le niveau est réussi, débloquer le niveau suivant
+      const levelIndex = theme.levels.findIndex(l => l.id === level.id);
+      if (levelIndex >= 0 && levelIndex < theme.levels.length - 1) {
+        theme.levels[levelIndex].completed = true;
+        theme.levels[levelIndex + 1].unlocked = true;
+        theme.unlockedLevels = Math.max(theme.unlockedLevels, levelIndex + 2);
+      }
+      
+      // Mettre à jour la progression globale du thème
+      const completedCount = theme.levels.filter(l => l.completed).length;
+      theme.progress = Math.round((completedCount / theme.totalLevels) * 100);
+    }
+    
+    // Créer un objet de progression mis à jour pour la réponse
     const updatedProgress: Partial<UserAscensionProgress> = {
-      totalXp: 1000 + score, // XP simulée
+      totalXp: 1000 + updatedAttempt.score, // XP simulée
       completedLevels: [{
         themeId: attemptData.themeId,
         levelId: attemptData.levelId,
-        score,
+        score: updatedAttempt.score,
         completedAt: Date.now()
-      }]
+      }],
+      currentTheme: theme.id,
+      currentLevel: updatedAttempt.success ? level.id + 1 : level.id
     };
-    
-    // Vérifier si un niveau suivant doit être débloqué
-    // Si le niveau est réussi, on devrait débloquer le niveau suivant dans une vraie implémentation
     
     res.json({
       success: true,
-      attempt: {
-        ...attemptData,
-        endTime: Date.now(),
-        score,
-        success
-      },
-      updatedProgress
+      attempt: updatedAttempt,
+      updatedProgress,
+      feedback: feedbackResult
     });
   } catch (error) {
     console.error('Erreur lors de la soumission de la tentative:', error);
@@ -469,10 +583,34 @@ function createFallbackChallenge(theme: AscensionThemeDetails, level: any): Leve
     id: `${theme.id}-${level.id}`,
     title: `${theme.name} - Niveau ${level.id}`,
     description: `Ce niveau vous permet de développer vos compétences en ${theme.name}`,
-    type: 'quiz',
+    type: 'scenario',
     content: {
       introduction: introText,
-      scenario: scenarioText,
+      context: "Une entreprise de taille moyenne a détecté des activités suspectes sur son réseau. Le responsable de la sécurité informatique vous a contacté pour analyser la situation et proposer des mesures correctrices.",
+      materials: [
+        {
+          type: "email",
+          title: "Email du RSSI",
+          content: "Bonjour,\n\nNous avons détecté des activités inhabituelles sur notre réseau hier soir. Plusieurs connexions à distance ont été établies depuis des adresses IP inconnues. Pourriez-vous analyser la situation et nous recommander des mesures à prendre ?\n\nCordialement,\nMarc Dubois, RSSI",
+          metadata: {
+            from: "marc.dubois@entreprise-exemple.com",
+            to: "vous@entreprise-exemple.com",
+            date: "Aujourd'hui, 09:15"
+          }
+        },
+        {
+          type: "log",
+          title: "Extrait du journal de connexion",
+          content: "2025-04-06 03:14:22 LOGIN_ATTEMPT user=admin source=203.0.113.42 status=success\n2025-04-06 03:14:55 CONFIG_CHANGE user=admin module=firewall action=disable\n2025-04-06 03:15:34 LOGIN_ATTEMPT user=system source=203.0.113.42 status=success\n2025-04-06 03:16:12 DATA_TRANSFER source=internal destination=203.0.113.42 size=1.7GB",
+          metadata: {
+            source: "Serveur principal"
+          }
+        }
+      ],
+      objective: "Analysez la situation de sécurité et rédigez un plan d'action immédiat comportant au moins 3 mesures concrètes à mettre en œuvre pour protéger le réseau.",
+      constraint: "La direction doit être informée dans les 2 heures. Plusieurs données sensibles pourraient avoir été compromises.",
+      minResponseLength: 150,
+      scenario: scenarioText, // Pour compatibilité
       questions: [
         {
           id: "q1",

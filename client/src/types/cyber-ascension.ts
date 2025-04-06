@@ -53,10 +53,16 @@ export interface LevelChallenge {
 
 export interface LevelContent {
   introduction: string;
-  scenario?: string;
+  context: string;        // 🎬 CONTEXTE
+  materials: Material[];  // 📂 MATÉRIEL FOURNI
+  objective: string;      // 🎯 OBJECTIF
+  constraint: string;     // ⌛ CONTRAINTE
+  scenario?: string;      // Pour compatibilité avec l'ancien format
   questions?: QuizQuestion[];
   simulationSteps?: SimulationStep[];
   resources?: Resource[];
+  feedback?: string;      // ✅ FEEDBACK (généré après la soumission)
+  minResponseLength?: number; // Longueur minimale de réponse requise (par défaut 150)
 }
 
 export interface QuizQuestion {
@@ -79,6 +85,20 @@ export interface SimulationStep {
   guidance?: string;
 }
 
+export interface Material {
+  type: 'email' | 'log' | 'code' | 'screenshot' | 'document' | 'conversation' | 'message';
+  title: string;
+  content: string;
+  icon?: string;
+  metadata?: {
+    from?: string;
+    to?: string;
+    date?: string;
+    source?: string;
+    [key: string]: any;
+  };
+}
+
 export interface Resource {
   title: string;
   type: 'article' | 'video' | 'tool' | 'reference';
@@ -99,6 +119,11 @@ export interface LevelAttempt {
     selectedAnswer: any;
     correct: boolean;
   }[];
+  userResponse?: string;  // Réponse textuelle de l'utilisateur (min 150 caractères)
+  feedback?: string;      // Feedback généré par l'IA
+  strengths?: string[];   // Points forts de la réponse
+  improvements?: string[]; // Points à améliorer
+  progression?: 'next' | 'retry' | 'previous'; // Progression déterminée par l'IA
 }
 
 export interface UserAscensionProgress {

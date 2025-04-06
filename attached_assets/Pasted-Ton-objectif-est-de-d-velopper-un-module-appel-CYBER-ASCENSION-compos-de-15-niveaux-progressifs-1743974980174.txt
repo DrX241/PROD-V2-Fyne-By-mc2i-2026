@@ -1,0 +1,103 @@
+Ton objectif est de développer un module appelé “CYBER ASCENSION”, composé de 15 niveaux progressifs.
+Ce module est un parcours de montée en compétence en cybersécurité, dans lequel chaque niveau est généré dynamiquement par l’IA, en fonction du niveau atteint, des erreurs précédentes et du profil utilisateur.
+
+🧠 Principes de fonctionnement
+Le contenu de chaque niveau est généré dynamiquement par l’IA, au moment où l’utilisateur l’atteint.
+
+L’IA doit :
+
+Créer un contexte réaliste (cyberattaque, incident, audit, etc.)
+
+Fournir du matériel dynamique (logs, e-mails, extraits de code, fichiers simulés, dialogues, etc.)
+
+Donner un objectif clair à l’utilisateur (ex : détecter une faille, rédiger un plan d’action, identifier une attaque)
+
+Attendre une réponse rédigée (100 à 150 caractères min)
+
+Générer un feedback détaillé (technique + pédagogique)
+
+Faire progresser ou revenir l’utilisateur selon son niveau
+
+📋 Structure à respecter par l’IA pour chaque niveau
+Chaque niveau doit suivre cette structure :
+
+markdown
+Copier
+Modifier
+1. 🎬 CONTEXTE : 
+Une situation réaliste en entreprise simulant un incident de cybersécurité (ex. mail, appel, journal, réunion).
+
+2. 📂 MATÉRIEL FOURNI :
+Données fictives mais crédibles : logs d’accès, extraits de code, captures d’écran simulées, e-mails, messages internes.
+
+3. 🎯 OBJECTIF :
+Une mission claire, à résoudre par écrit : analyser, corriger, répondre, rédiger un plan d’action, etc.
+
+4. ⌛ CONTRAINTE :
+Ajouter une pression temporelle ou une urgence (ex : réunion imminente, perte de données en cours...).
+
+5. 🧠 RÉPONSE :
+L’IA attend une réponse de minimum 100 à 150 caractères. Elle ne passe pas au niveau suivant si la réponse est trop courte.
+
+6. ✅ FEEDBACK :
+Analyse détaillée de la réponse : 
+- Ce qui est bon
+- Ce qui est à améliorer
+- Ce que cela dit du niveau de compétence de l’utilisateur
+- Conseils concrets à appliquer
+
+7. 🔓 DÉBLOCAGE :
+Si la réponse est valide, on passe au niveau suivant. Sinon, le joueur reste au niveau ou redescend.
+
+8. 📊 SCORING :
+L’IA attribue un score basé sur :
+- Qualité de réponse
+- Rapidité
+- Pertinence des choix
+- Nombre d’erreurs précédentes
+⚙️ Comportement attendu de l’IA pendant le module
+L’IA ne doit jamais réutiliser deux fois le même scénario. Tout est généré à la volée.
+
+Chaque scénario doit être adapté au niveau (du simple phishing au ransomware avancé).
+
+L’IA doit inclure des personnages secondaires réactifs : collègues, managers, juristes, RH, etc.
+
+L’IA peut varier les formats : e-mails, tickets IT, rapports d’incident, alertes SIEM, scripts à corriger, réunions simulées, etc.
+
+Si l’utilisateur écrit trop peu ou répond à côté → l’IA bloque le niveau.
+
+À la fin du module (niveau 15), l’IA génère un rapport final personnalisé, listant les forces, les axes de progrès et un score.
+
+📘 Exemple de niveau (structure que l’IA doit suivre à chaque fois)
+markdown
+Copier
+Modifier
+🎬 CONTEXTE :
+Un incident de phishing a été signalé par un collaborateur.
+
+📂 MATÉRIEL FOURNI :
+- 📧 Email reçu par l’utilisateur : 
+   De : it-support@micros0ft.com  
+   Objet : Mise à jour urgente de vos identifiants  
+   Lien : http://secure-login.microsoft-support.com  
+
+- 👤 Logs du pare-feu : 
+   203.0.113.87 - Connexion suspecte à 14h02
+
+🎯 OBJECTIF :
+Rédiger un plan d’action immédiat pour contenir la menace et éviter sa propagation.
+
+⌛ CONTRAINTE :
+Le mail a été ouvert par 4 utilisateurs. La direction attend un point dans 30 minutes.
+
+🧠 ATTENTE :
+Réponse rédigée de 150 caractères minimum.
+
+✅ FEEDBACK (généré dynamiquement) :
+- 👍 Bonne identification de la menace.
+- 👎 Attention, tu as oublié de prévenir le DPO.
+- 🧠 Conseil : pense à inclure une phase de sensibilisation post-incident.
+
+🔓 PROGRESSION :
+✔️ Niveau suivant déverrouillé.
+📊 Score actuel : 12/15
