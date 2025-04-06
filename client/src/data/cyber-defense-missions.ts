@@ -1386,11 +1386,10 @@ export const rgpdComplianceProgramMission: Mission = {
 
 // Liste des missions disponibles
 export const cyberDefenseMissions: Mission[] = [
-  exampleMission,
-  dataClassificationMission,
-  dataBreachResponseMission,
-  rgpdComplianceProgramMission
-  // Autres missions peuvent être ajoutées ici
+  // Nous gardons seulement une mission par niveau de difficulté
+  // avec des contextes entièrement distincts
+  exampleMission // Cette mission servira de base pour le niveau débutant
+  // Les autres missions ont été supprimées selon les instructions
 ];
 
 // Fonction utilitaire pour trouver une mission par son ID
