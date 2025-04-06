@@ -77,6 +77,8 @@ export default function CyberAscensionLevel() {
   }>({
     queryKey: ['/api/cyber-ascension/themes', themeId, 'levels', levelId],
     enabled: !!themeId && !!levelId,
+    retry: 3, // Retry 3 times in case of failure
+    retryDelay: 1000, // Wait 1 second between retries
   });
   
   // Mutation pour soumettre une tentative

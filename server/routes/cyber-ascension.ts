@@ -211,22 +211,51 @@ router.get('/themes/:themeId/levels/:levelId', async (req: Request, res: Respons
       ];
     }
     
-    // Utiliser l'IA pour générer dynamiquement le contenu du niveau
-    // Note: Dans une implémentation réelle, vous pourriez avoir une cache pour éviter
-    // de régénérer le contenu à chaque fois
-    const challenge = await generateLevelChallenge(theme, level);
-    
-    res.json({
-      success: true,
-      level,
-      challenge
-    });
+    try {
+      // Utiliser l'IA pour générer dynamiquement le contenu du niveau
+      // Mais utiliser un fallback en cas d'erreur
+      const challenge = await generateLevelChallenge(theme, level);
+      
+      res.json({
+        success: true,
+        level,
+        challenge
+      });
+    } catch (error) {
+      console.error('Erreur lors de la génération du challenge, utilisation du fallback:', error);
+      
+      // Utiliser le challenge de secours
+      const fallbackChallenge = createFallbackChallenge(theme, level);
+      
+      res.json({
+        success: true,
+        level,
+        challenge: fallbackChallenge
+      });
+    }
   } catch (error) {
     console.error('Erreur lors de la récupération du niveau:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de la récupération du niveau'
-    });
+    
+    // Réponse avec un challenge de secours même en cas d'erreur générale
+    const themeId = req.params.themeId;
+    const levelId = parseInt(req.params.levelId);
+    const theme = availableThemes.find(t => t.id === themeId);
+    
+    if (theme) {
+      const level = theme.levels.find(l => l.id === levelId) || theme.levels[0];
+      const fallbackChallenge = createFallbackChallenge(theme, level);
+      
+      return res.json({
+        success: true,
+        level,
+        challenge: fallbackChallenge
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'Erreur lors de la récupération du niveau'
+      });
+    }
   }
 });
 
