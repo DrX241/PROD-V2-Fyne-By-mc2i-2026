@@ -188,113 +188,117 @@ export default function CyberAscensionTheme() {
     );
   }
   
-  const theme = themeData.theme;
+  // S'assurer que themeData et theme existent bien avant de les utiliser
+  const theme = themeData?.theme;
   
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#111827] to-[#1f2937] text-white">
-      <div className="max-w-7xl mx-auto px-4 pt-6 pb-16 sm:px-6 lg:px-8">
-        <Button 
-          variant="ghost" 
-          className="text-white hover:text-blue-300 mb-8 pl-0" 
-          onClick={() => setLocation('/cyber-ascension')}
-        >
-          <ArrowLeft className="mr-2 h-5 w-5" />
-          Retour aux thèmes
-        </Button>
-        
-        <div className="mb-12">
-          <div className="flex items-center gap-4 mb-5">
-            <div 
-              className="p-3 rounded-lg" 
-              style={{ backgroundColor: `${theme.themeColor}30` }}
-            >
-              <Shield className="h-8 w-8" style={{ color: theme.themeColor }} />
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-bold">{theme.name}</h1>
-          </div>
-          
-          <p className="text-lg text-gray-300 mb-6 max-w-3xl">
-            {theme.description}
-          </p>
-          
-          <div className="flex flex-wrap gap-4 mb-8">
-            <Badge className="px-3 py-1 text-sm bg-blue-900/50 hover:bg-blue-900/50">
-              {theme.totalLevels} niveaux
-            </Badge>
-            <Badge className="px-3 py-1 text-sm bg-blue-900/50 hover:bg-blue-900/50">
-              Difficulté progressive
-            </Badge>
-            <Badge className="px-3 py-1 text-sm bg-blue-900/50 hover:bg-blue-900/50">
-              Contenu généré par IA
-            </Badge>
-          </div>
-          
-          <div className="mb-3 flex justify-between text-sm">
-            <span className="text-gray-300">Progression globale</span>
-            <span className="text-gray-300">{theme.progress}%</span>
-          </div>
-          <Progress value={theme.progress} className="h-2 bg-gray-700" style={{ color: theme.themeColor }} />
-          
-          <div className="flex flex-wrap gap-8 mt-8">
-            <div className="flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-yellow-500" />
-              <div>
-                <div className="text-sm text-gray-300">Niveaux débloqués</div>
-                <div className="font-bold">{theme.unlockedLevels} / {theme.totalLevels}</div>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-500" />
-              <div>
-                <div className="text-sm text-gray-300">Niveaux complétés</div>
-                <div className="font-bold">{theme.levels.filter(l => l.completed).length} / {theme.totalLevels}</div>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <BarChart2 className="h-5 w-5 text-blue-500" />
-              <div>
-                <div className="text-sm text-gray-300">Total XP disponible</div>
-                <div className="font-bold">{theme.levels.reduce((sum, level) => sum + level.xpReward, 0)} XP</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <h2 className="text-2xl font-bold mb-6">Niveaux du parcours</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {theme.levels.map((level) => (
-            <LevelCard 
-              key={level.id} 
-              level={level} 
-              themeId={theme.id} 
-              themeColor={theme.themeColor} 
-            />
-          ))}
-        </div>
-        
-        <div className="flex justify-center mt-12">
-          <Button
-            size="lg"
-            className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 shadow-lg"
-            disabled={theme.unlockedLevels <= 0}
-            onClick={() => {
-              // Trouver le premier niveau débloqué non complété
-              const nextLevel = theme.levels.find(l => l.unlocked && !l.completed);
-              if (nextLevel) {
-                setLocation(`/cyber-ascension/theme/${theme.id}/level/${nextLevel.id}`);
-              } else if (theme.unlockedLevels > 0) {
-                // Si tous les niveaux débloqués sont complétés, aller au premier
-                setLocation(`/cyber-ascension/theme/${theme.id}/level/${theme.levels.find(l => l.unlocked)?.id || 1}`);
-              }
-            }}
+      <ScrollArea className="h-screen">
+        <div className="max-w-7xl mx-auto px-4 pt-6 pb-16 sm:px-6 lg:px-8">
+          <Button 
+            variant="ghost" 
+            className="text-white hover:text-blue-300 mb-8 pl-0" 
+            onClick={() => setLocation('/cyber-ascension')}
           >
-            {theme.unlockedLevels > 0 ? "Continuer l'apprentissage" : "Démarrer le parcours"}
+            <ArrowLeft className="mr-2 h-5 w-5" />
+            Retour aux thèmes
           </Button>
+        
+          <div className="mb-12">
+            <div className="flex items-center gap-4 mb-5">
+              <div 
+                className="p-3 rounded-lg" 
+                style={{ backgroundColor: `${theme?.themeColor || '#3b82f6'}30` }}
+              >
+                <Shield className="h-8 w-8" style={{ color: theme?.themeColor || '#3b82f6' }} />
+              </div>
+              <h1 className="text-3xl sm:text-4xl font-bold">{theme?.name || 'Thème'}</h1>
+            </div>
+          
+            <p className="text-lg text-gray-300 mb-6 max-w-3xl">
+              {theme?.description || 'Description du thème'}
+            </p>
+            
+            <div className="flex flex-wrap gap-4 mb-8">
+              <Badge className="px-3 py-1 text-sm bg-blue-900/50 hover:bg-blue-900/50">
+                {theme?.totalLevels || 0} niveaux
+              </Badge>
+              <Badge className="px-3 py-1 text-sm bg-blue-900/50 hover:bg-blue-900/50">
+                Difficulté progressive
+              </Badge>
+              <Badge className="px-3 py-1 text-sm bg-blue-900/50 hover:bg-blue-900/50">
+                Contenu généré par IA
+              </Badge>
+            </div>
+          
+            <div className="mb-3 flex justify-between text-sm">
+              <span className="text-gray-300">Progression globale</span>
+              <span className="text-gray-300">{theme?.progress || 0}%</span>
+            </div>
+            <Progress value={theme?.progress || 0} className="h-2 bg-gray-700" style={{ color: theme?.themeColor || '#3b82f6' }} />
+            
+            <div className="flex flex-wrap gap-8 mt-8">
+              <div className="flex items-center gap-2">
+                <Trophy className="h-5 w-5 text-yellow-500" />
+                <div>
+                  <div className="text-sm text-gray-300">Niveaux débloqués</div>
+                  <div className="font-bold">{theme?.unlockedLevels || 0} / {theme?.totalLevels || 0}</div>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5 text-green-500" />
+                <div>
+                  <div className="text-sm text-gray-300">Niveaux complétés</div>
+                  <div className="font-bold">{theme?.levels?.filter(l => l.completed).length || 0} / {theme?.totalLevels || 0}</div>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <BarChart2 className="h-5 w-5 text-blue-500" />
+                <div>
+                  <div className="text-sm text-gray-300">Total XP disponible</div>
+                  <div className="font-bold">{theme?.levels?.reduce((sum, level) => sum + level.xpReward, 0) || 0} XP</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <h2 className="text-2xl font-bold mb-6">Niveaux du parcours</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {theme?.levels?.map((level) => (
+              <LevelCard 
+                key={level.id} 
+                level={level} 
+                themeId={theme?.id || ''} 
+                themeColor={theme?.themeColor || '#3b82f6'} 
+              />
+            )) || []}
+          </div>
+          
+          <div className="flex justify-center mt-12">
+            <Button
+              size="lg"
+              className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 shadow-lg"
+              disabled={!theme?.unlockedLevels || (theme?.unlockedLevels || 0) <= 0}
+              onClick={() => {
+                if (!theme?.levels) return;
+                // Trouver le premier niveau débloqué non complété
+                const nextLevel = theme?.levels.find(l => l.unlocked && !l.completed);
+                if (nextLevel) {
+                  setLocation(`/cyber-ascension/theme/${theme?.id}/level/${nextLevel.id}`);
+                } else if (theme?.unlockedLevels && theme?.unlockedLevels > 0) {
+                  // Si tous les niveaux débloqués sont complétés, aller au premier
+                  setLocation(`/cyber-ascension/theme/${theme?.id}/level/${theme?.levels?.find(l => l.unlocked)?.id || 1}`);
+                }
+              }}
+            >
+              {theme?.unlockedLevels && theme?.unlockedLevels > 0 ? "Continuer l'apprentissage" : "Démarrer le parcours"}
+            </Button>
+          </div>
         </div>
-      </div>
+      </ScrollArea>
     </div>
   );
 }
