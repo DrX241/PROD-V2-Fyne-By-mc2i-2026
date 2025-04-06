@@ -33,7 +33,7 @@ import {
   getSkillsRecommendations,
   generateBadgeForSkillLevel
 } from '../../../shared/types/cyber';
-import { cyberDefenseMissions, getMissionById, exampleMission } from '../data/cyber-defense-missions';
+import { cyberDefenseMissions, getMissionById, phishingMission } from '../data/cyber-defense-missions';
 
 // Mapping des couleurs de fond en fonction du niveau de difficulté
 const difficultyColor = {
@@ -214,8 +214,8 @@ export default function CyberDefenseMission() {
   const [currentObjective, setCurrentObjective] = useState(0);
   const { userName } = useChatContext();
   
-  // Charger la mission à partir de l'ID ou utiliser la mission d'exemple
-  const [mission, setMission] = useState<Mission>(exampleMission);
+  // Charger la mission à partir de l'ID ou utiliser la mission de phishing par défaut
+  const [mission, setMission] = useState<Mission>(phishingMission);
   const [currentDecision, setCurrentDecision] = useState<Decision | null>(null);
   const [showDecisionOptions, setShowDecisionOptions] = useState(false);
   

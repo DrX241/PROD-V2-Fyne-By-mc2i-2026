@@ -27,18 +27,18 @@ const sarahDumont = getContactByName('Sarah Dumont')!;
 const executives = getExecutiveContacts();
 const evaluators = getEvaluators();
 
-// Exemple de mission complexe avec évaluation des décisions
-export const exampleMission: Mission = {
+// Mission niveau DÉBUTANT : Campagne de phishing
+export const phishingMission: Mission = {
   id: uuidv4(),
-  title: "Réponse à une attaque ransomware",
-  description: "Une attaque par ransomware a été détectée dans le système informatique de l'entreprise. En tant que RSSI, vous devez coordonner la réponse à l'incident et limiter les dégâts.",
-  difficulty: "Intermédiaire",
-  duration: "45-60 min",
-  tags: ["Ransomware", "Gestion de crise", "Incident Response"],
-  scenario: "Une activité suspecte a été détectée sur plusieurs serveurs critiques. Certains fichiers semblent être chiffrés et un message de rançon est apparu sur plusieurs postes de travail. En tant que RSSI, vous devez coordonner la réponse à cet incident, identifier l'étendue de la compromission et prendre des décisions cruciales pour protéger les actifs de l'entreprise.",
+  title: "Contrer une campagne de phishing massive",
+  description: "Une campagne de phishing sophistiquée cible les employés de votre entreprise. En tant que responsable de la sensibilisation à la sécurité, vous devez prendre rapidement les bonnes décisions pour limiter l'impact et protéger l'organisation.",
+  difficulty: "Débutant",
+  duration: "15-20 min",
+  tags: ["Phishing", "Sensibilisation", "Communication"],
+  scenario: "Une campagne de phishing sophistiquée vient de cibler massivement les employés du groupe ELITE RETAIL SECURITY. Plusieurs collaborateurs ont déjà cliqué sur des liens malveillants et certains ont fourni leurs identifiants. En tant que responsable de la sensibilisation à la sécurité, vous devez coordonner la réponse immédiate et mettre en place des actions préventives pour limiter l'impact de cette attaque.",
   companyName: "ELITE RETAIL SECURITY",
   secteurActivite: "RETAIL & LUXE",
-  userRole: "RSSI (Responsable de la Sécurité des Systèmes d'Information)",
+  userRole: "Responsable Sensibilisation Cybersécurité",
   currentScore: 0,
   
   // Compétences requises et suivies durant cette mission
@@ -368,18 +368,18 @@ export const exampleMission: Mission = {
   }
 };
 
-// Mission: Classification des données sensibles (RGPD)
-export const dataClassificationMission: Mission = {
+// Mission niveau INTERMÉDIAIRE : Gestion d'une vulnérabilité zero-day
+export const zeroDay: Mission = {
   id: uuidv4(),
-  title: "Classification des données sensibles",
-  description: "Mettez en place un système de classification des données pour protéger les informations sensibles conformément au RGPD.",
-  difficulty: "Débutant",
+  title: "Gestion d'une vulnérabilité zero-day critique",
+  description: "Une vulnérabilité zero-day a été découverte dans un composant critique de l'infrastructure IT de votre entreprise. En tant que Responsable Vulnérabilités & Patch Management, vous devez orchestrer la réponse de l'organisation face à cette menace sans correctif disponible.",
+  difficulty: "Intermédiaire",
   duration: "30-45 min",
-  tags: ["RGPD", "Protection des données", "Classification", "Gouvernance"],
-  scenario: "Une société spécialisée dans les solutions de santé connectée fait face à une transformation numérique majeure et accumule de plus en plus de données sensibles. Suite à une demande de la direction générale, vous êtes chargé(e) d'établir un système de classification des données qui permettra de respecter les exigences du RGPD et de limiter les risques de fuites d'informations sensibles. Votre mission est d'élaborer et de présenter cette stratégie de classification.",
-  companyName: "HEALTH & INDUSTRY SHIELD",
-  secteurActivite: "INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)",
-  userRole: "DPO (Délégué à la Protection des Données)",
+  tags: ["Vulnérabilité", "Patch Management", "Mesures d'urgence", "Communication"],
+  scenario: "Une vulnérabilité zero-day critique vient d'être découverte dans un composant essentiel utilisé par BANQUE FINANCE ASSURANCE pour ses opérations de paiement. Aucun correctif n'est encore disponible et des exploits sont déjà en circulation. En tant que Responsable Vulnérabilités & Patch Management, vous devez coordonner une réponse immédiate pour protéger les systèmes sans interruption des services critiques.",
+  companyName: "BANQUE FINANCE ASSURANCE",
+  secteurActivite: "BANCAIRE/FINANCE (BFA)",
+  userRole: "Responsable Vulnérabilités & Patch Management",
   currentScore: 0,
   
   // Compétences requises et suivies durant cette mission
@@ -704,18 +704,18 @@ export const dataClassificationMission: Mission = {
   }
 };
 
-// Mission: Réponse à une violation de données personnelles (RGPD)
-export const dataBreachResponseMission: Mission = {
+// Mission niveau EXPERT : Gestion d'une cyberattaque sur infrastructure critique
+export const infrastructureCriticalAttack: Mission = {
   id: uuidv4(),
-  title: "Réponse à une violation de données personnelles",
-  description: "Une violation de données personnelles a été détectée. Gérez la situation conformément au RGPD.",
-  difficulty: "Intermédiaire",
-  duration: "40-60 min",
-  tags: ["RGPD", "Gestion d'incident", "Notification", "Données personnelles"],
-  scenario: "Un établissement financier de taille moyenne vient de détecter une intrusion dans sa base de données clients. Une analyse préliminaire indique que des données personnelles et financières de près de 5000 clients ont potentiellement été compromises. En tant que DPO, vous devez coordonner la réponse à cet incident conformément aux exigences du RGPD et limiter l'impact sur la réputation de l'entreprise et ses clients.",
-  companyName: "SECURE FINANCE SOLUTIONS",
-  secteurActivite: "BANCAIRE/FINANCIER (BFA)",
-  userRole: "DPO (Délégué à la Protection des Données)",
+  title: "Défense d'infrastructures critiques énergétiques",
+  description: "Une cyberattaque sophistiquée cible les systèmes SCADA de votre infrastructure énergétique critique. En tant que RSSI, vous devez orchestrer la défense tout en maintenant la continuité des opérations essentielles.",
+  difficulty: "Expert",
+  duration: "45-60 min",
+  tags: ["Infrastructure critique", "SCADA", "APT", "Défense active", "Continuité d'activité"],
+  scenario: "ENERGY & UTILITIES NEXUS, un acteur majeur du secteur énergétique, fait face à une cyberattaque sophistiquée ciblant ses systèmes de contrôle industriels (SCADA). Des comportements anormaux ont été détectés sur plusieurs automates qui contrôlent la distribution électrique. En tant que RSSI, vous devez coordonner la défense face à cette attaque qui pourrait compromettre l'approvisionnement énergétique de toute une région.",
+  companyName: "ENERGY & UTILITIES NEXUS",
+  secteurActivite: "ÉNERGIE & UTILITIES",
+  userRole: "RSSI (Responsable de la Sécurité des Systèmes d'Information)",
   currentScore: 0,
   
   // Compétences requises et suivies durant cette mission
@@ -1386,10 +1386,10 @@ export const rgpdComplianceProgramMission: Mission = {
 
 // Liste des missions disponibles
 export const cyberDefenseMissions: Mission[] = [
-  // Nous gardons seulement une mission par niveau de difficulté
-  // avec des contextes entièrement distincts
-  exampleMission // Cette mission servira de base pour le niveau débutant
-  // Les autres missions ont été supprimées selon les instructions
+  // Une mission par niveau de difficulté avec des contextes totalement différents
+  phishingMission,      // Niveau DÉBUTANT - Phishing (secteur: RETAIL & LUXE)
+  zeroDay,              // Niveau INTERMÉDIAIRE - Zero-day (secteur: BANCAIRE/FINANCE)
+  infrastructureCriticalAttack // Niveau EXPERT - Infrastructure critique (secteur: ÉNERGIE)
 ];
 
 // Fonction utilitaire pour trouver une mission par son ID
