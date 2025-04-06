@@ -1595,27 +1595,39 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
   app.get('/api/cyber/status', async (req: Request, res: Response) => {
     try {
       // Vérifier le statut de connexion avec le service OpenAI
-      await openAIService.checkConnection();
+      const isConnected = await openAIService.checkConnection();
+      
+      const config = openAIService.getCurrentConfig();
       
       // Renvoyer les informations de statut basées sur le service OpenAI
       res.json({
         status: openAIService.getConnectionStatus(),
         lastCheck: openAIService.getLastConnectionCheck(),
-        apiEndpoint: openAIService.getCurrentConfig().endpoint,
+        apiEndpoint: config.endpoint,
+        deploymentName: config.deploymentName,
+        apiVersion: config.apiVersion,
         currentApiKey: openAIService.getCurrentApiKeyType(),
         modelName: openAIService.getCurrentModelName(),
+        isConnected: isConnected,
         time: new Date().toISOString()
       });
     } catch (error) {
       console.error('Error checking API status:', error);
+      
+      const config = openAIService.getCurrentConfig();
+      
       // Retourner l'état de déconnexion si la vérification échoue
       res.json({
         status: 'disconnected',
         lastCheck: Date.now(),
-        apiEndpoint: openAIService.getCurrentConfig().endpoint,
+        apiEndpoint: config.endpoint,
+        deploymentName: config.deploymentName,
+        apiVersion: config.apiVersion,
         currentApiKey: openAIService.getCurrentApiKeyType(),
         modelName: openAIService.getCurrentModelName(),
-        time: new Date().toISOString()
+        isConnected: false,
+        time: new Date().toISOString(),
+        error: String(error)
       });
     }
   });
@@ -1887,15 +1899,22 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
       res.json({
         status: 'success',
         currentApiKey: openAIService.getCurrentApiKeyType(),
-        modelName: openAIService.getCurrentModelName()
+        modelName: openAIService.getCurrentModelName(),
+        endpoint: openAIService.getCurrentConfig().endpoint,
+        deploymentName: openAIService.getCurrentConfig().deploymentName,
+        apiVersion: openAIService.getCurrentConfig().apiVersion
       });
     } catch (error) {
       console.error('Error switching API key:', error);
-      // Même en cas d'erreur, renvoyer une réponse avec les informations actuelles
-      res.json({
-        status: 'success',
+      // En cas d'erreur, renvoyer une réponse avec les informations actuelles mais indiquer l'erreur
+      res.status(500).json({
+        status: 'error',
+        message: 'Error switching API key',
         currentApiKey: openAIService.getCurrentApiKeyType(),
-        modelName: openAIService.getCurrentModelName()
+        modelName: openAIService.getCurrentModelName(),
+        endpoint: openAIService.getCurrentConfig().endpoint,
+        deploymentName: openAIService.getCurrentConfig().deploymentName,
+        apiVersion: openAIService.getCurrentConfig().apiVersion
       });
     }
   });

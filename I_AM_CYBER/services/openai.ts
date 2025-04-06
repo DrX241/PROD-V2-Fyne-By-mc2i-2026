@@ -27,8 +27,12 @@ class OpenAIService {
   private readonly CONNECTION_CHECK_INTERVAL = 1000 * 60 * 5;
 
   constructor() {
+    console.log("Initializing Azure OpenAI Service with user-provided configurations");
     const apiKey = "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK";
     const baseEndpoint = "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com";
+    
+    console.log("API Key: ****** (HIDDEN)");
+    console.log("Endpoint: " + baseEndpoint);
 
     // Configuration primaire - GPT-4o
     this.primaryConfig = {
@@ -47,6 +51,11 @@ class OpenAIService {
       apiVersion: "2024-12-01-preview",
       modelName: "gpt-4o-mini"
     };
+
+    console.log("Azure OpenAI Service initialized with primary model: " + this.primaryConfig.modelName);
+    console.log("Azure OpenAI Service initialized with secondary model: " + this.secondaryConfig.modelName);
+    console.log("Primary endpoint: " + this.primaryConfig.endpoint);
+    console.log("Secondary endpoint: " + this.secondaryConfig.endpoint);
 
     this.checkConnection();
   }
@@ -119,13 +128,15 @@ class OpenAIService {
       this.lastConnectionCheck = now;
       const config = this.getCurrentConfig();
 
+      const url = `${config.endpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
+      
+      console.log(`Checking connection to Azure OpenAI at: ${url}`);
+
       const testMessage = {
         messages: [{ role: "user", content: "Test connection" }],
         max_tokens: 5,
         temperature: 0
       };
-
-      const url = `${config.endpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
 
       const response = await fetch(url, {
         method: 'POST',
