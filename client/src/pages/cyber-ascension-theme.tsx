@@ -34,7 +34,7 @@ const LevelCard = ({ level, themeId, themeColor }: { level: AscensionLevel, them
   
   const handleCardClick = () => {
     if (level.unlocked) {
-      window.location.href = `/cyber-ascension/theme/${themeId}/level/${level.id}`;
+      setLocation(`/cyber-ascension/theme/${themeId}/level/${level.id}`);
     }
   };
   
@@ -287,8 +287,8 @@ export default function CyberAscensionTheme() {
                 // Toujours accéder au premier niveau
                 const firstLevel = theme.levels[0];
                 if (firstLevel) {
-                  // URL directe pour éviter les problèmes de routage
-                  window.location.href = `/cyber-ascension/theme/${theme?.id}/level/${firstLevel.id}`;
+                  // Utiliser le routeur pour la navigation
+                  setLocation(`/cyber-ascension/theme/${theme?.id}/level/${firstLevel.id}`);
                 }
               }}
             >
