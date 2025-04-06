@@ -17,6 +17,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API route for starting a scenario
   app.post('/api/cyber/start-scenario', async (req, res) => {
     try {
+      console.log('start-scenario request body:', req.body);
       const { scenarioId, userName, config } = req.body;
       
       if (!scenarioId || !userName) {
@@ -685,6 +686,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API route for chat messages
   app.post('/api/cyber/chat', async (req, res) => {
     try {
+      console.log('chat request body:', req.body);
       const { message, userName, scenarioId, config, chatHistory, scenarioContacts } = req.body;
       
       if (!message || !userName) {
