@@ -210,7 +210,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.3 }}
               >
-                <Link href="/modules">
+                <Link href="/cyber-mode-selection">
                   <Button 
                     size="lg" 
                     className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg border-0"
@@ -323,10 +323,12 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.4 }}
               viewport={{ once: true }}
             >
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-                Explorer tous nos modules
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
+              <Link href="/cyber-mode-selection">
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                  Explorer tous nos modules
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
             </motion.div>
           </div>
         </div>
@@ -384,7 +386,7 @@ export default function Home() {
             </p>
             
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link href="/modules">
+              <Link href="/cyber-mode-selection">
                 <Button 
                   size="lg" 
                   className="bg-white hover:bg-gray-100 text-blue-700"
@@ -393,13 +395,6 @@ export default function Home() {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="border-white/40 text-white hover:bg-white/20"
-              >
-                Demander une démo
-              </Button>
             </div>
           </motion.div>
         </div>
