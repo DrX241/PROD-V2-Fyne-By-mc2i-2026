@@ -279,7 +279,7 @@ export default function CyberDefense() {
                 transition={{ duration: 0.7, delay: 0.3 }}
               >
                 <div className="flex flex-col">
-                  <span className="text-3xl font-bold">5</span>
+                  <span className="text-3xl font-bold">12</span>
                   <span className="text-[#006a9e]">Missions</span>
                 </div>
                 <div className="flex flex-col">
