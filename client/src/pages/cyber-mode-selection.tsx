@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
-import { Shield, MessageSquare, Bot, ArrowRight, Command, User, Joystick, BrainCircuit } from 'lucide-react';
+import { Shield, MessageSquare, Bot, ArrowRight, Command, User, Joystick, BrainCircuit, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
@@ -34,6 +34,14 @@ export default function CyberModeSelection() {
       icon: <Shield className="w-12 h-12 text-blue-100" />,
       gradient: 'from-[#006a9e] to-[#004e78]',
       destination: '/cyber-defense'
+    },
+    {
+      id: 'cyber-ascension',
+      title: 'CYBER ASCENSION',
+      description: "Développez vos compétences cybersécurité à travers 15 niveaux de difficulté progressive avec contenu généré dynamiquement par l'IA.",
+      icon: <Rocket className="w-12 h-12 text-blue-100" />,
+      gradient: 'from-blue-600 to-blue-800',
+      destination: '/cyber-ascension'
     },
     {
       id: 'arcade',
@@ -231,6 +239,11 @@ export default function CyberModeSelection() {
                           <Shield className="w-10 h-10 text-white" />
                           <User className="w-10 h-10 text-white" />
                         </>
+                      ) : mode.id === 'cyber-ascension' ? (
+                        <>
+                          <Rocket className="w-10 h-10 text-white" />
+                          <BrainCircuit className="w-10 h-10 text-white" />
+                        </>
                       ) : (
                         <>
                           <Joystick className="w-10 h-10 text-white" />
@@ -250,7 +263,7 @@ export default function CyberModeSelection() {
             className="text-center mt-12"
           >
             <p className="text-sm text-blue-300">
-              Les trois modes utilisent l'intelligence artificielle pour creer des experiences d'apprentissage immersives et adaptatives.
+              Tous les modes utilisent l'intelligence artificielle pour créer des expériences d'apprentissage immersives et adaptatives.
             </p>
           </motion.div>
         </div>

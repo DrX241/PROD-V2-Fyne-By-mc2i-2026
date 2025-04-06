@@ -15,6 +15,9 @@ import FirewallDefensePage from "@/pages/games/FirewallDefensePage";
 import ImmersiveSimulation from "@/pages/immersive-simulation";
 import ImmersiveScenarioDetail from "@/pages/immersive-scenario-detail";
 import ImmersiveSession from "@/pages/immersive-session";
+import CyberAscension from "@/pages/cyber-ascension";
+import CyberAscensionTheme from "@/pages/cyber-ascension-theme";
+import CyberAscensionLevel from "@/pages/cyber-ascension-level";
 import { ChatProvider } from "./contexts/ChatContext";
 
 function Router() {
@@ -32,6 +35,9 @@ function Router() {
       <Route path="/immersive-simulation" component={ImmersiveSimulation} />
       <Route path="/immersive-simulation/:id" component={ImmersiveScenarioDetail} />
       <Route path="/immersive-simulation/session/:id" component={ImmersiveSession} />
+      <Route path="/cyber-ascension" component={CyberAscension} />
+      <Route path="/cyber-ascension/theme/:themeId" component={CyberAscensionTheme} />
+      <Route path="/cyber-ascension/theme/:themeId/level/:levelId" component={CyberAscensionLevel} />
       <Route path="/data-ia" component={NotYetImplemented} />
       <Route path="/amoa" component={NotYetImplemented} />
       <Route path="/custom" component={NotYetImplemented} />
