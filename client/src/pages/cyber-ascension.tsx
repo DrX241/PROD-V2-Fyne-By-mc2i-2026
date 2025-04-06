@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
+import { queryClient } from '@/lib/queryClient';
 import { 
   ArrowLeft, 
   Trophy, 
@@ -25,6 +26,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { AscensionThemeDetails } from '../types/cyber-ascension';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ThemeIcon } from '../components/cyber/ThemeIcon';
 
 // Composant pour chaque thème
 const ThemeCard = ({ theme }: { theme: AscensionThemeDetails }) => {
@@ -42,7 +44,7 @@ const ThemeCard = ({ theme }: { theme: AscensionThemeDetails }) => {
             className="p-2 rounded-md" 
             style={{ backgroundColor: `${theme.themeColor}20` }}
           >
-            <LucideIcon name={theme.icon} className="h-5 w-5" style={{ color: theme.themeColor }} />
+            <ThemeIcon icon={theme.icon} className="h-5 w-5" style={{ color: theme.themeColor }} />
           </div>
           <CardTitle className="text-lg">{theme.name}</CardTitle>
         </div>
@@ -67,23 +69,7 @@ const ThemeCard = ({ theme }: { theme: AscensionThemeDetails }) => {
   );
 };
 
-// Wrapper pour utiliser dynamiquement les icônes de Lucide
-const LucideIcon = ({ name, ...props }: { name: string, [key: string]: any }) => {
-  const iconMap: Record<string, any> = {
-    'shield': Shield,
-    'trophy': Trophy,
-    'rocket': Rocket,
-    'layers': Layers,
-    'network-wired': Layers,
-    'cloud': Shield,
-    'search': Search,
-    'clipboard-list': Shield,
-    // Ajoutez d'autres associations d'icônes au besoin
-  };
-  
-  const IconComponent = iconMap[name] || Shield;
-  return <IconComponent {...props} />;
-};
+// Le composant ThemeIcon est importé plus haut et utilisé en remplacement
 
 export default function CyberAscension() {
   const [, setLocation] = useLocation();

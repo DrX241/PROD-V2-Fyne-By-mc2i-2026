@@ -286,6 +286,33 @@ router.get('/progress/:userId', async (req: Request, res: Response) => {
   }
 });
 
+// Endpoint simplifié pour la progression (sans userId)
+router.get('/progress', async (req: Request, res: Response) => {
+  try {
+    // Simulation d'un utilisateur connecté
+    const progress: UserAscensionProgress = {
+      userId: 'user123',
+      totalXp: 1200,
+      rank: 'Novice',
+      badges: ['first-level-completed', 'quick-learner'],
+      completedLevels: [],
+      currentTheme: 'securite-reseau', 
+      currentLevel: 1
+    };
+    
+    res.json({
+      success: true,
+      progress
+    });
+  } catch (error) {
+    console.error('Erreur lors de la récupération de la progression:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la récupération de la progression'
+    });
+  }
+});
+
 // Générer un nouveau thème personnalisé
 router.post('/themes/custom', async (req: Request, res: Response) => {
   try {
