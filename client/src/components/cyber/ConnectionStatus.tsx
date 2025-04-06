@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Wifi, WifiOff, AlertTriangle, RefreshCw, CircleOff } from 'lucide-react';
-import { apiRequest } from '@/lib/queryClient';
+import { Wifi, WifiOff, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   Tooltip,
@@ -11,14 +9,11 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 
-type ApiKeyType = 'primary' | 'secondary';
-
 export default function ConnectionStatus() {
   const [status, setStatus] = useState<'connected' | 'disconnected' | 'reconnecting' | 'checking'>('checking');
   const [lastCheck, setLastCheck] = useState<string | null>(null);
-  const [currentKey, setCurrentKey] = useState<ApiKeyType>('primary');
+  // GPT-4o est désormais le seul modèle utilisé
   const [modelName, setModelName] = useState<string>('GPT-4o');
-  const [switchingKey, setSwitchingKey] = useState<boolean>(false);
   
   const checkStatus = async () => {
     try {
@@ -36,47 +31,11 @@ export default function ConnectionStatus() {
       // Utiliser les données réelles de l'API
       setStatus(data.status);
       setLastCheck(data.time);
-      setCurrentKey(data.currentApiKey || 'primary');
       setModelName(data.modelName || 'GPT-4o');
     } catch (error) {
       console.error('Error checking connection status:', error);
       // En cas d'erreur, indiquer déconnecté
       setStatus('disconnected');
-    }
-  };
-  
-  const switchApiKey = async () => {
-    try {
-      setSwitchingKey(true);
-      // Basculer vers l'autre clé
-      const newKeyType: ApiKeyType = currentKey === 'primary' ? 'secondary' : 'primary';
-      
-      // Envoi de la requête au serveur
-      const response = await fetch('/api/cyber/switch-api-key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ keyType: newKeyType })
-      });
-      
-      if (!response.ok) {
-        console.error(`Error switching API key: ${response.status} ${response.statusText}`);
-        throw new Error(`Erreur lors du changement de modèle: ${response.statusText}`);
-      }
-      
-      const data = await response.json();
-      
-      // Mettre à jour l'état avec les données réelles retournées par le serveur
-      setCurrentKey(data.currentApiKey || newKeyType);
-      setModelName(data.modelName || (newKeyType === 'primary' ? 'GPT-4o' : 'GPT-4o-mini'));
-      
-      // Vérifier l'état de la connexion après le changement
-      setTimeout(checkStatus, 500);
-    } catch (error) {
-      console.error('Error switching API key:', error);
-      // En cas d'erreur, ne pas changer l'état et vérifier la connexion
-      setTimeout(checkStatus, 500);
-    } finally {
-      setSwitchingKey(false);
     }
   };
   
@@ -89,10 +48,6 @@ export default function ConnectionStatus() {
     
     return () => clearInterval(interval);
   }, []);
-
-  const getKeyLabel = (key: ApiKeyType): string => {
-    return key === 'primary' ? 'Standard' : 'Économique';
-  };
   
   return (
     <div className="flex items-center space-x-2">

@@ -1880,35 +1880,8 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
     }
   });
   
-  // API route pour basculer entre les clés API
-  app.post('/api/cyber/switch-api-key', (req: Request, res: Response) => {
-    try {
-      // Toujours utiliser la clé primaire
-      openAIService.switchApiKey('primary');
-      
-      // Renvoyer les informations mises à jour
-      res.json({
-        status: 'success',
-        currentApiKey: openAIService.getCurrentApiKeyType(),
-        modelName: openAIService.getCurrentModelName(),
-        endpoint: openAIService.getCurrentConfig().endpoint,
-        deploymentName: openAIService.getCurrentConfig().deploymentName,
-        apiVersion: openAIService.getCurrentConfig().apiVersion
-      });
-    } catch (error) {
-      console.error('Error refreshing API connection:', error);
-      // En cas d'erreur, renvoyer une réponse avec les informations actuelles mais indiquer l'erreur
-      res.status(500).json({
-        status: 'error',
-        message: 'Error refreshing API connection',
-        currentApiKey: openAIService.getCurrentApiKeyType(),
-        modelName: openAIService.getCurrentModelName(),
-        endpoint: openAIService.getCurrentConfig().endpoint,
-        deploymentName: openAIService.getCurrentConfig().deploymentName,
-        apiVersion: openAIService.getCurrentConfig().apiVersion
-      });
-    }
-  });
+  // Route supprimée: Nous n'utilisons plus de basculement entre différentes clés API,
+  // car le système est désormais configuré pour utiliser uniquement le modèle gpt-4o d'Azure
 
   // Initialisation du client OpenAI pour le chat immersif
   const apiKey = process.env.OPENAI_API_KEY || "";

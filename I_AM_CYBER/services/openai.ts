@@ -28,7 +28,9 @@ class OpenAIService {
 
   constructor() {
     console.log("Initializing Azure OpenAI Service with user-provided configuration");
+    // Clé API exacte fournie par l'utilisateur
     const apiKey = "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK";
+    // Utiliser uniquement le domaine de base, pas l'URL complète
     const baseEndpoint = "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com";
     
     console.log("API Key: ****** (HIDDEN)");
@@ -77,8 +79,9 @@ class OpenAIService {
   ): Promise<string> {
     try {
       const config = this.getCurrentConfig();
+      // Utiliser l'endpoint exact fourni par l'utilisateur
       const url = `${config.endpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
-
+      
       console.log(`Making API request to: ${url} with ${config.modelName}`);
 
       const response = await fetch(url, {
@@ -127,6 +130,7 @@ class OpenAIService {
       this.lastConnectionCheck = now;
       const config = this.getCurrentConfig();
 
+      // Utiliser l'endpoint exact fourni par l'utilisateur 
       const url = `${config.endpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
       
       console.log(`Checking connection to Azure OpenAI at: ${url}`);
