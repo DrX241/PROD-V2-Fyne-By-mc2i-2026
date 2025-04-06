@@ -183,6 +183,15 @@ router.get('/themes/:themeId/levels/:levelId', async (req: Request, res: Respons
       });
     }
     
+    // Enrichissement des objectifs s'ils sont vides
+    if (!level.objectives || level.objectives.length === 0) {
+      level.objectives = [
+        "Comprendre les concepts clés du module",
+        "Appliquer les connaissances à des scénarios réels",
+        "Évaluer correctement les risques associés"
+      ];
+    }
+    
     // Utiliser l'IA pour générer dynamiquement le contenu du niveau
     // Note: Dans une implémentation réelle, vous pourriez avoir une cache pour éviter
     // de régénérer le contenu à chaque fois
@@ -364,15 +373,20 @@ Format: JSON structuré selon le type LevelChallenge défini dans notre applicat
     let challenge: LevelChallenge;
     
     try {
-      // Tenter de parser la réponse JSON
-      const content = response.message;
-      // Extraire le JSON de la réponse (au cas où l'IA inclurait du texte explicatif)
-      const jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || content.match(/\{[\s\S]*\}/);
-      
-      if (jsonMatch) {
-        challenge = JSON.parse(jsonMatch[1] || jsonMatch[0]);
+      // Traiter la réponse comme du texte et tenter d'extraire un JSON
+      if (typeof response === 'string') {
+        const content = response;
+        // Extraire le JSON de la réponse (au cas où l'IA inclurait du texte explicatif)
+        const jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || content.match(/\{[\s\S]*\}/);
+        
+        if (jsonMatch) {
+          challenge = JSON.parse(jsonMatch[1] || jsonMatch[0]);
+        } else {
+          // Fallback si le format n'est pas correct
+          challenge = createFallbackChallenge(theme, level);
+        }
       } else {
-        // Fallback si le format n'est pas correct
+        console.error('Réponse API inattendue:', response);
         challenge = createFallbackChallenge(theme, level);
       }
     } catch (error) {
@@ -445,15 +459,20 @@ Format: JSON structuré selon le type AscensionThemeDetails défini dans notre a
     let customTheme: AscensionThemeDetails;
     
     try {
-      // Tenter de parser la réponse JSON
-      const content = response.message;
-      // Extraire le JSON de la réponse (au cas où l'IA inclurait du texte explicatif)
-      const jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || content.match(/\{[\s\S]*\}/);
-      
-      if (jsonMatch) {
-        customTheme = JSON.parse(jsonMatch[1] || jsonMatch[0]);
+      // Traiter la réponse comme du texte et tenter d'extraire un JSON
+      if (typeof response === 'string') {
+        const content = response;
+        // Extraire le JSON de la réponse (au cas où l'IA inclurait du texte explicatif)
+        const jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || content.match(/\{[\s\S]*\}/);
+        
+        if (jsonMatch) {
+          customTheme = JSON.parse(jsonMatch[1] || jsonMatch[0]);
+        } else {
+          // Fallback si le format n'est pas correct
+          customTheme = createFallbackTheme(title, description);
+        }
       } else {
-        // Fallback si le format n'est pas correct
+        console.error('Réponse API inattendue:', response);
         customTheme = createFallbackTheme(title, description);
       }
     } catch (error) {
