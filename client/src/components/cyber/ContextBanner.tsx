@@ -13,6 +13,9 @@ export default function ContextBanner() {
   const [trustLevel, setTrustLevel] = useState(75); // Niveau de confiance simulé
   const [impactLevel, setImpactLevel] = useState(60); // Impact des décisions simulé
   const [pulseEffect, setPulseEffect] = useState(false);
+  // Chrono de mission (20 minutes par défaut)
+  const [timeRemaining, setTimeRemaining] = useState(20 * 60); // En secondes (20 minutes)
+  const [missionProgress, setMissionProgress] = useState(0); // Progression de 0 à 100
   
   // Effet de pulsation périodique pour les indicateurs
   useEffect(() => {
@@ -62,10 +65,6 @@ export default function ContextBanner() {
   // Classe pour la difficulté du scénario
   const difficultyClass = getDifficultyClass(scenario.activeScenario.difficulty);
   const difficultyIcon = getDifficultyIcon(scenario.activeScenario.difficulty);
-  
-  // Chrono de mission (20 minutes par défaut)
-  const [timeRemaining, setTimeRemaining] = useState(20 * 60); // En secondes (20 minutes)
-  const [missionProgress, setMissionProgress] = useState(0); // Progression de 0 à 100
   
   // Effet pour diminuer le temps restant
   useEffect(() => {
