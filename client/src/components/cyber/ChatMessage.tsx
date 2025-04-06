@@ -11,54 +11,113 @@ interface ChatMessageProps {
 export default function ChatMessage({ type, content, contactName, contactRole }: ChatMessageProps) {
   // Fonction pour formater le contenu de manière plus professionnelle et concise
   const formatContent = () => {
-    // Diviser le contenu en paragraphes
+    // Amélioration de la détection des listes - détecte aussi les listes avec numéros (1., 2., etc)
     const paragraphs = content.split('\n\n');
     
-    return (
-      <div className="space-y-2">
-        {paragraphs.map((paragraph, idx) => {
-          const trimmedParagraph = paragraph.trim();
-          
-          // Ignorer les paragraphes vides
-          if (trimmedParagraph === '') return null;
-          
-          // Détection des listes (points ou tirets)
-          if (paragraph.includes('\n') && (paragraph.includes('• ') || paragraph.includes('- '))) {
-            const lines = paragraph.split('\n');
-            const title = lines[0].trim().startsWith('•') || lines[0].trim().startsWith('-') 
-              ? null 
-              : lines.shift();
-            
-            // Formater les éléments de liste
-            const listItems = lines
-              .filter(line => line.trim())
-              .map((line, i) => {
-                const content = line.replace(/^[•-]\s*/, '').trim();
-                if (!content) return null;
-                
-                return (
-                  <li key={i} className="ml-1 my-1 text-gray-800">
-                    {processStrongText(content)}
-                  </li>
-                );
-              });
-            
-            return (
-              <div key={idx} className="mb-1">
-                {title && <p className="font-medium mb-1 text-gray-800">{processStrongText(title)}</p>}
-                <ul className="list-disc pl-5 marker:text-[#006a9e] space-y-1">
-                  {listItems}
-                </ul>
-              </div>
-            );
+    // Traitement spécial pour les listes dans le texte (- ou • ou 1.)
+    const processText = (text: string) => {
+      // Détecte si le texte contient une liste
+      if (text.includes('\n- ') || text.includes('\n• ') || /\n\d+\.\s/.test(text)) {
+        // Diviser en lignes
+        const lines = text.split('\n');
+        const items: JSX.Element[] = [];
+        let currentList: JSX.Element[] = [];
+        let inList = false;
+        let listType: 'ul' | 'ol' = 'ul';
+        
+        lines.forEach((line, i) => {
+          // Ligne vide
+          if (!line.trim()) {
+            if (inList && currentList.length > 0) {
+              // Terminer la liste actuelle
+              items.push(
+                listType === 'ul' 
+                  ? <ul key={`ul-${i}`} className="list-disc pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ul>
+                  : <ol key={`ol-${i}`} className="list-decimal pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ol>
+              );
+              currentList = [];
+              inList = false;
+            }
+            return;
           }
           
-          // Mise en forme des paragraphes normaux
-          return (
-            <p key={idx} className="text-gray-800">
-              {processStrongText(trimmedParagraph)}
-            </p>
+          // Détecte si c'est un élément de liste
+          const bulletMatch = line.trim().match(/^[•-]\s+(.+)$/);
+          const numberMatch = line.trim().match(/^(\d+)\.\s+(.+)$/);
+          
+          if (bulletMatch || numberMatch) {
+            // C'est un élément de liste
+            const content = bulletMatch ? bulletMatch[1] : (numberMatch ? numberMatch[2] : '');
+            
+            // Si on n'était pas déjà dans une liste, ou si on change de type de liste
+            const newListType = numberMatch ? 'ol' : 'ul';
+            if (!inList || (inList && listType !== newListType)) {
+              if (inList && currentList.length > 0) {
+                // Terminer la liste précédente
+                items.push(
+                  listType === 'ul' 
+                    ? <ul key={`ul-${i}`} className="list-disc pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ul>
+                    : <ol key={`ol-${i}`} className="list-decimal pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ol>
+                );
+                currentList = [];
+              }
+              
+              listType = newListType;
+              inList = true;
+            }
+            
+            // Ajouter l'élément à la liste courante
+            currentList.push(
+              <li key={i} className="ml-1 my-1 text-gray-800">
+                {processStrongText(content)}
+              </li>
+            );
+          } else {
+            // Ce n'est pas un élément de liste
+            if (inList && currentList.length > 0) {
+              // Terminer la liste actuelle
+              items.push(
+                listType === 'ul' 
+                  ? <ul key={`ul-${i}`} className="list-disc pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ul>
+                  : <ol key={`ol-${i}`} className="list-decimal pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ol>
+              );
+              currentList = [];
+              inList = false;
+            }
+            
+            // Ajouter le paragraphe normal
+            items.push(
+              <p key={i} className="text-gray-800">
+                {processStrongText(line)}
+              </p>
+            );
+          }
+        });
+        
+        // Terminer la dernière liste si nécessaire
+        if (inList && currentList.length > 0) {
+          items.push(
+            listType === 'ul' 
+              ? <ul key="ul-last" className="list-disc pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ul>
+              : <ol key="ol-last" className="list-decimal pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ol>
           );
+        }
+        
+        return <div className="space-y-2">{items}</div>;
+      } else {
+        // Texte normal sans liste
+        return <p className="text-gray-800">{processStrongText(text)}</p>;
+      }
+    };
+    
+    // Traiter chaque paragraphe
+    return (
+      <div className="space-y-4">
+        {paragraphs.map((paragraph, idx) => {
+          const trimmedParagraph = paragraph.trim();
+          if (!trimmedParagraph) return null;
+          
+          return <div key={idx}>{processText(trimmedParagraph)}</div>;
         })}
       </div>
     );
@@ -81,11 +140,9 @@ export default function ChatMessage({ type, content, contactName, contactRole }:
   const avatarColor = type === "user" ? "bg-[#006a9e]/90" : "bg-[#006a9e]";
   
   // Message de l'utilisateur ou de l'assistant
-  let messageBgColor = "bg-white border-[#006a9e]/20";
+  let messageBgColor = "bg-blue-50 border-[#006a9e]/30"; // Fond bleu par défaut pour tous les messages PNJ/système
   if (type === "user") {
-    messageBgColor = "bg-gray-100 border-gray-300";
-  } else if (type === "scenario-context") {
-    messageBgColor = "bg-blue-50 border-[#006a9e]/30";
+    messageBgColor = "bg-white border-gray-300"; // Fond blanc uniquement pour les messages du joueur
   }
 
   // Style spécial pour le contexte de scénario
