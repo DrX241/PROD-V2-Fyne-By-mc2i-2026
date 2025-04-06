@@ -21,6 +21,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { AscensionThemeDetails } from '../types/cyber-ascension';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -102,7 +103,7 @@ export default function CyberAscension() {
   });
   
   // Récupération de la progression de l'utilisateur (simulée)
-  const { data: progressData } = useQuery({
+  const { data: progressData } = useQuery<any>({
     queryKey: ['/api/cyber-ascension/progress', 'user123'],
   });
   
@@ -187,8 +188,9 @@ export default function CyberAscension() {
   }
   
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#111827] to-[#1f2937] text-white">
-      <div className="max-w-7xl mx-auto px-4 pt-6 pb-16 sm:px-6 lg:px-8 lg:pb-24">
+    <div className="min-h-screen bg-gradient-to-b from-[#111827] to-[#1f2937] text-white overflow-hidden">
+      <ScrollArea className="h-screen">
+        <div className="max-w-7xl mx-auto px-4 pt-6 pb-16 sm:px-6 lg:px-8 lg:pb-24">
         <Link href="/cyber" className="inline-flex items-center text-white hover:text-blue-300 mb-8 transition-colors">
           <ArrowLeft className="mr-2 h-5 w-5" />
           Retour à I AM CYBER
@@ -423,6 +425,7 @@ export default function CyberAscension() {
           </TabsContent>
         </Tabs>
       </div>
+      </ScrollArea>
     </div>
   );
 }
