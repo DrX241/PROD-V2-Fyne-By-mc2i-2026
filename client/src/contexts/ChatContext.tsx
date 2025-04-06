@@ -478,7 +478,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // Send the scenario selection to the server to generate initial email
     try {
-      const response = await apiRequest<any>('/api/cyber/start-scenario', {
+      const data = await apiRequest<any>('/api/cyber/start-scenario', {
         method: 'POST',
         body: JSON.stringify({
           scenarioId,
@@ -486,8 +486,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           config
         })
       });
-      
-      const data = await response.json();
       
       // Vérifier que l'email existe bien dans la réponse
       if (!data.email) {
@@ -587,7 +585,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .slice(-10); // Get last 10 messages for context
       
       // Send message to server for processing
-      const response = await apiRequest<any>('/api/cyber/chat', {
+      const data = await apiRequest<any>('/api/cyber/chat', {
         method: 'POST',
         body: JSON.stringify({
           message: messageText,
@@ -598,8 +596,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           scenarioContacts: scenario.scenarioContacts // Transmettre la liste des interlocuteurs
         })
       });
-      
-      const data = await response.json();
       
       // Si nous recevons les contacts du scénario, mettons à jour notre état
       if (data.scenarioContacts && Array.isArray(data.scenarioContacts)) {
