@@ -510,17 +510,45 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       let errorDetail = "";
       if (error instanceof Error) {
         errorDetail = error.message;
+        console.log("Error message:", error.message);
+        console.log("Error stack:", error.stack);
       } else if (typeof error === 'object' && error !== null) {
         errorDetail = JSON.stringify(error);
+        console.log("JSON Error:", errorDetail);
       } else {
         errorDetail = String(error);
+        console.log("String Error:", errorDetail);
+      }
+      
+      // Tenter de récupérer des informations supplémentaires si disponibles
+      let serverErrorMsg = "Erreur inconnue";
+      let modelUsed = "inconnu";
+      
+      // Extraire les détails additionnels de la réponse si disponible
+      try {
+        if (error instanceof Response || (error && typeof error === 'object' && 'json' in error)) {
+          error.json().then(data => {
+            console.log("Réponse serveur complète:", data);
+            if (data.message) serverErrorMsg = data.message;
+            if (data.model) modelUsed = data.model;
+          }).catch(jsonError => console.error("Impossible de traiter la réponse JSON:", jsonError));
+        } else if (error instanceof Error && error.cause && typeof error.cause === 'object') {
+          const cause = error.cause as any;
+          if (cause.data) {
+            console.log("Error cause data:", cause.data);
+            if (cause.data.message) serverErrorMsg = cause.data.message;
+            if (cause.data.model) modelUsed = cause.data.model;
+          }
+        }
+      } catch (parseError) {
+        console.error("Erreur lors de l'analyse des détails supplémentaires:", parseError);
       }
       
       // Message d'erreur plus informatif
       const errorMessage: ChatMessage = {
         id: uuidv4(),
         type: "bot",
-        content: "Je suis désolé, une erreur s'est produite lors de la génération du scénario. Cela peut être dû à une interruption de la connexion à l'API Azure OpenAI.\n\nVeuillez vérifier que l'indicateur FYNE est vert (connecté) et réessayer. Si le problème persiste, veuillez contacter l'administrateur système.",
+        content: `Je suis désolé, une erreur s'est produite lors de la génération du scénario avec le modèle ${modelUsed}. Cela peut être dû à une interruption de la connexion à l'API Azure OpenAI.\n\nDétail de l'erreur: ${serverErrorMsg}\n\nVeuillez vérifier que l'indicateur FYNE est vert (connecté) et réessayer. Si le problème persiste, veuillez contacter l'administrateur système.`,
         timestamp: Date.now()
       };
       

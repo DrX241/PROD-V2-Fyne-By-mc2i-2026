@@ -25,7 +25,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Missing required parameters' });
       }
       
-      console.log(`Starting scenario ${scenarioId} for user ${userName}...`);
+      console.log(`Starting scenario ${scenarioId} for user ${userName}... (Using model: ${openAIService.getCurrentModelName()})`);
       
       // Get scenario data - in a real app, this would come from the database
       // For now, we're using hardcoded data matching the client
@@ -681,7 +681,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ email });
     } catch (error) {
       console.error('Error starting scenario:', error);
-      res.status(500).json({ message: 'Failed to start scenario' });
+      // Ajout de détails supplémentaires pour le débogage
+      let errorMessage = 'Failed to start scenario';
+      let errorDetails = '';
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        // Ajouter la stack trace si disponible
+        if (error.stack) {
+          errorDetails = error.stack;
+        }
+      } else if (typeof error === 'object' && error !== null) {
+        errorMessage = JSON.stringify(error);
+      }
+      
+      // Log de l'erreur avec le nom du scénario si disponible
+      if (typeof req.body.scenarioId === 'string') {
+        console.error(`Détails de l'erreur pour ${req.body.scenarioId}: ${errorMessage}`);
+      } else {
+        console.error(`Détails de l'erreur: ${errorMessage}`);
+      }
+      console.error(`Modèle utilisé: ${openAIService.getCurrentModelName()}`);
+      
+      // Envoyer une réponse plus détaillée
+      res.status(500).json({ 
+        message: errorMessage,
+        details: errorDetails,
+        model: openAIService.getCurrentModelName()
+      });
     }
   });
 
@@ -1880,20 +1907,33 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
         });
       }
       
+      console.log(`Switching to ${keyType} API key (${keyType === 'primary' ? 'gpt-4o' : 'gpt-4o-mini'})`);
+      
       // Effectuer le changement de clé API avec le service OpenAI
       openAIService.switchApiKey(keyType);
+      
+      const currentApiKey = openAIService.getCurrentApiKeyType();
+      const modelName = openAIService.getCurrentModelName();
+      
+      console.log(`API key switched to: ${currentApiKey}, using model: ${modelName}`);
       
       // Renvoyer les informations mises à jour
       res.json({
         status: 'success',
-        currentApiKey: openAIService.getCurrentApiKeyType(),
-        modelName: openAIService.getCurrentModelName()
+        currentApiKey: currentApiKey,
+        modelName: modelName
       });
     } catch (error) {
       console.error('Error switching API key:', error);
+      
+      if (error instanceof Error) {
+        console.error('Error details:', error.message);
+        console.error('Error stack:', error.stack);
+      }
+      
       // Même en cas d'erreur, renvoyer une réponse avec les informations actuelles
       res.json({
-        status: 'success',
+        status: 'success', 
         currentApiKey: openAIService.getCurrentApiKeyType(),
         modelName: openAIService.getCurrentModelName()
       });

@@ -141,6 +141,19 @@ class OpenAIService {
       const url = `${baseEndpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
 
       console.log(`Making API request to: ${url} with ${config.modelName}`);
+      
+      // Afficher plus de détails sur les paramètres de la requête (sans la clé API)
+      console.log(`Request parameters: temperature=${temperature}, max_tokens=${maxTokens}`);
+      console.log(`Nombre de messages: ${messages.length}, Premier role: ${messages[0]?.role}`);
+      
+      // Formater la requête pour l'API
+      const requestBody = {
+        messages: messages,
+        temperature: temperature,
+        max_tokens: maxTokens
+      };
+      
+      console.log(`Requête formatée pour ${config.deploymentName}`);
 
       const response = await fetch(url, {
         method: 'POST',
@@ -148,18 +161,35 @@ class OpenAIService {
           'Content-Type': 'application/json',
           'api-key': config.apiKey
         },
-        body: JSON.stringify({
-          messages: messages,
-          temperature: temperature,
-          max_tokens: maxTokens
-        })
+        body: JSON.stringify(requestBody)
       });
 
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`Azure OpenAI API error (${response.status}): ${errorText}`);
+        console.error(`Endpoint: ${url}`);
+        console.error(`Modèle: ${config.modelName}, Deployment: ${config.deploymentName}, API version: ${config.apiVersion}`);
         this.connectionStatus = 'disconnected';
-        throw new Error(`Azure OpenAI API error (${response.status}): ${errorText}`);
+        
+        // Analyser le texte d'erreur pour des détails plus clairs
+        let detailedError = `Azure OpenAI API error (${response.status})`;
+        try {
+          // Essayer de parser l'erreur au format JSON 
+          const errorJson = JSON.parse(errorText);
+          if (errorJson.error) {
+            if (errorJson.error.message) {
+              detailedError += `: ${errorJson.error.message}`;
+            }
+            if (errorJson.error.code) {
+              detailedError += ` (Code: ${errorJson.error.code})`;
+            }
+          }
+        } catch (parseError) {
+          // Si ce n'est pas un JSON valide, utiliser simplement le texte brut
+          detailedError += `: ${errorText}`;
+        }
+        
+        throw new Error(detailedError);
       }
 
       const data = await response.json();
@@ -213,12 +243,33 @@ class OpenAIService {
       });
 
       if (response.ok) {
-        console.log("Connection to Azure OpenAI successful");
+        console.log(`Connection to Azure OpenAI successful with model: ${config.modelName} (${config.deploymentName})`);
         this.connectionStatus = 'connected';
         return true;
       }
 
-      console.error(`Connection check failed: ${response.status} ${response.statusText}`);
+      // Obtenir les détails de l'erreur
+      let errorDetails = '';
+      try {
+        const errorText = await response.text();
+        console.error(`Connection check failed response: ${errorText}`);
+        
+        try {
+          // Tenter de parser l'erreur JSON
+          const errorJson = JSON.parse(errorText);
+          if (errorJson.error) {
+            errorDetails = ` - ${errorJson.error.message || errorJson.error.code || 'Unknown error'}`;
+          }
+        } catch (parseErr) {
+          // Si ce n'est pas un JSON valide, utiliser le texte brut
+          errorDetails = ` - ${errorText}`;
+        }
+      } catch (textErr) {
+        console.error('Could not read error response', textErr);
+      }
+      
+      console.error(`Connection check failed: ${response.status} ${response.statusText}${errorDetails}`);
+      console.error(`API endpoint: ${url}, model: ${config.modelName}, deployment: ${config.deploymentName}`);
       this.connectionStatus = 'disconnected';
       return false;
     } catch (error) {
