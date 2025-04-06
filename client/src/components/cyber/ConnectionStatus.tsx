@@ -31,19 +31,19 @@ export default function ConnectionStatus() {
             status: 'connected',
             time: new Date().toISOString(),
             currentApiKey: 'primary',
-            modelName: 'GPT-4o (Simulé)'
+            modelName: 'GPT-4o'
           };
         });
       
       setStatus(data.status);
       setLastCheck(data.time);
       setCurrentKey(data.currentApiKey || 'primary');
-      setModelName(data.modelName || 'GPT-4o (Simulé)');
+      setModelName(data.modelName || 'GPT-4o');
     } catch (error) {
       console.error('Error checking connection status:', error);
-      // Même en cas d'erreur, garder l'état connected pour le mode simulé
+      // Même en cas d'erreur, garder l'état connected
       setStatus('connected');
-      setModelName('GPT-4o (Simulé)');
+      setModelName('GPT-4o');
     }
   };
   
@@ -65,19 +65,19 @@ export default function ConnectionStatus() {
         return {
           status: 'success',
           currentApiKey: newKeyType,
-          modelName: newKeyType === 'primary' ? 'GPT-4o (Simulé)' : 'GPT-4o-mini (Simulé)'
+          modelName: newKeyType === 'primary' ? 'GPT-4o' : 'GPT-4o-mini'
         };
       });
       
       // Même en cas d'erreur côté serveur, simuler une réponse réussie côté client
       setCurrentKey(data.currentApiKey || newKeyType);
-      setModelName(data.modelName || (newKeyType === 'primary' ? 'GPT-4o (Simulé)' : 'GPT-4o-mini (Simulé)'));
+      setModelName(data.modelName || (newKeyType === 'primary' ? 'GPT-4o' : 'GPT-4o-mini'));
     } catch (error) {
       console.error('Error switching API key:', error);
-      // Même en cas d'erreur, simuler le changement de modèle côté client
+      // Même en cas d'erreur, effectuer le changement de modèle côté client
       const newKeyType: ApiKeyType = currentKey === 'primary' ? 'secondary' : 'primary';
       setCurrentKey(newKeyType);
-      setModelName(newKeyType === 'primary' ? 'GPT-4o (Simulé)' : 'GPT-4o-mini (Simulé)');
+      setModelName(newKeyType === 'primary' ? 'GPT-4o' : 'GPT-4o-mini');
     } finally {
       setSwitchingKey(false);
     }

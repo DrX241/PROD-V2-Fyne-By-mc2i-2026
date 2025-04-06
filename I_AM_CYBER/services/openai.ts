@@ -131,6 +131,11 @@ class OpenAIService {
     return this.currentConfig;
   }
   
+  // Obtenir le type de clé API actuelle (pour la compatibilité avec les routes)
+  getCurrentApiKeyType(): ApiKeyType {
+    return this.currentConfig;
+  }
+  
   // Obtenir le nom du modèle actuel pour l'affichage
   getCurrentModelName(): string {
     return this.getCurrentConfig().modelName;

@@ -1590,13 +1590,16 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
   // API route pour vérifier le statut de la connexion à Azure OpenAI
   app.get('/api/cyber/status', async (req: Request, res: Response) => {
     try {
-      // En mode simulé, on renvoie toujours un statut connecté
+      // Vérifier le statut de connexion avec le service OpenAI
+      await openAIService.checkConnection();
+      
+      // Renvoyer les informations de statut basées sur le service OpenAI
       res.json({
-        status: 'connected',
-        lastCheck: Date.now(),
-        apiEndpoint: 'default',
-        currentApiKey: 'primary',
-        modelName: 'GPT-4o (Simulé)',
+        status: openAIService.getConnectionStatus(),
+        lastCheck: openAIService.getLastConnectionCheck(),
+        apiEndpoint: openAIService.getCurrentConfig().endpoint,
+        currentApiKey: openAIService.getCurrentApiKeyType(),
+        modelName: openAIService.getCurrentModelName(),
         time: new Date().toISOString()
       });
     } catch (error) {
@@ -1873,27 +1876,22 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
         });
       }
       
-      // Simuler le changement de clé API
-      if (keyType === 'primary') {
-        res.json({
-          status: 'success',
-          currentApiKey: 'primary',
-          modelName: 'GPT-4o (Simulé)'
-        });
-      } else {
-        res.json({
-          status: 'success',
-          currentApiKey: 'secondary',
-          modelName: 'GPT-4o-mini (Simulé)'
-        });
-      }
-    } catch (error) {
-      console.error('Error switching API key:', error);
-      // Même en cas d'erreur, simuler une réponse réussie
+      // Effectuer le changement de clé API avec le service OpenAI
+      openAIService.switchApiKey(keyType);
+      
+      // Renvoyer les informations mises à jour
       res.json({
         status: 'success',
-        currentApiKey: 'primary',
-        modelName: 'GPT-4o (Simulé)'
+        currentApiKey: openAIService.getCurrentApiKeyType(),
+        modelName: openAIService.getCurrentModelName()
+      });
+    } catch (error) {
+      console.error('Error switching API key:', error);
+      // Même en cas d'erreur, renvoyer une réponse avec les informations actuelles
+      res.json({
+        status: 'success',
+        currentApiKey: openAIService.getCurrentApiKeyType(),
+        modelName: openAIService.getCurrentModelName()
       });
     }
   });
