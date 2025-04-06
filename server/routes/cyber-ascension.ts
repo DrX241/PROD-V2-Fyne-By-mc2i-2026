@@ -14,11 +14,30 @@ const availableThemes: AscensionThemeDetails[] = [
     levels: Array(15).fill(null).map((_, i) => ({
       id: i + 1,
       name: `Niveau ${i + 1}`,
-      description: 'Description générée par l\'IA',
+      description: i === 0 ? 'Introduction aux principes fondamentaux de la sécurité réseau et aux menaces courantes' : 
+                  i === 1 ? 'Configuration des pare-feu et systèmes de détection d\'intrusion' :
+                  i === 2 ? 'Gestion des vulnérabilités et réponse aux incidents réseau' :
+                  'Description générée par l\'IA',
       difficulty: Math.min(5, Math.ceil((i + 1) / 3)) as 1 | 2 | 3 | 4 | 5,
       unlocked: i === 0,
       completed: false,
-      objectives: [],
+      objectives: i === 0 ? [
+        "Comprendre les principes fondamentaux de la sécurité réseau",
+        "Identifier les menaces réseau courantes",
+        "Appliquer les bonnes pratiques de protection"
+      ] : i === 1 ? [
+        "Configurer un pare-feu réseau",
+        "Mettre en place un système de détection d'intrusion",
+        "Analyser les journaux de sécurité"
+      ] : i === 2 ? [
+        "Identifier et corriger les vulnérabilités réseau",
+        "Établir un protocole de réponse aux incidents",
+        "Mettre en œuvre des contre-mesures efficaces"
+      ] : [
+        "Comprendre les concepts clés du module",
+        "Appliquer les connaissances à des scénarios réels",
+        "Évaluer correctement les risques associés"
+      ],
       timeEstimate: '15-20 min',
       xpReward: 100 + (i * 20)
     })),
@@ -403,28 +422,76 @@ Format: JSON structuré selon le type LevelChallenge défini dans notre applicat
 
 // Fonction pour générer un challenge de secours si l'IA échoue
 function createFallbackChallenge(theme: AscensionThemeDetails, level: any): LevelChallenge {
+  const isNetworkSecurity = theme.id === 'securite-reseau';
+  const isFirstLevel = level.id === 1;
+  
+  // Scénarios spécifiques pour le premier niveau de sécurité réseau
+  let introText = `Bienvenue au niveau ${level.id} du thème ${theme.name}. Ce module a été conçu pour renforcer vos compétences en cybersécurité.`;
+  let scenarioText = "Vous travaillez comme responsable sécurité dans une entreprise qui vient de subir une tentative d'intrusion. Votre mission est d'évaluer la situation et de mettre en place les mesures nécessaires pour sécuriser l'infrastructure.";
+  
+  if (isNetworkSecurity) {
+    if (isFirstLevel) {
+      introText = "Ce premier niveau vous introduit aux concepts fondamentaux de la sécurité réseau. Vous apprendrez à identifier les menaces courantes et à mettre en place des protections de base.";
+      scenarioText = "Vous venez d'être embauché(e) comme spécialiste en sécurité réseau dans une entreprise de taille moyenne. La direction vous demande d'évaluer les risques actuels et de proposer un plan de sécurisation du réseau.";
+    }
+  }
+  
   return {
     id: `${theme.id}-${level.id}`,
     title: `${theme.name} - Niveau ${level.id}`,
     description: `Ce niveau vous permet de développer vos compétences en ${theme.name}`,
     type: 'quiz',
     content: {
-      introduction: `Bienvenue au niveau ${level.id} du thème ${theme.name}. Ce module a été conçu pour renforcer vos compétences en cybersécurité.`,
-      scenario: "Un scénario sera généré dynamiquement par l'IA lors de votre prochaine tentative.",
+      introduction: introText,
+      scenario: scenarioText,
       questions: [
         {
           id: "q1",
-          question: "Question exemple qui sera remplacée par l'IA",
-          options: ["Option 1", "Option 2", "Option 3", "Option 4"],
-          correctAnswer: 0,
-          explanation: "Explication de la réponse."
+          question: "Quelle est la première étape pour sécuriser un réseau informatique ?",
+          options: [
+            "Installer un antivirus",
+            "Configurer un pare-feu",
+            "Créer des mots de passe complexes",
+            "Mettre à jour les logiciels"
+          ],
+          correctAnswer: 1,
+          explanation: "La configuration d'un pare-feu est fondamentale pour contrôler les flux réseau entrants et sortants."
+        },
+        {
+          id: "q2",
+          question: "Quel protocole est utilisé pour sécuriser les communications web ?",
+          options: [
+            "HTTP",
+            "FTP",
+            "HTTPS",
+            "SMTP"
+          ],
+          correctAnswer: 2,
+          explanation: "HTTPS (HTTP Secure) utilise le chiffrement TLS/SSL pour protéger les données échangées entre le navigateur et le serveur."
+        },
+        {
+          id: "q3",
+          question: "Qu'est-ce qu'une attaque par déni de service (DoS) ?",
+          options: [
+            "Une tentative de vol d'identité",
+            "Une tentative de rendre un service indisponible",
+            "Un virus informatique",
+            "Une faille dans un logiciel"
+          ],
+          correctAnswer: 1,
+          explanation: "Une attaque DoS vise à surcharger un système pour le rendre inaccessible aux utilisateurs légitimes."
         }
       ],
       resources: [
         {
-          title: "Guide de cybersécurité",
+          title: "Guide de cybersécurité réseau",
           type: "article",
-          content: "Des ressources seront générées par l'IA lors de votre prochaine tentative."
+          content: "La sécurité réseau repose sur plusieurs principes : défense en profondeur, principe du moindre privilège, segmentation du réseau, et surveillance continue."
+        },
+        {
+          title: "Bonnes pratiques en sécurité",
+          type: "article",
+          content: "Utilisez des mots de passe forts, activez l'authentification à deux facteurs, maintenez vos systèmes à jour, et formez régulièrement les utilisateurs."
         }
       ]
     }

@@ -281,16 +281,13 @@ export default function CyberAscensionTheme() {
             <Button
               size="lg"
               className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 shadow-lg"
-              disabled={!theme?.unlockedLevels || (theme?.unlockedLevels || 0) <= 0}
               onClick={() => {
                 if (!theme?.levels) return;
-                // Trouver le premier niveau débloqué non complété
-                const nextLevel = theme?.levels.find(l => l.unlocked && !l.completed);
-                if (nextLevel) {
-                  setLocation(`/cyber-ascension/theme/${theme?.id}/level/${nextLevel.id}`);
-                } else if (theme?.unlockedLevels && theme?.unlockedLevels > 0) {
-                  // Si tous les niveaux débloqués sont complétés, aller au premier
-                  setLocation(`/cyber-ascension/theme/${theme?.id}/level/${theme?.levels?.find(l => l.unlocked)?.id || 1}`);
+                
+                // Toujours accéder au premier niveau
+                const firstLevel = theme.levels[0];
+                if (firstLevel) {
+                  setLocation(`/cyber-ascension/theme/${theme?.id}/level/${firstLevel.id}`);
                 }
               }}
             >
