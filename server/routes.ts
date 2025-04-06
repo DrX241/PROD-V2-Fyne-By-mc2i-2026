@@ -666,11 +666,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Create email response - le premier message vient toujours du contact principal du scénario
       const email = {
-        id: uuidv4(),
-        from: scenarioContacts[0], // Utiliser le premier contact de la liste (le contact principal du scénario)
+        from: scenarioContacts[0].name,
+        fromRole: scenarioContacts[0].role,
         to: `${userName}@mc2i.fr`,
         subject,
-        date: new Date().toISOString(),
         body,
         // Ajouter les contacts qui interviendront dans ce scénario (maximum 3 au total)
         scenarioContacts: scenarioContacts
