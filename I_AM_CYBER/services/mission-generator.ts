@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { openAIService } from './openai';
 
 // Secteurs d'activité disponibles
-const SECTEURS_ACTIVITE = [
+export const SECTEURS_ACTIVITE = [
   "RETAIL & LUXE",
   "BANCAIRE/FINANCE (BFA)",
   "INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)",
@@ -11,7 +11,7 @@ const SECTEURS_ACTIVITE = [
 ];
 
 // Noms d'entreprises par secteur
-const ENTREPRISES_PAR_SECTEUR: Record<string, string[]> = {
+export const ENTREPRISES_PAR_SECTEUR: Record<string, string[]> = {
   "RETAIL & LUXE": ["ELITE RETAIL SECURITY", "LUXURY BRANDS PROTECTION", "COMMERCE DIGITAL SECURE"],
   "BANCAIRE/FINANCE (BFA)": ["BANQUE FINANCE ASSURANCE", "SECURE FINANCE SOLUTIONS", "CRÉDIT & INVEST PROTECTION"],
   "INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)": ["HEALTH & INDUSTRY SHIELD", "PUBLIC SECTOR SECURITY", "INDUSTRIAL SYSTEMS GUARD"],
@@ -19,7 +19,7 @@ const ENTREPRISES_PAR_SECTEUR: Record<string, string[]> = {
 };
 
 // Types de mission par niveau de difficulté
-const TYPES_MISSIONS = {
+export const TYPES_MISSIONS = {
   "Débutant": [
     { titre: "Contrer une campagne de phishing massive", tags: ["Phishing", "Sensibilisation", "Communication"] },
     { titre: "Répondre à un incident de malware", tags: ["Malware", "Remédiation", "Analyse"] },
@@ -98,6 +98,67 @@ const missionTemplate: Partial<Mission> = {
  */
 function selectRandom<T>(array: T[]): T {
   return array[Math.floor(Math.random() * array.length)];
+}
+
+/**
+ * Fonction utilitaire pour nettoyer et réparer le JSON reçu de l'API
+ * @param jsonStr Chaîne potentiellement JSON à nettoyer
+ * @returns Chaîne JSON valide ou chaîne vide si non réparable
+ */
+function cleanJsonString(jsonStr: string): string {
+  if (!jsonStr) return '';
+  
+  // Tenter d'extraire le JSON d'une réponse textuelle
+  const jsonRegex1 = /```json([\s\S]*?)```/;
+  const jsonRegex2 = /(\{[\s\S]*\})/;
+  const jsonRegex3 = /(\[[\s\S]*\])/;
+  
+  // Essayer d'abord d'extraire d'un bloc code Markdown
+  let match = jsonStr.match(jsonRegex1);
+  if (match && match[1]) {
+    jsonStr = match[1].trim();
+  } else {
+    // Ensuite essayer d'extraire un objet JSON
+    match = jsonStr.match(jsonRegex2);
+    if (match && match[1]) {
+      jsonStr = match[1].trim();
+    } else {
+      // Enfin essayer d'extraire un tableau JSON
+      match = jsonStr.match(jsonRegex3);
+      if (match && match[1]) {
+        jsonStr = match[1].trim();
+      }
+    }
+  }
+  
+  // Supprimer les caractères non imprimables ou échapper les caractères spéciaux
+  let cleaned = jsonStr.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
+  
+  // Essayer de réparer les guillemets non fermés (cas le plus courant)
+  const fixedQuotes = [];
+  let inString = false;
+  let escaped = false;
+  
+  for (let i = 0; i < cleaned.length; i++) {
+    const char = cleaned[i];
+    if (char === '\\' && !escaped) {
+      escaped = true;
+      fixedQuotes.push(char);
+    } else if (char === '"' && !escaped) {
+      inString = !inString;
+      fixedQuotes.push(char);
+    } else {
+      if (escaped) escaped = false;
+      fixedQuotes.push(char);
+    }
+  }
+  
+  // Si on est encore dans une chaîne à la fin, ajouter un guillemet
+  if (inString) {
+    fixedQuotes.push('"');
+  }
+  
+  return fixedQuotes.join('');
 }
 
 /**
@@ -187,7 +248,8 @@ Réponds au format JSON selon cette structure:
     let objectives: Objective[] = [];
     try {
       // Transformer la réponse JSON en objectifs structurés
-      const parsedResponse = objectivesResponse ? JSON.parse(objectivesResponse) : { objectives: [] };
+      const cleanedJson = cleanJsonString(objectivesResponse);
+      const parsedResponse = cleanedJson ? JSON.parse(cleanedJson) : { objectives: [] };
       objectives = (parsedResponse.objectives || []).map((obj: any) => ({
         id: uuidv4(),
         description: obj.description || "Objectif à compléter",
@@ -329,7 +391,8 @@ Réponds au format JSON:
 
     let specificContacts: Contact[] = [];
     try {
-      specificContacts = contactsResponse ? JSON.parse(contactsResponse) : [];
+      const cleanedJson = cleanJsonString(contactsResponse);
+      specificContacts = cleanedJson ? JSON.parse(cleanedJson) : [];
     } catch (error) {
       console.error("Erreur lors du parsing des contacts:", error);
       specificContacts = [
@@ -366,7 +429,8 @@ Réponds au format JSON:
     let penalties = ["Perte de confiance", "Réduction des responsabilités", "Évaluation négative"];
 
     try {
-      const parsedRewards = rewardsResponse ? JSON.parse(rewardsResponse) : null;
+      const cleanedJson = cleanJsonString(rewardsResponse);
+      const parsedRewards = cleanedJson ? JSON.parse(cleanedJson) : null;
       if (parsedRewards) {
         rewards = parsedRewards.rewards || rewards;
         penalties = parsedRewards.penalties || penalties;
@@ -376,10 +440,13 @@ Réponds au format JSON:
     }
 
     // 9. Assembler tous les éléments pour créer la mission complète
+    // Créer un titre personnalisé avec l'entreprise pour une meilleure diversité
+    const missionTitle = `${missionType.titre} chez ${companyName}`;
+    
     const mission: Mission = {
       ...missionTemplate as Mission,
       id: uuidv4(),
-      title: missionType.titre,
+      title: missionTitle,
       description: `Une situation critique de cybersécurité requiert vos compétences de ${userRole}. Prenez les bonnes décisions pour protéger ${companyName}.`,
       difficulty: difficultyLevel,
       duration: duration,

@@ -1816,6 +1816,45 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
     }
   });
   
+  // Endpoint simplifié pour tester uniquement la génération de titres
+  app.get('/api/cyber-defense/test-titles', async (req: Request, res: Response) => {
+    try {
+      // Générer plusieurs missions avec des titres uniques
+      const missions = [];
+      
+      // Générer une mission pour chaque niveau de difficulté
+      const difficulties = ["Débutant", "Intermédiaire", "Expert"];
+      
+      for (const difficulty of difficulties) {
+        try {
+          // Générer une mission et ajouter son titre à la liste
+          console.log(`Génération de titre de mission pour le niveau ${difficulty}...`);
+          const mission = await missionGenerator.generateMission(difficulty as any);
+          missions.push({
+            difficulty,
+            title: mission.title,
+            secteur: mission.secteurActivite,
+            company: mission.companyName
+          });
+        } catch (error) {
+          console.error(`Erreur lors de la génération de mission pour le niveau ${difficulty}:`, error);
+          // Continuer avec les autres niveaux malgré cette erreur
+        }
+      }
+      
+      return res.json({ 
+        message: "Exemples de titres de mission générés avec succès",
+        titles: missions 
+      });
+    } catch (error) {
+      console.error('Erreur lors de la génération des titres:', error);
+      return res.status(500).json({ 
+        message: 'Une erreur est survenue lors de la génération des titres',
+        error: (error as Error).message 
+      });
+    }
+  });
+  
   // API route pour basculer entre les clés API
   app.post('/api/cyber/switch-api-key', (req: Request, res: Response) => {
     try {
