@@ -27,14 +27,14 @@ class OpenAIService {
   private readonly CONNECTION_CHECK_INTERVAL = 1000 * 60 * 5;
 
   constructor() {
-    console.log("Initializing Azure OpenAI Service with user-provided configurations");
+    console.log("Initializing Azure OpenAI Service with user-provided configuration");
     const apiKey = "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK";
     const baseEndpoint = "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com";
     
     console.log("API Key: ****** (HIDDEN)");
     console.log("Endpoint: " + baseEndpoint);
 
-    // Configuration primaire - GPT-4o
+    // Configuration unique - GPT-4o
     this.primaryConfig = {
       endpoint: baseEndpoint,
       apiKey: apiKey,
@@ -43,28 +43,27 @@ class OpenAIService {
       modelName: "gpt-4o"
     };
 
-    // Configuration secondaire - GPT-4o-mini
+    // Configuration secondaire identique (pour compatibilité avec l'interface)
     this.secondaryConfig = {
       endpoint: baseEndpoint,
       apiKey: apiKey,
-      deploymentName: "Eddy-02-2025-gpt-4o-mini",
-      apiVersion: "2024-12-01-preview",
-      modelName: "gpt-4o-mini"
+      deploymentName: "Eddy-deploy-20-02-2025-gpt-4o",
+      apiVersion: "2025-01-01-preview",
+      modelName: "gpt-4o"
     };
 
-    console.log("Azure OpenAI Service initialized with primary model: " + this.primaryConfig.modelName);
-    console.log("Azure OpenAI Service initialized with secondary model: " + this.secondaryConfig.modelName);
-    console.log("Primary endpoint: " + this.primaryConfig.endpoint);
-    console.log("Secondary endpoint: " + this.secondaryConfig.endpoint);
+    console.log("Azure OpenAI Service initialized with model: " + this.primaryConfig.modelName);
+    console.log("Endpoint: " + this.primaryConfig.endpoint);
 
     this.checkConnection();
   }
 
   switchApiKey(type: ApiKeyType): void {
-    this.currentConfig = type;
+    // Toujours utiliser la configuration primaire
+    this.currentConfig = 'primary';
     this.responseCache.clear();
     this.lastConnectionCheck = 0;
-    console.log(`Switched to ${type} API key (${this.getCurrentConfig().modelName})`);
+    console.log(`Utilisation de l'API GPT-4o uniquement (${this.getCurrentConfig().modelName})`);
   }
 
   getCurrentConfig(): OpenAIConfig {

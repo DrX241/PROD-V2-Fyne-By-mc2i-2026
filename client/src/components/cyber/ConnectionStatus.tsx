@@ -125,43 +125,13 @@ export default function ConnectionStatus() {
           <TooltipTrigger asChild>
             <Badge 
               variant="outline" 
-              className={cn(
-                "py-1 text-xs font-medium",
-                currentKey === 'primary' 
-                  ? "bg-blue-800/40 hover:bg-blue-800/60 text-white border border-blue-500/30" 
-                  : "bg-purple-800/40 hover:bg-purple-800/60 text-white border border-purple-500/30"
-              )}
+              className="py-1 text-xs font-medium bg-blue-800/40 text-white border border-blue-500/30"
             >
               {modelName}
             </Badge>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Mode {getKeyLabel(currentKey)}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-      
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-7 w-7" 
-              onClick={switchApiKey}
-              disabled={switchingKey || status === 'checking' || status === 'reconnecting'}
-            >
-              {switchingKey ? (
-                <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-              ) : status === 'disconnected' ? (
-                <CircleOff className="h-3.5 w-3.5" />
-              ) : (
-                <RefreshCw className="h-3.5 w-3.5" />
-              )}
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Basculer vers le mode {getKeyLabel(currentKey === 'primary' ? 'secondary' : 'primary')}</p>
+            <p>GPT-4o</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

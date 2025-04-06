@@ -1883,17 +1883,8 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
   // API route pour basculer entre les clés API
   app.post('/api/cyber/switch-api-key', (req: Request, res: Response) => {
     try {
-      const { keyType } = req.body;
-      
-      if (keyType !== 'primary' && keyType !== 'secondary') {
-        return res.status(400).json({
-          status: 'error',
-          message: 'Invalid key type. Must be "primary" or "secondary"'
-        });
-      }
-      
-      // Effectuer le changement de clé API avec le service OpenAI
-      openAIService.switchApiKey(keyType);
+      // Toujours utiliser la clé primaire
+      openAIService.switchApiKey('primary');
       
       // Renvoyer les informations mises à jour
       res.json({
@@ -1905,11 +1896,11 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
         apiVersion: openAIService.getCurrentConfig().apiVersion
       });
     } catch (error) {
-      console.error('Error switching API key:', error);
+      console.error('Error refreshing API connection:', error);
       // En cas d'erreur, renvoyer une réponse avec les informations actuelles mais indiquer l'erreur
       res.status(500).json({
         status: 'error',
-        message: 'Error switching API key',
+        message: 'Error refreshing API connection',
         currentApiKey: openAIService.getCurrentApiKeyType(),
         modelName: openAIService.getCurrentModelName(),
         endpoint: openAIService.getCurrentConfig().endpoint,
