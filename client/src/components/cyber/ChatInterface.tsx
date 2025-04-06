@@ -101,6 +101,15 @@ export default function ChatInterface() {
         return <ScenarioSelection />;
       case 'email':
         return <EmailMessage email={message.content} />;
+      case 'scenario-context':
+        return (
+          <ChatMessage 
+            type={message.type} 
+            content={message.content as string}
+            contactName="Système" 
+            contactRole="Contexte de mission"
+          />
+        );
       case 'user':
       case 'bot':
         return (

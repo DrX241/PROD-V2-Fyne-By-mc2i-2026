@@ -2,7 +2,7 @@ import React from "react";
 import { BotMessageSquare, User } from "lucide-react";
 
 interface ChatMessageProps {
-  type: "user" | "bot";
+  type: "user" | "bot" | "scenario-context";
   content: string;
   contactName?: string;
   contactRole?: string;
@@ -81,10 +81,40 @@ export default function ChatMessage({ type, content, contactName, contactRole }:
   const avatarColor = type === "user" ? "bg-[#006a9e]/90" : "bg-[#006a9e]";
   
   // Message de l'utilisateur ou de l'assistant
-  const messageBgColor = type === "user" 
-    ? "bg-gray-100 border-gray-300" 
-    : "bg-white border-[#006a9e]/20";
+  let messageBgColor = "bg-white border-[#006a9e]/20";
+  if (type === "user") {
+    messageBgColor = "bg-gray-100 border-gray-300";
+  } else if (type === "scenario-context") {
+    messageBgColor = "bg-blue-50 border-[#006a9e]/30";
+  }
 
+  // Style spécial pour le contexte de scénario
+  if (type === "scenario-context") {
+    return (
+      <div className="w-full mb-4 animate-fadeIn">
+        <div className={`rounded-lg ${messageBgColor} p-4 sm:p-5 border shadow-sm mx-auto max-w-[90%]`}>
+          {/* En-tête du contexte */}
+          {contactName && contactRole && (
+            <div className="mb-3 pb-2 border-b border-[#006a9e]/20 flex items-center">
+              <div className={`w-8 h-8 rounded-full bg-[#006a9e] flex items-center justify-center mr-3`}>
+                <BotMessageSquare className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <div className="font-bold text-[#006a9e] text-sm sm:text-base">{contactName}</div>
+                <div className="text-[10px] sm:text-xs text-gray-600">{contactRole}</div>
+              </div>
+            </div>
+          )}
+          
+          <div className="text-sm sm:text-base leading-relaxed">
+            {formatContent()}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Rendu standard pour les messages utilisateur/bot
   return (
     <div className={`flex items-start gap-2 sm:gap-3 mb-4 ${type === 'user' ? 'flex-row-reverse justify-start' : 'flex-row justify-start'} w-full`}>
       {/* Avatar */}
