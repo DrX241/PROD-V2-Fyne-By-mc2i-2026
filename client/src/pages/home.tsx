@@ -205,40 +205,12 @@ export default function Home() {
               </motion.p>
               
               <motion.div 
-                className="flex flex-wrap gap-4 mb-8"
+                className="mb-8"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.3 }}
               >
-                <Link href="/cyber-mode-selection">
-                  <Button 
-                    size="lg" 
-                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg border-0"
-                  >
-                    Explorer les modules
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
-              </motion.div>
-              
-              <motion.div 
-                className="flex flex-wrap items-center gap-y-3 gap-x-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.7, delay: 0.5 }}
-              >
-                <span className="text-blue-200">Utilisé par :</span>
-                <img src={mcLogoPath} alt="mc2i" className="h-8" />
-                <div className="flex items-center -space-x-2">
-                  {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-medium border-2 border-indigo-900">
-                      {i}
-                    </div>
-                  ))}
-                  <div className="w-8 h-8 rounded-full bg-blue-800 flex items-center justify-center text-white text-xs font-medium border-2 border-indigo-900 ml-1">
-                    +50
-                  </div>
-                </div>
+                {/* Section de bouton supprimée */}
               </motion.div>
             </div>
             
@@ -316,21 +288,7 @@ export default function Home() {
             ))}
           </div>
           
-          <div className="mt-16 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              viewport={{ once: true }}
-            >
-              <Link href="/cyber-mode-selection">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-                  Explorer tous nos modules
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-            </motion.div>
-          </div>
+          {/* Bouton "Explorer tous nos modules" supprimé */}
         </div>
       </div>
       
@@ -385,17 +343,7 @@ export default function Home() {
               Rejoignez plus de 1000 professionnels qui ont déjà révolutionné leur façon d'apprendre
             </p>
             
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link href="/cyber-mode-selection">
-                <Button 
-                  size="lg" 
-                  className="bg-white hover:bg-gray-100 text-blue-700"
-                >
-                  Explorer les modules
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-            </div>
+            {/* Bouton "Explorer les modules" supprimé */}
           </motion.div>
         </div>
       </div>
