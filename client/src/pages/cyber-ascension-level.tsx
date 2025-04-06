@@ -46,6 +46,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export default function CyberAscensionLevel() {
   const [match, params] = useRoute<{ themeId: string, levelId: string }>('/cyber-ascension/theme/:themeId/level/:levelId');
+  
+  // Logs pour vérifier les paramètres
+  console.log("Route match:", match); 
+  console.log("Theme ID:", params?.themeId);
+  console.log("Level ID:", params?.levelId);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   
