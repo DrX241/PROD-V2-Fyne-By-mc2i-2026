@@ -6,9 +6,10 @@ import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import OpenAI from 'openai';
 import { openAIService } from "../I_AM_CYBER/services/openai";
-// Import de document-generator supprimé car nous n'utilisons plus de pièces jointes
+import { missionGenerator } from "../I_AM_CYBER/services/mission-generator";
 import { ChatCompletionRequestMessage } from "../shared/schema";
 import { evaluateDecision } from "./cyberDefenseEvaluator";
+import immersiveRoutes from "./routes/immersive-simulation";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Nous n'avons plus besoin des répertoires de documents et HTML
@@ -32,7 +33,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Sensibilisation aux attaques de phishing",
           domain: "Ingénierie sociale et phishing",
           contact: {
-            name: "Marion Lopez",
+            name: "Yousra Saidani",
             role: "Senior Partner et Directrice Marketing, Communication et RSE"
           },
           difficulty: "Débutant"
@@ -160,7 +161,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Classification des données sensibles",
           domain: "Protection des données personnelles / RGPD",
           contact: {
-            name: "Yousra Benahmed",
+            name: "Yousra Saidani",
             role: "Consultante Senior Cybersécurité"
           },
           difficulty: "Débutant"
@@ -275,7 +276,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         else if (scenario.contact.name === "Guillaume Lechevallier" || scenario.contact.name === "Fares SAYADI") {
           secteurActivite = 'INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)';
         }
-        else if (scenario.contact.name === "Nicolas Paolantonacci" || scenario.contact.name === "Marion Lopez") {
+        else if (scenario.contact.name === "Nicolas Paolantonacci" || scenario.contact.name === "Yousra Saidani") {
           secteurActivite = 'RETAIL & LUXE';
         }
         else if (scenario.contact.name === "Anthony Frescal") {
@@ -419,7 +420,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               concern: "Focalisé sur la protection de la propriété intellectuelle et de l'image de marque"
             },
             {
-              name: "Marion Lopez",
+              name: "Yousra Saidani",
               role: "Senior Partner et Directrice Marketing, Communication et RSE",
               expertise: "Communication de crise et gestion de la réputation",
               concern: "Préoccupée par l'impact des incidents de sécurité sur l'image et la réputation de l'entreprise"
@@ -697,7 +698,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Sensibilisation aux attaques de phishing",
           domain: "Ingénierie sociale et phishing",
           contact: {
-            name: "Marion Lopez",
+            name: "Yousra Saidani",
             role: "Senior Partner et Directrice Marketing, Communication et RSE"
           },
           difficulty: "Débutant"
@@ -825,8 +826,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Classification des données sensibles",
           domain: "Protection des données personnelles / RGPD",
           contact: {
-            name: "Marion Lopez",
-            role: "Senior Partner et Directrice Marketing, Communication et RSE"
+            name: "Yousra Saidani",
+            role: "Consultante Senior Cybersécurité"
           },
           difficulty: "Débutant"
         },
@@ -857,7 +858,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Introduction à la gestion des incidents",
           domain: "Gestion des incidents de sécurité",
           contact: {
-            name: "Yousra Benahmed",
+            name: "Yousra Saidani",
             role: "Consultante Senior Cybersécurité"
           },
           difficulty: "Débutant"
@@ -1307,7 +1308,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         else if (scenario?.domain?.toLowerCase().includes('retail') || 
                 scenario?.domain?.toLowerCase().includes('luxe') || 
                 respondingContact.name === "Nicolas Paolantonacci" || 
-                respondingContact.name === "Marion Lopez") {
+                respondingContact.name === "Yousra Saidani") {
           secteurActivite = 'RETAIL & LUXE';
         }
         else if (scenario?.domain?.toLowerCase().includes('énergie') || 
@@ -1559,7 +1560,7 @@ Format: Utilise des titres clairs et une présentation structurée qui facilite 
 
 Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${scenario.domain}".`,
           resetScenario: true,
-          contactName: "Marion Lopez",
+          contactName: "Yousra Saidani",
           contactRole: "Senior Partner et Directrice Marketing, Communication et RSE",
           scenarioContacts: availableContacts
         });
@@ -1666,24 +1667,31 @@ Directives pour la réponse:
       let senderRole = "Cybersécurité";
       
       // Si un contact spécifique a été ciblé, utiliser ce contact comme expéditeur
-      if (targetContact) {
-        const contact = missionContext.contacts.find((c: any) => c.name === targetContact);
+      if (targetContact && missionContext && missionContext.contacts && Array.isArray(missionContext.contacts)) {
+        const contact = missionContext.contacts.find((c: any) => c && c.name === targetContact);
         if (contact) {
           sender = contact.name;
-          senderRole = contact.role;
+          senderRole = contact.role || "Expert";
         }
       } else {
         // Sinon, déterminer un contact approprié en fonction du contexte
         const keyword = userMessage.toLowerCase();
         
         // Associer des mots-clés aux contacts pour une réponse contextuelle
-        for (const contact of missionContext.contacts) {
-          const expertise = contact.expertise.toLowerCase();
-          if (keyword.includes(expertise.split(' ')[0]) || 
-              keyword.includes(contact.name.split(' ')[0].toLowerCase())) {
-            sender = contact.name;
-            senderRole = contact.role;
-            break;
+        if (missionContext && missionContext.contacts && Array.isArray(missionContext.contacts)) {
+          for (const contact of missionContext.contacts) {
+            // Vérifier si le contact et ses propriétés existent avant d'y accéder
+            if (!contact) continue;
+            
+            const expertise = contact.expertise ? contact.expertise.toLowerCase() : '';
+            const contactName = contact.name ? contact.name.toLowerCase() : '';
+            
+            if ((expertise && keyword.includes(expertise.split(' ')[0])) || 
+                (contactName && keyword.includes(contactName.split(' ')[0]))) {
+              sender = contact.name;
+              senderRole = contact.role || "Expert";
+              break;
+            }
           }
         }
       }
@@ -1695,7 +1703,11 @@ Directives pour la réponse:
                                    response.toLowerCase().includes('options') ||
                                    response.toLowerCase().includes('alternatives');
       
-      if (shouldTriggerDecision && missionContext.objectives[currentObjective]?.decisions?.length > 0) {
+      if (shouldTriggerDecision && missionContext && missionContext.objectives && 
+          Array.isArray(missionContext.objectives) && 
+          missionContext.objectives[currentObjective] && 
+          missionContext.objectives[currentObjective].decisions && 
+          missionContext.objectives[currentObjective].decisions.length > 0) {
         // Prendre la première décision disponible pour l'objectif actuel
         decision = missionContext.objectives[currentObjective].decisions[0];
       }
@@ -1704,18 +1716,18 @@ Directives pour la réponse:
       let additionalResponse = null;
       const shouldAddColleagueResponse = Math.random() > 0.7; // 30% de chance d'avoir une réponse additionnelle
       
-      if (shouldAddColleagueResponse && !decision) {
+      if (shouldAddColleagueResponse && !decision && missionContext && missionContext.contacts && Array.isArray(missionContext.contacts)) {
         // Sélectionner un contact différent du premier répondant
-        const availableContacts = missionContext.contacts.filter((c: any) => c.name !== sender);
+        const availableContacts = missionContext.contacts.filter((c: any) => c && c.name !== sender);
         
-        if (availableContacts.length > 0) {
+        if (availableContacts && availableContacts.length > 0) {
           const selectedContact = availableContacts[Math.floor(Math.random() * availableContacts.length)];
           
           // Créer un prompt pour la réponse additionnelle
           const colleaguePrompt = `
-Tu es ${selectedContact.name}, ${selectedContact.role} dans l'entreprise. 
+Tu es ${selectedContact.name || 'un expert'}, ${selectedContact.role || 'spécialiste'} dans l'entreprise. 
 Tu dois réagir brièvement (2-3 phrases maximum) au message de ${sender} qui vient de dire: "${response}".
-Ta réaction doit être cohérente avec ton rôle et ton expertise en ${selectedContact.expertise}.
+Ta réaction doit être cohérente avec ton rôle ${selectedContact.expertise ? `et ton expertise en ${selectedContact.expertise}` : ''}.
 Réponds directement sans introduction ni formule de politesse, comme si tu intervenais dans une conversation.`;
 
           const colleagueMessages: ChatCompletionRequestMessage[] = [
@@ -1747,7 +1759,6 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
       });
       
     } catch (error: any) {
-      console.error('Error evaluating decision:', error);
       console.error('Error generating cyber defense response:', error);
       res.status(500).json({ 
         error: error.message || 'Error generating cyber defense response'
@@ -1757,6 +1768,93 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
   
   // API pour évaluer les décisions prises dans le module Cyber Defense
   app.post("/api/cyber-defense/evaluate-decision", evaluateDecision);
+  
+  // API route pour générer dynamiquement une mission via l'IA
+  app.post('/api/cyber-defense/generate-mission', async (req: Request, res: Response) => {
+    try {
+      const { difficultyLevel } = req.body;
+      
+      if (!difficultyLevel || !['Débutant', 'Intermédiaire', 'Expert'].includes(difficultyLevel)) {
+        return res.status(400).json({ 
+          message: 'Niveau de difficulté invalide. Utilisez: Débutant, Intermédiaire ou Expert' 
+        });
+      }
+      
+      // Générer une mission dynamique via l'IA
+      const mission = await missionGenerator.generateMission(difficultyLevel as any);
+      
+      return res.json({ mission });
+    } catch (error) {
+      console.error('Erreur lors de la génération de mission:', error);
+      return res.status(500).json({ 
+        message: 'Une erreur est survenue lors de la génération de la mission',
+        error: (error as Error).message 
+      });
+    }
+  });
+  
+  // API route pour tester la génération de mission avec des paramètres simplifiés
+  app.get('/api/cyber-defense/test-generate-mission/:level', async (req: Request, res: Response) => {
+    try {
+      const { level } = req.params;
+      const difficultyLevel = level === 'beginner' ? 'Débutant' : level === 'expert' ? 'Expert' : 'Intermédiaire';
+      
+      console.log(`Test de génération de mission de niveau ${difficultyLevel}...`);
+      
+      // Générer une mission dynamique via l'IA
+      const mission = await missionGenerator.generateMission(difficultyLevel as any);
+      
+      return res.json({ 
+        message: `Mission de niveau ${difficultyLevel} générée avec succès`,
+        mission 
+      });
+    } catch (error) {
+      console.error('Erreur lors du test de génération de mission:', error);
+      return res.status(500).json({ 
+        message: 'Une erreur est survenue lors de la génération de la mission',
+        error: (error as Error).message 
+      });
+    }
+  });
+  
+  // Endpoint simplifié pour tester uniquement la génération de titres
+  app.get('/api/cyber-defense/test-titles', async (req: Request, res: Response) => {
+    try {
+      // Générer plusieurs missions avec des titres uniques
+      const missions = [];
+      
+      // Générer une mission pour chaque niveau de difficulté
+      const difficulties = ["Débutant", "Intermédiaire", "Expert"];
+      
+      for (const difficulty of difficulties) {
+        try {
+          // Générer une mission et ajouter son titre à la liste
+          console.log(`Génération de titre de mission pour le niveau ${difficulty}...`);
+          const mission = await missionGenerator.generateMission(difficulty as any);
+          missions.push({
+            difficulty,
+            title: mission.title,
+            secteur: mission.secteurActivite,
+            company: mission.companyName
+          });
+        } catch (error) {
+          console.error(`Erreur lors de la génération de mission pour le niveau ${difficulty}:`, error);
+          // Continuer avec les autres niveaux malgré cette erreur
+        }
+      }
+      
+      return res.json({ 
+        message: "Exemples de titres de mission générés avec succès",
+        titles: missions 
+      });
+    } catch (error) {
+      console.error('Erreur lors de la génération des titres:', error);
+      return res.status(500).json({ 
+        message: 'Une erreur est survenue lors de la génération des titres',
+        error: (error as Error).message 
+      });
+    }
+  });
   
   // API route pour basculer entre les clés API
   app.post('/api/cyber/switch-api-key', (req: Request, res: Response) => {
@@ -1786,18 +1884,13 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
     }
   });
 
-  // Initialisation du client OpenAI pour le chat immersif avec Azure OpenAI
-  
-  const azureApiKey = "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK";
-  const azureEndpoint = "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com/";
-  const azureDeploymentId = "Eddy-deploy-20-02-2025-gpt-4o"; // Utilisation du modèle principal
-  const azureApiVersion = "2024-12-01-preview";
+  // Initialisation du client OpenAI pour le chat immersif
+  const apiKey = process.env.OPENAI_API_KEY || "";
+  const primaryModel = process.env.PRIMARY_MODEL || "gpt-4o";
   
   const openai = new OpenAI({
-    apiKey: azureApiKey,
-    baseURL: `${azureEndpoint}openai/deployments/${azureDeploymentId}`,
-    defaultQuery: { "api-version": azureApiVersion },
-    defaultHeaders: { "api-key": azureApiKey },
+    apiKey: apiKey,
+    baseURL: "https://api.openai.com/v1",
   });
   
   // API route pour le chat immersif
@@ -1832,15 +1925,100 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
       
       systemPrompt += " Tu réponds toujours en français.";
       
-      // Appel à l'API Azure OpenAI
+      // Traitement du message pour extraire le nom si c'est une présentation
+      let processedMessage = message;
+      let extractionInfo = "";
+      
+      // Fonction pour nettoyer et extraire uniquement le prénom
+      const extractRealName = (fullNameText: string): string => {
+        console.log("Extracting real name from:", fullNameText);
+        
+        // Simplifier l'extraction en cherchant le dernier mot après "je m'appelle"
+        const simplePattern = /je\s+m['']\s*appelle\s+([a-zA-ZÀ-ÿ]+)(?:\s|$)/i;
+        const match = fullNameText.match(simplePattern);
+        
+        if (match && match[1]) {
+          console.log("Extracted name:", match[1]);
+          return match[1];
+        }
+        
+        // Cas spécifique: "Je suis Je m'appelle Eddy"
+        const reverseMixedPattern = /je\s+suis\s+je\s+m['']\s*appelle\s+([a-zA-ZÀ-ÿ]+)/i;
+        const reverseMixedMatch = fullNameText.match(reverseMixedPattern);
+        if (reverseMixedMatch && reverseMixedMatch[1]) {
+          console.log("Matched reverse mixed pattern, extracted:", reverseMixedMatch[1]);
+          return reverseMixedMatch[1];
+        }
+        
+        // Enlever toutes les formules d'introduction pour garder seulement le dernier mot
+        let cleanText = fullNameText;
+        
+        // Supprimer récursivement les expressions d'introduction jusqu'à ce qu'il n'y en ait plus
+        const introPattern = /(je\s+suis|je\s+m['']\s*appelle)\s+/gi;
+        while (introPattern.test(cleanText)) {
+          cleanText = cleanText.replace(introPattern, "");
+          // Reset le regex pour la prochaine itération
+          introPattern.lastIndex = 0;
+        }
+        
+        console.log("After removing all intros:", cleanText);
+        
+        // Prendre uniquement le premier mot qui reste (prénom)
+        const nameParts = cleanText.split(/\s+/);
+        
+        // Si le premier "mot" est un article/préposition, prendre le suivant
+        const skipWords = ["le", "la", "les", "un", "une", "des", "de", "du", "d'", "l'"];
+        let startIndex = 0;
+        
+        if (nameParts.length > 1 && skipWords.includes(nameParts[0].toLowerCase())) {
+          startIndex = 1;
+        }
+        
+        // Fallback: prendre le dernier mot si aucun mot approprié n'est trouvé
+        if (!nameParts[startIndex]) {
+          const words = fullNameText.trim().split(/\s+/);
+          return words[words.length - 1] || "utilisateur";
+        }
+        
+        console.log("Final extraction:", nameParts[startIndex]);
+        return nameParts[startIndex];
+      };
+      
+      // Extraction simple du prénom
+      const directExtraction = (message: string): string | null => {
+        let processedMsg = message.toLowerCase();
+        
+        // Supprimer toutes les formules d'introduction pour ne garder que le prénom
+        const introRegex = /(je\s+suis|je\s+m['']\s*appelle)\s+/gi;
+        let cleanText = processedMsg.replace(introRegex, '');
+        
+        // Prendre le premier mot restant comme prénom
+        const firstWord = cleanText.trim().split(/\s+/)[0];
+        if (firstWord) {
+          return firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
+        }
+        
+        return null;
+      };
+      
+      // Extraction directe du nom dans le message complet
+      const directName = directExtraction(message);
+      
+      if (directName) {
+        console.log("Extracted name directly:", directName);
+        extractionInfo = `\n\nNOM_UTILISATEUR_EXTRAIT: ${directName}\n(Utilise uniquement ce prénom pour t'adresser à l'utilisateur directement, ne répète jamais "Je m'appelle" ou "Je suis" dans ta réponse)`;
+        processedMessage = message;
+      }
+      
+      // Appel à l'API OpenAI
       const completion = await openai.chat.completions.create({
         messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: message }
+          { role: "system", content: systemPrompt + extractionInfo },
+          { role: "user", content: processedMessage }
         ],
         temperature: config?.temperature || 0.7,
         max_tokens: config?.maxTokens || 800,
-        model: "gpt-3.5-turbo",
+        model: primaryModel,
       });
       
       // Envoi de la réponse au client
@@ -1850,11 +2028,11 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
       });
       
     } catch (error: any) {
-      console.error('Erreur lors de la communication avec Azure OpenAI:', error);
+      console.error('Erreur lors de la communication avec OpenAI:', error);
       
       // Gestion des erreurs spécifiques d'OpenAI
       if (error.status === 401) {
-        res.status(401).json({ error: 'Erreur d\'authentification API Azure. Vérifiez votre clé API.' });
+        res.status(401).json({ error: 'Erreur d\'authentification API OpenAI. Vérifiez votre clé API.' });
       } else if (error.status === 429) {
         res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
       } else {
@@ -1863,251 +2041,9 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
     }
   });
 
-  // API pour les communications liées aux missions de défense cyber
-  app.post('/api/cyber-defense/chat', async (req: Request, res: Response) => {
-    try {
-      const { 
-        userMessage, 
-        missionId, 
-        missionContext, 
-        currentObjective, 
-        previousMessages, 
-        targetContact,
-        temperature,
-        maxTokens
-      } = req.body;
-      
-      if (!userMessage) {
-        return res.status(400).json({ message: 'Message utilisateur requis' });
-      }
-      
-      // Construire le prompt système pour la mission
-      const missionPrompt = `Tu es "I AM CYBER", un assistant spécialisé en cybersécurité qui simule une mission de défense cyber.
-      
-Tu dois jouer le rôle d'un expert en cybersécurité qui interagit avec l'utilisateur dans le cadre de la mission suivante:
-- Titre: ${missionContext.title}
-- Scénario: ${missionContext.scenario}
-- Difficulté: ${missionContext.difficulty}
-- L'utilisateur joue le rôle de: ${missionContext.userRole}
-- Objectif actuel: ${missionContext.objectives[currentObjective]?.description || "Non défini"}
+  // Enregistrement des routes d'immersion cyber pour la nouvelle version
+  app.use('/api/immersive-simulation', immersiveRoutes);
 
-Directives pour la réponse:
-1. Réponds en utilisant un ton professionnel mais accessible
-2. Adapte ton niveau technique à la difficulté de la mission (${missionContext.difficulty})
-3. Utilise les connaissances à jour en matière de bonnes pratiques de cybersécurité
-4. Si l'utilisateur mentionne spécifiquement un contact (${targetContact || "aucun"}), réponds en tant que cette personne
-5. Si l'utilisateur semble prêt à prendre une décision importante, fournir une structure de décision claire
-6. Évite de mentionner que tu es une IA ou un assistant, reste dans ton rôle
-`;
-
-      // Préparer les messages pour l'API
-      const messages: ChatCompletionRequestMessage[] = [
-        { role: "system", content: missionPrompt },
-        ...previousMessages.map((msg: any) => ({
-          role: msg.role,
-          content: msg.content
-        })),
-        { role: "user", content: userMessage }
-      ];
-      
-      // Appeler l'API OpenAI
-      const response = await openAIService.getChatCompletionWithCache(
-        messages,
-        temperature || 0.7,
-        maxTokens || 1000
-      );
-      
-      // Analyser le contenu de la réponse pour déterminer le contact et le style
-      let sender = "Expert";
-      let senderRole = "Cybersécurité";
-      
-      // Si un contact spécifique a été ciblé, utiliser ce contact comme expéditeur
-      if (targetContact) {
-        const contact = missionContext.contacts.find((c: any) => c.name === targetContact);
-        if (contact) {
-          sender = contact.name;
-          senderRole = contact.role;
-        }
-      } else {
-        // Sinon, déterminer un contact approprié en fonction du contexte
-        const keyword = userMessage.toLowerCase();
-        
-        // Associer des mots-clés aux contacts pour une réponse contextuelle
-        for (const contact of missionContext.contacts) {
-          const expertise = contact.expertise.toLowerCase();
-          if (keyword.includes(expertise.split(' ')[0]) || 
-              keyword.includes(contact.name.split(' ')[0].toLowerCase())) {
-            sender = contact.name;
-            senderRole = contact.role;
-            break;
-          }
-        }
-      }
-      
-      // Déterminer s'il faut déclencher une décision
-      let decision = null;
-      const shouldTriggerDecision = response.toLowerCase().includes('décision') || 
-                                   response.toLowerCase().includes('choix') ||
-                                   response.toLowerCase().includes('options') ||
-                                   response.toLowerCase().includes('alternatives');
-      
-      if (shouldTriggerDecision && missionContext.objectives[currentObjective]?.decisions?.length > 0) {
-        // Prendre la première décision disponible pour l'objectif actuel
-        decision = missionContext.objectives[currentObjective].decisions[0];
-      }
-      
-      // Déterminer si une réponse additionnelle d'un autre contact est appropriée
-      let additionalResponse = null;
-      const shouldAddColleagueResponse = Math.random() > 0.7; // 30% de chance d'avoir une réponse additionnelle
-      
-      if (shouldAddColleagueResponse && !decision) {
-        // Sélectionner un contact différent du premier répondant
-        const availableContacts = missionContext.contacts.filter((c: any) => c.name !== sender);
-        
-        if (availableContacts.length > 0) {
-          const selectedContact = availableContacts[Math.floor(Math.random() * availableContacts.length)];
-          
-          // Créer un prompt pour la réponse additionnelle
-          const colleaguePrompt = `
-Tu es ${selectedContact.name}, ${selectedContact.role} dans l'entreprise. 
-Tu dois réagir brièvement (2-3 phrases maximum) au message de ${sender} qui vient de dire: "${response}".
-Ta réaction doit être cohérente avec ton rôle et ton expertise en ${selectedContact.expertise}.
-Réponds directement sans introduction ni formule de politesse, comme si tu intervenais dans une conversation.`;
-
-          const colleagueMessages: ChatCompletionRequestMessage[] = [
-            { role: "system", content: colleaguePrompt },
-            { role: "user", content: "Génère une réaction courte et professionnelle" }
-          ];
-          
-          const colleagueResponse = await openAIService.getChatCompletionWithCache(
-            colleagueMessages,
-            0.8, // Légèrement plus créatif
-            200  // Réponse courte
-          );
-          
-          additionalResponse = {
-            response: colleagueResponse,
-            sender: selectedContact.name,
-            senderRole: selectedContact.role
-          };
-        }
-      }
-      
-      // Retourner la réponse complète
-      res.json({
-      console.error('Error generating cyber defense response:', error);
-      res.status(500).json({ 
-        error: error.message || 'Error generating cyber defense response'
-      });
-    }
-  });
-  
-      res.status(500).json({ 
-        error: error.message || 'Error evaluating decision'
-        response,
-        sender,
-        senderRole,
-        additionalResponse,
-        decision
-      });
-      
-    } catch (error: any) {
-      console.error('Error generating cyber defense response:', error);
-      res.status(500).json({ 
-        error: error.message || 'Error generating cyber defense response'
-      });
-    }
-  });
-  
-        missionId, 
-        missionContext, 
-        decisionId, 
-        choiceId, 
-        currentObjective,
-        userRole
-      } = req.body;
-      
-      if (!missionId || !decisionId || !choiceId) {
-        return res.status(400).json({ message: 'Informations de décision requises' });
-      }
-      
-      // Trouver la décision et l'option choisie
-      const objective = missionContext.objectives.find((obj: any) => obj.id === currentObjective);
-      const decision = objective?.decisions.find((d: any) => d.id === decisionId);
-      const choice = decision?.options.find((opt: any) => opt.id === choiceId);
-      
-      if (!decision || !choice) {
-        return res.status(404).json({ message: 'Décision ou choix non trouvé' });
-      }
-      
-      // Mettre à jour la mission avec le choix effectué
-      const updatedMission = { ...missionContext };
-      const objectiveIndex = updatedMission.objectives.findIndex((obj: any) => obj.id === currentObjective);
-      const decisionIndex = updatedMission.objectives[objectiveIndex].decisions.findIndex((d: any) => d.id === decisionId);
-      
-      // Marquer la décision comme prise
-      updatedMission.objectives[objectiveIndex].decisions[decisionIndex].madeChoice = choiceId;
-      
-      // Ajuster le score de la mission
-      updatedMission.currentScore = (updatedMission.currentScore || 0) + choice.score;
-      
-      // Déterminer si l'objectif est complété (ici nous considérons qu'une bonne décision complète l'objectif)
-      const objectiveCompleted = choice.score > 0;
-      
-      // Si l'objectif est complété, le marquer comme tel
-      if (objectiveCompleted) {
-        updatedMission.objectives[objectiveIndex].completed = true;
-      }
-      
-      // Sélectionner un superviseur pour l'évaluation
-      const supervisor = missionContext.supervisors?.[Math.floor(Math.random() * missionContext.supervisors.length)] || {
-        name: "Direction",
-        role: "Comité de direction"
-      };
-      
-      // Générer l'évaluation de la décision avec OpenAI
-      const evaluationPrompt = `
-Tu es ${supervisor.name}, ${supervisor.role} dans une organisation. Tu dois évaluer une décision prise par ${userRole} dans le cadre d'une mission de cybersécurité.
-
-Contexte de la décision:
-- Mission: ${missionContext.title}
-- Objectif: ${objective?.description}
-- Décision à prendre: ${decision.description}
-- Option choisie: ${choice.text}
-
-Conséquences connues de ce choix:
-- Points positifs: ${choice.consequences.positive.join(', ')}
-- Points négatifs: ${choice.consequences.negative.join(', ')}
-- Impact sur le score: ${choice.score > 0 ? 'Positif' : choice.score < 0 ? 'Négatif' : 'Neutre'}
-
-Ta tâche:
-Rédige une évaluation concise (3-4 phrases) de cette décision du point de vue de ${supervisor.name}. 
-${choice.score > 0 ? 'Félicite pour ce bon choix tout en soulignant les aspects positifs.' : 
-  choice.score < 0 ? 'Soulève poliment les problèmes de ce choix et suggère ce qui aurait pu être mieux fait.' : 
-  'Donne un feedback nuancé, reconnaissant les aspects positifs mais suggérant des améliorations.'}
-
-Réponds directement à la première personne comme si tu étais ${supervisor.name} qui s'adresse au ${userRole}.`;
-
-      const evaluationMessages: ChatCompletionRequestMessage[] = [
-        { role: "system", content: evaluationPrompt },
-        { role: "user", content: "Génère une évaluation professionnelle de cette décision" }
-      ];
-      
-      const evaluationContent = await openAIService.getChatCompletionWithCache(
-        evaluationMessages,
-        0.7,
-        400
-      );
-      
-      // Retourner l'évaluation et la mission mise à jour
-      res.json({
-        evaluation: {
-          content: evaluationContent,
-          supervisor: supervisor.name,
-          supervisorRole: supervisor.role,
-          objectiveCompleted
-        },
-        updatedMission
-      });
-      
-    } catch (error: any) {
+  const server = createServer(app);
+  return server;
+}

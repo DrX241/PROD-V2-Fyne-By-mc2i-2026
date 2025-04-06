@@ -5,36 +5,18 @@ import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import ModulesPage from "@/pages/modules";
-import CyberModeSelection from "@/pages/cyber-mode-selection";
-import CyberAgentPage from "@/pages/cyber-agent";
-import CyberDefensePage from "@/pages/cyber-defense";
-import CyberDefenseMissionPage from "@/pages/cyber-defense-mission";
-import CyberArcade from "@/pages/cyber-arcade";
-import CyberArcadeGame from "@/pages/cyber-arcade-game";
 import FirewallDefensePage from "@/pages/games/FirewallDefensePage";
-import ImmersiveSimulation from "@/pages/immersive-simulation";
-import ImmersiveScenarioDetail from "@/pages/immersive-scenario-detail";
-import ImmersiveSession from "@/pages/immersive-session";
-import { ChatProvider } from "./contexts/ChatContext";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/modules" component={ModulesPage} />
-      <Route path="/cyber" component={CyberModeSelection} />
-      <Route path="/cyber/agent" component={CyberAgentPage} />
-      <Route path="/cyber/arcade" component={CyberArcade} />
-      <Route path="/cyber/arcade/:gameId" component={CyberArcadeGame} />
       <Route path="/games/firewall-defense" component={FirewallDefensePage} />
-      <Route path="/cyber-defense" component={CyberDefensePage} />
-      <Route path="/cyber-defense/mission/:id" component={CyberDefenseMissionPage} />
-      <Route path="/immersive-simulation" component={ImmersiveSimulation} />
-      <Route path="/immersive-simulation/:id" component={ImmersiveScenarioDetail} />
-      <Route path="/immersive-simulation/session/:id" component={ImmersiveSession} />
       <Route path="/data-ia" component={NotYetImplemented} />
       <Route path="/amoa" component={NotYetImplemented} />
       <Route path="/custom" component={NotYetImplemented} />
+      <Route path="/cyber" component={NotYetImplemented} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -57,6 +39,9 @@ function NotYetImplemented() {
     </div>
   );
 }
+
+// Import the ChatProvider
+import { ChatProvider } from "./contexts/ChatContext";
 
 function App() {
   return (
