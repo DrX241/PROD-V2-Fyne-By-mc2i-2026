@@ -1,0 +1,87 @@
+**Rapport de Violation de Données**  
+**Domaine : Sécurisation des Données Personnelles**  
+**Date : [Insérer Date]**  
+**Contact : Vincent Terrier**  
+**Destinataire : Eddy**
+
+---
+
+### **1. Introduction**
+Ce document vise à vous informer d'une violation de données personnelles détectée au sein de l'infrastructure informatique de l'entreprise. L'incident a été signalé à notre service de sécurité le [Insérer Date et Heure], et une analyse préliminaire a été réalisée afin de comprendre l'étendue de l'exposition et les vecteurs d'attaque potentiels.
+
+---
+
+### **2. Description de l'Incident**
+**Nature de l'Incident :**  
+Une fuite de données personnelles a été identifiée sur un serveur interne dédié au stockage des informations sensibles des clients. Les données compromises incluent des informations identifiables telles que les noms, adresses e-mail, numéros de téléphone, et potentiellement certains numéros de carte bancaire.
+
+**Détection :**  
+L'alerte initiale a été déclenchée par un outil de surveillance réseau qui a détecté un trafic inhabituel vers une adresse IP externe non reconnue. Une inspection approfondie a révélé une exfiltration de données via un canal HTTPS non autorisé.
+
+**Références Techniques :**  
+- Serveur compromis : **srv-01-donnees-client.local**  
+- Port utilisé : **443 (HTTPS)**  
+- Volume estimé des données exfiltrées : **~2.3 Go**  
+- Adresse IP externe suspecte : **192.168.34.102**
+
+---
+
+### **3. Chronologie de l'Incident**
+| **Date/Heure**       | **Événement**                                   |
+|-----------------------|------------------------------------------------|
+| [Insérer Date/Heure] | Détection du trafic inhabituel par SIEM         |
+| [Insérer Date/Heure] | Analyse réseau : Identification de l'exfiltration |
+| [Insérer Date/Heure] | Blocage de l'adresse IP suspecte                |
+| [Insérer Date/Heure] | Début de l'analyse des logs                     |
+
+---
+
+### **4. Impact**
+**Quantité de données exposées :**  
+Les données exfiltrées incluent environ **12 000 enregistrements client**, parmi lesquels des informations sensibles telles que des identifiants personnels et des moyens de contact. La possibilité d'une exposition de données bancaires est en cours de vérification.
+
+**Risques potentiels :**  
+- Atteinte à la vie privée des clients.  
+- Risques de phishing utilisant les informations exfiltrées.  
+- Impact sur la réputation de l'entreprise.  
+- Risques juridiques liés à la non-conformité au RGPD.  
+
+---
+
+### **5. Première Analyse Technique**
+**Vecteur probable d'attaque :**  
+Les premières recherches indiquent une compromission possible via une application web hébergée sur le serveur **srv-01-donnees-client.local**. L'analyse des logs montre des activités suspectes associées à l'utilisateur **web_admin**, dont les identifiants pourraient avoir été compromis.
+
+**Mécanisme d'exfiltration :**  
+Un script d'extraction automatisé semble avoir été exécuté, exploitant une connexion HTTPS sortante pour transférer les données vers une destination externe. Le niveau de chiffrement utilisé sur les données exfiltrées reste à déterminer.
+
+**État du serveur :**  
+- Dernière mise à jour du système : **[Insérer Date]**.  
+- Niveau de patch de sécurité : **Obsolète (dernier patch datant de [Insérer Date]).**  
+- Application web : **Version 2.3.5**, avec des vulnérabilités connues (CVE-XXXX-YYYY).  
+
+---
+
+### **6. Points à Examiner**
+1. **Analyse des Logs** : Examiner les journaux détaillés de trafic réseau et des connexions utilisateur sur **srv-01-donnees-client.local**.  
+2. **Revue des Identifiants** : Vérifier la sécurité des comptes administrateurs, notamment celui de **web_admin**.  
+3. **Application Web** : Réaliser une analyse approfondie de l'application hébergée pour identifier les failles potentielles.  
+4. **Conformité RGPD** : Évaluer les étapes nécessaires pour informer les clients et les autorités compétentes.  
+
+---
+
+### **7. Actions Immédiates**
+- L'adresse IP suspecte a été bloquée.  
+- Le serveur affecté a été isolé du réseau.  
+- Une copie des logs a été sécurisée pour analyse.  
+
+---
+
+### **8. Contact**
+Pour toute question ou clarification concernant cet incident, merci de contacter **Vincent Terrier** à l'adresse suivante : **[Insérer Email]** ou par téléphone au **[Insérer Téléphone]**.
+
+---
+
+**Document créé par :** Vincent Terrier  
+**Destinataire :** Eddy  
+**Confidentialité :** Interne

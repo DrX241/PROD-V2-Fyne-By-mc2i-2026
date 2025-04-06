@@ -1,0 +1,90 @@
+**Document Technique - Logs Connexion Suspects**  
+**Domaine : Sécurité des réseaux**  
+**Scénario : Analyse d'une tentative d'intrusion**  
+**Contact : Neil LEVIN**  
+**Destinataire : Marc**  
+
+---
+
+### **1. Introduction**
+Dans le cadre de la surveillance proactive des activités réseau, des connexions suspectes ont été identifiées sur le serveur de production "SRV-PROD-01" hébergé dans le réseau interne. Ce document compile les logs pertinents associés à ces activités, ainsi qu'une analyse technique préliminaire pour faciliter une réponse rapide.
+
+---
+
+### **2. Contexte**
+**Date de détection :** 2023-10-01  
+**Heure :** 14:35:47 UTC  
+**Source de détection :** Firewall central (FortiGate FG-620B)  
+**Cible :** Serveur de production (SRV-PROD-01 | IP : 192.168.1.35)  
+**Protocole suspect :** SSH (port 22)  
+**Résumé :** Plusieurs tentatives de connexion via SSH ont été détectées, provenant d'adresses IP externes non autorisées. L'activité suggère un comportement typique de brute-force.
+
+---
+
+### **3. Logs Identifiés**
+Ci-dessous, les logs pertinents extraits du système de firewall et de l'outil de détection d'intrusion (IDS).
+
+#### **3.1 Extraits des Logs Firewall**
+```
+2023-10-01 14:35:47 UTC | INBOUND CONNECTION | SRC_IP: 203.0.113.45 | DST_IP: 192.168.1.35 | DST_PORT: 22 | ACTION: BLOCKED  
+2023-10-01 14:36:12 UTC | INBOUND CONNECTION | SRC_IP: 198.51.100.72 | DST_IP: 192.168.1.35 | DST_PORT: 22 | ACTION: BLOCKED  
+2023-10-01 14:36:45 UTC | INBOUND CONNECTION | SRC_IP: 203.0.113.45 | DST_IP: 192.168.1.35 | DST_PORT: 22 | ACTION: BLOCKED  
+2023-10-01 14:37:01 UTC | INBOUND CONNECTION | SRC_IP: 192.0.2.14 | DST_IP: 192.168.1.35 | DST_PORT: 22 | ACTION: BLOCKED  
+```
+
+#### **3.2 Extraits des Logs IDS (Snort)**
+```
+[2023-10-01 14:36:45] [**] [1:1000001] SSH Brute Force Attempt [**]
+SRC_IP: 203.0.113.45 | SRC_PORT: 49321 | DST_IP: 192.168.1.35 | DST_PORT: 22  
+Protocol: TCP | Flags: SYN | Packet Size: 60 bytes  
+Classification: Potentially Malicious Activity  
+```
+
+---
+
+### **4. Analyse Technique Préliminaire**
+- **Source IPs suspectes :** 
+  - 203.0.113.45 : Identifié comme hébergé dans un Data Center en Asie. Réputation : Mauvais.
+  - 198.51.100.72 : Hébergeur inconnu, enregistré aux États-Unis.
+  - 192.0.2.14 : Adresse IP utilisée dans des attaques similaires dans le passé.  
+
+- **Comportement Observé :**
+  - Les tentatives de connexion se sont intensifiées sur une courte période, ce qui est typique des attaques par brute-force.
+  - Les connexions ont toutes été bloquées par le firewall grâce à la règle de protection des ports sensibles.
+
+- **Impact Potentiel :**
+  - Bien que bloquées, ces tentatives indiquent une reconnaissance active de notre serveur. Une attaque plus sophistiquée pourrait être envisagée.
+
+---
+
+### **5. Recommandations**
+1. **Blocage des IPs suspectes :**
+   Ajouter les adresses IP identifiées dans la liste noire (blacklist) du firewall et des serveurs.
+   
+2. **Renforcement de la sécurité SSH :**
+   - Désactiver l'accès SSH depuis l'extérieur si non nécessaire.
+   - Activer l'authentification par clé publique uniquement.
+   - Mettre en place une politique de mots de passe robustes.
+
+3. **Surveillance accrue :**
+   - Configurer des alertes spécifiques pour les connexions SSH.
+   - Augmenter la granularité de l’analyse des logs.
+
+4. **Mise à jour des systèmes :**
+   - Vérifier que les dernières mises à jour de sécurité sont appliquées sur SRV-PROD-01.
+
+5. **Analyse approfondie :**
+   - Lancer une recherche pour identifier d'autres signes d'intrusion ou d'activité anormale sur le réseau.
+
+---
+
+### **6. Contact**
+Pour toute question ou action supplémentaire, veuillez me contacter directement :  
+**Neil LEVIN**  
+**Email :** neil.levin@cybersecuritycorp.com  
+**Tel :** +33 6 78 12 34 56  
+
+---
+
+**Document produit par Neil LEVIN - Analyste en sécurité des réseaux**  
+**Destinataire : Marc**  

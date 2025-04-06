@@ -1,165 +1,472 @@
-/**
- * Service de génération de missions pour le module CYBER DEFENSE
- * Ce service utilise l'IA pour générer dynamiquement des missions adaptées
- * au niveau de difficulté et au contexte de l'utilisateur.
- */
+import { Mission, Contact, Objective, Decision } from '../../shared/types/cyber';
+import { v4 as uuidv4 } from 'uuid';
+import { openAIService } from './openai';
 
-interface MissionGenerationParams {
-  difficultyLevel: 'Débutant' | 'Intermédiaire' | 'Expert';
-  industryContext?: string;
-  userProfileSummary?: string;
-  focusAreas?: string[];
-}
+// Secteurs d'activité disponibles
+export const SECTEURS_ACTIVITE = [
+  "RETAIL & LUXE",
+  "BANCAIRE/FINANCE (BFA)",
+  "INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)",
+  "ÉNERGIE & UTILITIES"
+];
 
-export interface CyberDefenseMission {
-  id: string;
-  title: string;
-  scenario: string;
-  objectives: string[];
-  difficulty: string;
-  context: {
-    industry: string;
-    organization: string;
-    background: string;
-  };
-  phases: {
-    id: string;
-    name: string;
-    description: string;
-    tasks: string[];
-    decisions: string[];
-  }[];
-  resources: {
-    name: string;
-    type: string;
-    content: string;
-  }[];
-}
+// Noms d'entreprises par secteur
+export const ENTREPRISES_PAR_SECTEUR: Record<string, string[]> = {
+  "RETAIL & LUXE": ["ELITE RETAIL SECURITY", "LUXURY BRANDS PROTECTION", "COMMERCE DIGITAL SECURE"],
+  "BANCAIRE/FINANCE (BFA)": ["BANQUE FINANCE ASSURANCE", "SECURE FINANCE SOLUTIONS", "CRÉDIT & INVEST PROTECTION"],
+  "INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)": ["HEALTH & INDUSTRY SHIELD", "PUBLIC SECTOR SECURITY", "INDUSTRIAL SYSTEMS GUARD"],
+  "ÉNERGIE & UTILITIES": ["ENERGY & UTILITIES NEXUS", "POWER GRID PROTECTORS", "CRITICAL UTILITIES SHIELD"]
+};
 
-class MissionGenerator {
-  /**
-   * Génère une nouvelle mission de cyber défense adaptée aux paramètres fournis
-   */
-  async generateMission(params: MissionGenerationParams): Promise<CyberDefenseMission> {
-    // TODO: Implémenter la génération réelle des missions avec l'API OpenAI
-    // Pour l'instant, retournons une mission statique d'exemple
-    
-    const missionId = `mission-${Date.now()}`;
-    
-    // Déterminer les caractéristiques en fonction du niveau de difficulté
-    let complexity, challengeLevel, detailLevel;
-    
-    switch(params.difficultyLevel) {
-      case 'Débutant':
-        complexity = "simple avec des instructions claires";
-        challengeLevel = "accessible pour les débutants";
-        detailLevel = "suffisants mais pas trop techniques";
-        break;
-      case 'Expert':
-        complexity = "complexe et nuancé";
-        challengeLevel = "très exigeant pour les experts";
-        detailLevel = "techniques et approfondis";
-        break;
-      default: // Intermédiaire
-        complexity = "modérément complexe";
-        challengeLevel = "équilibré pour un niveau intermédiaire";
-        detailLevel = "équilibrés entre accessibilité et profondeur technique";
+// Types de mission par niveau de difficulté
+export const TYPES_MISSIONS = {
+  "Débutant": [
+    { titre: "Contrer une campagne de phishing massive", tags: ["Phishing", "Sensibilisation", "Communication"] },
+    { titre: "Répondre à un incident de malware", tags: ["Malware", "Remédiation", "Analyse"] },
+    { titre: "Sécuriser le travail à distance", tags: ["Télétravail", "VPN", "Accès distant"] }
+  ],
+  "Intermédiaire": [
+    { titre: "Gestion d'une vulnérabilité zero-day critique", tags: ["Vulnérabilité", "Patch Management", "Mesures d'urgence"] },
+    { titre: "Incident sur une chaîne d'approvisionnement", tags: ["Supply Chain", "Tiers", "Audit"] },
+    { titre: "Réponse à une tentative d'extraction de données", tags: ["Exfiltration", "DLP", "Détection"] }
+  ],
+  "Expert": [
+    { titre: "Défense d'infrastructures critiques énergétiques", tags: ["Infrastructure critique", "SCADA", "APT"] },
+    { titre: "Gestion de crise lors d'une attaque APT", tags: ["APT", "Threat Hunting", "Attribution"] },
+    { titre: "Coordination internationale lors d'une cyberattaque", tags: ["Collaboration", "Juridiction", "Coordination"] }
+  ]
+};
+
+// Rôles par niveau de difficulté
+const ROLES_PAR_NIVEAU = {
+  "Débutant": ["Responsable Sensibilisation Cybersécurité", "Analyste SOC", "Responsable Support IT"],
+  "Intermédiaire": ["Responsable Vulnérabilités & Patch Management", "Analyste Threat Intelligence", "Responsable Sécurité Cloud"],
+  "Expert": ["RSSI (Responsable de la Sécurité des Systèmes d'Information)", "Directeur Cybersécurité", "Chief Information Security Officer (CISO)"]
+};
+
+// Template de base pour une mission dynamique
+const missionTemplate: Partial<Mission> = {
+  requiredSkills: ["gestion_crise", "analyse_risque", "communication", "decision_rapide", "forensique"],
+  skillsProgress: [
+    {
+      id: "gestion_crise",
+      name: "Gestion de crise",
+      description: "Capacité à gérer une situation d'urgence et à coordonner les actions",
+      category: "leadership",
+      level: 0,
+      icon: "Shield"
+    },
+    {
+      id: "analyse_risque",
+      name: "Analyse de risque",
+      description: "Capacité à identifier et évaluer les menaces potentielles",
+      category: "analyse",
+      level: 0,
+      icon: "AlertTriangle"
+    },
+    {
+      id: "communication",
+      name: "Communication de crise",
+      description: "Capacité à communiquer efficacement avec les parties prenantes",
+      category: "communication",
+      level: 0,
+      icon: "MessageCircle"
+    },
+    {
+      id: "decision_rapide",
+      name: "Prise de décision sous pression",
+      description: "Capacité à prendre des décisions éclairées en situation d'urgence",
+      category: "leadership",
+      level: 0,
+      icon: "Timer"
+    },
+    {
+      id: "forensique",
+      name: "Analyse forensique",
+      description: "Capacité à analyser les preuves numériques d'une attaque",
+      category: "technique",
+      level: 0,
+      icon: "Microscope"
     }
-    
-    // Mission d'exemple
-    const mission: CyberDefenseMission = {
-      id: missionId,
-      title: `Protection du système d'information contre une attaque avancée (${params.difficultyLevel})`,
-      scenario: `Votre organisation fait face à une menace cybernétique ${complexity}. En tant que responsable de la sécurité, vous devez coordonner la réponse et la protection de l'infrastructure.`,
-      objectives: [
-        "Identifier et contenir la menace cybernétique",
-        "Mettre en place des mesures de protection adaptées",
-        "Communiquer efficacement avec les parties prenantes",
-        params.difficultyLevel === 'Expert' ? "Développer une stratégie à long terme de résilience cyber" : "Documenter les actions prises pour améliorer la posture de sécurité"
-      ],
-      difficulty: params.difficultyLevel,
-      context: {
-        industry: params.industryContext || "Secteur financier",
-        organization: "Entreprise de taille moyenne spécialisée dans les services financiers",
-        background: `L'organisation a récemment fait l'objet d'une série d'attaques de reconnaissance, suggérant qu'un acteur malveillant se prépare à lancer une attaque plus significative. Le système de détection a identifié plusieurs tentatives d'accès non autorisés, et l'équipe de sécurité est en état d'alerte. La direction demande un plan d'action ${challengeLevel}.`
-      },
-      phases: [
-        {
-          id: "phase-1",
-          name: "Évaluation de la menace",
-          description: `Analyser les signes d'intrusion et évaluer l'ampleur potentielle de la menace. Cette phase requiert une analyse ${complexity} des logs et des alertes de sécurité.`,
-          tasks: [
-            "Examiner les logs de sécurité pour identifier les motifs d'attaque",
-            "Évaluer les systèmes potentiellement compromis",
-            "Établir un niveau de criticité pour la menace identifiée"
-          ],
-          decisions: [
-            "Déterminer s'il faut isoler certains systèmes du réseau",
-            "Décider du niveau d'escalade auprès de la direction"
-          ]
-        },
-        {
-          id: "phase-2",
-          name: "Confinement et réponse initiale",
-          description: `Mettre en œuvre les premières actions pour contenir la menace et empêcher sa propagation. Les actions de confinement doivent être ${challengeLevel}.`,
-          tasks: [
-            "Déployer des règles de filtrage supplémentaires sur les pare-feu",
-            "Isoler les systèmes suspects",
-            "Renforcer l'authentification sur les systèmes critiques"
-          ],
-          decisions: [
-            "Choisir entre un confinement progressif ou une isolation complète",
-            "Déterminer quand et comment informer les employés"
-          ]
-        },
-        {
-          id: "phase-3",
-          name: "Remédiation et renforcement",
-          description: `Éliminer la menace et renforcer les défenses pour éviter des incidents similaires à l'avenir. Cette phase nécessite des connaissances ${detailLevel}.`,
-          tasks: [
-            "Nettoyer les systèmes compromis",
-            "Appliquer les correctifs de sécurité nécessaires",
-            "Renforcer la supervision de sécurité"
-          ],
-          decisions: [
-            "Décider des investissements prioritaires en sécurité",
-            "Établir un plan de formation pour les employés"
-          ]
-        }
-      ],
-      resources: [
-        {
-          name: "Guide de réponse aux incidents",
-          type: "document",
-          content: "Ce document contient les procédures standardisées pour répondre aux incidents de sécurité dans l'organisation."
-        },
-        {
-          name: "Tableau de bord de sécurité",
-          type: "dashboard",
-          content: "Visualisation en temps réel des alertes et événements de sécurité sur le réseau."
-        }
-      ]
-    };
-    
-    return mission;
+  ],
+  learningEvents: [],
+  currentScore: 0
+};
+
+/**
+ * Sélectionne aléatoirement un élément d'un tableau
+ */
+function selectRandom<T>(array: T[]): T {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
+/**
+ * Fonction utilitaire pour nettoyer et réparer le JSON reçu de l'API
+ * @param jsonStr Chaîne potentiellement JSON à nettoyer
+ * @returns Chaîne JSON valide ou chaîne vide si non réparable
+ */
+function cleanJsonString(jsonStr: string): string {
+  if (!jsonStr) return '';
+  
+  // Tenter d'extraire le JSON d'une réponse textuelle
+  const jsonRegex1 = /```json([\s\S]*?)```/;
+  const jsonRegex2 = /(\{[\s\S]*\})/;
+  const jsonRegex3 = /(\[[\s\S]*\])/;
+  
+  // Essayer d'abord d'extraire d'un bloc code Markdown
+  let match = jsonStr.match(jsonRegex1);
+  if (match && match[1]) {
+    jsonStr = match[1].trim();
+  } else {
+    // Ensuite essayer d'extraire un objet JSON
+    match = jsonStr.match(jsonRegex2);
+    if (match && match[1]) {
+      jsonStr = match[1].trim();
+    } else {
+      // Enfin essayer d'extraire un tableau JSON
+      match = jsonStr.match(jsonRegex3);
+      if (match && match[1]) {
+        jsonStr = match[1].trim();
+      }
+    }
   }
   
+  // Supprimer les caractères non imprimables ou échapper les caractères spéciaux
+  let cleaned = jsonStr.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
+  
+  // Essayer de réparer les guillemets non fermés (cas le plus courant)
+  const fixedQuotes = [];
+  let inString = false;
+  let escaped = false;
+  
+  for (let i = 0; i < cleaned.length; i++) {
+    const char = cleaned[i];
+    if (char === '\\' && !escaped) {
+      escaped = true;
+      fixedQuotes.push(char);
+    } else if (char === '"' && !escaped) {
+      inString = !inString;
+      fixedQuotes.push(char);
+    } else {
+      if (escaped) escaped = false;
+      fixedQuotes.push(char);
+    }
+  }
+  
+  // Si on est encore dans une chaîne à la fin, ajouter un guillemet
+  if (inString) {
+    fixedQuotes.push('"');
+  }
+  
+  return fixedQuotes.join('');
+}
+
+/**
+ * Classe responsable de la génération dynamique de missions via l'IA
+ */
+export class MissionGenerator {
   /**
-   * Génère uniquement des titres de missions pour présenter des options à l'utilisateur
+   * Génère une nouvelle mission en fonction du niveau de difficulté
    */
-  async generateMissionTitles(count: number, difficulty: string): Promise<string[]> {
-    // TODO: Implémenter la génération réelle avec OpenAI
-    
-    const baseOptions = [
-      "Protection contre une attaque par déni de service",
-      "Gestion d'une fuite de données sensibles",
-      "Réponse à une attaque de phishing ciblée",
-      "Détection d'une menace persistante avancée",
-      "Sécurisation d'une infrastructure cloud"
+  async generateMission(difficultyLevel: "Débutant" | "Intermédiaire" | "Expert"): Promise<Mission> {
+    // 1. Sélection des éléments de base
+    const secteurActivite = selectRandom(SECTEURS_ACTIVITE);
+    const companyName = selectRandom(ENTREPRISES_PAR_SECTEUR[secteurActivite]);
+    const missionType = selectRandom(TYPES_MISSIONS[difficultyLevel]);
+    const userRole = selectRandom(ROLES_PAR_NIVEAU[difficultyLevel]);
+    const duration = difficultyLevel === "Débutant" ? "15-25 min" : difficultyLevel === "Intermédiaire" ? "30-45 min" : "45-60 min";
+
+    // 2. Génération du scénario via l'API OpenAI
+    const scenarioPrompt = `Génère un scénario détaillé de cybersécurité de niveau ${difficultyLevel} pour une entreprise nommée ${companyName} dans le secteur ${secteurActivite}. 
+Le scénario concerne: "${missionType.titre}" et doit être adapté pour un ${userRole}.
+Le scénario doit être réaliste, immersif et donner suffisamment de contexte pour que le joueur puisse prendre des décisions.
+Écris entre 3 et 5 phrases qui présentent: le contexte, la menace, l'enjeu et l'urgence de la situation.
+Réponds uniquement avec le texte du scénario.`;
+
+    // 3. Appel à l'API OpenAI pour générer le scénario
+    const scenarioResponse = await openAIService.getChatCompletion(
+      [{ role: "user", content: scenarioPrompt }],
+      0.7,
+      500
+    );
+    const scenario = scenarioResponse ? scenarioResponse.trim() : "";
+
+    // 4. Génération des objectifs via l'API OpenAI
+    const objectivesPrompt = `Pour une mission de cybersécurité intitulée "${missionType.titre}" de niveau ${difficultyLevel}, 
+génère 3 objectifs principaux que le joueur (${userRole}) devra atteindre.
+Chaque objectif doit être accompagné de 3 critères d'évaluation.
+Pour chaque objectif, crée également 2 décisions importantes avec 3 options possibles pour chacune.
+Chaque option doit avoir des conséquences positives et négatives.
+Réponds au format JSON selon cette structure:
+{
+  "objectives": [
+    {
+      "description": "Description de l'objectif 1",
+      "evaluationCriteria": ["Critère 1", "Critère 2", "Critère 3"],
+      "decisions": [
+        {
+          "description": "Description de la décision 1",
+          "options": [
+            {
+              "text": "Option 1",
+              "consequences": {
+                "positive": ["Conséquence positive 1", "Conséquence positive 2"],
+                "negative": ["Conséquence négative 1", "Conséquence négative 2"]
+              },
+              "score": 8
+            },
+            {
+              "text": "Option 2",
+              "consequences": {
+                "positive": ["Conséquence positive 1", "Conséquence positive 2"],
+                "negative": ["Conséquence négative 1", "Conséquence négative 2"]
+              },
+              "score": 4
+            },
+            {
+              "text": "Option 3",
+              "consequences": {
+                "positive": ["Conséquence positive 1", "Conséquence positive 2"],
+                "negative": ["Conséquence négative 1", "Conséquence négative 2"]
+              },
+              "score": -2
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}`;
+
+    // 5. Appel à l'API OpenAI pour générer les objectifs
+    const objectivesResponse = await openAIService.getChatCompletion(
+      [{ role: "user", content: objectivesPrompt }],
+      0.7,
+      2000
+    );
+
+    let objectives: Objective[] = [];
+    try {
+      // Transformer la réponse JSON en objectifs structurés
+      const cleanedJson = cleanJsonString(objectivesResponse);
+      const parsedResponse = cleanedJson ? JSON.parse(cleanedJson) : { objectives: [] };
+      objectives = (parsedResponse.objectives || []).map((obj: any) => ({
+        id: uuidv4(),
+        description: obj.description || "Objectif à compléter",
+        completed: false,
+        evaluationCriteria: obj.evaluationCriteria || ["Critère 1", "Critère 2", "Critère 3"],
+        decisions: (obj.decisions || []).map((dec: any) => ({
+          id: uuidv4(),
+          description: dec.description || "Décision à prendre",
+          options: (dec.options || []).map((opt: any) => ({
+            id: uuidv4(),
+            text: opt?.text || "Option",
+            consequences: opt?.consequences || { positive: ["Avantage"], negative: ["Inconvénient"] },
+            score: opt?.score || Math.floor(Math.random() * 10) - ((opt?.text || "").includes("risqu") ? 5 : 0)
+          }))
+        }))
+      }));
+    } catch (error) {
+      console.error("Erreur lors du parsing des objectifs:", error);
+      // Objectifs par défaut en cas d'erreur
+      objectives = [
+        {
+          id: uuidv4(),
+          description: `Analyser la situation et évaluer l'ampleur de l'incident`,
+          completed: false,
+          evaluationCriteria: [
+            "Rapidité de l'évaluation initiale",
+            "Précision de l'analyse des risques",
+            "Identification des systèmes affectés"
+          ],
+          decisions: [
+            {
+              id: uuidv4(),
+              description: "Quelle approche privilégier pour l'analyse initiale?",
+              options: [
+                {
+                  id: uuidv4(),
+                  text: "Mobiliser une équipe multidisciplinaire pour une analyse complète",
+                  consequences: {
+                    positive: ["Vision globale de l'incident", "Meilleure identification des impacts"],
+                    negative: ["Délai de réponse plus long", "Mobilisation importante de ressources"]
+                  },
+                  score: 7
+                },
+                {
+                  id: uuidv4(),
+                  text: "Effectuer une analyse technique rapide par l'équipe IT",
+                  consequences: {
+                    positive: ["Réponse plus rapide", "Moins de perturbation organisationnelle"],
+                    negative: ["Vision partielle des impacts", "Risque de sous-estimation"]
+                  },
+                  score: 4
+                },
+                {
+                  id: uuidv4(),
+                  text: "Déléguer l'analyse à un prestataire externe",
+                  consequences: {
+                    positive: ["Expertise spécialisée", "Libération des ressources internes"],
+                    negative: ["Délai supplémentaire", "Coût élevé", "Dépendance externe"]
+                  },
+                  score: 2
+                }
+              ]
+            }
+          ]
+        }
+      ];
+    }
+
+    // 6. Sélection des contacts pertinents
+    // Définition des contacts dirigeants
+    const executives: Contact[] = [
+      {
+        name: "Arnaud Gauthier",
+        role: "Président",
+        expertise: "Stratégie d'entreprise et vision globale de la cybersécurité"
+      },
+      {
+        name: "Olivier Hervo",
+        role: "Directeur Général",
+        expertise: "Gestion opérationnelle et coordination inter-départements"
+      }
     ];
     
-    // Ajouter le niveau de difficulté
-    return baseOptions.map(title => `${title} (${difficulty})`).slice(0, count);
+    // Définition des évaluateurs
+    const evaluators: Contact[] = [
+      {
+        name: "Julien Grimault",
+        role: "Senior Partner - Directeur d'unité, Sponsor du centre d'expertise Cybersécurité",
+        expertise: "Évaluation des risques et gouvernance cybersécurité"
+      },
+      {
+        name: "Yousra Saidani",
+        role: "Senior Partner et Directrice Marketing, Communication et RSE",
+        expertise: "Communication de crise et sensibilisation aux risques"
+      },
+      {
+        name: "Nosing Doeuk",
+        role: "Senior Partner - Directeur du pôle DIXIT",
+        expertise: "Infrastructure IT et sécurité des données"
+      }
+    ];
+    
+    // Définition des contacts directs
+    const directContacts: Contact[] = [
+      {
+        name: "Neil Desai",
+        role: "Consultant Senior Cybersécurité",
+        expertise: "Gestion des incidents et réponse aux attaques"
+      },
+      {
+        name: "Eddy MISSONI IDEMBI",
+        role: "Expert Data / IA & CTO",
+        expertise: "Sécurité des données et intelligence artificielle"
+      },
+      {
+        name: "Vincent Terrier",
+        role: "Senior Partner, Directeur Financier",
+        expertise: "Gestion des impacts financiers des cyberattaques"
+      }
+    ].slice(0, 3);
+
+    // Création des superviseurs et contacts pour cette mission spécifique
+    const supervisors = evaluators.length > 0 ? evaluators : executives;
+
+    // 7. Génération des contacts spécifiques via l'API OpenAI
+    const contactsPrompt = `Pour une mission de cybersécurité "${missionType.titre}" dans une entreprise ${companyName} (secteur ${secteurActivite}), 
+génère 3 contacts spécifiques qui pourraient être utiles. 
+Pour chaque contact, fournis un nom (prénom et nom de famille), un rôle dans l'organisation, et son expertise.
+Réponds au format JSON:
+[
+  {"name": "Prénom Nom", "role": "Rôle dans l'entreprise", "expertise": "Description brève de son expertise"}
+]`;
+
+    const contactsResponse = await openAIService.getChatCompletion(
+      [{ role: "user", content: contactsPrompt }],
+      0.7,
+      600
+    );
+
+    let specificContacts: Contact[] = [];
+    try {
+      const cleanedJson = cleanJsonString(contactsResponse);
+      specificContacts = cleanedJson ? JSON.parse(cleanedJson) : [];
+    } catch (error) {
+      console.error("Erreur lors du parsing des contacts:", error);
+      specificContacts = [
+        {
+          name: "Sophie Martin",
+          role: "Administratrice Systèmes",
+          expertise: "Gestion des infrastructures IT et des sauvegardes"
+        },
+        {
+          name: "Pierre Dubois",
+          role: "Responsable Conformité",
+          expertise: "Réglementation et conformité en cybersécurité"
+        }
+      ];
+    }
+
+    // 8. Générer les récompenses et pénalités en fonction du niveau
+    const rewardsAndPenaltiesPrompt = `Pour une mission de cybersécurité "${missionType.titre}" de niveau ${difficultyLevel},
+propose 3 récompenses professionnelles en cas de succès et 3 conséquences négatives en cas d'échec.
+Ces éléments doivent être adaptés au rôle de ${userRole} dans une entreprise du secteur ${secteurActivite}.
+Réponds au format JSON:
+{
+  "rewards": ["Récompense 1", "Récompense 2", "Récompense 3"],
+  "penalties": ["Pénalité 1", "Pénalité 2", "Pénalité 3"]
+}`;
+
+    const rewardsResponse = await openAIService.getChatCompletion(
+      [{ role: "user", content: rewardsAndPenaltiesPrompt }],
+      0.7,
+      400
+    );
+
+    let rewards = ["Reconnaissance professionnelle", "Budget supplémentaire", "Formation spécialisée"];
+    let penalties = ["Perte de confiance", "Réduction des responsabilités", "Évaluation négative"];
+
+    try {
+      const cleanedJson = cleanJsonString(rewardsResponse);
+      const parsedRewards = cleanedJson ? JSON.parse(cleanedJson) : null;
+      if (parsedRewards) {
+        rewards = parsedRewards.rewards || rewards;
+        penalties = parsedRewards.penalties || penalties;
+      }
+    } catch (error) {
+      console.error("Erreur lors du parsing des récompenses:", error);
+    }
+
+    // 9. Assembler tous les éléments pour créer la mission complète
+    // Créer un titre personnalisé avec l'entreprise pour une meilleure diversité
+    const missionTitle = `${missionType.titre} chez ${companyName}`;
+    
+    const mission: Mission = {
+      ...missionTemplate as Mission,
+      id: uuidv4(),
+      title: missionTitle,
+      description: `Une situation critique de cybersécurité requiert vos compétences de ${userRole}. Prenez les bonnes décisions pour protéger ${companyName}.`,
+      difficulty: difficultyLevel,
+      duration: duration,
+      tags: missionType.tags,
+      scenario: scenario,
+      companyName: companyName,
+      secteurActivite: secteurActivite,
+      userRole: userRole,
+      objectives: objectives,
+      contacts: [...directContacts, ...specificContacts],
+      supervisors: supervisors,
+      evaluationSystem: {
+        maxPoints: 60,
+        penaltyThreshold: 20,
+        rewards: rewards,
+        penalties: penalties
+      }
+    };
+
+    return mission;
   }
 }
 

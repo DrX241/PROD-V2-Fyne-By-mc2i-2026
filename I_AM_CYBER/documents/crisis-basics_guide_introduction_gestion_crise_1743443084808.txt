@@ -1,0 +1,48 @@
+---
+
+**GUIDE INTRODUCTION À LA GESTION DE CRISE CYBER**  
+*Destinataire : Eddy*  
+Contact : Nosing Doeuk  
+
+---
+
+### **Contexte**  
+La gestion de crise cyber consiste à répondre de manière structurée et efficace aux incidents de cybersécurité pouvant perturber les opérations d’une organisation. Une réponse mal coordonnée peut engendrer des pertes financières, opérationnelles et de réputation significatives. Ce guide introductif fournit les bases pour aborder ce type de situations.
+
+---
+
+### **Étapes clés de la gestion de crise cyber**  
+
+1. **Identification** :  
+   - Déterminer la nature et l’étendue de l’incident (ex. : ransomware, fuite de données).  
+   - Utiliser les outils d’analyse (SIEM, journaux système) pour localiser les anomalies.
+
+2. **Évaluation** :  
+   - Estimer l’impact technique et métier (ex. : services affectés, données compromises).  
+   - Classifier l’incident selon sa gravité (critique, majeur, mineur).
+
+3. **Communication** :  
+   - Activer la chaîne de communication interne (équipes IT, direction, juridique).  
+   - Préparer des messages de crise pour les parties prenantes externes si nécessaire.
+
+4. **Réponse initiale** :  
+   - Contenir l’incident (ex. : isoler les systèmes compromis, suspendre les accès).  
+   - Documenter les actions entreprises pour suivi futur.  
+
+---
+
+### **Rôles et Responsabilités**  
+- **Équipe IT** : Analyse technique, mise en œuvre des contre-mesures.  
+- **Direction** : Prise de décisions stratégiques.  
+- **Contact dédié** : *Nosing Doeuk* (coordination et gestion des communications).  
+
+---
+
+### **Ressources**  
+- Procédures internes de gestion de crise.  
+- Outils de surveillance et de réponse (EDR, SIEM).  
+- Accès aux experts légaux et techniques en cas d’escalade.
+
+---
+
+Fin du document.

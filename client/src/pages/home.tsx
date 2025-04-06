@@ -7,7 +7,7 @@ import {
   Users, Award, Brain, Laptop, Package, Target
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-// ChatContext import removed
+import { useChatContext } from "@/contexts/ChatContext";
 import { motion } from "framer-motion";
 import mcLogoPath from "@assets/mc2i.png";
 
@@ -95,7 +95,7 @@ const FeatureCard = ({
 };
 
 export default function Home() {
-  // ChatContext reference removed
+  const { userName } = useChatContext();
   
   // Modules avec animations interactives
   const modules = [

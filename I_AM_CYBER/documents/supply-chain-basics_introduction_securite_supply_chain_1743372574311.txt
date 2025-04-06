@@ -1,0 +1,53 @@
+**Document Technique en Cybersécurité**  
+**Titre : Introduction à la Sécurité de la Chaîne d’Approvisionnement**  
+**Contact : Marie Bernard**  
+**Destinataire : Eddy**  
+
+---
+
+### **Contexte : Importance de la Sécurité dans la Chaîne d’Approvisionnement**  
+Dans un environnement numérique où les entreprises dépendent de multiples fournisseurs, partenaires et prestataires externes, la sécurité de la chaîne d’approvisionnement est devenue une préoccupation majeure. Les cyberattaques ciblant la chaîne d’approvisionnement peuvent avoir des répercussions graves, allant de la compromission des données sensibles à l’interruption des opérations critiques. Les acteurs malveillants exploitent souvent les vulnérabilités des fournisseurs pour accéder aux systèmes internes des entreprises en aval.
+
+### **Problème : Risques Liés à la Chaîne d’Approvisionnement**  
+Les chaînes d’approvisionnement modernes sont complexes et souvent globalisées, impliquant de nombreux tiers. Ces tiers peuvent inclure :  
+- **Fournisseurs de logiciels** : Applications tierces intégrées dans les systèmes internes.  
+- **Prestataires de services IT** : Hébergement, maintenance ou support technique.  
+- **Fabricants de matériel** : Composants physiques tels que les serveurs ou équipements réseau.  
+
+Les risques principaux incluent :  
+1. **Vulnérabilités des tiers** : Les partenaires peuvent ne pas disposer de mesures de sécurité adéquates, exposant ainsi l’entreprise à des attaques.  
+2. **Logiciels compromis** : Des mises à jour ou installations contenant du code malveillant peuvent être diffusées par des fournisseurs non sécurisés.  
+3. **Manque de visibilité** : Une gestion inefficace des relations avec les fournisseurs peut empêcher de détecter des menaces potentielles.  
+
+### **Exemple de Scénario**  
+Un fournisseur de logiciels tiers, utilisé dans votre entreprise pour la gestion de la logistique, est victime d’une attaque de type "supply chain attack". Les attaquants exploitent une mise à jour compromise pour infiltrer les systèmes internes de votre organisation. Cette intrusion entraîne :  
+- Une violation des données clients.  
+- L’arrêt temporaire des opérations logistiques.  
+- Une perte de confiance des partenaires commerciaux.  
+
+### **Défis Actuels**  
+- **Evaluation des risques des tiers** : Comment mesurer efficacement la sécurité d’un fournisseur avant de l’intégrer dans votre chaîne d’approvisionnement ?  
+- **Gestion des accès** : Comment limiter les permissions accordées aux fournisseurs dans vos systèmes internes ?  
+- **Surveillance continue** : Comment détecter rapidement les comportements suspects ou les anomalies dans les activités des tiers connectés ?  
+
+### **Références et Historique**  
+Les attaques sur la chaîne d’approvisionnement ont augmenté ces dernières années, avec des événements marquants tels que :  
+- **SolarWinds (2020)** : Logiciel de gestion IT compromis, affectant des milliers d’organisations, dont des agences gouvernementales.  
+- **CCleaner (2017)** : Version compromise de l’utilitaire de nettoyage, diffusée via des chaînes de distribution légitimes.  
+
+Ces exemples mettent en lumière la nécessité d’établir des mesures robustes pour protéger l’ensemble des maillons de la chaîne.
+
+---
+
+### **Objectif de la Formation**  
+Ce module vise à sensibiliser les participants aux risques spécifiques de la chaîne d’approvisionnement et à leur donner les outils pour identifier les zones vulnérables dans un environnement professionnel.  
+
+Nous vous invitons à réfléchir aux questions suivantes :  
+1. Quels indicateurs utiliser pour évaluer la sécurité d’un fournisseur ?  
+2. Quelles étapes adopter pour minimiser les risques liés à l’intégration d’un nouveau partenaire ?  
+3. Comment réagir face à une attaque ciblant un fournisseur essentiel ?  
+
+Pour tout renseignement complémentaire, veuillez contacter **Marie Bernard**.  
+
+---  
+**Fin du Document**  

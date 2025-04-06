@@ -1,0 +1,87 @@
+---
+
+**Rapport de Simulation d'Attaque Phishing**  
+**Domaine : Formation et Sensibilisation à la Cybersécurité**  
+**Niveau de Difficulté : Débutant**  
+**Destinataire : Eddy**  
+**Contact : Marion Lopez**  
+
+---
+
+### **1. Introduction**
+
+Dans le cadre de notre programme de sensibilisation à la cybersécurité, une simulation d'attaque de phishing a été menée auprès des employés afin d'évaluer leur niveau de vigilance et de réactivité face à ce type de menace. Ce rapport détaille les observations et fournit les informations techniques nécessaires pour comprendre le contexte et le déroulement de cette opération.
+
+---
+
+### **2. Description de l'attaque simulée**
+
+**Type d'attaque :** Phishing par e-mail.  
+**Objet du message reçu :** "Mise à jour urgente de vos informations de connexion."  
+**Expéditeur :** IT-Support@company-secure.com (adresse usurpée).  
+**Date :** 12 octobre 2023.  
+**Heure :** Entre 10h00 et 11h30.  
+
+**Résumé du contenu :**  
+Un e-mail a été envoyé à un échantillon d'employés, y compris vous, Eddy, simulant une demande urgente de mise à jour des informations de connexion aux services internes de l'entreprise. Le message contenait :  
+- Un lien hypertexte (https://company-secure-update.com) redirigeant vers une page de connexion falsifiée.  
+- Un langage professionnel mais légèrement générique.  
+- Une incitation à agir rapidement sous peine de suspension de l'accès aux ressources internes.  
+
+**Caractéristiques techniques du site web de phishing :**  
+- **URL utilisée :** https://company-secure-update.com (non légitime).  
+- **Design visuel :** Reproduction de l'interface officielle de l'entreprise avec logo et couleurs similaires.  
+- **HTTPS activé :** Certificat TLS valide mais enregistré sous un nom de domaine frauduleux.  
+- **Formulaire de saisie :** Collecte des identifiants (email et mot de passe).  
+
+---
+
+### **3. Résultats observés**
+
+- Le taux d'ouverture de l'e-mail a été de **68 %** parmi les destinataires.  
+- **20 %** des destinataires ont cliqué sur le lien.  
+- **12 %** des destinataires ont soumis leurs informations de connexion via la page frauduleuse.  
+
+---
+
+### **4. Points techniques à analyser**
+
+1. **Authenticité de l'adresse e-mail de l'expéditeur :**  
+   - L'expéditeur revendique être le support IT officiel, mais l'analyse de l'adresse montre une usurpation.  
+   - L'adresse réelle est enregistrée sous un domaine tiers non lié à l'entreprise.
+
+2. **Structure et contenu du message :**  
+   - Utilisation de termes généraux ("Cher utilisateur") au lieu d'une personnalisation avancée.  
+   - Présence de fautes mineures (grammaire et syntaxe) qui pourraient éveiller des soupçons.  
+
+3. **Caractéristiques du lien et du site web :**  
+   - La page de phishing utilise un certificat HTTPS, ce qui peut rassurer les utilisateurs inattentifs.  
+   - Le domaine utilisé n'est pas celui de l'entreprise mais imite son apparence.
+
+4. **Comportement des destinataires :**  
+   - Les utilisateurs ayant soumis leurs informations pourraient ne pas avoir remarqué les détails suspects ou la fausse URL.  
+   - Une absence de double vérification avant de cliquer sur le lien peut être un facteur contributif.
+
+---
+
+### **5. Implications potentielles**
+
+Si une véritable attaque de phishing avait été menée, les informations collectées auraient pu être utilisées pour :  
+- Accéder aux systèmes internes de l’entreprise.  
+- Déployer des attaques plus ciblées (e.g., spear phishing).  
+- Compromettre directement des données sensibles ou confidentielles.
+
+---
+
+### **6. Prochaines étapes**
+
+Ce rapport est destiné à vous sensibiliser aux techniques de phishing de base. Veuillez examiner les éléments techniques décrits ci-dessus et réfléchir aux mesures qui auraient pu être adoptées pour identifier et éviter cette attaque.  
+
+Pour toute question ou complément d’information, contactez Marion Lopez, responsable de la sensibilisation à la cybersécurité.  
+
+---
+
+**Document produit par :** Service Cybersécurité Formation  
+**Date :** 13 octobre 2023  
+
+---

@@ -1,0 +1,33 @@
+**Guide d'Introduction à la Gestion de Crise Cyber**  
+**Domaine : Gestion de crise cyber**  
+**Niveau : Débutant**  
+
+---
+
+**1. Contexte**  
+La gestion de crise cyber est un processus structuré visant à répondre efficacement aux incidents de sécurité informatique susceptibles d’avoir un impact significatif sur les opérations, la réputation ou les actifs d'une organisation. Une crise cyber peut inclure des violations de données, des attaques par ransomware, des compromissions de systèmes ou des perturbations majeures des services.
+
+---
+
+**2. Principes de base**  
+- **Identification rapide** : Surveiller et détecter les anomalies ou les indicateurs de compromission (IoCs) tels que des accès non autorisés, des fichiers modifiés ou des communications réseau inhabituelles.
+- **Communication** : Établir une communication claire et coordonnée entre les parties prenantes internes et externes, notamment l'équipe IT, les responsables métiers et les prestataires.
+- **Documentation** : Consigner minutieusement les événements liés à l’incident (chronologie, actions entreprises, résultats) pour faciliter l’analyse post-crise et la conformité réglementaire.
+
+---
+
+**3. Cycles de gestion de crise**  
+Les étapes typiques incluent :  
+- **Détection** : Identification de l’incident et validation de sa nature.  
+- **Évaluation** : Analyse de l'impact potentiel (technique, opérationnel, réputationnel).  
+- **Réponse** : Mise en œuvre des procédures pour limiter la propagation et protéger les actifs critiques.  
+- **Rétablissement** : Retour à un fonctionnement normal avec des mesures correctives.  
+- **Amélioration** : Révision des processus et mise à jour des plans en fonction des leçons apprises.
+
+---
+
+**4. Ressources et assistance**  
+Pour toute question ou clarification sur les protocoles de gestion de crise, veuillez contacter **Nosing Doeuk**.  
+
+**Destinataire** : Eddy  
+Merci de vous familiariser avec ces concepts avant la prochaine session.

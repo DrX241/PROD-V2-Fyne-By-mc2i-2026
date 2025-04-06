@@ -1,225 +1,495 @@
+import { 
+  ImmersiveScenario,
+  NPCCharacter, 
+  DecisionPoint, 
+  ScenarioPhase, 
+  UserRole, 
+  SimulationSession,
+  ImmersiveConversation
+} from '../../shared/types/immersive-cyber';
+import { v4 as uuidv4 } from 'uuid';
+import { openAIService } from './openai';
+import { ChatCompletionRequestMessage } from '../../shared/schema';
+
 /**
- * Service pour la gestion des scénarios de simulation immersive
+ * Service responsable de la gestion des scénarios immersifs et des interactions avec les PNJ
  */
+export class ImmersiveScenarioService {
+  private activeScenarios: Map<string, ImmersiveScenario> = new Map();
+  private activeSessions: Map<string, SimulationSession> = new Map();
+  private conversations: Map<string, ImmersiveConversation> = new Map();
 
-import { immersiveScenarios } from '../data/immersive-scenarios';
-import { UserRole, ImmersiveScenario, ImmersiveSession, Conversation } from '../../shared/types/immersive-cyber';
-
-class ImmersiveScenarioService {
-  private sessions: Map<string, ImmersiveSession> = new Map();
-  private conversations: Map<string, Conversation> = new Map();
-  
   /**
-   * Récupère la liste des scénarios disponibles
+   * Initialise le service avec les scénarios prédéfinis
    */
-  async getAvailableScenarios(): Promise<ImmersiveScenario[]> {
-    // Dans une version réelle, cela pourrait venir d'une base de données
-    return immersiveScenarios;
+  constructor() {
+    console.log('Initialisation du service de scénarios immersifs');
+    
+    // Charger les scénarios prédéfinis (asynchrone)
+    // Nous utilisons une IIFE (Immediately Invoked Function Expression) pour gérer l'async
+    (async () => {
+      await this.loadPredefinedScenarios();
+    })().catch(error => {
+      console.error('Erreur lors du chargement initial des scénarios:', error);
+    });
   }
   
   /**
-   * Démarre une nouvelle session de simulation immersive
+   * Charge les scénarios prédéfinis dans le service
    */
-  async startSession(scenarioId: string, userId: string, selectedRole: UserRole): Promise<ImmersiveSession> {
-    const scenario = immersiveScenarios.find(s => s.id === scenarioId);
+  private async loadPredefinedScenarios(): Promise<void> {
+    try {
+      // Importer dynamiquement les scénarios en utilisant import() au lieu de require
+      const scenariosModule = await import('../data/immersive-scenarios/index.js');
+      const { immersiveScenarios } = scenariosModule;
+      
+      // Ajouter chaque scénario à la map active
+      immersiveScenarios.forEach((scenario: ImmersiveScenario) => {
+        this.activeScenarios.set(scenario.id, scenario);
+        console.log(`Scénario chargé: ${scenario.title}`);
+      });
+      
+      console.log(`${this.activeScenarios.size} scénarios immersifs chargés avec succès`);
+    } catch (error) {
+      console.error('Erreur lors du chargement des scénarios prédéfinis:', error);
+    }
+  }
+
+  /**
+   * Récupère tous les scénarios disponibles
+   */
+  async getAvailableScenarios(): Promise<ImmersiveScenario[]> {
+    // Pour le début, nous retournerons les scénarios prédéfinis
+    // À terme, cela pourrait être chargé depuis une base de données
+    return Array.from(this.activeScenarios.values());
+  }
+
+  /**
+   * Ajoute un nouveau scénario immersif
+   */
+  async addScenario(scenario: Omit<ImmersiveScenario, 'id'>): Promise<ImmersiveScenario> {
+    const id = uuidv4();
+    const newScenario: ImmersiveScenario = {
+      ...scenario,
+      id
+    };
+    
+    this.activeScenarios.set(id, newScenario);
+    return newScenario;
+  }
+
+  /**
+   * Démarre une nouvelle session de simulation
+   */
+  async startSession(scenarioId: string, userId: string, selectedRole: UserRole): Promise<SimulationSession> {
+    const scenario = this.activeScenarios.get(scenarioId);
     
     if (!scenario) {
-      throw new Error(`Scénario ${scenarioId} non trouvé`);
+      throw new Error(`Scénario non trouvé: ${scenarioId}`);
     }
     
-    // Trouver la première phase du premier arc narratif
-    const firstPhase = scenario.narrativeArcs[0]?.phases[0]?.id;
-    
-    if (!firstPhase) {
-      throw new Error('Le scénario ne contient pas de phases');
+    if (!scenario.availableRoles.includes(selectedRole)) {
+      throw new Error(`Rôle non disponible pour ce scénario: ${selectedRole}`);
     }
     
-    // Initialiser les relations avec les personnages
-    const characterRelationships: Record<string, number> = {};
-    scenario.characters.forEach(character => {
-      characterRelationships[character.id] = 0; // 0 est neutre
-    });
-    
-    // Initialiser les métriques
-    const currentMetrics: Record<string, number> = {};
+    // Initialiser les métriques avec leurs valeurs par défaut
+    const initialMetrics: Record<string, number> = {};
     scenario.metrics.categories.forEach(category => {
       category.metrics.forEach(metric => {
-        currentMetrics[metric.id] = metric.initialValue;
+        initialMetrics[metric.id] = metric.initialValue;
       });
     });
     
-    const sessionId = `session-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    // Créer une nouvelle session
+    const sessionId = uuidv4();
+    const initialPhase = scenario.narrativeArcs[0].phases[0].id;
     
-    const session: ImmersiveSession = {
+    const newSession: SimulationSession = {
       id: sessionId,
       scenarioId,
       userId,
       selectedRole,
-      currentPhase: firstPhase,
-      startedAt: new Date().toISOString(),
-      completedPhases: [],
-      decisionsMade: [],
-      characterRelationships,
-      currentMetrics,
-      sessionLog: [
-        {
-          timestamp: new Date().toISOString(),
-          type: 'session_started',
-          description: `Session démarrée avec le scénario "${scenario.title}"`
+      startTime: Date.now(),
+      currentPhase: initialPhase,
+      elapsedTime: 0,
+      currentMetrics: initialMetrics,
+      completedActions: [],
+      pendingDecisions: [],
+      activeEvents: [],
+      characterRelationships: {},
+      notifications: [],
+      availableAssets: [],
+      sessionLog: [{
+        timestamp: Date.now(),
+        type: 'event',
+        details: {
+          name: 'Session démarrée',
+          description: `Début du scénario: ${scenario.title}`
         }
-      ]
+      }]
     };
     
-    this.sessions.set(sessionId, session);
-    return session;
+    // Initialiser les relations avec les personnages
+    scenario.characters.forEach(character => {
+      newSession.characterRelationships[character.id] = 0; // Neutre par défaut
+    });
+    
+    this.activeSessions.set(sessionId, newSession);
+    return newSession;
   }
-  
+
   /**
-   * Récupère une session existante
+   * Récupère une session de simulation active
    */
-  getSession(sessionId: string): ImmersiveSession | undefined {
-    return this.sessions.get(sessionId);
+  getSession(sessionId: string): SimulationSession | undefined {
+    return this.activeSessions.get(sessionId);
   }
-  
+
   /**
-   * Traite une décision prise par l'utilisateur
+   * Met à jour une session de simulation
    */
-  async processDecision(sessionId: string, decisionPointId: string, optionId: string): Promise<{
-    consequences: string[];
-    feedback: string;
-    updatedSession: ImmersiveSession;
-  }> {
-    const session = this.sessions.get(sessionId);
+  updateSession(sessionId: string, updates: Partial<SimulationSession>): SimulationSession {
+    const session = this.activeSessions.get(sessionId);
     
     if (!session) {
-      throw new Error('Session non trouvée');
+      throw new Error(`Session non trouvée: ${sessionId}`);
     }
     
-    // Dans une version réelle, nous appliquerions les conséquences,
-    // mettrions à jour les métriques, etc.
+    const updatedSession = { ...session, ...updates };
+    this.activeSessions.set(sessionId, updatedSession);
     
-    // Pour l'instant, simulons un retour simple
-    const consequences = [`Conséquence de la décision ${optionId}`, 'Une autre conséquence'];
+    return updatedSession;
+  }
+
+  /**
+   * Traite une décision prise par le joueur
+   */
+  async processDecision(
+    sessionId: string, 
+    decisionPointId: string, 
+    optionId: string
+  ): Promise<{
+    consequences: string[];
+    updatedSession: SimulationSession;
+    feedback: string;
+  }> {
+    const session = this.activeSessions.get(sessionId);
     
-    // Enregistrer la décision dans l'historique de la session
-    session.decisionsMade.push({
-      timestamp: new Date().toISOString(),
-      decisionPointId,
-      optionId
+    if (!session) {
+      throw new Error(`Session non trouvée: ${sessionId}`);
+    }
+    
+    const scenario = this.activeScenarios.get(session.scenarioId);
+    
+    if (!scenario) {
+      throw new Error(`Scénario non trouvé: ${session.scenarioId}`);
+    }
+    
+    // Trouver la phase courante
+    let currentPhase: ScenarioPhase | undefined;
+    let decisionPoint: DecisionPoint | undefined;
+    
+    for (const arc of scenario.narrativeArcs) {
+      const phase = arc.phases.find(p => p.id === session.currentPhase);
+      if (phase) {
+        currentPhase = phase;
+        decisionPoint = phase.decisionPoints.find(dp => dp.id === decisionPointId);
+        break;
+      }
+    }
+    
+    if (!currentPhase || !decisionPoint) {
+      throw new Error(`Phase ou point de décision non trouvé`);
+    }
+    
+    // Trouver l'option choisie
+    const option = decisionPoint.options.find(o => o.id === optionId);
+    
+    if (!option) {
+      throw new Error(`Option non trouvée: ${optionId}`);
+    }
+    
+    // Vérifier que le rôle du joueur est autorisé
+    if (option.requiredRole && !option.requiredRole.includes(session.selectedRole)) {
+      throw new Error(`Votre rôle actuel ne vous permet pas de prendre cette décision`);
+    }
+    
+    // Appliquer les conséquences directes
+    const consequences: string[] = [];
+    const updatedMetrics = { ...session.currentMetrics };
+    
+    for (const consequence of option.consequences) {
+      if (consequence.type === 'direct') {
+        // Appliquer les changements de métriques
+        for (const metricChange of consequence.metrics) {
+          updatedMetrics[metricChange.metricId] = 
+            (updatedMetrics[metricChange.metricId] || 0) + metricChange.change;
+        }
+        
+        consequences.push(consequence.narrative);
+        
+        // TODO: Déclencher les événements liés à cette conséquence
+      }
+    }
+    
+    // Marquer la décision comme prise
+    const updatedSession = this.updateSession(sessionId, {
+      currentMetrics: updatedMetrics,
+      pendingDecisions: session.pendingDecisions.filter(id => id !== decisionPointId),
+      sessionLog: [
+        ...session.sessionLog,
+        {
+          timestamp: Date.now(),
+          type: 'decision',
+          details: {
+            decisionId: decisionPointId,
+            optionId,
+            consequences
+          }
+        }
+      ]
     });
     
-    // Ajouter à l'historique de la session
-    session.sessionLog.push({
-      timestamp: new Date().toISOString(),
-      type: 'decision_made',
-      description: `Décision prise: option ${optionId} pour le point de décision ${decisionPointId}`
-    });
-    
-    // Mettre à jour la session
-    this.sessions.set(sessionId, session);
-    
+    // Générer un feedback narratif
     return {
       consequences,
-      feedback: 'Votre décision a été prise en compte et aura des répercussions sur la suite du scénario.',
-      updatedSession: session
+      updatedSession,
+      feedback: option.feedback.immediate
     };
   }
-  
+
   /**
    * Démarre une conversation avec un PNJ
    */
-  async startConversation(sessionId: string, characterId: string): Promise<Conversation> {
-    const session = this.sessions.get(sessionId);
+  async startConversation(
+    sessionId: string,
+    characterId: string
+  ): Promise<ImmersiveConversation> {
+    const session = this.activeSessions.get(sessionId);
     
     if (!session) {
-      throw new Error('Session non trouvée');
+      throw new Error(`Session non trouvée: ${sessionId}`);
     }
     
-    const scenario = immersiveScenarios.find(s => s.id === session.scenarioId);
+    const scenario = this.activeScenarios.get(session.scenarioId);
     
     if (!scenario) {
-      throw new Error('Scénario non trouvé');
+      throw new Error(`Scénario non trouvé: ${session.scenarioId}`);
     }
     
     const character = scenario.characters.find(c => c.id === characterId);
     
     if (!character) {
-      throw new Error('Personnage non trouvé');
+      throw new Error(`Personnage non trouvé: ${characterId}`);
     }
     
-    const conversationId = `conv-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    // Trouver la phase courante pour le contexte
+    let currentPhase: ScenarioPhase | undefined;
     
-    const conversation: Conversation = {
+    for (const arc of scenario.narrativeArcs) {
+      const phase = arc.phases.find(p => p.id === session.currentPhase);
+      if (phase) {
+        currentPhase = phase;
+        break;
+      }
+    }
+    
+    if (!currentPhase) {
+      throw new Error(`Phase courante non trouvée`);
+    }
+    
+    // Créer le contexte pour la conversation
+    const phaseContext = `Contexte actuel: ${currentPhase.description}`;
+    const relationshipLevel = session.characterRelationships[characterId] || 0;
+    let relationshipContext = "Relation neutre avec l'utilisateur.";
+    
+    if (relationshipLevel > 5) {
+      relationshipContext = "Relation très positive et collaborative avec l'utilisateur.";
+    } else if (relationshipLevel > 0) {
+      relationshipContext = "Bonne relation de travail avec l'utilisateur.";
+    } else if (relationshipLevel < -5) {
+      relationshipContext = "Relation très tendue avec l'utilisateur.";
+    } else if (relationshipLevel < 0) {
+      relationshipContext = "Légère tension dans la relation avec l'utilisateur.";
+    }
+    
+    // Créer une nouvelle conversation
+    const conversationId = uuidv4();
+    const newConversation: ImmersiveConversation = {
       id: conversationId,
-      sessionId,
       characterId,
-      startedAt: new Date().toISOString(),
-      messages: [
-        {
-          sender: 'character',
-          content: `Bonjour, je suis ${character.name}, ${character.role}. Que puis-je faire pour vous ?`,
-          timestamp: new Date().toISOString(),
-          emotion: 'neutral'
-        }
-      ],
-      status: 'active'
+      playerRole: session.selectedRole,
+      context: `${phaseContext}\n${relationshipContext}`,
+      history: [],
+      knowledgeConstraints: {
+        characterKnows: [],
+        characterDoesntKnow: []
+      }
     };
     
-    // Ajouter à l'historique de la session
-    session.sessionLog.push({
-      timestamp: new Date().toISOString(),
-      type: 'conversation_started',
-      description: `Conversation démarrée avec ${character.name}`
-    });
+    // Ajouter les connaissances du personnage
+    // Événements que le personnage connaît
+    newConversation.knowledgeConstraints.characterKnows = session.sessionLog
+      .filter(log => log.type === 'event' && scenario.characters.some(c => 
+        c.id === characterId && c.expertise.some(e => 
+          log.details.description.toLowerCase().includes(e.toLowerCase())
+        )))
+      .map(log => log.details.description);
     
-    this.conversations.set(conversationId, conversation);
-    return conversation;
+    // Événements que le personnage ne connaît pas
+    newConversation.knowledgeConstraints.characterDoesntKnow = session.sessionLog
+      .filter(log => log.type === 'event' && !scenario.characters.some(c => 
+        c.id === characterId && c.expertise.some(e => 
+          log.details.description.toLowerCase().includes(e.toLowerCase())
+        )))
+      .map(log => log.details.description);
+    
+    this.conversations.set(conversationId, newConversation);
+    
+    return newConversation;
   }
-  
+
   /**
-   * Envoie un message à un PNJ dans une conversation existante
+   * Envoie un message à un PNJ et obtient sa réponse
    */
-  async sendMessageToNPC(conversationId: string, messageContent: string): Promise<{
+  async sendMessageToNPC(
+    conversationId: string,
+    message: string
+  ): Promise<{
     response: string;
     emotion: string;
-    updatedConversation: Conversation;
+    updatedConversation: ImmersiveConversation;
   }> {
     const conversation = this.conversations.get(conversationId);
     
     if (!conversation) {
-      throw new Error('Conversation non trouvée');
+      throw new Error(`Conversation non trouvée: ${conversationId}`);
     }
     
-    // Ajouter le message de l'utilisateur
-    conversation.messages.push({
-      sender: 'user',
-      content: messageContent,
-      timestamp: new Date().toISOString()
+    // Trouver le personnage et le scénario
+    let session: SimulationSession | undefined;
+    let scenario: ImmersiveScenario | undefined;
+    let character: NPCCharacter | undefined;
+    
+    for (const [sessionId, s] of this.activeSessions.entries()) {
+      scenario = this.activeScenarios.get(s.scenarioId);
+      if (scenario) {
+        character = scenario.characters.find(c => c.id === conversation.characterId);
+        if (character) {
+          session = s;
+          break;
+        }
+      }
+    }
+    
+    if (!session || !scenario || !character) {
+      throw new Error(`Impossible de trouver les informations nécessaires pour cette conversation`);
+    }
+    
+    // Ajouter le message du joueur à l'historique
+    conversation.history.push({
+      speaker: 'player',
+      content: message,
+      timestamp: Date.now()
     });
     
-    // Dans une version réelle, nous utiliserions un LLM pour générer la réponse
-    // Pour l'instant, simulons une réponse simple
+    // Préparer le prompt pour l'IA
+    const promptContext = `
+Tu incarnes ${character.name}, ${character.role} dans le scénario "${scenario.title}".
+
+Profil du personnage:
+- Expertise: ${character.expertise.join(', ')}
+- Personnalité: ${character.personality}
+- Style de communication: ${character.communicationStyle}
+
+Contexte du scénario: ${conversation.context}
+
+Ce que tu sais sur la situation actuelle:
+${conversation.knowledgeConstraints.characterKnows.join('\n')}
+
+Information importante: Tu ne sais PAS les choses suivantes (ne les mentionne pas):
+${conversation.knowledgeConstraints.characterDoesntKnow.join('\n')}
+
+Tu parles à un utilisateur qui joue le rôle de: ${conversation.playerRole}
+
+Historique de la conversation:
+${conversation.history.map(h => `${h.speaker === 'player' ? 'Utilisateur' : character.name}: ${h.content}`).join('\n')}
+
+Réponds de manière professionnelle mais avec la personnalité de ${character.name}. 
+Ta réponse doit être cohérente avec ton expertise, ton niveau de connaissance et ta relation avec l'utilisateur.
+N'invente pas d'informations que tu ne peux pas connaître dans ton rôle.
+`;
     
-    const response = `Je comprends votre message concernant "${messageContent.substring(0, 30)}...". Comment puis-je vous aider davantage ?`;
-    const emotion = 'interested';
+    const messages: ChatCompletionRequestMessage[] = [
+      { role: "system", content: promptContext },
+      { role: "user", content: message }
+    ];
     
-    // Ajouter la réponse du PNJ
-    conversation.messages.push({
-      sender: 'character',
-      content: response,
-      timestamp: new Date().toISOString(),
+    // Obtenir la réponse de l'IA avec plus de créativité pour les personnages
+    const aiResponse = await openAIService.getChatCompletionWithCache(
+      messages,
+      0.8, // Plus de créativité pour les personnages
+      800  // Réponses plus longues pour des interactions riches
+    );
+    
+    // Analyse basique de l'émotion de la réponse
+    let emotion = "neutral";
+    if (aiResponse.includes("!") || aiResponse.includes("urgent") || aiResponse.includes("critique")) {
+      emotion = "concerned";
+    } else if (aiResponse.includes("excellent") || aiResponse.includes("parfait") || aiResponse.includes("bravo")) {
+      emotion = "pleased";
+    } else if (aiResponse.includes("désolé") || aiResponse.includes("malheureusement")) {
+      emotion = "apologetic";
+    }
+    
+    // Mettre à jour l'historique de la conversation
+    conversation.history.push({
+      speaker: 'npc',
+      content: aiResponse,
+      timestamp: Date.now(),
       emotion
     });
     
-    // Mettre à jour la conversation
-    this.conversations.set(conversationId, conversation);
+    // Mettre à jour la relation avec le personnage en fonction du contenu
+    // C'est simpliste mais peut être amélioré avec une analyse de sentiment plus sophistiquée
+    let relationshipChange = 0;
+    if (aiResponse.includes("excellent") || aiResponse.includes("merci") || aiResponse.includes("bonne idée")) {
+      relationshipChange = 1;
+    } else if (aiResponse.includes("mauvaise") || aiResponse.includes("erreur") || aiResponse.includes("non recommandé")) {
+      relationshipChange = -1;
+    }
+    
+    if (relationshipChange !== 0 && session) {
+      const updatedRelationships = { ...session.characterRelationships };
+      updatedRelationships[character.id] = (updatedRelationships[character.id] || 0) + relationshipChange;
+      
+      this.updateSession(session.id, {
+        characterRelationships: updatedRelationships
+      });
+    }
     
     return {
-      response,
+      response: aiResponse,
       emotion,
       updatedConversation: conversation
     };
   }
+
+  /**
+   * Génère dynamiquement un scénario basé sur les paramètres spécifiés
+   */
+  async generateScenario(
+    sector: string,
+    difficulty: "Débutant" | "Intermédiaire" | "Expert",
+    focusArea: string
+  ): Promise<ImmersiveScenario> {
+    // Cette fonction sera implémentée ultérieurement et utilisera l'IA
+    // pour générer des scénarios dynamiques et personnalisés
+    
+    // Pour l'instant, retournons un ID factice
+    throw new Error("Génération dynamique des scénarios non implémentée");
+  }
 }
 
+// Exporter l'instance singleton
 export const immersiveScenarioService = new ImmersiveScenarioService();
