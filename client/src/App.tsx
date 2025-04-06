@@ -12,6 +12,7 @@ import CyberDefenseMissionPage from "@/pages/cyber-defense-mission";
 import CyberArcade from "@/pages/cyber-arcade";
 import CyberArcadeGame from "@/pages/cyber-arcade-game";
 import FirewallDefensePage from "@/pages/games/FirewallDefensePage";
+import CyberArchitect from "@/pages/cyber-architect";
 import ImmersiveSimulation from "@/pages/immersive-simulation";
 import ImmersiveScenarioDetail from "@/pages/immersive-scenario-detail";
 import ImmersiveSession from "@/pages/immersive-session";
@@ -26,6 +27,7 @@ function Router() {
       <Route path="/cyber/agent" component={CyberAgentPage} />
       <Route path="/cyber/arcade" component={CyberArcade} />
       <Route path="/cyber/arcade/:gameId" component={CyberArcadeGame} />
+      <Route path="/cyber/architect" component={CyberArchitect} />
       <Route path="/games/firewall-defense" component={FirewallDefensePage} />
       <Route path="/cyber-defense" component={CyberDefensePage} />
       <Route path="/cyber-defense/mission/:id" component={CyberDefenseMissionPage} />

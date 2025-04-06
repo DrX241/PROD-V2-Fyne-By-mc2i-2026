@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
-import { Shield, MessageSquare, Bot, ArrowRight, Command, User, Joystick, BrainCircuit, Rocket } from 'lucide-react';
+import { Shield, MessageSquare, Bot, ArrowRight, Command, User, Joystick, BrainCircuit, Rocket, Network } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
@@ -34,6 +34,14 @@ export default function CyberModeSelection() {
       icon: <Shield className="w-12 h-12 text-blue-100" />,
       gradient: 'from-[#006a9e] to-[#004e78]',
       destination: '/cyber-defense'
+    },
+    {
+      id: 'cyber-architect',
+      title: 'CYBER ARCHITECT',
+      description: "Concevez et testez des architectures de sécurité réseau en plaçant des composants de protection. L'IA analyse vos architectures et fournit un feedback détaillé.",
+      icon: <Network className="w-12 h-12 text-green-100" />,
+      gradient: 'from-green-700 to-green-900',
+      destination: '/cyber/architect'
     },
     {
       id: 'arcade',
@@ -198,6 +206,7 @@ export default function CyberModeSelection() {
                         <div className={`absolute -inset-1 rounded-2xl ${
                           mode.id === 'agent-ia' ? 'bg-blue-500' : 
                           mode.id === 'cyber-defense' ? 'bg-[#006a9e]' : 
+                          mode.id === 'cyber-architect' ? 'bg-green-500' : 
                           'bg-purple-500'
                         } opacity-30 blur-xl animate-pulse-glow`}></div>
                       </>
@@ -223,6 +232,7 @@ export default function CyberModeSelection() {
                             className={`bg-white hover:bg-opacity-90 transition-all group ${
                               mode.id === 'agent-ia' ? 'text-blue-700' : 
                               mode.id === 'cyber-defense' ? 'text-[#006a9e]' : 
+                              mode.id === 'cyber-architect' ? 'text-green-700' : 
                               'text-purple-700'
                             }`}
                             size="lg"
@@ -245,6 +255,11 @@ export default function CyberModeSelection() {
                         <>
                           <Shield className="w-10 h-10 text-white" />
                           <User className="w-10 h-10 text-white" />
+                        </>
+                      ) : mode.id === 'cyber-architect' ? (
+                        <>
+                          <Network className="w-10 h-10 text-white" />
+                          <Shield className="w-10 h-10 text-white" />
                         </>
                       ) : mode.id === 'cyber-ascension' ? (
                         <>
