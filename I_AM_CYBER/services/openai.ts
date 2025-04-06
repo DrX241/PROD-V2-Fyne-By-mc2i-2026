@@ -27,28 +27,84 @@ class OpenAIService {
   private readonly CONNECTION_CHECK_INTERVAL = 1000 * 60 * 5;
 
   constructor() {
-    const apiKey = "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK";
-    const baseEndpoint = "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com";
+    console.log("Initializing Azure OpenAI Service with configuration from secrets");
+    
+    // Récupération des infos pour GPT-4o depuis les variables d'environnement
+    const gpt4oApiKey = process.env.GPT4O_API_KEY || "";
+    const gpt4oEndpoint = process.env.GPT4O_ENDPOINT || "";
+    const gpt4oDeploymentName = process.env.GPT4O_DEPLOYMENT_NAME || "gpt-4o";
+    const gpt4oApiVersion = process.env.GPT4O_API_VERSION || "2025-01-01-preview";
+    
+    // Récupération des infos pour GPT-4o-mini depuis les variables d'environnement
+    const gpt4oMiniApiKey = process.env.GPT4O_MINI_API_KEY || "";
+    const gpt4oMiniEndpoint = process.env.GPT4O_MINI_ENDPOINT || "";
+    const gpt4oMiniDeploymentName = process.env.GPT4O_MINI_DEPLOYMENT_NAME || "gpt-4o-mini";
+    const gpt4oMiniApiVersion = process.env.GPT4O_MINI_API_VERSION || "2024-12-01-preview";
+    
+    // Log pour le debug des valeurs (sans exposer la clé complète)
+    console.log(`GPT-4o API Key: ***${gpt4oApiKey ? gpt4oApiKey.slice(-5) : "non définie"}`);
+    console.log(`GPT-4o Endpoint: ${gpt4oEndpoint}`);
+    console.log(`GPT-4o Deployment Name: ${gpt4oDeploymentName}`);
+    console.log(`GPT-4o API Version: ${gpt4oApiVersion}`);
+    
+    console.log(`GPT-4o-mini API Key: ***${gpt4oMiniApiKey ? gpt4oMiniApiKey.slice(-5) : "non définie"}`);
+    console.log(`GPT-4o-mini Endpoint: ${gpt4oMiniEndpoint}`);
+    console.log(`GPT-4o-mini Deployment Name: ${gpt4oMiniDeploymentName}`);
+    console.log(`GPT-4o-mini API Version: ${gpt4oMiniApiVersion}`);
+    
+    // Vérification des valeurs pour GPT-4o
+    if (!gpt4oApiKey) {
+      console.error("ERREUR: Aucune clé API fournie pour GPT-4o");
+    }
+    
+    if (!this.isValidURL(gpt4oEndpoint)) {
+      console.error("ERREUR: L'endpoint GPT-4o n'est pas une URL valide");
+    }
+    
+    // Vérification des valeurs pour GPT-4o-mini
+    if (!gpt4oMiniApiKey) {
+      console.error("ERREUR: Aucune clé API fournie pour GPT-4o-mini");
+    }
+    
+    if (!this.isValidURL(gpt4oMiniEndpoint)) {
+      console.error("ERREUR: L'endpoint GPT-4o-mini n'est pas une URL valide");
+    }
 
     // Configuration primaire - GPT-4o
     this.primaryConfig = {
-      endpoint: baseEndpoint,
-      apiKey: apiKey,
-      deploymentName: "Eddy-deploy-20-02-2025-gpt-4o",
-      apiVersion: "2025-01-01-preview",
+      endpoint: gpt4oEndpoint,
+      apiKey: gpt4oApiKey,
+      deploymentName: gpt4oDeploymentName,
+      apiVersion: gpt4oApiVersion,
       modelName: "gpt-4o"
     };
 
     // Configuration secondaire - GPT-4o-mini
     this.secondaryConfig = {
-      endpoint: baseEndpoint,
-      apiKey: apiKey,
-      deploymentName: "Eddy-02-2025-gpt-4o-mini",
-      apiVersion: "2024-12-01-preview",
+      endpoint: gpt4oMiniEndpoint,
+      apiKey: gpt4oMiniApiKey,
+      deploymentName: gpt4oMiniDeploymentName,
+      apiVersion: gpt4oMiniApiVersion,
       modelName: "gpt-4o-mini"
     };
-
+    
+    console.log(`Azure OpenAI Service initialized with primary model: ${this.primaryConfig.modelName}`);
+    console.log(`Azure OpenAI Service initialized with secondary model: ${this.secondaryConfig.modelName}`);
+    
+    // Vérification initiale de la connexion avec le service Azure OpenAI
+    console.log(`Checking connection to Azure OpenAI at: ${this.primaryConfig.endpoint}/openai/deployments/${this.primaryConfig.deploymentName}/chat/completions?api-version=${this.primaryConfig.apiVersion}`);
+    
     this.checkConnection();
+  }
+
+  // Valide que l'URL est correctement formatée
+  private isValidURL(url: string): boolean {
+    try {
+      new URL(url);
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 
   switchApiKey(type: ApiKeyType): void {
@@ -69,7 +125,14 @@ class OpenAIService {
   ): Promise<string> {
     try {
       const config = this.getCurrentConfig();
-      const url = `${config.endpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
+      
+      // Formatage correct de l'URL : suppression des doubles slashes
+      let baseEndpoint = config.endpoint;
+      if (baseEndpoint.endsWith('/')) {
+        baseEndpoint = baseEndpoint.slice(0, -1);
+      }
+      
+      const url = `${baseEndpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
 
       console.log(`Making API request to: ${url} with ${config.modelName}`);
 
@@ -125,7 +188,13 @@ class OpenAIService {
         temperature: 0
       };
 
-      const url = `${config.endpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
+      // Formatage correct de l'URL : suppression des doubles slashes
+      let baseEndpoint = config.endpoint;
+      if (baseEndpoint.endsWith('/')) {
+        baseEndpoint = baseEndpoint.slice(0, -1);
+      }
+      
+      const url = `${baseEndpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
 
       const response = await fetch(url, {
         method: 'POST',
