@@ -58,6 +58,21 @@ const challenges: PasswordChallenge[] = [
     id: 1,
     description: "Créez un mot de passe basique pour votre compte email personnel",
     requirements: {
+      minLength: 6,
+      uppercase: false,
+      lowercase: true,
+      numbers: true,
+      specialChars: false,
+      noSequential: false,
+      noCommon: true
+    },
+    scenario: "Vous créez un nouveau compte email. Créez un mot de passe simple mais sécurisé.",
+    difficultyLevel: 1
+  },
+  {
+    id: 2,
+    description: "Créez un mot de passe pour un forum de jeux vidéo",
+    requirements: {
       minLength: 8,
       uppercase: true,
       lowercase: true,
@@ -66,11 +81,41 @@ const challenges: PasswordChallenge[] = [
       noSequential: false,
       noCommon: true
     },
-    scenario: "Vous créez un nouveau compte email. Créez un mot de passe sécurisé mais facile à retenir.",
+    scenario: "Vous vous inscrivez sur un forum de discussion pour les jeux vidéo. Le site demande un mot de passe avec quelques exigences de base.",
     difficultyLevel: 1
   },
   {
-    id: 2,
+    id: 3,
+    description: "Créez un mot de passe pour votre compte de médias sociaux",
+    requirements: {
+      minLength: 8,
+      uppercase: true,
+      lowercase: true,
+      numbers: true,
+      specialChars: false,
+      noSequential: true,
+      noCommon: true
+    },
+    scenario: "Vous protégez votre compte sur un réseau social populaire. Vos amis et votre famille y sont connectés, donc la sécurité est importante.",
+    difficultyLevel: 2
+  },
+  {
+    id: 4,
+    description: "Créez un mot de passe pour votre compte de messagerie professionnel",
+    requirements: {
+      minLength: 10,
+      uppercase: true,
+      lowercase: true,
+      numbers: true,
+      specialChars: false,
+      noSequential: true,
+      noCommon: true
+    },
+    scenario: "Votre entreprise vous demande de définir un mot de passe pour votre nouvelle adresse email professionnelle.",
+    difficultyLevel: 2
+  },
+  {
+    id: 5,
     description: "Créez un mot de passe pour votre compte bancaire en ligne",
     requirements: {
       minLength: 10,
@@ -82,10 +127,40 @@ const challenges: PasswordChallenge[] = [
       noCommon: true
     },
     scenario: "Vous configurez l'accès à votre compte bancaire en ligne. Ce mot de passe doit être particulièrement sécurisé.",
-    difficultyLevel: 2
+    difficultyLevel: 3
   },
   {
-    id: 3,
+    id: 6,
+    description: "Créez un mot de passe pour une application de paiement mobile",
+    requirements: {
+      minLength: 10,
+      uppercase: true,
+      lowercase: true,
+      numbers: true,
+      specialChars: true,
+      noSequential: true,
+      noCommon: true
+    },
+    scenario: "Vous configurez une application de paiement mobile pour effectuer des achats et envoyer de l'argent à vos amis.",
+    difficultyLevel: 3
+  },
+  {
+    id: 7,
+    description: "Créez un mot de passe pour votre gestionnaire de mots de passe",
+    requirements: {
+      minLength: 12,
+      uppercase: true,
+      lowercase: true,
+      numbers: true,
+      specialChars: true,
+      noSequential: true,
+      noCommon: true
+    },
+    scenario: "Vous installez un gestionnaire de mots de passe qui stockera tous vos identifiants. Ce mot de passe principal sera votre unique point d'accès à tous vos comptes.",
+    difficultyLevel: 4
+  },
+  {
+    id: 8,
     description: "Créez un mot de passe pour votre compte administrateur professionnel",
     requirements: {
       minLength: 12,
@@ -97,10 +172,25 @@ const challenges: PasswordChallenge[] = [
       noCommon: true
     },
     scenario: "En tant qu'administrateur système, vous devez créer un mot de passe pour accéder aux systèmes critiques de l'entreprise.",
-    difficultyLevel: 3
+    difficultyLevel: 4
   },
   {
-    id: 4,
+    id: 9,
+    description: "Créez un mot de passe pour un accès VPN sécurisé",
+    requirements: {
+      minLength: 12,
+      uppercase: true,
+      lowercase: true,
+      numbers: true,
+      specialChars: true,
+      noSequential: true,
+      noCommon: true
+    },
+    scenario: "Votre entreprise vous fournit un accès VPN pour travailler à distance. Cet accès permet de se connecter à l'ensemble du réseau de l'entreprise.",
+    difficultyLevel: 4
+  },
+  {
+    id: 10,
     description: "Créez un mot de passe pour sécuriser une base de données sensible",
     requirements: {
       minLength: 14,
@@ -112,10 +202,25 @@ const challenges: PasswordChallenge[] = [
       noCommon: true
     },
     scenario: "Vous êtes chargé de créer un accès sécurisé à une base de données contenant des informations médicales confidentielles.",
-    difficultyLevel: 4
+    difficultyLevel: 5
   },
   {
-    id: 5,
+    id: 11,
+    description: "Créez un mot de passe pour un service d'authentification multifacteur",
+    requirements: {
+      minLength: 14,
+      uppercase: true,
+      lowercase: true,
+      numbers: true,
+      specialChars: true,
+      noSequential: true,
+      noCommon: true
+    },
+    scenario: "Vous configurez une clé de récupération principale pour votre système d'authentification multifacteur. Ce mot de passe est crucial en cas de perte de votre appareil d'authentification.",
+    difficultyLevel: 5
+  },
+  {
+    id: 12,
     description: "Créez un mot de passe pour un système de haute sécurité gouvernemental",
     requirements: {
       minLength: 16,
@@ -127,6 +232,51 @@ const challenges: PasswordChallenge[] = [
       noCommon: true
     },
     scenario: "Vous travaillez pour un organisme gouvernemental qui nécessite le plus haut niveau de sécurité. Créez un mot de passe ultra-sécurisé.",
+    difficultyLevel: 5
+  },
+  {
+    id: 13,
+    description: "Créez un mot de passe pour un portefeuille de cryptomonnaies",
+    requirements: {
+      minLength: 16,
+      uppercase: true,
+      lowercase: true,
+      numbers: true,
+      specialChars: true,
+      noSequential: true,
+      noCommon: true
+    },
+    scenario: "Vous sécurisez un portefeuille de cryptomonnaies contenant des actifs numériques de grande valeur. Ce mot de passe ne doit jamais être compromis.",
+    difficultyLevel: 5
+  },
+  {
+    id: 14,
+    description: "Créez un mot de passe pour un accès à des informations classifiées",
+    requirements: {
+      minLength: 18,
+      uppercase: true,
+      lowercase: true,
+      numbers: true,
+      specialChars: true,
+      noSequential: true,
+      noCommon: true
+    },
+    scenario: "Vous avez besoin d'un mot de passe extrêmement robuste pour accéder à des documents confidentiels classés au plus haut niveau de sécurité.",
+    difficultyLevel: 5
+  },
+  {
+    id: 15,
+    description: "Créez un mot de passe ultime pour une infrastructure critique",
+    requirements: {
+      minLength: 20,
+      uppercase: true,
+      lowercase: true,
+      numbers: true,
+      specialChars: true,
+      noSequential: true,
+      noCommon: true
+    },
+    scenario: "Vous êtes responsable de la sécurité d'une infrastructure critique nationale (réseau électrique, distribution d'eau, etc.). Ce mot de passe protège les systèmes de contrôle principaux.",
     difficultyLevel: 5
   }
 ];
@@ -519,16 +669,7 @@ const PasswordGuardianPage: React.FC = () => {
                           >
                             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                           </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={generateRandomPassword}
-                            className="h-8 p-0 flex items-center text-xs text-gray-300"
-                            title="Générer un mot de passe aléatoire"
-                          >
-                            <RefreshCw className="h-3 w-3 mr-1" />
-                            Aléatoire
-                          </Button>
+
                         </div>
                       </div>
                       <div className="flex relative">
