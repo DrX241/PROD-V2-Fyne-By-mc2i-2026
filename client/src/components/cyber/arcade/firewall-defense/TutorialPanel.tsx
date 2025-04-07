@@ -22,7 +22,7 @@ const TutorialPanel: React.FC<TutorialPanelProps> = ({
   onComplete
 }) => {
   const isLastStep = currentStep === steps.length - 1;
-  const step = steps[currentStep];
+  const step = steps[currentStep] || steps[0]; // Évite les erreurs si le currentStep est invalide
 
   return (
     <Card className="w-full max-w-lg bg-gray-900 border-cyan-600 border-2 shadow-lg shadow-cyan-500/20">

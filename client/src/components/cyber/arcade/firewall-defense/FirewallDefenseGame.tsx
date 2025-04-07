@@ -80,12 +80,17 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
   
   // Gestionnaires d'événements
   const handleNextTutorialStep = useCallback(() => {
-    setGameState(prev => ({
-      ...prev,
-      tutorialStep: prev.tutorialStep < tutorialSteps.length - 1 
-        ? prev.tutorialStep + 1 
-        : prev.tutorialStep
-    }));
+    setGameState(prev => {
+      // Si c'est l'avant-dernière étape, passer à la dernière
+      if (prev.tutorialStep < tutorialSteps.length - 1) {
+        return {
+          ...prev,
+          tutorialStep: prev.tutorialStep + 1
+        };
+      }
+      // Si c'est la dernière étape, il faut terminer le tutoriel lors du prochain "Suivant"
+      return prev;
+    });
   }, []);
   
   const handleCompleteTutorial = useCallback(() => {
