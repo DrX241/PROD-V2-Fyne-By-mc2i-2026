@@ -455,21 +455,18 @@ const FirewallDefenseGameNew: React.FC<FirewallDefenseGameProps> = ({ difficulty
     setAttackTypes(attacks);
   };
 
-  // Gestion du début du drag
-  const handleDragStart = (defenseId: string) => {
-    setDragging(defenseId);
-  };
-
-  // Gestion du drop
-  const handleDrop = (zoneId: string) => {
-    if (!dragging) return;
-    
-    const defense = defenseInventory.find(d => d.id === dragging);
+  // Fonction pour sélectionner une défense et la placer dans une zone
+  const handleSelectDefense = (defenseId: string, zoneId: string) => {
+    const defense = defenseInventory.find(d => d.id === defenseId);
     if (!defense) return;
     
     // Vérifier si assez de ressources
     if (resources.budget < defense.cost || resources.manpower < defense.manpower) {
-      setDragging(null);
+      toast({
+        title: "Ressources insuffisantes",
+        description: `Il vous manque ${resources.budget < defense.cost ? `${defense.cost - resources.budget} budget` : ''} ${resources.budget < defense.cost && resources.manpower < defense.manpower ? ' et ' : ''} ${resources.manpower < defense.manpower ? `${defense.manpower - resources.manpower} personnel` : ''}`,
+        variant: "destructive",
+      });
       return;
     }
     
@@ -478,7 +475,7 @@ const FirewallDefenseGameNew: React.FC<FirewallDefenseGameProps> = ({ difficulty
       if (zone.id === zoneId) {
         return {
           ...zone,
-          defenses: [...zone.defenses, dragging]
+          defenses: [...zone.defenses, defenseId]
         };
       }
       return zone;
@@ -490,7 +487,14 @@ const FirewallDefenseGameNew: React.FC<FirewallDefenseGameProps> = ({ difficulty
       manpower: prev.manpower - defense.manpower
     }));
     
-    setDragging(null);
+    // Retirer la défense de l'inventaire
+    setDefenseInventory(prev => prev.filter(d => d.id !== defenseId));
+    
+    toast({
+      title: "Défense déployée",
+      description: `${defense.name} a été déployée dans la zone ${zones.find(z => z.id === zoneId)?.name}`,
+      variant: "default",
+    });
   };
 
   // Retirer une défense d'une zone
@@ -927,11 +931,9 @@ const FirewallDefenseGameNew: React.FC<FirewallDefenseGameProps> = ({ difficulty
           {defenseInventory.map((defense) => (
             <motion.div
               key={defense.id}
-              className={`bg-gray-700 rounded-lg p-3 cursor-grab relative overflow-hidden ${dragging === defense.id ? 'border-2 border-white/50' : 'border border-gray-600'}`}
+              className="bg-gray-700 rounded-lg p-3 relative overflow-hidden border border-gray-600"
               whileHover={{ scale: 1.02 }}
               style={{ boxShadow: `0 0 15px ${defense.color}30` }}
-              draggable
-              onDragStart={() => handleDragStart(defense.id)}
             >
               <div className="absolute top-0 left-0 h-full w-1" style={{ backgroundColor: defense.color }} />
               
@@ -953,6 +955,21 @@ const FirewallDefenseGameNew: React.FC<FirewallDefenseGameProps> = ({ difficulty
                       <Users className="w-4 h-4 mr-1" />
                       Personnel: {defense.manpower}
                     </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2 mt-3">
+                    {zones.map(zone => (
+                      <Button
+                        key={`${defense.id}-${zone.id}`}
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center justify-center w-full text-xs"
+                        onClick={() => handleSelectDefense(defense.id, zone.id)}
+                      >
+                        <div className="w-3 h-3 rounded-full mr-1" style={{ backgroundColor: zone.color }}></div>
+                        {zone.name}
+                      </Button>
+                    ))}
                   </div>
                   
                   <div className="mt-2">
@@ -1010,8 +1027,6 @@ const FirewallDefenseGameNew: React.FC<FirewallDefenseGameProps> = ({ difficulty
                 key={zone.id}
                 className={`col-start-${zone.position.col + 1} row-start-${zone.position.row + 1} bg-gray-800 rounded-lg p-3 flex flex-col border border-gray-700 relative overflow-hidden`}
                 style={{ boxShadow: `0 0 20px ${zone.color}20` }}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={() => handleDrop(zone.id)}
               >
                 <div className="absolute top-0 left-0 h-1 w-full" style={{ backgroundColor: zone.color }} />
                 
@@ -1106,10 +1121,10 @@ const FirewallDefenseGameNew: React.FC<FirewallDefenseGameProps> = ({ difficulty
         </div>
       </div>
       
-      {/* Instructions pour le glisser-déposer */}
+      {/* Instructions pour la sélection des défenses */}
       <div className="lg:col-span-3 bg-gray-800/50 rounded-lg p-3 text-center order-3">
         <p className="text-gray-300 text-sm">
-          <span className="font-semibold">Comment jouer:</span> Glissez-déposez les défenses dans les zones de l'infrastructure pour les protéger. Chaque défense a un coût et une efficacité variable selon les types d'attaques. Une fois prêt, lancez la simulation.
+          <span className="font-semibold">Comment jouer:</span> Sélectionnez une défense et choisissez la zone où vous souhaitez la déployer en cliquant sur un des boutons de zone. Chaque défense a un coût et une efficacité variable selon les types d'attaques. Les défenses utilisées ne pourront plus être réutilisées. Une fois prêt, lancez la simulation.
         </p>
       </div>
     </div>
