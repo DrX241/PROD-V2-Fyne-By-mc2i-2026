@@ -12,8 +12,13 @@ import Home from "@/pages/home";
 import ModulesPage from "@/pages/modules";
 import CyberModeSelection from "@/pages/cyber-mode-selection";
 import CyberAgentPage from "@/pages/cyber-agent";
-import CyberDefensePage from "@/pages/cyber-defense";
-import CyberDefenseMissionPage from "@/pages/cyber-defense-mission";
+
+// Import des pages CYBER DEFENSE (anciennes et nouvelles pour permettre une transition)
+import CyberDefensePage from "@/pages/cyber-defense"; // Ancienne implémentation 
+import CyberDefenseNewPage from "@/pages/cyber-defense-new"; // Nouvelle implémentation
+import CyberDefenseSessionPage from "@/pages/cyber-defense-session"; // Nouvelle implémentation de session
+import CyberDefenseMissionPage from "@/pages/cyber-defense-mission"; // Ancienne implémentation
+
 import CyberArcade from "@/pages/cyber-arcade";
 import CyberArcadeGame from "@/pages/cyber-arcade-game";
 // Nouvelles pages optimisées pour l'Arcade
@@ -37,8 +42,15 @@ function Router() {
       <Route path="/cyber/arcade/phishing-detective" component={PhishingDetectivePage} />
       <Route path="/cyber/arcade/password-guardian" component={PasswordGuardianPage} />
       <Route path="/cyber/arcade/:gameId" component={CyberArcadeGame} />
-      <Route path="/cyber-defense" component={CyberDefensePage} />
+      
+      {/* Nouvelles routes CYBER DEFENSE (progressives avec interlocuteurs) */}
+      <Route path="/cyber-defense-new" component={CyberDefenseNewPage} />
+      <Route path="/cyber-defense/session/:levelId" component={CyberDefenseSessionPage} />
+      
+      {/* Routes originales CYBER DEFENSE (conservées temporairement) */}
+      <Route path="/cyber-defense" component={CyberDefenseNewPage} /> {/* Remplacé par la nouvelle version */}
       <Route path="/cyber-defense/mission/:id" component={CyberDefenseMissionPage} />
+      
       <Route path="/immersive-simulation" component={ImmersiveSimulation} />
       <Route path="/immersive-simulation/:id" component={ImmersiveScenarioDetail} />
       <Route path="/immersive-simulation/session/:id" component={ImmersiveSession} />
