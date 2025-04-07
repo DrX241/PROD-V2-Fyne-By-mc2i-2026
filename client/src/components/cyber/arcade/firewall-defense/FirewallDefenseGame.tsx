@@ -134,21 +134,19 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       return;
     }
     
-    // Démarrer le chronomètre
+    // Commencer le jeu sans démarrer le chronomètre immédiatement
+    // Le chronomètre démarrera automatiquement lorsque la première défense sera placée
     setGameState(prev => ({
       ...prev,
       gamePhase: 'playing',
+      placedDefenses: [], // Réinitialiser les défenses placées pour permettre un nouveau placement
       timer: 0
     }));
     
-    const interval = setInterval(() => {
-      setGameState(prev => ({
-        ...prev,
-        timer: prev.timer + 1
-      }));
-    }, 1000);
-    
-    setTimerInterval(interval);
+    toast({
+      title: "Mode jeu activé",
+      description: "Le chronomètre démarrera automatiquement lorsque vous placerez la première défense",
+    });
   }, [currentLevel, gameState.placedDefenses, toast]);
   
   const checkSolution = useCallback(() => {
@@ -253,20 +251,31 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
   const handleDndStart = useCallback((event: DragStartEvent) => {
     const { active } = event;
     setDraggedDefenseId(String(active.id));
-  }, []);
+    
+    // Si c'est le premier élément déposé, démarrer le chronomètre
+    if (gameState.gamePhase === 'playing' && gameState.placedDefenses.length === 0 && !timerInterval) {
+      toast({
+        title: "Chronomètre démarré",
+        description: "Le chronomètre démarre automatiquement lorsque vous placez la première défense",
+      });
+    }
+  }, [gameState.gamePhase, gameState.placedDefenses.length, timerInterval, toast]);
   
   const handleDndEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
     
-    // Si on est au-dessus d'un slot
-    if (over && over.id.toString().startsWith('slot-')) {
-      const position = Number(over.id.toString().replace('slot-', ''));
-      handlePlaceDefense(position);
+    // Si on dépose sur la zone de configuration réseau
+    if (over) {
+      if (over.id === 'network-dropzone' || over.id.toString().startsWith('dropzone-')) {
+        // Trouver la prochaine position disponible
+        const nextPosition = gameState.placedDefenses.length + 1;
+        handlePlaceDefense(nextPosition);
+      }
     }
     
     setDraggedDefenseId(null);
     setActiveSlot(null);
-  }, [handlePlaceDefense]);
+  }, [gameState.placedDefenses, handlePlaceDefense]);
   
   // Initialisation du jeu
   useEffect(() => {
@@ -295,17 +304,48 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
     };
   }, [difficulty, timerInterval]);
   
-  // Effet pour surveiller les changements dans les défenses placées
+  // Effet pour surveiller les changements dans les défenses placées et démarrer le chronomètre
   useEffect(() => {
     if (!currentLevel) return;
     
-    // Logique supplémentaire si nécessaire pour le suivi des défenses placées
-  }, [currentLevel, gameState.placedDefenses]);
+    // Démarrer automatiquement le chronomètre lors du premier placement en phase de jeu
+    if (gameState.gamePhase === 'playing' && 
+        gameState.placedDefenses.length === 1 && 
+        !timerInterval) {
+      
+      // Démarrer le chronomètre
+      const interval = setInterval(() => {
+        setGameState(prev => ({
+          ...prev,
+          timer: prev.timer + 1
+        }));
+      }, 1000);
+      
+      setTimerInterval(interval);
+      
+      return () => {
+        clearInterval(interval);
+      };
+    }
+  }, [currentLevel, gameState.placedDefenses, gameState.gamePhase, timerInterval]);
   
-  // Effet pour gérer le timer et l'état du jeu
+  // Effet pour gérer l'état du jeu en fonction des changements de phase
   useEffect(() => {
-    // Logique additionnelle pour les mises à jour d'état de jeu
-  }, [currentLevel, gameState.gamePhase]);
+    // Si on passe en phase de jeu, réinitialiser le timer
+    if (gameState.gamePhase === 'playing' && gameState.timer === 0) {
+      // Le timer sera démarré une fois la première défense placée
+      setGameState(prev => ({
+        ...prev,
+        timer: 0
+      }));
+    }
+    
+    // Nettoyage du timer quand on passe à la phase de résultats
+    if (gameState.gamePhase === 'results' && timerInterval) {
+      clearInterval(timerInterval);
+      setTimerInterval(null);
+    }
+  }, [currentLevel, gameState.gamePhase, timerInterval, gameState.timer]);
   
   // Si le niveau n'est pas chargé, afficher un loader
   if (!currentLevel) {
@@ -425,17 +465,55 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                   
                   {/* Zone de placement libre pour les défenses */}
                   <div className="flex-1 w-full relative">
-                    {/* Les défenses seront placées ici dynamiquement via drag-and-drop */}
+                    {/* Zone droppable pour le placement des défenses */}
+                    <div 
+                      className={`absolute inset-0 rounded-lg ${gameState.placedDefenses.length === 0 ? 'border-2 border-dashed border-blue-400/30' : ''}`}
+                      style={{ zIndex: 5 }}
+                      id="network-dropzone"
+                    >
+                      {/* Positions des défenses placées */}
+                      {Array.from({ length: 6 }).map((_, idx) => {
+                        const position = idx + 1;
+                        const isPlaced = gameState.placedDefenses.some(pd => pd.position === position);
+                        
+                        return (
+                          <div 
+                            key={`dropzone-${position}`}
+                            className={`absolute rounded-lg transition-all ${isPlaced ? '' : 'border border-dashed border-blue-400/20'}`}
+                            style={{ 
+                              top: `${(idx * 70) + 40}px`,
+                              left: '50%',
+                              width: '120px',
+                              height: '60px',
+                              transform: 'translateX(-50%)',
+                              zIndex: 10
+                            }}
+                          >
+                            {!isPlaced && (
+                              <div className="flex items-center justify-center h-full">
+                                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-gray-700/50 text-white/50 text-xs">
+                                  {position}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    
+                    {/* Les défenses placées */}
                     {gameState.placedDefenses.map((placedDefense, index) => {
-                      // Calculer les positions basées sur l'ordre ou permettre un placement libre
-                      const randomOffset = placedDefense.position % 2 === 0 ? '15%' : '5%';
+                      // Calculer les positions basées sur l'ordre
+                      const defense = currentLevel.defenses.find(d => d.id === placedDefense.defenseId);
+                      
                       return (
                         <div 
                           key={`${placedDefense.defenseId}-${index}`}
                           className="absolute flex flex-col items-center"
                           style={{ 
-                            top: `${(index * 60) + 20}px`, 
-                            left: randomOffset,
+                            top: `${((placedDefense.position - 1) * 70) + 40}px`, 
+                            left: '50%',
+                            transform: 'translateX(-50%)',
                             zIndex: 20,
                             transition: 'all 0.3s ease'
                           }}
@@ -444,7 +522,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                             className={`px-4 py-2 rounded-lg shadow-lg border-2 ${
                               placedDefense.isCorrect === true ? 'border-green-500 bg-green-900/40' : 
                               placedDefense.isCorrect === false ? 'border-red-500 bg-red-900/40' : 
-                              'border-blue-500 bg-gray-800'
+                              defense ? `border-${defense.color || 'blue-500'} bg-gray-800` : 'border-blue-500 bg-gray-800'
                             }`}
                           >
                             <div className="flex items-center space-x-2">
@@ -452,11 +530,14 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                                 {placedDefense.position}
                               </span>
                               <span className="text-white text-sm font-medium">
-                                {currentLevel.defenses.find(d => d.id === placedDefense.defenseId)?.name || 'Défense'}
+                                {defense?.name || 'Défense'}
                               </span>
                             </div>
                           </div>
-                          {index < gameState.placedDefenses.length - 1 && (
+                          
+                          {/* Ligne de connexion vers la défense suivante */}
+                          {index < gameState.placedDefenses.length - 1 && 
+                           placedDefense.position < gameState.placedDefenses.length && (
                             <div className="h-10 w-0.5 bg-blue-400 mt-1"></div>
                           )}
                         </div>
