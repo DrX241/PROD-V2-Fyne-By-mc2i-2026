@@ -21,7 +21,7 @@ export default function CyberModeSelection() {
   const cyberModes: ModeOption[] = [
     {
       id: 'agent-ia',
-      title: 'Agent IA',
+      title: 'AGENT IA',
       description: "Discutez avec un assistant IA specialise en cybersecurite qui adapte ses reponses a vos besoins pour vous fournir des informations et des conseils personnalises.",
       icon: <Bot className="w-12 h-12 text-blue-100" />,
       gradient: 'from-blue-700 to-blue-900',
@@ -37,7 +37,7 @@ export default function CyberModeSelection() {
     },
     {
       id: 'arcade',
-      title: 'ARCADE',
+      title: 'CYBER ARCADE',
       description: "Testez vos competences en cybersecurite a travers une collection de mini-jeux interactifs et ludiques avec l'IA comme guide et adversaire.",
       icon: <Joystick className="w-12 h-12 text-purple-100" />,
       gradient: 'from-purple-700 to-purple-900',
@@ -178,7 +178,7 @@ export default function CyberModeSelection() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-8 px-4 sm:px-6 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 px-4 sm:px-6 max-w-7xl mx-auto">
             {cyberModes.map((mode, index) => (
               <Link key={mode.id} href={mode.id === 'cyber-ascension' ? '#' : mode.destination} className="flex h-full" onClick={(e) => mode.id === 'cyber-ascension' && e.preventDefault()}>
                 <motion.div
