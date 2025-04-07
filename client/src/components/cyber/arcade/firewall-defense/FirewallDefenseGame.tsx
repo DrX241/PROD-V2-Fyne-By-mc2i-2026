@@ -75,7 +75,8 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
   const [showAiAdviceDialog, setShowAiAdviceDialog] = useState<boolean>(false);
   const [aiAdviceDialogContent, setAiAdviceDialogContent] = useState<string>("");
   
-  // Minuteur
+  // Nous gardons la variable timerInterval pour éviter des erreurs partout dans le code
+  // mais nous n'allons pas l'utiliser réellement
   const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
   
   // Gestionnaires d'événements
