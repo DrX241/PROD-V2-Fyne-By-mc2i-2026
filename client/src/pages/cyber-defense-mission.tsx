@@ -106,51 +106,84 @@ const ChatMessage = ({ message, additionalResponse = null }: {
   const isUser = message.role === 'user';
   const isSystem = message.sender === 'Système';
   
-  // Format du contenu avec Markdown simplifié
+  // Format du contenu avec Markdown simplifié et optimisé pour la concision
   const formatContent = (content: string) => {
-    // Convertir les titres
+    // Amélioration du formatage pour un texte plus concis et structuré
     let formattedContent = content
-      .replace(/^# (.*$)/gm, '<h1 class="text-xl font-bold mb-2">$1</h1>')
-      .replace(/^## (.*$)/gm, '<h2 class="text-lg font-semibold mb-1">$1</h2>')
-      .replace(/^### (.*$)/gm, '<h3 class="text-md font-medium mb-1">$1</h3>')
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')  // Gras
+      // Titres
+      .replace(/^# (.*$)/gm, '<h1 class="text-xl font-bold my-1.5">$1</h1>')
+      .replace(/^## (.*$)/gm, '<h2 class="text-lg font-semibold my-1">$1</h2>')
+      .replace(/^### (.*$)/gm, '<h3 class="text-md font-medium my-1">$1</h3>')
+      // Mise en évidence et formatage
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="text-[#006a9e]">$1</strong>')  // Gras stylisé
       .replace(/\*(.*?)\*/g, '<em>$1</em>')              // Italique
-      .replace(/```([\s\S]*?)```/g, '<pre class="bg-gray-800 text-gray-200 p-2 rounded my-2 overflow-auto text-sm">$1</pre>') // Code block
-      .replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1 rounded">$1</code>'); // Inline code
+      // Blocs de code
+      .replace(/```([\s\S]*?)```/g, '<pre class="bg-gray-800 text-gray-200 p-2 rounded my-1.5 overflow-auto text-sm">$1</pre>') 
+      .replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1 rounded text-[#006a9e]">$1</code>'); // Inline code stylisé
       
-    // Préparation des listes à puces
+    // Traitement optimisé des listes pour une meilleure organisation visuelle
     const lines = formattedContent.split('\n');
     const newLines: string[] = [];
     let inBulletList = false;
     let inNumberedList = false;
+    let paragraphBuffer: string[] = [];
     
-    // Traitement ligne par ligne pour une meilleure gestion des listes
+    // Fonction pour vider le buffer de paragraphe s'il contient du texte
+    const flushParagraphBuffer = () => {
+      if (paragraphBuffer.length > 0) {
+        // Joindre les lignes en un seul paragraphe pour éviter trop d'espace
+        newLines.push(`<p class="mb-2">${paragraphBuffer.join(' ')}</p>`);
+        paragraphBuffer = [];
+      }
+    };
+    
+    // Traitement ligne par ligne pour une meilleure gestion des listes et paragraphes
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      const trimmedLine = line.trim();
+      const line = lines[i].trim();
       
-      // Lignes de liste à puces (tirets ou points)
-      if (trimmedLine.match(/^[-•]\s+.*/)) {
-        const bulletContent = trimmedLine.replace(/^[-•]\s+/, '');
+      // Sauter les lignes vides multiples
+      if (line === '' && (i === 0 || lines[i-1].trim() === '')) {
+        continue;
+      }
+      
+      // Lignes de liste à puces (optimisées pour meilleure visibilité)
+      if (line.match(/^[-•]\s+.*/)) {
+        flushParagraphBuffer(); // Vider le buffer avant de commencer une liste
+        
+        const bulletContent = line.replace(/^[-•]\s+/, '');
         if (!inBulletList) {
-          newLines.push('<ul class="list-disc pl-5 my-2">');
+          newLines.push('<ul class="list-none space-y-1 my-2">');
           inBulletList = true;
         }
-        newLines.push(`<li>${bulletContent}</li>`);
+        // Ajouter une icône de puce personnalisée pour un meilleur rendu visuel
+        newLines.push(`<li class="flex items-start"><div class="h-4 w-4 mr-2 text-[#006a9e] mt-0.5 flex-shrink-0">•</div><span>${bulletContent}</span></li>`);
       } 
-      // Lignes de liste numérotée
-      else if (trimmedLine.match(/^\d+\.\s+.*/)) {
-        const numContent = trimmedLine.replace(/^\d+\.\s+/, '');
-        const num = trimmedLine.match(/^(\d+)\./)?.[1] || '1';
+      // Lignes de liste numérotée (optimisées)
+      else if (line.match(/^\d+\.\s+.*/)) {
+        flushParagraphBuffer();
+        
+        const numContent = line.replace(/^\d+\.\s+/, '');
+        const num = line.match(/^(\d+)\./)?.[1] || '1';
         if (!inNumberedList) {
-          newLines.push('<ol class="list-decimal pl-5 my-2">');
+          newLines.push('<ol class="list-none space-y-1 my-2">');
           inNumberedList = true;
         }
-        newLines.push(`<li value="${num}">${numContent}</li>`);
+        // Ajout de style pour les numéros
+        newLines.push(`<li class="flex items-start"><div class="h-4 w-4 mr-2 text-[#006a9e] mt-0.5 flex-shrink-0 font-medium">${num}.</div><span>${numContent}</span></li>`);
       }
-      // Autres lignes
+      // Lignes HTML (ne pas les modifier)
+      else if (line.startsWith('<') && line.endsWith('>')) {
+        flushParagraphBuffer();
+        newLines.push(line);
+      }
+      // Lignes vides pour terminer les paragraphes
+      else if (line === '') {
+        flushParagraphBuffer();
+        // Nous n'ajoutons pas de ligne vide, seulement un marqueur de fin de paragraphe
+      }
+      // Autres lignes de texte (accumulées pour former des paragraphes cohérents)
       else {
-        // Fermer les listes ouvertes si nécessaire
+        // Vérifier si des listes sont ouvertes et les fermer
         if (inBulletList) {
           newLines.push('</ul>');
           inBulletList = false;
@@ -159,9 +192,14 @@ const ChatMessage = ({ message, additionalResponse = null }: {
           newLines.push('</ol>');
           inNumberedList = false;
         }
-        newLines.push(line);
+        
+        // Accumulation des lignes pour former des paragraphes
+        paragraphBuffer.push(line);
       }
     }
+    
+    // Vider le dernier buffer de paragraphe s'il reste du contenu
+    flushParagraphBuffer();
     
     // Fermer les listes si elles sont toujours ouvertes à la fin
     if (inBulletList) {
@@ -171,14 +209,11 @@ const ChatMessage = ({ message, additionalResponse = null }: {
       newLines.push('</ol>');
     }
     
-    formattedContent = newLines.join('\n');
-    formattedContent = formattedContent.replace(/(<li value=.*?<\/li>)(?:\s*\n\s*)?(<li value)/g, '$1$2');
-    formattedContent = formattedContent.replace(/(<li value=.*?<\/li>)(\s*\n\s*)?([^<])/g, '$1</ol>$3');
-    formattedContent = formattedContent.replace(/(?:^|\n)(<li value)/g, '\n<ol>$1');
-    
-    // Convertir les sauts de ligne simples en <br>
-    formattedContent = formattedContent.replace(/\n/g, '<br>');
-    
+    // Rejoindre avec des sauts de ligne mais éviter les espaces excessifs
+    formattedContent = newLines.join('\n')
+      .replace(/(<\/p>)\s*\n\s*(<p)/g, '$1$2') // Fusionner les paragraphes adjacents
+      .replace(/\n{3,}/g, '\n\n'); // Limiter les sauts de ligne multiples
+      
     return formattedContent;
   };
   
@@ -894,25 +929,45 @@ Si votre niveau de confiance continue de baisser, votre poste pourrait être rec
               </div>
             )}
             
-            {/* Input */}
-            <div className="border-t border-gray-200 bg-white p-4">
-              <form onSubmit={handleSubmit} className="flex space-x-2">
-                <input
-                  type="text"
+            {/* Input - Zone fixe pendant la saisie */}
+            <div className="border-t border-gray-200 bg-white p-4 sticky bottom-0 z-10">
+              <form onSubmit={handleSubmit} className="flex space-x-2 relative">
+                <textarea
                   value={userInput}
                   onChange={(e) => setUserInput(e.target.value)}
                   placeholder="Tapez votre message..."
-                  className="flex-1 py-2 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#006a9e] focus:border-transparent text-black"
+                  className="flex-1 py-2 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#006a9e] focus:border-transparent text-black resize-none h-10 min-h-[40px] max-h-[120px] overflow-auto"
                   disabled={loading || showDecisionOptions}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      if (userInput.trim() && !loading && !showDecisionOptions) {
+                        handleSubmit(e);
+                      }
+                    }
+                  }}
+                  rows={1}
                 />
                 <Button 
                   type="submit" 
                   disabled={loading || !userInput.trim() || showDecisionOptions}
-                  className="bg-[#006a9e] hover:bg-[#006a9e]/90"
+                  className="bg-[#006a9e] hover:bg-[#006a9e]/90 h-10"
                 >
-                  <Send className="h-5 w-5" />
+                  {loading ? (
+                    <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-white"></div>
+                  ) : (
+                    <Send className="h-5 w-5" />
+                  )}
                 </Button>
               </form>
+              {loading && (
+                <div className="w-full flex justify-center mt-1">
+                  <div className="text-xs text-[#006a9e] flex items-center">
+                    <div className="mr-2 h-2 w-2 animate-pulse rounded-full bg-[#006a9e]"></div>
+                    I AM CYBER est en train de rédiger une réponse...
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           
