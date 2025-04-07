@@ -37,7 +37,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           domain: "Ingénierie sociale et phishing",
           contact: {
             name: "Yousra Saidani",
-            role: "Senior Partner et Directrice Marketing, Communication et RSE"
+            role: "Senior Manager et Experte Cybersécurité"
           },
           difficulty: "Débutant"
         },
@@ -165,7 +165,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           domain: "Protection des données personnelles / RGPD",
           contact: {
             name: "Yousra Saidani",
-            role: "Consultante Senior Cybersécurité"
+            role: "Senior Manager et Experte Cybersécurité"
           },
           difficulty: "Débutant"
         },
@@ -426,7 +426,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             },
             {
               name: "Yousra Saidani",
-              role: "Senior Partner et Directrice Marketing, Communication et RSE",
+              role: "Senior Manager et Experte Cybersécurité",
               expertise: "Communication de crise et gestion de la réputation",
               concern: "Préoccupée par l'impact des incidents de sécurité sur l'image et la réputation de l'entreprise"
             }
@@ -455,7 +455,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             },
             {
               name: "Yousra SAIDANI",
-              role: "Experte Cybersécurité & CFO",
+              role: "Senior Manager et Experte Cybersécurité",
               expertise: "Analyse forensique et réponse aux incidents",
               concern: "Spécialisée dans l'investigation numérique et la résolution technique des incidents"
             }
@@ -731,7 +731,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           domain: "Ingénierie sociale et phishing",
           contact: {
             name: "Yousra Saidani",
-            role: "Senior Partner et Directrice Marketing, Communication et RSE"
+            role: "Senior Manager et Experte Cybersécurité"
           },
           difficulty: "Débutant"
         },
@@ -859,7 +859,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           domain: "Protection des données personnelles / RGPD",
           contact: {
             name: "Yousra Saidani",
-            role: "Consultante Senior Cybersécurité"
+            role: "Senior Manager et Experte Cybersécurité"
           },
           difficulty: "Débutant"
         },
@@ -891,7 +891,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           domain: "Gestion des incidents de sécurité",
           contact: {
             name: "Yousra Saidani",
-            role: "Consultante Senior Cybersécurité"
+            role: "Senior Manager et Experte Cybersécurité"
           },
           difficulty: "Débutant"
         },
@@ -1006,7 +1006,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               },
               {
                 name: "Yousra SAIDANI",
-                role: "Experte Cybersécurité & CFO",
+                role: "Senior Manager et Experte Cybersécurité",
                 expertise: "Analyse forensique et réponse aux incidents",
                 concern: "Spécialisée dans l'investigation numérique et la résolution technique des incidents"
               }
@@ -1593,7 +1593,7 @@ Format: Utilise des titres clairs et une présentation structurée qui facilite 
 Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${scenario.domain}".`,
           resetScenario: true,
           contactName: "Yousra Saidani",
-          contactRole: "Senior Partner et Directrice Marketing, Communication et RSE",
+          contactRole: "Senior Manager et Experte Cybersécurité",
           scenarioContacts: availableContacts
         });
       } else {

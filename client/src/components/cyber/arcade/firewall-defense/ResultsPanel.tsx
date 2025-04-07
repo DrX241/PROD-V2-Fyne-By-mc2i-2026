@@ -5,26 +5,38 @@ import { Trophy, Clock, ArrowRight, RotateCcw } from 'lucide-react';
 import { Level } from './types';
 
 interface ResultsPanelProps {
-  level: Level;
+  level: number;
+  maxLevels: number;
   score: number;
-  time: number;
-  isLevelComplete: boolean;
-  hasNextLevel: boolean;
+  totalScore: number;
+  elapsedTime: number;
+  targetTime: number;
+  placedDefenses: any[];
+  defenses: any[];
+  isComplete: boolean;
   onRestart: () => void;
   onNextLevel: () => void;
 }
 
 const ResultsPanel: React.FC<ResultsPanelProps> = ({
   level,
+  maxLevels,
   score,
-  time,
-  isLevelComplete,
-  hasNextLevel,
+  totalScore,
+  elapsedTime,
+  targetTime,
+  placedDefenses,
+  defenses,
+  isComplete,
   onRestart,
   onNextLevel
 }) => {
   // Calculer pourcentage du score
-  const scorePercentage = Math.round((score / level.maxScore) * 100);
+  const maxScore = defenses.length * 100; // Score max possible
+  const scorePercentage = Math.round((score / maxScore) * 100);
+  
+  // Déterminer si c'est le dernier niveau
+  const hasNextLevel = level < maxLevels;
   
   // Calculer statut
   const getStatus = () => {
@@ -41,9 +53,9 @@ const ResultsPanel: React.FC<ResultsPanelProps> = ({
       <CardHeader className="bg-gray-800 p-6 border-b border-gray-700">
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl text-white">
-            {isLevelComplete ? "Niveau complété !" : "Résultats du niveau"}
+            {isComplete ? "Niveau complété !" : "Résultats du niveau"}
           </CardTitle>
-          {isLevelComplete && (
+          {isComplete && (
             <div className="p-2 rounded-full bg-yellow-500/20">
               <Trophy className="w-6 h-6 text-yellow-400" />
             </div>
@@ -55,22 +67,22 @@ const ResultsPanel: React.FC<ResultsPanelProps> = ({
         <div className="space-y-4">
           <div className="flex justify-between pb-3 border-b border-gray-700">
             <h3 className="text-gray-400">Niveau</h3>
-            <p className="font-medium text-white">{level.name} (#{level.id})</p>
+            <p className="font-medium text-white">Niveau {level}</p>
           </div>
           
           <div className="flex justify-between pb-3 border-b border-gray-700">
             <h3 className="text-gray-400">Score</h3>
-            <p className="font-bold text-xl text-white">{score} / {level.maxScore} <span className={`text-sm ${status.color}`}>({scorePercentage}%)</span></p>
+            <p className="font-bold text-xl text-white">{score} / {maxScore} <span className={`text-sm ${status.color}`}>({scorePercentage}%)</span></p>
           </div>
           
           <div className="flex justify-between pb-3 border-b border-gray-700">
             <h3 className="text-gray-400">Temps</h3>
             <p className="flex items-center text-white">
               <Clock className="w-4 h-4 mr-1 text-blue-400" />
-              {time} secondes
-              {time < level.targetTime && (
+              {elapsedTime} secondes
+              {elapsedTime < targetTime && (
                 <span className="ml-2 text-green-400 text-xs">
-                  (Bonus temps: +{Math.round((level.targetTime - time) * 5)} pts)
+                  (Bonus temps: +{Math.round((targetTime - elapsedTime) * 5)} pts)
                 </span>
               )}
             </p>
@@ -81,7 +93,7 @@ const ResultsPanel: React.FC<ResultsPanelProps> = ({
             <p className={`font-bold ${status.color}`}>{status.text}</p>
           </div>
           
-          {isLevelComplete && (
+          {isComplete && (
             <div className="mt-6 p-4 bg-green-900/20 border border-green-700 rounded-lg">
               <p className="text-center text-green-300">
                 {scorePercentage >= 90 
@@ -94,7 +106,7 @@ const ResultsPanel: React.FC<ResultsPanelProps> = ({
             </div>
           )}
           
-          {!isLevelComplete && (
+          {!isComplete && (
             <div className="mt-6 p-4 bg-amber-900/20 border border-amber-700 rounded-lg">
               <p className="text-center text-amber-300">
                 Vérifiez l'ordre de vos défenses. N'oubliez pas : certaines défenses sont plus efficaces lorsqu'elles sont placées dans un ordre stratégique.
@@ -114,7 +126,7 @@ const ResultsPanel: React.FC<ResultsPanelProps> = ({
           Réessayer
         </Button>
         
-        {isLevelComplete && hasNextLevel && (
+        {isComplete && hasNextLevel && (
           <Button 
             className="bg-indigo-600 hover:bg-indigo-700 text-white"
             onClick={onNextLevel}
@@ -124,7 +136,7 @@ const ResultsPanel: React.FC<ResultsPanelProps> = ({
           </Button>
         )}
         
-        {isLevelComplete && !hasNextLevel && (
+        {isComplete && !hasNextLevel && (
           <Button 
             className="bg-green-600 hover:bg-green-700 text-white"
             onClick={onNextLevel}

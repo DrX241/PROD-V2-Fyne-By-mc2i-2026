@@ -292,6 +292,18 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
     };
   }, [difficulty, timerInterval]);
   
+  // Effet pour surveiller les changements dans les défenses placées
+  useEffect(() => {
+    if (!currentLevel) return;
+    
+    // Logique supplémentaire si nécessaire pour le suivi des défenses placées
+  }, [currentLevel, gameState.placedDefenses]);
+  
+  // Effet pour gérer le timer et l'état du jeu
+  useEffect(() => {
+    // Logique additionnelle pour les mises à jour d'état de jeu
+  }, [currentLevel, gameState.gamePhase]);
+  
   // Si le niveau n'est pas chargé, afficher un loader
   if (!currentLevel) {
     return (
@@ -522,6 +534,8 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                       key={defense.id}
                       defense={defense}
                       disabled={gameState.gamePhase === 'playing'}
+                      onDragStart={() => {}}
+                      onDragEnd={() => {}}
                     />
                   ))}
                   
