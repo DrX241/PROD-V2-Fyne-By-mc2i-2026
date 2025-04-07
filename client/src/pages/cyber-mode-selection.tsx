@@ -178,30 +178,51 @@ export default function CyberModeSelection() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 px-4 sm:px-6 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 px-4 sm:px-8 max-w-6xl mx-auto">
             {cyberModes.map((mode, index) => (
               <Link key={mode.id} href={mode.id === 'cyber-ascension' ? '#' : mode.destination} className="flex h-full" onClick={(e) => mode.id === 'cyber-ascension' && e.preventDefault()}>
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: index * 0.2 }}
-                  className={`relative overflow-hidden rounded-2xl shadow-xl cursor-pointer transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl h-full w-full flex-1`}
+                  className={`relative overflow-hidden shadow-xl cursor-pointer transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl h-full w-full flex-1 ${
+                    mode.id === 'agent-ia' ? 'card-clip-path-1' :
+                    mode.id === 'cyber-defense' ? 'card-clip-path-2' :
+                    mode.id === 'cyber-arcade' ? 'card-clip-path-3' :
+                    'card-clip-path-4'
+                  }`}
                   onMouseEnter={() => setHoveredMode(mode.id)}
                   onMouseLeave={() => setHoveredMode(null)}
                 >
                   {/* Gradient background */}
-                  <div className={`bg-gradient-to-br ${mode.gradient} p-6 sm:p-8 h-full flex flex-col`}>
+                  <div className={`bg-gradient-to-br ${mode.gradient} p-6 sm:p-8 h-full flex flex-col relative overflow-hidden`}>
                     {/* Glow effect on hover */}
                     {hoveredMode === mode.id && (
                       <>
                         <div className="absolute inset-0 bg-white opacity-10 animate-pulse"></div>
-                        <div className={`absolute -inset-1 rounded-2xl ${
+                        <div className={`absolute -inset-1 ${
                           mode.id === 'agent-ia' ? 'bg-blue-500' : 
                           mode.id === 'cyber-defense' ? 'bg-[#006a9e]' : 
                           'bg-purple-500'
                         } opacity-30 blur-xl animate-pulse-glow`}></div>
                       </>
                     )}
+                    
+                    {/* Éléments décoratifs pour design futuriste */}
+                    <div className="absolute h-16 w-16 -top-8 -right-8 bg-white opacity-20 rounded-full blur-md"></div>
+                    <div className="absolute h-24 w-2 bottom-10 -left-1 bg-white opacity-20 rounded-full blur-sm transform rotate-45"></div>
+                    <div className={`absolute h-1 w-20 top-6 right-6 ${
+                      mode.id === 'agent-ia' ? 'bg-blue-200' : 
+                      mode.id === 'cyber-defense' ? 'bg-cyan-200' : 
+                      mode.id === 'cyber-arcade' ? 'bg-purple-200' :
+                      'bg-indigo-200'
+                    } opacity-40`}></div>
+                    <div className={`absolute h-20 w-1 bottom-6 left-12 ${
+                      mode.id === 'agent-ia' ? 'bg-blue-200' : 
+                      mode.id === 'cyber-defense' ? 'bg-cyan-200' : 
+                      mode.id === 'cyber-arcade' ? 'bg-purple-200' :
+                      'bg-indigo-200'
+                    } opacity-40`}></div>
                     
                     <div className="flex flex-col h-full relative z-10">
                       {/* Icon container */}
