@@ -98,6 +98,9 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
     // Simplifier la fonction pour éviter les conflits avec le chronomètre
     // On désactive complètement le chronomètre automatique pour l'instant
     
+    // Mémoriser que le tutoriel a été vu
+    localStorage.setItem('firewall_defense_tutorial_seen', 'true');
+    
     // Réinitialiser le tutorialStep et fermer le tutoriel
     setGameState(prev => ({
       ...prev, 
@@ -405,6 +408,9 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
     setLevels(gameLevels);
     setCurrentLevel(gameLevels[0]);
     
+    // Vérifier si le tutoriel a déjà été vu
+    const tutorialSeen = localStorage.getItem('firewall_defense_tutorial_seen') === 'true';
+    
     setGameState({
       currentLevel: 1,
       maxLevels: gameLevels.length,
@@ -413,7 +419,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       timer: 0,
       isComplete: false,
       placedDefenses: [],
-      showTutorial: true,
+      showTutorial: !tutorialSeen, // Afficher uniquement si jamais vu
       tutorialStep: 0,
       gamePhase: 'preparation'
     });
