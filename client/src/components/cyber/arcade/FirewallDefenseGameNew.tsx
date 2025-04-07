@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
 
 // Types d'attaques
 enum AttackType {
@@ -122,6 +123,7 @@ const FirewallDefenseGameNew: React.FC<FirewallDefenseGameProps> = ({ difficulty
   // Références
   const dragRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState<string | null>(null);
+  const { toast } = useToast();
   
   // États du jeu
   const [gamePhase, setGamePhase] = useState<'setup' | 'simulation' | 'results'>('setup');
@@ -151,8 +153,9 @@ const FirewallDefenseGameNew: React.FC<FirewallDefenseGameProps> = ({ difficulty
     color: string;
   }[]>([]);
 
-  // Initialisation du jeu - mémoisation pour éviter les re-rendus inutiles
+  // Initialisation du jeu - simplifiée pour réduire la charge
   useEffect(() => {
+    // Réinitialisation complète à chaque changement de niveau/difficulté
     initializeGame();
   }, [difficulty, currentLevel]);
 
@@ -700,21 +703,101 @@ const FirewallDefenseGameNew: React.FC<FirewallDefenseGameProps> = ({ difficulty
     // Éviter les scores négatifs
     totalScore = Math.max(0, totalScore);
     
-    // Générer un feedback basé sur les résultats
+    // Générer un feedback pédagogique basé sur l'IA
     let feedback = '';
+    let learningPoints: string[] = [];
     
     // Vérifier si le niveau est réussi (moins de 30% de zones compromises)
     const compromisedRatio = zones.length > 0 ? compromisedZoneIds.length / zones.length : 0;
     levelCompleted = compromisedRatio < 0.3;
     
+    // Feedback basé sur les résultats
     if (successfulAttacks === 0) {
-      feedback = `Niveau ${currentLevel} - Excellent travail ! Votre stratégie de défense a bloqué toutes les attaques. Votre infrastructure est bien protégée.`;
+      feedback = `Niveau ${currentLevel} - Excellent travail ! Votre stratégie de défense a bloqué toutes les attaques. Votre infrastructure est entièrement protégée.`;
+      
+      // Points d'apprentissage pour une défense parfaite
+      learningPoints.push(
+        "Une défense en profondeur est efficace contre divers types de menaces",
+        "L'allocation optimale des ressources est essentielle en cybersécurité"
+      );
+      
+      if (resources.budget > 200 || resources.manpower > 10) {
+        learningPoints.push("Vous avez peut-être surprotégé certaines zones. Dans un environnement réel, équilibrer sécurité et coûts est important");
+      }
+      
     } else if (successfulAttacks < attackResults.length / 3) {
-      feedback = `Niveau ${currentLevel} - Bonne défense globale, mais quelques attaques ont réussi à passer. Renforcez les zones vulnérables.`;
+      feedback = `Niveau ${currentLevel} - Bonne défense globale, mais quelques attaques ont réussi à passer. Analysons ensemble les vulnérabilités.`;
+      
+      // Identifier les types d'attaques réussies pour un feedback ciblé
+      const successfulAttackTypes = attackResults
+        .filter(ar => !ar.blocked && ar.progress >= 100)
+        .map(ar => {
+          const attack = attackTypes.find(at => at.targetZone === ar.targetZone && at.type === ar.type);
+          return attack ? attack.name : "Attaque inconnue";
+        });
+        
+      if (successfulAttackTypes.includes("DDoS") || successfulAttackTypes.includes("Attaque DDoS")) {
+        learningPoints.push("Les attaques DDoS nécessitent des solutions spécifiques comme des pare-feu de nouvelle génération");
+      }
+      
+      if (successfulAttackTypes.includes("Injection SQL")) {
+        learningPoints.push("Les zones de base de données doivent être particulièrement bien protégées avec des pare-feu d'application web (WAF)");
+      }
+      
+      if (successfulAttackTypes.includes("Phishing")) {
+        learningPoints.push("Le phishing cible souvent les utilisateurs finaux, une équipe de sécurité dédiée est efficace contre ce type d'attaque");
+      }
+      
     } else if (successfulAttacks < attackResults.length / 2) {
-      feedback = `Niveau ${currentLevel} - Défense moyenne. Un nombre significatif d'attaques ont réussi. Reconsidérez votre stratégie de placement des défenses.`;
+      feedback = `Niveau ${currentLevel} - Défense moyenne. Un nombre significatif d'attaques ont réussi. Voici comment améliorer votre stratégie.`;
+      
+      // Analyse des zones compromises
+      const compromisedZones = zones.filter(z => compromisedZoneIds.includes(z.id));
+      const missingDefenses: Record<string, string> = {};
+      
+      compromisedZones.forEach(zone => {
+        const zoneName = zone.name;
+        
+        if (zone.id === 'zone-database' && zone.defenses.length === 0) {
+          missingDefenses[zoneName] = "Pare-feu d'application web (WAF) ou Chiffrement";
+        } else if (zone.id === 'zone-internet' && zone.defenses.length === 0) {
+          missingDefenses[zoneName] = "Firewall de nouvelle génération";
+        } else if (zone.id === 'zone-internal' && zone.defenses.length === 0) {
+          missingDefenses[zoneName] = "Antivirus et formations contre le phishing";
+        }
+      });
+      
+      Object.keys(missingDefenses).forEach(zone => {
+        learningPoints.push(`${zone} manque de protection adéquate. Envisagez d'ajouter ${missingDefenses[zone]}`);
+      });
+      
+      learningPoints.push("La diversification des défenses est essentielle pour une protection complète");
+      
     } else {
-      feedback = `Niveau ${currentLevel} - Défense insuffisante. La majorité des attaques ont réussi. Votre infrastructure est gravement compromise.`;
+      feedback = `Niveau ${currentLevel} - Défense insuffisante. La majorité des attaques ont réussi. Voici des principes fondamentaux de cybersécurité à appliquer.`;
+      
+      learningPoints.push(
+        "Principe 1: La défense en profondeur - Utilisez plusieurs couches de sécurité",
+        "Principe 2: Le moindre privilège - Protégez particulièrement les zones critiques comme les bases de données",
+        "Principe 3: Allocation adaptée - Différentes menaces nécessitent différentes protections"
+      );
+    }
+    
+    // Ajout des points d'apprentissage au feedback
+    if (learningPoints.length > 0) {
+      feedback += "\n\nPoints d'apprentissage:";
+      learningPoints.forEach((point, index) => {
+        feedback += `\n${index + 1}. ${point}`;
+      });
+    }
+    
+    // Encouragement pour le niveau suivant
+    if (levelCompleted && currentLevel < maxLevel) {
+      feedback += `\n\nFélicitations! Vous avez débloqué le niveau ${currentLevel + 1}. Prêt à relever un nouveau défi?`;
+    } else if (currentLevel >= maxLevel && levelCompleted) {
+      feedback += "\n\nIncroyable! Vous avez complété tous les niveaux de cet exercice. Vous maîtrisez maintenant les principes fondamentaux de la défense contre les cyberattaques!";
+    } else if (!levelCompleted) {
+      feedback += "\n\nN'abandonnez pas! Analysez les faiblesses de votre stratégie et réessayez.";
     }
     
     // Créer l'objet de résultats de simulation
@@ -1032,11 +1115,19 @@ const FirewallDefenseGameNew: React.FC<FirewallDefenseGameProps> = ({ difficulty
     </div>
   );
 
-  // Passer au niveau suivant
+  // Passer au niveau suivant avec un feedback pédagogique
   const nextLevel = () => {
     if (currentLevel < maxLevel) {
       // Augmenter le niveau
-      setCurrentLevel(prev => prev + 1);
+      const newLevel = currentLevel + 1;
+      setCurrentLevel(newLevel);
+      
+      // Message d'encouragement et explications sur la difficulté croissante
+      toast({
+        title: `Niveau ${newLevel} débloqué !`,
+        description: "La difficulté augmente: plus d'attaques, moins de temps pour réagir. Adaptez votre stratégie !",
+        variant: "default",
+      });
       
       // Réinitialiser l'état du jeu pour le nouveau niveau
       setGamePhase('setup');
@@ -1048,14 +1139,20 @@ const FirewallDefenseGameNew: React.FC<FirewallDefenseGameProps> = ({ difficulty
         defenses: []
       })));
       
-      // Donner des ressources pour le niveau suivant (avec bonus pour progression)
+      // Donner des ressources pour le niveau suivant (avec bonus pédagogique pour progression)
       const levelBonus = currentLevel * 50;
       setResources({
         budget: (difficulty === 'Facile' ? 1000 : (difficulty === 'Moyen' ? 800 : 600)) + levelBonus,
         manpower: (difficulty === 'Facile' ? 30 : (difficulty === 'Moyen' ? 25 : 20)) + Math.floor(levelBonus/50)
       });
     } else {
-      // Fin du jeu
+      // Fin du jeu avec message de félicitations
+      toast({
+        title: "Félicitations !",
+        description: "Vous avez maîtrisé tous les niveaux de Firewall Defense. Vous comprenez maintenant les principes essentiels de la cybersécurité !",
+        variant: "default",
+      });
+      
       if (onGameEnd) {
         onGameEnd(score);
       }
@@ -1200,6 +1297,38 @@ const FirewallDefenseGameNew: React.FC<FirewallDefenseGameProps> = ({ difficulty
   );
 
   // Rendu du jeu en phase de résultats
+  // Composant pour afficher la progression à travers les niveaux
+  const LevelProgressDisplay = () => {
+    const allLevels = Array.from({ length: maxLevel }, (_, i) => i + 1);
+    
+    return (
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-1">
+          <h3 className="text-sm font-medium text-gray-300">Progression d'apprentissage</h3>
+          <span className="text-xs text-amber-400">Niveau {currentLevel}/{maxLevel}</span>
+        </div>
+        <div className="flex space-x-1">
+          {allLevels.map((level) => (
+            <div 
+              key={level}
+              className={`h-2 rounded flex-1 transition-all duration-300 ${
+                level < currentLevel ? 'bg-amber-500' : 
+                level === currentLevel ? 'bg-amber-400 animate-pulse' : 
+                'bg-gray-700'
+              }`}
+              title={`Niveau ${level}`}
+            />
+          ))}
+        </div>
+        <p className="mt-1 text-xs text-gray-400">
+          {currentLevel === 1 ? 'Débutez votre parcours d\'apprentissage' : 
+           currentLevel === maxLevel ? 'Niveau final - Maîtrisez toutes les compétences' : 
+           `Progression: vous maîtrisez ${Math.floor((currentLevel - 1) / maxLevel * 100)}% des compétences`}
+        </p>
+      </div>
+    );
+  };
+
   const renderResultsPhase = () => {
     if (!simulationResults) return null;
     
@@ -1222,6 +1351,9 @@ const FirewallDefenseGameNew: React.FC<FirewallDefenseGameProps> = ({ difficulty
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-4">
         <div className="bg-gray-800 rounded-lg p-6">
           <h2 className="text-2xl font-bold text-white mb-4">Résultats de la simulation</h2>
+          
+          {/* Indicateur de progression à travers les niveaux */}
+          <LevelProgressDisplay />
           
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="bg-gray-700 rounded-lg p-4 text-center">
