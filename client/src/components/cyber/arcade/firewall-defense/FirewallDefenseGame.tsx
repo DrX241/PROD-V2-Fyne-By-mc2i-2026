@@ -94,29 +94,32 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
   }, []);
   
   const handleCompleteTutorial = useCallback(() => {
-    // Cacher le tutoriel et passer directement en mode jeu
+    // Réinitialiser d'abord le tutorialStep pour éviter qu'il ne reste à la dernière étape si le tutoriel est réouvert
     setGameState(prev => ({
-      ...prev,
-      showTutorial: false,
+      ...prev, 
+      tutorialStep: 0, // Réinitialiser l'étape pour une future ouverture du tutoriel
+      showTutorial: false, // Important : fermer le tutoriel immédiatement
       gamePhase: 'playing',
       placedDefenses: [], // Réinitialiser les défenses placées pour le jeu
       timer: 0
     }));
     
-    // Démarrer le chronomètre automatiquement 
-    const interval = setInterval(() => {
-      setGameState(prev => ({
-        ...prev,
-        timer: prev.timer + 1
-      }));
-    }, 1000);
-    
-    setTimerInterval(interval);
-    
-    toast({
-      title: "Chronomètre démarré",
-      description: "Le chronomètre a démarré automatiquement. Placez les défenses dans le bon ordre !",
-    });
+    // Démarrer le chronomètre automatiquement après que le tutoriel soit fermé
+    setTimeout(() => {
+      const interval = setInterval(() => {
+        setGameState(prev => ({
+          ...prev,
+          timer: prev.timer + 1
+        }));
+      }, 1000);
+      
+      setTimerInterval(interval);
+      
+      toast({
+        title: "Chronomètre démarré",
+        description: "Le chronomètre a démarré automatiquement. Placez les défenses dans le bon ordre !",
+      });
+    }, 100); // Petit délai pour s'assurer que la fermeture du tutoriel est traitée d'abord
   }, [toast]);
   
   // Fonction pour démarrer le chronomètre
