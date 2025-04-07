@@ -5,7 +5,7 @@ import { ArrowLeft, Info, Shield, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import FirewallDefenseGame from '@/components/cyber/arcade/FirewallDefenseGame';
+import FirewallDefenseGameNew from '@/components/cyber/arcade/FirewallDefenseGameNew';
 
 const FirewallDefensePage: React.FC = () => {
   const [gameStarted, setGameStarted] = useState(false);
@@ -62,7 +62,7 @@ const FirewallDefensePage: React.FC = () => {
               </div>
               
               <p className="text-gray-300 mb-8">
-                Un jeu de stratégie tower defense où vous protégez une infrastructure réseau contre diverses cyberattaques. 
+                Un jeu de stratégie où vous protégez une infrastructure réseau contre diverses cyberattaques. 
                 Placez judicieusement vos défenses pour bloquer les attaques avant qu'elles n'atteignent vos systèmes critiques.
               </p>
               
@@ -89,10 +89,10 @@ const FirewallDefensePage: React.FC = () => {
                 <h2 className="text-xl font-semibold text-white mb-4">Fonctionnement du jeu</h2>
                 <div className="space-y-4">
                   <ol className="list-decimal list-inside text-gray-300 space-y-2">
-                    <li className="pl-2">Positionnement stratégique des pare-feu et autres mécanismes de défense</li>
-                    <li className="pl-2">Gestion des ressources limitées (budget, bande passante)</li>
-                    <li className="pl-2">Réaction à différentes vagues d'attaques (DDoS, injection SQL, etc.)</li>
-                    <li className="pl-2">Adaptation en temps réel aux évolutions des menaces</li>
+                    <li className="pl-2">Glissez-déposez les défenses dans les zones stratégiques du réseau</li>
+                    <li className="pl-2">Gestion des ressources limitées (budget et personnel)</li>
+                    <li className="pl-2">Simulation d'attaques sur 10 secondes</li>
+                    <li className="pl-2">Analyse des résultats et évaluation de votre stratégie par l'IA</li>
                   </ol>
                 </div>
               </div>
@@ -149,28 +149,28 @@ const FirewallDefensePage: React.FC = () => {
                   <p className="mb-2">Détails de la difficulté sélectionnée :</p>
                   {difficulty === 'Facile' && (
                     <ul className="list-disc list-inside pl-4 space-y-1">
-                      <li>Réseau simple avec moins de nœuds à protéger</li>
-                      <li>Plus de ressources initiales (1000)</li>
-                      <li>Attaques moins fréquentes et moins puissantes</li>
-                      <li>3 vagues d'attaques à repousser</li>
+                      <li>Réseau simple avec moins de zones à protéger</li>
+                      <li>Plus de ressources initiales (1000€ et 30 personnels)</li>
+                      <li>Moins de types d'attaques à gérer</li>
+                      <li>Probabilité d'attaques réduite</li>
                     </ul>
                   )}
                   
                   {difficulty === 'Moyen' && (
                     <ul className="list-disc list-inside pl-4 space-y-1">
                       <li>Réseau plus complexe incluant un service cloud</li>
-                      <li>Ressources initiales modérées (800)</li>
-                      <li>Attaques plus variées et fréquentes</li>
-                      <li>5 vagues d'attaques à repousser</li>
+                      <li>Ressources initiales modérées (800€ et 25 personnels)</li>
+                      <li>Attaques plus variées (XSS, MITM)</li>
+                      <li>Probabilité d'attaques intermédiaire</li>
                     </ul>
                   )}
                   
                   {difficulty === 'Difficile' && (
                     <ul className="list-disc list-inside pl-4 space-y-1">
-                      <li>Réseau complexe avec nombreux nœuds interdépendants</li>
-                      <li>Ressources initiales limitées (600)</li>
-                      <li>Attaques sophistiquées et très rapides</li>
-                      <li>8 vagues d'attaques incluant des menaces persistantes avancées (APT)</li>
+                      <li>Réseau complexe avec zones interdépendantes</li>
+                      <li>Ressources initiales limitées (600€ et 20 personnels)</li>
+                      <li>Attaques sophistiquées incluant ransomware</li>
+                      <li>Haute probabilité d'attaques sur toutes les zones</li>
                     </ul>
                   )}
                 </div>
@@ -196,7 +196,7 @@ const FirewallDefensePage: React.FC = () => {
   return (
     <HomeLayout>
       <div className="min-h-[calc(100vh-64px)] bg-gray-900">
-        <FirewallDefenseGame 
+        <FirewallDefenseGameNew 
           difficulty={difficulty}
           onGameEnd={handleGameEnd}
         />
