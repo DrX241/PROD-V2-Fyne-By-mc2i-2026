@@ -244,7 +244,7 @@ export default function CyberArcade() {
                 onMouseLeave={() => setHoveredGame(null)}
               >
                 {!game.comingSoon && (
-                  <Link href={`/cyber/arcade/${game.id}`} className="absolute inset-0 z-10 cursor-pointer"></Link>
+                  <Link href={game.id === 'firewall-defense' ? `/cyber/arcade/firewall-defense` : `/cyber/arcade/${game.id}`} className="absolute inset-0 z-10 cursor-pointer"></Link>
                 )}
                 <div className={`bg-gradient-to-br ${game.gradient} p-6 h-full`}>
                   {/* Badge de difficulté */}
@@ -295,7 +295,7 @@ export default function CyberArcade() {
                       <Button 
                         className="mt-auto bg-white hover:bg-gray-100 text-gray-900 w-full justify-center relative z-20"
                         size="sm"
-                        onClick={() => window.location.href = `/cyber/arcade/${game.id}`}
+                        onClick={() => window.location.href = game.id === 'firewall-defense' ? '/cyber/arcade/firewall-defense' : `/cyber/arcade/${game.id}`}
                       >
                         Commencer
                         <ArrowRight className="ml-2 h-4 w-4" />

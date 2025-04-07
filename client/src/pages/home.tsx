@@ -4,7 +4,7 @@ import HomeLayout from "@/components/layout/HomeLayout";
 import { 
   ShieldCheck, Shield, Database, ListChecks, Plus, ArrowRight, 
   BrainCircuit, Bot, Sparkles, Star, BookOpen, Zap, 
-  Users, Award, Brain, Laptop, Package, Target
+  Users, Award, Brain, Laptop, Package, Target, Gamepad
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useChatContext } from "@/contexts/ChatContext";
@@ -64,6 +64,19 @@ const ModuleCard = ({
               <ArrowRight className={`ml-2 transition-all duration-300 ${isHover ? 'translate-x-1' : ''}`} />
             </Button>
           </Link>
+          
+          {title === "I AM CYBER" && (
+            <Link href="/cyber/arcade/firewall-defense" className="inline-block mt-2 w-full">
+              <Button 
+                variant="outline"
+                className="border-blue-400 text-blue-600 hover:bg-blue-50 hover:border-blue-500 group transition-all duration-300 w-full"
+                size="sm"
+              >
+                Jouer à Firewall Defense
+                <Gamepad className={`ml-2 h-4 w-4 transition-all duration-300 ${isHover ? 'translate-x-1' : ''}`} />
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
     </motion.div>

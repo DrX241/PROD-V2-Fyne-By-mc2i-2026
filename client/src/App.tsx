@@ -25,6 +25,7 @@ function Router() {
       <Route path="/cyber" component={CyberModeSelection} />
       <Route path="/cyber/agent" component={CyberAgentPage} />
       <Route path="/cyber/arcade" component={CyberArcade} />
+      <Route path="/cyber/arcade/firewall-defense" component={FirewallDefensePage} />
       <Route path="/cyber/arcade/:gameId" component={CyberArcadeGame} />
       <Route path="/games/firewall-defense" component={FirewallDefensePage} />
       <Route path="/cyber-defense" component={CyberDefensePage} />
