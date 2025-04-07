@@ -1,7 +1,7 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { ChevronRight } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { ArrowRight, LightbulbIcon } from 'lucide-react';
 
 interface TutorialStep {
   title: string;
@@ -15,57 +15,59 @@ interface TutorialPanelProps {
   onComplete: () => void;
 }
 
-const TutorialPanel: React.FC<TutorialPanelProps> = ({ 
-  steps, 
-  currentStep, 
-  onNext, 
-  onComplete 
+const TutorialPanel: React.FC<TutorialPanelProps> = ({
+  steps,
+  currentStep,
+  onNext,
+  onComplete
 }) => {
   const isLastStep = currentStep === steps.length - 1;
+  const step = steps[currentStep];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="bg-gray-900 rounded-lg border border-gray-700 p-6 max-w-lg mx-auto shadow-xl"
-    >
-      <div className="flex items-center mb-2">
-        <div className="bg-indigo-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-3">
-          {currentStep + 1}
+    <Card className="w-full max-w-lg bg-gray-900 border-cyan-600 border-2 shadow-lg shadow-cyan-500/20">
+      <CardHeader className="bg-gray-800 p-6 border-b border-gray-700">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-full bg-cyan-500/20">
+            <LightbulbIcon className="w-6 h-6 text-cyan-400" />
+          </div>
+          <CardTitle className="text-xl text-white">
+            {step.title}
+          </CardTitle>
         </div>
-        <h2 className="text-xl font-bold text-white">{steps[currentStep].title}</h2>
-      </div>
-      
-      <div className="mt-3 text-gray-300">
-        <p>{steps[currentStep].content}</p>
-      </div>
-      
-      <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-800">
-        <div className="flex space-x-1">
-          {steps.map((_, index) => (
-            <div 
-              key={index}
-              className={`w-2 h-2 rounded-full ${
-                index === currentStep 
-                  ? 'bg-indigo-500' 
-                  : index < currentStep 
-                    ? 'bg-indigo-700' 
-                    : 'bg-gray-700'
-              }`}
-            />
-          ))}
-        </div>
+      </CardHeader>
+      <CardContent className="p-6">
+        <p className="text-gray-300 leading-relaxed">
+          {step.content}
+        </p>
         
+        <div className="mt-4 flex justify-center">
+          <div className="flex space-x-2">
+            {steps.map((_, index) => (
+              <div 
+                key={index}
+                className={`h-2 w-10 rounded-full ${
+                  index === currentStep 
+                    ? 'bg-cyan-500' 
+                    : index < currentStep 
+                      ? 'bg-cyan-800' 
+                      : 'bg-gray-700'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      </CardContent>
+      <CardFooter className="bg-gray-800 p-4 border-t border-gray-700 flex justify-end">
         <Button 
+          className="bg-cyan-600 hover:bg-cyan-700 text-white"
           onClick={isLastStep ? onComplete : onNext}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white"
         >
-          {isLastStep ? "Commencer" : "Suivant"}
-          <ChevronRight className="ml-1 h-4 w-4" />
+          {isLastStep ? 'Commencer' : 'Suivant'}
+          <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
-      </div>
-    </motion.div>
+      </CardFooter>
+    </Card>
   );
 };
 

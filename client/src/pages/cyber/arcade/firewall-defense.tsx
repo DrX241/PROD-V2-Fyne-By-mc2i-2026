@@ -3,7 +3,7 @@ import { Link } from 'wouter';
 import { ArrowLeft, Trophy, BarChart } from 'lucide-react';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
-import FirewallDefenseGame from '@/components/cyber/arcade/firewall-defense';
+import { FirewallDefenseGame } from '@/components/cyber/arcade/firewall-defense';
 import { Button } from '@/components/ui/button';
 
 export default function FirewallDefensePage() {

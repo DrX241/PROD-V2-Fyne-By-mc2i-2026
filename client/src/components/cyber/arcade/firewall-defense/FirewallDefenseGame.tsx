@@ -1,518 +1,571 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  ShieldCheck, Network, BarChart, Users, 
-  Play, RotateCcw, ArrowRight, AlertTriangle
+  Shield, 
+  Clock, 
+  Play, 
+  RotateCcw, 
+  ArrowRight, 
+  CheckCircle,
+  XCircle,
+  Trophy,
+  LightbulbIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Card, CardContent } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { Separator } from '@/components/ui/separator';
 
-import { FirewallDefenseGameProps, Defense, Zone, GameState, Attack } from './types';
-import { 
-  generateDefenses, 
-  generateZones, 
-  generateAttacks, 
-  generateInitialResources,
-  tutorialSteps
-} from './data';
+import { FirewallDefenseGameProps, Defense, Level, GameState, PlacedDefense } from './types';
+import { getLevelsByDifficulty, tutorialSteps } from './data';
 import DraggableDefense from './DraggableDefense';
-import ZoneComponent from './ZoneComponent';
+import DefenseSlot from './DefenseSlot';
 import TutorialPanel from './TutorialPanel';
+import ResultsPanel from './ResultsPanel';
 
 const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({ 
   difficulty, 
   onGameEnd 
 }) => {
   const { toast } = useToast();
+  
+  // État du jeu
   const [gameState, setGameState] = useState<GameState>({
-    phase: 'setup',
-    level: 1,
-    maxLevel: difficulty === 'Facile' ? 3 : (difficulty === 'Moyen' ? 5 : 7),
+    currentLevel: 1,
+    maxLevels: 0,
+    currentScore: 0,
+    totalScore: 0,
+    timer: 0,
+    isComplete: false,
+    placedDefenses: [],
     showTutorial: true,
     tutorialStep: 0,
-    defenseInventory: [],
-    zones: [],
-    resources: { budget: 0, manpower: 0 },
-    attackTypes: [],
-    simulationResults: null,
-    score: 0,
-    simulationTimeLeft: 10,
-    activeAttacks: []
+    gamePhase: 'preparation'
   });
   
-  // État pour le glisser-déposer
-  const [draggedDefenseId, setDraggedDefenseId] = useState<string | null>(null);
-  const [zoneHoverId, setZoneHoverId] = useState<string | null>(null);
+  // Données des niveaux
+  const [levels, setLevels] = useState<Level[]>([]);
+  const [currentLevel, setCurrentLevel] = useState<Level | null>(null);
   
-  // Références
-  const gameAreaRef = useRef<HTMLDivElement>(null);
+  // État du drag and drop
+  const [draggedDefenseId, setDraggedDefenseId] = useState<string | null>(null);
+  const [activeSlot, setActiveSlot] = useState<number | null>(null);
+  
+  // Minuteur
+  const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
   
   // Initialisation du jeu
   useEffect(() => {
-    initializeGame();
-  }, [difficulty]);
-  
-  // Initialisation du jeu
-  const initializeGame = () => {
-    const defenses = generateDefenses();
-    const zones = generateZones();
-    const attacks = generateAttacks(difficulty);
-    const resources = generateInitialResources(difficulty);
+    const gameLevels = getLevelsByDifficulty(difficulty);
+    setLevels(gameLevels);
+    setCurrentLevel(gameLevels[0]);
     
     setGameState({
-      ...gameState,
-      defenseInventory: defenses,
-      zones: zones,
-      attackTypes: attacks,
-      resources: resources,
-      phase: 'setup',
+      currentLevel: 1,
+      maxLevels: gameLevels.length,
+      currentScore: 0,
+      totalScore: 0,
+      timer: 0,
+      isComplete: false,
+      placedDefenses: [],
       showTutorial: true,
       tutorialStep: 0,
-      level: 1,
-      score: 0,
-      simulationTimeLeft: 10,
-      activeAttacks: [],
-      simulationResults: null
+      gamePhase: 'preparation'
     });
-  };
+  }, [difficulty]);
   
   // Gestion du tutoriel
-  const handleNextTutorialStep = () => {
+  const handleNextTutorialStep = useCallback(() => {
     setGameState(prev => ({
       ...prev,
-      tutorialStep: prev.tutorialStep + 1
+      tutorialStep: prev.tutorialStep < tutorialSteps.length - 1 
+        ? prev.tutorialStep + 1 
+        : prev.tutorialStep
     }));
-  };
+  }, []);
   
-  const handleCompleteTutorial = () => {
+  const handleCompleteTutorial = useCallback(() => {
     setGameState(prev => ({
       ...prev,
       showTutorial: false
     }));
-  };
+  }, []);
   
-  // Gestion du drag and drop des défenses
-  const handleDragStart = (defenseId: string) => {
+  // Gestion du drag and drop
+  const handleDragStart = useCallback((defenseId: string) => {
     setDraggedDefenseId(defenseId);
-  };
+  }, []);
   
-  const handleDragEnd = () => {
+  const handleDragEnd = useCallback(() => {
     setDraggedDefenseId(null);
-    setZoneHoverId(null);
-  };
+    setActiveSlot(null);
+  }, []);
   
-  // Ajouter une défense à une zone
-  const handleAddDefenseToZone = (zoneId: string) => {
-    if (!draggedDefenseId) return;
+  // Placer une défense dans un slot
+  const handlePlaceDefense = useCallback((position: number) => {
+    if (!draggedDefenseId || !currentLevel) return;
     
-    const defense = gameState.defenseInventory.find(d => d.id === draggedDefenseId);
-    if (!defense) return;
+    // Vérifier si le slot est déjà occupé
+    const isSlotOccupied = gameState.placedDefenses.some(
+      pd => pd.position === position
+    );
     
-    // Vérifier si assez de ressources
-    if (gameState.resources.budget < defense.cost || gameState.resources.manpower < defense.manpower) {
+    if (isSlotOccupied) {
       toast({
-        title: "Ressources insuffisantes",
-        description: `Il vous manque ${gameState.resources.budget < defense.cost ? `${defense.cost - gameState.resources.budget}€` : ''} ${gameState.resources.budget < defense.cost && gameState.resources.manpower < defense.manpower ? ' et ' : ''} ${gameState.resources.manpower < defense.manpower ? `${defense.manpower - gameState.resources.manpower} personnel` : ''}`,
+        title: "Emplacement occupé",
+        description: "Cet emplacement contient déjà une défense",
         variant: "destructive",
       });
       return;
     }
     
-    // Ajouter l'ID de la défense à la zone
-    const updatedZones = gameState.zones.map(zone => {
-      if (zone.id === zoneId) {
-        return {
-          ...zone,
-          defenses: [...zone.defenses, draggedDefenseId]
-        };
-      }
-      return zone;
-    });
-    
-    // Retirer la défense de l'inventaire
-    const updatedInventory = gameState.defenseInventory.filter(d => d.id !== draggedDefenseId);
-    
-    // Mettre à jour les ressources
-    const updatedResources = {
-      budget: gameState.resources.budget - defense.cost,
-      manpower: gameState.resources.manpower - defense.manpower
-    };
-    
+    // Ajouter la défense au slot
     setGameState(prev => ({
       ...prev,
-      zones: updatedZones,
-      defenseInventory: updatedInventory,
-      resources: updatedResources
+      placedDefenses: [
+        ...prev.placedDefenses,
+        { defenseId: draggedDefenseId, position }
+      ]
     }));
     
+    setDraggedDefenseId(null);
+  }, [draggedDefenseId, currentLevel, gameState.placedDefenses, toast]);
+  
+  // Retirer une défense d'un slot
+  const handleRemoveDefense = useCallback((position: number) => {
+    setGameState(prev => ({
+      ...prev,
+      placedDefenses: prev.placedDefenses.filter(
+        pd => pd.position !== position
+      )
+    }));
+  }, []);
+  
+  // Démarrer la partie
+  const startGame = useCallback(() => {
+    if (!currentLevel) return;
+    
+    // Vérifier que tous les slots sont remplis
+    const requiredSlots = currentLevel.defenses.length;
+    if (gameState.placedDefenses.length < requiredSlots) {
+      toast({
+        title: "Configuration incomplète",
+        description: `Vous devez placer toutes les ${requiredSlots} défenses avant de commencer`,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Démarrer le chronomètre
+    setGameState(prev => ({
+      ...prev,
+      gamePhase: 'playing',
+      timer: 0
+    }));
+    
+    const interval = setInterval(() => {
+      setGameState(prev => ({
+        ...prev,
+        timer: prev.timer + 1
+      }));
+    }, 1000);
+    
+    setTimerInterval(interval);
+  }, [currentLevel, gameState.placedDefenses, toast]);
+  
+  // Vérifier la solution
+  const checkSolution = useCallback(() => {
+    if (!currentLevel) return;
+    
+    // Arrêter le chronomètre
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      setTimerInterval(null);
+    }
+    
+    // Vérifier chaque défense
+    const updatedPlacedDefenses = gameState.placedDefenses.map(pd => {
+      const defense = currentLevel.defenses.find(d => d.id === pd.defenseId);
+      if (!defense) return pd;
+      
+      return {
+        ...pd,
+        isCorrect: defense.correctPosition === pd.position
+      };
+    });
+    
+    // Calculer le score
+    const correctDefenses = updatedPlacedDefenses.filter(pd => pd.isCorrect).length;
+    const totalDefenses = currentLevel.defenses.length;
+    const baseScore = Math.round((correctDefenses / totalDefenses) * currentLevel.maxScore);
+    
+    // Bonus de temps si terminé avant le temps cible
+    const timeBonus = gameState.timer < currentLevel.targetTime 
+      ? Math.round((currentLevel.targetTime - gameState.timer) * 5) 
+      : 0;
+    
+    const finalScore = baseScore + timeBonus;
+    const isLevelComplete = correctDefenses === totalDefenses;
+    
+    // Mettre à jour l'état
+    setGameState(prev => ({
+      ...prev,
+      placedDefenses: updatedPlacedDefenses,
+      currentScore: finalScore,
+      totalScore: prev.totalScore + finalScore,
+      isComplete: isLevelComplete,
+      gamePhase: 'results'
+    }));
+    
+    // Feedback
     toast({
-      title: "Défense déployée",
-      description: `${defense.name} a été installé dans la zone ${gameState.zones.find(z => z.id === zoneId)?.name}`,
+      title: isLevelComplete ? "Niveau réussi !" : "Configuration incomplète",
+      description: isLevelComplete 
+        ? `Vous avez correctement configuré toutes les défenses et obtenu ${finalScore} points !` 
+        : `${correctDefenses}/${totalDefenses} défenses sont correctement placées. Score: ${finalScore} points`,
+      variant: isLevelComplete ? "default" : "destructive",
     });
-  };
-  
-  // Lancer la simulation
-  const startSimulation = () => {
-    // Vérifier qu'au moins une défense est placée
-    if (gameState.zones.every(zone => zone.defenses.length === 0)) {
-      toast({
-        title: "Aucune défense déployée",
-        description: "Vous devez déployer au moins une défense pour lancer la simulation.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setGameState(prev => ({
-      ...prev,
-      phase: 'simulation',
-      simulationTimeLeft: 10
-    }));
-    
-    // Simuler les résultats après 10 secondes
-    setTimeout(() => {
-      runSimulation();
-    }, 10000);
-  };
-  
-  // Simulation des attaques
-  const runSimulation = () => {
-    // TODO: Implémenter la logique de simulation complète
-    
-    // Exemple simple pour démonstration
-    const successfulAttacks = Math.floor(Math.random() * 3);
-    const blockedAttacks = Math.floor(Math.random() * 4) + 2;
-    const compromisedZones: string[] = [];
-    
-    if (successfulAttacks > 0) {
-      const vulnerableZones = gameState.zones.filter(zone => zone.defenses.length === 0);
-      if (vulnerableZones.length > 0) {
-        compromisedZones.push(vulnerableZones[0].id);
-      }
-    }
-    
-    const levelScore = blockedAttacks * 100 - successfulAttacks * 150;
-    const totalScore = gameState.score + Math.max(0, levelScore);
-    
-    setGameState(prev => ({
-      ...prev,
-      phase: 'results',
-      simulationResults: {
-        wave: prev.level,
-        attacks: [],
-        results: {
-          successfulAttacks,
-          blockedAttacks,
-          compromisedZones,
-          score: levelScore
-        },
-        feedback: successfulAttacks === 0 
-          ? "Excellent travail! Toutes les attaques ont été bloquées." 
-          : "Certaines attaques ont réussi. Renforcez votre défense.",
-        level: prev.level,
-        maxLevel: prev.maxLevel
-      },
-      score: totalScore
-    }));
-  };
-  
-  // Passer au niveau suivant
-  const goToNextLevel = () => {
-    if (gameState.level >= gameState.maxLevel) {
-      // Jeu terminé
-      if (onGameEnd) {
-        onGameEnd(gameState.score);
-      }
-      return;
-    }
-    
-    // Réinitialiser pour le niveau suivant
-    const defenses = generateDefenses();
-    const zones = gameState.zones.map(zone => ({
-      ...zone,
-      defenses: []
-    }));
-    const resources = generateInitialResources(difficulty);
-    
-    setGameState(prev => ({
-      ...prev,
-      level: prev.level + 1,
-      phase: 'setup',
-      defenseInventory: defenses,
-      zones: zones,
-      resources: resources,
-      simulationResults: null
-    }));
-  };
+  }, [currentLevel, gameState.placedDefenses, gameState.timer, timerInterval, toast]);
   
   // Recommencer le niveau
-  const restartLevel = () => {
-    // Réinitialiser le niveau actuel
-    const defenses = generateDefenses();
-    const zones = gameState.zones.map(zone => ({
-      ...zone,
-      defenses: []
-    }));
-    const resources = generateInitialResources(difficulty);
+  const restartLevel = useCallback(() => {
+    // Arrêter le chronomètre
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      setTimerInterval(null);
+    }
     
+    // Réinitialiser l'état du niveau
     setGameState(prev => ({
       ...prev,
-      phase: 'setup',
-      defenseInventory: defenses,
-      zones: zones,
-      resources: resources,
-      simulationResults: null
+      placedDefenses: [],
+      currentScore: 0,
+      timer: 0,
+      isComplete: false,
+      gamePhase: 'preparation'
     }));
-  };
+  }, [timerInterval]);
   
-  // Rendu de l'interface selon la phase de jeu
-  const renderTutorial = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4">
-      <TutorialPanel
-        steps={tutorialSteps}
-        currentStep={gameState.tutorialStep}
-        onNext={handleNextTutorialStep}
-        onComplete={handleCompleteTutorial}
-      />
-    </div>
-  );
+  // Passer au niveau suivant
+  const goToNextLevel = useCallback(() => {
+    const nextLevelIndex = gameState.currentLevel;
+    
+    // Si c'est le dernier niveau, terminer le jeu
+    if (nextLevelIndex >= levels.length) {
+      if (onGameEnd) {
+        onGameEnd(gameState.totalScore);
+      }
+      return;
+    }
+    
+    // Charger le niveau suivant
+    const nextLevel = levels[nextLevelIndex];
+    setCurrentLevel(nextLevel);
+    
+    // Réinitialiser l'état du niveau
+    setGameState(prev => ({
+      ...prev,
+      currentLevel: prev.currentLevel + 1,
+      placedDefenses: [],
+      currentScore: 0,
+      timer: 0,
+      isComplete: false,
+      gamePhase: 'preparation'
+    }));
+  }, [gameState.currentLevel, gameState.totalScore, levels, onGameEnd]);
   
-  const renderSetupPhase = () => (
-    <div className="grid grid-cols-1 gap-4 p-4">
-      <div className="flex flex-col">
-        {/* Header avec informations du jeu */}
-        <div className="bg-gray-800 rounded-lg p-4 mb-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center">
-              <ShieldCheck className="w-6 h-6 mr-2 text-blue-400" />
-              <h2 className="text-xl font-bold text-white">Niveau {gameState.level}/{gameState.maxLevel} - {difficulty}</h2>
-            </div>
-            
-            <div className="flex space-x-4">
-              <div className="bg-gray-700 rounded-lg px-3 py-1 text-sm flex items-center">
-                <BarChart className="w-4 h-4 mr-1 text-amber-400" />
-                <span className="text-amber-400 font-bold">{gameState.resources.budget}€</span>
-              </div>
-              <div className="bg-gray-700 rounded-lg px-3 py-1 text-sm flex items-center">
-                <Users className="w-4 h-4 mr-1 text-blue-400" />
-                <span className="text-blue-400 font-bold">{gameState.resources.manpower}</span>
-              </div>
-              <div className="bg-gray-700 rounded-lg px-3 py-1 text-sm flex items-center">
-                <Network className="w-4 h-4 mr-1 text-purple-400" />
-                <span className="text-purple-400 font-bold">{gameState.score} pts</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      
-        {/* Aire de jeu principale */}
-        <div className="bg-gray-800 rounded-lg p-4 mb-4 relative">
-          <h2 className="text-xl font-bold text-white mb-4 flex items-center">
-            <Network className="w-6 h-6 mr-2 text-purple-400" />
-            Infrastructure réseau
-          </h2>
-          
-          {/* Zone de jeu interactive */}
-          <div 
-            ref={gameAreaRef}
-            className="relative bg-gray-900 rounded-lg p-4 min-h-[500px]"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%233f4865' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E")`,
-            }}
-          >
-            {/* Zones de l'infrastructure */}
-            {gameState.zones.map(zone => (
-              <ZoneComponent
-                key={zone.id}
-                zone={zone}
-                defenses={gameState.defenseInventory}
-                onDrop={handleAddDefenseToZone}
-                isDraggingOver={draggedDefenseId !== null && zoneHoverId === zone.id}
-              />
-            ))}
-            
-            {/* Lignes de connexion entre les zones (à implémenter) */}
-          </div>
-        </div>
-      
-        {/* Liste des défenses disponibles */}
-        <div className="bg-gray-800 rounded-lg p-4">
-          <h2 className="text-xl font-bold text-white mb-4 flex items-center">
-            <ShieldCheck className="w-6 h-6 mr-2 text-blue-400" />
-            Défenses disponibles
-          </h2>
-          
-          {gameState.defenseInventory.length === 0 ? (
-            <div className="text-center py-6 text-gray-400">
-              <AlertTriangle className="w-10 h-10 mx-auto mb-2 text-amber-500" />
-              <p>Vous avez utilisé toutes vos défenses disponibles.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {gameState.defenseInventory.map((defense) => (
-                <DraggableDefense
-                  key={defense.id}
-                  defense={defense}
-                  onDragStart={() => handleDragStart(defense.id)}
-                  onDragEnd={handleDragEnd}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-        
-        {/* Boutons d'action */}
-        <div className="flex justify-end mt-4 space-x-3">
-          <Button
-            variant="outline"
-            className="border-gray-700 text-gray-300 hover:bg-gray-700"
-            onClick={restartLevel}
-          >
-            <RotateCcw className="mr-2 h-4 w-4" />
-            Recommencer
-          </Button>
-          
-          <Button
-            className="bg-green-600 hover:bg-green-700 text-white"
-            onClick={startSimulation}
-          >
-            <Play className="mr-2 h-4 w-4" />
-            Lancer la simulation
-          </Button>
+  // Arrêter le chronomètre quand le composant est démonté
+  useEffect(() => {
+    return () => {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
+    };
+  }, [timerInterval]);
+  
+  // Si le niveau n'est pas chargé, afficher un loader
+  if (!currentLevel) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <div className="animate-pulse flex flex-col items-center">
+          <Shield className="w-12 h-12 text-blue-400 mb-4" />
+          <p className="text-gray-400">Chargement du niveau...</p>
         </div>
       </div>
-    </div>
+    );
+  }
+  
+  // Liste des défenses disponibles (non placées)
+  const availableDefenses = currentLevel.defenses.filter(
+    defense => !gameState.placedDefenses.some(pd => pd.defenseId === defense.id)
   );
   
-  const renderSimulationPhase = () => (
+  // Rendu conditionnel selon la phase du jeu
+  return (
     <div className="p-4">
-      <Card>
-        <CardContent className="p-6">
-          <h2 className="text-2xl font-bold text-center mb-4">Simulation en cours...</h2>
-          <Progress value={(10 - gameState.simulationTimeLeft) * 10} className="h-2 mb-2" />
-          <p className="text-center text-sm text-gray-500">
-            Temps restant: {gameState.simulationTimeLeft} secondes
-          </p>
+      {/* Tutoriel */}
+      <AnimatePresence>
+        {gameState.showTutorial && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4"
+          >
+            <TutorialPanel
+              steps={tutorialSteps}
+              currentStep={gameState.tutorialStep}
+              onNext={handleNextTutorialStep}
+              onComplete={handleCompleteTutorial}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* En-tête avec informations du niveau */}
+      <div className="bg-gray-800 rounded-xl p-4 mb-6 shadow-lg">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="flex items-center">
+            <Shield className="w-6 h-6 mr-2 text-blue-400" />
+            <div>
+              <h2 className="text-xl font-bold text-white">{currentLevel.name}</h2>
+              <p className="text-sm text-gray-300">
+                Niveau {gameState.currentLevel}/{gameState.maxLevels} • {difficulty}
+              </p>
+            </div>
+          </div>
           
-          <div className="mt-8 flex justify-center">
-            <div className="w-full max-w-3xl min-h-[300px] bg-gray-900 rounded-lg p-4 relative">
-              {/* Ici, nous aurons des animations montrant les attaques en cours */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="animate-pulse text-amber-500 text-center">
-                  <AlertTriangle className="w-16 h-16 mx-auto mb-4" />
-                  <p className="text-xl">Attaques en cours...</p>
+          <div className="flex items-center gap-3 flex-wrap">
+            <Badge className="bg-gray-700 gap-1.5 px-3 py-1">
+              <Trophy className="w-4 h-4 text-yellow-400" />
+              <span className="text-white font-semibold">{gameState.totalScore} pts</span>
+            </Badge>
+            
+            {gameState.gamePhase === 'playing' && (
+              <Badge className="bg-gray-700 gap-1.5 px-3 py-1">
+                <Clock className="w-4 h-4 text-cyan-400" />
+                <span className="text-white font-semibold">{gameState.timer}s</span>
+              </Badge>
+            )}
+            
+            <Button 
+              size="sm" 
+              variant="outline"
+              className="border-gray-600 text-gray-300"
+              onClick={() => {
+                setGameState(prev => ({ ...prev, showTutorial: true, tutorialStep: 0 }));
+              }}
+            >
+              <LightbulbIcon className="w-4 h-4 mr-1 text-yellow-400" />
+              Aide
+            </Button>
+          </div>
+        </div>
+      </div>
+      
+      {/* Description du niveau */}
+      <div className="bg-gray-800 rounded-xl p-4 mb-6 shadow-lg">
+        <h3 className="font-semibold text-white mb-2">Description</h3>
+        <p className="text-gray-300">{currentLevel.description}</p>
+        
+        {gameState.gamePhase === 'preparation' && (
+          <div className="mt-4 bg-gray-700/50 rounded p-3 text-sm text-gray-300">
+            <p>
+              <span className="text-blue-400 font-semibold">Mission:</span> Placez les défenses dans le bon ordre pour créer une protection en profondeur optimale. Chaque défense doit être positionnée stratégiquement pour maximiser son efficacité.
+            </p>
+          </div>
+        )}
+      </div>
+      
+      {/* Zone principale de jeu */}
+      <div className="grid grid-cols-1 lg:grid-cols-6 gap-6 mb-6">
+        {/* Zone de placement des défenses (gauche) */}
+        <div className="lg:col-span-4">
+          <Card className="bg-gray-800 border-gray-700 shadow-lg p-4">
+            <h3 className="font-semibold text-white mb-4">Configuration du réseau</h3>
+            
+            <div className="relative py-6 px-3 bg-gray-900 rounded-lg mb-4 min-h-[400px]">
+              {/* Ligne de connexion */}
+              <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transform -translate-y-1/2" />
+              
+              {/* Slots pour les défenses */}
+              <div className="grid grid-cols-1 md:grid-cols-8 gap-4 relative z-10">
+                {Array.from({ length: 8 }).map((_, index) => {
+                  const position = index + 1;
+                  const placedDefense = gameState.placedDefenses.find(
+                    pd => pd.position === position
+                  );
+                  
+                  return (
+                    <DefenseSlot
+                      key={position}
+                      position={position}
+                      placedDefense={placedDefense}
+                      defenses={currentLevel.defenses}
+                      isActive={activeSlot === position}
+                      isCorrect={placedDefense?.isCorrect}
+                      onDrop={() => handlePlaceDefense(position)}
+                    />
+                  );
+                })}
+              </div>
+              
+              {/* Légende */}
+              <div className="absolute top-4 right-4 flex items-center space-x-3">
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-green-500 mr-1" />
+                  <span className="text-xs text-gray-300">Correct</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-red-500 mr-1" />
+                  <span className="text-xs text-gray-300">Incorrect</span>
                 </div>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-  
-  const renderResultsPhase = () => {
-    if (!gameState.simulationResults) return null;
-    
-    const { results, feedback, level, maxLevel } = gameState.simulationResults;
-    
-    return (
-      <div className="p-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-gray-800 rounded-lg overflow-hidden shadow-lg"
-        >
-          <div className="bg-gray-700 p-6 text-center">
-            <h2 className="text-2xl font-bold text-white mb-1">Résultats de la simulation</h2>
-            <p className="text-gray-300">Niveau {level}/{maxLevel} - {difficulty}</p>
-          </div>
-          
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div className="bg-green-900 bg-opacity-30 rounded-lg p-4 text-center">
-                <h3 className="text-xl font-bold text-green-400 mb-1">{results.blockedAttacks}</h3>
-                <p className="text-gray-300">Attaques bloquées</p>
-              </div>
-              
-              <div className="bg-red-900 bg-opacity-30 rounded-lg p-4 text-center">
-                <h3 className="text-xl font-bold text-red-400 mb-1">{results.successfulAttacks}</h3>
-                <p className="text-gray-300">Attaques réussies</p>
-              </div>
-              
-              <div className="bg-blue-900 bg-opacity-30 rounded-lg p-4 text-center">
-                <h3 className="text-xl font-bold text-blue-400 mb-1">{results.score}</h3>
-                <p className="text-gray-300">Points gagnés</p>
-              </div>
-            </div>
             
-            <Alert className={`mb-6 ${results.successfulAttacks === 0 ? 'bg-green-900 bg-opacity-20' : 'bg-amber-900 bg-opacity-20'}`}>
-              <AlertTitle className={results.successfulAttacks === 0 ? 'text-green-400' : 'text-amber-400'}>
-                Rapport de sécurité
-              </AlertTitle>
-              <AlertDescription className="text-gray-300">
-                {feedback}
-              </AlertDescription>
-            </Alert>
-            
-            {results.compromisedZones.length > 0 && (
-              <div className="mb-6">
-                <h3 className="text-lg font-bold text-red-400 mb-2">Zones compromises:</h3>
-                <ul className="list-disc list-inside text-gray-300">
-                  {results.compromisedZones.map(zoneId => (
-                    <li key={zoneId}>
-                      {gameState.zones.find(z => z.id === zoneId)?.name}
-                    </li>
-                  ))}
-                </ul>
+            {/* Barre de progression */}
+            {gameState.gamePhase === 'playing' && (
+              <div className="mb-4">
+                <div className="flex justify-between text-xs text-gray-400 mb-1">
+                  <span>0s</span>
+                  <span>Temps cible: {currentLevel.targetTime}s</span>
+                </div>
+                <Progress 
+                  value={Math.min((gameState.timer / currentLevel.targetTime) * 100, 100)} 
+                  className="h-2"
+                />
               </div>
             )}
             
-            <div className="flex justify-end space-x-3 pt-4 border-t border-gray-700">
+            {/* Actions */}
+            <div className="flex justify-end space-x-3">
               <Button
                 variant="outline"
-                className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                className="border-gray-600 text-gray-300"
                 onClick={restartLevel}
               >
                 <RotateCcw className="mr-2 h-4 w-4" />
-                Rejouer le niveau
+                Réinitialiser
               </Button>
               
-              {level < maxLevel ? (
+              {gameState.gamePhase === 'preparation' && (
                 <Button
                   className="bg-blue-600 hover:bg-blue-700 text-white"
-                  onClick={goToNextLevel}
+                  onClick={startGame}
+                  disabled={gameState.placedDefenses.length < currentLevel.defenses.length}
                 >
-                  Niveau suivant
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <Play className="mr-2 h-4 w-4" />
+                  Démarrer
                 </Button>
-              ) : (
+              )}
+              
+              {gameState.gamePhase === 'playing' && (
                 <Button
-                  className="bg-purple-600 hover:bg-purple-700 text-white"
-                  onClick={() => { if (onGameEnd) onGameEnd(gameState.score); }}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  onClick={checkSolution}
                 >
-                  Terminer le jeu
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  Vérifier
                 </Button>
               )}
             </div>
-          </div>
-        </motion.div>
+          </Card>
+        </div>
+        
+        {/* Inventaire des défenses (droite) */}
+        <div className="lg:col-span-2">
+          <Card className="bg-gray-800 border-gray-700 shadow-lg p-4 h-full">
+            <h3 className="font-semibold text-white mb-4">Défenses disponibles</h3>
+            
+            {gameState.gamePhase === 'results' ? (
+              <div className="flex flex-col h-full justify-center">
+                <ResultsPanel
+                  level={currentLevel}
+                  score={gameState.currentScore}
+                  time={gameState.timer}
+                  isLevelComplete={gameState.isComplete}
+                  hasNextLevel={gameState.currentLevel < gameState.maxLevels}
+                  onRestart={restartLevel}
+                  onNextLevel={gameState.isComplete ? goToNextLevel : restartLevel}
+                />
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {availableDefenses.length === 0 ? (
+                  <div className="text-center py-8 text-gray-400">
+                    <CheckCircle className="w-12 h-12 mx-auto mb-2 text-green-400" />
+                    <p>Toutes les défenses sont placées</p>
+                  </div>
+                ) : (
+                  <>
+                    {availableDefenses.map(defense => (
+                      <DraggableDefense
+                        key={defense.id}
+                        defense={defense}
+                        onDragStart={() => handleDragStart(defense.id)}
+                        onDragEnd={handleDragEnd}
+                        disabled={gameState.gamePhase === 'playing'}
+                      />
+                    ))}
+                  </>
+                )}
+                
+                {/* Défenses placées (pour le mode mobile) */}
+                {gameState.placedDefenses.length > 0 && (
+                  <div className="lg:hidden mt-6">
+                    <Separator className="my-4" />
+                    <h4 className="font-semibold text-gray-300 mb-3">Défenses placées</h4>
+                    <div className="space-y-2">
+                      {gameState.placedDefenses
+                        .sort((a, b) => a.position - b.position)
+                        .map(pd => {
+                          const defense = currentLevel.defenses.find(d => d.id === pd.defenseId);
+                          if (!defense) return null;
+                          
+                          return (
+                            <div 
+                              key={pd.position}
+                              className="flex items-center justify-between bg-gray-700 rounded-lg p-2"
+                            >
+                              <div className="flex items-center">
+                                <div className="p-1 rounded-lg mr-2" style={{ backgroundColor: `${defense.color}30` }}>
+                                  {defense.icon}
+                                </div>
+                                <div>
+                                  <p className="text-sm text-white">{defense.name}</p>
+                                  <p className="text-xs text-gray-400">Position: {pd.position}</p>
+                                </div>
+                              </div>
+                              
+                              {gameState.gamePhase === 'preparation' && (
+                                <Button 
+                                  size="icon" 
+                                  variant="ghost"
+                                  className="h-7 w-7 text-red-400 hover:text-red-300 hover:bg-red-950"
+                                  onClick={() => handleRemoveDefense(pd.position)}
+                                >
+                                  <XCircle className="h-4 w-4" />
+                                </Button>
+                              )}
+                              
+                              {gameState.gamePhase === 'results' && pd.isCorrect !== undefined && (
+                                <div className={`p-1 rounded-full ${pd.isCorrect ? 'bg-green-900/50 text-green-400' : 'bg-red-900/50 text-red-400'}`}>
+                                  {pd.isCorrect ? <CheckCircle className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </Card>
+        </div>
       </div>
-    );
-  };
-  
-  return (
-    <div className="bg-gray-900 text-white min-h-[calc(100vh-64px)]">
-      <AnimatePresence>
-        {gameState.showTutorial && renderTutorial()}
-      </AnimatePresence>
-      
-      {gameState.phase === 'setup' && renderSetupPhase()}
-      {gameState.phase === 'simulation' && renderSimulationPhase()}
-      {gameState.phase === 'results' && renderResultsPhase()}
     </div>
   );
 };

@@ -1,3 +1,2 @@
-import FirewallDefenseGame from './FirewallDefenseGame';
-
-export default FirewallDefenseGame;
+export { default as FirewallDefenseGame } from './FirewallDefenseGame';
+export * from './types';
