@@ -178,7 +178,7 @@ export default function CyberModeSelection() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 px-4 sm:px-6 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 px-4 sm:px-6 max-w-7xl mx-auto">
             {cyberModes.map((mode, index) => (
               <Link key={mode.id} href={mode.id === 'cyber-ascension' ? '#' : mode.destination} className="flex h-full" onClick={(e) => mode.id === 'cyber-ascension' && e.preventDefault()}>
                 <motion.div
@@ -190,7 +190,7 @@ export default function CyberModeSelection() {
                   onMouseLeave={() => setHoveredMode(null)}
                 >
                   {/* Gradient background */}
-                  <div className={`bg-gradient-to-br ${mode.gradient} p-8 sm:p-10 h-full`}>
+                  <div className={`bg-gradient-to-br ${mode.gradient} p-6 sm:p-8 h-full flex flex-col`}>
                     {/* Glow effect on hover */}
                     {hoveredMode === mode.id && (
                       <>
@@ -205,16 +205,16 @@ export default function CyberModeSelection() {
                     
                     <div className="flex flex-col h-full relative z-10">
                       {/* Icon container */}
-                      <div className="w-20 h-20 rounded-2xl bg-opacity-20 bg-white flex items-center justify-center mb-6 backdrop-blur-sm">
+                      <div className="w-16 h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 rounded-2xl bg-opacity-20 bg-white flex items-center justify-center mb-4 backdrop-blur-sm mx-auto">
                         {mode.icon}
                       </div>
                       
-                      <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">{mode.title}</h2>
-                      <p className="text-blue-100 mb-8 text-lg flex-grow">{mode.description}</p>
+                      <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-3 text-center">{mode.title}</h2>
+                      <p className="text-blue-100 mb-6 text-sm lg:text-base flex-grow text-center">{mode.description}</p>
                       
-                      <div className="flex items-center mt-auto">
+                      <div className="flex items-center justify-center mt-auto">
                         {mode.id === 'cyber-ascension' ? (
-                          <div className="bg-blue-900/60 text-white px-4 py-2 rounded-md flex items-center">
+                          <div className="bg-blue-900/60 text-white px-4 py-2 rounded-md flex items-center mx-auto">
                             <span className="animate-pulse mr-2">•</span>
                             Bientôt disponible
                           </div>
@@ -225,35 +225,35 @@ export default function CyberModeSelection() {
                               mode.id === 'cyber-defense' ? 'text-[#006a9e]' : 
                               'text-purple-700'
                             }`}
-                            size="lg"
+                            size="sm"
                           >
                             Commencer
-                            <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+                            <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform w-4 h-4" />
                           </Button>
                         )}
                       </div>
                     </div>
                     
                     {/* Feature icons */}
-                    <div className="absolute bottom-8 right-8 flex flex-col gap-4 opacity-20">
+                    <div className="absolute bottom-4 right-4 flex gap-3 opacity-20">
                       {mode.id === 'agent-ia' ? (
                         <>
-                          <MessageSquare className="w-10 h-10 text-white" />
-                          <Command className="w-10 h-10 text-white" />
+                          <MessageSquare className="w-6 h-6 text-white" />
+                          <Command className="w-6 h-6 text-white" />
                         </>
                       ) : mode.id === 'cyber-defense' ? (
                         <>
-                          <Shield className="w-10 h-10 text-white" />
-                          <User className="w-10 h-10 text-white" />
+                          <Shield className="w-6 h-6 text-white" />
+                          <User className="w-6 h-6 text-white" />
                         </>
                       ) : mode.id === 'cyber-ascension' ? (
                         <>
-                          <Rocket className="w-10 h-10 text-white" />
-                          <BrainCircuit className="w-10 h-10 text-white" />
+                          <Rocket className="w-6 h-6 text-white" />
+                          <BrainCircuit className="w-6 h-6 text-white" />
                         </>
                       ) : (
                         <>
-                          <Joystick className="w-10 h-10 text-white" />
+                          <Joystick className="w-6 h-6 text-white" />
                         </>
                       )}
                     </div>
