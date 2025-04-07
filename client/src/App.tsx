@@ -16,7 +16,11 @@ import CyberDefensePage from "@/pages/cyber-defense";
 import CyberDefenseMissionPage from "@/pages/cyber-defense-mission";
 import CyberArcade from "@/pages/cyber-arcade";
 import CyberArcadeGame from "@/pages/cyber-arcade-game";
-import FirewallDefensePage from "@/pages/games/FirewallDefensePage";
+// Nouvelles pages optimisées pour l'Arcade
+import FirewallDefensePage from "@/pages/cyber/arcade/firewall-defense";
+import PhishingDetectivePage from "@/pages/cyber/arcade/phishing-detective";
+import PasswordGuardianPage from "@/pages/cyber/arcade/password-guardian";
+// Autres pages
 import ImmersiveSimulation from "@/pages/immersive-simulation";
 import ImmersiveScenarioDetail from "@/pages/immersive-scenario-detail";
 import ImmersiveSession from "@/pages/immersive-session";
@@ -30,8 +34,9 @@ function Router() {
       <Route path="/cyber/agent" component={CyberAgentPage} />
       <Route path="/cyber/arcade" component={CyberArcade} />
       <Route path="/cyber/arcade/firewall-defense" component={FirewallDefensePage} />
+      <Route path="/cyber/arcade/phishing-detective" component={PhishingDetectivePage} />
+      <Route path="/cyber/arcade/password-guardian" component={PasswordGuardianPage} />
       <Route path="/cyber/arcade/:gameId" component={CyberArcadeGame} />
-      <Route path="/games/firewall-defense" component={FirewallDefensePage} />
       <Route path="/cyber-defense" component={CyberDefensePage} />
       <Route path="/cyber-defense/mission/:id" component={CyberDefenseMissionPage} />
       <Route path="/immersive-simulation" component={ImmersiveSimulation} />

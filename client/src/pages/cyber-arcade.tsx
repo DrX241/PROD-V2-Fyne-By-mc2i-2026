@@ -23,7 +23,7 @@ export default function CyberArcade() {
   const [hoveredGame, setHoveredGame] = useState<string | null>(null);
 
   const arcadeGames: GameOption[] = [
-    // Jeux existants et fonctionnels
+    // Jeux existants et fonctionnels - maintenus accessibles
     {
       id: 'phishing-detective',
       title: 'Detective de Phishing',
@@ -54,7 +54,8 @@ export default function CyberArcade() {
       description: "Déchiffrez des codes et apprenez les bases de la cryptographie de manière ludique avec des indices progressifs.",
       difficulty: 'Moyen',
       icon: <BrainCircuit className="w-10 h-10 text-white" />,
-      gradient: 'from-purple-700 to-purple-900'
+      gradient: 'from-purple-700 to-purple-900',
+      comingSoon: true
     },
     {
       id: 'pca-crisis-mode',
@@ -62,7 +63,8 @@ export default function CyberArcade() {
       description: "Simulation d'un PCA face à un incident majeur. Coordonnez votre réponse avec DG, RSSI, Communication et Juridique face à un rançongiciel ou une attaque interne.",
       difficulty: 'Difficile',
       icon: <Target className="w-10 h-10 text-white" />,
-      gradient: 'from-red-700 to-red-900'
+      gradient: 'from-red-700 to-red-900',
+      comingSoon: true
     },
     
     // Nouveaux jeux - Formation et sensibilisation
