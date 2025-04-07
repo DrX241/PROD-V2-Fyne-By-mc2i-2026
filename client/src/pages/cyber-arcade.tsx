@@ -176,15 +176,13 @@ export default function CyberArcade() {
       onMouseEnter={() => setHoveredGame(game.id)}
       onMouseLeave={() => setHoveredGame(null)}
     >
-      {!game.comingSoon && (
-        <Link href={game.id === 'firewall-defense' ? `/cyber/arcade/firewall-defense` : `/cyber/arcade/${game.id}`} className="absolute inset-0 z-10 cursor-pointer"></Link>
-      )}
+      {/* Suppression du lien invisible pour résoudre le problème de clic */}
       <div className={`bg-gradient-to-br ${game.gradient} p-6 h-full`}>
         {/* Badge de difficulté */}
         <div className={`absolute top-3 right-3 text-xs font-semibold py-1 px-2 rounded-full 
-          ${game.difficulty === 'Facile' ? 'bg-[#006a9e]/20 text-[#006a9e]' : 
-            game.difficulty === 'Moyen' ? 'bg-amber-200 text-amber-800' : 
-            'bg-rose-200 text-rose-800'}`}
+          ${game.difficulty === 'Facile' ? 'bg-blue-600 text-white' : 
+            game.difficulty === 'Moyen' ? 'bg-amber-600 text-white' : 
+            'bg-rose-600 text-white'}`}
         >
           {game.difficulty}
         </div>
@@ -221,11 +219,14 @@ export default function CyberArcade() {
             </Button>
           ) : (
             <Button 
-              className="mt-auto bg-white hover:bg-gray-100 text-gray-900 w-full justify-center relative z-20"
+              className="mt-auto bg-white hover:bg-gray-100 text-gray-900 w-full justify-center"
               size="sm"
+              asChild
             >
-              Commencer
-              <ArrowRight className="ml-2 h-4 w-4" />
+              <Link href={`/cyber/arcade/${game.id}`}>
+                Commencer
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
             </Button>
           )}
         </div>
