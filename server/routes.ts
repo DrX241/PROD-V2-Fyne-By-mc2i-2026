@@ -2066,21 +2066,22 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
         processedMessage = message;
       }
       
-      // Appel à l'API OpenAI
-      const completion = await openai.chat.completions.create({
-        messages: [
-          { role: "system", content: systemPrompt + extractionInfo },
-          { role: "user", content: processedMessage }
-        ],
-        temperature: config?.temperature || 0.7,
-        max_tokens: config?.maxTokens || 800,
-        model: primaryModel,
-      });
+      // Utiliser notre service OpenAI au lieu de l'API directe
+      const messages: ChatCompletionRequestMessage[] = [
+        { role: "system", content: systemPrompt + extractionInfo },
+        { role: "user", content: processedMessage }
+      ];
+      
+      const responseContent = await openAIService.getChatCompletionWithCache(
+        messages,
+        config?.temperature || 0.7,
+        config?.maxTokens || 800
+      );
       
       // Envoi de la réponse au client
       res.json({ 
-        response: completion.choices[0].message.content,
-        usage: completion.usage
+        content: responseContent,
+        role: "assistant"
       });
       
     } catch (error: any) {

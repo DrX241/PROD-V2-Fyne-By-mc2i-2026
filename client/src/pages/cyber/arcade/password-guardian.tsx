@@ -240,8 +240,48 @@ const PasswordGuardianPage: React.FC = () => {
     const strength = calculatePasswordStrength(password);
     setPasswordStrength(strength);
     
+    // Récupérer les détails de la force du mot de passe depuis calculatePasswordStrength
+    // au lieu d'utiliser feedback.strengthDetails pour éviter les boucles infinies
+    const currentReq = currentChallenge.requirements;
+    const hasUpper = /[A-Z]/.test(password);
+    const hasLower = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+    
+    // Vérifier les séquences
+    let hasSequential = false;
+    if (currentReq.noSequential) {
+      for (const seq of commonSequences) {
+        if (password.toLowerCase().includes(seq)) {
+          hasSequential = true;
+          break;
+        }
+      }
+    }
+    
+    // Vérifier les mots de passe courants
+    let isCommon = false;
+    if (currentReq.noCommon) {
+      for (const common of commonPasswords) {
+        if (password.toLowerCase() === common) {
+          isCommon = true;
+          break;
+        }
+      }
+    }
+    
+    // Créer les détails de force
+    const details = {
+      length: password.length >= currentReq.minLength,
+      uppercase: !currentReq.uppercase || hasUpper,
+      lowercase: !currentReq.lowercase || hasLower,
+      numbers: !currentReq.numbers || hasNumber,
+      specialChars: !currentReq.specialChars || hasSpecial,
+      noSequential: !currentReq.noSequential || !hasSequential,
+      noCommon: !currentReq.noCommon || !isCommon
+    };
+    
     // Vérifier si le mot de passe répond à toutes les exigences
-    const details = feedback.strengthDetails;
     const isValid = details.length && 
                     details.uppercase && 
                     details.lowercase && 
@@ -260,12 +300,12 @@ const PasswordGuardianPage: React.FC = () => {
     if (!details.noSequential) errorsList.push("Le mot de passe ne doit pas contenir de séquences communes (123, abc, etc.).");
     if (!details.noCommon) errorsList.push("Ce mot de passe est trop commun ou facile à deviner.");
     
-    setFeedback(prev => ({
-      ...prev,
+    setFeedback({
       valid: isValid,
-      errors: errorsList
-    }));
-  }, [password, calculatePasswordStrength, currentChallenge.requirements, feedback.strengthDetails]);
+      errors: errorsList,
+      strengthDetails: details
+    });
+  }, [password, calculatePasswordStrength, currentChallenge.requirements, currentChallenge]);
   
   // Soumettre le mot de passe pour validation
   const submitPassword = () => {
