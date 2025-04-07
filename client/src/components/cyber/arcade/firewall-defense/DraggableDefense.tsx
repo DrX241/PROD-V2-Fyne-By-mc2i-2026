@@ -1,4 +1,4 @@
-import React, { forwardRef, useRef } from 'react';
+import React, { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 import { Users, BarChart } from 'lucide-react';
 import { Defense } from './types';
@@ -12,14 +12,11 @@ interface DraggableDefenseProps {
 
 const DraggableDefense = forwardRef<HTMLDivElement, DraggableDefenseProps>(
   ({ defense, onDragStart, onDragEnd }, ref) => {
-    const constraintsRef = useRef(null);
-
     return (
       <motion.div
         ref={ref}
         drag
-        dragConstraints={constraintsRef}
-        dragElastic={0}
+        dragElastic={0.2}
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
         whileDrag={{ scale: 1.05, zIndex: 100 }}

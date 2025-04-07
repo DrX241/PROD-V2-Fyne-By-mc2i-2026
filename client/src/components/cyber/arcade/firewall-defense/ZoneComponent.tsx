@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Zone, Defense } from './types';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +16,8 @@ const ZoneComponent: React.FC<ZoneComponentProps> = ({
   onDrop,
   isDraggingOver
 }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  
   // Trouver les défenses installées dans cette zone
   const installedDefenses = defenses.filter(d => 
     zone.defenses.includes(d.id)
@@ -26,19 +28,33 @@ const ZoneComponent: React.FC<ZoneComponentProps> = ({
       className={`absolute rounded-lg p-4 flex flex-col border-2 transition-colors ${
         isDraggingOver 
           ? 'border-yellow-400 bg-gray-800/90' 
-          : 'border-gray-700 bg-gray-800/80'
+          : isHovered
+            ? 'border-blue-400 bg-gray-800/85'
+            : 'border-gray-700 bg-gray-800/80'
       }`}
       style={{ 
         top: zone.position.y, 
         left: zone.position.x,
         width: zone.width,
         height: zone.height,
-        boxShadow: `0 0 20px ${isDraggingOver ? zone.color : zone.color + '40'}`
+        boxShadow: `0 0 20px ${
+          isDraggingOver 
+            ? zone.color 
+            : isHovered 
+              ? zone.color + '80' 
+              : zone.color + '40'
+        }`
       }}
       animate={{ 
-        borderColor: isDraggingOver ? '#facc15' : 'rgba(55, 65, 81, 0.7)',
-        scale: isDraggingOver ? 1.02 : 1 
+        borderColor: isDraggingOver 
+          ? '#facc15' 
+          : isHovered 
+            ? '#60a5fa' 
+            : 'rgba(55, 65, 81, 0.7)',
+        scale: isDraggingOver || isHovered ? 1.02 : 1
       }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       onDragOver={(e) => {
         e.preventDefault();
       }}

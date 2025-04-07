@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ShieldCheck, Network, BarChart, Users, 
@@ -10,7 +10,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 
-import { FirewallDefenseGameProps, Defense, Zone, GameState } from './types';
+import { FirewallDefenseGameProps, Defense, Zone, GameState, Attack } from './types';
 import { 
   generateDefenses, 
   generateZones, 
