@@ -82,8 +82,30 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
     }));
   }, []);
   
-  const handlePlaceDefense = useCallback((position: number) => {
-    if (!draggedDefenseId || !currentLevel) return;
+  // Fonction pour démarrer le chronomètre
+  const startTimer = useCallback(() => {
+    if (timerInterval) return; // Déjà démarré
+    
+    const interval = setInterval(() => {
+      setGameState(prev => ({
+        ...prev,
+        timer: prev.timer + 1
+      }));
+    }, 1000);
+    
+    setTimerInterval(interval);
+    
+    toast({
+      title: "Chronomètre démarré",
+      description: "Le chronomètre démarre automatiquement lorsque vous placez la première défense",
+    });
+  }, [timerInterval, toast]);
+    
+  const handlePlaceDefense = useCallback((position: number, defenseId?: string) => {
+    // Utiliser soit l'ID passé en paramètre, soit l'ID glissé actuel
+    const idToUse = defenseId || draggedDefenseId;
+    
+    if (!idToUse || !currentLevel) return;
     
     // Vérifier si le slot est déjà occupé
     const isSlotOccupied = gameState.placedDefenses.some(
@@ -104,12 +126,30 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       ...prev,
       placedDefenses: [
         ...prev.placedDefenses,
-        { defenseId: draggedDefenseId, position }
+        { defenseId: idToUse, position }
       ]
     }));
     
+    // Si c'est la première défense et que le jeu est en cours, démarrer le chronomètre
+    if (gameState.gamePhase === 'playing' && gameState.placedDefenses.length === 0 && !timerInterval) {
+      // Démarrer le chronomètre
+      const interval = setInterval(() => {
+        setGameState(prev => ({
+          ...prev,
+          timer: prev.timer + 1
+        }));
+      }, 1000);
+      
+      setTimerInterval(interval);
+      
+      toast({
+        title: "Chronomètre démarré",
+        description: "Le chronomètre démarre automatiquement lorsque vous placez la première défense",
+      });
+    }
+    
     setDraggedDefenseId(null);
-  }, [draggedDefenseId, currentLevel, gameState.placedDefenses, toast]);
+  }, [draggedDefenseId, currentLevel, gameState.placedDefenses, gameState.gamePhase, timerInterval, toast]);
   
   const handleRemoveDefense = useCallback((position: number) => {
     setGameState(prev => ({
@@ -269,7 +309,8 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       if (over.id === 'network-dropzone' || over.id.toString().startsWith('dropzone-')) {
         // Trouver la prochaine position disponible
         const nextPosition = gameState.placedDefenses.length + 1;
-        handlePlaceDefense(nextPosition);
+        const defenseId = String(active.id);
+        handlePlaceDefense(nextPosition, defenseId);
       }
     }
     
@@ -470,6 +511,21 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                       className={`absolute inset-0 rounded-lg ${gameState.placedDefenses.length === 0 ? 'border-2 border-dashed border-blue-400/30' : ''}`}
                       style={{ zIndex: 5 }}
                       id="network-dropzone"
+                      onDragOver={(e) => {
+                        // Nécessaire pour permettre le drop
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const defenseId = e.dataTransfer.getData('text/plain');
+                        if (defenseId) {
+                          // Trouver la prochaine position disponible
+                          const nextPosition = gameState.placedDefenses.length + 1;
+                          handlePlaceDefense(nextPosition, defenseId);
+                        }
+                      }}
                     >
                       {/* Positions des défenses placées */}
                       {Array.from({ length: 6 }).map((_, idx) => {
@@ -673,7 +729,13 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                   {availableDefenses.map((defense, index) => (
                     <div 
                       key={defense.id}
+                      data-dnd-id={defense.id}
+                      draggable="true"
                       className="bg-gray-700 rounded-md overflow-hidden transition-all duration-200 hover:bg-gray-600 cursor-move"
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData('text/plain', defense.id);
+                        setDraggedDefenseId(defense.id);
+                      }}
                     >
                       <div className="p-3">
                         <div className="flex items-center">
