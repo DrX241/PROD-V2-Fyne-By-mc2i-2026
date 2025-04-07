@@ -26,7 +26,7 @@ export interface Level {
   description: string;
   defenses: Defense[];
   connections: Connection[];
-  targetTime: number; // Temps cible en secondes
+  targetTime?: number; // Facultatif: temps cible en secondes (non utilisé)
   maxScore: number;
 }
 

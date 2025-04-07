@@ -10,7 +10,7 @@ interface ResultsPanelProps {
   score: number;
   totalScore: number;
   elapsedTime: number;
-  targetTime: number;
+  targetTime?: number;
   placedDefenses: any[];
   defenses: any[];
   isComplete: boolean;
@@ -80,9 +80,9 @@ const ResultsPanel: React.FC<ResultsPanelProps> = ({
             <p className="flex items-center text-white">
               <Clock className="w-4 h-4 mr-1 text-blue-400" />
               {elapsedTime} secondes
-              {elapsedTime < targetTime && (
+              {targetTime && elapsedTime < targetTime && (
                 <span className="ml-2 text-green-400 text-xs">
-                  (Bonus temps: +{Math.round((targetTime - elapsedTime) * 5)} pts)
+                  (Bonus temps: +{Math.round((targetTime! - elapsedTime) * 5)} pts)
                 </span>
               )}
             </p>

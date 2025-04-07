@@ -19,7 +19,8 @@ import {
   LightbulbIcon,
   Star,
   BarChart,
-  Brain
+  Brain,
+  CircuitBoard
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -75,8 +76,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
   const [showAiAdviceDialog, setShowAiAdviceDialog] = useState<boolean>(false);
   const [aiAdviceDialogContent, setAiAdviceDialogContent] = useState<string>("");
   
-  // Nous gardons la variable timerInterval pour éviter des erreurs partout dans le code
-  // mais nous n'allons pas l'utiliser réellement
+  // États pour le chronomètre - remplacés par des valeurs constantes
   const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
   
   // Gestionnaires d'événements
@@ -108,10 +108,10 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       timer: 0
     }));
     
-    // Afficher un toast sans démarrer le chronomètre
+    // Afficher un toast pour commencer le jeu
     toast({
       title: "Mode jeu activé",
-      description: "Placez les défenses dans le bon ordre !",
+      description: "Placez les défenses dans le bon ordre pour créer une protection optimale !",
     });
   }, [toast]);
   
@@ -163,21 +163,11 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       ]
     }));
     
-    // Si c'est la première défense et que le jeu est en cours, démarrer le chronomètre
-    if (gameState.gamePhase === 'playing' && gameState.placedDefenses.length === 0 && !timerInterval) {
-      // Démarrer le chronomètre
-      const interval = setInterval(() => {
-        setGameState(prev => ({
-          ...prev,
-          timer: prev.timer + 1
-        }));
-      }, 1000);
-      
-      setTimerInterval(interval);
-      
+    // Pas de chronomètre, mais affichage d'un message pour la première défense
+    if (gameState.gamePhase === 'playing' && gameState.placedDefenses.length === 0) {
       toast({
-        title: "Chronomètre démarré",
-        description: "Le chronomètre démarre automatiquement lorsque vous placez la première défense",
+        title: "Défense ajoutée",
+        description: "Continuez à placer les autres défenses dans l'ordre optimal !",
       });
     }
     
@@ -207,8 +197,8 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       return;
     }
     
-    // Commencer le jeu sans démarrer le chronomètre immédiatement
-    // Le chronomètre démarrera automatiquement lorsque la première défense sera placée
+    // Commencer le jeu en mode placement de défenses
+    // Pas de chronomètre pour se concentrer sur la logique de défense
     setGameState(prev => ({
       ...prev,
       gamePhase: 'playing',
@@ -218,7 +208,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
     
     toast({
       title: "Mode jeu activé",
-      description: "Le chronomètre démarrera automatiquement lorsque vous placerez la première défense",
+      description: "Placez les défenses dans le bon ordre pour une protection optimale !",
     });
   }, [currentLevel, gameState.placedDefenses, toast]);
   
@@ -247,12 +237,9 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
     const totalDefenses = currentLevel.defenses.length;
     const baseScore = Math.round((correctDefenses / totalDefenses) * currentLevel.maxScore);
     
-    // Bonus de temps si terminé avant le temps cible
-    const timeBonus = gameState.timer < currentLevel.targetTime 
-      ? Math.round((currentLevel.targetTime - gameState.timer) * 5) 
-      : 0;
-    
-    const finalScore = baseScore + timeBonus;
+    // Suppression du bonus de temps pour simplifier le jeu
+    const timeBonus = 0;
+    const finalScore = baseScore;
     const isLevelComplete = correctDefenses === totalDefenses;
     
     // Mettre à jour l'état
@@ -386,11 +373,11 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
     const { active } = event;
     setDraggedDefenseId(String(active.id));
     
-    // Si c'est le premier élément déposé, démarrer le chronomètre
-    if (gameState.gamePhase === 'playing' && gameState.placedDefenses.length === 0 && !timerInterval) {
+    // Si c'est la première défense placée, afficher un toast d'encouragement
+    if (gameState.gamePhase === 'playing' && gameState.placedDefenses.length === 0) {
       toast({
-        title: "Chronomètre démarré",
-        description: "Le chronomètre démarre automatiquement lorsque vous placez la première défense",
+        title: "Première défense placée",
+        description: "Continuez à placer les défenses dans l'ordre optimal !",
       });
     }
   }, [gameState.gamePhase, gameState.placedDefenses.length, timerInterval, toast]);
@@ -439,7 +426,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
     };
   }, [difficulty, timerInterval]);
   
-  // Effet pour surveiller les changements dans les défenses placées et démarrer le chronomètre
+  // Effet pour surveiller les changements dans les défenses placées (timer code désactivé)
   useEffect(() => {
     if (!currentLevel) return;
     
@@ -466,16 +453,16 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
   
   // Effet pour gérer l'état du jeu en fonction des changements de phase
   useEffect(() => {
-    // Si on passe en phase de jeu, réinitialiser le timer
+    // Si on passe en phase de jeu, réinitialiser les compteurs (timer désactivé)
     if (gameState.gamePhase === 'playing' && gameState.timer === 0) {
-      // Le timer sera démarré une fois la première défense placée
+      // Initialisation du jeu en mode placement de défenses
       setGameState(prev => ({
         ...prev,
         timer: 0
       }));
     }
     
-    // Nettoyage du timer quand on passe à la phase de résultats
+    // Assurer le nettoyage de toute référence au timer (code de sécurité)
     if (gameState.gamePhase === 'results' && timerInterval) {
       clearInterval(timerInterval);
       setTimerInterval(null);
@@ -739,7 +726,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                 )}
               </div>
               
-              {/* Barre de progression */}
+              {/* Suppression de barre de progression basée sur le temps 
               {gameState.gamePhase === 'playing' && (
                 <div className="mb-4">
                   <div className="flex justify-between text-xs text-gray-400 mb-1">
@@ -751,7 +738,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                     className="h-2"
                   />
                 </div>
-              )}
+              )} */}
               
               {/* Actions */}
               <div className="flex justify-end space-x-3">
@@ -885,10 +872,10 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                     
                     <div className="bg-gray-700/30 p-2 rounded-md flex flex-col items-center">
                       <div className="flex items-center mb-1">
-                        <Clock className="h-3 w-3 text-amber-400 mr-1" />
-                        <span className="text-xs text-gray-300">Objectif</span>
+                        <CircuitBoard className="h-3 w-3 text-amber-400 mr-1" />
+                        <span className="text-xs text-gray-300">Logique</span>
                       </div>
-                      <span className="text-white font-medium">{currentLevel.targetTime}s</span>
+                      <span className="text-white font-medium">Défense en profondeur</span>
                     </div>
                     
                     <div className="bg-gray-700/30 p-2 rounded-md flex flex-col items-center">
