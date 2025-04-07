@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'wouter';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Trophy, BarChart } from 'lucide-react';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
-import FirewallDefenseGameNew from '@/components/cyber/arcade/FirewallDefenseGameNew';
+import FirewallDefenseGame from '@/components/cyber/arcade/firewall-defense';
+import { Button } from '@/components/ui/button';
 
 export default function FirewallDefensePage() {
   const [difficulty, setDifficulty] = useState<'Facile' | 'Moyen' | 'Difficile'>('Facile');
@@ -51,7 +52,7 @@ export default function FirewallDefensePage() {
           </div>
           
           {/* Jeu principal */}
-          <FirewallDefenseGameNew 
+          <FirewallDefenseGame 
             difficulty={difficulty}
             onGameEnd={handleGameEnd}
           />
