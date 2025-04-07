@@ -8,6 +8,7 @@ import {
 } from '@dnd-kit/core';
 import { 
   Shield, 
+  ShieldCheck,
   Clock, 
   Play, 
   RotateCcw, 
@@ -15,7 +16,9 @@ import {
   CheckCircle,
   XCircle,
   Trophy,
-  LightbulbIcon
+  LightbulbIcon,
+  Star,
+  BarChart
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -404,48 +407,105 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
         
         {/* Zone principale de jeu */}
         <div className="grid grid-cols-1 lg:grid-cols-6 gap-6 mb-6">
-          {/* Zone de placement des défenses (gauche) */}
+          {/* Zone de placement des défenses (gauche) - Playground amélioré */}
           <div className="lg:col-span-4">
             <Card className="bg-gray-800 border-gray-700 shadow-lg p-4">
               <h3 className="font-semibold text-white mb-4">Configuration du réseau</h3>
               
-              <div className="relative py-6 px-3 bg-gray-900 rounded-lg mb-4 min-h-[400px]">
-                {/* Ligne de connexion */}
-                <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transform -translate-y-1/2" />
-                
-                {/* Slots pour les défenses */}
-                <div className="grid grid-cols-1 md:grid-cols-8 gap-4 relative z-10">
-                  {Array.from({ length: 8 }).map((_, index) => {
-                    const position = index + 1;
-                    const placedDefense = gameState.placedDefenses.find(
-                      pd => pd.position === position
-                    );
-                    
-                    return (
-                      <DefenseSlot
-                        key={position}
-                        position={position}
-                        placedDefense={placedDefense}
-                        defenses={currentLevel.defenses}
-                        isActive={activeSlot === position}
-                        isCorrect={placedDefense?.isCorrect}
-                        onDrop={() => handlePlaceDefense(position)}
-                      />
-                    );
-                  })}
+              <div 
+                className="relative bg-gray-900 rounded-lg mb-4 p-6" 
+                style={{ minHeight: '500px', backgroundImage: 'radial-gradient(circle, rgba(66, 71, 91, 0.5) 1px, transparent 1px)', backgroundSize: '30px 30px' }}
+              >
+                {/* Réseau schématique */}
+                <div className="absolute inset-10 flex flex-col items-center justify-between">
+                  <div className="w-32 px-3 py-2 bg-blue-500 text-white text-center rounded font-medium mb-2">
+                    Internet
+                  </div>
+                  <div className="h-16 w-1 bg-blue-500"></div>
+                  
+                  {/* Zone de placement libre pour les défenses */}
+                  <div className="flex-1 w-full relative">
+                    {/* Les défenses seront placées ici dynamiquement via drag-and-drop */}
+                    {gameState.placedDefenses.map((placedDefense, index) => {
+                      // Calculer les positions basées sur l'ordre ou permettre un placement libre
+                      const randomOffset = placedDefense.position % 2 === 0 ? '15%' : '5%';
+                      return (
+                        <div 
+                          key={`${placedDefense.defenseId}-${index}`}
+                          className="absolute flex flex-col items-center"
+                          style={{ 
+                            top: `${(index * 60) + 20}px`, 
+                            left: randomOffset,
+                            zIndex: 20,
+                            transition: 'all 0.3s ease'
+                          }}
+                        >
+                          <div 
+                            className={`px-4 py-2 rounded-lg shadow-lg border-2 ${
+                              placedDefense.isCorrect === true ? 'border-green-500 bg-green-900/40' : 
+                              placedDefense.isCorrect === false ? 'border-red-500 bg-red-900/40' : 
+                              'border-blue-500 bg-gray-800'
+                            }`}
+                          >
+                            <div className="flex items-center space-x-2">
+                              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gray-700 text-white text-xs">
+                                {placedDefense.position}
+                              </span>
+                              <span className="text-white text-sm font-medium">
+                                {currentLevel.defenses.find(d => d.id === placedDefense.defenseId)?.name || 'Défense'}
+                              </span>
+                            </div>
+                          </div>
+                          {index < gameState.placedDefenses.length - 1 && (
+                            <div className="h-10 w-0.5 bg-blue-400 mt-1"></div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                  {/* Zones de dépôt pour les éléments à protéger */}
+                  <div className="h-16 w-1 bg-blue-500"></div>
+                  <div className="grid grid-cols-3 gap-4 mt-2 w-full">
+                    <div className="px-3 py-2 bg-green-500/20 border border-green-500 text-white text-center rounded text-sm">
+                      Serveurs
+                    </div>
+                    <div className="px-3 py-2 bg-purple-500/20 border border-purple-500 text-white text-center rounded text-sm">
+                      Applications
+                    </div>
+                    <div className="px-3 py-2 bg-amber-500/20 border border-amber-500 text-white text-center rounded text-sm">
+                      Données
+                    </div>
+                  </div>
                 </div>
                 
-                {/* Légende */}
-                <div className="absolute top-4 right-4 flex items-center space-x-3">
-                  <div className="flex items-center">
-                    <div className="w-3 h-3 rounded-full bg-green-500 mr-1" />
-                    <span className="text-xs text-gray-300">Correct</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-3 h-3 rounded-full bg-red-500 mr-1" />
-                    <span className="text-xs text-gray-300">Incorrect</span>
+                {/* Légende et informations */}
+                <div className="absolute top-4 right-4 bg-gray-800/80 p-2 rounded-lg">
+                  <div className="flex flex-col space-y-2">
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 rounded-full bg-green-500 mr-1"></div>
+                      <span className="text-xs text-gray-300">Position correcte</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 rounded-full bg-red-500 mr-1"></div>
+                      <span className="text-xs text-gray-300">Position incorrecte</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 rounded-full bg-blue-500 mr-1"></div>
+                      <span className="text-xs text-gray-300">À évaluer</span>
+                    </div>
                   </div>
                 </div>
+                
+                {/* Indicateur de zone de dépôt lorsqu'aucune défense n'est placée */}
+                {gameState.placedDefenses.length === 0 && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-gray-500 text-center p-6 rounded-lg bg-gray-800/30 border border-dashed border-gray-700 max-w-xs">
+                      <Shield className="w-12 h-12 mx-auto mb-2 text-blue-400/50" />
+                      <p>Glissez-déposez les défenses depuis la liste de droite pour les placer sur votre réseau</p>
+                    </div>
+                  </div>
+                )}
               </div>
               
               {/* Barre de progression */}
@@ -528,45 +588,109 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                 <h3 className="font-semibold text-white mb-3">Défenses disponibles</h3>
                 <p className="text-sm text-gray-400 mb-4">Glissez-déposez les défenses pour les placer sur le réseau</p>
                 
-                <div className="space-y-3">
-                  {availableDefenses.map(defense => (
-                    <DraggableDefense
+                <div className="max-h-[360px] overflow-y-auto pr-1 space-y-3 custom-scrollbar">
+                  {availableDefenses.map((defense, index) => (
+                    <div 
                       key={defense.id}
-                      defense={defense}
-                      disabled={gameState.gamePhase === 'playing'}
-                      onDragStart={() => {}}
-                      onDragEnd={() => {}}
-                    />
+                      className="bg-gray-700 rounded-md overflow-hidden transition-all duration-200 hover:bg-gray-600 cursor-move"
+                    >
+                      <div className="p-3">
+                        <div className="flex items-center">
+                          <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 text-white text-xs mr-2">
+                            {index + 1}
+                          </div>
+                          <h4 className="font-medium text-white">{defense.name}</h4>
+                        </div>
+                        
+                        <div className="mt-2 flex justify-between items-center">
+                          <div className="flex space-x-2">
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-900/50 text-blue-200">
+                              {defense.type}
+                            </span>
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-900/50 text-amber-200">
+                              Lvl {defense.level}
+                            </span>
+                          </div>
+                          <Shield className="h-5 w-5 text-blue-400" />
+                        </div>
+                      </div>
+                      
+                      <div className="p-2 bg-gray-800 text-xs text-gray-300 leading-relaxed">
+                        {defense.description}
+                      </div>
+                    </div>
                   ))}
                   
                   {availableDefenses.length === 0 && (
-                    <div className="bg-gray-700/50 rounded p-3 text-center text-sm text-gray-300">
-                      <p>Toutes les défenses ont été placées sur le réseau.</p>
+                    <div className="bg-gray-700/50 rounded p-4 text-center">
+                      <ShieldCheck className="h-10 w-10 mx-auto mb-2 text-blue-400/50" />
+                      <p className="text-sm text-gray-300">Toutes les défenses ont été placées sur le réseau.</p>
                     </div>
                   )}
                 </div>
                 
                 <div className="mt-4 pt-4 border-t border-gray-700">
-                  <h4 className="text-sm font-semibold text-white mb-2">Statistiques</h4>
+                  <h4 className="text-sm font-semibold text-white mb-2">Informations du niveau</h4>
+                  
+                  <div className="mb-3 p-3 bg-gray-700/50 rounded-md">
+                    <h5 className="text-sm font-medium text-white mb-1">Objectif</h5>
+                    <p className="text-xs text-gray-300">{currentLevel.description}</p>
+                  </div>
+                  
                   <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
-                      <span className="text-gray-300">Défenses: {currentLevel.defenses.length}</span>
+                    <div className="bg-gray-700/30 p-2 rounded-md flex flex-col items-center">
+                      <div className="flex items-center mb-1">
+                        <Shield className="h-3 w-3 text-blue-400 mr-1" />
+                        <span className="text-xs text-gray-300">Défenses</span>
+                      </div>
+                      <span className="text-white font-medium">{currentLevel.defenses.length}</span>
                     </div>
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 rounded-full bg-amber-500 mr-2"></div>
-                      <span className="text-gray-300">Objectif: {currentLevel.targetTime}s</span>
+                    
+                    <div className="bg-gray-700/30 p-2 rounded-md flex flex-col items-center">
+                      <div className="flex items-center mb-1">
+                        <Clock className="h-3 w-3 text-amber-400 mr-1" />
+                        <span className="text-xs text-gray-300">Objectif</span>
+                      </div>
+                      <span className="text-white font-medium">{currentLevel.targetTime}s</span>
                     </div>
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 rounded-full bg-purple-500 mr-2"></div>
-                      <span className="text-gray-300">Score max: {currentLevel.maxScore}</span>
+                    
+                    <div className="bg-gray-700/30 p-2 rounded-md flex flex-col items-center">
+                      <div className="flex items-center mb-1">
+                        <Star className="h-3 w-3 text-purple-400 mr-1" />
+                        <span className="text-xs text-gray-300">Score max</span>
+                      </div>
+                      <span className="text-white font-medium">{currentLevel.maxScore}</span>
                     </div>
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 rounded-full bg-emerald-500 mr-2"></div>
-                      <span className="text-gray-300">Difficulté: {difficulty}</span>
+                    
+                    <div className="bg-gray-700/30 p-2 rounded-md flex flex-col items-center">
+                      <div className="flex items-center mb-1">
+                        <BarChart className="h-3 w-3 text-emerald-400 mr-1" />
+                        <span className="text-xs text-gray-300">Difficulté</span>
+                      </div>
+                      <span className="text-white font-medium">{difficulty}</span>
                     </div>
                   </div>
                 </div>
+                
+                {/* Styles pour les scrollbars personnalisées */}
+                <style dangerouslySetInnerHTML={{ 
+                  __html: `
+                    .custom-scrollbar::-webkit-scrollbar {
+                      width: 8px;
+                    }
+                    .custom-scrollbar::-webkit-scrollbar-track {
+                      background: rgba(31, 41, 55, 0.5);
+                      border-radius: 10px;
+                    }
+                    .custom-scrollbar::-webkit-scrollbar-thumb {
+                      background: rgba(59, 130, 246, 0.5);
+                      border-radius: 10px;
+                    }
+                    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                      background: rgba(59, 130, 246, 0.7);
+                    }
+                  `
+                }} />
               </Card>
             )}
           </div>
