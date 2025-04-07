@@ -36,7 +36,9 @@ export const easyLevels: Level[] = [
         icon: React.createElement(Shield, { className: "w-5 h-5" }),
         level: 1,
         correctPosition: 1,
-        color: "#3b82f6"
+        color: "#3b82f6",
+        explanation: "Le pare-feu constitue la première ligne de défense en filtrant le trafic réseau entrant et sortant. Il bloque les tentatives de connexion non autorisées avant qu'elles n'atteignent les applications.",
+        hint: "Cette défense devrait être placée en premier pour filtrer tout le trafic avant qu'il n'atteigne les autres couches. Le pare-feu est votre première ligne de défense."
       },
       {
         id: "ef2",
@@ -46,7 +48,9 @@ export const easyLevels: Level[] = [
         icon: React.createElement(Eye, { className: "w-5 h-5" }),
         level: 1,
         correctPosition: 2,
-        color: "#10b981"
+        color: "#10b981",
+        explanation: "L'antivirus analyse les fichiers et programmes après leur passage par le pare-feu pour détecter les logiciels malveillants qui auraient pu franchir la première barrière.",
+        hint: "Cette défense devrait venir après le pare-feu mais avant les mises à jour. Elle intercepte les menaces qui ont réussi à passer la première ligne de défense."
       },
       {
         id: "ef3",
@@ -56,7 +60,9 @@ export const easyLevels: Level[] = [
         icon: React.createElement(RefreshCw, { className: "w-5 h-5" }),
         level: 1,
         correctPosition: 3,
-        color: "#f59e0b"
+        color: "#f59e0b",
+        explanation: "Les mises à jour automatiques maintiennent le système et les applications à jour, corrigeant les vulnérabilités connues pour empêcher leur exploitation par des attaquants.",
+        hint: "Cette défense est la dernière ligne de protection qui assure que toutes les failles de sécurité connues sont corrigées après que les autres systèmes de protection aient fait leur travail."
       }
     ],
     connections: [

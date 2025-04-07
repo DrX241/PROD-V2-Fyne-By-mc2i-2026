@@ -16,6 +16,8 @@ export interface Defense {
   level: number; // Niveau de défense (1-5)
   correctPosition: number; // Position correcte dans la chaîne (ordre)
   color: string;
+  explanation?: string; // Explication pédagogique sur cette défense (pour le feedback)
+  hint?: string; // Indice pour aider l'utilisateur si la défense est mal placée
 }
 
 export interface Level {

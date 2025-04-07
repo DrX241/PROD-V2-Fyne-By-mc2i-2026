@@ -18,7 +18,8 @@ import {
   Trophy,
   LightbulbIcon,
   Star,
-  BarChart
+  BarChart,
+  Brain
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -26,6 +27,14 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 
 import { FirewallDefenseGameProps, Defense, Level, GameState, PlacedDefense, Difficulty } from './types';
 import DraggableDefense from './DraggableDefense';
@@ -62,6 +71,10 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
   const [draggedDefenseId, setDraggedDefenseId] = useState<string | null>(null);
   const [activeSlot, setActiveSlot] = useState<number | null>(null);
   
+  // États pour le feedback pédagogique IA
+  const [showAiAdviceDialog, setShowAiAdviceDialog] = useState<boolean>(false);
+  const [aiAdviceDialogContent, setAiAdviceDialogContent] = useState<string>("");
+  
   // Minuteur
   const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
   
@@ -76,11 +89,30 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
   }, []);
   
   const handleCompleteTutorial = useCallback(() => {
+    // Cacher le tutoriel et passer directement en mode jeu
     setGameState(prev => ({
       ...prev,
-      showTutorial: false
+      showTutorial: false,
+      gamePhase: 'playing',
+      placedDefenses: [], // Réinitialiser les défenses placées pour le jeu
+      timer: 0
     }));
-  }, []);
+    
+    // Démarrer le chronomètre automatiquement 
+    const interval = setInterval(() => {
+      setGameState(prev => ({
+        ...prev,
+        timer: prev.timer + 1
+      }));
+    }, 1000);
+    
+    setTimerInterval(interval);
+    
+    toast({
+      title: "Chronomètre démarré",
+      description: "Le chronomètre a démarré automatiquement. Placez les défenses dans le bon ordre !",
+    });
+  }, [toast]);
   
   // Fonction pour démarrer le chronomètre
   const startTimer = useCallback(() => {
@@ -232,7 +264,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       gamePhase: 'results'
     }));
     
-    // Feedback
+    // Feedback de base
     toast({
       title: isLevelComplete ? "Niveau réussi !" : "Configuration incomplète",
       description: isLevelComplete 
@@ -240,6 +272,67 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
         : `${correctDefenses}/${totalDefenses} défenses sont correctement placées. Score: ${finalScore} points`,
       variant: isLevelComplete ? "default" : "destructive",
     });
+    
+    // Feedback pédagogique détaillé
+    setTimeout(() => {
+      // Dialog avec explications pédagogiques
+      const incorrectDefenses = updatedPlacedDefenses.filter(pd => !pd.isCorrect);
+      
+      let feedbackContent = "";
+      
+      if (isLevelComplete) {
+        feedbackContent = `
+          <div class="mb-4">
+            <h3 class="text-lg font-semibold text-green-500 mb-2">Excellent travail !</h3>
+            <p>Votre configuration de sécurité est optimale. Vous avez correctement mis en place une défense en profondeur efficace.</p>
+          </div>
+          <div class="mb-4">
+            <h3 class="text-lg font-semibold text-blue-400 mb-2">Points clés à retenir :</h3>
+            <ul class="list-disc pl-5 space-y-1 text-sm">
+              ${currentLevel.defenses.map((defense, index) => `
+                <li><span class="font-medium">${defense.name}</span> - ${defense.explanation}</li>
+              `).join('')}
+            </ul>
+          </div>
+          <div>
+            <p class="text-sm text-gray-300">Rappelez-vous que la défense en profondeur est un principe fondamental de la cybersécurité qui consiste à superposer plusieurs couches de protection.</p>
+          </div>
+        `;
+      } else {
+        // Générer des conseils pour les défenses mal placées
+        const incorrectFeedback = incorrectDefenses.map(pd => {
+          const defense = currentLevel.defenses.find(d => d.id === pd.defenseId);
+          if (!defense) return "";
+          
+          return `
+            <div class="mb-3 pb-3 border-b border-gray-700">
+              <p class="font-medium text-red-400">${defense.name}</p>
+              <p class="text-sm text-gray-300">Position actuelle: ${pd.position}</p>
+              <p class="text-sm">${defense.hint}</p>
+            </div>
+          `;
+        }).join('');
+        
+        feedbackContent = `
+          <div class="mb-4">
+            <h3 class="text-lg font-semibold text-amber-500 mb-2">Configuration à améliorer</h3>
+            <p>Certaines défenses ne sont pas dans leur position optimale. Voici quelques conseils pour vous aider :</p>
+          </div>
+          <div class="mb-4 max-h-60 overflow-y-auto pr-2">
+            ${incorrectFeedback}
+          </div>
+          <div>
+            <p class="text-sm text-gray-300">N'oubliez pas que l'ordre des défenses est crucial pour une protection optimale. Réfléchissez au chemin que prend une attaque.</p>
+          </div>
+        `;
+      }
+      
+      // Afficher le feedback dans une fenêtre de dialogue
+      setAiAdviceDialogContent(feedbackContent);
+      setShowAiAdviceDialog(true);
+      
+    }, 1000); // Délai pour ne pas trop surcharger l'utilisateur
+    
   }, [currentLevel, gameState.placedDefenses, gameState.timer, timerInterval, toast]);
   
   const restartLevel = useCallback(() => {
@@ -839,6 +932,30 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
           </div>
         </div>
       </div>
+      
+      {/* Dialogue de feedback pédagogique IA */}
+      <Dialog open={showAiAdviceDialog} onOpenChange={setShowAiAdviceDialog}>
+        <DialogContent className="sm:max-w-[600px] bg-gray-900 border-blue-600">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-blue-400">
+              <Brain className="h-5 w-5" />
+              Analyse IA - Retour pédagogique
+            </DialogTitle>
+            <DialogDescription>
+              Analyse et conseils pour améliorer votre stratégie de cybersécurité
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="custom-scrollbar max-h-[60vh] overflow-y-auto pr-2" 
+               dangerouslySetInnerHTML={{ __html: aiAdviceDialogContent }} />
+          
+          <DialogFooter>
+            <Button onClick={() => setShowAiAdviceDialog(false)}>
+              J'ai compris
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DndContext>
   );
 };
