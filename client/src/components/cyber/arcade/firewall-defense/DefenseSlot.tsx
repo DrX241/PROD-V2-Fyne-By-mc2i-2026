@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useDroppable } from '@dnd-kit/core';
 import { Defense, PlacedDefense } from './types';
 import clsx from 'clsx';
 
@@ -20,6 +21,12 @@ const DefenseSlot: React.FC<DefenseSlotProps> = ({
   isCorrect,
   onDrop
 }) => {
+  // Configure droppable
+  const { setNodeRef, isOver } = useDroppable({
+    id: `slot-${position}`,
+    data: { position }
+  });
+
   // Trouver la défense si un ID est placé
   const defense = placedDefense 
     ? defenses.find(d => d.id === placedDefense.defenseId) 
@@ -34,20 +41,18 @@ const DefenseSlot: React.FC<DefenseSlotProps> = ({
       "border-green-500 bg-green-900/30": defense && isCorrect === true,
       "border-red-500 bg-red-900/30": defense && isCorrect === false,
       "border-gray-500 bg-gray-800/80": defense && isCorrect === undefined,
-      "ring-2 ring-cyan-400 ring-offset-2 ring-offset-gray-900": isActive
+      "ring-2 ring-cyan-400 ring-offset-2 ring-offset-gray-900": isActive || isOver,
+      "border-cyan-500": isOver && !defense
     }
   );
 
   return (
     <motion.div
+      ref={setNodeRef}
       className={slotClasses}
       animate={{
-        scale: isActive ? 1.05 : 1,
+        scale: isActive || isOver ? 1.05 : 1,
       }}
-      onDragOver={(e) => {
-        e.preventDefault();
-      }}
-      onDrop={() => onDrop(position)}
     >
       {defense ? (
         <div className="flex items-center w-full">

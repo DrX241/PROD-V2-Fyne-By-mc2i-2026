@@ -20,7 +20,7 @@ import { Defense, Level, Difficulty } from './types';
 import React from 'react';
 
 // Niveaux faciles (1-5)
-const easyLevels: Level[] = [
+export const easyLevels: Level[] = [
   {
     id: 1,
     name: "Protection basique",
@@ -318,7 +318,7 @@ const easyLevels: Level[] = [
 ];
 
 // Niveaux moyens (6-10)
-const mediumLevels: Level[] = [
+export const mediumLevels: Level[] = [
   {
     id: 6,
     name: "PME en ligne",
@@ -400,7 +400,7 @@ const mediumLevels: Level[] = [
 ];
 
 // Niveaux difficiles (11-15)
-const hardLevels: Level[] = [
+export const hardLevels: Level[] = [
   {
     id: 11,
     name: "Infrastructure critique",

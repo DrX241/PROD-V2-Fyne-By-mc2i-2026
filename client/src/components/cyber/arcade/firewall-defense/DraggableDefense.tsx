@@ -1,7 +1,9 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { useDraggable } from '@dnd-kit/core';
+import { CSS } from '@dnd-kit/utilities';
 import { Defense } from './types';
 import { Badge } from '@/components/ui/badge';
+import { motion } from 'framer-motion';
 
 interface DraggableDefenseProps {
   defense: Defense;
@@ -16,22 +18,27 @@ const DraggableDefense: React.FC<DraggableDefenseProps> = ({
   onDragEnd,
   disabled = false
 }) => {
+  const {attributes, listeners, setNodeRef, transform} = useDraggable({
+    id: defense.id,
+    disabled
+  });
+  
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    boxShadow: `0 0 15px ${defense.color}30`,
+    transition: transform ? undefined : 'all 0.2s ease',
+  };
+  
   return (
     <motion.div
-      drag={!disabled}
-      dragSnapToOrigin={true}
-      dragElastic={0.2}
-      onDragStart={onDragStart}
-      onDragEnd={onDragEnd}
-      whileDrag={{ scale: 1.05, zIndex: 100 }}
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
       whileHover={{ scale: disabled ? 1 : 1.02 }}
       className={`bg-gray-800 rounded-xl p-4 relative overflow-hidden border-2 ${
         disabled ? 'border-gray-700 opacity-60 cursor-not-allowed' : 'border-gray-600 cursor-grab'
-      }`}
-      style={{ 
-        boxShadow: `0 0 15px ${defense.color}30`,
-        transition: 'all 0.2s ease'
-      }}
+      } touch-none`}
     >
       <div className="absolute top-0 left-0 h-full w-1" style={{ backgroundColor: defense.color }} />
       
