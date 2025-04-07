@@ -125,7 +125,7 @@ const FirewallDefenseGameNew: React.FC<FirewallDefenseGameProps> = ({ difficulty
   
   // États du jeu
   const [gamePhase, setGamePhase] = useState<'setup' | 'simulation' | 'results'>('setup');
-  const [showTutorial, setShowTutorial] = useState<boolean>(true);
+  const [showTutorial, setShowTutorial] = useState<boolean>(false);
   const [tutorialStep, setTutorialStep] = useState<number>(0);
   const [simulationTimeLeft, setSimulationTimeLeft] = useState<number>(10); // 10 secondes de simulation
   const [defenseInventory, setDefenseInventory] = useState<Defense[]>([]);
@@ -151,10 +151,10 @@ const FirewallDefenseGameNew: React.FC<FirewallDefenseGameProps> = ({ difficulty
     color: string;
   }[]>([]);
 
-  // Initialisation du jeu
+  // Initialisation du jeu - mémoisation pour éviter les re-rendus inutiles
   useEffect(() => {
     initializeGame();
-  }, [difficulty]);
+  }, [difficulty, currentLevel]);
 
   // Initialisation du compte à rebours pour la simulation
   useEffect(() => {
@@ -513,21 +513,43 @@ const FirewallDefenseGameNew: React.FC<FirewallDefenseGameProps> = ({ difficulty
     }));
   };
 
-  // Animation des attaques en temps réel
+  // Animation des attaques en temps réel - optimisée pour réduire les rendus
   useEffect(() => {
     let animationFrame: number | null = null;
+    let lastTimestamp = 0;
     
     if (gamePhase === 'simulation' && activeAttacks.length > 0) {
-      const animate = () => {
-        setActiveAttacks(prevAttacks => 
-          prevAttacks.map(attack => {
+      // Pré-calcul des positions cibles pour chaque zone pour éviter des recherches répétées
+      const zonePositions = zones.reduce((acc, zone) => {
+        acc[zone.id] = { 
+          x: 20 + zone.position.col * 25, 
+          y: 20 + zone.position.row * 25 
+        };
+        return acc;
+      }, {} as Record<string, {x: number, y: number}>);
+      
+      const animate = (timestamp: number) => {
+        // Limiter le taux de rafraîchissement pour les appareils moins puissants
+        if (timestamp - lastTimestamp < 16) { // ~60fps max
+          animationFrame = requestAnimationFrame(animate);
+          return;
+        }
+        
+        lastTimestamp = timestamp;
+        
+        setActiveAttacks(prevAttacks => {
+          // Vérifier si des mises à jour sont nécessaires
+          const needsUpdate = prevAttacks.some(a => a.isActive);
+          if (!needsUpdate) return prevAttacks;
+          
+          return prevAttacks.map(attack => {
             if (!attack.isActive) return attack;
             
-            // Trouver la zone cible pour calculer la position finale
-            const targetZone = zones.find(z => z.id === attack.targetZone);
-            if (!targetZone) return { ...attack, isActive: false };
+            // Récupérer la position cible pré-calculée
+            const targetPos = zonePositions[attack.targetZone];
+            if (!targetPos) return { ...attack, isActive: false };
             
-            // Calculer la nouvelle position et progression
+            // Calculer la nouvelle position et progression plus efficacement
             const newProgress = attack.progress + (attack.blocked ? 0 : 1);
             
             // Si l'attaque est bloquée, on arrête sa progression
@@ -535,22 +557,18 @@ const FirewallDefenseGameNew: React.FC<FirewallDefenseGameProps> = ({ difficulty
               return { ...attack, progress: attack.progress };
             }
             
-            // Si l'attaque est terminée (atteint 100% ou a été bloquée)
+            // Si l'attaque est terminée
             if (newProgress >= 100) {
               return { ...attack, progress: 100, isActive: false };
             }
             
-            // Positions initiale et finale de l'attaque
+            // Positions initiale
             const startPos = { x: 0, y: 50 }; // Départ du bord gauche
-            const endPos = { 
-              x: 20 + targetZone.position.col * 25, 
-              y: 20 + targetZone.position.row * 25 
-            };
             
             // Calculer la nouvelle position avec une interpolation linéaire
             const newPos = {
-              x: startPos.x + (endPos.x - startPos.x) * (newProgress / 100),
-              y: startPos.y + (endPos.y - startPos.y) * (newProgress / 100)
+              x: startPos.x + (targetPos.x - startPos.x) * (newProgress / 100),
+              y: startPos.y + (targetPos.y - startPos.y) * (newProgress / 100)
             };
             
             return {
@@ -558,10 +576,10 @@ const FirewallDefenseGameNew: React.FC<FirewallDefenseGameProps> = ({ difficulty
               progress: newProgress,
               position: newPos
             };
-          })
-        );
+          });
+        });
         
-        // Continuer l'animation si toutes les attaques ne sont pas terminées
+        // Continuer l'animation si nécessaire
         if (activeAttacks.some(a => a.isActive)) {
           animationFrame = requestAnimationFrame(animate);
         }
@@ -575,7 +593,7 @@ const FirewallDefenseGameNew: React.FC<FirewallDefenseGameProps> = ({ difficulty
         cancelAnimationFrame(animationFrame);
       }
     };
-  }, [gamePhase, activeAttacks, zones]);
+  }, [gamePhase, activeAttacks.length, zones]);
 
   // Lancer la simulation avec des attaques
   const startSimulation = () => {
