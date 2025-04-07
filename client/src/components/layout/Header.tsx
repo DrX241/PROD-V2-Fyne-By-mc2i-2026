@@ -1,6 +1,6 @@
 import { useChatContext } from "@/contexts/ChatContext";
 import { useLocation } from "wouter";
-import mclogo from "@assets/mc2i.png";
+import mclogo from "@/assets/mc2i.png";
 
 // Fonction utilitaire pour extraire le prénom (dupliquée ici pour éviter les dépendances circulaires)
 const extractFirstName = (input: string): string => {
