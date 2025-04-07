@@ -31,6 +31,8 @@ import TutorialPanel from './TutorialPanel';
 import ResultsPanel from './ResultsPanel';
 import { getLevelsByDifficulty, tutorialSteps } from './data';
 
+
+
 const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({ 
   difficulty, 
   onGameEnd 
