@@ -49,7 +49,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
   onGameEnd 
 }) => {
   const { toast } = useToast();
-  
+
   // État du jeu
   const [gameState, setGameState] = useState<GameState>({
     currentLevel: 1,
@@ -63,28 +63,28 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
     tutorialStep: 0,
     gamePhase: 'preparation'
   });
-  
+
   // Données des niveaux
   const [levels, setLevels] = useState<Level[]>([]);
   const [currentLevel, setCurrentLevel] = useState<Level | null>(null);
-  
+
   // État du drag and drop
   const [draggedDefenseId, setDraggedDefenseId] = useState<string | null>(null);
   const [activeSlot, setActiveSlot] = useState<number | null>(null);
-  
+
   // États pour le feedback pédagogique IA
   const [showAiAdviceDialog, setShowAiAdviceDialog] = useState<boolean>(false);
   const [aiAdviceDialogContent, setAiAdviceDialogContent] = useState<string>("");
-  
+
   // États pour le chronomètre - remplacés par des valeurs constantes
   const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
-  
+
   // Gestionnaires d'événements
   const handleNextTutorialStep = useCallback(() => {
     setGameState(prev => {
       // Si tutorialSeen existe déjà dans localStorage, passer directement à la dernière étape
       const tutorialSeen = localStorage.getItem('firewall_defense_tutorial_seen') === 'true';
-      
+
       if (tutorialSeen) {
         // Si le tutoriel a déjà été vu, aller directement à la dernière étape
         return {
@@ -102,14 +102,14 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       return prev;
     });
   }, []);
-  
+
   const handleCompleteTutorial = useCallback(() => {
     // Simplifier la fonction pour éviter les conflits avec le chronomètre
     // On désactive complètement le chronomètre automatique pour l'instant
-    
+
     // Mémoriser que le tutoriel a été vu
     localStorage.setItem('firewall_defense_tutorial_seen', 'true');
-    
+
     // Réinitialiser le tutorialStep et fermer le tutoriel
     // Passer directement en phase de jeu (playing)
     setGameState(prev => ({
@@ -121,37 +121,37 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       timer: 0
     }));
   }, []);
-  
+
   // Fonction pour démarrer le chronomètre
   const startTimer = useCallback(() => {
     if (timerInterval) return; // Déjà démarré
-    
+
     const interval = setInterval(() => {
       setGameState(prev => ({
         ...prev,
         timer: prev.timer + 1
       }));
     }, 1000);
-    
+
     setTimerInterval(interval);
   }, [timerInterval]);
-    
+
   const handlePlaceDefense = useCallback((position: number, defenseId?: string) => {
     // Utiliser soit l'ID passé en paramètre, soit l'ID glissé actuel
     const idToUse = defenseId || draggedDefenseId;
-    
+
     if (!idToUse || !currentLevel) return;
-    
+
     // Vérifier si le slot est déjà occupé
     const isSlotOccupied = gameState.placedDefenses.some(
       pd => pd.position === position
     );
-    
+
     if (isSlotOccupied) {
       // Pas de toast, comportement silencieux
       return;
     }
-    
+
     // Ajouter la défense au slot
     setGameState(prev => ({
       ...prev,
@@ -160,12 +160,12 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
         { defenseId: idToUse, position }
       ]
     }));
-    
+
     // Pas de toast pour le placement des défenses
-    
+
     setDraggedDefenseId(null);
   }, [draggedDefenseId, currentLevel, gameState.placedDefenses, gameState.gamePhase, timerInterval]);
-  
+
   const handleRemoveDefense = useCallback((position: number) => {
     setGameState(prev => ({
       ...prev,
@@ -174,17 +174,17 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       )
     }));
   }, []);
-  
+
   const startGame = useCallback(() => {
     if (!currentLevel) return;
-    
+
     // Vérifier que tous les slots sont remplis
     const requiredSlots = currentLevel.defenses.length;
     if (gameState.placedDefenses.length < requiredSlots) {
       // Message d'erreur affiché directement dans l'interface
       return;
     }
-    
+
     // Commencer le jeu en mode placement de défenses
     // Pas de chronomètre pour se concentrer sur la logique de défense
     setGameState(prev => ({
@@ -194,37 +194,37 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       timer: 0
     }));
   }, [currentLevel, gameState.placedDefenses]);
-  
+
   const checkSolution = useCallback(() => {
     if (!currentLevel) return;
-    
+
     // Arrêter le chronomètre
     if (timerInterval) {
       clearInterval(timerInterval);
       setTimerInterval(null);
     }
-    
+
     // Vérifier chaque défense
     const updatedPlacedDefenses = gameState.placedDefenses.map(pd => {
       const defense = currentLevel.defenses.find(d => d.id === pd.defenseId);
       if (!defense) return pd;
-      
+
       return {
         ...pd,
         isCorrect: defense.correctPosition === pd.position
       };
     });
-    
+
     // Calculer le score
     const correctDefenses = updatedPlacedDefenses.filter(pd => pd.isCorrect).length;
     const totalDefenses = currentLevel.defenses.length;
     const baseScore = Math.round((correctDefenses / totalDefenses) * currentLevel.maxScore);
-    
+
     // Suppression du bonus de temps pour simplifier le jeu
     const timeBonus = 0;
     const finalScore = baseScore;
     const isLevelComplete = correctDefenses === totalDefenses;
-    
+
     // Mettre à jour l'état
     setGameState(prev => ({
       ...prev,
@@ -234,16 +234,16 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       isComplete: isLevelComplete,
       gamePhase: 'results' as const
     }));
-    
+
     // Pas de toast pour le feedback - on utilise uniquement la boîte de dialogue pédagogique plus complète
-    
+
     // Feedback pédagogique détaillé
     setTimeout(() => {
       // Dialog avec explications pédagogiques
       const incorrectDefenses = updatedPlacedDefenses.filter(pd => !pd.isCorrect);
-      
+
       let feedbackContent = "";
-      
+
       if (isLevelComplete) {
         feedbackContent = `
           <div class="mb-4">
@@ -267,7 +267,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
         const incorrectFeedback = incorrectDefenses.map(pd => {
           const defense = currentLevel.defenses.find(d => d.id === pd.defenseId);
           if (!defense) return "";
-          
+
           return `
             <div class="mb-3 pb-3 border-b border-gray-700">
               <p class="font-medium text-red-400">${defense.name}</p>
@@ -276,7 +276,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
             </div>
           `;
         }).join('');
-        
+
         feedbackContent = `
           <div class="mb-4">
             <h3 class="text-lg font-semibold text-amber-500 mb-2">Configuration à améliorer</h3>
@@ -290,22 +290,22 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
           </div>
         `;
       }
-      
+
       // Afficher le feedback dans une fenêtre de dialogue
       setAiAdviceDialogContent(feedbackContent);
       setShowAiAdviceDialog(true);
-      
+
     }, 1000); // Délai pour ne pas trop surcharger l'utilisateur
-    
+
   }, [currentLevel, gameState.placedDefenses, gameState.timer, timerInterval]);
-  
+
   const restartLevel = useCallback(() => {
     // Arrêter le chronomètre
     if (timerInterval) {
       clearInterval(timerInterval);
       setTimerInterval(null);
     }
-    
+
     // Réinitialiser l'état du niveau
     setGameState(prev => ({
       ...prev,
@@ -316,13 +316,13 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       gamePhase: 'playing' as const // Passer directement en mode jeu pour éviter le bouton "Commencer"
     }));
   }, [timerInterval]);
-  
+
   const goToNextLevel = useCallback(() => {
     // On calcule l'index du niveau suivant (currentLevel est 1-indexed, arrays sont 0-indexed)
     const currentLevelIndex = gameState.currentLevel - 1; // Convertir 1-indexed à 0-indexed
     const nextLevelIndex = currentLevelIndex + 1; // Index du niveau suivant
     const nextLevelNumber = nextLevelIndex + 1; // Numéro du niveau (1-indexed)
-    
+
     // Si c'est le dernier niveau, terminer le jeu
     if (nextLevelIndex >= levels.length) {
       // Sauvegarder la progression (le joueur a fini tous les niveaux)
@@ -331,20 +331,20 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
         totalScore: gameState.totalScore
       };
       localStorage.setItem('firewall_defense_progress', JSON.stringify(progression));
-      
+
       if (onGameEnd) {
         onGameEnd(gameState.totalScore);
       }
       return;
     }
-    
+
     // Charger le niveau suivant
     const nextLevel = levels[nextLevelIndex];
     setCurrentLevel(nextLevel);
-    
+
     // Calculer le nouveau score total
     const newTotalScore = gameState.totalScore;
-    
+
     // Réinitialiser l'état du niveau
     setGameState(prev => {
       const newState = {
@@ -357,27 +357,27 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
         isComplete: false,
         gamePhase: 'playing' as const // Typage explicite pour assurer la compatibilité avec GameState
       };
-      
+
       // Sauvegarder la progression dans le localStorage
       const progression = {
         currentLevel: nextLevelNumber,
         totalScore: newTotalScore
       };
       localStorage.setItem('firewall_defense_progress', JSON.stringify(progression));
-      
+
       return newState;
     });
   }, [gameState.currentLevel, gameState.totalScore, levels, onGameEnd]);
-  
+
   // Handlers DnD
   const handleDndStart = useCallback((event: DragStartEvent) => {
     const { active } = event;
     setDraggedDefenseId(String(active.id));
   }, []);
-  
+
   const handleDndEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
-    
+
     // Si on dépose sur la zone de configuration réseau
     if (over) {
       if (over.id === 'network-dropzone' || over.id.toString().startsWith('dropzone-')) {
@@ -387,25 +387,25 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
         handlePlaceDefense(nextPosition, defenseId);
       }
     }
-    
+
     setDraggedDefenseId(null);
     setActiveSlot(null);
   }, [gameState.placedDefenses, handlePlaceDefense]);
-  
+
   // Initialisation du jeu avec progression sauvegardée
   useEffect(() => {
     // Obtenir les 10 niveaux du jeu (plus besoin de la difficulté)
     const gameLevels = getAllLevels();
     setLevels(gameLevels);
-    
+
     // Vérifier si le tutoriel a déjà été vu
     const tutorialSeen = localStorage.getItem('firewall_defense_tutorial_seen') === 'true';
-    
+
     // Récupérer le niveau maximum atteint dans le localStorage
     const savedProgressStr = localStorage.getItem('firewall_defense_progress');
     let savedCurrentLevel = 1;
     let savedTotalScore = 0;
-    
+
     // Charger la progression sauvegardée si elle existe
     if (savedProgressStr) {
       try {
@@ -416,11 +416,11 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
         console.error("Erreur lors de la lecture de la progression sauvegardée", e);
       }
     }
-    
+
     // Charger le niveau courant selon la progression
     const levelIndex = savedCurrentLevel - 1; // Convertir 1-indexed à 0-indexed
     setCurrentLevel(gameLevels[levelIndex]);
-    
+
     setGameState({
       currentLevel: savedCurrentLevel,
       maxLevels: gameLevels.length,
@@ -433,7 +433,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       tutorialStep: 0,
       gamePhase: tutorialSeen ? 'playing' : 'preparation' // Si tutoriel déjà vu, commencer directement en mode jeu
     });
-    
+
     // Nettoyage du minuteur
     return () => {
       if (timerInterval) {
@@ -441,16 +441,16 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       }
     };
   }, [timerInterval]); // Plus besoin de la difficulté comme dépendance
-  
+
   // Effet pour surveiller les changements dans les défenses placées (timer code désactivé)
   useEffect(() => {
     if (!currentLevel) return;
-    
+
     // Démarrer automatiquement le chronomètre lors du premier placement en phase de jeu
     if (gameState.gamePhase === 'playing' && 
         gameState.placedDefenses.length === 1 && 
         !timerInterval) {
-      
+
       // Démarrer le chronomètre
       const interval = setInterval(() => {
         setGameState(prev => ({
@@ -458,15 +458,15 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
           timer: prev.timer + 1
         }));
       }, 1000);
-      
+
       setTimerInterval(interval);
-      
+
       return () => {
         clearInterval(interval);
       };
     }
   }, [currentLevel, gameState.placedDefenses, gameState.gamePhase, timerInterval]);
-  
+
   // Effet pour gérer l'état du jeu en fonction des changements de phase
   useEffect(() => {
     // Si on passe en phase de jeu, réinitialiser les compteurs (timer désactivé)
@@ -477,14 +477,14 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
         timer: 0
       }));
     }
-    
+
     // Assurer le nettoyage de toute référence au timer (code de sécurité)
     if (gameState.gamePhase === 'results' && timerInterval) {
       clearInterval(timerInterval);
       setTimerInterval(null);
     }
   }, [currentLevel, gameState.gamePhase, timerInterval, gameState.timer]);
-  
+
   // Si le niveau n'est pas chargé, afficher un loader
   if (!currentLevel) {
     return (
@@ -496,7 +496,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       </div>
     );
   }
-  
+
   // Liste des défenses disponibles (non placées)
   const availableDefenses = currentLevel.defenses.filter(
     defense => !gameState.placedDefenses.some(pd => pd.defenseId === defense.id)
@@ -527,7 +527,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
             </motion.div>
           )}
         </AnimatePresence>
-        
+
         {/* En-tête avec informations du niveau */}
         <div className="bg-gray-800 rounded-xl p-4 mb-6 shadow-lg">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -540,20 +540,20 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-3 flex-wrap">
               <Badge className="bg-gray-700 gap-1.5 px-3 py-1">
                 <Trophy className="w-4 h-4 text-yellow-400" />
                 <span className="text-white font-semibold">{gameState.totalScore} pts</span>
               </Badge>
-              
+
               {gameState.gamePhase === 'playing' && (
                 <Badge className="bg-gray-700 gap-1.5 px-3 py-1">
                   <Clock className="w-4 h-4 text-cyan-400" />
                   <span className="text-white font-semibold">{gameState.timer}s</span>
                 </Badge>
               )}
-              
+
               <Button 
                 size="sm" 
                 variant="outline"
@@ -565,7 +565,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                 <LightbulbIcon className="w-4 h-4 mr-1 text-yellow-400" />
                 Aide
               </Button>
-              
+
               <Button 
                 size="sm" 
                 variant="outline"
@@ -575,11 +575,11 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                   if (window.confirm("Voulez-vous vraiment réinitialiser votre progression ? Vous recommencerez au niveau 1.")) {
                     // Supprimer la progression sauvegardée
                     localStorage.removeItem('firewall_defense_progress');
-                    
+
                     // Recharger le niveau 1
                     const gameLevels = getAllLevels();
                     setCurrentLevel(gameLevels[0]);
-                    
+
                     // Réinitialiser l'état du jeu
                     setGameState(prev => ({
                       ...prev,
@@ -600,12 +600,12 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
             </div>
           </div>
         </div>
-        
+
         {/* Description du niveau */}
         <div className="bg-gray-800 rounded-xl p-4 mb-6 shadow-lg">
           <h3 className="font-semibold text-white mb-2">Description</h3>
           <p className="text-gray-300">{currentLevel.description}</p>
-          
+
           {gameState.gamePhase === 'preparation' && (
             <div className="mt-4 bg-gray-700/50 rounded p-3 text-sm text-gray-300">
               <p>
@@ -614,17 +614,23 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
             </div>
           )}
         </div>
-        
+
         {/* Zone principale de jeu */}
         <div className="grid grid-cols-1 lg:grid-cols-6 gap-6 mb-6">
           {/* Zone de placement des défenses (gauche) - Playground amélioré */}
           <div className="lg:col-span-4">
             <Card className="bg-gray-800 border-gray-700 shadow-lg p-4">
               <h3 className="font-semibold text-white mb-4">Configuration du réseau</h3>
-              
+
               <div 
                 className="relative bg-gray-900 rounded-lg mb-4 p-6" 
-                style={{ minHeight: '500px', backgroundImage: 'radial-gradient(circle, rgba(66, 71, 91, 0.5) 1px, transparent 1px)', backgroundSize: '30px 30px' }}
+                style={{ 
+                  minHeight: '600px',
+                  width: '100%',
+                  backgroundImage: 'radial-gradient(circle, rgba(66, 71, 91, 0.5) 1px, transparent 1px), linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px)',
+                  backgroundSize: '30px 30px, 100% 60px',
+                  backgroundPosition: '0 0, 0 0'
+                }}
               >
                 {/* Réseau schématique */}
                 <div className="absolute inset-10 flex flex-col items-center justify-between">
@@ -632,7 +638,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                     Internet
                   </div>
                   <div className="h-16 w-1 bg-blue-500"></div>
-                  
+
                   {/* Zone de placement libre pour les défenses */}
                   <div className="flex-1 w-full relative">
                     {/* Zone droppable pour le placement des défenses */}
@@ -660,7 +666,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                       {Array.from({ length: 6 }).map((_, idx) => {
                         const position = idx + 1;
                         const isPlaced = gameState.placedDefenses.some(pd => pd.position === position);
-                        
+
                         return (
                           <div 
                             key={`dropzone-${position}`}
@@ -685,12 +691,12 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                         );
                       })}
                     </div>
-                    
+
                     {/* Les défenses placées */}
                     {gameState.placedDefenses.map((placedDefense, index) => {
                       // Calculer les positions basées sur l'ordre
                       const defense = currentLevel.defenses.find(d => d.id === placedDefense.defenseId);
-                      
+
                       return (
                         <div 
                           key={`${placedDefense.defenseId}-${index}`}
@@ -719,7 +725,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                               </span>
                             </div>
                           </div>
-                          
+
                           {/* Ligne de connexion vers la défense suivante */}
                           {index < gameState.placedDefenses.length - 1 && 
                            placedDefense.position < gameState.placedDefenses.length && (
@@ -729,7 +735,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                       );
                     })}
                   </div>
-                  
+
                   {/* Zones de dépôt pour les éléments à protéger */}
                   <div className="h-16 w-1 bg-blue-500"></div>
                   <div className="grid grid-cols-3 gap-4 mt-2 w-full">
@@ -744,7 +750,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Légende et informations */}
                 <div className="absolute top-4 right-4 bg-gray-800/80 p-2 rounded-lg">
                   <div className="flex flex-col space-y-2">
@@ -762,7 +768,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Indicateur de zone de dépôt lorsqu'aucune défense n'est placée */}
                 {gameState.placedDefenses.length === 0 && (
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -773,7 +779,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                   </div>
                 )}
               </div>
-              
+
               {/* Suppression de barre de progression basée sur le temps 
               {gameState.gamePhase === 'playing' && (
                 <div className="mb-4">
@@ -787,7 +793,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                   />
                 </div>
               )} */}
-              
+
               {/* Actions */}
               <div className="flex justify-end space-x-3">
                 <Button
@@ -798,9 +804,9 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                   <RotateCcw className="mr-2 h-4 w-4" />
                   Réinitialiser
                 </Button>
-                
+
                 {/* Bouton "Commencer" supprimé pour éviter les conflits avec le tutoriel */}
-                
+
                 {gameState.gamePhase === 'playing' && (
                   <Button
                     onClick={checkSolution}
@@ -810,12 +816,12 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                     Vérifier
                   </Button>
                 )}
-                
+
                 {gameState.gamePhase === 'results' && (
                   <div className="space-x-3">
                     <Button
                       onClick={restartLevel}
-                      className="bg-amber-600 hover:bg-amber-700"
+                      className="bg-amber-600 hover:bg-amber600 hover:bg-amber-700"
                     >
                       <RotateCcw className="mr-2 h-4 w-4" />
                       Réessayer
@@ -832,7 +838,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
               </div>
             </Card>
           </div>
-          
+
           {/* Zone d'informations et défenses disponibles (droite) */}
           <div className="lg:col-span-2">
             {gameState.gamePhase === 'results' ? (
@@ -853,7 +859,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
               <Card className="bg-gray-800 border-gray-700 shadow-lg p-4">
                 <h3 className="font-semibold text-white mb-3">Défenses disponibles</h3>
                 <p className="text-sm text-gray-400 mb-4">Glissez-déposez les défenses pour les placer sur le réseau</p>
-                
+
                 <div className="max-h-[360px] overflow-y-auto pr-1 space-y-3 custom-scrollbar">
                   {availableDefenses.map((defense, index) => (
                     <div 
@@ -873,7 +879,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                           </div>
                           <h4 className="font-medium text-white">{defense.name}</h4>
                         </div>
-                        
+
                         <div className="mt-2 flex justify-between items-center">
                           <div className="flex space-x-2">
                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-900/50 text-blue-200">
@@ -886,13 +892,13 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                           <Shield className="h-5 w-5 text-blue-400" />
                         </div>
                       </div>
-                      
+
                       <div className="p-2 bg-gray-800 text-xs text-gray-300 leading-relaxed">
                         {defense.description}
                       </div>
                     </div>
                   ))}
-                  
+
                   {availableDefenses.length === 0 && (
                     <div className="bg-gray-700/50 rounded p-4 text-center">
                       <ShieldCheck className="h-10 w-10 mx-auto mb-2 text-blue-400/50" />
@@ -900,15 +906,15 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                     </div>
                   )}
                 </div>
-                
+
                 <div className="mt-4 pt-4 border-t border-gray-700">
                   <h4 className="text-sm font-semibold text-white mb-2">Informations du niveau</h4>
-                  
+
                   <div className="mb-3 p-3 bg-gray-700/50 rounded-md">
                     <h5 className="text-sm font-medium text-white mb-1">Objectif</h5>
                     <p className="text-xs text-gray-300">{currentLevel.description}</p>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div className="bg-gray-700/30 p-2 rounded-md flex flex-col items-center">
                       <div className="flex items-center mb-1">
@@ -917,7 +923,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                       </div>
                       <span className="text-white font-medium">{currentLevel.defenses.length}</span>
                     </div>
-                    
+
                     <div className="bg-gray-700/30 p-2 rounded-md flex flex-col items-center">
                       <div className="flex items-center mb-1">
                         <CircuitBoard className="h-3 w-3 text-amber-400 mr-1" />
@@ -925,7 +931,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                       </div>
                       <span className="text-white font-medium">Défense en profondeur</span>
                     </div>
-                    
+
                     <div className="bg-gray-700/30 p-2 rounded-md flex flex-col items-center">
                       <div className="flex items-center mb-1">
                         <Star className="h-3 w-3 text-purple-400 mr-1" />
@@ -933,7 +939,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                       </div>
                       <span className="text-white font-medium">{currentLevel.maxScore}</span>
                     </div>
-                    
+
                     <div className="bg-gray-700/30 p-2 rounded-md flex flex-col items-center">
                       <div className="flex items-center mb-1">
                         <BarChart className="h-3 w-3 text-emerald-400 mr-1" />
@@ -943,7 +949,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Styles pour les scrollbars personnalisées */}
                 <style dangerouslySetInnerHTML={{ 
                   __html: `
@@ -968,7 +974,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
           </div>
         </div>
       </div>
-      
+
       {/* Dialogue de feedback pédagogique IA */}
       <Dialog open={showAiAdviceDialog} onOpenChange={setShowAiAdviceDialog}>
         <DialogContent className="sm:max-w-[600px] bg-gray-900 border-blue-600">
@@ -981,10 +987,10 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
               Analyse et conseils pour améliorer votre stratégie de cybersécurité
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="custom-scrollbar max-h-[60vh] overflow-y-auto pr-2" 
                dangerouslySetInnerHTML={{ __html: aiAdviceDialogContent }} />
-          
+
           <DialogFooter>
             <Button onClick={() => setShowAiAdviceDialog(false)}>
               J'ai compris

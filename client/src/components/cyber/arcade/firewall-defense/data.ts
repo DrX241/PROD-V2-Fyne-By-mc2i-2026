@@ -901,14 +901,18 @@ export const tutorialSteps = [
 
 // Fonction pour obtenir les niveaux de progression
 export function getAllLevels(): Level[] {
-  // Combinaison des 10 premiers niveaux de toutes les difficultés
+  // Fusion progressive des niveaux
   const allLevels = [
-    ...easyLevels,               // Niveaux 1-5
-    ...mediumLevels.slice(0, 5)  // Niveaux 6-10
+    ...easyLevels,        // Niveaux 1-5: défenses basiques
+    ...mediumLevels,      // Niveaux 6-10: défenses avancées
   ];
-  
-  // S'assurer que nous avons exactement 10 niveaux
-  return allLevels.slice(0, 10);
+
+  // Ajouter progressivement les défenses disponibles
+  return allLevels.map((level, index) => ({
+    ...level,
+    defenses: level.defenses.slice(0, Math.min(3 + Math.floor(index * 0.5), level.defenses.length)), // Augmente progressivement le nombre de défenses
+    maxScore: 100 + (index * 50) // Score croissant par niveau
+  }));
 }
 
 // Fonction pour obtenir les niveaux en fonction de la difficulté - gardée pour compatibilité
