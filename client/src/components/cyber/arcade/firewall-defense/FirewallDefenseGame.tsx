@@ -355,10 +355,17 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
   }, [timerInterval]);
   
   const goToNextLevel = useCallback(() => {
-    const nextLevelIndex = gameState.currentLevel;
+    // On calcule l'index du niveau suivant (currentLevel est 1-indexed, arrays sont 0-indexed)
+    const currentLevelIndex = gameState.currentLevel - 1; // Convertir 1-indexed à 0-indexed
+    const nextLevelIndex = currentLevelIndex + 1; // Index du niveau suivant
+    
+    console.log(`Niveau actuel: ${gameState.currentLevel}, index: ${currentLevelIndex}`);
+    console.log(`Tentative d'aller au niveau suivant: ${nextLevelIndex + 1}, index: ${nextLevelIndex}`);
+    console.log(`Nombre total de niveaux: ${levels.length}`);
     
     // Si c'est le dernier niveau, terminer le jeu
     if (nextLevelIndex >= levels.length) {
+      console.log(`Fin du jeu, plus de niveaux disponibles`);
       if (onGameEnd) {
         onGameEnd(gameState.totalScore);
       }
@@ -367,6 +374,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
     
     // Charger le niveau suivant
     const nextLevel = levels[nextLevelIndex];
+    console.log(`Niveau suivant chargé:`, nextLevel);
     setCurrentLevel(nextLevel);
     
     // Réinitialiser l'état du niveau
