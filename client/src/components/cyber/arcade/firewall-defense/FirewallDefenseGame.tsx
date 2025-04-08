@@ -120,13 +120,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       placedDefenses: [], // Réinitialiser les défenses placées pour le jeu
       timer: 0
     }));
-    
-    // Afficher un toast pour commencer le jeu
-    toast({
-      title: "Mode jeu activé",
-      description: "Placez les défenses dans le bon ordre pour créer une protection optimale !",
-    });
-  }, [toast]);
+  }, []);
   
   // Fonction pour démarrer le chronomètre
   const startTimer = useCallback(() => {
@@ -140,12 +134,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
     }, 1000);
     
     setTimerInterval(interval);
-    
-    toast({
-      title: "Chronomètre démarré",
-      description: "Le chronomètre démarre automatiquement lorsque vous placez la première défense",
-    });
-  }, [timerInterval, toast]);
+  }, [timerInterval]);
     
   const handlePlaceDefense = useCallback((position: number, defenseId?: string) => {
     // Utiliser soit l'ID passé en paramètre, soit l'ID glissé actuel
@@ -159,11 +148,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
     );
     
     if (isSlotOccupied) {
-      toast({
-        title: "Emplacement occupé",
-        description: "Cet emplacement contient déjà une défense",
-        variant: "destructive",
-      });
+      // Pas de toast, comportement silencieux
       return;
     }
     
@@ -176,16 +161,10 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       ]
     }));
     
-    // Pas de chronomètre, mais affichage d'un message pour la première défense
-    if (gameState.gamePhase === 'playing' && gameState.placedDefenses.length === 0) {
-      toast({
-        title: "Défense ajoutée",
-        description: "Continuez à placer les autres défenses dans l'ordre optimal !",
-      });
-    }
+    // Pas de toast pour le placement des défenses
     
     setDraggedDefenseId(null);
-  }, [draggedDefenseId, currentLevel, gameState.placedDefenses, gameState.gamePhase, timerInterval, toast]);
+  }, [draggedDefenseId, currentLevel, gameState.placedDefenses, gameState.gamePhase, timerInterval]);
   
   const handleRemoveDefense = useCallback((position: number) => {
     setGameState(prev => ({
@@ -202,11 +181,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
     // Vérifier que tous les slots sont remplis
     const requiredSlots = currentLevel.defenses.length;
     if (gameState.placedDefenses.length < requiredSlots) {
-      toast({
-        title: "Configuration incomplète",
-        description: `Vous devez placer toutes les ${requiredSlots} défenses avant de commencer`,
-        variant: "destructive",
-      });
+      // Message d'erreur affiché directement dans l'interface
       return;
     }
     
@@ -218,12 +193,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       placedDefenses: [], // Réinitialiser les défenses placées pour permettre un nouveau placement
       timer: 0
     }));
-    
-    toast({
-      title: "Mode jeu activé",
-      description: "Placez les défenses dans le bon ordre pour une protection optimale !",
-    });
-  }, [currentLevel, gameState.placedDefenses, toast]);
+  }, [currentLevel, gameState.placedDefenses]);
   
   const checkSolution = useCallback(() => {
     if (!currentLevel) return;
@@ -265,14 +235,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       gamePhase: 'results'
     }));
     
-    // Feedback de base
-    toast({
-      title: isLevelComplete ? "Niveau réussi !" : "Configuration incomplète",
-      description: isLevelComplete 
-        ? `Vous avez correctement configuré toutes les défenses et obtenu ${finalScore} points !` 
-        : `${correctDefenses}/${totalDefenses} défenses sont correctement placées. Score: ${finalScore} points`,
-      variant: isLevelComplete ? "default" : "destructive",
-    });
+    // Pas de toast pour le feedback - on utilise uniquement la boîte de dialogue pédagogique plus complète
     
     // Feedback pédagogique détaillé
     setTimeout(() => {
@@ -334,7 +297,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       
     }, 1000); // Délai pour ne pas trop surcharger l'utilisateur
     
-  }, [currentLevel, gameState.placedDefenses, gameState.timer, timerInterval, toast]);
+  }, [currentLevel, gameState.placedDefenses, gameState.timer, timerInterval]);
   
   const restartLevel = useCallback(() => {
     // Arrêter le chronomètre
@@ -393,15 +356,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
   const handleDndStart = useCallback((event: DragStartEvent) => {
     const { active } = event;
     setDraggedDefenseId(String(active.id));
-    
-    // Si c'est la première défense placée, afficher un toast d'encouragement
-    if (gameState.gamePhase === 'playing' && gameState.placedDefenses.length === 0) {
-      toast({
-        title: "Première défense placée",
-        description: "Continuez à placer les défenses dans l'ordre optimal !",
-      });
-    }
-  }, [gameState.gamePhase, gameState.placedDefenses.length, timerInterval, toast]);
+  }, []);
   
   const handleDndEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
