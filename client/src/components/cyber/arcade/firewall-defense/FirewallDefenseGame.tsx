@@ -795,27 +795,62 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
               )} */}
 
               {/* Actions */}
-              <div className="flex justify-end space-x-3">
+              <div className="flex justify-between w-full">
                 <Button
                   variant="outline"
                   className="border-gray-600 text-gray-300"
-                  onClick={restartLevel}
+                  onClick={() => {
+                    if (gameState.currentLevel > 1) {
+                      setGameState(prev => ({
+                        ...prev,
+                        currentLevel: prev.currentLevel - 1
+                      }));
+                    }
+                  }}
+                  disabled={gameState.currentLevel <= 1}
                 >
-                  <RotateCcw className="mr-2 h-4 w-4" />
-                  Réinitialiser
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Niveau précédent
                 </Button>
 
-                {/* Bouton "Commencer" supprimé pour éviter les conflits avec le tutoriel */}
-
-                {gameState.gamePhase === 'playing' && (
+                <div className="flex space-x-3">
                   <Button
-                    onClick={checkSolution}
-                    className="bg-blue-600 hover:bg-blue-700"
+                    variant="outline"
+                    className="border-gray-600 text-gray-300"
+                    onClick={restartLevel}
                   >
-                    <CheckCircle className="mr-2 h-4 w-4" />
-                    Vérifier
+                    <RotateCcw className="mr-2 h-4 w-4" />
+                    Réinitialiser
                   </Button>
-                )}
+
+                  {gameState.gamePhase === 'playing' && (
+                    <Button
+                      onClick={checkSolution}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      <CheckCircle className="mr-2 h-4 w-4" />
+                      Vérifier
+                    </Button>
+                  )}
+
+                  <Button
+                    variant="outline"
+                    className="border-gray-600 text-gray-300"
+                    onClick={() => {
+                      if (gameState.currentLevel < gameState.maxLevels) {
+                        setGameState(prev => ({
+                          ...prev,
+                          currentLevel: prev.currentLevel + 1
+                        }));
+                      }
+                    }}
+                    disabled={gameState.currentLevel >= gameState.maxLevels}
+                  >
+                    Niveau suivant
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
 
                 {gameState.gamePhase === 'results' && (
                   <div className="space-x-3">
