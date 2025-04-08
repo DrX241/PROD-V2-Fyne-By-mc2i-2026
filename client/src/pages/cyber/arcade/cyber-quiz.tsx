@@ -266,7 +266,7 @@ export default function CyberQuizChallengePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-900 via-slate-900 to-black">
+    <div className="h-screen bg-gradient-to-b from-blue-900 via-slate-900 to-black overflow-y-auto">
       {/* Tutoriel / Introduction */}
       <Dialog open={showTutorial} onOpenChange={setShowTutorial}>
         <DialogContent className="bg-slate-900 text-white border-blue-500 max-w-2xl">
