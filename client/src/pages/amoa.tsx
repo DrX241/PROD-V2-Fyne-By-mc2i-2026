@@ -10,7 +10,9 @@ import {
   FileText,
   MessageSquare,
   BarChart2,
-  ChevronRight
+  ChevronRight,
+  Clock,
+  TrendingUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -36,6 +38,20 @@ export default function AmoaPage() {
       color: "from-blue-50 to-blue-100 border-blue-200",
       iconBg: "bg-blue-500",
       skills: ["Analyse des besoins", "Communication", "Gestion des parties prenantes", "Documentation"]
+    },
+    {
+      id: "sim-project",
+      title: "Simulateur de Gestion de Projet IA-assisté",
+      description: "Expérimentez la gestion de projets virtuels en temps réel avec une IA qui simule les réactions des équipes et les évènements aléatoires.",
+      icon: <Clock className="h-10 w-10 text-indigo-500" />,
+      level: "Intermédiaire",
+      duration: "60-90 min",
+      path: "/amoa/simulator",
+      isNew: true,
+      status: "soon",
+      color: "from-indigo-50 to-indigo-100 border-indigo-200",
+      iconBg: "bg-indigo-500",
+      skills: ["Planification", "Allocation de ressources", "Gestion des risques", "Suivi de projet"]
     },
     {
       id: "toolkit-amoa",
@@ -78,6 +94,34 @@ export default function AmoaPage() {
       color: "from-purple-50 to-purple-100 border-purple-200",
       iconBg: "bg-purple-500",
       skills: ["Agilité", "Cycle en V", "SCRUM", "SAFe", "Hybride"]
+    },
+    {
+      id: "business-value",
+      title: "Business Value Optimizer",
+      description: "Jeu d'optimisation de valeur métier où vous devez équilibrer les contraintes techniques, financières et stratégiques pour maximiser le ROI.",
+      icon: <TrendingUp className="h-10 w-10 text-teal-500" />,
+      level: "Avancé",
+      duration: "40-60 min",
+      path: "/amoa/business-value",
+      isNew: false,
+      status: "soon",
+      color: "from-teal-50 to-teal-100 border-teal-200",
+      iconBg: "bg-teal-500",
+      skills: ["Analyse coût-bénéfice", "Priorisation", "Stratégie d'entreprise", "ROI"]
+    },
+    {
+      id: "communication-arena",
+      title: "Communication Arena",
+      description: "Entraînez-vous aux compétences relationnelles essentielles pour un AMOA : facilitation de réunions, négociation, et gestion des conflits.",
+      icon: <MessageSquare className="h-10 w-10 text-rose-500" />,
+      level: "Tous niveaux",
+      duration: "30-45 min",
+      path: "/amoa/communication",
+      isNew: false,
+      status: "soon",
+      color: "from-rose-50 to-rose-100 border-rose-200",
+      iconBg: "bg-rose-500",
+      skills: ["Facilitation", "Négociation", "Gestion des conflits", "Présentation"]
     }
   ];
 

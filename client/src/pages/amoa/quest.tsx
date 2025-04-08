@@ -492,7 +492,7 @@ export default function AmoaQuestPage() {
     return (
       <div className="mb-4">
         <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-4">
-          <p className="text-blue-800 font-medium">{step.content}</p>
+          <p className="text-blue-900 font-semibold">{step.content}</p>
         </div>
         
         <div className="space-y-3">
@@ -663,11 +663,11 @@ export default function AmoaQuestPage() {
             </p>
             
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-              <h3 className="font-medium text-blue-800 mb-2 flex items-center">
+              <h3 className="font-semibold text-blue-900 mb-2 flex items-center">
                 <Info className="h-5 w-5 mr-2" />
                 Comment jouer
               </h3>
-              <ul className="space-y-2 text-sm text-blue-700">
+              <ul className="space-y-2 text-sm text-blue-900">
                 <li className="flex items-start">
                   <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 text-blue-500" />
                   <span>Lisez attentivement les dialogues et les documents qui vous sont présentés</span>
@@ -688,11 +688,11 @@ export default function AmoaQuestPage() {
             </div>
             
             <div className="bg-amber-50 p-4 rounded-lg border border-amber-100">
-              <h3 className="font-medium text-amber-800 mb-2 flex items-center">
+              <h3 className="font-semibold text-amber-900 mb-2 flex items-center">
                 <Brain className="h-5 w-5 mr-2" />
                 Intelligence Artificielle
               </h3>
-              <p className="text-sm text-amber-700">
+              <p className="text-sm text-amber-900">
                 Cette simulation est alimentée par l'intelligence artificielle qui adapte l'histoire et les réactions des personnages 
                 en fonction de vos décisions. Chaque parcours est unique et personnalisé.
               </p>
@@ -726,8 +726,8 @@ export default function AmoaQuestPage() {
           
           <div className="space-y-4 mt-4">
             <div className="bg-gray-50 p-4 rounded-lg border">
-              <h3 className="font-medium mb-2">Bonnes pratiques AMOA</h3>
-              <ul className="space-y-2 text-sm text-gray-700">
+              <h3 className="font-semibold text-gray-900 mb-2">Bonnes pratiques AMOA</h3>
+              <ul className="space-y-2 text-sm text-gray-900">
                 <li>• Recueillir les besoins de manière approfondie</li>
                 <li>• Documenter clairement les spécifications</li>
                 <li>• Assurer une communication fluide entre les parties prenantes</li>
@@ -737,8 +737,8 @@ export default function AmoaQuestPage() {
             </div>
             
             <div className="bg-gray-50 p-4 rounded-lg border">
-              <h3 className="font-medium mb-2">Métriques de performance</h3>
-              <ul className="text-sm text-gray-700 space-y-1">
+              <h3 className="font-semibold text-gray-900 mb-2">Métriques de performance</h3>
+              <ul className="text-sm text-gray-900 space-y-1">
                 <li>
                   <span className="text-blue-500 font-medium">Satisfaction des parties prenantes :</span> Reflète la qualité de vos interactions
                 </li>
@@ -831,7 +831,7 @@ export default function AmoaQuestPage() {
                     return (
                       <div key={index} className="mb-4 opacity-80">
                         <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-2">
-                          <p className="text-blue-800 font-medium">{step.content}</p>
+                          <p className="text-blue-900 font-semibold">{step.content}</p>
                         </div>
                         {step.options && questState.playerChoices[step.id] && (
                           <div className="bg-white p-3 rounded-lg border border-gray-200 ml-8">
@@ -846,7 +846,7 @@ export default function AmoaQuestPage() {
                     return (
                       <div key={index} className="mb-4 opacity-80">
                         <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-2">
-                          <p className="text-gray-800">{step.content}</p>
+                          <p className="text-gray-900 font-medium">{step.content}</p>
                         </div>
                         {step.documents && (
                           <div className="ml-8">
