@@ -533,16 +533,20 @@ export const tutorialSteps = [
   }
 ];
 
-// Fonction pour obtenir les niveaux en fonction de la difficulté
+// Fonction pour obtenir les niveaux de progression
+export function getAllLevels(): Level[] {
+  // Combinaison des 10 premiers niveaux de toutes les difficultés
+  const allLevels = [
+    ...easyLevels,               // Niveaux 1-5
+    ...mediumLevels.slice(0, 5)  // Niveaux 6-10
+  ];
+  
+  // S'assurer que nous avons exactement 10 niveaux
+  return allLevels.slice(0, 10);
+}
+
+// Fonction pour obtenir les niveaux en fonction de la difficulté - gardée pour compatibilité
 export function getLevelsByDifficulty(difficulty: Difficulty): Level[] {
-  switch (difficulty) {
-    case 'Facile':
-      return easyLevels;
-    case 'Moyen':
-      return [...easyLevels.slice(0, 3), ...mediumLevels];
-    case 'Difficile':
-      return [...easyLevels.slice(0, 2), ...mediumLevels.slice(0, 3), ...hardLevels];
-    default:
-      return easyLevels;
-  }
+  // Ignorer la difficulté et retourner tous les niveaux
+  return getAllLevels();
 };

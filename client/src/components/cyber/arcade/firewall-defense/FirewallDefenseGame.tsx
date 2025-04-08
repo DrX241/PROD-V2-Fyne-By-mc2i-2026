@@ -42,7 +42,7 @@ import DraggableDefense from './DraggableDefense';
 import DefenseSlot from './DefenseSlot';
 import TutorialPanel from './TutorialPanel';
 import ResultsPanel from './ResultsPanel';
-import { getLevelsByDifficulty, tutorialSteps } from './data';
+import { getLevelsByDifficulty, getAllLevels, tutorialSteps } from './data';
 
 const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({ 
   difficulty, 
@@ -321,14 +321,17 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
     // On calcule l'index du niveau suivant (currentLevel est 1-indexed, arrays sont 0-indexed)
     const currentLevelIndex = gameState.currentLevel - 1; // Convertir 1-indexed à 0-indexed
     const nextLevelIndex = currentLevelIndex + 1; // Index du niveau suivant
-    
-    console.log(`Niveau actuel: ${gameState.currentLevel}, index: ${currentLevelIndex}`);
-    console.log(`Tentative d'aller au niveau suivant: ${nextLevelIndex + 1}, index: ${nextLevelIndex}`);
-    console.log(`Nombre total de niveaux: ${levels.length}`);
+    const nextLevelNumber = nextLevelIndex + 1; // Numéro du niveau (1-indexed)
     
     // Si c'est le dernier niveau, terminer le jeu
     if (nextLevelIndex >= levels.length) {
-      console.log(`Fin du jeu, plus de niveaux disponibles`);
+      // Sauvegarder la progression (le joueur a fini tous les niveaux)
+      const progression = {
+        currentLevel: gameState.currentLevel, // Reste au niveau actuel car c'est le dernier
+        totalScore: gameState.totalScore
+      };
+      localStorage.setItem('firewall_defense_progress', JSON.stringify(progression));
+      
       if (onGameEnd) {
         onGameEnd(gameState.totalScore);
       }
@@ -337,19 +340,33 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
     
     // Charger le niveau suivant
     const nextLevel = levels[nextLevelIndex];
-    console.log(`Niveau suivant chargé:`, nextLevel);
     setCurrentLevel(nextLevel);
     
+    // Calculer le nouveau score total
+    const newTotalScore = gameState.totalScore;
+    
     // Réinitialiser l'état du niveau
-    setGameState(prev => ({
-      ...prev,
-      currentLevel: prev.currentLevel + 1,
-      placedDefenses: [],
-      currentScore: 0,
-      timer: 0,
-      isComplete: false,
-      gamePhase: 'playing' // Passer directement en mode jeu pour éviter le bouton "Commencer"
-    }));
+    setGameState(prev => {
+      const newState = {
+        ...prev,
+        currentLevel: nextLevelNumber,
+        placedDefenses: [],
+        currentScore: 0,
+        totalScore: newTotalScore,
+        timer: 0,
+        isComplete: false,
+        gamePhase: 'playing' // Passer directement en mode jeu pour éviter le bouton "Commencer"
+      };
+      
+      // Sauvegarder la progression dans le localStorage
+      const progression = {
+        currentLevel: nextLevelNumber,
+        totalScore: newTotalScore
+      };
+      localStorage.setItem('firewall_defense_progress', JSON.stringify(progression));
+      
+      return newState;
+    });
   }, [gameState.currentLevel, gameState.totalScore, levels, onGameEnd]);
   
   // Handlers DnD
@@ -375,20 +392,40 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
     setActiveSlot(null);
   }, [gameState.placedDefenses, handlePlaceDefense]);
   
-  // Initialisation du jeu
+  // Initialisation du jeu avec progression sauvegardée
   useEffect(() => {
-    const gameLevels = getLevelsByDifficulty(difficulty);
+    // Obtenir les 10 niveaux du jeu (plus besoin de la difficulté)
+    const gameLevels = getAllLevels();
     setLevels(gameLevels);
-    setCurrentLevel(gameLevels[0]);
     
     // Vérifier si le tutoriel a déjà été vu
     const tutorialSeen = localStorage.getItem('firewall_defense_tutorial_seen') === 'true';
     
+    // Récupérer le niveau maximum atteint dans le localStorage
+    const savedProgressStr = localStorage.getItem('firewall_defense_progress');
+    let savedCurrentLevel = 1;
+    let savedTotalScore = 0;
+    
+    // Charger la progression sauvegardée si elle existe
+    if (savedProgressStr) {
+      try {
+        const savedProgress = JSON.parse(savedProgressStr);
+        savedCurrentLevel = Math.min(savedProgress.currentLevel || 1, gameLevels.length);
+        savedTotalScore = savedProgress.totalScore || 0;
+      } catch (e) {
+        console.error("Erreur lors de la lecture de la progression sauvegardée", e);
+      }
+    }
+    
+    // Charger le niveau courant selon la progression
+    const levelIndex = savedCurrentLevel - 1; // Convertir 1-indexed à 0-indexed
+    setCurrentLevel(gameLevels[levelIndex]);
+    
     setGameState({
-      currentLevel: 1,
+      currentLevel: savedCurrentLevel,
       maxLevels: gameLevels.length,
       currentScore: 0,
-      totalScore: 0,
+      totalScore: savedTotalScore,
       timer: 0,
       isComplete: false,
       placedDefenses: [],
@@ -403,7 +440,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
         clearInterval(timerInterval);
       }
     };
-  }, [difficulty, timerInterval]);
+  }, [timerInterval]); // Plus besoin de la difficulté comme dépendance
   
   // Effet pour surveiller les changements dans les défenses placées (timer code désactivé)
   useEffect(() => {
@@ -499,7 +536,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
               <div>
                 <h2 className="text-xl font-bold text-white">{currentLevel.name}</h2>
                 <p className="text-sm text-gray-300">
-                  Niveau {gameState.currentLevel}/{gameState.maxLevels} • {difficulty}
+                  Niveau {gameState.currentLevel}/{gameState.maxLevels}
                 </p>
               </div>
             </div>
@@ -527,6 +564,38 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
               >
                 <LightbulbIcon className="w-4 h-4 mr-1 text-yellow-400" />
                 Aide
+              </Button>
+              
+              <Button 
+                size="sm" 
+                variant="outline"
+                className="border-gray-600 text-gray-300"
+                onClick={() => {
+                  // Confirmation avant réinitialisation
+                  if (window.confirm("Voulez-vous vraiment réinitialiser votre progression ? Vous recommencerez au niveau 1.")) {
+                    // Supprimer la progression sauvegardée
+                    localStorage.removeItem('firewall_defense_progress');
+                    
+                    // Recharger le niveau 1
+                    const gameLevels = getAllLevels();
+                    setCurrentLevel(gameLevels[0]);
+                    
+                    // Réinitialiser l'état du jeu
+                    setGameState(prev => ({
+                      ...prev,
+                      currentLevel: 1,
+                      totalScore: 0,
+                      placedDefenses: [],
+                      currentScore: 0,
+                      timer: 0,
+                      isComplete: false,
+                      gamePhase: 'playing' as const // Typage explicite pour éviter l'erreur
+                    }));
+                  }
+                }}
+              >
+                <RotateCcw className="w-4 h-4 mr-1 text-red-400" />
+                Réinitialiser
               </Button>
             </div>
           </div>
