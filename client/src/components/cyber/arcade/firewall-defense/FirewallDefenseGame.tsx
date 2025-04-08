@@ -232,7 +232,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       currentScore: finalScore,
       totalScore: prev.totalScore + finalScore,
       isComplete: isLevelComplete,
-      gamePhase: 'results'
+      gamePhase: 'results' as const
     }));
     
     // Pas de toast pour le feedback - on utilise uniquement la boîte de dialogue pédagogique plus complète
@@ -313,7 +313,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       currentScore: 0,
       timer: 0,
       isComplete: false,
-      gamePhase: 'playing' // Passer directement en mode jeu pour éviter le bouton "Commencer"
+      gamePhase: 'playing' as const // Passer directement en mode jeu pour éviter le bouton "Commencer"
     }));
   }, [timerInterval]);
   
@@ -589,8 +589,8 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                       currentScore: 0,
                       timer: 0,
                       isComplete: false,
-                      gamePhase: 'playing'
-                    } as GameState)); // Typage explicite du résultat complet
+                      gamePhase: 'playing' as const
+                    })); // Typage explicite du résultat complet
                   }
                 }}
               >
