@@ -826,13 +826,15 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                       <RotateCcw className="mr-2 h-4 w-4" />
                       Réessayer
                     </Button>
-                    <Button
-                      onClick={goToNextLevel}
-                      className="bg-purple-600 hover:bg-purple-700"
-                    >
-                      <ArrowRight className="mr-2 h-4 w-4" />
-                      Niveau suivant
-                    </Button>
+                    {gameState.isComplete && (
+                      <Button
+                        onClick={goToNextLevel}
+                        className="bg-purple-600 hover:bg-purple-700"
+                      >
+                        <ArrowRight className="mr-2 h-4 w-4" />
+                        Niveau suivant
+                      </Button>
+                    )}
                   </div>
                 )}
               </div>
