@@ -2212,54 +2212,54 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
   app.use('/api/immersive-simulation', immersiveRoutes);
   app.use('/api/cyber-ascension', cyberAscensionRoutes);
 
-  // API pour le jeu Phishing Detective - génération d'emails réalistes
-  app.post('/api/cyber/phishing-detective/generate-email', async (req: Request, res: Response) => {
+  // API pour Cyber Quiz Challenge - Génération de questions de quiz
+  app.post('/api/cyber/quiz/generate-question', async (req: Request, res: Response) => {
     try {
-      const { level = 1 } = req.body;
+      const { level = 1, category = 'general' } = req.body;
       
-      // Construire un prompt système avancé pour des emails plus réalistes
+      // Construire un prompt système pour générer des questions adaptées
       const systemPrompt = `
-      Tu es un expert en cybersécurité spécialisé dans la création de contenu pédagogique sur le phishing.
+      Tu es un expert en cybersécurité spécialisé dans la création de contenu éducatif.
       
-      TÂCHE : Génère un email EXTRÊMEMENT RÉALISTE qui peut être soit légitime soit malveillant (décide aléatoirement avec une probabilité de 50%).
-      Pour un niveau de difficulté ${level}/10 où 1 est très facile à identifier et 10 est extrêmement subtil et sophistiqué.
+      TÂCHE : Génère une question de quiz EXTRÊMEMENT PÉDAGOGIQUE sur la cybersécurité.
       
-      INSTRUCTIONS IMPORTANTES :
-      - Crée un format email COMPLET avec tous les éléments visuels (en-têtes, signature, etc.)
-      - Si c'est un email de phishing, inclus des techniques réalistes utilisées par les attaquants
-      - Si c'est légitime, fais-le ressembler exactement à un vrai email professionnel
-      - Adapte la sophistication au niveau demandé
-      - Pour les niveaux élevés (7-10), utilise des tactiques très subtiles comme le typosquatting, le spear phishing
-      - Inclus des détails visuels comme des logos, mise en forme, liens HTML (décris-les en markdown)
+      Niveau de difficulté: ${level}/5 (où 1 est débutant et 5 est expert)
+      Catégorie: ${category}
       
-      RÉPONDS STRICTEMENT AU FORMAT JSON SUIVANT sans texte additionnel :
+      Les catégories disponibles sont:
+      - general: concepts généraux de cybersécurité
+      - threats: menaces et attaques courantes
+      - defense: mécanismes de défense et bonnes pratiques
+      - compliance: règlementation et conformité
+      - security_culture: sensibilisation et culture de sécurité
+      
+      INSTRUCTIONS IMPORTANTES:
+      - La question doit être claire, précise et adaptée au niveau demandé
+      - Fournir exactement 4 options de réponse
+      - Une seule réponse doit être correcte
+      - Les mauvaises réponses doivent être plausibles mais clairement incorrectes
+      - Fournir une explication détaillée sur la bonne réponse
+      - Inclure des informations supplémentaires pour approfondir le sujet
+      
+      RÉPONDS STRICTEMENT AU FORMAT JSON SUIVANT sans texte additionnel:
       {
-        "sender": {
-          "name": "nom affiché de l'expéditeur",
-          "email": "adresse email complète de l'expéditeur"
+        "question": "question complète et précise",
+        "options": {
+          "A": "première option",
+          "B": "deuxième option",
+          "C": "troisième option",
+          "D": "quatrième option"
         },
-        "subject": "objet de l'email",
-        "date": "date et heure d'envoi au format standard",
-        "content": {
-          "html": "contenu complet de l'email au format HTML/markdown, avec mise en forme, images décrites, liens, etc.",
-          "plainText": "version texte brut du contenu"
-        },
-        "isPhishing": true/false,
-        "indicators": {
-          "suspicious": ["liste des éléments suspects si c'est du phishing"],
-          "legitimate": ["liste des éléments qui semblent légitimes"]
-        },
-        "analysis": {
-          "explanation": "explication détaillée et technique de pourquoi c'est du phishing ou non",
-          "riskLevel": "niveau de risque (faible/moyen/élevé) si c'est du phishing",
-          "techniques": ["liste des techniques de phishing utilisées"],
-          "recommendations": ["conseils pour se protéger contre ce type d'attaque"]
-        }
+        "correctAnswer": "A, B, C ou D",
+        "explanation": "explication détaillée et pédagogique de la bonne réponse",
+        "additionalInfo": "information complémentaire sur le sujet",
+        "difficulty": ${level},
+        "category": "${category}"
       }`;
 
-      const userPrompt = `Génère un email de niveau ${level} pour le jeu Phishing Detective, avec tous les détails techniques et visuels.`;
+      const userPrompt = `Génère une question de quiz de niveau ${level} dans la catégorie ${category} pour le Cyber Quiz Challenge.`;
       
-      // Utiliser le service OpenAI pour générer l'email
+      // Utiliser le service OpenAI pour générer la question
       const messages: ChatCompletionRequestMessage[] = [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt }
@@ -2268,7 +2268,7 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
       const responseContent = await openAIService.getChatCompletionWithCache(
         messages,
         0.7, // temperature
-        2500  // maxTokens - augmenté pour permettre des emails plus détaillés
+        2000  // maxTokens - suffisant pour une question de quiz complète
       );
       
       // Extraction et analyse du JSON
@@ -2283,21 +2283,22 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
         }
         
         const jsonStr = content.substring(jsonStart, jsonEnd);
-        const emailData = JSON.parse(jsonStr);
+        const questionData = JSON.parse(jsonStr);
         
         // Ajout d'un ID unique
-        emailData.id = `email-${Date.now()}`;
+        questionData.id = `quiz-${Date.now()}`;
+        questionData.model = openAIService.getCurrentModelName();
         
-        res.json(emailData);
+        res.json(questionData);
       } catch (error) {
         console.error("Erreur lors du parsing JSON:", error);
         res.status(500).json({ 
-          error: 'Erreur lors du parsing du contenu email généré',
+          error: 'Erreur lors du parsing de la question générée',
           details: error.message
         });
       }
     } catch (error: any) {
-      console.error('Erreur lors de la génération de l\'email pour Phishing Detective:', error);
+      console.error('Erreur lors de la génération de question pour Cyber Quiz:', error);
       
       if (error.status === 401) {
         res.status(401).json({ error: 'Erreur d\'authentification API OpenAI. Vérifiez votre clé API.' });
@@ -2305,60 +2306,69 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
         res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
       } else {
         res.status(500).json({ 
-          error: 'Erreur lors de la génération de l\'email',
+          error: 'Erreur lors de la génération de la question',
           details: error.message || 'Erreur inconnue'
         });
       }
     }
   });
 
-  // API pour l'analyse approfondie d'emails dans Phishing Detective
-  app.post('/api/cyber/phishing-detective/analyze-email', async (req: Request, res: Response) => {
+  // API pour l'évaluation des réponses dans Cyber Quiz Challenge
+  app.post('/api/cyber/quiz/evaluate-answer', async (req: Request, res: Response) => {
     try {
-      const { email, userGuess } = req.body;
+      const { question, userAnswer, userLevel = 1 } = req.body;
       
-      if (!email) {
-        return res.status(400).json({ message: 'Email content is required' });
+      if (!question || typeof userAnswer !== 'string') {
+        return res.status(400).json({ message: 'Question et réponse utilisateur requises' });
       }
       
-      // Construire le prompt pour l'analyse
+      // Construire le prompt pour l'évaluation
       const systemPrompt = `
-      Tu es un expert en cybersécurité spécialisé dans l'analyse forensique d'emails et la détection de phishing.
+      Tu es un coach pédagogique spécialisé en cybersécurité.
       
-      TÂCHE : Analyse en détail l'email fourni et explique de manière pédagogique s'il s'agit de phishing ou non.
-      L'utilisateur a déjà fait sa propre analyse et a jugé que cet email ${userGuess ? 'EST' : 'N\'EST PAS'} du phishing.
+      TÂCHE : Évalue la réponse de l'utilisateur à une question de quiz et fournis un feedback personnalisé et constructif.
+      
+      Niveau actuel de l'utilisateur: ${userLevel}/5
       
       INSTRUCTIONS:
-      1. Fournis une analyse approfondie, technique et didactique
-      2. Décompose chaque élément suspect ou légitime
-      3. Explique ce que l'utilisateur a bien identifié et ce qu'il a manqué
-      4. Utilise un ton encourageant et pédagogique
-      5. Structure ta réponse en sections clairement définies
+      1. Détermine si la réponse de l'utilisateur est correcte
+      2. Fournis un feedback constructif, même si la réponse est incorrecte
+      3. Extrais les points d'apprentissage clés de cette question
+      4. Suggère une progression adaptée (niveau, catégorie)
+      5. Utilise un ton encourageant et positif
       
       FORMAT DE RÉPONSE:
       {
-        "analysisTitle": "titre accrocheur résumant l'analyse",
-        "summary": "résumé en une phrase de ton évaluation",
-        "correctAssessment": true/false, (l'utilisateur a-t-il correctement identifié l'email?)
-        "keyIndicators": {
-          "suspicious": ["liste détaillée des éléments suspects"],
-          "legitimate": ["liste détaillée des éléments légitimes"]
-        },
-        "technicalAnalysis": "analyse technique détaillée et pédagogique",
-        "learningPoints": ["points d'apprentissage clés"],
-        "expertTips": ["conseils d'expert pour mieux détecter ce type d'email"],
-        "nextLevelChallenge": "suggestion pour le prochain niveau de difficulté"
+        "isCorrect": true/false,
+        "feedbackTitle": "titre accrocheur pour le feedback",
+        "feedback": "feedback détaillé et pédagogique",
+        "learningPoints": ["point clé 1", "point clé 2", "point clé 3"],
+        "suggestionTitle": "titre pour la suggestion de progression",
+        "nextSteps": ["conseil 1", "conseil 2"],
+        "recommendedLevel": ${userAnswer === question.correctAnswer ? Math.min(userLevel + 1, 5) : userLevel},
+        "recommendedCategory": "suggestion de catégorie pour la prochaine question"
       }`;
 
-      const userPrompt = `Voici l'email à analyser : 
-      Expéditeur: ${email.sender.name} <${email.sender.email}>
-      Objet: ${email.subject}
-      Contenu: ${email.content.plainText}
+      const userPrompt = `
+      Question: ${question.question}
       
-      L'utilisateur a déterminé que cet email ${userGuess ? 'EST' : 'N\'EST PAS'} du phishing.
-      Fournis une analyse approfondie, en expliquant clairement les bonnes et mauvaises observations.`;
+      Options:
+      A: ${question.options.A}
+      B: ${question.options.B}
+      C: ${question.options.C}
+      D: ${question.options.D}
       
-      // Utiliser le service OpenAI pour l'analyse
+      Réponse correcte: ${question.correctAnswer}
+      Réponse de l'utilisateur: ${userAnswer}
+      
+      Explication: ${question.explanation}
+      Informations supplémentaires: ${question.additionalInfo}
+      Difficulté: ${question.difficulty}
+      Catégorie: ${question.category}
+      
+      Évalue cette réponse et fournis un feedback personnalisé.`;
+      
+      // Utiliser le service OpenAI pour l'évaluation
       const messages: ChatCompletionRequestMessage[] = [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt }
@@ -2367,7 +2377,7 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
       const responseContent = await openAIService.getChatCompletionWithCache(
         messages,
         0.7, // temperature
-        1800  // maxTokens
+        1500  // maxTokens
       );
       
       // Extraction et analyse du JSON
@@ -2382,21 +2392,21 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
         }
         
         const jsonStr = content.substring(jsonStart, jsonEnd);
-        const analysisData = JSON.parse(jsonStr);
+        const evaluationData = JSON.parse(jsonStr);
         
         res.json({
-          ...analysisData,
+          ...evaluationData,
           model: openAIService.getCurrentModelName()
         });
       } catch (error) {
-        console.error("Erreur lors du parsing JSON de l'analyse:", error);
+        console.error("Erreur lors du parsing JSON de l'évaluation:", error);
         res.status(500).json({ 
-          error: 'Erreur lors du parsing de l\'analyse email',
+          error: 'Erreur lors du parsing de l\'évaluation',
           details: error.message
         });
       }
     } catch (error: any) {
-      console.error('Erreur lors de l\'analyse d\'email pour Phishing Detective:', error);
+      console.error('Erreur lors de l\'évaluation de réponse pour Cyber Quiz:', error);
       
       if (error.status === 401) {
         res.status(401).json({ error: 'Erreur d\'authentification API OpenAI. Vérifiez votre clé API.' });
@@ -2404,7 +2414,7 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
         res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
       } else {
         res.status(500).json({ 
-          error: 'Erreur lors de l\'analyse de l\'email',
+          error: 'Erreur lors de l\'évaluation de la réponse',
           details: error.message || 'Erreur inconnue'
         });
       }

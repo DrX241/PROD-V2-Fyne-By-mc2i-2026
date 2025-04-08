@@ -25,14 +25,6 @@ export default function CyberArcade() {
   const arcadeGames: GameOption[] = [
     // Jeux existants et fonctionnels - maintenus accessibles
     {
-      id: 'phishing-detective',
-      title: 'Detective de Phishing',
-      description: "Apprenez à identifier les emails et messages frauduleux. L'IA génère des messages variés et vous devez repérer les indices suspects.",
-      difficulty: 'Facile',
-      icon: <TerminalSquare className="w-10 h-10 text-white" />,
-      gradient: 'from-blue-700 to-blue-900'
-    },
-    {
       id: 'password-guardian',
       title: 'Password Guardian',
       description: "Créez des mots de passe que l'IA tentera de déchiffrer. Apprenez les meilleures pratiques de sécurité des mots de passe.",
@@ -74,8 +66,7 @@ export default function CyberArcade() {
       description: "Testez vos connaissances en cybersécurité à travers une série de quiz interactifs adaptés à votre niveau. L'IA adapte les questions selon vos réponses.",
       difficulty: 'Facile',
       icon: <GraduationCap className="w-10 h-10 text-white" />,
-      gradient: 'from-[#006a9e] to-[#004e78]',
-      comingSoon: true
+      gradient: 'from-[#006a9e] to-[#004e78]'
     },
     
     // OSINT

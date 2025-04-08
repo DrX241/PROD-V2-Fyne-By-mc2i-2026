@@ -23,9 +23,9 @@ import CyberArcade from "@/pages/cyber-arcade";
 import CyberArcadeGame from "@/pages/cyber-arcade-game";
 // Nouvelles pages optimisées pour l'Arcade
 import FirewallDefensePage from "@/pages/cyber/arcade/firewall-defense";
-import PhishingDetectivePage from "@/pages/cyber/arcade/phishing-detective";
 import PasswordGuardianPage from "@/pages/cyber/arcade/password-guardian";
 import NetworkPuzzlePage from "@/pages/cyber/arcade/network-puzzle";
+import CyberQuizChallengePage from "@/pages/cyber/arcade/cyber-quiz";
 // Autres pages
 import ImmersiveSimulation from "@/pages/immersive-simulation";
 import ImmersiveScenarioDetail from "@/pages/immersive-scenario-detail";
@@ -40,8 +40,8 @@ function Router() {
       <Route path="/cyber/agent" component={CyberAgentPage} />
       <Route path="/cyber/arcade" component={CyberArcade} />
       <Route path="/cyber/arcade/network-puzzle" component={NetworkPuzzlePage} />
-      <Route path="/cyber/arcade/phishing-detective" component={PhishingDetectivePage} />
       <Route path="/cyber/arcade/password-guardian" component={PasswordGuardianPage} />
+      <Route path="/cyber/arcade/cyber-quiz" component={CyberQuizChallengePage} />
       <Route path="/cyber/arcade/firewall-defense" component={NetworkPuzzlePage} /> {/* Redirection de l'ancien jeu vers le nouveau */}
       <Route path="/cyber/arcade/:gameId" component={CyberArcadeGame} />
       
