@@ -2098,9 +2098,318 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
     }
   });
 
+  // API route for network puzzle AI assistant
+  app.post('/api/cyber/network-puzzle/ai-advice', async (req: Request, res: Response) => {
+    try {
+      const { 
+        message, 
+        networkConfig, 
+        currentLevel, 
+        placedConnections, 
+        configuredFirewalls
+      } = req.body;
+      
+      if (!message && !networkConfig) {
+        return res.status(400).json({ message: 'Either message or network configuration is required' });
+      }
+      
+      // Construire le prompt système pour l'assistant IA
+      const systemPrompt = 
+        "Tu es un expert en sécurité réseau qui aide l'utilisateur à concevoir une architecture réseau sécurisée. " +
+        "Tu dois analyser la configuration réseau actuelle et fournir des conseils pour améliorer la sécurité " +
+        "en expliquant les principes de base comme la défense en profondeur, la segmentation réseau et le moindre privilège. " +
+        "Si l'utilisateur pose une question, réponds-y directement de manière pédagogique en utilisant des exemples concrets. " +
+        "Si l'utilisateur te demande d'analyser son réseau, examine attentivement la configuration fournie pour identifier " +
+        "les problèmes de sécurité ou les améliorations possibles.";
+      
+      // Contextualiser avec l'état actuel du jeu
+      let contextInfo = "";
+      if (currentLevel) {
+        contextInfo += `\nNiveau actuel: ${currentLevel.name}\n`;
+        contextInfo += `Description: ${currentLevel.description}\n`;
+        contextInfo += `Contraintes: ${currentLevel.constraints.join(', ')}\n`;
+        contextInfo += `Règles de sécurité: ${currentLevel.securityRules.join(', ')}\n`;
+      }
+      
+      if (placedConnections && placedConnections.length > 0) {
+        contextInfo += `\nConnexions établies: ${placedConnections.length}\n`;
+        
+        // Analyse des connexions critiques manquantes
+        if (currentLevel && currentLevel.requiredConnections) {
+          const missingConnections = currentLevel.requiredConnections.filter(([source, target]) => {
+            return !placedConnections.some(conn => 
+              (conn.source === source && conn.target === target) || 
+              (conn.source === target && conn.target === source)
+            );
+          });
+          
+          if (missingConnections.length > 0) {
+            contextInfo += `Connexions requises manquantes: ${missingConnections.length}\n`;
+          }
+        }
+      }
+      
+      if (configuredFirewalls) {
+        contextInfo += `\nPare-feu configurés: ${
+          Object.entries(configuredFirewalls)
+            .map(([id, config]) => `${id}: Autorise ${config.allowedTraffic.join(', ')}, Bloque ${config.blockedTraffic.join(', ')}`)
+            .join('\n')
+        }\n`;
+      }
+      
+      // Construire les messages pour l'API 
+      const messages: ChatCompletionRequestMessage[] = [
+        {
+          role: "system",
+          content: systemPrompt
+        }
+      ];
+      
+      // Ajouter le contexte du réseau si disponible
+      if (contextInfo) {
+        messages.push({
+          role: "system",
+          content: `Information sur l'état actuel du réseau:\n${contextInfo}`
+        });
+      }
+      
+      // Ajouter le message de l'utilisateur
+      messages.push({
+        role: "user",
+        content: message || "Analyse mon réseau actuel et donne-moi des conseils pour l'améliorer."
+      });
+      
+      // Appeler l'API OpenAI avec le service existant
+      const responseContent = await openAIService.getChatCompletionWithCache(
+        messages,
+        0.7, // temperature
+        800  // maxTokens
+      );
+      
+      res.json({ 
+        content: responseContent,
+        role: "assistant",
+        model: openAIService.getCurrentModelName()
+      });
+    } catch (error: any) {
+      console.error('Error generating network puzzle AI advice:', error);
+      
+      // Gestion des erreurs spécifiques d'OpenAI
+      if (error.status === 401) {
+        res.status(401).json({ error: 'Erreur d\'authentification API OpenAI. Vérifiez votre clé API.' });
+      } else if (error.status === 429) {
+        res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
+      } else {
+        res.status(500).json({ 
+          error: 'Erreur lors de la génération du conseil IA',
+          details: error.message || 'Erreur inconnue'
+        });
+      }
+    }
+  });
+
   // Enregistrement des routes d'immersion cyber pour la nouvelle version
   app.use('/api/immersive-simulation', immersiveRoutes);
   app.use('/api/cyber-ascension', cyberAscensionRoutes);
+
+  // API pour le jeu Phishing Detective - génération d'emails réalistes
+  app.post('/api/cyber/phishing-detective/generate-email', async (req: Request, res: Response) => {
+    try {
+      const { level = 1 } = req.body;
+      
+      // Construire un prompt système avancé pour des emails plus réalistes
+      const systemPrompt = `
+      Tu es un expert en cybersécurité spécialisé dans la création de contenu pédagogique sur le phishing.
+      
+      TÂCHE : Génère un email EXTRÊMEMENT RÉALISTE qui peut être soit légitime soit malveillant (décide aléatoirement avec une probabilité de 50%).
+      Pour un niveau de difficulté ${level}/10 où 1 est très facile à identifier et 10 est extrêmement subtil et sophistiqué.
+      
+      INSTRUCTIONS IMPORTANTES :
+      - Crée un format email COMPLET avec tous les éléments visuels (en-têtes, signature, etc.)
+      - Si c'est un email de phishing, inclus des techniques réalistes utilisées par les attaquants
+      - Si c'est légitime, fais-le ressembler exactement à un vrai email professionnel
+      - Adapte la sophistication au niveau demandé
+      - Pour les niveaux élevés (7-10), utilise des tactiques très subtiles comme le typosquatting, le spear phishing
+      - Inclus des détails visuels comme des logos, mise en forme, liens HTML (décris-les en markdown)
+      
+      RÉPONDS STRICTEMENT AU FORMAT JSON SUIVANT sans texte additionnel :
+      {
+        "sender": {
+          "name": "nom affiché de l'expéditeur",
+          "email": "adresse email complète de l'expéditeur"
+        },
+        "subject": "objet de l'email",
+        "date": "date et heure d'envoi au format standard",
+        "content": {
+          "html": "contenu complet de l'email au format HTML/markdown, avec mise en forme, images décrites, liens, etc.",
+          "plainText": "version texte brut du contenu"
+        },
+        "isPhishing": true/false,
+        "indicators": {
+          "suspicious": ["liste des éléments suspects si c'est du phishing"],
+          "legitimate": ["liste des éléments qui semblent légitimes"]
+        },
+        "analysis": {
+          "explanation": "explication détaillée et technique de pourquoi c'est du phishing ou non",
+          "riskLevel": "niveau de risque (faible/moyen/élevé) si c'est du phishing",
+          "techniques": ["liste des techniques de phishing utilisées"],
+          "recommendations": ["conseils pour se protéger contre ce type d'attaque"]
+        }
+      }`;
+
+      const userPrompt = `Génère un email de niveau ${level} pour le jeu Phishing Detective, avec tous les détails techniques et visuels.`;
+      
+      // Utiliser le service OpenAI pour générer l'email
+      const messages: ChatCompletionRequestMessage[] = [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
+      ];
+      
+      const responseContent = await openAIService.getChatCompletionWithCache(
+        messages,
+        0.7, // temperature
+        2500  // maxTokens - augmenté pour permettre des emails plus détaillés
+      );
+      
+      // Extraction et analyse du JSON
+      try {
+        // Recherche du début et de la fin du JSON dans la réponse
+        const content = responseContent;
+        const jsonStart = content.indexOf('{');
+        const jsonEnd = content.lastIndexOf('}') + 1;
+        
+        if (jsonStart === -1 || jsonEnd === 0) {
+          throw new Error("Format JSON introuvable dans la réponse");
+        }
+        
+        const jsonStr = content.substring(jsonStart, jsonEnd);
+        const emailData = JSON.parse(jsonStr);
+        
+        // Ajout d'un ID unique
+        emailData.id = `email-${Date.now()}`;
+        
+        res.json(emailData);
+      } catch (error) {
+        console.error("Erreur lors du parsing JSON:", error);
+        res.status(500).json({ 
+          error: 'Erreur lors du parsing du contenu email généré',
+          details: error.message
+        });
+      }
+    } catch (error: any) {
+      console.error('Erreur lors de la génération de l\'email pour Phishing Detective:', error);
+      
+      if (error.status === 401) {
+        res.status(401).json({ error: 'Erreur d\'authentification API OpenAI. Vérifiez votre clé API.' });
+      } else if (error.status === 429) {
+        res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
+      } else {
+        res.status(500).json({ 
+          error: 'Erreur lors de la génération de l\'email',
+          details: error.message || 'Erreur inconnue'
+        });
+      }
+    }
+  });
+
+  // API pour l'analyse approfondie d'emails dans Phishing Detective
+  app.post('/api/cyber/phishing-detective/analyze-email', async (req: Request, res: Response) => {
+    try {
+      const { email, userGuess } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: 'Email content is required' });
+      }
+      
+      // Construire le prompt pour l'analyse
+      const systemPrompt = `
+      Tu es un expert en cybersécurité spécialisé dans l'analyse forensique d'emails et la détection de phishing.
+      
+      TÂCHE : Analyse en détail l'email fourni et explique de manière pédagogique s'il s'agit de phishing ou non.
+      L'utilisateur a déjà fait sa propre analyse et a jugé que cet email ${userGuess ? 'EST' : 'N\'EST PAS'} du phishing.
+      
+      INSTRUCTIONS:
+      1. Fournis une analyse approfondie, technique et didactique
+      2. Décompose chaque élément suspect ou légitime
+      3. Explique ce que l'utilisateur a bien identifié et ce qu'il a manqué
+      4. Utilise un ton encourageant et pédagogique
+      5. Structure ta réponse en sections clairement définies
+      
+      FORMAT DE RÉPONSE:
+      {
+        "analysisTitle": "titre accrocheur résumant l'analyse",
+        "summary": "résumé en une phrase de ton évaluation",
+        "correctAssessment": true/false, (l'utilisateur a-t-il correctement identifié l'email?)
+        "keyIndicators": {
+          "suspicious": ["liste détaillée des éléments suspects"],
+          "legitimate": ["liste détaillée des éléments légitimes"]
+        },
+        "technicalAnalysis": "analyse technique détaillée et pédagogique",
+        "learningPoints": ["points d'apprentissage clés"],
+        "expertTips": ["conseils d'expert pour mieux détecter ce type d'email"],
+        "nextLevelChallenge": "suggestion pour le prochain niveau de difficulté"
+      }`;
+
+      const userPrompt = `Voici l'email à analyser : 
+      Expéditeur: ${email.sender.name} <${email.sender.email}>
+      Objet: ${email.subject}
+      Contenu: ${email.content.plainText}
+      
+      L'utilisateur a déterminé que cet email ${userGuess ? 'EST' : 'N\'EST PAS'} du phishing.
+      Fournis une analyse approfondie, en expliquant clairement les bonnes et mauvaises observations.`;
+      
+      // Utiliser le service OpenAI pour l'analyse
+      const messages: ChatCompletionRequestMessage[] = [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
+      ];
+      
+      const responseContent = await openAIService.getChatCompletionWithCache(
+        messages,
+        0.7, // temperature
+        1800  // maxTokens
+      );
+      
+      // Extraction et analyse du JSON
+      try {
+        // Recherche du début et de la fin du JSON dans la réponse
+        const content = responseContent;
+        const jsonStart = content.indexOf('{');
+        const jsonEnd = content.lastIndexOf('}') + 1;
+        
+        if (jsonStart === -1 || jsonEnd === 0) {
+          throw new Error("Format JSON introuvable dans la réponse");
+        }
+        
+        const jsonStr = content.substring(jsonStart, jsonEnd);
+        const analysisData = JSON.parse(jsonStr);
+        
+        res.json({
+          ...analysisData,
+          model: openAIService.getCurrentModelName()
+        });
+      } catch (error) {
+        console.error("Erreur lors du parsing JSON de l'analyse:", error);
+        res.status(500).json({ 
+          error: 'Erreur lors du parsing de l\'analyse email',
+          details: error.message
+        });
+      }
+    } catch (error: any) {
+      console.error('Erreur lors de l\'analyse d\'email pour Phishing Detective:', error);
+      
+      if (error.status === 401) {
+        res.status(401).json({ error: 'Erreur d\'authentification API OpenAI. Vérifiez votre clé API.' });
+      } else if (error.status === 429) {
+        res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
+      } else {
+        res.status(500).json({ 
+          error: 'Erreur lors de l\'analyse de l\'email',
+          details: error.message || 'Erreur inconnue'
+        });
+      }
+    }
+  });
 
   const server = createServer(app);
   return server;

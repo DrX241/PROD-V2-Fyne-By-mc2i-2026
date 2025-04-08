@@ -41,12 +41,12 @@ export default function CyberArcade() {
       gradient: 'from-[#006a9e] to-[#004e78]'
     },
     {
-      id: 'firewall-defense',
-      title: 'Firewall Defense',
-      description: "Un jeu de tower defense où vous protégez un réseau contre des vagues d'attaques cybernétiques.",
+      id: 'network-puzzle',
+      title: 'Puzzle Réseau',
+      description: "Construisez une infrastructure réseau sécurisée en connectant correctement tous les composants selon les principes de sécurité.",
       difficulty: 'Moyen',
-      icon: <Shield className="w-10 h-10 text-white" />,
-      gradient: 'from-amber-600 to-orange-700'
+      icon: <Network className="w-10 h-10 text-white" />,
+      gradient: 'from-indigo-600 to-indigo-800'
     },
     {
       id: 'codebreaker',
