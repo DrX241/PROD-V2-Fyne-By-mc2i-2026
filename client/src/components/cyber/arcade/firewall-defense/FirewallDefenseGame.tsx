@@ -82,8 +82,17 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
   // Gestionnaires d'événements
   const handleNextTutorialStep = useCallback(() => {
     setGameState(prev => {
-      // Si c'est l'avant-dernière étape, passer à la dernière
-      if (prev.tutorialStep < tutorialSteps.length - 1) {
+      // Si tutorialSeen existe déjà dans localStorage, passer directement à la dernière étape
+      const tutorialSeen = localStorage.getItem('firewall_defense_tutorial_seen') === 'true';
+      
+      if (tutorialSeen) {
+        // Si le tutoriel a déjà été vu, aller directement à la dernière étape
+        return {
+          ...prev,
+          tutorialStep: tutorialSteps.length - 1
+        };
+      } else if (prev.tutorialStep < tutorialSteps.length - 1) {
+        // Sinon, passer à l'étape suivante normalement
         return {
           ...prev,
           tutorialStep: prev.tutorialStep + 1
@@ -102,11 +111,12 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
     localStorage.setItem('firewall_defense_tutorial_seen', 'true');
     
     // Réinitialiser le tutorialStep et fermer le tutoriel
+    // Passer directement en phase de jeu (playing)
     setGameState(prev => ({
       ...prev, 
       tutorialStep: 0, // Réinitialiser l'étape pour une future ouverture du tutoriel
       showTutorial: false, // Important : fermer le tutoriel immédiatement
-      gamePhase: 'playing',
+      gamePhase: 'playing', // Passer directement en phase de jeu, pas de phase de preparation
       placedDefenses: [], // Réinitialiser les défenses placées pour le jeu
       timer: 0
     }));
@@ -340,7 +350,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       currentScore: 0,
       timer: 0,
       isComplete: false,
-      gamePhase: 'preparation'
+      gamePhase: 'playing' // Passer directement en mode jeu pour éviter le bouton "Commencer"
     }));
   }, [timerInterval]);
   
@@ -367,7 +377,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       currentScore: 0,
       timer: 0,
       isComplete: false,
-      gamePhase: 'preparation'
+      gamePhase: 'playing' // Passer directement en mode jeu pour éviter le bouton "Commencer"
     }));
   }, [gameState.currentLevel, gameState.totalScore, levels, onGameEnd]);
   
@@ -421,7 +431,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
       placedDefenses: [],
       showTutorial: !tutorialSeen, // Afficher uniquement si jamais vu
       tutorialStep: 0,
-      gamePhase: 'preparation'
+      gamePhase: tutorialSeen ? 'playing' : 'preparation' // Si tutoriel déjà vu, commencer directement en mode jeu
     });
     
     // Nettoyage du minuteur
@@ -757,15 +767,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                   Réinitialiser
                 </Button>
                 
-                {gameState.gamePhase === 'preparation' && (
-                  <Button
-                    onClick={startGame}
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    <Play className="mr-2 h-4 w-4" />
-                    Commencer
-                  </Button>
-                )}
+                {/* Bouton "Commencer" supprimé pour éviter les conflits avec le tutoriel */}
                 
                 {gameState.gamePhase === 'playing' && (
                   <Button
