@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Link } from 'wouter';
-import { ArrowLeft, Trophy, BarChart } from 'lucide-react';
+import { ArrowLeft, Shield, Trophy } from 'lucide-react';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
 import { FirewallDefenseGame } from '@/components/cyber/arcade/firewall-defense';
 import { Button } from '@/components/ui/button';
 
 export default function FirewallDefensePage() {
-  const [difficulty, setDifficulty] = useState<'Facile' | 'Moyen' | 'Difficile'>('Facile');
+  // Difficulté gardée pour compatibilité mais n'est plus utilisée pour choisir les niveaux
+  const [difficulty] = useState<'Facile' | 'Moyen' | 'Difficile'>('Facile');
   const [gameEnded, setGameEnded] = useState(false);
   const [finalScore, setFinalScore] = useState(0);
 
@@ -27,28 +28,17 @@ export default function FirewallDefensePage() {
             Retour à Cyber Arcade
           </Link>
           
-          {/* Interface simplifiée pour le choix de la difficulté */}
-          <div className="flex space-x-4 items-center mb-6">
-            <span className="text-white">Difficulté:</span>
-            <div className="flex space-x-2">
-              {['Facile', 'Moyen', 'Difficile'].map((level) => (
-                <button
-                  key={level}
-                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                    difficulty === level
-                      ? level === 'Facile' 
-                        ? 'bg-blue-600 text-white' 
-                        : level === 'Moyen'
-                          ? 'bg-amber-600 text-white'
-                          : 'bg-red-600 text-white'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                  }`}
-                  onClick={() => setDifficulty(level as 'Facile' | 'Moyen' | 'Difficile')}
-                >
-                  {level}
-                </button>
-              ))}
+          {/* En-tête du jeu avec description de la progression */}
+          <div className="mb-6 bg-gray-800/50 rounded-lg p-4 backdrop-blur-sm border border-gray-700">
+            <div className="flex items-center mb-2">
+              <Shield className="w-5 h-5 text-blue-400 mr-2" />
+              <h2 className="text-xl text-white font-bold">Défense en profondeur</h2>
             </div>
+            <p className="text-gray-300 text-sm">
+              Progressez à travers 10 niveaux de complexité croissante pour maîtriser l'art de la défense en profondeur. 
+              Placez vos défenses dans le bon ordre pour créer une protection optimale contre les menaces.
+              Chaque niveau réussi débloque le suivant !
+            </p>
           </div>
           
           {/* Jeu principal */}

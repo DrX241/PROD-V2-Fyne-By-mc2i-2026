@@ -14,7 +14,9 @@ import {
   CloudCog,
   Network,
   MonitorSmartphone,
-  Fingerprint
+  Fingerprint,
+  Brain,
+  CircuitBoard
 } from 'lucide-react';
 import { Defense, Level, Difficulty } from './types';
 import React from 'react';
@@ -340,7 +342,9 @@ export const mediumLevels: Level[] = [
         icon: React.createElement(Shield, { className: "w-5 h-5" }),
         level: 3,
         correctPosition: 1,
-        color: "#3b82f6"
+        color: "#3b82f6",
+        explanation: "Le WAF (Web Application Firewall) est spécialement conçu pour protéger les applications web en filtrant et surveillant le trafic HTTP. Il constitue la première ligne de défense contre les attaques web spécifiques.",
+        hint: "Cette défense devrait être placée en première position car elle filtre le trafic malveillant avant qu'il n'atteigne les autres couches de l'application web."
       },
       {
         id: "mf2",
@@ -350,7 +354,9 @@ export const mediumLevels: Level[] = [
         icon: React.createElement(Lock, { className: "w-5 h-5" }),
         level: 3,
         correctPosition: 2,
-        color: "#ec4899"
+        color: "#ec4899",
+        explanation: "Le protocole SSL/TLS assure le chiffrement des communications entre le client et le serveur, protégeant les données en transit contre l'espionnage et l'interception.",
+        hint: "Après avoir filtré le trafic avec le WAF, il est important de chiffrer les communications légitimes pour protéger leur confidentialité."
       },
       {
         id: "mf3",
@@ -360,7 +366,9 @@ export const mediumLevels: Level[] = [
         icon: React.createElement(Network, { className: "w-5 h-5" }),
         level: 3,
         correctPosition: 3,
-        color: "#3b82f6"
+        color: "#3b82f6",
+        explanation: "Un CDN sécurisé distribue le contenu à travers différents serveurs géographiquement dispersés tout en ajoutant des couches de protection contre les attaques DDoS et autres menaces.",
+        hint: "Le CDN sécurisé devrait être mis en place après le chiffrement pour distribuer efficacement le contenu tout en maintenant un niveau de sécurité élevé."
       },
       {
         id: "mf4",
@@ -370,7 +378,9 @@ export const mediumLevels: Level[] = [
         icon: React.createElement(Eye, { className: "w-5 h-5" }),
         level: 3,
         correctPosition: 4,
-        color: "#10b981"
+        color: "#10b981",
+        explanation: "Le monitoring 24/7 permet de détecter en temps réel les comportements anormaux et les tentatives d'intrusion pour réagir avant qu'une attaque ne réussisse.",
+        hint: "Après avoir mis en place les défenses préventives, il est crucial de surveiller leur efficacité et de détecter les menaces qui pourraient passer à travers."
       },
       {
         id: "mf5",
@@ -380,7 +390,9 @@ export const mediumLevels: Level[] = [
         icon: React.createElement(RefreshCw, { className: "w-5 h-5" }),
         level: 3,
         correctPosition: 5,
-        color: "#f59e0b"
+        color: "#f59e0b",
+        explanation: "Les sauvegardes quotidiennes garantissent que les données critiques peuvent être restaurées en cas de corruption, suppression accidentelle ou attaque destructrice comme un ransomware.",
+        hint: "Les sauvegardes constituent une mesure essentielle de résilience, à mettre en place après avoir sécurisé et surveillé l'infrastructure."
       },
       {
         id: "mf6",
@@ -390,7 +402,9 @@ export const mediumLevels: Level[] = [
         icon: React.createElement(Shield, { className: "w-5 h-5" }),
         level: 4,
         correctPosition: 6,
-        color: "#3b82f6"
+        color: "#3b82f6",
+        explanation: "Les solutions Anti-DDoS sont spécialisées dans l'absorption et la mitigation des attaques massives visant à saturer les ressources réseau et rendre le service indisponible.",
+        hint: "Cette défense spécialisée contre les attaques volumétriques complète l'ensemble de la stratégie de protection, travaillant conjointement avec les autres mesures."
       }
     ],
     connections: [
@@ -402,7 +416,359 @@ export const mediumLevels: Level[] = [
       { from: "mf5", to: "mf6", isRequired: false }
     ]
   },
-  // Niveaux 7 à 10 seront similaires, avec complexité croissante
+  {
+    id: 7,
+    name: "Système bancaire",
+    description: "Sécurisez une plateforme de services bancaires en ligne contre les intrusions.",
+    targetTime: 120,
+    maxScore: 400,
+    defenses: [
+      {
+        id: "mf7",
+        name: "Pare-feu périmétrique",
+        description: "Filtrage du trafic réseau entrant et sortant",
+        type: "firewall",
+        icon: React.createElement(Shield, { className: "w-5 h-5" }),
+        level: 3,
+        correctPosition: 1,
+        color: "#3b82f6",
+        explanation: "Le pare-feu périmétrique établit une barrière stricte entre l'internet public et le réseau bancaire interne, contrôlant rigoureusement tous les flux de trafic.",
+        hint: "Cette défense doit être placée en premier pour filtrer tout le trafic au niveau réseau avant qu'il n'atteigne les systèmes internes."
+      },
+      {
+        id: "mf8",
+        name: "WAF bancaire",
+        description: "Protection des applications web financières",
+        type: "firewall",
+        icon: React.createElement(Shield, { className: "w-5 h-5" }),
+        level: 4,
+        correctPosition: 2,
+        color: "#3b82f6",
+        explanation: "Le WAF spécialisé pour le secteur bancaire protège contre les attaques ciblant spécifiquement les portails financiers comme l'injection SQL ou les tentatives de fraude.",
+        hint: "Après le filtrage réseau, une protection spécifique aux applications web bancaires est nécessaire pour contrer les attaques ciblées."
+      },
+      {
+        id: "mf9",
+        name: "Authentification multi-facteurs",
+        description: "Vérification d'identité à plusieurs niveaux",
+        type: "auth",
+        icon: React.createElement(KeyRound, { className: "w-5 h-5" }),
+        level: 4,
+        correctPosition: 3,
+        color: "#8b5cf6",
+        explanation: "L'authentification multi-facteurs combine plusieurs méthodes de vérification (mot de passe, code SMS, empreinte biométrique) pour garantir l'identité des utilisateurs.",
+        hint: "Une fois les premières barrières franchies, cette défense garantit que seuls les utilisateurs légitimes peuvent accéder à leurs comptes."
+      },
+      {
+        id: "mf10",
+        name: "Chiffrement bout-en-bout",
+        description: "Protection intégrale des données sensibles",
+        type: "encryption",
+        icon: React.createElement(Lock, { className: "w-5 h-5" }),
+        level: 4,
+        correctPosition: 4,
+        color: "#ec4899",
+        explanation: "Le chiffrement bout-en-bout assure que les données bancaires sensibles restent cryptées tout au long de leur traitement, même lorsqu'elles sont manipulées par les systèmes internes.",
+        hint: "Une fois l'authentification validée, cette défense protège les données financières tout au long de leur cycle de vie."
+      },
+      {
+        id: "mf11",
+        name: "SOC financier",
+        description: "Centre opérationnel de sécurité spécialisé",
+        type: "monitoring",
+        icon: React.createElement(Eye, { className: "w-5 h-5" }),
+        level: 4,
+        correctPosition: 5,
+        color: "#10b981",
+        explanation: "Le SOC (Security Operations Center) financier combine technologies et expertise humaine pour surveiller en continu tous les événements de sécurité dans l'infrastructure bancaire.",
+        hint: "Après avoir mis en place les protections techniques, une surveillance humaine experte est nécessaire pour détecter les menaces avancées."
+      },
+      {
+        id: "mf12",
+        name: "Système anti-fraude",
+        description: "Détection des comportements suspects",
+        type: "monitoring",
+        icon: React.createElement(BarChart4, { className: "w-5 h-5" }),
+        level: 4,
+        correctPosition: 6,
+        color: "#10b981",
+        explanation: "Les systèmes anti-fraude utilisent l'analyse comportementale et l'intelligence artificielle pour détecter en temps réel les activités financières suspectes ou anormales.",
+        hint: "Cette défense spécialisée travaille en complément du SOC pour identifier spécifiquement les tentatives de fraude financière."
+      }
+    ],
+    connections: [
+      { from: "mf7", to: "mf8", isRequired: true },
+      { from: "mf8", to: "mf9", isRequired: true },
+      { from: "mf9", to: "mf10", isRequired: true },
+      { from: "mf10", to: "mf11", isRequired: true },
+      { from: "mf11", to: "mf12", isRequired: true }
+    ]
+  },
+  {
+    id: 8,
+    name: "Infrastructure cloud",
+    description: "Sécurisez un environnement cloud multilocataire pour une entreprise.",
+    targetTime: 120,
+    maxScore: 450,
+    defenses: [
+      {
+        id: "mf13",
+        name: "IAM",
+        description: "Gestion des identités et des accès",
+        type: "auth",
+        icon: React.createElement(Users, { className: "w-5 h-5" }),
+        level: 3,
+        correctPosition: 1,
+        color: "#8b5cf6",
+        explanation: "Le système IAM (Identity and Access Management) contrôle précisément qui peut accéder à quelles ressources cloud et avec quels privilèges, selon le principe du moindre privilège.",
+        hint: "Cette défense doit être placée en premier car tous les accès aux ressources cloud passent par la vérification des identités et des permissions."
+      },
+      {
+        id: "mf14",
+        name: "Cloud WAF",
+        description: "Protection des applications hébergées",
+        type: "firewall",
+        icon: React.createElement(Shield, { className: "w-5 h-5" }),
+        level: 4,
+        correctPosition: 2,
+        color: "#3b82f6",
+        explanation: "Le WAF cloud protège spécifiquement les applications hébergées dans le cloud contre les attaques ciblant la couche applicative, comme l'injection de code ou le cross-site scripting.",
+        hint: "Après avoir contrôlé les accès légitimes, cette défense filtre les tentatives d'attaque contre les applications cloud exposées."
+      },
+      {
+        id: "mf15",
+        name: "Cloisonnement réseau",
+        description: "Séparation des environnements clients",
+        type: "firewall",
+        icon: React.createElement(Server, { className: "w-5 h-5" }),
+        level: 4,
+        correctPosition: 3,
+        color: "#3b82f6",
+        explanation: "Le cloisonnement réseau dans le cloud garantit qu'un client ne peut jamais accéder aux données ou ressources d'un autre client, même en cas de compromission.",
+        hint: "Cette défense isole les environnements clients après le filtrage des attaques, créant des barrières étanches entre différentes zones du cloud."
+      },
+      {
+        id: "mf16",
+        name: "CASB",
+        description: "Sécurisation des services cloud",
+        type: "monitoring",
+        icon: React.createElement(CloudCog, { className: "w-5 h-5" }),
+        level: 4,
+        correctPosition: 4,
+        color: "#10b981",
+        explanation: "Le CASB (Cloud Access Security Broker) surveille et contrôle l'utilisation des services cloud, appliquant les politiques de sécurité et déclassant les risques.",
+        hint: "Après la mise en place du cloisonnement, cette solution assure la visibilité et le contrôle sur tous les usages des services cloud."
+      },
+      {
+        id: "mf17",
+        name: "Chiffrement des données",
+        description: "Protection des données au repos",
+        type: "encryption",
+        icon: React.createElement(Lock, { className: "w-5 h-5" }),
+        level: 3,
+        correctPosition: 5,
+        color: "#ec4899",
+        explanation: "Le chiffrement des données au repos garantit que toutes les informations stockées dans le cloud restent protégées même en cas d'accès physique non autorisé aux serveurs.",
+        hint: "Même avec toutes les défenses précédentes, le chiffrement des données stockées reste essentiel pour protéger les informations au repos."
+      },
+      {
+        id: "mf18",
+        name: "CSPM",
+        description: "Gestion de la posture de sécurité cloud",
+        type: "monitoring",
+        icon: React.createElement(RefreshCw, { className: "w-5 h-5" }),
+        level: 4,
+        correctPosition: 6,
+        color: "#f59e0b",
+        explanation: "Le CSPM (Cloud Security Posture Management) évalue en continu la configuration de l'infrastructure cloud pour détecter les mauvaises configurations et les écarts par rapport aux bonnes pratiques.",
+        hint: "Cette défense complète l'ensemble en vérifiant continuellement que toutes les autres protections sont correctement configurées et conformes."
+      }
+    ],
+    connections: [
+      { from: "mf13", to: "mf14", isRequired: true },
+      { from: "mf14", to: "mf15", isRequired: true },
+      { from: "mf15", to: "mf16", isRequired: true },
+      { from: "mf16", to: "mf17", isRequired: true },
+      { from: "mf17", to: "mf18", isRequired: true }
+    ]
+  },
+  {
+    id: 9,
+    name: "Télétravail sécurisé",
+    description: "Protégez une infrastructure d'entreprise accessible à distance par les employés.",
+    targetTime: 130,
+    maxScore: 500,
+    defenses: [
+      {
+        id: "mf19",
+        name: "VPN d'entreprise",
+        description: "Réseau privé virtuel sécurisé",
+        type: "encryption",
+        icon: React.createElement(Lock, { className: "w-5 h-5" }),
+        level: 3,
+        correctPosition: 1,
+        color: "#ec4899",
+        explanation: "Le VPN d'entreprise crée un tunnel chiffré pour les connexions distantes, protégeant les communications entre les employés en télétravail et le réseau de l'entreprise.",
+        hint: "Cette défense doit être placée en premier car elle établit une connexion sécurisée avant tout accès aux ressources de l'entreprise."
+      },
+      {
+        id: "mf20",
+        name: "Zero Trust",
+        description: "Vérification continue des accès",
+        type: "auth",
+        icon: React.createElement(KeyRound, { className: "w-5 h-5" }),
+        level: 4,
+        correctPosition: 2,
+        color: "#8b5cf6",
+        explanation: "L'architecture Zero Trust applique le principe 'never trust, always verify', exigeant une vérification constante des identités et des contextes d'accès, même à l'intérieur du réseau.",
+        hint: "Après avoir établi la connexion VPN, cette défense vérifie rigoureusement chaque tentative d'accès, sans confiance implicite."
+      },
+      {
+        id: "mf21",
+        name: "EDR",
+        description: "Détection et réponse sur les terminaux",
+        type: "monitoring",
+        icon: React.createElement(MonitorSmartphone, { className: "w-5 h-5" }),
+        level: 4,
+        correctPosition: 3,
+        color: "#10b981",
+        explanation: "L'EDR (Endpoint Detection and Response) surveille les comportements suspects sur les appareils des télétravailleurs pour détecter et neutraliser les menaces avancées.",
+        hint: "Cette défense doit être installée sur les postes distants pour protéger contre les malwares qui contourneraient le VPN et le contrôle d'accès."
+      },
+      {
+        id: "mf22",
+        name: "DLP",
+        description: "Prévention de fuite de données",
+        type: "firewall",
+        icon: React.createElement(Shield, { className: "w-5 h-5" }),
+        level: 4,
+        correctPosition: 4,
+        color: "#3b82f6",
+        explanation: "Le DLP (Data Loss Prevention) surveille et contrôle le transfert de données sensibles, empêchant leur exfiltration intentionnelle ou accidentelle hors de l'environnement sécurisé.",
+        hint: "Après la sécurisation des accès et des appareils, cette défense empêche les fuites de données confidentielles par les canaux autorisés."
+      },
+      {
+        id: "mf23",
+        name: "Sensibilisation",
+        description: "Formation continue des employés",
+        type: "update",
+        icon: React.createElement(Brain, { className: "w-5 h-5" }),
+        level: 3,
+        correctPosition: 5,
+        color: "#f59e0b",
+        explanation: "Les programmes de sensibilisation à la cybersécurité transforment les employés en première ligne de défense en leur apprenant à identifier et éviter les menaces comme le phishing.",
+        hint: "Le facteur humain reste crucial : cette défense 'non technique' complète les protections techniques en réduisant les risques d'erreur humaine."
+      },
+      {
+        id: "mf24",
+        name: "Surveillance comportementale",
+        description: "Détection des anomalies d'usage",
+        type: "monitoring",
+        icon: React.createElement(Eye, { className: "w-5 h-5" }),
+        level: 4,
+        correctPosition: 6,
+        color: "#10b981",
+        explanation: "L'analyse comportementale établit une référence des activités normales pour chaque utilisateur et détecte les déviations qui pourraient indiquer un compte compromis.",
+        hint: "Cette défense complète l'ensemble en surveillant les comportements anormaux même après authentification correcte et accès légitime."
+      }
+    ],
+    connections: [
+      { from: "mf19", to: "mf20", isRequired: true },
+      { from: "mf20", to: "mf21", isRequired: true },
+      { from: "mf21", to: "mf22", isRequired: true },
+      { from: "mf22", to: "mf23", isRequired: false },
+      { from: "mf22", to: "mf24", isRequired: true },
+      { from: "mf23", to: "mf24", isRequired: false }
+    ]
+  },
+  {
+    id: 10,
+    name: "Plateforme IoT",
+    description: "Sécurisez un écosystème d'objets connectés et leur infrastructure.",
+    targetTime: 140,
+    maxScore: 550,
+    defenses: [
+      {
+        id: "mf25",
+        name: "Segmentation IoT",
+        description: "Isolation du réseau des objets connectés",
+        type: "firewall",
+        icon: React.createElement(Network, { className: "w-5 h-5" }),
+        level: 4,
+        correctPosition: 1,
+        color: "#3b82f6",
+        explanation: "La segmentation du réseau IoT isole complètement les objets connectés du reste de l'infrastructure informatique, limitant la propagation en cas de compromission.",
+        hint: "Cette défense doit être placée en premier pour créer un périmètre de sécurité dédié aux objets connectés, souvent moins sécurisés."
+      },
+      {
+        id: "mf26",
+        name: "Gateway sécurisée",
+        description: "Point d'entrée contrôlé pour les appareils",
+        type: "firewall",
+        icon: React.createElement(Server, { className: "w-5 h-5" }),
+        level: 4,
+        correctPosition: 2,
+        color: "#3b82f6",
+        explanation: "La gateway sécurisée sert d'intermédiaire entre les objets connectés et le reste du réseau, filtrant le trafic et appliquant des règles de sécurité strictes.",
+        hint: "Après la segmentation réseau, cette passerelle contrôle rigoureusement tous les échanges entre les objets IoT et les autres systèmes."
+      },
+      {
+        id: "mf27",
+        name: "Authentification des appareils",
+        description: "Vérification de l'identité des objets",
+        type: "auth",
+        icon: React.createElement(Fingerprint, { className: "w-5 h-5" }),
+        level: 4,
+        correctPosition: 3,
+        color: "#8b5cf6",
+        explanation: "L'authentification robuste des appareils IoT utilise des certificats uniques et des clés cryptographiques pour garantir que seuls les appareils légitimes peuvent se connecter.",
+        hint: "Cette défense vérifie l'identité de chaque objet connecté avant d'autoriser sa communication avec le reste de l'écosystème IoT."
+      },
+      {
+        id: "mf28",
+        name: "Chiffrement embarqué",
+        description: "Protection des données des capteurs",
+        type: "encryption",
+        icon: React.createElement(Lock, { className: "w-5 h-5" }),
+        level: 4,
+        correctPosition: 4,
+        color: "#ec4899",
+        explanation: "Le chiffrement embarqué protège les données dès leur collecte par les objets connectés, assurant leur confidentialité même si l'appareil ou le canal de transmission est compromis.",
+        hint: "Après l'authentification des appareils, cette défense protège les données sensibles qu'ils collectent ou transmettent."
+      },
+      {
+        id: "mf29",
+        name: "Analyse de firmware",
+        description: "Vérification des mises à jour d'appareils",
+        type: "update",
+        icon: React.createElement(CircuitBoard, { className: "w-5 h-5" }),
+        level: 4,
+        correctPosition: 5,
+        color: "#f59e0b",
+        explanation: "L'analyse automatique des firmware IoT vérifie l'authenticité et l'intégrité des mises à jour avant leur déploiement pour éviter l'installation de code malveillant.",
+        hint: "Cette défense garantit que seules les mises à jour légitimes et sécurisées sont déployées sur les objets connectés."
+      },
+      {
+        id: "mf30",
+        name: "Détection d'anomalies IoT",
+        description: "Surveillance des comportements anormaux",
+        type: "monitoring",
+        icon: React.createElement(BarChart4, { className: "w-5 h-5" }),
+        level: 5,
+        correctPosition: 6,
+        color: "#10b981",
+        explanation: "Les systèmes de détection d'anomalies spécialisés pour l'IoT apprennent les schémas normaux de communication et d'activité pour identifier les comportements suspects des appareils.",
+        hint: "Cette défense finale surveille en permanence le comportement des objets connectés pour détecter les signes de compromission ou de dysfonctionnement."
+      }
+    ],
+    connections: [
+      { from: "mf25", to: "mf26", isRequired: true },
+      { from: "mf26", to: "mf27", isRequired: true },
+      { from: "mf27", to: "mf28", isRequired: true },
+      { from: "mf28", to: "mf29", isRequired: true },
+      { from: "mf29", to: "mf30", isRequired: true }
+    ]
+  }
 ];
 
 // Niveaux difficiles (11-15)

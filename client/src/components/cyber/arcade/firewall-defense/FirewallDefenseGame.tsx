@@ -355,7 +355,7 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
         totalScore: newTotalScore,
         timer: 0,
         isComplete: false,
-        gamePhase: 'playing' // Passer directement en mode jeu pour éviter le bouton "Commencer"
+        gamePhase: 'playing' as const // Typage explicite pour assurer la compatibilité avec GameState
       };
       
       // Sauvegarder la progression dans le localStorage
@@ -589,8 +589,8 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                       currentScore: 0,
                       timer: 0,
                       isComplete: false,
-                      gamePhase: 'playing' as const // Typage explicite pour éviter l'erreur
-                    }));
+                      gamePhase: 'playing'
+                    } as GameState)); // Typage explicite du résultat complet
                   }
                 }}
               >
