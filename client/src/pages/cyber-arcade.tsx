@@ -22,9 +22,8 @@ interface GameOption {
 export default function CyberArcade() {
   const [hoveredGame, setHoveredGame] = useState<string | null>(null);
 
-  // Liste des jeux disponibles et à venir
-  const allGames: GameOption[] = [
-    // Jeux disponibles - ces jeux seront affichés en premier
+  const arcadeGames: GameOption[] = [
+    // Jeux existants et fonctionnels - maintenus accessibles
     {
       id: 'password-guardian',
       title: 'Password Guardian',
@@ -42,23 +41,14 @@ export default function CyberArcade() {
       gradient: 'from-indigo-600 to-indigo-800'
     },
     {
-      id: 'cyber-quiz',
-      title: 'Cyber Quiz Challenge',
-      description: "Testez vos connaissances en cybersécurité à travers une série de quiz interactifs adaptés à votre niveau. L'IA adapte les questions selon vos réponses.",
-      difficulty: 'Facile',
-      icon: <GraduationCap className="w-10 h-10 text-white" />,
-      gradient: 'from-[#006a9e] to-[#004e78]'
-    },
-    {
       id: 'codebreaker',
       title: 'Code Breaker',
-      description: "Déchiffrez des codes et apprenez les bases de la cryptographie avec l'aide d'un assistant IA. Recevez des indices personnalisés selon votre progression.",
+      description: "Déchiffrez des codes et apprenez les bases de la cryptographie de manière ludique avec des indices progressifs.",
       difficulty: 'Moyen',
       icon: <BrainCircuit className="w-10 h-10 text-white" />,
-      gradient: 'from-purple-700 to-purple-900'
+      gradient: 'from-purple-700 to-purple-900',
+      comingSoon: true
     },
-    
-    // Jeux à venir - ces jeux seront affichés après les jeux disponibles
     {
       id: 'pca-crisis-mode',
       title: 'PCA Crisis Mode',
@@ -68,6 +58,18 @@ export default function CyberArcade() {
       gradient: 'from-red-700 to-red-900',
       comingSoon: true
     },
+    
+    // Nouveaux jeux - Formation et sensibilisation
+    {
+      id: 'cyber-quiz',
+      title: 'Cyber Quiz Challenge',
+      description: "Testez vos connaissances en cybersécurité à travers une série de quiz interactifs adaptés à votre niveau. L'IA adapte les questions selon vos réponses.",
+      difficulty: 'Facile',
+      icon: <GraduationCap className="w-10 h-10 text-white" />,
+      gradient: 'from-[#006a9e] to-[#004e78]'
+    },
+    
+    // OSINT
     {
       id: 'osint-investigator',
       title: 'OSINT Investigator',
@@ -77,6 +79,8 @@ export default function CyberArcade() {
       gradient: 'from-blue-600 to-indigo-800',
       comingSoon: true
     },
+    
+    // Données personnelles
     {
       id: 'personal-data-guardian',
       title: 'Gardien des Données Personnelles',
@@ -86,6 +90,8 @@ export default function CyberArcade() {
       gradient: 'from-[#006a9e] to-[#004e78]',
       comingSoon: true
     },
+    
+    // Analyse vulnérabilités
     {
       id: 'vulnerability-hunter',
       title: 'Vulnerability Hunter',
@@ -95,6 +101,8 @@ export default function CyberArcade() {
       gradient: 'from-orange-600 to-red-700',
       comingSoon: true
     },
+    
+    // Forensics
     {
       id: 'digital-forensics',
       title: 'Digital Detective',
@@ -104,6 +112,8 @@ export default function CyberArcade() {
       gradient: 'from-indigo-700 to-purple-900',
       comingSoon: true
     },
+    
+    // Gestion incidents
     {
       id: 'incident-response',
       title: 'Incident Response Challenge',
@@ -113,6 +123,8 @@ export default function CyberArcade() {
       gradient: 'from-red-700 to-rose-900',
       comingSoon: true
     },
+    
+    // Jeux à remplacer ou à garder pour compléter les 10
     {
       id: 'social-engineering',
       title: 'Social Engineering Simulator',
@@ -141,13 +153,6 @@ export default function CyberArcade() {
       comingSoon: true
     }
   ];
-  
-  // Séparer les jeux disponibles et les jeux à venir
-  const availableGames = allGames.filter(game => !game.comingSoon);
-  const upcomingGames = allGames.filter(game => game.comingSoon);
-  
-  // Combiner les deux listes pour afficher d'abord les jeux disponibles
-  const arcadeGames = [...availableGames, ...upcomingGames];
 
   // Mémoisation des cartes de jeux pour éviter les re-rendus inutiles
   const GameCard = React.memo(({ game, index, hoveredGame, setHoveredGame }: { 
