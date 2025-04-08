@@ -126,7 +126,7 @@ const ResultsPanel: React.FC<ResultsPanelProps> = ({
           Réessayer
         </Button>
         
-        {isComplete && hasNextLevel && (
+        {hasNextLevel ? (
           <Button 
             className="bg-indigo-600 hover:bg-indigo-700 text-white"
             onClick={onNextLevel}
@@ -134,9 +134,7 @@ const ResultsPanel: React.FC<ResultsPanelProps> = ({
             Niveau suivant
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
-        )}
-        
-        {isComplete && !hasNextLevel && (
+        ) : (
           <Button 
             className="bg-green-600 hover:bg-green-700 text-white"
             onClick={onNextLevel}

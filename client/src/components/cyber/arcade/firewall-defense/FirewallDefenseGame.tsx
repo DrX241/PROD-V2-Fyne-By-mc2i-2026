@@ -780,14 +780,22 @@ const FirewallDefenseGame: React.FC<FirewallDefenseGameProps> = ({
                 )}
                 
                 {gameState.gamePhase === 'results' && (
-                  <Button
-                    onClick={goToNextLevel}
-                    className="bg-purple-600 hover:bg-purple-700"
-                    disabled={!gameState.isComplete}
-                  >
-                    <ArrowRight className="mr-2 h-4 w-4" />
-                    {gameState.isComplete ? 'Niveau suivant' : 'Réessayer'}
-                  </Button>
+                  <div className="space-x-3">
+                    <Button
+                      onClick={restartLevel}
+                      className="bg-amber-600 hover:bg-amber-700"
+                    >
+                      <RotateCcw className="mr-2 h-4 w-4" />
+                      Réessayer
+                    </Button>
+                    <Button
+                      onClick={goToNextLevel}
+                      className="bg-purple-600 hover:bg-purple-700"
+                    >
+                      <ArrowRight className="mr-2 h-4 w-4" />
+                      Niveau suivant
+                    </Button>
+                  </div>
                 )}
               </div>
             </Card>
