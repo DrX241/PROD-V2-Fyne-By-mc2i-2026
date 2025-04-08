@@ -26,6 +26,9 @@ import FirewallDefensePage from "@/pages/cyber/arcade/firewall-defense";
 import PasswordGuardianPage from "@/pages/cyber/arcade/password-guardian";
 import NetworkPuzzlePage from "@/pages/cyber/arcade/network-puzzle";
 import CyberQuizChallengePage from "@/pages/cyber/arcade/cyber-quiz";
+// Pages AMOA
+import AmoaPage from "@/pages/amoa";
+import AmoaQuestPage from "@/pages/amoa/quest";
 // Autres pages
 import ImmersiveSimulation from "@/pages/immersive-simulation";
 import ImmersiveScenarioDetail from "@/pages/immersive-scenario-detail";
@@ -60,7 +63,8 @@ function Router() {
       <Route path="/cyber-ascension/theme/:themeId" component={NotYetImplemented} />
       <Route path="/cyber-ascension/theme/:themeId/level/:levelId" component={NotYetImplemented} />
       <Route path="/data-ia" component={NotYetImplemented} />
-      <Route path="/amoa" component={NotYetImplemented} />
+      <Route path="/amoa" component={AmoaPage} />
+      <Route path="/amoa/quest" component={AmoaQuestPage} />
       <Route path="/custom" component={NotYetImplemented} />
       <Route component={NotFound} />
     </Switch>

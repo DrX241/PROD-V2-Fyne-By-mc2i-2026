@@ -1,0 +1,1013 @@
+import React, { useState, useEffect, useRef } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { Link } from "wouter";
+import { 
+  ArrowLeft, 
+  User, 
+  FileText, 
+  Send, 
+  Briefcase, 
+  RefreshCw, 
+  Brain, 
+  Info,
+  HelpCircle,
+  ChevronRight,
+  Clock,
+  CheckCircle2,
+  ShieldCheck,
+  BarChart4,
+  Route
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { apiRequest } from "@/lib/queryClient";
+import { cn } from "@/lib/utils";
+
+// Types pour l'aventure
+interface Character {
+  id: string;
+  name: string;
+  role: string;
+  avatar: string;
+  mood?: string;
+}
+
+interface DialogOption {
+  id: string;
+  text: string;
+  impact?: {
+    stakeholder?: number;
+    technical?: number;
+    budget?: number;
+    timeline?: number;
+  };
+}
+
+interface NarrativeStep {
+  id: string;
+  type: "narrative" | "decision" | "document" | "choice" | "feedback";
+  character?: Character;
+  content: string;
+  options?: DialogOption[];
+  documents?: {
+    title: string;
+    content: string;
+    type: "requirement" | "specification" | "email" | "report";
+  }[];
+  feedback?: {
+    positive: string[];
+    negative: string[];
+    neutral: string[];
+  };
+}
+
+interface QuestPhase {
+  id: string;
+  title: string;
+  description: string;
+  steps: NarrativeStep[];
+}
+
+interface QuestState {
+  currentPhaseId: string;
+  currentStepIndex: number;
+  completedSteps: string[];
+  playerChoices: Record<string, string>;
+  playerMetrics: {
+    stakeholderSatisfaction: number;
+    technicalQuality: number;
+    budgetAdherence: number;
+    timelineAdherence: number;
+  };
+  feedback: Record<string, string[]>;
+  documents: Record<string, any[]>;
+}
+
+// Composant pour l'avatar du personnage
+const CharacterAvatar: React.FC<{ character: Character }> = ({ character }) => {
+  const moodEmoji: Record<string, string> = {
+    happy: "😊",
+    neutral: "😐",
+    concerned: "😟",
+    serious: "🧐",
+    excited: "😃",
+    angry: "😠",
+    thoughtful: "🤔"
+  };
+
+  return (
+    <div className="flex items-center space-x-3">
+      <div className="relative">
+        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden border-2 border-white">
+          {character.avatar ? (
+            <img src={character.avatar} alt={character.name} className="w-full h-full object-cover" />
+          ) : (
+            <User className="h-6 w-6 text-blue-800" />
+          )}
+        </div>
+        {character.mood && (
+          <div className="absolute -bottom-1 -right-1 bg-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+            {moodEmoji[character.mood] || "😐"}
+          </div>
+        )}
+      </div>
+      <div>
+        <div className="font-medium text-sm">{character.name}</div>
+        <div className="text-xs text-gray-500">{character.role}</div>
+      </div>
+    </div>
+  );
+};
+
+// Composant de document
+const DocumentViewer: React.FC<{ document: { title: string; content: string; type: string } }> = ({ document }) => {
+  const getDocumentIcon = (type: string) => {
+    switch (type) {
+      case "requirement": return <FileText className="h-5 w-5 text-blue-500" />;
+      case "specification": return <FileText className="h-5 w-5 text-green-500" />;
+      case "email": return <Send className="h-5 w-5 text-amber-500" />;
+      case "report": return <Briefcase className="h-5 w-5 text-purple-500" />;
+      default: return <FileText className="h-5 w-5 text-gray-500" />;
+    }
+  };
+
+  const getDocumentBg = (type: string) => {
+    switch (type) {
+      case "requirement": return "bg-blue-50 border-blue-200";
+      case "specification": return "bg-green-50 border-green-200";
+      case "email": return "bg-amber-50 border-amber-200";
+      case "report": return "bg-purple-50 border-purple-200";
+      default: return "bg-gray-50 border-gray-200";
+    }
+  };
+
+  return (
+    <div className={`rounded-lg p-4 mb-4 ${getDocumentBg(document.type)} border`}>
+      <div className="flex items-center mb-2">
+        {getDocumentIcon(document.type)}
+        <h3 className="ml-2 font-medium">{document.title}</h3>
+      </div>
+      <div className="text-sm whitespace-pre-line">{document.content}</div>
+    </div>
+  );
+};
+
+// Composant principal AMOA Quest
+export default function AmoaQuestPage() {
+  const { toast } = useToast();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [loading, setLoading] = useState(false);
+  const [initializing, setInitializing] = useState(true);
+  const [showIntro, setShowIntro] = useState(true);
+  const [showHelp, setShowHelp] = useState(false);
+  const [questPhases, setQuestPhases] = useState<QuestPhase[]>([]);
+  const [questState, setQuestState] = useState<QuestState>({
+    currentPhaseId: "",
+    currentStepIndex: 0,
+    completedSteps: [],
+    playerChoices: {},
+    playerMetrics: {
+      stakeholderSatisfaction: 75,
+      technicalQuality: 75,
+      budgetAdherence: 75,
+      timelineAdherence: 75
+    },
+    feedback: {},
+    documents: {}
+  });
+
+  // Effet pour faire défiler jusqu'au dernier message
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [questState.currentStepIndex]);
+
+  // Initialisation du jeu
+  useEffect(() => {
+    const initializeWithMockData = () => {
+      // Phases et étapes simulées
+      const mockPhases: QuestPhase[] = [
+        {
+          id: "phase1",
+          title: "Cadrage et expression des besoins",
+          description: "Première rencontre avec le client et identification des besoins du projet",
+          steps: [
+            {
+              id: "intro1",
+              type: "narrative",
+              character: {
+                id: "director",
+                name: "Claire Leroy",
+                role: "Directrice de Projet",
+                avatar: "",
+                mood: "neutral"
+              },
+              content: "Bonjour et bienvenue dans l'équipe ! Je suis Claire Leroy, la directrice de ce projet stratégique pour notre client PharmaHealth. Nous avons besoin de vos compétences d'AMOA pour mener à bien ce projet de transformation digitale."
+            },
+            {
+              id: "intro2",
+              type: "narrative",
+              character: {
+                id: "director",
+                name: "Claire Leroy",
+                role: "Directrice de Projet",
+                avatar: "",
+                mood: "serious"
+              },
+              content: "PharmaHealth est un groupe pharmaceutique qui souhaite moderniser sa plateforme de gestion des essais cliniques. Le système actuel est obsolète et ne répond plus aux exigences réglementaires et aux besoins des utilisateurs."
+            },
+            {
+              id: "choice1",
+              type: "decision",
+              content: "Comment souhaitez-vous aborder ce projet en tant qu'AMOA ?",
+              options: [
+                {
+                  id: "option1",
+                  text: "Je voudrais d'abord comprendre les besoins des utilisateurs finaux avant toute chose.",
+                  impact: {
+                    stakeholder: 10,
+                    technical: 5,
+                    budget: 0,
+                    timeline: -5
+                  }
+                },
+                {
+                  id: "option2",
+                  text: "Pouvons-nous examiner la documentation technique du système actuel pour identifier les contraintes ?",
+                  impact: {
+                    stakeholder: 0,
+                    technical: 10,
+                    budget: 5,
+                    timeline: 0
+                  }
+                },
+                {
+                  id: "option3",
+                  text: "Je propose de définir rapidement un planning et un budget pour cadrer le projet dès le départ.",
+                  impact: {
+                    stakeholder: -5,
+                    technical: 0,
+                    budget: 10,
+                    timeline: 10
+                  }
+                }
+              ]
+            },
+            {
+              id: "response1",
+              type: "narrative",
+              character: {
+                id: "director",
+                name: "Claire Leroy",
+                role: "Directrice de Projet",
+                avatar: "",
+                mood: "happy"
+              },
+              content: "Excellente approche ! Je vais vous organiser des entretiens avec les principaux utilisateurs. Entre-temps, voici le document préliminaire qui résume les objectifs stratégiques du projet."
+            },
+            {
+              id: "document1",
+              type: "document",
+              content: "Voici le document préliminaire du projet :",
+              documents: [
+                {
+                  title: "Objectifs Stratégiques - Projet eClinical",
+                  content: "Le projet de modernisation de la plateforme d'essais cliniques (eClinical) vise à :\n\n1. Réduire de 40% le temps de configuration des essais cliniques\n2. Améliorer la conformité réglementaire (FDA, EMA)\n3. Permettre une collaboration en temps réel entre les équipes mondiales\n4. Assurer l'intégrité et la traçabilité des données\n5. Intégrer des capacités d'analyse avancées\n\nLe système devra être opérationnel d'ici 12 mois pour correspondre au lancement de trois essais cliniques majeurs.",
+                  type: "requirement"
+                }
+              ]
+            },
+            {
+              id: "meeting1",
+              type: "narrative",
+              character: {
+                id: "user",
+                name: "Dr. Martin Bernard",
+                role: "Responsable des Essais Cliniques",
+                avatar: "",
+                mood: "concerned"
+              },
+              content: "Bonjour, je suis le Dr. Bernard, responsable des essais cliniques. Notre principal problème est la lenteur du système actuel et son manque de flexibilité. Nous perdons un temps précieux à configurer manuellement chaque essai, et les erreurs sont fréquentes. De plus, la conformité réglementaire devient un cauchemar avec les nouvelles directives."
+            },
+            {
+              id: "choice2",
+              type: "decision",
+              content: "Quelle approche privilégiez-vous pour recueillir les besoins ?",
+              options: [
+                {
+                  id: "option1",
+                  text: "Organiser des ateliers d'expression des besoins avec tous les utilisateurs en même temps pour favoriser la co-création.",
+                  impact: {
+                    stakeholder: 5,
+                    technical: 5,
+                    budget: -5,
+                    timeline: -5
+                  }
+                },
+                {
+                  id: "option2",
+                  text: "Mener des entretiens individuels avec chaque partie prenante pour approfondir leurs besoins spécifiques.",
+                  impact: {
+                    stakeholder: 10,
+                    technical: 0,
+                    budget: -5,
+                    timeline: -10
+                  }
+                },
+                {
+                  id: "option3",
+                  text: "Utiliser un questionnaire en ligne pour collecter rapidement un maximum d'informations auprès de tous les utilisateurs.",
+                  impact: {
+                    stakeholder: -5,
+                    technical: 5,
+                    budget: 10,
+                    timeline: 10
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: "phase2",
+          title: "Spécifications fonctionnelles",
+          description: "Formalisation des besoins et élaboration des spécifications",
+          steps: [
+            // Étapes pour la phase 2
+          ]
+        }
+      ];
+
+      setQuestPhases(mockPhases);
+      setQuestState({
+        ...questState,
+        currentPhaseId: mockPhases[0]?.id || "",
+        currentStepIndex: 0
+      });
+      setLoading(false);
+      setInitializing(false);
+    };
+
+    // Pour le développement, utilisons les données simulées
+    initializeWithMockData();
+  }, []);
+
+  // Obtenir la phase et l'étape actuelles
+  const getCurrentPhase = () => {
+    return questPhases.find(phase => phase.id === questState.currentPhaseId) || null;
+  };
+
+  const getCurrentStep = () => {
+    const currentPhase = getCurrentPhase();
+    if (!currentPhase) return null;
+    return currentPhase.steps[questState.currentStepIndex] || null;
+  };
+
+  // Progression vers l'étape suivante
+  const goToNextStep = () => {
+    const currentPhase = getCurrentPhase();
+    if (!currentPhase) return;
+
+    if (questState.currentStepIndex < currentPhase.steps.length - 1) {
+      // Passer à l'étape suivante dans la même phase
+      setQuestState({
+        ...questState,
+        currentStepIndex: questState.currentStepIndex + 1,
+        completedSteps: [...questState.completedSteps, currentPhase.steps[questState.currentStepIndex].id]
+      });
+    } else {
+      // Trouver la phase suivante
+      const currentPhaseIndex = questPhases.findIndex(phase => phase.id === questState.currentPhaseId);
+      if (currentPhaseIndex < questPhases.length - 1) {
+        const nextPhase = questPhases[currentPhaseIndex + 1];
+        setQuestState({
+          ...questState,
+          currentPhaseId: nextPhase.id,
+          currentStepIndex: 0,
+          completedSteps: [...questState.completedSteps, currentPhase.steps[questState.currentStepIndex].id]
+        });
+      } else {
+        // Aventure terminée
+        toast({
+          title: "Félicitations !",
+          description: "Vous avez terminé l'aventure AMOA Quest.",
+          variant: "default"
+        });
+      }
+    }
+  };
+
+  // Gérer la sélection d'une option
+  const handleOptionSelect = async (option: DialogOption) => {
+    setLoading(true);
+    const currentStep = getCurrentStep();
+    if (!currentStep) return;
+
+    try {
+      // Mettre à jour les métriques du joueur en fonction de l'impact de l'option
+      const newMetrics = { ...questState.playerMetrics };
+      if (option.impact) {
+        if (option.impact.stakeholder) {
+          newMetrics.stakeholderSatisfaction = Math.min(100, Math.max(0, newMetrics.stakeholderSatisfaction + option.impact.stakeholder));
+        }
+        if (option.impact.technical) {
+          newMetrics.technicalQuality = Math.min(100, Math.max(0, newMetrics.technicalQuality + option.impact.technical));
+        }
+        if (option.impact.budget) {
+          newMetrics.budgetAdherence = Math.min(100, Math.max(0, newMetrics.budgetAdherence + option.impact.budget));
+        }
+        if (option.impact.timeline) {
+          newMetrics.timelineAdherence = Math.min(100, Math.max(0, newMetrics.timelineAdherence + option.impact.timeline));
+        }
+      }
+
+      // Enregistrer le choix du joueur
+      const newChoices = {
+        ...questState.playerChoices,
+        [currentStep.id]: option.id
+      };
+
+      // Mettre à jour l'état de la quête
+      setQuestState({
+        ...questState,
+        playerChoices: newChoices,
+        playerMetrics: newMetrics
+      });
+
+      // Pour une version future, nous appellerons l'API Azure OpenAI pour générer des réponses dynamiques
+      // basées sur les choix du joueur
+      
+      // Passer à l'étape suivante après un court délai pour simuler le traitement
+      setTimeout(() => {
+        goToNextStep();
+        setLoading(false);
+      }, 1000);
+    } catch (error) {
+      console.error("Erreur lors de la sélection d'une option:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors du traitement de votre choix.",
+        variant: "destructive"
+      });
+      setLoading(false);
+    }
+  };
+
+  // Rendu des étapes narratives
+  const renderNarrativeStep = (step: NarrativeStep) => {
+    return (
+      <div className="flex mb-4">
+        {step.character && (
+          <div className="mr-3 flex-shrink-0">
+            <CharacterAvatar character={step.character} />
+          </div>
+        )}
+        <div className="bg-white p-4 rounded-lg shadow-sm border max-w-2xl">
+          <p className="text-gray-800 whitespace-pre-line">{step.content}</p>
+          
+          <div className="mt-4 text-right">
+            <Button 
+              size="sm" 
+              onClick={goToNextStep}
+              disabled={loading}
+            >
+              Continuer
+              <ChevronRight className="ml-1 h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Rendu des étapes de décision
+  const renderDecisionStep = (step: NarrativeStep) => {
+    if (!step.options) return null;
+    
+    return (
+      <div className="mb-4">
+        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-4">
+          <p className="text-blue-800 font-medium">{step.content}</p>
+        </div>
+        
+        <div className="space-y-3">
+          {step.options.map(option => (
+            <Button
+              key={option.id}
+              variant="outline"
+              className="w-full justify-start h-auto py-3 px-4 text-left bg-white hover:bg-blue-50"
+              onClick={() => handleOptionSelect(option)}
+              disabled={loading}
+            >
+              <div className="flex items-center">
+                <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center mr-3 flex-shrink-0">
+                  <ChevronRight className="h-4 w-4 text-blue-600" />
+                </div>
+                <span>{option.text}</span>
+              </div>
+            </Button>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // Rendu des étapes de document
+  const renderDocumentStep = (step: NarrativeStep) => {
+    if (!step.documents) return null;
+    
+    return (
+      <div className="mb-4">
+        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+          <p className="text-gray-800">{step.content}</p>
+        </div>
+        
+        <div className="space-y-4">
+          {step.documents.map((doc, index) => (
+            <DocumentViewer key={index} document={doc} />
+          ))}
+        </div>
+        
+        <div className="mt-4 text-right">
+          <Button 
+            size="sm" 
+            onClick={goToNextStep}
+            disabled={loading}
+          >
+            J'ai compris
+            <CheckCircle2 className="ml-1 h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  // Rendu de l'étape actuelle
+  const renderCurrentStep = () => {
+    const currentStep = getCurrentStep();
+    if (!currentStep) return null;
+
+    switch (currentStep.type) {
+      case "narrative":
+        return renderNarrativeStep(currentStep);
+      case "decision":
+        return renderDecisionStep(currentStep);
+      case "document":
+        return renderDocumentStep(currentStep);
+      default:
+        return null;
+    }
+  };
+
+  // Rendu des métriques du joueur
+  const renderPlayerMetrics = () => {
+    const metrics = [
+      { 
+        label: "Satisfaction des parties prenantes", 
+        value: questState.playerMetrics.stakeholderSatisfaction,
+        color: "bg-blue-500" 
+      },
+      { 
+        label: "Qualité technique", 
+        value: questState.playerMetrics.technicalQuality,
+        color: "bg-green-500" 
+      },
+      { 
+        label: "Respect du budget", 
+        value: questState.playerMetrics.budgetAdherence,
+        color: "bg-amber-500" 
+      },
+      { 
+        label: "Respect des délais", 
+        value: questState.playerMetrics.timelineAdherence,
+        color: "bg-purple-500" 
+      }
+    ];
+
+    return (
+      <div className="space-y-3">
+        {metrics.map((metric, index) => (
+          <div key={index} className="space-y-1">
+            <div className="flex justify-between text-xs">
+              <span>{metric.label}</span>
+              <span className="font-medium">{metric.value}%</span>
+            </div>
+            <Progress 
+              value={metric.value} 
+              className="h-2" 
+              indicatorClassName={metric.color} 
+            />
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  // Calculer la progression globale
+  const calculateProgress = () => {
+    const currentPhase = getCurrentPhase();
+    if (!currentPhase) return 0;
+    
+    const currentPhaseIndex = questPhases.findIndex(phase => phase.id === questState.currentPhaseId);
+    const completedPhases = currentPhaseIndex;
+    const totalPhases = questPhases.length;
+    
+    const stepsInCurrentPhase = currentPhase.steps.length;
+    const completedStepsInCurrentPhase = questState.currentStepIndex;
+    
+    // Calcul de la progression en pourcentage
+    const progressPerPhase = 1 / totalPhases;
+    const progressForCompletedPhases = completedPhases * progressPerPhase;
+    const progressForCurrentPhase = (completedStepsInCurrentPhase / stepsInCurrentPhase) * progressPerPhase;
+    
+    return Math.min(100, Math.round((progressForCompletedPhases + progressForCurrentPhase) * 100));
+  };
+
+  if (initializing) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-t-transparent border-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <h2 className="text-xl font-medium text-gray-700">Initialisation de l'aventure...</h2>
+          <p className="text-gray-500 mt-2">Préparation des personnages et des scénarios</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Introduction à AMOA Quest */}
+      <Dialog open={showIntro} onOpenChange={setShowIntro}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center text-2xl">
+              <Route className="h-6 w-6 text-blue-600 mr-2" />
+              Bienvenue dans AMOA Quest
+            </DialogTitle>
+            <DialogDescription>
+              Votre aventure interactive pour maîtriser les compétences d'Assistance à Maîtrise d'Ouvrage
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 mt-4">
+            <p>
+              Vous incarnez un.e Assistant.e à Maîtrise d'Ouvrage récemment embauché.e pour travailler sur un projet stratégique. 
+              À travers cette simulation, vous devrez faire face à des situations réelles et prendre des décisions qui influenceront 
+              le déroulement du projet et la satisfaction des parties prenantes.
+            </p>
+            
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+              <h3 className="font-medium text-blue-800 mb-2 flex items-center">
+                <Info className="h-5 w-5 mr-2" />
+                Comment jouer
+              </h3>
+              <ul className="space-y-2 text-sm text-blue-700">
+                <li className="flex items-start">
+                  <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 text-blue-500" />
+                  <span>Lisez attentivement les dialogues et les documents qui vous sont présentés</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 text-blue-500" />
+                  <span>Prenez des décisions réfléchies en fonction du contexte et des objectifs du projet</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 text-blue-500" />
+                  <span>Suivez l'évolution de vos métriques pour ajuster votre approche</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 text-blue-500" />
+                  <span>Complétez les différentes phases du projet pour développer vos compétences</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div className="bg-amber-50 p-4 rounded-lg border border-amber-100">
+              <h3 className="font-medium text-amber-800 mb-2 flex items-center">
+                <Brain className="h-5 w-5 mr-2" />
+                Intelligence Artificielle
+              </h3>
+              <p className="text-sm text-amber-700">
+                Cette simulation est alimentée par l'intelligence artificielle qui adapte l'histoire et les réactions des personnages 
+                en fonction de vos décisions. Chaque parcours est unique et personnalisé.
+              </p>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button 
+              onClick={() => setShowIntro(false)}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              Commencer l'aventure
+              <ChevronRight className="ml-2 h-4 w-4" />
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Aide contextuelle */}
+      <Dialog open={showHelp} onOpenChange={setShowHelp}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <HelpCircle className="h-5 w-5 text-blue-600 mr-2" />
+              Aide et conseils
+            </DialogTitle>
+            <DialogDescription>
+              Guide pour réussir votre mission d'AMOA
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 mt-4">
+            <div className="bg-gray-50 p-4 rounded-lg border">
+              <h3 className="font-medium mb-2">Bonnes pratiques AMOA</h3>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li>• Recueillir les besoins de manière approfondie</li>
+                <li>• Documenter clairement les spécifications</li>
+                <li>• Assurer une communication fluide entre les parties prenantes</li>
+                <li>• Anticiper les risques et proposer des solutions</li>
+                <li>• Veiller à l'alignement avec les objectifs stratégiques</li>
+              </ul>
+            </div>
+            
+            <div className="bg-gray-50 p-4 rounded-lg border">
+              <h3 className="font-medium mb-2">Métriques de performance</h3>
+              <ul className="text-sm text-gray-700 space-y-1">
+                <li>
+                  <span className="text-blue-500 font-medium">Satisfaction des parties prenantes :</span> Reflète la qualité de vos interactions
+                </li>
+                <li>
+                  <span className="text-green-500 font-medium">Qualité technique :</span> Évalue la rigueur de vos spécifications
+                </li>
+                <li>
+                  <span className="text-amber-500 font-medium">Respect du budget :</span> Mesure votre attention aux contraintes financières
+                </li>
+                <li>
+                  <span className="text-purple-500 font-medium">Respect des délais :</span> Indique votre capacité à tenir les échéances
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowHelp(false)}>
+              Fermer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Header avec navigation */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+          <div className="flex items-center">
+            <Link href="/amoa" className="mr-4">
+              <Button variant="outline" size="sm" className="text-gray-600">
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                Retour
+              </Button>
+            </Link>
+            <h1 className="text-xl font-bold text-gray-900">AMOA Quest</h1>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => setShowHelp(true)}
+            >
+              <HelpCircle className="h-4 w-4 mr-1" />
+              Aide
+            </Button>
+            
+            <div className="bg-blue-50 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full flex items-center">
+              <Clock className="h-3 w-3 mr-1" />
+              Progression : {calculateProgress()}%
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex-1 flex flex-col md:flex-row">
+        {/* Panneau principal de l'aventure */}
+        <div className="flex-1 p-4 md:p-6 overflow-y-auto">
+          <div className="max-w-4xl mx-auto">
+            {/* Phase actuelle */}
+            <div className="mb-6">
+              <div className="flex items-center space-x-2 mb-2">
+                <Badge variant="outline" className="bg-white text-blue-800 border-blue-200">
+                  Phase {questPhases.findIndex(phase => phase.id === questState.currentPhaseId) + 1}/{questPhases.length}
+                </Badge>
+                <h2 className="text-xl font-bold text-gray-900">{getCurrentPhase()?.title}</h2>
+              </div>
+              <p className="text-gray-600">{getCurrentPhase()?.description}</p>
+            </div>
+            
+            {/* Conversation et interactions */}
+            <div className="bg-gray-100 rounded-lg p-4 min-h-[400px]">
+              {/* Afficher toutes les étapes complétées de la phase actuelle */}
+              {getCurrentPhase()?.steps.slice(0, questState.currentStepIndex).map((step, index) => {
+                switch (step.type) {
+                  case "narrative":
+                    return (
+                      <div key={index} className="flex mb-4 opacity-80">
+                        {step.character && (
+                          <div className="mr-3 flex-shrink-0">
+                            <CharacterAvatar character={step.character} />
+                          </div>
+                        )}
+                        <div className="bg-white p-4 rounded-lg shadow-sm border max-w-2xl">
+                          <p className="text-gray-800 whitespace-pre-line">{step.content}</p>
+                        </div>
+                      </div>
+                    );
+                  case "decision":
+                    return (
+                      <div key={index} className="mb-4 opacity-80">
+                        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-2">
+                          <p className="text-blue-800 font-medium">{step.content}</p>
+                        </div>
+                        {step.options && questState.playerChoices[step.id] && (
+                          <div className="bg-white p-3 rounded-lg border border-gray-200 ml-8">
+                            <p className="text-gray-800">
+                              {step.options.find(opt => opt.id === questState.playerChoices[step.id])?.text}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  case "document":
+                    return (
+                      <div key={index} className="mb-4 opacity-80">
+                        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-2">
+                          <p className="text-gray-800">{step.content}</p>
+                        </div>
+                        {step.documents && (
+                          <div className="ml-8">
+                            {step.documents.map((doc, docIndex) => (
+                              <div key={docIndex} className="bg-white p-3 rounded-lg border border-gray-200 mb-2">
+                                <p className="font-medium text-gray-800">{doc.title}</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  default:
+                    return null;
+                }
+              })}
+              
+              {/* Étape actuelle */}
+              {renderCurrentStep()}
+              
+              {/* Référence pour faire défiler jusqu'au dernier message */}
+              <div ref={messagesEndRef} />
+            </div>
+          </div>
+        </div>
+        
+        {/* Panneau latéral avec informations et métriques */}
+        <div className="md:w-80 lg:w-96 bg-white border-t md:border-t-0 md:border-l">
+          <div className="p-4">
+            <Tabs defaultValue="metrics">
+              <TabsList className="w-full">
+                <TabsTrigger value="metrics" className="flex-1">
+                  <BarChart4 className="h-4 w-4 mr-1" />
+                  Métriques
+                </TabsTrigger>
+                <TabsTrigger value="documents" className="flex-1">
+                  <FileText className="h-4 w-4 mr-1" />
+                  Documents
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="metrics" className="mt-4">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base">
+                      <div className="flex items-center">
+                        <ShieldCheck className="h-5 w-5 mr-2 text-blue-600" />
+                        Performance du projet
+                      </div>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {renderPlayerMetrics()}
+                  </CardContent>
+                  <CardFooter className="pt-0 text-xs text-gray-500">
+                    Ces métriques évoluent en fonction de vos décisions
+                  </CardFooter>
+                </Card>
+                
+                <div className="mt-4">
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base">
+                        <div className="flex items-center">
+                          <Briefcase className="h-5 w-5 mr-2 text-blue-600" />
+                          Progression globale
+                        </div>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span>Avancement de l'aventure</span>
+                            <span className="font-medium">{calculateProgress()}%</span>
+                          </div>
+                          <Progress value={calculateProgress()} className="h-2" />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          {questPhases.map((phase, index) => {
+                            const isCurrentPhase = phase.id === questState.currentPhaseId;
+                            const isCompleted = index < questPhases.findIndex(p => p.id === questState.currentPhaseId);
+                            const stepsCompleted = isCurrentPhase ? questState.currentStepIndex : (isCompleted ? phase.steps.length : 0);
+                            
+                            return (
+                              <div key={phase.id} className={cn(
+                                "p-2 rounded-lg border text-sm",
+                                isCurrentPhase ? "bg-blue-50 border-blue-200" : 
+                                isCompleted ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-200"
+                              )}>
+                                <div className="flex justify-between items-center mb-1">
+                                  <span className={cn(
+                                    "font-medium",
+                                    isCurrentPhase ? "text-blue-800" : 
+                                    isCompleted ? "text-green-800" : "text-gray-500"
+                                  )}>
+                                    {index + 1}. {phase.title}
+                                  </span>
+                                  <span className="text-xs">
+                                    {stepsCompleted}/{phase.steps.length}
+                                  </span>
+                                </div>
+                                <Progress 
+                                  value={(stepsCompleted / phase.steps.length) * 100} 
+                                  className="h-1.5"
+                                  indicatorClassName={
+                                    isCurrentPhase ? "bg-blue-500" : 
+                                    isCompleted ? "bg-green-500" : "bg-gray-300"
+                                  }
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="documents" className="mt-4">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base">Documents du projet</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {Object.keys(questState.documents).length > 0 ? (
+                      <div className="space-y-2">
+                        {Object.entries(questState.documents).map(([category, docs]) => (
+                          <div key={category}>
+                            <h3 className="text-sm font-medium mb-1">{category}</h3>
+                            <div className="space-y-1">
+                              {docs.map((doc: any, index: number) => (
+                                <Button 
+                                  key={index} 
+                                  variant="outline"
+                                  size="sm"
+                                  className="w-full justify-start text-xs"
+                                >
+                                  <FileText className="h-3 w-3 mr-2" />
+                                  {doc.title}
+                                </Button>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">
+                        <FileText className="h-10 w-10 mx-auto mb-2 opacity-30" />
+                        <p>Aucun document collecté pour le moment</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

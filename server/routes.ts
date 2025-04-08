@@ -9,6 +9,7 @@ import { openAIService } from "../I_AM_CYBER/services/openai";
 import { missionGenerator } from "../I_AM_CYBER/services/mission-generator";
 import { ChatCompletionRequestMessage } from "../shared/schema";
 import { evaluateDecision } from "./cyberDefenseEvaluator";
+import { handleQuestInitialization, handleQuestChoice } from "./amoaController";
 import immersiveRoutes from "./routes/immersive-simulation";
 import cyberAscensionRoutes from "./routes/cyber-ascension";
 
@@ -2420,6 +2421,10 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
       }
     }
   });
+
+  // Routes pour le module AMOA Quest
+  app.post('/api/amoa/quest/initialize', handleQuestInitialization);
+  app.post('/api/amoa/quest/choice', handleQuestChoice);
 
   const server = createServer(app);
   return server;
