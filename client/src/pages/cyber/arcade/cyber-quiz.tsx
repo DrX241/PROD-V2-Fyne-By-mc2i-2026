@@ -15,6 +15,9 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+
+import { ScrollArea } from "@/components/ui/scroll-area";
+
   DialogHeader,
   DialogTitle,
   DialogFooter
@@ -266,7 +269,7 @@ export default function CyberQuizChallengePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-900 via-slate-900 to-black">
+    <ScrollArea className="h-screen bg-gradient-to-b from-blue-900 via-slate-900 to-black">
       {/* Tutoriel / Introduction */}
       <Dialog open={showTutorial} onOpenChange={setShowTutorial}>
         <DialogContent className="bg-slate-900 text-white border-blue-500 max-w-2xl">
@@ -733,6 +736,6 @@ export default function CyberQuizChallengePage() {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </ScrollArea>
   );
 }
