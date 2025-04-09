@@ -2450,7 +2450,7 @@ Phase actuelle: ${phaseTitle || 'Cadrage du projet'}
 Contexte: L'utilisateur joue le rôle d'un AMOA dans un projet et discute avec les parties prenantes.
 
 Voici les parties prenantes disponibles pour la conversation:
-- Claire Leroy, Directrice de Projet, responsable de la supervision globale
+- Mathilde Comte, Directrice de Projet, responsable de la supervision globale
 - Thomas Dubois, Chef de Projet IT, spécialiste technique
 - Marie Laurent, Représentante des Utilisateurs, porte-parole des besoins métiers
 - Sophie Girard, Responsable Financier, en charge du budget
@@ -2469,7 +2469,7 @@ Instructions:
 4. Si la question concerne des aspects techniques, réponds en tant que Thomas.
 5. Si la question concerne les besoins des utilisateurs, réponds en tant que Marie.
 6. Si la question concerne le budget, réponds en tant que Sophie.
-7. Si la question concerne la gestion globale, réponds en tant que Claire.
+7. Si la question concerne la gestion globale, réponds en tant que Mathilde.
 8. Si la question nécessite une expertise spécifique, réponds en tant que Jean.
 9. Reste dans ton rôle de partie prenante et ne révèle pas que tu es une IA.
 
@@ -2522,7 +2522,7 @@ Ton format de réponse doit être un JSON valide avec les champs suivants:
           message: completion.choices[0].message.content,
           character: {
             id: "assistant",
-            name: "Claire Leroy",
+            name: "Mathilde Comte",
             role: "Directrice de Projet",
             avatar: "",
             mood: "neutral"

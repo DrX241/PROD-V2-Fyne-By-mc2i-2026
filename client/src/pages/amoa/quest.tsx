@@ -559,7 +559,7 @@ export default function AmoaQuestPage() {
         // Trouver un personnage approprié pour répondre
         let character: Character = {
           id: "assistant",
-          name: "Claire Leroy",
+          name: "Mathilde Comte",
           role: "Directrice de Projet",
           avatar: "",
           mood: "neutral"
@@ -849,63 +849,43 @@ export default function AmoaQuestPage() {
               <p className="text-gray-600">{getCurrentPhase()?.description}</p>
             </div>
             
-            {/* Conversation et interactions */}
+            {/* Conversation et interactions simplifiées */}
             <div className="bg-gray-100 rounded-lg p-4 min-h-[400px]">
-              {/* Afficher toutes les étapes complétées de la phase actuelle */}
-              {getCurrentPhase()?.steps.slice(0, questState.currentStepIndex).map((step, index) => {
-                switch (step.type) {
-                  case "narrative":
-                    return (
-                      <div key={index} className="flex mb-4 opacity-80">
-                        {step.character && (
-                          <div className="mr-3 flex-shrink-0">
-                            <CharacterAvatar character={step.character} />
-                          </div>
-                        )}
-                        <div className="bg-white p-4 rounded-lg shadow-sm border max-w-2xl">
-                          <p className="text-gray-900 whitespace-pre-line">{step.content}</p>
-                        </div>
-                      </div>
-                    );
-                  case "decision":
-                    return (
-                      <div key={index} className="mb-4 opacity-80">
-                        <div className="bg-amoa-blue p-4 rounded-lg border border-amoa-blue/90 mb-2">
-                          <p className="text-white font-semibold">{step.content}</p>
-                        </div>
-                        {step.options && questState.playerChoices[step.id] && (
-                          <div className="bg-white p-3 rounded-lg border border-gray-200 ml-8">
-                            <p className="text-gray-900">
-                              {step.options.find(opt => opt.id === questState.playerChoices[step.id])?.text}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  case "document":
-                    return (
-                      <div key={index} className="mb-4 opacity-80">
-                        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-2">
-                          <p className="text-gray-900 font-medium">{step.content}</p>
-                        </div>
-                        {step.documents && (
-                          <div className="ml-8">
-                            {step.documents.map((doc, docIndex) => (
-                              <div key={docIndex} className="bg-white p-3 rounded-lg border border-gray-200 mb-2">
-                                <p className="font-medium text-gray-900">{doc.title}</p>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  default:
-                    return null;
-                }
-              })}
+              {/* Introduction à la phase actuelle */}
+              <div className="bg-white p-4 rounded-lg shadow-sm border mb-6">
+                <div className="flex items-start">
+                  <div className="mr-3 flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-amoa-blue flex items-center justify-center text-white">
+                      <Info className="h-5 w-5" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-gray-900 mb-1">Objectif de cette phase</h3>
+                    <p className="text-gray-700 text-sm whitespace-pre-line">
+                      Dans cette phase, vous allez travailler sur {getCurrentPhase()?.title}. 
+                      {getCurrentPhase()?.description}
+                      
+                      Utilisez la zone de conversation ci-dessous pour dialoguer avec les parties prenantes et obtenir les informations nécessaires pour votre mission d'AMOA.
+                    </p>
+                  </div>
+                </div>
+              </div>
               
-              {/* Étape actuelle */}
-              {renderCurrentStep()}
+              {/* Affichage simplifié du contexte narratif */}
+              {getCurrentPhase()?.steps.slice(0, 1).map((step, index) => (
+                <div key={index} className="mb-6">
+                  {step.character && (
+                    <div className="flex mb-4">
+                      <div className="mr-3 flex-shrink-0">
+                        <CharacterAvatar character={step.character} />
+                      </div>
+                      <div className="bg-white p-4 rounded-lg shadow-sm border max-w-2xl">
+                        <p className="text-gray-900 whitespace-pre-line">{step.content}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
               
               {/* Interface de conversation libre avec les parties prenantes */}
               <div className="mt-8 border-t pt-4">
