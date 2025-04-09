@@ -408,8 +408,8 @@ Votre équipe attend vos instructions.`,
         currentObjective: currentObjective,
         previousMessages: recentMessages,
         targetContact: targetContact, // Ajouter le PNJ ciblé si détecté
-        temperature: 0.8,
-        maxTokens: 1000
+        temperature: 0.5, // Réduire la température pour des réponses plus cohérentes
+        maxTokens: 1200  // Augmenter légèrement pour des réponses plus complètes
       });
       
       const { 

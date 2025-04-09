@@ -1666,24 +1666,47 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
         return res.status(400).json({ message: 'Message utilisateur requis' });
       }
       
-      // Construire le prompt système pour la mission
-      const missionPrompt = `Tu es "I AM CYBER", un assistant spécialisé en cybersécurité qui simule une mission de défense cyber.
+      // Récupérer l'objectif actuel et ses critères d'évaluation
+      const objective = missionContext.objectives[currentObjective];
+      const objectiveDescription = objective?.description || "Non défini";
+      const evaluationCriteria = objective?.evaluationCriteria?.join(", ") || "Non définis";
       
-Tu dois jouer le rôle d'un expert en cybersécurité qui interagit avec l'utilisateur dans le cadre de la mission suivante:
-- Titre: ${missionContext.title}
-- Scénario: ${missionContext.scenario}
-- Difficulté: ${missionContext.difficulty}
-- L'utilisateur joue le rôle de: ${missionContext.userRole}
-- Objectif actuel: ${missionContext.objectives[currentObjective]?.description || "Non défini"}
+      // Récupérer les contacts disponibles
+      const availableContacts = missionContext.contacts 
+        ? missionContext.contacts.map((c: any) => `${c.name} (${c.role}${c.expertise ? `: ${c.expertise}` : ""})`).join("\n- ")
+        : "Aucun contact disponible";
+      
+      // Construire un prompt plus détaillé avec un contexte enrichi
+      const missionPrompt = `Tu es un expert en cybersécurité dans un scénario de simulation de mission de défense cyber.
 
-Directives pour la réponse:
-1. Réponds en utilisant un ton professionnel mais accessible
-2. Adapte ton niveau technique à la difficulté de la mission (${missionContext.difficulty})
-3. Utilise les connaissances à jour en matière de bonnes pratiques de cybersécurité
-4. Si l'utilisateur mentionne spécifiquement un contact (${targetContact || "aucun"}), réponds en tant que cette personne
-5. Si l'utilisateur semble prêt à prendre une décision importante, fournir une structure de décision claire
-6. Évite de mentionner que tu es une IA ou un assistant, reste dans ton rôle
-`;
+CONTEXTE DE LA MISSION:
+- Titre: ${missionContext.title}
+- Entreprise: ${missionContext.companyName} (${missionContext.secteurActivite})
+- Scénario détaillé: ${missionContext.scenario}
+- Difficulté: ${missionContext.difficulty}
+- L'utilisateur joue le rôle de: ${missionContext.userRole || "Responsable Cybersécurité"}
+
+OBJECTIF ACTUEL:
+${objectiveDescription}
+
+CRITÈRES D'ÉVALUATION:
+${evaluationCriteria}
+
+CONTACTS DISPONIBLES:
+- ${availableContacts}
+
+INSTRUCTIONS COMPORTEMENTALES:
+1. Tu dois être extrêmement cohérent dans tes réponses et suivre rigoureusement le scénario
+2. Utilise un ton professionnel et un langage technique adapté au niveau ${missionContext.difficulty}
+3. Si l'utilisateur s'adresse à "${targetContact || "un contact spécifique"}", tu dois incarner parfaitement ce personnage
+4. Ne mentionne JAMAIS que tu es une IA, un modèle de langage ou un assistant virtuel
+5. Reste toujours dans le rôle d'un expert en cybersécurité réel face à l'incident décrit
+6. Utilise uniquement des connaissances actuelles et précises en matière de cybersécurité
+7. Évite à tout prix les réponses vagues ou génériques - sois précis et concret
+8. Si l'utilisateur semble prêt à prendre une décision cruciale, guide-le clairement vers les options disponibles
+9. Ne change jamais de contexte ou de scénario au milieu de la conversation
+
+Ta réponse doit être structurée, factuelle et pertinente pour aider l'utilisateur à progresser dans la mission.`;
 
       // Préparer les messages pour l'API
       const messages: ChatCompletionRequestMessage[] = [
@@ -1695,11 +1718,11 @@ Directives pour la réponse:
         { role: "user", content: userMessage }
       ];
       
-      // Appeler l'API OpenAI
+      // Appeler l'API OpenAI avec une température plus basse pour plus de cohérence
       const response = await openAIService.getChatCompletionWithCache(
         messages,
-        temperature || 0.7,
-        maxTokens || 1000
+        temperature || 0.5, // Température réduite pour plus de cohérence
+        maxTokens || 1200  // Légèrement plus de tokens pour des réponses plus complètes
       );
       
       // Analyser le contenu de la réponse pour déterminer le contact et le style
@@ -1757,28 +1780,65 @@ Directives pour la réponse:
       const shouldAddColleagueResponse = Math.random() > 0.7; // 30% de chance d'avoir une réponse additionnelle
       
       if (shouldAddColleagueResponse && !decision && missionContext && missionContext.contacts && Array.isArray(missionContext.contacts)) {
-        // Sélectionner un contact différent du premier répondant
+        // Sélectionner un contact différent du premier répondant, et choisir un contact pertinent
+        // en fonction du contexte de la conversation et de la mission actuelle
         const availableContacts = missionContext.contacts.filter((c: any) => c && c.name !== sender);
         
         if (availableContacts && availableContacts.length > 0) {
-          const selectedContact = availableContacts[Math.floor(Math.random() * availableContacts.length)];
+          // Essayer de sélectionner un contact dont l'expertise est pertinente pour le message
+          const userKeywords = userMessage.toLowerCase().split(/\s+/);
+          const lowerResponse = response.toLowerCase();
           
-          // Créer un prompt pour la réponse additionnelle
+          // Analyse du contenu du message pour trouver des contacts pertinents
+          let relevantContacts = availableContacts.filter((c: any) => {
+            if (!c || !c.expertise) return false;
+            
+            const expertise = c.expertise.toLowerCase();
+            const role = (c.role || "").toLowerCase();
+            
+            // Chercher des mots-clés pertinents dans l'expertise ou le rôle
+            return userKeywords.some(keyword => 
+              keyword.length > 3 && 
+              (expertise.includes(keyword) || role.includes(keyword))
+            ) || 
+            // Ou si la réponse mentionne quelque chose lié à l'expertise
+            expertise.split(/\s+/).some(term => 
+              term.length > 3 && lowerResponse.includes(term)
+            );
+          });
+          
+          // Si aucun contact pertinent n'est trouvé, choisir au hasard
+          const selectedContact = relevantContacts.length > 0 
+            ? relevantContacts[Math.floor(Math.random() * relevantContacts.length)] 
+            : availableContacts[Math.floor(Math.random() * availableContacts.length)];
+          
+          // Créer un prompt amélioré pour une réponse plus pertinente et cohérente
           const colleaguePrompt = `
-Tu es ${selectedContact.name || 'un expert'}, ${selectedContact.role || 'spécialiste'} dans l'entreprise. 
-Tu dois réagir brièvement (2-3 phrases maximum) au message de ${sender} qui vient de dire: "${response}".
-Ta réaction doit être cohérente avec ton rôle ${selectedContact.expertise ? `et ton expertise en ${selectedContact.expertise}` : ''}.
-Réponds directement sans introduction ni formule de politesse, comme si tu intervenais dans une conversation.`;
+Tu es ${selectedContact.name}, ${selectedContact.role || 'spécialiste'} dans l'entreprise ${missionContext.companyName}.
+Tu es reconnu pour ton expertise en ${selectedContact.expertise || 'cybersécurité'}.
+
+CONTEXTE:
+Un collègue nommé ${sender} vient de dire : "${response}"
+
+INSTRUCTIONS:
+1. Formule une réaction professionnelle et brève (2-3 phrases maximum) à ce commentaire.
+2. Ton intervention doit apporter un point de vue complémentaire ou un éclairage supplémentaire.
+3. Adapte ton niveau technique au contexte de la mission (niveau ${missionContext.difficulty}).
+4. Ta réponse doit être directe et pertinente, sans formule d'introduction.
+5. Reste parfaitement dans ton rôle et ne fais aucune référence au fait que tu es une IA.
+6. Assure-toi que ta réponse soit cohérente avec la mission en cours concernant ${missionContext.title}.
+
+Réponds directement comme si tu intervenais naturellement dans la conversation.`;
 
           const colleagueMessages: ChatCompletionRequestMessage[] = [
             { role: "system", content: colleaguePrompt },
-            { role: "user", content: "Génère une réaction courte et professionnelle" }
+            { role: "user", content: "Formule une réaction professionnelle et pertinente à ce message" }
           ];
           
           const colleagueResponse = await openAIService.getChatCompletionWithCache(
             colleagueMessages,
-            0.8, // Légèrement plus créatif
-            200  // Réponse courte
+            0.6, // Température réduite pour plus de cohérence
+            250  // Légèrement plus de tokens pour une réponse complète
           );
           
           additionalResponse = {
