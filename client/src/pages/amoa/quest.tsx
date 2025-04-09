@@ -102,7 +102,7 @@ const CharacterAvatar: React.FC<{ character: Character }> = ({ character }) => {
   return (
     <div className="flex items-center space-x-3">
       <div className="relative">
-        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden border-2 border-white">
+        <div className="w-10 h-10 rounded-full bg-amoa-blue/10 flex items-center justify-center overflow-hidden border-2 border-white">
           {character.avatar ? (
             <img src={character.avatar} alt={character.name} className="w-full h-full object-cover" />
           ) : (
@@ -137,7 +137,7 @@ const DocumentViewer: React.FC<{ document: { title: string; content: string; typ
 
   const getDocumentBg = (type: string) => {
     switch (type) {
-      case "requirement": return "bg-blue-50 border-blue-200";
+      case "requirement": return "bg-amoa-blue/10 border-amoa-blue/20";
       case "specification": return "bg-green-50 border-green-200";
       case "email": return "bg-amber-50 border-amber-200";
       case "report": return "bg-purple-50 border-purple-200";
@@ -491,7 +491,7 @@ export default function AmoaQuestPage() {
     
     return (
       <div className="mb-4">
-        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-4">
+        <div className="bg-amoa-blue/10 p-4 rounded-lg border border-amoa-blue/20 mb-4">
           <p className="text-amoa-blue font-semibold">{step.content}</p>
         </div>
         
@@ -500,15 +500,15 @@ export default function AmoaQuestPage() {
             <Button
               key={option.id}
               variant="outline"
-              className="w-full justify-start h-auto py-3 px-4 text-left bg-white hover:bg-blue-50"
+              className="w-full justify-start h-auto py-3 px-4 text-left bg-white hover:bg-amoa-blue/5"
               onClick={() => handleOptionSelect(option)}
               disabled={loading}
             >
               <div className="flex items-center">
-                <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center mr-3 flex-shrink-0">
+                <div className="w-6 h-6 rounded-full bg-amoa-blue flex items-center justify-center mr-3 flex-shrink-0">
                   <ChevronRight className="h-4 w-4 text-white" />
                 </div>
-                <span className="text-white">{option.text}</span>
+                <span className="text-gray-800">{option.text}</span>
               </div>
             </Button>
           ))}
@@ -570,7 +570,7 @@ export default function AmoaQuestPage() {
       { 
         label: "Satisfaction des parties prenantes", 
         value: questState.playerMetrics.stakeholderSatisfaction,
-        color: "bg-blue-700" 
+        color: "bg-amoa-blue" 
       },
       { 
         label: "Qualité technique", 
@@ -632,7 +632,7 @@ export default function AmoaQuestPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-t-transparent border-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-t-transparent border-amoa-blue rounded-full animate-spin mx-auto mb-4"></div>
           <h2 className="text-xl font-medium text-gray-700">Initialisation de l'aventure...</h2>
           <p className="text-gray-500 mt-2">Préparation des personnages et des scénarios</p>
         </div>
@@ -662,7 +662,7 @@ export default function AmoaQuestPage() {
               le déroulement du projet et la satisfaction des parties prenantes.
             </p>
             
-            <div className="bg-blue-700 p-4 rounded-lg border border-blue-600">
+            <div className="bg-amoa-blue p-4 rounded-lg border border-amoa-blue/90">
               <h3 className="font-semibold text-white mb-2 flex items-center">
                 <Info className="h-5 w-5 mr-2" />
                 Comment jouer
@@ -702,7 +702,7 @@ export default function AmoaQuestPage() {
           <DialogFooter>
             <Button 
               onClick={() => setShowIntro(false)}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-amoa-blue hover:bg-amoa-blue/90"
             >
               Commencer l'aventure
               <ChevronRight className="ml-2 h-4 w-4" />
@@ -786,7 +786,7 @@ export default function AmoaQuestPage() {
               Aide
             </Button>
             
-            <div className="bg-blue-700 text-white text-xs font-medium px-2.5 py-0.5 rounded-full flex items-center">
+            <div className="bg-amoa-blue text-white text-xs font-medium px-2.5 py-0.5 rounded-full flex items-center">
               <Clock className="h-3 w-3 mr-1" />
               Progression : {calculateProgress()}%
             </div>
@@ -830,7 +830,7 @@ export default function AmoaQuestPage() {
                   case "decision":
                     return (
                       <div key={index} className="mb-4 opacity-80">
-                        <div className="bg-blue-700 p-4 rounded-lg border border-blue-600 mb-2">
+                        <div className="bg-amoa-blue p-4 rounded-lg border border-amoa-blue/90 mb-2">
                           <p className="text-white font-semibold">{step.content}</p>
                         </div>
                         {step.options && questState.playerChoices[step.id] && (
@@ -935,7 +935,7 @@ export default function AmoaQuestPage() {
                             return (
                               <div key={phase.id} className={cn(
                                 "p-2 rounded-lg border text-sm",
-                                isCurrentPhase ? "bg-blue-700 border-blue-600" : 
+                                isCurrentPhase ? "bg-amoa-blue border-amoa-blue/80" : 
                                 isCompleted ? "bg-gray-700 border-gray-600" : "bg-gray-200 border-gray-300"
                               )}>
                                 <div className="flex justify-between items-center mb-1">
@@ -957,7 +957,7 @@ export default function AmoaQuestPage() {
                                   value={(stepsCompleted / phase.steps.length) * 100} 
                                   className="h-1.5"
                                   indicatorClassName={
-                                    isCurrentPhase ? "bg-blue-300" : 
+                                    isCurrentPhase ? "bg-white" : 
                                     isCompleted ? "bg-white" : "bg-gray-400"
                                   }
                                 />
