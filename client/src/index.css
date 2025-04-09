@@ -27,35 +27,35 @@
   border-radius: 12px;
 }
 
-/* Formes de cartes pour AMOA */
+/* Formes de cartes pour AMOA - Styles de documents professionnels */
 .amoa-card-1 {
-  clip-path: polygon(0 15%, 15% 0, 100% 0, 100% 85%, 85% 100%, 0 100%);
-  border-radius: 12px;
+  clip-path: polygon(0 0, 92% 0, 100% 8%, 100% 100%, 0 100%);
+  border-radius: 0;
 }
 
 .amoa-card-2 {
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 15% 100%, 0 85%);
-  border-radius: 12px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 8% 100%, 0 92%);
+  border-radius: 0;
 }
 
 .amoa-card-3 {
-  clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%, 0 15%);
-  border-radius: 12px;
+  clip-path: polygon(8% 0, 100% 0, 100% 92%, 92% 100%, 0 100%, 0 8%);
+  border-radius: 0;
 }
 
 .amoa-card-4 {
-  clip-path: polygon(0 0, 85% 0, 100% 15%, 100% 100%, 0 100%);
-  border-radius: 12px;
+  clip-path: polygon(0 8%, 8% 0, 100% 0, 100% 100%, 0 100%);
+  border-radius: 0;
 }
 
 .amoa-card-5 {
-  clip-path: polygon(0 0, 100% 0, 100% 85%, 85% 100%, 0 100%);
-  border-radius: 12px;
+  clip-path: polygon(0 0, 100% 0, 100% 92%, 92% 100%, 0 100%);
+  border-radius: 0;
 }
 
 .amoa-card-6 {
-  clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%, 0 15%);
-  border-radius: 12px;
+  clip-path: polygon(0 0, 92% 0, 100% 8%, 100% 100%, 8% 100%, 0 92%);
+  border-radius: 0;
 }
 
 /* Animation de pulsation pour les cartes sur hover */

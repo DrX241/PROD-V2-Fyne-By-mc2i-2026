@@ -148,49 +148,87 @@ export default function AmoaPage() {
             ))}
           </div>
           
-          {/* Éléments d'arrière-plan pour la thématique AMOA */}
+          {/* Éléments d'arrière-plan spécifiques à l'AMOA - Diagrammes Gantt, organigrammes */}
           <div className="absolute top-0 left-0 w-full h-full">
-            {/* Lignes connectées représentant un réseau de projet */}
             <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
               <defs>
-                <linearGradient id="grid-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4" />
-                  <stop offset="100%" stopColor="#60a5fa" stopOpacity="0.7" />
+                <linearGradient id="amoa-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.3" />
+                  <stop offset="100%" stopColor="#1e40af" stopOpacity="0.5" />
                 </linearGradient>
+                <pattern id="grid-pattern" width="100" height="100" patternUnits="userSpaceOnUse">
+                  <rect x="0" y="0" width="100" height="100" fill="none" stroke="#4b83db" strokeWidth="0.5" strokeOpacity="0.2" />
+                </pattern>
               </defs>
-              {/* Lignes horizontales */}
-              {Array.from({ length: 10 }).map((_, i) => (
-                <line 
-                  key={`h-${i}`}
-                  x1="0" 
-                  y1={i * 120} 
-                  x2="100%" 
-                  y2={i * 120 + (Math.random() * 50)} 
-                  stroke="url(#grid-gradient)" 
-                  strokeWidth="1.5"
-                />
+              
+              {/* Grille de fond pour représenter les tableaux de planification */}
+              <rect width="100%" height="100%" fill="url(#grid-pattern)" />
+              
+              {/* Barres de Gantt */}
+              {Array.from({ length: 7 }).map((_, i) => (
+                <g key={`gantt-${i}`} transform={`translate(${Math.random() * 70}%, ${150 + i * 60})`}>
+                  <rect 
+                    width={`${Math.random() * 200 + 100}`} 
+                    height="20" 
+                    rx="2" 
+                    fill="url(#amoa-gradient)" 
+                    opacity="0.4"
+                  />
+                  {Math.random() > 0.5 && (
+                    <rect 
+                      width={`${Math.random() * 50 + 20}`} 
+                      height="20" 
+                      rx="2"
+                      fill="#60a5fa" 
+                      opacity="0.6"
+                    />
+                  )}
+                </g>
               ))}
-              {/* Lignes verticales */}
-              {Array.from({ length: 10 }).map((_, i) => (
-                <line 
-                  key={`v-${i}`}
-                  x1={i * 120} 
-                  y1="0" 
-                  x2={i * 120 + (Math.random() * 50)} 
-                  y2="100%" 
-                  stroke="url(#grid-gradient)" 
-                  strokeWidth="1.5"
-                />
-              ))}
-              {/* Cercles pour représenter des noeuds */}
-              {Array.from({ length: 15 }).map((_, i) => (
-                <circle
-                  key={`c-${i}`}
-                  cx={Math.random() * 100 + "%"}
-                  cy={Math.random() * 100 + "%"}
-                  r={Math.random() * 5 + 3}
+              
+              {/* Connecteurs d'organigramme */}
+              {Array.from({ length: 8 }).map((_, i) => {
+                const x1 = Math.random() * 100;
+                const y1 = Math.random() * 100;
+                const x2 = x1 + (Math.random() * 30 - 15);
+                const y2 = y1 + (Math.random() * 40 + 20);
+                
+                return (
+                  <g key={`org-${i}`}>
+                    <line 
+                      x1={`${x1}%`} 
+                      y1={`${y1}%`} 
+                      x2={`${x2}%`} 
+                      y2={`${y2}%`} 
+                      stroke="#60a5fa" 
+                      strokeWidth="2"
+                      strokeOpacity="0.4"
+                      strokeDasharray={Math.random() > 0.5 ? "5,5" : ""}
+                    />
+                    {Math.random() > 0.6 && (
+                      <circle 
+                        cx={`${x2}%`} 
+                        cy={`${y2}%`} 
+                        r="4" 
+                        fill="#60a5fa" 
+                        opacity="0.5" 
+                      />
+                    )}
+                  </g>
+                );
+              })}
+              
+              {/* Post-it et notes */}
+              {Array.from({ length: 5 }).map((_, i) => (
+                <rect 
+                  key={`note-${i}`}
+                  x={`${Math.random() * 90}%`}
+                  y={`${Math.random() * 90}%`}
+                  width="30"
+                  height="30"
+                  transform={`rotate(${Math.random() * 20 - 10})`}
                   fill="#60a5fa"
-                  opacity="0.6"
+                  opacity="0.3"
                 />
               ))}
             </svg>
@@ -301,31 +339,43 @@ export default function AmoaPage() {
                     <div className="absolute h-20 w-1 bottom-6 left-12 bg-blue-200 opacity-40"></div>
                     
                     <div className="flex flex-col h-full relative z-10">
-                      {/* Icon container */}
-                      <div className="w-16 h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 rounded-2xl bg-opacity-20 bg-white flex items-center justify-center mb-4 backdrop-blur-sm mx-auto">
-                        {module.icon}
+                      {/* Header avec numéro de module et icône */}
+                      <div className="flex items-center mb-3">
+                        <div className="w-8 h-8 rounded-full border-2 border-white/50 text-white flex items-center justify-center font-bold mr-3">
+                          {index + 1}
+                        </div>
+                        <div className="w-12 h-12 bg-opacity-30 bg-white rounded-md flex items-center justify-center backdrop-blur-sm">
+                          {module.icon}
+                        </div>
                       </div>
                       
-                      <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-3 text-center">{module.title}</h2>
-                      <p className="text-blue-100 mb-6 text-sm lg:text-base flex-grow text-center">{module.description}</p>
+                      <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-3">{module.title}</h2>
                       
-                      {/* Skills badges */}
-                      <div className="flex flex-wrap gap-2 justify-center mb-6">
-                        {module.skills.map((skill, idx) => (
-                          <span key={idx} className="bg-white/20 text-white text-xs px-3 py-1 rounded-full backdrop-blur-sm">
-                            {skill}
-                          </span>
-                        ))}
+                      {/* Séparateur horizontal */}
+                      <div className="h-0.5 w-16 bg-white/40 mb-4"></div>
+                      
+                      <p className="text-blue-100 mb-6 text-sm lg:text-base flex-grow">{module.description}</p>
+                      
+                      {/* Skills badges avec style papier */}
+                      <div className="border-t border-white/20 pt-4 mb-4">
+                        <p className="text-xs text-white/70 uppercase tracking-wider mb-2">Compétences clés</p>
+                        <div className="flex flex-wrap gap-2 mb-6">
+                          {module.skills.map((skill, idx) => (
+                            <span key={idx} className="bg-white/10 text-white text-xs px-3 py-1 rounded-sm border border-white/20">
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                       
-                      {/* Metadata */}
-                      <div className="flex justify-center gap-4 text-blue-100 text-sm mb-6">
+                      {/* Metadata en bas avec style document */}
+                      <div className="flex justify-between text-blue-100 text-xs mb-4 border-t border-white/20 pt-3">
                         <div className="flex items-center">
-                          <Users className="w-4 h-4 mr-1" />
+                          <Users className="w-3.5 h-3.5 mr-1" />
                           {module.level}
                         </div>
                         <div className="flex items-center">
-                          <Clock className="w-4 h-4 mr-1" />
+                          <Clock className="w-3.5 h-3.5 mr-1" />
                           {module.duration}
                         </div>
                       </div>
