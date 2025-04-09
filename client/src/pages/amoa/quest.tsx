@@ -641,7 +641,7 @@ export default function AmoaQuestPage() {
       // Faire défiler jusqu'au dernier message
       setTimeout(() => {
         if (messagesEndRef.current) {
-          messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+          messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
         }
       }, 100);
     }
@@ -850,7 +850,7 @@ export default function AmoaQuestPage() {
             </div>
             
             {/* Conversation et interactions simplifiées */}
-            <div className="bg-gray-100 rounded-lg p-4 min-h-[400px]">
+            <div className="bg-gray-100 rounded-lg p-4 min-h-[400px] max-h-[70vh] overflow-y-auto">
               {/* Introduction à la phase actuelle */}
               <div className="bg-white p-4 rounded-lg shadow-sm border mb-6">
                 <div className="flex items-start">
@@ -916,7 +916,7 @@ export default function AmoaQuestPage() {
                             : 'bg-white border shadow-sm'
                         }`}>
                           <p className={`text-sm whitespace-pre-line ${
-                            message.role === 'user' ? 'text-white' : 'text-gray-900'
+                            message.role === 'user' ? 'text-white' : 'text-black font-medium'
                           }`}>
                             {message.content}
                           </p>

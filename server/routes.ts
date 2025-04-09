@@ -2500,26 +2500,27 @@ Ton format de réponse doit être un JSON valide avec les champs suivants:
       ];
       
       // Appel à l'API OpenAI via le service approprié
-      const completion = await openAIService.getChatCompletion(messages, {
-        temperature: 0.7,
-        max_tokens: 1000,
-        model: openAIService.getCurrentModelName()
-      });
+      const completion = await openAIService.getChatCompletion(
+        messages,
+        0.7,  // temperature
+        1000  // max_tokens
+      );
       
       // Vérifier que la réponse a un contenu
-      if (!completion.choices || !completion.choices[0]?.message?.content) {
+      if (!completion) {
         return res.status(500).json({ error: 'Réponse invalide de l\'API' });
       }
       
       // Récupérer et parser la réponse
       let responseContent;
       try {
-        responseContent = JSON.parse(completion.choices[0].message.content);
+        // La fonction retourne directement le contenu du message, pas l'objet complet
+        responseContent = JSON.parse(completion);
       } catch (error) {
         // Si le parsing échoue, utiliser la réponse brute
         console.error("Erreur de parsing JSON:", error);
         responseContent = { 
-          message: completion.choices[0].message.content,
+          message: completion,
           character: {
             id: "assistant",
             name: "Mathilde Comte",
