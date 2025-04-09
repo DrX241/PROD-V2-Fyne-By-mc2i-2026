@@ -189,172 +189,38 @@ export default function AmoaQuestPage() {
 
   // Initialisation du jeu
   useEffect(() => {
-    const initializeWithMockData = () => {
-      // Phases et étapes simulées
-      const mockPhases: QuestPhase[] = [
-        {
-          id: "phase1",
-          title: "Cadrage et expression des besoins",
-          description: "Première rencontre avec le client et identification des besoins du projet",
-          steps: [
-            {
-              id: "intro1",
-              type: "narrative",
-              character: {
-                id: "director",
-                name: "Claire Leroy",
-                role: "Directrice de Projet",
-                avatar: "",
-                mood: "neutral"
-              },
-              content: "Bonjour et bienvenue dans l'équipe ! Je suis Claire Leroy, la directrice de ce projet stratégique pour notre client PharmaHealth. Nous avons besoin de vos compétences d'AMOA pour mener à bien ce projet de transformation digitale."
-            },
-            {
-              id: "intro2",
-              type: "narrative",
-              character: {
-                id: "director",
-                name: "Claire Leroy",
-                role: "Directrice de Projet",
-                avatar: "",
-                mood: "serious"
-              },
-              content: "PharmaHealth est un groupe pharmaceutique qui souhaite moderniser sa plateforme de gestion des essais cliniques. Le système actuel est obsolète et ne répond plus aux exigences réglementaires et aux besoins des utilisateurs."
-            },
-            {
-              id: "choice1",
-              type: "decision",
-              content: "Comment souhaitez-vous aborder ce projet en tant qu'AMOA ?",
-              options: [
-                {
-                  id: "option1",
-                  text: "Je voudrais d'abord comprendre les besoins des utilisateurs finaux avant toute chose.",
-                  impact: {
-                    stakeholder: 10,
-                    technical: 5,
-                    budget: 0,
-                    timeline: -5
-                  }
-                },
-                {
-                  id: "option2",
-                  text: "Pouvons-nous examiner la documentation technique du système actuel pour identifier les contraintes ?",
-                  impact: {
-                    stakeholder: 0,
-                    technical: 10,
-                    budget: 5,
-                    timeline: 0
-                  }
-                },
-                {
-                  id: "option3",
-                  text: "Je propose de définir rapidement un planning et un budget pour cadrer le projet dès le départ.",
-                  impact: {
-                    stakeholder: -5,
-                    technical: 0,
-                    budget: 10,
-                    timeline: 10
-                  }
-                }
-              ]
-            },
-            {
-              id: "response1",
-              type: "narrative",
-              character: {
-                id: "director",
-                name: "Claire Leroy",
-                role: "Directrice de Projet",
-                avatar: "",
-                mood: "happy"
-              },
-              content: "Excellente approche ! Je vais vous organiser des entretiens avec les principaux utilisateurs. Entre-temps, voici le document préliminaire qui résume les objectifs stratégiques du projet."
-            },
-            {
-              id: "document1",
-              type: "document",
-              content: "Voici le document préliminaire du projet :",
-              documents: [
-                {
-                  title: "Objectifs Stratégiques - Projet eClinical",
-                  content: "Le projet de modernisation de la plateforme d'essais cliniques (eClinical) vise à :\n\n1. Réduire de 40% le temps de configuration des essais cliniques\n2. Améliorer la conformité réglementaire (FDA, EMA)\n3. Permettre une collaboration en temps réel entre les équipes mondiales\n4. Assurer l'intégrité et la traçabilité des données\n5. Intégrer des capacités d'analyse avancées\n\nLe système devra être opérationnel d'ici 12 mois pour correspondre au lancement de trois essais cliniques majeurs.",
-                  type: "requirement"
-                }
-              ]
-            },
-            {
-              id: "meeting1",
-              type: "narrative",
-              character: {
-                id: "user",
-                name: "Dr. Martin Bernard",
-                role: "Responsable des Essais Cliniques",
-                avatar: "",
-                mood: "concerned"
-              },
-              content: "Bonjour, je suis le Dr. Bernard, responsable des essais cliniques. Notre principal problème est la lenteur du système actuel et son manque de flexibilité. Nous perdons un temps précieux à configurer manuellement chaque essai, et les erreurs sont fréquentes. De plus, la conformité réglementaire devient un cauchemar avec les nouvelles directives."
-            },
-            {
-              id: "choice2",
-              type: "decision",
-              content: "Quelle approche privilégiez-vous pour recueillir les besoins ?",
-              options: [
-                {
-                  id: "option1",
-                  text: "Organiser des ateliers d'expression des besoins avec tous les utilisateurs en même temps pour favoriser la co-création.",
-                  impact: {
-                    stakeholder: 5,
-                    technical: 5,
-                    budget: -5,
-                    timeline: -5
-                  }
-                },
-                {
-                  id: "option2",
-                  text: "Mener des entretiens individuels avec chaque partie prenante pour approfondir leurs besoins spécifiques.",
-                  impact: {
-                    stakeholder: 10,
-                    technical: 0,
-                    budget: -5,
-                    timeline: -10
-                  }
-                },
-                {
-                  id: "option3",
-                  text: "Utiliser un questionnaire en ligne pour collecter rapidement un maximum d'informations auprès de tous les utilisateurs.",
-                  impact: {
-                    stakeholder: -5,
-                    technical: 5,
-                    budget: 10,
-                    timeline: 10
-                  }
-                }
-              ]
-            }
-          ]
-        },
-        {
-          id: "phase2",
-          title: "Spécifications fonctionnelles",
-          description: "Formalisation des besoins et élaboration des spécifications",
-          steps: [
-            // Étapes pour la phase 2
-          ]
+    const initializeQuest = async () => {
+      try {
+        setInitializing(true);
+        
+        // Appel à l'API pour récupérer le scénario généré dynamiquement
+        const response = await apiRequest("/api/amoa/quest/initialize", { method: "POST" });
+        
+        if (response && response.phases && response.phases.length > 0) {
+          setQuestPhases(response.phases);
+          setQuestState({
+            ...questState,
+            currentPhaseId: response.phases[0]?.id || "",
+            currentStepIndex: 0
+          });
+        } else {
+          throw new Error("Données de quête invalides");
         }
-      ];
-
-      setQuestPhases(mockPhases);
-      setQuestState({
-        ...questState,
-        currentPhaseId: mockPhases[0]?.id || "",
-        currentStepIndex: 0
-      });
-      setLoading(false);
-      setInitializing(false);
+      } catch (error) {
+        console.error("Erreur lors de l'initialisation de la quête:", error);
+        toast({
+          title: "Erreur",
+          description: "Impossible d'initialiser l'aventure. Veuillez réessayer.",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+        setInitializing(false);
+      }
     };
 
-    // Pour le développement, utilisons les données simulées
-    initializeWithMockData();
+    // Lancer l'initialisation
+    initializeQuest();
   }, []);
 
   // Obtenir la phase et l'étape actuelles
@@ -406,7 +272,9 @@ export default function AmoaQuestPage() {
   const handleOptionSelect = async (option: DialogOption) => {
     setLoading(true);
     const currentStep = getCurrentStep();
-    if (!currentStep) return;
+    const currentPhase = getCurrentPhase();
+    
+    if (!currentStep || !currentPhase) return;
 
     try {
       // Mettre à jour les métriques du joueur en fonction de l'impact de l'option
@@ -432,21 +300,59 @@ export default function AmoaQuestPage() {
         [currentStep.id]: option.id
       };
 
-      // Mettre à jour l'état de la quête
+      // Mettre à jour l'état de la quête avec les nouvelles métriques et le choix
       setQuestState({
         ...questState,
         playerChoices: newChoices,
         playerMetrics: newMetrics
       });
-
-      // Pour une version future, nous appellerons l'API Azure OpenAI pour générer des réponses dynamiques
-      // basées sur les choix du joueur
       
-      // Passer à l'étape suivante après un court délai pour simuler le traitement
-      setTimeout(() => {
+      // Appeler l'API pour générer la suite du scénario en fonction du choix
+      const response = await apiRequest("/api/amoa/quest/choice", {
+        method: "POST",
+        body: JSON.stringify({
+          phaseId: currentPhase.id,
+          phaseTitle: currentPhase.title,
+          stepId: currentStep.id,
+          stepContent: currentStep.content,
+          optionId: option.id,
+          optionText: option.text,
+          playerMetrics: newMetrics,
+          playerChoices: newChoices,
+          currentCharacter: currentStep.character
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response && response.narrativeStep && response.nextStep) {
+        // Ajouter les nouvelles étapes générées à la phase actuelle
+        const updatedPhases = [...questPhases];
+        const phaseIndex = updatedPhases.findIndex(p => p.id === currentPhase.id);
+        
+        if (phaseIndex >= 0) {
+          // Ajouter la réponse narrative à la suite des étapes existantes
+          updatedPhases[phaseIndex].steps.push(response.narrativeStep);
+          // Ajouter l'étape suivante (question, décision, etc.)
+          updatedPhases[phaseIndex].steps.push(response.nextStep);
+          
+          // Mettre à jour les phases de la quête
+          setQuestPhases(updatedPhases);
+          
+          // Passer à l'étape de la réponse narrative (qui est juste après l'étape actuelle)
+          setQuestState(prevState => ({
+            ...prevState,
+            currentStepIndex: prevState.currentStepIndex + 1,
+            completedSteps: [...prevState.completedSteps, currentStep.id]
+          }));
+        }
+      } else {
+        // Si la réponse est invalide, passer simplement à l'étape suivante
         goToNextStep();
-        setLoading(false);
-      }, 1000);
+      }
+      
+      setLoading(false);
     } catch (error) {
       console.error("Erreur lors de la sélection d'une option:", error);
       toast({
@@ -468,7 +374,7 @@ export default function AmoaQuestPage() {
           </div>
         )}
         <div className="bg-white p-4 rounded-lg shadow-sm border max-w-2xl">
-          <p className="text-gray-800 whitespace-pre-line">{step.content}</p>
+          <p className="text-gray-900 whitespace-pre-line">{step.content}</p>
           
           <div className="mt-4 text-right">
             <Button 
