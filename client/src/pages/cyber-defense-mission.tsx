@@ -324,54 +324,83 @@ export default function CyberDefenseMission() {
   
   // Initialisation de la mission
   useEffect(() => {
-    if (messages.length === 0) {
-      // Message d'introduction présentant le contexte, le rôle du joueur et la mission - format concis
-      const introMessage: Message = {
-        id: uuidv4(),
-        role: "assistant",
-        content: `**NIVEAU ${mission.level === 'Débutant' ? '1' : mission.level === 'Intermédiaire' ? '2' : '3'}: ${mission.title}**
+    async function initializeMission() {
+      if (messages.length === 0) {
+        // Afficher un loader initial pendant la génération IA
+        const loadingMessage: Message = {
+          id: uuidv4(),
+          role: "system",
+          content: "Initialisation de la mission...",
+          sender: "Système",
+          senderRole: "Chargement",
+          timestamp: Date.now() - 1000
+        };
+        
+        setMessages([loadingMessage]);
+        
+        try {
+          // Demander l'initialisation de la mission via l'API
+          const response = await axios.post('/api/cyber-defense/chat', {
+            userMessage: "démarrer la mission",
+            missionId: mission.id,
+            missionContext: mission,
+            currentObjective: 0,
+            previousMessages: [{
+              role: "system", 
+              content: `INITIALISATION DE MISSION: "${mission.title}" (Niveau: ${mission.level})`
+            }],
+            temperature: 0.5,
+            maxTokens: 1200
+          });
+          
+          const { 
+            response: responseContent, 
+            sender, 
+            senderRole
+          } = response.data;
+          
+          // Message d'introduction généré par l'IA
+          const expertMessage: Message = {
+            id: uuidv4(),
+            role: "assistant",
+            content: responseContent,
+            sender: sender || (mission.primaryContact?.name || "Yousra Saidani"),
+            senderRole: senderRole || (mission.primaryContact?.role || "Expert Cybersécurité"),
+            timestamp: Date.now()
+          };
+          
+          setMessages([expertMessage]);
+        } catch (error) {
+          console.error("Erreur lors de l'initialisation via IA:", error);
+          
+          // Fallback manuel en cas d'erreur avec l'API
+          // Message d'introduction présentant le contexte, le rôle du joueur et la mission - format concis
+          const introMessage: Message = {
+            id: uuidv4(),
+            role: "assistant",
+            content: `**NIVEAU ${mission.level === 'Débutant' ? '1' : mission.level === 'Intermédiaire' ? '2' : '3'}: ${mission.title}**
 
 Vous êtes dans une simulation de cybersécurité.
 
 **Complexité:** ${mission.level}
 **Durée estimée:** ${mission.duration || '10-15 min'}
 
-**COMMENT JOUER:**
-
-• Interagissez avec les experts disponibles
-
-• Prenez des décisions pour résoudre l'incident
-
-• Complétez tous les objectifs pour réussir le niveau
-
-• De nouveaux experts seront débloqués à mesure que vous progressez dans les niveaux`,
-        sender: "Système",
-        senderRole: "Briefing de mission",
-        timestamp: Date.now() - 1000 // 1 seconde plus tôt
-      };
-      
-      // Message de l'expert principal pour démarrer la mission
-      const expertMessage: Message = {
-        id: uuidv4(),
-        role: "assistant",
-        content: `Bonjour ${userName || "Responsable"}, je suis ${mission.primaryContact?.name || "Yousra Saidani"}, ${mission.primaryContact?.role || "Senior Manager et Experte Cybersécurité"}.
-
-Nous avons un incident potentiel de sécurité et j'ai besoin de votre expertise immédiatement.
-
 **SITUATION ACTUELLE:**
 ${mission.scenario}
 
-**OBJECTIFS IMMÉDIATS:**
-${mission.objectives.slice(0, 3).map(obj => `\n• ${obj.description}`).join('')}
-
-J'attends vos instructions pour agir. Comment souhaitez-vous procéder?`,
-        sender: mission.primaryContact?.name || "Yousra Saidani",
-        senderRole: mission.primaryContact?.role || "Senior Manager et Experte Cybersécurité",
-        timestamp: Date.now()
-      };
-      
-      setMessages([introMessage, expertMessage]);
+**OBJECTIFS:**
+${mission.objectives.slice(0, 3).map(obj => `\n• ${obj.description}`).join('')}`,
+            sender: "Système",
+            senderRole: "Briefing de mission",
+            timestamp: Date.now() - 1000
+          };
+          
+          setMessages([introMessage]);
+        }
+      }
     }
+    
+    initializeMission();
   }, [mission, userName, messages.length]);
   
   // Faire défiler automatiquement vers le bas lorsque de nouveaux messages sont ajoutés

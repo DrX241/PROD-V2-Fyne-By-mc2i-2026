@@ -110,40 +110,55 @@ export default function CyberDefenseSession() {
     
   }, [levelId]);
   
-  // Initialiser la session avec un message d'accueil
+  // Initialiser la session avec un message d'accueil généré par l'IA
   useEffect(() => {
-    if (level && messages.length === 0 && activeContacts.length > 0) {
-      const initialContact = activeContacts[0];
-      
-      // Message de bienvenue par le contact principal
-      const welcomeMessage: Message = {
-        id: uuidv4(),
-        sender: initialContact.id,
-        senderName: initialContact.name,
-        senderRole: initialContact.role,
-        senderAvatar: initialContact.avatarInitials,
-        senderAvatarColor: initialContact.avatarColor,
-        content: `Bonjour ${userName || "Responsable"}, je suis ${initialContact.name}, ${initialContact.role}.
+    // Fonction pour initialiser la session
+    async function initializeSession() {
+      if (level && messages.length === 0 && activeContacts.length > 0) {
+        const initialContact = activeContacts[0];
         
-Nous avons un incident potentiel de sécurité et j'ai besoin de votre expertise immédiatement.
-
-**SITUATION ACTUELLE:**
-${level.scenario}
-
-**OBJECTIFS IMMÉDIATS:**
-- ${level.objectives.join('\n- ')}
-
-J'attends vos instructions pour agir. Comment souhaitez-vous procéder?`,
-        timestamp: Date.now(),
-        isSystemMessage: false
-      };
-      
-      // Message système pour donner le contexte
-      const systemMessage: Message = {
-        id: uuidv4(),
-        sender: 'system',
-        content: `**NIVEAU ${level.levelNumber}: ${level.title}**
+        // Message de chargement temporaire
+        const loadingMessage: Message = {
+          id: uuidv4(),
+          sender: 'system',
+          content: 'Initialisation de la session...',
+          timestamp: Date.now(),
+          isSystemMessage: true
+        };
         
+        setMessages([loadingMessage]);
+        
+        try {
+          // Appel à l'API pour générer le message d'accueil via IA
+          const response = await axios.post('/api/cyber-defense/chat', {
+            userMessage: "démarrer la session",
+            missionContext: {
+              title: level.title,
+              level: level.complexity,
+              scenario: level.scenario,
+              objectives: level.objectives,
+              contacts: [initialContact]
+            },
+            previousMessages: [{
+              role: "system", 
+              content: `INITIALISATION DE SESSION: "${level.title}" (Niveau: ${level.levelNumber}, Complexité: ${level.complexity})`
+            }],
+            temperature: 0.5,
+            maxTokens: 1200
+          });
+          
+          const { 
+            response: responseContent,
+            sender,
+            senderRole
+          } = response.data;
+          
+          // Message système pour donner le contexte
+          const systemMessage: Message = {
+            id: uuidv4(),
+            sender: 'system',
+            content: `**NIVEAU ${level.levelNumber}: ${level.title}**
+            
 Vous êtes dans une simulation de cybersécurité.
 
 Complexité: ${level.complexity}
@@ -154,12 +169,70 @@ Durée estimée: ${level.duration}
 - Prenez des décisions pour résoudre l'incident
 - Complétez tous les objectifs pour réussir le niveau
 - De nouveaux experts seront débloqués à mesure que vous progressez dans les niveaux`,
-        timestamp: Date.now(),
-        isSystemMessage: true
-      };
-      
-      setMessages([systemMessage, welcomeMessage]);
+            timestamp: Date.now(),
+            isSystemMessage: true
+          };
+          
+          // Message de bienvenue généré par l'IA
+          const welcomeMessage: Message = {
+            id: uuidv4(),
+            sender: initialContact.id,
+            senderName: sender || initialContact.name,
+            senderRole: senderRole || initialContact.role,
+            senderAvatar: initialContact.avatarInitials,
+            senderAvatarColor: initialContact.avatarColor,
+            content: responseContent,
+            timestamp: Date.now() + 500,
+            isSystemMessage: false
+          };
+          
+          setMessages([systemMessage, welcomeMessage]);
+        } catch (error) {
+          console.error("Erreur lors de l'initialisation via IA:", error);
+          
+          // Fallback message en cas d'erreur
+          const systemMessage: Message = {
+            id: uuidv4(),
+            sender: 'system',
+            content: `**NIVEAU ${level.levelNumber}: ${level.title}**
+            
+Vous êtes dans une simulation de cybersécurité.
+
+Complexité: ${level.complexity}
+Durée estimée: ${level.duration}`,
+            timestamp: Date.now(),
+            isSystemMessage: true
+          };
+          
+          // Message de bienvenue par défaut
+          const welcomeMessage: Message = {
+            id: uuidv4(),
+            sender: initialContact.id,
+            senderName: initialContact.name,
+            senderRole: initialContact.role,
+            senderAvatar: initialContact.avatarInitials,
+            senderAvatarColor: initialContact.avatarColor,
+            content: `Bonjour ${userName || "Responsable"}, je suis ${initialContact.name}, ${initialContact.role}.
+            
+Nous avons un incident potentiel de sécurité et j'ai besoin de votre expertise immédiatement.
+
+**SITUATION ACTUELLE:**
+${level.scenario}
+
+**OBJECTIFS IMMÉDIATS:**
+- ${level.objectives.join('\n- ')}
+
+J'attends vos instructions pour agir. Comment souhaitez-vous procéder?`,
+            timestamp: Date.now() + 500,
+            isSystemMessage: false
+          };
+          
+          setMessages([systemMessage, welcomeMessage]);
+        }
+      }
     }
+    
+    initializeSession();
   }, [level, messages.length, activeContacts, userName]);
   
   // Faire défiler automatiquement vers le bas lorsque de nouveaux messages sont ajoutés
@@ -188,50 +261,97 @@ Durée estimée: ${level.duration}
     setLoading(true);
     
     try {
-      // Dans un environnement réel, appeler l'API pour obtenir une réponse
-      // Simuler un délai pour l'effet de chargement
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Préparer les messages pour l'API (contexte récent)
+      const recentMessages = messages
+        .slice(-5) // Inclure uniquement les 5 derniers messages pour le contexte
+        .map(msg => ({
+          role: msg.isSystemMessage ? "system" : msg.sender === 'user' ? "user" : "assistant",
+          content: msg.content,
+          // Ajouter des métadonnées contextuelles pour les messages de PNJ
+          ...(msg.sender !== 'user' && msg.sender !== 'system' && msg.senderName ? {
+            name: msg.senderName.replace(/\s/g, "_").toLowerCase(),
+            // Contexte de l'expéditeur
+            content: msg.senderName && msg.senderRole 
+              ? `[${msg.senderName}, ${msg.senderRole}]: ${msg.content}`
+              : msg.content
+          } : {})
+        }));
+        
+      // Appel à l'API pour obtenir une réponse générée par l'IA
+      const response = await axios.post('/api/cyber-defense/chat', {
+        userMessage: userInput,
+        missionContext: {
+          title: level?.title,
+          level: level?.complexity,
+          scenario: level?.scenario,
+          objectives: level?.objectives,
+          currentObjective: currentObjective
+        },
+        previousMessages: [...recentMessages, {
+          role: "user",
+          content: userInput
+        }],
+        temperature: 0.7,
+        maxTokens: 800
+      });
       
-      // Exemple de réponse pour la démonstration
+      const { 
+        response: responseContent, 
+        sender, 
+        senderRole
+      } = response.data;
+      
+      // Sélectionner par défaut le premier contact actif comme répondant
       const respondingContact = activeContacts[0];
+      
+      // Créer le message de réponse avec le contenu généré par l'IA
       const responseMessage: Message = {
         id: uuidv4(),
         sender: respondingContact.id,
-        senderName: respondingContact.name,
-        senderRole: respondingContact.role,
+        senderName: sender || respondingContact.name,
+        senderRole: senderRole || respondingContact.role,
         senderAvatar: respondingContact.avatarInitials,
         senderAvatarColor: respondingContact.avatarColor,
-        content: `Bonne question. Pour répondre à votre demande concernant cet email suspect:
-
-- Il s'agit très probablement d'une tentative de phishing ciblant nos employés
-- Le lien dans l'email pointe vers un domaine qui imite notre portail d'entreprise
-- D'après nos logs, 3 autres employés ont signalé avoir reçu des emails similaires
-
-Je vous recommande de demander immédiatement au service IT de bloquer ce domaine et d'envoyer une alerte à tous les employés.
-
-Quelle action souhaitez-vous que nous prenions en priorité?`,
+        content: responseContent,
         timestamp: Date.now(),
         isSystemMessage: false
       };
       
       setMessages(prev => [...prev, responseMessage]);
       
-      // Simuler la progression
-      setProgress(prev => Math.min(prev + 10, 100));
+      // Mettre à jour la progression en fonction du contenu de la réponse
+      // En analysant des mots-clés en lien avec les objectifs actuels
+      const content = responseContent.toLowerCase();
+      const objective = level?.objectives[currentObjective] || '';
       
-      // Si nous atteignons un certain niveau de progression, déverrouiller un nouvel objectif
-      if (progress + 10 >= 20 && currentObjective === 0) {
-        setCurrentObjective(1);
+      // Analyse simplifiée de progression basée sur les mots-clés
+      if (
+        (currentObjective === 0 && (content.includes('phishing') || content.includes('attaque') || content.includes('menace'))) ||
+        (currentObjective === 1 && (content.includes('étendue') || content.includes('impact') || content.includes('compromis'))) ||
+        (currentObjective === 2 && (content.includes('mesure') || content.includes('protection') || content.includes('bloquer')))
+      ) {
+        // Augmenter la progression
+        setProgress(prev => {
+          const newProgress = Math.min(prev + 20, 100);
+          // Si nous atteignons un seuil, passer à l'objectif suivant
+          if (newProgress >= (currentObjective + 1) * 33 && currentObjective < (level?.objectives.length || 3) - 1) {
+            setCurrentObjective(prev => prev + 1);
+          }
+          return newProgress;
+        });
+      } else {
+        // Progression minime si non alignée avec l'objectif
+        setProgress(prev => Math.min(prev + 5, 100));
       }
       
     } catch (error) {
       console.error('Error sending message:', error);
       
-      // Message d'erreur en cas d'échec
+      // Message d'erreur en cas d'échec de l'API
       const errorMessage: Message = {
         id: uuidv4(),
         sender: 'system',
-        content: "Une erreur est survenue lors de la communication. Veuillez réessayer.",
+        content: "Une erreur est survenue lors de la communication avec l'IA. Veuillez réessayer.",
         timestamp: Date.now(),
         isSystemMessage: true
       };
