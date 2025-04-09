@@ -329,35 +329,48 @@ export default function CyberDefenseMission() {
       const introMessage: Message = {
         id: uuidv4(),
         role: "assistant",
-        content: `**ALERTE DE CYBERSÉCURITÉ**
+        content: `**NIVEAU ${mission.level === 'Débutant' ? '1' : mission.level === 'Intermédiaire' ? '2' : '3'}: ${mission.title}**
 
-${userName || "RSSI"}, une situation critique requiert votre intervention immédiate.
+Vous êtes dans une simulation de cybersécurité.
 
-**Date:** ${new Date().toLocaleDateString()}
-**Rôle:** ${mission.userRole}
+**Complexité:** ${mission.level}
+**Durée estimée:** ${mission.duration || '10-15 min'}
 
-**CONTEXTE:**
-${mission.scenario}
+**COMMENT JOUER:**
 
-**OBJECTIFS:**
-- ${mission.objectives.map(obj => obj.description).join('\n- ')}
+• Interagissez avec les experts disponibles
 
-**Règles d'engagement:**
-- Les membres sous votre supervision exécuteront vos ordres directs
-- Mentionnez le nom d'un membre pour lui donner des instructions spécifiques
-- Vos décisions affecteront votre niveau de confiance et votre réputation
+• Prenez des décisions pour résoudre l'incident
 
-**Conséquences possibles:**
-- Mauvaises décisions: baisse de confiance, convocation par le conseil d'administration
-- Bonnes décisions: renforcement de votre position, reconnaissance professionnelle
+• Complétez tous les objectifs pour réussir le niveau
 
-Votre équipe attend vos instructions.`,
+• De nouveaux experts seront débloqués à mesure que vous progressez dans les niveaux`,
         sender: "Système",
         senderRole: "Briefing de mission",
+        timestamp: Date.now() - 1000 // 1 seconde plus tôt
+      };
+      
+      // Message de l'expert principal pour démarrer la mission
+      const expertMessage: Message = {
+        id: uuidv4(),
+        role: "assistant",
+        content: `Bonjour ${userName || "Responsable"}, je suis ${mission.primaryContact?.name || "Yousra Saidani"}, ${mission.primaryContact?.role || "Senior Manager et Experte Cybersécurité"}.
+
+Nous avons un incident potentiel de sécurité et j'ai besoin de votre expertise immédiatement.
+
+**SITUATION ACTUELLE:**
+${mission.scenario}
+
+**OBJECTIFS IMMÉDIATS:**
+${mission.objectives.slice(0, 3).map(obj => `\n• ${obj.description}`).join('')}
+
+J'attends vos instructions pour agir. Comment souhaitez-vous procéder?`,
+        sender: mission.primaryContact?.name || "Yousra Saidani",
+        senderRole: mission.primaryContact?.role || "Senior Manager et Experte Cybersécurité",
         timestamp: Date.now()
       };
       
-      setMessages([introMessage]);
+      setMessages([introMessage, expertMessage]);
     }
   }, [mission, userName, messages.length]);
   

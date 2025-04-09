@@ -30,16 +30,21 @@ const evaluators = getEvaluators();
 // Mission niveau DÉBUTANT : Campagne de phishing
 export const phishingMission: Mission = {
   id: uuidv4(),
-  title: "Contrer une campagne de phishing massive",
+  title: "Alerte Phishing",
   description: "Une campagne de phishing sophistiquée cible les employés de votre entreprise. En tant que responsable de la sensibilisation à la sécurité, vous devez prendre rapidement les bonnes décisions pour limiter l'impact et protéger l'organisation.",
   difficulty: "Débutant",
-  duration: "15-20 min",
+  level: "Débutant", // Ajout du niveau (alias de difficulty)
+  duration: "10-15 min",
+  domain: "Sécurité Préventive",
   tags: ["Phishing", "Sensibilisation", "Communication"],
-  scenario: "Une campagne de phishing sophistiquée vient de cibler massivement les employés du groupe ELITE RETAIL SECURITY. Plusieurs collaborateurs ont déjà cliqué sur des liens malveillants et certains ont fourni leurs identifiants. En tant que responsable de la sensibilisation à la sécurité, vous devez coordonner la réponse immédiate et mettre en place des actions préventives pour limiter l'impact de cette attaque.",
+  scenario: "Un employé vient de signaler avoir reçu un email suspect lui demandant de changer son mot de passe via un lien externe. Plusieurs autres employés ont peut-être reçu le même message.",
   companyName: "ELITE RETAIL SECURITY",
   secteurActivite: "RETAIL & LUXE",
-  userRole: "Responsable Sensibilisation Cybersécurité",
+  userRole: "Responsable Cybersécurité",
   currentScore: 0,
+  
+  // Définir le contact principal pour la mission
+  primaryContact: yousraSaidani,
   
   // Compétences requises et suivies durant cette mission
   requiredSkills: ["gestion_crise", "analyse_risque", "communication", "decision_rapide", "forensique"],
@@ -371,16 +376,21 @@ export const phishingMission: Mission = {
 // Mission niveau INTERMÉDIAIRE : Gestion d'une vulnérabilité zero-day
 export const zeroDay: Mission = {
   id: uuidv4(),
-  title: "Gestion d'une vulnérabilité zero-day critique",
+  title: "Vulnérabilité Zero-Day",
   description: "Une vulnérabilité zero-day a été découverte dans un composant critique de l'infrastructure IT de votre entreprise. En tant que Responsable Vulnérabilités & Patch Management, vous devez orchestrer la réponse de l'organisation face à cette menace sans correctif disponible.",
   difficulty: "Intermédiaire",
+  level: "Intermédiaire", // Ajout du niveau (alias de difficulty)
+  domain: "Gestion des Vulnérabilités",
   duration: "30-45 min",
   tags: ["Vulnérabilité", "Patch Management", "Mesures d'urgence", "Communication"],
-  scenario: "Une vulnérabilité zero-day critique vient d'être découverte dans un composant essentiel utilisé par BANQUE FINANCE ASSURANCE pour ses opérations de paiement. Aucun correctif n'est encore disponible et des exploits sont déjà en circulation. En tant que Responsable Vulnérabilités & Patch Management, vous devez coordonner une réponse immédiate pour protéger les systèmes sans interruption des services critiques.",
+  scenario: "Une vulnérabilité zero-day critique vient d'être découverte dans un composant essentiel utilisé par BANQUE FINANCE ASSURANCE pour ses opérations de paiement. Aucun correctif n'est encore disponible et des exploits sont déjà en circulation.",
   companyName: "BANQUE FINANCE ASSURANCE",
   secteurActivite: "BANCAIRE/FINANCE (BFA)",
   userRole: "Responsable Vulnérabilités & Patch Management",
   currentScore: 0,
+  
+  // Définir le contact principal pour la mission
+  primaryContact: nosingDoeuk,
   
   // Compétences requises et suivies durant cette mission
   requiredSkills: ["rgpd_compliance", "data_governance", "risk_assessment", "communication"],
@@ -707,16 +717,21 @@ export const zeroDay: Mission = {
 // Mission niveau EXPERT : Gestion d'une cyberattaque sur infrastructure critique
 export const infrastructureCriticalAttack: Mission = {
   id: uuidv4(),
-  title: "Défense d'infrastructures critiques énergétiques",
+  title: "Cyberattaque Critique",
   description: "Une cyberattaque sophistiquée cible les systèmes SCADA de votre infrastructure énergétique critique. En tant que RSSI, vous devez orchestrer la défense tout en maintenant la continuité des opérations essentielles.",
   difficulty: "Expert",
+  level: "Expert", // Ajout du niveau (alias de difficulty)
+  domain: "Cyberattaque Industrielle",
   duration: "45-60 min",
   tags: ["Infrastructure critique", "SCADA", "APT", "Défense active", "Continuité d'activité"],
-  scenario: "ENERGY & UTILITIES NEXUS, un acteur majeur du secteur énergétique, fait face à une cyberattaque sophistiquée ciblant ses systèmes de contrôle industriels (SCADA). Des comportements anormaux ont été détectés sur plusieurs automates qui contrôlent la distribution électrique. En tant que RSSI, vous devez coordonner la défense face à cette attaque qui pourrait compromettre l'approvisionnement énergétique de toute une région.",
+  scenario: "ENERGY & UTILITIES NEXUS, un acteur majeur du secteur énergétique, fait face à une cyberattaque sophistiquée ciblant ses systèmes de contrôle industriels (SCADA). Des comportements anormaux ont été détectés sur plusieurs automates qui contrôlent la distribution électrique.",
   companyName: "ENERGY & UTILITIES NEXUS",
   secteurActivite: "ÉNERGIE & UTILITIES",
   userRole: "RSSI (Responsable de la Sécurité des Systèmes d'Information)",
   currentScore: 0,
+  
+  // Définir le contact principal pour la mission
+  primaryContact: julienGrimault,
   
   // Compétences requises et suivies durant cette mission
   requiredSkills: ["incident_response", "rgpd_compliance", "crisis_communication", "risk_assessment"],
