@@ -85,6 +85,19 @@
   .font-cyber-accent {
     font-family: 'Exo 2', sans-serif;
   }
+  
+  /* Couleur Pantone 7469C pour AMOA Quest */
+  .text-amoa-blue {
+    color: #006a9e;
+  }
+  
+  .bg-amoa-blue {
+    background-color: #006a9e;
+  }
+  
+  .border-amoa-blue {
+    border-color: #006a9e;
+  }
 
   /* Amélioration globale des couleurs et des espacements */
   html, body {

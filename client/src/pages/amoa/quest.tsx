@@ -106,7 +106,7 @@ const CharacterAvatar: React.FC<{ character: Character }> = ({ character }) => {
           {character.avatar ? (
             <img src={character.avatar} alt={character.name} className="w-full h-full object-cover" />
           ) : (
-            <User className="h-6 w-6 text-blue-800" />
+            <User className="h-6 w-6 text-amoa-blue" />
           )}
         </div>
         {character.mood && (
@@ -127,7 +127,7 @@ const CharacterAvatar: React.FC<{ character: Character }> = ({ character }) => {
 const DocumentViewer: React.FC<{ document: { title: string; content: string; type: string } }> = ({ document }) => {
   const getDocumentIcon = (type: string) => {
     switch (type) {
-      case "requirement": return <FileText className="h-5 w-5 text-blue-500" />;
+      case "requirement": return <FileText className="h-5 w-5 text-amoa-blue" />;
       case "specification": return <FileText className="h-5 w-5 text-green-500" />;
       case "email": return <Send className="h-5 w-5 text-amber-500" />;
       case "report": return <Briefcase className="h-5 w-5 text-purple-500" />;
@@ -492,7 +492,7 @@ export default function AmoaQuestPage() {
     return (
       <div className="mb-4">
         <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-4">
-          <p className="text-blue-900 font-semibold">{step.content}</p>
+          <p className="text-amoa-blue font-semibold">{step.content}</p>
         </div>
         
         <div className="space-y-3">
@@ -647,7 +647,7 @@ export default function AmoaQuestPage() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center text-2xl">
-              <Route className="h-6 w-6 text-blue-600 mr-2" />
+              <Route className="h-6 w-6 text-amoa-blue mr-2" />
               Bienvenue dans AMOA Quest
             </DialogTitle>
             <DialogDescription>
@@ -716,7 +716,7 @@ export default function AmoaQuestPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center">
-              <HelpCircle className="h-5 w-5 text-blue-600 mr-2" />
+              <HelpCircle className="h-5 w-5 text-amoa-blue mr-2" />
               Aide et conseils
             </DialogTitle>
             <DialogDescription>
@@ -740,7 +740,7 @@ export default function AmoaQuestPage() {
               <h3 className="font-semibold text-gray-900 mb-2">Métriques de performance</h3>
               <ul className="text-sm text-gray-900 space-y-1">
                 <li>
-                  <span className="text-blue-700 font-medium">Satisfaction des parties prenantes :</span> Reflète la qualité de vos interactions
+                  <span className="text-amoa-blue font-medium">Satisfaction des parties prenantes :</span> Reflète la qualité de vos interactions
                 </li>
                 <li>
                   <span className="text-gray-900 font-medium">Qualité technique :</span> Évalue la rigueur de vos spécifications
@@ -801,7 +801,7 @@ export default function AmoaQuestPage() {
             {/* Phase actuelle */}
             <div className="mb-6">
               <div className="flex items-center space-x-2 mb-2">
-                <Badge variant="outline" className="bg-white text-blue-800 border-blue-200">
+                <Badge variant="outline" className="bg-white text-amoa-blue border-amoa-blue/30">
                   Phase {questPhases.findIndex(phase => phase.id === questState.currentPhaseId) + 1}/{questPhases.length}
                 </Badge>
                 <h2 className="text-xl font-bold text-gray-900">{getCurrentPhase()?.title}</h2>
@@ -893,7 +893,7 @@ export default function AmoaQuestPage() {
                   <CardHeader className="pb-2">
                     <CardTitle className="text-base">
                       <div className="flex items-center">
-                        <ShieldCheck className="h-5 w-5 mr-2 text-blue-600" />
+                        <ShieldCheck className="h-5 w-5 mr-2 text-amoa-blue" />
                         Performance du projet
                       </div>
                     </CardTitle>
@@ -911,7 +911,7 @@ export default function AmoaQuestPage() {
                     <CardHeader className="pb-2">
                       <CardTitle className="text-base">
                         <div className="flex items-center">
-                          <Briefcase className="h-5 w-5 mr-2 text-blue-600" />
+                          <Briefcase className="h-5 w-5 mr-2 text-amoa-blue" />
                           Progression globale
                         </div>
                       </CardTitle>
