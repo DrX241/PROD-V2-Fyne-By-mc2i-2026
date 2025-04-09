@@ -1,0 +1,93 @@
+NIVEAU 1: Alerte Phishing
+
+Vous êtes dans une simulation de cybersécurité.
+
+Complexité: Basique
+Durée estimée: 10-15 min
+
+COMMENT JOUER:
+
+•
+Interagissez avec les experts disponibles
+
+•
+Prenez des décisions pour résoudre l'incident
+
+•
+Complétez tous les objectifs pour réussir le niveau
+
+•
+De nouveaux experts seront débloqués à mesure que vous progressez dans les niveaux
+
+19:37
+YS
+Yousra Saidani
+Senior Manager et Experte Cybersécurité
+Bonjour Responsable, je suis Yousra Saidani, Senior Manager et Experte Cybersécurité.
+
+Nous avons un incident potentiel de sécurité et j'ai besoin de votre expertise immédiatement.
+
+SITUATION ACTUELLE:
+Un employé vient de signaler avoir reçu un email suspect lui demandant de changer son mot de passe via un lien externe. Plusieurs autres employés ont peut-être reçu le même message.
+
+OBJECTIFS IMMÉDIATS:
+
+•
+Identifier la nature de l'attaque
+
+•
+Évaluer l'étendue potentielle de l'incident
+
+•
+Prendre des mesures de protection immédiates
+
+
+
+J'attends vos instructions pour agir. Comment souhaitez-vous procéder?
+19:37
+Il faudrait que tu m'expliques le contexte
+19:38
+YS
+Yousra Saidani
+Senior Manager et Experte Cybersécurité
+Bonne question. Pour répondre à votre demande concernant cet email suspect:
+
+
+•
+Il s'agit très probablement d'une tentative de phishing ciblant nos employés
+
+•
+Le lien dans l'email pointe vers un domaine qui imite notre portail d'entreprise
+
+•
+D'après nos logs, 3 autres employés ont signalé avoir reçu des emails similaires
+
+
+
+Je vous recommande de demander immédiatement au service IT de bloquer ce domaine et d'envoyer une alerte à tous les employés.
+
+Quelle action souhaitez-vous que nous prenions en priorité?
+19:38
+pas du tout
+19:38
+YS
+Yousra Saidani
+Senior Manager et Experte Cybersécurité
+Bonne question. Pour répondre à votre demande concernant cet email suspect:
+
+
+•
+Il s'agit très probablement d'une tentative de phishing ciblant nos employés
+
+•
+Le lien dans l'email pointe vers un domaine qui imite notre portail d'entreprise
+
+•
+D'après nos logs, 3 autres employés ont signalé avoir reçu des emails similaires
+
+
+
+Je vous recommande de demander immédiatement au service IT de bloquer ce domaine et d'envoyer une alerte à tous les employés.
+
+Quelle action souhaitez-vous que nous prenions en priorité?
+19:38

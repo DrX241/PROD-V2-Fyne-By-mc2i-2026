@@ -1677,9 +1677,17 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
         'ok', 'd\'accord', 'daccord', 'compris', 'entendu', 'très bien', 'bien', 'parfait', 
         'merci', 'je vois', 'je comprends', 'ça marche', 'ca marche', 'oui', 'non'
       ].includes(normalizedMessage);
+      
+      // Détection des messages ambigus ou trop courts
+      const isShortAmbiguousMessage = 
+        normalizedMessage.length < 10 || // Messages très courts (moins de 10 caractères)
+        ['je ne sais pas', 'jsp', 'pas sûr', 'pas sur', '?', 'quoi', 'hein', 'hm', 'hmm'].includes(normalizedMessage) ||
+        normalizedMessage.endsWith('?') && normalizedMessage.length < 15; // Questions très courtes
+        
+      console.log(`Message reçu: "${normalizedMessage}", longueur: ${normalizedMessage.length}`);
 
-      // Si le message est un salut ou une confirmation de base, utiliser une réponse prédéfinie
-      if (isBasicGreeting || isBasicAcknowledgment) {
+      // Si le message est un salut, une confirmation de base ou un message ambigu trop court, utiliser une réponse prédéfinie
+      if (isBasicGreeting || isBasicAcknowledgment || isShortAmbiguousMessage) {
         console.log(`Message basique détecté: "${normalizedMessage}" - Utilisation d'une réponse prédéfinie`);
         
         // Sélectionner un contact approprié pour la réponse
@@ -1719,6 +1727,17 @@ Voici les options que je vous recommande :
 • Prévoir une communication de crise pour les équipes concernées
 
 Quelle approche préférez-vous adopter en priorité ?`;
+        } else if (isShortAmbiguousMessage) {
+          // Réponse spécifique pour les messages courts ou ambigus
+          response = `${sender}, ${senderRole}: 
+
+Je comprends que la situation peut sembler complexe. Pour avancer efficacement dans cette crise de cybersécurité, voici les actions prioritaires que je vous propose :
+
+• Évaluer l'étendue potentielle de la compromission en examinant les logs des systèmes concernés
+• Identifier tous les utilisateurs qui pourraient avoir été exposés au même vecteur d'attaque
+• Préparer une stratégie de remédiation immédiate et un plan de communication
+
+Préférez-vous que nous commencions par une analyse technique approfondie ou par une approche d'isolation préventive des systèmes potentiellement compromis ?`;
         }
         
         // Retourner la réponse prédéfinie
