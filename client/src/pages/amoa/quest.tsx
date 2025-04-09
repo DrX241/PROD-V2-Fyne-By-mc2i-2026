@@ -505,10 +505,10 @@ export default function AmoaQuestPage() {
               disabled={loading}
             >
               <div className="flex items-center">
-                <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center mr-3 flex-shrink-0">
-                  <ChevronRight className="h-4 w-4 text-blue-600" />
+                <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center mr-3 flex-shrink-0">
+                  <ChevronRight className="h-4 w-4 text-white" />
                 </div>
-                <span>{option.text}</span>
+                <span className="text-white">{option.text}</span>
               </div>
             </Button>
           ))}
@@ -570,22 +570,22 @@ export default function AmoaQuestPage() {
       { 
         label: "Satisfaction des parties prenantes", 
         value: questState.playerMetrics.stakeholderSatisfaction,
-        color: "bg-blue-500" 
+        color: "bg-blue-700" 
       },
       { 
         label: "Qualité technique", 
         value: questState.playerMetrics.technicalQuality,
-        color: "bg-green-500" 
+        color: "bg-gray-700" 
       },
       { 
         label: "Respect du budget", 
         value: questState.playerMetrics.budgetAdherence,
-        color: "bg-amber-500" 
+        color: "bg-amber-700" 
       },
       { 
         label: "Respect des délais", 
         value: questState.playerMetrics.timelineAdherence,
-        color: "bg-purple-500" 
+        color: "bg-purple-800" 
       }
     ];
 
@@ -662,26 +662,26 @@ export default function AmoaQuestPage() {
               le déroulement du projet et la satisfaction des parties prenantes.
             </p>
             
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-              <h3 className="font-semibold text-blue-900 mb-2 flex items-center">
+            <div className="bg-blue-700 p-4 rounded-lg border border-blue-600">
+              <h3 className="font-semibold text-white mb-2 flex items-center">
                 <Info className="h-5 w-5 mr-2" />
                 Comment jouer
               </h3>
-              <ul className="space-y-2 text-sm text-blue-900">
+              <ul className="space-y-2 text-sm text-white">
                 <li className="flex items-start">
-                  <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 text-blue-500" />
+                  <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 text-white" />
                   <span>Lisez attentivement les dialogues et les documents qui vous sont présentés</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 text-blue-500" />
+                  <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 text-white" />
                   <span>Prenez des décisions réfléchies en fonction du contexte et des objectifs du projet</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 text-blue-500" />
+                  <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 text-white" />
                   <span>Suivez l'évolution de vos métriques pour ajuster votre approche</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 text-blue-500" />
+                  <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 text-white" />
                   <span>Complétez les différentes phases du projet pour développer vos compétences</span>
                 </li>
               </ul>
@@ -740,16 +740,16 @@ export default function AmoaQuestPage() {
               <h3 className="font-semibold text-gray-900 mb-2">Métriques de performance</h3>
               <ul className="text-sm text-gray-900 space-y-1">
                 <li>
-                  <span className="text-blue-500 font-medium">Satisfaction des parties prenantes :</span> Reflète la qualité de vos interactions
+                  <span className="text-blue-700 font-medium">Satisfaction des parties prenantes :</span> Reflète la qualité de vos interactions
                 </li>
                 <li>
-                  <span className="text-green-500 font-medium">Qualité technique :</span> Évalue la rigueur de vos spécifications
+                  <span className="text-gray-900 font-medium">Qualité technique :</span> Évalue la rigueur de vos spécifications
                 </li>
                 <li>
-                  <span className="text-amber-500 font-medium">Respect du budget :</span> Mesure votre attention aux contraintes financières
+                  <span className="text-amber-700 font-medium">Respect du budget :</span> Mesure votre attention aux contraintes financières
                 </li>
                 <li>
-                  <span className="text-purple-500 font-medium">Respect des délais :</span> Indique votre capacité à tenir les échéances
+                  <span className="text-purple-900 font-medium">Respect des délais :</span> Indique votre capacité à tenir les échéances
                 </li>
               </ul>
             </div>
@@ -786,7 +786,7 @@ export default function AmoaQuestPage() {
               Aide
             </Button>
             
-            <div className="bg-blue-50 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full flex items-center">
+            <div className="bg-blue-700 text-white text-xs font-medium px-2.5 py-0.5 rounded-full flex items-center">
               <Clock className="h-3 w-3 mr-1" />
               Progression : {calculateProgress()}%
             </div>
@@ -830,8 +830,8 @@ export default function AmoaQuestPage() {
                   case "decision":
                     return (
                       <div key={index} className="mb-4 opacity-80">
-                        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-2">
-                          <p className="text-blue-900 font-semibold">{step.content}</p>
+                        <div className="bg-blue-700 p-4 rounded-lg border border-blue-600 mb-2">
+                          <p className="text-white font-semibold">{step.content}</p>
                         </div>
                         {step.options && questState.playerChoices[step.id] && (
                           <div className="bg-white p-3 rounded-lg border border-gray-200 ml-8">
@@ -901,7 +901,7 @@ export default function AmoaQuestPage() {
                   <CardContent>
                     {renderPlayerMetrics()}
                   </CardContent>
-                  <CardFooter className="pt-0 text-xs text-blue-800 font-medium">
+                  <CardFooter className="pt-0 text-xs text-gray-700 font-medium">
                     Ces métriques évoluent en fonction de vos décisions
                   </CardFooter>
                 </Card>
@@ -935,18 +935,21 @@ export default function AmoaQuestPage() {
                             return (
                               <div key={phase.id} className={cn(
                                 "p-2 rounded-lg border text-sm",
-                                isCurrentPhase ? "bg-blue-50 border-blue-200" : 
-                                isCompleted ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-200"
+                                isCurrentPhase ? "bg-blue-700 border-blue-600" : 
+                                isCompleted ? "bg-gray-700 border-gray-600" : "bg-gray-200 border-gray-300"
                               )}>
                                 <div className="flex justify-between items-center mb-1">
                                   <span className={cn(
                                     "font-medium",
-                                    isCurrentPhase ? "text-blue-800" : 
-                                    isCompleted ? "text-green-800" : "text-gray-500"
+                                    isCurrentPhase ? "text-white" : 
+                                    isCompleted ? "text-white" : "text-gray-900"
                                   )}>
                                     {index + 1}. {phase.title}
                                   </span>
-                                  <span className="text-xs">
+                                  <span className={cn(
+                                    "text-xs",
+                                    isCurrentPhase || isCompleted ? "text-white" : "text-gray-900"
+                                  )}>
                                     {stepsCompleted}/{phase.steps.length}
                                   </span>
                                 </div>
@@ -954,8 +957,8 @@ export default function AmoaQuestPage() {
                                   value={(stepsCompleted / phase.steps.length) * 100} 
                                   className="h-1.5"
                                   indicatorClassName={
-                                    isCurrentPhase ? "bg-blue-500" : 
-                                    isCompleted ? "bg-green-500" : "bg-gray-300"
+                                    isCurrentPhase ? "bg-blue-300" : 
+                                    isCompleted ? "bg-white" : "bg-gray-400"
                                   }
                                 />
                               </div>
@@ -997,8 +1000,8 @@ export default function AmoaQuestPage() {
                       </div>
                     ) : (
                       <div className="text-center py-8">
-                        <FileText className="h-10 w-10 mx-auto mb-2 text-blue-300" />
-                        <p className="text-blue-900 font-medium">Aucun document collecté pour le moment</p>
+                        <FileText className="h-10 w-10 mx-auto mb-2 text-gray-400" />
+                        <p className="text-gray-700 font-medium">Aucun document collecté pour le moment</p>
                       </div>
                     )}
                   </CardContent>
