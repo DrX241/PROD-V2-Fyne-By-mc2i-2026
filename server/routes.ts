@@ -1666,6 +1666,72 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
         return res.status(400).json({ message: 'Message utilisateur requis' });
       }
       
+      // Déterminer si c'est un message basique qui ne nécessite pas d'IA
+      // Ces messages basiques recevront des réponses prédéfinies pour éviter les incohérences
+      const normalizedMessage = userMessage.trim().toLowerCase();
+      const isBasicGreeting = [
+        'bonjour', 'salut', 'hello', 'hi', 'hey', 'coucou', 'bjr', 'bonsoir'
+      ].includes(normalizedMessage);
+      
+      const isBasicAcknowledgment = [
+        'ok', 'd\'accord', 'daccord', 'compris', 'entendu', 'très bien', 'bien', 'parfait', 
+        'merci', 'je vois', 'je comprends', 'ça marche', 'ca marche', 'oui', 'non'
+      ].includes(normalizedMessage);
+
+      // Si le message est un salut ou une confirmation de base, utiliser une réponse prédéfinie
+      if (isBasicGreeting || isBasicAcknowledgment) {
+        console.log(`Message basique détecté: "${normalizedMessage}" - Utilisation d'une réponse prédéfinie`);
+        
+        // Sélectionner un contact approprié pour la réponse
+        let sender = "Yousra Saidani";
+        let senderRole = "Senior Manager et Experte Cybersécurité";
+        
+        // Si un contact spécifique a été ciblé, utiliser ce contact
+        if (targetContact && missionContext.contacts && Array.isArray(missionContext.contacts)) {
+          const contact = missionContext.contacts.find((c: any) => c && c.name === targetContact);
+          if (contact) {
+            sender = contact.name;
+            senderRole = contact.role || "Expert";
+          }
+        }
+        
+        let response = "";
+        
+        // Réponses adaptées au type de message basique
+        if (isBasicGreeting) {
+          response = `Bonjour, nous avons un incident de sécurité en cours. Je suis ${sender}, ${senderRole}. 
+
+Nous devons agir rapidement face à cette situation. Voici ce que nous savons jusqu'à présent:
+• Un email suspect a été signalé par plusieurs employés
+• Le message contient un lien qui semble imiter notre portail d'entreprise
+• Plusieurs autres employés ont potentiellement reçu le même message
+
+Que souhaitez-vous faire en priorité :
+1. Examiner l'email suspect en détail
+2. Bloquer immédiatement le domaine suspect
+3. Envoyer une alerte à tous les employés`;
+        } else if (isBasicAcknowledgment) {
+          response = `Très bien. Pour avancer efficacement dans la résolution de cet incident, j'ai besoin de votre décision sur les prochaines étapes.
+
+Voici les options que je vous recommande :
+• Isoler les postes de travail des employés qui ont cliqué sur le lien
+• Lancer une analyse de sécurité sur le réseau pour détecter d'éventuelles intrusions
+• Prévoir une communication de crise pour les équipes concernées
+
+Quelle approche préférez-vous adopter en priorité ?`;
+        }
+        
+        // Retourner la réponse prédéfinie
+        return res.json({
+          response,
+          sender,
+          senderRole,
+          additionalResponse: null,
+          decision: null
+        });
+      }
+      
+      // Pour les autres messages, continuer avec l'appel à l'API OpenAI
       // Récupérer l'objectif actuel et ses critères d'évaluation
       const objective = missionContext.objectives[currentObjective];
       const objectiveDescription = objective?.description || "Non défini";
@@ -1677,45 +1743,38 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
         : "Aucun contact disponible";
       
       // Construire un prompt ultra détaillé conçu spécifiquement pour éliminer les problèmes de cohérence
-      const missionPrompt = `Nous sommes dans un scénario de simulation immersive d'un incident de cybersécurité. Tu dois jouer le rôle d'un EXPERT EN CYBERSÉCURITÉ RÉEL dans le cadre précis défini ci-dessous, sans JAMAIS sortir de ce cadre.
+      const missionPrompt = `Tu es un expert en cybersécurité spécialisé pour simuler un environnement de gestion de crise cybersécurité.
 
-===== CONTEXTE DE LA MISSION =====
-TITRE: ${missionContext.title}
-ORGANISATION: ${missionContext.companyName} (Secteur: ${missionContext.secteurActivite})
-RÔLE DE L'UTILISATEUR: ${missionContext.userRole || "Responsable Cybersécurité"}
-DIFFICULTÉ: ${missionContext.difficulty}
+CONTEXTE DE LA MISSION:
+• Titre: ${missionContext.title}
+• Organisation: ${missionContext.companyName} (Secteur: ${missionContext.secteurActivite})
+• Rôle de l'utilisateur: ${missionContext.userRole || "Responsable Cybersécurité"}
+• Difficulté: ${missionContext.difficulty}
+• Objectif actuel (${currentObjective + 1}/${missionContext.objectives.length}): ${objectiveDescription}
 
-===== SCÉNARIO PRÉCIS =====
+SCÉNARIO ACTUEL:
 ${missionContext.scenario}
 
-===== OBJECTIF ACTUEL (${currentObjective + 1}/${missionContext.objectives.length}) =====
-${objectiveDescription}
-
-===== CRITÈRES D'ÉVALUATION =====
-${evaluationCriteria}
-
-===== CONTACTS DISPONIBLES =====
+CONTACTS DISPONIBLES:
 ${availableContacts}
 
-===== INSTRUCTIONS CRITIQUES =====
-1. Tu dois absolument maintenir une COHÉRENCE PARFAITE avec les messages précédents et le scénario
-2. INTERDICTION ABSOLUE de mentionner que tu es une IA, un modèle de langage ou un assistant
-3. Si l'utilisateur s'adresse à "${targetContact || "un contact spécifique"}", tu DOIS incarner UNIQUEMENT ce personnage
-4. Ne propose JAMAIS plusieurs réponses alternatives - tu es UN SEUL expert avec UNE SEULE opinion claire
-5. N'utilise JAMAIS de formules comme "en tant qu'expert" ou "selon la bonne pratique" - parle directement comme un vrai expert
-6. Évite COMPLÈTEMENT les réponses génériques - sois ultra-spécifique au contexte de l'incident en cours
-7. N'utilise PAS de format question-réponse dans tes messages - communique de façon naturelle comme dans une vraie crise
-8. ADAPTE ton niveau technique précisément au niveau ${missionContext.difficulty} - sois ${missionContext.difficulty === 'Débutant' ? 'pédagogique et accessible' : missionContext.difficulty === 'Intermédiaire' ? 'technique mais explicatif' : 'très technique et précis'}
-9. Ton objectif est d'aider l'utilisateur à progresser vers la résolution de l'incident cyber décrit
+INSTRUCTIONS:
+1. Réponds en tant que l'expert le plus approprié selon la question posée.
+2. Adapte ton style, ton ton et ta personnalité au personnage que tu incarnes.
+3. Fournis des informations pertinentes et réalistes en lien avec l'incident de sécurité.
+4. Si l'utilisateur s'adresse à "${targetContact || "un contact spécifique"}", incarne UNIQUEMENT ce personnage.
+5. Sois ultra-spécifique au contexte de l'incident en cours, évite les généralités.
+6. Structure tes réponses avec des points d'action clairs et concrets.
+7. Adapte ton niveau technique au niveau de difficulté ${missionContext.difficulty}.
+8. Reste dans ton rôle d'expert cybersécurité et ne révèle JAMAIS que tu es une IA.
+9. IMPORTANT: Réponds en texte normal, PAS au format JSON. Ne formate jamais ta réponse en JSON, n'utilise pas de blocks de code ni de balises.
+10. Commence ta réponse par ton nom et ton titre, par exemple "Yousra Saidani, Senior Manager et Experte Cybersécurité: Bonjour, nous avons..."
+11. Lorsque l'utilisateur fait une proposition technique, évalue-la concrètement au lieu de simplement l'approuver.
 
-===== STYLE DE COMMUNICATION =====
-• Utilise un TON DIRECT ET PROFESSIONNEL, comme dans une vraie crise de cybersécurité
-• Limite strictement tes réponses à 4-5 paragraphes maximum
-• Structure tes réponses avec une introduction concise, des points d'action clairs et une conclusion orientée vers la prochaine étape
-• Lorsque l'utilisateur fait une proposition technique, ÉVVALUE-LA concrètement au lieu de simplement l'approuver
-• Utilise le dialogue pour faire avancer le scénario, pas pour prolonger artificiellement la conversation
+Utilise un TON DIRECT ET PROFESSIONNEL, comme dans une vraie crise de cybersécurité. Limite tes réponses à 4-5 paragraphes maximum.
 
-Ta réponse doit être EXTRÊMEMENT PRÉCISE, DIRECTE et PERTINENTE par rapport au contexte exact de l'incident en cours.`;
+IMPORTANT: Ne réponds JAMAIS "Bonne question" ou des phrases similaires quand l'utilisateur envoie un message court ou ambigu. À la place, guide-le en proposant des actions concrètes.
+`;
 
       // Vérifier si le message utilisateur est court ou ambigu
       const isShortUserMessage = userMessage.trim().length < 15;

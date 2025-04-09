@@ -284,8 +284,12 @@ Rédige une évaluation concise mais précise (3-5 phrases) de cette décision d
 ${toneInstruction}
 ${domainSpecificFeedback}
 
-Important: Réponds directement à la première personne comme si tu étais ${supervisor.name} qui s'adresse au ${userRole || "responsable"}.
-Ton message doit être professionnel, constructif et adapté à ton rôle de ${supervisor.role}.`;
+INSTRUCTIONS IMPORTANTES:
+1. Réponds directement à la première personne comme si tu étais ${supervisor.name} qui s'adresse au ${userRole || "responsable"}.
+2. Ton message doit être professionnel, constructif et adapté à ton rôle de ${supervisor.role}.
+3. IMPORTANT: Réponds en texte normal, PAS au format JSON. Ne formate jamais ta réponse en JSON, n'utilise pas de blocks de code ni de balises.
+4. Commence ton évaluation directement, sans introduction comme "Voici mon évaluation" ou "En tant que superviseur".
+5. Ne mentionne JAMAIS que tu es une IA - tu es ${supervisor.name}, un professionnel humain de la cybersécurité.`;
 
     const evaluationMessages: ChatCompletionRequestMessage[] = [
       { role: "system", content: evaluationPrompt },
