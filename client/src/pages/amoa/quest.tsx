@@ -164,6 +164,12 @@ export default function AmoaQuestPage() {
   const [initializing, setInitializing] = useState(true);
   const [showIntro, setShowIntro] = useState(true);
   const [showHelp, setShowHelp] = useState(false);
+  const [freeformMessage, setFreeformMessage] = useState("");
+  const [freeformConversation, setFreeformConversation] = useState<{
+    role: "user" | "assistant";
+    content: string;
+    character?: Character;
+  }[]>([]);
   const [questPhases, setQuestPhases] = useState<QuestPhase[]>([]);
   const [questState, setQuestState] = useState<QuestState>({
     currentPhaseId: "",
@@ -514,6 +520,133 @@ export default function AmoaQuestPage() {
     );
   };
 
+  // Fonction pour gérer la conversation libre
+  const handleFreeformChat = async () => {
+    if (!freeformMessage.trim() || loading) return;
+    
+    setLoading(true);
+    const userMessage = freeformMessage.trim();
+    setFreeformMessage("");
+    
+    // Ajouter le message de l'utilisateur à la conversation
+    setFreeformConversation(prev => [
+      ...prev, 
+      {
+        role: "user",
+        content: userMessage
+      }
+    ]);
+    
+    try {
+      const currentPhase = getCurrentPhase();
+      
+      // Appeler l'API pour gérer la conversation libre
+      const response = await apiRequest("/api/amoa/quest/chat", {
+        method: "POST",
+        body: JSON.stringify({
+          message: userMessage,
+          phaseId: currentPhase?.id || "phase1",
+          phaseTitle: currentPhase?.title || "Cadrage",
+          playerMetrics: questState.playerMetrics,
+          conversationHistory: freeformConversation
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response && response.message) {
+        // Trouver un personnage approprié pour répondre
+        let character: Character = {
+          id: "assistant",
+          name: "Claire Leroy",
+          role: "Directrice de Projet",
+          avatar: "",
+          mood: "neutral"
+        };
+        
+        // Si l'API a spécifié un personnage, l'utiliser
+        if (response.character) {
+          character = response.character;
+        } 
+        // Sinon, utiliser le personnage de l'étape actuelle s'il existe
+        else {
+          const currentStep = getCurrentStep();
+          if (currentStep?.character) {
+            character = currentStep.character;
+          }
+        }
+        
+        // Ajouter la réponse de l'assistant à la conversation
+        setFreeformConversation(prev => [
+          ...prev, 
+          {
+            role: "assistant",
+            content: response.message,
+            character: character
+          }
+        ]);
+        
+        // Si une métrique est impactée par cette conversation, mettre à jour
+        if (response.impact && typeof response.impact === 'object') {
+          const newMetrics = { ...questState.playerMetrics };
+          
+          if (response.impact.stakeholder) {
+            newMetrics.stakeholderSatisfaction = Math.min(100, Math.max(0, newMetrics.stakeholderSatisfaction + response.impact.stakeholder));
+          }
+          if (response.impact.technical) {
+            newMetrics.technicalQuality = Math.min(100, Math.max(0, newMetrics.technicalQuality + response.impact.technical));
+          }
+          if (response.impact.budget) {
+            newMetrics.budgetAdherence = Math.min(100, Math.max(0, newMetrics.budgetAdherence + response.impact.budget));
+          }
+          if (response.impact.timeline) {
+            newMetrics.timelineAdherence = Math.min(100, Math.max(0, newMetrics.timelineAdherence + response.impact.timeline));
+          }
+          
+          setQuestState(prev => ({
+            ...prev,
+            playerMetrics: newMetrics
+          }));
+        }
+      } else {
+        throw new Error("Réponse invalide");
+      }
+    } catch (error) {
+      console.error("Erreur lors de la conversation:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la conversation. Veuillez réessayer.",
+        variant: "destructive"
+      });
+      
+      // En cas d'erreur, ajouter un message d'erreur dans la conversation
+      setFreeformConversation(prev => [
+        ...prev, 
+        {
+          role: "assistant",
+          content: "Désolé, je n'ai pas pu traiter votre message. Veuillez réessayer.",
+          character: {
+            id: "system",
+            name: "Système",
+            role: "Assistant",
+            avatar: "",
+            mood: "concerned"
+          }
+        }
+      ]);
+    } finally {
+      setLoading(false);
+      
+      // Faire défiler jusqu'au dernier message
+      setTimeout(() => {
+        if (messagesEndRef.current) {
+          messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+    }
+  };
+
   // Calculer la progression globale
   const calculateProgress = () => {
     const currentPhase = getCurrentPhase();
@@ -773,6 +906,83 @@ export default function AmoaQuestPage() {
               
               {/* Étape actuelle */}
               {renderCurrentStep()}
+              
+              {/* Interface de conversation libre avec les parties prenantes */}
+              <div className="mt-8 border-t pt-4">
+                <h3 className="text-sm font-medium text-gray-900 mb-2 flex items-center">
+                  <User className="h-4 w-4 mr-2 text-amoa-blue" />
+                  Discuter avec les parties prenantes
+                </h3>
+                <div className="bg-white rounded-lg border p-3 mb-3">
+                  <p className="text-sm text-gray-700">
+                    Posez des questions ou engagez une conversation avec les parties prenantes du projet pour obtenir plus d'informations et mieux comprendre leurs besoins.
+                  </p>
+                </div>
+                
+                {/* Afficher la conversation existante */}
+                {freeformConversation.length > 0 && (
+                  <div className="mb-4 space-y-3">
+                    {freeformConversation.map((message, index) => (
+                      <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : ''}`}>
+                        {message.role === 'assistant' && message.character && (
+                          <div className="mr-3 flex-shrink-0">
+                            <CharacterAvatar character={message.character} />
+                          </div>
+                        )}
+                        
+                        <div className={`p-3 rounded-lg max-w-[80%] ${
+                          message.role === 'user' 
+                            ? 'bg-amoa-blue text-white' 
+                            : 'bg-white border shadow-sm'
+                        }`}>
+                          <p className={`text-sm whitespace-pre-line ${
+                            message.role === 'user' ? 'text-white' : 'text-gray-900'
+                          }`}>
+                            {message.content}
+                          </p>
+                        </div>
+                        
+                        {message.role === 'user' && (
+                          <div className="ml-3 flex-shrink-0">
+                            <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-amoa-blue">
+                              <User className="h-5 w-5" />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                <div className="relative">
+                  <textarea 
+                    className="w-full border rounded-lg p-3 pr-10 min-h-[100px] focus:ring-1 focus:ring-amoa-blue"
+                    placeholder="Tapez votre message ici pour discuter avec les parties prenantes du projet..."
+                    value={freeformMessage}
+                    onChange={(e) => setFreeformMessage(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && e.ctrlKey) {
+                        e.preventDefault();
+                        handleFreeformChat();
+                      }
+                    }}
+                  />
+                  <Button 
+                    size="sm" 
+                    className="absolute bottom-3 right-3 bg-amoa-blue hover:bg-amoa-blue/90"
+                    disabled={!freeformMessage.trim() || loading}
+                    onClick={handleFreeformChat}
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+                {loading && (
+                  <div className="text-center mt-2">
+                    <div className="w-5 h-5 border-2 border-t-transparent border-amoa-blue rounded-full animate-spin inline-block mr-2"></div>
+                    <span className="text-xs text-gray-700">Traitement en cours...</span>
+                  </div>
+                )}
+              </div>
               
               {/* Référence pour faire défiler jusqu'au dernier message */}
               <div ref={messagesEndRef} />

@@ -2425,6 +2425,130 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
   // Routes pour le module AMOA Quest
   app.post('/api/amoa/quest/initialize', handleQuestInitialization);
   app.post('/api/amoa/quest/choice', handleQuestChoice);
+  
+  // Route pour la conversation libre avec les parties prenantes dans AMOA Quest
+  app.post('/api/amoa/quest/chat', async (req: Request, res: Response) => {
+    try {
+      const { message, phaseId, phaseTitle, playerMetrics, conversationHistory } = req.body;
+      
+      if (!message) {
+        return res.status(400).json({ error: 'Message requis' });
+      }
+      
+      // Formatage de l'historique pour l'envoi à l'API OpenAI
+      const formattedHistory = conversationHistory && Array.isArray(conversationHistory) 
+        ? conversationHistory.map(msg => ({
+            role: msg.role === 'user' ? 'user' : 'assistant',
+            content: msg.content
+          }))
+        : [];
+      
+      // Contexte du système pour l'IA
+      const systemMessage = `Tu es un assistant spécialisé pour simuler un environnement AMOA (Assistance à Maîtrise d'Ouvrage).
+      
+Phase actuelle: ${phaseTitle || 'Cadrage du projet'}
+Contexte: L'utilisateur joue le rôle d'un AMOA dans un projet et discute avec les parties prenantes.
+
+Voici les parties prenantes disponibles pour la conversation:
+- Claire Leroy, Directrice de Projet, responsable de la supervision globale
+- Thomas Dubois, Chef de Projet IT, spécialiste technique
+- Marie Laurent, Représentante des Utilisateurs, porte-parole des besoins métiers
+- Sophie Girard, Responsable Financier, en charge du budget
+- Jean Mercier, Consultant Expert, apportant une vision externe
+
+Métriques actuelles du joueur:
+- Satisfaction des parties prenantes: ${playerMetrics?.stakeholderSatisfaction || 75}%
+- Qualité technique: ${playerMetrics?.technicalQuality || 75}%
+- Respect du budget: ${playerMetrics?.budgetAdherence || 75}%
+- Respect des délais: ${playerMetrics?.timelineAdherence || 75}%
+
+Instructions:
+1. Réponds en tant que la partie prenante la plus appropriée selon la question posée.
+2. Adapte ton style, ton ton et ta personnalité au personnage que tu incarnes.
+3. Fournis des informations pertinentes et réalistes en lien avec le projet et la phase.
+4. Si la question concerne des aspects techniques, réponds en tant que Thomas.
+5. Si la question concerne les besoins des utilisateurs, réponds en tant que Marie.
+6. Si la question concerne le budget, réponds en tant que Sophie.
+7. Si la question concerne la gestion globale, réponds en tant que Claire.
+8. Si la question nécessite une expertise spécifique, réponds en tant que Jean.
+9. Reste dans ton rôle de partie prenante et ne révèle pas que tu es une IA.
+
+Ton format de réponse doit être un JSON valide avec les champs suivants:
+{
+  "message": "Le contenu de ta réponse en tant que partie prenante",
+  "character": {
+    "id": "unique_id",
+    "name": "Nom du personnage",
+    "role": "Titre du personnage",
+    "avatar": "",
+    "mood": "neutral|happy|concerned|serious"
+  },
+  "impact": {
+    "stakeholder": nombre entre -5 et 5,
+    "technical": nombre entre -5 et 5,
+    "budget": nombre entre -5 et 5,
+    "timeline": nombre entre -5 et 5
+  }
+}
+`;
+
+      // Construction du tableau de messages pour l'API
+      const messages: ChatCompletionRequestMessage[] = [
+        { role: 'system', content: systemMessage },
+        ...formattedHistory,
+        { role: 'user', content: message }
+      ];
+      
+      // Appel à l'API OpenAI via le service approprié
+      const completion = await openAIService.getChatCompletion(messages, {
+        temperature: 0.7,
+        max_tokens: 1000,
+        model: openAIService.getCurrentModelName()
+      });
+      
+      // Vérifier que la réponse a un contenu
+      if (!completion.choices || !completion.choices[0]?.message?.content) {
+        return res.status(500).json({ error: 'Réponse invalide de l\'API' });
+      }
+      
+      // Récupérer et parser la réponse
+      let responseContent;
+      try {
+        responseContent = JSON.parse(completion.choices[0].message.content);
+      } catch (error) {
+        // Si le parsing échoue, utiliser la réponse brute
+        console.error("Erreur de parsing JSON:", error);
+        responseContent = { 
+          message: completion.choices[0].message.content,
+          character: {
+            id: "assistant",
+            name: "Claire Leroy",
+            role: "Directrice de Projet",
+            avatar: "",
+            mood: "neutral"
+          },
+          impact: {}
+        };
+      }
+      
+      // Retourner la réponse au client
+      res.json(responseContent);
+      
+    } catch (error: any) {
+      console.error('Erreur lors de la conversation AMOA:', error);
+      
+      if (error.status === 401) {
+        res.status(401).json({ error: 'Erreur d\'authentification API OpenAI. Vérifiez votre clé API.' });
+      } else if (error.status === 429) {
+        res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
+      } else {
+        res.status(500).json({ 
+          error: 'Erreur lors de la conversation',
+          details: error.message || 'Erreur inconnue'
+        });
+      }
+    }
+  });
 
   const server = createServer(app);
   return server;
