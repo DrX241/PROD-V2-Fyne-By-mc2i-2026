@@ -936,7 +936,7 @@ export default function AmoaQuestPage() {
                 
                 <div className="relative">
                   <textarea 
-                    className="w-full border rounded-lg p-3 pr-10 min-h-[100px] focus:ring-1 focus:ring-amoa-blue"
+                    className="w-full border rounded-lg p-3 pr-10 min-h-[100px] focus:ring-1 focus:ring-amoa-blue text-black"
                     placeholder="Tapez votre message ici pour discuter avec les parties prenantes du projet..."
                     value={freeformMessage}
                     onChange={(e) => setFreeformMessage(e.target.value)}

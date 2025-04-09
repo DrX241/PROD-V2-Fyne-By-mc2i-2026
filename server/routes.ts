@@ -2472,24 +2472,8 @@ Instructions:
 7. Si la question concerne la gestion globale, réponds en tant que Mathilde.
 8. Si la question nécessite une expertise spécifique, réponds en tant que Jean.
 9. Reste dans ton rôle de partie prenante et ne révèle pas que tu es une IA.
-
-Ton format de réponse doit être un JSON valide avec les champs suivants:
-{
-  "message": "Le contenu de ta réponse en tant que partie prenante",
-  "character": {
-    "id": "unique_id",
-    "name": "Nom du personnage",
-    "role": "Titre du personnage",
-    "avatar": "",
-    "mood": "neutral|happy|concerned|serious"
-  },
-  "impact": {
-    "stakeholder": nombre entre -5 et 5,
-    "technical": nombre entre -5 et 5,
-    "budget": nombre entre -5 et 5,
-    "timeline": nombre entre -5 et 5
-  }
-}
+10. IMPORTANT: Réponds en texte normal, PAS au format JSON. Ne formate jamais ta réponse en JSON, n'utilise pas de blocks de code ni de balises.
+11. Commence ta réponse par le nom de la personne qui répond suivi de deux points, par exemple "Mathilde Comte: Bonjour, je suis..."
 `;
 
       // Construction du tableau de messages pour l'API
@@ -2511,26 +2495,18 @@ Ton format de réponse doit être un JSON valide avec les champs suivants:
         return res.status(500).json({ error: 'Réponse invalide de l\'API' });
       }
       
-      // Récupérer et parser la réponse
-      let responseContent;
-      try {
-        // La fonction retourne directement le contenu du message, pas l'objet complet
-        responseContent = JSON.parse(completion);
-      } catch (error) {
-        // Si le parsing échoue, utiliser la réponse brute
-        console.error("Erreur de parsing JSON:", error);
-        responseContent = { 
-          message: completion,
-          character: {
-            id: "assistant",
-            name: "Mathilde Comte",
-            role: "Directrice de Projet",
-            avatar: "",
-            mood: "neutral"
-          },
-          impact: {}
-        };
-      }
+      // Utiliser directement la réponse en texte brut sans tenter le parsing JSON
+      const responseContent = { 
+        message: completion,
+        character: {
+          id: "assistant",
+          name: "Mathilde Comte",
+          role: "Directrice de Projet",
+          avatar: "",
+          mood: "neutral"
+        },
+        impact: {}
+      };
       
       // Retourner la réponse au client
       res.json(responseContent);
