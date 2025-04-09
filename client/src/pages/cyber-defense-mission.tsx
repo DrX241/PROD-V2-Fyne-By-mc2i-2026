@@ -27,13 +27,15 @@ import {
   calculateGlobalSkillProgress
 } from '../../../shared/types/cyber';
 
-// Types temporaires pour compléter les besoins de la page
+// Types pour la gestion des messages
 interface Message {
   id: string;
-  senderId: string;
+  role: "user" | "assistant" | "system";
   content: string;
   timestamp: number;
-  sender?: Contact;
+  sender?: string;
+  senderRole?: string;
+  additionalResponse?: boolean;
 }
 
 interface Skill {
@@ -383,8 +385,22 @@ Votre équipe attend vos instructions.`,
     setLoading(true);
     
     try {
-      // Préparer les 5 derniers messages pour le contexte tout en limitant la taille
-      const recentMessages = messages.slice(-5);
+      // Préparer les messages pour l'API dans le format ChatCompletionRequestMessage
+      // Nous incluons plus de contexte (10 derniers messages) pour améliorer la cohérence
+      const recentMessages = messages
+        .slice(-10)
+        .map(msg => ({
+          role: msg.role,
+          content: msg.content,
+          // Si c'est un message assistant, nous ajoutons des métadonnées contextuelles
+          ...(msg.role === "assistant" && msg.sender ? {
+            name: msg.sender.replace(/\s/g, "_").toLowerCase(),
+            // Ajouter un contexte de qui est l'expéditeur au début du message 
+            content: msg.sender && msg.senderRole 
+              ? `[${msg.sender}, ${msg.senderRole}]: ${msg.content}`
+              : msg.content
+          } : {})
+        }));
       
       // Détection si le message est adressé à un PNJ spécifique
       let targetContact = null;

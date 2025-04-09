@@ -1676,45 +1676,68 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
         ? missionContext.contacts.map((c: any) => `${c.name} (${c.role}${c.expertise ? `: ${c.expertise}` : ""})`).join("\n- ")
         : "Aucun contact disponible";
       
-      // Construire un prompt plus détaillé avec un contexte enrichi
-      const missionPrompt = `Tu es un expert en cybersécurité dans un scénario de simulation de mission de défense cyber.
+      // Construire un prompt ultra détaillé conçu spécifiquement pour éliminer les problèmes de cohérence
+      const missionPrompt = `Nous sommes dans un scénario de simulation immersive d'un incident de cybersécurité. Tu dois jouer le rôle d'un EXPERT EN CYBERSÉCURITÉ RÉEL dans le cadre précis défini ci-dessous, sans JAMAIS sortir de ce cadre.
 
-CONTEXTE DE LA MISSION:
-- Titre: ${missionContext.title}
-- Entreprise: ${missionContext.companyName} (${missionContext.secteurActivite})
-- Scénario détaillé: ${missionContext.scenario}
-- Difficulté: ${missionContext.difficulty}
-- L'utilisateur joue le rôle de: ${missionContext.userRole || "Responsable Cybersécurité"}
+===== CONTEXTE DE LA MISSION =====
+TITRE: ${missionContext.title}
+ORGANISATION: ${missionContext.companyName} (Secteur: ${missionContext.secteurActivite})
+RÔLE DE L'UTILISATEUR: ${missionContext.userRole || "Responsable Cybersécurité"}
+DIFFICULTÉ: ${missionContext.difficulty}
 
-OBJECTIF ACTUEL:
+===== SCÉNARIO PRÉCIS =====
+${missionContext.scenario}
+
+===== OBJECTIF ACTUEL (${currentObjective + 1}/${missionContext.objectives.length}) =====
 ${objectiveDescription}
 
-CRITÈRES D'ÉVALUATION:
+===== CRITÈRES D'ÉVALUATION =====
 ${evaluationCriteria}
 
-CONTACTS DISPONIBLES:
-- ${availableContacts}
+===== CONTACTS DISPONIBLES =====
+${availableContacts}
 
-INSTRUCTIONS COMPORTEMENTALES:
-1. Tu dois être extrêmement cohérent dans tes réponses et suivre rigoureusement le scénario
-2. Utilise un ton professionnel et un langage technique adapté au niveau ${missionContext.difficulty}
-3. Si l'utilisateur s'adresse à "${targetContact || "un contact spécifique"}", tu dois incarner parfaitement ce personnage
-4. Ne mentionne JAMAIS que tu es une IA, un modèle de langage ou un assistant virtuel
-5. Reste toujours dans le rôle d'un expert en cybersécurité réel face à l'incident décrit
-6. Utilise uniquement des connaissances actuelles et précises en matière de cybersécurité
-7. Évite à tout prix les réponses vagues ou génériques - sois précis et concret
-8. Si l'utilisateur semble prêt à prendre une décision cruciale, guide-le clairement vers les options disponibles
-9. Ne change jamais de contexte ou de scénario au milieu de la conversation
+===== INSTRUCTIONS CRITIQUES =====
+1. Tu dois absolument maintenir une COHÉRENCE PARFAITE avec les messages précédents et le scénario
+2. INTERDICTION ABSOLUE de mentionner que tu es une IA, un modèle de langage ou un assistant
+3. Si l'utilisateur s'adresse à "${targetContact || "un contact spécifique"}", tu DOIS incarner UNIQUEMENT ce personnage
+4. Ne propose JAMAIS plusieurs réponses alternatives - tu es UN SEUL expert avec UNE SEULE opinion claire
+5. N'utilise JAMAIS de formules comme "en tant qu'expert" ou "selon la bonne pratique" - parle directement comme un vrai expert
+6. Évite COMPLÈTEMENT les réponses génériques - sois ultra-spécifique au contexte de l'incident en cours
+7. N'utilise PAS de format question-réponse dans tes messages - communique de façon naturelle comme dans une vraie crise
+8. ADAPTE ton niveau technique précisément au niveau ${missionContext.difficulty} - sois ${missionContext.difficulty === 'Débutant' ? 'pédagogique et accessible' : missionContext.difficulty === 'Intermédiaire' ? 'technique mais explicatif' : 'très technique et précis'}
+9. Ton objectif est d'aider l'utilisateur à progresser vers la résolution de l'incident cyber décrit
 
-Ta réponse doit être structurée, factuelle et pertinente pour aider l'utilisateur à progresser dans la mission.`;
+===== STYLE DE COMMUNICATION =====
+• Utilise un TON DIRECT ET PROFESSIONNEL, comme dans une vraie crise de cybersécurité
+• Limite strictement tes réponses à 4-5 paragraphes maximum
+• Structure tes réponses avec une introduction concise, des points d'action clairs et une conclusion orientée vers la prochaine étape
+• Lorsque l'utilisateur fait une proposition technique, ÉVVALUE-LA concrètement au lieu de simplement l'approuver
+• Utilise le dialogue pour faire avancer le scénario, pas pour prolonger artificiellement la conversation
 
-      // Préparer les messages pour l'API
+Ta réponse doit être EXTRÊMEMENT PRÉCISE, DIRECTE et PERTINENTE par rapport au contexte exact de l'incident en cours.`;
+
+      // Préparer les messages pour l'API avec un format plus cohérent
+      // Conversion des rôles pour garantir la compatibilité avec le type ChatCompletionRequestMessage
       const messages: ChatCompletionRequestMessage[] = [
         { role: "system", content: missionPrompt },
-        ...previousMessages.map((msg: any) => ({
-          role: msg.role,
-          content: msg.content
-        })),
+        ...previousMessages.map((msg: any) => {
+          // S'assurer que le rôle est valide, defaulting à "user" si inconnu
+          const validRole: "system" | "user" | "assistant" = 
+            msg.role === "system" || msg.role === "assistant" ? msg.role : "user";
+          
+          // Pour les messages d'assistant avec un expéditeur, ajouter ce contexte au contenu
+          // pour maintenir l'identité de l'expéditeur à travers la conversation
+          let enhancedContent = msg.content;
+          if (validRole === "assistant" && msg.name) {
+            enhancedContent = `[${msg.name}]: ${enhancedContent}`;
+          }
+          
+          return {
+            role: validRole,
+            content: enhancedContent
+          };
+        }),
         { role: "user", content: userMessage }
       ];
       
