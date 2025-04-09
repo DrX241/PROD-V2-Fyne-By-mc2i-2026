@@ -1717,10 +1717,36 @@ ${availableContacts}
 
 Ta réponse doit être EXTRÊMEMENT PRÉCISE, DIRECTE et PERTINENTE par rapport au contexte exact de l'incident en cours.`;
 
+      // Vérifier si le message utilisateur est court ou ambigu
+      const isShortUserMessage = userMessage.trim().length < 15;
+      const containsUncertainty = /^(je ne sais pas|pas sûr|incertain|aucune idée|je ne comprends pas|quoi faire|comment|que faire)/i.test(userMessage.trim());
+      
+      // Instructions spéciales à ajouter au prompt système en cas de réponse courte ou ambiguë
+      let additionalInstructions = "";
+      if (isShortUserMessage || containsUncertainty) {
+        additionalInstructions = `
+===== INSTRUCTIONS SPÉCIALES POUR CE MESSAGE =====
+L'utilisateur a envoyé un message court ou exprimant de l'incertitude: "${userMessage}"
+
+DIRECTIVES POUR CE TYPE DE RÉPONSE:
+1. N'interprète PAS cela comme une question demandant des informations
+2. Comprends que l'utilisateur exprime probablement de l'INCERTITUDE face à la situation
+3. GUIDE l'utilisateur en proposant des actions CONCRÈTES et SPÉCIFIQUES
+4. ÉVITE absolument de commencer par "Bonne question" ou toute expression similaire
+5. N'apporte PAS d'informations non sollicitées comme si l'utilisateur avait posé une question
+
+TON EXACT: Reste bienveillant mais DIRECTIF en fournissant une orientation claire
+STRUCTURE: Reconnais brièvement l'incertitude puis propose 2-3 actions possibles en demandant à l'utilisateur de choisir
+`;
+      }
+      
       // Préparer les messages pour l'API avec un format plus cohérent
       // Conversion des rôles pour garantir la compatibilité avec le type ChatCompletionRequestMessage
       const messages: ChatCompletionRequestMessage[] = [
-        { role: "system", content: missionPrompt },
+        { 
+          role: "system", 
+          content: missionPrompt + additionalInstructions 
+        },
         ...previousMessages.map((msg: any) => {
           // S'assurer que le rôle est valide, defaulting à "user" si inconnu
           const validRole: "system" | "user" | "assistant" = 
