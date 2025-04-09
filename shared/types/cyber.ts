@@ -8,6 +8,35 @@ export interface ScenarioContact {
 }
 
 // Type pour les missions de défense cyber
+export interface Skill {
+  id: string;
+  name: string;
+  description: string;
+  level: number;
+  maxLevel: number;
+  category?: string;
+  badges?: {
+    name: string;
+    description: string;
+    icon: string;
+    level: number;
+    unlocked: boolean;
+  }[];
+}
+
+export interface LearningEvent {
+  id: string;
+  timestamp: number;
+  description: string;
+  importance: 'low' | 'medium' | 'high';
+  type?: string;
+  skillsImpacted?: {
+    skillId: string;
+    points: number;
+    gainedPoints?: number;
+  }[];
+}
+
 export interface Mission {
   id: string;
   title: string;
@@ -20,6 +49,16 @@ export interface Mission {
   decisions: Decision[];
   primaryContact: Contact;
   additionalContacts: Contact[];
+  
+  // Champs additionnels pour la compatibilité
+  difficulty?: 'Débutant' | 'Intermédiaire' | 'Expert'; // Alias pour level
+  userRole?: string;
+  scenario?: string;
+  contacts?: Contact[];
+  duration?: string;
+  tags?: string[];
+  skillsProgress?: Skill[];
+  learningEvents?: LearningEvent[];
 }
 
 export interface Contact extends ScenarioContact {
@@ -29,14 +68,18 @@ export interface Contact extends ScenarioContact {
 export interface Objective {
   id: string;
   description: string;
+  actionOptions?: string[];
+  evaluationCriteria?: string[];
 }
 
 export interface Decision {
   id: string;
   question: string;
+  description?: string;
   options: {
     id: string;
     text: string;
+    score?: number;
   }[];
 }
 
@@ -208,6 +251,23 @@ export interface ChatMessage {
   timestamp: number;
   contactName?: string;
   contactRole?: string;
+}
+
+export interface Message {
+  id: string;
+  role: "system" | "user" | "assistant";
+  content: string;
+  timestamp: number;
+  sender?: string;
+  senderRole?: string;
+  evaluation?: {
+    score: number;
+    feedback: string;
+    impact: {
+      skillId: string;
+      points: number;
+    }[];
+  };
 }
 
 export interface ScenarioState {

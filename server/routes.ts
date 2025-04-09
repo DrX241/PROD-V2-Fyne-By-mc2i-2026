@@ -1705,39 +1705,72 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
         
         let response = "";
         
-        // Réponses adaptées au type de message basique
+        // Récupérer les informations de contexte pour personnaliser la réponse
+        const missionTitle = missionContext?.title || "Incident de cybersécurité";
+        const companyName = missionContext?.companyName || "notre organisation";
+        const scenario = missionContext?.scenario || "Nous sommes face à un incident de sécurité qui nécessite une action rapide.";
+        
+        // Extraire des éléments clés du scénario pour personnaliser les réponses
+        const scenarioLower = scenario.toLowerCase();
+        
+        // Identifier des éléments de contexte à partir du scénario
+        let incidentType = "incident de sécurité";
+        if (scenarioLower.includes("phishing")) incidentType = "tentative de phishing";
+        else if (scenarioLower.includes("malware") || scenarioLower.includes("virus")) incidentType = "infection par malware";
+        else if (scenarioLower.includes("fuite") || scenarioLower.includes("données")) incidentType = "possible fuite de données";
+        else if (scenarioLower.includes("ransomware")) incidentType = "attaque par ransomware";
+        else if (scenarioLower.includes("ddos")) incidentType = "attaque DDoS";
+        else if (scenarioLower.includes("intrusion")) incidentType = "intrusion dans nos systèmes";
+        
+        // Extraire quelques points clés du scénario (phrases courtes)
+        const scenarioPoints = scenario
+          .split(/[.!?]/)
+          .map(s => s.trim())
+          .filter(s => s.length > 10 && s.length < 100)
+          .slice(0, 3);
+          
+        // Réponses adaptées au type de message basique et personnalisées au contexte
         if (isBasicGreeting) {
-          response = `Bonjour, nous avons un incident de sécurité en cours. Je suis ${sender}, ${senderRole}. 
+          response = `${sender}, ${senderRole}: Bonjour, nous avons un ${incidentType} en cours chez ${companyName}. 
 
-Nous devons agir rapidement face à cette situation. Voici ce que nous savons jusqu'à présent:
-• Un email suspect a été signalé par plusieurs employés
-• Le message contient un lien qui semble imiter notre portail d'entreprise
-• Plusieurs autres employés ont potentiellement reçu le même message
+Nous devons agir rapidement. Voici ce que nous savons jusqu'à présent:
+${scenarioPoints.length > 0 
+  ? scenarioPoints.map(p => `• ${p}`).join('\n') 
+  : `• Nous sommes en train d'analyser la situation
+• Plusieurs systèmes pourraient être affectés
+• Nous devons définir une stratégie d'intervention rapidement`}
 
-Que souhaitez-vous faire en priorité :
-1. Examiner l'email suspect en détail
-2. Bloquer immédiatement le domaine suspect
-3. Envoyer une alerte à tous les employés`;
+En tant que ${missionContext?.userRole || "responsable"}, quelles actions souhaitez-vous que nous prenions en priorité?`;
         } else if (isBasicAcknowledgment) {
-          response = `Très bien. Pour avancer efficacement dans la résolution de cet incident, j'ai besoin de votre décision sur les prochaines étapes.
+          response = `${sender}, ${senderRole}: Très bien. Pour résoudre cet incident ${incidentType} chez ${companyName}, nous devons prendre des décisions stratégiques.
 
-Voici les options que je vous recommande :
-• Isoler les postes de travail des employés qui ont cliqué sur le lien
-• Lancer une analyse de sécurité sur le réseau pour détecter d'éventuelles intrusions
-• Prévoir une communication de crise pour les équipes concernées
+Voici les options que je recommande dans ce contexte:
+${missionContext?.objectives && missionContext.objectives.length > 0 && missionContext.objectives[currentObjective]?.actionOptions
+  ? missionContext.objectives[currentObjective].actionOptions.map(o => `• ${o}`).join('\n')
+  : `• Analyser en profondeur la nature et l'étendue de la compromission
+• Isoler temporairement les systèmes potentiellement affectés
+• Mettre en place des mesures de surveillance renforcées
+• Préparer un plan de communication pour les parties prenantes`}
 
-Quelle approche préférez-vous adopter en priorité ?`;
+Quelle approche souhaitez-vous privilégier?`;
         } else if (isShortAmbiguousMessage) {
           // Réponse spécifique pour les messages courts ou ambigus
           response = `${sender}, ${senderRole}: 
 
-Je comprends que la situation peut sembler complexe. Pour avancer efficacement dans cette crise de cybersécurité, voici les actions prioritaires que je vous propose :
+Je comprends que cette situation de ${incidentType} chez ${companyName} peut sembler complexe. 
 
-• Évaluer l'étendue potentielle de la compromission en examinant les logs des systèmes concernés
-• Identifier tous les utilisateurs qui pourraient avoir été exposés au même vecteur d'attaque
-• Préparer une stratégie de remédiation immédiate et un plan de communication
+L'objectif actuel est: ${missionContext?.objectives && missionContext.objectives[currentObjective]?.description 
+  ? missionContext.objectives[currentObjective].description
+  : "de déterminer la meilleure approche pour résoudre cet incident"}.
 
-Préférez-vous que nous commencions par une analyse technique approfondie ou par une approche d'isolation préventive des systèmes potentiellement compromis ?`;
+Voici les actions possibles que nous pourrions prendre:
+${missionContext?.objectives && missionContext.objectives[currentObjective]?.actionOptions
+  ? missionContext.objectives[currentObjective].actionOptions.slice(0, 3).map(o => `• ${o}`).join('\n')
+  : `• Effectuer une analyse forensique des systèmes touchés
+• Mettre en place des contre-mesures temporaires
+• Préparer un plan de communication de crise`}
+
+Quelle direction souhaitez-vous prendre?`;
         }
         
         // Retourner la réponse prédéfinie
