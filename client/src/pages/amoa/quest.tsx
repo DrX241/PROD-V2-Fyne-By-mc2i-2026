@@ -901,7 +901,7 @@ export default function AmoaQuestPage() {
                   <CardContent>
                     {renderPlayerMetrics()}
                   </CardContent>
-                  <CardFooter className="pt-0 text-xs text-gray-500">
+                  <CardFooter className="pt-0 text-xs text-blue-800 font-medium">
                     Ces métriques évoluent en fonction de vos décisions
                   </CardFooter>
                 </Card>
@@ -996,9 +996,9 @@ export default function AmoaQuestPage() {
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center py-8 text-gray-500">
-                        <FileText className="h-10 w-10 mx-auto mb-2 opacity-30" />
-                        <p>Aucun document collecté pour le moment</p>
+                      <div className="text-center py-8">
+                        <FileText className="h-10 w-10 mx-auto mb-2 text-blue-300" />
+                        <p className="text-blue-900 font-medium">Aucun document collecté pour le moment</p>
                       </div>
                     )}
                   </CardContent>

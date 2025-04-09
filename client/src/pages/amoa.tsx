@@ -213,25 +213,25 @@ export default function AmoaPage() {
                           )}
                         </div>
                         <CardTitle className="text-xl font-bold">{module.title}</CardTitle>
-                        <CardDescription>{module.description}</CardDescription>
+                        <CardDescription className="text-blue-900 font-medium">{module.description}</CardDescription>
                       </CardHeader>
                       
                       <CardContent className="pb-2">
                         <div className="flex flex-wrap gap-2 mb-4">
                           {module.skills.map((skill, index) => (
-                            <span key={index} className="bg-white/50 text-gray-700 text-xs px-2 py-1 rounded">
+                            <span key={index} className="bg-white/80 text-blue-900 text-xs px-2 py-1 rounded font-medium">
                               {skill}
                             </span>
                           ))}
                         </div>
                         
-                        <div className="flex items-center text-sm text-gray-500 space-x-4">
+                        <div className="flex items-center text-sm text-blue-900 font-medium space-x-4">
                           <div className="flex items-center">
-                            <Users className="h-4 w-4 mr-1 text-gray-400" />
+                            <Users className="h-4 w-4 mr-1 text-blue-800" />
                             <span>{module.level}</span>
                           </div>
                           <div className="flex items-center">
-                            <BrainCircuit className="h-4 w-4 mr-1 text-gray-400" />
+                            <BrainCircuit className="h-4 w-4 mr-1 text-blue-800" />
                             <span>{module.duration}</span>
                           </div>
                         </div>
@@ -239,7 +239,7 @@ export default function AmoaPage() {
                       
                       <CardFooter className="pt-2">
                         <Button 
-                          className={module.status === "available" ? "bg-[#006a9e] hover:bg-[#00587e] text-white w-full" : "bg-gray-300 cursor-not-allowed text-gray-600 w-full"}
+                          className={module.status === "available" ? "bg-[#006a9e] hover:bg-[#00587e] text-white w-full" : "bg-blue-200 cursor-not-allowed text-blue-900 w-full font-medium"}
                           onClick={() => module.status === "available" && navigateToModule(module.path)}
                           disabled={module.status !== "available"}
                         >
@@ -256,7 +256,7 @@ export default function AmoaPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Caractéristiques uniques d'I AM AMOA</CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-blue-900 font-medium">
                       Découvrez comment notre technologie IA transforme l'apprentissage des compétences AMOA
                     </CardDescription>
                   </CardHeader>
@@ -269,7 +269,7 @@ export default function AmoaPage() {
                           </div>
                           <div>
                             <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
-                            <p className="text-gray-600">{feature.description}</p>
+                            <p className="text-blue-900">{feature.description}</p>
                           </div>
                         </div>
                       ))}
@@ -282,7 +282,7 @@ export default function AmoaPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>À propos d'I AM AMOA</CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-blue-900 font-medium">
                       Notre vision pour la formation des assistants à maîtrise d'ouvrage du futur
                     </CardDescription>
                   </CardHeader>
@@ -312,7 +312,7 @@ export default function AmoaPage() {
                     
                     <div className="bg-blue-50 p-4 rounded-lg mt-6">
                       <h4 className="text-base font-medium text-[#006a9e] mb-2">À venir prochainement</h4>
-                      <p className="text-sm">
+                      <p className="text-sm text-blue-900 font-medium">
                         De nouveaux modules seront régulièrement ajoutés, avec une certification officielle I AM AMOA 
                         qui valorisera vos compétences acquises sur la plateforme. Restez connectés !
                       </p>
