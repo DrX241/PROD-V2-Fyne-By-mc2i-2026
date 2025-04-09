@@ -14,19 +14,19 @@ const baseQuestPhases = [
         type: "narrative",
         character: {
           id: "director",
-          name: "Claire Leroy",
+          name: "Mathilde Comte",
           role: "Directrice de Projet",
           avatar: "",
           mood: "neutral"
         },
-        content: "Bonjour et bienvenue dans l'équipe ! Je suis Claire Leroy, la directrice de ce projet stratégique pour notre client PharmaHealth. Nous avons besoin de vos compétences d'AMOA pour mener à bien ce projet de transformation digitale."
+        content: "Bonjour et bienvenue dans l'équipe ! Je suis Mathilde Comte, la directrice de ce projet stratégique pour notre client PharmaHealth. Nous avons besoin de vos compétences d'AMOA pour mener à bien ce projet de transformation digitale."
       },
       {
         id: "intro2",
         type: "narrative",
         character: {
           id: "director",
-          name: "Claire Leroy",
+          name: "Mathilde Comte",
           role: "Directrice de Projet",
           avatar: "",
           mood: "serious"
@@ -345,7 +345,7 @@ export async function handleQuestChoice(req: Request, res: Response) {
         narrativeResponse: {
           character: {
             id: "director",
-            name: "Claire Leroy",
+            name: "Mathilde Comte",
             role: "Directrice de Projet",
             mood: "neutral"
           },
