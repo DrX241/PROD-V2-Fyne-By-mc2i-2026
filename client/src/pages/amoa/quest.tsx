@@ -116,7 +116,7 @@ const CharacterAvatar: React.FC<{ character: Character }> = ({ character }) => {
         )}
       </div>
       <div>
-        <div className="font-medium text-sm">{character.name}</div>
+        <div className="font-medium text-sm text-gray-900">{character.name}</div>
         <div className="text-xs text-gray-500">{character.role}</div>
       </div>
     </div>
@@ -768,7 +768,7 @@ export default function AmoaQuestPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div className="flex items-center">
             <Link href="/amoa" className="mr-4">
-              <Button variant="outline" size="sm" className="text-gray-600">
+              <Button variant="outline" size="sm" className="text-amoa-blue">
                 <ArrowLeft className="h-4 w-4 mr-1" />
                 Retour
               </Button>
@@ -781,6 +781,7 @@ export default function AmoaQuestPage() {
               variant="ghost" 
               size="sm"
               onClick={() => setShowHelp(true)}
+              className="text-amoa-blue"
             >
               <HelpCircle className="h-4 w-4 mr-1" />
               Aide
