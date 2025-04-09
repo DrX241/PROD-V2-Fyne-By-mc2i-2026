@@ -137,11 +137,11 @@ const DocumentViewer: React.FC<{ document: { title: string; content: string; typ
 
   const getDocumentBg = (type: string) => {
     switch (type) {
-      case "requirement": return "bg-amoa-blue/10 border-amoa-blue/20";
-      case "specification": return "bg-green-50 border-green-200";
-      case "email": return "bg-amber-50 border-amber-200";
-      case "report": return "bg-purple-50 border-purple-200";
-      default: return "bg-gray-50 border-gray-200";
+      case "requirement": return "bg-amoa-blue/10 border-amoa-blue/20 text-gray-900";
+      case "specification": return "bg-green-50 border-green-200 text-gray-900";
+      case "email": return "bg-amber-50 border-amber-200 text-gray-900";
+      case "report": return "bg-purple-50 border-purple-200 text-gray-900";
+      default: return "bg-gray-50 border-gray-200 text-gray-900";
     }
   };
 
@@ -508,7 +508,7 @@ export default function AmoaQuestPage() {
                 <div className="w-6 h-6 rounded-full bg-amoa-blue flex items-center justify-center mr-3 flex-shrink-0">
                   <ChevronRight className="h-4 w-4 text-white" />
                 </div>
-                <span className="text-gray-800">{option.text}</span>
+                <span className="text-gray-900">{option.text}</span>
               </div>
             </Button>
           ))}
@@ -524,7 +524,7 @@ export default function AmoaQuestPage() {
     return (
       <div className="mb-4">
         <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
-          <p className="text-gray-800">{step.content}</p>
+          <p className="text-gray-900">{step.content}</p>
         </div>
         
         <div className="space-y-4">
@@ -824,7 +824,7 @@ export default function AmoaQuestPage() {
                           </div>
                         )}
                         <div className="bg-white p-4 rounded-lg shadow-sm border max-w-2xl">
-                          <p className="text-gray-800 whitespace-pre-line">{step.content}</p>
+                          <p className="text-gray-900 whitespace-pre-line">{step.content}</p>
                         </div>
                       </div>
                     );
@@ -836,7 +836,7 @@ export default function AmoaQuestPage() {
                         </div>
                         {step.options && questState.playerChoices[step.id] && (
                           <div className="bg-white p-3 rounded-lg border border-gray-200 ml-8">
-                            <p className="text-gray-800">
+                            <p className="text-gray-900">
                               {step.options.find(opt => opt.id === questState.playerChoices[step.id])?.text}
                             </p>
                           </div>
@@ -853,7 +853,7 @@ export default function AmoaQuestPage() {
                           <div className="ml-8">
                             {step.documents.map((doc, docIndex) => (
                               <div key={docIndex} className="bg-white p-3 rounded-lg border border-gray-200 mb-2">
-                                <p className="font-medium text-gray-800">{doc.title}</p>
+                                <p className="font-medium text-gray-900">{doc.title}</p>
                               </div>
                             ))}
                           </div>
