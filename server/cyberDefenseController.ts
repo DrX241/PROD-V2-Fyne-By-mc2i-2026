@@ -254,9 +254,152 @@ async function generateMissionWithAI(difficultyLevel: string) {
   try {
     console.log(`Générer une mission de niveau ${difficultyLevel} avec l'IA...`);
     
-    // Utiliser le générateur de mission existant qui utilise déjà l'IA
-    // via l'API OpenAI pour générer le contenu dynamiquement
-    const mission = await missionGenerator.generateMission(difficultyLevel as any);
+    // Créer une mission simplifiée avec des éléments statiques et dynamiques
+    // Cette approche nous permet d'avoir une mission fonctionnelle même si l'API a des soucis
+    
+    // Éléments statiques par niveau de difficulté
+    const staticElements = {
+      "Débutant": {
+        title: "Alerte de phishing au sein de l'entreprise",
+        scenario: "Plusieurs employés ont signalé avoir reçu des emails suspects qui semblent provenir du service informatique, demandant de changer leurs mots de passe via un lien externe. Une analyse préliminaire suggère qu'il s'agit d'une tentative de phishing ciblée contre votre organisation.",
+        companyName: "ELITE RETAIL SECURITY",
+        secteurActivite: "RETAIL & LUXE",
+        contacts: [
+          {
+            id: uuidv4(),
+            name: "Yousra Saidani", 
+            role: "Senior Manager et Experte Cybersécurité",
+            expertise: "Réponse aux incidents et gestion de crise"
+          },
+          {
+            id: uuidv4(),
+            name: "Alexandre Chen", 
+            role: "Responsable de la Sécurité SI",
+            expertise: "Sécurité des systèmes d'information et gouvernance"
+          }
+        ]
+      },
+      "Intermédiaire": {
+        title: "Vulnérabilité critique dans l'infrastructure",
+        scenario: "Une vulnérabilité zero-day vient d'être découverte dans un composant critique de votre infrastructure. Des preuves d'exploitation active ont été détectées sur Internet et votre CERT vous a alerté que votre organisation pourrait être une cible potentielle.",
+        companyName: "BANQUE FINANCE ASSURANCE",
+        secteurActivite: "BANCAIRE/FINANCE (BFA)",
+        contacts: [
+          {
+            id: uuidv4(),
+            name: "Mathilde Comte", 
+            role: "RSSI",
+            expertise: "Gouvernance et gestion des risques"
+          },
+          {
+            id: uuidv4(),
+            name: "Kevin Dubois", 
+            role: "Responsable SOC",
+            expertise: "Détection et réponse aux incidents"
+          },
+          {
+            id: uuidv4(),
+            name: "Sophie Martin", 
+            role: "Administratrice Systèmes",
+            expertise: "Gestion des infrastructures IT et des sauvegardes"
+          }
+        ]
+      },
+      "Expert": {
+        title: "APT détectée dans les systèmes critiques",
+        scenario: "Votre équipe de sécurité a détecté des activités suspectes indiquant une possible compromission avancée persistante (APT) ciblant vos systèmes critiques. Des comportements anormaux sur le réseau et des connexions vers des serveurs de commande et contrôle connus ont été observés depuis au moins 3 mois.",
+        companyName: "HEALTH & INDUSTRY SHIELD",
+        secteurActivite: "INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)",
+        contacts: [
+          {
+            id: uuidv4(),
+            name: "Mathilde Comte", 
+            role: "RSSI",
+            expertise: "Gouvernance et gestion des risques"
+          },
+          {
+            id: uuidv4(),
+            name: "Kevin Dubois", 
+            role: "Responsable SOC",
+            expertise: "Détection et réponse aux incidents"
+          },
+          {
+            id: uuidv4(),
+            name: "Pierre Dubois", 
+            role: "Responsable Conformité",
+            expertise: "Réglementation et conformité en cybersécurité"
+          },
+          {
+            id: uuidv4(),
+            name: "Sarah Benali", 
+            role: "Experte Threat Intelligence",
+            expertise: "Analyse des menaces et attribution"
+          }
+        ]
+      }
+    };
+    
+    // Sélection des éléments pour le niveau demandé
+    const elements = staticElements[difficultyLevel as keyof typeof staticElements] || staticElements["Intermédiaire"];
+    
+    // Tentative d'enrichissement via l'IA (avec timeout court pour éviter les blocages)
+    let dynamicScenario = elements.scenario;
+    try {
+      const scenarioPrompt = `Améliore ce scénario de cybersécurité pour un exercice de niveau ${difficultyLevel}:\n"${elements.scenario}"\nAjoute des détails spécifiques et pertinents pour le rendre plus réaliste et immersif. Limite ta réponse à 3-5 phrases maximum.`;
+      
+      // Utiliser une promesse avec timeout
+      const enrichedScenario = await Promise.race([
+        openAIService.getChatCompletion([{ role: "user", content: scenarioPrompt }], 0.7, 400),
+        new Promise<string>((_, reject) => setTimeout(() => reject(new Error("Timeout")), 5000))
+      ]);
+      
+      if (enrichedScenario) {
+        dynamicScenario = enrichedScenario.trim();
+      }
+    } catch (error) {
+      console.log("Utilisation du scénario par défaut suite à une erreur d'enrichissement:", error);
+    }
+    
+    // Création d'une mission avec le contenu obtenu
+    const mission = {
+      id: uuidv4(),
+      title: elements.title,
+      description: `Une situation critique de cybersécurité requiert vos compétences. Prenez les bonnes décisions pour protéger ${elements.companyName}.`,
+      difficulty: difficultyLevel,
+      duration: difficultyLevel === "Débutant" ? "15-25 min" : difficultyLevel === "Intermédiaire" ? "30-45 min" : "45-60 min",
+      tags: ["Incident Response", "Cybersécurité", difficultyLevel],
+      scenario: dynamicScenario,
+      companyName: elements.companyName,
+      secteurActivite: elements.secteurActivite,
+      userRole: "Responsable Sécurité",
+      contacts: elements.contacts,
+      objectives: [
+        {
+          id: uuidv4(),
+          description: "Évaluer la situation et identifier la nature de la menace",
+          evaluationCriteria: ["Précision de l'analyse", "Rapidité d'évaluation", "Identification des systèmes touchés"],
+          completed: false
+        },
+        {
+          id: uuidv4(),
+          description: "Mettre en place les premières mesures de confinement",
+          evaluationCriteria: ["Efficacité des mesures", "Minimisation de l'impact sur les opérations", "Documentation des actions"],
+          completed: false
+        },
+        {
+          id: uuidv4(),
+          description: "Élaborer un plan de communication et de remédiation",
+          evaluationCriteria: ["Clarté de la communication", "Pertinence des actions de remédiation", "Mesures préventives pour le futur"],
+          completed: false
+        }
+      ],
+      evaluationSystem: {
+        maxPoints: 60,
+        penaltyThreshold: 20,
+        rewards: ["Reconnaissance professionnelle", "Budget supplémentaire pour la sécurité", "Formation spécialisée en cybersécurité"],
+        penalties: ["Perte de confiance de la direction", "Réduction des responsabilités", "Impact sur la réputation professionnelle"]
+      }
+    };
     
     console.log(`Mission générée avec succès: ${mission.title}`);
     return mission;
