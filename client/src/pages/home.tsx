@@ -195,39 +195,14 @@ export default function Home() {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.8 }}
               >
-                {/* Typewriter animation optimisée */}
-                <div className="h-14 text-white">
-                  <Typewriter 
-                    texts={[
-                      'FYNE by mc2i',
-                      'For Your Next Experience',
-                      'Formation Innovante',
-                      'Your Digital Companion',
-                      'Nouveaux Horizons',
-                      'Excellence Professionnelle',
-                      'Formation Adaptative',
-                      'Your Skills Catalyst',
-                      'Nouvelles Compétences',
-                      'Évolution Personnalisée',
-                      'Futur de l\'Apprentissage',
-                      'Your Career Booster'
-                    ]}
-                    delayBetweenTexts={1000}
-                    typingSpeed={80}
-                    deletingSpeed={50}
-                    delayAfterTyping={2000}
-                    delayBeforeDeleting={1000}
-                    highlightFYNE={true}
-                  />
-                  <motion.span
-                    className="inline-block w-[3px] h-8 bg-white align-text-top ml-0.5"
-                    animate={{ opacity: [1, 0] }}
-                    transition={{
-                      duration: 0.8,
-                      repeat: Infinity,
-                      repeatType: 'reverse',
-                    }}
-                  />
+                {/* Simple affichage du slogan */}
+                <div className="h-14 text-white text-2xl font-cyber-title">
+                  <span>
+                    <span className="text-cyan-300">F</span>or 
+                    <span className="text-cyan-300"> Y</span>our 
+                    <span className="text-cyan-300"> N</span>ext 
+                    <span className="text-cyan-300"> E</span>xperience
+                  </span>
                 </div>
                 
                 {/* Ligne décorative en dessous */}
