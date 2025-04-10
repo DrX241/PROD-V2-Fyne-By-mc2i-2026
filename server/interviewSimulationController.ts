@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 import { ChatCompletionRequestMessage } from '@shared/schema';
 import { openAIService } from "../I_AM_CYBER/services/openai";
 
@@ -295,33 +296,70 @@ Sujet: Évaluation de simulation d'entretien - ${candidateName}
         </div>
       `;
 
-      // Configuration de nodemailer avec service de test d'email Ethereal
-      const testAccount = await nodemailer.createTestAccount();
-
-      const transporter = nodemailer.createTransport({
-        host: 'smtp.ethereal.email',
-        port: 587,
-        secure: false,
-        auth: {
-          user: testAccount.user,
-          pass: testAccount.pass
+      // Configuration de SendGrid si la clé API est disponible
+      const sendgridApiKey = process.env.SENDGRID_API_KEY;
+      
+      if (sendgridApiKey) {
+        // Utilisation de SendGrid pour l'envoi d'emails
+        sgMail.setApiKey(sendgridApiKey);
+        
+        const msg = {
+          to: recruiterEmail,
+          from: {
+            name: 'I AM CYBER - Recrutement',
+            email: 'noreply@i-am-cyber.com'
+          },
+          subject: `Évaluation de simulation d'entretien - ${candidateName}`,
+          html: emailHtml,
+        };
+        
+        try {
+          await sgMail.send(msg);
+          console.log('Email envoyé avec SendGrid à', recruiterEmail);
+        } catch (sendgridError) {
+          console.error('Erreur lors de l\'envoi avec SendGrid:', sendgridError);
+          // Fallback vers Ethereal pour les tests si SendGrid échoue
+          await sendWithEthereal();
         }
-      });
-
-      // Configuration de l'email
-      const mailOptions = {
-        from: '"I AM CYBER - Recrutement" <evaluation@i-am-cyber.com>',
-        to: recruiterEmail,
-        subject: `Évaluation de simulation d'entretien - ${candidateName}`,
-        html: emailHtml
-      };
+      } else {
+        // Fallback vers Ethereal pour les tests
+        await sendWithEthereal();
+      }
       
-      // Envoi de l'email
-      const info = await transporter.sendMail(mailOptions);
-      
-      console.log('Email envoyé: %s', info.messageId);
-      // URL de prévisualisation de l'email généré par Ethereal
-      console.log('Aperçu de l\'email: %s', nodemailer.getTestMessageUrl(info));
+      // Fonction pour envoyer un email de test avec Ethereal
+      async function sendWithEthereal() {
+        try {
+          // Configuration de nodemailer avec service de test d'email Ethereal
+          const testAccount = await nodemailer.createTestAccount();
+          
+          const transporter = nodemailer.createTransport({
+            host: 'smtp.ethereal.email',
+            port: 587,
+            secure: false,
+            auth: {
+              user: testAccount.user,
+              pass: testAccount.pass
+            }
+          });
+          
+          // Configuration de l'email
+          const mailOptions = {
+            from: '"I AM CYBER - Recrutement" <evaluation@i-am-cyber.com>',
+            to: recruiterEmail,
+            subject: `Évaluation de simulation d'entretien - ${candidateName}`,
+            html: emailHtml
+          };
+          
+          // Envoi de l'email
+          const info = await transporter.sendMail(mailOptions);
+          
+          console.log('Email de test envoyé: %s', info.messageId);
+          // URL de prévisualisation de l'email généré par Ethereal
+          console.log('Aperçu de l\'email: %s', nodemailer.getTestMessageUrl(info));
+        } catch (etherealError) {
+          console.error('Erreur lors de l\'envoi avec Ethereal:', etherealError);
+        }
+      }
     } catch (emailError) {
       console.error('Erreur lors de l\'envoi de l\'email:', emailError);
       // Continuer l'exécution même si l'envoi d'email échoue
@@ -491,22 +529,30 @@ Tu dois évaluer les réponses d'un candidat lors d'une simulation d'entretien:
 
 INSTRUCTIONS:
 1. Analyse soigneusement toutes les réponses du candidat pendant la simulation.
-2. Évalue les compétences techniques en cybersécurité (connaissances, méthodologies, outils).
-3. Évalue les compétences comportementales (analyse, résolution de problèmes, communication).
-4. Identifie les points forts et les axes d'amélioration.
-5. Fournis une évaluation globale avec une note sur 5.
+2. Évalue les compétences techniques et comportementales manifestées pendant l'entretien.
+3. Sois bienveillant, même si la simulation a été courte ou interrompue.
+4. Fournis une évaluation pertinente adaptée au profil et niveau d'expérience.
 
 FORMAT DE RÉPONSE:
-Structuré ta réponse avec les sections suivantes:
-1. Synthèse globale (2-3 phrases résumant le niveau général du candidat)
-2. Compétences techniques (forces et faiblesses)
-3. Compétences comportementales (forces et faiblesses)
-4. Points forts (liste avec puces)
-5. Axes d'amélioration (liste avec puces)
-6. Évaluation globale (note /5 avec justification)
-7. Recommandation (adapté ou non au poste, potentiel)
+Structure ton rapport d'évaluation comme suit:
 
-Ton évaluation doit être professionnelle, objective et constructive.`;
+## Synthèse générale du candidat
+[2-3 phrases résumant l'impression générale]
+
+## Points forts
+- [Point fort 1]
+- [Point fort 2]
+- [Point fort 3]
+
+## Axes d'amélioration
+- [Axe d'amélioration 1]
+- [Axe d'amélioration 2]
+- [Axe d'amélioration 3]
+
+## Recommandation pour le recrutement
+[Recommandation claire: Recruter / Envisager / Approfondir]
+
+IMPORTANT: Ton évaluation doit être constructive, pertinente et adaptée au niveau d'expérience demandé.`;
 }
 
 /**
@@ -523,22 +569,28 @@ Tu dois évaluer les réponses d'un candidat lors d'une simulation d'entretien:
 
 INSTRUCTIONS:
 1. Analyse soigneusement toutes les réponses du candidat pendant la simulation.
-2. Évalue les compétences méthodologiques (gestion de projet, expression de besoins, tests, etc.).
-3. Évalue les compétences comportementales (communication, négociation, gestion des parties prenantes).
-4. Évalue l'adéquation avec le secteur d'activité (${sectorFocus}).
-5. Identifie les points forts et les axes d'amélioration.
-6. Fournis une évaluation globale avec une note sur 5.
+2. Évalue les compétences techniques et comportementales manifestées pendant l'entretien.
+3. Sois bienveillant, même si la simulation a été courte ou interrompue.
+4. Fournis une évaluation pertinente adaptée au profil, niveau d'expérience et secteur.
 
 FORMAT DE RÉPONSE:
-Structuré ta réponse avec les sections suivantes:
-1. Synthèse globale (2-3 phrases résumant le niveau général du candidat)
-2. Compétences méthodologiques (forces et faiblesses)
-3. Compétences comportementales (forces et faiblesses)
-4. Connaissance du secteur (${sectorFocus})
-5. Points forts (liste avec puces)
-6. Axes d'amélioration (liste avec puces)
-7. Évaluation globale (note /5 avec justification)
-8. Recommandation (adapté ou non au poste, potentiel)
+Structure ton rapport d'évaluation comme suit:
 
-Ton évaluation doit être professionnelle, objective et constructive.`;
+## Synthèse générale du candidat
+[2-3 phrases résumant l'impression générale]
+
+## Points forts
+- [Point fort 1]
+- [Point fort 2]
+- [Point fort 3]
+
+## Axes d'amélioration
+- [Axe d'amélioration 1]
+- [Axe d'amélioration 2]
+- [Axe d'amélioration 3]
+
+## Recommandation pour le recrutement
+[Recommandation claire: Recruter / Envisager / Approfondir]
+
+IMPORTANT: Ton évaluation doit être constructive, pertinente et adaptée au niveau d'expérience demandé et au secteur ${sectorFocus}.`;
 }
