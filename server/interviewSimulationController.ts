@@ -279,20 +279,6 @@ Sujet: Évaluation de simulation d'entretien - ${candidateName}
     `);
 
     try {
-      // Plutôt que d'envoyer un email, on simule l'envoi d'email et on inclut l'évaluation dans la réponse
-      // pour qu'elle soit affichée dans l'interface
-      /* 
-      const transporter = nodemailer.createTransport({
-        host: 'smtp.ethereal.email',
-        port: 587,
-        secure: false,
-        auth: {
-          user: 'antwon.adams37@ethereal.email',
-          pass: 'm8pVJHCCvMVBHT8fst'
-        }
-      });
-      */
-
       // Construction du corps de l'email en HTML
       const emailHtml = `
         <h2>Évaluation de simulation d'entretien</h2>
@@ -309,9 +295,33 @@ Sujet: Évaluation de simulation d'entretien - ${candidateName}
         </div>
       `;
 
-      // Pas d'envoi d'email, mais on envoie l'évaluation dans la réponse
+      // Configuration de nodemailer avec service de test d'email Ethereal
+      const testAccount = await nodemailer.createTestAccount();
+
+      const transporter = nodemailer.createTransport({
+        host: 'smtp.ethereal.email',
+        port: 587,
+        secure: false,
+        auth: {
+          user: testAccount.user,
+          pass: testAccount.pass
+        }
+      });
+
+      // Configuration de l'email
+      const mailOptions = {
+        from: '"I AM CYBER - Recrutement" <evaluation@i-am-cyber.com>',
+        to: recruiterEmail,
+        subject: `Évaluation de simulation d'entretien - ${candidateName}`,
+        html: emailHtml
+      };
       
-      console.log('Évaluation simulée, pas d\'envoi d\'email réel');
+      // Envoi de l'email
+      const info = await transporter.sendMail(mailOptions);
+      
+      console.log('Email envoyé: %s', info.messageId);
+      // URL de prévisualisation de l'email généré par Ethereal
+      console.log('Aperçu de l\'email: %s', nodemailer.getTestMessageUrl(info));
     } catch (emailError) {
       console.error('Erreur lors de l\'envoi de l\'email:', emailError);
       // Continuer l'exécution même si l'envoi d'email échoue

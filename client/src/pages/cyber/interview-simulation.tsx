@@ -611,105 +611,30 @@ const CyberInterviewSimulation: React.FC = () => {
                         </div>
                       </div>
                       
-                      {/* Affichage du texte brut de l'évaluation si disponible */}
-                      {evaluationResult.evaluation ? (
-                        <div className="bg-gray-700 p-4 rounded-md overflow-auto max-h-[600px]">
-                          <h3 className="text-xl font-semibold mb-3">Évaluation détaillée</h3>
-                          <div className="prose prose-invert max-w-none">
-                            <div dangerouslySetInnerHTML={{ __html: evaluationResult.evaluation.replace(/\n/g, '<br />') }} />
-                          </div>
+                      <div className="bg-gray-700 p-4 rounded-md overflow-auto max-h-[600px]">
+                        <h3 className="text-xl font-semibold mb-3">Évaluation détaillée</h3>
+                        <div className="prose prose-invert max-w-none">
+                          {typeof evaluationResult === 'string' ? (
+                            <div dangerouslySetInnerHTML={{ __html: evaluationResult.replace(/\n/g, '<br>') }} />
+                          ) : evaluationResult.evaluation ? (
+                            <div dangerouslySetInnerHTML={{ __html: evaluationResult.evaluation.replace(/\n/g, '<br>') }} />
+                          ) : evaluationResult.content ? (
+                            <div dangerouslySetInnerHTML={{ __html: evaluationResult.content.replace(/\n/g, '<br>') }} />
+                          ) : (
+                            <p className="text-gray-200 whitespace-pre-wrap">{evaluationResult.feedback || "Aucun détail d'évaluation disponible."}</p>
+                          )}
                         </div>
-                      ) : (
-                        <>
-                          {/* Ancienne version structurée si disponible */}
-                          {evaluationResult.overallScore && (
-                            <div>
-                              <h3 className="text-xl font-semibold mb-4">Note globale</h3>
-                              <div className="flex items-center justify-center bg-gray-700 p-6 rounded-md">
-                                <div 
-                                  className={`text-5xl font-bold rounded-full w-24 h-24 flex items-center justify-center
-                                    ${evaluationResult.overallScore >= 80 ? 'bg-green-900 text-green-300' : 
-                                      evaluationResult.overallScore >= 60 ? 'bg-blue-900 text-blue-300' : 
-                                      evaluationResult.overallScore >= 40 ? 'bg-yellow-900 text-yellow-300' : 
-                                      'bg-red-900 text-red-300'}`}
-                                >
-                                  {evaluationResult.overallScore}/100
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                          
-                          {evaluationResult.skillsEvaluation && (
-                            <div>
-                              <h3 className="text-xl font-semibold mb-4">Évaluation par compétence</h3>
-                              <div className="space-y-3">
-                                {Object.entries(evaluationResult.skillsEvaluation).map(([skill, score]: [string, any]) => (
-                                  <div key={skill} className="bg-gray-700 p-3 rounded-md">
-                                    <div className="flex justify-between mb-2">
-                                      <span className="font-medium">{skill}</span>
-                                      <Badge 
-                                        className={
-                                          score >= 80 ? 'bg-green-800 text-green-200' : 
-                                          score >= 60 ? 'bg-blue-800 text-blue-200' : 
-                                          score >= 40 ? 'bg-yellow-800 text-yellow-200' : 
-                                          'bg-red-800 text-red-200'
-                                        }
-                                      >
-                                        {score}/100
-                                      </Badge>
-                                    </div>
-                                    <div className="w-full bg-gray-800 rounded-full h-2.5">
-                                      <div 
-                                        className={`h-2.5 rounded-full ${
-                                          score >= 80 ? 'bg-green-500' : 
-                                          score >= 60 ? 'bg-blue-500' : 
-                                          score >= 40 ? 'bg-yellow-500' : 
-                                          'bg-red-500'
-                                        }`}
-                                        style={{ width: `${score}%` }}
-                                      ></div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                          
-                          {evaluationResult.feedback && (
-                            <div>
-                              <h3 className="text-xl font-semibold mb-2">Commentaires</h3>
-                              <div className="bg-gray-700 p-4 rounded-md whitespace-pre-wrap">
-                                {evaluationResult.feedback}
-                              </div>
-                            </div>
-                          )}
-                          
-                          {evaluationResult.strengths && (
-                            <div>
-                              <h3 className="text-xl font-semibold mb-2">Points forts</h3>
-                              <div className="bg-gray-700 p-4 rounded-md">
-                                <ul className="list-disc pl-5 space-y-1">
-                                  {evaluationResult.strengths.map((strength: string, index: number) => (
-                                    <li key={index}>{strength}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            </div>
-                          )}
-                          
-                          {evaluationResult.areasForImprovement && (
-                            <div>
-                              <h3 className="text-xl font-semibold mb-2">Axes d'amélioration</h3>
-                              <div className="bg-gray-700 p-4 rounded-md">
-                                <ul className="list-disc pl-5 space-y-1">
-                                  {evaluationResult.areasForImprovement.map((area: string, index: number) => (
-                                    <li key={index}>{area}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            </div>
-                          )}
-                        </>
+                      </div>
+                      
+                      {evaluationResult.recommendation && (
+                        <div className={`p-4 rounded-md ${
+                          evaluationResult.recommendation === 'Embaucher' ? 'bg-green-900/50 border border-green-600' :
+                          evaluationResult.recommendation === 'Envisager' ? 'bg-blue-900/50 border border-blue-600' :
+                          'bg-red-900/50 border border-red-600'
+                        }`}>
+                          <h3 className="text-lg font-semibold mb-1">Recommandation</h3>
+                          <p className="font-medium">{evaluationResult.recommendation}</p>
+                        </div>
                       )}
                     </div>
                   )}
