@@ -196,7 +196,7 @@ export default function Home() {
                 transition={{ duration: 0.8 }}
               >
                 {/* Simple affichage du slogan */}
-                <div className="h-14 text-white text-2xl font-cyber-title">
+                <div className="h-14 text-white text-2xl font-cyber-title flex items-center justify-center">
                   <span>
                     <span className="text-cyan-300">F</span>or 
                     <span className="text-cyan-300"> Y</span>our 
