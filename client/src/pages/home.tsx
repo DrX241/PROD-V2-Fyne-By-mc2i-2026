@@ -216,7 +216,7 @@ export default function Home() {
             <div>
               <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-600/30 border border-blue-500/30 text-blue-300 text-sm font-medium mb-6">
                 <Sparkles className="mr-2 h-4 w-4" />
-                Propulsé par l'intelligence artificielle avancée
+                Propulsé par l'Intelligence Artificielle
               </div>
               
               {/* Slogan FYNE directement sur le fond, sans conteneur */}
