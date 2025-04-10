@@ -259,12 +259,26 @@ const CyberInterviewSimulation: React.FC = () => {
       }
       
       const data = await response.json();
-      setEvaluationResult(data);
+      
+      // Récupération de l'évaluation directement depuis la réponse
+      if (data.evaluation) {
+        setEvaluationResult({
+          content: data.evaluation,
+          domain: 'cyber',
+          profileType: form.getValues('profileType'),
+          experienceLevel: form.getValues('experienceLevel'),
+          candidateName: form.getValues('candidateName'),
+          duration: 300 - timeRemaining
+        });
+      } else {
+        setEvaluationResult(data);
+      }
+      
       setSimulationComplete(true);
       setActiveTab('evaluation');
       toast({
         title: "Simulation terminée",
-        description: "L'évaluation de votre entretien a été envoyée à " + form.getValues('recruiterEmail'),
+        description: "L'évaluation de votre entretien est disponible dans l'onglet Évaluation.",
       });
     } catch (error) {
       console.error('Erreur:', error);

@@ -191,7 +191,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7 }}
               >
-                Transformez votre 
+                Améliorez votre 
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400"> expertise professionnelle</span> avec FYNE
               </motion.h1>
               

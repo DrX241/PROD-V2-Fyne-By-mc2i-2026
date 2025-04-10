@@ -279,7 +279,9 @@ Sujet: Évaluation de simulation d'entretien - ${candidateName}
     `);
 
     try {
-      // Configuration du transporteur SMTP pour Ethereal (service de test d'email)
+      // Plutôt que d'envoyer un email, on simule l'envoi d'email et on inclut l'évaluation dans la réponse
+      // pour qu'elle soit affichée dans l'interface
+      /* 
       const transporter = nodemailer.createTransport({
         host: 'smtp.ethereal.email',
         port: 587,
@@ -289,6 +291,7 @@ Sujet: Évaluation de simulation d'entretien - ${candidateName}
           pass: 'm8pVJHCCvMVBHT8fst'
         }
       });
+      */
 
       // Construction du corps de l'email en HTML
       const emailHtml = `
@@ -306,16 +309,9 @@ Sujet: Évaluation de simulation d'entretien - ${candidateName}
         </div>
       `;
 
-      // Envoi de l'email
-      const info = await transporter.sendMail({
-        from: '"I AM CYBER/AMOA" <noreply@example.com>',
-        to: recruiterEmail,
-        subject: `Évaluation de simulation d'entretien - ${candidateName}`,
-        html: emailHtml
-      });
-
-      console.log('Message envoyé: %s', info.messageId);
-      console.log('Aperçu de l\'email: %s', nodemailer.getTestMessageUrl(info));
+      // Pas d'envoi d'email, mais on envoie l'évaluation dans la réponse
+      
+      console.log('Évaluation simulée, pas d\'envoi d\'email réel');
     } catch (emailError) {
       console.error('Erreur lors de l\'envoi de l\'email:', emailError);
       // Continuer l'exécution même si l'envoi d'email échoue
@@ -323,7 +319,8 @@ Sujet: Évaluation de simulation d'entretien - ${candidateName}
 
     return res.json({
       success: true,
-      message: 'Évaluation générée et email envoyé avec succès.'
+      message: 'Évaluation générée avec succès.',
+      evaluation: evaluation
     });
 
   } catch (error) {
