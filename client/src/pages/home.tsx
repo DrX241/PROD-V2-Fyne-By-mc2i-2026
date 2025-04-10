@@ -178,37 +178,6 @@ export default function Home() {
       <PageTitle title="Accueil" />
       {/* Hero Section */}
       <div className="relative bg-gradient-to-br from-gray-900 via-indigo-900 to-blue-900 overflow-hidden">
-        {/* Concepts flottants en arrière-plan */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[
-            "Innovation", "Cybersécurité", "Excellence", "Intelligence", 
-            "Formation", "Expertise", "Digital", "Compétence", 
-            "Technologie", "Apprentissage", "Knowledge", "Évolution", 
-            "Performance", "Méthode", "Développement"
-          ].map((word, index) => (
-            <motion.div
-              key={`word-${index}`}
-              className="absolute text-cyan-300/20 font-light"
-              style={{
-                left: `${Math.random() * 80 + 10}%`,
-                top: `${Math.random() * 80 + 10}%`,
-                fontSize: `${Math.random() * 12 + 8}px`,
-                opacity: 0.1 + Math.random() * 0.2
-              }}
-              animate={{
-                y: [0, Math.random() * 30 - 15],
-                opacity: [0.1, 0.3, 0.1],
-              }}
-              transition={{
-                duration: 5 + Math.random() * 10,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            >
-              {word}
-            </motion.div>
-          ))}
-        </div>
         
         <div className="max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8 lg:py-28 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -216,28 +185,36 @@ export default function Home() {
             <div>
               <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-600/30 border border-blue-500/30 text-blue-300 text-sm font-medium mb-6">
                 <Sparkles className="mr-2 h-4 w-4" />
-                Propulsé par l'Intelligence Artificielle
+                Propulsé par l'intelligence artificielle avancée
               </div>
               
-              {/* Slogan FYNE directement sur le fond, sans conteneur */}
-              <div className="mb-6 relative flex items-center">
-                <span className="text-white text-2xl font-cyber-title">
-                  <span className="text-cyan-300">F</span>or 
-                  <span className="text-cyan-300"> Y</span>our 
-                  <span className="text-cyan-300"> N</span>ext 
-                  <span className="text-cyan-300"> E</span>xperience
-                </span>
+              {/* Animation du slogan FYNE placée avant le titre principal */}
+              <motion.div
+                className="mb-6 relative"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8 }}
+              >
+                {/* Simple affichage du slogan */}
+                <div className="h-14 text-white text-2xl font-cyber-title flex items-center justify-center">
+                  <span>
+                    <span className="text-cyan-300">F</span>or 
+                    <span className="text-cyan-300"> Y</span>our 
+                    <span className="text-cyan-300"> N</span>ext 
+                    <span className="text-cyan-300"> E</span>xperience
+                  </span>
+                </div>
                 
                 {/* Ligne décorative en dessous */}
                 <motion.div 
-                  className="absolute -bottom-1 left-0 w-64 h-[2px]"
+                  className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-64 h-[2px]"
                   initial={{ width: 0, opacity: 0 }}
                   animate={{ width: 250, opacity: 1 }}
                   transition={{ duration: 1, delay: 0.5 }}
                 >
                   <div className="w-full h-full bg-gradient-to-r from-transparent via-cyan-400 to-transparent"></div>
                 </motion.div>
-              </div>
+              </motion.div>
 
               <motion.h1 
                 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-3 font-cyber-title tracking-wide"
