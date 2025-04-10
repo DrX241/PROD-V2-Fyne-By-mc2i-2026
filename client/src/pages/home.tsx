@@ -194,39 +194,63 @@ export default function Home() {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.8 }}
               >
-                {/* Animation manuscrite de FYNE qui se transforme en slogan */}
+                {/* Animation améliorée de FYNE by mc2i qui se transforme en slogan */}
                 <div className="relative h-14 overflow-hidden">
-                  {/* "FYNE" qui s'écrit puis s'efface */}
+                  {/* Première étape: "FYNE by mc2i" qui apparaît en fondu */}
                   <motion.div
                     className="absolute inset-0 w-full text-center"
                     initial={{ opacity: 0 }}
                     animate={{ 
-                      opacity: [0, 1, 1, 0],
+                      opacity: [0, 1, 1, 0.7, 0.4, 0],
+                      y: [5, 0, 0, -5],
                     }}
                     transition={{ 
-                      duration: 4, 
-                      times: [0, 0.3, 0.7, 1],
+                      duration: 6, 
+                      times: [0, 0.2, 0.5, 0.6, 0.7, 0.8],
                       repeat: Infinity,
-                      repeatDelay: 10
+                      repeatDelay: 8
                     }}
                   >
                     <span className="text-3xl font-bold tracking-wider text-blue-100 font-cyber-accent inline-block">
-                      FYNE
+                      FYNE <span className="text-lg font-normal text-blue-200 opacity-80">by mc2i</span>
                     </span>
                   </motion.div>
                   
-                  {/* "For Your Next Experience" qui apparaît ensuite */}
+                  {/* Deuxième étape: Les lettres FYNE restent visibles pendant que "by mc2i" s'efface */}
                   <motion.div
-                    className="absolute inset-0 w-full text-center"
-                    initial={{ opacity: 0 }}
+                    className="absolute inset-0 w-full text-center opacity-0"
                     animate={{ 
-                      opacity: [0, 0, 1, 1, 1, 0],
+                      opacity: [0, 0, 0, 0.6, 1, 1, 0.6, 0],
+                      y: [0, 0, 0, -3, -6, -6, -9, -12],
                     }}
                     transition={{ 
                       duration: 8, 
-                      times: [0, 0.35, 0.45, 0.8, 0.9, 1],
+                      times: [0, 0.3, 0.4, 0.45, 0.5, 0.7, 0.8, 0.9],
                       repeat: Infinity,
                       repeatDelay: 6
+                    }}
+                  >
+                    {/* L'acronyme FYNE qui reste visible */}
+                    <span className="text-3xl font-bold tracking-wider text-blue-100 font-cyber-accent inline-block">
+                      <span className="text-cyan-300">F</span>
+                      <span className="text-cyan-300">Y</span>
+                      <span className="text-cyan-300">N</span>
+                      <span className="text-cyan-300">E</span>
+                    </span>
+                  </motion.div>
+                  
+                  {/* Troisième étape: "For Your Next Experience" qui apparaît en fondu */}
+                  <motion.div
+                    className="absolute inset-0 w-full text-center opacity-0"
+                    animate={{ 
+                      opacity: [0, 0, 0, 0, 0.4, 0.8, 1, 1, 0.7, 0],
+                      y: [5, 5, 5, 5, 0, 0, 0, 0, -5, -10],
+                    }}
+                    transition={{ 
+                      duration: 10, 
+                      times: [0, 0.3, 0.4, 0.45, 0.5, 0.55, 0.6, 0.75, 0.85, 0.95],
+                      repeat: Infinity,
+                      repeatDelay: 4
                     }}
                   >
                     <span className="text-xl italic tracking-wider text-blue-200 font-cyber-accent inline-block">
@@ -314,135 +338,279 @@ export default function Home() {
                   </div>
                 </div>
                 
-                {/* Illustration principale: Cerveau + Réseau neuronal + Apprentissage */}
+                {/* Illustration principale: Cerveau + Réseau neuronal + Apprentissage - Version plus fluide et immersive */}
                 <div className="relative z-10 w-full h-full flex items-center justify-center">
+                  {/* Effet de particules flottantes pour une immersion améliorée */}
+                  <div className="absolute inset-0 overflow-hidden">
+                    {Array.from({ length: 30 }).map((_, i) => (
+                      <motion.div
+                        key={`particle-${i}`}
+                        className="absolute rounded-full"
+                        style={{
+                          width: `${Math.random() * 3 + 1}px`,
+                          height: `${Math.random() * 3 + 1}px`,
+                          backgroundColor: `rgba(${Math.random() * 100 + 155}, ${Math.random() * 100 + 155}, 255, ${Math.random() * 0.5 + 0.3})`,
+                          top: `${Math.random() * 100}%`,
+                          left: `${Math.random() * 100}%`,
+                        }}
+                        animate={{
+                          x: [0, Math.random() * 30 - 15],
+                          y: [0, Math.random() * 30 - 15],
+                          opacity: [0, 0.7, 0],
+                          scale: [0, 1, 0]
+                        }}
+                        transition={{
+                          duration: 5 + Math.random() * 5,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      />
+                    ))}
+                  </div>
+                  
                   <div className="relative">
-                    {/* Cerveau représentant l'IA - stylisé */}
+                    {/* Aura lumineuse globale */}
+                    <motion.div 
+                      className="absolute w-full h-full rounded-full"
+                      style={{ 
+                        top: '50%', 
+                        left: '50%', 
+                        width: '300px',
+                        height: '300px',
+                        transform: 'translate(-50%, -50%)' 
+                      }}
+                      animate={{ 
+                        boxShadow: [
+                          '0 0 50px rgba(56, 189, 248, 0.1)',
+                          '0 0 70px rgba(56, 189, 248, 0.3)',
+                          '0 0 50px rgba(56, 189, 248, 0.1)'
+                        ]
+                      }}
+                      transition={{ duration: 5, repeat: Infinity }}
+                    />
+                    
+                    {/* Cerveau représentant l'IA - stylisé avec des transitions plus fluides */}
                     <motion.div 
                       className="relative w-64 h-64"
-                      animate={{ scale: [1, 1.03, 1] }}
-                      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                      animate={{ 
+                        scale: [1, 1.02, 1.03, 1.02, 1],
+                        filter: [
+                          'drop-shadow(0 0 10px rgba(6, 182, 212, 0.2))',
+                          'drop-shadow(0 0 20px rgba(6, 182, 212, 0.3))',
+                          'drop-shadow(0 0 25px rgba(6, 182, 212, 0.4))',
+                          'drop-shadow(0 0 20px rgba(6, 182, 212, 0.3))',
+                          'drop-shadow(0 0 10px rgba(6, 182, 212, 0.2))'
+                        ]
+                      }}
+                      transition={{ 
+                        duration: 6, 
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
                     >
-                      {/* Forme de cerveau stylisée */}
-                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-40 bg-gradient-to-br from-cyan-500/40 to-indigo-500/60 rounded-[100px_100px_70px_70px] shadow-lg">
+                      {/* Forme de cerveau stylisée - avec des dégradés plus doux */}
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-40 bg-gradient-to-br from-cyan-500/30 via-blue-600/40 to-indigo-500/50 rounded-[100px_100px_70px_70px] backdrop-blur-md shadow-lg">
                         <motion.div
                           className="absolute inset-0 rounded-[100px_100px_70px_70px]"
                           animate={{ 
-                            boxShadow: ['0 0 20px rgba(6, 182, 212, 0.3)', '0 0 40px rgba(6, 182, 212, 0.5)', '0 0 20px rgba(6, 182, 212, 0.3)'] 
+                            boxShadow: [
+                              'inset 0 0 30px rgba(6, 182, 212, 0.1), 0 0 20px rgba(6, 182, 212, 0.2)', 
+                              'inset 0 0 40px rgba(6, 182, 212, 0.2), 0 0 40px rgba(6, 182, 212, 0.3)',
+                              'inset 0 0 30px rgba(6, 182, 212, 0.1), 0 0 20px rgba(6, 182, 212, 0.2)'
+                            ]
                           }}
-                          transition={{ duration: 3, repeat: Infinity }}
+                          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                         />
                       </div>
                       
-                      {/* Lobes du cerveau */}
+                      {/* Lobes du cerveau avec pulsations plus douces */}
                       <motion.div 
-                        className="absolute top-[30%] left-[28%] w-20 h-16 bg-gradient-to-r from-indigo-500/60 to-indigo-600/70 rounded-full"
-                        animate={{ scale: [1, 1.05, 1] }}
-                        transition={{ duration: 2, delay: 0.5, repeat: Infinity }}
+                        className="absolute top-[30%] left-[28%] w-20 h-16 bg-gradient-to-r from-indigo-500/40 via-blue-600/50 to-indigo-600/50 rounded-full backdrop-blur-sm"
+                        animate={{ 
+                          scale: [1, 1.03, 1.05, 1.03, 1],
+                          opacity: [0.7, 0.8, 0.9, 0.8, 0.7]
+                        }}
+                        transition={{ duration: 3.5, delay: 0.5, repeat: Infinity, ease: "easeInOut" }}
                       />
                       <motion.div 
-                        className="absolute top-[30%] right-[28%] w-20 h-16 bg-gradient-to-l from-indigo-500/60 to-indigo-600/70 rounded-full"
-                        animate={{ scale: [1, 1.05, 1] }}
-                        transition={{ duration: 2, delay: 0.7, repeat: Infinity }}
+                        className="absolute top-[30%] right-[28%] w-20 h-16 bg-gradient-to-l from-indigo-500/40 via-blue-600/50 to-indigo-600/50 rounded-full backdrop-blur-sm"
+                        animate={{ 
+                          scale: [1, 1.03, 1.05, 1.03, 1],
+                          opacity: [0.7, 0.8, 0.9, 0.8, 0.7]
+                        }}
+                        transition={{ duration: 3.5, delay: 1.2, repeat: Infinity, ease: "easeInOut" }}
                       />
                       
-                      {/* Connexions neuronales */}
-                      {Array.from({ length: 15 }).map((_, i) => {
+                      {/* Connexions neuronales plus fluides et variées */}
+                      {Array.from({ length: 25 }).map((_, i) => {
                         const startX = 50 + (Math.random() * 100 - 50);
                         const startY = 50 + (Math.random() * 100 - 50);
                         const endX = 50 + (Math.random() * 100 - 50);
                         const endY = 50 + (Math.random() * 100 - 50);
+                        const hue = 180 + Math.random() * 40; // Variations de cyan
                         
                         return (
                           <motion.div
                             key={i}
-                            className="absolute bg-cyan-400/60 h-[1px] origin-left"
+                            className="absolute h-[1px] origin-left"
                             style={{ 
                               top: `${startY}%`, 
                               left: `${startX}%`,
                               width: `${Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2))}px`,
-                              transform: `rotate(${Math.atan2(endY - startY, endX - startX) * 180 / Math.PI}deg)`
+                              transform: `rotate(${Math.atan2(endY - startY, endX - startX) * 180 / Math.PI}deg)`,
+                              background: `hsla(${hue}, 70%, 60%, 0.6)`
                             }}
-                            animate={{ opacity: [0.3, 0.8, 0.3] }}
+                            animate={{ 
+                              opacity: [0.2, 0.8, 0.2],
+                              height: [1, 1.5, 1],
+                              boxShadow: [
+                                `0 0 2px hsla(${hue}, 70%, 60%, 0.2)`, 
+                                `0 0 5px hsla(${hue}, 70%, 60%, 0.5)`, 
+                                `0 0 2px hsla(${hue}, 70%, 60%, 0.2)`
+                              ]
+                            }}
                             transition={{ 
-                              duration: 2 + Math.random() * 2, 
+                              duration: 2 + Math.random() * 3, 
                               repeat: Infinity,
-                              repeatType: 'reverse'
+                              repeatType: 'loop',
+                              ease: "easeInOut"
                             }}
                           >
                             <motion.div 
-                              className="absolute right-0 w-1 h-1 rounded-full bg-cyan-300"
-                              animate={{ scale: [1, 1.5, 1] }}
-                              transition={{ duration: 1, repeat: Infinity }}
+                              className="absolute right-0 rounded-full"
+                              style={{
+                                width: 1.5 + Math.random(),
+                                height: 1.5 + Math.random(),
+                                background: `hsla(${hue}, 70%, 70%, 0.9)`
+                              }}
+                              animate={{ 
+                                scale: [1, 1.8, 1],
+                                boxShadow: [
+                                  `0 0 2px hsla(${hue}, 70%, 70%, 0.4)`, 
+                                  `0 0 5px hsla(${hue}, 70%, 70%, 0.8)`, 
+                                  `0 0 2px hsla(${hue}, 70%, 70%, 0.4)`
+                                ]
+                              }}
+                              transition={{ 
+                                duration: 1.5 + Math.random(), 
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                              }}
                             />
                           </motion.div>
                         );
                       })}
                       
-                      {/* Symboles de l'apprentissage et de l'évolution */}
+                      {/* Cercles concentriques avec rotation douce */}
                       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                         <motion.div
                           className="relative"
                           animate={{ rotate: 360 }}
-                          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
                         >
-                          <div className="absolute w-40 h-40 rounded-full border-2 border-dashed border-blue-400/30" />
+                          <div className="absolute w-44 h-44 rounded-full border border-blue-400/20 border-dashed" />
                         </motion.div>
                         
                         <motion.div
                           className="relative"
                           animate={{ rotate: -360 }}
-                          transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+                          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
                         >
-                          <div className="absolute w-48 h-48 rounded-full border-2 border-dashed border-emerald-400/30" />
+                          <div className="absolute w-52 h-52 rounded-full border border-cyan-400/15 border-dashed" />
                         </motion.div>
                         
-                        {/* Centre actif - "Cerveau de l'IA" */}
+                        <motion.div
+                          className="relative"
+                          animate={{ rotate: 180 }}
+                          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                        >
+                          <div className="absolute w-60 h-60 rounded-full border border-emerald-400/10 border-dashed" />
+                        </motion.div>
+                        
+                        {/* Centre actif pulsant - "Cerveau de l'IA" */}
                         <motion.div 
                           className="relative flex items-center justify-center w-20 h-20"
-                          animate={{ scale: [1, 1.1, 1] }}
-                          transition={{ duration: 2, repeat: Infinity }}
+                          animate={{ 
+                            scale: [1, 1.05, 1.1, 1.05, 1],
+                            boxShadow: [
+                              '0 0 20px rgba(6, 182, 212, 0.3)', 
+                              '0 0 30px rgba(6, 182, 212, 0.5)', 
+                              '0 0 40px rgba(6, 182, 212, 0.7)', 
+                              '0 0 30px rgba(6, 182, 212, 0.5)', 
+                              '0 0 20px rgba(6, 182, 212, 0.3)'
+                            ]
+                          }}
+                          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                         >
-                          <div className="absolute w-full h-full rounded-full bg-gradient-to-br from-cyan-500/90 to-blue-700/90" />
-                          <BrainCircuit className="w-10 h-10 text-white relative z-10" />
+                          <div className="absolute w-full h-full rounded-full bg-gradient-to-br from-cyan-500/90 via-blue-600/90 to-blue-700/90" />
+                          
+                          {/* Icône avec rotation lente */}
+                          <motion.div
+                            animate={{ rotate: [0, 5, 0, -5, 0] }}
+                            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                          >
+                            <BrainCircuit className="w-10 h-10 text-white relative z-10" />
+                          </motion.div>
                         </motion.div>
                       </div>
                       
-                      {/* "Modules" de connaissance */}
+                      {/* "Modules" de connaissance avec orbites et mouvement fluide */}
                       {[
-                        { icon: <ShieldCheck className="w-8 h-8 text-white" />, color: "bg-blue-500", delay: 0 },
-                        { icon: <Database className="w-8 h-8 text-white" />, color: "bg-purple-500", delay: 0.5 },
-                        { icon: <ListChecks className="w-8 h-8 text-white" />, color: "bg-emerald-500", delay: 1 },
-                        { icon: <BookOpen className="w-8 h-8 text-white" />, color: "bg-amber-500", delay: 1.5 }
+                        { icon: <ShieldCheck className="w-8 h-8 text-white" />, color: "bg-gradient-to-br from-blue-500/90 to-blue-600/90", delay: 0 },
+                        { icon: <Database className="w-8 h-8 text-white" />, color: "bg-gradient-to-br from-purple-500/90 to-purple-600/90", delay: 1 },
+                        { icon: <ListChecks className="w-8 h-8 text-white" />, color: "bg-gradient-to-br from-emerald-500/90 to-emerald-600/90", delay: 2 },
+                        { icon: <BookOpen className="w-8 h-8 text-white" />, color: "bg-gradient-to-br from-amber-500/90 to-amber-600/90", delay: 3 }
                       ].map((item, index) => {
-                        const angle = (index * Math.PI / 2) + (Math.PI / 4);
-                        const x = Math.cos(angle) * 100;
-                        const y = Math.sin(angle) * 100;
-                        
+                        // Positions en orbite dynamique
                         return (
                           <motion.div
                             key={index}
-                            className={`absolute flex items-center justify-center w-14 h-14 rounded-xl ${item.color} shadow-lg`}
+                            className={`absolute flex items-center justify-center w-14 h-14 rounded-xl shadow-lg backdrop-blur-sm overflow-hidden`}
                             style={{ 
-                              top: `calc(50% + ${y}px)`, 
-                              left: `calc(50% + ${x}px)`,
-                              transform: "translate(-50%, -50%)" 
+                              background: item.color
                             }}
                             animate={{ 
-                              y: [0, -10, 0],
+                              x: [
+                                Math.cos((index * Math.PI/2) + 0) * 100,
+                                Math.cos((index * Math.PI/2) + 0.2) * 100,
+                                Math.cos((index * Math.PI/2) + 0.4) * 100,
+                                Math.cos((index * Math.PI/2) + 0.6) * 100,
+                                Math.cos((index * Math.PI/2) + 0.8) * 100,
+                                Math.cos((index * Math.PI/2) + 1.0) * 100,
+                              ],
+                              y: [
+                                Math.sin((index * Math.PI/2) + 0) * 100,
+                                Math.sin((index * Math.PI/2) + 0.2) * 100,
+                                Math.sin((index * Math.PI/2) + 0.4) * 100,
+                                Math.sin((index * Math.PI/2) + 0.6) * 100,
+                                Math.sin((index * Math.PI/2) + 0.8) * 100,
+                                Math.sin((index * Math.PI/2) + 1.0) * 100,
+                              ],
                               boxShadow: [
-                                '0 5px 10px rgba(0,0,0,0.2)', 
-                                '0 15px 15px rgba(0,0,0,0.3)', 
-                                '0 5px 10px rgba(0,0,0,0.2)'
+                                '0 5px 15px rgba(0,0,0,0.2)', 
+                                '0 10px 20px rgba(0,0,0,0.3)', 
+                                '0 15px 25px rgba(0,0,0,0.4)',
+                                '0 10px 20px rgba(0,0,0,0.3)',
+                                '0 5px 15px rgba(0,0,0,0.2)'
                               ]
                             }}
                             transition={{ 
-                              duration: 3, 
+                              duration: 15,
+                              times: [0, 0.2, 0.4, 0.6, 0.8, 1],
                               delay: item.delay,
                               repeat: Infinity,
-                              repeatType: 'reverse'
+                              ease: "easeInOut"
                             }}
                           >
+                            {/* Effet d'aura autour des icônes */}
+                            <motion.div 
+                              className="absolute inset-0 z-0"
+                              animate={{ 
+                                opacity: [0.5, 0.8, 0.5],
+                                scale: [0.8, 1, 0.8]
+                              }}
+                              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                            />
                             {item.icon}
                           </motion.div>
                         );
