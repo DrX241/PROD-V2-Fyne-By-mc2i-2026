@@ -76,61 +76,49 @@ const Typewriter: React.FC<TypewriterProps> = ({
     delayBetweenTexts,
   ]);
 
-  const renderText = () => {
-    if (!highlightFYNE || currentTextIndex === 0) {
-      return currentText;
-    }
-
-    // Cas spécial pour "For Your Next Experience" 
-    // Mettre en évidence F Y N E en cyan
-    return currentText
-      .replace(/^F/, '<span class="text-cyan-300">F</span>')
-      .replace(/Your/, '<span class="text-cyan-300">Y</span>our')
-      .replace(/Next/, '<span class="text-cyan-300">N</span>ext')
-      .replace(/Experience/, '<span class="text-cyan-300">E</span>xperience');
-  };
-
   const formattedText = () => {
-    if (currentTextIndex === 0) {
+    if (currentTextIndex % 12 === 0) {
       // Pour "FYNE by mc2i"
-      return (
-        <span className="text-4xl">
-          {currentText.replace(
-            /FYNE (by mc2i)/,
-            'FYNE <span class="text-xl font-normal opacity-90">$1</span>'
-          )}
-        </span>
+      return currentText.replace(
+        /FYNE (by mc2i)/,
+        'FYNE <span class="text-xl font-normal opacity-90">$1</span>'
       );
     } else {
-      // Pour "For Your Next Experience"
-      return (
-        <span className="text-2xl">
-          {currentText
+      // Pour tous les autres textes avec mise en évidence de F, Y, N, E
+      let formattedText = currentText;
+      
+      if (highlightFYNE) {
+        // Pour les slogans qui débutent par For Your Next Experience
+        if (formattedText.startsWith('For Your Next')) {
+          formattedText = formattedText
             .replace(/^F/, '<span class="text-cyan-300">F</span>')
             .replace(/Y/, '<span class="text-cyan-300">Y</span>')
             .replace(/N/, '<span class="text-cyan-300">N</span>')
-            .replace(/E/, '<span class="text-cyan-300">E</span>')}
-        </span>
-      );
+            .replace(/E/, '<span class="text-cyan-300">E</span>');
+        }
+        
+        // Pour les autres mots qui contiennent F, Y, N, E (en première lettre ou ailleurs)
+        else {
+          formattedText = formattedText
+            .replace(/\bF/, '<span class="text-cyan-300">F</span>')
+            .replace(/\bY/, '<span class="text-cyan-300">Y</span>')
+            .replace(/\bN/, '<span class="text-cyan-300">N</span>')
+            .replace(/\bE/, '<span class="text-cyan-300">E</span>');
+        }
+      }
+      
+      return formattedText;
     }
   };
 
   return (
-    <div className="relative inline-block whitespace-nowrap">
-      <span
-        className="inline-block"
-        dangerouslySetInnerHTML={{ __html: formattedText() }}
-      />
-      <motion.span
-        className="inline-block w-[3px] h-8 bg-white align-text-top ml-0.5"
-        animate={{ opacity: [1, 0] }}
-        transition={{
-          duration: 0.8,
-          repeat: Infinity,
-          repeatType: 'reverse',
-        }}
-      />
-    </div>
+    <span
+      dangerouslySetInnerHTML={{ __html: currentTextIndex % 12 === 0 ? 
+        `<span class="text-4xl">${formattedText()}</span>` : 
+        `<span class="text-2xl">${formattedText()}</span>` 
+      }}
+      className="inline-block"
+    />
   );
 };
 

@@ -196,27 +196,38 @@ export default function Home() {
                 transition={{ duration: 0.8 }}
               >
                 {/* Typewriter animation optimisée */}
-                <div className="relative h-14 overflow-hidden font-cyber-title font-bold tracking-wide text-white text-center flex items-center justify-center">
-                  <motion.div
-                    key="typewriter-container"
-                    initial={{ opacity: 1 }}
-                    animate={{ opacity: 1 }}
-                    className="relative"
-                  >
-                    {/* Animation d'écriture automatique avec curseur */}
-                    <Typewriter 
-                      texts={[
-                        'FYNE by mc2i',
-                        'For Your Next Experience'
-                      ]}
-                      delayBetweenTexts={1000}
-                      typingSpeed={80}
-                      deletingSpeed={50}
-                      delayAfterTyping={2000}
-                      delayBeforeDeleting={1000}
-                      highlightFYNE={true}
-                    />
-                  </motion.div>
+                <div className="h-14 text-white">
+                  <Typewriter 
+                    texts={[
+                      'FYNE by mc2i',
+                      'For Your Next Experience',
+                      'Formation Innovante',
+                      'Your Digital Companion',
+                      'Nouveaux Horizons',
+                      'Excellence Professionnelle',
+                      'Formation Adaptative',
+                      'Your Skills Catalyst',
+                      'Nouvelles Compétences',
+                      'Évolution Personnalisée',
+                      'Futur de l\'Apprentissage',
+                      'Your Career Booster'
+                    ]}
+                    delayBetweenTexts={1000}
+                    typingSpeed={80}
+                    deletingSpeed={50}
+                    delayAfterTyping={2000}
+                    delayBeforeDeleting={1000}
+                    highlightFYNE={true}
+                  />
+                  <motion.span
+                    className="inline-block w-[3px] h-8 bg-white align-text-top ml-0.5"
+                    animate={{ opacity: [1, 0] }}
+                    transition={{
+                      duration: 0.8,
+                      repeat: Infinity,
+                      repeatType: 'reverse',
+                    }}
+                  />
                 </div>
                 
                 {/* Ligne décorative en dessous */}
@@ -298,32 +309,30 @@ export default function Home() {
                 {/* Illustration principale: Cerveau + Réseau neuronal + Apprentissage - Version plus fluide et immersive */}
                 <div className="relative z-10 w-full h-full flex items-center justify-center">
                   {/* Effet de particules flottantes pour une immersion améliorée */}
-                  <div className="absolute inset-0 overflow-hidden">
-                    {Array.from({ length: 30 }).map((_, i) => (
-                      <motion.div
-                        key={`particle-${i}`}
-                        className="absolute rounded-full"
-                        style={{
-                          width: `${Math.random() * 3 + 1}px`,
-                          height: `${Math.random() * 3 + 1}px`,
-                          backgroundColor: `rgba(${Math.random() * 100 + 155}, ${Math.random() * 100 + 155}, 255, ${Math.random() * 0.5 + 0.3})`,
-                          top: `${Math.random() * 100}%`,
-                          left: `${Math.random() * 100}%`,
-                        }}
-                        animate={{
-                          x: [0, Math.random() * 30 - 15],
-                          y: [0, Math.random() * 30 - 15],
-                          opacity: [0, 0.7, 0],
-                          scale: [0, 1, 0]
-                        }}
-                        transition={{
-                          duration: 5 + Math.random() * 5,
-                          repeat: Infinity,
-                          ease: "easeInOut"
-                        }}
-                      />
-                    ))}
-                  </div>
+                  {Array.from({ length: 30 }).map((_, i) => (
+                    <motion.div
+                      key={`particle-${i}`}
+                      className="absolute rounded-full"
+                      style={{
+                        width: `${Math.random() * 3 + 1}px`,
+                        height: `${Math.random() * 3 + 1}px`,
+                        backgroundColor: `rgba(${Math.random() * 100 + 155}, ${Math.random() * 100 + 155}, 255, ${Math.random() * 0.5 + 0.3})`,
+                        top: `${Math.random() * 100}%`,
+                        left: `${Math.random() * 100}%`,
+                      }}
+                      animate={{
+                        x: [0, Math.random() * 30 - 15],
+                        y: [0, Math.random() * 30 - 15],
+                        opacity: [0, 0.7, 0],
+                        scale: [0, 1, 0]
+                      }}
+                      transition={{
+                        duration: 5 + Math.random() * 5,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    />
+                  ))}
                   
                   <div className="relative">
                     {/* Aura lumineuse globale */}
