@@ -11,6 +11,7 @@ import { ChatCompletionRequestMessage } from "../shared/schema";
 import { evaluateDecision } from "./cyberDefenseEvaluator";
 import { handleQuestInitialization, handleQuestChoice } from "./amoaController";
 import { handleCyberDefenseChat, generateCyberDefenseMission } from "./cyberDefenseController";
+import { startInterviewSimulation, processInterviewMessage, completeInterviewSimulation } from "./interviewSimulationController";
 import immersiveRoutes from "./routes/immersive-simulation";
 import cyberAscensionRoutes from "./routes/cyber-ascension";
 
@@ -2250,6 +2251,23 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
   // Routes pour le module AMOA Quest
   app.post('/api/amoa/quest/initialize', handleQuestInitialization);
   app.post('/api/amoa/quest/choice', handleQuestChoice);
+  
+  // Routes pour le module de simulation d'entretien dans I AM CYBER et I AM AMOA
+  // Ces routes permettent d'évaluer les candidats MC2i via des situations simulées
+  
+  // Démarrer une simulation d'entretien pour Cyber
+  app.post('/api/cyber/interview-simulation/start', startInterviewSimulation);
+  // Traiter un message pendant la simulation Cyber
+  app.post('/api/cyber/interview-simulation/message', processInterviewMessage);
+  // Finaliser et évaluer une simulation Cyber
+  app.post('/api/cyber/interview-simulation/complete', completeInterviewSimulation);
+  
+  // Démarrer une simulation d'entretien pour AMOA
+  app.post('/api/amoa/interview-simulation/start', startInterviewSimulation);
+  // Traiter un message pendant la simulation AMOA
+  app.post('/api/amoa/interview-simulation/message', processInterviewMessage);
+  // Finaliser et évaluer une simulation AMOA
+  app.post('/api/amoa/interview-simulation/complete', completeInterviewSimulation);
   
   // Route pour la conversation libre avec les parties prenantes dans AMOA Quest
   app.post('/api/amoa/quest/chat', async (req: Request, res: Response) => {
