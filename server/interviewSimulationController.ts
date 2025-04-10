@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-// import nodemailer from 'nodemailer'; // Décommenté quand nécessaire pour l'envoi réel d'emails
+import nodemailer from 'nodemailer';
 import { ChatCompletionRequestMessage } from '@shared/schema';
 import { openAIService } from "../I_AM_CYBER/services/openai";
 
@@ -271,49 +271,31 @@ Note globale : 3.5/5`;
       }
     }
 
-    // Envoyer l'email d'évaluation (simulation)
-    // Note: Dans un environnement de production, configurer un service SMTP réel
+    // Affichage dans la console pour le débogage
     console.log(`
----------- SIMULATION D'ENVOI D'EMAIL ----------
+---------- ENVOI D'EMAIL ----------
 À: ${recruiterEmail}
 Sujet: Évaluation de simulation d'entretien - ${candidateName}
-Corps:
-Bonjour,
-
-Veuillez trouver ci-dessous l'évaluation de la simulation d'entretien pour ${candidateName} dans le domaine ${domain === 'cyber' ? 'de la cybersécurité' : 'AMOA'}.
-
-${evaluation}
-
-Durée de la simulation: ${Math.floor(duration / 60)} min ${duration % 60} sec
-Profil évalué: ${profileType} - ${experienceLevel.charAt(0).toUpperCase() + experienceLevel.slice(1)}
-${domain === 'amoa' && sectorFocus ? `Secteur: ${sectorFocus}` : ''}
-
-Cordialement,
-L'équipe I AM CYBER / I AM AMOA
-----------------------------------------------
     `);
 
-    // En environnement de production, utiliser nodemailer pour envoyer l'email
-    /*
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.example.com',
-      port: 587,
-      secure: false,
-      auth: {
-        user: 'username',
-        pass: 'password'
-      }
-    });
+    try {
+      // Configuration du transporteur SMTP pour Ethereal (service de test d'email)
+      const transporter = nodemailer.createTransport({
+        host: 'smtp.ethereal.email',
+        port: 587,
+        secure: false,
+        auth: {
+          user: 'antwon.adams37@ethereal.email',
+          pass: 'm8pVJHCCvMVBHT8fst'
+        }
+      });
 
-    await transporter.sendMail({
-      from: '"I AM CYBER/AMOA" <noreply@example.com>',
-      to: recruiterEmail,
-      subject: `Évaluation de simulation d'entretien - ${candidateName}`,
-      html: `
+      // Construction du corps de l'email en HTML
+      const emailHtml = `
         <h2>Évaluation de simulation d'entretien</h2>
         <p><strong>Candidat:</strong> ${candidateName}</p>
         <p><strong>Domaine:</strong> ${domain === 'cyber' ? 'Cybersécurité' : 'AMOA'}</p>
-        <p><strong>Profil:</strong> ${profileType} - ${experienceLevel.charAt(0).toUpperCase() + experienceLevel.slice(1)}</p>
+        <p><strong>Profil:</strong> ${profileType.replace(/_/g, ' ')} - ${experienceLevel.charAt(0).toUpperCase() + experienceLevel.slice(1)}</p>
         ${domain === 'amoa' && sectorFocus ? `<p><strong>Secteur:</strong> ${sectorFocus}</p>` : ''}
         <p><strong>Durée:</strong> ${Math.floor(duration / 60)} min ${duration % 60} sec</p>
         
@@ -322,9 +304,22 @@ L'équipe I AM CYBER / I AM AMOA
         <div>
           ${evaluation.replace(/\n/g, '<br>')}
         </div>
-      `
-    });
-    */
+      `;
+
+      // Envoi de l'email
+      const info = await transporter.sendMail({
+        from: '"I AM CYBER/AMOA" <noreply@example.com>',
+        to: recruiterEmail,
+        subject: `Évaluation de simulation d'entretien - ${candidateName}`,
+        html: emailHtml
+      });
+
+      console.log('Message envoyé: %s', info.messageId);
+      console.log('Aperçu de l\'email: %s', nodemailer.getTestMessageUrl(info));
+    } catch (emailError) {
+      console.error('Erreur lors de l\'envoi de l\'email:', emailError);
+      // Continuer l'exécution même si l'envoi d'email échoue
+    }
 
     return res.json({
       success: true,
