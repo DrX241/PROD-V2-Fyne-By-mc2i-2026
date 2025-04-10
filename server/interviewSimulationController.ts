@@ -4,6 +4,43 @@ import sgMail from '@sendgrid/mail';
 import { ChatCompletionRequestMessage } from '@shared/schema';
 import { openAIService } from "../I_AM_CYBER/services/openai";
 
+/**
+ * Envoie un email de test avec Ethereal
+ */
+async function sendWithEthereal(recruiterEmail: string, candidateName: string, emailHtml: string) {
+  try {
+    // Configuration de nodemailer avec service de test d'email Ethereal
+    const testAccount = await nodemailer.createTestAccount();
+    
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.ethereal.email',
+      port: 587,
+      secure: false,
+      auth: {
+        user: testAccount.user,
+        pass: testAccount.pass
+      }
+    });
+    
+    // Configuration de l'email
+    const mailOptions = {
+      from: '"I AM CYBER - Recrutement" <evaluation@i-am-cyber.com>',
+      to: recruiterEmail,
+      subject: `Évaluation de simulation d'entretien - ${candidateName}`,
+      html: emailHtml
+    };
+    
+    // Envoi de l'email
+    const info = await transporter.sendMail(mailOptions);
+    
+    console.log('Email de test envoyé: %s', info.messageId);
+    // URL de prévisualisation de l'email généré par Ethereal
+    console.log('Aperçu de l\'email: %s', nodemailer.getTestMessageUrl(info));
+  } catch (etherealError) {
+    console.error('Erreur lors de l\'envoi avec Ethereal:', etherealError);
+  }
+}
+
 // Structure des données de simulation d'entretien
 interface InterviewSimulationData {
   domain: 'cyber' | 'amoa';
