@@ -1766,6 +1766,26 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
       });
     }
   });
+  
+  // Endpoint pour obtenir le statut de connexion OpenAI
+  app.get('/api/openai/status', async (req: Request, res: Response) => {
+    try {
+      const isConnected = await openAIService.checkConnection();
+      res.json({
+        status: 'success',
+        connectionStatus: openAIService.getConnectionStatus(),
+        currentModel: openAIService.getCurrentModelName(),
+        apiKeyType: openAIService.getCurrentApiKeyType(),
+        lastCheck: openAIService.getLastConnectionCheck()
+      });
+    } catch (error) {
+      console.error("Error checking OpenAI connection status:", error);
+      res.status(500).json({
+        status: 'error',
+        message: "Erreur lors de la vérification du statut de connexion OpenAI."
+      });
+    }
+  });
 
   // Initialisation du client OpenAI pour le chat immersif
   const apiKey = process.env.OPENAI_API_KEY || "";
