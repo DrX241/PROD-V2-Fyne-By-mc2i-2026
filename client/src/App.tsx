@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -29,6 +29,9 @@ import CyberQuizChallengePage from "@/pages/cyber/arcade/cyber-quiz";
 // Pages AMOA
 import AmoaPage from "@/pages/amoa";
 import AmoaQuestPage from "@/pages/amoa/quest";
+// Modules Simulation d'Entretien
+import CyberInterviewSimulation from "@/pages/cyber/interview-simulation";
+import AmoaInterviewSimulation from "@/pages/amoa/interview-simulation";
 // Autres pages
 import ImmersiveSimulation from "@/pages/immersive-simulation";
 import ImmersiveScenarioDetail from "@/pages/immersive-scenario-detail";
@@ -65,6 +68,8 @@ function Router() {
       <Route path="/data-ia" component={NotYetImplemented} />
       <Route path="/amoa" component={AmoaPage} />
       <Route path="/amoa/quest" component={AmoaQuestPage} />
+      <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
+      <Route path="/cyber/interview-simulation" component={CyberInterviewSimulation} />
       <Route path="/custom" component={NotYetImplemented} />
       <Route component={NotFound} />
     </Switch>
@@ -101,7 +106,35 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ChatProvider>
-        <Router />
+        <Switch>
+          <Route path="/cyber/interview-simulation" component={CyberInterviewSimulation} />
+          <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
+          <Route path="/" component={Home} />
+          <Route path="/modules" component={ModulesPage} />
+          <Route path="/cyber" component={CyberModeSelection} />
+          <Route path="/cyber/agent" component={CyberAgentPage} />
+          <Route path="/cyber/arcade" component={CyberArcade} />
+          <Route path="/cyber/arcade/network-puzzle" component={NetworkPuzzlePage} />
+          <Route path="/cyber/arcade/password-guardian" component={PasswordGuardianPage} />
+          <Route path="/cyber/arcade/cyber-quiz" component={CyberQuizChallengePage} />
+          <Route path="/cyber/arcade/firewall-defense" component={NetworkPuzzlePage} />
+          <Route path="/cyber/arcade/:gameId" component={CyberArcadeGame} />
+          <Route path="/cyber-defense-new" component={CyberDefenseNewPage} />
+          <Route path="/cyber-defense/session/:levelId" component={CyberDefenseSessionPage} />
+          <Route path="/cyber-defense" component={CyberDefenseNewPage} />
+          <Route path="/cyber-defense/mission/:id" component={CyberDefenseMissionPage} />
+          <Route path="/immersive-simulation" component={ImmersiveSimulation} />
+          <Route path="/immersive-simulation/:id" component={ImmersiveScenarioDetail} />
+          <Route path="/immersive-simulation/session/:id" component={ImmersiveSession} />
+          <Route path="/cyber-ascension" component={NotYetImplemented} />
+          <Route path="/cyber-ascension/theme/:themeId" component={NotYetImplemented} />
+          <Route path="/cyber-ascension/theme/:themeId/level/:levelId" component={NotYetImplemented} />
+          <Route path="/data-ia" component={NotYetImplemented} />
+          <Route path="/amoa" component={AmoaPage} />
+          <Route path="/amoa/quest" component={AmoaQuestPage} />
+          <Route path="/custom" component={NotYetImplemented} />
+          <Route component={NotFound} />
+        </Switch>
         <Toaster />
       </ChatProvider>
     </QueryClientProvider>

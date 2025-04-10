@@ -1,60 +1,30 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'wouter';
+import { motion } from 'framer-motion';
 import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import axios from 'axios';
-import {
-  Clock,
-  Send,
-  Brain,
-  Rocket,
-  ArrowLeft,
-  Briefcase,
-  User,
-  Mail,
-  CheckCircle,
-  Loader2,
-  AlertCircle,
-  FileSpreadsheet,
-  Users,
-  CalendarClock,
-} from 'lucide-react';
-
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { useToast } from '@/hooks/use-toast';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { UserCircle, Send, Clock, CheckCircle, AlertCircle, FileCheck, ArrowLeft } from 'lucide-react';
+import { 
+  Form, 
+  FormControl, 
+  FormField, 
+  FormItem, 
+  FormLabel, 
+  FormMessage 
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 import HomeLayout from '@/components/layout/HomeLayout';
 
-// Schéma de validation pour le formulaire
+// Schéma de formulaire pour la configuration de l'entretien
 const formSchema = z.object({
   recruiterEmail: z.string().email({
     message: "Veuillez entrer une adresse email valide.",
@@ -62,631 +32,699 @@ const formSchema = z.object({
   candidateName: z.string().min(2, {
     message: "Le nom du candidat doit contenir au moins 2 caractères.",
   }),
-  profileType: z.enum(["consultant", "chef_projet", "analyste_fonctionnel"], {
-    required_error: "Veuillez sélectionner un type de profil.",
+  profileType: z.string().min(1, {
+    message: "Veuillez sélectionner un type de profil.",
   }),
-  experienceLevel: z.enum(["junior", "confirme", "senior"], {
-    required_error: "Veuillez sélectionner un niveau d'expérience.",
+  experienceLevel: z.string().min(1, {
+    message: "Veuillez sélectionner un niveau d'expérience.",
   }),
-  sectorFocus: z.enum(["public", "finance", "sante", "generaliste"], {
-    required_error: "Veuillez sélectionner un secteur.",
+  sectorFocus: z.string().min(1, {
+    message: "Veuillez sélectionner un secteur d'activité.",
   }),
 });
 
+// Type d'inférence pour le schéma de formulaire
 type FormValues = z.infer<typeof formSchema>;
 
-// Composant principal pour la page de simulation d'entretien AMOA
-export default function AmoaInterviewSimulation() {
-  const [step, setStep] = useState<'form' | 'simulation' | 'completed'>('form');
-  const [simulationStarted, setSimulationStarted] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1);
-  const [timeRemaining, setTimeRemaining] = useState(300); // 5 minutes en secondes
-  const [messages, setMessages] = useState<any[]>([]);
-  const [userInput, setUserInput] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [simulationData, setSimulationData] = useState<FormValues | null>(null);
+interface Message {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
+
+const AmoaInterviewSimulation: React.FC = () => {
+  const [, navigate] = useLocation();
   const { toast } = useToast();
-  const [, setLocation] = useLocation();
-  const navigate = (path: string) => setLocation(path);
+  const [activeTab, setActiveTab] = useState('configuration');
   
-  // Initialiser le formulaire avec react-hook-form
+  // États pour la simulation
+  const [isSimulationActive, setIsSimulationActive] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(300); // 5 minutes en secondes
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [userInput, setUserInput] = useState('');
+  const [simulationComplete, setSimulationComplete] = useState(false);
+  const [evaluationResult, setEvaluationResult] = useState<any>(null);
+  
+  // Référence pour le défilement
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // Effet pour faire défiler vers le bas à chaque nouveau message
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
+  
+  // Effet pour le compte à rebours
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    
+    if (isSimulationActive && timeRemaining > 0) {
+      timer = setInterval(() => {
+        setTimeRemaining(prev => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            if (!simulationComplete) {
+              completeSimulation();
+            }
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [isSimulationActive, timeRemaining, simulationComplete]);
+  
+  // Formatage du temps restant
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+  
+  // Configuration du formulaire
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      recruiterEmail: "",
-      candidateName: "",
-      profileType: "chef_projet",
-      experienceLevel: "confirme",
-      sectorFocus: "generaliste",
+      recruiterEmail: '',
+      candidateName: '',
+      profileType: '',
+      experienceLevel: '',
+      sectorFocus: '',
     },
   });
-
-  // Gérer la soumission du formulaire
-  const onSubmit = async (values: FormValues) => {
-    setLoading(true);
-    
+  
+  // Démarrage de la simulation
+  const startSimulation = async (values: FormValues) => {
+    setIsLoading(true);
     try {
-      // Stocker les données du formulaire
-      setSimulationData(values);
-      
-      // Démarrer la simulation
-      const response = await axios.post('/api/amoa/interview-simulation/start', {
-        ...values,
-        domain: 'amoa' // Identifier qu'il s'agit du domaine AMOA
+      const response = await fetch('/api/amoa/interview-simulation/start', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          domain: 'amoa',
+          ...values,
+        }),
       });
       
-      // Ajouter le message initial de l'IA
+      if (!response.ok) {
+        throw new Error('Erreur lors du démarrage de la simulation');
+      }
+      
+      const data = await response.json();
+      
+      // Ajouter le message initial de l'assistant
       setMessages([
         {
-          id: 1,
-          role: 'system',
-          content: 'Bienvenue dans votre simulation d\'entretien AMOA. Vous disposez de 5 minutes pour répondre aux mises en situation.',
-          timestamp: new Date().toISOString(),
-        },
-        {
-          id: 2,
+          id: '1',
           role: 'assistant',
-          content: response.data.initialScenario,
-          timestamp: new Date().toISOString(),
-        }
+          content: data.initialMessage || "Bonjour, je suis votre recruteur aujourd'hui. Nous allons évaluer vos compétences en assistance à maîtrise d'ouvrage. Présentez-vous et dites-moi ce qui vous intéresse dans ce domaine.",
+          timestamp: new Date(),
+        },
       ]);
       
-      // Passer à l'étape de simulation
-      setStep('simulation');
-      setSimulationStarted(true);
-      
-      // Démarrer le chronomètre
-      startTimer();
-      
-    } catch (error) {
-      console.error('Erreur lors du démarrage de la simulation:', error);
+      setIsSimulationActive(true);
+      setActiveTab('simulation');
       toast({
+        title: "Simulation démarrée",
+        description: "La simulation d'entretien a commencé. Vous avez 5 minutes.",
+      });
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast({
+        variant: "destructive",
         title: "Erreur",
         description: "Impossible de démarrer la simulation. Veuillez réessayer.",
-        variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
-
-  // Démarrer le chronomètre
-  const startTimer = () => {
-    const timer = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          completeSimulation();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
-
-  // Envoyer un message dans la simulation
+  
+  // Envoi d'un message
   const sendMessage = async () => {
-    if (!userInput.trim() || loading) return;
+    if (!userInput.trim()) return;
     
     const userMessage = {
-      id: messages.length + 1,
-      role: 'user',
+      id: Date.now().toString(),
+      role: 'user' as const,
       content: userInput,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date(),
     };
     
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages(prev => [...prev, userMessage]);
     setUserInput('');
-    setLoading(true);
+    setIsLoading(true);
     
     try {
-      // Envoyer le message à l'API
-      const response = await axios.post('/api/amoa/interview-simulation/message', {
-        message: userInput,
-        step: currentStep,
-        profileType: simulationData?.profileType,
-        experienceLevel: simulationData?.experienceLevel,
-        sectorFocus: simulationData?.sectorFocus,
-        previousMessages: messages.map(m => ({
-          role: m.role,
-          content: m.content
-        }))
+      const response = await fetch('/api/amoa/interview-simulation/message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          domain: 'amoa',
+          message: userInput,
+          profileType: form.getValues('profileType'),
+          experienceLevel: form.getValues('experienceLevel'),
+          sectorFocus: form.getValues('sectorFocus'),
+          messages: messages.map(m => ({ role: m.role, content: m.content })),
+        }),
       });
       
-      // Ajouter la réponse de l'IA
-      const aiResponse = {
-        id: messages.length + 2,
-        role: 'assistant',
-        content: response.data.response,
-        timestamp: new Date().toISOString(),
-      };
-      
-      setMessages((prev) => [...prev, aiResponse]);
-      
-      // Passer à l'étape suivante si nécessaire
-      if (response.data.nextStep) {
-        setCurrentStep((prev) => prev + 1);
+      if (!response.ok) {
+        throw new Error('Erreur lors de l\'envoi du message');
       }
       
-    } catch (error) {
-      console.error('Erreur lors de l\'envoi du message:', error);
-      const errorMessage = {
-        id: messages.length + 2,
-        role: 'system',
-        content: 'Une erreur est survenue. Veuillez réessayer.',
-        timestamp: new Date().toISOString(),
+      const data = await response.json();
+      
+      const assistantMessage = {
+        id: Date.now().toString(),
+        role: 'assistant' as const,
+        content: data.response,
+        timestamp: new Date(),
       };
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Terminer la simulation
-  const completeSimulation = async () => {
-    setLoading(true);
-    
-    try {
-      // Envoyer les résultats à l'API
-      await axios.post('/api/amoa/interview-simulation/complete', {
-        recruiterEmail: simulationData?.recruiterEmail,
-        candidateName: simulationData?.candidateName,
-        profileType: simulationData?.profileType,
-        experienceLevel: simulationData?.experienceLevel,
-        sectorFocus: simulationData?.sectorFocus,
-        messages,
-        duration: 300 - timeRemaining, // Durée utilisée
-      });
       
-      // Afficher un message de confirmation
-      setStep('completed');
-      
+      setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
-      console.error('Erreur lors de la finalisation de la simulation:', error);
+      console.error('Erreur:', error);
       toast({
-        title: "Erreur",
-        description: "Impossible d'envoyer les résultats. Veuillez contacter le support.",
         variant: "destructive",
+        title: "Erreur",
+        description: "Impossible d'envoyer le message. Veuillez réessayer.",
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
-
-  // Formater le temps restant
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  // Retourner à l'écran principal
-  const goBack = () => {
-    if (step === 'simulation' && simulationStarted) {
-      if (window.confirm('Êtes-vous sûr de vouloir quitter la simulation? Vos progrès seront perdus.')) {
-        navigate('/amoa');
+  
+  // Finalisation de la simulation
+  const completeSimulation = async () => {
+    if (simulationComplete) return;
+    
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/amoa/interview-simulation/complete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          domain: 'amoa',
+          recruiterEmail: form.getValues('recruiterEmail'),
+          candidateName: form.getValues('candidateName'),
+          profileType: form.getValues('profileType'),
+          experienceLevel: form.getValues('experienceLevel'),
+          sectorFocus: form.getValues('sectorFocus'),
+          messages: messages.map(m => ({ role: m.role, content: m.content })),
+          duration: 300 - timeRemaining,
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de la finalisation de la simulation');
       }
-    } else {
-      navigate('/amoa');
+      
+      const data = await response.json();
+      setEvaluationResult(data);
+      setSimulationComplete(true);
+      setActiveTab('evaluation');
+      toast({
+        title: "Simulation terminée",
+        description: "L'évaluation de votre entretien est disponible.",
+      });
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de finaliser la simulation. Veuillez réessayer.",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  // Formater le contenu des messages
-  const formatMessage = (content: string) => {
-    // Simple mise en forme Markdown
-    return content
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/\n/g, '<br>');
+  
+  // Vider et recommencer
+  const resetSimulation = () => {
+    setMessages([]);
+    setIsSimulationActive(false);
+    setTimeRemaining(300);
+    setSimulationComplete(false);
+    setEvaluationResult(null);
+    setActiveTab('configuration');
+    form.reset({
+      recruiterEmail: '',
+      candidateName: '',
+      profileType: '',
+      experienceLevel: '',
+      sectorFocus: '',
+    });
   };
-
-  // Obtenir le libellé du profil
-  const getProfileLabel = (profileType: string) => {
-    switch (profileType) {
-      case 'consultant': return 'Consultant AMOA';
-      case 'chef_projet': return 'Chef de projet';
-      case 'analyste_fonctionnel': return 'Analyste fonctionnel';
-      default: return profileType;
-    }
-  };
-
-  // Obtenir le libellé du secteur
-  const getSectorLabel = (sector: string) => {
-    switch (sector) {
-      case 'public': return 'Secteur Public';
-      case 'finance': return 'Banque & Assurance';
-      case 'sante': return 'Santé';
-      case 'generaliste': return 'Généraliste';
-      default: return sector;
-    }
-  };
-
+  
   return (
     <HomeLayout>
-      <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-        {/* En-tête */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center">
-            <Button variant="ghost" onClick={goBack} className="mr-4">
-              <ArrowLeft className="w-5 h-5" />
+      <div className="min-h-screen bg-gradient-to-b from-blue-900 to-indigo-800 text-white p-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-4xl mx-auto pt-6"
+        >
+          <div className="flex items-center mb-6">
+            <Button 
+              variant="ghost" 
+              className="mr-4 text-white hover:text-white hover:bg-blue-800"
+              onClick={() => navigate("/amoa")}
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Retour
             </Button>
-            <h1 className="text-2xl font-bold text-gray-900">Simulation d'Entretien - AMOA</h1>
+            <h1 className="text-3xl font-bold">Simulation d'Entretien AMOA</h1>
           </div>
-          {step === 'simulation' && (
-            <div className="flex items-center">
-              <Clock className="w-5 h-5 mr-2 text-gray-600" />
-              <span className={`font-mono text-lg ${timeRemaining < 60 ? 'text-red-600 animate-pulse' : 'text-gray-800'}`}>
-                {formatTime(timeRemaining)}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Étape du formulaire initial */}
-        {step === 'form' && (
-          <Card className="max-w-2xl mx-auto">
-            <CardHeader>
-              <CardTitle>Configuration de la simulation</CardTitle>
-              <CardDescription>
-                Vous allez mettre en place une simulation d'entretien pour un profil AMOA.
-                Une fois configurée, l'IA simulera une situation réelle pour évaluer les compétences du candidat.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="recruiterEmail"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email du recruteur</FormLabel>
-                        <FormControl>
-                          <div className="flex items-center">
-                            <Mail className="w-4 h-4 mr-2 text-gray-500" />
-                            <Input {...field} placeholder="email@mc2i.fr" />
-                          </div>
-                        </FormControl>
-                        <FormDescription>
-                          Les résultats seront envoyés à cette adresse.
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="candidateName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Nom du candidat</FormLabel>
-                        <FormControl>
-                          <div className="flex items-center">
-                            <User className="w-4 h-4 mr-2 text-gray-500" />
-                            <Input {...field} placeholder="Prénom NOM" />
-                          </div>
-                        </FormControl>
-                        <FormDescription>
-                          La personne qui passera l'évaluation.
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="profileType"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Type de profil</FormLabel>
-                          <Select 
-                            onValueChange={field.onChange} 
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Sélectionnez un type de profil" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="consultant">Consultant AMOA</SelectItem>
-                              <SelectItem value="chef_projet">Chef de projet</SelectItem>
-                              <SelectItem value="analyste_fonctionnel">Analyste fonctionnel</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormDescription>
-                            Rôle principal attendu du candidat.
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="experienceLevel"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Niveau d'expérience</FormLabel>
-                          <Select 
-                            onValueChange={field.onChange} 
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Sélectionnez un niveau" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="junior">Junior (0-2 ans)</SelectItem>
-                              <SelectItem value="confirme">Confirmé (3-5 ans)</SelectItem>
-                              <SelectItem value="senior">Senior (6+ ans)</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormDescription>
-                            Niveau d'expérience attendu du candidat.
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  
-                  <FormField
-                    control={form.control}
-                    name="sectorFocus"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Secteur d'activité</FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Sélectionnez un secteur" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="public">Secteur Public</SelectItem>
-                            <SelectItem value="finance">Banque & Assurance</SelectItem>
-                            <SelectItem value="sante">Santé</SelectItem>
-                            <SelectItem value="generaliste">Généraliste</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormDescription>
-                          Secteur d'activité principal pour la simulation.
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <Button 
-                    type="submit" 
-                    className="w-full mt-6 bg-[#006a9e] hover:bg-[#00557e]"
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Préparation en cours...
-                      </>
-                    ) : (
-                      <>
-                        <Rocket className="mr-2 h-4 w-4" />
-                        Démarrer la simulation
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Étape de la simulation active */}
-        {step === 'simulation' && (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Informations de session */}
-            <div className="lg:col-span-1">
-              <Card>
+          
+          <p className="mb-8 text-blue-100">
+            Cette simulation vous permet d'évaluer les compétences des candidats aux postes d'assistance à maîtrise d'ouvrage à travers une conversation de 5 minutes avec un recruteur IA.
+          </p>
+          
+          <Tabs 
+            defaultValue="configuration" 
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
+            <TabsList className="grid grid-cols-3 mb-8">
+              <TabsTrigger 
+                value="configuration"
+                disabled={isSimulationActive && !simulationComplete}
+              >
+                Configuration
+              </TabsTrigger>
+              <TabsTrigger 
+                value="simulation"
+                disabled={!isSimulationActive}
+              >
+                Simulation
+              </TabsTrigger>
+              <TabsTrigger 
+                value="evaluation"
+                disabled={!simulationComplete}
+              >
+                Évaluation
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="configuration">
+              <Card className="bg-blue-800 border-blue-700">
                 <CardHeader>
-                  <CardTitle>Informations</CardTitle>
+                  <CardTitle>Configuration de l'entretien</CardTitle>
+                  <CardDescription className="text-blue-200">
+                    Configurez les paramètres de la simulation d'entretien
+                  </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label className="text-sm text-gray-500">Candidat</Label>
-                    <p className="font-medium">{simulationData?.candidateName}</p>
-                  </div>
-                  <div>
-                    <Label className="text-sm text-gray-500">Profil</Label>
-                    <p className="font-medium">
-                      {simulationData && getProfileLabel(simulationData.profileType)}
-                    </p>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <Badge variant="outline" className="capitalize">
-                        {simulationData?.experienceLevel}
-                      </Badge>
-                      <Badge variant="outline">
-                        {simulationData && getSectorLabel(simulationData.sectorFocus)}
-                      </Badge>
-                    </div>
-                  </div>
-                  <div>
-                    <Label className="text-sm text-gray-500">Étape actuelle</Label>
-                    <div className="mt-1">
-                      <Progress value={(currentStep / 3) * 100} className="h-2" />
-                      <p className="text-xs text-gray-500 mt-1">
-                        Étape {currentStep} sur 3
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <Label className="text-sm text-gray-500">Temps restant</Label>
-                    <p className={`font-mono text-lg ${timeRemaining < 60 ? 'text-red-600' : 'text-gray-800'}`}>
-                      {formatTime(timeRemaining)}
-                    </p>
-                  </div>
+                <CardContent>
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(startSimulation)} className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField
+                          control={form.control}
+                          name="recruiterEmail"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Email du recruteur (pour recevoir l'évaluation)</FormLabel>
+                              <FormControl>
+                                <Input placeholder="email@exemple.com" {...field} className="bg-blue-700 border-blue-600 text-white" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="candidateName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Nom du candidat</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Nom complet" {...field} className="bg-blue-700 border-blue-600 text-white" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <FormField
+                          control={form.control}
+                          name="profileType"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Type de profil</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger className="bg-blue-700 border-blue-600 text-white">
+                                    <SelectValue placeholder="Sélectionnez un profil" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent className="bg-blue-700 border-blue-600 text-white">
+                                  <SelectItem value="amoa_junior">AMOA Junior</SelectItem>
+                                  <SelectItem value="amoa_confirme">AMOA Confirmé</SelectItem>
+                                  <SelectItem value="amoa_expert">AMOA Expert</SelectItem>
+                                  <SelectItem value="chef_de_projet">Chef de Projet</SelectItem>
+                                  <SelectItem value="amoa_agile">AMOA Agile/Scrum</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="experienceLevel"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Niveau d'expérience</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger className="bg-blue-700 border-blue-600 text-white">
+                                    <SelectValue placeholder="Sélectionnez un niveau" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent className="bg-blue-700 border-blue-600 text-white">
+                                  <SelectItem value="junior">Junior (0-2 ans)</SelectItem>
+                                  <SelectItem value="intermediaire">Intermédiaire (3-5 ans)</SelectItem>
+                                  <SelectItem value="senior">Senior (6-9 ans)</SelectItem>
+                                  <SelectItem value="expert">Expert (10+ ans)</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="sectorFocus"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Secteur d'activité</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger className="bg-blue-700 border-blue-600 text-white">
+                                    <SelectValue placeholder="Sélectionnez un secteur" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent className="bg-blue-700 border-blue-600 text-white">
+                                  <SelectItem value="banque_finance">Banque & Finance</SelectItem>
+                                  <SelectItem value="assurance">Assurance</SelectItem>
+                                  <SelectItem value="sante">Santé</SelectItem>
+                                  <SelectItem value="industrie">Industrie</SelectItem>
+                                  <SelectItem value="secteur_public">Secteur Public</SelectItem>
+                                  <SelectItem value="telecom">Télécommunications</SelectItem>
+                                  <SelectItem value="energie">Énergie & Utilities</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      
+                      <Button 
+                        type="submit" 
+                        className="w-full bg-[#006a9e] hover:bg-blue-600"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? "Chargement..." : "Démarrer la simulation"}
+                      </Button>
+                    </form>
+                  </Form>
                 </CardContent>
               </Card>
-            </div>
+            </TabsContent>
             
-            {/* Chat de simulation */}
-            <div className="lg:col-span-3">
-              <Card className="h-[70vh] flex flex-col">
-                <CardHeader className="py-3 border-b">
-                  <CardTitle className="text-lg font-medium">Scénario AMOA</CardTitle>
+            <TabsContent value="simulation">
+              <Card className="bg-blue-800 border-blue-700">
+                <CardHeader>
+                  <div className="flex justify-between items-center">
+                    <CardTitle>Entretien en cours</CardTitle>
+                    <div className={`flex items-center p-2 rounded-md ${
+                      timeRemaining > 60 ? "bg-blue-900" : "bg-red-900"
+                    }`}>
+                      <Clock className="w-5 h-5 mr-2" />
+                      <span className="font-mono">{formatTime(timeRemaining)}</span>
+                    </div>
+                  </div>
+                  <CardDescription className="text-blue-200">
+                    Vous êtes en conversation avec un recruteur spécialisé en AMOA
+                  </CardDescription>
                 </CardHeader>
-                
-                {/* Messages */}
-                <CardContent className="flex-1 overflow-y-auto p-4">
-                  <div className="space-y-4">
-                    {messages.map((message) => (
-                      <div
-                        key={message.id}
-                        className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                      >
-                        <div
-                          className={`max-w-3/4 rounded-lg p-3 ${
-                            message.role === 'user'
-                              ? 'bg-[#006a9e] text-white'
-                              : message.role === 'system'
-                              ? 'bg-gray-200 text-gray-800'
-                              : 'bg-white border border-gray-200 text-gray-800'
-                          }`}
-                        >
-                          <div 
-                            dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }}
-                          />
-                        </div>
+                <CardContent>
+                  <div className="h-96 overflow-y-auto mb-4 bg-blue-900 rounded-md p-4">
+                    {messages.length === 0 ? (
+                      <div className="flex items-center justify-center h-full text-blue-300">
+                        <p>La conversation va commencer...</p>
                       </div>
-                    ))}
-                    
-                    {loading && (
-                      <div className="flex justify-start">
-                        <div className="max-w-3/4 bg-gray-100 rounded-lg p-3">
-                          <div className="flex space-x-2">
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    ) : (
+                      <div className="space-y-4">
+                        {messages.map((message) => (
+                          <div 
+                            key={message.id}
+                            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                          >
+                            <div 
+                              className={`max-w-[80%] p-3 rounded-lg ${
+                                message.role === 'user'
+                                  ? 'bg-[#006a9e] text-white'
+                                  : 'bg-blue-700 text-white'
+                              }`}
+                            >
+                              <div className="flex items-center mb-1">
+                                {message.role === 'user' ? (
+                                  <>
+                                    <span className="font-semibold">{form.getValues('candidateName') || 'Candidat'}</span>
+                                    <span className="text-xs ml-2 text-blue-200">
+                                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <UserCircle className="w-5 h-5 mr-1" />
+                                    <span className="font-semibold">Recruteur</span>
+                                    <span className="text-xs ml-2 text-blue-200">
+                                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </span>
+                                  </>
+                                )}
+                              </div>
+                              <p className="whitespace-pre-wrap">{message.content}</p>
+                            </div>
                           </div>
-                        </div>
+                        ))}
+                        <div ref={messagesEndRef} />
                       </div>
                     )}
                   </div>
-                </CardContent>
-                
-                {/* Saisie du message */}
-                <CardFooter className="p-4 border-t">
-                  <div className="flex w-full space-x-2">
-                    <Input
+                  
+                  <div className="flex gap-2">
+                    <Textarea
                       value={userInput}
                       onChange={(e) => setUserInput(e.target.value)}
-                      placeholder="Écrivez votre réponse..."
+                      placeholder="Écrivez votre message..."
+                      className="resize-none bg-blue-700 border-blue-600 text-white"
                       onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
+                        if (e.key === 'Enter' && !e.shiftKey && !isLoading) {
                           e.preventDefault();
                           sendMessage();
                         }
                       }}
-                      disabled={loading || timeRemaining === 0}
-                      className="flex-1"
+                      disabled={isLoading || simulationComplete || timeRemaining === 0}
                     />
-                    <Button 
-                      onClick={sendMessage} 
-                      disabled={loading || !userInput.trim() || timeRemaining === 0}
-                      className="bg-[#006a9e] hover:bg-[#00557e]"
+                    <Button
+                      onClick={sendMessage}
+                      disabled={isLoading || !userInput.trim() || simulationComplete || timeRemaining === 0}
+                      className="bg-[#006a9e] hover:bg-blue-600"
                     >
-                      {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+                      <Send className="w-5 h-5" />
                     </Button>
                   </div>
+                </CardContent>
+                <CardFooter>
+                  <Button
+                    onClick={completeSimulation}
+                    disabled={isLoading || simulationComplete || messages.length < 3}
+                    className="w-full bg-green-700 hover:bg-green-800"
+                  >
+                    <CheckCircle className="w-5 h-5 mr-2" />
+                    Terminer l'entretien
+                  </Button>
                 </CardFooter>
               </Card>
-            </div>
-          </div>
-        )}
-
-        {/* Étape de complétion */}
-        {step === 'completed' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <Card className="max-w-2xl mx-auto">
-              <CardHeader>
-                <div className="flex items-center justify-center mb-4">
-                  <div className="bg-green-100 p-3 rounded-full">
-                    <CheckCircle className="h-10 w-10 text-green-600" />
+            </TabsContent>
+            
+            <TabsContent value="evaluation">
+              <Card className="bg-blue-800 border-blue-700">
+                <CardHeader>
+                  <div className="flex items-center">
+                    <FileCheck className="w-6 h-6 mr-2 text-green-400" />
+                    <CardTitle>Évaluation de l'entretien</CardTitle>
                   </div>
-                </div>
-                <CardTitle className="text-center text-2xl">Simulation terminée</CardTitle>
-                <CardDescription className="text-center text-lg">
-                  Les résultats ont été envoyés avec succès.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <h3 className="font-medium text-gray-800 mb-2">Résumé de la simulation</h3>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-gray-500">Candidat</p>
-                      <p className="font-medium">{simulationData?.candidateName}</p>
+                  <CardDescription className="text-blue-200">
+                    Résultat de l'évaluation du candidat par l'IA
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {!evaluationResult ? (
+                    <div className="py-8 text-center">
+                      <AlertCircle className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
+                      <p className="text-blue-200">Aucune évaluation disponible</p>
+                      <p className="text-blue-300 text-sm mt-2">Terminez l'entretien pour voir l'évaluation</p>
                     </div>
-                    <div>
-                      <p className="text-gray-500">Type de profil</p>
-                      <p className="font-medium">
-                        {simulationData && getProfileLabel(simulationData.profileType)}
-                      </p>
+                  ) : (
+                    <div className="space-y-6">
+                      <div>
+                        <h3 className="text-xl font-semibold mb-2">Informations générales</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                          <div className="bg-blue-700 p-3 rounded-md">
+                            <p className="text-blue-200 text-sm">Candidat</p>
+                            <p>{form.getValues('candidateName')}</p>
+                          </div>
+                          <div className="bg-blue-700 p-3 rounded-md">
+                            <p className="text-blue-200 text-sm">Profil</p>
+                            <p>{form.getValues('profileType')?.replace(/_/g, ' ')}</p>
+                          </div>
+                          <div className="bg-blue-700 p-3 rounded-md">
+                            <p className="text-blue-200 text-sm">Expérience</p>
+                            <p>{form.getValues('experienceLevel')}</p>
+                          </div>
+                          <div className="bg-blue-700 p-3 rounded-md">
+                            <p className="text-blue-200 text-sm">Secteur</p>
+                            <p>{form.getValues('sectorFocus')?.replace(/_/g, ' ')}</p>
+                          </div>
+                          <div className="bg-blue-700 p-3 rounded-md col-span-2">
+                            <p className="text-blue-200 text-sm">Durée de l'entretien</p>
+                            <p>{Math.floor((300 - timeRemaining) / 60)} min {(300 - timeRemaining) % 60} sec</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h3 className="text-xl font-semibold mb-4">Note globale</h3>
+                        <div className="flex items-center justify-center bg-blue-700 p-6 rounded-md">
+                          <div 
+                            className={`text-5xl font-bold rounded-full w-24 h-24 flex items-center justify-center
+                              ${evaluationResult.overallScore >= 80 ? 'bg-green-800 text-green-200' : 
+                                evaluationResult.overallScore >= 60 ? 'bg-blue-900 text-blue-200' : 
+                                evaluationResult.overallScore >= 40 ? 'bg-yellow-800 text-yellow-200' : 
+                                'bg-red-800 text-red-200'}`}
+                          >
+                            {evaluationResult.overallScore}/100
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h3 className="text-xl font-semibold mb-4">Évaluation par compétence</h3>
+                        <div className="space-y-3">
+                          {evaluationResult.skillsEvaluation && Object.entries(evaluationResult.skillsEvaluation).map(([skill, score]: [string, any]) => (
+                            <div key={skill} className="bg-blue-700 p-3 rounded-md">
+                              <div className="flex justify-between mb-2">
+                                <span className="font-medium">{skill}</span>
+                                <Badge 
+                                  className={
+                                    score >= 80 ? 'bg-green-700 text-green-100' : 
+                                    score >= 60 ? 'bg-blue-600 text-blue-100' : 
+                                    score >= 40 ? 'bg-yellow-700 text-yellow-100' : 
+                                    'bg-red-700 text-red-100'
+                                  }
+                                >
+                                  {score}/100
+                                </Badge>
+                              </div>
+                              <div className="w-full bg-blue-800 rounded-full h-2.5">
+                                <div 
+                                  className={`h-2.5 rounded-full ${
+                                    score >= 80 ? 'bg-green-500' : 
+                                    score >= 60 ? 'bg-blue-500' : 
+                                    score >= 40 ? 'bg-yellow-500' : 
+                                    'bg-red-500'
+                                  }`}
+                                  style={{ width: `${score}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h3 className="text-xl font-semibold mb-2">Commentaires</h3>
+                        <div className="bg-blue-700 p-4 rounded-md whitespace-pre-wrap">
+                          {evaluationResult.feedback}
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h3 className="text-xl font-semibold mb-2">Points forts</h3>
+                        <div className="bg-blue-700 p-4 rounded-md">
+                          <ul className="list-disc pl-5 space-y-1">
+                            {evaluationResult.strengths && evaluationResult.strengths.map((strength: string, index: number) => (
+                              <li key={index}>{strength}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h3 className="text-xl font-semibold mb-2">Axes d'amélioration</h3>
+                        <div className="bg-blue-700 p-4 rounded-md">
+                          <ul className="list-disc pl-5 space-y-1">
+                            {evaluationResult.areasForImprovement && evaluationResult.areasForImprovement.map((area: string, index: number) => (
+                              <li key={index}>{area}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h3 className="text-xl font-semibold mb-2">Recommandation</h3>
+                        <div className={`p-4 rounded-md ${
+                          evaluationResult.recommendation === 'Embaucher' ? 'bg-green-800/50' :
+                          evaluationResult.recommendation === 'Envisager' ? 'bg-blue-900/50' :
+                          'bg-red-800/50'
+                        }`}>
+                          <p className="font-medium">{evaluationResult.recommendation}</p>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-gray-500">Niveau d'expérience</p>
-                      <p className="font-medium capitalize">{simulationData?.experienceLevel}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Secteur</p>
-                      <p className="font-medium">
-                        {simulationData && getSectorLabel(simulationData.sectorFocus)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Durée utilisée</p>
-                      <p className="font-medium">{formatTime(300 - timeRemaining)}</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                  <div className="flex">
-                    <div className="mr-3 mt-0.5">
-                      <Mail className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-blue-800 mb-1">Email envoyé</h3>
-                      <p className="text-blue-700 text-sm">
-                        Un rapport détaillé a été envoyé à l'adresse {simulationData?.recruiterEmail}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex justify-center pt-4">
-                  <Button 
-                    onClick={() => navigate('/amoa')} 
-                    className="bg-[#006a9e] hover:bg-[#00557e]"
+                  )}
+                </CardContent>
+                <CardFooter>
+                  <Button
+                    onClick={resetSimulation}
+                    className="w-full bg-[#006a9e] hover:bg-blue-600"
                   >
-                    Retour à l'accueil
+                    Nouvelle simulation
                   </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
+                </CardFooter>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </motion.div>
       </div>
     </HomeLayout>
   );
-}
+};
+
+export default AmoaInterviewSimulation;
