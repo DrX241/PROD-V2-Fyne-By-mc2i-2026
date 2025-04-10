@@ -124,41 +124,64 @@ const AmoaInterviewSimulation: React.FC = () => {
   const startSimulation = async (values: FormValues) => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/amoa/interview-simulation/start', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          domain: 'amoa',
-          ...values,
-        }),
-      });
+      // Message de secours en cas d'échec de l'API
+      const fallbackMessage = "Bonjour, je suis votre recruteur aujourd'hui. Nous allons évaluer vos compétences en assistance à maîtrise d'ouvrage. Présentez-vous et dites-moi ce qui vous intéresse dans ce domaine.";
       
-      if (!response.ok) {
-        throw new Error('Erreur lors du démarrage de la simulation');
+      let initialMessage = fallbackMessage;
+      let apiSuccess = false;
+      
+      try {
+        const response = await fetch('/api/amoa/interview-simulation/start', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            domain: 'amoa',
+            ...values,
+          }),
+          // Ajouter un timeout pour éviter que la requête ne bloque trop longtemps
+          signal: AbortSignal.timeout(10000)
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.initialMessage) {
+            initialMessage = data.initialMessage;
+            apiSuccess = true;
+          }
+        }
+      } catch (apiError) {
+        console.log("Erreur API, utilisation du message de secours:", apiError);
+        // On continue avec le message de secours
       }
       
-      const data = await response.json();
-      
-      // Ajouter le message initial de l'assistant
+      // Ajouter le message initial de l'assistant (API ou secours)
       setMessages([
         {
           id: '1',
           role: 'assistant',
-          content: data.initialMessage || "Bonjour, je suis votre recruteur aujourd'hui. Nous allons évaluer vos compétences en assistance à maîtrise d'ouvrage. Présentez-vous et dites-moi ce qui vous intéresse dans ce domaine.",
+          content: initialMessage,
           timestamp: new Date(),
         },
       ]);
       
       setIsSimulationActive(true);
       setActiveTab('simulation');
-      toast({
-        title: "Simulation démarrée",
-        description: "La simulation d'entretien a commencé. Vous avez 5 minutes.",
-      });
+      
+      if (apiSuccess) {
+        toast({
+          title: "Simulation démarrée",
+          description: "La simulation d'entretien a commencé. Vous avez 5 minutes.",
+        });
+      } else {
+        toast({
+          title: "Simulation démarrée (mode dégradé)",
+          description: "Connexion API limitée, mais vous pouvez continuer. Vous avez 5 minutes."
+        });
+      }
     } catch (error) {
-      console.error('Erreur:', error);
+      console.error('Erreur globale:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -180,42 +203,75 @@ const AmoaInterviewSimulation: React.FC = () => {
       timestamp: new Date(),
     };
     
+    // Copie du message pour l'utiliser plus tard si nécessaire
+    const messageSent = userInput;
+    
+    // Ajouter immédiatement le message de l'utilisateur
     setMessages(prev => [...prev, userMessage]);
     setUserInput('');
     setIsLoading(true);
     
+    // Réponse de secours
+    const fallbackResponses = [
+      "Je comprends votre point de vue. Pouvez-vous développer un peu plus ?",
+      "C'est intéressant. Parlons maintenant de votre expérience en gestion de projet.",
+      "Merci pour ces précisions. Comment aborderiez-vous un projet avec des parties prenantes difficiles ?",
+      "Vos compétences techniques semblent solides. Parlez-moi des méthodologies que vous utilisez.",
+      "Bien noté. Et comment gérez-vous les changements de périmètre en cours de projet ?"
+    ];
+    
     try {
-      const response = await fetch('/api/amoa/interview-simulation/message', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          domain: 'amoa',
-          message: userInput,
-          profileType: form.getValues('profileType'),
-          experienceLevel: form.getValues('experienceLevel'),
-          sectorFocus: form.getValues('sectorFocus'),
-          messages: messages.map(m => ({ role: m.role, content: m.content })),
-        }),
-      });
+      let apiSuccess = false;
+      let responseContent = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
       
-      if (!response.ok) {
-        throw new Error('Erreur lors de l\'envoi du message');
+      try {
+        const response = await fetch('/api/amoa/interview-simulation/message', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            domain: 'amoa',
+            message: messageSent,
+            profileType: form.getValues('profileType'),
+            experienceLevel: form.getValues('experienceLevel'),
+            sectorFocus: form.getValues('sectorFocus'),
+            messages: messages.map(m => ({ role: m.role, content: m.content })),
+          }),
+          // Ajouter un timeout pour éviter que la requête ne bloque trop longtemps
+          signal: AbortSignal.timeout(15000)
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.response) {
+            responseContent = data.response;
+            apiSuccess = true;
+          }
+        }
+      } catch (apiError) {
+        console.log("Erreur API, utilisation d'une réponse de secours:", apiError);
+        // On continue avec la réponse de secours
       }
-      
-      const data = await response.json();
       
       const assistantMessage = {
         id: Date.now().toString(),
         role: 'assistant' as const,
-        content: data.response,
+        content: responseContent,
         timestamp: new Date(),
       };
       
       setMessages(prev => [...prev, assistantMessage]);
+      
+      if (!apiSuccess) {
+        // Notification subtile pour indiquer le mode dégradé
+        toast({
+          title: "Mode dégradé actif",
+          description: "Réponse générée localement due à une limitation de connexion API."
+        });
+      }
     } catch (error) {
-      console.error('Erreur:', error);
+      console.error('Erreur globale:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -231,38 +287,81 @@ const AmoaInterviewSimulation: React.FC = () => {
     if (simulationComplete) return;
     
     setIsLoading(true);
+    
+    // Créer une évaluation de secours au cas où l'API échoue
+    const fallbackEvaluation = {
+      summary: "Évaluation générée localement (mode dégradé)",
+      strengths: [
+        "Communication claire et professionnelle",
+        "Bonne compréhension générale des concepts AMOA"
+      ],
+      areas_to_improve: [
+        "Détailler davantage les expériences techniques",
+        "Approfondir les connaissances méthodologiques"
+      ],
+      technical_skills: 3.5,
+      communication_skills: 4,
+      domain_knowledge: 3,
+      problem_solving: 3.5,
+      cultural_fit: 4,
+      overall_rating: 3.5,
+      recommendation: "Le candidat présente un profil intéressant avec des compétences à développer. À considérer pour une seconde entrevue."
+    };
+    
     try {
-      const response = await fetch('/api/amoa/interview-simulation/complete', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          domain: 'amoa',
-          recruiterEmail: form.getValues('recruiterEmail'),
-          candidateName: form.getValues('candidateName'),
-          profileType: form.getValues('profileType'),
-          experienceLevel: form.getValues('experienceLevel'),
-          sectorFocus: form.getValues('sectorFocus'),
-          messages: messages.map(m => ({ role: m.role, content: m.content })),
-          duration: 300 - timeRemaining,
-        }),
-      });
+      let apiSuccess = false;
+      let evaluationData = fallbackEvaluation;
       
-      if (!response.ok) {
-        throw new Error('Erreur lors de la finalisation de la simulation');
+      try {
+        const response = await fetch('/api/amoa/interview-simulation/complete', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            domain: 'amoa',
+            recruiterEmail: form.getValues('recruiterEmail'),
+            candidateName: form.getValues('candidateName'),
+            profileType: form.getValues('profileType'),
+            experienceLevel: form.getValues('experienceLevel'),
+            sectorFocus: form.getValues('sectorFocus'),
+            messages: messages.map(m => ({ role: m.role, content: m.content })),
+            duration: 300 - timeRemaining,
+          }),
+          // Ajouter un timeout pour éviter que la requête ne bloque trop longtemps
+          signal: AbortSignal.timeout(15000)
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data) {
+            evaluationData = data;
+            apiSuccess = true;
+          }
+        }
+      } catch (apiError) {
+        console.log("Erreur API lors de la finalisation, utilisation d'une évaluation de secours:", apiError);
+        // On continue avec l'évaluation de secours
       }
       
-      const data = await response.json();
-      setEvaluationResult(data);
+      // Définir le résultat de l'évaluation (API ou secours)
+      setEvaluationResult(evaluationData);
       setSimulationComplete(true);
       setActiveTab('evaluation');
-      toast({
-        title: "Simulation terminée",
-        description: "L'évaluation de votre entretien est disponible.",
-      });
+      
+      if (apiSuccess) {
+        toast({
+          title: "Simulation terminée",
+          description: "L'évaluation de votre entretien est disponible.",
+        });
+      } else {
+        toast({
+          title: "Simulation terminée (mode dégradé)",
+          description: "Évaluation générée localement due à une limitation de connexion API."
+        });
+      }
     } catch (error) {
-      console.error('Erreur:', error);
+      console.error('Erreur globale:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
