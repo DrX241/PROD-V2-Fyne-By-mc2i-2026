@@ -337,65 +337,32 @@ Sujet: Évaluation de simulation d'entretien - ${candidateName}
       const sendgridApiKey = process.env.SENDGRID_API_KEY;
       
       if (sendgridApiKey) {
+        console.log("Tentative d'envoi par SendGrid...");
         // Utilisation de SendGrid pour l'envoi d'emails
-        sgMail.setApiKey(sendgridApiKey);
-        
-        const msg = {
-          to: recruiterEmail,
-          from: {
-            name: 'I AM CYBER - Recrutement',
-            email: 'noreply@i-am-cyber.com'
-          },
-          subject: `Évaluation de simulation d'entretien - ${candidateName}`,
-          html: emailHtml,
-        };
-        
         try {
+          sgMail.setApiKey(sendgridApiKey);
+          
+          const msg = {
+            to: recruiterEmail,
+            from: {
+              name: 'I AM CYBER - Recrutement',
+              email: 'noreply@i-am-cyber.com'
+            },
+            subject: `Évaluation de simulation d'entretien - ${candidateName}`,
+            html: emailHtml,
+          };
+          
           await sgMail.send(msg);
           console.log('Email envoyé avec SendGrid à', recruiterEmail);
         } catch (sendgridError) {
           console.error('Erreur lors de l\'envoi avec SendGrid:', sendgridError);
           // Fallback vers Ethereal pour les tests si SendGrid échoue
-          await sendWithEthereal();
+          await sendWithEthereal(recruiterEmail, candidateName, emailHtml);
         }
       } else {
         // Fallback vers Ethereal pour les tests
-        await sendWithEthereal();
-      }
-      
-      // Fonction pour envoyer un email de test avec Ethereal
-      async function sendWithEthereal() {
-        try {
-          // Configuration de nodemailer avec service de test d'email Ethereal
-          const testAccount = await nodemailer.createTestAccount();
-          
-          const transporter = nodemailer.createTransport({
-            host: 'smtp.ethereal.email',
-            port: 587,
-            secure: false,
-            auth: {
-              user: testAccount.user,
-              pass: testAccount.pass
-            }
-          });
-          
-          // Configuration de l'email
-          const mailOptions = {
-            from: '"I AM CYBER - Recrutement" <evaluation@i-am-cyber.com>',
-            to: recruiterEmail,
-            subject: `Évaluation de simulation d'entretien - ${candidateName}`,
-            html: emailHtml
-          };
-          
-          // Envoi de l'email
-          const info = await transporter.sendMail(mailOptions);
-          
-          console.log('Email de test envoyé: %s', info.messageId);
-          // URL de prévisualisation de l'email généré par Ethereal
-          console.log('Aperçu de l\'email: %s', nodemailer.getTestMessageUrl(info));
-        } catch (etherealError) {
-          console.error('Erreur lors de l\'envoi avec Ethereal:', etherealError);
-        }
+        console.log("Aucune clé SendGrid trouvée, utilisation d'Ethereal...");
+        await sendWithEthereal(recruiterEmail, candidateName, emailHtml);
       }
     } catch (emailError) {
       console.error('Erreur lors de l\'envoi de l\'email:', emailError);
