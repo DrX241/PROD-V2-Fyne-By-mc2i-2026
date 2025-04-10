@@ -32,10 +32,10 @@ const ModuleCard = ({
   linkTo: string;
 }) => {
   const [isHover, setIsHover] = useState(false);
-  
+
   return (
     <motion.div
-      className={`relative overflow-hidden rounded-2xl shadow-lg ${bgColor} border border-gray-200 transition-all duration-300 h-full flex flex-col`}
+      className={`relative overflow-hidden rounded-2xl shadow-lg ${bgColor} transition-all duration-300 h-full flex flex-col`}
       whileHover={{ 
         y: -8,
         boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)'
@@ -45,17 +45,17 @@ const ModuleCard = ({
     >
       {/* Background Pattern */}
       <div className={`absolute top-0 right-0 w-40 h-40 ${accentColor} rounded-full -mr-16 -mt-16 opacity-10`}></div>
-      
+
       <div className="p-8 flex flex-col h-full z-10 relative">
         {/* Icon */}
         <div className={`w-16 h-16 ${color} rounded-2xl flex items-center justify-center mb-6`}>
           {icon}
         </div>
-        
+
         {/* Content */}
         <h3 className="text-2xl font-bold mb-3 text-gray-900">{title}</h3>
         <p className="text-gray-600 mb-6 flex-grow">{description}</p>
-        
+
         {/* Footer - Button */}
         <div className="mt-auto">
           <Link href={linkTo}>
@@ -84,7 +84,7 @@ const FeatureCard = ({
 }) => {
   return (
     <motion.div
-      className="bg-white rounded-xl p-6 shadow-md border border-gray-100 h-full"
+      className="bg-white rounded-xl p-6 shadow-md h-full"
       whileHover={{ y: -5, boxShadow: '0 12px 30px rgba(0, 0, 0, 0.08)' }}
     >
       <div className="p-3 bg-blue-50 rounded-xl w-fit mb-4 text-blue-600">
@@ -98,7 +98,7 @@ const FeatureCard = ({
 
 export default function Home() {
   const { userName } = useChatContext();
-  
+
   // Modules avec animations interactives
   const modules = [
     {
@@ -138,7 +138,7 @@ export default function Home() {
       linkTo: "/custom"
     }
   ];
-  
+
   // Fonctionnalités
   const features = [
     {
@@ -172,13 +172,13 @@ export default function Home() {
       description: "Disponible sur tous vos appareils avec synchronisation automatique"
     }
   ];
-  
+
   return (
     <HomeLayout>
       <PageTitle title="Accueil" />
       {/* Hero Section */}
       <div className="relative bg-gradient-to-br from-gray-900 via-indigo-900 to-blue-900 overflow-hidden">
-        
+
         <div className="max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8 lg:py-28 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Texte héro */}
@@ -187,7 +187,7 @@ export default function Home() {
                 <Sparkles className="mr-2 h-4 w-4" />
                 Propulsé par l'intelligence artificielle avancée
               </div>
-              
+
               {/* Animation du slogan FYNE placée avant le titre principal */}
               <motion.div
                 className="mb-6 relative"
@@ -204,7 +204,7 @@ export default function Home() {
                     <span className="text-cyan-300"> E</span>xperience
                   </span>
                 </div>
-                
+
                 {/* Ligne décorative en dessous */}
                 <motion.div 
                   className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-64 h-[2px]"
@@ -225,7 +225,7 @@ export default function Home() {
                 Améliorez votre 
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400"> expertise professionnelle</span> avec FYNE
               </motion.h1>
-              
+
               <motion.p 
                 className="text-xl text-blue-100 mb-8 max-w-xl font-cyber-body tracking-wide leading-relaxed"
                 initial={{ opacity: 0, y: 20 }}
@@ -234,7 +234,7 @@ export default function Home() {
               >
                 Découvrez une nouvelle dimension d'apprentissage interactif grâce à nos modules IA innovants qui s'adaptent parfaitement à votre progression.
               </motion.p>
-              
+
               <motion.div 
                 className="mb-8"
                 initial={{ opacity: 0, y: 20 }}
@@ -244,7 +244,7 @@ export default function Home() {
                 {/* Section de bouton supprimée */}
               </motion.div>
             </div>
-            
+
             {/* Illustration héro - Concept d'IA et d'apprentissage avancé */}
             <motion.div 
               className="relative aspect-square max-w-lg mx-auto lg:mx-0"
@@ -252,7 +252,7 @@ export default function Home() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8 }}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-indigo-700/30 rounded-3xl overflow-hidden backdrop-blur-sm border border-white/10 flex items-center justify-center">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-indigo-700/30 rounded-3xl overflow-hidden backdrop-blur-sm flex items-center justify-center">
                 {/* Fond avec effet de code et connexions neuronales */}
                 <div className="absolute inset-0 opacity-20">
                   {/* Simulation de code binaire pour évoquer l'IA */}
@@ -260,13 +260,13 @@ export default function Home() {
                     {Array.from({ length: 10 }).map((_, i) => (
                       <motion.div 
                         key={i}
-                        className="absolute text-[8px] text-blue-300 font-mono whitespace-nowrap"
+                        className="absolute text-[8px] text-blue-300/20 font-mono whitespace-nowrap"
                         style={{ 
                           top: `${Math.random() * 100}%`, 
                           left: `${Math.random() * 100}%`,
                         }}
                         animate={{ 
-                          opacity: [0.3, 0.7, 0.3],
+                          opacity: [0.1, 0.3, 0.1],
                           x: [0, Math.random() * 20 - 10]
                         }}
                         transition={{ 
@@ -280,14 +280,14 @@ export default function Home() {
                     ))}
                   </div>
                 </div>
-                
+
 
               </div>
             </motion.div>
           </div>
         </div>
       </div>
-      
+
       {/* Section Modules d'Excellence - Mise en avant */}
       <div className="relative bg-gradient-to-b from-blue-50 to-white py-16 lg:py-24 overflow-hidden">
         {/* Éléments décoratifs */}
@@ -296,7 +296,7 @@ export default function Home() {
           <div className="absolute top-10 right-10 w-72 h-72 bg-indigo-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
           <div className="absolute bottom-10 left-1/3 w-80 h-80 bg-cyan-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
-        
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-16">
             <motion.div
@@ -323,7 +323,7 @@ export default function Home() {
               </p>
             </motion.div>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {modules.map((module, index) => (
               <motion.div
@@ -338,11 +338,11 @@ export default function Home() {
               </motion.div>
             ))}
           </div>
-          
+
           {/* Bouton "Explorer tous nos modules" supprimé */}
         </div>
       </div>
-      
+
       {/* Section Caracteristiques */}
       <div className="bg-gray-50 py-16 lg:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -361,7 +361,7 @@ export default function Home() {
               </p>
             </motion.div>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {features.map((feature, index) => (
               <motion.div
@@ -377,7 +377,7 @@ export default function Home() {
           </div>
         </div>
       </div>
-      
+
       {/* Call-to-Action */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-700 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -393,12 +393,12 @@ export default function Home() {
             <p className="text-xl text-blue-100 mb-10 max-w-3xl mx-auto font-cyber-body">
               Rejoignez plus de 1000 professionnels qui ont déjà révolutionné leur façon d'apprendre
             </p>
-            
+
             {/* Bouton "Explorer les modules" supprimé */}
           </motion.div>
         </div>
       </div>
-      
+
       {/* Section Statistiques avec effet de parallaxe */}
       <div className="bg-white py-16 relative overflow-hidden">
         <div className="absolute inset-0 opacity-5">
@@ -416,7 +416,7 @@ export default function Home() {
             ].map((stat, index) => (
               <motion.div
                 key={index}
-                className="bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-md border border-gray-100 flex flex-col items-center text-center"
+                className="bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-md flex flex-col items-center text-center"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -431,7 +431,7 @@ export default function Home() {
           </div>
         </div>
       </div>
-      
+
       {/* Section Footer - Ajout d'un footer professionnel */}
       <footer className="bg-gray-900 text-white pt-16 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -464,7 +464,7 @@ export default function Home() {
                 ))}
               </div>
             </div>
-            
+
             {/* Liens rapides */}
             <div>
               <h3 className="text-lg font-semibold mb-4 text-gray-300 font-cyber-accent">Modules</h3>
@@ -478,7 +478,7 @@ export default function Home() {
                 ))}
               </ul>
             </div>
-            
+
             {/* Support */}
             <div>
               <h3 className="text-lg font-semibold mb-4 text-gray-300 font-cyber-accent">Support</h3>
@@ -492,7 +492,7 @@ export default function Home() {
                 ))}
               </ul>
             </div>
-            
+
             {/* Newsletter */}
             <div>
               <h3 className="text-lg font-semibold mb-4 text-gray-300 font-cyber-accent">Restez informé</h3>
@@ -511,7 +511,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-          
+
           {/* Barre de séparation */}
           <div className="border-t border-gray-800 pt-8 pb-4">
             <div className="flex flex-col md:flex-row justify-between items-center">
@@ -529,7 +529,7 @@ export default function Home() {
           </div>
         </div>
       </footer>
-      
+
       {/* Suppression de la bannière flottante */}
     </HomeLayout>
   );
