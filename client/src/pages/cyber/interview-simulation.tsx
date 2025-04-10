@@ -1,10 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { UserCircle, Send, Clock, CheckCircle, AlertCircle, FileCheck, ArrowLeft } from 'lucide-react';
+import OpenAIStatusIndicator from '@/components/OpenAIStatusIndicator';
 import { 
   Form, 
   FormControl, 
@@ -201,6 +202,16 @@ const CyberInterviewSimulation: React.FC = () => {
       
       const data = await response.json();
       
+      // Limiter à 5 échanges maximum
+      if (messages.filter(m => m.role === 'user').length >= 5) {
+        completeSimulation();
+        toast({
+          title: "Limite atteinte",
+          description: "La simulation est limitée à 5 questions. Finalisation en cours..."
+        });
+        return;
+      }
+      
       const assistantMessage = {
         id: Date.now().toString(),
         role: 'assistant' as const,
@@ -253,7 +264,7 @@ const CyberInterviewSimulation: React.FC = () => {
       setActiveTab('evaluation');
       toast({
         title: "Simulation terminée",
-        description: "L'évaluation de votre entretien est disponible.",
+        description: "L'évaluation de votre entretien a été envoyée à " + form.getValues('recruiterEmail'),
       });
     } catch (error) {
       console.error('Erreur:', error);
@@ -307,6 +318,11 @@ const CyberInterviewSimulation: React.FC = () => {
           <p className="mb-8 text-gray-300">
             Cette simulation vous permet d'évaluer les compétences des candidats aux postes de cybersécurité à travers une conversation de 5 minutes avec un recruteur IA.
           </p>
+          
+          {/* Indicateur de statut OpenAI en bas à droite */}
+          <Suspense fallback={null}>
+            <OpenAIStatusIndicator position="fixed-bottom-right" />
+          </Suspense>
           
           <Tabs 
             defaultValue="configuration" 

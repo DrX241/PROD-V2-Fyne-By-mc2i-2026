@@ -8,9 +8,14 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 interface OpenAIStatusProps {
   className?: string;
   showModelToggle?: boolean;
+  position?: 'inline' | 'fixed-bottom-right';
 }
 
-const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({ className, showModelToggle = true }) => {
+const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({ 
+  className, 
+  showModelToggle = true, 
+  position = 'fixed-bottom-right' 
+}) => {
   const [status, setStatus] = useState<'connected' | 'disconnected' | 'checking'>('checking');
   const [currentModel, setCurrentModel] = useState<string>('');
   const [apiKeyType, setApiKeyType] = useState<'primary' | 'secondary'>('primary');
@@ -98,8 +103,13 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({ className, showMod
   
   const economyMode = apiKeyType === 'secondary';
   
+  // Styles conditionnels selon la position
+  const positionStyles = position === 'fixed-bottom-right' 
+    ? 'fixed bottom-4 right-4 z-50 bg-opacity-90 bg-slate-900 p-2 rounded-md shadow-lg'
+    : '';
+  
   return (
-    <div className={`flex items-center space-x-2 ${className}`}>
+    <div className={`flex items-center space-x-2 ${positionStyles} ${className}`}>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -117,7 +127,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({ className, showMod
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="p-1 ml-1 h-6 w-6"
+                  className="p-1 ml-1 h-6 w-6 text-white"
                   onClick={checkStatus} 
                   disabled={isRefreshing}
                 >
@@ -144,7 +154,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({ className, showMod
                   </span>
                   
                   <div className="flex items-center">
-                    <span className="text-xs mr-1">Eco</span>
+                    <span className="text-xs mr-1 text-white">Eco</span>
                     <Switch
                       checked={economyMode}
                       onCheckedChange={toggleModel}
