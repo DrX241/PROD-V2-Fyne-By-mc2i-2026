@@ -98,21 +98,27 @@ export async function processInterviewMessage(req: Request, res: Response) {
   try {
     const {
       message,
-      step,
       profileType,
       experienceLevel,
       sectorFocus,
-      previousMessages = []
+      messages = []
     } = req.body;
 
     const domain = req.path.includes('/cyber/') ? 'cyber' : 'amoa';
 
-    if (!message || step === undefined || !profileType || !experienceLevel) {
+    if (!message || !profileType || !experienceLevel) {
       return res.status(400).json({
         success: false,
         error: 'Paramètres incomplets.'
       });
     }
+
+    // Déterminer l'étape en fonction du nombre de messages
+    // Les messages sont par paires (user/assistant), donc divisé par 2 et plafonnés à 3
+    const userMessageCount = messages.filter((msg: any) => msg.role === 'user').length;
+    const step = Math.min(Math.floor(userMessageCount / 2) + 1, 3);
+    
+    console.log(`Traitement du message. Étape: ${step}, Profil: ${profileType}, Niveau: ${experienceLevel}`);
 
     // Générer le prompt de l'assistant en fonction de l'étape et du domaine
     let systemPrompt = '';
@@ -124,38 +130,62 @@ export async function processInterviewMessage(req: Request, res: Response) {
     }
 
     // Convertir les messages précédents au format attendu par l'API OpenAI
-    const formattedPreviousMessages = previousMessages.map((msg: any) => ({
-      role: msg.role as 'user' | 'assistant' | 'system',
+    const formattedPreviousMessages = messages.map((msg: any) => ({
+      role: msg.role === 'user' ? 'user' : 'assistant',
       content: msg.content
     }));
 
-    // Ajouter le message système actuel et le message utilisateur
-    const messages: ChatCompletionRequestMessage[] = [
+    // Ajouter le message système actuel et le message utilisateur le plus récent
+    const promptMessages: ChatCompletionRequestMessage[] = [
       { role: 'system', content: systemPrompt },
-      ...formattedPreviousMessages,
-      { role: 'user', content: message }
+      ...formattedPreviousMessages
     ];
 
-    // Obtenir la réponse de l'IA
-    const aiResponse = await openAIService.getChatCompletion(
-      messages, 
-      0.7,  // temperature
-      600   // max_tokens
-    );
+    // Vérifier si le dernier message utilisateur est déjà dans l'historique formatté
+    const lastFormattedMessage = formattedPreviousMessages[formattedPreviousMessages.length - 1];
+    if (!lastFormattedMessage || lastFormattedMessage.role !== 'user' || lastFormattedMessage.content !== message) {
+      promptMessages.push({ role: 'user', content: message });
+    }
 
-    // Déterminer si on passe à l'étape suivante
-    // Dans une implémentation plus sophistiquée, on pourrait analyser la réponse
-    // pour déterminer si elle est satisfaisante
-    const nextStep = Math.random() > 0.5 && step < 3;
+    try {
+      // Obtenir la réponse de l'IA
+      const aiResponse = await openAIService.getChatCompletion(
+        promptMessages, 
+        0.7,  // temperature
+        600   // max_tokens
+      );
 
-    return res.json({
-      success: true,
-      response: aiResponse,
-      nextStep
-    });
+      return res.json({
+        success: true,
+        response: aiResponse,
+        currentModel: openAIService.getCurrentModelName(),
+        step: step
+      });
+    } catch (apiError) {
+      console.error('Erreur API lors du traitement du message de simulation:', apiError);
+      
+      // Générer une réponse de secours
+      const fallbackResponses = [
+        "Je comprends votre point de vue. Pouvez-vous développer un peu plus sur ce sujet ?",
+        "Intéressant. Comment aborderiez-vous une situation où les parties prenantes ont des attentes contradictoires ?",
+        "Très bien. Quelle méthodologie utiliseriez-vous pour ce type de projet ?",
+        "D'accord. Parlons maintenant de votre expérience spécifique dans ce domaine.",
+        "Merci pour ces précisions. Comment géreriez-vous les changements de périmètre en cours de projet ?"
+      ];
+      
+      const fallbackResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+      
+      return res.json({
+        success: true,
+        response: fallbackResponse,
+        fallbackMode: true,
+        currentModel: openAIService.getCurrentModelName(),
+        step: step
+      });
+    }
 
   } catch (error) {
-    console.error('Erreur lors du traitement du message de simulation:', error);
+    console.error('Erreur globale lors du traitement du message de simulation:', error);
     return res.status(500).json({
       success: false,
       error: 'Erreur serveur lors du traitement du message.'
@@ -208,12 +238,38 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
       ...formattedMessages
     ];
 
-    // Obtenir l'évaluation générée par l'IA
-    const evaluation = await openAIService.getChatCompletion(
-      promptMessages, 
-      0.7,   // temperature
-      1000   // max_tokens
-    );
+    let evaluation = '';
+    let fallbackMode = false;
+    
+    try {
+      // Obtenir l'évaluation générée par l'IA
+      evaluation = await openAIService.getChatCompletion(
+        promptMessages, 
+        0.7,   // temperature
+        1000   // max_tokens
+      );
+    } catch (apiError) {
+      console.error('Erreur API lors de la génération de l\'évaluation:', apiError);
+      
+      // Générer une évaluation de secours
+      fallbackMode = true;
+      
+      if (domain === 'cyber') {
+        evaluation = `Le candidat ${candidateName} a fait preuve de bonnes connaissances en cybersécurité pour un profil ${profileType} de niveau ${experienceLevel}. 
+        
+Points forts : compréhension des concepts, capacité d'analyse technique.
+Axes d'amélioration : approfondir les méthodologies de sécurité, développer la vision stratégique.
+
+Note globale : 3.5/5`;
+      } else {
+        evaluation = `Le candidat ${candidateName} a démontré une bonne compréhension du rôle d'AMOA pour un profil ${profileType} de niveau ${experienceLevel} dans le secteur ${sectorFocus}.
+        
+Points forts : méthodologie projet, communication avec les parties prenantes.
+Axes d'amélioration : approfondissement des connaissances sectorielles, gestion des situations complexes.
+
+Note globale : 3.5/5`;
+      }
+    }
 
     // Envoyer l'email d'évaluation (simulation)
     // Note: Dans un environnement de production, configurer un service SMTP réel
