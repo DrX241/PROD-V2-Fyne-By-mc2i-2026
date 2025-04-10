@@ -488,23 +488,59 @@ Format de réponse:
  * Génère le prompt pour une étape spécifique de la simulation cybersécurité
  */
 function generateCyberStepPrompt(step: number, profileType: string, experienceLevel: string): string {
-  // Adapter la difficulté en fonction de l'étape
-  const complexity = step === 1 ? 'basique' : step === 2 ? 'intermédiaire' : 'avancée';
+  // Adapter la difficulté en fonction de l'étape et du niveau d'expérience
+  let baseComplexity = 'intermédiaire';
+  switch (experienceLevel.toLowerCase()) {
+    case 'junior':
+      baseComplexity = 'basique';
+      break;
+    case 'confirmé':
+    case 'confirme':
+      baseComplexity = 'intermédiaire';
+      break;
+    case 'senior':
+    case 'expert':
+      baseComplexity = 'avancée';
+      break;
+  }
+  
+  // Augmenter progressivement la difficulté en fonction de l'étape
+  const complexityByStep = {
+    junior: ['basique', 'intermédiaire', 'intermédiaire'],
+    confirmé: ['intermédiaire', 'intermédiaire', 'avancée'],
+    confirme: ['intermédiaire', 'intermédiaire', 'avancée'],
+    senior: ['intermédiaire', 'avancée', 'avancée'],
+    expert: ['avancée', 'avancée', 'très avancée']
+  };
+  
+  // Déterminer la complexité finale
+  let complexity = baseComplexity;
+  const expLevel = experienceLevel.toLowerCase();
+  
+  if (expLevel === 'junior' && step > 0 && step <= 3) {
+    complexity = complexityByStep.junior[step - 1];
+  } else if ((expLevel === 'confirmé' || expLevel === 'confirme') && step > 0 && step <= 3) {
+    complexity = complexityByStep.confirme[step - 1];
+  } else if (expLevel === 'senior' && step > 0 && step <= 3) {
+    complexity = complexityByStep.senior[step - 1];
+  } else if (expLevel === 'expert' && step > 0 && step <= 3) {
+    complexity = complexityByStep.expert[step - 1];
+  }
   
   let promptByStep = '';
   
   switch (step) {
     case 1:
-      promptByStep = 'Cette première étape vise à évaluer les connaissances fondamentales en cybersécurité. Pose des questions qui permettent d\'évaluer la compréhension des concepts de base.';
+      promptByStep = `Cette première étape vise à évaluer les connaissances fondamentales en cybersécurité. Pose des questions adaptées au niveau ${experienceLevel} qui permettent d'évaluer la compréhension des concepts attendus pour ce niveau.`;
       break;
     case 2:
-      promptByStep = 'Cette deuxième étape vise à évaluer les compétences techniques et la capacité à résoudre des problèmes. Pose des questions plus spécifiques sur les méthodologies et les outils.';
+      promptByStep = `Cette deuxième étape vise à évaluer les compétences techniques et la capacité à résoudre des problèmes. Pose des questions plus spécifiques sur les méthodologies et les outils que devrait maîtriser un profil ${experienceLevel}.`;
       break;
     case 3:
-      promptByStep = 'Cette dernière étape vise à évaluer la capacité d\'analyse et de prise de décision. Présente une situation complexe qui nécessite une réflexion stratégique.';
+      promptByStep = `Cette dernière étape vise à évaluer la capacité d'analyse et de prise de décision. Présente une situation complexe appropriée pour un niveau ${experienceLevel} qui nécessite une réflexion stratégique.`;
       break;
     default:
-      promptByStep = 'Pose des questions adaptées au niveau du candidat pour évaluer ses compétences en cybersécurité.';
+      promptByStep = `Pose des questions adaptées au niveau ${experienceLevel} du candidat pour évaluer ses compétences en cybersécurité.`;
   }
   
   return `Tu es un interlocuteur client dans une simulation d'entretien pour un profil en cybersécurité.
@@ -521,7 +557,7 @@ INSTRUCTIONS:
 1. Analyse soigneusement la réponse précédente du candidat.
 2. Réagis de manière réaliste à cette réponse, en apportant des précisions ou des corrections si nécessaire.
 3. Continue le scénario en ajoutant de nouveaux éléments ou défis qui permettent d'évaluer les compétences du candidat.
-4. Pose une nouvelle question ou présente un nouveau problème qui augmente légèrement en complexité.
+4. Pose une nouvelle question ou présente un nouveau problème qui augmente légèrement en complexité, mais reste adapté au niveau ${experienceLevel}.
 5. Reste dans ton rôle de collaborateur de l'entreprise cliente, ne mentionne pas qu'il s'agit d'une simulation.
 6. Limite ta réponse à environ 200-250 mots.`;
 }
@@ -530,23 +566,59 @@ INSTRUCTIONS:
  * Génère le prompt pour une étape spécifique de la simulation AMOA
  */
 function generateAmoaStepPrompt(step: number, profileType: string, experienceLevel: string, sectorFocus: string): string {
-  // Adapter la difficulté en fonction de l'étape
-  const complexity = step === 1 ? 'basique' : step === 2 ? 'intermédiaire' : 'avancée';
+  // Adapter la difficulté en fonction de l'étape et du niveau d'expérience
+  let baseComplexity = 'intermédiaire';
+  switch (experienceLevel.toLowerCase()) {
+    case 'junior':
+      baseComplexity = 'basique';
+      break;
+    case 'confirmé':
+    case 'confirme':
+      baseComplexity = 'intermédiaire';
+      break;
+    case 'senior':
+    case 'expert':
+      baseComplexity = 'avancée';
+      break;
+  }
+  
+  // Augmenter progressivement la difficulté en fonction de l'étape
+  const complexityByStep = {
+    junior: ['basique', 'intermédiaire', 'intermédiaire'],
+    confirmé: ['intermédiaire', 'intermédiaire', 'avancée'],
+    confirme: ['intermédiaire', 'intermédiaire', 'avancée'],
+    senior: ['intermédiaire', 'avancée', 'avancée'],
+    expert: ['avancée', 'avancée', 'très avancée']
+  };
+  
+  // Déterminer la complexité finale
+  let complexity = baseComplexity;
+  const expLevel = experienceLevel.toLowerCase();
+  
+  if (expLevel === 'junior' && step > 0 && step <= 3) {
+    complexity = complexityByStep.junior[step - 1];
+  } else if ((expLevel === 'confirmé' || expLevel === 'confirme') && step > 0 && step <= 3) {
+    complexity = complexityByStep.confirme[step - 1];
+  } else if (expLevel === 'senior' && step > 0 && step <= 3) {
+    complexity = complexityByStep.senior[step - 1];
+  } else if (expLevel === 'expert' && step > 0 && step <= 3) {
+    complexity = complexityByStep.expert[step - 1];
+  }
   
   let promptByStep = '';
   
   switch (step) {
     case 1:
-      promptByStep = 'Cette première étape vise à évaluer les connaissances méthodologiques et la compréhension des enjeux projet. Pose des questions qui permettent d\'évaluer la compréhension du rôle AMOA.';
+      promptByStep = `Cette première étape vise à évaluer les connaissances méthodologiques et la compréhension des enjeux projet. Pose des questions adaptées au niveau ${experienceLevel} qui permettent d'évaluer la compréhension du rôle AMOA dans le secteur ${sectorFocus}.`;
       break;
     case 2:
-      promptByStep = 'Cette deuxième étape vise à évaluer les compétences en gestion des parties prenantes et en résolution de problèmes. Pose des questions sur la gestion des conflits ou des situations bloquantes.';
+      promptByStep = `Cette deuxième étape vise à évaluer les compétences en gestion des parties prenantes et en résolution de problèmes. Pose des questions sur la gestion des conflits ou des situations bloquantes adaptées à un niveau ${experienceLevel} dans le secteur ${sectorFocus}.`;
       break;
     case 3:
-      promptByStep = 'Cette dernière étape vise à évaluer la capacité d\'analyse et de conseil. Présente une situation complexe qui nécessite des recommandations stratégiques.';
+      promptByStep = `Cette dernière étape vise à évaluer la capacité d'analyse et de conseil. Présente une situation complexe appropriée pour un niveau ${experienceLevel} dans le secteur ${sectorFocus} qui nécessite des recommandations stratégiques.`;
       break;
     default:
-      promptByStep = 'Pose des questions adaptées au niveau du candidat pour évaluer ses compétences en AMOA.';
+      promptByStep = `Pose des questions adaptées au niveau ${experienceLevel} du candidat pour évaluer ses compétences en AMOA dans le secteur ${sectorFocus}.`;
   }
   
   return `Tu es un interlocuteur client dans une simulation d'entretien pour un profil AMOA.
@@ -564,7 +636,7 @@ INSTRUCTIONS:
 1. Analyse soigneusement la réponse précédente du candidat.
 2. Réagis de manière réaliste à cette réponse, en apportant des précisions ou des corrections si nécessaire.
 3. Continue le scénario en ajoutant de nouveaux éléments ou défis qui permettent d'évaluer les compétences du candidat.
-4. Pose une nouvelle question ou présente un nouveau problème qui augmente légèrement en complexité.
+4. Pose une nouvelle question ou présente un nouveau problème qui augmente légèrement en complexité, mais reste adapté au niveau ${experienceLevel}.
 5. Reste dans ton rôle de collaborateur de l'entreprise cliente, ne mentionne pas qu'il s'agit d'une simulation.
 6. Limite ta réponse à environ 200-250 mots.`;
 }
@@ -578,7 +650,7 @@ function generateCyberEvaluationPrompt(candidateName: string, profileType: strin
 Tu dois évaluer les réponses d'un candidat lors d'une simulation d'entretien:
 - Nom du candidat: ${candidateName}
 - Type de profil visé: ${profileType}
-- Niveau d'expérience: ${experienceLevel}
+- Niveau d'expérience déclaré: ${experienceLevel}
 
 INSTRUCTIONS:
 1. Analyse soigneusement toutes les réponses du candidat pendant la simulation.
@@ -587,29 +659,34 @@ INSTRUCTIONS:
 4. Fournis une évaluation pertinente adaptée au profil et niveau d'expérience.
 5. NE repète PAS les questions ou scénarios que tu as posés, concentre-toi uniquement sur l'analyse des réponses du candidat.
 6. Concentre-toi exclusivement sur les compétences du candidat démontrées dans ses réponses.
+7. IMPORTANT: Évalue si le niveau réel démontré par le candidat correspond bien au niveau d'expérience déclaré (${experienceLevel}).
 
 FORMAT DE RÉPONSE:
-Structure ton rapport d'évaluation comme suit:
+Structure ton rapport d'évaluation comme suit (sans utiliser de markdown):
 
-## Synthèse générale du candidat
+Synthèse générale du candidat
 [2-3 phrases résumant l'impression générale]
 
-## Points forts
+Points forts
 - [Point fort 1]
 - [Point fort 2]
 - [Point fort 3]
 
-## Axes d'amélioration
+Axes d'amélioration
 - [Axe d'amélioration 1]
 - [Axe d'amélioration 2]
 - [Axe d'amélioration 3]
 
-## Recommandation pour le recrutement
+Adéquation avec le niveau déclaré
+[Analyse si le niveau des réponses correspond au niveau ${experienceLevel} déclaré. Indique si le candidat semble sous-évalué, surévalué ou correctement auto-évalué]
+
+Recommandation pour le recrutement
 [Recommandation claire: Recruter / Envisager / Approfondir]
 
 IMPORTANT: 
 - Ton évaluation doit être constructive, pertinente et adaptée au niveau d'expérience demandé.
-- N'inclus PAS le contenu de tes propres messages ou du scénario, focalise-toi uniquement sur les RÉPONSES du candidat.`;
+- N'inclus PAS le contenu de tes propres messages ou du scénario, focalise-toi uniquement sur les RÉPONSES du candidat.
+- N'utilise PAS de markdown (pas de ## ou de *) dans ta réponse finale.`;
 }
 
 /**
@@ -621,7 +698,7 @@ function generateAmoaEvaluationPrompt(candidateName: string, profileType: string
 Tu dois évaluer les réponses d'un candidat lors d'une simulation d'entretien:
 - Nom du candidat: ${candidateName}
 - Type de profil visé: ${profileType}
-- Niveau d'expérience: ${experienceLevel}
+- Niveau d'expérience déclaré: ${experienceLevel}
 - Secteur d'activité: ${sectorFocus}
 
 INSTRUCTIONS:
@@ -631,27 +708,32 @@ INSTRUCTIONS:
 4. Fournis une évaluation pertinente adaptée au profil, niveau d'expérience et secteur.
 5. NE repète PAS les questions ou scénarios que tu as posés, concentre-toi uniquement sur l'analyse des réponses du candidat.
 6. Concentre-toi exclusivement sur les compétences du candidat démontrées dans ses réponses.
+7. IMPORTANT: Évalue si le niveau réel démontré par le candidat correspond bien au niveau d'expérience déclaré (${experienceLevel}).
 
 FORMAT DE RÉPONSE:
-Structure ton rapport d'évaluation comme suit:
+Structure ton rapport d'évaluation comme suit (sans utiliser de markdown):
 
-## Synthèse générale du candidat
+Synthèse générale du candidat
 [2-3 phrases résumant l'impression générale]
 
-## Points forts
+Points forts
 - [Point fort 1]
 - [Point fort 2]
 - [Point fort 3]
 
-## Axes d'amélioration
+Axes d'amélioration
 - [Axe d'amélioration 1]
 - [Axe d'amélioration 2]
 - [Axe d'amélioration 3]
 
-## Recommandation pour le recrutement
+Adéquation avec le niveau déclaré
+[Analyse si le niveau des réponses correspond au niveau ${experienceLevel} déclaré. Indique si le candidat semble sous-évalué, surévalué ou correctement auto-évalué]
+
+Recommandation pour le recrutement
 [Recommandation claire: Recruter / Envisager / Approfondir]
 
 IMPORTANT: 
 - Ton évaluation doit être constructive, pertinente et adaptée au niveau d'expérience demandé et au secteur ${sectorFocus}.
-- N'inclus PAS le contenu de tes propres messages ou du scénario, focalise-toi uniquement sur les RÉPONSES du candidat.`;
+- N'inclus PAS le contenu de tes propres messages ou du scénario, focalise-toi uniquement sur les RÉPONSES du candidat.
+- N'utilise PAS de markdown (pas de ## ou de *) dans ta réponse finale.`;
 }
