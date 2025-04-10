@@ -1,10 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { UserCircle, Send, Clock, CheckCircle, AlertCircle, FileCheck, ArrowLeft } from 'lucide-react';
+import OpenAIStatusIndicator from '@/components/OpenAIStatusIndicator';
 import { 
   Form, 
   FormControl, 
@@ -410,9 +411,18 @@ const AmoaInterviewSimulation: React.FC = () => {
             <h1 className="text-3xl font-bold">Simulation d'Entretien AMOA</h1>
           </div>
           
-          <p className="mb-8 text-blue-100">
-            Cette simulation vous permet d'évaluer les compétences des candidats aux postes d'assistance à maîtrise d'ouvrage à travers une conversation de 5 minutes avec un recruteur IA.
-          </p>
+          <div className="flex flex-wrap items-center justify-between mb-4">
+            <p className="text-blue-100 mb-2 md:mb-0 md:mr-4">
+              Cette simulation vous permet d'évaluer les compétences des candidats aux postes d'assistance à maîtrise d'ouvrage à travers une conversation de 5 minutes avec un recruteur IA.
+            </p>
+            
+            {/* Affichage de l'indicateur de statut OpenAI */}
+            <div className="flex items-center">
+              <Suspense fallback={<div>Chargement...</div>}>
+                <OpenAIStatusIndicator className="ml-auto" />
+              </Suspense>
+            </div>
+          </div>
           
           <Tabs 
             defaultValue="configuration" 
