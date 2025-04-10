@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useChatContext } from "@/contexts/ChatContext";
 import { motion } from "framer-motion";
+import Typewriter from "../components/Typewriter";
 import mcLogoPath from "@assets/mc2i.png";
 import PageTitle from "@/components/utils/PageTitle";
 
@@ -194,110 +195,27 @@ export default function Home() {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.8 }}
               >
-                {/* Animation séquentielle des slogans */}
-                <div className="relative h-14 overflow-hidden font-cyber-title font-bold tracking-wide text-white text-center">
-                  {/* L'animation est gérée par un contrôleur de séquence principale */}
+                {/* Typewriter animation optimisée */}
+                <div className="relative h-14 overflow-hidden font-cyber-title font-bold tracking-wide text-white text-center flex items-center justify-center">
                   <motion.div
+                    key="typewriter-container"
                     initial={{ opacity: 1 }}
-                    animate={{
-                      opacity: [1, 1, 1, 1, 1, 1]
-                    }}
-                    transition={{
-                      duration: 12,
-                      times: [0, 0.30, 0.40, 0.60, 0.95, 1],
-                      repeat: Infinity,
-                      repeatDelay: 0
-                    }}
-                    className="w-full h-full flex items-center justify-center"
+                    animate={{ opacity: 1 }}
+                    className="relative"
                   >
-                    {/* FYNE by mc2i qui apparaît en tapant */}
-                    <motion.div
-                      className="absolute"
-                      animate={{
-                        opacity: [1, 1, 1, 0, 0, 0],
-                        display: ["block", "block", "block", "none", "none", "none"]
-                      }}
-                      transition={{
-                        duration: 12,
-                        times: [0, 0.35, 0.4, 0.45, 0.5, 1],
-                        repeat: Infinity
-                      }}
-                    >
-                      <motion.span
-                        className="inline-block overflow-hidden whitespace-nowrap text-4xl"
-                        animate={{
-                          width: ["0ch", "9ch", "9ch", "0ch"]
-                        }}
-                        transition={{
-                          duration: 5,
-                          times: [0, 0.3, 0.7, 1],
-                          repeat: Infinity,
-                          repeatDelay: 7
-                        }}
-                      >
-                        FYNE <span className="text-xl font-normal opacity-90">by mc2i</span>
-                      </motion.span>
-                      
-                      {/* Curseur clignotant pour FYNE by mc2i */}
-                      <motion.span
-                        className="inline-block w-[3px] h-8 bg-white align-text-top ml-0.5"
-                        animate={{ 
-                          opacity: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0]
-                        }}
-                        transition={{
-                          duration: 5,
-                          times: [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.9, 1],
-                          repeat: Infinity,
-                          repeatDelay: 7
-                        }}
-                      />
-                    </motion.div>
-                    
-                    {/* For Your Next Experience qui apparaît en tapant */}
-                    <motion.div
-                      className="absolute"
-                      animate={{
-                        opacity: [0, 0, 0, 1, 1, 0],
-                        display: ["none", "none", "none", "block", "block", "none"]
-                      }}
-                      transition={{
-                        duration: 12,
-                        times: [0, 0.45, 0.5, 0.55, 0.9, 1],
-                        repeat: Infinity
-                      }}
-                    >
-                      <motion.span
-                        className="inline-block overflow-hidden whitespace-nowrap text-2xl"
-                        animate={{
-                          width: ["0ch", "24ch", "24ch", "0ch"]
-                        }}
-                        transition={{
-                          duration: 5.5,
-                          times: [0, 0.35, 0.75, 1],
-                          repeat: Infinity,
-                          repeatDelay: 6.5
-                        }}
-                      >
-                        <span className="text-cyan-300">F</span>or 
-                        <span className="text-cyan-300"> Y</span>our 
-                        <span className="text-cyan-300"> N</span>ext 
-                        <span className="text-cyan-300"> E</span>xperience
-                      </motion.span>
-                      
-                      {/* Curseur clignotant pour For Your Next Experience */}
-                      <motion.span
-                        className="inline-block w-[3px] h-7 bg-white align-text-top ml-0.5"
-                        animate={{ 
-                          opacity: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0]
-                        }}
-                        transition={{
-                          duration: 5.5,
-                          times: [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.9, 1],
-                          repeat: Infinity,
-                          repeatDelay: 6.5
-                        }}
-                      />
-                    </motion.div>
+                    {/* Animation d'écriture automatique avec curseur */}
+                    <Typewriter 
+                      texts={[
+                        'FYNE by mc2i',
+                        'For Your Next Experience'
+                      ]}
+                      delayBetweenTexts={1000}
+                      typingSpeed={80}
+                      deletingSpeed={50}
+                      delayAfterTyping={2000}
+                      delayBeforeDeleting={1000}
+                      highlightFYNE={true}
+                    />
                   </motion.div>
                 </div>
                 
