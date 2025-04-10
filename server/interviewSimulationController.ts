@@ -389,11 +389,23 @@ Sujet: Évaluation de simulation d'entretien - ${candidateName}
             html: emailHtml,
           };
           
+          console.log('Envoi d\'email via SendGrid avec configuration:');
+          console.log('- Destinataire:', recruiterEmail);
+          console.log('- Expéditeur:', 'eddy.missoni@mc2i.fr');
+          console.log('- Clé API SendGrid disponible:', !!sendgridApiKey);
+          
           await sgMail.send(msg);
           console.log('Email envoyé avec SendGrid à', recruiterEmail);
-        } catch (sendgridError) {
-          console.error('Erreur lors de l\'envoi avec SendGrid:', sendgridError);
+        } catch (sendgridError: any) {
+          console.error('Erreur lors de l\'envoi avec SendGrid:', sendgridError.code);
+          
+          // Afficher plus d'informations sur l'erreur
+          if (sendgridError.response && sendgridError.response.body && sendgridError.response.body.errors) {
+            console.error('Détail des erreurs SendGrid:', JSON.stringify(sendgridError.response.body.errors));
+          }
+          
           // Fallback vers Ethereal pour les tests si SendGrid échoue
+          console.log('Fallback vers Ethereal...');
           await testSendMail(recruiterEmail, candidateName, emailHtml);
         }
       } else {
@@ -573,6 +585,8 @@ INSTRUCTIONS:
 2. Évalue les compétences techniques et comportementales manifestées pendant l'entretien.
 3. Sois bienveillant, même si la simulation a été courte ou interrompue.
 4. Fournis une évaluation pertinente adaptée au profil et niveau d'expérience.
+5. NE repète PAS les questions ou scénarios que tu as posés, concentre-toi uniquement sur l'analyse des réponses du candidat.
+6. Concentre-toi exclusivement sur les compétences du candidat démontrées dans ses réponses.
 
 FORMAT DE RÉPONSE:
 Structure ton rapport d'évaluation comme suit:
@@ -593,7 +607,9 @@ Structure ton rapport d'évaluation comme suit:
 ## Recommandation pour le recrutement
 [Recommandation claire: Recruter / Envisager / Approfondir]
 
-IMPORTANT: Ton évaluation doit être constructive, pertinente et adaptée au niveau d'expérience demandé.`;
+IMPORTANT: 
+- Ton évaluation doit être constructive, pertinente et adaptée au niveau d'expérience demandé.
+- N'inclus PAS le contenu de tes propres messages ou du scénario, focalise-toi uniquement sur les RÉPONSES du candidat.`;
 }
 
 /**
@@ -613,6 +629,8 @@ INSTRUCTIONS:
 2. Évalue les compétences techniques et comportementales manifestées pendant l'entretien.
 3. Sois bienveillant, même si la simulation a été courte ou interrompue.
 4. Fournis une évaluation pertinente adaptée au profil, niveau d'expérience et secteur.
+5. NE repète PAS les questions ou scénarios que tu as posés, concentre-toi uniquement sur l'analyse des réponses du candidat.
+6. Concentre-toi exclusivement sur les compétences du candidat démontrées dans ses réponses.
 
 FORMAT DE RÉPONSE:
 Structure ton rapport d'évaluation comme suit:
@@ -633,5 +651,7 @@ Structure ton rapport d'évaluation comme suit:
 ## Recommandation pour le recrutement
 [Recommandation claire: Recruter / Envisager / Approfondir]
 
-IMPORTANT: Ton évaluation doit être constructive, pertinente et adaptée au niveau d'expérience demandé et au secteur ${sectorFocus}.`;
+IMPORTANT: 
+- Ton évaluation doit être constructive, pertinente et adaptée au niveau d'expérience demandé et au secteur ${sectorFocus}.
+- N'inclus PAS le contenu de tes propres messages ou du scénario, focalise-toi uniquement sur les RÉPONSES du candidat.`;
 }
