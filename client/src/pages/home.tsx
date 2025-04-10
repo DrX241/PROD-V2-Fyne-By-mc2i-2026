@@ -194,49 +194,122 @@ export default function Home() {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.8 }}
               >
-                {/* Animation améliorée de FYNE by mc2i qui se transforme en slogan */}
+                {/* Animation de "FYNE by mc2i" qui s'écrit puis s'efface, suivi du slogan qui s'écrit */}
                 <div className="relative h-14 overflow-hidden">
-                  {/* Première étape: "FYNE by mc2i" qui apparaît en fondu */}
-                  <motion.div
-                    className="absolute inset-0 w-full text-center"
-                    initial={{ opacity: 0 }}
-                    animate={{ 
-                      opacity: [0, 1, 1, 0.7, 0.4, 0],
-                      y: [5, 0, 0, -5],
-                    }}
-                    transition={{ 
-                      duration: 6, 
-                      times: [0, 0.2, 0.5, 0.6, 0.7, 0.8],
-                      repeat: Infinity,
-                      repeatDelay: 8
-                    }}
-                  >
-                    <span className="text-4xl font-bold tracking-wide text-white font-cyber-title inline-block">
-                      FYNE <span className="text-xl font-normal opacity-90">by mc2i</span>
-                    </span>
-                  </motion.div>
+                  {/* Animation d'écriture de "FYNE by mc2i" */}
+                  <div className="absolute inset-0 w-full text-center flex justify-center">
+                    <div className="relative font-cyber-title font-bold tracking-wide text-white">
+                      {/* FYNE by mc2i avec effet de frappe et curseur clignotant */}
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <motion.span 
+                          className="text-4xl text-white inline-block"
+                          initial={{ width: "0%" }}
+                          animate={{
+                            width: ["0%", "100%", "100%", "0%"]
+                          }}
+                          transition={{
+                            duration: 10,
+                            times: [0, 0.3, 0.6, 0.9],
+                            repeat: Infinity,
+                            repeatDelay: 4,
+                          }}
+                        >
+                          <motion.span 
+                            className="inline-block whitespace-nowrap overflow-hidden"
+                            animate={{
+                              width: ["0ch", "9ch", "9ch", "0ch"]
+                            }}
+                            transition={{
+                              duration: 10,
+                              times: [0, 0.3, 0.6, 0.9],
+                              repeat: Infinity,
+                              repeatDelay: 4,
+                            }}
+                          >
+                            FYNE <span className="text-xl font-normal opacity-90">by mc2i</span>
+                          </motion.span>
+                        </motion.span>
+                        {/* Cursor animation */}
+                        <motion.span
+                          className="inline-block w-[3px] h-8 bg-white"
+                          initial={{ opacity: 1 }}
+                          animate={{ 
+                            opacity: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1]
+                          }}
+                          transition={{
+                            duration: 10,
+                            times: [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9],
+                            repeat: Infinity,
+                            repeatDelay: 4,
+                          }}
+                        />
+                      </motion.div>
+                    </div>
+                  </div>
                   
-                  {/* "For Your Next Experience" qui apparaît en fondu */}
-                  <motion.div
-                    className="absolute inset-0 w-full text-center opacity-0"
-                    animate={{ 
-                      opacity: [0, 0, 0, 0.4, 0.8, 1, 1, 0.7, 0],
-                      y: [5, 5, 5, 0, 0, 0, 0, -5, -10],
-                    }}
-                    transition={{ 
-                      duration: 10, 
-                      times: [0, 0.3, 0.4, 0.5, 0.55, 0.6, 0.75, 0.85, 0.95],
-                      repeat: Infinity,
-                      repeatDelay: 4
-                    }}
-                  >
-                    <span className="text-2xl font-bold tracking-wide text-white font-cyber-title inline-block">
-                      <span className="text-cyan-300">F</span>or 
-                      <span className="text-cyan-300"> Y</span>our 
-                      <span className="text-cyan-300"> N</span>ext 
-                      <span className="text-cyan-300"> E</span>xperience
-                    </span>
-                  </motion.div>
+                  {/* Animation d'écriture de "For Your Next Experience" */}
+                  <div className="absolute inset-0 w-full text-center flex justify-center">
+                    <div className="relative font-cyber-title font-bold tracking-wide text-white">
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: [0, 0, 0, 1, 1, 0] }}
+                        transition={{ 
+                          duration: 10, 
+                          times: [0, 0.55, 0.6, 0.65, 0.9, 0.95],
+                          repeat: Infinity,
+                          repeatDelay: 4
+                        }}
+                      >
+                        <motion.span 
+                          className="text-2xl text-white inline-block"
+                          initial={{ width: "0%" }}
+                          animate={{
+                            width: ["0%", "100%"]
+                          }}
+                          transition={{
+                            duration: 3.5,
+                            times: [0, 1],
+                            repeat: Infinity,
+                            repeatDelay: 10.5,
+                          }}
+                        >
+                          <motion.span 
+                            className="inline-block whitespace-nowrap overflow-hidden"
+                            animate={{
+                              width: ["0ch", "22ch"]
+                            }}
+                            transition={{
+                              duration: 3.5,
+                              times: [0, 1],
+                              repeat: Infinity,
+                              repeatDelay: 10.5,
+                            }}
+                          >
+                            <span className="text-cyan-300">F</span>or 
+                            <span className="text-cyan-300"> Y</span>our 
+                            <span className="text-cyan-300"> N</span>ext 
+                            <span className="text-cyan-300"> E</span>xperience
+                          </motion.span>
+                        </motion.span>
+                        {/* Cursor animation */}
+                        <motion.span
+                          className="inline-block w-[3px] h-8 bg-white"
+                          animate={{ 
+                            opacity: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1]
+                          }}
+                          transition={{
+                            duration: 3.5,
+                            repeat: Infinity,
+                            repeatDelay: 10.5,
+                          }}
+                        />
+                      </motion.div>
+                    </div>
+                  </div>
                 </div>
                 
                 {/* Ligne décorative en dessous */}
