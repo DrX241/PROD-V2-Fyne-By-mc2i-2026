@@ -187,24 +187,15 @@ export default function Home() {
                 Propulsé par l'intelligence artificielle avancée
               </div>
               
-              <motion.h1 
-                className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-3 font-cyber-title tracking-wide"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7 }}
-              >
-                Améliorez votre 
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400"> expertise professionnelle</span> avec FYNE
-              </motion.h1>
-
+              {/* Animation du slogan FYNE placée avant le titre principal */}
               <motion.div
-                className="mb-5 relative"
+                className="mb-6 relative"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
+                transition={{ duration: 0.8 }}
               >
                 {/* Animation manuscrite de FYNE qui se transforme en slogan */}
-                <div className="relative h-8 overflow-hidden">
+                <div className="relative h-14 overflow-hidden">
                   {/* "FYNE" qui s'écrit puis s'efface */}
                   <motion.div
                     className="absolute inset-0 w-full text-center"
@@ -219,7 +210,7 @@ export default function Home() {
                       repeatDelay: 10
                     }}
                   >
-                    <span className="text-xl font-semibold tracking-wider text-blue-200 font-cyber-accent inline-block">
+                    <span className="text-3xl font-bold tracking-wider text-blue-100 font-cyber-accent inline-block">
                       FYNE
                     </span>
                   </motion.div>
@@ -238,25 +229,35 @@ export default function Home() {
                       repeatDelay: 6
                     }}
                   >
-                    <span className="text-lg italic tracking-wider text-blue-200 font-cyber-accent inline-block">
-                      <span className="text-blue-300 font-medium">F</span>or 
-                      <span className="text-blue-300 font-medium"> Y</span>our 
-                      <span className="text-blue-300 font-medium"> N</span>ext 
-                      <span className="text-blue-300 font-medium"> E</span>xperience
+                    <span className="text-xl italic tracking-wider text-blue-200 font-cyber-accent inline-block">
+                      <span className="text-2xl text-cyan-300 font-bold">F</span>or 
+                      <span className="text-2xl text-cyan-300 font-bold"> Y</span>our 
+                      <span className="text-2xl text-cyan-300 font-bold"> N</span>ext 
+                      <span className="text-2xl text-cyan-300 font-bold"> E</span>xperience
                     </span>
                   </motion.div>
                 </div>
                 
                 {/* Ligne décorative en dessous */}
                 <motion.div 
-                  className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-48 h-[1px]"
+                  className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-64 h-[2px]"
                   initial={{ width: 0, opacity: 0 }}
-                  animate={{ width: 180, opacity: 1 }}
+                  animate={{ width: 250, opacity: 1 }}
                   transition={{ duration: 1, delay: 0.5 }}
                 >
-                  <div className="w-full h-full bg-gradient-to-r from-transparent via-blue-400/60 to-transparent"></div>
+                  <div className="w-full h-full bg-gradient-to-r from-transparent via-cyan-400 to-transparent"></div>
                 </motion.div>
               </motion.div>
+
+              <motion.h1 
+                className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-3 font-cyber-title tracking-wide"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7 }}
+              >
+                Améliorez votre 
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400"> expertise professionnelle</span> avec FYNE
+              </motion.h1>
               
               <motion.p 
                 className="text-xl text-blue-100 mb-8 max-w-xl font-cyber-body tracking-wide leading-relaxed"
@@ -277,88 +278,176 @@ export default function Home() {
               </motion.div>
             </div>
             
-            {/* Illustration héro - Concept d'apprentissage interactif et formation professionnelle */}
+            {/* Illustration héro - Concept d'IA et d'apprentissage avancé */}
             <motion.div 
               className="relative aspect-square max-w-lg mx-auto lg:mx-0"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8 }}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-indigo-700/30 rounded-3xl overflow-hidden backdrop-blur-sm border border-white/10">
-                {/* Fond avec effet de code et réseaux */}
-                <div className="absolute inset-0 opacity-10">
-                  <div className="absolute top-0 left-0 w-full h-full grid grid-cols-8 grid-rows-8">
-                    {Array.from({ length: 64 }).map((_, i) => (
-                      <div key={i} className="border-r border-t border-blue-300/20"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-indigo-700/30 rounded-3xl overflow-hidden backdrop-blur-sm border border-white/10 flex items-center justify-center">
+                {/* Fond avec effet de code et connexions neuronales */}
+                <div className="absolute inset-0 opacity-20">
+                  {/* Simulation de code binaire pour évoquer l'IA */}
+                  <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
+                    {Array.from({ length: 10 }).map((_, i) => (
+                      <motion.div 
+                        key={i}
+                        className="absolute text-[8px] text-blue-300 font-mono whitespace-nowrap"
+                        style={{ 
+                          top: `${Math.random() * 100}%`, 
+                          left: `${Math.random() * 100}%`,
+                        }}
+                        animate={{ 
+                          opacity: [0.3, 0.7, 0.3],
+                          x: [0, Math.random() * 20 - 10]
+                        }}
+                        transition={{ 
+                          duration: 3 + Math.random() * 2,
+                          repeat: Infinity,
+                          ease: "linear" 
+                        }}
+                      >
+                        {Array.from({ length: 30 }).map(() => Math.round(Math.random())).join('')}
+                      </motion.div>
                     ))}
                   </div>
                 </div>
                 
-                {/* Éléments de concept de formation */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  {/* Cercle central représentant le savoir */}
-                  <div className="relative z-10">
-                    {/* Orbites autour du noyau représentant les différents modules */}
+                {/* Illustration principale: Cerveau + Réseau neuronal + Apprentissage */}
+                <div className="relative z-10 w-full h-full flex items-center justify-center">
+                  <div className="relative">
+                    {/* Cerveau représentant l'IA - stylisé */}
                     <motion.div 
-                      className="absolute h-full w-full"
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    >
-                      <div className="absolute -left-8 top-1/2 transform -translate-y-1/2 w-4 h-4 rounded-full bg-blue-500/80" />
-                    </motion.div>
-                    
-                    <motion.div 
-                      className="absolute h-full w-full"
-                      animate={{ rotate: -360 }}
-                      transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                    >
-                      <div className="absolute right-0 top-0 w-5 h-5 rounded-full bg-purple-500/80" />
-                    </motion.div>
-                    
-                    <motion.div 
-                      className="absolute h-full w-full"
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                    >
-                      <div className="absolute bottom-0 right-4 w-6 h-6 rounded-full bg-emerald-400/80" />
-                    </motion.div>
-                    
-                    {/* Cercle extérieur représentant l'écosystème d'apprentissage */}
-                    <motion.div 
-                      className="absolute -inset-8 border-2 border-blue-300/30 rounded-full"
-                      animate={{ boxShadow: ['0 0 15px rgba(59, 130, 246, 0.3)', '0 0 25px rgba(59, 130, 246, 0.5)', '0 0 15px rgba(59, 130, 246, 0.3)'] }}
+                      className="relative w-64 h-64"
+                      animate={{ scale: [1, 1.03, 1] }}
                       transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                    />
-                    
-                    {/* Cercle principal */}
-                    <div className="relative w-36 h-36 lg:w-48 lg:h-48 bg-gradient-to-br from-blue-600/40 to-indigo-600/60 rounded-full flex items-center justify-center backdrop-blur-sm">
-                      <motion.div
-                        className="absolute inset-0 rounded-full"
-                        animate={{ 
-                          boxShadow: ['0 0 0px rgba(255, 255, 255, 0.8)', '0 0 30px rgba(255, 255, 255, 0.3)', '0 0 0px rgba(255, 255, 255, 0.8)'] 
-                        }}
-                        transition={{ duration: 3, repeat: Infinity }}
+                    >
+                      {/* Forme de cerveau stylisée */}
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-40 bg-gradient-to-br from-cyan-500/40 to-indigo-500/60 rounded-[100px_100px_70px_70px] shadow-lg">
+                        <motion.div
+                          className="absolute inset-0 rounded-[100px_100px_70px_70px]"
+                          animate={{ 
+                            boxShadow: ['0 0 20px rgba(6, 182, 212, 0.3)', '0 0 40px rgba(6, 182, 212, 0.5)', '0 0 20px rgba(6, 182, 212, 0.3)'] 
+                          }}
+                          transition={{ duration: 3, repeat: Infinity }}
+                        />
+                      </div>
+                      
+                      {/* Lobes du cerveau */}
+                      <motion.div 
+                        className="absolute top-[30%] left-[28%] w-20 h-16 bg-gradient-to-r from-indigo-500/60 to-indigo-600/70 rounded-full"
+                        animate={{ scale: [1, 1.05, 1] }}
+                        transition={{ duration: 2, delay: 0.5, repeat: Infinity }}
+                      />
+                      <motion.div 
+                        className="absolute top-[30%] right-[28%] w-20 h-16 bg-gradient-to-l from-indigo-500/60 to-indigo-600/70 rounded-full"
+                        animate={{ scale: [1, 1.05, 1] }}
+                        transition={{ duration: 2, delay: 0.7, repeat: Infinity }}
                       />
                       
-                      {/* Icônes de concepts alternantes */}
-                      <div className="relative h-20 w-20 overflow-hidden">
-                        <motion.div 
-                          className="absolute inset-0 flex items-center justify-center"
-                          animate={{ opacity: [1, 0] }}
-                          transition={{ duration: 4, repeat: Infinity, repeatType: 'reverse' }}
+                      {/* Connexions neuronales */}
+                      {Array.from({ length: 15 }).map((_, i) => {
+                        const startX = 50 + (Math.random() * 100 - 50);
+                        const startY = 50 + (Math.random() * 100 - 50);
+                        const endX = 50 + (Math.random() * 100 - 50);
+                        const endY = 50 + (Math.random() * 100 - 50);
+                        
+                        return (
+                          <motion.div
+                            key={i}
+                            className="absolute bg-cyan-400/60 h-[1px] origin-left"
+                            style={{ 
+                              top: `${startY}%`, 
+                              left: `${startX}%`,
+                              width: `${Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2))}px`,
+                              transform: `rotate(${Math.atan2(endY - startY, endX - startX) * 180 / Math.PI}deg)`
+                            }}
+                            animate={{ opacity: [0.3, 0.8, 0.3] }}
+                            transition={{ 
+                              duration: 2 + Math.random() * 2, 
+                              repeat: Infinity,
+                              repeatType: 'reverse'
+                            }}
+                          >
+                            <motion.div 
+                              className="absolute right-0 w-1 h-1 rounded-full bg-cyan-300"
+                              animate={{ scale: [1, 1.5, 1] }}
+                              transition={{ duration: 1, repeat: Infinity }}
+                            />
+                          </motion.div>
+                        );
+                      })}
+                      
+                      {/* Symboles de l'apprentissage et de l'évolution */}
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                        <motion.div
+                          className="relative"
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
                         >
-                          <BrainCircuit className="w-16 h-16 text-blue-100" />
+                          <div className="absolute w-40 h-40 rounded-full border-2 border-dashed border-blue-400/30" />
                         </motion.div>
                         
-                        <motion.div 
-                          className="absolute inset-0 flex items-center justify-center"
-                          animate={{ opacity: [0, 1] }}
-                          transition={{ duration: 4, repeat: Infinity, repeatType: 'reverse' }}
+                        <motion.div
+                          className="relative"
+                          animate={{ rotate: -360 }}
+                          transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
                         >
-                          <Laptop className="w-16 h-16 text-blue-100" />
+                          <div className="absolute w-48 h-48 rounded-full border-2 border-dashed border-emerald-400/30" />
+                        </motion.div>
+                        
+                        {/* Centre actif - "Cerveau de l'IA" */}
+                        <motion.div 
+                          className="relative flex items-center justify-center w-20 h-20"
+                          animate={{ scale: [1, 1.1, 1] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                        >
+                          <div className="absolute w-full h-full rounded-full bg-gradient-to-br from-cyan-500/90 to-blue-700/90" />
+                          <BrainCircuit className="w-10 h-10 text-white relative z-10" />
                         </motion.div>
                       </div>
-                    </div>
+                      
+                      {/* "Modules" de connaissance */}
+                      {[
+                        { icon: <ShieldCheck className="w-8 h-8 text-white" />, color: "bg-blue-500", delay: 0 },
+                        { icon: <Database className="w-8 h-8 text-white" />, color: "bg-purple-500", delay: 0.5 },
+                        { icon: <ListChecks className="w-8 h-8 text-white" />, color: "bg-emerald-500", delay: 1 },
+                        { icon: <BookOpen className="w-8 h-8 text-white" />, color: "bg-amber-500", delay: 1.5 }
+                      ].map((item, index) => {
+                        const angle = (index * Math.PI / 2) + (Math.PI / 4);
+                        const x = Math.cos(angle) * 100;
+                        const y = Math.sin(angle) * 100;
+                        
+                        return (
+                          <motion.div
+                            key={index}
+                            className={`absolute flex items-center justify-center w-14 h-14 rounded-xl ${item.color} shadow-lg`}
+                            style={{ 
+                              top: `calc(50% + ${y}px)`, 
+                              left: `calc(50% + ${x}px)`,
+                              transform: "translate(-50%, -50%)" 
+                            }}
+                            animate={{ 
+                              y: [0, -10, 0],
+                              boxShadow: [
+                                '0 5px 10px rgba(0,0,0,0.2)', 
+                                '0 15px 15px rgba(0,0,0,0.3)', 
+                                '0 5px 10px rgba(0,0,0,0.2)'
+                              ]
+                            }}
+                            transition={{ 
+                              duration: 3, 
+                              delay: item.delay,
+                              repeat: Infinity,
+                              repeatType: 'reverse'
+                            }}
+                          >
+                            {item.icon}
+                          </motion.div>
+                        );
+                      })}
+                    </motion.div>
                   </div>
                 </div>
               </div>
