@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useChatContext } from "@/contexts/ChatContext";
 import { motion } from "framer-motion";
 import mcLogoPath from "@assets/mc2i.png";
+import PageTitle from "@/components/utils/PageTitle";
 
 // Carte de module avec animation
 const ModuleCard = ({ 
@@ -173,6 +174,7 @@ export default function Home() {
   
   return (
     <HomeLayout>
+      <PageTitle title="Accueil" />
       {/* Hero Section */}
       <div className="relative bg-gradient-to-br from-gray-900 via-indigo-900 to-blue-900 overflow-hidden">
         
@@ -186,7 +188,7 @@ export default function Home() {
               </div>
               
               <motion.h1 
-                className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6 font-cyber-title tracking-wide"
+                className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-3 font-cyber-title tracking-wide"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7 }}
@@ -194,12 +196,28 @@ export default function Home() {
                 Améliorez votre 
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400"> expertise professionnelle</span> avec FYNE
               </motion.h1>
+
+              <motion.div
+                className="mb-4 relative"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.15 }}
+              >
+                <div className="inline-flex items-center">
+                  <div className="h-[1px] w-8 bg-blue-400/70 mr-3"></div>
+                  <span className="text-lg font-light italic tracking-wider text-blue-200 font-cyber-accent">
+                    For Your Next Experience
+                  </span>
+                  <div className="h-[1px] w-8 bg-blue-400/70 ml-3"></div>
+                </div>
+                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-24 h-[1px] bg-gradient-to-r from-transparent via-blue-400/40 to-transparent"></div>
+              </motion.div>
               
               <motion.p 
                 className="text-xl text-blue-100 mb-8 max-w-xl font-cyber-body tracking-wide leading-relaxed"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.2 }}
+                transition={{ duration: 0.7, delay: 0.3 }}
               >
                 Découvrez une nouvelle dimension d'apprentissage interactif grâce à nos modules IA innovants qui s'adaptent parfaitement à votre progression.
               </motion.p>
@@ -387,9 +405,12 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
             {/* Logo et description */}
             <div className="col-span-1 md:col-span-1">
-              <div className="flex items-center mb-4">
+              <div className="flex items-center mb-2">
                 <BrainCircuit className="h-8 w-8 text-blue-400 mr-2" />
                 <span className="text-xl font-bold font-cyber-title tracking-wide">FYNE</span>
+              </div>
+              <div className="mb-3 text-blue-400/80 italic text-sm font-cyber-accent tracking-wide">
+                For Your Next Experience
               </div>
               <p className="text-gray-400 mb-4 font-cyber-body">
                 Une plateforme d'apprentissage nouvelle génération alimentée par l'intelligence artificielle avancée
