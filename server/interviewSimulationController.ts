@@ -383,7 +383,7 @@ Sujet: Évaluation de simulation d'entretien - ${candidateName}
             to: recruiterEmail,
             from: {
               name: 'I AM CYBER - Recrutement',
-              email: 'simulation@example.com' // Adresse exemple à remplacer par une adresse vérifiée dans votre compte SendGrid
+              email: 'eddy.missoni@mc2i.fr' // Adresse vérifiée dans SendGrid
             },
             subject: `Évaluation de simulation d'entretien - ${candidateName}`,
             html: emailHtml,
