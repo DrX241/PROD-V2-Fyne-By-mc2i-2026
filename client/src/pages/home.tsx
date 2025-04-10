@@ -211,53 +211,30 @@ export default function Home() {
                       repeatDelay: 8
                     }}
                   >
-                    <span className="text-3xl font-bold tracking-wider text-blue-100 font-cyber-accent inline-block">
-                      FYNE <span className="text-lg font-normal text-blue-200 opacity-80">by mc2i</span>
+                    <span className="text-4xl font-bold tracking-wide text-white font-cyber-title inline-block">
+                      FYNE <span className="text-xl font-normal opacity-90">by mc2i</span>
                     </span>
                   </motion.div>
                   
-                  {/* Deuxième étape: Les lettres FYNE restent visibles pendant que "by mc2i" s'efface */}
+                  {/* "For Your Next Experience" qui apparaît en fondu */}
                   <motion.div
                     className="absolute inset-0 w-full text-center opacity-0"
                     animate={{ 
-                      opacity: [0, 0, 0, 0.6, 1, 1, 0.6, 0],
-                      y: [0, 0, 0, -3, -6, -6, -9, -12],
-                    }}
-                    transition={{ 
-                      duration: 8, 
-                      times: [0, 0.3, 0.4, 0.45, 0.5, 0.7, 0.8, 0.9],
-                      repeat: Infinity,
-                      repeatDelay: 6
-                    }}
-                  >
-                    {/* L'acronyme FYNE qui reste visible */}
-                    <span className="text-3xl font-bold tracking-wider text-blue-100 font-cyber-accent inline-block">
-                      <span className="text-cyan-300">F</span>
-                      <span className="text-cyan-300">Y</span>
-                      <span className="text-cyan-300">N</span>
-                      <span className="text-cyan-300">E</span>
-                    </span>
-                  </motion.div>
-                  
-                  {/* Troisième étape: "For Your Next Experience" qui apparaît en fondu */}
-                  <motion.div
-                    className="absolute inset-0 w-full text-center opacity-0"
-                    animate={{ 
-                      opacity: [0, 0, 0, 0, 0.4, 0.8, 1, 1, 0.7, 0],
-                      y: [5, 5, 5, 5, 0, 0, 0, 0, -5, -10],
+                      opacity: [0, 0, 0, 0.4, 0.8, 1, 1, 0.7, 0],
+                      y: [5, 5, 5, 0, 0, 0, 0, -5, -10],
                     }}
                     transition={{ 
                       duration: 10, 
-                      times: [0, 0.3, 0.4, 0.45, 0.5, 0.55, 0.6, 0.75, 0.85, 0.95],
+                      times: [0, 0.3, 0.4, 0.5, 0.55, 0.6, 0.75, 0.85, 0.95],
                       repeat: Infinity,
                       repeatDelay: 4
                     }}
                   >
-                    <span className="text-xl italic tracking-wider text-blue-200 font-cyber-accent inline-block">
-                      <span className="text-2xl text-cyan-300 font-bold">F</span>or 
-                      <span className="text-2xl text-cyan-300 font-bold"> Y</span>our 
-                      <span className="text-2xl text-cyan-300 font-bold"> N</span>ext 
-                      <span className="text-2xl text-cyan-300 font-bold"> E</span>xperience
+                    <span className="text-2xl font-bold tracking-wide text-white font-cyber-title inline-block">
+                      <span className="text-cyan-300">F</span>or 
+                      <span className="text-cyan-300"> Y</span>our 
+                      <span className="text-cyan-300"> N</span>ext 
+                      <span className="text-cyan-300"> E</span>xperience
                     </span>
                   </motion.div>
                 </div>
@@ -527,9 +504,9 @@ export default function Home() {
                           <div className="absolute w-60 h-60 rounded-full border border-emerald-400/10 border-dashed" />
                         </motion.div>
                         
-                        {/* Centre actif pulsant - "Cerveau de l'IA" */}
+                        {/* Centre actif - Nom de la plateforme */}
                         <motion.div 
-                          className="relative flex items-center justify-center w-20 h-20"
+                          className="relative flex items-center justify-center w-24 h-24"
                           animate={{ 
                             scale: [1, 1.05, 1.1, 1.05, 1],
                             boxShadow: [
@@ -544,28 +521,31 @@ export default function Home() {
                         >
                           <div className="absolute w-full h-full rounded-full bg-gradient-to-br from-cyan-500/90 via-blue-600/90 to-blue-700/90" />
                           
-                          {/* Icône avec rotation lente */}
+                          {/* Texte FYNE au centre */}
                           <motion.div
-                            animate={{ rotate: [0, 5, 0, -5, 0] }}
+                            className="text-center"
+                            animate={{ scale: [1, 1.1, 1] }}
                             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
                           >
-                            <BrainCircuit className="w-10 h-10 text-white relative z-10" />
+                            <span className="text-white text-xl font-bold font-cyber-title tracking-wide relative z-10">
+                              FYNE
+                            </span>
                           </motion.div>
                         </motion.div>
                       </div>
                       
-                      {/* "Modules" de connaissance avec orbites et mouvement fluide */}
+                      {/* Modules avec noms descriptifs qui gravitent */}
                       {[
-                        { icon: <ShieldCheck className="w-8 h-8 text-white" />, color: "bg-gradient-to-br from-blue-500/90 to-blue-600/90", delay: 0 },
-                        { icon: <Database className="w-8 h-8 text-white" />, color: "bg-gradient-to-br from-purple-500/90 to-purple-600/90", delay: 1 },
-                        { icon: <ListChecks className="w-8 h-8 text-white" />, color: "bg-gradient-to-br from-emerald-500/90 to-emerald-600/90", delay: 2 },
-                        { icon: <BookOpen className="w-8 h-8 text-white" />, color: "bg-gradient-to-br from-amber-500/90 to-amber-600/90", delay: 3 }
+                        { text: "CYBER", color: "bg-gradient-to-br from-blue-500/90 to-blue-600/90", delay: 0 },
+                        { text: "DATA", color: "bg-gradient-to-br from-purple-500/90 to-purple-600/90", delay: 1 },
+                        { text: "AMOA", color: "bg-gradient-to-br from-emerald-500/90 to-emerald-600/90", delay: 2 },
+                        { text: "ARCADE", color: "bg-gradient-to-br from-amber-500/90 to-amber-600/90", delay: 3 }
                       ].map((item, index) => {
                         // Positions en orbite dynamique
                         return (
                           <motion.div
                             key={index}
-                            className={`absolute flex items-center justify-center w-14 h-14 rounded-xl shadow-lg backdrop-blur-sm overflow-hidden`}
+                            className={`absolute flex items-center justify-center w-20 h-20 rounded-xl shadow-lg backdrop-blur-sm overflow-hidden`}
                             style={{ 
                               background: item.color
                             }}
@@ -602,7 +582,7 @@ export default function Home() {
                               ease: "easeInOut"
                             }}
                           >
-                            {/* Effet d'aura autour des icônes */}
+                            {/* Effet d'aura autour du texte */}
                             <motion.div 
                               className="absolute inset-0 z-0"
                               animate={{ 
@@ -611,7 +591,9 @@ export default function Home() {
                               }}
                               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                             />
-                            {item.icon}
+                            <span className="text-white font-cyber-title font-bold text-sm tracking-widest">
+                              {item.text}
+                            </span>
                           </motion.div>
                         );
                       })}
