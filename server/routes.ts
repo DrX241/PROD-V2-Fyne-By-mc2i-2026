@@ -2251,6 +2251,16 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
   // Routes pour le module AMOA Quest
   app.post('/api/amoa/quest/initialize', handleQuestInitialization);
   app.post('/api/amoa/quest/choice', handleQuestChoice);
+
+  // Routes pour la simulation d'entretien cybersécurité
+  app.post('/api/cyber/interview-simulation/start', startInterviewSimulation);
+  app.post('/api/cyber/interview-simulation/message', processInterviewMessage);
+  app.post('/api/cyber/interview-simulation/complete', completeInterviewSimulation);
+  
+  // Routes pour la simulation d'entretien AMOA
+  app.post('/api/amoa/interview-simulation/start', startInterviewSimulation);
+  app.post('/api/amoa/interview-simulation/message', processInterviewMessage);
+  app.post('/api/amoa/interview-simulation/complete', completeInterviewSimulation);
   
   // Routes pour le module de simulation d'entretien dans I AM CYBER et I AM AMOA
   // Ces routes permettent d'évaluer les candidats MC2i via des situations simulées

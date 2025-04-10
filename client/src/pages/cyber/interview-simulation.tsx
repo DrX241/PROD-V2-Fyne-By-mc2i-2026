@@ -83,7 +83,8 @@ export default function InterviewSimulation() {
   const [loading, setLoading] = useState(false);
   const [simulationData, setSimulationData] = useState<FormValues | null>(null);
   const { toast } = useToast();
-  const [, navigate] = useLocation();
+  const [, setLocation] = useLocation();
+  const navigate = (path: string) => setLocation(path);
   
   // Initialiser le formulaire avec react-hook-form
   const form = useForm<FormValues>({

@@ -44,6 +44,14 @@ export default function CyberModeSelection() {
       destination: '/cyber/arcade'
     },
     {
+      id: 'interview-simulation',
+      title: 'SIMULATION D\'ENTRETIEN',
+      description: "Participez à une simulation d'entretien d'embauche réaliste pour évaluer les compétences des candidats aux profils de cybersécurité avec feedback IA.",
+      icon: <User className="w-12 h-12 text-green-100" />,
+      gradient: 'from-green-700 to-green-900',
+      destination: '/cyber/interview-simulation'
+    },
+    {
       id: 'cyber-ascension',
       title: 'CYBER ASCENSION',
       description: "Développez vos compétences cybersécurité à travers 15 niveaux de difficulté progressive. Contenu généré dynamiquement par l'IA.",

@@ -42,6 +42,20 @@ export default function AmoaPage() {
       skills: ["Analyse des besoins", "Communication", "Gestion des parties prenantes", "Documentation"]
     },
     {
+      id: "interview-simulation",
+      title: "SIMULATION D'ENTRETIEN",
+      description: "Participez à une simulation d'entretien d'embauche réaliste pour évaluer les compétences des candidats aux profils AMOA avec feedback IA.",
+      icon: <Users className="w-12 h-12 text-green-100" />,
+      gradient: "from-green-600 to-green-900",
+      level: "Tous niveaux",
+      duration: "5 min",
+      path: "/amoa/interview-simulation",
+      isNew: true,
+      status: "available",
+      cardClass: "amoa-card-7",
+      skills: ["Entretien", "Évaluation", "Communication", "Recrutement"]
+    },
+    {
       id: "sim-project",
       title: "SIMULATEUR DE PROJET",
       description: "Expérimentez la gestion de projets virtuels en temps réel avec une IA qui simule les réactions des équipes et les évènements aléatoires.",
