@@ -43,6 +43,23 @@ const ARCADE_GAMES = {
       niveaux: ["Débutant: Principes de base des mots de passe forts", "Intermédiaire: Gestionnaires de mots de passe", "Expert: Défense contre les attaques avancées"]
     }
   },
+  'tower-defense': {
+    title: 'CyberSec Tower Defense',
+    description: "Défendez votre réseau contre des vagues d'attaques en déployant des firewalls, antivirus et autres mécanismes de défense stratégiques.",
+    gradient: 'from-cyan-600 to-blue-800',
+    icon: <Shield className="w-6 h-6" />,
+    details: {
+      objectif: "Protéger une infrastructure réseau contre des cyberattaques de plus en plus sophistiquées.",
+      fonctionnement: [
+        "Placement stratégique de tours de défense (firewalls, antivirus, etc.)",
+        "Gestion des ressources pour maximiser la sécurité",
+        "Combat contre différents types de menaces (virus, malwares, ransomwares, etc.)",
+        "Défense en profondeur avec des mécanismes complémentaires"
+      ],
+      competences: ["Stratégie de défense en cybersécurité", "Gestion de ressources limitées", "Connaissance des différents mécanismes de protection"],
+      niveaux: ["Débutant: Menaces basiques et défenses simples", "Intermédiaire: Introduction aux attaques coordonnées", "Expert: Défense contre des attaques sophistiquées et persistantes"]
+    }
+  },
   'firewall-defense': {
     title: 'Firewall Defense',
     description: "Un jeu de tower defense où vous protégez un réseau contre des vagues d'attaques cybernétiques.",
@@ -248,7 +265,23 @@ export default function CyberArcadeGame() {
                 </div>
               )}
               
-{gameId === 'firewall-defense' ? (
+{gameId === 'tower-defense' ? (
+                <div className="bg-cyan-900 bg-opacity-50 rounded-lg p-8 flex flex-col items-center justify-center">
+                  <h3 className="text-2xl font-bold text-white mb-4">CyberSec Tower Defense</h3>
+                  <p className="text-center text-gray-300 mb-6">
+                    Défendez votre réseau contre des vagues d'attaques avec ce jeu de tower defense. 
+                    Déployez des firewalls, antivirus et autres mécanismes de défense pour contrer les différentes menaces.
+                  </p>
+                  <Link href="/cyber/arcade/tower-defense">
+                    <Button 
+                      size="lg"
+                      className="bg-cyan-600 hover:bg-cyan-700 text-white px-8 py-6 text-lg shadow-lg"
+                    >
+                      Lancer le jeu
+                    </Button>
+                  </Link>
+                </div>
+              ) : gameId === 'firewall-defense' ? (
                 <div className="bg-amber-900 bg-opacity-50 rounded-lg p-8 flex flex-col items-center justify-center">
                   <h3 className="text-2xl font-bold text-white mb-4">Firewall Defense</h3>
                   <p className="text-center text-gray-300 mb-6">
