@@ -2291,8 +2291,14 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
   app.post('/api/amoa/interview-simulation/complete', completeInterviewSimulation);
   
   // Routes pour l'Agent IA (I AM CYBER) avec timer et rapport email
-  app.post('/api/cyber/agent/start', startAgentSession);
-  app.post('/api/cyber/agent/complete', completeAgentSession);
+  // Middleware pour assurer que les réponses sont toujours JSON
+  const enforceJsonResponse = (req: Request, res: Response, next: NextFunction) => {
+    res.setHeader('Content-Type', 'application/json');
+    next();
+  };
+  
+  app.post('/api/cyber/agent/start', enforceJsonResponse, startAgentSession);
+  app.post('/api/cyber/agent/complete', enforceJsonResponse, completeAgentSession);
 
   // Route pour la conversation libre avec les parties prenantes dans AMOA Quest
   app.post('/api/amoa/quest/chat', async (req: Request, res: Response) => {

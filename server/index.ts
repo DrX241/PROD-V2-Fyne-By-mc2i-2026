@@ -6,6 +6,13 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Middleware pour forcer le Content-Type JSON pour les routes API
+app.use('/api', (req, res, next) => {
+  // S'assurer que toutes les réponses API sont en JSON
+  res.setHeader('Content-Type', 'application/json');
+  next();
+});
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;

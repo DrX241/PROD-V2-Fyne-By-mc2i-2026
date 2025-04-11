@@ -61,15 +61,50 @@ export default function CyberAgentPage() {
   // Fonction pour démarrer la session
   const startSession = async (values: FormValues) => {
     try {
-      const response = await apiRequest('/api/cyber/agent/start', {
+      // Utiliser fetch directement pour mieux voir la réponse complète
+      const fetchResponse = await fetch('/api/cyber/agent/start', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({
           userEmail: values.userEmail,
           userName: values.userName
         })
       });
+      
+      console.log("Status:", fetchResponse.status);
+      console.log("Content-Type:", fetchResponse.headers.get('Content-Type'));
+      
+      // Essayer de lire le corps de la réponse comme JSON
+      let response;
+      try {
+        const contentType = fetchResponse.headers.get('Content-Type');
+        if (contentType && contentType.includes('application/json')) {
+          response = await fetchResponse.json();
+          console.log("Response JSON:", response);
+        } else {
+          const text = await fetchResponse.text();
+          console.log("Response TEXT (first 100 chars):", text.substring(0, 100));
+          toast({
+            variant: "destructive",
+            title: "Erreur de format",
+            description: "La réponse du serveur n'est pas au format JSON attendu.",
+          });
+          return;
+        }
+      } catch (parseError) {
+        console.error("Erreur lors du parsing de la réponse:", parseError);
+        toast({
+          variant: "destructive",
+          title: "Erreur de parsing",
+          description: "Impossible de lire la réponse du serveur.",
+        });
+        return;
+      }
 
-      if (response.success) {
+      if (response && response.success) {
         setSessionData({
           userEmail: values.userEmail,
           userName: values.userName,
@@ -81,6 +116,13 @@ export default function CyberAgentPage() {
         toast({
           title: "Session démarrée",
           description: "Votre session Agent IA a démarré. Un rapport sera envoyé à votre email à la fin.",
+        });
+      } else {
+        console.warn("Réponse sans succès:", response);
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: response?.error || "Impossible de démarrer la session. Veuillez réessayer.",
         });
       }
     } catch (error) {
@@ -100,8 +142,13 @@ export default function CyberAgentPage() {
     const duration = Date.now() - startTimeRef.current;
     
     try {
-      const response = await apiRequest('/api/cyber/agent/complete', {
+      // Utiliser fetch directement pour mieux voir la réponse complète
+      const fetchResponse = await fetch('/api/cyber/agent/complete', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({
           userEmail: sessionData.userEmail,
           userName: sessionData.userName,
@@ -109,8 +156,38 @@ export default function CyberAgentPage() {
           duration // Durée en millisecondes
         })
       });
+      
+      console.log("Complete Status:", fetchResponse.status);
+      console.log("Complete Content-Type:", fetchResponse.headers.get('Content-Type'));
+      
+      // Essayer de lire le corps de la réponse comme JSON
+      let response;
+      try {
+        const contentType = fetchResponse.headers.get('Content-Type');
+        if (contentType && contentType.includes('application/json')) {
+          response = await fetchResponse.json();
+          console.log("Complete Response JSON:", response);
+        } else {
+          const text = await fetchResponse.text();
+          console.log("Complete Response TEXT (first 100 chars):", text.substring(0, 100));
+          toast({
+            variant: "destructive",
+            title: "Erreur de format",
+            description: "La réponse du serveur n'est pas au format JSON attendu.",
+          });
+          return;
+        }
+      } catch (parseError) {
+        console.error("Erreur lors du parsing de la réponse (complete):", parseError);
+        toast({
+          variant: "destructive",
+          title: "Erreur de parsing",
+          description: "Impossible de lire la réponse du serveur.",
+        });
+        return;
+      }
 
-      if (response.success) {
+      if (response && response.success) {
         toast({
           title: "Session terminée",
           description: "Un rapport détaillé a été envoyé à votre adresse email.",
@@ -121,6 +198,13 @@ export default function CyberAgentPage() {
         setTimeRemaining(600);
         setMessages([]);
         setSessionData(null);
+      } else {
+        console.warn("Réponse sans succès (complete):", response);
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: response?.error || "Impossible d'envoyer le rapport. Veuillez contacter le support.",
+        });
       }
     } catch (error) {
       console.error("Erreur lors de la finalisation de la session:", error);
