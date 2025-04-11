@@ -217,157 +217,72 @@ export default function Home() {
           </div>
         </div>
         
-        <div className="max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8 lg:py-28 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Texte héro */}
-            <div>
-              <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-600/30 border border-blue-500/30 text-blue-300 text-sm font-medium mb-6 backdrop-blur-md">
-                <Sparkles className="mr-2 h-4 w-4" />
-                Propulsé par l'Intelligence Artificielle
-              </div>
-              
-              {/* Animation du slogan FYNE placée avant le titre principal */}
-              <motion.div
-                className="mb-6 relative"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.8 }}
-              >
-                {/* Simple affichage du slogan */}
-                <div className="h-14 text-white text-2xl font-cyber-title flex items-center justify-center">
-                  <span>
-                    <span className="text-cyan-300">F</span>or 
-                    <span className="text-cyan-300"> Y</span>our 
-                    <span className="text-cyan-300"> N</span>ext 
-                    <span className="text-cyan-300"> E</span>xperience
-                  </span>
-                </div>
-                
-                {/* Ligne décorative en dessous */}
-                <motion.div 
-                  className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-64 h-[2px]"
-                  initial={{ width: 0, opacity: 0 }}
-                  animate={{ width: 250, opacity: 1 }}
-                  transition={{ duration: 1, delay: 0.5 }}
-                >
-                  <div className="w-full h-full bg-gradient-to-r from-transparent via-cyan-400 to-transparent"></div>
-                </motion.div>
-              </motion.div>
-
-              <motion.h1 
-                className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-3 font-cyber-title tracking-wide"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7 }}
-              >
-                Améliorez votre 
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400"> expertise professionnelle</span> avec FYNE
-              </motion.h1>
-              
-              <motion.p 
-                className="text-xl text-blue-100 mb-8 max-w-xl font-cyber-body tracking-wide leading-relaxed"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.3 }}
-              >
-                Découvrez une nouvelle dimension d'apprentissage interactif grâce à nos modules IA innovants qui s'adaptent parfaitement à votre progression.
-              </motion.p>
-              
-              <motion.div 
-                className="mb-8"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.3 }}
-              >
-                {/* Section de bouton supprimée */}
-              </motion.div>
+        <div className="w-full max-w-screen-2xl mx-auto px-4 py-24 sm:px-6 lg:px-8 lg:py-32 relative z-10">
+          <div className="text-center mx-auto max-w-4xl">
+            <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-600/30 border border-blue-500/30 text-blue-300 text-sm font-medium mb-6 backdrop-blur-md">
+              <Sparkles className="mr-2 h-4 w-4" />
+              Propulsé par l'Intelligence Artificielle
             </div>
             
-            {/* Illustration héro - Concept d'IA avancé et professionnel */}
-            <motion.div 
-              className="relative aspect-square max-w-lg mx-auto lg:mx-0"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
+            {/* Animation du slogan FYNE placée avant le titre principal */}
+            <motion.div
+              className="mb-6 relative"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               transition={{ duration: 0.8 }}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-indigo-700/30 rounded-3xl overflow-hidden backdrop-blur-sm border border-white/10 flex items-center justify-center">
-                {/* Animation Hi-tech */}
-                <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-                  {/* Cercles concentriques animés */}
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <motion.div
-                      key={`circle-${i}`}
-                      className="absolute rounded-full border border-blue-400/20"
-                      style={{
-                        width: `${(i + 1) * 20}%`,
-                        height: `${(i + 1) * 20}%`,
-                      }}
-                      animate={{
-                        rotate: i % 2 === 0 ? 360 : -360,
-                        opacity: [0.4, 0.6, 0.4],
-                      }}
-                      transition={{
-                        rotate: {
-                          duration: 20 + i * 5,
-                          repeat: Infinity,
-                          ease: "linear",
-                        },
-                        opacity: {
-                          duration: 3,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                        }
-                      }}
-                    />
-                  ))}
-                  
-                  {/* Nœuds connectés */}
-                  <div className="absolute inset-0">
-                    {Array.from({ length: 8 }).map((_, i) => (
-                      <motion.div
-                        key={`node-${i}`}
-                        className="absolute w-3 h-3 rounded-full bg-blue-400"
-                        style={{
-                          top: `${Math.random() * 80 + 10}%`,
-                          left: `${Math.random() * 80 + 10}%`,
-                        }}
-                        animate={{
-                          scale: [1, 1.5, 1],
-                          boxShadow: [
-                            "0 0 0 0 rgba(59, 130, 246, 0.5)",
-                            "0 0 0 10px rgba(59, 130, 246, 0)",
-                            "0 0 0 0 rgba(59, 130, 246, 0.5)",
-                          ],
-                        }}
-                        transition={{
-                          duration: 4,
-                          repeat: Infinity,
-                          delay: i * 0.5,
-                        }}
-                      />
-                    ))}
-                  </div>
-                  
-                  {/* Orbe central - symbole d'IA */}
-                  <motion.div
-                    className="relative w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center"
-                    animate={{
-                      boxShadow: [
-                        "0 0 20px 5px rgba(59, 130, 246, 0.3)",
-                        "0 0 30px 8px rgba(99, 102, 241, 0.5)",
-                        "0 0 20px 5px rgba(59, 130, 246, 0.3)",
-                      ],
-                    }}
-                    transition={{
-                      duration: 4,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  >
-                    <BrainCircuit className="w-12 h-12 text-white" />
-                  </motion.div>
-                </div>
+              {/* Simple affichage du slogan */}
+              <div className="h-14 text-white text-3xl font-cyber-title flex items-center justify-center">
+                <span>
+                  <span className="text-cyan-300">F</span>or 
+                  <span className="text-cyan-300"> Y</span>our 
+                  <span className="text-cyan-300"> N</span>ext 
+                  <span className="text-cyan-300"> E</span>xperience
+                </span>
               </div>
+              
+              {/* Ligne décorative en dessous */}
+              <motion.div 
+                className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-64 h-[2px]"
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: 250, opacity: 1 }}
+                transition={{ duration: 1, delay: 0.5 }}
+              >
+                <div className="w-full h-full bg-gradient-to-r from-transparent via-cyan-400 to-transparent"></div>
+              </motion.div>
+            </motion.div>
+
+            <motion.h1 
+              className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6 font-cyber-title tracking-wide"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
+            >
+              Améliorez votre 
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400"> expertise professionnelle</span> avec FYNE
+            </motion.h1>
+            
+            <motion.p 
+              className="text-xl md:text-2xl text-blue-100 mb-10 mx-auto font-cyber-body tracking-wide leading-relaxed"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+            >
+              Découvrez une nouvelle dimension d'apprentissage interactif grâce à nos modules IA innovants qui s'adaptent parfaitement à votre progression.
+            </motion.p>
+            
+            <motion.div 
+              className="mt-10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.5 }}
+            >
+              <Link href="/cyber">
+                <Button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition-all shadow-lg hover:shadow-blue-500/30">
+                  Découvrir nos modules
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
             </motion.div>
           </div>
         </div>
