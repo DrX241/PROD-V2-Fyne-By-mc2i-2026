@@ -193,27 +193,70 @@ export class GameScene extends Phaser.Scene {
   
   // Création du fond et de la grille cybernétique
   private createBackground() {
-    // Ajouter un fond noir
-    this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0x000000)
-      .setOrigin(0, 0);
+    // Utiliser le fond cybernétique procédural généré dans PreloadScene
+    if (this.textures.exists('cyber_background')) {
+      // Utiliser le fond généré
+      this.add.image(0, 0, 'cyber_background')
+        .setOrigin(0, 0)
+        .setDisplaySize(this.cameras.main.width, this.cameras.main.height);
+    } else {
+      // Fallback - Ajouter un fond noir avec une grille simple
+      this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0x000000)
+        .setOrigin(0, 0);
+      
+      // Créer une grille cybernétique
+      const grid = this.add.grid(
+        0, 0,
+        this.cameras.main.width * 2, this.cameras.main.height * 2,
+        64, 64,
+        0, 0,
+        0x0066ff, 0.1
+      ).setOrigin(0, 0);
+      
+      // Ajouter une légère animation à la grille
+      this.tweens.add({
+        targets: grid,
+        alpha: 0.05,
+        duration: 2000,
+        yoyo: true,
+        repeat: -1
+      });
+    }
     
-    // Créer une grille cybernétique
-    const grid = this.add.grid(
-      0, 0,
-      this.cameras.main.width * 2, this.cameras.main.height * 2,
-      64, 64,
-      0, 0,
-      0x0066ff, 0.1
-    ).setOrigin(0, 0);
+    // Ajouter le logo du jeu
+    const gameTitle = this.add.text(
+      this.cameras.main.width / 2,
+      60,
+      'CYBERSEC TOWER DEFENSE',
+      {
+        fontFamily: 'Orbitron, sans-serif',
+        fontSize: '32px',
+        color: '#00ffff',
+        stroke: '#0000aa',
+        strokeThickness: 4
+      }
+    ).setOrigin(0.5);
     
-    // Ajouter une légère animation à la grille
+    // Animation du titre
     this.tweens.add({
-      targets: grid,
-      alpha: 0.05,
-      duration: 2000,
+      targets: gameTitle,
+      scale: 1.05,
+      duration: 1500,
       yoyo: true,
       repeat: -1
     });
+    
+    // Ajouter un sous-titre
+    this.add.text(
+      this.cameras.main.width / 2,
+      100,
+      'Protégez votre réseau contre les cyberattaques',
+      {
+        fontFamily: 'Rajdhani, sans-serif',
+        fontSize: '18px',
+        color: '#88ccff'
+      }
+    ).setOrigin(0.5);
     
     // Ajouter des circuits imprimés et autres éléments visuels cyber
     this.addCyberElements();
@@ -450,10 +493,18 @@ export class GameScene extends Phaser.Scene {
     if (this.towerPreview) {
       if (this.validPlacement) {
         this.towerPreview.setTint(0x00ff00);
-        if (this.rangePreview) this.rangePreview.setStrokeStyle(2, 0x00ff00, 0.4);
+        if (this.rangePreview) {
+          this.rangePreview.clear();
+          this.rangePreview.lineStyle(2, 0x00ff00, 0.4);
+          this.rangePreview.strokeCircle(x, y, 150);
+        }
       } else {
         this.towerPreview.setTint(0xff0000);
-        if (this.rangePreview) this.rangePreview.setStrokeStyle(2, 0xff0000, 0.4);
+        if (this.rangePreview) {
+          this.rangePreview.clear();
+          this.rangePreview.lineStyle(2, 0xff0000, 0.4);
+          this.rangePreview.strokeCircle(x, y, 150);
+        }
       }
     }
     
@@ -714,15 +765,18 @@ export class GameScene extends Phaser.Scene {
     tower.sprite.setRotation(angle + Math.PI / 2);
     
     // Collision entre les projectiles et les ennemis
-    this.physics.add.overlap(bullet, enemy.sprite, (bullet, enemySprite) => {
-      const targetEnemy = (bullet as Phaser.Physics.Arcade.Sprite).getData('targetEnemy');
-      const damage = (bullet as Phaser.Physics.Arcade.Sprite).getData('damage');
-      const towerType = (bullet as Phaser.Physics.Arcade.Sprite).getData('towerType');
+    this.physics.add.overlap(bullet, enemy.sprite, (bulletObj, enemySprite) => {
+      // Convertir explicitement en sprites Phaser
+      const bulletSprite = bulletObj as Phaser.Physics.Arcade.Sprite;
+      
+      const targetEnemy = bulletSprite.getData('targetEnemy');
+      const damage = bulletSprite.getData('damage');
+      const towerType = bulletSprite.getData('towerType');
       
       if (targetEnemy === enemy) {
         this.damageEnemy(enemy, damage, towerType);
-        this.createBulletImpact(bullet.x, bullet.y, towerType);
-        bullet.destroy();
+        this.createBulletImpact(bulletSprite.x, bulletSprite.y, towerType);
+        bulletSprite.destroy();
       }
     });
     

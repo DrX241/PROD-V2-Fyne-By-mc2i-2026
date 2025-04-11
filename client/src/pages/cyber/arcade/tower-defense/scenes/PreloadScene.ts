@@ -8,9 +8,10 @@ export class PreloadScene extends Phaser.Scene {
   preload() {
     // Chargement de tous les assets pour le jeu
     
-    // Tuiles et carte
-    this.load.image('tileset_terrain', 'https://assets.codepen.io/21542/TowerDefenseTileset.png');
-    this.load.image('background', 'https://cdn3.iconfinder.com/data/icons/technology-internet-and-communication/1000/Technology_internet_and_communication-09-1024.png');
+    // Tuiles et carte - utiliser des ressources plus fiables
+    this.load.image('tileset_terrain', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==');
+    this.load.image('background', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==');
+    // Création d'une texture de fond procédurale dans la méthode create
     
     // Tours
     this.load.image('tower_firewall', 'https://cdn4.iconfinder.com/data/icons/cyber-security-51/65/Firewall-security-protection-cyber-512.png');
@@ -71,8 +72,69 @@ export class PreloadScene extends Phaser.Scene {
     } catch (error) {
       console.log('Animation explosion non disponible');
     }
+    
+    // Créer un fond cybernétique procédural
+    this.createCyberspaceBackground();
 
     // Passer à la scène du menu principal
     this.scene.start('MenuScene');
+  }
+  
+  // Méthode pour créer un fond cybernétique sans dépendance externe
+  private createCyberspaceBackground() {
+    // Créer une texture procédurale pour le fond
+    const graphics = this.make.graphics({ });
+    
+    // Fond noir
+    graphics.fillStyle(0x000000);
+    graphics.fillRect(0, 0, 800, 600);
+    
+    // Grille bleue
+    graphics.lineStyle(1, 0x0088ff, 0.3);
+    
+    // Lignes horizontales
+    for (let y = 0; y < 600; y += 40) {
+      graphics.moveTo(0, y);
+      graphics.lineTo(800, y);
+    }
+    
+    // Lignes verticales
+    for (let x = 0; x < 800; x += 40) {
+      graphics.moveTo(x, 0);
+      graphics.lineTo(x, 600);
+    }
+    
+    // Points d'intersection lumineux
+    graphics.fillStyle(0x00ffff, 0.5);
+    for (let x = 0; x < 800; x += 40) {
+      for (let y = 0; y < 600; y += 40) {
+        if (Math.random() > 0.85) {
+          graphics.fillCircle(x, y, 2);
+        }
+      }
+    }
+    
+    // Quelques lignes de "circuit" aléatoires
+    graphics.lineStyle(2, 0x00ff88, 0.4);
+    for (let i = 0; i < 5; i++) {
+      const startX = Math.random() * 800;
+      const startY = Math.random() * 600;
+      graphics.moveTo(startX, startY);
+      
+      let currentX = startX;
+      let currentY = startY;
+      
+      for (let j = 0; j < 5; j++) {
+        const nextX = currentX + (Math.random() > 0.5 ? 1 : -1) * Math.random() * 200;
+        const nextY = currentY + (Math.random() > 0.5 ? 1 : -1) * Math.random() * 200;
+        graphics.lineTo(nextX, nextY);
+        currentX = nextX;
+        currentY = nextY;
+      }
+    }
+    
+    // Générer la texture à partir des graphiques
+    graphics.generateTexture('cyber_background', 800, 600);
+    graphics.destroy();
   }
 }
