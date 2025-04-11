@@ -253,33 +253,7 @@ export default function Home() {
               transition={{ duration: 0.8 }}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-indigo-700/30 rounded-3xl overflow-hidden backdrop-blur-sm border border-white/10 flex items-center justify-center">
-                {/* Fond avec effet de code et connexions neuronales */}
-                <div className="absolute inset-0 opacity-20">
-                  {/* Simulation de code binaire pour évoquer l'IA */}
-                  <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-                    {Array.from({ length: 10 }).map((_, i) => (
-                      <motion.div 
-                        key={i}
-                        className="absolute text-[8px] text-blue-300 font-mono whitespace-nowrap"
-                        style={{ 
-                          top: `${Math.random() * 100}%`, 
-                          left: `${Math.random() * 100}%`,
-                        }}
-                        animate={{ 
-                          opacity: [0.3, 0.7, 0.3],
-                          x: [0, Math.random() * 20 - 10]
-                        }}
-                        transition={{ 
-                          duration: 3 + Math.random() * 2,
-                          repeat: Infinity,
-                          ease: "linear" 
-                        }}
-                      >
-                        {Array.from({ length: 30 }).map(() => Math.round(Math.random())).join('')}
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
+                {/* Contenu visuel simplifié */}
                 
 
               </div>
