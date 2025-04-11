@@ -452,10 +452,11 @@ class MainScene extends Phaser.Scene {
   update(time: number, delta: number) {
     // Mettre à jour les barres de vie des ennemis
     this.enemies?.getChildren().forEach((enemy) => {
-      const healthBar = enemy.getData('healthBar');
+      const enemySprite = enemy as Phaser.GameObjects.Sprite;
+      const healthBar = enemySprite.getData('healthBar');
       if (healthBar) {
-        healthBar.x = enemy.x;
-        healthBar.y = enemy.y - 20;
+        healthBar.x = enemySprite.x;
+        healthBar.y = enemySprite.y - 20;
       }
     });
     
@@ -467,17 +468,18 @@ class MainScene extends Phaser.Scene {
       if (cooldown <= 0) {
         // Trouver un ennemi à portée
         const range = towerSprite.getData('range');
-        let closestEnemy = null;
+        let closestEnemy: Phaser.GameObjects.Sprite | null = null;
         let closestDistance = range;
         
         this.enemies?.getChildren().forEach((enemy) => {
+          const enemySprite = enemy as Phaser.GameObjects.Sprite;
           const distance = Phaser.Math.Distance.Between(
             towerSprite.x, towerSprite.y,
-            enemy.x, enemy.y
+            enemySprite.x, enemySprite.y
           );
           
           if (distance < closestDistance) {
-            closestEnemy = enemy;
+            closestEnemy = enemySprite;
             closestDistance = distance;
           }
         });
@@ -539,7 +541,7 @@ const config: Phaser.Types.Core.GameConfig = {
   physics: {
     default: 'arcade',
     arcade: {
-      gravity: { y: 0 },
+      gravity: { x: 0, y: 0 },
       debug: false
     }
   },
