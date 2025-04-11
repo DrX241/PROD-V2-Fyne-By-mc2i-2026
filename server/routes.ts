@@ -12,6 +12,7 @@ import { evaluateDecision } from "./cyberDefenseEvaluator";
 import { handleQuestInitialization, handleQuestChoice } from "./amoaController";
 import { handleCyberDefenseChat, generateCyberDefenseMission } from "./cyberDefenseController";
 import { startInterviewSimulation, processInterviewMessage, completeInterviewSimulation } from "./interviewSimulationController";
+import { startAgentSession, completeAgentSession } from "./cyberAgentController";
 import immersiveRoutes from "./routes/immersive-simulation";
 import cyberAscensionRoutes from "./routes/cyber-ascension";
 
