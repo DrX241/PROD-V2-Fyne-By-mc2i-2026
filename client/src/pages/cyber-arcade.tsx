@@ -25,14 +25,6 @@ export default function CyberArcade() {
   const arcadeGames: GameOption[] = [
     // Jeux existants et fonctionnels - maintenus accessibles
     {
-      id: 'tower-defense',
-      title: 'Cyber Defense Tower',
-      description: "Protégez votre infrastructure numérique en déployant différentes couches de défense contre les attaques informatiques.",
-      difficulty: 'Moyen',
-      icon: <Shield className="w-10 h-10 text-white" />,
-      gradient: 'from-blue-700 to-blue-900'
-    },
-    {
       id: 'password-guardian',
       title: 'Password Guardian',
       description: "Créez des mots de passe que l'IA tentera de déchiffrer. Apprenez les meilleures pratiques de sécurité des mots de passe.",
@@ -236,7 +228,7 @@ export default function CyberArcade() {
   return (
     <HomeLayout>
       <PageTitle title="CYBER ARCADE" />
-      <div className="min-h-[calc(100vh-64px)] relative overflow-y-auto bg-gradient-to-b from-purple-900 via-gray-900 to-black">
+      <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-purple-900 via-gray-900 to-black">
         {/* Arrière-plan simplifié */}
         <div className="absolute inset-0 w-full h-full">
           <div className="absolute inset-0 z-0 opacity-20">
