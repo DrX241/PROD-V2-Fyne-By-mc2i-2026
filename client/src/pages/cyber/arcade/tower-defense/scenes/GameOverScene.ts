@@ -213,23 +213,93 @@ export class GameOverScene extends Phaser.Scene {
     this.createParticles();
   }
   
-  // Créer des particules pour l'arrière-plan
+  // Créer des particules pour l'arrière-plan (version simplifiée sans émetteur)
   private createParticles() {
-    // Utiliser une clé textuelle (string) pour l'asset
-    const particleKey = 'bullet';
-    const particles = this.add.particles(particleKey);
-    
-    particles.createEmitter({
-      x: { min: 0, max: this.cameras.main.width },
-      y: { min: 0, max: this.cameras.main.height },
-      speedX: { min: -20, max: 20 },
-      speedY: { min: -20, max: 20 },
-      scale: { start: 0.1, end: 0 },
-      lifespan: 4000,
-      quantity: 2,
-      frequency: 300,
-      blendMode: Phaser.BlendModes.ADD,
-      tint: this.victory ? [0x00ffff, 0x0088ff] : [0xff0000, 0xff8800]
-    });
+    try {
+      // Au lieu d'utiliser un émetteur de particules qui peut causer des erreurs,
+      // créons des images statiques avec des animations simples
+      for (let i = 0; i < 20; i++) {
+        // Coordonnées aléatoires
+        const x = Math.random() * this.cameras.main.width;
+        const y = Math.random() * this.cameras.main.height;
+        
+        // Couleurs selon l'état de victoire/défaite
+        const color = this.victory ? 
+          (Math.random() > 0.5 ? 0x00ffff : 0x0088ff) : 
+          (Math.random() > 0.5 ? 0xff0000 : 0xff8800);
+        
+        // Créer une particule simple
+        if (this.textures.exists('bullet')) {
+          const particle = this.add.image(x, y, 'bullet')
+            .setScale(0.1 * Math.random() + 0.05)
+            .setAlpha(0.7)
+            .setTint(color)
+            .setBlendMode(Phaser.BlendModes.ADD);
+          
+          // Animation simple
+          this.tweens.add({
+            targets: particle,
+            x: x + (Math.random() - 0.5) * 100,
+            y: y + (Math.random() - 0.5) * 100,
+            alpha: 0,
+            scale: 0,
+            duration: 2000 + Math.random() * 2000,
+            onComplete: () => {
+              particle.destroy();
+              
+              // Recréer une particule pour maintenir l'effet
+              if (this.scene.isActive('GameOverScene')) {
+                this.createSingleParticle();
+              }
+            }
+          });
+        }
+      }
+    } catch (error) {
+      console.log('Effet de particules désactivé');
+    }
+  }
+  
+  // Créer une seule particule (pour le remplacement continu)
+  private createSingleParticle() {
+    try {
+      if (!this.textures.exists('bullet')) return;
+      
+      // Coordonnées aléatoires
+      const x = Math.random() * this.cameras.main.width;
+      const y = Math.random() * this.cameras.main.height;
+      
+      // Couleurs selon l'état de victoire/défaite
+      const color = this.victory ? 
+        (Math.random() > 0.5 ? 0x00ffff : 0x0088ff) : 
+        (Math.random() > 0.5 ? 0xff0000 : 0xff8800);
+      
+      // Créer une particule simple
+      const particle = this.add.image(x, y, 'bullet')
+        .setScale(0.1 * Math.random() + 0.05)
+        .setAlpha(0.7)
+        .setTint(color)
+        .setBlendMode(Phaser.BlendModes.ADD);
+      
+      // Animation simple
+      this.tweens.add({
+        targets: particle,
+        x: x + (Math.random() - 0.5) * 100,
+        y: y + (Math.random() - 0.5) * 100,
+        alpha: 0,
+        scale: 0,
+        duration: 2000 + Math.random() * 2000,
+        onComplete: () => {
+          particle.destroy();
+          
+          // Recréer une particule pour maintenir l'effet
+          if (this.scene.isActive('GameOverScene')) {
+            this.createSingleParticle();
+          }
+        }
+      });
+    } catch (error) {
+      console.log('Erreur lors de la création de particule');
+    }
   }
 }

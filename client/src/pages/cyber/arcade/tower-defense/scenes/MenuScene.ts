@@ -159,16 +159,83 @@ export class MenuScene extends Phaser.Scene {
     graphics.strokePath();
   }
   
-  // Particules bits/bytes pour effet digital
+  // Particules bits/bytes pour effet digital avec des images simples
   private createDigitalParticles() {
     try {
-      // Désactivé pour le moment en raison d'incompatibilité avec Phaser 3.60+
-      // Dans une version future, nous implémenterons les particules avec la nouvelle API
+      if (!this.textures.exists('bullet')) return;
       
-      // Note: dans Phaser 3.60+, la syntaxe pour les particules a changé 
-      // et particles.createEmitter a été supprimé
+      // Créer des particules simples avec des animations plutôt qu'un émetteur
+      for (let i = 0; i < 15; i++) {
+        // Position aléatoire
+        const x = Math.random() * this.cameras.main.width;
+        const y = Math.random() * this.cameras.main.height;
+        
+        // Créer la particule
+        const particle = this.add.image(x, y, 'bullet')
+          .setScale(0.05 + Math.random() * 0.1)
+          .setAlpha(0.3 + Math.random() * 0.3)
+          .setTint(0x00aaff)
+          .setBlendMode(Phaser.BlendModes.ADD);
+        
+        // Animation de mouvement
+        this.tweens.add({
+          targets: particle,
+          x: x + (Math.random() - 0.5) * 200,
+          y: y + (Math.random() - 0.5) * 200,
+          alpha: 0,
+          scale: 0,
+          duration: 3000 + Math.random() * 2000,
+          delay: Math.random() * 1000,
+          onComplete: () => {
+            particle.destroy();
+            
+            // Recréer une particule pour effet continu
+            if (this.scene.isActive('MenuScene')) {
+              this.createSingleParticle();
+            }
+          }
+        });
+      }
     } catch (error) {
-      console.log('Particules non disponibles dans cette version');
+      console.log('Effet de particules désactivé');
+    }
+  }
+  
+  // Créer une particule unique (pour le remplacement)
+  private createSingleParticle() {
+    try {
+      if (!this.textures.exists('bullet')) return;
+      
+      // Position aléatoire
+      const x = Math.random() * this.cameras.main.width;
+      const y = Math.random() * this.cameras.main.height;
+      
+      // Créer la particule
+      const particle = this.add.image(x, y, 'bullet')
+        .setScale(0.05 + Math.random() * 0.1)
+        .setAlpha(0.3 + Math.random() * 0.3)
+        .setTint(0x00aaff)
+        .setBlendMode(Phaser.BlendModes.ADD);
+      
+      // Animation de mouvement
+      this.tweens.add({
+        targets: particle,
+        x: x + (Math.random() - 0.5) * 200,
+        y: y + (Math.random() - 0.5) * 200,
+        alpha: 0,
+        scale: 0,
+        duration: 3000 + Math.random() * 2000,
+        onComplete: () => {
+          particle.destroy();
+          
+          // Recréer une particule pour effet continu
+          if (this.scene.isActive('MenuScene')) {
+            this.createSingleParticle();
+          }
+        }
+      });
+    } catch (error) {
+      console.log('Erreur de particule unique');
     }
   }
 }
