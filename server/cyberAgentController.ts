@@ -80,6 +80,10 @@ export async function startAgentSession(req: Request, res: Response) {
       duration: 0
     };
     
+    // S'assurer que l'en-tête Content-Type est correctement défini
+    res.setHeader('Content-Type', 'application/json');
+    
+    // Renvoyer explicitement les données JSON
     return res.json({
       success: true,
       message: 'Session Agent IA initialisée avec succès',
@@ -87,6 +91,10 @@ export async function startAgentSession(req: Request, res: Response) {
     });
   } catch (error) {
     console.error('Erreur lors de l\'initialisation de la session Agent IA:', error);
+    
+    // S'assurer que l'en-tête Content-Type est correctement défini même en cas d'erreur
+    res.setHeader('Content-Type', 'application/json');
+    
     return res.status(500).json({
       success: false,
       error: 'Erreur serveur lors de l\'initialisation de la session'
@@ -243,6 +251,9 @@ Mode de secours: ${fallbackMode}
       // Continuer l'exécution même si l'envoi d'email échoue
     }
 
+    // S'assurer que l'en-tête Content-Type est correctement défini
+    res.setHeader('Content-Type', 'application/json');
+    
     return res.json({
       success: true,
       message: 'Rapport généré et envoyé avec succès.',
@@ -252,6 +263,10 @@ Mode de secours: ${fallbackMode}
 
   } catch (error) {
     console.error('Erreur lors de la finalisation de la session Agent IA:', error);
+    
+    // S'assurer que l'en-tête Content-Type est correctement défini même en cas d'erreur
+    res.setHeader('Content-Type', 'application/json');
+    
     return res.status(500).json({
       success: false,
       error: 'Erreur serveur lors de la finalisation de la session.'
