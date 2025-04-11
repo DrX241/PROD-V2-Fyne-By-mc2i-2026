@@ -50,6 +50,7 @@ function Router() {
       <Route path="/cyber/arcade/password-guardian" component={PasswordGuardianPage} />
       <Route path="/cyber/arcade/cyber-quiz" component={CyberQuizChallengePage} />
       <Route path="/cyber/arcade/firewall-defense" component={NetworkPuzzlePage} /> {/* Redirection de l'ancien jeu vers le nouveau */}
+      <Route path="/cyber/arcade/tower-defense" component={lazy(() => import('./pages/cyber/arcade/tower-defense'))} />
       <Route path="/cyber/arcade/:gameId" component={CyberArcadeGame} />
       
       {/* Nouvelles routes CYBER DEFENSE (progressives avec interlocuteurs) */}
@@ -120,6 +121,7 @@ function App() {
           <Route path="/cyber/arcade/password-guardian" component={PasswordGuardianPage} />
           <Route path="/cyber/arcade/cyber-quiz" component={CyberQuizChallengePage} />
           <Route path="/cyber/arcade/firewall-defense" component={NetworkPuzzlePage} />
+          <Route path="/cyber/arcade/tower-defense" component={lazy(() => import('./pages/cyber/arcade/tower-defense'))} />
           <Route path="/cyber/arcade/:gameId" component={CyberArcadeGame} />
           <Route path="/cyber-defense-new" component={CyberDefenseNewPage} />
           <Route path="/cyber-defense/session/:levelId" component={CyberDefenseSessionPage} />
