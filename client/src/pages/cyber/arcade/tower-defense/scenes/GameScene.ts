@@ -221,20 +221,67 @@ export class GameScene extends Phaser.Scene {
   
   // Ajouter des éléments visuels cybernétiques en arrière-plan
   private addCyberElements() {
-    // Particules de "données"
-    const particles = this.add.particles('bullet');
+    // Particules simplifiées sans utiliser l'API des émetteurs (qui a changé dans Phaser 3.88)
+    // Créer des particules statiques à la place
+    for (let i = 0; i < 10; i++) {
+      const x = Phaser.Math.Between(0, this.cameras.main.width);
+      const y = Phaser.Math.Between(0, this.cameras.main.height);
+      
+      const particle = this.add.image(x, y, 'bullet')
+        .setScale(0.1)
+        .setAlpha(0.4)
+        .setTint(
+          Phaser.Utils.Array.GetRandom([0x00ffff, 0x0088ff, 0x00ff88])
+        )
+        .setBlendMode(Phaser.BlendModes.ADD);
+      
+      // Animation simple
+      this.tweens.add({
+        targets: particle,
+        x: x + Phaser.Math.Between(-100, 100),
+        y: y + Phaser.Math.Between(-100, 100),
+        alpha: 0,
+        scale: 0,
+        duration: Phaser.Math.Between(2000, 4000),
+        onComplete: () => {
+          particle.destroy();
+          // Recréer la particule pour un effet continu
+          this.time.delayedCall(Phaser.Math.Between(500, 2000), () => {
+            this.addSingleParticle();
+          });
+        }
+      });
+    }
+  }
+  
+  // Ajouter une seule particule (pour le remplacement continu)
+  private addSingleParticle() {
+    const x = Phaser.Math.Between(0, this.cameras.main.width);
+    const y = Phaser.Math.Between(0, this.cameras.main.height);
     
-    particles.createEmitter({
-      x: { min: 0, max: this.cameras.main.width },
-      y: { min: 0, max: this.cameras.main.height },
-      lifespan: { min: 2000, max: 4000 },
-      speed: { min: 20, max: 40 },
-      scale: { start: 0.1, end: 0 },
-      quantity: 1,
-      frequency: 1000,
-      alpha: { start: 0.4, end: 0 },
-      tint: [0x00ffff, 0x0088ff, 0x00ff88],
-      blendMode: 'ADD'
+    const particle = this.add.image(x, y, 'bullet')
+      .setScale(0.1)
+      .setAlpha(0.4)
+      .setTint(
+        Phaser.Utils.Array.GetRandom([0x00ffff, 0x0088ff, 0x00ff88])
+      )
+      .setBlendMode(Phaser.BlendModes.ADD);
+    
+    // Animation simple
+    this.tweens.add({
+      targets: particle,
+      x: x + Phaser.Math.Between(-100, 100),
+      y: y + Phaser.Math.Between(-100, 100),
+      alpha: 0,
+      scale: 0,
+      duration: Phaser.Math.Between(2000, 4000),
+      onComplete: () => {
+        particle.destroy();
+        // Recréer la particule pour un effet continu
+        this.time.delayedCall(Phaser.Math.Between(500, 2000), () => {
+          this.addSingleParticle();
+        });
+      }
     });
   }
   
@@ -817,61 +864,70 @@ export class GameScene extends Phaser.Scene {
   
   // Créer un effet de mort pour les ennemis
   private createEnemyDeathEffect(x: number, y: number, towerType: string) {
-    // Animation d'explosion
-    const explosion = this.add.sprite(x, y, 'explosion_anim')
+    // Animation d'explosion simple (sans utiliser l'animation spritesheet)
+    const explosion = this.add.sprite(x, y, 'explosion')
       .setScale(1)
-      .play('explode');
-    
-    // Supprimer après l'animation
-    explosion.once('animationcomplete', () => {
-      explosion.destroy();
-    });
-    
-    // Particules
-    const particles = this.add.particles('bullet');
-    
-    const emitter = particles.createEmitter({
-      x,
-      y,
-      speed: { min: 50, max: 200 },
-      angle: { min: 0, max: 360 },
-      scale: { start: 0.4, end: 0 },
-      lifespan: 600,
-      quantity: 20,
-      blendMode: Phaser.BlendModes.ADD
+      .setBlendMode(Phaser.BlendModes.ADD);
+      
+    // Animation simple
+    this.tweens.add({
+      targets: explosion,
+      scale: { from: 0.5, to: 1.5 },
+      alpha: { from: 1, to: 0 },
+      duration: 500,
+      onComplete: () => {
+        explosion.destroy();
+      }
     });
     
     // Couleur selon le type de tour qui a tué
+    let particleColor = 0xff5500;
     switch (towerType) {
       case 'firewall':
-        emitter.setTint(0xff5500);
+        particleColor = 0xff5500;
         break;
       case 'antivirus':
-        emitter.setTint(0x00ff00);
+        particleColor = 0x00ff00;
         break;
       case 'ids':
-        emitter.setTint(0x0088ff);
+        particleColor = 0x0088ff;
         break;
       case 'backup':
-        emitter.setTint(0xffff00);
+        particleColor = 0xffff00;
         break;
       case 'encryption':
-        emitter.setTint(0xff00ff);
+        particleColor = 0xff00ff;
         break;
       case 'honeypot':
-        emitter.setTint(0x00ffff);
+        particleColor = 0x00ffff;
         break;
     }
     
-    // Arrêter l'émetteur après un certain temps
-    this.time.delayedCall(600, () => {
-      emitter.stop();
+    // Créer des particules manuellement au lieu d'utiliser un émetteur
+    for (let i = 0; i < 20; i++) {
+      const angle = Phaser.Math.Between(0, 360) * (Math.PI / 180);
+      const speed = Phaser.Math.Between(50, 200);
+      const particleX = x;
+      const particleY = y;
       
-      // Détruire l'émetteur après que toutes les particules sont mortes
-      this.time.delayedCall(600, () => {
-        particles.destroy();
+      const particle = this.add.image(particleX, particleY, 'bullet')
+        .setScale(0.4)
+        .setTint(particleColor)
+        .setBlendMode(Phaser.BlendModes.ADD);
+      
+      // Animation manuelle de la particule
+      this.tweens.add({
+        targets: particle,
+        x: particleX + Math.cos(angle) * speed,
+        y: particleY + Math.sin(angle) * speed,
+        scale: 0,
+        alpha: 0,
+        duration: 600,
+        onComplete: () => {
+          particle.destroy();
+        }
       });
-    });
+    }
   }
   
   // Mise à jour des ennemis (mouvement sur le chemin)
