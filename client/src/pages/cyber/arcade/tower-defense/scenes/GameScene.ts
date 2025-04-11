@@ -72,7 +72,8 @@ export class GameScene extends Phaser.Scene {
   private explosions!: Phaser.GameObjects.Group;
   
   // Sons
-  private shootSound!: Phaser.Sound.BaseSound;
+  // Effet sonore désactivé
+  // private shootSound!: Phaser.Sound.BaseSound;
   private explosionSound!: Phaser.Sound.BaseSound;
   private buildSound!: Phaser.Sound.BaseSound;
   private waveStartSound!: Phaser.Sound.BaseSound;
@@ -116,19 +117,24 @@ export class GameScene extends Phaser.Scene {
       }
     }
     
-    // Charger les sons
-    this.shootSound = this.sound.add('shoot', { volume: 0.3 });
-    this.explosionSound = this.sound.add('explosion', { volume: 0.3 });
-    this.buildSound = this.sound.add('build', { volume: 0.5 });
-    this.waveStartSound = this.sound.add('wave_start', { volume: 0.5 });
-    this.gameOverSound = this.sound.add('game_over', { volume: 0.6 });
-    
-    // Continuer à jouer la musique de fond de la scène précédente
-    this.backgroundMusic = this.sound.get('background_music');
-    if (!this.backgroundMusic?.isPlaying) {
-      this.backgroundMusic = this.sound.add('background_music', { volume: 0.3, loop: true });
-      this.backgroundMusic.play();
+    // Charger les sons (avec gestion d'erreur)
+    try {
+      // Les sons sont désactivés pour éviter les erreurs avec les ressources
+      // this.shootSound = this.sound.add('shoot', { volume: 0.3 });
+      // this.explosionSound = this.sound.add('explosion', { volume: 0.3 });
+      // this.buildSound = this.sound.add('build', { volume: 0.5 });
+      // this.waveStartSound = this.sound.add('wave_start', { volume: 0.5 });
+      // this.gameOverSound = this.sound.add('game_over', { volume: 0.6 });
+    } catch (error) {
+      console.log('Sons non disponibles');
     }
+    
+    // Désactiver la musique de fond pour éviter les erreurs
+    // this.backgroundMusic = this.sound.get('background_music');
+    // if (!this.backgroundMusic?.isPlaying) {
+    //   this.backgroundMusic = this.sound.add('background_music', { volume: 0.3, loop: true });
+    //   this.backgroundMusic.play();
+    // }
     
     // Créer un fond cybernétique
     this.createBackground();
@@ -649,8 +655,8 @@ export class GameScene extends Phaser.Scene {
     // Appliquer la vélocité
     bullet.setVelocity(velocityX, velocityY);
     
-    // Effet sonore
-    this.shootSound.play();
+    // Effet sonore (désactivé)
+    // this.shootSound.play();
     
     // Définir la cible du projectile pour la collision
     bullet.setData('targetEnemy', enemy);
