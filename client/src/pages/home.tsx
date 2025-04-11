@@ -176,14 +176,52 @@ export default function Home() {
   return (
     <HomeLayout>
       <PageTitle title="Accueil" />
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-gray-900 via-indigo-900 to-blue-900 overflow-hidden">
+      {/* Hero Section - Fond amélioré */}
+      <div className="relative overflow-hidden">
+        {/* Arrière-plan dynamique */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-indigo-950 to-blue-950">
+          {/* Éléments décoratifs animés pour un effet high-tech */}
+          {Array.from({ length: 20 }).map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full bg-blue-500/10"
+              style={{
+                width: `${Math.random() * 300 + 50}px`,
+                height: `${Math.random() * 300 + 50}px`,
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.1, 0.2, 0.1],
+              }}
+              transition={{
+                duration: 8 + Math.random() * 5,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+          ))}
+          
+          {/* Effet de particules connectées */}
+          <div className="absolute inset-0 opacity-30">
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <radialGradient id="grid-gradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                  <stop offset="0%" stopColor="rgba(59, 130, 246, 0.3)" />
+                  <stop offset="100%" stopColor="rgba(59, 130, 246, 0)" />
+                </radialGradient>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#grid-gradient)" />
+            </svg>
+          </div>
+        </div>
         
         <div className="max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8 lg:py-28 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Texte héro */}
             <div>
-              <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-600/30 border border-blue-500/30 text-blue-300 text-sm font-medium mb-6">
+              <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-600/30 border border-blue-500/30 text-blue-300 text-sm font-medium mb-6 backdrop-blur-md">
                 <Sparkles className="mr-2 h-4 w-4" />
                 Propulsé par l'Intelligence Artificielle
               </div>
@@ -245,7 +283,7 @@ export default function Home() {
               </motion.div>
             </div>
             
-            {/* Illustration héro - Concept d'IA et d'apprentissage avancé */}
+            {/* Illustration héro - Concept d'IA avancé et professionnel */}
             <motion.div 
               className="relative aspect-square max-w-lg mx-auto lg:mx-0"
               initial={{ opacity: 0, scale: 0.9 }}
@@ -253,9 +291,82 @@ export default function Home() {
               transition={{ duration: 0.8 }}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-indigo-700/30 rounded-3xl overflow-hidden backdrop-blur-sm border border-white/10 flex items-center justify-center">
-                {/* Contenu visuel simplifié */}
-                
-
+                {/* Animation Hi-tech */}
+                <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+                  {/* Cercles concentriques animés */}
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <motion.div
+                      key={`circle-${i}`}
+                      className="absolute rounded-full border border-blue-400/20"
+                      style={{
+                        width: `${(i + 1) * 20}%`,
+                        height: `${(i + 1) * 20}%`,
+                      }}
+                      animate={{
+                        rotate: i % 2 === 0 ? 360 : -360,
+                        opacity: [0.4, 0.6, 0.4],
+                      }}
+                      transition={{
+                        rotate: {
+                          duration: 20 + i * 5,
+                          repeat: Infinity,
+                          ease: "linear",
+                        },
+                        opacity: {
+                          duration: 3,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }
+                      }}
+                    />
+                  ))}
+                  
+                  {/* Nœuds connectés */}
+                  <div className="absolute inset-0">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                      <motion.div
+                        key={`node-${i}`}
+                        className="absolute w-3 h-3 rounded-full bg-blue-400"
+                        style={{
+                          top: `${Math.random() * 80 + 10}%`,
+                          left: `${Math.random() * 80 + 10}%`,
+                        }}
+                        animate={{
+                          scale: [1, 1.5, 1],
+                          boxShadow: [
+                            "0 0 0 0 rgba(59, 130, 246, 0.5)",
+                            "0 0 0 10px rgba(59, 130, 246, 0)",
+                            "0 0 0 0 rgba(59, 130, 246, 0.5)",
+                          ],
+                        }}
+                        transition={{
+                          duration: 4,
+                          repeat: Infinity,
+                          delay: i * 0.5,
+                        }}
+                      />
+                    ))}
+                  </div>
+                  
+                  {/* Orbe central - symbole d'IA */}
+                  <motion.div
+                    className="relative w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center"
+                    animate={{
+                      boxShadow: [
+                        "0 0 20px 5px rgba(59, 130, 246, 0.3)",
+                        "0 0 30px 8px rgba(99, 102, 241, 0.5)",
+                        "0 0 20px 5px rgba(59, 130, 246, 0.3)",
+                      ],
+                    }}
+                    transition={{
+                      duration: 4,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                  >
+                    <BrainCircuit className="w-12 h-12 text-white" />
+                  </motion.div>
+                </div>
               </div>
             </motion.div>
           </div>
