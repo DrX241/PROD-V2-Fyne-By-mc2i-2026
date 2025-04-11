@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
-import { Shield, MessageSquare, Bot, ArrowRight, Command, User, Joystick, BrainCircuit, Rocket } from 'lucide-react';
+import { Shield, MessageSquare, Bot, ArrowRight, Command, User, Joystick, BrainCircuit, Rocket, ChevronDown, ChevronUp, Medal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
@@ -13,51 +13,97 @@ interface ModeOption {
   icon: React.ReactNode;
   gradient: string;
   destination: string;
+  items?: Array<{
+    id: string;
+    title: string;
+    icon: React.ReactNode;
+    destination: string;
+    comingSoon?: boolean;
+  }>;
 }
 
 export default function CyberModeSelection() {
   const [hoveredMode, setHoveredMode] = useState<string | null>(null);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
+  // Réorganisation des modules en 4 catégories
   const cyberModes: ModeOption[] = [
     {
-      id: 'agent-ia',
-      title: 'AGENT IA',
-      description: "Discutez avec un assistant IA specialise en cybersecurite qui adapte ses reponses a vos besoins pour vous fournir des informations et des conseils personnalises.",
-      icon: <Bot className="w-12 h-12 text-blue-100" />,
+      id: 'scenarios-formation',
+      title: 'SCÉNARIOS DE FORMATION',
+      description: "Développez vos compétences en cybersécurité grâce à des mises en situation immersives guidées par l'IA.",
+      icon: <BrainCircuit className="w-12 h-12 text-blue-100" />,
       gradient: 'from-blue-700 to-blue-900',
-      destination: '/cyber/agent'
+      destination: '#',
+      items: [
+        {
+          id: 'agent-ia',
+          title: 'AGENT IA',
+          icon: <Bot className="w-8 h-8" />,
+          destination: '/cyber/agent'
+        },
+        {
+          id: 'cyber-defense',
+          title: 'CYBER DEFENSE',
+          icon: <Shield className="w-8 h-8" />,
+          destination: '/cyber-defense'
+        }
+      ]
     },
     {
-      id: 'cyber-defense',
-      title: 'CYBER DEFENSE',
-      description: "Prenez les commandes face aux menaces cybernetiques. Dans ce mode, vous decidez des actions a entreprendre tandis que les personnages non-joueurs executent vos directives.",
-      icon: <Shield className="w-12 h-12 text-blue-100" />,
-      gradient: 'from-[#006a9e] to-[#004e78]',
-      destination: '/cyber-defense'
-    },
-    {
-      id: 'arcade',
-      title: 'CYBER ARCADE',
-      description: "Testez vos competences en cybersecurite a travers une collection de mini-jeux interactifs et ludiques avec l'IA comme guide et adversaire.",
+      id: 'gamification',
+      title: 'GAMIFICATION AVANCÉE',
+      description: "Testez vos connaissances en cybersécurité avec des jeux interactifs et ludiques adaptés à tous les niveaux.",
       icon: <Joystick className="w-12 h-12 text-purple-100" />,
       gradient: 'from-purple-700 to-purple-900',
-      destination: '/cyber/arcade'
+      destination: '#',
+      items: [
+        {
+          id: 'cyber-arcade',
+          title: 'CYBER ARCADE',
+          icon: <Command className="w-8 h-8" />,
+          destination: '/cyber/arcade'
+        },
+        {
+          id: 'cyber-ascension',
+          title: 'CYBER ASCENSION',
+          icon: <Rocket className="w-8 h-8" />,
+          destination: '/cyber-ascension'
+        }
+      ]
     },
     {
-      id: 'interview-simulation',
-      title: 'SIMULATION D\'ENTRETIEN',
-      description: "Participez à une simulation d'entretien d'embauche réaliste pour évaluer les compétences des candidats aux profils de cybersécurité avec feedback IA.",
+      id: 'recrutement',
+      title: 'RECRUTEMENT',
+      description: "Préparez-vous aux entretiens d'embauche dans le domaine de la cybersécurité avec des simulations réalistes.",
       icon: <User className="w-12 h-12 text-green-100" />,
       gradient: 'from-green-700 to-green-900',
-      destination: '/cyber/interview-simulation'
+      destination: '#',
+      items: [
+        {
+          id: 'interview-simulation',
+          title: 'SIMULATION D\'ENTRETIEN',
+          icon: <User className="w-8 h-8" />,
+          destination: '/cyber/interview-simulation'
+        }
+      ]
     },
     {
-      id: 'cyber-ascension',
-      title: 'CYBER ASCENSION',
-      description: "Développez vos compétences cybersécurité à travers 15 niveaux de difficulté progressive. Contenu généré dynamiquement par l'IA.",
-      icon: <Rocket className="w-12 h-12 text-blue-100" />,
-      gradient: 'from-blue-600/50 to-blue-800/50',
-      destination: '/cyber-ascension'
+      id: 'programme-ascension',
+      title: 'PROGRAMME ASCENSION',
+      description: "Suivez un parcours personnalisé pour atteindre l'excellence en cybersécurité et obtenir des certifications.",
+      icon: <Rocket className="w-12 h-12 text-amber-100" />,
+      gradient: 'from-amber-700 to-amber-900',
+      destination: '#',
+      items: [
+        {
+          id: 'parcours-certifiant',
+          title: 'PARCOURS CERTIFIANT',
+          icon: <Medal className="w-8 h-8" />,
+          destination: '#',
+          comingSoon: true
+        }
+      ]
     }
   ];
 
