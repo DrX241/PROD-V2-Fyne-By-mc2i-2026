@@ -399,39 +399,7 @@ export default function Home() {
         </div>
       </div>
       
-      {/* Section Statistiques avec effet de parallaxe */}
-      <div className="bg-white py-16 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute -left-10 -top-10 w-40 h-40 rounded-full bg-blue-600"></div>
-          <div className="absolute right-0 top-1/3 w-60 h-60 rounded-full bg-indigo-600"></div>
-          <div className="absolute left-1/3 bottom-0 w-40 h-40 rounded-full bg-purple-600"></div>
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { value: "95%", label: "Satisfaction", icon: <Star size={24} className="text-amber-500" /> },
-              { value: "78%", label: "Amélioration des compétences", icon: <Target size={24} className="text-emerald-500" /> },
-              { value: "4.8/5", label: "Note moyenne", icon: <Award size={24} className="text-rose-500" /> },
-              { value: "+1000", label: "Utilisateurs actifs", icon: <Users size={24} className="text-indigo-500" /> }
-            ].map((stat, index) => (
-              <motion.div
-                key={index}
-                className="bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-md border border-gray-100 flex flex-col items-center text-center"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -5, boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)' }}
-              >
-                <div className="mb-2">{stat.icon}</div>
-                <div className="text-3xl font-bold text-gray-900 mb-1 font-cyber-title">{stat.value}</div>
-                <div className="text-gray-600 text-sm font-cyber-body">{stat.label}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </div>
-      
+
       {/* Section Footer - Ajout d'un footer professionnel */}
       <footer className="bg-gray-900 text-white pt-16 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
