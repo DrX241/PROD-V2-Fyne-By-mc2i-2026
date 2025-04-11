@@ -6,8 +6,8 @@ export class BootScene extends Phaser.Scene {
   }
 
   preload() {
-    // Charger les assets nécessaires pour l'écran de chargement
-    this.load.image('logo', '/cyber-logo.png');
+    // Ne pas charger de logo pour éviter les erreurs
+    // this.load.image('logo', '/cyber-logo.png');
     
     // Créer un écran de chargement simple
     const width = this.cameras.main.width;

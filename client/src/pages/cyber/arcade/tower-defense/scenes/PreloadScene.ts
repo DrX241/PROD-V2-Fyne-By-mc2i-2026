@@ -58,13 +58,19 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   create() {
-    // Animations pour les effets visuels
-    this.anims.create({
-      key: 'explode',
-      frames: this.anims.generateFrameNumbers('explosion_anim', { start: 0, end: 15 }),
-      frameRate: 20,
-      repeat: 0
-    });
+    // Animations pour les effets visuels (désactivé pour éviter les erreurs)
+    try {
+      if (this.textures.exists('explosion_anim')) {
+        this.anims.create({
+          key: 'explode',
+          frames: this.anims.generateFrameNumbers('explosion_anim', { start: 0, end: 15 }),
+          frameRate: 20,
+          repeat: 0
+        });
+      }
+    } catch (error) {
+      console.log('Animation explosion non disponible');
+    }
 
     // Passer à la scène du menu principal
     this.scene.start('MenuScene');
