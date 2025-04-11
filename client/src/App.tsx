@@ -26,7 +26,6 @@ import FirewallDefensePage from "@/pages/cyber/arcade/firewall-defense";
 import PasswordGuardianPage from "@/pages/cyber/arcade/password-guardian";
 import NetworkPuzzlePage from "@/pages/cyber/arcade/network-puzzle";
 import CyberQuizChallengePage from "@/pages/cyber/arcade/cyber-quiz";
-import CyberDefenseTowerPage from "@/pages/cyber/arcade/tower-defense";
 // Pages AMOA
 import AmoaPage from "@/pages/amoa";
 import AmoaModeSelection from "@/pages/amoa-mode-selection";
@@ -50,7 +49,6 @@ function Router() {
       <Route path="/cyber/arcade/network-puzzle" component={NetworkPuzzlePage} />
       <Route path="/cyber/arcade/password-guardian" component={PasswordGuardianPage} />
       <Route path="/cyber/arcade/cyber-quiz" component={CyberQuizChallengePage} />
-      <Route path="/cyber/arcade/tower-defense" component={CyberDefenseTowerPage} />
       <Route path="/cyber/arcade/firewall-defense" component={NetworkPuzzlePage} /> {/* Redirection de l'ancien jeu vers le nouveau */}
       <Route path="/cyber/arcade/:gameId" component={CyberArcadeGame} />
       
@@ -121,7 +119,6 @@ function App() {
           <Route path="/cyber/arcade/network-puzzle" component={NetworkPuzzlePage} />
           <Route path="/cyber/arcade/password-guardian" component={PasswordGuardianPage} />
           <Route path="/cyber/arcade/cyber-quiz" component={CyberQuizChallengePage} />
-          <Route path="/cyber/arcade/tower-defense" component={CyberDefenseTowerPage} />
           <Route path="/cyber/arcade/firewall-defense" component={NetworkPuzzlePage} />
           <Route path="/cyber/arcade/:gameId" component={CyberArcadeGame} />
           <Route path="/cyber-defense-new" component={CyberDefenseNewPage} />
