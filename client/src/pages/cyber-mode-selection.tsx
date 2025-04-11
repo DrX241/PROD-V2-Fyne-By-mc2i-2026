@@ -340,9 +340,9 @@ export default function CyberModeSelection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="text-center mt-12"
+            className="text-center mt-16 mb-8 bg-blue-900/30 py-6 px-4 rounded-xl backdrop-blur-sm max-w-4xl mx-auto"
           >
-            <p className="text-sm text-blue-300">
+            <p className="text-lg md:text-xl text-blue-100 font-medium">
               Tous les modes utilisent l'intelligence artificielle pour créer des expériences d'apprentissage immersives et adaptatives.
             </p>
           </motion.div>
