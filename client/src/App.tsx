@@ -28,6 +28,7 @@ import NetworkPuzzlePage from "@/pages/cyber/arcade/network-puzzle";
 import CyberQuizChallengePage from "@/pages/cyber/arcade/cyber-quiz";
 // Pages AMOA
 import AmoaPage from "@/pages/amoa";
+import AmoaModeSelection from "@/pages/amoa-mode-selection";
 import AmoaQuestPage from "@/pages/amoa/quest";
 // Modules Simulation d'Entretien
 import CyberInterviewSimulation from "@/pages/cyber/interview-simulation";
@@ -67,6 +68,7 @@ function Router() {
       <Route path="/cyber-ascension/theme/:themeId/level/:levelId" component={NotYetImplemented} />
       <Route path="/data-ia" component={NotYetImplemented} />
       <Route path="/amoa" component={AmoaPage} />
+      <Route path="/amoa-mode-selection" component={AmoaModeSelection} />
       <Route path="/amoa/quest" component={AmoaQuestPage} />
       <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
       <Route path="/cyber/interview-simulation" component={CyberInterviewSimulation} />
@@ -131,6 +133,7 @@ function App() {
           <Route path="/cyber-ascension/theme/:themeId/level/:levelId" component={NotYetImplemented} />
           <Route path="/data-ia" component={NotYetImplemented} />
           <Route path="/amoa" component={AmoaPage} />
+          <Route path="/amoa-mode-selection" component={AmoaModeSelection} />
           <Route path="/amoa/quest" component={AmoaQuestPage} />
           <Route path="/custom" component={NotYetImplemented} />
           <Route component={NotFound} />
