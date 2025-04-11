@@ -233,108 +233,97 @@ export default function CyberModeSelection() {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 px-4 sm:px-8 max-w-6xl mx-auto">
-            {cyberModes.map((mode, index) => (
-              <Link key={mode.id} href={mode.id === 'cyber-ascension' ? '#' : mode.destination} className="flex h-full" onClick={(e) => mode.id === 'cyber-ascension' && e.preventDefault()}>
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.2 }}
-                  className={`relative overflow-hidden shadow-xl cursor-pointer transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl h-full w-full flex-1 ${
-                    mode.id === 'agent-ia' ? 'card-clip-path-1' :
-                    mode.id === 'cyber-defense' ? 'card-clip-path-2' :
-                    mode.id === 'cyber-arcade' ? 'card-clip-path-3' :
-                    'card-clip-path-4'
-                  }`}
-                  onMouseEnter={() => setHoveredMode(mode.id)}
-                  onMouseLeave={() => setHoveredMode(null)}
-                >
-                  {/* Gradient background */}
-                  <div className={`bg-gradient-to-br ${mode.gradient} p-6 sm:p-8 h-full flex flex-col relative overflow-hidden`}>
-                    {/* Glow effect on hover */}
-                    {hoveredMode === mode.id && (
-                      <>
-                        <div className="absolute inset-0 bg-white opacity-10 animate-pulse"></div>
-                        <div className={`absolute -inset-1 ${
-                          mode.id === 'agent-ia' ? 'bg-blue-500' : 
-                          mode.id === 'cyber-defense' ? 'bg-[#006a9e]' : 
-                          'bg-purple-500'
-                        } opacity-30 blur-xl animate-pulse-glow`}></div>
-                      </>
+            {cyberModes.map((category, index) => (
+              <motion.div
+                key={category.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.2 }}
+                className="relative overflow-hidden shadow-xl cursor-pointer transform transition-all duration-300 hover:shadow-2xl h-full w-full flex-1 rounded-xl"
+                onMouseEnter={() => setHoveredMode(category.id)}
+                onMouseLeave={() => setHoveredMode(null)}
+              >
+                {/* Gradient background */}
+                <div className={`bg-gradient-to-br ${category.gradient} p-6 sm:p-8 h-full flex flex-col relative overflow-hidden rounded-xl`}>
+                  {/* Glow effect on hover */}
+                  {hoveredMode === category.id && (
+                    <>
+                      <div className="absolute inset-0 bg-white opacity-10 animate-pulse"></div>
+                      <div className={`absolute -inset-1 bg-opacity-30 blur-xl animate-pulse-glow`} style={{
+                        backgroundColor: category.id === 'scenarios-formation' ? '#3b82f6' : 
+                                        category.id === 'gamification' ? '#9333ea' : 
+                                        category.id === 'recrutement' ? '#22c55e' : 
+                                        '#f59e0b'
+                      }}></div>
+                    </>
+                  )}
+                  
+                  {/* Éléments décoratifs pour design futuriste */}
+                  <div className="absolute h-16 w-16 -top-8 -right-8 bg-white opacity-20 rounded-full blur-md"></div>
+                  <div className="absolute h-24 w-2 bottom-10 -left-1 bg-white opacity-20 rounded-full blur-sm transform rotate-45"></div>
+                  
+                  <div className="flex flex-col h-full relative z-10">
+                    {/* Icon container */}
+                    <div className="w-16 h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 rounded-2xl bg-opacity-20 bg-white flex items-center justify-center mb-4 backdrop-blur-sm mx-auto">
+                      {category.icon}
+                    </div>
+                    
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-3 text-center">{category.title}</h2>
+                    <p className="text-blue-100 mb-6 text-sm lg:text-base text-center">{category.description}</p>
+                    
+                    {/* Liste des modules dans cette catégorie */}
+                    <div className="mt-4 flex-grow">
+                      <div className="space-y-3">
+                        {category.items && category.items.map((item) => (
+                          <Link key={item.id} href={item.comingSoon ? '#' : item.destination} onClick={(e) => item.comingSoon && e.preventDefault()}>
+                            <div className="flex items-center p-3 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors">
+                              <div className="mr-3 text-white">
+                                {item.icon}
+                              </div>
+                              <div className="flex-grow">
+                                <h3 className="text-white font-medium">{item.title}</h3>
+                              </div>
+                              {item.comingSoon ? (
+                                <div className="text-xs bg-blue-900/60 text-white px-2 py-1 rounded flex items-center">
+                                  <span className="animate-pulse mr-1">•</span>
+                                  Bientôt
+                                </div>
+                              ) : (
+                                <div className="text-white">
+                                  <ArrowRight className="h-4 w-4" />
+                                </div>
+                              )}
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Bouton d'expansion si nécessaire */}
+                    {category.items && category.items.length > 0 && (
+                      <div className="mt-4 text-center">
+                        <Button 
+                          className="bg-white/30 hover:bg-white/40 text-white transition-all"
+                          size="sm"
+                          onClick={() => setExpandedCategory(expandedCategory === category.id ? null : category.id)}
+                        >
+                          {expandedCategory === category.id ? (
+                            <>
+                              <ChevronUp className="h-4 w-4 mr-2" />
+                              Réduire
+                            </>
+                          ) : (
+                            <>
+                              <ChevronDown className="h-4 w-4 mr-2" />
+                              Voir tout
+                            </>
+                          )}
+                        </Button>
+                      </div>
                     )}
-                    
-                    {/* Éléments décoratifs pour design futuriste */}
-                    <div className="absolute h-16 w-16 -top-8 -right-8 bg-white opacity-20 rounded-full blur-md"></div>
-                    <div className="absolute h-24 w-2 bottom-10 -left-1 bg-white opacity-20 rounded-full blur-sm transform rotate-45"></div>
-                    <div className={`absolute h-1 w-20 top-6 right-6 ${
-                      mode.id === 'agent-ia' ? 'bg-blue-200' : 
-                      mode.id === 'cyber-defense' ? 'bg-cyan-200' : 
-                      mode.id === 'cyber-arcade' ? 'bg-purple-200' :
-                      'bg-indigo-200'
-                    } opacity-40`}></div>
-                    <div className={`absolute h-20 w-1 bottom-6 left-12 ${
-                      mode.id === 'agent-ia' ? 'bg-blue-200' : 
-                      mode.id === 'cyber-defense' ? 'bg-cyan-200' : 
-                      mode.id === 'cyber-arcade' ? 'bg-purple-200' :
-                      'bg-indigo-200'
-                    } opacity-40`}></div>
-                    
-                    <div className="flex flex-col h-full relative z-10">
-                      {/* Icon container */}
-                      <div className="w-16 h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 rounded-2xl bg-opacity-20 bg-white flex items-center justify-center mb-4 backdrop-blur-sm mx-auto">
-                        {mode.icon}
-                      </div>
-                      
-                      <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-3 text-center">{mode.title}</h2>
-                      <p className="text-blue-100 mb-6 text-sm lg:text-base flex-grow text-center">{mode.description}</p>
-                      
-                      <div className="flex items-center justify-center mt-auto">
-                        {mode.id === 'cyber-ascension' ? (
-                          <div className="bg-blue-900/60 text-white px-4 py-2 rounded-md flex items-center mx-auto">
-                            <span className="animate-pulse mr-2">•</span>
-                            Bientôt disponible
-                          </div>
-                        ) : (
-                          <Button 
-                            className={`bg-white hover:bg-opacity-90 transition-all group ${
-                              mode.id === 'agent-ia' ? 'text-blue-700' : 
-                              mode.id === 'cyber-defense' ? 'text-[#006a9e]' : 
-                              'text-purple-700'
-                            }`}
-                            size="sm"
-                          >
-                            Commencer
-                            <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform w-4 h-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                    
-                    {/* Feature icons */}
-                    <div className="absolute bottom-4 right-4 flex gap-3 opacity-20">
-                      {mode.id === 'agent-ia' ? (
-                        <>
-                          <MessageSquare className="w-6 h-6 text-white" />
-                          <Command className="w-6 h-6 text-white" />
-                        </>
-                      ) : mode.id === 'cyber-defense' ? (
-                        <>
-                          <Shield className="w-6 h-6 text-white" />
-                          <User className="w-6 h-6 text-white" />
-                        </>
-                      ) : mode.id === 'cyber-ascension' ? (
-                        <>
-                          <Rocket className="w-6 h-6 text-white" />
-                          <BrainCircuit className="w-6 h-6 text-white" />
-                        </>
-                      ) : (
-                        <>
-                          <Joystick className="w-6 h-6 text-white" />
-                        </>
-                      )}
-                    </div>
                   </div>
-                </motion.div>
-              </Link>
+                </div>
+              </motion.div>
             ))}
           </div>
           
