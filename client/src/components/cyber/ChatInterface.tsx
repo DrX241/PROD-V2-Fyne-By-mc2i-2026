@@ -7,7 +7,11 @@ import EmailMessage from "./EmailMessage";
 import ContextBanner from "./ContextBanner";
 import { Send, RefreshCw, ChevronDown } from "lucide-react";
 
-export default function ChatInterface() {
+interface ChatInterfaceProps {
+  onMessagesUpdate?: (messages: any[]) => void;
+}
+
+export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) {
   const { 
     messages, 
     sendMessage, 
@@ -56,6 +60,13 @@ export default function ChatInterface() {
       });
     }
   };
+  
+  // Effet pour mettre à jour les messages dans le composant parent
+  useEffect(() => {
+    if (onMessagesUpdate) {
+      onMessagesUpdate(messages);
+    }
+  }, [messages, onMessagesUpdate]);
 
   // Focus input on load
   useEffect(() => {

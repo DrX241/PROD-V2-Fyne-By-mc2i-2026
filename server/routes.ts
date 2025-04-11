@@ -2290,6 +2290,10 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
   // Finaliser et évaluer une simulation AMOA
   app.post('/api/amoa/interview-simulation/complete', completeInterviewSimulation);
   
+  // Routes pour l'Agent IA (I AM CYBER) avec timer et rapport email
+  app.post('/api/cyber/agent/start', startAgentSession);
+  app.post('/api/cyber/agent/complete', completeAgentSession);
+
   // Route pour la conversation libre avec les parties prenantes dans AMOA Quest
   app.post('/api/amoa/quest/chat', async (req: Request, res: Response) => {
     try {

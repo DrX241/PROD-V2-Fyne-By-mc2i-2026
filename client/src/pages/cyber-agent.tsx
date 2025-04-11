@@ -1,20 +1,255 @@
+import { useState, useEffect, useRef } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import CyberLayout from "@/components/layout/CyberLayout";
 import ChatInterface from "@/components/cyber/ChatInterface";
 import PageTitle from "@/components/utils/PageTitle";
 import { Link } from "wouter";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Clock, Mail, Send } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+
+// Schéma de formulaire pour la configuration de la session Agent IA
+const formSchema = z.object({
+  userEmail: z.string().email({
+    message: "Veuillez entrer une adresse email valide.",
+  }),
+  userName: z.string().min(2, {
+    message: "Votre nom doit contenir au moins 2 caractères.",
+  }),
+});
+
+// Type d'inférence pour le schéma de formulaire
+type FormValues = z.infer<typeof formSchema>;
 
 export default function CyberAgentPage() {
+  const { toast } = useToast();
+  const [isSessionActive, setIsSessionActive] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutes en secondes
+  const [messages, setMessages] = useState<any[]>([]);
+  const [sessionData, setSessionData] = useState<any>(null);
+  const startTimeRef = useRef<number>(0);
+
+  // Configurer le formulaire
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      userEmail: "",
+      userName: "",
+    },
+  });
+
+  // Fonction pour démarrer la session
+  const startSession = async (values: FormValues) => {
+    try {
+      const response = await apiRequest('/api/cyber/agent/start', {
+        method: 'POST',
+        body: JSON.stringify({
+          userEmail: values.userEmail,
+          userName: values.userName
+        })
+      });
+
+      if (response.success) {
+        setSessionData({
+          userEmail: values.userEmail,
+          userName: values.userName,
+          startTime: Date.now()
+        });
+        setIsSessionActive(true);
+        startTimeRef.current = Date.now();
+
+        toast({
+          title: "Session démarrée",
+          description: "Votre session Agent IA a démarré. Un rapport sera envoyé à votre email à la fin.",
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors du démarrage de la session:", error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de démarrer la session. Veuillez réessayer.",
+      });
+    }
+  };
+
+  // Fonction pour terminer la session et envoyer le rapport
+  const completeSession = async () => {
+    if (!sessionData) return;
+
+    const duration = Date.now() - startTimeRef.current;
+    
+    try {
+      const response = await apiRequest('/api/cyber/agent/complete', {
+        method: 'POST',
+        body: JSON.stringify({
+          userEmail: sessionData.userEmail,
+          userName: sessionData.userName,
+          messages, // Historique complet des messages
+          duration // Durée en millisecondes
+        })
+      });
+
+      if (response.success) {
+        toast({
+          title: "Session terminée",
+          description: "Un rapport détaillé a été envoyé à votre adresse email.",
+        });
+
+        // Réinitialiser la session
+        setIsSessionActive(false);
+        setTimeRemaining(600);
+        setMessages([]);
+        setSessionData(null);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la finalisation de la session:", error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible d'envoyer le rapport. Veuillez contacter le support.",
+      });
+    }
+  };
+
+  // Effet pour le compte à rebours
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    
+    if (isSessionActive && timeRemaining > 0) {
+      timer = setInterval(() => {
+        setTimeRemaining(prev => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            completeSession();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [isSessionActive, timeRemaining]);
+
+  // Formater le temps restant
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Gestion des messages
+  const handleMessagesUpdate = (newMessages: any[]) => {
+    setMessages(newMessages);
+  };
+
   return (
     <CyberLayout>
       <PageTitle title="AGENT IA" />
-      <div className="mb-6 px-4 sm:px-6">
+      <div className="mb-2 px-4 sm:px-6 flex items-center justify-between">
         <Link href="/cyber" className="inline-flex items-center text-[#46cada] hover:text-blue-600 transition-colors">
           <ArrowLeft className="mr-2 h-5 w-5" />
           Retour à I AM CYBER
         </Link>
+        
+        {isSessionActive && (
+          <div className="flex items-center text-white bg-blue-600/80 px-3 py-1 rounded-full">
+            <Clock className="mr-2 h-4 w-4" />
+            <span className="font-mono">{formatTime(timeRemaining)}</span>
+          </div>
+        )}
       </div>
-      <ChatInterface />
+
+      {!isSessionActive ? (
+        <div className="max-w-md mx-auto mt-8">
+          <Card className="bg-gradient-to-br from-blue-950 to-indigo-900 text-white border-blue-800">
+            <CardHeader>
+              <CardTitle className="text-xl text-center">Démarrez votre session Agent IA</CardTitle>
+              <CardDescription className="text-blue-200 text-center">
+                Un rapport détaillé sera envoyé à votre email à la fin de la session de 10 minutes
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(startSession)} className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="userEmail"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-blue-200">Email</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-400" />
+                            <Input 
+                              placeholder="votre.email@exemple.com" 
+                              className="pl-10 bg-blue-900/50 border-blue-700 text-white" 
+                              {...field} 
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="userName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-blue-200">Votre nom</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Prénom Nom" 
+                            className="bg-blue-900/50 border-blue-700 text-white" 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                  >
+                    <Send className="mr-2 h-4 w-4" />
+                    Démarrer la session
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+            <CardFooter className="text-xs text-center text-blue-300 justify-center">
+              <p>La session durera 10 minutes. Vous recevrez un rapport détaillé par email.</p>
+            </CardFooter>
+          </Card>
+        </div>
+      ) : (
+        <ChatInterface onMessagesUpdate={handleMessagesUpdate} />
+      )}
     </CyberLayout>
   );
 }
