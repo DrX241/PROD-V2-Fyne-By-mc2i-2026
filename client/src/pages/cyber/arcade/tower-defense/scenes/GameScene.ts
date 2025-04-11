@@ -1111,14 +1111,20 @@ export class GameScene extends Phaser.Scene {
   
   // Créer un effet d'impact sur la base
   private createBaseHitEffect() {
-    // Animation d'explosion
-    const explosion = this.add.sprite(this.base.x, this.base.y, 'explosion_anim')
+    // Animation simplifiée sans utiliser explosion_anim
+    const explosion = this.add.sprite(this.base.x, this.base.y, 'explosion')
       .setScale(1.5)
-      .play('explode');
+      .setBlendMode(Phaser.BlendModes.ADD);
     
-    // Supprimer après l'animation
-    explosion.once('animationcomplete', () => {
-      explosion.destroy();
+    // Animation de pulsation simple au lieu d'une animation de spritesheet
+    this.tweens.add({
+      targets: explosion,
+      scale: { from: 1, to: 2 },
+      alpha: { from: 1, to: 0 },
+      duration: 500,
+      onComplete: () => {
+        explosion.destroy();
+      }
     });
     
     // Flash rouge sur la base
@@ -1619,10 +1625,24 @@ export class GameScene extends Phaser.Scene {
       angle: 180,
       duration: 1000,
       onComplete: () => {
-        // Explosion finale
-        this.add.sprite(this.base.x, this.base.y, 'explosion_anim')
+        // Explosion finale simplifiée sans utiliser explosion_anim
+        const finalExplosion = this.add.sprite(this.base.x, this.base.y, 'explosion')
           .setScale(3)
-          .play('explode');
+          .setBlendMode(Phaser.BlendModes.ADD);
+          
+        // Animation d'expansion/disparition au lieu d'utiliser spritesheet
+        this.tweens.add({
+          targets: finalExplosion,
+          scale: { from: 1, to: 5 },
+          alpha: { from: 1, to: 0 },
+          duration: 1000,
+          onComplete: () => {
+            finalExplosion.destroy();
+          }
+        });
+        
+        // Effet de secousse caméra
+        this.cameras.main.shake(500, 0.02);
       }
     });
     

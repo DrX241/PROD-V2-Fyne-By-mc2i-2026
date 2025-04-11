@@ -40,8 +40,8 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image('bullet', 'https://i.imgur.com/D5PbEEl.png');
     this.load.image('explosion', 'https://i.imgur.com/LY5ZTIr.png');
     
-    // Effets visuels et particules
-    this.load.spritesheet('explosion_anim', 'https://i.imgur.com/X39Oxfn.png', { frameWidth: 64, frameHeight: 64 });
+    // Effets visuels et particules simplifiés - sans utilisation de spritesheet
+    // Ne pas charger explosion_anim qui n'est plus utilisée
     
     // Charger les sons
     this.load.audio('shoot', ['https://assets.codepen.io/21542/Tower_Defense_Laser.mp3']);
@@ -59,19 +59,8 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   create() {
-    // Animations pour les effets visuels (désactivé pour éviter les erreurs)
-    try {
-      if (this.textures.exists('explosion_anim')) {
-        this.anims.create({
-          key: 'explode',
-          frames: this.anims.generateFrameNumbers('explosion_anim', { start: 0, end: 15 }),
-          frameRate: 20,
-          repeat: 0
-        });
-      }
-    } catch (error) {
-      console.log('Animation explosion non disponible');
-    }
+    // Animations pour les effets visuels complètement désactivées
+    console.log('Initialisation du jeu Tower Defense');
     
     // Créer un fond cybernétique procédural
     this.createCyberspaceBackground();
