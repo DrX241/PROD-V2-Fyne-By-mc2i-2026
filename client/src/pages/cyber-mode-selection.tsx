@@ -69,14 +69,14 @@ export default function CyberModeSelection() {
     {
       id: 'recrutement',
       title: 'RECRUTEMENT',
-      description: "Préparez-vous aux entretiens d'embauche dans le domaine de la cybersécurité avec des simulations réalistes.",
+      description: "Mettez-vous dans la peau d'un candidat lors d'entretiens simulés avec compte-rendu envoyé au recruteur par email.",
       icon: <User className="w-12 h-12 text-green-100" />,
       gradient: 'from-green-700 to-green-900',
       destination: '#',
       items: [
         {
           id: 'interview-simulation',
-          title: 'SIMULATION D\'ENTRETIEN',
+          title: 'SIMULATION D\'ENTRETIEN CANDIDAT',
           icon: <User className="w-8 h-8" />,
           destination: '/cyber/interview-simulation'
         }

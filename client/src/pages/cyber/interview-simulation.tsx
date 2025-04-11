@@ -326,7 +326,7 @@ const CyberInterviewSimulation: React.FC = () => {
               <ArrowLeft className="w-5 h-5 mr-2" />
               Retour
             </Button>
-            <h1 className="text-3xl font-bold">Simulation d'Entretien Cybersécurité</h1>
+            <h1 className="text-3xl font-bold">Simulation d'entretien Cybersécurité</h1>
           </div>
           
           <p className="mb-8 text-gray-300">
