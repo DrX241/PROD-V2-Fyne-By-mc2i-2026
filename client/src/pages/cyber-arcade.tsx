@@ -236,7 +236,7 @@ export default function CyberArcade() {
   return (
     <HomeLayout>
       <PageTitle title="CYBER ARCADE" />
-      <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-purple-900 via-gray-900 to-black">
+      <div className="min-h-[calc(100vh-64px)] relative overflow-y-auto bg-gradient-to-b from-purple-900 via-gray-900 to-black">
         {/* Arrière-plan simplifié */}
         <div className="absolute inset-0 w-full h-full">
           <div className="absolute inset-0 z-0 opacity-20">

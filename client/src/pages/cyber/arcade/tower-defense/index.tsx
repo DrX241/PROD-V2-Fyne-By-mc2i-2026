@@ -573,7 +573,7 @@ export default function CyberDefenseTower() {
 
   return (
     <HomeLayout>
-      <div className="min-h-[calc(100vh-64px)] bg-gray-900 text-white">
+      <div className="min-h-[calc(100vh-64px)] bg-gray-900 text-white overflow-y-auto">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center">
@@ -599,7 +599,9 @@ export default function CyberDefenseTower() {
             </ul>
           </div>
           
-          <div ref={gameRef} id="game-container" className="bg-black rounded-lg overflow-hidden mx-auto" style={{ width: '800px', height: '600px' }} />
+          <div className="overflow-auto">
+            <div ref={gameRef} id="game-container" className="bg-black rounded-lg overflow-hidden mx-auto" style={{ width: '800px', height: '600px' }} />
+          </div>
           
           <div className="mt-6 text-sm text-gray-400">
             <p>Ce jeu illustre les concepts de défense en profondeur en cybersécurité. Chaque type de tour représente une couche de protection différente.</p>
