@@ -63,12 +63,6 @@ export default function CyberModeSelection() {
           title: 'CYBER ARCADE',
           icon: <Command className="w-8 h-8" />,
           destination: '/cyber/arcade'
-        },
-        {
-          id: 'cyber-ascension',
-          title: 'CYBER ASCENSION',
-          icon: <Rocket className="w-8 h-8" />,
-          destination: '/cyber-ascension'
         }
       ]
     },
@@ -91,11 +85,17 @@ export default function CyberModeSelection() {
     {
       id: 'programme-ascension',
       title: 'PROGRAMME ASCENSION',
-      description: "Suivez un parcours personnalisé pour atteindre l'excellence en cybersécurité et obtenir des certifications.",
+      description: "Suivez un parcours personnalisé d'accompagnement pour atteindre l'excellence en cybersécurité, préparer des certifications professionnelles et développer vos compétences de manière progressive.",
       icon: <Rocket className="w-12 h-12 text-amber-100" />,
       gradient: 'from-amber-700 to-amber-900',
       destination: '#',
       items: [
+        {
+          id: 'cyber-ascension',
+          title: 'CYBER ASCENSION',
+          icon: <Rocket className="w-8 h-8" />,
+          destination: '/cyber-ascension'
+        },
         {
           id: 'parcours-certifiant',
           title: 'PARCOURS CERTIFIANT',
