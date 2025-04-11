@@ -94,7 +94,8 @@ export default function CyberModeSelection() {
           id: 'cyber-ascension',
           title: 'CYBER ASCENSION',
           icon: <Rocket className="w-8 h-8" />,
-          destination: '/cyber-ascension'
+          destination: '#',
+          comingSoon: true
         },
         {
           id: 'parcours-certifiant',
@@ -232,7 +233,7 @@ export default function CyberModeSelection() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 px-4 sm:px-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 px-2 sm:px-4 max-w-[98%] mx-auto">
             {cyberModes.map((category, index) => (
               <motion.div
                 key={category.id}
@@ -244,7 +245,7 @@ export default function CyberModeSelection() {
                 onMouseLeave={() => setHoveredMode(null)}
               >
                 {/* Gradient background */}
-                <div className={`bg-gradient-to-br ${category.gradient} p-6 sm:p-8 h-full flex flex-col relative overflow-hidden rounded-xl`}>
+                <div className={`bg-gradient-to-br ${category.gradient} p-4 h-full flex flex-col relative overflow-hidden rounded-xl`}>
                   {/* Glow effect on hover */}
                   {hoveredMode === category.id && (
                     <>
@@ -264,12 +265,20 @@ export default function CyberModeSelection() {
                   
                   <div className="flex flex-col h-full relative z-10">
                     {/* Icon container */}
-                    <div className="w-16 h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 rounded-2xl bg-opacity-20 bg-white flex items-center justify-center mb-4 backdrop-blur-sm mx-auto">
+                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-opacity-20 bg-white flex items-center justify-center mb-3 backdrop-blur-sm mx-auto">
                       {category.icon}
                     </div>
                     
-                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-3 text-center">{category.title}</h2>
-                    <p className="text-blue-100 mb-6 text-sm lg:text-base text-center">{category.description}</p>
+                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-2 text-center">
+                      {category.title}
+                      {category.id === 'programme-ascension' && (
+                        <span className="ml-2 text-xs bg-blue-900/60 text-white px-2 py-1 rounded-full inline-flex items-center">
+                          <span className="animate-pulse mr-1">•</span>
+                          Bientôt
+                        </span>
+                      )}
+                    </h2>
+                    <p className="text-blue-100 mb-3 text-xs lg:text-sm text-center">{category.description}</p>
                     
                     {/* Liste des modules dans cette catégorie */}
                     <div className="mt-4 flex-grow">
