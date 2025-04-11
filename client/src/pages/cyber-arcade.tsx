@@ -23,15 +23,6 @@ export default function CyberArcade() {
   const [hoveredGame, setHoveredGame] = useState<string | null>(null);
 
   const arcadeGames: GameOption[] = [
-    // Nouveau jeu - Tower Defense
-    {
-      id: 'tower-defense',
-      title: 'CyberSec Tower Defense',
-      description: "Défendez votre réseau contre des vagues d'attaques en déployant des mécanismes de défense stratégiques. Nouveau jeu de stratégie !",
-      difficulty: 'Moyen',
-      icon: <Shield className="w-10 h-10 text-white" />,
-      gradient: 'from-cyan-600 to-blue-800'
-    },
     // Jeux existants et fonctionnels - maintenus accessibles
     {
       id: 'password-guardian',
