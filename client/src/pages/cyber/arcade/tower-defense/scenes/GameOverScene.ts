@@ -215,7 +215,9 @@ export class GameOverScene extends Phaser.Scene {
   
   // Créer des particules pour l'arrière-plan
   private createParticles() {
-    const particles = this.add.particles('bullet');
+    // Utiliser une clé textuelle (string) pour l'asset
+    const particleKey = 'bullet';
+    const particles = this.add.particles(particleKey);
     
     particles.createEmitter({
       x: { min: 0, max: this.cameras.main.width },

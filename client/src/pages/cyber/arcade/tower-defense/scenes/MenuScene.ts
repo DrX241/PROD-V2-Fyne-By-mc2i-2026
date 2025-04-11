@@ -148,11 +148,13 @@ export class MenuScene extends Phaser.Scene {
   
   // Particules bits/bytes pour effet digital
   private createDigitalParticles() {
-    const particles = this.add.particles('bullet');
+    // Utiliser une clé textuelle (string) pour l'asset
+    const particleKey = 'bullet';
+    const particles = this.add.particles(particleKey);
     
     particles.createEmitter({
       x: { min: 0, max: this.cameras.main.width },
-      y: -10,
+      y: { min: -10, max: -10 },
       lifespan: 4000,
       speedY: { min: 50, max: 150 },
       scale: { start: 0.2, end: 0 },
@@ -160,7 +162,7 @@ export class MenuScene extends Phaser.Scene {
       frequency: 500,
       alpha: { start: 0.5, end: 0 },
       tint: [0x00ffff, 0x0088ff, 0x00ff88],
-      blendMode: 'ADD'
+      blendMode: Phaser.BlendModes.ADD
     });
   }
 }
