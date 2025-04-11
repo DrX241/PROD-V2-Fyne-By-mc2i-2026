@@ -23,6 +23,12 @@ import HomeLayout from "@/components/layout/HomeLayout";
 
 export default function AmoaPage() {
   const [, setLocation] = useLocation();
+  
+  // Rediriger automatiquement vers la page de sélection des modes
+  React.useEffect(() => {
+    setLocation('/amoa-mode-selection');
+  }, [setLocation]);
+  
   const [hoveredModule, setHoveredModule] = useState<string | null>(null);
 
   // Liste des modules disponibles en format optimisé pour la nouvelle présentation
