@@ -68,7 +68,7 @@ export default function CyberModeSelection() {
     },
     {
       id: 'recrutement',
-      title: 'RECRUTEMENT',
+      title: 'MISE EN SITUATION DE RECRUTEMENT',
       description: "Mettez-vous dans la peau d'un candidat lors d'entretiens simulés avec compte-rendu envoyé au recruteur par email.",
       icon: <User className="w-12 h-12 text-green-100" />,
       gradient: 'from-green-700 to-green-900',
