@@ -218,7 +218,7 @@ export default function CyberModeSelection() {
         </div>
         
         {/* Contenu principal */}
-        <div className="relative z-10 max-w-6xl mx-auto px-4 py-12 sm:px-6 sm:py-16">
+        <div className="relative z-10 max-w-[1600px] w-full mx-auto px-4 py-12 sm:px-6 sm:py-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -233,7 +233,7 @@ export default function CyberModeSelection() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 px-2 sm:px-4 max-w-[98%] mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 px-3 sm:px-6 max-w-full mx-auto">
             {cyberModes.map((category, index) => (
               <motion.div
                 key={category.id}
@@ -245,7 +245,7 @@ export default function CyberModeSelection() {
                 onMouseLeave={() => setHoveredMode(null)}
               >
                 {/* Gradient background */}
-                <div className={`bg-gradient-to-br ${category.gradient} p-4 h-full flex flex-col relative overflow-hidden rounded-xl`}>
+                <div className={`bg-gradient-to-br ${category.gradient} p-5 lg:p-6 h-full flex flex-col relative overflow-hidden rounded-xl`}>
                   {/* Glow effect on hover */}
                   {hoveredMode === category.id && (
                     <>
