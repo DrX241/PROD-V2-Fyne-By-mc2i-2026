@@ -90,7 +90,7 @@ export const SocialMediaViewer: React.FC<SocialMediaViewerProps> = ({
               </span>
               <span className="flex items-center">
                 <Calendar className="h-3 w-3 mr-1" />
-                Membre depuis {new Date(profile.joinDate).toLocaleDateString()}
+                Membre depuis {profile.joinDate ? new Date(profile.joinDate).toLocaleDateString() : 'Inconnue'}
               </span>
             </div>
             <div className="flex space-x-4 mt-2 text-sm">
@@ -129,7 +129,7 @@ export const SocialMediaViewer: React.FC<SocialMediaViewerProps> = ({
               <div className="flex space-x-3 text-xs text-gray-400">
                 <span className="flex items-center">
                   <Calendar className="h-3 w-3 mr-1" />
-                  {new Date(post.date).toLocaleDateString()}
+                  {post.date ? new Date(post.date).toLocaleDateString() : 'Date inconnue'}
                 </span>
                 <span className="flex items-center">
                   <Heart className="h-3 w-3 mr-1" />
@@ -176,11 +176,11 @@ export const SocialMediaViewer: React.FC<SocialMediaViewerProps> = ({
             </div>
             <div className="flex justify-between">
               <span className="text-gray-400">Compte créé le</span>
-              <span className="text-white">{new Date(profile.joinDate).toLocaleDateString()}</span>
+              <span className="text-white">{profile.joinDate ? new Date(profile.joinDate).toLocaleDateString() : 'Date inconnue'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-400">Dernière activité</span>
-              <span className="text-white">{new Date(profile.lastActive).toLocaleDateString()}</span>
+              <span className="text-white">{profile.lastActive ? new Date(profile.lastActive).toLocaleDateString() : 'Date inconnue'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-400">Statut</span>
