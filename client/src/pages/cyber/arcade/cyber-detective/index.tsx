@@ -1,15 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Search, Shield, Lightbulb, HelpCircle, Briefcase } from 'lucide-react';
+import { ArrowLeft, Search, Shield, Lightbulb, HelpCircle, Briefcase, Key, AlertTriangle, Terminal, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
-import { CyberDetectiveGame } from './game';
+import { CyberDetectiveGame, PuzzleData } from './game';
 
 export default function CyberDetectivePage() {
   const [gameStarted, setGameStarted] = useState(false);
@@ -26,6 +29,16 @@ export default function CyberDetectivePage() {
     content: string;
     image?: string;
   }>({ title: '', content: '' });
+  
+  // États pour les dialogues de puzzle
+  const [passwordDialogVisible, setPasswordDialogVisible] = useState<boolean>(false);
+  const [terminalDialogVisible, setTerminalDialogVisible] = useState<boolean>(false);
+  const [currentPuzzle, setCurrentPuzzle] = useState<PuzzleData | null>(null);
+  const [passwordInput, setPasswordInput] = useState<string>('');
+  const [terminalInput, setTerminalInput] = useState<string>('');
+  const [puzzleError, setPuzzleError] = useState<string | null>(null);
+  const [puzzleSuccess, setPuzzleSuccess] = useState<boolean>(false);
+  const [showHint, setShowHint] = useState<boolean>(false);
 
   // Fonction pour ajouter un élément à l'inventaire
   const addToInventory = (item: {id: string, name: string, description: string, icon: React.ReactNode}) => {
@@ -71,6 +84,86 @@ export default function CyberDetectivePage() {
     setProgress(0);
     setCurrentScene('office');
     setGameCompleted(false);
+  };
+  
+  // Gestionnaires pour les puzzles
+  const openPasswordDialog = (puzzle: PuzzleData) => {
+    setCurrentPuzzle(puzzle);
+    setPasswordInput('');
+    setPuzzleError(null);
+    setPuzzleSuccess(false);
+    setShowHint(false);
+    setPasswordDialogVisible(true);
+  };
+  
+  const openTerminalDialog = (puzzle: PuzzleData) => {
+    setCurrentPuzzle(puzzle);
+    setTerminalInput('');
+    setPuzzleError(null);
+    setPuzzleSuccess(false);
+    setShowHint(false);
+    setTerminalDialogVisible(true);
+  };
+  
+  // Fonction pour vérifier la solution du mot de passe
+  const verifyPassword = () => {
+    if (!currentPuzzle) return;
+    
+    if (passwordInput === currentPuzzle.solution) {
+      setPuzzleSuccess(true);
+      setPuzzleError(null);
+      
+      // Débloquer l'élément correspondant
+      if (currentPuzzle.unlocks) {
+        // Appeler la fonction exposée par le jeu pour débloquer l'élément
+        (window as any).unlockGameItem(currentPuzzle.unlocks);
+        
+        setTimeout(() => {
+          setPasswordDialogVisible(false);
+          
+          // Feedback de réussite
+          setCurrentDialog({
+            title: 'Déverrouillage réussi',
+            content: `Vous avez résolu l'énigme "${currentPuzzle.title}" et débloqué un nouvel élément !`
+          });
+          setDialogVisible(true);
+        }, 1500);
+      }
+    } else {
+      setPuzzleError('Mot de passe incorrect. Veuillez réessayer.');
+      setPuzzleSuccess(false);
+    }
+  };
+  
+  // Fonction pour vérifier la commande du terminal
+  const verifyTerminalCommand = () => {
+    if (!currentPuzzle) return;
+    
+    // Vérifier si la commande est correcte
+    if (terminalInput.trim() === currentPuzzle.solution.trim()) {
+      setPuzzleSuccess(true);
+      setPuzzleError(null);
+      
+      // Débloquer l'élément correspondant
+      if (currentPuzzle.unlocks) {
+        // Appeler la fonction exposée par le jeu pour débloquer l'élément
+        (window as any).unlockGameItem(currentPuzzle.unlocks);
+        
+        setTimeout(() => {
+          setTerminalDialogVisible(false);
+          
+          // Feedback de réussite
+          setCurrentDialog({
+            title: 'Commande exécutée avec succès',
+            content: `Vous avez correctement configuré "${currentPuzzle.title}" et débloqué un nouvel élément !`
+          });
+          setDialogVisible(true);
+        }, 1500);
+      }
+    } else {
+      setPuzzleError('Commande incorrecte. Veuillez vérifier la syntaxe.');
+      setPuzzleSuccess(false);
+    }
   };
 
   return (
@@ -194,6 +287,8 @@ export default function CyberDetectivePage() {
                     addToInventory={addToInventory}
                     changeScene={changeScene}
                     inventory={inventory}
+                    openPasswordDialog={openPasswordDialog}
+                    openTerminalDialog={openTerminalDialog}
                   />
                 </div>
                 
@@ -384,6 +479,161 @@ export default function CyberDetectivePage() {
                 </Button>
               </Link>
             </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Dialogue de saisie de mot de passe */}
+      <Dialog open={passwordDialogVisible} onOpenChange={setPasswordDialogVisible}>
+        <DialogContent className="bg-gray-800 border-gray-700 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-xl flex items-center">
+              <Key className="w-5 h-5 text-emerald-400 mr-2" />
+              {currentPuzzle?.title || 'Saisie du mot de passe'}
+            </DialogTitle>
+            <DialogDescription className="text-gray-300">
+              {currentPuzzle?.description || 'Entrez le mot de passe pour déverrouiller cet élément.'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-6 space-y-4">
+            <div className="relative">
+              <Input
+                type="password"
+                placeholder="Entrez le mot de passe..."
+                className="bg-gray-900 border-gray-600 text-white"
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && verifyPassword()}
+              />
+            </div>
+            
+            {puzzleError && (
+              <Alert variant="destructive" className="bg-red-900/60 border-red-800 text-white">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Erreur</AlertTitle>
+                <AlertDescription>{puzzleError}</AlertDescription>
+              </Alert>
+            )}
+            
+            {puzzleSuccess && (
+              <Alert className="bg-emerald-900/60 border-emerald-800 text-white">
+                <Check className="h-4 w-4" />
+                <AlertTitle>Succès</AlertTitle>
+                <AlertDescription>Mot de passe correct ! Déverrouillage en cours...</AlertDescription>
+              </Alert>
+            )}
+            
+            {!showHint ? (
+              <Button 
+                variant="link" 
+                className="text-emerald-400 hover:text-emerald-300 p-0"
+                onClick={() => setShowHint(true)}
+              >
+                Afficher un indice
+              </Button>
+            ) : (
+              <div className="p-3 bg-gray-700/50 rounded-md text-gray-300 text-sm">
+                <p className="italic">Indice : {currentPuzzle?.hint}</p>
+              </div>
+            )}
+          </div>
+          
+          <DialogFooter className="flex flex-col sm:flex-row gap-3">
+            <Button 
+              variant="outline" 
+              className="border-gray-600 text-gray-300 hover:bg-gray-700"
+              onClick={() => setPasswordDialogVisible(false)}
+            >
+              Annuler
+            </Button>
+            <Button 
+              className="bg-emerald-600 hover:bg-emerald-700"
+              onClick={verifyPassword}
+              disabled={puzzleSuccess}
+            >
+              Valider
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Dialogue du terminal */}
+      <Dialog open={terminalDialogVisible} onOpenChange={setTerminalDialogVisible}>
+        <DialogContent className="bg-gray-800 border-gray-700 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-xl flex items-center">
+              <Terminal className="w-5 h-5 text-emerald-400 mr-2" />
+              {currentPuzzle?.title || 'Terminal du système'}
+            </DialogTitle>
+            <DialogDescription className="text-gray-300">
+              {currentPuzzle?.description || 'Entrez la commande appropriée pour résoudre le problème.'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-6 space-y-4">
+            <div className="relative">
+              <div className="bg-black p-3 rounded-md font-mono text-sm text-green-400">
+                <div className="mb-2">
+                  <span className="text-yellow-400">user@techsecure</span>:<span className="text-blue-400">~</span>$ 
+                </div>
+                <Input
+                  type="text"
+                  placeholder="Entrez votre commande..."
+                  className="bg-black border-0 text-green-400 font-mono focus-visible:ring-0 pl-0"
+                  value={terminalInput}
+                  onChange={(e) => setTerminalInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && verifyTerminalCommand()}
+                />
+              </div>
+            </div>
+            
+            {puzzleError && (
+              <Alert variant="destructive" className="bg-red-900/60 border-red-800 text-white">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Erreur</AlertTitle>
+                <AlertDescription>{puzzleError}</AlertDescription>
+              </Alert>
+            )}
+            
+            {puzzleSuccess && (
+              <Alert className="bg-emerald-900/60 border-emerald-800 text-white">
+                <Check className="h-4 w-4" />
+                <AlertTitle>Succès</AlertTitle>
+                <AlertDescription>Commande exécutée avec succès ! Configuration appliquée...</AlertDescription>
+              </Alert>
+            )}
+            
+            {!showHint ? (
+              <Button 
+                variant="link" 
+                className="text-emerald-400 hover:text-emerald-300 p-0"
+                onClick={() => setShowHint(true)}
+              >
+                Afficher un indice
+              </Button>
+            ) : (
+              <div className="p-3 bg-gray-700/50 rounded-md text-gray-300 text-sm">
+                <p className="italic">Indice : {currentPuzzle?.hint}</p>
+              </div>
+            )}
+          </div>
+          
+          <DialogFooter className="flex flex-col sm:flex-row gap-3">
+            <Button 
+              variant="outline" 
+              className="border-gray-600 text-gray-300 hover:bg-gray-700"
+              onClick={() => setTerminalDialogVisible(false)}
+            >
+              Annuler
+            </Button>
+            <Button 
+              className="bg-emerald-600 hover:bg-emerald-700"
+              onClick={verifyTerminalCommand}
+              disabled={puzzleSuccess}
+            >
+              Exécuter
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
