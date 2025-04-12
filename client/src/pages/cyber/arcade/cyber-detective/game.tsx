@@ -3,16 +3,16 @@ import Phaser from 'phaser';
 import { FileText, Laptop, Mail, Lock, Key, Terminal, FileCode, Database, ShieldAlert, Server, Shield } from 'lucide-react';
 
 // Importation des assets
-import officeBgSvg from '../../../../assets/cyber-detective/office-bg.svg';
-import serverRoomSvg from '../../../../assets/cyber-detective/server-room.svg';
-import securityRoomSvg from '../../../../assets/cyber-detective/security-room.svg';
-import forensicLabSvg from '../../../../assets/cyber-detective/forensic-lab.svg';
-import postItSvg from '../../../../assets/cyber-detective/post-it.svg';
-import securityBadgeSvg from '../../../../assets/cyber-detective/security-badge.svg';
-import masterKeySvg from '../../../../assets/cyber-detective/master-key.svg';
-import doorSvg from '../../../../assets/cyber-detective/door.svg';
-import computerSvg from '../../../../assets/cyber-detective/computer.svg';
-import terminalSvg from '../../../../assets/cyber-detective/terminal.svg';
+import officeBgSvg from '@/assets/cyber-detective/office-bg.svg';
+import serverRoomSvg from '@/assets/cyber-detective/server-room.svg';
+import securityRoomSvg from '@/assets/cyber-detective/security-room.svg';
+import forensicLabSvg from '@/assets/cyber-detective/forensic-lab.svg';
+import postItSvg from '@/assets/cyber-detective/post-it.svg';
+import securityBadgeSvg from '@/assets/cyber-detective/security-badge.svg';
+import masterKeySvg from '@/assets/cyber-detective/master-key.svg';
+import doorSvg from '@/assets/cyber-detective/door.svg';
+import computerSvg from '@/assets/cyber-detective/computer.svg';
+import terminalSvg from '@/assets/cyber-detective/terminal.svg';
 
 // Types pour notre jeu
 interface GameProps {

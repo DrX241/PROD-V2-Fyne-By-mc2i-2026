@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { PuzzleData } from './game';
-import computerScreenSvg from '../../../../assets/cyber-detective/computer-screen.svg';
+import computerScreenSvg from '@/assets/cyber-detective/computer-screen.svg';
 
 interface ComputerScreenProps {
   isOpen: boolean;
