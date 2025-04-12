@@ -62,7 +62,8 @@ export default function CyberModeSelection() {
           id: 'cyber-arcade',
           title: 'CYBER ARCADE',
           icon: <Command className="w-8 h-8" />,
-          destination: '/cyber/arcade'
+          destination: '/cyber/arcade',
+          comingSoon: true
         }
       ]
     },
@@ -271,7 +272,7 @@ export default function CyberModeSelection() {
                     
                     <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-2 text-center">
                       {category.title}
-                      {category.id === 'programme-ascension' && (
+                      {(category.id === 'programme-ascension' || category.id === 'gamification') && (
                         <span className="ml-2 text-xs bg-blue-900/60 text-white px-2 py-1 rounded-full inline-flex items-center">
                           <span className="animate-pulse mr-1">•</span>
                           Bientôt
