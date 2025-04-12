@@ -13,6 +13,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
 import { CyberDetectiveGame, PuzzleData } from './game';
+import { ComputerScreen } from './ComputerScreen';
 
 export default function CyberDetectivePage() {
   const [gameStarted, setGameStarted] = useState(false);

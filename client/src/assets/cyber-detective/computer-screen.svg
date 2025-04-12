@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="screenBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#202835;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a1e24;stop-opacity:1" />
+    </linearGradient>
+    <filter id="screenGlow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="2" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  
+  <!-- Fond d'écran -->
+  <rect width="800" height="600" fill="url(#screenBg)" />
+  
+  <!-- Barre de titre -->
+  <rect width="800" height="30" fill="#333842" />
+  <text x="400" y="20" font-family="Arial" font-size="14" fill="#ffffff" text-anchor="middle">Terminal de sécurité - TechSecure OS v3.4</text>
+  
+  <!-- Boutons de la fenêtre -->
+  <circle cx="15" cy="15" r="7" fill="#ff5f57" />
+  <circle cx="35" cy="15" r="7" fill="#febc2e" />
+  <circle cx="55" cy="15" r="7" fill="#28c840" />
+  
+  <!-- Contenu du terminal -->
+  <rect x="20" y="50" width="760" height="530" fill="#0f1419" rx="5" />
+  
+  <!-- Invite de commande -->
+  <text x="30" y="80" font-family="monospace" font-size="14" fill="#32cf85">admin@security:~$</text>
+  <text x="180" y="80" font-family="monospace" font-size="14" fill="#cccccc">ls -la</text>
+  
+  <!-- Contenu de la liste des fichiers -->
+  <text x="30" y="110" font-family="monospace" font-size="14" fill="#cccccc">total 36</text>
+  <text x="30" y="130" font-family="monospace" font-size="14" fill="#4a9df8">drwxr-xr-x  2 admin admin 4096 Apr 10 09:30 .</text>
+  <text x="30" y="150" font-family="monospace" font-size="14" fill="#4a9df8">drwxr-xr-x 10 admin admin 4096 Apr 10 09:20 ..</text>
+  <text x="30" y="170" font-family="monospace" font-size="14" fill="#cccccc">-rw-r--r--  1 admin admin  220 Apr 10 08:00 .bash_logout</text>
+  <text x="30" y="190" font-family="monospace" font-size="14" fill="#cccccc">-rw-r--r--  1 admin admin 3526 Apr 10 08:00 .bashrc</text>
+  <text x="30" y="210" font-family="monospace" font-size="14" fill="#ff6188">-rw-r--r--  1 admin admin 1250 Apr 10 09:25 firewall.conf</text>
+  <text x="30" y="230" font-family="monospace" font-size="14" fill="#cccccc">-rw-r--r--  1 admin admin  807 Apr 10 08:00 .profile</text>
+  <text x="30" y="250" font-family="monospace" font-size="14" fill="#cccccc">drwxr-x---  2 admin admin 4096 Apr 10 08:45 .ssh</text>
+  <text x="30" y="270" font-family="monospace" font-size="14" fill="#ffcc43">-rwxr-xr-x  1 admin admin 5840 Apr 10 09:10 security_audit.sh</text>
+  <text x="30" y="290" font-family="monospace" font-size="14" fill="#cccccc">-rw-r-----  1 admin admin  732 Apr 10 09:15 system.log</text>
+  
+  <!-- Nouvelle invite de commande -->
+  <text x="30" y="320" font-family="monospace" font-size="14" fill="#32cf85">admin@security:~$</text>
+  <text x="180" y="320" font-family="monospace" font-size="14" fill="#cccccc">cat firewall.conf</text>
+  
+  <!-- Contenu du fichier -->
+  <text x="30" y="350" font-family="monospace" font-size="14" fill="#cccccc"># Configuration du pare-feu - TechSecure</text>
+  <text x="30" y="370" font-family="monospace" font-size="14" fill="#cccccc"># Dernière modification: 2025-04-10</text>
+  <text x="30" y="390" font-family="monospace" font-size="14" fill="#cccccc"></text>
+  <text x="30" y="410" font-family="monospace" font-size="14" fill="#c594c5">DEFAULT_ZONE=public</text>
+  <text x="30" y="430" font-family="monospace" font-size="14" fill="#ff6188">SERVICES="ssh http https"</text>
+  <text x="30" y="450" font-family="monospace" font-size="14" fill="#cccccc">PORTS="80/tcp 443/tcp 22/tcp"</text>
+  <text x="30" y="470" font-family="monospace" font-size="14" fill="#c594c5">FORWARD=false</text>
+  <text x="30" y="490" font-family="monospace" font-size="14" fill="#cccccc">MASQUERADE=false</text>
+  <text x="30" y="510" font-family="monospace" font-size="14" fill="#ff6188">LOCKDOWN=false</text>
+  
+  <!-- Dernière invite de commande avec le curseur clignotant -->
+  <text x="30" y="540" font-family="monospace" font-size="14" fill="#32cf85">admin@security:~$</text>
+  <rect x="180" y="530" width="8" height="14" fill="#cccccc" class="cursor">
+    <animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite" />
+  </rect>
+</svg>
