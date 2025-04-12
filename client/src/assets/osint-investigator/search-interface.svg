@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="800" height="500" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond principal du navigateur -->
+  <rect x="0" y="0" width="800" height="500" rx="10" ry="10" fill="#1E293B" />
+  
+  <!-- Barre de titre du navigateur -->
+  <rect x="0" y="0" width="800" height="40" rx="10" ry="10" fill="#334155" />
+  
+  <!-- Zone centrale -->
+  <rect x="10" y="45" width="780" height="445" rx="5" ry="5" fill="#0F172A" />
+  
+  <!-- Contrôles de la fenêtre du navigateur -->
+  <circle cx="20" cy="20" r="7" fill="#F87171" />
+  <circle cx="45" cy="20" r="7" fill="#FBBF24" />
+  <circle cx="70" cy="20" r="7" fill="#34D399" />
+  
+  <!-- Barre d'adresse -->
+  <rect x="100" y="10" width="580" height="20" rx="10" ry="10" fill="#1F2937" />
+  <text x="115" y="25" font-family="Arial" font-size="12" fill="#94A3B8">https://recherche-securite.web/</text>
+  
+  <!-- Boutons de navigation -->
+  <rect x="690" y="10" width="20" height="20" rx="3" ry="3" fill="#475569" />
+  <rect x="720" y="10" width="20" height="20" rx="3" ry="3" fill="#475569" />
+  <rect x="750" y="10" width="20" height="20" rx="3" ry="3" fill="#475569" />
+  
+  <!-- Logo du moteur de recherche -->
+  <rect x="350" y="70" width="100" height="40" rx="5" ry="5" fill="#3B82F6" />
+  <text x="400" y="95" font-family="Arial" font-size="16" fill="white" text-anchor="middle">OSINT Search</text>
+  
+  <!-- Barre de recherche principale -->
+  <rect x="200" y="130" width="400" height="40" rx="20" ry="20" fill="#1E293B" stroke="#3B82F6" stroke-width="2" />
+  <text x="400" y="155" font-family="Arial" font-size="14" fill="#94A3B8" text-anchor="middle">Entrez votre recherche...</text>
+  <circle cx="570" cy="150" r="15" fill="#3B82F6" />
+  <text x="570" y="155" font-family="Arial" font-size="14" fill="white" text-anchor="middle">⌕</text>
+  
+  <!-- Options de recherche avancée -->
+  <rect x="200" y="180" width="400" height="30" rx="5" ry="5" fill="transparent" />
+  <text x="220" y="200" font-family="Arial" font-size="12" fill="#64748B">Type:</text>
+  <rect x="260" y="185" width="70" height="20" rx="3" ry="3" fill="#334155" />
+  <text x="295" y="200" font-family="Arial" font-size="12" fill="white" text-anchor="middle">Tous</text>
+  
+  <text x="350" y="200" font-family="Arial" font-size="12" fill="#64748B">Période:</text>
+  <rect x="405" y="185" width="70" height="20" rx="3" ry="3" fill="#334155" />
+  <text x="440" y="200" font-family="Arial" font-size="12" fill="white" text-anchor="middle">Tout</text>
+  
+  <text x="495" y="200" font-family="Arial" font-size="12" fill="#64748B">Options:</text>
+  <rect x="550" y="185" width="70" height="20" rx="3" ry="3" fill="#334155" />
+  <text x="585" y="200" font-family="Arial" font-size="12" fill="white" text-anchor="middle">Plus</text>
+  
+  <!-- Onglets de type de recherche -->
+  <rect x="200" y="220" width="400" height="30" rx="0" ry="0" fill="#1F2937" />
+  <rect x="200" y="220" width="80" height="30" rx="0" ry="0" fill="#2563EB" />
+  <text x="240" y="240" font-family="Arial" font-size="12" fill="white" text-anchor="middle">Web</text>
+  <text x="325" y="240" font-family="Arial" font-size="12" fill="#94A3B8" text-anchor="middle">Images</text>
+  <text x="410" y="240" font-family="Arial" font-size="12" fill="#94A3B8" text-anchor="middle">Données</text>
+  <text x="500" y="240" font-family="Arial" font-size="12" fill="#94A3B8" text-anchor="middle">Réseaux</text>
+  <text x="590" y="240" font-family="Arial" font-size="12" fill="#94A3B8" text-anchor="middle">Avancé</text>
+  
+  <!-- Résultats de recherche -->
+  <rect x="150" y="260" width="500" height="220" rx="0" ry="0" fill="#0F172A" />
+  
+  <!-- Résultat 1 -->
+  <rect x="180" y="270" width="440" height="60" rx="5" ry="5" fill="#1E293B" />
+  <text x="195" y="290" font-family="Arial" font-size="14" fill="#3B82F6">Site d'informations cybersécurité</text>
+  <text x="195" y="310" font-family="Arial" font-size="12" fill="#94A3B8">Données relatives aux dernières investigations en cybersécurité...</text>
+  <text x="195" y="325" font-family="Arial" font-size="10" fill="#64748B">https://cyber-infos.web/investigations</text>
+  
+  <!-- Résultat 2 -->
+  <rect x="180" y="340" width="440" height="60" rx="5" ry="5" fill="#1E293B" />
+  <text x="195" y="360" font-family="Arial" font-size="14" fill="#3B82F6">Base de données d'incidents</text>
+  <text x="195" y="380" font-family="Arial" font-size="12" fill="#94A3B8">Repository contenant l'historique des incidents cybersécurité...</text>
+  <text x="195" y="395" font-family="Arial" font-size="10" fill="#64748B">https://data.securite-cyber.org/incidents</text>
+  
+  <!-- Résultat 3 -->
+  <rect x="180" y="410" width="440" height="60" rx="5" ry="5" fill="#1E293B" />
+  <text x="195" y="430" font-family="Arial" font-size="14" fill="#3B82F6">Analyse d'expertises forensiques</text>
+  <text x="195" y="450" font-family="Arial" font-size="12" fill="#94A3B8">Rapport détaillant les techniques d'analyse forensique utilisées...</text>
+  <text x="195" y="465" font-family="Arial" font-size="10" fill="#64748B">https://forensic-analysis.tech/reports</text>
+  
+  <!-- Pagination -->
+  <rect x="350" y="480" width="100" height="20" rx="10" ry="10" fill="transparent" />
+  <text x="360" y="495" font-family="Arial" font-size="14" fill="#3B82F6">1</text>
+  <text x="380" y="495" font-family="Arial" font-size="14" fill="#94A3B8">2</text>
+  <text x="400" y="495" font-family="Arial" font-size="14" fill="#94A3B8">3</text>
+  <text x="420" y="495" font-family="Arial" font-size="14" fill="#94A3B8">4</text>
+  <text x="440" y="495" font-family="Arial" font-size="14" fill="#94A3B8">></text>
+</svg>
