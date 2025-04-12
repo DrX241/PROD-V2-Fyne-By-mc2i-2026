@@ -10,6 +10,9 @@ import forensicLabSvg from '../../../../assets/cyber-detective/forensic-lab.svg'
 import postItSvg from '../../../../assets/cyber-detective/post-it.svg';
 import securityBadgeSvg from '../../../../assets/cyber-detective/security-badge.svg';
 import masterKeySvg from '../../../../assets/cyber-detective/master-key.svg';
+import doorSvg from '../../../../assets/cyber-detective/door.svg';
+import computerSvg from '../../../../assets/cyber-detective/computer.svg';
+import terminalSvg from '../../../../assets/cyber-detective/terminal.svg';
 
 // Types pour notre jeu
 interface GameProps {
@@ -448,6 +451,11 @@ export const CyberDetectiveGame: React.FC<GameProps> = ({
           this.load.image('post-it', postItSvg);
           this.load.image('security-badge', securityBadgeSvg);
           this.load.image('master-key', masterKeySvg);
+          
+          // Chargement des objets d'interaction
+          this.load.image('door', doorSvg);
+          this.load.image('computer', computerSvg);
+          this.load.image('terminal', terminalSvg);
         },
         create: function(this: Phaser.Scene) {
           // Récupérer les données de la scène actuelle
@@ -486,14 +494,51 @@ export const CyberDetectiveGame: React.FC<GameProps> = ({
               (hotspot.type === 'locked-transition' && 
                 !inventory.some(item => item.id === (hotspot as any).requiredItem));
             
-            // Rectangle pour visualiser le hotspot
-            const rect = this.add.rectangle(
+            // Créer un visuel pour le hotspot
+            let visual;
+            
+            // Choisir une image en fonction du type d'objet ou du type de hotspot
+            if (hotspot.id === 'note') {
+              visual = this.add.image(hotspot.x, hotspot.y, 'post-it')
+                .setDisplaySize(hotspot.width, hotspot.height);
+            } else if (hotspot.id === 'security-badge') {
+              visual = this.add.image(hotspot.x, hotspot.y, 'security-badge')
+                .setDisplaySize(hotspot.width, hotspot.height * 1.5);
+            } else if (hotspot.id === 'master-key') {
+              visual = this.add.image(hotspot.x, hotspot.y, 'master-key')
+                .setDisplaySize(hotspot.width, hotspot.height);
+            } else if (hotspot.id === 'laptop' || hotspot.id === 'server-rack' || hotspot.id === 'vault-terminal') {
+              // Utiliser l'image de l'ordinateur pour les interactions d'ordinateur
+              visual = this.add.image(hotspot.x, hotspot.y, 'computer')
+                .setDisplaySize(hotspot.width * 1.2, hotspot.height);
+            } else if (hotspot.id === 'firewall-terminal' || hotspot.id === 'logs') {
+              // Utiliser l'image du terminal pour les interactions de terminal
+              visual = this.add.image(hotspot.x, hotspot.y, 'terminal')
+                .setDisplaySize(hotspot.width * 1.2, hotspot.height);
+            } else if (hotspot.type === 'transition' || hotspot.type === 'locked-transition') {
+              // Utiliser l'image de porte pour les transitions
+              visual = this.add.image(hotspot.x, hotspot.y + 20, 'door')
+                .setDisplaySize(hotspot.width, hotspot.height * 1.2);
+            } else {
+              // Rectangle pour visualiser les hotspots sans image spécifique
+              visual = this.add.rectangle(
+                hotspot.x, 
+                hotspot.y, 
+                hotspot.width, 
+                hotspot.height, 
+                isLocked ? 0xaa3333 : hotspot.type === 'puzzle' ? 0xaa8800 : 0x5d8aa8,
+                isCollected ? 0.2 : isLocked ? 0.6 : 0.8
+              );
+            }
+            
+            // Ajouter un effet de surbrillance pour indiquer l'interactivité
+            const hitArea = this.add.rectangle(
               hotspot.x, 
               hotspot.y, 
-              hotspot.width, 
-              hotspot.height, 
-              isLocked ? 0xaa3333 : hotspot.type === 'transition' || hotspot.type === 'locked-transition' ? 0x4a7c59 : hotspot.type === 'puzzle' ? 0xaa8800 : 0x5d8aa8,
-              isCollected ? 0.2 : isLocked ? 0.6 : 0.8
+              hotspot.width + 10, 
+              hotspot.height + 10, 
+              0xffffff, 
+              0
             );
             
             // Texte du hotspot avec icône appropriée
@@ -503,38 +548,61 @@ export const CyberDetectiveGame: React.FC<GameProps> = ({
             else if (hotspot.type === 'puzzle') prefix = '🔍 ';
             else if (isCollected) prefix = '✓ ';
             
+            // Ajouter un décalage au texte en fonction du type d'élément pour qu'il apparaisse sous l'image
+            let textY = hotspot.y + 20;
+            
+            if (hotspot.id === 'security-badge') {
+              textY = hotspot.y + 30;
+            } else if (hotspot.type === 'transition' || hotspot.type === 'locked-transition') {
+              textY = hotspot.y + 80; // Pour les portes, placer le texte plus bas
+            } else if (hotspot.id === 'laptop' || hotspot.id === 'server-rack' || hotspot.id === 'vault-terminal' || 
+                      hotspot.id === 'firewall-terminal' || hotspot.id === 'logs') {
+              textY = hotspot.y + 40; // Pour les ordinateurs et terminaux
+            }
+            
             const text = this.add.text(
               hotspot.x, 
-              hotspot.y, 
+              textY, 
               prefix + hotspot.name, 
               { 
                 fontFamily: 'Arial', 
                 fontSize: '14px', 
                 color: '#ffffff',
-                align: 'center'
+                align: 'center',
+                stroke: '#000000',
+                strokeThickness: 3
               }
             );
             text.setOrigin(0.5);
             
-            // Rendre le hotspot interactif
-            rect.setInteractive();
+            // Rendre le hitArea interactif pour avoir une zone de clic plus grande
+            hitArea.setInteractive();
             
             // Ne pas permettre de recollectionner un élément déjà dans l'inventaire
             if (!(isCollected && (hotspot.type === 'item' || hotspot.type === 'locked-item'))) {
-              rect.on('pointerdown', () => {
+              hitArea.on('pointerdown', () => {
                 handleHotspotClick(hotspot);
               });
               
               // Effets au survol
-              rect.on('pointerover', () => {
-                rect.setAlpha(1);
+              hitArea.on('pointerover', () => {
+                if (visual.setAlpha) visual.setAlpha(1);
+                text.setScale(1.1);
                 document.body.style.cursor = 'pointer';
               });
               
-              rect.on('pointerout', () => {
-                rect.setAlpha(isCollected ? 0.2 : isLocked ? 0.6 : 0.8);
+              hitArea.on('pointerout', () => {
+                if (visual.setAlpha) {
+                  visual.setAlpha(isCollected ? 0.6 : isLocked ? 0.7 : 0.9);
+                }
+                text.setScale(1);
                 document.body.style.cursor = 'default';
               });
+              
+              // Définir l'opacité initiale
+              if (visual.setAlpha) {
+                visual.setAlpha(isCollected ? 0.6 : isLocked ? 0.7 : 0.9);
+              }
             }
           });
         }
