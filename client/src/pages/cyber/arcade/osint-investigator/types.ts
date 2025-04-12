@@ -47,19 +47,19 @@ export interface SocialPost {
   }[];
   location?: string;
   tags?: string[];
-  evidenceValue: 'high' | 'medium' | 'low';
+  evidenceValue: 'very_high' | 'high' | 'medium' | 'low';
 }
 
 export interface DatabaseRecord {
   id: string;
-  type: 'person' | 'organization' | 'event' | 'location' | 'article' | 'other';
+  type: 'person' | 'organization' | 'event' | 'location' | 'article' | 'property' | 'financial' | 'other';
   title: string;
   content: string;
   metadata: {
-    [key: string]: string | number | boolean;
+    [key: string]: string | number | boolean | string[];
   };
   source: string;
   date: string;
   relevance: number; // 0-1
-  evidenceValue: 'high' | 'medium' | 'low';
+  evidenceValue: 'very_high' | 'high' | 'medium' | 'low';
 }
