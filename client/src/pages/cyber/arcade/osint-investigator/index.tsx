@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HomeLayout } from '../../../../components/layout/home-layout';
+import { HomeLayout } from '@/components/layout/HomeLayout';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -10,6 +10,7 @@ import { Check, Info, Search, Database, Globe, User, FileText, AlertTriangle, Co
 import { OsintGame } from './game';
 import { SearchInterface } from './SearchInterface';
 import { SocialMediaViewer } from './SocialMediaViewer';
+import { DatabaseViewer } from './DatabaseViewer';
 import { CaseData, InvestigationResult } from './types';
 
 export default function OsintInvestigatorPage() {
