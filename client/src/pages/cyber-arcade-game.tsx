@@ -110,6 +110,23 @@ const ARCADE_GAMES = {
       competences: ["Gestion de crise", "Communication sous pression", "Prise de décision stratégique", "Analyse d'impact business"],
       niveaux: ["Débutant: Incident à impact limité", "Intermédiaire: Crise affectant des systèmes critiques", "Expert: Attaque complexe avec tensions internes et externes maximales"]
     }
+  },
+  'osint-investigator': {
+    title: 'OSINT Investigator',
+    description: "Menez l'enquête en utilisant uniquement des sources d'information ouvertes. Découvrez comment les attaquants peuvent exploiter les informations publiques.",
+    gradient: 'from-blue-600 to-indigo-800',
+    icon: <Search className="w-6 h-6" />,
+    details: {
+      objectif: "Apprendre à recueillir et analyser des informations provenant de sources ouvertes pour mener une investigation de cybersécurité.",
+      fonctionnement: [
+        "Recherche d'informations via différents moteurs et outils spécialisés",
+        "Analyse de profils sur les réseaux sociaux et bases de données publiques",
+        "Collecte et organisation d'indices pour résoudre une enquête",
+        "Évaluation critique de la pertinence et de la fiabilité des informations trouvées"
+      ],
+      competences: ["Techniques de recherche avancée", "Analyse de réseaux sociaux", "Vérification de données", "Collecte éthique d'informations"],
+      niveaux: ["Débutant: Recherches simples et cas d'investigation basiques", "Intermédiaire: Analyses plus poussées avec recoupements", "Expert: Enquêtes complexes nécessitant l'utilisation de techniques OSINT avancées"]
+    }
   }
 };
 
@@ -278,6 +295,22 @@ export default function CyberArcadeGame() {
                       className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-6 text-lg shadow-lg"
                     >
                       Lancer l'enquête
+                    </Button>
+                  </Link>
+                </div>
+              ) : gameId === 'osint-investigator' ? (
+                <div className="bg-indigo-900 bg-opacity-50 rounded-lg p-8 flex flex-col items-center justify-center">
+                  <h3 className="text-2xl font-bold text-white mb-4">OSINT Investigator</h3>
+                  <p className="text-center text-gray-300 mb-6">
+                    Menez l'enquête en utilisant uniquement des sources d'information ouvertes.
+                    Découvrez comment collecter et analyser des informations pour résoudre une affaire.
+                  </p>
+                  <Link href="/cyber/arcade/osint-investigator">
+                    <Button 
+                      size="lg"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-lg shadow-lg"
+                    >
+                      Lancer l'investigation
                     </Button>
                   </Link>
                 </div>

@@ -8,11 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Check, Info, Search, Database, Globe, User, FileText, AlertTriangle, Computer } from 'lucide-react';
 // Import des composants
-import { OsintGame } from '@/pages/cyber/arcade/osint-investigator/game';
-import { SearchInterface } from '@/pages/cyber/arcade/osint-investigator/SearchInterface';
-import { SocialMediaViewer } from '@/pages/cyber/arcade/osint-investigator/SocialMediaViewer';
-import { DatabaseViewer } from '@/pages/cyber/arcade/osint-investigator/DatabaseViewer';
-import { CaseData, InvestigationResult } from '@/pages/cyber/arcade/osint-investigator/types';
+import { OsintGame } from './game';
+import { SearchInterface } from './SearchInterface';
+import { SocialMediaViewer } from './SocialMediaViewer';
+import { DatabaseViewer } from './DatabaseViewer';
+import { CaseData, InvestigationResult } from './types';
 
 export default function OsintInvestigatorPage() {
   // États pour le jeu
