@@ -216,7 +216,7 @@ export const SocialMediaViewer: React.FC<SocialMediaViewerProps> = ({
             const evidence = {
               id: `evidence-${Date.now()}`,
               title: `Profil de ${profile.displayName}`,
-              content: `Informations de profil pour ${profile.displayName} (@${profile.username}). Compte créé le ${new Date(profile.joinDate).toLocaleDateString()}, actuellement basé à ${profile.location}.`,
+              content: `Informations de profil pour ${profile.displayName} (@${profile.username}). Compte créé le ${profile.joinDate ? new Date(profile.joinDate).toLocaleDateString() : 'date inconnue'}, actuellement basé à ${profile.location}.`,
               type: 'profile-information',
               source: `${profile.platform}`,
               relevance: 0.85

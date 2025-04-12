@@ -7,11 +7,12 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Check, Info, Search, Database, Globe, User, FileText, AlertTriangle, Computer } from 'lucide-react';
-import { OsintGame } from './game';
-import { SearchInterface } from './SearchInterface';
-import { SocialMediaViewer } from './SocialMediaViewer';
-import { DatabaseViewer } from './DatabaseViewer';
-import { CaseData, InvestigationResult } from './types';
+// Import des composants
+import { OsintGame } from '@/pages/cyber/arcade/osint-investigator/game';
+import { SearchInterface } from '@/pages/cyber/arcade/osint-investigator/SearchInterface';
+import { SocialMediaViewer } from '@/pages/cyber/arcade/osint-investigator/SocialMediaViewer';
+import { DatabaseViewer } from '@/pages/cyber/arcade/osint-investigator/DatabaseViewer';
+import { CaseData, InvestigationResult } from '@/pages/cyber/arcade/osint-investigator/types';
 
 export default function OsintInvestigatorPage() {
   // États pour le jeu
@@ -273,7 +274,7 @@ export default function OsintInvestigatorPage() {
                 <div className="mt-4 space-y-2">
                   <h4 className="text-sm font-medium text-white">Objectifs:</h4>
                   <ul className="list-disc list-inside space-y-1 text-sm text-gray-300">
-                    {currentCase?.objectives.map((objective, index) => (
+                    {currentCase?.objectives.map((objective: string, index: number) => (
                       <li key={index}>{objective}</li>
                     ))}
                   </ul>
@@ -514,7 +515,7 @@ export default function OsintInvestigatorPage() {
                 <div className="mt-4">
                   <h4 className="font-medium text-white mb-2">Preuves collectées:</h4>
                   <ul className="space-y-1 text-sm">
-                    {investigationResult?.evidenceCollected.map((evidence, index) => (
+                    {investigationResult?.evidenceCollected.map((evidence: any, index: number) => (
                       <li key={index} className="flex items-start">
                         <span className="text-blue-400 mr-2">•</span>
                         <span>{evidence.title}</span>
