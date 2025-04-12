@@ -3,7 +3,7 @@ import { Link } from 'wouter';
 import { motion } from 'framer-motion';
 import { 
   TerminalSquare, Target, LockKeyhole, Network, BrainCircuit, Users, Shield, Joystick, 
-  ArrowLeft, ArrowRight, Scroll as GraduationCap, Search, FileKey, Bug, SearchCheck 
+  ArrowLeft, ArrowRight, Scroll as GraduationCap, Search, FileKey, Bug
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
@@ -91,6 +91,16 @@ export default function CyberArcade() {
       comingSoon: true
     },
     
+    // Nouveau jeu : Cyber Detective
+    {
+      id: 'cyber-detective',
+      title: 'Cyber Detective',
+      description: "Enquêtez sur une intrusion informatique en explorant des scènes interactives. Collectez des indices et résolvez des énigmes de cybersécurité.",
+      difficulty: 'Facile',
+      icon: <Search className="w-10 h-10 text-white" />,
+      gradient: 'from-emerald-700 to-emerald-900'
+    },
+    
     // Analyse vulnérabilités
     {
       id: 'vulnerability-hunter',
@@ -108,7 +118,7 @@ export default function CyberArcade() {
       title: 'Digital Detective',
       description: "Menez une investigation numérique pour reconstituer un incident de sécurité. Analysez les preuves numériques et remontez jusqu'à la source de l'attaque.",
       difficulty: 'Difficile',
-      icon: <SearchCheck className="w-10 h-10 text-white" />,
+      icon: <Search className="w-10 h-10 text-white" />,
       gradient: 'from-indigo-700 to-purple-900',
       comingSoon: true
     },

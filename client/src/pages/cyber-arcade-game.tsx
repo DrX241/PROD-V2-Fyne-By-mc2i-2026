@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams, Route } from 'wouter';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Info, Shield, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Info, Shield, AlertTriangle, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -9,6 +9,23 @@ import FirewallDefensePage from './games/FirewallDefensePage';
 
 // Définition des types de jeux d'arcade
 const ARCADE_GAMES = {
+  'cyber-detective': {
+    title: 'Cyber Detective',
+    description: "Enquêtez sur une intrusion informatique en explorant des scènes interactives. Collectez des indices et résolvez des énigmes de cybersécurité.",
+    gradient: 'from-emerald-700 to-emerald-900',
+    icon: <Search className="w-6 h-6" />,
+    details: {
+      objectif: "Enquêter sur une violation de données en identifiant les indices, comprendre la méthode d'attaque et résoudre les énigmes de sécurité.",
+      fonctionnement: [
+        "Exploration d'environnements interactifs en mode point & click",
+        "Collecte d'indices et d'artefacts numériques liés à une cyberattaque",
+        "Interaction avec divers éléments du décor et objets pour révéler des informations",
+        "Résolution d'énigmes basées sur des concepts réels de cybersécurité"
+      ],
+      competences: ["Analyse forensique de base", "Pensée critique", "Résolution de problèmes", "Connaissances en sécurité informatique"],
+      niveaux: ["Débutant: Scène simple avec indices évidents", "Intermédiaire: Environnement plus complexe nécessitant une analyse approfondie", "Expert: Investigation complète d'un incident de cybersécurité avancé"]
+    }
+  },
   'phishing-detective': {
     title: 'Detective de Phishing',
     description: "Apprenez à identifier les emails et messages frauduleux. L'IA génère des messages variés et vous devez repérer les indices suspects.",
@@ -248,7 +265,23 @@ export default function CyberArcadeGame() {
                 </div>
               )}
               
-{gameId === 'firewall-defense' ? (
+{gameId === 'cyber-detective' ? (
+                <div className="bg-emerald-900 bg-opacity-50 rounded-lg p-8 flex flex-col items-center justify-center">
+                  <h3 className="text-2xl font-bold text-white mb-4">Cyber Detective</h3>
+                  <p className="text-center text-gray-300 mb-6">
+                    Enquêtez sur une violation de données en explorant des environnements interactifs. 
+                    Collectez des indices, analysez des artefacts numériques et résolvez les énigmes de sécurité.
+                  </p>
+                  <Link href="/cyber/arcade/cyber-detective/game">
+                    <Button 
+                      size="lg"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-6 text-lg shadow-lg"
+                    >
+                      Lancer l'enquête
+                    </Button>
+                  </Link>
+                </div>
+              ) : gameId === 'firewall-defense' ? (
                 <div className="bg-amber-900 bg-opacity-50 rounded-lg p-8 flex flex-col items-center justify-center">
                   <h3 className="text-2xl font-bold text-white mb-4">Firewall Defense</h3>
                   <p className="text-center text-gray-300 mb-6">
