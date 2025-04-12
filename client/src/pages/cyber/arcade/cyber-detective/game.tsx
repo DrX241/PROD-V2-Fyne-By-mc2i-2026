@@ -2,6 +2,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import Phaser from 'phaser';
 import { FileText, Laptop, Mail, Lock, Key, Terminal, FileCode, Database, ShieldAlert, Server, Shield } from 'lucide-react';
 
+// Importation des assets
+import officeBgSvg from '../../../../assets/cyber-detective/office-bg.svg';
+import serverRoomSvg from '../../../../assets/cyber-detective/server-room.svg';
+import securityRoomSvg from '../../../../assets/cyber-detective/security-room.svg';
+import forensicLabSvg from '../../../../assets/cyber-detective/forensic-lab.svg';
+import postItSvg from '../../../../assets/cyber-detective/post-it.svg';
+import securityBadgeSvg from '../../../../assets/cyber-detective/security-badge.svg';
+import masterKeySvg from '../../../../assets/cyber-detective/master-key.svg';
+
 // Types pour notre jeu
 interface GameProps {
   currentScene: string;
@@ -428,19 +437,34 @@ export const CyberDetectiveGame: React.FC<GameProps> = ({
       height: 500,
       backgroundColor: '#1a1a1a',
       scene: {
+        preload: function(this: Phaser.Scene) {
+          // Chargement des images de fond
+          this.load.image('office-bg', officeBgSvg);
+          this.load.image('server-bg', serverRoomSvg);
+          this.load.image('security-bg', securityRoomSvg);
+          this.load.image('forensic-bg', forensicLabSvg);
+          
+          // Chargement des items interactifs
+          this.load.image('post-it', postItSvg);
+          this.load.image('security-badge', securityBadgeSvg);
+          this.load.image('master-key', masterKeySvg);
+        },
         create: function(this: Phaser.Scene) {
-          // Fond temporaire
-          const graphics = this.add.graphics();
-          graphics.fillStyle(0x1a1a1a, 1);
-          graphics.fillRect(0, 0, this.cameras.main.width, this.cameras.main.height);
+          // Récupérer les données de la scène actuelle
+          const currentSceneData = scenes[currentScene as keyof typeof scenes];
+          
+          // Ajouter le fond correspondant à la scène actuelle
+          const bgKey = currentSceneData.background;
+          this.add.image(this.cameras.main.width / 2, this.cameras.main.height / 2, bgKey)
+            .setDisplaySize(this.cameras.main.width, this.cameras.main.height)
+            .setOrigin(0.5);
           
           // Titre de la scène
-          const currentSceneData = scenes[currentScene as keyof typeof scenes];
           const sceneTitle = this.add.text(
             20, 
             20, 
             currentSceneData.name, 
-            { fontFamily: 'Arial', fontSize: '24px', color: '#ffffff' }
+            { fontFamily: 'Arial', fontSize: '24px', color: '#ffffff', stroke: '#000000', strokeThickness: 4 }
           );
           
           // Instruction
@@ -448,7 +472,7 @@ export const CyberDetectiveGame: React.FC<GameProps> = ({
             20, 
             this.cameras.main.height - 40, 
             'Cliquez sur les éléments pour interagir', 
-            { fontFamily: 'Arial', fontSize: '16px', color: '#aaaaaa' }
+            { fontFamily: 'Arial', fontSize: '16px', color: '#ffffff', stroke: '#000000', strokeThickness: 2 }
           );
           
           // Ajout des hotspots
