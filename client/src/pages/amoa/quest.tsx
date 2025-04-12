@@ -172,6 +172,14 @@ export default function AmoaQuestPage() {
     content: string;
     character?: Character;
   }[]>([]);
+  // Personnage qui répond actuellement dans la conversation
+  const [currentRespondent, setCurrentRespondent] = useState<Character>({
+    id: "default",
+    name: "Mathilde Comte",
+    role: "Directrice de Projet",
+    avatar: "",
+    mood: "neutral"
+  });
   const [questPhases, setQuestPhases] = useState<QuestPhase[]>([]);
   const [questState, setQuestState] = useState<QuestState>({
     currentPhaseId: "",
@@ -578,6 +586,9 @@ export default function AmoaQuestPage() {
             character = currentStep.character;
           }
         }
+        
+        // Mettre à jour le personnage qui répond actuellement
+        setCurrentRespondent(character);
         
         // Ajouter la réponse de l'assistant à la conversation
         setFreeformConversation(prev => [
