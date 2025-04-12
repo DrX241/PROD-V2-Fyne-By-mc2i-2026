@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HomeLayout } from '@/components/layout/HomeLayout';
+import HomeLayout from '@/components/layout/HomeLayout';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -25,6 +25,7 @@ export default function OsintInvestigatorPage() {
   const [showIntro, setShowIntro] = useState(true);
   const [gameCompleted, setGameCompleted] = useState(false);
   const [searchDialogVisible, setSearchDialogVisible] = useState(false);
+  const [databaseDialogVisible, setDatabaseDialogVisible] = useState(false);
   const [currentSearchEngine, setCurrentSearchEngine] = useState<string>('general');
   
   // Interface de recherche actuellement ouverte
@@ -76,7 +77,7 @@ export default function OsintInvestigatorPage() {
       },
       {
         id: 'case-003',
-        title: 'Vérification d'identité numérique',
+        title: "Vérification d'identité numérique",
         description: "Un candidat à un poste sensible présente un profil suspect. Votre mission est de vérifier l'authenticité de son identité en ligne et de révéler toute information douteuse.",
         difficulty: 'expert',
         objectives: [

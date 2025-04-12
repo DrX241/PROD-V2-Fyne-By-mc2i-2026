@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Label } from '@/components/ui/label';
-import { Search, Database, Globe, FileText, Table, Filter, User, MapPin, Building, Calendar } from 'lucide-react';
-import databaseInterfaceSvg from '@/assets/osint-investigator/database-interface.svg';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Database, Search, FileText, Filter, Download, Clock, AlertTriangle } from 'lucide-react';
+import { DatabaseRecord } from './types';
 
 interface DatabaseViewerProps {
   isOpen: boolean;
@@ -21,328 +21,310 @@ export const DatabaseViewer: React.FC<DatabaseViewerProps> = ({
   databaseType = 'public'
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedDatabase, setSelectedDatabase] = useState(databaseType);
-  const [activeTab, setActiveTab] = useState('search');
-  const [selectedRecord, setSelectedRecord] = useState<any | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [sortField, setSortField] = useState('relevance');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [searchResults, setSearchResults] = useState<DatabaseRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   
-  // Réinitialiser la sélection si le type de base de données change
-  useEffect(() => {
-    setSelectedDatabase(databaseType);
-    setSelectedRecord(null);
-  }, [databaseType]);
-  
-  // Focus sur l'input au chargement
-  useEffect(() => {
-    if (isOpen && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [isOpen]);
-  
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
-    onSearch(searchQuery);
-  };
-  
-  // Liste de bases de données disponibles
-  const databases = {
-    public: {
-      name: 'Registres Publics',
-      description: 'Accédez aux informations publiques sur les particuliers et les entreprises.',
-      icon: <Database className="h-5 w-5 text-blue-400 mr-2" />
-    },
-    domain: {
-      name: 'Registre de Domaines',
-      description: 'Recherchez des informations sur les propriétaires de noms de domaine.',
-      icon: <Globe className="h-5 w-5 text-blue-400 mr-2" />
-    },
-    company: {
-      name: 'Données d\'Entreprises',
-      description: 'Consultez les informations légales, financières et organisationnelles des entreprises.',
-      icon: <Building className="h-5 w-5 text-blue-400 mr-2" />
-    },
-    location: {
-      name: 'Données Géographiques',
-      description: 'Recherchez des informations basées sur la localisation et les adresses.',
-      icon: <MapPin className="h-5 w-5 text-blue-400 mr-2" />
+  // Générer le titre en fonction du type de base de données
+  const getDatabaseTitle = () => {
+    switch (databaseType) {
+      case 'public':
+        return 'Base de données publique';
+      case 'government':
+        return 'Registres gouvernementaux';
+      case 'company':
+        return 'Registres d\'entreprises';
+      case 'archived':
+        return 'Archives Web';
+      default:
+        return 'Base de données';
     }
   };
   
-  // Exemple de données simulées pour l'affichage
-  const mockData = [
-    {
-      id: 'PR-1025',
-      name: 'Dubois Industries SAS',
-      type: 'Entreprise',
-      date: '12/03/2025',
-      details: {
-        address: '123 Avenue de l\'Innovation, 75008 Paris',
-        siret: '12345678901234',
-        creation: '2008-05-17',
-        activity: 'Conseil en sécurité informatique',
-        director: 'Jean Dubois',
-        employees: '76-100'
-      }
-    },
-    {
-      id: 'PR-1026',
-      name: 'Martin Bernard',
-      type: 'Personne',
-      date: '28/02/2025',
-      details: {
-        birth: '1985-09-23',
-        nationality: 'Française',
-        address: '45 Rue des Lilas, 69003 Lyon',
-        profession: 'Consultant cybersécurité',
-        companies: ['CyberConsult SARL', 'SecureTech Solutions']
-      }
-    },
-    {
-      id: 'PR-1027',
-      name: 'Cyber-Defence SARL',
-      type: 'Entreprise',
-      date: '15/01/2025',
-      details: {
-        address: '8 Boulevard Numérique, 33000 Bordeaux',
-        siret: '98765432109876',
-        creation: '2019-11-05',
-        activity: 'Services de protection des systèmes informatiques',
-        director: 'Sophie Moreau',
-        employees: '11-50'
-      }
-    }
-  ];
-  
-  // Sélection d'un enregistrement pour afficher les détails
-  const selectRecord = (record: any) => {
-    setSelectedRecord(record);
-    setActiveTab('details');
-  };
-  
-  // Rendu des détails en fonction du type d'enregistrement
-  const renderRecordDetails = () => {
-    if (!selectedRecord) return null;
+  // Simuler une recherche dans la base de données
+  const handleDatabaseSearch = () => {
+    if (searchQuery.trim() === '') return;
     
+    setIsLoading(true);
+    
+    // Simuler un délai de recherche
+    setTimeout(() => {
+      // Générer des résultats fictifs
+      const mockResults: DatabaseRecord[] = [
+        {
+          id: `record-${Date.now()}-1`,
+          type: 'person',
+          title: `Résultat pour "${searchQuery}" - Individu`,
+          content: `Information concernant une personne liée à la recherche "${searchQuery}". Données personnelles accessibles au public.`,
+          metadata: {
+            name: 'Jean Dupont',
+            age: 42,
+            occupation: 'Développeur',
+            city: 'Paris'
+          },
+          source: 'Annuaire en ligne',
+          date: '2025-01-15',
+          relevance: 0.78,
+          evidenceValue: 'medium'
+        },
+        {
+          id: `record-${Date.now()}-2`,
+          type: 'organization',
+          title: `Entreprise liée à "${searchQuery}"`,
+          content: `Information concernant une organisation associée à la recherche "${searchQuery}". Données d'entreprise disponibles publiquement.`,
+          metadata: {
+            companyName: 'TechSolutions SA',
+            industry: 'Technologie',
+            founded: 2010,
+            employees: 156
+          },
+          source: 'Registre du commerce',
+          date: '2024-11-20',
+          relevance: 0.92,
+          evidenceValue: 'high'
+        },
+        {
+          id: `record-${Date.now()}-3`,
+          type: 'event',
+          title: `Événement associé à "${searchQuery}"`,
+          content: `Information concernant un événement lié à la recherche "${searchQuery}". Détails publiés dans des sources accessibles.`,
+          metadata: {
+            eventName: 'Conférence Cybersécurité 2025',
+            date: '2025-06-12',
+            location: 'Lyon, France',
+            attendees: 500
+          },
+          source: 'Calendrier d\'événements professionnels',
+          date: '2025-02-28',
+          relevance: 0.65,
+          evidenceValue: 'low'
+        }
+      ];
+      
+      setSearchResults(mockResults);
+      setIsLoading(false);
+      
+      // Notifier le composant parent
+      onSearch(searchQuery);
+    }, 1200);
+  };
+  
+  // Fonction pour filtrer les résultats
+  const filterResults = (results: DatabaseRecord[]) => {
+    if (activeFilter === 'all') return results;
+    return results.filter(record => record.type === activeFilter);
+  };
+  
+  // Trier les résultats
+  const sortResults = (results: DatabaseRecord[]) => {
+    return [...results].sort((a, b) => {
+      let comparison = 0;
+      
+      if (sortField === 'relevance') {
+        comparison = a.relevance < b.relevance ? 1 : -1;
+      } else if (sortField === 'date') {
+        comparison = new Date(a.date) < new Date(b.date) ? 1 : -1;
+      }
+      
+      return sortDirection === 'desc' ? comparison : -comparison;
+    });
+  };
+  
+  // Résultats filtrés et triés
+  const displayResults = sortResults(filterResults(searchResults));
+  
+  // Toggle de direction de tri
+  const toggleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('desc');
+    }
+  };
+  
+  // Afficher les détails d'un enregistrement
+  const renderRecordDetails = (record: DatabaseRecord) => {
     return (
-      <div className="bg-slate-800 rounded-lg p-4">
-        <div className="mb-4 pb-3 border-b border-slate-700">
-          <h3 className="text-xl font-medium text-white flex items-center">
-            {selectedRecord.type === 'Entreprise' ? (
-              <Building className="h-5 w-5 text-blue-400 mr-2" />
-            ) : (
-              <User className="h-5 w-5 text-blue-400 mr-2" />
-            )}
-            {selectedRecord.name}
-          </h3>
-          <div className="flex items-center mt-1 text-sm text-slate-400">
-            <span className="mr-3">ID: {selectedRecord.id}</span>
-            <span>Mis à jour: {selectedRecord.date}</span>
-          </div>
+      <div className="mt-2 p-3 bg-gray-800 rounded border border-gray-700 text-sm">
+        <h4 className="text-white font-medium mb-2">{record.title}</h4>
+        <p className="text-gray-300 mb-3">{record.content}</p>
+        
+        <h5 className="text-gray-400 text-xs font-medium mb-1">Métadonnées</h5>
+        <div className="grid grid-cols-2 gap-2 mb-3">
+          {Object.entries(record.metadata).map(([key, value]) => (
+            <div key={key} className="flex justify-between">
+              <span className="text-gray-400">{key}:</span>
+              <span className="text-white">{value.toString()}</span>
+            </div>
+          ))}
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {selectedRecord.type === 'Entreprise' ? (
-            <>
-              <div>
-                <Label className="text-slate-400">Adresse</Label>
-                <p className="text-white text-sm">{selectedRecord.details.address}</p>
-              </div>
-              <div>
-                <Label className="text-slate-400">SIRET</Label>
-                <p className="text-white text-sm">{selectedRecord.details.siret}</p>
-              </div>
-              <div>
-                <Label className="text-slate-400">Date de création</Label>
-                <p className="text-white text-sm">{selectedRecord.details.creation}</p>
-              </div>
-              <div>
-                <Label className="text-slate-400">Activité principale</Label>
-                <p className="text-white text-sm">{selectedRecord.details.activity}</p>
-              </div>
-              <div>
-                <Label className="text-slate-400">Dirigeant</Label>
-                <p className="text-white text-sm">{selectedRecord.details.director}</p>
-              </div>
-              <div>
-                <Label className="text-slate-400">Effectif</Label>
-                <p className="text-white text-sm">{selectedRecord.details.employees} employés</p>
-              </div>
-            </>
-          ) : (
-            <>
-              <div>
-                <Label className="text-slate-400">Date de naissance</Label>
-                <p className="text-white text-sm">{selectedRecord.details.birth}</p>
-              </div>
-              <div>
-                <Label className="text-slate-400">Nationalité</Label>
-                <p className="text-white text-sm">{selectedRecord.details.nationality}</p>
-              </div>
-              <div>
-                <Label className="text-slate-400">Adresse</Label>
-                <p className="text-white text-sm">{selectedRecord.details.address}</p>
-              </div>
-              <div>
-                <Label className="text-slate-400">Profession</Label>
-                <p className="text-white text-sm">{selectedRecord.details.profession}</p>
-              </div>
-              <div className="col-span-2">
-                <Label className="text-slate-400">Entreprises associées</Label>
-                <ul className="list-disc list-inside text-white text-sm">
-                  {selectedRecord.details.companies.map((company: string, index: number) => (
-                    <li key={index}>{company}</li>
-                  ))}
-                </ul>
-              </div>
-            </>
-          )}
+        <div className="flex justify-between text-xs text-gray-400">
+          <span>Source: {record.source}</span>
+          <span>Date: {new Date(record.date).toLocaleDateString()}</span>
         </div>
         
-        <div className="mt-6 flex justify-end">
-          <Button 
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-            onClick={() => {
-              onSearch(selectedRecord.name);
-              onClose();
-            }}
-          >
-            Utiliser comme indice
+        <div className="mt-3 flex justify-end">
+          <Button size="sm" className="h-7 text-xs">
+            <FileText className="h-3 w-3 mr-1" />
+            Sauvegarder comme preuve
           </Button>
         </div>
       </div>
     );
   };
   
-  const currentDatabase = databases[selectedDatabase as keyof typeof databases] || databases.public;
-  
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[800px] bg-slate-900 border-slate-700 max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader className="pb-2">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[800px] bg-gray-900 border-gray-700 max-h-[85vh]">
+        <DialogHeader>
           <DialogTitle className="flex items-center text-white">
-            {currentDatabase.icon}
-            {currentDatabase.name}
+            <Database className="h-5 w-5 text-blue-400 mr-2" />
+            {getDatabaseTitle()}
           </DialogTitle>
         </DialogHeader>
         
-        <div className="flex flex-col overflow-auto">
-          {/* Tabs de navigation */}
-          <Tabs 
-            defaultValue="search" 
-            value={activeTab} 
-            onValueChange={setActiveTab}
-            className="w-full"
-          >
-            <TabsList className="grid grid-cols-2 w-full">
-              <TabsTrigger value="search">
+        <div className="space-y-4 py-2">
+          {/* Barre de recherche */}
+          <div className="flex space-x-2">
+            <Input
+              className="flex-1 bg-gray-800 border-gray-700 text-white"
+              placeholder="Rechercher dans la base de données..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleDatabaseSearch()}
+            />
+            <Button onClick={handleDatabaseSearch} disabled={isLoading}>
+              {isLoading ? (
+                <Clock className="h-4 w-4 animate-spin mr-2" />
+              ) : (
                 <Search className="h-4 w-4 mr-2" />
-                Recherche
-              </TabsTrigger>
-              <TabsTrigger value="details" disabled={!selectedRecord}>
-                <FileText className="h-4 w-4 mr-2" />
-                Détails
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="search" className="space-y-4 mt-4">
-              {/* Interface de base de données simulée (image SVG statique) */}
-              <div className="relative h-[420px] overflow-hidden">
-                <img 
-                  src={databaseInterfaceSvg} 
-                  alt="Database Interface" 
-                  className="w-full h-full object-contain"
-                />
-                
-                {/* Formulaire interactif superposé sur l'image SVG */}
-                <div className="absolute top-[80px] left-[240px] right-[50px]">
-                  <form onSubmit={handleSearch} className="flex items-center">
-                    <input
-                      ref={inputRef}
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full bg-slate-800 border-blue-600 border rounded px-4 py-2 text-white focus:outline-none"
-                      placeholder={`Rechercher dans les ${currentDatabase.name.toLowerCase()}...`}
-                    />
-                    <button 
-                      type="submit" 
-                      className="absolute right-2 rounded-full bg-blue-600 p-2 text-white"
+              )}
+              Rechercher
+            </Button>
+          </div>
+          
+          {/* Filtres rapides */}
+          <div className="flex flex-wrap space-x-2">
+            <Button 
+              variant={activeFilter === 'all' ? 'default' : 'outline'} 
+              size="sm"
+              className="text-xs"
+              onClick={() => setActiveFilter('all')}
+            >
+              Tous
+            </Button>
+            <Button 
+              variant={activeFilter === 'person' ? 'default' : 'outline'} 
+              size="sm"
+              className="text-xs"
+              onClick={() => setActiveFilter('person')}
+            >
+              Personnes
+            </Button>
+            <Button 
+              variant={activeFilter === 'organization' ? 'default' : 'outline'} 
+              size="sm"
+              className="text-xs"
+              onClick={() => setActiveFilter('organization')}
+            >
+              Organisations
+            </Button>
+            <Button 
+              variant={activeFilter === 'event' ? 'default' : 'outline'} 
+              size="sm"
+              className="text-xs"
+              onClick={() => setActiveFilter('event')}
+            >
+              Événements
+            </Button>
+            <Button 
+              variant={activeFilter === 'location' ? 'default' : 'outline'} 
+              size="sm"
+              className="text-xs"
+              onClick={() => setActiveFilter('location')}
+            >
+              Lieux
+            </Button>
+            <Button 
+              variant={activeFilter === 'article' ? 'default' : 'outline'} 
+              size="sm"
+              className="text-xs"
+              onClick={() => setActiveFilter('article')}
+            >
+              Articles
+            </Button>
+          </div>
+          
+          {/* Résultats */}
+          <ScrollArea className="h-[350px] rounded-md border border-gray-700">
+            {searchResults.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                {isLoading ? (
+                  <>
+                    <Clock className="h-10 w-10 animate-spin mb-3 opacity-70" />
+                    <p>Recherche en cours...</p>
+                  </>
+                ) : (
+                  <>
+                    <Database className="h-10 w-10 mb-3 opacity-20" />
+                    <p>Aucun résultat à afficher</p>
+                    <p className="text-sm mt-1">Utilisez la barre de recherche pour interroger la base de données</p>
+                  </>
+                )}
+              </div>
+            ) : (
+              <div className="p-4">
+                <div className="mb-2 flex justify-between items-center">
+                  <span className="text-white text-sm font-medium">{displayResults.length} résultats trouvés</span>
+                  <div className="flex space-x-2">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-xs h-7"
+                      onClick={() => toggleSort('relevance')}
                     >
-                      <Search className="h-4 w-4" />
-                    </button>
-                  </form>
+                      Pertinence {sortField === 'relevance' && (sortDirection === 'desc' ? '↓' : '↑')}
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-xs h-7"
+                      onClick={() => toggleSort('date')}
+                    >
+                      Date {sortField === 'date' && (sortDirection === 'desc' ? '↓' : '↑')}
+                    </Button>
+                  </div>
                 </div>
                 
-                {/* Zone cliquable pour les enregistrements simulés */}
-                {mockData.map((record, index) => (
-                  <div 
-                    key={record.id}
-                    className="absolute cursor-pointer hover:bg-blue-500/20 rounded transition-colors"
-                    style={{
-                      top: 220 + index * 40,
-                      left: 240,
-                      width: 520,
-                      height: 40
-                    }}
-                    onClick={() => selectRecord(record)}
-                  />
-                ))}
+                <div className="space-y-4">
+                  {displayResults.map(record => renderRecordDetails(record))}
+                </div>
               </div>
-              
-              {/* Sélection de base de données */}
-              <div className="grid grid-cols-2 gap-2">
-                {Object.entries(databases).map(([key, db]) => (
-                  <div 
-                    key={key}
-                    className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                      selectedDatabase === key 
-                        ? 'bg-blue-600 text-white' 
-                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                    }`}
-                    onClick={() => setSelectedDatabase(key)}
-                  >
-                    <div className="flex items-center">
-                      {db.icon}
-                      <span>{db.name}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              {/* Description */}
-              <div className="bg-slate-800/50 p-3 rounded text-slate-300 text-sm">
-                <p>{currentDatabase.description}</p>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="details" className="mt-4">
-              {renderRecordDetails()}
-            </TabsContent>
-          </Tabs>
+            )}
+          </ScrollArea>
+          
+          {/* Note légale */}
+          <div className="text-xs text-gray-400 flex items-start">
+            <AlertTriangle className="h-3 w-3 mr-1 mt-0.5 flex-shrink-0" />
+            <span>
+              Ces données sont fournies à des fins d'enquête uniquement. Leur utilisation est soumise aux 
+              réglementations en vigueur concernant la protection des données personnelles.
+            </span>
+          </div>
         </div>
         
-        <DialogFooter className="mt-4">
-          <div className="flex justify-between w-full">
-            <Button 
-              variant="outline" 
-              onClick={onClose}
-              className="border-slate-600 text-slate-300"
-            >
-              Fermer
-            </Button>
-            {activeTab === 'search' && (
-              <Button 
-                type="submit" 
-                onClick={handleSearch}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-                disabled={!searchQuery.trim()}
-              >
-                <Search className="h-4 w-4 mr-2" />
-                Rechercher
-              </Button>
-            )}
-          </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            Fermer
+          </Button>
+          <Button variant="outline" disabled={searchResults.length === 0}>
+            <Download className="h-4 w-4 mr-2" />
+            Exporter les résultats
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
