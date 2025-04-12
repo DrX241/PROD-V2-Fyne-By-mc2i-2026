@@ -76,8 +76,7 @@ export default function CyberArcade() {
       description: "Menez l'enquête en utilisant uniquement des sources d'information ouvertes. Découvrez comment les attaquants peuvent exploiter les informations publiques.",
       difficulty: 'Moyen',
       icon: <Search className="w-10 h-10 text-white" />,
-      gradient: 'from-blue-600 to-indigo-800',
-      comingSoon: true
+      gradient: 'from-blue-600 to-indigo-800'
     },
     
     // Données personnelles
