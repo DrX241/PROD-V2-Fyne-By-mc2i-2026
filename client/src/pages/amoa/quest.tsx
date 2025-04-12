@@ -26,6 +26,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { apiRequest } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
+import ConnectionStatus from "@/components/amoa/ConnectionStatus";
+import TypingIndicator from "@/components/amoa/TypingIndicator";
 
 // Types pour l'aventure
 interface Character {
@@ -816,6 +818,11 @@ export default function AmoaQuestPage() {
           </div>
           
           <div className="flex items-center space-x-2">
+            {/* Indicateur de connexion FYNE */}
+            <div className="mr-2">
+              <ConnectionStatus />
+            </div>
+            
             <Button 
               variant="ghost" 
               size="sm"
@@ -957,9 +964,17 @@ export default function AmoaQuestPage() {
                   </Button>
                 </div>
                 {loading && (
-                  <div className="text-center mt-2">
-                    <div className="w-5 h-5 border-2 border-t-transparent border-amoa-blue rounded-full animate-spin inline-block mr-2"></div>
-                    <span className="text-xs text-gray-700">Traitement en cours...</span>
+                  <div className="mt-2">
+                    {/* Indicateur de type d'activité */}
+                    {freeformConversation.length > 0 && freeformConversation[freeformConversation.length - 1].role === 'user' && (
+                      <TypingIndicator 
+                        character={currentRespondent}
+                      />
+                    )}
+                    <div className="text-center">
+                      <div className="w-5 h-5 border-2 border-t-transparent border-amoa-blue rounded-full animate-spin inline-block mr-2"></div>
+                      <span className="text-xs text-gray-700">Traitement en cours...</span>
+                    </div>
                   </div>
                 )}
               </div>
