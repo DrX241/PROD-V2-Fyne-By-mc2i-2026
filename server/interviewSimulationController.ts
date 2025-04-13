@@ -124,7 +124,7 @@ export async function startInterviewSimulation(req: Request, res: Response) {
     console.error('Erreur lors du démarrage de l\'audition client:', error);
     return res.status(500).json({
       success: false,
-      error: 'Erreur serveur lors du démarrage de la simulation.'
+      error: 'Erreur serveur lors du démarrage de l\x27audition.'
     });
   }
 }
@@ -496,7 +496,7 @@ Format de réponse:
 }
 
 /**
- * Génère le prompt pour une étape spécifique de la simulation cybersécurité
+ * Génère le prompt pour une étape spécifique de l'audition cybersécurité
  */
 function generateCyberStepPrompt(step: number, profileType: string, experienceLevel: string): string {
   // Adapter la difficulté en fonction de l'étape et du niveau d'expérience
@@ -560,7 +560,7 @@ Profil du consultant:
 - Type de profil: ${profileType}
 - Niveau d'expérience: ${experienceLevel}
 
-Tu es maintenant à l'étape ${step}/3 de la simulation, avec une difficulté ${complexity}.
+Tu es maintenant à l'étape ${step}/3 de la audition, avec une difficulté ${complexity}.
 
 ${promptByStep}
 
@@ -574,7 +574,7 @@ INSTRUCTIONS:
 }
 
 /**
- * Génère le prompt pour une étape spécifique de la simulation AMOA
+ * Génère le prompt pour une étape spécifique de l'audition AMOA
  */
 function generateAmoaStepPrompt(step: number, profileType: string, experienceLevel: string, sectorFocus: string): string {
   // Adapter la difficulté en fonction de l'étape et du niveau d'expérience
@@ -639,7 +639,7 @@ Profil du consultant:
 - Niveau d'expérience: ${experienceLevel}
 - Secteur d'activité: ${sectorFocus}
 
-Tu es maintenant à l'étape ${step}/3 de la simulation, avec une difficulté ${complexity}.
+Tu es maintenant à l'étape ${step}/3 de la audition, avec une difficulté ${complexity}.
 
 ${promptByStep}
 
@@ -653,7 +653,7 @@ INSTRUCTIONS:
 }
 
 /**
- * Génère le prompt pour l'évaluation finale d'une simulation cybersécurité
+ * Génère le prompt pour l'évaluation finale d'une audition client cybersécurité
  */
 function generateCyberEvaluationPrompt(candidateName: string, profileType: string, experienceLevel: string): string {
   return `Tu es un expert en évaluation des performances de consultants en cybersécurité lors de missions client.
@@ -701,7 +701,7 @@ IMPORTANT:
 }
 
 /**
- * Génère le prompt pour l'évaluation finale d'une simulation AMOA
+ * Génère le prompt pour l'évaluation finale d'une audition client AMOA
  */
 function generateAmoaEvaluationPrompt(candidateName: string, profileType: string, experienceLevel: string, sectorFocus: string): string {
   return `Tu es un expert en évaluation des performances de consultants AMOA (Assistance à Maîtrise d'Ouvrage) lors d'auditions client.
