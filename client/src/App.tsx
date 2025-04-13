@@ -1,4 +1,4 @@
-import { Switch, Route, useLocation } from "wouter";
+import { Switch, Route, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -10,6 +10,7 @@ import { ChatProvider } from "./contexts/ChatContext";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import ModulesPage from "@/pages/modules";
+import FyneInitialization from "@/pages/fyne-initialization";
 import CyberModeSelection from "@/pages/cyber-mode-selection";
 import CyberAgentPage from "@/pages/cyber-agent";
 
@@ -43,7 +44,8 @@ import ImmersiveSession from "@/pages/immersive-session";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      <Route path="/" component={FyneInitialization} />
+      <Route path="/home" component={Home} />
       <Route path="/modules" component={ModulesPage} />
       <Route path="/cyber" component={CyberModeSelection} />
       <Route path="/cyber/agent" component={CyberAgentPage} />
@@ -116,7 +118,8 @@ function App() {
         <Switch>
           <Route path="/cyber/interview-simulation" component={CyberInterviewSimulation} />
           <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
-          <Route path="/" component={Home} />
+          <Route path="/" component={FyneInitialization} />
+          <Route path="/home" component={Home} />
           <Route path="/modules" component={ModulesPage} />
           <Route path="/cyber" component={CyberModeSelection} />
           <Route path="/cyber/agent" component={CyberAgentPage} />
