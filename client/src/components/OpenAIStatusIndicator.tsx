@@ -89,9 +89,9 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
   
   // Couleurs et icônes selon le statut
   const statusColors = {
-    connected: 'bg-green-500',
-    disconnected: 'bg-red-500',
-    checking: 'bg-yellow-500'
+    connected: 'bg-green-600',
+    disconnected: 'bg-red-600',
+    checking: 'bg-yellow-600'
   };
   
   const StatusIcon = status === 'connected' ? CheckCircle :
@@ -163,7 +163,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
                   )}
                   
                   <div className="flex items-center">
-                    <span className={`${position === 'in-header' ? 'text-[10px] xs:text-xs' : 'text-xs'} mr-1 text-white`}>
+                    <span className={`${position === 'in-header' ? 'text-[10px] xs:text-xs' : 'text-xs'} mr-1 font-semibold text-gray-800`}>
                       {position === 'in-header' ? 'Éco' : 'Eco'}
                     </span>
                     <Switch
@@ -172,7 +172,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
                       disabled={isToggling || status === 'checking'}
                       className={`${isToggling ? 'opacity-50' : ''} ${position === 'in-header' ? 'h-3 w-6 xs:h-4 xs:w-8' : ''}`}
                     />
-                    <Gauge className={`${position === 'in-header' ? 'w-2 h-2 xs:w-3 xs:h-3' : 'w-3 h-3'} ml-1 text-yellow-500`} />
+                    <Gauge className={`${position === 'in-header' ? 'w-2 h-2 xs:w-3 xs:h-3' : 'w-3 h-3'} ml-1 text-gray-800`} />
                   </div>
                 </div>
               </TooltipTrigger>
