@@ -874,7 +874,7 @@ export default function AmoaQuestPage() {
         </div>
       </header>
 
-      <div className="flex-1 flex flex-col md:flex-row max-w-full overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row max-w-full overflow-hidden overflow-y-auto">
         {/* Panneau principal de l'aventure */}
         <div className="flex-1 p-2 xs:p-3 sm:p-4 md:p-6 overflow-y-auto overflow-x-hidden max-w-full">
           <div className="max-w-full xs:max-w-[95%] sm:max-w-4xl mx-auto">
