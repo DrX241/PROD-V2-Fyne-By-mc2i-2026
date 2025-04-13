@@ -245,7 +245,7 @@ const CyberInterviewSimulation: React.FC = () => {
         },
         body: JSON.stringify({
           domain: 'cyber',
-          recruiterEmail: form.getValues('recruiterEmail'),
+          trainerEmail: form.getValues('trainerEmail'),
           candidateName: form.getValues('candidateName'),
           profileType: form.getValues('profileType'),
           experienceLevel: form.getValues('experienceLevel'),
@@ -301,7 +301,7 @@ const CyberInterviewSimulation: React.FC = () => {
     setEvaluationResult(null);
     setActiveTab('configuration');
     form.reset({
-      recruiterEmail: '',
+      trainerEmail: '',
       candidateName: '',
       profileType: '',
       experienceLevel: '',
@@ -386,7 +386,7 @@ const CyberInterviewSimulation: React.FC = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField
                           control={form.control}
-                          name="recruiterEmail"
+                          name="trainerEmail"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Email du formateur (pour recevoir l'évaluation)</FormLabel>
