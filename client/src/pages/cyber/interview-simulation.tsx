@@ -27,7 +27,7 @@ import HomeLayout from '@/components/layout/HomeLayout';
 
 // Schéma de formulaire pour la configuration de l'audition
 const formSchema = z.object({
-  recruiterEmail: z.string().email({
+  trainerEmail: z.string().email({
     message: "Veuillez entrer une adresse email valide.",
   }),
   candidateName: z.string().min(2, {
@@ -110,7 +110,7 @@ const CyberInterviewSimulation: React.FC = () => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      recruiterEmail: '',
+      trainerEmail: '',
       candidateName: '',
       profileType: '',
       experienceLevel: '',
@@ -278,7 +278,7 @@ const CyberInterviewSimulation: React.FC = () => {
       setActiveTab('evaluation');
       toast({
         title: "Simulation terminée",
-        description: "L'évaluation de votre entretien est disponible dans l'onglet Évaluation.",
+        description: "L'évaluation de votre audition est disponible dans l'onglet Évaluation.",
       });
     } catch (error) {
       console.error('Erreur:', error);
