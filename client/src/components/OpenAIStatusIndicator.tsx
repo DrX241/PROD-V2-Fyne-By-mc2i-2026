@@ -132,9 +132,9 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
                   </span>
                 </Badge>
                 <Button 
-                  variant="ghost" 
+                  variant="outline" 
                   size="sm" 
-                  className={`p-1 ml-1 text-white ${position === 'in-header' ? 'h-4 w-4 xs:h-5 xs:w-5' : 'h-6 w-6'}`}
+                  className={`p-1 ml-1 bg-blue-100 text-gray-800 border border-blue-300 rounded-full hover:bg-blue-200 ${position === 'in-header' ? 'h-4 w-4 xs:h-5 xs:w-5' : 'h-6 w-6'}`}
                   onClick={checkStatus} 
                   disabled={isRefreshing}
                 >
