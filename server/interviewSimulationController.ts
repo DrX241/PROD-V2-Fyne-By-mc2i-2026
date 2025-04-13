@@ -350,19 +350,30 @@ Axes d'amélioration : approfondissement des connaissances sectorielles, gestion
     console.log(`
 ---------- ENVOI D'EMAIL ----------
 À: ${recruiterEmail}
-Sujet: Évaluation de simulation d'entretien - ${candidateName}
+Sujet: ${domain === 'amoa' ? `Évaluation de préparation d'audition - ${candidateName}` : `Évaluation de simulation d'entretien - ${candidateName}`}
     `);
 
     try {
       // Construction du corps de l'email en HTML
-      const emailHtml = `
+      let emailContent = '';
+      if (domain === 'amoa') {
+        emailContent = `
+        <h2>Évaluation de préparation d'audition</h2>
+        <p><strong>Consultant:</strong> ${candidateName}</p>
+        <p><strong>Domaine:</strong> AMOA</p>
+        <p><strong>Profil:</strong> ${profileType.replace(/_/g, ' ')} - ${experienceLevel.charAt(0).toUpperCase() + experienceLevel.slice(1)}</p>
+        <p><strong>Secteur:</strong> ${sectorFocus}</p>
+        <p><strong>Durée:</strong> ${Math.floor(duration / 60)} min ${duration % 60} sec</p>`;
+      } else {
+        emailContent = `
         <h2>Évaluation de simulation d'entretien</h2>
         <p><strong>Candidat:</strong> ${candidateName}</p>
-        <p><strong>Domaine:</strong> ${domain === 'cyber' ? 'Cybersécurité' : 'AMOA'}</p>
+        <p><strong>Domaine:</strong> Cybersécurité</p>
         <p><strong>Profil:</strong> ${profileType.replace(/_/g, ' ')} - ${experienceLevel.charAt(0).toUpperCase() + experienceLevel.slice(1)}</p>
-        ${domain === 'amoa' && sectorFocus ? `<p><strong>Secteur:</strong> ${sectorFocus}</p>` : ''}
-        <p><strong>Durée:</strong> ${Math.floor(duration / 60)} min ${duration % 60} sec</p>
-        
+        <p><strong>Durée:</strong> ${Math.floor(duration / 60)} min ${duration % 60} sec</p>`;
+      }
+      
+      const emailHtml = `${emailContent}
         <hr />
         
         <div>
@@ -382,10 +393,10 @@ Sujet: Évaluation de simulation d'entretien - ${candidateName}
           const msg = {
             to: recruiterEmail,
             from: {
-              name: 'I AM CYBER - Recrutement',
+              name: domain === 'amoa' ? 'I AM AMOA - Préparation d\'audition' : 'I AM CYBER - Recrutement',
               email: 'eddy.missoni@mc2i.fr' // Adresse vérifiée dans SendGrid
             },
-            subject: `Évaluation de simulation d'entretien - ${candidateName}`,
+            subject: domain === 'amoa' ? `Évaluation de préparation d'audition - ${candidateName}` : `Évaluation de simulation d'entretien - ${candidateName}`,
             html: emailHtml,
           };
           
