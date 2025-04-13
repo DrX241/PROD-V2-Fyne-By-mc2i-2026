@@ -259,7 +259,7 @@ export default function Home() {
               transition={{ duration: 0.7 }}
             >
               Améliorez votre 
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400"> expertise professionnelle</span> avec FYNE
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 whitespace-nowrap"> expertise professionnelle</span> avec FYNE
             </motion.h1>
             
             <motion.p 
@@ -319,7 +319,7 @@ export default function Home() {
                 </span>
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto font-cyber-body leading-relaxed">
-                Une expérience d'apprentissage nouvelle génération, adaptée à vos besoins professionnels
+                Une expérience d'apprentissage nouvelle génération, adaptée à vos <span className="whitespace-nowrap">besoins professionnels</span>
               </p>
             </motion.div>
           </div>
@@ -388,7 +388,7 @@ export default function Home() {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6 font-cyber-title tracking-wide">
-              Prêt à transformer votre parcours professionnel ?
+              Prêt à transformer votre <span className="whitespace-nowrap">parcours professionnel</span> ?
             </h2>
             <p className="text-xl text-blue-100 mb-10 max-w-3xl mx-auto font-cyber-body">
               Rejoignez plus de 1000 professionnels qui ont déjà révolutionné leur façon d'apprendre
