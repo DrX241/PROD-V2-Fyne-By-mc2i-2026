@@ -56,7 +56,7 @@ const CyberInterviewSimulation: React.FC = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('configuration');
   
-  // États pour la simulation
+  // États pour l'audition
   const [isSimulationActive, setIsSimulationActive] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutes en secondes
   const [messages, setMessages] = useState<Message[]>([]);
@@ -117,7 +117,7 @@ const CyberInterviewSimulation: React.FC = () => {
     },
   });
   
-  // Démarrage de la simulation
+  // Démarrage de l'audition
   const startSimulation = async (values: FormValues) => {
     setIsLoading(true);
     try {
@@ -232,7 +232,7 @@ const CyberInterviewSimulation: React.FC = () => {
     }
   };
   
-  // Finalisation de la simulation
+  // Finalisation de l'audition
   const completeSimulation = async () => {
     if (simulationComplete) return;
     
