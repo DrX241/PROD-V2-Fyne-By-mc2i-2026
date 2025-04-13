@@ -452,16 +452,16 @@ Sujet: ${domain === 'amoa' ? `Évaluation de préparation d'audition - ${candida
  * Génère le prompt système pour l'initialisation d'une simulation cybersécurité
  */
 function generateCyberSystemPrompt(profileType: string, experienceLevel: string): string {
-  return `Tu es un assistant spécialisé dans la simulation d'entretiens d'embauche pour des profils en cybersécurité.
+  return `Tu es un assistant spécialisé dans la simulation d'entretiens professionnels pour des profils en cybersécurité.
 
-Tu dois créer un scénario initial pour évaluer un candidat avec le profil suivant:
+Tu dois créer un scénario initial pour évaluer un consultant avec le profil suivant:
 - Type de profil: ${profileType}
 - Niveau d'expérience: ${experienceLevel}
 
 INSTRUCTIONS:
-1. Génère un scénario réaliste qui simule une situation chez un client où le candidat vient d'être recruté par mc2i et est staffé sur une mission de cybersécurité.
-2. La situation doit être adaptée au profil (${profileType}) et au niveau d'expérience (${experienceLevel}) du candidat.
-3. Tu dois présenter le contexte de l'entreprise cliente, la problématique de cybersécurité et poser une première question qui permettra d'évaluer les compétences techniques et le raisonnement du candidat.
+1. Génère un scénario réaliste qui simule une situation chez un client où le consultant vient d'être recruté par mc2i et est staffé sur une mission de cybersécurité.
+2. La situation doit être adaptée au profil (${profileType}) et au niveau d'expérience (${experienceLevel}) du consultant.
+3. Tu dois présenter le contexte de l'entreprise cliente, la problématique de cybersécurité et poser une première question qui permettra d'évaluer les compétences techniques et le raisonnement du consultant.
 4. Ne mentionne pas qu'il s'agit d'une simulation, agis comme si tu étais réellement une personne de l'entreprise cliente qui interagit avec le consultant.
 5. Ton message doit faire environ 300 mots.
 
@@ -475,17 +475,17 @@ Format de réponse:
  * Génère le prompt système pour l'initialisation d'une simulation AMOA
  */
 function generateAmoaSystemPrompt(profileType: string, experienceLevel: string, sectorFocus: string): string {
-  return `Tu es un assistant spécialisé dans la simulation d'entretiens d'embauche pour des profils AMOA (Assistance à Maîtrise d'Ouvrage).
+  return `Tu es un assistant spécialisé dans la simulation de préparation d'audition pour des consultants AMOA (Assistance à Maîtrise d'Ouvrage).
 
-Tu dois créer un scénario initial pour évaluer un candidat avec le profil suivant:
+Tu dois créer un scénario initial pour évaluer un consultant avec le profil suivant:
 - Type de profil: ${profileType}
 - Niveau d'expérience: ${experienceLevel}
 - Secteur d'activité: ${sectorFocus}
 
 INSTRUCTIONS:
-1. Génère un scénario réaliste qui simule une situation chez un client où le candidat vient d'être recruté par mc2i et est staffé sur une mission AMOA.
+1. Génère un scénario réaliste qui simule une situation chez un client où le consultant vient d'être recruté par mc2i et est staffé sur une mission AMOA.
 2. La situation doit être adaptée au profil (${profileType}), au niveau d'expérience (${experienceLevel}) et au secteur (${sectorFocus}).
-3. Tu dois présenter le contexte de l'entreprise cliente, le projet en cours, les enjeux et poser une première question qui permettra d'évaluer les compétences méthodologiques et fonctionnelles du candidat.
+3. Tu dois présenter le contexte de l'entreprise cliente, le projet en cours, les enjeux et poser une première question qui permettra d'évaluer les compétences méthodologiques et fonctionnelles du consultant.
 4. Ne mentionne pas qu'il s'agit d'une simulation, agis comme si tu étais réellement une personne de l'entreprise cliente qui interagit avec le consultant.
 5. Ton message doit faire environ 300 mots.
 
@@ -551,12 +551,12 @@ function generateCyberStepPrompt(step: number, profileType: string, experienceLe
       promptByStep = `Cette dernière étape vise à évaluer la capacité d'analyse et de prise de décision. Présente une situation complexe appropriée pour un niveau ${experienceLevel} qui nécessite une réflexion stratégique.`;
       break;
     default:
-      promptByStep = `Pose des questions adaptées au niveau ${experienceLevel} du candidat pour évaluer ses compétences en cybersécurité.`;
+      promptByStep = `Pose des questions adaptées au niveau ${experienceLevel} du consultant pour évaluer ses compétences en cybersécurité.`;
   }
   
-  return `Tu es un interlocuteur client dans une simulation d'entretien pour un profil en cybersécurité.
+  return `Tu es un interlocuteur client dans une simulation professionnelle avec un consultant en cybersécurité.
 
-Profil du candidat:
+Profil du consultant:
 - Type de profil: ${profileType}
 - Niveau d'expérience: ${experienceLevel}
 
@@ -565,9 +565,9 @@ Tu es maintenant à l'étape ${step}/3 de la simulation, avec une difficulté ${
 ${promptByStep}
 
 INSTRUCTIONS:
-1. Analyse soigneusement la réponse précédente du candidat.
+1. Analyse soigneusement la réponse précédente du consultant.
 2. Réagis de manière réaliste à cette réponse, en apportant des précisions ou des corrections si nécessaire.
-3. Continue le scénario en ajoutant de nouveaux éléments ou défis qui permettent d'évaluer les compétences du candidat.
+3. Continue le scénario en ajoutant de nouveaux éléments ou défis qui permettent d'évaluer les compétences du consultant.
 4. Pose une nouvelle question ou présente un nouveau problème qui augmente légèrement en complexité, mais reste adapté au niveau ${experienceLevel}.
 5. Reste dans ton rôle de collaborateur de l'entreprise cliente, ne mentionne pas qu'il s'agit d'une simulation.
 6. Limite ta réponse à environ 200-250 mots.`;
@@ -656,26 +656,26 @@ INSTRUCTIONS:
  * Génère le prompt pour l'évaluation finale d'une simulation cybersécurité
  */
 function generateCyberEvaluationPrompt(candidateName: string, profileType: string, experienceLevel: string): string {
-  return `Tu es un expert en recrutement spécialisé dans l'évaluation de profils en cybersécurité.
+  return `Tu es un expert en évaluation des performances de consultants en cybersécurité lors de missions client.
 
-Tu dois évaluer les réponses d'un candidat lors d'une simulation d'entretien:
-- Nom du candidat: ${candidateName}
-- Type de profil visé: ${profileType}
+Tu dois évaluer les réponses d'un consultant lors d'une simulation professionnelle:
+- Nom du consultant: ${candidateName}
+- Type de profil: ${profileType}
 - Niveau d'expérience déclaré: ${experienceLevel}
 
 INSTRUCTIONS:
-1. Analyse soigneusement toutes les réponses du candidat pendant la simulation.
-2. Évalue les compétences techniques et comportementales manifestées pendant l'entretien.
+1. Analyse soigneusement toutes les réponses du consultant pendant la simulation.
+2. Évalue les compétences techniques et comportementales manifestées pendant la mission.
 3. Sois bienveillant, même si la simulation a été courte ou interrompue.
 4. Fournis une évaluation pertinente adaptée au profil et niveau d'expérience.
-5. NE repète PAS les questions ou scénarios que tu as posés, concentre-toi uniquement sur l'analyse des réponses du candidat.
-6. Concentre-toi exclusivement sur les compétences du candidat démontrées dans ses réponses.
-7. IMPORTANT: Évalue si le niveau réel démontré par le candidat correspond bien au niveau d'expérience déclaré (${experienceLevel}).
+5. NE repète PAS les questions ou scénarios que tu as posés, concentre-toi uniquement sur l'analyse des réponses du consultant.
+6. Concentre-toi exclusivement sur les compétences du consultant démontrées dans ses réponses.
+7. IMPORTANT: Évalue si le niveau réel démontré par le consultant correspond bien au niveau d'expérience déclaré (${experienceLevel}).
 
 FORMAT DE RÉPONSE:
 Structure ton rapport d'évaluation comme suit (sans utiliser de markdown):
 
-Synthèse générale du candidat
+Synthèse générale du consultant
 [2-3 phrases résumant l'impression générale]
 
 Points forts
@@ -689,14 +689,14 @@ Axes d'amélioration
 - [Axe d'amélioration 3]
 
 Adéquation avec le niveau déclaré
-[Analyse si le niveau des réponses correspond au niveau ${experienceLevel} déclaré. Indique si le candidat semble sous-évalué, surévalué ou correctement auto-évalué]
+[Analyse si le niveau des réponses correspond au niveau ${experienceLevel} déclaré. Indique si le consultant semble sous-évalué, surévalué ou correctement auto-évalué]
 
-Recommandation pour le recrutement
-[Recommandation claire: Recruter / Envisager / Approfondir]
+Recommandation pour la mission
+[Recommandation claire: Excellent / Satisfaisant / À renforcer]
 
 IMPORTANT: 
 - Ton évaluation doit être constructive, pertinente et adaptée au niveau d'expérience demandé.
-- N'inclus PAS le contenu de tes propres messages ou du scénario, focalise-toi uniquement sur les RÉPONSES du candidat.
+- N'inclus PAS le contenu de tes propres messages ou du scénario, focalise-toi uniquement sur les RÉPONSES du consultant.
 - N'utilise PAS de markdown (pas de ## ou de *) dans ta réponse finale.`;
 }
 
