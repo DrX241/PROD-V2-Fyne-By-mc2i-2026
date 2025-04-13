@@ -69,15 +69,15 @@ export default function CyberModeSelection() {
     },
     {
       id: 'recrutement',
-      title: 'MISE EN SITUATION PROFESSIONNELLE',
-      description: "Préparez-vous aux situations professionnelles en cybersécurité avec simulation immersive et évaluation détaillée.",
+      title: 'MISE EN SITUATION D\'AUDITION',
+      description: "Préparez vos consultants à des auditions auprès de clients en cybersécurité avec évaluation détaillée de la prestation.",
       icon: <User className="w-12 h-12 text-green-100" />,
       gradient: 'from-green-700 to-green-900',
       destination: '#',
       items: [
         {
           id: 'interview-simulation',
-          title: 'SIMULATION PROFESSIONNELLE',
+          title: 'PRÉPARATION D\'AUDITION CLIENT',
           icon: <User className="w-8 h-8" />,
           destination: '/cyber/interview-simulation'
         }
