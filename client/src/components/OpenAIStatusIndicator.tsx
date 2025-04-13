@@ -123,10 +123,10 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
               <div className={`relative flex items-center ${status === 'checking' ? 'animate-pulse' : ''}`}>
                 <Badge 
                   variant="outline" 
-                  className={`px-2 py-1 flex items-center gap-1 ${statusColors[status]} text-white ${position === 'in-header' ? 'scale-75' : ''}`}
+                  className={`px-2 py-1 flex items-center gap-1 ${statusColors[status]} text-white ${position === 'in-header' ? 'scale-75 xs:scale-90' : ''}`}
                 >
-                  <StatusIcon className="w-3 h-3" />
-                  <span className="text-xs font-medium">
+                  <StatusIcon className={`${position === 'in-header' ? 'w-2 h-2 xs:w-3 xs:h-3' : 'w-3 h-3'}`} />
+                  <span className={`${position === 'in-header' ? 'text-[10px] xs:text-xs' : 'text-xs'} font-medium`}>
                     FYNE {status === 'connected' ? 'Connecté' : status === 'disconnected' ? 'Déconnecté' : 'Vérification...'}
                     {position === 'in-header' && currentModel ? ` ${currentModel === 'gpt-4o' ? 'gpt-4o' : 'gpt-4o-mini'}` : ''}
                   </span>
@@ -134,11 +134,11 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="p-1 ml-1 h-6 w-6 text-white"
+                  className={`p-1 ml-1 text-white ${position === 'in-header' ? 'h-4 w-4 xs:h-5 xs:w-5' : 'h-6 w-6'}`}
                   onClick={checkStatus} 
                   disabled={isRefreshing}
                 >
-                  <LoaderCircle className={`w-3 h-3 ${isRefreshing ? 'animate-spin' : ''}`} />
+                  <LoaderCircle className={`${position === 'in-header' ? 'w-2 h-2 xs:w-3 xs:h-3' : 'w-3 h-3'} ${isRefreshing ? 'animate-spin' : ''}`} />
                 </Button>
               </div>
             </div>

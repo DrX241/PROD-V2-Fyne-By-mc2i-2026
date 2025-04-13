@@ -333,15 +333,7 @@ const CyberInterviewSimulation: React.FC = () => {
             Cette simulation vous permet de préparer vos consultants à des auditions auprès de clients ou partenaires commerciaux à travers une conversation de 10 minutes avec un client potentiel simulé par l'IA.
           </p>
           
-          {/* Indicateur de statut OpenAI - en bas centré sur mobile, en header sur desktop */}
-          <Suspense fallback={null}>
-            <div className="block sm:hidden">
-              <OpenAIStatusIndicator position="fixed-bottom" />
-            </div>
-            <div className="hidden sm:block">
-              {/* Sur desktop, l'indicateur est déjà dans le Header */}
-            </div>
-          </Suspense>
+          {/* L'indicateur de statut OpenAI est maintenant affiché dans le Header */}
           
           {isSimulationActive && !simulationComplete && (
             <div className="fixed top-4 right-4 z-50 flex items-center p-2 rounded-md shadow-lg bg-gray-800 border border-gray-700">
