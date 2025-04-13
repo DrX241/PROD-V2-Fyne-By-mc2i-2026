@@ -14,7 +14,7 @@ import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
 import { v4 as uuidv4 } from 'uuid';
 
-// Structure d'un niveau de CYBER DEFENSE
+// Structure d'un niveau de CENTRE DE CRISE ÉVOLUTIF
 interface DefenseLevel {
   id: string;
   levelNumber: number;
@@ -45,7 +45,7 @@ interface Contact {
 export default function CyberDefense() {
   const [, navigate] = useLocation();
   
-  // Liste des contacts disponibles dans CYBER DEFENSE
+  // Liste des contacts disponibles dans le CENTRE DE CRISE ÉVOLUTIF
   // Ils seront débloqués progressivement au fil des niveaux
   const contacts: Contact[] = [
     {
@@ -113,7 +113,7 @@ export default function CyberDefense() {
     }
   ];
   
-  // Liste des niveaux de CYBER DEFENSE
+  // Liste des niveaux du CENTRE DE CRISE ÉVOLUTIF
   const levels: DefenseLevel[] = [
     // Niveau 1: Première alerte - Premier contact uniquement (Yousra)
     {
@@ -251,7 +251,7 @@ export default function CyberDefense() {
   
   return (
     <HomeLayout>
-      <PageTitle title="CYBER DEFENSE" />
+      <PageTitle title="CENTRE DE CRISE ÉVOLUTIF" />
       
       {/* En-tête et introduction */}
       <div className="bg-gradient-to-br from-[#003a5d] to-[#006a9e] text-white">
@@ -273,7 +273,7 @@ export default function CyberDefense() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7 }}
               >
-                CYBER DEFENSE
+                CENTRE DE CRISE ÉVOLUTIF
               </motion.h1>
               
               <motion.p 
@@ -455,7 +455,7 @@ export default function CyberDefense() {
           
           {/* Section explicative */}
           <div className="bg-white p-8 rounded-xl border border-gray-200 mb-12">
-            <h3 className="text-2xl font-bold text-[#006a9e] mb-6">Comment fonctionne le module CYBER DEFENSE</h3>
+            <h3 className="text-2xl font-bold text-[#006a9e] mb-6">Comment fonctionne le CENTRE DE CRISE ÉVOLUTIF</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="flex flex-col">
