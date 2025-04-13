@@ -41,7 +41,7 @@ async function sendWithEthereal(trainerEmail: string, candidateName: string, ema
   }
 }
 
-// Structure des données de simulation d'entretien
+// Structure des données de simulation d'audition client
 interface InterviewSimulationData {
   domain: 'cyber' | 'amoa';
   trainerEmail: string;
@@ -54,7 +54,7 @@ interface InterviewSimulationData {
 }
 
 /**
- * Démarre une simulation d'entretien basée sur les paramètres configurés
+ * Démarre une simulation d'audition client basée sur les paramètres configurés
  */
 export async function startInterviewSimulation(req: Request, res: Response) {
   try {
@@ -67,7 +67,7 @@ export async function startInterviewSimulation(req: Request, res: Response) {
       sectorFocus
     } = req.body;
 
-    if (!domain || !recruiterEmail || !candidateName || !profileType || !experienceLevel) {
+    if (!domain || !trainerEmail || !candidateName || !profileType || !experienceLevel) {
       return res.status(400).json({ 
         success: false, 
         error: 'Paramètres incomplets. Veuillez fournir toutes les informations requises.'
@@ -274,7 +274,7 @@ async function testSendMail(trainerEmail: string, candidateName: string, emailHt
 export async function completeInterviewSimulation(req: Request, res: Response) {
   try {
     const {
-      recruiterEmail,
+      trainerEmail,
       candidateName,
       profileType,
       experienceLevel,
@@ -285,7 +285,7 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
 
     const domain = req.path.includes('/cyber/') ? 'cyber' : 'amoa';
 
-    if (!recruiterEmail || !candidateName || !profileType || !experienceLevel) {
+    if (!trainerEmail || !candidateName || !profileType || !experienceLevel) {
       return res.status(400).json({
         success: false,
         error: 'Paramètres incomplets.'
@@ -349,8 +349,8 @@ Axes d'amélioration : approfondissement des connaissances sectorielles, gestion
     // Affichage dans la console pour le débogage
     console.log(`
 ---------- ENVOI D'EMAIL ----------
-À: ${recruiterEmail}
-Sujet: ${domain === 'amoa' ? `Évaluation de préparation d'audition - ${candidateName}` : `Évaluation de simulation d'entretien - ${candidateName}`}
+À: ${trainerEmail}
+Sujet: ${domain === 'amoa' ? `Évaluation de préparation d'audition - ${candidateName}` : `Évaluation d'audition client - ${candidateName}`}
     `);
 
     try {
@@ -391,7 +391,7 @@ Sujet: ${domain === 'amoa' ? `Évaluation de préparation d'audition - ${candida
           sgMail.setApiKey(sendgridApiKey);
           
           const msg = {
-            to: recruiterEmail,
+            to: trainerEmail,
             from: {
               name: 'FYNE - Audition',
               email: 'eddy.missoni@mc2i.fr' // Adresse vérifiée dans SendGrid
@@ -401,12 +401,12 @@ Sujet: ${domain === 'amoa' ? `Évaluation de préparation d'audition - ${candida
           };
           
           console.log('Envoi d\'email via SendGrid avec configuration:');
-          console.log('- Destinataire:', recruiterEmail);
+          console.log('- Destinataire:', trainerEmail);
           console.log('- Expéditeur:', 'eddy.missoni@mc2i.fr');
           console.log('- Clé API SendGrid disponible:', !!sendgridApiKey);
           
           await sgMail.send(msg);
-          console.log('Email envoyé avec SendGrid à', recruiterEmail);
+          console.log('Email envoyé avec SendGrid à', trainerEmail);
         } catch (sendgridError: any) {
           console.error('Erreur lors de l\'envoi avec SendGrid:', sendgridError.code);
           
@@ -417,12 +417,12 @@ Sujet: ${domain === 'amoa' ? `Évaluation de préparation d'audition - ${candida
           
           // Fallback vers Ethereal pour les tests si SendGrid échoue
           console.log('Fallback vers Ethereal...');
-          await testSendMail(recruiterEmail, candidateName, emailHtml);
+          await testSendMail(trainerEmail, candidateName, emailHtml);
         }
       } else {
         // Fallback vers Ethereal pour les tests
         console.log("Aucune clé SendGrid trouvée, utilisation d'Ethereal...");
-        await testSendMail(recruiterEmail, candidateName, emailHtml);
+        await testSendMail(trainerEmail, candidateName, emailHtml);
       }
     } catch (emailError) {
       console.error('Erreur lors de l\'envoi de l\'email:', emailError);
