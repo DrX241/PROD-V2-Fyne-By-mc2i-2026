@@ -337,12 +337,12 @@ Axes d'amélioration : approfondir les méthodologies de sécurité, développer
 
 Note globale : 3.5/5`;
       } else {
-        evaluation = `Le candidat ${candidateName} a démontré une bonne compréhension du rôle d'AMOA pour un profil ${profileType} de niveau ${experienceLevel} dans le secteur ${sectorFocus}.
+        evaluation = `Le consultant ${candidateName} a démontré une bonne compréhension du rôle d'AMOA pour un profil ${profileType} de niveau ${experienceLevel} dans le secteur ${sectorFocus}.
         
 Points forts : méthodologie projet, communication avec les parties prenantes.
 Axes d'amélioration : approfondissement des connaissances sectorielles, gestion des situations complexes.
 
-Note globale : 3.5/5`;
+Évaluation globale : Satisfaisant`;
       }
     }
 
@@ -618,12 +618,12 @@ function generateAmoaStepPrompt(step: number, profileType: string, experienceLev
       promptByStep = `Cette dernière étape vise à évaluer la capacité d'analyse et de conseil. Présente une situation complexe appropriée pour un niveau ${experienceLevel} dans le secteur ${sectorFocus} qui nécessite des recommandations stratégiques.`;
       break;
     default:
-      promptByStep = `Pose des questions adaptées au niveau ${experienceLevel} du candidat pour évaluer ses compétences en AMOA dans le secteur ${sectorFocus}.`;
+      promptByStep = `Pose des questions adaptées au niveau ${experienceLevel} du consultant pour évaluer ses compétences en AMOA dans le secteur ${sectorFocus}.`;
   }
   
-  return `Tu es un interlocuteur client dans une simulation d'entretien pour un profil AMOA.
+  return `Tu es un client potentiel qui participe à une préparation d'audition pour un consultant AMOA.
 
-Profil du candidat:
+Profil du consultant:
 - Type de profil: ${profileType}
 - Niveau d'expérience: ${experienceLevel}
 - Secteur d'activité: ${sectorFocus}
@@ -633,11 +633,11 @@ Tu es maintenant à l'étape ${step}/3 de la simulation, avec une difficulté ${
 ${promptByStep}
 
 INSTRUCTIONS:
-1. Analyse soigneusement la réponse précédente du candidat.
+1. Analyse soigneusement la réponse précédente du consultant.
 2. Réagis de manière réaliste à cette réponse, en apportant des précisions ou des corrections si nécessaire.
-3. Continue le scénario en ajoutant de nouveaux éléments ou défis qui permettent d'évaluer les compétences du candidat.
+3. Continue le scénario en ajoutant de nouveaux éléments ou défis qui permettent d'évaluer les compétences du consultant.
 4. Pose une nouvelle question ou présente un nouveau problème qui augmente légèrement en complexité, mais reste adapté au niveau ${experienceLevel}.
-5. Reste dans ton rôle de collaborateur de l'entreprise cliente, ne mentionne pas qu'il s'agit d'une simulation.
+5. Reste dans ton rôle de client potentiel, ne mentionne pas qu'il s'agit d'une simulation.
 6. Limite ta réponse à environ 200-250 mots.`;
 }
 
@@ -693,27 +693,27 @@ IMPORTANT:
  * Génère le prompt pour l'évaluation finale d'une simulation AMOA
  */
 function generateAmoaEvaluationPrompt(candidateName: string, profileType: string, experienceLevel: string, sectorFocus: string): string {
-  return `Tu es un expert en recrutement spécialisé dans l'évaluation de profils AMOA (Assistance à Maîtrise d'Ouvrage).
+  return `Tu es un expert en évaluation des performances de consultants AMOA (Assistance à Maîtrise d'Ouvrage) lors d'auditions client.
 
-Tu dois évaluer les réponses d'un candidat lors d'une simulation d'entretien:
-- Nom du candidat: ${candidateName}
+Tu dois évaluer les réponses d'un consultant lors d'une préparation d'audition auprès d'un client potentiel:
+- Nom du consultant: ${candidateName}
 - Type de profil visé: ${profileType}
 - Niveau d'expérience déclaré: ${experienceLevel}
 - Secteur d'activité: ${sectorFocus}
 
 INSTRUCTIONS:
-1. Analyse soigneusement toutes les réponses du candidat pendant la simulation.
-2. Évalue les compétences techniques et comportementales manifestées pendant l'entretien.
+1. Analyse soigneusement toutes les réponses du consultant pendant la simulation.
+2. Évalue les compétences techniques et comportementales manifestées pendant l'audition.
 3. Sois bienveillant, même si la simulation a été courte ou interrompue.
 4. Fournis une évaluation pertinente adaptée au profil, niveau d'expérience et secteur.
-5. NE repète PAS les questions ou scénarios que tu as posés, concentre-toi uniquement sur l'analyse des réponses du candidat.
-6. Concentre-toi exclusivement sur les compétences du candidat démontrées dans ses réponses.
-7. IMPORTANT: Évalue si le niveau réel démontré par le candidat correspond bien au niveau d'expérience déclaré (${experienceLevel}).
+5. NE repète PAS les questions ou scénarios que tu as posés, concentre-toi uniquement sur l'analyse des réponses du consultant.
+6. Concentre-toi exclusivement sur les compétences du consultant démontrées dans ses réponses.
+7. IMPORTANT: Évalue si le niveau réel démontré par le consultant correspond bien au niveau d'expérience déclaré (${experienceLevel}).
 
 FORMAT DE RÉPONSE:
 Structure ton rapport d'évaluation comme suit (sans utiliser de markdown):
 
-Synthèse générale du candidat
+Synthèse générale du consultant
 [2-3 phrases résumant l'impression générale]
 
 Points forts
@@ -727,13 +727,13 @@ Axes d'amélioration
 - [Axe d'amélioration 3]
 
 Adéquation avec le niveau déclaré
-[Analyse si le niveau des réponses correspond au niveau ${experienceLevel} déclaré. Indique si le candidat semble sous-évalué, surévalué ou correctement auto-évalué]
+[Analyse si le niveau des réponses correspond au niveau ${experienceLevel} déclaré. Indique si le consultant semble sous-évalué, surévalué ou correctement auto-évalué]
 
-Recommandation pour le recrutement
-[Recommandation claire: Recruter / Envisager / Approfondir]
+Recommandation à l'issue de la prestation
+[Recommandation claire: Excellent / Satisfaisant / À renforcer]
 
 IMPORTANT: 
 - Ton évaluation doit être constructive, pertinente et adaptée au niveau d'expérience demandé et au secteur ${sectorFocus}.
-- N'inclus PAS le contenu de tes propres messages ou du scénario, focalise-toi uniquement sur les RÉPONSES du candidat.
+- N'inclus PAS le contenu de tes propres messages ou du scénario, focalise-toi uniquement sur les RÉPONSES du consultant.
 - N'utilise PAS de markdown (pas de ## ou de *) dans ta réponse finale.`;
 }
