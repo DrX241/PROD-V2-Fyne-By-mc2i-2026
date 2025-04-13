@@ -6,7 +6,7 @@ interface HomeLayoutProps {
 
 export default function HomeLayout({ children }: HomeLayoutProps) {
   return (
-    <div className="min-h-screen w-full flex flex-col bg-slate-50 overflow-x-hidden max-w-[100vw]">
+    <div className="min-h-screen w-full flex flex-col bg-slate-50 overflow-x-hidden overflow-y-auto max-w-[100vw]">
       <Header isFeny={true} />
 
       <main className="flex-1 w-full overflow-y-auto overflow-x-hidden max-w-full" style={{ 
