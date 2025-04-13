@@ -50,7 +50,7 @@ async function sendWithEthereal(userEmail: string, userName: string, emailHtml: 
   }
 }
 
-// Structure des données de session Agent IA
+// Structure des données de session Expert Cyber Conversationnel
 interface AgentSessionData {
   userEmail: string;
   userName: string;
@@ -59,7 +59,7 @@ interface AgentSessionData {
 }
 
 /**
- * Initialise une session d'Agent IA
+ * Initialise une session d'Expert Cyber Conversationnel
  */
 export async function startAgentSession(req: Request, res: Response) {
   try {
@@ -103,7 +103,7 @@ export async function startAgentSession(req: Request, res: Response) {
 }
 
 /**
- * Termine une session Agent IA et envoie un rapport par email
+ * Termine une session Expert Cyber Conversationnel et envoie un rapport par email
  */
 export async function completeAgentSession(req: Request, res: Response) {
   try {

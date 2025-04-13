@@ -28,7 +28,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
-// Schéma de formulaire pour la configuration de la session Agent IA
+// Schéma de formulaire pour la configuration de la session Expert Cyber Conversationnel
 const formSchema = z.object({
   userEmail: z.string().email({
     message: "Veuillez entrer une adresse email valide.",
@@ -115,7 +115,7 @@ export default function CyberAgentPage() {
 
         toast({
           title: "Session démarrée",
-          description: "Votre session Agent IA a démarré. Un rapport sera envoyé à votre email à la fin.",
+          description: "Votre session Expert Cyber Conversationnel a démarré. Un rapport sera envoyé à votre email à la fin.",
         });
       } else {
         console.warn("Réponse sans succès:", response);
@@ -252,7 +252,7 @@ export default function CyberAgentPage() {
 
   return (
     <CyberLayout>
-      <PageTitle title="AGENT IA" />
+      <PageTitle title="EXPERT CYBER CONVERSATIONNEL" />
       <div className="mb-2 px-4 sm:px-6 flex items-center justify-between">
         <Link href="/cyber" className="inline-flex items-center text-[#46cada] hover:text-blue-600 transition-colors">
           <ArrowLeft className="mr-2 h-5 w-5" />
@@ -271,7 +271,7 @@ export default function CyberAgentPage() {
         <div className="max-w-md mx-auto mt-8">
           <Card className="bg-gradient-to-br from-blue-950 to-indigo-900 text-white border-blue-800">
             <CardHeader>
-              <CardTitle className="text-xl text-center">Démarrez votre session Agent IA</CardTitle>
+              <CardTitle className="text-xl text-center">Démarrez votre session Expert Cyber Conversationnel</CardTitle>
               <CardDescription className="text-blue-200 text-center">
                 Un rapport détaillé sera envoyé à votre email à la fin de la session de 10 minutes
               </CardDescription>
