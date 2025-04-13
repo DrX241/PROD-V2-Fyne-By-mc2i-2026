@@ -326,17 +326,24 @@ const CyberInterviewSimulation: React.FC = () => {
               <ArrowLeft className="w-5 h-5 mr-2" />
               Retour
             </Button>
-            <h1 className="text-3xl font-bold">Simulation d'entretien Cybersécurité</h1>
+            <h1 className="text-3xl font-bold">Simulation d'Entretien de Recrutement Cybersécurité</h1>
           </div>
           
           <p className="mb-8 text-gray-300">
-            Cette simulation vous permet d'évaluer les compétences des candidats aux postes de cybersécurité à travers une conversation de 5 minutes avec un recruteur IA.
+            Cette simulation vous permet d'évaluer les compétences des candidats aux postes de cybersécurité à travers une conversation de 10 minutes avec un recruteur IA.
           </p>
           
           {/* Indicateur de statut OpenAI en bas à droite */}
           <Suspense fallback={null}>
             <OpenAIStatusIndicator position="fixed-bottom-right" />
           </Suspense>
+          
+          {isSimulationActive && !simulationComplete && (
+            <div className="fixed top-4 right-4 z-50 flex items-center p-2 rounded-md shadow-lg bg-gray-800 border border-gray-700">
+              <Clock className="w-5 h-5 mr-2 text-white" />
+              <span className="font-mono text-white">{formatTime(timeRemaining)}</span>
+            </div>
+          )}
           
           <Tabs 
             defaultValue="configuration" 
@@ -606,7 +613,7 @@ const CyberInterviewSimulation: React.FC = () => {
                           </div>
                           <div className="bg-gray-700 p-3 rounded-md">
                             <p className="text-gray-400 text-sm">Durée de l'entretien</p>
-                            <p>{Math.floor((300 - timeRemaining) / 60)} min {(300 - timeRemaining) % 60} sec</p>
+                            <p>{Math.floor((600 - timeRemaining) / 60)} min {(600 - timeRemaining) % 60} sec</p>
                           </div>
                         </div>
                       </div>
