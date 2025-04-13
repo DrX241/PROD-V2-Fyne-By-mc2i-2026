@@ -24,9 +24,9 @@ async function sendWithEthereal(userEmail: string, userName: string, emailHtml: 
     
     // Configuration de l'email
     const mailOptions = {
-      from: '"I AM CYBER - Agent IA" <rapport@i-am-cyber.com>',
+      from: '"I AM CYBER - Expert Cyber Conversationnel" <rapport@i-am-cyber.com>',
       to: userEmail,
-      subject: `Rapport de session I AM CYBER - Agent IA - ${userName}`,
+      subject: `Rapport de session I AM CYBER - Expert Cyber Conversationnel - ${userName}`,
       html: emailHtml
     };
     
@@ -86,11 +86,11 @@ export async function startAgentSession(req: Request, res: Response) {
     // Renvoyer explicitement les données JSON
     return res.json({
       success: true,
-      message: 'Session Agent IA initialisée avec succès',
+      message: 'Session Expert Cyber Conversationnel initialisée avec succès',
       sessionData
     });
   } catch (error) {
-    console.error('Erreur lors de l\'initialisation de la session Agent IA:', error);
+    console.error('Erreur lors de l\'initialisation de la session Expert Cyber Conversationnel:', error);
     
     // S'assurer que l'en-tête Content-Type est correctement défini même en cas d'erreur
     res.setHeader('Content-Type', 'application/json');
@@ -123,7 +123,7 @@ export async function completeAgentSession(req: Request, res: Response) {
     }));
     
     // Générer le prompt pour l'évaluation par l'IA
-    const evaluationPrompt = `Analyse la conversation suivante entre l'utilisateur ${userName} et l'Agent IA (I AM CYBER).
+    const evaluationPrompt = `Analyse la conversation suivante entre l'utilisateur ${userName} et l'Expert Cyber Conversationnel (I AM CYBER).
      
 La conversation a duré environ ${Math.round(duration / 60)} minutes.
 
@@ -160,10 +160,10 @@ Format ton rapport sous forme HTML bien structuré avec des sections clairement 
       fallbackMode = true;
       
       evaluationHtml = `
-<h1>Rapport de Session I AM CYBER - Agent IA</h1>
+<h1>Rapport de Session I AM CYBER - Expert Cyber Conversationnel</h1>
 
 <h2>Résumé de la session</h2>
-<p>L'utilisateur ${userName} a interagi avec l'Agent IA pendant environ ${Math.round(duration / 60)} minutes.</p>
+<p>L'utilisateur ${userName} a interagi avec l'Expert Cyber Conversationnel pendant environ ${Math.round(duration / 60)} minutes.</p>
 <p>Durant cette session, plusieurs sujets de cybersécurité ont été abordés.</p>
 
 <h2>Points clés discutés</h2>
@@ -195,7 +195,7 @@ Format ton rapport sous forme HTML bien structuré avec des sections clairement 
 </head>
 <body>
   <div class="header">
-    <h1>I AM CYBER - Agent IA</h1>
+    <h1>I AM CYBER - Expert Cyber Conversationnel</h1>
     <p>Rapport de session interactive</p>
   </div>
   
@@ -209,7 +209,7 @@ Format ton rapport sous forme HTML bien structuré avec des sections clairement 
     ${evaluationHtml}
     
     <div style="margin-top: 30px;">
-      <p>Merci d'avoir utilisé I AM CYBER - Agent IA.</p>
+      <p>Merci d'avoir utilisé I AM CYBER - Expert Cyber Conversationnel.</p>
       <p>Ce rapport a été généré automatiquement à la fin de votre session.</p>
     </div>
   </div>
@@ -224,7 +224,7 @@ Format ton rapport sous forme HTML bien structuré avec des sections clairement 
     console.log(`
 ---------- ENVOI D'EMAIL ----------
 À: ${userEmail}
-Sujet: Rapport de session I AM CYBER - Agent IA - ${userName}
+Sujet: Rapport de session I AM CYBER - Expert Cyber Conversationnel - ${userName}
 Mode de secours: ${fallbackMode}
 ----------------------------------`);
 
@@ -241,7 +241,7 @@ Mode de secours: ${fallbackMode}
         await sgMail.send({
           to: userEmail,
           from: 'rapport@i-am-cyber.com',
-          subject: `Rapport de session I AM CYBER - Agent IA - ${userName}`,
+          subject: `Rapport de session I AM CYBER - Expert Cyber Conversationnel - ${userName}`,
           html: emailHtml
         });
         console.log('Email envoyé avec SendGrid');
@@ -262,7 +262,7 @@ Mode de secours: ${fallbackMode}
     });
 
   } catch (error) {
-    console.error('Erreur lors de la finalisation de la session Agent IA:', error);
+    console.error('Erreur lors de la finalisation de la session Expert Cyber Conversationnel:', error);
     
     // S'assurer que l'en-tête Content-Type est correctement défini même en cas d'erreur
     res.setHeader('Content-Type', 'application/json');
