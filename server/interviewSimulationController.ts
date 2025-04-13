@@ -24,8 +24,8 @@ async function sendWithEthereal(trainerEmail: string, candidateName: string, ema
     
     // Configuration de l'email
     const mailOptions = {
-      from: '"I AM CYBER - Recrutement" <evaluation@i-am-cyber.com>',
-      to: recruiterEmail,
+      from: '"FYNE - Audition" <evaluation@fyne.fr>',
+      to: trainerEmail,
       subject: `Évaluation de simulation d'entretien - ${candidateName}`,
       html: emailHtml
     };
@@ -235,7 +235,7 @@ export async function processInterviewMessage(req: Request, res: Response) {
  * Finalise une simulation d'entretien et envoie les résultats par email
  */
 // Fonction utilitaire pour tester l'envoi d'email avec le service Ethereal
-async function testSendMail(recruiterEmail: string, candidateName: string, emailHtml: string) {
+async function testSendMail(trainerEmail: string, candidateName: string, emailHtml: string) {
   try {
     // Configuration de nodemailer avec service de test d'email Ethereal
     const testAccount = await nodemailer.createTestAccount();
@@ -366,8 +366,8 @@ Sujet: ${domain === 'amoa' ? `Évaluation de préparation d'audition - ${candida
         <p><strong>Durée:</strong> ${Math.floor(duration / 60)} min ${duration % 60} sec</p>`;
       } else {
         emailContent = `
-        <h2>Évaluation de simulation d'entretien</h2>
-        <p><strong>Candidat:</strong> ${candidateName}</p>
+        <h2>Évaluation d'audition client</h2>
+        <p><strong>Consultant(e):</strong> ${candidateName}</p>
         <p><strong>Domaine:</strong> Cybersécurité</p>
         <p><strong>Profil:</strong> ${profileType.replace(/_/g, ' ')} - ${experienceLevel.charAt(0).toUpperCase() + experienceLevel.slice(1)}</p>
         <p><strong>Durée:</strong> ${Math.floor(duration / 60)} min ${duration % 60} sec</p>`;
@@ -396,7 +396,7 @@ Sujet: ${domain === 'amoa' ? `Évaluation de préparation d'audition - ${candida
               name: 'FYNE - Audition',
               email: 'eddy.missoni@mc2i.fr' // Adresse vérifiée dans SendGrid
             },
-            subject: domain === 'amoa' ? `Évaluation de préparation d'audition - ${candidateName}` : `Évaluation de simulation d'entretien - ${candidateName}`,
+            subject: domain === 'amoa' ? `Évaluation de préparation d'audition - ${candidateName}` : `Évaluation d'audition client - ${candidateName}`,
             html: emailHtml,
           };
           
