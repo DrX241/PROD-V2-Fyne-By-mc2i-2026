@@ -7,7 +7,7 @@ import { openAIService } from "../I_AM_CYBER/services/openai";
 /**
  * Envoie un email de test avec Ethereal
  */
-async function sendWithEthereal(recruiterEmail: string, candidateName: string, emailHtml: string) {
+async function sendWithEthereal(trainerEmail: string, candidateName: string, emailHtml: string) {
   try {
     // Configuration de nodemailer avec service de test d'email Ethereal
     const testAccount = await nodemailer.createTestAccount();
@@ -44,7 +44,7 @@ async function sendWithEthereal(recruiterEmail: string, candidateName: string, e
 // Structure des données de simulation d'entretien
 interface InterviewSimulationData {
   domain: 'cyber' | 'amoa';
-  recruiterEmail: string;
+  trainerEmail: string;
   candidateName: string;
   profileType: string;
   experienceLevel: string;
