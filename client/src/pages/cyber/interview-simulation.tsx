@@ -58,7 +58,7 @@ const CyberInterviewSimulation: React.FC = () => {
   
   // États pour la simulation
   const [isSimulationActive, setIsSimulationActive] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(300); // 5 minutes en secondes
+  const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutes en secondes
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [userInput, setUserInput] = useState('');
@@ -152,7 +152,7 @@ const CyberInterviewSimulation: React.FC = () => {
       setActiveTab('simulation');
       toast({
         title: "Simulation démarrée",
-        description: "La simulation d'entretien a commencé. Vous avez 5 minutes.",
+        description: "La simulation d'entretien a commencé. Vous avez 10 minutes.",
       });
     } catch (error) {
       console.error('Erreur:', error);
@@ -250,7 +250,7 @@ const CyberInterviewSimulation: React.FC = () => {
           profileType: form.getValues('profileType'),
           experienceLevel: form.getValues('experienceLevel'),
           messages: messages.map(m => ({ role: m.role, content: m.content })),
-          duration: 300 - timeRemaining,
+          duration: 600 - timeRemaining,
         }),
       });
       
@@ -268,7 +268,7 @@ const CyberInterviewSimulation: React.FC = () => {
           profileType: form.getValues('profileType'),
           experienceLevel: form.getValues('experienceLevel'),
           candidateName: form.getValues('candidateName'),
-          duration: 300 - timeRemaining
+          duration: 600 - timeRemaining
         });
       } else {
         setEvaluationResult(data);
@@ -296,7 +296,7 @@ const CyberInterviewSimulation: React.FC = () => {
   const resetSimulation = () => {
     setMessages([]);
     setIsSimulationActive(false);
-    setTimeRemaining(300);
+    setTimeRemaining(600);
     setSimulationComplete(false);
     setEvaluationResult(null);
     setActiveTab('configuration');

@@ -324,17 +324,24 @@ const AmoaInterviewSimulation: React.FC = () => {
               <ArrowLeft className="w-5 h-5 mr-2" />
               Retour
             </Button>
-            <h1 className="text-3xl font-bold">Simulation d'Entretien AMOA</h1>
+            <h1 className="text-3xl font-bold">Simulation d'Entretien de Recrutement AMOA</h1>
           </div>
           
           <p className="text-blue-100 mb-8">
-            Cette simulation vous permet d'évaluer les compétences des candidats aux postes d'assistance à maîtrise d'ouvrage à travers une conversation de 5 minutes avec un recruteur IA.
+            Cette simulation vous permet d'évaluer les compétences des candidats aux postes d'assistance à maîtrise d'ouvrage à travers une conversation de 10 minutes avec un recruteur IA.
           </p>
           
           {/* Indicateur de statut OpenAI en bas à droite */}
           <Suspense fallback={null}>
             <OpenAIStatusIndicator position="fixed-bottom-right" />
           </Suspense>
+          
+          {isSimulationActive && !simulationComplete && (
+            <div className="fixed top-4 right-4 z-50 flex items-center p-2 rounded-md shadow-lg bg-blue-800 border border-blue-700">
+              <Clock className="w-5 h-5 mr-2 text-white" />
+              <span className="font-mono text-white">{formatTime(timeRemaining)}</span>
+            </div>
+          )}
           
           <Tabs 
             defaultValue="configuration" 
