@@ -324,11 +324,11 @@ const AmoaInterviewSimulation: React.FC = () => {
               <ArrowLeft className="w-5 h-5 mr-2" />
               Retour
             </Button>
-            <h1 className="text-3xl font-bold">Simulation d'Entretien de Recrutement AMOA</h1>
+            <h1 className="text-3xl font-bold">Préparation d'audition auprès d'un client</h1>
           </div>
           
           <p className="text-blue-100 mb-8">
-            Cette simulation vous permet d'évaluer les compétences des candidats aux postes d'assistance à maîtrise d'ouvrage à travers une conversation de 10 minutes avec un recruteur IA.
+            Cette simulation vous permet de préparer vos consultants AMOA à des auditions auprès de clients ou partenaires commerciaux à travers une conversation de 10 minutes avec un client potentiel simulé par l'IA.
           </p>
           
           {/* Indicateur de statut OpenAI en bas à droite */}
@@ -373,9 +373,9 @@ const AmoaInterviewSimulation: React.FC = () => {
             <TabsContent value="configuration">
               <Card className="bg-blue-800 border-blue-700">
                 <CardHeader>
-                  <CardTitle>Configuration de l'entretien</CardTitle>
+                  <CardTitle>Configuration de l'audition</CardTitle>
                   <CardDescription className="text-blue-200">
-                    Configurez les paramètres de la simulation d'entretien
+                    Configurez les paramètres de la simulation d'audition client
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -506,7 +506,7 @@ const AmoaInterviewSimulation: React.FC = () => {
               <Card className="bg-blue-800 border-blue-700">
                 <CardHeader>
                   <div className="flex justify-between items-center">
-                    <CardTitle>Entretien en cours</CardTitle>
+                    <CardTitle>Audition en cours</CardTitle>
                     <div className={`flex items-center p-2 rounded-md ${
                       timeRemaining > 60 ? "bg-blue-900" : "bg-red-900"
                     }`}>
@@ -515,7 +515,7 @@ const AmoaInterviewSimulation: React.FC = () => {
                     </div>
                   </div>
                   <CardDescription className="text-blue-200">
-                    Vous êtes en conversation avec un recruteur spécialisé en AMOA
+                    Vous êtes en conversation avec un client potentiel dans le secteur {form.getValues('sectorFocus')?.replace(/_/g, ' ') || 'sélectionné'}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -549,7 +549,7 @@ const AmoaInterviewSimulation: React.FC = () => {
                                 ) : (
                                   <>
                                     <UserCircle className="w-5 h-5 mr-1" />
-                                    <span className="font-semibold">Recruteur</span>
+                                    <span className="font-semibold">Client</span>
                                     <span className="text-xs ml-2 text-blue-200">
                                       {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </span>
@@ -595,7 +595,7 @@ const AmoaInterviewSimulation: React.FC = () => {
                     className="w-full bg-green-700 hover:bg-green-800"
                   >
                     <CheckCircle className="w-5 h-5 mr-2" />
-                    Terminer l'entretien
+                    Terminer l'audition
                   </Button>
                 </CardFooter>
               </Card>
@@ -606,10 +606,10 @@ const AmoaInterviewSimulation: React.FC = () => {
                 <CardHeader>
                   <div className="flex items-center">
                     <FileCheck className="w-6 h-6 mr-2 text-green-400" />
-                    <CardTitle>Évaluation de l'entretien</CardTitle>
+                    <CardTitle>Évaluation de l'audition</CardTitle>
                   </div>
                   <CardDescription className="text-blue-200">
-                    Résultat de l'évaluation du candidat par l'IA
+                    Résultat de l'évaluation de la prestation par l'IA
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -617,7 +617,7 @@ const AmoaInterviewSimulation: React.FC = () => {
                     <div className="py-8 text-center">
                       <AlertCircle className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
                       <p className="text-blue-200">Aucune évaluation disponible</p>
-                      <p className="text-blue-300 text-sm mt-2">Terminez l'entretien pour voir l'évaluation</p>
+                      <p className="text-blue-300 text-sm mt-2">Terminez l'audition pour voir l'évaluation</p>
                     </div>
                   ) : (
                     <div className="space-y-6">
