@@ -253,13 +253,14 @@ export default function Home() {
             </motion.div>
 
             <motion.h1 
-              className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6 font-cyber-title tracking-wide"
+              className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6 font-cyber-title tracking-wide"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
             >
-              Améliorez votre 
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 whitespace-nowrap"> expertise professionnelle</span> avec FYNE
+              Améliorez votre<br className="xs:hidden" />
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400"> expertise pro</span><br className="xs:hidden" />
+              avec FYNE
             </motion.h1>
             
             <motion.p 
