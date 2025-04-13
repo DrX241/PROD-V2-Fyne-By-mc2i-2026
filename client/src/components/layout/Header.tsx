@@ -51,7 +51,7 @@ export default function Header({ isFeny = false }: HeaderProps) {
   const userInitial = displayName ? displayName.charAt(0).toUpperCase() : "U";
 
   return (
-    <header className="bg-white shadow-sm w-full border-b border-gray-100 max-w-[100vw] overflow-hidden">
+    <header className="bg-white shadow-sm w-full border-b border-gray-100 max-w-[100vw] overflow-hidden fixed top-0 left-0 right-0 z-50">
       <div className="w-full px-3 sm:px-5 md:px-8 py-3 sm:py-4 flex items-center justify-between">
         <div className="flex items-center">
           <a href="/"
