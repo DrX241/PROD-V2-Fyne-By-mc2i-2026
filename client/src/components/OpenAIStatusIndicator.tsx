@@ -150,25 +150,29 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
         </Tooltip>
       </TooltipProvider>
       
-      {showModelToggle && position !== 'in-header' && (
+      {showModelToggle && (
         <div className="flex items-center">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="flex items-center ml-2 space-x-2">
-                  <span className={`text-xs font-medium ${economyMode ? 'text-yellow-500' : 'text-blue-500'}`}>
-                    {modelLabel}
-                  </span>
+                <div className={`flex items-center ml-1 ${position === 'in-header' ? 'space-x-1' : 'ml-2 space-x-2'}`}>
+                  {position !== 'in-header' && (
+                    <span className={`text-xs font-medium ${economyMode ? 'text-yellow-500' : 'text-blue-500'}`}>
+                      {modelLabel}
+                    </span>
+                  )}
                   
                   <div className="flex items-center">
-                    <span className="text-xs mr-1 text-white">Eco</span>
+                    <span className={`${position === 'in-header' ? 'text-[10px] xs:text-xs' : 'text-xs'} mr-1 text-white`}>
+                      {position === 'in-header' ? 'Éco' : 'Eco'}
+                    </span>
                     <Switch
                       checked={economyMode}
                       onCheckedChange={toggleModel}
                       disabled={isToggling || status === 'checking'}
-                      className={isToggling ? 'opacity-50' : ''}
+                      className={`${isToggling ? 'opacity-50' : ''} ${position === 'in-header' ? 'h-3 w-6 xs:h-4 xs:w-8' : ''}`}
                     />
-                    <Gauge className="w-3 h-3 ml-1 text-yellow-500" />
+                    <Gauge className={`${position === 'in-header' ? 'w-2 h-2 xs:w-3 xs:h-3' : 'w-3 h-3'} ml-1 text-yellow-500`} />
                   </div>
                 </div>
               </TooltipTrigger>

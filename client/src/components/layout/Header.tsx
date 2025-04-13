@@ -72,7 +72,7 @@ export default function Header({ isFeny = false }: HeaderProps) {
         <div className="flex items-center gap-2 sm:gap-5">
           {/* Indicateur OpenAI affiché dans tous les cas */}
           <div className="flex items-center">
-            <OpenAIStatusIndicator position="in-header" showModelToggle={false} />
+            <OpenAIStatusIndicator position="in-header" showModelToggle={true} />
           </div>
           <div className="flex items-center gap-1 sm:gap-2">
             {userName && (
