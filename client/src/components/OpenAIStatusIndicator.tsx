@@ -128,7 +128,6 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
                   <StatusIcon className={`${position === 'in-header' ? 'w-2 h-2 xs:w-3 xs:h-3' : 'w-3 h-3'}`} />
                   <span className={`${position === 'in-header' ? 'text-[10px] xs:text-xs' : 'text-xs'} font-medium`}>
                     FYNE {status === 'connected' ? 'Connecté' : status === 'disconnected' ? 'Déconnecté' : 'Vérification...'}
-                    {position === 'in-header' && currentModel ? ` ${currentModel === 'gpt-4o' ? 'gpt-4o' : 'gpt-4o-mini'}` : ''}
                   </span>
                 </Badge>
                 <Button 
@@ -144,7 +143,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
             </div>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Statut de connexion à Azure OpenAI</p>
+            <p>Statut de connexion de FYNE</p>
             <p className="text-xs">Dernière vérification: {formattedLastCheck}</p>
           </TooltipContent>
         </Tooltip>
@@ -176,8 +175,8 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
                 </div>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Basculer entre les modèles</p>
-                <p className="text-xs">GPT-4o (standard) / GPT-4o-mini (économie)</p>
+                <p>Activer le mode économie</p>
+                <p className="text-xs">Optimise les performances du système</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

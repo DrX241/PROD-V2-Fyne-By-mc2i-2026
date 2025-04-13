@@ -17,7 +17,6 @@ export default function ConnectionStatus() {
   const [status, setStatus] = useState<'connected' | 'disconnected' | 'reconnecting' | 'checking'>('checking');
   const [lastCheck, setLastCheck] = useState<string | null>(null);
   const [currentKey, setCurrentKey] = useState<ApiKeyType>('primary');
-  const [modelName, setModelName] = useState<string>('GPT-4o');
   const [switchingKey, setSwitchingKey] = useState<boolean>(false);
   
   const checkStatus = async () => {
@@ -33,11 +32,10 @@ export default function ConnectionStatus() {
       
       const data = await response.json();
       
-      // Utiliser les données réelles de l'API
+      // Utiliser les données réelles de l'API sans référence au modèle
       setStatus(data.status);
       setLastCheck(data.time);
       setCurrentKey(data.currentApiKey || 'primary');
-      setModelName(data.modelName || 'GPT-4o');
     } catch (error) {
       console.error('Error checking connection status:', error);
       // En cas d'erreur, indiquer déconnecté
@@ -60,14 +58,13 @@ export default function ConnectionStatus() {
       
       if (!response.ok) {
         console.error(`Error switching API key: ${response.status} ${response.statusText}`);
-        throw new Error(`Erreur lors du changement de modèle: ${response.statusText}`);
+        throw new Error(`Erreur lors du changement de mode: ${response.statusText}`);
       }
       
       const data = await response.json();
       
       // Mettre à jour l'état avec les données réelles retournées par le serveur
       setCurrentKey(data.currentApiKey || newKeyType);
-      setModelName(data.modelName || (newKeyType === 'primary' ? 'GPT-4o' : 'GPT-4o-mini'));
       
       // Vérifier l'état de la connexion après le changement
       setTimeout(checkStatus, 500);
@@ -132,11 +129,11 @@ export default function ConnectionStatus() {
                   : "bg-purple-800/40 hover:bg-purple-800/60 text-white border border-purple-500/30"
               )}
             >
-              {modelName}
+              Mode {currentKey === 'primary' ? 'Standard' : 'Économique'}
             </Badge>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Mode {getKeyLabel(currentKey)}</p>
+            <p>Sélectionner le mode de fonctionnement</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

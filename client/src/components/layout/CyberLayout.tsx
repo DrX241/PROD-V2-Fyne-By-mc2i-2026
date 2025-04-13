@@ -16,10 +16,7 @@ export default function CyberLayout({ children }: CyberLayoutProps) {
     <div className="h-screen w-full flex flex-col bg-gradient-to-br from-gray-900 via-blue-950 to-gray-900 text-white">
       <Header />
       
-      {/* Affichage du statut de connexion */}
-      <div className="fixed bottom-4 right-4 z-30">
-        <ConnectionStatus />
-      </div>
+      {/* L'affichage du statut de connexion a été déplacé vers le header */}
 
       <main className="flex-1 flex w-full overflow-hidden relative z-10 pt-[70px]" style={{ height: `calc(100vh - ${headerHeight})` }}>
         {/* Zone principale de contenu */}
