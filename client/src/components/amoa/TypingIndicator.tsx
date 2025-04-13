@@ -30,18 +30,18 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({ character }) => {
         </div>
       )}
       
-      <div className="bg-white p-2 sm:p-3 rounded-lg shadow-sm border inline-flex items-center max-w-[75%] sm:max-w-[80%]">
+      <div className="bg-white p-1.5 xs:p-2 sm:p-3 rounded-lg shadow-sm border inline-flex items-center max-w-[70%] xs:max-w-[75%] sm:max-w-[80%]">
         <motion.div 
-          className="flex space-x-1 sm:space-x-1.5"
+          className="flex space-x-0.5 xs:space-x-1 sm:space-x-1.5"
           initial={{ opacity: 0.5 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, repeat: Infinity, repeatType: "reverse" }}
         >
-          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amoa-blue/60" />
-          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amoa-blue/70" />
-          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amoa-blue/80" />
+          <div className="w-1 h-1 xs:w-1.5 xs:h-1.5 sm:w-2 sm:h-2 rounded-full bg-amoa-blue/60" />
+          <div className="w-1 h-1 xs:w-1.5 xs:h-1.5 sm:w-2 sm:h-2 rounded-full bg-amoa-blue/70" />
+          <div className="w-1 h-1 xs:w-1.5 xs:h-1.5 sm:w-2 sm:h-2 rounded-full bg-amoa-blue/80" />
         </motion.div>
-        <span className="ml-2 text-xs sm:text-sm text-gray-600">
+        <span className="ml-1 xs:ml-1.5 sm:ml-2 text-[10px] xs:text-xs sm:text-sm text-gray-600 whitespace-nowrap">
           En train d'écrire...
         </span>
       </div>

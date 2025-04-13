@@ -95,26 +95,26 @@ export default function ConnectionStatus() {
   
   // Version simplifiée pour mobile
   const MobileVersion = () => (
-    <div className="flex items-center">
+    <div className="flex items-center max-w-[110px] overflow-visible">
       <div className={cn(
-        "flex items-center px-2 py-0.5 rounded-full text-[10px]",
+        "flex items-center px-1.5 xs:px-2 py-0.5 rounded-full text-[9px] xs:text-[10px]",
         status === 'connected' ? "bg-green-800/40 text-white border border-green-500/30" :
         status === 'reconnecting' ? "bg-yellow-800/40 text-white border border-yellow-500/30" :
         "bg-red-800/40 text-white border border-red-500/30"
       )}>
         {status === 'connected' ? (
           <>
-            <Wifi className="w-2.5 h-2.5 mr-0.5 text-green-500" />
+            <Wifi className="w-2 xs:w-2.5 h-2 xs:h-2.5 mr-0.5 text-green-500" />
             <span className="text-green-500 font-medium">FYNE</span>
           </>
         ) : status === 'reconnecting' ? (
           <>
-            <AlertTriangle className="w-2.5 h-2.5 mr-0.5 text-yellow-400" />
+            <AlertTriangle className="w-2 xs:w-2.5 h-2 xs:h-2.5 mr-0.5 text-yellow-400" />
             <span>FYNE</span>
           </>
         ) : (
           <>
-            <WifiOff className="w-2.5 h-2.5 mr-0.5 text-red-500" />
+            <WifiOff className="w-2 xs:w-2.5 h-2 xs:h-2.5 mr-0.5 text-red-500" />
             <span className="text-red-500 font-medium">FYNE</span>
           </>
         )}
@@ -123,7 +123,7 @@ export default function ConnectionStatus() {
       <Badge 
         variant="outline" 
         className={cn(
-          "ml-1 py-0.5 px-1.5 text-[10px]",
+          "ml-1 py-0.5 px-1 xs:px-1.5 text-[8px] xs:text-[10px]",
           currentKey === 'primary' 
             ? "bg-blue-800/40 text-white border border-blue-500/30" 
             : "bg-purple-800/40 text-white border border-purple-500/30"
@@ -135,14 +135,14 @@ export default function ConnectionStatus() {
       <Button 
         variant="ghost" 
         size="icon" 
-        className="h-5 w-5 ml-0.5" 
+        className="h-4 xs:h-5 w-4 xs:w-5 ml-0.5" 
         onClick={switchApiKey}
         disabled={switchingKey || status === 'checking' || status === 'reconnecting'}
       >
         {switchingKey ? (
-          <RefreshCw className="h-2.5 w-2.5 animate-spin" />
+          <RefreshCw className="h-2 xs:h-2.5 w-2 xs:w-2.5 animate-spin" />
         ) : (
-          <RefreshCw className="h-2.5 w-2.5" />
+          <RefreshCw className="h-2 xs:h-2.5 w-2 xs:w-2.5" />
         )}
       </Button>
     </div>
