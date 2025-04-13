@@ -92,15 +92,15 @@ export default function AmoaModeSelection() {
     },
     {
       id: 'recrutement',
-      title: 'MISE EN SITUATION DE RECRUTEMENT',
-      description: "Mettez-vous dans la peau d'un candidat lors d'entretiens simulés avec compte-rendu envoyé au recruteur par email.",
+      title: 'MISE EN SITUATION D\'AUDITION',
+      description: "Préparez vos consultants à des auditions auprès de clients et partenaires commerciaux avec évaluation détaillée de la prestation.",
       icon: <Users className="w-12 h-12 text-green-100" />,
       gradient: 'from-green-700 to-green-900',
       destination: '#',
       items: [
         {
           id: 'interview-simulation',
-          title: 'SIMULATION D\'ENTRETIEN CANDIDAT',
+          title: 'PRÉPARATION D\'AUDITION CLIENT',
           icon: <Users className="w-8 h-8" />,
           destination: '/amoa/interview-simulation'
         }
