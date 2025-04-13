@@ -15,7 +15,7 @@ import CyberAgentPage from "@/pages/cyber-agent";
 
 // Import des pages CENTRE DE CRISE ÉVOLUTIF (anciennes et nouvelles pour permettre une transition)
 import CyberDefensePage from "@/pages/cyber-defense"; // Ancienne implémentation 
-import CyberDefenseNewPage from "@/pages/cyber-defense-new"; // Nouvelle implémentation
+import CentreDeCriseEvolutifPage from "@/pages/cyber-defense-new"; // Nouvelle implémentation
 import CyberDefenseSessionPage from "@/pages/cyber-defense-session"; // Nouvelle implémentation de session
 import CyberDefenseMissionPage from "@/pages/cyber-defense-mission"; // Ancienne implémentation
 
@@ -58,11 +58,11 @@ function Router() {
       <Route path="/cyber/arcade/:gameId" component={CyberArcadeGame} />
       
       {/* Nouvelles routes CENTRE DE CRISE ÉVOLUTIF (progressives avec interlocuteurs) */}
-      <Route path="/cyber-defense-new" component={CyberDefenseNewPage} />
+      <Route path="/cyber-defense-new" component={CentreDeCriseEvolutifPage} />
       <Route path="/cyber-defense/session/:levelId" component={CyberDefenseSessionPage} />
       
       {/* Routes originales CENTRE DE CRISE ÉVOLUTIF (conservées temporairement) */}
-      <Route path="/cyber-defense" component={CyberDefenseNewPage} /> {/* Remplacé par la nouvelle version */}
+      <Route path="/cyber-defense" component={CentreDeCriseEvolutifPage} /> {/* Remplacé par la nouvelle version */}
       <Route path="/cyber-defense/mission/:id" component={CyberDefenseMissionPage} />
       
       <Route path="/immersive-simulation" component={ImmersiveSimulation} />
@@ -129,9 +129,9 @@ function App() {
           <Route path="/cyber/arcade/osint-investigator" component={OsintInvestigatorPage} />
           <Route path="/cyber/arcade/firewall-defense" component={NetworkPuzzlePage} />
           <Route path="/cyber/arcade/:gameId" component={CyberArcadeGame} />
-          <Route path="/cyber-defense-new" component={CyberDefenseNewPage} />
+          <Route path="/cyber-defense-new" component={CentreDeCriseEvolutifPage} />
           <Route path="/cyber-defense/session/:levelId" component={CyberDefenseSessionPage} />
-          <Route path="/cyber-defense" component={CyberDefenseNewPage} />
+          <Route path="/cyber-defense" component={CentreDeCriseEvolutifPage} />
           <Route path="/cyber-defense/mission/:id" component={CyberDefenseMissionPage} />
           <Route path="/immersive-simulation" component={ImmersiveSimulation} />
           <Route path="/immersive-simulation/:id" component={ImmersiveScenarioDetail} />

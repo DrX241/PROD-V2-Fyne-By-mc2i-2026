@@ -42,7 +42,7 @@ interface Contact {
   unlockedAtLevel: number; // Niveau auquel ce contact devient disponible
 }
 
-export default function CyberDefense() {
+export default function CentreDeCriseEvolutif() {
   const [, navigate] = useLocation();
   
   // Liste des contacts disponibles dans le CENTRE DE CRISE ÉVOLUTIF
