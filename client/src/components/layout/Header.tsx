@@ -50,15 +50,15 @@ export default function Header({ isFeny = false }: HeaderProps) {
   const userInitial = displayName ? displayName.charAt(0).toUpperCase() : "U";
 
   return (
-    <header className="bg-white shadow-sm w-full border-b border-gray-100">
-      <div className="w-full px-5 sm:px-8 py-4 flex items-center justify-between">
+    <header className="bg-white shadow-sm w-full border-b border-gray-100 max-w-[100vw] overflow-hidden">
+      <div className="w-full px-3 sm:px-5 md:px-8 py-3 sm:py-4 flex items-center justify-between">
         <div className="flex items-center">
           <a href="/"
-            className="flex items-center gap-3 cursor-pointer"
+            className="flex items-center gap-2 sm:gap-3 cursor-pointer"
           >
-            <img src={mclogo} alt="mc2i Logo" className="h-8" />
-            <span className="text-neutral-300">|</span>
-            <div className="text-blue-600 text-xl font-bold">
+            <img src={mclogo} alt="mc2i Logo" className="h-6 sm:h-8" />
+            <span className="text-neutral-300 hidden xs:inline-block">|</span>
+            <div className="text-blue-600 text-base sm:text-xl font-bold whitespace-nowrap">
               {isFeny ? 'FYNE' : (
                 location.includes('/cyber') ? 'I AM CYBER' : 
                 location.includes('/data-ia') ? 'I AM DATA & IA' : 
@@ -68,14 +68,14 @@ export default function Header({ isFeny = false }: HeaderProps) {
             </div>
           </a>
         </div>
-        <div className="flex items-center gap-5">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 sm:gap-5">
+          <div className="flex items-center gap-1 sm:gap-2">
             {userName && (
               <>
-                <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-medium">
+                <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-medium text-xs sm:text-base">
                   {userInitial}
                 </div>
-                <span className="text-neutral-700 font-medium hidden sm:inline-block">
+                <span className="text-neutral-700 text-xs sm:text-sm font-medium hidden sm:inline-block">
                   Bonjour {displayName}
                 </span>
               </>
