@@ -164,7 +164,7 @@ export default function AmoaQuestPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(false);
   const [initializing, setInitializing] = useState(true);
-  const [showIntro, setShowIntro] = useState(true);
+  const [showIntro, setShowIntro] = useState(false); // Désactivé par défaut pour éviter le blocage
   const [showHelp, setShowHelp] = useState(false);
   const [freeformMessage, setFreeformMessage] = useState("");
   const [freeformConversation, setFreeformConversation] = useState<{
