@@ -817,18 +817,38 @@ export default function AmoaQuestPage() {
 
       {/* Header avec navigation */}
       <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center">
-            <Link href="/amoa" className="mr-4">
-              <Button variant="outline" size="sm" className="text-amoa-blue">
-                <ArrowLeft className="h-4 w-4 mr-1" />
-                Retour
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
+          <div className="flex items-center w-full sm:w-auto justify-between sm:justify-start">
+            <div className="flex items-center">
+              <Link href="/amoa" className="mr-3 sm:mr-4">
+                <Button variant="outline" size="sm" className="text-amoa-blue px-2 sm:px-3">
+                  <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                  <span className="text-xs sm:text-sm">Retour</span>
+                </Button>
+              </Link>
+              <h1 className="text-lg sm:text-xl font-bold text-gray-900">AMOA Quest</h1>
+            </div>
+            
+            {/* Version mobile seulement */}
+            <div className="flex sm:hidden items-center">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setShowHelp(true)}
+                className="text-amoa-blue p-1 mr-2"
+              >
+                <HelpCircle className="h-4 w-4" />
               </Button>
-            </Link>
-            <h1 className="text-xl font-bold text-gray-900">AMOA Quest</h1>
+              
+              <div className="bg-amoa-blue text-white text-xs font-medium px-2 py-0.5 rounded-full flex items-center">
+                <Clock className="h-3 w-3 mr-1" />
+                {calculateProgress()}%
+              </div>
+            </div>
           </div>
           
-          <div className="flex items-center space-x-2">
+          {/* Version desktop et tablette */}
+          <div className="hidden sm:flex items-center space-x-2 w-full sm:w-auto justify-end">
             {/* Indicateur de connexion FYNE */}
             <div className="mr-2">
               <ConnectionStatus />
@@ -854,32 +874,32 @@ export default function AmoaQuestPage() {
 
       <div className="flex-1 flex flex-col md:flex-row">
         {/* Panneau principal de l'aventure */}
-        <div className="flex-1 p-4 md:p-6 overflow-y-auto">
+        <div className="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto">
           <div className="max-w-4xl mx-auto">
             {/* Phase actuelle */}
-            <div className="mb-6">
-              <div className="flex items-center space-x-2 mb-2">
-                <Badge variant="outline" className="bg-white text-amoa-blue border-amoa-blue/30">
+            <div className="mb-4 sm:mb-6">
+              <div className="flex flex-wrap items-center space-x-2 mb-2">
+                <Badge variant="outline" className="bg-white text-amoa-blue border-amoa-blue/30 text-xs sm:text-sm mb-1 sm:mb-0">
                   Phase {questPhases.findIndex(phase => phase.id === questState.currentPhaseId) + 1}/{questPhases.length}
                 </Badge>
-                <h2 className="text-xl font-bold text-gray-900">{getCurrentPhase()?.title}</h2>
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900">{getCurrentPhase()?.title}</h2>
               </div>
-              <p className="text-gray-600">{getCurrentPhase()?.description}</p>
+              <p className="text-sm sm:text-base text-gray-600">{getCurrentPhase()?.description}</p>
             </div>
             
             {/* Conversation et interactions simplifiées */}
-            <div className="bg-gray-100 rounded-lg p-4 min-h-[400px] max-h-[70vh] overflow-y-auto">
+            <div className="bg-gray-100 rounded-lg p-3 sm:p-4 min-h-[300px] sm:min-h-[400px] max-h-[60vh] sm:max-h-[70vh] overflow-y-auto">
               {/* Introduction à la phase actuelle */}
-              <div className="bg-white p-4 rounded-lg shadow-sm border mb-6">
+              <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border mb-4 sm:mb-6">
                 <div className="flex items-start">
-                  <div className="mr-3 flex-shrink-0">
-                    <div className="w-10 h-10 rounded-full bg-amoa-blue flex items-center justify-center text-white">
-                      <Info className="h-5 w-5" />
+                  <div className="mr-2 sm:mr-3 flex-shrink-0">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-amoa-blue flex items-center justify-center text-white">
+                      <Info className="h-4 w-4 sm:h-5 sm:w-5" />
                     </div>
                   </div>
                   <div>
-                    <h3 className="font-medium text-gray-900 mb-1">Objectif de cette phase</h3>
-                    <p className="text-gray-700 text-sm whitespace-pre-line">
+                    <h3 className="text-sm sm:text-base font-medium text-gray-900 mb-1">Objectif de cette phase</h3>
+                    <p className="text-xs sm:text-sm text-gray-700 whitespace-pre-line">
                       Dans cette phase, vous allez travailler sur {getCurrentPhase()?.title}. 
                       {getCurrentPhase()?.description}
                       
@@ -891,14 +911,14 @@ export default function AmoaQuestPage() {
               
               {/* Affichage simplifié du contexte narratif */}
               {getCurrentPhase()?.steps.slice(0, 1).map((step, index) => (
-                <div key={index} className="mb-6">
+                <div key={index} className="mb-4 sm:mb-6">
                   {step.character && (
-                    <div className="flex mb-4">
-                      <div className="mr-3 flex-shrink-0">
+                    <div className="flex mb-3 sm:mb-4">
+                      <div className="mr-2 sm:mr-3 flex-shrink-0">
                         <CharacterAvatar character={step.character} />
                       </div>
-                      <div className="bg-white p-4 rounded-lg shadow-sm border max-w-2xl">
-                        <p className="text-gray-900 whitespace-pre-line">{step.content}</p>
+                      <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border max-w-[85%] sm:max-w-2xl">
+                        <p className="text-xs sm:text-sm text-gray-900 whitespace-pre-line">{step.content}</p>
                       </div>
                     </div>
                   )}
@@ -906,34 +926,46 @@ export default function AmoaQuestPage() {
               ))}
               
               {/* Interface de conversation libre avec les parties prenantes */}
-              <div className="mt-8 border-t pt-4">
-                <h3 className="text-sm font-medium text-gray-900 mb-2 flex items-center">
-                  <User className="h-4 w-4 mr-2 text-amoa-blue" />
+              <div className="mt-6 sm:mt-8 border-t pt-3 sm:pt-4">
+                <h3 className="text-xs sm:text-sm font-medium text-gray-900 mb-2 flex items-center">
+                  <User className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-amoa-blue" />
                   Discuter avec les parties prenantes
                 </h3>
-                <div className="bg-white rounded-lg border p-3 mb-3">
-                  <p className="text-sm text-gray-700">
+                <div className="bg-white rounded-lg border p-2 sm:p-3 mb-3">
+                  <p className="text-xs sm:text-sm text-gray-700">
                     Posez des questions ou engagez une conversation avec les parties prenantes du projet pour obtenir plus d'informations et mieux comprendre leurs besoins.
                   </p>
                 </div>
                 
                 {/* Afficher la conversation existante */}
                 {freeformConversation.length > 0 && (
-                  <div className="mb-4 space-y-3">
+                  <div className="mb-4 space-y-2 sm:space-y-3">
                     {freeformConversation.map((message, index) => (
                       <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : ''}`}>
                         {message.role === 'assistant' && message.character && (
-                          <div className="mr-3 flex-shrink-0">
-                            <CharacterAvatar character={message.character} />
+                          <div className="mr-2 sm:mr-3 flex-shrink-0">
+                            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full overflow-hidden">
+                              {message.character.avatar ? (
+                                <img 
+                                  src={message.character.avatar} 
+                                  alt={message.character.name} 
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-amoa-blue flex items-center justify-center text-white font-medium">
+                                  {message.character.name.charAt(0).toUpperCase()}
+                                </div>
+                              )}
+                            </div>
                           </div>
                         )}
                         
-                        <div className={`p-3 rounded-lg max-w-[80%] ${
+                        <div className={`p-2 sm:p-3 rounded-lg ${
                           message.role === 'user' 
-                            ? 'bg-amoa-blue text-white' 
-                            : 'bg-white border shadow-sm'
+                            ? 'bg-amoa-blue text-white max-w-[75%] sm:max-w-[80%]' 
+                            : 'bg-white border shadow-sm max-w-[80%] sm:max-w-[85%]'
                         }`}>
-                          <p className={`text-sm whitespace-pre-line ${
+                          <p className={`text-xs sm:text-sm whitespace-pre-line ${
                             message.role === 'user' ? 'text-white' : 'text-black font-medium'
                           }`}>
                             {message.content}
@@ -941,9 +973,9 @@ export default function AmoaQuestPage() {
                         </div>
                         
                         {message.role === 'user' && (
-                          <div className="ml-3 flex-shrink-0">
-                            <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-amoa-blue">
-                              <User className="h-5 w-5" />
+                          <div className="ml-2 sm:ml-3 flex-shrink-0">
+                            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gray-200 flex items-center justify-center text-amoa-blue">
+                              <User className="h-4 w-4 sm:h-5 sm:w-5" />
                             </div>
                           </div>
                         )}

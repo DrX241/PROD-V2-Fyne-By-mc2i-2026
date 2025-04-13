@@ -11,11 +11,11 @@ interface TypingIndicatorProps {
 
 const TypingIndicator: React.FC<TypingIndicatorProps> = ({ character }) => {
   return (
-    <div className="flex mb-4">
+    <div className="flex mb-3 sm:mb-4">
       {character && (
-        <div className="mr-3 flex-shrink-0">
+        <div className="mr-2 sm:mr-3 flex-shrink-0">
           {character.avatar ? (
-            <div className="w-8 h-8 rounded-full overflow-hidden">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full overflow-hidden">
               <img 
                 src={character.avatar} 
                 alt={character.name} 
@@ -23,25 +23,25 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({ character }) => {
               />
             </div>
           ) : (
-            <div className="w-8 h-8 rounded-full bg-amoa-blue flex items-center justify-center text-white font-medium">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-amoa-blue flex items-center justify-center text-white font-medium text-xs sm:text-sm">
               {character.name.charAt(0).toUpperCase()}
             </div>
           )}
         </div>
       )}
       
-      <div className="bg-white p-3 rounded-lg shadow-sm border inline-flex items-center">
+      <div className="bg-white p-2 sm:p-3 rounded-lg shadow-sm border inline-flex items-center max-w-[75%] sm:max-w-[80%]">
         <motion.div 
-          className="flex space-x-1.5"
+          className="flex space-x-1 sm:space-x-1.5"
           initial={{ opacity: 0.5 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, repeat: Infinity, repeatType: "reverse" }}
         >
-          <div className="w-2 h-2 rounded-full bg-amoa-blue/60" />
-          <div className="w-2 h-2 rounded-full bg-amoa-blue/70" />
-          <div className="w-2 h-2 rounded-full bg-amoa-blue/80" />
+          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amoa-blue/60" />
+          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amoa-blue/70" />
+          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amoa-blue/80" />
         </motion.div>
-        <span className="ml-2 text-sm text-gray-600">
+        <span className="ml-2 text-xs sm:text-sm text-gray-600">
           En train d'écrire...
         </span>
       </div>

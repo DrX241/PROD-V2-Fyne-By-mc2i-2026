@@ -416,21 +416,7 @@ export default function Home() {
               <p className="text-gray-400 mb-4 font-cyber-body">
                 Une plateforme d'apprentissage nouvelle génération alimentée par l'intelligence artificielle avancée
               </p>
-              <div className="flex space-x-4">
-                {/* Icônes médias sociaux */}
-                {[
-                  { name: 'LinkedIn', icon: 'L' },
-                  { name: 'Twitter', icon: 'T' },
-                  { name: 'Instagram', icon: 'I' },
-                  { name: 'YouTube', icon: 'Y' }
-                ].map(social => (
-                  <a key={social.name} href="#" className="text-gray-400 hover:text-blue-400 transition-colors">
-                    <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
-                      {social.icon}
-                    </div>
-                  </a>
-                ))}
-              </div>
+              {/* Bloc social media supprimé à la demande de l'utilisateur */}
             </div>
             
             {/* Liens rapides */}
