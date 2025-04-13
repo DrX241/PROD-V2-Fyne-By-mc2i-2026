@@ -69,15 +69,15 @@ export default function CyberModeSelection() {
     },
     {
       id: 'recrutement',
-      title: 'MISE EN SITUATION DE RECRUTEMENT',
-      description: "Préparez-vous aux entretiens d'embauche pour postes en cybersécurité avec simulation d'entretien et évaluation complète.",
+      title: 'MISE EN SITUATION PROFESSIONNELLE',
+      description: "Préparez-vous aux situations professionnelles en cybersécurité avec simulation immersive et évaluation détaillée.",
       icon: <User className="w-12 h-12 text-green-100" />,
       gradient: 'from-green-700 to-green-900',
       destination: '#',
       items: [
         {
           id: 'interview-simulation',
-          title: 'ENTRETIEN DE RECRUTEMENT',
+          title: 'SIMULATION PROFESSIONNELLE',
           icon: <User className="w-8 h-8" />,
           destination: '/cyber/interview-simulation'
         }
