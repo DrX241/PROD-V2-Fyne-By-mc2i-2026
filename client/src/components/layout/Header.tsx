@@ -1,6 +1,7 @@
 import { useChatContext } from "@/contexts/ChatContext";
 import { useLocation } from "wouter";
 import mclogo from "@/assets/mc2i.png";
+import OpenAIStatusIndicator from '@/components/OpenAIStatusIndicator';
 
 // Fonction utilitaire pour extraire le prénom (dupliquée ici pour éviter les dépendances circulaires)
 const extractFirstName = (input: string): string => {
@@ -69,6 +70,9 @@ export default function Header({ isFeny = false }: HeaderProps) {
           </a>
         </div>
         <div className="flex items-center gap-2 sm:gap-5">
+          <div className="hidden sm:block">
+            <OpenAIStatusIndicator position="in-header" />
+          </div>
           <div className="flex items-center gap-1 sm:gap-2">
             {userName && (
               <>

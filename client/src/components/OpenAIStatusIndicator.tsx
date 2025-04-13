@@ -8,7 +8,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 interface OpenAIStatusProps {
   className?: string;
   showModelToggle?: boolean;
-  position?: 'inline' | 'fixed-bottom-right';
+  position?: 'inline' | 'fixed-bottom-right' | 'fixed-bottom' | 'in-header';
 }
 
 const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({ 
@@ -104,9 +104,15 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
   const economyMode = apiKeyType === 'secondary';
   
   // Styles conditionnels selon la position
-  const positionStyles = position === 'fixed-bottom-right' 
-    ? 'fixed bottom-4 right-4 z-50 bg-opacity-90 bg-slate-900 p-2 rounded-md shadow-lg'
-    : '';
+  let positionStyles = '';
+  
+  if (position === 'fixed-bottom-right') {
+    positionStyles = 'fixed bottom-4 right-4 z-50 bg-opacity-90 bg-slate-900 p-2 rounded-md shadow-lg';
+  } else if (position === 'fixed-bottom') {
+    positionStyles = 'fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 bg-opacity-90 bg-slate-900 p-2 rounded-md shadow-lg';
+  } else if (position === 'in-header') {
+    positionStyles = 'bg-transparent'; // Style pour s'intégrer dans l'en-tête
+  }
   
   return (
     <div className={`flex items-center space-x-2 ${positionStyles} ${className}`}>
@@ -117,11 +123,12 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
               <div className={`relative flex items-center ${status === 'checking' ? 'animate-pulse' : ''}`}>
                 <Badge 
                   variant="outline" 
-                  className={`px-2 py-1 flex items-center gap-1 ${statusColors[status]} text-white`}
+                  className={`px-2 py-1 flex items-center gap-1 ${statusColors[status]} text-white ${position === 'in-header' ? 'scale-75' : ''}`}
                 >
                   <StatusIcon className="w-3 h-3" />
                   <span className="text-xs font-medium">
                     FYNE {status === 'connected' ? 'Connecté' : status === 'disconnected' ? 'Déconnecté' : 'Vérification...'}
+                    {position === 'in-header' && currentModel ? ` ${currentModel === 'gpt-4o' ? 'gpt-4o' : 'gpt-4o-mini'}` : ''}
                   </span>
                 </Badge>
                 <Button 
@@ -143,7 +150,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
         </Tooltip>
       </TooltipProvider>
       
-      {showModelToggle && (
+      {showModelToggle && position !== 'in-header' && (
         <div className="flex items-center">
           <TooltipProvider>
             <Tooltip>
