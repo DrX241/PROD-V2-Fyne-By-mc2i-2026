@@ -121,7 +121,7 @@ export async function startInterviewSimulation(req: Request, res: Response) {
     });
 
   } catch (error) {
-    console.error('Erreur lors du démarrage de la simulation d\'entretien:', error);
+    console.error('Erreur lors du démarrage de l\'audition client:', error);
     return res.status(500).json({
       success: false,
       error: 'Erreur serveur lors du démarrage de la simulation.'
@@ -130,7 +130,7 @@ export async function startInterviewSimulation(req: Request, res: Response) {
 }
 
 /**
- * Gère un message envoyé par le candidat pendant la simulation
+ * Gère un message envoyé par le consultant pendant l'audition
  */
 export async function processInterviewMessage(req: Request, res: Response) {
   try {
@@ -200,7 +200,7 @@ export async function processInterviewMessage(req: Request, res: Response) {
         step: step
       });
     } catch (apiError) {
-      console.error('Erreur API lors du traitement du message de simulation:', apiError);
+      console.error('Erreur API lors du traitement du message d\x27audition:', apiError);
       
       // Générer une réponse de secours
       const fallbackResponses = [
@@ -223,7 +223,7 @@ export async function processInterviewMessage(req: Request, res: Response) {
     }
 
   } catch (error) {
-    console.error('Erreur globale lors du traitement du message de simulation:', error);
+    console.error('Erreur globale lors du traitement du message d\x27audition:', error);
     return res.status(500).json({
       success: false,
       error: 'Erreur serveur lors du traitement du message.'
@@ -439,7 +439,7 @@ Sujet: ${domain === 'amoa' ? `Évaluation de préparation d'audition - ${candida
     console.error('Erreur lors de la finalisation de la simulation d\'entretien:', error);
     return res.status(500).json({
       success: false,
-      error: 'Erreur serveur lors de la finalisation de la simulation.'
+      error: 'Erreur serveur lors de la finalisation de l\x27audition.'
     });
   }
 }
@@ -713,7 +713,7 @@ Tu dois évaluer les réponses d'un consultant lors d'une préparation d'auditio
 - Secteur d'activité: ${sectorFocus}
 
 INSTRUCTIONS:
-1. Analyse soigneusement toutes les réponses du consultant pendant la simulation.
+1. Analyse soigneusement toutes les réponses du consultant pendant la audition.
 2. Évalue les compétences techniques et comportementales manifestées pendant l'audition.
 3. Sois bienveillant, même si la simulation a été courte ou interrompue.
 4. Fournis une évaluation pertinente adaptée au profil, niveau d'expérience et secteur.
