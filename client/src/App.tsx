@@ -2,7 +2,7 @@ import { Switch, Route, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
-import { Suspense, lazy, useState, useEffect } from "react";
+import { Suspense, lazy } from "react";
 import { ChatProvider } from "./contexts/ChatContext";
 
 // Importation des composants directement car le lazy loading provoque des problèmes
@@ -41,26 +41,48 @@ import ImmersiveSimulation from "@/pages/immersive-simulation";
 import ImmersiveScenarioDetail from "@/pages/immersive-scenario-detail";
 import ImmersiveSession from "@/pages/immersive-session";
 
-// Composant InitializationWrapper pour vérifier si on a déjà vu l'initialisation
-function InitializationWrapper() {
-  const [, navigate] = useLocation();
-  const [hasSeenInitialization, setHasSeenInitialization] = useState(() => {
-    return localStorage.getItem('hasSeenInitialization') === 'true';
-  });
-  
-  useEffect(() => {
-    // Si c'est la première visite, on affiche l'initialisation
-    if (!hasSeenInitialization) {
-      // On marquera comme vu lors de la navigation vers /home depuis la page d'initialisation
-      return;
-    } else {
-      // Si on a déjà vu l'initialisation, on redirige vers la page d'accueil
-      navigate('/home');
-    }
-  }, [hasSeenInitialization, navigate]);
-  
-  // On affiche toujours l'initialisation, la redirection se fait via useEffect
-  return <FyneInitialization />;
+function Router() {
+  return (
+    <Switch>
+      <Route path="/" component={FyneInitialization} />
+      <Route path="/home" component={Home} />
+      <Route path="/modules" component={ModulesPage} />
+      <Route path="/cyber" component={CyberModeSelection} />
+      <Route path="/cyber/agent" component={CyberAgentPage} />
+      <Route path="/cyber/arcade" component={CyberArcade} />
+      <Route path="/cyber/arcade/network-puzzle" component={NetworkPuzzlePage} />
+      <Route path="/cyber/arcade/password-guardian" component={PasswordGuardianPage} />
+      <Route path="/cyber/arcade/cyber-quiz" component={CyberQuizChallengePage} />
+      <Route path="/cyber/arcade/cyber-detective" component={CyberDetectivePage} />
+      <Route path="/cyber/arcade/cyber-detective/game" component={CyberDetectivePage} />
+      <Route path="/cyber/arcade/osint-investigator" component={OsintInvestigatorPage} />
+      <Route path="/cyber/arcade/firewall-defense" component={NetworkPuzzlePage} /> {/* Redirection de l'ancien jeu vers le nouveau */}
+      <Route path="/cyber/arcade/:gameId" component={CyberArcadeGame} />
+      
+      {/* Nouvelles routes CENTRE DE CRISE ÉVOLUTIF (progressives avec interlocuteurs) */}
+      <Route path="/cyber-defense-new" component={CentreDeCriseEvolutifPage} />
+      <Route path="/cyber-defense/session/:levelId" component={CyberDefenseSessionPage} />
+      
+      {/* Routes originales CENTRE DE CRISE ÉVOLUTIF (conservées temporairement) */}
+      <Route path="/cyber-defense" component={CentreDeCriseEvolutifPage} /> {/* Remplacé par la nouvelle version */}
+      <Route path="/cyber-defense/mission/:id" component={CyberDefenseMissionPage} />
+      
+      <Route path="/immersive-simulation" component={ImmersiveSimulation} />
+      <Route path="/immersive-simulation/:id" component={ImmersiveScenarioDetail} />
+      <Route path="/immersive-simulation/session/:id" component={ImmersiveSession} />
+      <Route path="/cyber-ascension" component={NotYetImplemented} />
+      <Route path="/cyber-ascension/theme/:themeId" component={NotYetImplemented} />
+      <Route path="/cyber-ascension/theme/:themeId/level/:levelId" component={NotYetImplemented} />
+      <Route path="/data-ia" component={NotYetImplemented} />
+      <Route path="/amoa" component={AmoaPage} />
+      <Route path="/amoa-mode-selection" component={AmoaModeSelection} />
+      <Route path="/amoa/quest" component={AmoaQuestPage} />
+      <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
+      <Route path="/cyber/interview-simulation" component={CyberInterviewSimulation} />
+      <Route path="/custom" component={NotYetImplemented} />
+      <Route component={NotFound} />
+    </Switch>
+  );
 }
 
 // Composant temporaire pour les modules non encore implémentés
@@ -94,22 +116,13 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ChatProvider>
         <Switch>
-          {/* Route principale avec le wrapper d'initialisation */}
-          <Route path="/" component={InitializationWrapper} />
-          
-          {/* Simulation d'entretien (pages spéciales qui doivent rester en haut) */}
           <Route path="/cyber/interview-simulation" component={CyberInterviewSimulation} />
           <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
-          
-          {/* Routes standards */}
+          <Route path="/" component={FyneInitialization} />
           <Route path="/home" component={Home} />
           <Route path="/modules" component={ModulesPage} />
-          
-          {/* Routes Cyber */}
           <Route path="/cyber" component={CyberModeSelection} />
           <Route path="/cyber/agent" component={CyberAgentPage} />
-          
-          {/* Routes Arcade */}
           <Route path="/cyber/arcade" component={CyberArcade} />
           <Route path="/cyber/arcade/network-puzzle" component={NetworkPuzzlePage} />
           <Route path="/cyber/arcade/password-guardian" component={PasswordGuardianPage} />
@@ -119,31 +132,21 @@ function App() {
           <Route path="/cyber/arcade/osint-investigator" component={OsintInvestigatorPage} />
           <Route path="/cyber/arcade/firewall-defense" component={NetworkPuzzlePage} />
           <Route path="/cyber/arcade/:gameId" component={CyberArcadeGame} />
-          
-          {/* Routes Centre de Crise Évolutif */}
           <Route path="/cyber-defense-new" component={CentreDeCriseEvolutifPage} />
           <Route path="/cyber-defense/session/:levelId" component={CyberDefenseSessionPage} />
           <Route path="/cyber-defense" component={CentreDeCriseEvolutifPage} />
           <Route path="/cyber-defense/mission/:id" component={CyberDefenseMissionPage} />
-          
-          {/* Routes Simulation Immersive */}
           <Route path="/immersive-simulation" component={ImmersiveSimulation} />
           <Route path="/immersive-simulation/:id" component={ImmersiveScenarioDetail} />
           <Route path="/immersive-simulation/session/:id" component={ImmersiveSession} />
-          
-          {/* Routes Cyber Ascension */}
           <Route path="/cyber-ascension" component={NotYetImplemented} />
           <Route path="/cyber-ascension/theme/:themeId" component={NotYetImplemented} />
           <Route path="/cyber-ascension/theme/:themeId/level/:levelId" component={NotYetImplemented} />
-          
-          {/* Autres modules */}
           <Route path="/data-ia" component={NotYetImplemented} />
           <Route path="/amoa" component={AmoaPage} />
           <Route path="/amoa-mode-selection" component={AmoaModeSelection} />
           <Route path="/amoa/quest" component={AmoaQuestPage} />
           <Route path="/custom" component={NotYetImplemented} />
-          
-          {/* Page 404 */}
           <Route component={NotFound} />
         </Switch>
         <Toaster />
