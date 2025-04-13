@@ -383,23 +383,24 @@ export default function AmoaQuestPage() {
   // Rendu des étapes narratives
   const renderNarrativeStep = (step: NarrativeStep) => {
     return (
-      <div className="flex mb-4">
+      <div className="flex mb-3 sm:mb-4">
         {step.character && (
-          <div className="mr-3 flex-shrink-0">
+          <div className="mr-2 sm:mr-3 flex-shrink-0">
             <CharacterAvatar character={step.character} />
           </div>
         )}
-        <div className="bg-white p-4 rounded-lg shadow-sm border max-w-2xl">
-          <p className="text-gray-900 whitespace-pre-line">{step.content}</p>
+        <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border max-w-[85%] sm:max-w-2xl">
+          <p className="text-xs sm:text-sm text-gray-900 whitespace-pre-line">{step.content}</p>
           
-          <div className="mt-4 text-right">
+          <div className="mt-3 sm:mt-4 text-right">
             <Button 
               size="sm" 
               onClick={goToNextStep}
               disabled={loading}
+              className="text-xs sm:text-sm py-1 sm:py-2 h-auto"
             >
               Continuer
-              <ChevronRight className="ml-1 h-4 w-4" />
+              <ChevronRight className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
           </div>
         </div>
@@ -412,25 +413,25 @@ export default function AmoaQuestPage() {
     if (!step.options) return null;
     
     return (
-      <div className="mb-4">
-        <div className="bg-amoa-blue/10 p-4 rounded-lg border border-amoa-blue/20 mb-4">
-          <p className="text-amoa-blue font-semibold">{step.content}</p>
+      <div className="mb-3 sm:mb-4">
+        <div className="bg-amoa-blue/10 p-3 sm:p-4 rounded-lg border border-amoa-blue/20 mb-3 sm:mb-4">
+          <p className="text-xs sm:text-sm text-amoa-blue font-semibold">{step.content}</p>
         </div>
         
-        <div className="space-y-3">
+        <div className="space-y-2 sm:space-y-3">
           {step.options.map(option => (
             <Button
               key={option.id}
               variant="outline"
-              className="w-full justify-start h-auto py-3 px-4 text-left bg-white hover:bg-amoa-blue/5"
+              className="w-full justify-start h-auto py-2 sm:py-3 px-3 sm:px-4 text-left bg-white hover:bg-amoa-blue/5"
               onClick={() => handleOptionSelect(option)}
               disabled={loading}
             >
-              <div className="flex items-center">
-                <div className="w-6 h-6 rounded-full bg-amoa-blue flex items-center justify-center mr-3 flex-shrink-0">
-                  <ChevronRight className="h-4 w-4 text-white" />
+              <div className="flex items-start sm:items-center">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-amoa-blue flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0 mt-0.5 sm:mt-0">
+                  <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                 </div>
-                <span className="text-gray-900">{option.text}</span>
+                <span className="text-xs sm:text-sm text-gray-900 line-clamp-3 sm:line-clamp-none">{option.text}</span>
               </div>
             </Button>
           ))}
@@ -444,25 +445,26 @@ export default function AmoaQuestPage() {
     if (!step.documents) return null;
     
     return (
-      <div className="mb-4">
-        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
-          <p className="text-gray-900">{step.content}</p>
+      <div className="mb-3 sm:mb-4">
+        <div className="bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-200 mb-3 sm:mb-4">
+          <p className="text-xs sm:text-sm text-gray-900">{step.content}</p>
         </div>
         
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {step.documents.map((doc, index) => (
             <DocumentViewer key={index} document={doc} />
           ))}
         </div>
         
-        <div className="mt-4 text-right">
+        <div className="mt-3 sm:mt-4 text-right">
           <Button 
             size="sm" 
             onClick={goToNextStep}
             disabled={loading}
+            className="text-xs sm:text-sm py-1 sm:py-2 h-auto"
           >
             J'ai compris
-            <CheckCircle2 className="ml-1 h-4 w-4" />
+            <CheckCircle2 className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
         </div>
       </div>
