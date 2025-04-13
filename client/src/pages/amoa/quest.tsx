@@ -818,17 +818,17 @@ export default function AmoaQuestPage() {
       </Dialog>
 
       {/* Header avec navigation */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
+      <header className="bg-white shadow-sm border-b max-w-[100vw] overflow-hidden">
+        <div className="max-w-full mx-auto px-2 xs:px-3 sm:px-6 lg:px-8 py-2 xs:py-3 sm:py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 xs:space-y-3 sm:space-y-0">
           <div className="flex items-center w-full sm:w-auto justify-between sm:justify-start">
             <div className="flex items-center">
-              <Link href="/amoa" className="mr-3 sm:mr-4">
-                <Button variant="outline" size="sm" className="text-amoa-blue px-2 sm:px-3">
-                  <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                  <span className="text-xs sm:text-sm">Retour</span>
+              <Link href="/amoa" className="mr-2 xs:mr-3 sm:mr-4">
+                <Button variant="outline" size="sm" className="text-amoa-blue px-1.5 xs:px-2 sm:px-3 h-7 xs:h-8 min-w-0">
+                  <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-0.5 xs:mr-1" />
+                  <span className="text-[10px] xs:text-xs sm:text-sm">Retour</span>
                 </Button>
               </Link>
-              <h1 className="text-lg sm:text-xl font-bold text-gray-900">AMOA Quest</h1>
+              <h1 className="text-base xs:text-lg sm:text-xl font-bold text-gray-900 whitespace-nowrap">AMOA Quest</h1>
             </div>
             
             {/* Version mobile seulement */}
@@ -837,13 +837,13 @@ export default function AmoaQuestPage() {
                 variant="ghost" 
                 size="sm"
                 onClick={() => setShowHelp(true)}
-                className="text-amoa-blue p-1 mr-2"
+                className="text-amoa-blue p-0.5 xs:p-1 mr-1 xs:mr-2 h-7 w-7 min-h-0 min-w-0"
               >
-                <HelpCircle className="h-4 w-4" />
+                <HelpCircle className="h-3.5 w-3.5 xs:h-4 xs:w-4" />
               </Button>
               
-              <div className="bg-amoa-blue text-white text-xs font-medium px-2 py-0.5 rounded-full flex items-center">
-                <Clock className="h-3 w-3 mr-1" />
+              <div className="bg-amoa-blue text-white text-[10px] xs:text-xs font-medium px-1.5 xs:px-2 py-0.5 rounded-full flex items-center">
+                <Clock className="h-2.5 w-2.5 xs:h-3 xs:w-3 mr-0.5 xs:mr-1" />
                 {calculateProgress()}%
               </div>
             </div>
@@ -852,7 +852,7 @@ export default function AmoaQuestPage() {
           {/* Version desktop et tablette */}
           <div className="hidden sm:flex items-center space-x-2 w-full sm:w-auto justify-end">
             {/* Indicateur de connexion FYNE */}
-            <div className="mr-2">
+            <div className="mr-1 sm:mr-2">
               <ConnectionStatus />
             </div>
             
@@ -860,15 +860,15 @@ export default function AmoaQuestPage() {
               variant="ghost" 
               size="sm"
               onClick={() => setShowHelp(true)}
-              className="text-amoa-blue"
+              className="text-amoa-blue h-8 px-2"
             >
-              <HelpCircle className="h-4 w-4 mr-1" />
-              Aide
+              <HelpCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
+              <span className="text-xs sm:text-sm">Aide</span>
             </Button>
             
-            <div className="bg-amoa-blue text-white text-xs font-medium px-2.5 py-0.5 rounded-full flex items-center">
+            <div className="bg-amoa-blue text-white text-xs font-medium px-2 sm:px-2.5 py-0.5 rounded-full flex items-center">
               <Clock className="h-3 w-3 mr-1" />
-              Progression : {calculateProgress()}%
+              <span className="hidden sm:inline">Progression :</span> {calculateProgress()}%
             </div>
           </div>
         </div>
