@@ -26,7 +26,7 @@ async function sendWithEthereal(trainerEmail: string, candidateName: string, ema
     const mailOptions = {
       from: '"FYNE - Audition" <evaluation@fyne.fr>',
       to: trainerEmail,
-      subject: `Évaluation de simulation d'entretien - ${candidateName}`,
+      subject: `Évaluation d'audition client - ${candidateName}`,
       html: emailHtml
     };
     
@@ -60,7 +60,7 @@ export async function startInterviewSimulation(req: Request, res: Response) {
   try {
     const {
       domain,
-      recruiterEmail,
+      trainerEmail,
       candidateName,
       profileType,
       experienceLevel,
@@ -252,9 +252,9 @@ async function testSendMail(trainerEmail: string, candidateName: string, emailHt
     
     // Configuration de l'email
     const mailOptions = {
-      from: '"I AM CYBER - Recrutement" <evaluation@i-am-cyber.com>',
-      to: recruiterEmail,
-      subject: `Évaluation de simulation d'entretien - ${candidateName}`,
+      from: '"FYNE - Audition" <evaluation@fyne.fr>',
+      to: trainerEmail,
+      subject: `Évaluation d'audition client - ${candidateName}`,
       html: emailHtml
     };
     
