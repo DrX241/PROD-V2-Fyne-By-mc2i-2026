@@ -375,9 +375,9 @@ const CyberInterviewSimulation: React.FC = () => {
             <TabsContent value="configuration">
               <Card className="bg-gray-800 border-gray-700">
                 <CardHeader>
-                  <CardTitle>Configuration de l'entretien</CardTitle>
+                  <CardTitle>Configuration de l'audition</CardTitle>
                   <CardDescription className="text-gray-400">
-                    Configurez les paramètres de la simulation d'entretien
+                    Configurez les paramètres de la simulation d'audition
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -481,7 +481,7 @@ const CyberInterviewSimulation: React.FC = () => {
               <Card className="bg-gray-800 border-gray-700">
                 <CardHeader>
                   <div className="flex justify-between items-center">
-                    <CardTitle>Entretien en cours</CardTitle>
+                    <CardTitle>Audition en cours</CardTitle>
                     <div className={`flex items-center p-2 rounded-md ${
                       timeRemaining > 60 ? "bg-blue-900" : "bg-red-900"
                     }`}>
