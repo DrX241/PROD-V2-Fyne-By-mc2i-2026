@@ -695,7 +695,7 @@ export default function AmoaQuestPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col overflow-y-auto">
+    <div className="min-h-screen bg-gray-50 flex flex-col overflow-y-auto overflow-x-hidden max-w-[100vw] touch-auto">
       {/* Introduction à AMOA Quest */}
       <Dialog open={showIntro} onOpenChange={setShowIntro}>
         <DialogContent className="max-w-2xl">
@@ -874,9 +874,9 @@ export default function AmoaQuestPage() {
         </div>
       </header>
 
-      <div className="flex-1 flex flex-col md:flex-row max-w-full overflow-hidden overflow-y-auto">
+      <div className="flex-1 flex flex-col md:flex-row max-w-full overflow-y-auto overflow-x-hidden relative touch-auto">
         {/* Panneau principal de l'aventure */}
-        <div className="flex-1 p-2 xs:p-3 sm:p-4 md:p-6 overflow-y-auto overflow-x-hidden max-w-full">
+        <div className="flex-1 p-2 xs:p-3 sm:p-4 md:p-6 overflow-y-auto overflow-x-hidden max-w-full touch-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
           <div className="max-w-full xs:max-w-[95%] sm:max-w-4xl mx-auto">
             {/* Phase actuelle */}
             <div className="mb-3 xs:mb-4 sm:mb-6">
@@ -890,7 +890,7 @@ export default function AmoaQuestPage() {
             </div>
             
             {/* Conversation et interactions simplifiées */}
-            <div className="bg-gray-100 rounded-lg p-3 sm:p-4 min-h-[300px] sm:min-h-[400px] max-h-[60vh] sm:max-h-[70vh] overflow-y-auto">
+            <div className="bg-gray-100 rounded-lg p-3 sm:p-4 min-h-[300px] sm:min-h-[400px] max-h-[60vh] sm:max-h-[70vh] overflow-y-auto overflow-x-hidden touch-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
               {/* Introduction à la phase actuelle */}
               <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border mb-4 sm:mb-6">
                 <div className="flex items-start">
