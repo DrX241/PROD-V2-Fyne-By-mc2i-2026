@@ -5,7 +5,7 @@ import { ChatCompletionRequestMessage } from "../shared/schema";
 import { v4 as uuidv4 } from 'uuid';
 
 /**
- * Contrôleur pour gérer toutes les interactions IA du module CYBER DEFENSE.
+ * Contrôleur pour gérer toutes les interactions IA du module CENTRE DE CRISE ÉVOLUTIF.
  * Ce contrôleur met l'intelligence artificielle Azure OpenAI au centre de toutes les interactions.
  */
 export async function handleCyberDefenseChat(req: Request, res: Response) {
@@ -212,9 +212,9 @@ Réponds directement comme si tu intervenais naturellement dans la conversation.
     });
     
   } catch (error: any) {
-    console.error('Error generating cyber defense response:', error);
+    console.error('Error generating centre de crise response:', error);
     res.status(500).json({ 
-      error: error.message || 'Error generating cyber defense response'
+      error: error.message || 'Error generating centre de crise response'
     });
   }
 }

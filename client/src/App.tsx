@@ -13,7 +13,7 @@ import ModulesPage from "@/pages/modules";
 import CyberModeSelection from "@/pages/cyber-mode-selection";
 import CyberAgentPage from "@/pages/cyber-agent";
 
-// Import des pages CYBER DEFENSE (anciennes et nouvelles pour permettre une transition)
+// Import des pages CENTRE DE CRISE ÉVOLUTIF (anciennes et nouvelles pour permettre une transition)
 import CyberDefensePage from "@/pages/cyber-defense"; // Ancienne implémentation 
 import CyberDefenseNewPage from "@/pages/cyber-defense-new"; // Nouvelle implémentation
 import CyberDefenseSessionPage from "@/pages/cyber-defense-session"; // Nouvelle implémentation de session
@@ -57,11 +57,11 @@ function Router() {
       <Route path="/cyber/arcade/firewall-defense" component={NetworkPuzzlePage} /> {/* Redirection de l'ancien jeu vers le nouveau */}
       <Route path="/cyber/arcade/:gameId" component={CyberArcadeGame} />
       
-      {/* Nouvelles routes CYBER DEFENSE (progressives avec interlocuteurs) */}
+      {/* Nouvelles routes CENTRE DE CRISE ÉVOLUTIF (progressives avec interlocuteurs) */}
       <Route path="/cyber-defense-new" component={CyberDefenseNewPage} />
       <Route path="/cyber-defense/session/:levelId" component={CyberDefenseSessionPage} />
       
-      {/* Routes originales CYBER DEFENSE (conservées temporairement) */}
+      {/* Routes originales CENTRE DE CRISE ÉVOLUTIF (conservées temporairement) */}
       <Route path="/cyber-defense" component={CyberDefenseNewPage} /> {/* Remplacé par la nouvelle version */}
       <Route path="/cyber-defense/mission/:id" component={CyberDefenseMissionPage} />
       
