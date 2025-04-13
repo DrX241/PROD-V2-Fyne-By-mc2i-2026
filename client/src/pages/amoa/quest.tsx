@@ -874,19 +874,19 @@ export default function AmoaQuestPage() {
         </div>
       </header>
 
-      <div className="flex-1 flex flex-col md:flex-row">
+      <div className="flex-1 flex flex-col md:flex-row max-w-full overflow-hidden">
         {/* Panneau principal de l'aventure */}
-        <div className="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto">
-          <div className="max-w-4xl mx-auto">
+        <div className="flex-1 p-2 xs:p-3 sm:p-4 md:p-6 overflow-y-auto overflow-x-hidden max-w-full">
+          <div className="max-w-full xs:max-w-[95%] sm:max-w-4xl mx-auto">
             {/* Phase actuelle */}
-            <div className="mb-4 sm:mb-6">
-              <div className="flex flex-wrap items-center space-x-2 mb-2">
-                <Badge variant="outline" className="bg-white text-amoa-blue border-amoa-blue/30 text-xs sm:text-sm mb-1 sm:mb-0">
+            <div className="mb-3 xs:mb-4 sm:mb-6">
+              <div className="flex flex-wrap items-center gap-1 xs:gap-2 mb-2">
+                <Badge variant="outline" className="bg-white text-amoa-blue border-amoa-blue/30 text-[10px] xs:text-xs sm:text-sm mb-1 sm:mb-0 px-1.5 py-0.5 xs:px-2 xs:py-1">
                   Phase {questPhases.findIndex(phase => phase.id === questState.currentPhaseId) + 1}/{questPhases.length}
                 </Badge>
-                <h2 className="text-lg sm:text-xl font-bold text-gray-900">{getCurrentPhase()?.title}</h2>
+                <h2 className="text-base xs:text-lg sm:text-xl font-bold text-gray-900 break-words">{getCurrentPhase()?.title}</h2>
               </div>
-              <p className="text-sm sm:text-base text-gray-600">{getCurrentPhase()?.description}</p>
+              <p className="text-xs xs:text-sm sm:text-base text-gray-600 max-w-full break-words">{getCurrentPhase()?.description}</p>
             </div>
             
             {/* Conversation et interactions simplifiées */}
@@ -988,7 +988,7 @@ export default function AmoaQuestPage() {
                 
                 <div className="relative">
                   <textarea 
-                    className="w-full border rounded-lg p-3 pr-10 min-h-[100px] focus:ring-1 focus:ring-amoa-blue text-black"
+                    className="w-full border rounded-lg p-2 xs:p-3 pr-8 xs:pr-10 min-h-[80px] xs:min-h-[100px] focus:ring-1 focus:ring-amoa-blue text-black text-xs xs:text-sm"
                     placeholder="Tapez votre message ici pour discuter avec les parties prenantes du projet..."
                     value={freeformMessage}
                     onChange={(e) => setFreeformMessage(e.target.value)}
@@ -1001,11 +1001,11 @@ export default function AmoaQuestPage() {
                   />
                   <Button 
                     size="sm" 
-                    className="absolute bottom-3 right-3 bg-amoa-blue hover:bg-amoa-blue/90"
+                    className="absolute bottom-2 xs:bottom-3 right-2 xs:right-3 bg-amoa-blue hover:bg-amoa-blue/90 h-6 w-6 xs:h-8 xs:w-8 p-1 xs:p-1.5"
                     disabled={!freeformMessage.trim() || loading}
                     onClick={handleFreeformChat}
                   >
-                    <Send className="h-4 w-4" />
+                    <Send className="h-3 w-3 xs:h-4 xs:w-4" />
                   </Button>
                 </div>
                 {loading && (
@@ -1032,16 +1032,18 @@ export default function AmoaQuestPage() {
         
         {/* Panneau latéral avec informations et métriques */}
         <div className="md:w-80 lg:w-96 bg-white border-t md:border-t-0 md:border-l">
-          <div className="p-4">
+          <div className="p-2 xs:p-3 sm:p-4">
             <Tabs defaultValue="metrics">
               <TabsList className="w-full">
-                <TabsTrigger value="metrics" className="flex-1">
-                  <BarChart4 className="h-4 w-4 mr-1" />
-                  Métriques
+                <TabsTrigger value="metrics" className="flex-1 text-xs xs:text-sm h-8 py-1 px-2">
+                  <BarChart4 className="h-3 w-3 xs:h-4 xs:w-4 mr-1" />
+                  <span className="hidden xs:inline">Métriques</span>
+                  <span className="xs:hidden">Stats</span>
                 </TabsTrigger>
-                <TabsTrigger value="documents" className="flex-1">
-                  <FileText className="h-4 w-4 mr-1" />
-                  Documents
+                <TabsTrigger value="documents" className="flex-1 text-xs xs:text-sm h-8 py-1 px-2">
+                  <FileText className="h-3 w-3 xs:h-4 xs:w-4 mr-1" />
+                  <span className="hidden xs:inline">Documents</span>
+                  <span className="xs:hidden">Docs</span>
                 </TabsTrigger>
               </TabsList>
               
