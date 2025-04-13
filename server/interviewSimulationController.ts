@@ -330,14 +330,14 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
       fallbackMode = true;
       
       if (domain === 'cyber') {
-        evaluation = `Le candidat ${candidateName} a fait preuve de bonnes connaissances en cybersécurité pour un profil ${profileType} de niveau ${experienceLevel}. 
+        evaluation = `La personne consultante ${candidateName} a fait preuve de bonnes connaissances en cybersécurité pour un profil ${profileType} de niveau ${experienceLevel}. 
         
 Points forts : compréhension des concepts, capacité d'analyse technique.
 Axes d'amélioration : approfondir les méthodologies de sécurité, développer la vision stratégique.
 
 Note globale : 3.5/5`;
       } else {
-        evaluation = `Le consultant ${candidateName} a démontré une bonne compréhension du rôle d'AMOA pour un profil ${profileType} de niveau ${experienceLevel} dans le secteur ${sectorFocus}.
+        evaluation = `La personne consultante ${candidateName} a démontré une bonne compréhension du rôle d'AMOA pour un profil ${profileType} de niveau ${experienceLevel} dans le secteur ${sectorFocus}.
         
 Points forts : méthodologie projet, communication avec les parties prenantes.
 Axes d'amélioration : approfondissement des connaissances sectorielles, gestion des situations complexes.
@@ -393,7 +393,7 @@ Sujet: ${domain === 'amoa' ? `Évaluation de préparation d'audition - ${candida
           const msg = {
             to: recruiterEmail,
             from: {
-              name: domain === 'amoa' ? 'I AM AMOA - Préparation d\'audition' : 'I AM CYBER - Recrutement',
+              name: 'FYNE - Audition',
               email: 'eddy.missoni@mc2i.fr' // Adresse vérifiée dans SendGrid
             },
             subject: domain === 'amoa' ? `Évaluation de préparation d'audition - ${candidateName}` : `Évaluation de simulation d'entretien - ${candidateName}`,
