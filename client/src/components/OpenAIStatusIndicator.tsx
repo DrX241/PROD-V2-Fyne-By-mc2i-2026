@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, XCircle, LoaderCircle, Gauge } from 'lucide-react';
+import { CheckCircle, XCircle, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
@@ -172,7 +172,6 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
                       disabled={isToggling || status === 'checking'}
                       className={`${isToggling ? 'opacity-50' : ''} ${position === 'in-header' ? 'h-3 w-6 xs:h-4 xs:w-8' : ''}`}
                     />
-                    <Gauge className={`${position === 'in-header' ? 'w-2 h-2 xs:w-3 xs:h-3' : 'w-3 h-3'} ml-1 text-gray-800`} />
                   </div>
                 </div>
               </TooltipTrigger>
