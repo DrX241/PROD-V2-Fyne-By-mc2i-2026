@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { ArrowRight, Code, Layers, Cpu, Smartphone, RefreshCw, Zap, Users, Globe, ShieldCheck, Sparkles } from 'lucide-react';
@@ -14,47 +14,14 @@ export default function FyneInitialization() {
   const [progress, setProgress] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   
-  // Autoplay du slider avec possibilité de pause
-  useEffect(() => {
-    let timer: ReturnType<typeof setTimeout>;
-    
-    if (isAutoPlaying) {
-      timer = setTimeout(() => {
-        if (currentSlide < slides.length - 1) {
-          setCurrentSlide(prev => prev + 1);
-        } else {
-          // Attendre un peu plus longtemps sur la dernière slide avant de rediriger
-          setTimeout(() => navigate('/home'), 1500);
-        }
-      }, 5000); // 5 secondes par slide
-    }
-    
-    return () => clearTimeout(timer);
-  }, [currentSlide, isAutoPlaying, navigate]);
-  
-  // Mise à jour de la barre de progression
-  useEffect(() => {
-    setProgress(((currentSlide + 1) / slides.length) * 100);
-  }, [currentSlide]);
-  
-  // Passer à la slide suivante
-  const nextSlide = () => {
-    if (currentSlide < slides.length - 1) {
-      setCurrentSlide(prev => prev + 1);
-    } else {
-      navigate('/home');
-    }
+  // Fonction pour marquer l'initialisation comme vue et naviguer vers l'accueil
+  const goToHome = () => {
+    localStorage.setItem('hasSeenInitialization', 'true');
+    navigate('/home');
   };
   
-  // Passer à la slide précédente
-  const prevSlide = () => {
-    if (currentSlide > 0) {
-      setCurrentSlide(prev => prev - 1);
-    }
-  };
-  
-  // Définition des slides
-  const slides = [
+  // Définition des slides avec useMemo pour éviter les problèmes de référence
+  const slides = useMemo(() => [
     {
       title: "Bienvenue dans FYNE",
       subtitle: "La plateforme d'apprentissage immersive du futur",
@@ -139,47 +106,78 @@ export default function FyneInitialization() {
       icon: <Users className="w-16 h-16 text-blue-600" />,
       features: []
     }
-  ];
+  ], []);
+  
+  // Définition des éléments flottants
+  const floatingElements = useMemo(() => [
+    { icon: <Sparkles className="text-blue-400 w-6 h-6" /> },
+    { icon: <Sparkles className="text-blue-300 w-4 h-4" /> },
+    { icon: <Sparkles className="text-blue-500 w-5 h-5" /> },
+    { icon: <Cpu className="text-blue-300 w-5 h-5" /> },
+    { icon: <Globe className="text-blue-400 w-6 h-6" /> },
+    { icon: <ShieldCheck className="text-blue-300 w-4 h-4" /> },
+    { icon: <Zap className="text-blue-400 w-5 h-5" /> }
+  ], []);
   
   const currentSlideData = slides[currentSlide];
   
-  // Définition des animations flottantes pour le fond
-  const floatingElements = [
-    { icon: <Sparkles className="text-blue-400 w-6 h-6" />, delay: 0, duration: 8 },
-    { icon: <Sparkles className="text-blue-300 w-4 h-4" />, delay: 1.5, duration: 10 },
-    { icon: <Sparkles className="text-blue-500 w-5 h-5" />, delay: 3, duration: 7 },
-    { icon: <Cpu className="text-blue-300 w-5 h-5" />, delay: 2, duration: 9 },
-    { icon: <Globe className="text-blue-400 w-6 h-6" />, delay: 4, duration: 11 },
-    { icon: <ShieldCheck className="text-blue-300 w-4 h-4" />, delay: 0.5, duration: 9 },
-    { icon: <Zap className="text-blue-400 w-5 h-5" />, delay: 2.5, duration: 8 },
-  ];
+  // Passer à la slide suivante
+  const nextSlide = () => {
+    if (currentSlide < slides.length - 1) {
+      setCurrentSlide(prev => prev + 1);
+    } else {
+      goToHome();
+    }
+  };
+  
+  // Passer à la slide précédente
+  const prevSlide = () => {
+    if (currentSlide > 0) {
+      setCurrentSlide(prev => prev - 1);
+    }
+  };
+  
+  // Mise à jour de la barre de progression
+  useEffect(() => {
+    setProgress(((currentSlide + 1) / slides.length) * 100);
+  }, [currentSlide, slides.length]);
+  
+  // Autoplay du slider avec possibilité de pause
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    
+    if (isAutoPlaying) {
+      timer = setTimeout(() => {
+        if (currentSlide < slides.length - 1) {
+          setCurrentSlide(prev => prev + 1);
+        } else {
+          // Attendre un peu plus longtemps sur la dernière slide avant de rediriger
+          setTimeout(goToHome, 1500);
+        }
+      }, 5000); // 5 secondes par slide
+    }
+    
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [currentSlide, isAutoPlaying, slides.length, goToHome]);
 
   return (
-    <motion.div 
-      className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col relative overflow-hidden"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.8 }}
-    >
-      {/* Éléments flottants d'animation en arrière-plan */}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col relative overflow-hidden">
+      {/* Animation background elements */}
       {floatingElements.map((element, index) => (
         <motion.div
           key={index}
           className="absolute opacity-20"
-          initial={{ 
-            x: `${Math.random() * 100}%`, 
-            y: `${Math.random() * 100}%`,
-            opacity: 0
-          }}
+          initial={{ x: `${Math.random() * 100}%`, y: `${Math.random() * 100}%`, opacity: 0 }}
           animate={{ 
-            x: [`${Math.random() * 100}%`, `${Math.random() * 100}%`, `${Math.random() * 100}%`], 
-            y: [`${Math.random() * 100}%`, `${Math.random() * 100}%`, `${Math.random() * 100}%`],
-            opacity: [0.1, 0.3, 0.1]
+            x: [`${Math.random() * 100}%`, `${Math.random() * 100}%`], 
+            y: [`${Math.random() * 100}%`, `${Math.random() * 100}%`],
+            opacity: [0.1, 0.3]
           }}
           transition={{ 
-            delay: element.delay,
-            duration: element.duration, 
-            repeat: Infinity, 
+            duration: 10 + Math.random() * 10,
+            repeat: Infinity,
             repeatType: "reverse",
             ease: "easeInOut"
           }}
@@ -188,28 +186,22 @@ export default function FyneInitialization() {
         </motion.div>
       ))}
 
-      {/* Barre supérieure avec logo, progression et boutons */}
+      {/* Header with logo and progress */}
       <motion.div 
         className="w-full px-5 py-4 bg-white shadow-sm flex items-center justify-between relative z-10"
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
+        transition={{ duration: 0.5 }}
       >
         <div className="flex items-center gap-2">
-          <motion.img 
-            src={mclogo} 
-            alt="mc2i Logo" 
-            className="h-8"
-            whileHover={{ scale: 1.05 }}
-            transition={{ type: "spring", stiffness: 400, damping: 10 }}
-          />
+          <img src={mclogo} alt="mc2i Logo" className="h-8" />
           <div className="hidden sm:flex items-center gap-2 text-sm text-gray-500">
             <span>|</span>
             <motion.span 
               className="font-bold text-blue-600"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
             >
               FYNE
             </motion.span>
@@ -217,40 +209,22 @@ export default function FyneInitialization() {
         </div>
         
         <div className="flex items-center gap-4">
-          <motion.div 
-            className="flex-1 w-32 sm:w-64"
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: "auto", opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-          >
+          <div className="flex-1 w-32 sm:w-64">
             <Progress value={progress} className="h-2" />
-          </motion.div>
-          <motion.span 
-            className="text-sm text-gray-500 font-medium"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7, duration: 0.3 }}
+          </div>
+          <span className="text-sm text-gray-500 font-medium">{currentSlide + 1}/{slides.length}</span>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={goToHome}
+            className="ml-2"
           >
-            {currentSlide + 1}/{slides.length}
-          </motion.span>
-          <motion.div
-            initial={{ x: 20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.8, duration: 0.3 }}
-          >
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => navigate('/home')}
-              className="ml-2"
-            >
-              Passer
-            </Button>
-          </motion.div>
+            Passer
+          </Button>
         </div>
       </motion.div>
       
-      {/* Contenu principal */}
+      {/* Main content */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
         <div className="max-w-6xl w-full mx-auto">
           <AnimatePresence mode="wait">
@@ -263,7 +237,7 @@ export default function FyneInitialization() {
               className="bg-white rounded-2xl shadow-xl overflow-hidden"
             >
               <div className="grid grid-cols-1 lg:grid-cols-5">
-                {/* Section de gauche avec illustration/icône */}
+                {/* Left section with icon */}
                 <div className="lg:col-span-2 bg-gradient-to-br from-blue-600 to-blue-800 text-white p-8 flex flex-col justify-center items-center">
                   <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
@@ -285,7 +259,7 @@ export default function FyneInitialization() {
                   </motion.div>
                 </div>
                 
-                {/* Section de droite avec contenu */}
+                {/* Right section with content */}
                 <div className="lg:col-span-3 p-6 sm:p-8 md:p-10">
                   <motion.div
                     initial={{ y: 20, opacity: 0 }}
@@ -327,7 +301,7 @@ export default function FyneInitialization() {
                         <Button 
                           size="lg" 
                           className="bg-blue-600 hover:bg-blue-700 text-white"
-                          onClick={() => navigate('/home')}
+                          onClick={goToHome}
                         >
                           Démarrer l'expérience FYNE <ArrowRight className="ml-2 h-5 w-5" />
                         </Button>
@@ -341,8 +315,13 @@ export default function FyneInitialization() {
         </div>
       </div>
       
-      {/* Contrôles de navigation */}
-      <div className="bg-white border-t p-4 flex items-center justify-between">
+      {/* Navigation controls */}
+      <motion.div 
+        className="bg-white border-t p-4 flex items-center justify-between"
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
         <Button
           variant="outline"
           onClick={prevSlide}
@@ -366,7 +345,7 @@ export default function FyneInitialization() {
         >
           {currentSlide < slides.length - 1 ? "Suivant" : "Commencer"}
         </Button>
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 }
