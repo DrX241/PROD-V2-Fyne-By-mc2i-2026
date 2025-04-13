@@ -331,9 +331,14 @@ const AmoaInterviewSimulation: React.FC = () => {
             Cette simulation vous permet de préparer vos consultants AMOA à des auditions auprès de clients ou partenaires commerciaux à travers une conversation de 10 minutes avec un client potentiel simulé par l'IA.
           </p>
           
-          {/* Indicateur de statut OpenAI en bas à droite */}
+          {/* Indicateur de statut OpenAI - en bas centré sur mobile, en header sur desktop */}
           <Suspense fallback={null}>
-            <OpenAIStatusIndicator position="fixed-bottom-right" />
+            <div className="block sm:hidden">
+              <OpenAIStatusIndicator position="fixed-bottom" />
+            </div>
+            <div className="hidden sm:block">
+              {/* Sur desktop, l'indicateur est déjà dans le Header */}
+            </div>
           </Suspense>
           
           {isSimulationActive && !simulationComplete && (
