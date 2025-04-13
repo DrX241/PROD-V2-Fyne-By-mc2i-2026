@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'wouter';
-import { ArrowRight, Code, Layers, Cpu, Smartphone, RefreshCw, Zap, Users, Globe, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Code, Layers, Cpu, Smartphone, RefreshCw, Zap, Users, Globe, ShieldCheck, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 
@@ -143,33 +143,112 @@ export default function FyneInitialization() {
   
   const currentSlideData = slides[currentSlide];
   
+  // Définition des animations flottantes pour le fond
+  const floatingElements = [
+    { icon: <Sparkles className="text-blue-400 w-6 h-6" />, delay: 0, duration: 8 },
+    { icon: <Sparkles className="text-blue-300 w-4 h-4" />, delay: 1.5, duration: 10 },
+    { icon: <Sparkles className="text-blue-500 w-5 h-5" />, delay: 3, duration: 7 },
+    { icon: <Cpu className="text-blue-300 w-5 h-5" />, delay: 2, duration: 9 },
+    { icon: <Globe className="text-blue-400 w-6 h-6" />, delay: 4, duration: 11 },
+    { icon: <ShieldCheck className="text-blue-300 w-4 h-4" />, delay: 0.5, duration: 9 },
+    { icon: <Zap className="text-blue-400 w-5 h-5" />, delay: 2.5, duration: 8 },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col">
+    <motion.div 
+      className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col relative overflow-hidden"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+    >
+      {/* Éléments flottants d'animation en arrière-plan */}
+      {floatingElements.map((element, index) => (
+        <motion.div
+          key={index}
+          className="absolute opacity-20"
+          initial={{ 
+            x: `${Math.random() * 100}%`, 
+            y: `${Math.random() * 100}%`,
+            opacity: 0
+          }}
+          animate={{ 
+            x: [`${Math.random() * 100}%`, `${Math.random() * 100}%`, `${Math.random() * 100}%`], 
+            y: [`${Math.random() * 100}%`, `${Math.random() * 100}%`, `${Math.random() * 100}%`],
+            opacity: [0.1, 0.3, 0.1]
+          }}
+          transition={{ 
+            delay: element.delay,
+            duration: element.duration, 
+            repeat: Infinity, 
+            repeatType: "reverse",
+            ease: "easeInOut"
+          }}
+        >
+          {element.icon}
+        </motion.div>
+      ))}
+
       {/* Barre supérieure avec logo, progression et boutons */}
-      <div className="w-full px-5 py-4 bg-white shadow-sm flex items-center justify-between">
+      <motion.div 
+        className="w-full px-5 py-4 bg-white shadow-sm flex items-center justify-between relative z-10"
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
         <div className="flex items-center gap-2">
-          <img src={mclogo} alt="mc2i Logo" className="h-8" />
+          <motion.img 
+            src={mclogo} 
+            alt="mc2i Logo" 
+            className="h-8"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+          />
           <div className="hidden sm:flex items-center gap-2 text-sm text-gray-500">
             <span>|</span>
-            <span className="font-bold text-blue-600">FYNE</span>
+            <motion.span 
+              className="font-bold text-blue-600"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+            >
+              FYNE
+            </motion.span>
           </div>
         </div>
         
         <div className="flex items-center gap-4">
-          <div className="flex-1 w-32 sm:w-64">
-            <Progress value={progress} className="h-2" />
-          </div>
-          <span className="text-sm text-gray-500 font-medium">{currentSlide + 1}/{slides.length}</span>
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => navigate('/home')}
-            className="ml-2"
+          <motion.div 
+            className="flex-1 w-32 sm:w-64"
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: "auto", opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.5 }}
           >
-            Passer
-          </Button>
+            <Progress value={progress} className="h-2" />
+          </motion.div>
+          <motion.span 
+            className="text-sm text-gray-500 font-medium"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7, duration: 0.3 }}
+          >
+            {currentSlide + 1}/{slides.length}
+          </motion.span>
+          <motion.div
+            initial={{ x: 20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.8, duration: 0.3 }}
+          >
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate('/home')}
+              className="ml-2"
+            >
+              Passer
+            </Button>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
       
       {/* Contenu principal */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
@@ -288,6 +367,6 @@ export default function FyneInitialization() {
           {currentSlide < slides.length - 1 ? "Suivant" : "Commencer"}
         </Button>
       </div>
-    </div>
+    </motion.div>
   );
 }
