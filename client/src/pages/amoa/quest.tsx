@@ -695,7 +695,7 @@ export default function AmoaQuestPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col overflow-y-auto">
       {/* Introduction à AMOA Quest */}
       <Dialog open={showIntro} onOpenChange={setShowIntro}>
         <DialogContent className="max-w-2xl">
