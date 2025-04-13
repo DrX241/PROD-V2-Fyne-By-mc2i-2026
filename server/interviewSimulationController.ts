@@ -232,7 +232,7 @@ export async function processInterviewMessage(req: Request, res: Response) {
 }
 
 /**
- * Finalise une simulation d'entretien et envoie les résultats par email
+ * Finalise une simulation d'audition client et envoie les résultats par email
  */
 // Fonction utilitaire pour tester l'envoi d'email avec le service Ethereal
 async function testSendMail(trainerEmail: string, candidateName: string, emailHtml: string) {
@@ -452,7 +452,7 @@ Sujet: ${domain === 'amoa' ? `Évaluation de préparation d'audition - ${candida
  * Génère le prompt système pour l'initialisation d'une simulation cybersécurité
  */
 function generateCyberSystemPrompt(profileType: string, experienceLevel: string): string {
-  return `Tu es un assistant spécialisé dans la simulation d'entretiens professionnels pour des profils en cybersécurité.
+  return `Tu es un assistant spécialisé dans la simulation d'audition client pour des profils en cybersécurité.
 
 Tu dois créer un scénario initial pour évaluer un consultant avec le profil suivant:
 - Type de profil: ${profileType}
@@ -554,7 +554,7 @@ function generateCyberStepPrompt(step: number, profileType: string, experienceLe
       promptByStep = `Pose des questions adaptées au niveau ${experienceLevel} du consultant pour évaluer ses compétences en cybersécurité.`;
   }
   
-  return `Tu es un interlocuteur client dans une simulation professionnelle avec un consultant en cybersécurité.
+  return `Tu es un interlocuteur client dans une audition professionnelle avec un consultant en cybersécurité.
 
 Profil du consultant:
 - Type de profil: ${profileType}
@@ -658,13 +658,13 @@ INSTRUCTIONS:
 function generateCyberEvaluationPrompt(candidateName: string, profileType: string, experienceLevel: string): string {
   return `Tu es un expert en évaluation des performances de consultants en cybersécurité lors de missions client.
 
-Tu dois évaluer les réponses d'un consultant lors d'une simulation professionnelle:
+Tu dois évaluer les réponses d'un consultant lors d'une audition client professionnelle:
 - Nom du consultant: ${candidateName}
 - Type de profil: ${profileType}
 - Niveau d'expérience déclaré: ${experienceLevel}
 
 INSTRUCTIONS:
-1. Analyse soigneusement toutes les réponses du consultant pendant la simulation.
+1. Analyse soigneusement toutes les réponses du consultant pendant la audition.
 2. Évalue les compétences techniques et comportementales manifestées pendant la mission.
 3. Sois bienveillant, même si la simulation a été courte ou interrompue.
 4. Fournis une évaluation pertinente adaptée au profil et niveau d'expérience.
