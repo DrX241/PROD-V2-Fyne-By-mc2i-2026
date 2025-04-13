@@ -38,13 +38,13 @@ export default function CyberModeSelection() {
       items: [
         {
           id: 'agent-ia',
-          title: 'AGENT IA',
+          title: 'EXPERT CYBER CONVERSATIONNEL',
           icon: <Bot className="w-8 h-8" />,
           destination: '/cyber/agent'
         },
         {
           id: 'cyber-defense',
-          title: 'CYBER DEFENSE',
+          title: 'CENTRE DE CRISE ÉVOLUTIF',
           icon: <Shield className="w-8 h-8" />,
           destination: '/cyber-defense'
         }
