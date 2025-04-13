@@ -25,7 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import HomeLayout from '@/components/layout/HomeLayout';
 
-// Schéma de formulaire pour la configuration de l'entretien
+// Schéma de formulaire pour la configuration de l'audition
 const formSchema = z.object({
   recruiterEmail: z.string().email({
     message: "Veuillez entrer une adresse email valide.",
@@ -143,7 +143,7 @@ const CyberInterviewSimulation: React.FC = () => {
         {
           id: '1',
           role: 'assistant',
-          content: data.initialMessage || "Bonjour, je suis votre recruteur aujourd'hui. Nous allons évaluer vos compétences en cybersécurité. Présentez-vous et dites-moi ce qui vous intéresse dans ce domaine.",
+          content: data.initialMessage || "Bonjour, je suis un client potentiel qui cherche des services en cybersécurité. Pouvez-vous me présenter votre expertise et me dire comment vous pourriez répondre à mes besoins en matière de sécurité informatique ?",
           timestamp: new Date(),
         },
       ]);
@@ -152,7 +152,7 @@ const CyberInterviewSimulation: React.FC = () => {
       setActiveTab('simulation');
       toast({
         title: "Simulation démarrée",
-        description: "La simulation d'entretien a commencé. Vous avez 10 minutes.",
+        description: "La simulation d'audition a commencé. Vous avez 10 minutes.",
       });
     } catch (error) {
       console.error('Erreur:', error);
@@ -326,11 +326,11 @@ const CyberInterviewSimulation: React.FC = () => {
               <ArrowLeft className="w-5 h-5 mr-2" />
               Retour
             </Button>
-            <h1 className="text-3xl font-bold">Simulation d'Entretien de Recrutement Cybersécurité</h1>
+            <h1 className="text-3xl font-bold">Préparation d'audition auprès d'un client</h1>
           </div>
           
           <p className="mb-8 text-gray-300">
-            Cette simulation vous permet d'évaluer les compétences des candidats aux postes de cybersécurité à travers une conversation de 10 minutes avec un recruteur IA.
+            Cette simulation vous permet de préparer vos consultants à des auditions auprès de clients ou partenaires commerciaux à travers une conversation de 10 minutes avec un client potentiel simulé par l'IA.
           </p>
           
           {/* Indicateur de statut OpenAI en bas à droite */}
@@ -389,7 +389,7 @@ const CyberInterviewSimulation: React.FC = () => {
                           name="recruiterEmail"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Email du recruteur (pour recevoir l'évaluation)</FormLabel>
+                              <FormLabel>Email du formateur (pour recevoir l'évaluation)</FormLabel>
                               <FormControl>
                                 <Input placeholder="email@exemple.com" {...field} className="bg-gray-700 border-gray-600 text-white" />
                               </FormControl>
@@ -403,7 +403,7 @@ const CyberInterviewSimulation: React.FC = () => {
                           name="candidateName"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Nom du candidat</FormLabel>
+                              <FormLabel>Nom du consultant</FormLabel>
                               <FormControl>
                                 <Input placeholder="Nom complet" {...field} className="bg-gray-700 border-gray-600 text-white" />
                               </FormControl>
@@ -490,7 +490,7 @@ const CyberInterviewSimulation: React.FC = () => {
                     </div>
                   </div>
                   <CardDescription className="text-gray-400">
-                    Vous êtes en conversation avec un recruteur spécialisé en cybersécurité
+                    Vous êtes en conversation avec un client potentiel cherchant des services en cybersécurité
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -516,7 +516,7 @@ const CyberInterviewSimulation: React.FC = () => {
                               <div className="flex items-center mb-1">
                                 {message.role === 'user' ? (
                                   <>
-                                    <span className="font-semibold">{form.getValues('candidateName') || 'Candidat'}</span>
+                                    <span className="font-semibold">{form.getValues('candidateName') || 'Consultant'}</span>
                                     <span className="text-xs ml-2 text-gray-300">
                                       {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </span>
@@ -524,7 +524,7 @@ const CyberInterviewSimulation: React.FC = () => {
                                 ) : (
                                   <>
                                     <UserCircle className="w-5 h-5 mr-1" />
-                                    <span className="font-semibold">Recruteur</span>
+                                    <span className="font-semibold">Client</span>
                                     <span className="text-xs ml-2 text-gray-300">
                                       {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </span>
