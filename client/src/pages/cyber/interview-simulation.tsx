@@ -31,7 +31,7 @@ const formSchema = z.object({
     message: "Veuillez entrer une adresse email valide.",
   }),
   candidateName: z.string().min(2, {
-    message: "Le nom du candidat doit contenir au moins 2 caractères.",
+    message: "Le nom du consultant doit contenir au moins 2 caractères.",
   }),
   profileType: z.string().min(1, {
     message: "Veuillez sélectionner un type de profil.",
@@ -570,7 +570,7 @@ const CyberInterviewSimulation: React.FC = () => {
                     className="w-full bg-green-700 hover:bg-green-800"
                   >
                     <CheckCircle className="w-5 h-5 mr-2" />
-                    Terminer l'entretien
+                    Terminer l'audition
                   </Button>
                 </CardFooter>
               </Card>
@@ -581,10 +581,10 @@ const CyberInterviewSimulation: React.FC = () => {
                 <CardHeader>
                   <div className="flex items-center">
                     <FileCheck className="w-6 h-6 mr-2 text-green-500" />
-                    <CardTitle>Évaluation de l'entretien</CardTitle>
+                    <CardTitle>Évaluation de l'audition</CardTitle>
                   </div>
                   <CardDescription className="text-gray-400">
-                    Résultat de l'évaluation du candidat par l'IA
+                    Résultat de l'évaluation du consultant par l'IA
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -592,7 +592,7 @@ const CyberInterviewSimulation: React.FC = () => {
                     <div className="py-8 text-center">
                       <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
                       <p className="text-gray-400">Aucune évaluation disponible</p>
-                      <p className="text-gray-500 text-sm mt-2">Terminez l'entretien pour voir l'évaluation</p>
+                      <p className="text-gray-500 text-sm mt-2">Terminez l'audition pour voir l'évaluation</p>
                     </div>
                   ) : (
                     <div className="space-y-6">
@@ -600,7 +600,7 @@ const CyberInterviewSimulation: React.FC = () => {
                         <h3 className="text-xl font-semibold mb-2">Informations générales</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                           <div className="bg-gray-700 p-3 rounded-md">
-                            <p className="text-gray-400 text-sm">Candidat</p>
+                            <p className="text-gray-400 text-sm">Consultant</p>
                             <p>{form.getValues('candidateName')}</p>
                           </div>
                           <div className="bg-gray-700 p-3 rounded-md">
@@ -612,7 +612,7 @@ const CyberInterviewSimulation: React.FC = () => {
                             <p>{form.getValues('experienceLevel')}</p>
                           </div>
                           <div className="bg-gray-700 p-3 rounded-md">
-                            <p className="text-gray-400 text-sm">Durée de l'entretien</p>
+                            <p className="text-gray-400 text-sm">Durée de l'audition</p>
                             <p>{Math.floor((600 - timeRemaining) / 60)} min {(600 - timeRemaining) % 60} sec</p>
                           </div>
                         </div>
