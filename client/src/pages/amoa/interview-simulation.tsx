@@ -387,7 +387,7 @@ const AmoaInterviewSimulation: React.FC = () => {
                           name="recruiterEmail"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Email du recruteur (pour recevoir l'évaluation)</FormLabel>
+                              <FormLabel>Email du responsable (pour recevoir l'évaluation)</FormLabel>
                               <FormControl>
                                 <Input placeholder="email@exemple.com" {...field} className="bg-blue-700 border-blue-600 text-white" />
                               </FormControl>
@@ -401,7 +401,7 @@ const AmoaInterviewSimulation: React.FC = () => {
                           name="candidateName"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Nom du candidat</FormLabel>
+                              <FormLabel>Nom du consultant</FormLabel>
                               <FormControl>
                                 <Input placeholder="Nom complet" {...field} className="bg-blue-700 border-blue-600 text-white" />
                               </FormControl>
@@ -541,7 +541,7 @@ const AmoaInterviewSimulation: React.FC = () => {
                               <div className="flex items-center mb-1">
                                 {message.role === 'user' ? (
                                   <>
-                                    <span className="font-semibold">{form.getValues('candidateName') || 'Candidat'}</span>
+                                    <span className="font-semibold">{form.getValues('candidateName') || 'Consultant'}</span>
                                     <span className="text-xs ml-2 text-blue-200">
                                       {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </span>
@@ -625,7 +625,7 @@ const AmoaInterviewSimulation: React.FC = () => {
                         <h3 className="text-xl font-semibold mb-2">Informations générales</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                           <div className="bg-blue-700 p-3 rounded-md">
-                            <p className="text-blue-200 text-sm">Candidat</p>
+                            <p className="text-blue-200 text-sm">Consultant</p>
                             <p>{form.getValues('candidateName')}</p>
                           </div>
                           <div className="bg-blue-700 p-3 rounded-md">
@@ -641,8 +641,8 @@ const AmoaInterviewSimulation: React.FC = () => {
                             <p>{form.getValues('sectorFocus')?.replace(/_/g, ' ')}</p>
                           </div>
                           <div className="bg-blue-700 p-3 rounded-md col-span-2">
-                            <p className="text-blue-200 text-sm">Durée de l'entretien</p>
-                            <p>{Math.floor((300 - timeRemaining) / 60)} min {(300 - timeRemaining) % 60} sec</p>
+                            <p className="text-blue-200 text-sm">Durée de l'audition</p>
+                            <p>{Math.floor((600 - timeRemaining) / 60)} min {(600 - timeRemaining) % 60} sec</p>
                           </div>
                         </div>
                       </div>
