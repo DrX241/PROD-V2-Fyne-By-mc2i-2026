@@ -42,7 +42,7 @@ export default function FyneInitialization() {
     if (currentSlide < slides.length - 1) {
       setCurrentSlide(prev => prev + 1);
     } else {
-      navigate('/');
+      navigate('/home');
     }
   };
   
@@ -151,7 +151,7 @@ export default function FyneInitialization() {
           <img src={mclogo} alt="mc2i Logo" className="h-8" />
           <div className="hidden sm:flex items-center gap-2 text-sm text-gray-500">
             <span>|</span>
-            <span className="font-medium">FYNE</span>
+            <span className="font-bold text-blue-600">FYNE</span>
           </div>
         </div>
         
@@ -163,7 +163,7 @@ export default function FyneInitialization() {
           <Button 
             variant="outline" 
             size="sm"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/home')}
             className="ml-2"
           >
             Passer
@@ -248,7 +248,7 @@ export default function FyneInitialization() {
                         <Button 
                           size="lg" 
                           className="bg-blue-600 hover:bg-blue-700 text-white"
-                          onClick={() => navigate('/')}
+                          onClick={() => navigate('/home')}
                         >
                           Démarrer l'expérience FYNE <ArrowRight className="ml-2 h-5 w-5" />
                         </Button>
