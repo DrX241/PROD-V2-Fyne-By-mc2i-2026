@@ -58,6 +58,15 @@ export default function Header({ isFeny = false }: HeaderProps) {
             className="flex items-center gap-2 sm:gap-3 cursor-pointer"
           >
             <img src={mclogo} alt="mc2i Logo" className="h-6 sm:h-8" />
+            <span className="text-neutral-300 hidden xs:inline-block">|</span>
+            <div className="text-blue-600 text-base sm:text-xl font-bold whitespace-nowrap">
+              {isFeny ? 'FYNE' : (
+                location.includes('/cyber') ? 'I AM CYBER' : 
+                location.includes('/data-ia') ? 'I AM DATA & IA' : 
+                location.includes('/amoa') ? 'I AM AMOA' : 
+                'FYNE'
+              )}
+            </div>
           </a>
         </div>
         <div className="flex items-center gap-2 sm:gap-5">
