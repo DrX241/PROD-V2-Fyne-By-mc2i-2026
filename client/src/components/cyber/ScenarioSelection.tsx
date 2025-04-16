@@ -7,7 +7,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 
 export default function ScenarioSelection() {
-  const { scenarios, scenario, messages, selectScenario } = useChatContext();
+  const { scenarios, scenario, messages, selectScenario, resetChat } = useChatContext();
   const [hoveredScenario, setHoveredScenario] = useState<string | null>(null);
   const { toast } = useToast();
   
@@ -22,25 +22,28 @@ export default function ScenarioSelection() {
     const selectedScenario = filteredScenarios.find(s => s.id === scenarioId);
     if (!selectedScenario) return;
     
-    // Vérifier si nous avons déjà reçu un email de ce contact (qui indique que le scénario a été démarré)
-    const scenarioAlreadySelected = messages.some(
-      msg => 
-        msg.type === "email" && 
-        (msg.content as any)?.from?.name === selectedScenario.contact.name
-    );
-    
-    if (scenarioAlreadySelected) {
-      // Afficher un avertissement à l'utilisateur
+    // Vérifier si nous avons déjà des messages (si session en cours)
+    if (messages.length > 0) {
+      // Réinitialiser la session complètement avant de démarrer un nouveau scénario
+      resetChat();
+      
+      // Petite notification pour informer l'utilisateur
       toast({
-        title: "Scénario déjà en cours",
-        description: `Vous avez déjà commencé le scénario "${selectedScenario.title}". Veuillez continuer la conversation existante ou réinitialiser la session pour recommencer.`,
-        variant: "warning",
-        duration: 5000
+        title: "Nouvelle session",
+        description: "La session a été réinitialisée pour démarrer un nouveau scénario.",
+        variant: "default",
+        duration: 3000
       });
+      
+      // Après la réinitialisation, on utilise setTimeout pour permettre à l'état de se mettre à jour
+      setTimeout(() => {
+        selectScenario(scenarioId);
+      }, 500);
+      
       return;
     }
     
-    // Si le scénario n'a pas encore été sélectionné, le démarrer
+    // Si aucune session n'est en cours, démarrer directement le scénario
     selectScenario(scenarioId);
   };
 
