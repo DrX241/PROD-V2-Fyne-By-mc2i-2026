@@ -259,7 +259,7 @@ export default function Home() {
               transition={{ duration: 0.7 }}
             >
               Améliorez<br className="xs:hidden" />
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400"> votre expertise</span><br className="xs:hidden" />
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400"> votre expertise  </span><br className="xs:hidden" />
               avec FYNE
             </motion.h1>
             
