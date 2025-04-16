@@ -102,7 +102,7 @@ export default function ModulesPage() {
     },
     {
       id: "amoa",
-      title: "I AM AMOA",
+      title: "IAM mc2i",
       description: "Perfectionnez vos compétences en assistance à maîtrise d'ouvrage et gestion de projet avec des mentors virtuels experts.",
       icon: <ListChecks className="w-12 h-12 text-white" />,
       iconBg: "bg-[#006a9e]",
@@ -116,9 +116,10 @@ export default function ModulesPage() {
       description: "Créez votre propre parcours d'apprentissage personnalisé adapté à vos besoins spécifiques avec notre technologie IA générative.",
       icon: <Plus className="w-12 h-12 text-white" />,
       iconBg: "bg-rose-600",
-      color: "border-rose-200 hover:shadow-xl hover:scale-105 hover:border-rose-300",
+      color: "border-rose-200", // Supprimé les effets de survol
       link: "/custom",
-      bgGradient: "bg-gradient-to-br from-rose-50 to-rose-100"
+      bgGradient: "bg-gradient-to-br from-rose-50 to-rose-100",
+      comingSoon: true // Marqué comme "à venir"
     }
   ];
 
@@ -369,31 +370,38 @@ export default function ModulesPage() {
                   module.bgGradient,
                   isHovering === module.id ? "shadow-2xl scale-105" : "shadow-md"
                 )}
-                onClick={() => handleModuleClick(module.link)}
+                onClick={() => module.comingSoon ? null : handleModuleClick(module.link)}
+                style={{ cursor: module.comingSoon ? 'default' : 'pointer' }}
               >
                 <div className={`${module.iconBg} w-20 h-20 rounded-2xl flex items-center justify-center mb-6 shadow-lg transform transition-transform duration-500 ${isHovering === module.id ? "rotate-3 scale-110" : ""}`}>
                   {module.icon}
                 </div>
                 <h2 className="text-2xl font-bold mb-3 text-gray-900">{module.title}</h2>
                 <p className="text-gray-700 mb-6 flex-grow">{module.description}</p>
-                <Button 
-                  className={cn(
-                    "w-fit mt-auto group transition-all duration-300",
-                    isHovering === module.id 
-                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md" 
-                      : "bg-white text-gray-800 hover:bg-gray-100"
-                  )}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleModuleClick(module.link);
-                  }}
-                >
-                  Découvrir
-                  <ArrowRight className={cn(
-                    "ml-2 h-4 w-4 transition-transform duration-300",
-                    isHovering === module.id ? "translate-x-1" : "group-hover:translate-x-1"
-                  )} />
-                </Button>
+                {module.comingSoon ? (
+                  <div className="w-fit px-3 py-2 mt-auto bg-gray-100 text-gray-500 rounded-lg flex items-center">
+                    <span className="text-sm font-medium">Bientôt disponible</span>
+                  </div>
+                ) : (
+                  <Button 
+                    className={cn(
+                      "w-fit mt-auto group transition-all duration-300",
+                      isHovering === module.id 
+                        ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md" 
+                        : "bg-white text-gray-800 hover:bg-gray-100"
+                    )}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleModuleClick(module.link);
+                    }}
+                  >
+                    Découvrir
+                    <ArrowRight className={cn(
+                      "ml-2 h-4 w-4 transition-transform duration-300",
+                      isHovering === module.id ? "translate-x-1" : "group-hover:translate-x-1"
+                    )} />
+                  </Button>
+                )}
               </div>
             ))}
           </div>
@@ -429,7 +437,7 @@ export default function ModulesPage() {
               <ul className="space-y-2">
                 <li><a href="/cyber" className="text-gray-400 hover:text-white transition-colors">I AM CYBER</a></li>
                 <li><a href="/data-ia" className="text-gray-400 hover:text-white transition-colors">I AM DATA & IA</a></li>
-                <li><a href="/amoa" className="text-gray-400 hover:text-white transition-colors">I AM AMOA</a></li>
+                <li><a href="/amoa" className="text-gray-400 hover:text-white transition-colors">IAM mc2i</a></li>
                 <li><a href="/custom" className="text-gray-400 hover:text-white transition-colors">Parcours personnalisé</a></li>
               </ul>
             </div>

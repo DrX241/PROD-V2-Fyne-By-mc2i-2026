@@ -63,7 +63,7 @@ export default function Header({ isFeny = false }: HeaderProps) {
               {isFeny ? 'FYNE' : (
                 location.includes('/cyber') ? 'I AM CYBER' : 
                 location.includes('/data-ia') ? 'I AM DATA & IA' : 
-                location.includes('/amoa') ? 'I AM AMOA' : 
+                location.includes('/amoa') ? 'IAM mc2i' : 
                 'FYNE'
               )}
             </div>
