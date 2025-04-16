@@ -670,11 +670,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
+      // Fonction pour extraire le prénom à partir d'une chaîne de caractères
+      const extractFirstName = (input: string): string => {
+        if (!input) return input;
+        
+        // Nettoyer l'entrée
+        let cleanedInput = input.trim().toLowerCase();
+        
+        // Patterns d'introduction à supprimer
+        const introPatterns = [
+          /(je\s+suis)/gi,
+          /(je\s+m['']\s*appelle)/gi,
+          /(mon\s+nom\s+est)/gi,
+          /(mon\s+prénom\s+est)/gi,
+          /(je\s+me\s+prénomme)/gi,
+          /(je\s+me\s+nomme)/gi,
+          /(je\s+me\s+présente)/gi,
+          /(c'est)/gi,
+          /(moi\s+c'est)/gi
+        ];
+        
+        // Supprimer toutes les formules d'introduction
+        for (const pattern of introPatterns) {
+          cleanedInput = cleanedInput.replace(pattern, '');
+        }
+        
+        // Supprimer les caractères de ponctuation et espaces excessifs
+        cleanedInput = cleanedInput.replace(/[,.;:!?]/g, '').trim();
+        
+        // Extraire le premier mot (prénom)
+        const firstWord = cleanedInput.split(/\s+/)[0];
+        
+        // Mettre la première lettre en majuscule
+        return firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
+      };
+
+      // Extraire le prénom si nécessaire
+      const extractedName = extractFirstName(userName);
+      console.log(`Prénom extrait pour adresse email: "${extractedName}" depuis "${userName}"`);
+      
       // Create email response - le premier message vient toujours du contact principal du scénario
       const email = {
         id: uuidv4(),
         from: scenarioContacts[0], // Utiliser le premier contact de la liste (le contact principal du scénario)
-        to: `${userName}@mc2i.fr`,
+        to: `${extractedName}@mc2i.fr`,
         subject,
         date: new Date().toISOString(),
         body,
