@@ -134,7 +134,7 @@ export default function AmoaModeSelection() {
 
   return (
     <HomeLayout>
-      <PageTitle title="I AM AMOA" />
+      <PageTitle title="IAM mc2i" />
       <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-[#006a9e] to-blue-900">
         {/* Arrière-plan AMOA */}
         <div className="absolute inset-0 w-full h-full">
@@ -296,7 +296,7 @@ export default function AmoaModeSelection() {
             className="text-center mb-10 sm:mb-16"
           >
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-              I AM AMOA
+              IAM mc2i
             </h1>
             <p className="text-lg sm:text-xl text-blue-200 max-w-3xl mx-auto">
               Choisissez votre experience d'apprentissage en assistance à maîtrise d'ouvrage

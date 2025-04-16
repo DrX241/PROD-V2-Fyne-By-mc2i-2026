@@ -319,7 +319,7 @@ export default function AmoaPage() {
             className="text-center mb-10 sm:mb-16"
           >
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-              I AM AMOA
+              IAM mc2i
             </h1>
             <p className="text-lg sm:text-xl text-blue-100 max-w-3xl mx-auto">
               Perfectionnez vos compétences en assistance à maîtrise d'ouvrage à travers des expériences immersives guidées par l'IA
@@ -489,7 +489,7 @@ export default function AmoaPage() {
             className="text-center mt-12"
           >
             <p className="text-blue-200 max-w-2xl mx-auto">
-              <span className="font-medium">I AM AMOA</span> utilise l'intelligence artificielle pour créer des expériences d'apprentissage immersives et adaptatives dans le domaine de l'assistance à maîtrise d'ouvrage.
+              <span className="font-medium">IAM mc2i</span> utilise l'intelligence artificielle pour créer des expériences d'apprentissage immersives et adaptatives dans le domaine de l'assistance à maîtrise d'ouvrage.
             </p>
           </motion.div>
         </div>

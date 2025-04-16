@@ -120,7 +120,7 @@ export default function Home() {
       linkTo: "/data-ia"
     },
     {
-      title: "I AM AMOA",
+      title: "IAM mc2i",
       description: "Perfectionnez vos compétences en assistance à maîtrise d'ouvrage avec des experts virtuels qui vous guideront à travers des cas complexes.",
       icon: <ListChecks className="w-8 h-8 text-white" />,
       color: "bg-emerald-600",
@@ -424,7 +424,7 @@ export default function Home() {
             <div>
               <h3 className="text-lg font-semibold mb-4 text-gray-300 font-cyber-accent">Modules</h3>
               <ul className="space-y-2">
-                {['I AM CYBER', 'CYBER DEFENSE', 'I AM DATA & IA', 'I AM AMOA', 'Personnalisé'].map(link => (
+                {['I AM CYBER', 'CENTRE DE CRISE ÉVOLUTIF', 'I AM DATA & IA', 'IAM mc2i', 'Personnalisé'].map(link => (
                   <li key={link}>
                     <a href="#" className="text-gray-400 hover:text-blue-300 transition-colors">
                       {link}
