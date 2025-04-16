@@ -159,7 +159,7 @@ export default function CyberDefense() {
   
   return (
     <HomeLayout>
-      <PageTitle title="CYBER DEFENSE" />
+      <PageTitle title="CENTRE DE CRISE ÉVOLUTIF" />
       {/* Hero section */}
       <div className="bg-gradient-to-br from-[#003a5d] to-[#006a9e] text-white">
         <div className="max-w-7xl mx-auto px-4 pt-6 pb-16 sm:px-6 lg:px-8 lg:pb-24">
@@ -179,7 +179,7 @@ export default function CyberDefense() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7 }}
               >
-                CYBER DEFENSE
+                CENTRE DE CRISE ÉVOLUTIF
               </motion.h1>
               <motion.p 
                 className="text-xl text-white mb-8 max-w-xl"
@@ -321,7 +321,7 @@ export default function CyberDefense() {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Comment ça marche ?</h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Dans le module CYBER DEFENSE, vous êtes le décideur principal face à des menaces cybernétiques réelles.
+              Dans le module CENTRE DE CRISE ÉVOLUTIF, vous êtes le décideur principal face à des menaces cybernétiques réelles.
             </p>
           </div>
           
