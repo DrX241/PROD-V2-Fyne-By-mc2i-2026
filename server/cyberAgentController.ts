@@ -24,9 +24,9 @@ async function sendWithEthereal(userEmail: string, userName: string, emailHtml: 
     
     // Configuration de l'email
     const mailOptions = {
-      from: '"I AM CYBER - Expert Cyber Conversationnel" <rapport@i-am-cyber.com>',
+      from: '"Expert Cyber Conversationnel" <rapport@i-am-cyber.com>',
       to: userEmail,
-      subject: `Rapport de session I AM CYBER - Expert Cyber Conversationnel - ${userName}`,
+      subject: `Rapport de session Expert Cyber Conversationnel - ${userName}`,
       html: emailHtml
     };
     
@@ -123,7 +123,7 @@ export async function completeAgentSession(req: Request, res: Response) {
     }));
     
     // Générer le prompt pour l'évaluation par l'IA
-    const evaluationPrompt = `Analyse la conversation suivante entre l'utilisateur ${userName} et l'Expert Cyber Conversationnel (I AM CYBER).
+    const evaluationPrompt = `Analyse la conversation suivante entre l'utilisateur ${userName} et l'Expert Cyber Conversationnel.
      
 La conversation a duré environ ${Math.round(duration / 60)} minutes.
 
@@ -160,7 +160,7 @@ Format ton rapport sous forme HTML bien structuré avec des sections clairement 
       fallbackMode = true;
       
       evaluationHtml = `
-<h1>Rapport de Session I AM CYBER - Expert Cyber Conversationnel</h1>
+<h1>Rapport de Session Expert Cyber Conversationnel</h1>
 
 <h2>Résumé de la session</h2>
 <p>L'utilisateur ${userName} a interagi avec l'Expert Cyber Conversationnel pendant environ ${Math.round(duration / 60)} minutes.</p>
@@ -174,7 +174,7 @@ Format ton rapport sous forme HTML bien structuré avec des sections clairement 
 </ul>
 
 <h2>Suggestions pour approfondir</h2>
-<p>Nous vous recommandons de continuer à explorer les ressources disponibles sur notre plateforme I AM CYBER.</p>
+<p>Nous vous recommandons de continuer à explorer les ressources disponibles sur notre plateforme.</p>
 <p>Note: Ce rapport a été généré en mode de secours suite à une erreur technique.</p>`;
     }
 
