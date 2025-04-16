@@ -7,7 +7,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 
 export default function ScenarioSelection() {
-  const { scenarios, scenario, messages, selectScenario, resetChat } = useChatContext();
+  const { scenarios, scenario, messages, selectScenario } = useChatContext();
   const [hoveredScenario, setHoveredScenario] = useState<string | null>(null);
   const { toast } = useToast();
   
@@ -15,35 +15,32 @@ export default function ScenarioSelection() {
   const filteredScenarios = scenarios.filter(
     (s: any) => s.domainId === scenario.activeDomain?.id
   );
+  
+  // Vérifier si une session est déjà en cours (messages présents)
+  const sessionInProgress = messages.length > 0;
+  
+  // Trouve le scénario actuellement actif (si présent dans les messages)
+  const activeScenario = sessionInProgress ? 
+    filteredScenarios.find(s => messages.some(
+      msg => msg.type === "email" && (msg.content as any)?.from?.name === s.contact.name
+    )) : null;
 
   const handleScenarioClick = (scenarioId: string) => {
-    // Vérifier si le scénario a déjà été sélectionné en recherchant
-    // un message email avec le même contact principal
-    const selectedScenario = filteredScenarios.find(s => s.id === scenarioId);
-    if (!selectedScenario) return;
-    
-    // Vérifier si nous avons déjà des messages (si session en cours)
-    if (messages.length > 0) {
-      // Réinitialiser la session complètement avant de démarrer un nouveau scénario
-      resetChat();
-      
-      // Petite notification pour informer l'utilisateur
+    // Si une session est déjà en cours, on bloque la sélection d'un nouveau scénario
+    if (sessionInProgress) {
       toast({
-        title: "Nouvelle session",
-        description: "La session a été réinitialisée pour démarrer un nouveau scénario.",
-        variant: "default",
-        duration: 3000
+        title: "Session déjà en cours",
+        description: "Veuillez d'abord cliquer sur 'Nouvelle session' pour démarrer un nouveau scénario.",
+        variant: "warning",
+        duration: 5000
       });
-      
-      // Après la réinitialisation, on utilise setTimeout pour permettre à l'état de se mettre à jour
-      setTimeout(() => {
-        selectScenario(scenarioId);
-      }, 500);
-      
       return;
     }
     
-    // Si aucune session n'est en cours, démarrer directement le scénario
+    // Si aucune session n'est en cours, on démarre le scénario sélectionné
+    const selectedScenario = filteredScenarios.find(s => s.id === scenarioId);
+    if (!selectedScenario) return;
+    
     selectScenario(scenarioId);
   };
 
@@ -160,13 +157,18 @@ export default function ScenarioSelection() {
               onMouseEnter={() => setHoveredScenario(s.id)}
               onMouseLeave={() => setHoveredScenario(null)}
             >
-              <div className="relative flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-5 rounded-xl bg-gray-900/40 backdrop-blur-sm border border-blue-800/30 hover:border-blue-600/40 transition-all duration-300 shadow-md hover:shadow-xl group-hover:-translate-y-0.5">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-transparent to-blue-600/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className={`relative flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-5 rounded-xl ${sessionInProgress ? 'bg-gray-900/20 opacity-50 cursor-not-allowed' : 'bg-gray-900/40 hover:border-blue-600/40 group-hover:-translate-y-0.5'} backdrop-blur-sm border border-blue-800/30 transition-all duration-300 shadow-md hover:shadow-xl`}>
+                {!sessionInProgress && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-transparent to-blue-600/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                )}
                 
                 <div className="flex-1 relative z-10">
                   <h3 className="font-bold text-base sm:text-xl text-blue-100 group-hover:text-blue-50 transition-colors">{s.title}</h3>
                   <p className="mt-1 sm:mt-2 text-blue-300/90 text-xs sm:text-sm">
-                    Cliquez pour commencer ce scénario
+                    {sessionInProgress ? 
+                      'Indisponible - Cliquez sur "Nouvelle session" pour réinitialiser' : 
+                      'Cliquez pour commencer ce scénario'
+                    }
                   </p>
                 </div>
                 
