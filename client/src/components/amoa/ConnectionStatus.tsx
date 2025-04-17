@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Wifi, WifiOff, AlertTriangle, RefreshCw, CircleOff } from 'lucide-react';
+import { Wifi, WifiOff, AlertTriangle, RefreshCw, CircleOff, CheckCircle, XCircle, LoaderCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -98,24 +98,24 @@ export default function ConnectionStatus() {
     <div className="flex items-center max-w-[110px] overflow-visible">
       <div className={cn(
         "flex items-center px-1.5 xs:px-2 py-0.5 rounded-full text-[9px] xs:text-[10px]",
-        status === 'connected' ? "bg-green-800/40 text-white border border-green-500/30" :
-        status === 'reconnecting' ? "bg-yellow-800/40 text-white border border-yellow-500/30" :
-        "bg-red-800/40 text-white border border-red-500/30"
+        status === 'connected' ? "bg-green-600 text-white" :
+        status === 'reconnecting' ? "bg-yellow-600 text-white" :
+        "bg-red-600 text-white"
       )}>
         {status === 'connected' ? (
           <>
-            <Wifi className="w-2 xs:w-2.5 h-2 xs:h-2.5 mr-0.5 text-green-500" />
-            <span className="text-green-500 font-medium">FYNE</span>
+            <CheckCircle className="w-2 xs:w-2.5 h-2 xs:h-2.5 mr-0.5" />
+            <span className="font-medium">FYNE</span>
           </>
         ) : status === 'reconnecting' ? (
           <>
-            <AlertTriangle className="w-2 xs:w-2.5 h-2 xs:h-2.5 mr-0.5 text-yellow-400" />
+            <LoaderCircle className="w-2 xs:w-2.5 h-2 xs:h-2.5 mr-0.5 animate-spin" />
             <span>FYNE</span>
           </>
         ) : (
           <>
-            <WifiOff className="w-2 xs:w-2.5 h-2 xs:h-2.5 mr-0.5 text-red-500" />
-            <span className="text-red-500 font-medium">FYNE</span>
+            <XCircle className="w-2 xs:w-2.5 h-2 xs:h-2.5 mr-0.5" />
+            <span className="font-medium">FYNE</span>
           </>
         )}
       </div>
@@ -152,25 +152,25 @@ export default function ConnectionStatus() {
   const DesktopVersion = () => (
     <div className="flex items-center space-x-2">
       <div className={cn(
-        "flex items-center px-3 py-1 rounded-full text-xs font-medium",
-        status === 'connected' ? "bg-green-800/40 text-white border border-green-500/30" :
-        status === 'reconnecting' ? "bg-yellow-800/40 text-white border border-yellow-500/30" :
-        "bg-red-800/40 text-white border border-red-500/30"
+        "flex items-center px-2 py-1 rounded-full text-xs font-medium",
+        status === 'connected' ? "bg-green-600 text-white" :
+        status === 'reconnecting' ? "bg-yellow-600 text-white" :
+        "bg-red-600 text-white"
       )}>
         {status === 'connected' ? (
           <>
-            <Wifi className="w-3 h-3 mr-1 text-green-500" />
-            <span className="text-green-500 font-medium">FYNE connecté</span>
+            <CheckCircle className="w-3 h-3 mr-1" />
+            <span className="font-medium">FYNE Connecté</span>
           </>
         ) : status === 'reconnecting' ? (
           <>
-            <AlertTriangle className="w-3 h-3 mr-1 text-yellow-400" />
-            <span>Reconnexion en cours...</span>
+            <LoaderCircle className="w-3 h-3 mr-1 animate-spin" />
+            <span>Reconnexion...</span>
           </>
         ) : (
           <>
-            <WifiOff className="w-3 h-3 mr-1 text-red-500" />
-            <span className="text-red-500 font-medium">FYNE déconnecté</span>
+            <XCircle className="w-3 h-3 mr-1" />
+            <span className="font-medium">FYNE Déconnecté</span>
           </>
         )}
       </div>
