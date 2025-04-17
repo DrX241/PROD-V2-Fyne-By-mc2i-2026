@@ -126,7 +126,7 @@ export default function ConnectionStatus() {
       <Button 
         variant="outline" 
         size="icon" 
-        className="h-5 w-5 rounded-full border-slate-300 p-0 min-w-0" 
+        className="h-5 w-5 rounded-full border-slate-300 p-0 min-w-0 bg-white" 
         onClick={checkStatus}
         disabled={status === 'checking' || status === 'reconnecting'}
       >
@@ -138,8 +138,8 @@ export default function ConnectionStatus() {
       </Button>
       
       {/* Switch Eco (version simplifiée) */}
-      <div className="flex items-center gap-1">
-        <span className="text-[8px] font-medium text-slate-600">Eco</span>
+      <div className="flex items-center gap-1 px-1.5 py-0.5 bg-white rounded-full shadow-sm">
+        <span className="text-[8px] font-medium text-slate-700">Eco</span>
         <Switch
           checked={currentKey === 'secondary'}
           onCheckedChange={(checked: boolean) => {
@@ -186,7 +186,7 @@ export default function ConnectionStatus() {
       <Button 
         variant="outline" 
         size="icon" 
-        className="h-8 w-8 rounded-full border-slate-300" 
+        className="h-8 w-8 rounded-full border-slate-300 bg-white" 
         onClick={checkStatus}
         disabled={status === 'checking' || status === 'reconnecting'}
       >
@@ -198,8 +198,8 @@ export default function ConnectionStatus() {
       </Button>
       
       {/* Switch Eco */}
-      <div className="flex items-center gap-2">
-        <span className="text-xs font-medium text-slate-600">Eco</span>
+      <div className="flex items-center gap-2 px-2 py-1 bg-white rounded-full shadow-sm">
+        <span className="text-xs font-medium text-slate-700">Eco</span>
         <Switch
           checked={currentKey === 'secondary'}
           onCheckedChange={(checked: boolean) => {
@@ -208,7 +208,7 @@ export default function ConnectionStatus() {
             }
           }}
           disabled={switchingKey || status === 'checking' || status === 'reconnecting'}
-          className={switchingKey ? "opacity-50" : ""}
+          className={`${switchingKey ? "opacity-50" : ""} data-[state=checked]:bg-blue-600`}
         />
       </div>
     </div>
