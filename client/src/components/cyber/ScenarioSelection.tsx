@@ -7,7 +7,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 
 export default function ScenarioSelection() {
-  const { scenarios, scenario, messages, selectScenario } = useChatContext();
+  const { scenarios, scenario, selectScenario } = useChatContext();
   const [hoveredScenario, setHoveredScenario] = useState<string | null>(null);
   const { toast } = useToast();
   
@@ -16,22 +16,16 @@ export default function ScenarioSelection() {
     (s: any) => s.domainId === scenario.activeDomain?.id
   );
   
-  // Vérifier si une session est déjà en cours (messages présents)
-  const sessionInProgress = messages.length > 0;
-  
-  // Trouve le scénario actuellement actif (si présent dans les messages)
-  const activeScenario = sessionInProgress ? 
-    filteredScenarios.find(s => messages.some(
-      msg => msg.type === "email" && (msg.content as any)?.from?.name === s.contact.name
-    )) : null;
+  // Vérifier si un scénario est déjà sélectionné
+  const scenarioActive = scenario.activeScenario !== null;
 
   const handleScenarioClick = (scenarioId: string) => {
-    // Si une session est déjà en cours, on bloque la sélection d'un nouveau scénario
-    if (sessionInProgress) {
+    // Si un scénario est déjà actif, on bloque la sélection d'un nouveau scénario
+    if (scenarioActive) {
       toast({
         title: "Session déjà en cours",
         description: "Veuillez d'abord cliquer sur 'Nouvelle session' pour démarrer un nouveau scénario.",
-        variant: "warning",
+        variant: "default",
         duration: 5000
       });
       return;
@@ -157,15 +151,15 @@ export default function ScenarioSelection() {
               onMouseEnter={() => setHoveredScenario(s.id)}
               onMouseLeave={() => setHoveredScenario(null)}
             >
-              <div className={`relative flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-5 rounded-xl ${sessionInProgress ? 'bg-gray-900/20 opacity-50 cursor-not-allowed' : 'bg-gray-900/40 hover:border-blue-600/40 group-hover:-translate-y-0.5'} backdrop-blur-sm border border-blue-800/30 transition-all duration-300 shadow-md hover:shadow-xl`}>
-                {!sessionInProgress && (
+              <div className={`relative flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-5 rounded-xl ${scenarioActive ? 'bg-gray-900/20 opacity-50 cursor-not-allowed' : 'bg-gray-900/40 hover:border-blue-600/40 group-hover:-translate-y-0.5'} backdrop-blur-sm border border-blue-800/30 transition-all duration-300 shadow-md hover:shadow-xl`}>
+                {!scenarioActive && (
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-transparent to-blue-600/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 )}
                 
                 <div className="flex-1 relative z-10">
                   <h3 className="font-bold text-base sm:text-xl text-blue-100 group-hover:text-blue-50 transition-colors">{s.title}</h3>
                   <p className="mt-1 sm:mt-2 text-blue-300/90 text-xs sm:text-sm">
-                    {sessionInProgress ? 
+                    {scenarioActive ? 
                       'Indisponible - Cliquez sur "Nouvelle session" pour réinitialiser' : 
                       'Cliquez pour commencer ce scénario'
                     }

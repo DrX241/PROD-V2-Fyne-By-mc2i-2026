@@ -8,11 +8,11 @@ import {
 } from "lucide-react";
 
 export default function DomainSelection() {
-  const { domains, messages, selectDomain } = useChatContext();
+  const { domains, messages, scenario, selectDomain } = useChatContext();
   const [hoveredDomain, setHoveredDomain] = useState<string | null>(null);
   
-  // Vérifier si une session est déjà en cours (messages présents)
-  const sessionInProgress = messages.length > 0;
+  // Vérifier si une session (avec un scénario actif) est déjà en cours
+  const sessionInProgress = scenario.activeScenario !== null;
 
   const handleDomainClick = (domainId: string) => {
     // Si une session est en cours, ne pas permettre de changer de domaine
