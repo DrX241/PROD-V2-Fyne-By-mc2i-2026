@@ -107,13 +107,13 @@ export default function DomainSelection() {
               className={`group relative bg-gradient-to-br ${config.bgGradient} backdrop-blur-sm border ${config.borderColor} 
                 rounded-xl overflow-hidden shadow-lg ${config.shadowColor} 
                 transition-all duration-500 flex flex-col items-center text-center p-3 sm:p-4 min-h-[130px] sm:min-h-[180px] justify-between
-                ${sessionInProgress ? 
+                ${scenario.activeScenario !== null ? 
                   'opacity-40 cursor-not-allowed' : 
                   'hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98]'
                 }`}
             >
               {/* Background glow effect */}
-              {!sessionInProgress && (
+              {scenario.activeScenario === null && (
                 <div className={`absolute inset-0 bg-gradient-to-br ${config.bgGradient} opacity-0 group-hover:opacity-30 transition-opacity duration-500`}></div>
               )}
               
@@ -126,7 +126,7 @@ export default function DomainSelection() {
                 })}
                 
                 {/* Pulsing ring effect on hover */}
-                {isHovered && !sessionInProgress && (
+                {isHovered && scenario.activeScenario === null && (
                   <div className="absolute inset-0 rounded-full border-2 border-blue-400/20 animate-ping"></div>
                 )}
               </div>
@@ -139,7 +139,7 @@ export default function DomainSelection() {
                 
                 {/* Description on hover - visible by default on mobile */}
                 <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-blue-200/80 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-500 sm:h-0 sm:group-hover:h-auto overflow-hidden">
-                  {sessionInProgress ? 
+                  {scenario.activeScenario !== null ? 
                     'Indisponible - Cliquez sur "Nouvelle session" pour changer de module' : 
                     'Explorez les scénarios dans ce domaine'
                   }
