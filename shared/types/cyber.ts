@@ -271,9 +271,13 @@ export interface Message {
 }
 
 export interface ScenarioState {
-  activeScenario?: CyberScenario;
-  selectedDomain?: CyberDomain;
+  activeScenario: CyberScenario | null;
+  activeDomain: CyberDomain | null;
   scenarioContacts?: ScenarioContact[];
+  contact?: {
+    name: string;
+    role: string;
+  };
 }
 
 export interface CyberDomain {

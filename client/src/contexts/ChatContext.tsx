@@ -342,7 +342,10 @@ const initialConfig: AIConfig = {
 };
 
 // Initial scenario state
-const initialScenarioState: ScenarioState = {};
+const initialScenarioState: ScenarioState = {
+  activeScenario: null,
+  activeDomain: null
+};
 
 // Create context
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
