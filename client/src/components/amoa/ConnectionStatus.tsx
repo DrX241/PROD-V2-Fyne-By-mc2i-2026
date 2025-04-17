@@ -3,6 +3,7 @@ import { Wifi, WifiOff, AlertTriangle, RefreshCw, CircleOff, CheckCircle, XCircl
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import { 
   Tooltip,
   TooltipContent,
@@ -95,7 +96,8 @@ export default function ConnectionStatus() {
   
   // Version simplifiée pour mobile
   const MobileVersion = () => (
-    <div className="flex items-center max-w-[110px] overflow-visible">
+    <div className="flex items-center gap-1.5">
+      {/* Badge FYNE */}
       <div className={cn(
         "flex items-center px-1.5 xs:px-2 py-0.5 rounded-full text-[9px] xs:text-[10px]",
         status === 'connected' ? "bg-green-600 text-white" :
@@ -120,106 +122,95 @@ export default function ConnectionStatus() {
         )}
       </div>
       
-      <Badge 
-        variant="outline" 
-        className={cn(
-          "ml-1 py-0.5 px-1 xs:px-1.5 text-[8px] xs:text-[10px]",
-          currentKey === 'primary' 
-            ? "bg-blue-800/40 text-white border border-blue-500/30" 
-            : "bg-purple-800/40 text-white border border-purple-500/30"
-        )}
-      >
-        {currentKey === 'primary' ? "4o" : "mini"}
-      </Badge>
-      
+      {/* Bouton de rechargement */}
       <Button 
-        variant="ghost" 
+        variant="outline" 
         size="icon" 
-        className="h-4 xs:h-5 w-4 xs:w-5 ml-0.5" 
-        onClick={switchApiKey}
-        disabled={switchingKey || status === 'checking' || status === 'reconnecting'}
+        className="h-5 w-5 rounded-full border-slate-300 p-0 min-w-0" 
+        onClick={checkStatus}
+        disabled={status === 'checking' || status === 'reconnecting'}
       >
-        {switchingKey ? (
-          <RefreshCw className="h-2 xs:h-2.5 w-2 xs:w-2.5 animate-spin" />
+        {status === 'checking' ? (
+          <RefreshCw className="h-2.5 w-2.5 animate-spin text-slate-600" />
         ) : (
-          <RefreshCw className="h-2 xs:h-2.5 w-2 xs:w-2.5" />
+          <RefreshCw className="h-2.5 w-2.5 text-slate-600" />
         )}
       </Button>
+      
+      {/* Switch Eco (version simplifiée) */}
+      <div className="flex items-center gap-1">
+        <span className="text-[8px] font-medium text-slate-600">Eco</span>
+        <Switch
+          checked={currentKey === 'secondary'}
+          onCheckedChange={(checked: boolean) => {
+            if (checked !== (currentKey === 'secondary')) {
+              switchApiKey();
+            }
+          }}
+          disabled={switchingKey || status === 'checking' || status === 'reconnecting'}
+          className="scale-75 data-[state=checked]:bg-blue-600"
+        />
+      </div>
     </div>
   );
   
   // Version complète pour desktop
   const DesktopVersion = () => (
-    <div className="flex items-center space-x-2">
+    <div className="flex items-center space-x-3">
+      {/* Badge FYNE Connecté */}
       <div className={cn(
-        "flex items-center px-2 py-1 rounded-full text-xs font-medium",
+        "flex items-center px-3 py-1.5 rounded-full text-xs font-medium",
         status === 'connected' ? "bg-green-600 text-white" :
         status === 'reconnecting' ? "bg-yellow-600 text-white" :
         "bg-red-600 text-white"
       )}>
         {status === 'connected' ? (
           <>
-            <CheckCircle className="w-3 h-3 mr-1" />
+            <CheckCircle className="w-3 h-3 mr-1.5" />
             <span className="font-medium">FYNE Connecté</span>
           </>
         ) : status === 'reconnecting' ? (
           <>
-            <LoaderCircle className="w-3 h-3 mr-1 animate-spin" />
-            <span>Reconnexion...</span>
+            <LoaderCircle className="w-3 h-3 mr-1.5 animate-spin" />
+            <span>FYNE Reconnexion...</span>
           </>
         ) : (
           <>
-            <XCircle className="w-3 h-3 mr-1" />
+            <XCircle className="w-3 h-3 mr-1.5" />
             <span className="font-medium">FYNE Déconnecté</span>
           </>
         )}
       </div>
       
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Badge 
-              variant="outline" 
-              className={cn(
-                "py-1 text-xs font-medium",
-                currentKey === 'primary' 
-                  ? "bg-blue-800/40 hover:bg-blue-800/60 text-white border border-blue-500/30" 
-                  : "bg-purple-800/40 hover:bg-purple-800/60 text-white border border-purple-500/30"
-              )}
-            >
-              {modelName}
-            </Badge>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Mode {getKeyLabel(currentKey)}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      {/* Bouton de rechargement */}
+      <Button 
+        variant="outline" 
+        size="icon" 
+        className="h-8 w-8 rounded-full border-slate-300" 
+        onClick={checkStatus}
+        disabled={status === 'checking' || status === 'reconnecting'}
+      >
+        {status === 'checking' ? (
+          <RefreshCw className="h-4 w-4 animate-spin text-slate-600" />
+        ) : (
+          <RefreshCw className="h-4 w-4 text-slate-600" />
+        )}
+      </Button>
       
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-7 w-7" 
-              onClick={switchApiKey}
-              disabled={switchingKey || status === 'checking' || status === 'reconnecting'}
-            >
-              {switchingKey ? (
-                <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-              ) : status === 'disconnected' ? (
-                <CircleOff className="h-3.5 w-3.5" />
-              ) : (
-                <RefreshCw className="h-3.5 w-3.5" />
-              )}
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Basculer vers le mode {getKeyLabel(currentKey === 'primary' ? 'secondary' : 'primary')}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      {/* Switch Eco */}
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-medium text-slate-600">Eco</span>
+        <Switch
+          checked={currentKey === 'secondary'}
+          onCheckedChange={(checked: boolean) => {
+            if (checked !== (currentKey === 'secondary')) {
+              switchApiKey();
+            }
+          }}
+          disabled={switchingKey || status === 'checking' || status === 'reconnecting'}
+          className={switchingKey ? "opacity-50" : ""}
+        />
+      </div>
     </div>
   );
   
