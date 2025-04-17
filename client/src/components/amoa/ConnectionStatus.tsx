@@ -148,7 +148,7 @@ export default function ConnectionStatus() {
             }
           }}
           disabled={switchingKey || status === 'checking' || status === 'reconnecting'}
-          className="scale-75 data-[state=checked]:bg-blue-600"
+          className="scale-75"
         />
       </div>
     </div>
@@ -208,7 +208,7 @@ export default function ConnectionStatus() {
             }
           }}
           disabled={switchingKey || status === 'checking' || status === 'reconnecting'}
-          className={`${switchingKey ? "opacity-50" : ""} data-[state=checked]:bg-blue-600`}
+          className={switchingKey ? "opacity-50" : ""}
         />
       </div>
     </div>
