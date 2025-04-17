@@ -8,10 +8,18 @@ import {
 } from "lucide-react";
 
 export default function DomainSelection() {
-  const { domains, selectDomain } = useChatContext();
+  const { domains, messages, selectDomain } = useChatContext();
   const [hoveredDomain, setHoveredDomain] = useState<string | null>(null);
+  
+  // Vérifier si une session est déjà en cours (messages présents)
+  const sessionInProgress = messages.length > 0;
 
   const handleDomainClick = (domainId: string) => {
+    // Si une session est en cours, ne pas permettre de changer de domaine
+    if (sessionInProgress) {
+      return;
+    }
+    
     selectDomain(domainId);
   };
 
@@ -97,12 +105,17 @@ export default function DomainSelection() {
               onMouseEnter={() => setHoveredDomain(domain.id)}
               onMouseLeave={() => setHoveredDomain(null)}
               className={`group relative bg-gradient-to-br ${config.bgGradient} backdrop-blur-sm border ${config.borderColor} 
-                rounded-xl overflow-hidden shadow-lg ${config.shadowColor} hover:shadow-xl 
+                rounded-xl overflow-hidden shadow-lg ${config.shadowColor} 
                 transition-all duration-500 flex flex-col items-center text-center p-3 sm:p-4 min-h-[130px] sm:min-h-[180px] justify-between
-                hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98]`}
+                ${sessionInProgress ? 
+                  'opacity-40 cursor-not-allowed' : 
+                  'hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98]'
+                }`}
             >
               {/* Background glow effect */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${config.bgGradient} opacity-0 group-hover:opacity-30 transition-opacity duration-500`}></div>
+              {!sessionInProgress && (
+                <div className={`absolute inset-0 bg-gradient-to-br ${config.bgGradient} opacity-0 group-hover:opacity-30 transition-opacity duration-500`}></div>
+              )}
               
               {/* Icon */}
               <div className={`relative z-10 w-10 h-10 sm:w-16 sm:h-16 rounded-full bg-gray-900/50 border ${config.borderColor} 
@@ -113,7 +126,7 @@ export default function DomainSelection() {
                 })}
                 
                 {/* Pulsing ring effect on hover */}
-                {isHovered && (
+                {isHovered && !sessionInProgress && (
                   <div className="absolute inset-0 rounded-full border-2 border-blue-400/20 animate-ping"></div>
                 )}
               </div>
@@ -126,7 +139,10 @@ export default function DomainSelection() {
                 
                 {/* Description on hover - visible by default on mobile */}
                 <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-blue-200/80 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-500 sm:h-0 sm:group-hover:h-auto overflow-hidden">
-                  Explorez les scénarios dans ce domaine
+                  {sessionInProgress ? 
+                    'Indisponible - Cliquez sur "Nouvelle session" pour changer de module' : 
+                    'Explorez les scénarios dans ce domaine'
+                  }
                 </p>
               </div>
             </button>
