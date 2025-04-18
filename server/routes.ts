@@ -13,6 +13,7 @@ import { handleQuestInitialization, handleQuestChoice } from "./amoaController";
 import { handleCyberDefenseChat, generateCyberDefenseMission } from "./cyberDefenseController";
 import { startInterviewSimulation, processInterviewMessage, completeInterviewSimulation } from "./interviewSimulationController";
 import { startAgentSession, completeAgentSession } from "./cyberAgentController";
+import { startAmoaAgentSession, completeAmoaAgentSession } from "./amoaAgentController";
 import immersiveRoutes from "./routes/immersive-simulation";
 import cyberAscensionRoutes from "./routes/cyber-ascension";
 
@@ -2338,6 +2339,62 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
   
   app.post('/api/cyber/agent/start', enforceJsonResponse, startAgentSession);
   app.post('/api/cyber/agent/complete', enforceJsonResponse, completeAgentSession);
+  
+  // Routes pour l'Expert AMOA Conversationnel
+  app.post('/api/amoa/agent/start', enforceJsonResponse, startAmoaAgentSession);
+  app.post('/api/amoa/agent/complete', enforceJsonResponse, completeAmoaAgentSession);
+  
+  // Route pour l'envoi de messages à l'Expert AMOA Conversationnel
+  app.post('/api/amoa/agent/chat', async (req, res) => {
+    try {
+      const { message, chatHistory } = req.body;
+      
+      if (!message) {
+        return res.status(400).json({ 
+          success: false,
+          error: "Le message est requis" 
+        });
+      }
+      
+      const messages: ChatCompletionRequestMessage[] = chatHistory || [];
+      
+      // Ajouter le message de l'utilisateur à l'historique
+      messages.push({
+        role: "user",
+        content: message
+      });
+      
+      // Traitement par OpenAI
+      const responseContent = await openAIService.getChatCompletion(messages);
+      
+      if (responseContent) {
+        // Ajouter la réponse de l'assistant à l'historique des messages
+        messages.push({
+          role: "assistant",
+          content: responseContent
+        });
+        
+        return res.status(200).json({
+          success: true,
+          data: {
+            response: responseContent,
+            updatedChatHistory: messages
+          }
+        });
+      } else {
+        return res.status(500).json({
+          success: false,
+          error: "Impossible de générer une réponse"
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors du traitement du message AMOA:", error);
+      return res.status(500).json({
+        success: false,
+        error: "Erreur lors du traitement du message"
+      });
+    }
+  });
 
   // Route pour la conversation libre avec les parties prenantes dans AMOA Quest
   app.post('/api/amoa/quest/chat', async (req: Request, res: Response) => {
