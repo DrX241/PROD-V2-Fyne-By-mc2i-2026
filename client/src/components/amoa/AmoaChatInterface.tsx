@@ -93,8 +93,8 @@ export default function AmoaChatInterface({ onMessagesUpdate }: AmoaChatInterfac
     const trimmedMessage = inputMessage.trim();
     setInputMessage("");
     
-    // Utiliser le sendMessage du contexte
-    sendMessage(trimmedMessage);
+    // Utiliser le sendMessage du contexte avec l'endpoint AMOA
+    sendMessage(trimmedMessage, '/api/amoa/agent/chat');
   };
   
   // Gérer la soumission du formulaire avec Entrée (sauf avec Shift+Entrée)
@@ -136,16 +136,16 @@ export default function AmoaChatInterface({ onMessagesUpdate }: AmoaChatInterfac
             {messages.map((message, index) => (
               <div 
                 key={index} 
-                className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                className={`flex ${message.type === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div 
                   className={`max-w-3xl p-3 rounded-lg ${
-                    message.role === "user" 
+                    message.type === "user" 
                       ? "bg-blue-500 text-white rounded-br-none" 
                       : "bg-white border border-gray-200 shadow-sm rounded-bl-none"
                   }`}
                 >
-                  <div className="whitespace-pre-wrap">{message.content}</div>
+                  <div className="whitespace-pre-wrap">{typeof message.content === 'string' ? message.content : JSON.stringify(message.content)}</div>
                 </div>
               </div>
             ))}

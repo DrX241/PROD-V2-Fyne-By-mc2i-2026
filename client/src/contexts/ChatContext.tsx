@@ -588,7 +588,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .slice(-10); // Get last 10 messages for context
       
       // Send message to server for processing
-      const data = await apiRequest<any>('/api/cyber/chat', {
+      const data = await apiRequest<any>(endpoint, {
         method: 'POST',
         body: JSON.stringify({
           message: messageText,
