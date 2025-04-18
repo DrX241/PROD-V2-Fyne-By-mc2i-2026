@@ -3,11 +3,6 @@ import { useChatContext } from "@/contexts/ChatContext";
 import { Send, RefreshCw, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import AmoaDomainSelection from "./AmoaDomainSelection";
-import AmoaScenarioSelection from "./AmoaScenarioSelection";
-import AmoaChatMessage from "./AmoaChatMessage";
-import AmoaEmailMessage from "./AmoaEmailMessage";
-import AmoaContextBanner from "./AmoaContextBanner";
 
 interface AmoaChatInterfaceProps {
   onMessagesUpdate?: (messages: any[]) => void;
@@ -99,7 +94,7 @@ export default function AmoaChatInterface({ onMessagesUpdate }: AmoaChatInterfac
     setInputMessage("");
     
     // Utiliser le sendMessage du contexte
-    sendMessage(trimmedMessage, "/api/amoa/agent/chat");
+    sendMessage(trimmedMessage);
   };
   
   // Gérer la soumission du formulaire avec Entrée (sauf avec Shift+Entrée)
@@ -113,14 +108,6 @@ export default function AmoaChatInterface({ onMessagesUpdate }: AmoaChatInterfac
   // Fonction pour redémarrer la session en cours
   const handleReset = () => {
     resetChat();
-  };
-
-  // Déterminer si le message est un e-mail
-  const isEmailMessage = (message: any) => {
-    return message.role === "assistant" && 
-           message.content.includes("De:") && 
-           message.content.includes("À:") && 
-           message.content.includes("Objet:");
   };
 
   return (
@@ -143,30 +130,24 @@ export default function AmoaChatInterface({ onMessagesUpdate }: AmoaChatInterfac
                 </p>
               </div>
             </div>
-            
-            {/* À implémenter si nécessaire: section pour sélection du domaine et des scénarios */}
           </div>
         ) : (
           <>
             {messages.map((message, index) => (
-              isEmailMessage(message) ? (
-                <AmoaEmailMessage key={index} content={message.content} />
-              ) : (
+              <div 
+                key={index} 
+                className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+              >
                 <div 
-                  key={index} 
-                  className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                  className={`max-w-3xl p-3 rounded-lg ${
+                    message.role === "user" 
+                      ? "bg-blue-500 text-white rounded-br-none" 
+                      : "bg-white border border-gray-200 shadow-sm rounded-bl-none"
+                  }`}
                 >
-                  <div 
-                    className={`max-w-3xl p-3 rounded-lg ${
-                      message.role === "user" 
-                        ? "bg-blue-500 text-white rounded-br-none" 
-                        : "bg-white border border-gray-200 shadow-sm rounded-bl-none"
-                    }`}
-                  >
-                    <div className="whitespace-pre-wrap">{message.content}</div>
-                  </div>
+                  <div className="whitespace-pre-wrap">{message.content}</div>
                 </div>
-              )
+              </div>
             ))}
             
             {/* Indicateur de frappe */}

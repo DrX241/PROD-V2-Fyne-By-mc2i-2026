@@ -333,8 +333,6 @@ export default function AmoaAgentPage() {
         </div>
       ) : (
         <AmoaChatInterface
-          apiEndpoint="/api/amoa/agent/chat"
-          initialMessages={messages}
           onMessagesUpdate={handleMessagesUpdate}
         />
       )}
