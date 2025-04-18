@@ -13,26 +13,26 @@ export default function AmoaContextBanner() {
   if (!selectedDomain || !selectedScenario) return null;
 
   return (
-    <div className="px-4 py-3 border-t border-blue-700/30 bg-blue-900/30">
+    <div className="px-4 py-3 border-t border-indigo-700/30 bg-gradient-to-r from-indigo-900/30 to-blue-900/30">
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm max-w-5xl mx-auto">
         {/* Nom de l'utilisateur */}
         {userName && (
           <div className="flex items-center gap-2 text-blue-100">
             <Info className="h-4 w-4 text-blue-300" />
-            <span>{userName}</span>
+            <span className="font-medium">{userName}</span>
           </div>
         )}
         
         {/* Domaine métier */}
         <div className="flex items-center gap-2 text-blue-100">
-          <Briefcase className="h-4 w-4 text-blue-300" />
+          <Briefcase className="h-4 w-4 text-indigo-300" />
           <span>{selectedDomain.name}</span>
         </div>
         
         {/* Scénario */}
         <div className="flex items-center gap-2 text-blue-100">
-          <Target className="h-4 w-4 text-blue-300" />
-          <span>{selectedScenario.name || selectedScenario.title}</span>
+          <Target className="h-4 w-4 text-indigo-300" />
+          <span className="font-medium">{selectedScenario.name || selectedScenario.title}</span>
           <span className={`ml-1 px-1.5 py-0.5 text-xs rounded-full ${getDifficultyColor(selectedScenario.difficulty)}`}>
             {selectedScenario.difficulty}
           </span>
