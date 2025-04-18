@@ -5,6 +5,7 @@ import { z } from "zod";
 import AmoaLayout from "../../components/layout/AmoaLayout";
 import AmoaChatInterface from "../../components/amoa/AmoaChatInterface";
 import PageTitle from "@/components/utils/PageTitle";
+import { ChatProvider } from "@/contexts/ChatContext";
 import { Link } from "wouter";
 import { ArrowLeft, Clock, Mail, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -332,9 +333,11 @@ export default function AmoaAgentPage() {
           </Card>
         </div>
       ) : (
-        <AmoaChatInterface
-          onMessagesUpdate={handleMessagesUpdate}
-        />
+        <ChatProvider>
+          <AmoaChatInterface
+            onMessagesUpdate={handleMessagesUpdate}
+          />
+        </ChatProvider>
       )}
     </AmoaLayout>
   );

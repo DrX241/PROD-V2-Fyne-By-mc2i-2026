@@ -319,7 +319,7 @@ export interface ChatContextType {
   setUserName: (name: string) => void;
   selectDomain: (domain: CyberDomain) => void;
   selectScenario: (scenario: CyberScenario) => void;
-  sendMessage: (message: string) => void;
+  sendMessage: (message: string, endpoint?: string) => void;
   updateConfig: (config: Partial<AIConfig>) => void;
   resetChat: () => void;
 }
