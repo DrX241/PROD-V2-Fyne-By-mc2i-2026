@@ -483,7 +483,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     setMessages(prev => [...prev, botConfirmation, scenarioContext]);
     
-    // Send the scenario selection to the server to generate initial email
+    // Démarrer une session Expert AMOA Conversationnel
     try {
       const data = await apiRequest<any>('/api/amoa/agent/start', {
         method: 'POST',
@@ -494,20 +494,24 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         })
       });
       
-      // Vérifier que l'email existe bien dans la réponse
-      if (!data.email) {
-        throw new Error("Erreur: Le serveur n'a pas retourné de contenu d'email valide");
+      // Vérifier que les messages initiaux existent dans la réponse
+      if (!data.data?.initialMessages) {
+        throw new Error("Erreur: Le serveur n'a pas retourné les messages initiaux");
       }
-
-      // Add the email message
-      const emailMessage: ChatMessage = {
-        id: uuidv4(),
-        type: "email",
-        content: data.email as EmailMessageContent,
-        timestamp: Date.now()
-      };
       
-      setMessages(prev => [...prev, emailMessage]);
+      // Add bot response with the assistant's initial message
+      const assistantMessage = data.data.initialMessages.find((msg: any) => msg.role === 'assistant');
+      
+      if (assistantMessage) {
+        const botMessage: ChatMessage = {
+          id: uuidv4(),
+          type: "bot",
+          content: assistantMessage.content,
+          timestamp: Date.now()
+        };
+        
+        setMessages(prev => [...prev, botMessage]);
+      }
     } catch (error) {
       console.error('Error starting scenario:', error);
       
@@ -564,7 +568,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Handler to send a message
-  const handleSendMessage = async (messageText: string, endpoint = '/api/amoa/quest/chat') => {
+  const handleSendMessage = async (messageText: string, endpoint = '/api/amoa/agent/start') => {
     if (!messageText.trim()) return;
     
     // If no username set yet, treat this as the username
