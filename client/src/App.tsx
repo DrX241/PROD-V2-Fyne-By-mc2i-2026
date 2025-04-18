@@ -75,6 +75,7 @@ function Router() {
       <Route path="/amoa" component={AmoaPage} />
       <Route path="/amoa-mode-selection" component={AmoaModeSelection} />
       <Route path="/amoa/quest" component={AmoaQuestPage} />
+      <Route path="/amoa/amoa-agent" component={lazy(() => import('./pages/amoa/amoa-agent'))} />
       <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
       <Route path="/cyber/interview-simulation" component={CyberInterviewSimulation} />
       <Route path="/custom" component={NotYetImplemented} />
@@ -143,6 +144,7 @@ function App() {
           <Route path="/amoa" component={AmoaPage} />
           <Route path="/amoa-mode-selection" component={AmoaModeSelection} />
           <Route path="/amoa/quest" component={AmoaQuestPage} />
+          <Route path="/amoa/amoa-agent" component={lazy(() => import('./pages/amoa/amoa-agent'))} />
           <Route path="/custom" component={NotYetImplemented} />
           <Route component={NotFound} />
         </Switch>
