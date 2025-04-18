@@ -365,7 +365,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const initialMessage: ChatMessage = {
         id: uuidv4(),
         type: "bot",
-        content: "Bonjour !\n\nJe suis I AM CYBER, votre assistant virtuel dans le monde passionnant de la cybersécurité. Je suis là pour vous accompagner dans une expérience d'apprentissage immersive et interactive.\n\nComment puis-je vous appeler ?",
+        content: "Bonjour !\n\nJe suis IAM mc2i, votre assistant virtuel dans le monde de la gestion de projet et de l'AMOA. Je suis là pour vous accompagner dans une expérience d'apprentissage immersive et interactive.\n\nComment puis-je vous appeler ?",
         timestamp: Date.now()
       };
       
@@ -400,7 +400,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const botResponse: ChatMessage = {
         id: uuidv4(),
         type: "bot",
-        content: `Merci ${firstName} ! Ravi de vous rencontrer. J'espère que vous allez bien aujourd'hui.\n\nNous allons explorer ensemble différents aspects de la cybersécurité. Veuillez choisir un domaine qui vous intéresse parmi les options suivantes :`,
+        content: `Merci ${firstName} ! Ravi de vous rencontrer. J'espère que vous allez bien aujourd'hui.\n\nNous allons explorer ensemble différents aspects de la gestion de projet et de l'AMOA. Veuillez choisir un domaine métier qui vous intéresse parmi les options suivantes :`,
         timestamp: Date.now()
       };
       
@@ -485,10 +485,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // Send the scenario selection to the server to generate initial email
     try {
-      const data = await apiRequest<any>('/api/cyber/start-scenario', {
+      const data = await apiRequest<any>('/api/amoa/agent/start', {
         method: 'POST',
         body: JSON.stringify({
-          scenarioId,
+          userEmail: `${firstName.toLowerCase()}@mc2i.fr`,
           userName,
           config
         })
@@ -564,7 +564,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Handler to send a message
-  const handleSendMessage = async (messageText: string, endpoint = '/api/cyber/chat') => {
+  const handleSendMessage = async (messageText: string, endpoint = '/api/amoa/quest/chat') => {
     if (!messageText.trim()) return;
     
     // If no username set yet, treat this as the username
