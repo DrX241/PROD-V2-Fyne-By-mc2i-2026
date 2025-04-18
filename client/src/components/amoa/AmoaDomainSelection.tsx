@@ -3,7 +3,7 @@ import { useChatContext } from "@/contexts/ChatContext";
 import { Briefcase, Building, Building2, Lightbulb, Landmark, Factory, FileBadge2 } from "lucide-react";
 
 export default function AmoaDomainSelection() {
-  const { domains, onDomainSelect } = useChatContext();
+  const { domains, selectDomain } = useChatContext();
 
   // Si aucun domaine n'est disponible, ne rien afficher
   if (!domains || domains.length === 0) return null;
@@ -26,6 +26,11 @@ export default function AmoaDomainSelection() {
     }
   };
 
+  // Gestionnaire pour la sélection de domaine
+  const handleDomainSelect = (domainId: string) => {
+    selectDomain(domainId);
+  };
+
   return (
     <div className="max-w-4xl mx-auto my-6 sm:my-8">
       <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-md">
@@ -38,7 +43,7 @@ export default function AmoaDomainSelection() {
           {domains.map((domain) => (
             <button
               key={domain.id}
-              onClick={() => onDomainSelect(domain.id)}
+              onClick={() => handleDomainSelect(domain.id)}
               className="flex items-center p-4 rounded-lg border border-gray-200 bg-gray-50 hover:bg-blue-50 hover:border-blue-200 transition-all duration-200 text-left group"
             >
               <div className="flex-shrink-0 w-12 h-12 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mr-4 group-hover:bg-blue-200 transition-colors">

@@ -3,7 +3,7 @@ import { useChatContext } from "@/contexts/ChatContext";
 import { Target, ExternalLink, ArrowRight } from "lucide-react";
 
 export default function AmoaScenarioSelection() {
-  const { selectedDomain, scenarios, onScenarioSelect } = useChatContext();
+  const { selectedDomain, scenarios, selectScenario } = useChatContext();
 
   // Si aucun domaine n'est sélectionné ou aucun scénario n'est disponible, ne rien afficher
   if (!selectedDomain || !scenarios || scenarios.length === 0) return null;
@@ -22,6 +22,11 @@ export default function AmoaScenarioSelection() {
       default:
         return 'bg-blue-100 text-blue-800 border-blue-200';
     }
+  };
+
+  // Gestionnaire pour la sélection de scénario
+  const handleScenarioSelect = (scenarioId: string) => {
+    selectScenario(scenarioId);
   };
 
   // Filtrer les scénarios par domaine
@@ -45,7 +50,7 @@ export default function AmoaScenarioSelection() {
           {domainScenarios.map((scenario) => (
             <button
               key={scenario.id}
-              onClick={() => onScenarioSelect(scenario.id)}
+              onClick={() => handleScenarioSelect(scenario.id)}
               className="flex flex-col sm:flex-row sm:items-center p-4 rounded-lg border border-gray-200 bg-gray-50 hover:bg-blue-50 hover:border-blue-200 transition-all duration-200 text-left group"
             >
               <div className="mb-3 sm:mb-0 sm:mr-4 sm:w-64 flex-shrink-0">

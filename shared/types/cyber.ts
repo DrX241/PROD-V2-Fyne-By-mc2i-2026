@@ -284,11 +284,14 @@ export interface CyberDomain {
   id: string;
   name: string;
   description: string;
+  icon?: string; // Propriété optionnelle pour les icônes
+  iconBgColor?: string; // Couleur de fond de l'icône
+  iconColor?: string; // Couleur de l'icône
 }
 
 export interface CyberScenario {
   id: string;
-  domain: string;
+  domain?: string;
   domainId?: string; // Alias pour domain, utilisé par les composants AMOA
   title: string;
   name?: string;  // Alias pour title, utilisé par les composants AMOA
