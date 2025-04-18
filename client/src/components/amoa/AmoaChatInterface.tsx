@@ -97,7 +97,7 @@ export default function AmoaChatInterface({ onMessagesUpdate }: AmoaChatInterfac
     
     const messageToSend = inputMessage;
     setInputMessage("");
-    await sendMessage(messageToSend, '/api/amoa/agent/chat');
+    await sendMessage(messageToSend);
     
     // Lorsque l'utilisateur envoie un message, nous lui proposons de défiler vers le bas
     // sans forcer le défilement automatique
