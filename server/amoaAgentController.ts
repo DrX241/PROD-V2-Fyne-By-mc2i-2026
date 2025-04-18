@@ -189,11 +189,16 @@ Utilisez un ton formel mais accessible, et maintenez une perspective pédagogiqu
     });
     
     // Générer le rapport avec l'IA
-    const reportResponse = await openAIService.sendChatCompletion(reportPrompt);
+    const reportResponse = await openAIService.getChatCompletion(reportPrompt);
     
-    if (!reportResponse || !reportResponse.content) {
+    if (!reportResponse) {
       throw new Error("Impossible de générer le rapport de synthèse");
     }
+    
+    // Créer une structure pour la réponse en accord avec l'interface de l'API
+    const responseContent = {
+      content: reportResponse
+    };
     
     // Préparer l'email HTML avec le rapport généré par l'IA
     const emailHtml = `
@@ -227,7 +232,7 @@ Utilisez un ton formel mais accessible, et maintenez une perspective pédagogiqu
         </div>
         
         <div class="report-content">
-          ${reportResponse.content}
+          ${responseContent.content}
         </div>
       </div>
       

@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import AmoaLayout from "@/components/layout/AmoaLayout";
-import ChatInterface from "@/components/cyber/ChatInterface";
+import AmoaChatInterface from "@/components/amoa/AmoaChatInterface";
 import PageTitle from "@/components/utils/PageTitle";
 import { Link } from "wouter";
 import { ArrowLeft, Clock, Mail, Send } from "lucide-react";
@@ -332,7 +332,7 @@ export default function AmoaAgentPage() {
           </Card>
         </div>
       ) : (
-        <ChatInterface
+        <AmoaChatInterface
           apiEndpoint="/api/amoa/agent/chat"
           initialMessages={messages}
           onMessagesUpdate={handleMessagesUpdate}
