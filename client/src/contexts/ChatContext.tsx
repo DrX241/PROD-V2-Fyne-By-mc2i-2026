@@ -560,7 +560,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Handler to send a message
-  const handleSendMessage = async (messageText: string) => {
+  const handleSendMessage = async (messageText: string, endpoint = '/api/cyber/chat') => {
     if (!messageText.trim()) return;
     
     // If no username set yet, treat this as the username
