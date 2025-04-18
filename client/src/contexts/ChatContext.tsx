@@ -53,283 +53,283 @@ const extractFirstName = (input: string): string => {
 // Initial domains data
 const initialDomains: CyberDomain[] = [
   {
-    id: "banque",
-    name: "Secteur Bancaire & Finance",
-    description: "Projets AMOA dans le secteur bancaire, adaptation aux réglementations (RGPD, DSP2) et transformation digitale des services financiers",
-    icon: "ri-bank-line",
-    iconBgColor: "bg-blue-50",
-    iconColor: "text-blue-600"
+    id: "gestion-crise",
+    name: "Gestion de crise cyber",
+    description: "Préparation et réponse aux incidents de sécurité majeurs",
+    icon: "ri-alarm-warning-line",
+    iconBgColor: "bg-[#006a9e]/10",
+    iconColor: "text-[#006a9e]"
   },
   {
-    id: "assurance",
-    name: "Assurance & Mutuelles",
-    description: "Gestion de projets de refonte SI assurantiel, optimisation des parcours client et mise en conformité réglementaire",
-    icon: "ri-shield-check-line",
-    iconBgColor: "bg-indigo-50",
-    iconColor: "text-indigo-600"
+    id: "donnees-personnelles",
+    name: "Protection des données personnelles / RGPD",
+    description: "Mise en conformité RGPD et gestion des violations de données",
+    icon: "ri-profile-line",
+    iconBgColor: "bg-lime-100",
+    iconColor: "text-lime-600"
   },
   {
-    id: "energie",
-    name: "Énergie & Utilities",
-    description: "Accompagnement des transformations énergétiques, projets Smart Grid et optimisation des processus industriels",
-    icon: "ri-flashlight-line",
-    iconBgColor: "bg-yellow-50",
-    iconColor: "text-yellow-600"
+    id: "ingenierie-sociale",
+    name: "Ingénierie sociale et phishing",
+    description: "Détection et prévention des tentatives de manipulation humaine",
+    icon: "ri-user-voice-line",
+    iconBgColor: "bg-amber-100",
+    iconColor: "text-amber-600"
   },
   {
-    id: "secteur-public",
-    name: "Secteur Public",
-    description: "Modernisation des services publics, transformation numérique des administrations et conduite du changement",
-    icon: "ri-government-line",
-    iconBgColor: "bg-teal-50",
-    iconColor: "text-teal-600"
+    id: "gestion-incidents",
+    name: "Gestion des incidents de sécurité",
+    description: "Détection, analyse et résolution des incidents de sécurité",
+    icon: "ri-service-line",
+    iconBgColor: "bg-emerald-100",
+    iconColor: "text-emerald-600"
   },
   {
-    id: "industrie",
-    name: "Industrie & Manufacturing",
-    description: "Projets Industrie 4.0, optimisation des chaînes logistiques et digital workplace dans l'environnement industriel",
-    icon: "ri-building-2-line",
-    iconBgColor: "bg-purple-50",
-    iconColor: "text-purple-600"
+    id: "supply-chain",
+    name: "Sécurité de la chaîne d'approvisionnement",
+    description: "Protection contre les risques liés aux fournisseurs et partenaires",
+    icon: "ri-link-m",
+    iconBgColor: "bg-orange-100",
+    iconColor: "text-orange-600"
   },
   {
-    id: "methodologies",
-    name: "Méthodologies & Outils",
-    description: "Expertise en méthodes agiles, cycle en V, PMI, Prince2 et outils de gestion de projet (Jira, MS Project, etc.)",
-    icon: "ri-tools-line",
-    iconBgColor: "bg-gray-50",
-    iconColor: "text-gray-600"
+    id: "strategie-cyber",
+    name: "Stratégie et gouvernance cybersécurité",
+    description: "Élaboration et mise en œuvre d'une stratégie de défense numérique",
+    icon: "ri-road-map-line",
+    iconBgColor: "bg-pink-100",
+    iconColor: "text-pink-600"
   }
 ];
 
 // Initial scenarios data
 const initialScenarios: CyberScenario[] = [
-  // Secteur Bancaire & Finance
+  // Ingénierie sociale et phishing
   {
-    id: "banque-digitalisation",
-    title: "Digitalisation des parcours clients",
-    description: "Accompagner la transformation des parcours clients pour une banque nationale avec une approche orientée expérience utilisateur.",
+    id: "phishing-awareness",
+    title: "Sensibilisation aux attaques de phishing",
+    description: "Apprenez à identifier les différents types d'attaques de phishing et les techniques de manipulation utilisées.",
     contact: {
-      name: "Sophie Martin",
-      role: "Directrice de la Transformation Digitale"
+      name: "Yousra Saidani",
+      role: "Senior Partner et Directrice Marketing, Communication et RSE"
     },
     difficulty: "Débutant",
-    difficultyColor: "bg-blue-100 text-blue-800",
-    domainId: "banque"
+    difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
+    domainId: "ingenierie-sociale"
   },
   {
-    id: "banque-psd2",
-    title: "Mise en conformité PSD2",
-    description: "Piloter le projet de mise en conformité avec la directive européenne sur les services de paiement (PSD2) pour un acteur bancaire majeur.",
+    id: "social-engineering-incident",
+    title: "Gestion d'un incident d'ingénierie sociale",
+    description: "Un employé a été victime d'une attaque d'ingénierie sociale. Analysez l'incident et mettez en place des mesures correctives.",
     contact: {
-      name: "Thomas Dubois",
-      role: "Responsable Conformité Réglementaire"
+      name: "Isabelle Dubacq",
+      role: "Senior Partner, Directrice des Ressources Humaines"
     },
     difficulty: "Intermédiaire",
-    difficultyColor: "bg-blue-200 text-blue-800",
-    domainId: "banque"
+    difficultyColor: "bg-[#006a9e]/10 text-[#006a9e]",
+    domainId: "ingenierie-sociale"
   },
   {
-    id: "banque-core-banking",
-    title: "Refonte du Core Banking System",
-    description: "Gérer un projet complexe de remplacement du système bancaire central impliquant des migrations de données critiques et une transformation profonde des processus.",
+    id: "advanced-social-attacks",
+    title: "Prévention des attaques sophistiquées",
+    description: "Élaborez une stratégie complète pour protéger votre organisation contre des attaques d'ingénierie sociale ciblées et avancées.",
     contact: {
-      name: "Laurent Mercier",
-      role: "Directeur des Systèmes d'Information"
+      name: "Arnaud Gauthier",
+      role: "Président"
     },
     difficulty: "Expert",
-    difficultyColor: "bg-blue-300 text-blue-900",
-    domainId: "banque"
+    difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
+    domainId: "ingenierie-sociale"
   },
   
-  // Assurance & Mutuelles
+  // Stratégie cyber
   {
-    id: "assurance-parcours-digital",
-    title: "Parcours digital de souscription",
-    description: "Moderniser le parcours de souscription d'assurance avec une approche omnicanale et des outils digitaux innovants.",
+    id: "security-awareness",
+    title: "Sensibilisation aux enjeux de la stratégie cyber",
+    description: "Identifiez les enjeux principaux de sécurité pour votre entreprise et communiquez leur importance.",
     contact: {
-      name: "Caroline Petit",
-      role: "Responsable Marketing Digital"
+      name: "Martin Fournier",
+      role: "Directeur de la Communication"
     },
     difficulty: "Débutant",
-    difficultyColor: "bg-indigo-100 text-indigo-800",
-    domainId: "assurance"
+    difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
+    domainId: "strategie-cyber"
   },
   {
-    id: "assurance-sinistres",
-    title: "Optimisation du processus de gestion des sinistres",
-    description: "Analyser et refondre le processus de gestion des sinistres pour une compagnie d'assurance, avec intégration de solutions d'IA pour la détection de fraude.",
+    id: "security-roadmap",
+    title: "Feuille de route de sécurité",
+    description: "Créez une feuille de route détaillée pour mettre en œuvre la nouvelle stratégie de cybersécurité.",
     contact: {
-      name: "Pierre Legrand",
-      role: "Directeur des Opérations"
+      name: "Olivier Hervo",
+      role: "Directeur Général"
     },
     difficulty: "Intermédiaire",
-    difficultyColor: "bg-indigo-200 text-indigo-800",
-    domainId: "assurance"
+    difficultyColor: "bg-[#006a9e]/10 text-[#006a9e]",
+    domainId: "strategie-cyber"
   },
   {
-    id: "assurance-data-analytics",
-    title: "Stratégie Data & Analytics",
-    description: "Définir et mettre en œuvre une stratégie data pour valoriser le patrimoine informationnel d'un groupe d'assurance, incluant l'élaboration d'une gouvernance des données.",
+    id: "cyber-strategy",
+    title: "Élaboration de la stratégie cybersécurité avancée",
+    description: "Développez une stratégie de cybersécurité complète pour les 3 prochaines années.",
     contact: {
-      name: "Emma Rousseau",
-      role: "Chief Data Officer"
+      name: "Arnaud Gauthier",
+      role: "Président"
     },
     difficulty: "Expert",
-    difficultyColor: "bg-indigo-300 text-indigo-900",
-    domainId: "assurance"
+    difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
+    domainId: "strategie-cyber"
   },
   
-  // Énergie & Utilities
+  // Gestion de crise
   {
-    id: "energie-smart-metering",
-    title: "Déploiement Smart Metering",
-    description: "Coordonner le déploiement de compteurs intelligents pour un acteur majeur de l'énergie, avec gestion du planning et des parties prenantes multiples.",
+    id: "crisis-basics",
+    title: "Introduction à la gestion de crise cyber",
+    description: "Apprenez les principes fondamentaux de la gestion d'une crise cybersécurité et identifiez les rôles clés.",
     contact: {
-      name: "Jean Dupont",
-      role: "Chef de Projet Smart Grid"
+      name: "Claire Dufour",
+      role: "Responsable Communication de Crise"
     },
     difficulty: "Débutant",
-    difficultyColor: "bg-yellow-100 text-yellow-800",
-    domainId: "energie"
+    difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
+    domainId: "gestion-crise"
   },
   {
-    id: "energie-transition",
-    title: "Accompagnement transition énergétique",
-    description: "Accompagner un énergéticien dans sa transition vers les énergies renouvelables, avec refonte des processus métiers et adaptation du SI.",
+    id: "crisis-plan",
+    title: "Plan de gestion de crise cyber",
+    description: "Élaborez un plan de gestion de crise cyber complet pour votre organisation.",
     contact: {
-      name: "Marie Leclerc",
-      role: "Directrice de la Transition Énergétique"
+      name: "Guillaume Lechevallier",
+      role: "Directeur Général Adjoint et Directeur du pôle IMPULSE"
     },
     difficulty: "Intermédiaire",
-    difficultyColor: "bg-yellow-200 text-yellow-800",
-    domainId: "energie"
+    difficultyColor: "bg-orange-100 text-orange-700",
+    domainId: "gestion-crise"
   },
   {
-    id: "energie-optimisation",
-    title: "Optimisation de la production énergétique",
-    description: "Concevoir et déployer une solution de pilotage intelligent de la production énergétique basée sur des algorithmes prédictifs et l'IoT industriel.",
+    id: "ransomware-crisis",
+    title: "Gestion d'une attaque avancée par ransomware",
+    description: "Votre organisation est victime d'une attaque par ransomware. Gérez la crise efficacement.",
     contact: {
-      name: "Nicolas Lambert",
-      role: "Directeur Innovation"
+      name: "Lorenzo Bertola",
+      role: "Directeur Général Adjoint et Directeur du pôle BFA"
     },
     difficulty: "Expert",
-    difficultyColor: "bg-yellow-300 text-yellow-900",
-    domainId: "energie"
+    difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
+    domainId: "gestion-crise"
   },
   
-  // Secteur Public
+  // Supply Chain
   {
-    id: "public-eadministration",
-    title: "Mise en place d'un portail e-administration",
-    description: "Piloter la création d'un portail de services numériques pour une administration publique, avec focus sur l'accessibilité et l'expérience utilisateur.",
+    id: "supply-chain-basics",
+    title: "Introduction aux risques de la chaîne d'approvisionnement",
+    description: "Découvrez les principes fondamentaux de la sécurité dans la chaîne d'approvisionnement.",
     contact: {
-      name: "Sylvie Moreau",
-      role: "Directrice de la Modernisation"
+      name: "Marie Bernard",
+      role: "Responsable Achats"
     },
     difficulty: "Débutant",
-    difficultyColor: "bg-teal-100 text-teal-800",
-    domainId: "secteur-public"
+    difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
+    domainId: "supply-chain"
   },
   {
-    id: "public-performance",
-    title: "Optimisation de la performance des services publics",
-    description: "Analyser et redéfinir les processus d'une administration pour améliorer la qualité de service et réduire les délais de traitement.",
+    id: "vendor-assessment",
+    title: "Évaluation de la sécurité des fournisseurs",
+    description: "Développez et mettez en œuvre un processus d'évaluation de la sécurité pour vos fournisseurs critiques.",
     contact: {
-      name: "Michel Bernard",
-      role: "Directeur de la Performance"
+      name: "Nicolas Paolantonacci",
+      role: "Senior Partner et Directeur du pôle RETAIL & LUXE"
     },
     difficulty: "Intermédiaire",
-    difficultyColor: "bg-teal-200 text-teal-800",
-    domainId: "secteur-public"
+    difficultyColor: "bg-orange-100 text-orange-700",
+    domainId: "supply-chain"
   },
   {
-    id: "public-mutualisation",
-    title: "Programme de mutualisation SI inter-administrations",
-    description: "Conduire un vaste programme de mutualisation des systèmes d'information entre plusieurs organismes publics, avec impacts organisationnels majeurs.",
+    id: "supply-chain-incident",
+    title: "Incident de sécurité dans la chaîne d'approvisionnement",
+    description: "Un fournisseur critique a subi une violation de données. Évaluez l'impact et prenez les mesures nécessaires.",
     contact: {
-      name: "Philippe Durant",
-      role: "Directeur Interministériel du Numérique"
+      name: "Anthony Frescal",
+      role: "Directeur Général Adjoint et Directeur du pôle ENERGIES & UTILITIES"
     },
     difficulty: "Expert",
-    difficultyColor: "bg-teal-300 text-teal-900",
-    domainId: "secteur-public"
+    difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
+    domainId: "supply-chain"
   },
   
-  // Industrie & Manufacturing
+  // Données personnelles / RGPD
   {
-    id: "industrie-iot",
-    title: "Déploiement IoT en milieu industriel",
-    description: "Mettre en place une solution IoT pour la maintenance prédictive d'équipements industriels, avec intégration au système de GMAO existant.",
+    id: "data-classification",
+    title: "Classification des données sensibles",
+    description: "Mettez en place un système de classification des données pour protéger les informations sensibles.",
     contact: {
-      name: "Antoine Girard",
-      role: "Responsable Maintenance Industrielle"
+      name: "Yousra Saidani",
+      role: "Senior Partner et Directrice Marketing, Communication et RSE"
     },
     difficulty: "Débutant",
-    difficultyColor: "bg-purple-100 text-purple-800",
-    domainId: "industrie"
+    difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
+    domainId: "donnees-personnelles"
   },
   {
-    id: "industrie-supply-chain",
-    title: "Optimisation de la chaîne logistique",
-    description: "Refondre les processus de la supply chain d'un acteur industriel pour réduire les délais et optimiser les stocks avec une approche lean.",
+    id: "data-breach-response",
+    title: "Réponse à une violation de données personnelles",
+    description: "Une violation de données personnelles a été détectée. Gérez la situation conformément au RGPD.",
     contact: {
-      name: "Julien Leroy",
-      role: "Directeur Supply Chain"
+      name: "Vincent Terrier",
+      role: "Senior Partner, Directeur Financier"
     },
     difficulty: "Intermédiaire",
-    difficultyColor: "bg-purple-200 text-purple-800",
-    domainId: "industrie"
+    difficultyColor: "bg-orange-100 text-orange-700",
+    domainId: "donnees-personnelles"
   },
   {
-    id: "industrie-40",
-    title: "Transformation Industrie 4.0",
-    description: "Élaborer et déployer une feuille de route complète de transformation vers l'Industrie 4.0 pour un groupe industriel international.",
+    id: "rgpd-compliance-program",
+    title: "Programme de conformité RGPD avancé",
+    description: "Élaborez un programme complet de conformité RGPD pour votre organisation internationale.",
     contact: {
-      name: "Claire Dubois",
-      role: "Directrice de la Transformation Digitale"
+      name: "Vincent Pascal",
+      role: "Directeur Général Adjoint et Directeur du Développement"
     },
     difficulty: "Expert",
-    difficultyColor: "bg-purple-300 text-purple-900",
-    domainId: "industrie"
+    difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
+    domainId: "donnees-personnelles"
   },
   
-  // Méthodologies & Outils
+  // Gestion des incidents
   {
-    id: "methodo-agile",
-    title: "Transformation Agile",
-    description: "Accompagner une DSI dans sa transition vers les méthodes agiles, avec mise en place des outils et formation des équipes.",
+    id: "incident-basics",
+    title: "Introduction à la gestion des incidents",
+    description: "Découvrez les principes fondamentaux de détection et de réponse aux incidents de sécurité.",
     contact: {
-      name: "Sarah Fischer",
-      role: "Coach Agile"
+      name: "Philippe Martin",
+      role: "Responsable SOC Junior"
     },
     difficulty: "Débutant",
-    difficultyColor: "bg-gray-100 text-gray-800",
-    domainId: "methodologies"
+    difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
+    domainId: "gestion-incidents"
   },
   {
-    id: "methodo-pmo",
-    title: "Mise en place d'un PMO",
-    description: "Concevoir et déployer un Project Management Office efficace pour le suivi de portefeuille de projets dans une grande organisation.",
+    id: "incident-response",
+    title: "Mise en place d'un processus de réponse aux incidents",
+    description: "Développez et mettez en œuvre un processus de réponse aux incidents de sécurité efficace.",
     contact: {
-      name: "Olivier Martin",
-      role: "Directeur des Projets"
+      name: "Eddy MISSONI",
+      role: "Chef de Projet & Expert IA"
     },
     difficulty: "Intermédiaire",
-    difficultyColor: "bg-gray-200 text-gray-800",
-    domainId: "methodologies"
+    difficultyColor: "bg-orange-100 text-orange-700",
+    domainId: "gestion-incidents"
   },
   {
-    id: "methodo-hybride",
-    title: "Méthodologie hybride pour grands programmes",
-    description: "Élaborer une méthodologie sur mesure combinant approches prédictives et agiles pour gérer des programmes complexes multi-entités.",
+    id: "security-monitoring",
+    title: "Optimisation de la surveillance de sécurité",
+    description: "Améliorez les capacités de détection et de surveillance de sécurité de votre organisation.",
     contact: {
-      name: "François Renard",
-      role: "Directeur des Programmes Stratégiques"
+      name: "Eddy MISSONI IDEMBI",
+      role: "Expert Data / IA & CTO"
     },
     difficulty: "Expert",
-    difficultyColor: "bg-gray-300 text-gray-900",
-    domainId: "methodologies"
+    difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
+    domainId: "gestion-incidents"
   }
 ];
 
@@ -365,7 +365,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const initialMessage: ChatMessage = {
         id: uuidv4(),
         type: "bot",
-        content: "Bonjour !\n\nJe suis IAM mc2i, votre assistant virtuel dans le monde de la gestion de projet et de l'AMOA. Je suis là pour vous accompagner dans une expérience d'apprentissage immersive et interactive.\n\nComment puis-je vous appeler ?",
+        content: "Bonjour !\n\nJe suis I AM CYBER, votre assistant virtuel dans le monde passionnant de la cybersécurité. Je suis là pour vous accompagner dans une expérience d'apprentissage immersive et interactive.\n\nComment puis-je vous appeler ?",
         timestamp: Date.now()
       };
       
@@ -400,7 +400,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const botResponse: ChatMessage = {
         id: uuidv4(),
         type: "bot",
-        content: `Merci ${firstName} ! Ravi de vous rencontrer. J'espère que vous allez bien aujourd'hui.\n\nNous allons explorer ensemble différents aspects de la gestion de projet et de l'AMOA. Veuillez choisir un domaine métier qui vous intéresse parmi les options suivantes :`,
+        content: `Merci ${firstName} ! Ravi de vous rencontrer. J'espère que vous allez bien aujourd'hui.\n\nNous allons explorer ensemble différents aspects de la cybersécurité. Veuillez choisir un domaine qui vous intéresse parmi les options suivantes :`,
         timestamp: Date.now()
       };
       
@@ -417,9 +417,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Handler to select a domain
-  const handleSelectDomain = async (domainInput: CyberDomain | string) => {
-    // Si on reçoit un objet domain, extraire l'id
-    const domainId = typeof domainInput === 'string' ? domainInput : domainInput.id;
+  const handleSelectDomain = async (domainId: string) => {
     const selectedDomain = initialDomains.find(d => d.id === domainId);
     if (!selectedDomain) return;
     
@@ -450,9 +448,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Handler to select a scenario
-  const handleSelectScenario = async (scenarioInput: CyberScenario | string) => {
-    // Si on reçoit un objet scénario, extraire l'id
-    const scenarioId = typeof scenarioInput === 'string' ? scenarioInput : scenarioInput.id;
+  const handleSelectScenario = async (scenarioId: string) => {
     const selectedScenario = initialScenarios.find(s => s.id === scenarioId);
     if (!selectedScenario) return;
     
@@ -483,35 +479,31 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     setMessages(prev => [...prev, botConfirmation, scenarioContext]);
     
-    // Démarrer une session Expert AMOA Conversationnel
+    // Send the scenario selection to the server to generate initial email
     try {
-      const data = await apiRequest<any>('/api/amoa/agent/start', {
+      const data = await apiRequest<any>('/api/cyber/start-scenario', {
         method: 'POST',
         body: JSON.stringify({
-          userEmail: `${firstName.toLowerCase()}@mc2i.fr`,
+          scenarioId,
           userName,
           config
         })
       });
       
-      // Vérifier que les messages initiaux existent dans la réponse
-      if (!data.data?.initialMessages) {
-        throw new Error("Erreur: Le serveur n'a pas retourné les messages initiaux");
+      // Vérifier que l'email existe bien dans la réponse
+      if (!data.email) {
+        throw new Error("Erreur: Le serveur n'a pas retourné de contenu d'email valide");
       }
+
+      // Add the email message
+      const emailMessage: ChatMessage = {
+        id: uuidv4(),
+        type: "email",
+        content: data.email as EmailMessageContent,
+        timestamp: Date.now()
+      };
       
-      // Add bot response with the assistant's initial message
-      const assistantMessage = data.data.initialMessages.find((msg: any) => msg.role === 'assistant');
-      
-      if (assistantMessage) {
-        const botMessage: ChatMessage = {
-          id: uuidv4(),
-          type: "bot",
-          content: assistantMessage.content,
-          timestamp: Date.now()
-        };
-        
-        setMessages(prev => [...prev, botMessage]);
-      }
+      setMessages(prev => [...prev, emailMessage]);
     } catch (error) {
       console.error('Error starting scenario:', error);
       
@@ -568,7 +560,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Handler to send a message
-  const handleSendMessage = async (messageText: string, endpoint = '/api/amoa/agent/chat') => {
+  const handleSendMessage = async (messageText: string) => {
     if (!messageText.trim()) return;
     
     // If no username set yet, treat this as the username
@@ -596,7 +588,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .slice(-10); // Get last 10 messages for context
       
       // Send message to server for processing
-      const data = await apiRequest<any>(endpoint, {
+      const data = await apiRequest<any>('/api/cyber/chat', {
         method: 'POST',
         body: JSON.stringify({
           message: messageText,
@@ -726,19 +718,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         config,
         domains: initialDomains,
         scenarios: initialScenarios,
-        // Propriétés pour les sélecteurs
-        selectedDomain: scenario.activeDomain,
-        selectedScenario: scenario.activeScenario,
-        // Gestionnaires d'événements
         setUserName: handleSetUserName,
         selectDomain: handleSelectDomain,
         selectScenario: handleSelectScenario,
         sendMessage: handleSendMessage,
         updateConfig: handleUpdateConfig,
-        resetChat: handleResetChat,
-        // Alias pour les composants AMOA
-        onDomainSelect: handleSelectDomain,
-        onScenarioSelect: handleSelectScenario
+        resetChat: handleResetChat
       }}
     >
       {children}

@@ -52,12 +52,6 @@ export default function AmoaModeSelection() {
       destination: '#',
       items: [
         {
-          id: 'expert-amoa',
-          title: 'EXPERT AMOA CONVERSATIONNEL',
-          icon: <Presentation className="w-8 h-8" />,
-          destination: '/amoa/amoa-agent'
-        },
-        {
           id: 'amoa-quest',
           title: 'AMOA QUEST',
           icon: <Brain className="w-8 h-8" />,

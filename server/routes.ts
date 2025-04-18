@@ -13,7 +13,6 @@ import { handleQuestInitialization, handleQuestChoice } from "./amoaController";
 import { handleCyberDefenseChat, generateCyberDefenseMission } from "./cyberDefenseController";
 import { startInterviewSimulation, processInterviewMessage, completeInterviewSimulation } from "./interviewSimulationController";
 import { startAgentSession, completeAgentSession } from "./cyberAgentController";
-import { startAmoaAgentSession, chatWithAmoaAgent, completeAmoaAgentSession } from "./amoaAgentController";
 import immersiveRoutes from "./routes/immersive-simulation";
 import cyberAscensionRoutes from "./routes/cyber-ascension";
 
@@ -2339,13 +2338,6 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
   
   app.post('/api/cyber/agent/start', enforceJsonResponse, startAgentSession);
   app.post('/api/cyber/agent/complete', enforceJsonResponse, completeAgentSession);
-  
-  // Routes pour l'Expert AMOA Conversationnel
-  app.post('/api/amoa/agent/start', enforceJsonResponse, startAmoaAgentSession);
-  app.post('/api/amoa/agent/chat', enforceJsonResponse, chatWithAmoaAgent);
-  app.post('/api/amoa/agent/complete', enforceJsonResponse, completeAmoaAgentSession);
-  
-
 
   // Route pour la conversation libre avec les parties prenantes dans AMOA Quest
   app.post('/api/amoa/quest/chat', async (req: Request, res: Response) => {

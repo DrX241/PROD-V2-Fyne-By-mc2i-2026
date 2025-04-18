@@ -284,26 +284,18 @@ export interface CyberDomain {
   id: string;
   name: string;
   description: string;
-  icon?: string; // Propriété optionnelle pour les icônes
-  iconBgColor?: string; // Couleur de fond de l'icône
-  iconColor?: string; // Couleur de l'icône
 }
 
 export interface CyberScenario {
   id: string;
-  domain?: string;
-  domainId?: string; // Alias pour domain, utilisé par les composants AMOA
+  domain: string;
   title: string;
-  name?: string;  // Alias pour title, utilisé par les composants AMOA
   difficulty: string;
-  difficultyColor?: string; // Utilisé pour le style du badge de difficulté
   description?: string;
   contact: {
     name: string;
     role: string;
   };
-  duration?: string; // Durée estimée du scénario
-  skills?: string[]; // Liste des compétences associées au scénario
   skillsProgress?: {
     [skill: string]: number;
   };
@@ -324,17 +316,10 @@ export interface ChatContextType {
   config: AIConfig;
   domains: CyberDomain[];
   scenarios: CyberScenario[];
-  // Propriétés additionnelles pour supporter la sélection dans les composants
-  selectedDomain: CyberDomain | null;
-  selectedScenario: CyberScenario | null;
-  // Fonctions de gestion
   setUserName: (name: string) => void;
-  selectDomain: (domain: CyberDomain | string) => void;
-  selectScenario: (scenario: CyberScenario | string) => void;
-  sendMessage: (message: string, endpoint?: string) => void;
+  selectDomain: (domain: CyberDomain) => void;
+  selectScenario: (scenario: CyberScenario) => void;
+  sendMessage: (message: string) => void;
   updateConfig: (config: Partial<AIConfig>) => void;
   resetChat: () => void;
-  // Alias de fonction pour les composants AMOA
-  onDomainSelect: (domain: CyberDomain | string) => void;
-  onScenarioSelect: (scenario: CyberScenario | string) => void;
 }
