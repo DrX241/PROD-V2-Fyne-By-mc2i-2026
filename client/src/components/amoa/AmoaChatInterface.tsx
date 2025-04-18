@@ -1,27 +1,35 @@
 import { useState, useRef, useEffect } from "react";
+import { useChatContext } from "@/contexts/ChatContext";
 import { Send, RefreshCw, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
+import AmoaDomainSelection from "./AmoaDomainSelection";
+import AmoaScenarioSelection from "./AmoaScenarioSelection";
+import AmoaChatMessage from "./AmoaChatMessage";
+import AmoaEmailMessage from "./AmoaEmailMessage";
+import AmoaContextBanner from "./AmoaContextBanner";
 
 interface AmoaChatInterfaceProps {
-  apiEndpoint: string;
-  initialMessages: any[];
   onMessagesUpdate?: (messages: any[]) => void;
 }
 
-export default function AmoaChatInterface({ apiEndpoint, initialMessages, onMessagesUpdate }: AmoaChatInterfaceProps) {
-  const [messages, setMessages] = useState<any[]>(initialMessages || []);
-  const [inputMessage, setInputMessage] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
+export default function AmoaChatInterface({ onMessagesUpdate }: AmoaChatInterfaceProps) {
+  const { 
+    messages, 
+    sendMessage, 
+    isTyping,
+    userName,
+    resetChat
+  } = useChatContext();
   
+  const [inputMessage, setInputMessage] = useState("");
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { toast } = useToast();
 
-  // Gestion du défilement
+  // Nous avons désactivé le défilement automatique pour donner à l'utilisateur le contrôle
+  // de la barre de défilement. Un bouton de défilement manuel vers le bas est disponible.
   const [showScrollButton, setShowScrollButton] = useState(false);
-  
+
   // Mise à jour des messages vers le composant parent
   useEffect(() => {
     if (onMessagesUpdate) {
@@ -90,76 +98,8 @@ export default function AmoaChatInterface({ apiEndpoint, initialMessages, onMess
     const trimmedMessage = inputMessage.trim();
     setInputMessage("");
     
-    // Ajouter le message de l'utilisateur à l'interface
-    const userMessage = {
-      role: "user",
-      content: trimmedMessage
-    };
-    
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
-    
-    // Indiquer que l'IA est en train de répondre
-    setIsTyping(true);
-    
-    try {
-      // Appel API pour obtenir la réponse de l'IA
-      const response = await fetch(apiEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: trimmedMessage,
-          chatHistory: updatedMessages
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Erreur HTTP : ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        // Mettre à jour les messages avec la réponse de l'IA
-        setMessages(data.data.updatedChatHistory);
-      } else {
-        // Gérer l'erreur API
-        toast({
-          variant: "destructive",
-          title: "Erreur",
-          description: data.error || "Une erreur est survenue lors de la communication avec l'IA."
-        });
-        
-        // Ajouter un message d'erreur dans le chat
-        setMessages([
-          ...updatedMessages,
-          {
-            role: "assistant",
-            content: "Désolé, une erreur est survenue lors du traitement de votre message. Veuillez réessayer."
-          }
-        ]);
-      }
-    } catch (error) {
-      console.error("Erreur lors de l'envoi du message:", error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Impossible de communiquer avec le serveur. Veuillez réessayer."
-      });
-      
-      // Ajouter un message d'erreur dans le chat
-      setMessages([
-        ...updatedMessages,
-        {
-          role: "assistant",
-          content: "Désolé, la connexion au service a échoué. Veuillez réessayer ultérieurement."
-        }
-      ]);
-    } finally {
-      setIsTyping(false);
-    }
+    // Utiliser le sendMessage du contexte
+    sendMessage(trimmedMessage, "/api/amoa/agent/chat");
   };
   
   // Gérer la soumission du formulaire avec Entrée (sauf avec Shift+Entrée)
@@ -170,6 +110,19 @@ export default function AmoaChatInterface({ apiEndpoint, initialMessages, onMess
     }
   };
 
+  // Fonction pour redémarrer la session en cours
+  const handleReset = () => {
+    resetChat();
+  };
+
+  // Déterminer si le message est un e-mail
+  const isEmailMessage = (message: any) => {
+    return message.role === "assistant" && 
+           message.content.includes("De:") && 
+           message.content.includes("À:") && 
+           message.content.includes("Objet:");
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-180px)] rounded-lg bg-gradient-to-br from-blue-50 to-slate-100 shadow-lg border border-blue-200">
       {/* Zone des messages */}
@@ -177,48 +130,72 @@ export default function AmoaChatInterface({ apiEndpoint, initialMessages, onMess
         ref={chatContainerRef}
         className="flex-1 overflow-y-auto p-4 space-y-4 mb-1"
       >
-        {messages.map((message, index) => (
-          <div 
-            key={index} 
-            className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-          >
-            <div 
-              className={`max-w-3xl p-3 rounded-lg ${
-                message.role === "user" 
-                  ? "bg-blue-500 text-white rounded-br-none" 
-                  : "bg-white border border-gray-200 shadow-sm rounded-bl-none"
-              }`}
-            >
-              <div className="whitespace-pre-wrap">{message.content}</div>
-            </div>
-          </div>
-        ))}
-        
-        {/* Indicateur de frappe */}
-        {isTyping && (
-          <div className="flex justify-start">
-            <div className="max-w-3xl p-3 rounded-lg bg-white border border-gray-200 shadow-sm rounded-bl-none">
-              <div className="flex space-x-2">
-                <div className="w-2 h-2 rounded-full bg-gray-300 animate-pulse"></div>
-                <div className="w-2 h-2 rounded-full bg-gray-300 animate-pulse delay-150"></div>
-                <div className="w-2 h-2 rounded-full bg-gray-300 animate-pulse delay-300"></div>
+        {messages.length === 0 ? (
+          <div className="space-y-8 py-4">
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-6 sm:flex sm:items-start">
+              <div className="sm:flex-1">
+                <h3 className="text-lg font-medium text-blue-900 mb-2">
+                  Assistant AMOA Intelligent
+                </h3>
+                <p className="text-sm text-blue-600">
+                  Je suis votre assistant conversationnel AMOA, spécialisé dans l'assistance à maîtrise d'ouvrage.
+                  Je peux répondre à vos questions sur les problématiques AMOA, vous aider avec vos projets, ou discuter des meilleures pratiques.
+                </p>
               </div>
             </div>
+            
+            {/* À implémenter si nécessaire: section pour sélection du domaine et des scénarios */}
           </div>
-        )}
-        
-        {/* Bouton de défilement vers le bas */}
-        {showScrollButton && (
-          <div className="absolute bottom-24 right-8">
-            <Button
-              variant="secondary"
-              size="icon"
-              className="rounded-full shadow-md bg-white hover:bg-gray-100"
-              onClick={scrollToBottom}
-            >
-              <ChevronDown className="h-4 w-4" />
-            </Button>
-          </div>
+        ) : (
+          <>
+            {messages.map((message, index) => (
+              isEmailMessage(message) ? (
+                <AmoaEmailMessage key={index} content={message.content} />
+              ) : (
+                <div 
+                  key={index} 
+                  className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  <div 
+                    className={`max-w-3xl p-3 rounded-lg ${
+                      message.role === "user" 
+                        ? "bg-blue-500 text-white rounded-br-none" 
+                        : "bg-white border border-gray-200 shadow-sm rounded-bl-none"
+                    }`}
+                  >
+                    <div className="whitespace-pre-wrap">{message.content}</div>
+                  </div>
+                </div>
+              )
+            ))}
+            
+            {/* Indicateur de frappe */}
+            {isTyping && (
+              <div className="flex justify-start">
+                <div className="max-w-3xl p-3 rounded-lg bg-white border border-gray-200 shadow-sm rounded-bl-none">
+                  <div className="flex space-x-2">
+                    <div className="w-2 h-2 rounded-full bg-gray-300 animate-pulse"></div>
+                    <div className="w-2 h-2 rounded-full bg-gray-300 animate-pulse delay-150"></div>
+                    <div className="w-2 h-2 rounded-full bg-gray-300 animate-pulse delay-300"></div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Bouton de défilement vers le bas */}
+            {showScrollButton && (
+              <div className="absolute bottom-24 right-8">
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="rounded-full shadow-md bg-white hover:bg-gray-100"
+                  onClick={scrollToBottom}
+                >
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </div>
       
@@ -239,6 +216,16 @@ export default function AmoaChatInterface({ apiEndpoint, initialMessages, onMess
           className="bg-blue-600 hover:bg-blue-700"
         >
           <Send className="h-4 w-4" />
+        </Button>
+        
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={handleReset}
+          title="Redémarrer la conversation"
+          className="border-blue-200 text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+        >
+          <RefreshCw className="h-4 w-4" />
         </Button>
       </div>
     </div>
