@@ -2,7 +2,7 @@ import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, startTransition, useState, useEffect } from "react";
 import { ChatProvider } from "./contexts/ChatContext";
 
 // Importation des composants directement car le lazy loading provoque des problèmes
@@ -110,6 +110,33 @@ const GlobalLoader = () => (
   </div>
 );
 
+// Composant pour charger un composant asynchrone avec startTransition
+function LazyComponent({ importFunc }) {
+  const [Component, setComponent] = useState(null);
+  
+  useEffect(() => {
+    let mounted = true;
+    
+    startTransition(() => {
+      importFunc().then((module) => {
+        if (mounted) {
+          setComponent(() => module.default);
+        }
+      });
+    });
+    
+    return () => {
+      mounted = false;
+    };
+  }, [importFunc]);
+  
+  if (!Component) {
+    return <GlobalLoader />;
+  }
+  
+  return <Component />;
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -144,7 +171,9 @@ function App() {
           <Route path="/amoa" component={AmoaPage} />
           <Route path="/amoa-mode-selection" component={AmoaModeSelection} />
           <Route path="/amoa/quest" component={AmoaQuestPage} />
-          <Route path="/amoa/amoa-agent" component={lazy(() => import('./pages/amoa/amoa-agent'))} />
+          <Route path="/amoa/amoa-agent">
+            {() => <LazyComponent importFunc={() => import('./pages/amoa/amoa-agent')} />}
+          </Route>
           <Route path="/custom" component={NotYetImplemented} />
           <Route component={NotFound} />
         </Switch>
