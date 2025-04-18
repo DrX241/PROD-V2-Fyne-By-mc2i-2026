@@ -38,7 +38,7 @@ export default function AmoaDomainSelection() {
           {domains.map((domain) => (
             <button
               key={domain.id}
-              onClick={() => onDomainSelect(domain)}
+              onClick={() => onDomainSelect(domain.id)}
               className="flex items-center p-4 rounded-lg border border-gray-200 bg-gray-50 hover:bg-blue-50 hover:border-blue-200 transition-all duration-200 text-left group"
             >
               <div className="flex-shrink-0 w-12 h-12 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mr-4 group-hover:bg-blue-200 transition-colors">

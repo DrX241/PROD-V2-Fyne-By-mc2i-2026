@@ -326,12 +326,12 @@ export interface ChatContextType {
   selectedScenario: CyberScenario | null;
   // Fonctions de gestion
   setUserName: (name: string) => void;
-  selectDomain: (domain: CyberDomain) => void;
-  selectScenario: (scenario: CyberScenario) => void;
+  selectDomain: (domain: CyberDomain | string) => void;
+  selectScenario: (scenario: CyberScenario | string) => void;
   sendMessage: (message: string, endpoint?: string) => void;
   updateConfig: (config: Partial<AIConfig>) => void;
   resetChat: () => void;
   // Alias de fonction pour les composants AMOA
-  onDomainSelect: (domain: CyberDomain) => void;
-  onScenarioSelect: (scenario: CyberScenario) => void;
+  onDomainSelect: (domain: CyberDomain | string) => void;
+  onScenarioSelect: (scenario: CyberScenario | string) => void;
 }

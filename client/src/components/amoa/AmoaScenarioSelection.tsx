@@ -45,7 +45,7 @@ export default function AmoaScenarioSelection() {
           {domainScenarios.map((scenario) => (
             <button
               key={scenario.id}
-              onClick={() => onScenarioSelect(scenario)}
+              onClick={() => onScenarioSelect(scenario.id)}
               className="flex flex-col sm:flex-row sm:items-center p-4 rounded-lg border border-gray-200 bg-gray-50 hover:bg-blue-50 hover:border-blue-200 transition-all duration-200 text-left group"
             >
               <div className="mb-3 sm:mb-0 sm:mr-4 sm:w-64 flex-shrink-0">

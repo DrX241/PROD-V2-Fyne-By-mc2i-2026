@@ -417,7 +417,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Handler to select a domain
-  const handleSelectDomain = async (domainId: string) => {
+  const handleSelectDomain = async (domainInput: CyberDomain | string) => {
+    // Si on reçoit un objet domain, extraire l'id
+    const domainId = typeof domainInput === 'string' ? domainInput : domainInput.id;
     const selectedDomain = initialDomains.find(d => d.id === domainId);
     if (!selectedDomain) return;
     
@@ -448,7 +450,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Handler to select a scenario
-  const handleSelectScenario = async (scenarioId: string) => {
+  const handleSelectScenario = async (scenarioInput: CyberScenario | string) => {
+    // Si on reçoit un objet scénario, extraire l'id
+    const scenarioId = typeof scenarioInput === 'string' ? scenarioInput : scenarioInput.id;
     const selectedScenario = initialScenarios.find(s => s.id === scenarioId);
     if (!selectedScenario) return;
     
