@@ -25,7 +25,7 @@ export default function AmoaScenarioSelection() {
   };
 
   // Filtrer les scénarios par domaine
-  const domainScenarios = scenarios.filter(scenario => scenario.domainId === selectedDomain.id);
+  const domainScenarios = scenarios.filter(scenario => (scenario.domainId || scenario.domain) === selectedDomain.id);
 
   return (
     <div className="max-w-4xl mx-auto my-6 sm:my-8">
@@ -50,7 +50,7 @@ export default function AmoaScenarioSelection() {
             >
               <div className="mb-3 sm:mb-0 sm:mr-4 sm:w-64 flex-shrink-0">
                 <h4 className="font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">
-                  {scenario.name}
+                  {scenario.name || scenario.title}
                 </h4>
                 <div className="flex items-center mt-2">
                   <span className={`inline-block px-2 py-1 text-xs rounded-full border ${getDifficultyColor(scenario.difficulty)}`}>
@@ -67,7 +67,7 @@ export default function AmoaScenarioSelection() {
                 
                 {scenario.skills && scenario.skills.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-1">
-                    {scenario.skills.map((skill, index) => (
+                    {(scenario.skills as string[]).map((skill: string, index: number) => (
                       <span key={index} className="inline-block px-2 py-0.5 bg-gray-100 text-gray-800 rounded text-xs border border-gray-200">
                         {skill}
                       </span>

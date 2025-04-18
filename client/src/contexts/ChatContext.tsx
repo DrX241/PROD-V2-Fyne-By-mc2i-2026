@@ -718,12 +718,19 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         config,
         domains: initialDomains,
         scenarios: initialScenarios,
+        // Propriétés pour les sélecteurs
+        selectedDomain: scenario.activeDomain,
+        selectedScenario: scenario.activeScenario,
+        // Gestionnaires d'événements
         setUserName: handleSetUserName,
         selectDomain: handleSelectDomain,
         selectScenario: handleSelectScenario,
         sendMessage: handleSendMessage,
         updateConfig: handleUpdateConfig,
-        resetChat: handleResetChat
+        resetChat: handleResetChat,
+        // Alias pour les composants AMOA
+        onDomainSelect: handleSelectDomain,
+        onScenarioSelect: handleSelectScenario
       }}
     >
       {children}

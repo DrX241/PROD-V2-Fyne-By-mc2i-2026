@@ -1,6 +1,6 @@
 import React from "react";
 import { useChatContext } from "@/contexts/ChatContext";
-import { Briefcase, Buildings, Building2, Lightbulb, Landmark, Factory, FileBadge2 } from "lucide-react";
+import { Briefcase, Building, Building2, Lightbulb, Landmark, Factory, FileBadge2 } from "lucide-react";
 
 export default function AmoaDomainSelection() {
   const { domains, onDomainSelect } = useChatContext();
@@ -22,7 +22,7 @@ export default function AmoaDomainSelection() {
       case 'industrie':
         return <Factory className="h-5 w-5" />;
       default:
-        return <Buildings className="h-5 w-5" />;
+        return <Building className="h-5 w-5" />;
     }
   };
 

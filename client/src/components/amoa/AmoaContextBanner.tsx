@@ -32,7 +32,7 @@ export default function AmoaContextBanner() {
         {/* Scénario */}
         <div className="flex items-center gap-2 text-blue-100">
           <Target className="h-4 w-4 text-blue-300" />
-          <span>{selectedScenario.name}</span>
+          <span>{selectedScenario.name || selectedScenario.title}</span>
           <span className={`ml-1 px-1.5 py-0.5 text-xs rounded-full ${getDifficultyColor(selectedScenario.difficulty)}`}>
             {selectedScenario.difficulty}
           </span>
