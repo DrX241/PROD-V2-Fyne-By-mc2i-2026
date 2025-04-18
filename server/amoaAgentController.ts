@@ -152,6 +152,109 @@ Comment puis-je vous aider aujourd'hui ?`
 }
 
 /**
+ * Traite un message adressé à l'Expert AMOA Conversationnel
+ */
+export async function chatWithAmoaAgent(req: Request, res: Response) {
+  const { message, userName, chatHistory } = req.body;
+  
+  if (!message || !userName) {
+    return res.status(400).json({
+      success: false,
+      error: "Le message et le nom d'utilisateur sont requis"
+    });
+  }
+  
+  try {
+    // Préparer l'historique du chat pour OpenAI
+    const messages: ChatCompletionRequestMessage[] = [];
+    
+    // Ajouter le message système si c'est le premier message
+    if (!chatHistory || chatHistory.length === 0) {
+      messages.push({
+        role: "system",
+        content: `Vous êtes l'Expert AMOA Conversationnel de mc2i, spécialisé dans l'assistance à maîtrise d'ouvrage. Votre mission est d'aider les consultants à comprendre les concepts clés de l'AMOA, les méthodologies de gestion de projet, l'analyse des besoins métier, et la transformation digitale.
+
+Vous devez répondre à leurs questions avec expertise et professionnalisme, en vous concentrant sur les meilleures pratiques AMOA dans différents secteurs (banque, assurance, énergie, secteur public, industrie).
+
+VOTRE PROFIL ET COMPORTEMENT :
+- Vous êtes un expert en AMOA avec plus de 10 ans d'expérience dans divers secteurs d'activité
+- Votre ton est professionnel, précis mais accessible et pédagogique
+- Vous structurez vos réponses de manière claire avec des titres, des listes à puces et des paragraphes courts
+- Vous illustrez vos explications avec des exemples concrets adaptés au secteur mentionné
+- Vous êtes pragmatique et partagez des retours d'expérience terrain
+
+VOS DOMAINES D'EXPERTISE :
+- Méthodologies de gestion de projet : Agile (Scrum, SAFe, Kanban), Cycle en V, Prince2, PMI, méthodes hybrides
+- Recueil et analyse des besoins : ateliers, interviews, personas, user stories, cas d'utilisation
+- Transformation digitale : accompagnement au changement, réorganisation des processus
+- Cadrage de projet : études d'opportunité, cahiers des charges, spécifications fonctionnelles
+- Secteurs spécifiques : Banque, Assurance, Énergie, Secteur Public, Industrie, Retail
+- Outils : JIRA, Confluence, MS Project, PowerBI, processus de test et recette
+
+RÈGLES DE COMPORTEMENT :
+- Adaptez votre niveau technique selon le contexte (junior/senior)
+- Proposez systématiquement des bonnes pratiques et points de vigilance
+- Ne vous contentez pas de théorie, partagez des conseils applicables concrètement
+- Répondez avec précision, mais restez concis (environ 5-10 lignes par réponse)
+- Si pertinent, mentionnez les tendances actuelles et évolutions du métier d'AMOA
+- Vous êtes supporté par l'IA FYNE de mc2i
+
+Lors de la conversation avec ${userName}, soyez courtois, pédagogue et structuré dans vos réponses.`
+      });
+    } else {
+      // Convertir l'historique de chat au format attendu par OpenAI
+      const relevantHistory = chatHistory.slice(-10); // Limiter l'historique aux 10 derniers messages
+      
+      relevantHistory.forEach((msg: any) => {
+        if (msg.type === 'user') {
+          messages.push({
+            role: 'user',
+            content: msg.content
+          });
+        } else if (msg.type === 'bot') {
+          messages.push({
+            role: 'assistant',
+            content: msg.content
+          });
+        }
+      });
+    }
+    
+    // Ajouter le message actuel de l'utilisateur
+    messages.push({
+      role: 'user',
+      content: message
+    });
+    
+    // Obtenir la réponse d'OpenAI
+    const responseContent = await openAIService.getChatCompletion(messages);
+    
+    if (!responseContent) {
+      return res.status(500).json({
+        success: false,
+        error: "Erreur lors de la génération de la réponse"
+      });
+    }
+    
+    // Renvoyer la réponse
+    return res.status(200).json({
+      success: true,
+      content: responseContent,
+      type: 'bot',
+      contactName: "Expert AMOA",
+      contactRole: "Assistant virtuel mc2i"
+    });
+    
+  } catch (error) {
+    console.error("Erreur lors du traitement du message AMOA:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Erreur lors du traitement du message"
+    });
+  }
+}
+
+/**
  * Termine une session Expert AMOA Conversationnel et envoie un rapport par email
  */
 export async function completeAmoaAgentSession(req: Request, res: Response) {
