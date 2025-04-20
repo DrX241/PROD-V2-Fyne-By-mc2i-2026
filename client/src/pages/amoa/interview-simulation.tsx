@@ -29,12 +29,15 @@ import HomeLayout from '@/components/layout/HomeLayout';
 
 // Schéma de formulaire pour la configuration de l'entretien
 const formSchema = z.object({
+  // Champs optionnels (peuvent être ignorés au début)
   recruiterEmail: z.string().email({
     message: "Veuillez entrer une adresse email valide.",
   }).optional().or(z.literal('')),
   candidateName: z.string().min(2, {
     message: "Le nom du consultant doit contenir au moins 2 caractères.",
   }).optional().or(z.literal('')),
+  
+  // Champs obligatoires pour la simulation
   profileType: z.string().min(1, {
     message: "Veuillez sélectionner un type de profil.",
   }),
@@ -46,13 +49,26 @@ const formSchema = z.object({
   }),
 });
 
-// Schéma pour le formulaire de contact à la fin de la simulation
+// Schéma pour le formulaire de contact à la fin de la simulation (tous les champs sont obligatoires)
 const contactFormSchema = z.object({
+  // Champs de contact qui étaient optionnels au début, maintenant obligatoires
   recruiterEmail: z.string().email({
     message: "Veuillez entrer une adresse email valide.",
   }),
   candidateName: z.string().min(2, {
     message: "Le nom du consultant doit contenir au moins 2 caractères.",
+  }),
+  
+  // On inclut également les champs importants pour l'évaluation si jamais ils n'ont pas été correctement
+  // définis précédemment (même si en théorie ils devraient déjà avoir été validés)
+  profileType: z.string().min(1, {
+    message: "Veuillez sélectionner un type de profil.",
+  }),
+  experienceLevel: z.string().min(1, {
+    message: "Veuillez sélectionner un niveau d'expérience.",
+  }),
+  sectorFocus: z.string().min(1, {
+    message: "Veuillez sélectionner un secteur d'activité.",
   }),
 });
 
@@ -203,41 +219,35 @@ const AmoaInterviewSimulation: React.FC = () => {
     }
   };
   
-  // Fonction pour ignorer la saisie des informations
+  // Fonction pour ignorer la saisie des informations de contact (uniquement email et nom)
   const skipInfoAndStart = async () => {
     console.log("Fonction skipInfoAndStart appelée");
     setIsSkippedInfo(true);
     
-    // Définir des valeurs par défaut au cas où les champs ne sont pas remplis
-    let profileType = form.getValues('profileType');
-    let experienceLevel = form.getValues('experienceLevel');
-    let sectorFocus = form.getValues('sectorFocus');
+    // Récupérer les valeurs obligatoires (type de profil, niveau d'expérience, secteur)
+    const profileType = form.getValues('profileType');
+    const experienceLevel = form.getValues('experienceLevel');
+    const sectorFocus = form.getValues('sectorFocus');
     
-    // Définir des valeurs par défaut si les champs ne sont pas remplis
-    if (!profileType) {
-      profileType = "amoa_senior";
-      form.setValue('profileType', profileType);
+    // Vérifier que tous les champs obligatoires sont remplis
+    if (!profileType || !experienceLevel || !sectorFocus) {
+      toast({
+        variant: "destructive",
+        title: "Champs obligatoires manquants",
+        description: "Les champs Type de profil, Niveau d'expérience et Secteur d'activité sont obligatoires."
+      });
+      return;
     }
     
-    if (!experienceLevel) {
-      experienceLevel = "experimente";
-      form.setValue('experienceLevel', experienceLevel);
-    }
-    
-    if (!sectorFocus) {
-      sectorFocus = "banque_finance";
-      form.setValue('sectorFocus', sectorFocus);
-    }
-    
-    console.log("Valeurs du formulaire (après valeurs par défaut):", { profileType, experienceLevel, sectorFocus });
+    console.log("Valeurs du formulaire:", { profileType, experienceLevel, sectorFocus });
 
-    // Appel direct à l'API sans passer par la validation du formulaire
+    // Appel direct à l'API sans passer par la validation complète du formulaire
     setIsLoading(true);
     
     try {
       console.log("Envoi de la requête API...");
       
-      // Préparer les données à envoyer
+      // Préparer les données à envoyer (sans les informations de contact)
       const payload = {
         domain: 'amoa',
         profileType,
@@ -391,10 +401,13 @@ const AmoaInterviewSimulation: React.FC = () => {
   };
   
   // Soumettre les informations de contact finales et terminer la simulation
-  const submitContactInfo = async (contactInfo: { recruiterEmail: string; candidateName: string }) => {
-    // Mettre à jour le formulaire avec les nouvelles valeurs
+  const submitContactInfo = async (contactInfo: ContactFormValues) => {
+    // Mettre à jour le formulaire avec toutes les nouvelles valeurs
     form.setValue('recruiterEmail', contactInfo.recruiterEmail);
     form.setValue('candidateName', contactInfo.candidateName);
+    form.setValue('profileType', contactInfo.profileType);
+    form.setValue('experienceLevel', contactInfo.experienceLevel);
+    form.setValue('sectorFocus', contactInfo.sectorFocus);
     
     // Fermer le formulaire de contact
     setShowContactForm(false);
@@ -476,6 +489,10 @@ const AmoaInterviewSimulation: React.FC = () => {
     defaultValues: {
       recruiterEmail: '',
       candidateName: '',
+      // Copier les données déjà saisies à partir du formulaire principal
+      profileType: form.getValues('profileType'),
+      experienceLevel: form.getValues('experienceLevel'),
+      sectorFocus: form.getValues('sectorFocus'),
     },
   });
   
@@ -485,49 +502,148 @@ const AmoaInterviewSimulation: React.FC = () => {
       <AlertDialog open={showContactForm} onOpenChange={setShowContactForm}>
         <AlertDialogContent className="bg-blue-800 text-white border-blue-700">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl">Informations de contact nécessaires</AlertDialogTitle>
+            <AlertDialogTitle className="text-xl">Informations pour finaliser la simulation</AlertDialogTitle>
             <AlertDialogDescription className="text-blue-200">
-              Veuillez fournir les informations de contact pour finaliser la simulation et recevoir l'évaluation par email.
+              Veuillez remplir tous les champs ci-dessous pour finaliser la simulation et recevoir l'évaluation par email.
             </AlertDialogDescription>
           </AlertDialogHeader>
           
           <Form {...contactForm}>
-            <form onSubmit={contactForm.handleSubmit((data) => submitContactInfo(data))} className="space-y-4 my-4">
-              <FormField
-                control={contactForm.control}
-                name="recruiterEmail"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-white">Email du responsable</FormLabel>
-                    <FormControl>
-                      <div className="flex">
-                        <Mail className="w-5 h-5 mr-2 text-blue-300 self-center" />
-                        <Input placeholder="email@exemple.com" {...field} className="bg-blue-700 border-blue-600 text-white" />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <form onSubmit={contactForm.handleSubmit((data) => {
+              // Transférer toutes les données du contactForm vers le form principal
+              form.setValue('recruiterEmail', data.recruiterEmail);
+              form.setValue('candidateName', data.candidateName);
+              form.setValue('profileType', data.profileType);
+              form.setValue('experienceLevel', data.experienceLevel);
+              form.setValue('sectorFocus', data.sectorFocus);
               
-              <FormField
-                control={contactForm.control}
-                name="candidateName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-white">Nom du consultant</FormLabel>
-                    <FormControl>
-                      <div className="flex">
-                        <User className="w-5 h-5 mr-2 text-blue-300 self-center" />
-                        <Input placeholder="Prénom Nom" {...field} className="bg-blue-700 border-blue-600 text-white" />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              // Fermer et finaliser
+              setShowContactForm(false);
+              finalizeSimulation();
+            })} className="space-y-4 my-4">
+              {/* Informations de contact */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-blue-200">Informations de contact</h3>
+                
+                <FormField
+                  control={contactForm.control}
+                  name="recruiterEmail"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Email du responsable</FormLabel>
+                      <FormControl>
+                        <div className="flex">
+                          <Mail className="w-5 h-5 mr-2 text-blue-300 self-center" />
+                          <Input placeholder="email@exemple.com" {...field} className="bg-blue-700 border-blue-600 text-white" />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={contactForm.control}
+                  name="candidateName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Nom du consultant</FormLabel>
+                      <FormControl>
+                        <div className="flex">
+                          <User className="w-5 h-5 mr-2 text-blue-300 self-center" />
+                          <Input placeholder="Prénom Nom" {...field} className="bg-blue-700 border-blue-600 text-white" />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               
-              <AlertDialogFooter className="gap-2 mt-4">
+              {/* Informations d'évaluation */}
+              <div className="space-y-4 mt-4">
+                <h3 className="text-lg font-semibold text-blue-200">Paramètres d'évaluation</h3>
+                
+                <FormField
+                  control={contactForm.control}
+                  name="profileType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Type de profil</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-blue-700 border-blue-600 text-white">
+                            <SelectValue placeholder="Sélectionnez un profil" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-blue-700 border-blue-600 text-white">
+                          <SelectItem value="amoa_junior">AMOA Junior</SelectItem>
+                          <SelectItem value="amoa_confirme">AMOA Confirmé</SelectItem>
+                          <SelectItem value="amoa_expert">AMOA Expert</SelectItem>
+                          <SelectItem value="chef_de_projet">Chef de Projet</SelectItem>
+                          <SelectItem value="amoa_agile">AMOA Agile/Scrum</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={contactForm.control}
+                  name="experienceLevel"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Niveau d'expérience</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-blue-700 border-blue-600 text-white">
+                            <SelectValue placeholder="Sélectionnez un niveau" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-blue-700 border-blue-600 text-white">
+                          <SelectItem value="junior">Junior (0-2 ans)</SelectItem>
+                          <SelectItem value="intermediaire">Intermédiaire (3-5 ans)</SelectItem>
+                          <SelectItem value="senior">Senior (6-9 ans)</SelectItem>
+                          <SelectItem value="expert">Expert (10+ ans)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={contactForm.control}
+                  name="sectorFocus"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Secteur d'activité</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-blue-700 border-blue-600 text-white">
+                            <SelectValue placeholder="Sélectionnez un secteur" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-blue-700 border-blue-600 text-white">
+                          <SelectItem value="banque_finance">Banque / Finance</SelectItem>
+                          <SelectItem value="assurance">Assurance</SelectItem>
+                          <SelectItem value="secteur_public">Secteur Public</SelectItem>
+                          <SelectItem value="energie">Énergie</SelectItem>
+                          <SelectItem value="telecoms">Télécommunications</SelectItem>
+                          <SelectItem value="transport">Transport & Logistique</SelectItem>
+                          <SelectItem value="sante">Santé</SelectItem>
+                          <SelectItem value="retail">Distribution / Retail</SelectItem>
+                          <SelectItem value="industrie">Industrie</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <AlertDialogFooter className="gap-2 mt-6">
                 <Button
                   type="submit" 
                   className="bg-[#006a9e] hover:bg-blue-600"
