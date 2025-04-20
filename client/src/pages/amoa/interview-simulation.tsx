@@ -99,6 +99,11 @@ const AmoaInterviewSimulation: React.FC = () => {
   const [isSkippedInfo, setIsSkippedInfo] = useState(false);
   const [showContactForm, setShowContactForm] = useState(false);
   
+  // États pour les notes et la synthèse
+  const [notesText, setNotesText] = useState('');
+  const [isAnalyzingNotes, setIsAnalyzingNotes] = useState(false);
+  const [synthesisResult, setSynthesisResult] = useState<any>(null);
+  
   // Référence pour le défilement
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
@@ -464,6 +469,59 @@ const AmoaInterviewSimulation: React.FC = () => {
     }
   };
   
+  // Analyser les notes et générer une synthèse structurée
+  const analyzeNotes = async () => {
+    if (!notesText.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Notes vides",
+        description: "Veuillez saisir vos notes avant de générer une synthèse."
+      });
+      return;
+    }
+    
+    setIsAnalyzingNotes(true);
+    
+    try {
+      const response = await fetch('/api/amoa/interview-simulation/analyze-notes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          notes: notesText,
+          candidateName: form.getValues('candidateName'),
+          profileType: form.getValues('profileType'),
+          experienceLevel: form.getValues('experienceLevel'),
+          sectorFocus: form.getValues('sectorFocus'),
+          evaluationResult: evaluationResult
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de l\'analyse des notes');
+      }
+      
+      const data = await response.json();
+      setSynthesisResult(data.synthesis);
+      setActiveTab('synthese');
+      
+      toast({
+        title: "Synthèse générée",
+        description: "Vos notes ont été analysées et structurées avec succès."
+      });
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible d'analyser les notes. Veuillez réessayer."
+      });
+    } finally {
+      setIsAnalyzingNotes(false);
+    }
+  };
+  
   // Vider et recommencer
   const resetSimulation = () => {
     setMessages([]);
@@ -474,6 +532,8 @@ const AmoaInterviewSimulation: React.FC = () => {
     setActiveTab('configuration');
     setIsSkippedInfo(false);
     setShowContactForm(false);
+    setNotesText('');
+    setSynthesisResult(null);
     form.reset({
       recruiterEmail: '',
       candidateName: '',
@@ -695,7 +755,7 @@ const AmoaInterviewSimulation: React.FC = () => {
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList className="grid grid-cols-3 mb-8">
+            <TabsList className="grid grid-cols-5 mb-8">
               <TabsTrigger 
                 value="configuration"
                 disabled={isSimulationActive && !simulationComplete}
@@ -713,6 +773,18 @@ const AmoaInterviewSimulation: React.FC = () => {
                 disabled={!simulationComplete}
               >
                 Évaluation
+              </TabsTrigger>
+              <TabsTrigger 
+                value="notes"
+                disabled={!simulationComplete}
+              >
+                Notes
+              </TabsTrigger>
+              <TabsTrigger 
+                value="synthese"
+                disabled={!simulationComplete}
+              >
+                Synthèse
               </TabsTrigger>
             </TabsList>
             
@@ -1042,6 +1114,201 @@ const AmoaInterviewSimulation: React.FC = () => {
                   >
                     Nouvelle simulation
                   </Button>
+                </CardFooter>
+              </Card>
+            </TabsContent>
+            
+            {/* Onglet Notes */}
+            <TabsContent value="notes">
+              <Card className="bg-blue-800 border-blue-700">
+                <CardHeader>
+                  <div className="flex items-center">
+                    <FileCheck className="w-6 h-6 mr-2 text-green-500" />
+                    <CardTitle>Notes du responsable</CardTitle>
+                  </div>
+                  <CardDescription className="text-blue-200">
+                    Ajoutez vos notes sur le consultant pour générer une synthèse structurée
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    <div className="bg-blue-700 p-4 rounded-md">
+                      <h3 className="text-xl font-semibold mb-4">Guide pour vos notes</h3>
+                      <p className="text-blue-200 mb-3">
+                        Copiez-collez vos notes en format libre. L'IA structurera ensuite ces informations dans les sections suivantes :
+                      </p>
+                      <ul className="list-disc ml-5 space-y-1 text-blue-200 text-sm">
+                        <li>Présentation générale du profil</li>
+                        <li>Description du parcours</li>
+                        <li>Premières impressions, posture</li>
+                        <li>Motivations conseil, SI, mc2i</li>
+                        <li>Projet professionnel et perspectives</li>
+                        <li>Potentiel du candidat vs Ambition</li>
+                        <li>Autres processus en cours</li>
+                        <li>Critères d'évaluation</li>
+                        <li>Forces et faiblesses</li>
+                        <li>Spécificités stagiaires/alternants</li>
+                        <li>Synthèse écrite et raison de la décision</li>
+                      </ul>
+                    </div>
+                    
+                    <div className="bg-blue-700 p-4 rounded-md">
+                      <h3 className="text-lg font-semibold mb-4">Vos notes sur le consultant</h3>
+                      <Textarea 
+                        value={notesText}
+                        onChange={(e) => setNotesText(e.target.value)}
+                        placeholder="Collez ici vos notes d'audition en format libre..."
+                        className="min-h-[300px] resize-y bg-blue-900 border-blue-600 text-white"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-between">
+                  <Button
+                    onClick={resetSimulation}
+                    variant="outline"
+                    className="border-blue-600 bg-blue-700 hover:bg-blue-600"
+                  >
+                    Nouvelle simulation
+                  </Button>
+                  <Button
+                    onClick={analyzeNotes}
+                    className="bg-[#006a9e] hover:bg-blue-700"
+                    disabled={isAnalyzingNotes || !notesText.trim()}
+                  >
+                    {isAnalyzingNotes ? "Analyse en cours..." : "Analyser et créer la synthèse"}
+                  </Button>
+                </CardFooter>
+              </Card>
+            </TabsContent>
+
+            {/* Onglet Synthèse */}
+            <TabsContent value="synthese">
+              <Card className="bg-blue-800 border-blue-700">
+                <CardHeader>
+                  <div className="flex items-center">
+                    <FileCheck className="w-6 h-6 mr-2 text-green-500" />
+                    <CardTitle>Synthèse structurée de l'audition</CardTitle>
+                  </div>
+                  <CardDescription className="text-blue-200">
+                    Synthèse structurée générée à partir de vos notes et de l'évaluation IA
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {synthesisResult ? (
+                    <div className="space-y-6">
+                      <div className="bg-blue-700 p-4 rounded-md">
+                        <h3 className="text-xl font-semibold mb-4">Présentation générale du profil</h3>
+                        <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.presentation || "Information non disponible"}</p>
+                      </div>
+                      
+                      <div className="bg-blue-700 p-4 rounded-md">
+                        <h3 className="text-xl font-semibold mb-4">Description du parcours</h3>
+                        <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.parcours || "Information non disponible"}</p>
+                      </div>
+                      
+                      <div className="bg-blue-700 p-4 rounded-md">
+                        <h3 className="text-xl font-semibold mb-4">Premières impressions, posture</h3>
+                        <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.impressions || "Information non disponible"}</p>
+                      </div>
+                      
+                      <div className="bg-blue-700 p-4 rounded-md">
+                        <h3 className="text-xl font-semibold mb-4">Motivations conseil, SI, mc2i</h3>
+                        <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.motivations || "Information non disponible"}</p>
+                      </div>
+                      
+                      <div className="bg-blue-700 p-4 rounded-md">
+                        <h3 className="text-xl font-semibold mb-4">Projet professionnel et perspectives</h3>
+                        <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.projet || "Information non disponible"}</p>
+                      </div>
+                      
+                      <div className="bg-blue-700 p-4 rounded-md">
+                        <h3 className="text-xl font-semibold mb-4">Potentiel du candidat vs Ambition</h3>
+                        <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.potentiel || "Information non disponible"}</p>
+                      </div>
+                      
+                      {synthesisResult.processus && (
+                        <div className="bg-blue-700 p-4 rounded-md">
+                          <h3 className="text-xl font-semibold mb-4">Autres processus en cours</h3>
+                          <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.processus}</p>
+                        </div>
+                      )}
+                      
+                      <div className="bg-blue-700 p-4 rounded-md">
+                        <h3 className="text-xl font-semibold mb-4">Critères et évaluation des compétences</h3>
+                        <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.criteres || "Information non disponible"}</p>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="bg-blue-700 p-4 rounded-md">
+                          <h3 className="text-lg font-semibold mb-4 flex items-center">
+                            <CheckCircle className="w-5 h-5 mr-2 text-green-500" />
+                            Forces de la candidature
+                          </h3>
+                          <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.forces || "Information non disponible"}</p>
+                        </div>
+                        
+                        <div className="bg-blue-700 p-4 rounded-md">
+                          <h3 className="text-lg font-semibold mb-4 flex items-center">
+                            <AlertCircle className="w-5 h-5 mr-2 text-amber-500" />
+                            Faiblesses ou points à approfondir
+                          </h3>
+                          <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.faiblesses || "Information non disponible"}</p>
+                        </div>
+                      </div>
+                      
+                      {synthesisResult.anglais && (
+                        <div className="bg-blue-700 p-4 rounded-md">
+                          <h3 className="text-xl font-semibold mb-4">Niveau d'Anglais</h3>
+                          <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.anglais}</p>
+                        </div>
+                      )}
+                      
+                      {synthesisResult.stage && (
+                        <div className="bg-blue-700 p-4 rounded-md">
+                          <h3 className="text-xl font-semibold mb-4">Informations stagiaire/alternant</h3>
+                          <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.stage}</p>
+                        </div>
+                      )}
+                      
+                      <div className="bg-blue-700 p-4 rounded-md">
+                        <h3 className="text-xl font-semibold mb-4">Synthèse écrite</h3>
+                        <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.synthese || "Information non disponible"}</p>
+                      </div>
+                      
+                      <div className="bg-blue-700 p-4 rounded-md">
+                        <h3 className="text-xl font-semibold mb-4">Raison principale de la décision</h3>
+                        <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.raison || "Information non disponible"}</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <p className="text-blue-200 mb-4">Aucune synthèse disponible. Veuillez d'abord analyser vos notes.</p>
+                      <Button 
+                        onClick={() => setActiveTab('notes')}
+                        className="bg-[#006a9e] hover:bg-blue-700"
+                      >
+                        Aller à l'onglet Notes
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+                <CardFooter className="flex justify-between">
+                  <Button
+                    onClick={resetSimulation}
+                    variant="outline"
+                    className="border-blue-600 bg-blue-700 hover:bg-blue-600"
+                  >
+                    Nouvelle simulation
+                  </Button>
+                  {synthesisResult && (
+                    <Button
+                      onClick={() => {/* À implémenter: téléchargement de la synthèse */}}
+                      className="bg-[#006a9e] hover:bg-blue-700"
+                    >
+                      Télécharger la synthèse
+                    </Button>
+                  )}
                 </CardFooter>
               </Card>
             </TabsContent>
