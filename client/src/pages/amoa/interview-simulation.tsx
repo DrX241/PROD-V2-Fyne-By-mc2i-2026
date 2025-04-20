@@ -208,21 +208,28 @@ const AmoaInterviewSimulation: React.FC = () => {
     console.log("Fonction skipInfoAndStart appelée");
     setIsSkippedInfo(true);
     
-    // Vérifier si les autres champs obligatoires sont remplis
-    const profileType = form.getValues('profileType');
-    const experienceLevel = form.getValues('experienceLevel');
-    const sectorFocus = form.getValues('sectorFocus');
+    // Définir des valeurs par défaut au cas où les champs ne sont pas remplis
+    let profileType = form.getValues('profileType');
+    let experienceLevel = form.getValues('experienceLevel');
+    let sectorFocus = form.getValues('sectorFocus');
     
-    console.log("Valeurs du formulaire:", { profileType, experienceLevel, sectorFocus });
-    
-    if (!profileType || !experienceLevel || !sectorFocus) {
-      toast({
-        variant: "destructive",
-        title: "Informations manquantes",
-        description: "Veuillez remplir les champs obligatoires : type de profil, niveau d'expérience et secteur d'activité.",
-      });
-      return;
+    // Définir des valeurs par défaut si les champs ne sont pas remplis
+    if (!profileType) {
+      profileType = "amoa_senior";
+      form.setValue('profileType', profileType);
     }
+    
+    if (!experienceLevel) {
+      experienceLevel = "experimente";
+      form.setValue('experienceLevel', experienceLevel);
+    }
+    
+    if (!sectorFocus) {
+      sectorFocus = "banque_finance";
+      form.setValue('sectorFocus', sectorFocus);
+    }
+    
+    console.log("Valeurs du formulaire (après valeurs par défaut):", { profileType, experienceLevel, sectorFocus });
 
     // Appel direct à l'API sans passer par la validation du formulaire
     setIsLoading(true);
