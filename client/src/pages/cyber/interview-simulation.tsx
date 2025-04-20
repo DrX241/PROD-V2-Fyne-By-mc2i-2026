@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { UserCircle, Send, Clock, CheckCircle, AlertCircle, FileCheck, ArrowLeft } from 'lucide-react';
+import { UserCircle, Send, Clock, CheckCircle, AlertCircle, FileCheck, ArrowLeft, Mail, User } from 'lucide-react';
 import OpenAIStatusIndicator from '@/components/OpenAIStatusIndicator';
 import { 
   Form, 
@@ -20,6 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
@@ -775,13 +776,28 @@ const CyberInterviewSimulation: React.FC = () => {
                         />
                       </div>
                       
-                      <Button 
-                        type="submit" 
-                        className="w-full bg-[#006a9e] hover:bg-blue-700"
-                        disabled={isLoading}
-                      >
-                        {isLoading ? "Chargement..." : "Démarrer la simulation"}
-                      </Button>
+                      <div className="flex gap-4">
+                        <Button 
+                          type="submit" 
+                          className="flex-1 bg-[#006a9e] hover:bg-blue-700"
+                          disabled={isLoading}
+                        >
+                          {isLoading ? "Chargement..." : "Démarrer la simulation"}
+                        </Button>
+                        
+                        <Button 
+                          type="button" 
+                          variant="outline"
+                          className="flex-1 border-gray-600 bg-gray-700 hover:bg-gray-600"
+                          disabled={isLoading}
+                          onClick={() => {
+                            console.log("Bouton Ignorer cliqué");
+                            skipInfoAndStart();
+                          }}
+                        >
+                          Ignorer les informations de contact
+                        </Button>
+                      </div>
                     </form>
                   </Form>
                 </CardContent>
