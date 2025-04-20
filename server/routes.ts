@@ -2329,6 +2329,280 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
   // Finaliser et évaluer une simulation AMOA
   app.post('/api/amoa/interview-simulation/complete', completeInterviewSimulation);
   
+  // Analyser les notes et générer une synthèse structurée pour Cyber
+  app.post('/api/cyber/interview-simulation/analyze-notes', async (req: Request, res: Response) => {
+    try {
+      const {
+        notes,
+        candidateName,
+        profileType,
+        experienceLevel,
+        evaluationResult
+      } = req.body;
+
+      if (!notes) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Notes manquantes. Veuillez fournir des notes à analyser.'
+        });
+      }
+
+      // Générer le prompt pour structurer les notes
+      const systemPrompt = `Vous êtes un assistant spécialisé dans l'analyse et la structuration des notes d'audition de candidats pour mc2i. 
+Votre tâche est d'analyser les notes fournies par le responsable et de générer une synthèse structurée selon le format standard mc2i.
+
+Les informations du candidat :
+- Nom: ${candidateName || 'Non spécifié'}
+- Profil: ${profileType || 'Non spécifié'}
+- Niveau d'expérience: ${experienceLevel || 'Non spécifié'}
+
+Structurez la synthèse selon les sections suivantes (chaque section est obligatoire) :
+1. "Présentation générale du profil"
+2. "Description du parcours" : Formation (du bac au master), Expérience (date, rôle, mission, contexte), trous dans le CV (indiquer les raisons)
+3. "Présentation du profil" : Premières impressions, posture, etc.
+4. "Motivations conseil, SI, mc2i" : Compréhension de nos métiers/Renseignement sur le cabinet
+5. "Projet professionnel et perspectives" : Souhaits du candidat court terme, moyen terme et long terme (mission, évolution, secteur)
+6. "Potentiel du candidat vs Ambition"
+7. "Autres processus en cours et planning de décision" : Sociétés (Nom + secteur)
+8. "Critères et Planning de décision"
+9. "Évaluation des compétences" : Communication orale / Élocution
+10. "Forces de la candidature" : Compétences fonctionnelles/sectorielles, techniques, méthodologiques, soft skills
+11. "Faiblesses de la candidature / ou points à approfondir"
+12. "Niveau d'Anglais"
+
+Si le candidat est un stagiaire ou alternant, incluez ces sections supplémentaires :
+- "Période de formation supplémentaire ou départ à l'étranger après son stage de fin d'études"
+- "Si alternance, rythme du candidat (temps passé en entreprise, temps passé en formation)"
+- "Si stagiaire, niveau de la synthèse écrite"
+
+Terminez par :
+- "Synthèse écrite" : évaluation globale
+- "La raison principale de la décision (avis positif ou non) & Les points à approfondir"
+
+Répondez avec un objet JSON contenant les champs suivants, en utilisant les informations des notes pour remplir chaque section :
+{
+  "presentation": "Contenu pour Présentation générale du profil",
+  "parcours": "Contenu pour Description du parcours",
+  "impressions": "Contenu pour Premières impressions, posture",
+  "motivations": "Contenu pour Motivations conseil, SI, mc2i",
+  "projet": "Contenu pour Projet professionnel et perspectives",
+  "potentiel": "Contenu pour Potentiel vs Ambition",
+  "processus": "Contenu pour Autres processus en cours (ou null si non mentionné)",
+  "criteres": "Contenu pour Critères et évaluation des compétences",
+  "forces": "Contenu pour Forces de la candidature",
+  "faiblesses": "Contenu pour Faiblesses de la candidature",
+  "anglais": "Contenu pour Niveau d'Anglais (ou null si non mentionné)",
+  "stage": "Contenu pour informations stage/alternance (ou null si non applicable)",
+  "synthese": "Contenu pour Synthèse écrite",
+  "raison": "Contenu pour Raison principale de la décision"
+}
+
+Si certaines informations ne sont pas mentionnées dans les notes, indiquez-le clairement dans la section correspondante.`;
+
+      // Utiliser l'évaluation existante pour enrichir l'analyse si disponible
+      let evaluationInfo = "";
+      if (evaluationResult) {
+        evaluationInfo = `\n\nÉvaluation automatique réalisée par l'IA durant l'audition :\n`;
+        if (evaluationResult.summary) {
+          evaluationInfo += `Résumé : ${evaluationResult.summary}\n`;
+        }
+        if (evaluationResult.strengths && evaluationResult.strengths.length > 0) {
+          evaluationInfo += `Points forts : ${evaluationResult.strengths.join(', ')}\n`;
+        }
+        if (evaluationResult.improvements && evaluationResult.improvements.length > 0) {
+          evaluationInfo += `Points à améliorer : ${evaluationResult.improvements.join(', ')}\n`;
+        }
+        if (evaluationResult.recommendations) {
+          evaluationInfo += `Recommandations : ${evaluationResult.recommendations}\n`;
+        }
+      }
+
+      // Envoyer la requête à OpenAI
+      const messages: ChatCompletionRequestMessage[] = [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: notes + evaluationInfo }
+      ];
+
+      // Utiliser le service OpenAI pour obtenir une réponse
+      const response = await openAIService.getChatCompletion(
+        messages,
+        0.7,
+        2000
+      );
+
+      try {
+        // Tenter de parser la réponse JSON
+        const synthesis = JSON.parse(response);
+        
+        res.json({
+          success: true,
+          synthesis,
+          model: openAIService.getCurrentModelName()
+        });
+      } catch (parseError) {
+        console.error("Erreur lors du parsing JSON de la synthèse:", parseError);
+        
+        // Si le parsing échoue, retourner la réponse brute
+        res.status(500).json({ 
+          success: false,
+          error: "Erreur lors du parsing de la synthèse",
+          rawResponse: response
+        });
+      }
+    } catch (error: any) {
+      console.error('Erreur lors de l\'analyse des notes:', error);
+      
+      if (error.status === 401) {
+        res.status(401).json({ error: 'Erreur d\'authentification API OpenAI. Vérifiez votre clé API.' });
+      } else if (error.status === 429) {
+        res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
+      } else {
+        res.status(500).json({ 
+          error: 'Erreur lors de l\'analyse des notes',
+          details: error.message || 'Erreur inconnue'
+        });
+      }
+    }
+  });
+  
+  // Analyser les notes et générer une synthèse structurée pour AMOA
+  app.post('/api/amoa/interview-simulation/analyze-notes', async (req: Request, res: Response) => {
+    try {
+      const {
+        notes,
+        candidateName,
+        profileType,
+        experienceLevel,
+        sectorFocus,
+        evaluationResult
+      } = req.body;
+
+      if (!notes) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Notes manquantes. Veuillez fournir des notes à analyser.'
+        });
+      }
+
+      // Générer le prompt pour structurer les notes
+      const systemPrompt = `Vous êtes un assistant spécialisé dans l'analyse et la structuration des notes d'audition de candidats pour mc2i. 
+Votre tâche est d'analyser les notes fournies par le responsable et de générer une synthèse structurée selon le format standard mc2i.
+
+Les informations du candidat :
+- Nom: ${candidateName || 'Non spécifié'}
+- Profil: ${profileType || 'Non spécifié'}
+- Niveau d'expérience: ${experienceLevel || 'Non spécifié'}
+- Secteur d'activité: ${sectorFocus || 'Non spécifié'}
+
+Structurez la synthèse selon les sections suivantes (chaque section est obligatoire) :
+1. "Présentation générale du profil"
+2. "Description du parcours" : Formation (du bac au master), Expérience (date, rôle, mission, contexte), trous dans le CV (indiquer les raisons)
+3. "Présentation du profil" : Premières impressions, posture, etc.
+4. "Motivations conseil, SI, mc2i" : Compréhension de nos métiers/Renseignement sur le cabinet
+5. "Projet professionnel et perspectives" : Souhaits du candidat court terme, moyen terme et long terme (mission, évolution, secteur)
+6. "Potentiel du candidat vs Ambition"
+7. "Autres processus en cours et planning de décision" : Sociétés (Nom + secteur)
+8. "Critères et Planning de décision"
+9. "Évaluation des compétences" : Communication orale / Élocution
+10. "Forces de la candidature" : Compétences fonctionnelles/sectorielles, techniques, méthodologiques, soft skills
+11. "Faiblesses de la candidature / ou points à approfondir"
+12. "Niveau d'Anglais"
+
+Si le candidat est un stagiaire ou alternant, incluez ces sections supplémentaires :
+- "Période de formation supplémentaire ou départ à l'étranger après son stage de fin d'études"
+- "Si alternance, rythme du candidat (temps passé en entreprise, temps passé en formation)"
+- "Si stagiaire, niveau de la synthèse écrite"
+
+Terminez par :
+- "Synthèse écrite" : évaluation globale
+- "La raison principale de la décision (avis positif ou non) & Les points à approfondir"
+
+Répondez avec un objet JSON contenant les champs suivants, en utilisant les informations des notes pour remplir chaque section :
+{
+  "presentation": "Contenu pour Présentation générale du profil",
+  "parcours": "Contenu pour Description du parcours",
+  "impressions": "Contenu pour Premières impressions, posture",
+  "motivations": "Contenu pour Motivations conseil, SI, mc2i",
+  "projet": "Contenu pour Projet professionnel et perspectives",
+  "potentiel": "Contenu pour Potentiel vs Ambition",
+  "processus": "Contenu pour Autres processus en cours (ou null si non mentionné)",
+  "criteres": "Contenu pour Critères et évaluation des compétences",
+  "forces": "Contenu pour Forces de la candidature",
+  "faiblesses": "Contenu pour Faiblesses de la candidature",
+  "anglais": "Contenu pour Niveau d'Anglais (ou null si non mentionné)",
+  "stage": "Contenu pour informations stage/alternance (ou null si non applicable)",
+  "synthese": "Contenu pour Synthèse écrite",
+  "raison": "Contenu pour Raison principale de la décision"
+}
+
+Si certaines informations ne sont pas mentionnées dans les notes, indiquez-le clairement dans la section correspondante.`;
+
+      // Utiliser l'évaluation existante pour enrichir l'analyse si disponible
+      let evaluationInfo = "";
+      if (evaluationResult) {
+        evaluationInfo = `\n\nÉvaluation automatique réalisée par l'IA durant l'audition :\n`;
+        if (evaluationResult.summary) {
+          evaluationInfo += `Résumé : ${evaluationResult.summary}\n`;
+        }
+        if (evaluationResult.strengths && evaluationResult.strengths.length > 0) {
+          evaluationInfo += `Points forts : ${evaluationResult.strengths.join(', ')}\n`;
+        }
+        if (evaluationResult.improvements && evaluationResult.improvements.length > 0) {
+          evaluationInfo += `Points à améliorer : ${evaluationResult.improvements.join(', ')}\n`;
+        }
+        if (evaluationResult.recommendations) {
+          evaluationInfo += `Recommandations : ${evaluationResult.recommendations}\n`;
+        }
+      }
+
+      // Envoyer la requête à OpenAI
+      const messages: ChatCompletionRequestMessage[] = [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: notes + evaluationInfo }
+      ];
+
+      // Utiliser le service OpenAI pour obtenir une réponse
+      const response = await openAIService.getChatCompletion(
+        messages,
+        0.7,
+        2000
+      );
+
+      try {
+        // Tenter de parser la réponse JSON
+        const synthesis = JSON.parse(response);
+        
+        res.json({
+          success: true,
+          synthesis,
+          model: openAIService.getCurrentModelName()
+        });
+      } catch (parseError) {
+        console.error("Erreur lors du parsing JSON de la synthèse:", parseError);
+        
+        // Si le parsing échoue, retourner la réponse brute
+        res.status(500).json({ 
+          success: false,
+          error: "Erreur lors du parsing de la synthèse",
+          rawResponse: response
+        });
+      }
+    } catch (error: any) {
+      console.error('Erreur lors de l\'analyse des notes:', error);
+      
+      if (error.status === 401) {
+        res.status(401).json({ error: 'Erreur d\'authentification API OpenAI. Vérifiez votre clé API.' });
+      } else if (error.status === 429) {
+        res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
+      } else {
+        res.status(500).json({ 
+          error: 'Erreur lors de l\'analyse des notes',
+          details: error.message || 'Erreur inconnue'
+        });
+      }
+    }
+  });
+  
   // Routes pour l'Agent IA (I AM CYBER) avec timer et rapport email
   // Middleware pour assurer que les réponses sont toujours JSON
   const enforceJsonResponse = (req: Request, res: Response, next: NextFunction) => {
