@@ -124,6 +124,12 @@ const AmoaInterviewSimulation: React.FC = () => {
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
   
+  // Configuration du compte à rebours
+  const startTimer = () => {
+    console.log("Démarrage du timer...");
+    setTimeRemaining(600); // 10 minutes en secondes
+  };
+  
   // Configuration du formulaire
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -178,6 +184,9 @@ const AmoaInterviewSimulation: React.FC = () => {
       setIsSimulationActive(true);
       setActiveTab('simulation');
       
+      // Démarrer le timer
+      startTimer();
+      
       toast({
         title: "Simulation démarrée",
         description: "La simulation d'audition a commencé. Vous avez 10 minutes.",
@@ -196,6 +205,7 @@ const AmoaInterviewSimulation: React.FC = () => {
   
   // Fonction pour ignorer la saisie des informations
   const skipInfoAndStart = async () => {
+    console.log("Fonction skipInfoAndStart appelée");
     setIsSkippedInfo(true);
     form.setValue('recruiterEmail', '');
     form.setValue('candidateName', '');
@@ -204,6 +214,8 @@ const AmoaInterviewSimulation: React.FC = () => {
     const profileType = form.getValues('profileType');
     const experienceLevel = form.getValues('experienceLevel');
     const sectorFocus = form.getValues('sectorFocus');
+    
+    console.log("Valeurs du formulaire:", { profileType, experienceLevel, sectorFocus });
     
     if (!profileType || !experienceLevel || !sectorFocus) {
       toast({
@@ -218,38 +230,63 @@ const AmoaInterviewSimulation: React.FC = () => {
     setIsLoading(true);
     
     try {
+      console.log("Envoi de la requête API...");
+      
+      // Préparer les données à envoyer
+      const payload = {
+        domain: 'amoa',
+        profileType,
+        experienceLevel,
+        sectorFocus
+      };
+      
+      console.log("Payload:", payload);
+      
       const response = await fetch('/api/amoa/interview-simulation/start', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          domain: 'amoa',
-          profileType,
-          experienceLevel,
-          sectorFocus
-        })
+        body: JSON.stringify(payload)
       });
       
+      console.log("Réponse API status:", response.status);
+      
+      // Lire le contenu de la réponse
+      const responseText = await response.text();
+      console.log("Réponse API brute:", responseText);
+      
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erreur lors du démarrage de la simulation');
+        throw new Error(`Erreur lors du démarrage de la simulation: ${responseText}`);
       }
       
-      const data = await response.json();
+      // Convertir la réponse en JSON
+      const data = responseText ? JSON.parse(responseText) : {};
+      console.log("Données de réponse:", data);
+      
+      if (!data || !data.success) {
+        throw new Error("La réponse de l'API n'est pas dans le format attendu");
+      }
       
       // Ajouter le message initial de l'assistant
+      const initialMessage = data.initialMessage || "Bonjour, je suis votre interlocuteur client aujourd'hui. Nous allons évaluer vos compétences en assistance à maîtrise d'ouvrage. Présentez-vous et dites-moi ce qui vous intéresse dans ce domaine.";
+      console.log("Message initial:", initialMessage);
+      
       setMessages([
         {
           id: '1',
           role: 'assistant',
-          content: data.initialMessage || "Bonjour, je suis votre interlocuteur client aujourd'hui. Nous allons évaluer vos compétences en assistance à maîtrise d'ouvrage. Présentez-vous et dites-moi ce qui vous intéresse dans ce domaine.",
+          content: initialMessage,
           timestamp: new Date(),
         },
       ]);
       
+      // Activer la simulation
       setIsSimulationActive(true);
       setActiveTab('simulation');
+      
+      // Démarrer le timer
+      startTimer();
       
       toast({
         title: "Simulation démarrée",
