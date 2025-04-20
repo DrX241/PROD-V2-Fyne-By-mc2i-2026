@@ -195,7 +195,7 @@ const AmoaInterviewSimulation: React.FC = () => {
   };
   
   // Fonction pour ignorer la saisie des informations
-  const skipInfoAndStart = () => {
+  const skipInfoAndStart = async () => {
     setIsSkippedInfo(true);
     form.setValue('recruiterEmail', '');
     form.setValue('candidateName', '');
@@ -213,8 +213,58 @@ const AmoaInterviewSimulation: React.FC = () => {
       });
       return;
     }
+
+    // Appel direct à l'API sans passer par la validation du formulaire
+    setIsLoading(true);
     
-    startSimulation(form.getValues());
+    try {
+      const response = await fetch('/api/amoa/interview-simulation/start', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          domain: 'amoa',
+          profileType,
+          experienceLevel,
+          sectorFocus
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erreur lors du démarrage de la simulation');
+      }
+      
+      const data = await response.json();
+      
+      // Ajouter le message initial de l'assistant
+      setMessages([
+        {
+          id: '1',
+          role: 'assistant',
+          content: data.initialMessage || "Bonjour, je suis votre interlocuteur client aujourd'hui. Nous allons évaluer vos compétences en assistance à maîtrise d'ouvrage. Présentez-vous et dites-moi ce qui vous intéresse dans ce domaine.",
+          timestamp: new Date(),
+        },
+      ]);
+      
+      setIsSimulationActive(true);
+      setActiveTab('simulation');
+      
+      toast({
+        title: "Simulation démarrée",
+        description: "La simulation d'audition a commencé. Vous avez 10 minutes.",
+      });
+    } catch (error: any) {
+      console.error('Erreur lors de l\'initialisation sans contact:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: error.message || "Impossible de démarrer la simulation. Veuillez réessayer.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   // Envoi d'un message

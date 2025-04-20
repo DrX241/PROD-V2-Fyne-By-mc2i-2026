@@ -120,7 +120,7 @@ export async function startInterviewSimulation(req: Request, res: Response) {
     // Envoyer le scénario initial
     return res.json({
       success: true,
-      initialScenario
+      initialMessage: initialScenario
     });
 
   } catch (error) {
