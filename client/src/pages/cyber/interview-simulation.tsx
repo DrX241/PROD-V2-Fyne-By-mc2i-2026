@@ -1054,6 +1054,201 @@ const CyberInterviewSimulation: React.FC = () => {
                 </CardFooter>
               </Card>
             </TabsContent>
+
+            {/* Onglet Notes */}
+            <TabsContent value="notes">
+              <Card className="bg-gray-800 border-gray-700">
+                <CardHeader>
+                  <div className="flex items-center">
+                    <FileCheck className="w-6 h-6 mr-2 text-green-500" />
+                    <CardTitle>Notes du responsable</CardTitle>
+                  </div>
+                  <CardDescription className="text-gray-400">
+                    Ajoutez vos notes sur le consultant pour générer une synthèse structurée
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    <div className="bg-gray-700 p-4 rounded-md">
+                      <h3 className="text-xl font-semibold mb-4">Guide pour vos notes</h3>
+                      <p className="text-gray-300 mb-3">
+                        Copiez-collez vos notes en format libre. L'IA structurera ensuite ces informations dans les sections suivantes :
+                      </p>
+                      <ul className="list-disc ml-5 space-y-1 text-gray-300 text-sm">
+                        <li>Présentation générale du profil</li>
+                        <li>Description du parcours</li>
+                        <li>Premières impressions, posture</li>
+                        <li>Motivations conseil, SI, mc2i</li>
+                        <li>Projet professionnel et perspectives</li>
+                        <li>Potentiel du candidat vs Ambition</li>
+                        <li>Autres processus en cours</li>
+                        <li>Critères d'évaluation</li>
+                        <li>Forces et faiblesses</li>
+                        <li>Spécificités stagiaires/alternants</li>
+                        <li>Synthèse écrite et raison de la décision</li>
+                      </ul>
+                    </div>
+                    
+                    <div className="bg-gray-700 p-4 rounded-md">
+                      <h3 className="text-lg font-semibold mb-4">Vos notes sur le consultant</h3>
+                      <Textarea 
+                        value={notesText}
+                        onChange={(e) => setNotesText(e.target.value)}
+                        placeholder="Collez ici vos notes d'audition en format libre..."
+                        className="min-h-[300px] resize-y bg-gray-800 border-gray-600 text-white"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-between">
+                  <Button
+                    onClick={resetSimulation}
+                    variant="outline"
+                    className="border-gray-600 bg-gray-700 hover:bg-gray-600"
+                  >
+                    Nouvelle simulation
+                  </Button>
+                  <Button
+                    onClick={analyzeNotes}
+                    className="bg-[#006a9e] hover:bg-blue-700"
+                    disabled={isAnalyzingNotes || !notesText.trim()}
+                  >
+                    {isAnalyzingNotes ? "Analyse en cours..." : "Analyser et créer la synthèse"}
+                  </Button>
+                </CardFooter>
+              </Card>
+            </TabsContent>
+
+            {/* Onglet Synthèse */}
+            <TabsContent value="synthese">
+              <Card className="bg-gray-800 border-gray-700">
+                <CardHeader>
+                  <div className="flex items-center">
+                    <FileCheck className="w-6 h-6 mr-2 text-green-500" />
+                    <CardTitle>Synthèse structurée de l'audition</CardTitle>
+                  </div>
+                  <CardDescription className="text-gray-400">
+                    Synthèse structurée générée à partir de vos notes et de l'évaluation IA
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {synthesisResult ? (
+                    <div className="space-y-6">
+                      <div className="bg-gray-700 p-4 rounded-md">
+                        <h3 className="text-xl font-semibold mb-4">Présentation générale du profil</h3>
+                        <p className="whitespace-pre-wrap">{synthesisResult.presentation || "Information non disponible"}</p>
+                      </div>
+                      
+                      <div className="bg-gray-700 p-4 rounded-md">
+                        <h3 className="text-xl font-semibold mb-4">Description du parcours</h3>
+                        <p className="whitespace-pre-wrap">{synthesisResult.parcours || "Information non disponible"}</p>
+                      </div>
+                      
+                      <div className="bg-gray-700 p-4 rounded-md">
+                        <h3 className="text-xl font-semibold mb-4">Premières impressions, posture</h3>
+                        <p className="whitespace-pre-wrap">{synthesisResult.impressions || "Information non disponible"}</p>
+                      </div>
+                      
+                      <div className="bg-gray-700 p-4 rounded-md">
+                        <h3 className="text-xl font-semibold mb-4">Motivations conseil, SI, mc2i</h3>
+                        <p className="whitespace-pre-wrap">{synthesisResult.motivations || "Information non disponible"}</p>
+                      </div>
+                      
+                      <div className="bg-gray-700 p-4 rounded-md">
+                        <h3 className="text-xl font-semibold mb-4">Projet professionnel et perspectives</h3>
+                        <p className="whitespace-pre-wrap">{synthesisResult.projet || "Information non disponible"}</p>
+                      </div>
+                      
+                      <div className="bg-gray-700 p-4 rounded-md">
+                        <h3 className="text-xl font-semibold mb-4">Potentiel du candidat vs Ambition</h3>
+                        <p className="whitespace-pre-wrap">{synthesisResult.potentiel || "Information non disponible"}</p>
+                      </div>
+                      
+                      {synthesisResult.processus && (
+                        <div className="bg-gray-700 p-4 rounded-md">
+                          <h3 className="text-xl font-semibold mb-4">Autres processus en cours</h3>
+                          <p className="whitespace-pre-wrap">{synthesisResult.processus}</p>
+                        </div>
+                      )}
+                      
+                      <div className="bg-gray-700 p-4 rounded-md">
+                        <h3 className="text-xl font-semibold mb-4">Critères et évaluation des compétences</h3>
+                        <p className="whitespace-pre-wrap">{synthesisResult.criteres || "Information non disponible"}</p>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="bg-gray-700 p-4 rounded-md">
+                          <h3 className="text-lg font-semibold mb-4 flex items-center">
+                            <CheckCircle className="w-5 h-5 mr-2 text-green-500" />
+                            Forces de la candidature
+                          </h3>
+                          <p className="whitespace-pre-wrap">{synthesisResult.forces || "Information non disponible"}</p>
+                        </div>
+                        
+                        <div className="bg-gray-700 p-4 rounded-md">
+                          <h3 className="text-lg font-semibold mb-4 flex items-center">
+                            <AlertCircle className="w-5 h-5 mr-2 text-amber-500" />
+                            Faiblesses ou points à approfondir
+                          </h3>
+                          <p className="whitespace-pre-wrap">{synthesisResult.faiblesses || "Information non disponible"}</p>
+                        </div>
+                      </div>
+                      
+                      {synthesisResult.anglais && (
+                        <div className="bg-gray-700 p-4 rounded-md">
+                          <h3 className="text-xl font-semibold mb-4">Niveau d'Anglais</h3>
+                          <p className="whitespace-pre-wrap">{synthesisResult.anglais}</p>
+                        </div>
+                      )}
+                      
+                      {synthesisResult.stage && (
+                        <div className="bg-gray-700 p-4 rounded-md">
+                          <h3 className="text-xl font-semibold mb-4">Informations stagiaire/alternant</h3>
+                          <p className="whitespace-pre-wrap">{synthesisResult.stage}</p>
+                        </div>
+                      )}
+                      
+                      <div className="bg-gray-700 p-4 rounded-md">
+                        <h3 className="text-xl font-semibold mb-4">Synthèse écrite</h3>
+                        <p className="whitespace-pre-wrap">{synthesisResult.synthese || "Information non disponible"}</p>
+                      </div>
+                      
+                      <div className="bg-gray-700 p-4 rounded-md">
+                        <h3 className="text-xl font-semibold mb-4">Raison principale de la décision</h3>
+                        <p className="whitespace-pre-wrap">{synthesisResult.raison || "Information non disponible"}</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <p className="text-gray-400 mb-4">Aucune synthèse disponible. Veuillez d'abord analyser vos notes.</p>
+                      <Button 
+                        onClick={() => setActiveTab('notes')}
+                        className="bg-[#006a9e] hover:bg-blue-700"
+                      >
+                        Aller à l'onglet Notes
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+                <CardFooter className="flex justify-between">
+                  <Button
+                    onClick={resetSimulation}
+                    variant="outline"
+                    className="border-gray-600 bg-gray-700 hover:bg-gray-600"
+                  >
+                    Nouvelle simulation
+                  </Button>
+                  {synthesisResult && (
+                    <Button
+                      onClick={() => {/* À implémenter: téléchargement de la synthèse */}}
+                      className="bg-[#006a9e] hover:bg-blue-700"
+                    >
+                      Télécharger la synthèse
+                    </Button>
+                  )}
+                </CardFooter>
+              </Card>
+            </TabsContent>
           </Tabs>
         </motion.div>
       </div>
