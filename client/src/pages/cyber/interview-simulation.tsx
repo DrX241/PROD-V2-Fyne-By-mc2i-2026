@@ -91,6 +91,11 @@ const CyberInterviewSimulation: React.FC = () => {
   const [isSkippedInfo, setIsSkippedInfo] = useState(false);
   const [showContactForm, setShowContactForm] = useState(false);
   
+  // États pour les notes et la synthèse
+  const [notesText, setNotesText] = useState('');
+  const [isAnalyzingNotes, setIsAnalyzingNotes] = useState(false);
+  const [synthesisResult, setSynthesisResult] = useState<any>(null);
+  
   // Référence pour le défilement
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
@@ -480,12 +485,66 @@ const CyberInterviewSimulation: React.FC = () => {
     setActiveTab('configuration');
     setIsSkippedInfo(false);
     setShowContactForm(false);
+    setNotesText('');
+    setSynthesisResult(null);
     form.reset({
       trainerEmail: '',
       candidateName: '',
       profileType: '',
       experienceLevel: '',
     });
+  };
+  
+  // Analyser les notes et générer une synthèse structurée
+  const analyzeNotes = async () => {
+    if (!notesText.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Notes vides",
+        description: "Veuillez saisir vos notes avant de générer une synthèse."
+      });
+      return;
+    }
+    
+    setIsAnalyzingNotes(true);
+    
+    try {
+      const response = await fetch('/api/cyber/interview-simulation/analyze-notes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          notes: notesText,
+          candidateName: form.getValues('candidateName'),
+          profileType: form.getValues('profileType'),
+          experienceLevel: form.getValues('experienceLevel'),
+          evaluationResult: evaluationResult
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de l\'analyse des notes');
+      }
+      
+      const data = await response.json();
+      setSynthesisResult(data.synthesis);
+      setActiveTab('synthese');
+      
+      toast({
+        title: "Synthèse générée",
+        description: "Vos notes ont été analysées et structurées avec succès."
+      });
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible d'analyser les notes. Veuillez réessayer."
+      });
+    } finally {
+      setIsAnalyzingNotes(false);
+    }
   };
   
   // Configuration du formulaire de contact à la fin
@@ -663,7 +722,7 @@ const CyberInterviewSimulation: React.FC = () => {
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList className="grid grid-cols-3 mb-8">
+            <TabsList className="grid grid-cols-5 mb-8">
               <TabsTrigger 
                 value="configuration"
                 disabled={isSimulationActive && !simulationComplete}
@@ -681,6 +740,18 @@ const CyberInterviewSimulation: React.FC = () => {
                 disabled={!simulationComplete}
               >
                 Évaluation
+              </TabsTrigger>
+              <TabsTrigger 
+                value="notes"
+                disabled={!simulationComplete}
+              >
+                Notes
+              </TabsTrigger>
+              <TabsTrigger 
+                value="synthese"
+                disabled={!simulationComplete}
+              >
+                Synthèse
               </TabsTrigger>
             </TabsList>
             
