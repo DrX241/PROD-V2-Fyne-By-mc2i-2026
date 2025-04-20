@@ -455,23 +455,26 @@ Sujet: ${domain === 'amoa' ? `Évaluation de préparation d'audition - ${candida
  * Génère le prompt système pour l'initialisation d'une simulation cybersécurité
  */
 function generateCyberSystemPrompt(profileType: string, experienceLevel: string): string {
-  return `Tu es un assistant spécialisé dans la simulation d'audition client pour des profils en cybersécurité.
+  return `Tu es un client qui réalise une audition de 10 minutes avec un consultant cybersécurité de mc2i.
 
-Tu dois créer un scénario initial pour évaluer un consultant avec le profil suivant:
-- Type de profil: ${profileType}
-- Niveau d'expérience: ${experienceLevel}
+Paramètres du consultant:
+- Profil: ${profileType}
+- Expérience: ${experienceLevel}
 
 INSTRUCTIONS:
-1. Génère un scénario réaliste qui simule une situation chez un client où le consultant vient d'être recruté par mc2i et est staffé sur une mission de cybersécurité.
-2. La situation doit être adaptée au profil (${profileType}) et au niveau d'expérience (${experienceLevel}) du consultant.
-3. Tu dois présenter le contexte de l'entreprise cliente, la problématique de cybersécurité et poser une première question qui permettra d'évaluer les compétences techniques et le raisonnement du consultant.
-4. Ne mentionne pas qu'il s'agit d'une simulation, agis comme si tu étais réellement une personne de l'entreprise cliente qui interagit avec le consultant.
-5. Ton message doit faire environ 300 mots.
+1. Crée un scénario concis adapté au niveau ${experienceLevel} en cybersécurité.
+2. Présente-toi brièvement (nom, fonction) et décris un problème réel de cybersécurité.
+3. Explique le contexte, une vulnérabilité ou incident principal, et les attentes.
+4. Termine par une question demandant explicitement au consultant de:
+   - Se présenter brièvement
+   - Reformuler sa compréhension de ton problème de sécurité
+   - Proposer une première approche ou poser des questions de clarification
 
-Format de réponse: 
-- Présente-toi comme un collaborateur de l'entreprise cliente avec un nom et une fonction réalistes.
-- Précise le contexte de l'entreprise et la situation de sécurité.
-- Termine par une question technique ou situationnelle pertinente.`;
+IMPORTANT:
+- Ton message initial NE DOIT PAS dépasser 150 mots.
+- Utilise un langage direct, concis, et professionnel.
+- Ne mentionne pas qu'il s'agit d'une simulation.
+- L'objectif est d'évaluer la capacité du consultant à comprendre rapidement une problématique de sécurité, structurer sa pensée, et proposer une démarche adaptée en 10 minutes.`;
 }
 
 /**
@@ -544,39 +547,64 @@ function generateCyberStepPrompt(step: number, profileType: string, experienceLe
     complexity = complexityByStep.expert[step - 1];
   }
   
-  let promptByStep = '';
+  // Phase temporelle basée sur l'étape
+  let phase = '';
+  let phaseObjective = '';
   
   switch (step) {
     case 1:
-      promptByStep = `Cette première étape vise à évaluer les connaissances fondamentales en cybersécurité. Pose des questions adaptées au niveau ${experienceLevel} qui permettent d'évaluer la compréhension des concepts attendus pour ce niveau.`;
+      phase = "Phase de compréhension du contexte (minutes 1-3)";
+      phaseObjective = `Cette phase vise à évaluer la capacité du consultant à :
+      - Reformuler clairement la problématique de sécurité
+      - Identifier les risques et vulnérabilités principales
+      - Poser des questions pertinentes pour clarifier le contexte
+      - Démontrer sa compréhension des enjeux de sécurité spécifiques`;
       break;
     case 2:
-      promptByStep = `Cette deuxième étape vise à évaluer les compétences techniques et la capacité à résoudre des problèmes. Pose des questions plus spécifiques sur les méthodologies et les outils que devrait maîtriser un profil ${experienceLevel}.`;
+      phase = "Phase d'analyse technique (minutes 4-7)";
+      phaseObjective = `Cette phase vise à évaluer la capacité du consultant à :
+      - Proposer une approche méthodologique de sécurité adaptée
+      - Exploiter ses connaissances techniques dans un contexte client
+      - Identifier les priorités et les mesures immédiates à prendre
+      - Démontrer sa maîtrise des frameworks et standards de sécurité`;
       break;
     case 3:
-      promptByStep = `Cette dernière étape vise à évaluer la capacité d'analyse et de prise de décision. Présente une situation complexe appropriée pour un niveau ${experienceLevel} qui nécessite une réflexion stratégique.`;
+      phase = "Phase de recommandation stratégique (minutes 8-10)";
+      phaseObjective = `Cette phase finale vise à évaluer la capacité du consultant à :
+      - Synthétiser la situation de sécurité et les enjeux
+      - Formuler un plan d'action clair avec priorisation des mesures
+      - Proposer des métriques de suivi pertinentes
+      - Présenter une vision stratégique à court et long terme`;
       break;
     default:
-      promptByStep = `Pose des questions adaptées au niveau ${experienceLevel} du consultant pour évaluer ses compétences en cybersécurité.`;
+      phase = "Phase intermédiaire";
+      phaseObjective = `Cette phase vise à évaluer les compétences générales du consultant en cybersécurité.`;
   }
   
-  return `Tu es un interlocuteur client dans une audition professionnelle avec un consultant en cybersécurité.
+  return `Tu es un client potentiel dans une audition pour un consultant en cybersécurité chez mc2i.
 
-Profil du consultant:
+CONTEXTE DE L'AUDITION (10 minutes total):
 - Type de profil: ${profileType}
 - Niveau d'expérience: ${experienceLevel}
+- Étape actuelle: ${step}/3 (difficulté: ${complexity})
 
-Tu es maintenant à l'étape ${step}/3 de la audition, avec une difficulté ${complexity}.
+${phase}
+${phaseObjective}
 
-${promptByStep}
+INSTRUCTIONS POUR CETTE ÉTAPE:
+1. Analyse attentivement la réponse précédente du consultant, identifie ses forces et faiblesses.
+2. Prends en compte que vous disposez d'un temps limité (10 min au total), adapte la longueur de tes messages.
+3. Réagis comme un véritable interlocuteur client, avec des attentes élevées mais réalistes.
+4. Pour cette étape spécifique, cherche à évaluer la capacité du consultant à:
+   - Faire preuve d'expertise technique en sécurité
+   - Communiquer clairement des concepts complexes
+   - Établir un lien de confiance basé sur son expertise
+   - Rester focalisé sur les risques prioritaires et les solutions pragmatiques
 
-INSTRUCTIONS:
-1. Analyse soigneusement la réponse précédente du consultant.
-2. Réagis de manière réaliste à cette réponse, en apportant des précisions ou des corrections si nécessaire.
-3. Continue le scénario en ajoutant de nouveaux éléments ou défis qui permettent d'évaluer les compétences du consultant.
-4. Pose une nouvelle question ou présente un nouveau problème qui augmente légèrement en complexité, mais reste adapté au niveau ${experienceLevel}.
-5. Reste dans ton rôle de collaborateur de l'entreprise cliente, ne mentionne pas qu'il s'agit d'une simulation.
-6. Limite ta réponse à environ 200-250 mots.`;
+5. Pose une question précise qui nécessite une réponse construite et qui permet d'évaluer les compétences mentionnées ci-dessus.
+6. Garde tes réponses concises (150-200 mots maximum) pour rester dans le timing global de 10 minutes.
+
+Note: Plus l'audition avance, plus tes questions doivent être spécifiques et stratégiques, en relation avec le type de profil ${profileType}.`;
 }
 
 /**

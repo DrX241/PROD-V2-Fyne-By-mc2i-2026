@@ -27,12 +27,15 @@ import HomeLayout from '@/components/layout/HomeLayout';
 
 // Schéma de formulaire pour la configuration de l'audition
 const formSchema = z.object({
+  // Champs optionnels (peuvent être ignorés au début)
   trainerEmail: z.string().email({
     message: "Veuillez entrer une adresse email valide.",
-  }),
+  }).optional().or(z.literal('')),
   candidateName: z.string().min(2, {
     message: "Le nom du consultant doit contenir au moins 2 caractères.",
-  }),
+  }).optional().or(z.literal('')),
+  
+  // Champs obligatoires pour la simulation
   profileType: z.string().min(1, {
     message: "Veuillez sélectionner un type de profil.",
   }),
@@ -41,8 +44,28 @@ const formSchema = z.object({
   }),
 });
 
-// Type d'inférence pour le schéma de formulaire
+// Schéma pour le formulaire de contact à la fin de la simulation (tous les champs sont obligatoires)
+const contactFormSchema = z.object({
+  // Champs de contact qui étaient optionnels au début, maintenant obligatoires
+  trainerEmail: z.string().email({
+    message: "Veuillez entrer une adresse email valide.",
+  }),
+  candidateName: z.string().min(2, {
+    message: "Le nom du consultant doit contenir au moins 2 caractères.",
+  }),
+  
+  // On inclut également les champs importants pour l'évaluation
+  profileType: z.string().min(1, {
+    message: "Veuillez sélectionner un type de profil.",
+  }),
+  experienceLevel: z.string().min(1, {
+    message: "Veuillez sélectionner un niveau d'expérience.",
+  }),
+});
+
+// Types d'inférence pour les schémas de formulaire
 type FormValues = z.infer<typeof formSchema>;
+type ContactFormValues = z.infer<typeof contactFormSchema>;
 
 interface Message {
   id: string;
@@ -64,6 +87,8 @@ const CyberInterviewSimulation: React.FC = () => {
   const [userInput, setUserInput] = useState('');
   const [simulationComplete, setSimulationComplete] = useState(false);
   const [evaluationResult, setEvaluationResult] = useState<any>(null);
+  const [isSkippedInfo, setIsSkippedInfo] = useState(false);
+  const [showContactForm, setShowContactForm] = useState(false);
   
   // Référence pour le défilement
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -120,6 +145,14 @@ const CyberInterviewSimulation: React.FC = () => {
   // Démarrage de l'audition
   const startSimulation = async (values: FormValues) => {
     setIsLoading(true);
+    
+    // Vérifier si les informations ont été ignorées
+    if (!values.trainerEmail || !values.candidateName) {
+      setIsSkippedInfo(true);
+    } else {
+      setIsSkippedInfo(false);
+    }
+    
     try {
       const response = await fetch('/api/cyber/interview-simulation/start', {
         method: 'POST',
@@ -150,6 +183,10 @@ const CyberInterviewSimulation: React.FC = () => {
       
       setIsSimulationActive(true);
       setActiveTab('simulation');
+      
+      // Démarrer le timer
+      startTimer();
+      
       toast({
         title: "Simulation démarrée",
         description: "La simulation d'audition a commencé. Vous avez 10 minutes.",
@@ -160,6 +197,110 @@ const CyberInterviewSimulation: React.FC = () => {
         variant: "destructive",
         title: "Erreur",
         description: "Impossible de démarrer la simulation. Veuillez réessayer.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Configuration du compte à rebours
+  const startTimer = () => {
+    console.log("Démarrage du timer...");
+    setTimeRemaining(600); // 10 minutes en secondes
+  };
+  
+  // Fonction pour ignorer la saisie des informations de contact (uniquement email et nom)
+  const skipInfoAndStart = async () => {
+    console.log("Fonction skipInfoAndStart appelée");
+    setIsSkippedInfo(true);
+    
+    // Récupérer les valeurs obligatoires
+    const profileType = form.getValues('profileType');
+    const experienceLevel = form.getValues('experienceLevel');
+    
+    // Vérifier que tous les champs obligatoires sont remplis
+    if (!profileType || !experienceLevel) {
+      toast({
+        variant: "destructive",
+        title: "Champs obligatoires manquants",
+        description: "Les champs Type de profil et Niveau d'expérience sont obligatoires."
+      });
+      return;
+    }
+    
+    console.log("Valeurs du formulaire:", { profileType, experienceLevel });
+
+    // Appel direct à l'API sans passer par la validation complète du formulaire
+    setIsLoading(true);
+    
+    try {
+      console.log("Envoi de la requête API...");
+      
+      // Préparer les données à envoyer (sans les informations de contact)
+      const payload = {
+        domain: 'cyber',
+        profileType,
+        experienceLevel
+      };
+      
+      console.log("Payload:", payload);
+      
+      const response = await fetch('/api/cyber/interview-simulation/start', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+      });
+      
+      console.log("Réponse API status:", response.status);
+      
+      // Lire le contenu de la réponse
+      const responseText = await response.text();
+      console.log("Réponse API brute:", responseText);
+      
+      if (!response.ok) {
+        throw new Error(`Erreur lors du démarrage de la simulation: ${responseText}`);
+      }
+      
+      // Convertir la réponse en JSON
+      const data = responseText ? JSON.parse(responseText) : {};
+      console.log("Données de réponse:", data);
+      
+      if (!data || !data.success) {
+        throw new Error("La réponse de l'API n'est pas dans le format attendu");
+      }
+      
+      // Ajouter le message initial de l'assistant
+      const initialMessage = data.initialMessage || "Bonjour, je suis un client potentiel qui cherche des services en cybersécurité. Pouvez-vous me présenter votre expertise et me dire comment vous pourriez répondre à mes besoins en matière de sécurité informatique ?";
+      console.log("Message initial:", initialMessage);
+      
+      setMessages([
+        {
+          id: '1',
+          role: 'assistant',
+          content: initialMessage,
+          timestamp: new Date(),
+        },
+      ]);
+      
+      // Activer la simulation
+      setIsSimulationActive(true);
+      setActiveTab('simulation');
+      
+      // Démarrer le timer
+      startTimer();
+      
+      toast({
+        title: "Simulation démarrée",
+        description: "La simulation d'audition a commencé. Vous avez 10 minutes.",
+      });
+    } catch (error: any) {
+      console.error('Erreur lors de l\'initialisation sans contact:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: error.message || "Impossible de démarrer la simulation. Veuillez réessayer.",
       });
     } finally {
       setIsLoading(false);
@@ -236,7 +377,34 @@ const CyberInterviewSimulation: React.FC = () => {
   const completeSimulation = async () => {
     if (simulationComplete) return;
     
+    // Si l'utilisateur a ignoré la saisie des informations de contact, les demander maintenant
+    if (isSkippedInfo) {
+      setShowContactForm(true);
+      return;
+    }
+    
+    await finalizeSimulation();
+  };
+  
+  // Soumettre les informations de contact finales et terminer la simulation
+  const submitContactInfo = async (contactInfo: ContactFormValues) => {
+    // Mettre à jour le formulaire avec toutes les nouvelles valeurs
+    form.setValue('trainerEmail', contactInfo.trainerEmail);
+    form.setValue('candidateName', contactInfo.candidateName);
+    form.setValue('profileType', contactInfo.profileType);
+    form.setValue('experienceLevel', contactInfo.experienceLevel);
+    
+    // Fermer le formulaire de contact
+    setShowContactForm(false);
+    
+    // Finaliser la simulation avec les nouvelles informations
+    await finalizeSimulation();
+  };
+  
+  // Finalisation réelle de la simulation après avoir toutes les informations
+  const finalizeSimulation = async () => {
     setIsLoading(true);
+    
     try {
       const response = await fetch('/api/cyber/interview-simulation/complete', {
         method: 'POST',
@@ -276,10 +444,19 @@ const CyberInterviewSimulation: React.FC = () => {
       
       setSimulationComplete(true);
       setActiveTab('evaluation');
-      toast({
-        title: "Simulation terminée",
-        description: "L'évaluation de votre audition est disponible dans l'onglet Évaluation.",
-      });
+      
+      const emailReceiver = form.getValues('trainerEmail');
+      if (emailReceiver) {
+        toast({
+          title: "Simulation terminée",
+          description: "L'évaluation de votre audition a été envoyée à " + emailReceiver,
+        });
+      } else {
+        toast({
+          title: "Simulation terminée",
+          description: "L'évaluation de votre audition est disponible dans l'onglet Évaluation.",
+        });
+      }
     } catch (error) {
       console.error('Erreur:', error);
       toast({
@@ -300,6 +477,8 @@ const CyberInterviewSimulation: React.FC = () => {
     setSimulationComplete(false);
     setEvaluationResult(null);
     setActiveTab('configuration');
+    setIsSkippedInfo(false);
+    setShowContactForm(false);
     form.reset({
       trainerEmail: '',
       candidateName: '',
@@ -308,8 +487,143 @@ const CyberInterviewSimulation: React.FC = () => {
     });
   };
   
+  // Configuration du formulaire de contact à la fin
+  const contactForm = useForm<ContactFormValues>({
+    resolver: zodResolver(contactFormSchema),
+    defaultValues: {
+      trainerEmail: '',
+      candidateName: '',
+      // Copier les données déjà saisies à partir du formulaire principal
+      profileType: form.getValues('profileType'),
+      experienceLevel: form.getValues('experienceLevel'),
+    },
+  });
+  
   return (
     <HomeLayout>
+      {/* Dialogue pour saisir les informations de contact à la fin de la simulation */}
+      <AlertDialog open={showContactForm} onOpenChange={setShowContactForm}>
+        <AlertDialogContent className="bg-gray-800 text-white border-gray-700">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl">Informations pour finaliser la simulation</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-400">
+              Veuillez remplir tous les champs ci-dessous pour finaliser la simulation et recevoir l'évaluation par email.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          <Form {...contactForm}>
+            <form onSubmit={contactForm.handleSubmit((data) => {
+              // Transférer toutes les données du contactForm vers le form principal
+              form.setValue('trainerEmail', data.trainerEmail);
+              form.setValue('candidateName', data.candidateName);
+              form.setValue('profileType', data.profileType);
+              form.setValue('experienceLevel', data.experienceLevel);
+              
+              // Fermer et finaliser
+              setShowContactForm(false);
+              finalizeSimulation();
+            })} className="space-y-4 my-4">
+              {/* Informations de contact */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-300">Informations de contact</h3>
+                
+                <FormField
+                  control={contactForm.control}
+                  name="trainerEmail"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Email du formateur</FormLabel>
+                      <FormControl>
+                        <Input placeholder="email@exemple.com" {...field} className="bg-gray-700 border-gray-600 text-white" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={contactForm.control}
+                  name="candidateName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Nom du consultant</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Prénom Nom" {...field} className="bg-gray-700 border-gray-600 text-white" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              {/* Informations d'évaluation */}
+              <div className="space-y-4 mt-4">
+                <h3 className="text-lg font-semibold text-gray-300">Paramètres d'évaluation</h3>
+                
+                <FormField
+                  control={contactForm.control}
+                  name="profileType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Type de profil</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                            <SelectValue placeholder="Sélectionnez un profil" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-gray-700 border-gray-600 text-white">
+                          <SelectItem value="analyste_soc">Analyste SOC</SelectItem>
+                          <SelectItem value="pentester">Pentester</SelectItem>
+                          <SelectItem value="responsable_securite">Responsable Sécurité</SelectItem>
+                          <SelectItem value="consultant_cybersecurite">Consultant Cybersécurité</SelectItem>
+                          <SelectItem value="ingenieur_securite">Ingénieur Sécurité</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={contactForm.control}
+                  name="experienceLevel"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Niveau d'expérience</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                            <SelectValue placeholder="Sélectionnez un niveau" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-gray-700 border-gray-600 text-white">
+                          <SelectItem value="junior">Junior (0-2 ans)</SelectItem>
+                          <SelectItem value="intermediaire">Intermédiaire (3-5 ans)</SelectItem>
+                          <SelectItem value="senior">Senior (6-9 ans)</SelectItem>
+                          <SelectItem value="expert">Expert (10+ ans)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <AlertDialogFooter className="gap-2 mt-6">
+                <Button
+                  type="submit" 
+                  className="bg-[#006a9e] hover:bg-blue-700"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Chargement..." : "Soumettre et finaliser"}
+                </Button>
+              </AlertDialogFooter>
+            </form>
+          </Form>
+        </AlertDialogContent>
+      </AlertDialog>
+      
       <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white p-4">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
