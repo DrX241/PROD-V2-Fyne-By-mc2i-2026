@@ -480,22 +480,35 @@ Format de réponse:
 function generateAmoaSystemPrompt(profileType: string, experienceLevel: string, sectorFocus: string): string {
   return `Tu es un assistant spécialisé dans la simulation de préparation d'audition pour des consultants AMOA (Assistance à Maîtrise d'Ouvrage).
 
-Tu dois créer un scénario initial pour évaluer un consultant avec le profil suivant:
+Tu dois créer un scénario initial pour une audition client de 10 minutes avec un consultant ayant le profil suivant:
 - Type de profil: ${profileType}
 - Niveau d'expérience: ${experienceLevel}
 - Secteur d'activité: ${sectorFocus}
 
+CONTEXTE IMPORTANT:
+Une audition chez mc2i est un entretien structuré réalisé avant de positionner un consultant sur une mission client. Cette audition de 10 minutes vise à:
+- Valider la compréhension du besoin client (contexte, enjeux, attentes)
+- Tester la posture professionnelle (écoute, clarté, structure)
+- Évaluer la capacité à se projeter sur la mission
+
 INSTRUCTIONS:
-1. Génère un scénario réaliste qui simule une situation chez un client où le consultant vient d'être recruté par mc2i et est staffé sur une mission AMOA.
-2. La situation doit être adaptée au profil (${profileType}), au niveau d'expérience (${experienceLevel}) et au secteur (${sectorFocus}).
-3. Tu dois présenter le contexte de l'entreprise cliente, le projet en cours, les enjeux et poser une première question qui permettra d'évaluer les compétences méthodologiques et fonctionnelles du consultant.
-4. Ne mentionne pas qu'il s'agit d'une simulation, agis comme si tu étais réellement une personne de l'entreprise cliente qui interagit avec le consultant.
+1. Génère un scénario réaliste qui simule une mission AMOA chez un client dans le secteur ${sectorFocus}.
+2. La situation doit être adaptée au profil ${profileType} et au niveau d'expérience ${experienceLevel}.
+3. Structure ton message en deux parties:
+   a) Présentation du contexte client et du projet (environ 70% du message)
+   b) Question initiale qui DEMANDE EXPLICITEMENT au consultant de:
+      - Se présenter brièvement (nom, poste, expériences pertinentes)
+      - Reformuler le besoin avec ses propres mots pour vérifier sa compréhension
+      - Commencer à questionner ou proposer une approche initiale
+
+4. Ne mentionne pas qu'il s'agit d'une simulation, agis comme un véritable interlocuteur client.
 5. Ton message doit faire environ 300 mots.
 
-Format de réponse:
+FORMAT DE RÉPONSE:
 - Présente-toi comme un collaborateur de l'entreprise cliente avec un nom et une fonction réalistes.
-- Précise le contexte de l'entreprise et la situation du projet.
-- Termine par une question méthodologique ou situationnelle pertinente.`;
+- Précise clairement le contexte de l'entreprise, la situation du projet et les enjeux principaux.
+- Mentionne au moins une contrainte ou difficulté du projet pour tester la réactivité du consultant.
+- Termine par une question qui invite le consultant à se présenter ET à reformuler le besoin qu'il a compris.`;
 }
 
 /**
@@ -619,40 +632,65 @@ function generateAmoaStepPrompt(step: number, profileType: string, experienceLev
     complexity = complexityByStep.expert[step - 1];
   }
   
-  let promptByStep = '';
+  // Phase temporelle basée sur l'étape
+  let phase = '';
+  let phaseObjective = '';
   
   switch (step) {
     case 1:
-      promptByStep = `Cette première étape vise à évaluer les connaissances méthodologiques et la compréhension des enjeux projet. Pose des questions adaptées au niveau ${experienceLevel} qui permettent d'évaluer la compréhension du rôle AMOA dans le secteur ${sectorFocus}.`;
+      phase = "Phase de compréhension du besoin (minutes 1-3)";
+      phaseObjective = `Cette phase vise à évaluer la capacité du consultant à :
+      - Reformuler clairement le besoin avec ses propres mots
+      - Identifier les enjeux majeurs du projet
+      - Poser des questions pertinentes pour clarifier les points flous
+      - Faire le lien avec ses expériences passées dans des contextes similaires`;
       break;
     case 2:
-      promptByStep = `Cette deuxième étape vise à évaluer les compétences en gestion des parties prenantes et en résolution de problèmes. Pose des questions sur la gestion des conflits ou des situations bloquantes adaptées à un niveau ${experienceLevel} dans le secteur ${sectorFocus}.`;
+      phase = "Phase de mise en situation (minutes 4-7)";
+      phaseObjective = `Cette phase vise à évaluer la capacité du consultant à :
+      - Proposer une approche méthodologique adaptée
+      - Gérer efficacement des parties prenantes aux intérêts divergents
+      - Résoudre des problèmes complexes typiques du secteur ${sectorFocus}
+      - Démontrer son expertise technique dans le domaine`;
       break;
     case 3:
-      promptByStep = `Cette dernière étape vise à évaluer la capacité d'analyse et de conseil. Présente une situation complexe appropriée pour un niveau ${experienceLevel} dans le secteur ${sectorFocus} qui nécessite des recommandations stratégiques.`;
+      phase = "Phase de recommandation (minutes 8-10)";
+      phaseObjective = `Cette phase finale vise à évaluer la capacité du consultant à :
+      - Synthétiser la situation et les enjeux
+      - Formuler des recommandations claires et actionnables
+      - Anticiper les risques et proposer des mesures de mitigation
+      - Démontrer sa valeur ajoutée pour cette mission spécifique`;
       break;
     default:
-      promptByStep = `Pose des questions adaptées au niveau ${experienceLevel} du consultant pour évaluer ses compétences en AMOA dans le secteur ${sectorFocus}.`;
+      phase = "Phase intermédiaire";
+      phaseObjective = `Cette phase vise à évaluer les compétences générales du consultant AMOA.`;
   }
   
-  return `Tu es un client potentiel qui participe à une préparation d'audition pour un consultant AMOA.
+  return `Tu es un client potentiel dans une audition pour un consultant AMOA (Assistance à Maîtrise d'Ouvrage) chez mc2i.
 
-Profil du consultant:
+CONTEXTE DE L'AUDITION (10 minutes total):
 - Type de profil: ${profileType}
 - Niveau d'expérience: ${experienceLevel}
 - Secteur d'activité: ${sectorFocus}
+- Étape actuelle: ${step}/3 (difficulté: ${complexity})
 
-Tu es maintenant à l'étape ${step}/3 de la audition, avec une difficulté ${complexity}.
+${phase}
+${phaseObjective}
 
-${promptByStep}
+INSTRUCTIONS POUR CETTE ÉTAPE:
+1. Analyse attentivement la réponse précédente du consultant, identifie ses forces et faiblesses.
+2. Prends en compte que vous disposez d'un temps limité (10 min au total), adapte la longueur de tes messages.
+3. Réagis comme un véritable interlocuteur client, avec des attentes élevées mais réalistes.
+4. Pour cette étape spécifique, cherche à évaluer la capacité du consultant à:
+   - Faire preuve de clarté et de structure dans son discours
+   - Aller droit à l'essentiel sans se perdre dans les détails
+   - Établir un lien de confiance professionnel
+   - Rester focalisé sur les objectifs du projet et les enjeux client
 
-INSTRUCTIONS:
-1. Analyse soigneusement la réponse précédente du consultant.
-2. Réagis de manière réaliste à cette réponse, en apportant des précisions ou des corrections si nécessaire.
-3. Continue le scénario en ajoutant de nouveaux éléments ou défis qui permettent d'évaluer les compétences du consultant.
-4. Pose une nouvelle question ou présente un nouveau problème qui augmente légèrement en complexité, mais reste adapté au niveau ${experienceLevel}.
-5. Reste dans ton rôle de client potentiel, ne mentionne pas qu'il s'agit d'une simulation.
-6. Limite ta réponse à environ 200-250 mots.`;
+5. Pose une question précise qui nécessite une réponse construite et qui permet d'évaluer les compétences mentionnées ci-dessus.
+6. Garde tes réponses concises (150-200 mots maximum) pour rester dans le timing global de 10 minutes.
+
+Note: Plus l'audition avance, plus tes questions doivent être spécifiques et stratégiques, en lien avec le secteur ${sectorFocus}.`;
 }
 
 /**
@@ -707,28 +745,45 @@ IMPORTANT:
  * Génère le prompt pour l'évaluation finale d'une audition client AMOA
  */
 function generateAmoaEvaluationPrompt(candidateName: string, profileType: string, experienceLevel: string, sectorFocus: string): string {
-  return `Tu es un expert en évaluation des performances de consultants AMOA (Assistance à Maîtrise d'Ouvrage) lors d'auditions client.
+  return `Tu es un expert en évaluation des performances de consultants AMOA (Assistance à Maîtrise d'Ouvrage) chez mc2i lors d'auditions client.
 
-Tu dois évaluer les réponses d'un consultant lors d'une préparation d'audition auprès d'un client potentiel:
+Tu dois évaluer cette audition limitée à 10 minutes pour le consultant:
 - Nom du consultant: ${candidateName}
 - Type de profil visé: ${profileType}
 - Niveau d'expérience déclaré: ${experienceLevel}
 - Secteur d'activité: ${sectorFocus}
 
+CONTEXTE ET CRITÈRES D'ÉVALUATION CHEZ MC2I:
+Une audition réussie chez mc2i doit démontrer les compétences suivantes:
+1. Compréhension du besoin: Le consultant doit clairement reformuler et s'approprier le besoin exprimé.
+2. Posture professionnelle: Clarté d'expression, écoute active, structure du discours et professionnalisme.
+3. Capacité de projection: Questions pertinentes, référence à des expériences passées, proposition d'approches concrètes.
+4. Maîtrise du temps: Gestion efficace des 10 minutes d'échange, concentration sur les points essentiels.
+5. Expertise sectorielle: Connaissance des spécificités du secteur ${sectorFocus} et adaptation des méthodes.
+
 INSTRUCTIONS:
-1. Analyse soigneusement toutes les réponses du consultant pendant la audition.
-2. Évalue les compétences techniques et comportementales manifestées pendant l'audition.
-3. Sois bienveillant, même si la simulation a été courte ou interrompue.
-4. Fournis une évaluation pertinente adaptée au profil, niveau d'expérience et secteur.
-5. NE repète PAS les questions ou scénarios que tu as posés, concentre-toi uniquement sur l'analyse des réponses du consultant.
-6. Concentre-toi exclusivement sur les compétences du consultant démontrées dans ses réponses.
-7. IMPORTANT: Évalue si le niveau réel démontré par le consultant correspond bien au niveau d'expérience déclaré (${experienceLevel}).
+1. Analyse en détail toutes les réponses du consultant sur l'ensemble de l'audition de 10 minutes.
+2. Évalue la qualité de sa présentation initiale et sa reformulation du besoin.
+3. Identifie les questions pertinentes qu'il a posées pour clarifier le contexte et les enjeux.
+4. Vérifie si le consultant a fait référence à des expériences passées pertinentes.
+5. Évalue la qualité des approches et solutions proposées en fonction du contexte client.
+6. Examine la clarté, la structure et le professionnalisme de son expression.
+7. Évalue la maîtrise du temps et la capacité à être synthétique sur l'ensemble de l'audition.
 
 FORMAT DE RÉPONSE:
 Structure ton rapport d'évaluation comme suit (sans utiliser de markdown):
 
-Synthèse générale du consultant
-[2-3 phrases résumant l'impression générale]
+Synthèse générale
+[2-3 phrases résumant l'impression globale et l'adéquation au profil recherché]
+
+Compréhension du besoin client
+[Évaluation de la capacité du consultant à reformuler et s'approprier le besoin]
+
+Posture et communication
+[Évaluation de la clarté, de la structure et du professionnalisme]
+
+Questions et approche méthodologique
+[Évaluation de la pertinence des questions et des méthodes proposées]
 
 Points forts
 - [Point fort 1]
@@ -740,14 +795,15 @@ Axes d'amélioration
 - [Axe d'amélioration 2]
 - [Axe d'amélioration 3]
 
-Adéquation avec le niveau déclaré
-[Analyse si le niveau des réponses correspond au niveau ${experienceLevel} déclaré. Indique si le consultant semble sous-évalué, surévalué ou correctement auto-évalué]
+Adéquation avec le niveau et le secteur
+[Analyse si les compétences démontrées correspondent au niveau ${experienceLevel} et aux exigences du secteur ${sectorFocus}]
 
-Recommandation à l'issue de la prestation
+Recommandation finale
 [Recommandation claire: Excellent / Satisfaisant / À renforcer]
 
 IMPORTANT: 
-- Ton évaluation doit être constructive, pertinente et adaptée au niveau d'expérience demandé et au secteur ${sectorFocus}.
-- N'inclus PAS le contenu de tes propres messages ou du scénario, focalise-toi uniquement sur les RÉPONSES du consultant.
-- N'utilise PAS de markdown (pas de ## ou de *) dans ta réponse finale.`;
+- Ton évaluation doit être constructive et précise, avec des exemples tirés des réponses du consultant.
+- Focalise-toi uniquement sur les RÉPONSES du consultant, pas sur tes questions.
+- Évalue si le consultant a su gérer efficacement le temps limité de 10 minutes.
+- N'utilise PAS de markdown dans ta réponse finale.`;
 }
