@@ -29,10 +29,10 @@ import HomeLayout from '@/components/layout/HomeLayout';
 const formSchema = z.object({
   recruiterEmail: z.string().email({
     message: "Veuillez entrer une adresse email valide.",
-  }),
+  }).optional().or(z.literal('')),
   candidateName: z.string().min(2, {
-    message: "Le nom du candidat doit contenir au moins 2 caractères.",
-  }),
+    message: "Le nom du consultant doit contenir au moins 2 caractères.",
+  }).optional().or(z.literal('')),
   profileType: z.string().min(1, {
     message: "Veuillez sélectionner un type de profil.",
   }),
@@ -67,6 +67,8 @@ const AmoaInterviewSimulation: React.FC = () => {
   const [userInput, setUserInput] = useState('');
   const [simulationComplete, setSimulationComplete] = useState(false);
   const [evaluationResult, setEvaluationResult] = useState<any>(null);
+  const [isSkippedInfo, setIsSkippedInfo] = useState(false);
+  const [showContactForm, setShowContactForm] = useState(false);
   
   // Référence pour le défilement
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -124,6 +126,14 @@ const AmoaInterviewSimulation: React.FC = () => {
   // Démarrage de la simulation
   const startSimulation = async (values: FormValues) => {
     setIsLoading(true);
+    
+    // Vérifier si les informations ont été ignorées
+    if (!values.recruiterEmail || !values.candidateName) {
+      setIsSkippedInfo(true);
+    } else {
+      setIsSkippedInfo(false);
+    }
+    
     try {
       const response = await fetch('/api/amoa/interview-simulation/start', {
         method: 'POST',
@@ -147,7 +157,7 @@ const AmoaInterviewSimulation: React.FC = () => {
         {
           id: '1',
           role: 'assistant',
-          content: data.initialMessage || "Bonjour, je suis votre recruteur aujourd'hui. Nous allons évaluer vos compétences en assistance à maîtrise d'ouvrage. Présentez-vous et dites-moi ce qui vous intéresse dans ce domaine.",
+          content: data.initialMessage || "Bonjour, je suis votre interlocuteur client aujourd'hui. Nous allons évaluer vos compétences en assistance à maîtrise d'ouvrage. Présentez-vous et dites-moi ce qui vous intéresse dans ce domaine.",
           timestamp: new Date(),
         },
       ]);
@@ -157,7 +167,7 @@ const AmoaInterviewSimulation: React.FC = () => {
       
       toast({
         title: "Simulation démarrée",
-        description: "La simulation d'entretien a commencé. Vous avez 10 minutes.",
+        description: "La simulation d'audition a commencé. Vous avez 10 minutes.",
       });
     } catch (error) {
       console.error('Erreur globale:', error);
@@ -169,6 +179,29 @@ const AmoaInterviewSimulation: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+  
+  // Fonction pour ignorer la saisie des informations
+  const skipInfoAndStart = () => {
+    setIsSkippedInfo(true);
+    form.setValue('recruiterEmail', '');
+    form.setValue('candidateName', '');
+    
+    // Vérifier si les autres champs obligatoires sont remplis
+    const profileType = form.getValues('profileType');
+    const experienceLevel = form.getValues('experienceLevel');
+    const sectorFocus = form.getValues('sectorFocus');
+    
+    if (!profileType || !experienceLevel || !sectorFocus) {
+      toast({
+        variant: "destructive",
+        title: "Informations manquantes",
+        description: "Veuillez remplir les champs obligatoires : type de profil, niveau d'expérience et secteur d'activité.",
+      });
+      return;
+    }
+    
+    startSimulation(form.getValues());
   };
   
   // Envoi d'un message
@@ -243,6 +276,30 @@ const AmoaInterviewSimulation: React.FC = () => {
   const completeSimulation = async () => {
     if (simulationComplete) return;
     
+    // Si l'utilisateur a ignoré la saisie des informations de contact, les demander maintenant
+    if (isSkippedInfo) {
+      setShowContactForm(true);
+      return;
+    }
+    
+    await finalizeSimulation();
+  };
+  
+  // Soumettre les informations de contact finales et terminer la simulation
+  const submitContactInfo = async (contactInfo: { recruiterEmail: string; candidateName: string }) => {
+    // Mettre à jour le formulaire avec les nouvelles valeurs
+    form.setValue('recruiterEmail', contactInfo.recruiterEmail);
+    form.setValue('candidateName', contactInfo.candidateName);
+    
+    // Fermer le formulaire de contact
+    setShowContactForm(false);
+    
+    // Finaliser la simulation avec les nouvelles informations
+    await finalizeSimulation();
+  };
+  
+  // Finalisation réelle de la simulation après avoir toutes les informations
+  const finalizeSimulation = async () => {
     setIsLoading(true);
     
     try {
@@ -275,7 +332,7 @@ const AmoaInterviewSimulation: React.FC = () => {
       
       toast({
         title: "Simulation terminée",
-        description: "L'évaluation de votre entretien a été envoyée à " + form.getValues('recruiterEmail'),
+        description: "L'évaluation de votre audition a été envoyée à " + form.getValues('recruiterEmail'),
       });
     } catch (error) {
       console.error('Erreur:', error);
@@ -486,13 +543,24 @@ const AmoaInterviewSimulation: React.FC = () => {
                         />
                       </div>
                       
-                      <Button 
-                        type="submit" 
-                        className="w-full bg-[#006a9e] hover:bg-blue-600"
-                        disabled={isLoading}
-                      >
-                        {isLoading ? "Chargement..." : "Démarrer la simulation"}
-                      </Button>
+                      <div className="flex gap-4 mt-6">
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          className="flex-1 border-[#006a9e] text-white hover:bg-blue-700"
+                          onClick={skipInfoAndStart}
+                          disabled={isLoading}
+                        >
+                          Ignorer les informations de contact
+                        </Button>
+                        <Button 
+                          type="submit" 
+                          className="flex-1 bg-[#006a9e] hover:bg-blue-600"
+                          disabled={isLoading}
+                        >
+                          {isLoading ? "Chargement..." : "Démarrer la simulation"}
+                        </Button>
+                      </div>
                     </form>
                   </Form>
                 </CardContent>
