@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { UserCircle, Send, Clock, CheckCircle, AlertCircle, FileCheck, ArrowLeft } from 'lucide-react';
+import { UserCircle, Send, Clock, CheckCircle, AlertCircle, FileCheck, ArrowLeft, Mail, User } from 'lucide-react';
 import OpenAIStatusIndicator from '@/components/OpenAIStatusIndicator';
 import { 
   Form, 
@@ -20,6 +20,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
@@ -44,8 +46,19 @@ const formSchema = z.object({
   }),
 });
 
-// Type d'inférence pour le schéma de formulaire
+// Schéma pour le formulaire de contact à la fin de la simulation
+const contactFormSchema = z.object({
+  recruiterEmail: z.string().email({
+    message: "Veuillez entrer une adresse email valide.",
+  }),
+  candidateName: z.string().min(2, {
+    message: "Le nom du consultant doit contenir au moins 2 caractères.",
+  }),
+});
+
+// Types d'inférence pour les schémas de formulaire
 type FormValues = z.infer<typeof formSchema>;
+type ContactFormValues = z.infer<typeof contactFormSchema>;
 
 interface Message {
   id: string;
@@ -354,6 +367,8 @@ const AmoaInterviewSimulation: React.FC = () => {
     setSimulationComplete(false);
     setEvaluationResult(null);
     setActiveTab('configuration');
+    setIsSkippedInfo(false);
+    setShowContactForm(false);
     form.reset({
       recruiterEmail: '',
       candidateName: '',
@@ -363,8 +378,77 @@ const AmoaInterviewSimulation: React.FC = () => {
     });
   };
   
+  // Configuration du formulaire de contact à la fin
+  const contactForm = useForm<ContactFormValues>({
+    resolver: zodResolver(contactFormSchema),
+    defaultValues: {
+      recruiterEmail: '',
+      candidateName: '',
+    },
+  });
+  
   return (
     <HomeLayout>
+      {/* Dialogue pour saisir les informations de contact à la fin de la simulation */}
+      <AlertDialog open={showContactForm} onOpenChange={setShowContactForm}>
+        <AlertDialogContent className="bg-blue-800 text-white border-blue-700">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl">Informations de contact nécessaires</AlertDialogTitle>
+            <AlertDialogDescription className="text-blue-200">
+              Veuillez fournir les informations de contact pour finaliser la simulation et recevoir l'évaluation par email.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          <Form {...contactForm}>
+            <form onSubmit={contactForm.handleSubmit((data) => submitContactInfo(data))} className="space-y-4 my-4">
+              <FormField
+                control={contactForm.control}
+                name="recruiterEmail"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Email du responsable</FormLabel>
+                    <FormControl>
+                      <div className="flex">
+                        <Mail className="w-5 h-5 mr-2 text-blue-300 self-center" />
+                        <Input placeholder="email@exemple.com" {...field} className="bg-blue-700 border-blue-600 text-white" />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={contactForm.control}
+                name="candidateName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Nom du consultant</FormLabel>
+                    <FormControl>
+                      <div className="flex">
+                        <User className="w-5 h-5 mr-2 text-blue-300 self-center" />
+                        <Input placeholder="Prénom Nom" {...field} className="bg-blue-700 border-blue-600 text-white" />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <AlertDialogFooter className="gap-2 mt-4">
+                <Button
+                  type="submit" 
+                  className="bg-[#006a9e] hover:bg-blue-600"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Chargement..." : "Soumettre et finaliser"}
+                </Button>
+              </AlertDialogFooter>
+            </form>
+          </Form>
+        </AlertDialogContent>
+      </AlertDialog>
+      
       <div className="min-h-screen bg-gradient-to-b from-blue-900 to-indigo-800 text-white p-4">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
