@@ -67,12 +67,15 @@ export async function startInterviewSimulation(req: Request, res: Response) {
       sectorFocus
     } = req.body;
 
-    if (!domain || !trainerEmail || !candidateName || !profileType || !experienceLevel) {
+    if (!domain || !profileType || !experienceLevel) {
       return res.status(400).json({ 
         success: false, 
-        error: 'Paramètres incomplets. Veuillez fournir toutes les informations requises.'
+        error: 'Paramètres incomplets. Veuillez fournir le domaine, le type de profil et le niveau d\'expérience.'
       });
     }
+    
+    // Les informations de contact (email et nom) sont optionnelles au démarrage
+    // Elles seront réclamées à la fin si elles sont manquantes
 
     // Valider le domaine
     if (domain !== 'cyber' && domain !== 'amoa') {
