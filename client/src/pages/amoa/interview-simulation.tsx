@@ -207,8 +207,6 @@ const AmoaInterviewSimulation: React.FC = () => {
   const skipInfoAndStart = async () => {
     console.log("Fonction skipInfoAndStart appelée");
     setIsSkippedInfo(true);
-    form.setValue('recruiterEmail', '');
-    form.setValue('candidateName', '');
     
     // Vérifier si les autres champs obligatoires sont remplis
     const profileType = form.getValues('profileType');
