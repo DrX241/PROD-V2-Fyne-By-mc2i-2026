@@ -719,7 +719,10 @@ const AmoaInterviewSimulation: React.FC = () => {
                           type="button" 
                           variant="outline" 
                           className="flex-1 border-[#006a9e] text-white hover:bg-blue-700"
-                          onClick={skipInfoAndStart}
+                          onClick={() => {
+                            console.log("Bouton Ignorer cliqué");
+                            skipInfoAndStart();
+                          }}
                           disabled={isLoading}
                         >
                           Ignorer les informations de contact
