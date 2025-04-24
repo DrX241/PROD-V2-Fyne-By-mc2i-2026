@@ -6,16 +6,9 @@ import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import OpenAI from 'openai';
 import { openAIService } from "../I_AM_CYBER/services/openai";
-import { missionGenerator } from "../I_AM_CYBER/services/mission-generator";
+// Import de document-generator supprimé car nous n'utilisons plus de pièces jointes
 import { ChatCompletionRequestMessage } from "../shared/schema";
 import { evaluateDecision } from "./cyberDefenseEvaluator";
-import { handleQuestInitialization, handleQuestChoice } from "./amoaController";
-import { handleCyberDefenseChat, generateCyberDefenseMission } from "./cyberDefenseController";
-import { startInterviewSimulation, processInterviewMessage, completeInterviewSimulation } from "./interviewSimulationController";
-import { startAgentSession, completeAgentSession } from "./cyberAgentController";
-import immersiveRoutes from "./routes/immersive-simulation";
-import cyberAscensionRoutes from "./routes/cyber-ascension";
-import { extractJsonFromOpenAiResponse, createFallbackJson } from "./openAiResponseHelper";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Nous n'avons plus besoin des répertoires de documents et HTML
@@ -30,8 +23,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Missing required parameters' });
       }
       
-      console.log(`Starting scenario ${scenarioId} for user ${userName}... (Using model: ${openAIService.getCurrentModelName()})`);
-      
       // Get scenario data - in a real app, this would come from the database
       // For now, we're using hardcoded data matching the client
       const scenarios = [
@@ -41,8 +32,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Sensibilisation aux attaques de phishing",
           domain: "Ingénierie sociale et phishing",
           contact: {
-            name: "Yousra Saidani",
-            role: "Senior Manager et Experte Cybersécurité"
+            name: "Marion Lopez",
+            role: "Senior Partner et Directrice Marketing, Communication et RSE"
           },
           difficulty: "Débutant"
         },
@@ -169,8 +160,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Classification des données sensibles",
           domain: "Protection des données personnelles / RGPD",
           contact: {
-            name: "Yousra Saidani",
-            role: "Senior Manager et Experte Cybersécurité"
+            name: "Yousra Benahmed",
+            role: "Consultante Senior Cybersécurité"
           },
           difficulty: "Débutant"
         },
@@ -284,7 +275,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         else if (scenario.contact.name === "Guillaume Lechevallier" || scenario.contact.name === "Fares SAYADI") {
           secteurActivite = 'INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)';
         }
-        else if (scenario.contact.name === "Nicolas Paolantonacci" || scenario.contact.name === "Yousra Saidani") {
+        else if (scenario.contact.name === "Nicolas Paolantonacci" || scenario.contact.name === "Marion Lopez") {
           secteurActivite = 'RETAIL & LUXE';
         }
         else if (scenario.contact.name === "Anthony Frescal") {
@@ -362,8 +353,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .replace(/Date\s*:.*?(?:\n|$)/gi, '')
         .trim();
         
-      console.log(`Email body generated for ${userName} in scenario ${scenarioId}:`, body);
-        
       // Supprimer les ** au début et à la fin du corps de l'email
       const lines = body.split('\n');
       if (lines.length > 0) {
@@ -430,8 +419,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               concern: "Focalisé sur la protection de la propriété intellectuelle et de l'image de marque"
             },
             {
-              name: "Yousra Saidani",
-              role: "Senior Manager et Experte Cybersécurité",
+              name: "Marion Lopez",
+              role: "Senior Partner et Directrice Marketing, Communication et RSE",
               expertise: "Communication de crise et gestion de la réputation",
               concern: "Préoccupée par l'impact des incidents de sécurité sur l'image et la réputation de l'entreprise"
             }
@@ -460,7 +449,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             },
             {
               name: "Yousra SAIDANI",
-              role: "Senior Manager et Experte Cybersécurité",
+              role: "Experte Cybersécurité & CFO",
               expertise: "Analyse forensique et réponse aux incidents",
               concern: "Spécialisée dans l'investigation numérique et la résolution technique des incidents"
             }
@@ -671,50 +660,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      // Fonction pour extraire le prénom à partir d'une chaîne de caractères
-      const extractFirstName = (input: string): string => {
-        if (!input) return input;
-        
-        // Nettoyer l'entrée
-        let cleanedInput = input.trim().toLowerCase();
-        
-        // Patterns d'introduction à supprimer
-        const introPatterns = [
-          /(je\s+suis)/gi,
-          /(je\s+m['']\s*appelle)/gi,
-          /(mon\s+nom\s+est)/gi,
-          /(mon\s+prénom\s+est)/gi,
-          /(je\s+me\s+prénomme)/gi,
-          /(je\s+me\s+nomme)/gi,
-          /(je\s+me\s+présente)/gi,
-          /(c'est)/gi,
-          /(moi\s+c'est)/gi
-        ];
-        
-        // Supprimer toutes les formules d'introduction
-        for (const pattern of introPatterns) {
-          cleanedInput = cleanedInput.replace(pattern, '');
-        }
-        
-        // Supprimer les caractères de ponctuation et espaces excessifs
-        cleanedInput = cleanedInput.replace(/[,.;:!?]/g, '').trim();
-        
-        // Extraire le premier mot (prénom)
-        const firstWord = cleanedInput.split(/\s+/)[0];
-        
-        // Mettre la première lettre en majuscule
-        return firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
-      };
-
-      // Extraire le prénom si nécessaire
-      const extractedName = extractFirstName(userName);
-      console.log(`Prénom extrait pour adresse email: "${extractedName}" depuis "${userName}"`);
-      
       // Create email response - le premier message vient toujours du contact principal du scénario
       const email = {
         id: uuidv4(),
         from: scenarioContacts[0], // Utiliser le premier contact de la liste (le contact principal du scénario)
-        to: `${extractedName}@mc2i.fr`,
+        to: `${userName}@mc2i.fr`,
         subject,
         date: new Date().toISOString(),
         body,
@@ -725,34 +675,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ email });
     } catch (error) {
       console.error('Error starting scenario:', error);
-      // Ajout de détails supplémentaires pour le débogage
-      let errorMessage = 'Failed to start scenario';
-      let errorDetails = '';
-      
-      if (error instanceof Error) {
-        errorMessage = error.message;
-        // Ajouter la stack trace si disponible
-        if (error.stack) {
-          errorDetails = error.stack;
-        }
-      } else if (typeof error === 'object' && error !== null) {
-        errorMessage = JSON.stringify(error);
-      }
-      
-      // Log de l'erreur avec le nom du scénario si disponible
-      if (typeof req.body.scenarioId === 'string') {
-        console.error(`Détails de l'erreur pour ${req.body.scenarioId}: ${errorMessage}`);
-      } else {
-        console.error(`Détails de l'erreur: ${errorMessage}`);
-      }
-      console.error(`Modèle utilisé: ${openAIService.getCurrentModelName()}`);
-      
-      // Envoyer une réponse plus détaillée
-      res.status(500).json({ 
-        message: errorMessage,
-        details: errorDetails,
-        model: openAIService.getCurrentModelName()
-      });
+      res.status(500).json({ message: 'Failed to start scenario' });
     }
   });
 
@@ -774,8 +697,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Sensibilisation aux attaques de phishing",
           domain: "Ingénierie sociale et phishing",
           contact: {
-            name: "Yousra Saidani",
-            role: "Senior Manager et Experte Cybersécurité"
+            name: "Marion Lopez",
+            role: "Senior Partner et Directrice Marketing, Communication et RSE"
           },
           difficulty: "Débutant"
         },
@@ -902,8 +825,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Classification des données sensibles",
           domain: "Protection des données personnelles / RGPD",
           contact: {
-            name: "Yousra Saidani",
-            role: "Senior Manager et Experte Cybersécurité"
+            name: "Marion Lopez",
+            role: "Senior Partner et Directrice Marketing, Communication et RSE"
           },
           difficulty: "Débutant"
         },
@@ -934,8 +857,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Introduction à la gestion des incidents",
           domain: "Gestion des incidents de sécurité",
           contact: {
-            name: "Yousra Saidani",
-            role: "Senior Manager et Experte Cybersécurité"
+            name: "Yousra Benahmed",
+            role: "Consultante Senior Cybersécurité"
           },
           difficulty: "Débutant"
         },
@@ -1050,7 +973,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               },
               {
                 name: "Yousra SAIDANI",
-                role: "Senior Manager et Experte Cybersécurité",
+                role: "Experte Cybersécurité & CFO",
                 expertise: "Analyse forensique et réponse aux incidents",
                 concern: "Spécialisée dans l'investigation numérique et la résolution technique des incidents"
               }
@@ -1384,7 +1307,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         else if (scenario?.domain?.toLowerCase().includes('retail') || 
                 scenario?.domain?.toLowerCase().includes('luxe') || 
                 respondingContact.name === "Nicolas Paolantonacci" || 
-                respondingContact.name === "Yousra Saidani") {
+                respondingContact.name === "Marion Lopez") {
           secteurActivite = 'RETAIL & LUXE';
         }
         else if (scenario?.domain?.toLowerCase().includes('énergie') || 
@@ -1636,8 +1559,8 @@ Format: Utilise des titres clairs et une présentation structurée qui facilite 
 
 Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${scenario.domain}".`,
           resetScenario: true,
-          contactName: "Yousra Saidani",
-          contactRole: "Senior Manager et Experte Cybersécurité",
+          contactName: "Marion Lopez",
+          contactRole: "Senior Partner et Directrice Marketing, Communication et RSE",
           scenarioContacts: availableContacts
         });
       } else {
@@ -1665,103 +1588,175 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
   // API route pour vérifier le statut de la connexion à Azure OpenAI
   app.get('/api/cyber/status', async (req: Request, res: Response) => {
     try {
-      // Vérifier le statut de connexion avec le service OpenAI
-      await openAIService.checkConnection();
-      
-      // Renvoyer les informations de statut basées sur le service OpenAI
+      const isConnected = await openAIService.checkConnection();
       res.json({
-        status: openAIService.getConnectionStatus(),
+        status: isConnected ? 'connected' : 'disconnected',
         lastCheck: openAIService.getLastConnectionCheck(),
-        apiEndpoint: openAIService.getCurrentConfig().endpoint,
-        currentApiKey: openAIService.getCurrentApiKeyType(),
+        apiEndpoint: process.env.AZURE_OPENAI_ENDPOINT ? 'configured' : 'default',
+        currentApiKey: openAIService.getCurrentConfigType(),
         modelName: openAIService.getCurrentModelName(),
         time: new Date().toISOString()
       });
     } catch (error) {
       console.error('Error checking API status:', error);
-      // Retourner l'état de déconnexion si la vérification échoue
-      res.json({
-        status: 'disconnected',
-        lastCheck: Date.now(),
-        apiEndpoint: openAIService.getCurrentConfig().endpoint,
-        currentApiKey: openAIService.getCurrentApiKeyType(),
-        modelName: openAIService.getCurrentModelName(),
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to check API connection',
         time: new Date().toISOString()
       });
     }
   });
   
   // API pour les conversations du module Cyber Defense
-  app.post('/api/cyber-defense/chat', handleCyberDefenseChat);
-  
-  // API pour évaluer les décisions prises dans le module Cyber Defense
-  app.post("/api/cyber-defense/evaluate-decision", evaluateDecision);
-  
-  // API route pour générer dynamiquement une mission via l'IA
-  app.post('/api/cyber-defense/generate-mission', generateCyberDefenseMission);
-  
-  // API route pour tester la génération de mission avec des paramètres simplifiés
-  app.get('/api/cyber-defense/test-generate-mission/:level', async (req: Request, res: Response) => {
+  app.post('/api/cyber-defense/chat', async (req: Request, res: Response) => {
     try {
-      const { level } = req.params;
-      const difficultyLevel = level === 'beginner' ? 'Débutant' : level === 'expert' ? 'Expert' : 'Intermédiaire';
+      const { 
+        userMessage, 
+        missionId, 
+        missionContext, 
+        currentObjective, 
+        previousMessages, 
+        targetContact,
+        temperature,
+        maxTokens
+      } = req.body;
       
-      console.log(`Test de génération de mission de niveau ${difficultyLevel}...`);
+      if (!userMessage) {
+        return res.status(400).json({ message: 'Message utilisateur requis' });
+      }
       
-      // Générer une mission dynamique via l'IA
-      const mission = await missionGenerator.generateMission(difficultyLevel as any);
+      // Construire le prompt système pour la mission
+      const missionPrompt = `Tu es "I AM CYBER", un assistant spécialisé en cybersécurité qui simule une mission de défense cyber.
       
-      return res.json({ 
-        message: `Mission de niveau ${difficultyLevel} générée avec succès`,
-        mission 
-      });
-    } catch (error) {
-      console.error('Erreur lors du test de génération de mission:', error);
-      return res.status(500).json({ 
-        message: 'Une erreur est survenue lors de la génération de la mission',
-        error: (error as Error).message 
-      });
-    }
-  });
-  
-  // Endpoint simplifié pour tester uniquement la génération de titres
-  app.get('/api/cyber-defense/test-titles', async (req: Request, res: Response) => {
-    try {
-      // Générer plusieurs missions avec des titres uniques
-      const missions = [];
+Tu dois jouer le rôle d'un expert en cybersécurité qui interagit avec l'utilisateur dans le cadre de la mission suivante:
+- Titre: ${missionContext.title}
+- Scénario: ${missionContext.scenario}
+- Difficulté: ${missionContext.difficulty}
+- L'utilisateur joue le rôle de: ${missionContext.userRole}
+- Objectif actuel: ${missionContext.objectives[currentObjective]?.description || "Non défini"}
+
+Directives pour la réponse:
+1. Réponds en utilisant un ton professionnel mais accessible
+2. Adapte ton niveau technique à la difficulté de la mission (${missionContext.difficulty})
+3. Utilise les connaissances à jour en matière de bonnes pratiques de cybersécurité
+4. Si l'utilisateur mentionne spécifiquement un contact (${targetContact || "aucun"}), réponds en tant que cette personne
+5. Si l'utilisateur semble prêt à prendre une décision importante, fournir une structure de décision claire
+6. Évite de mentionner que tu es une IA ou un assistant, reste dans ton rôle
+`;
+
+      // Préparer les messages pour l'API
+      const messages: ChatCompletionRequestMessage[] = [
+        { role: "system", content: missionPrompt },
+        ...previousMessages.map((msg: any) => ({
+          role: msg.role,
+          content: msg.content
+        })),
+        { role: "user", content: userMessage }
+      ];
       
-      // Générer une mission pour chaque niveau de difficulté
-      const difficulties = ["Débutant", "Intermédiaire", "Expert"];
+      // Appeler l'API OpenAI
+      const response = await openAIService.getChatCompletionWithCache(
+        messages,
+        temperature || 0.7,
+        maxTokens || 1000
+      );
       
-      for (const difficulty of difficulties) {
-        try {
-          // Générer une mission et ajouter son titre à la liste
-          console.log(`Génération de titre de mission pour le niveau ${difficulty}...`);
-          const mission = await missionGenerator.generateMission(difficulty as any);
-          missions.push({
-            difficulty,
-            title: mission.title,
-            secteur: mission.secteurActivite,
-            company: mission.companyName
-          });
-        } catch (error) {
-          console.error(`Erreur lors de la génération de mission pour le niveau ${difficulty}:`, error);
-          // Continuer avec les autres niveaux malgré cette erreur
+      // Analyser le contenu de la réponse pour déterminer le contact et le style
+      let sender = "Expert";
+      let senderRole = "Cybersécurité";
+      
+      // Si un contact spécifique a été ciblé, utiliser ce contact comme expéditeur
+      if (targetContact) {
+        const contact = missionContext.contacts.find((c: any) => c.name === targetContact);
+        if (contact) {
+          sender = contact.name;
+          senderRole = contact.role;
+        }
+      } else {
+        // Sinon, déterminer un contact approprié en fonction du contexte
+        const keyword = userMessage.toLowerCase();
+        
+        // Associer des mots-clés aux contacts pour une réponse contextuelle
+        for (const contact of missionContext.contacts) {
+          const expertise = contact.expertise.toLowerCase();
+          if (keyword.includes(expertise.split(' ')[0]) || 
+              keyword.includes(contact.name.split(' ')[0].toLowerCase())) {
+            sender = contact.name;
+            senderRole = contact.role;
+            break;
+          }
         }
       }
       
-      return res.json({ 
-        message: "Exemples de titres de mission générés avec succès",
-        titles: missions 
+      // Déterminer s'il faut déclencher une décision
+      let decision = null;
+      const shouldTriggerDecision = response.toLowerCase().includes('décision') || 
+                                   response.toLowerCase().includes('choix') ||
+                                   response.toLowerCase().includes('options') ||
+                                   response.toLowerCase().includes('alternatives');
+      
+      if (shouldTriggerDecision && missionContext.objectives[currentObjective]?.decisions?.length > 0) {
+        // Prendre la première décision disponible pour l'objectif actuel
+        decision = missionContext.objectives[currentObjective].decisions[0];
+      }
+      
+      // Déterminer si une réponse additionnelle d'un autre contact est appropriée
+      let additionalResponse = null;
+      const shouldAddColleagueResponse = Math.random() > 0.7; // 30% de chance d'avoir une réponse additionnelle
+      
+      if (shouldAddColleagueResponse && !decision) {
+        // Sélectionner un contact différent du premier répondant
+        const availableContacts = missionContext.contacts.filter((c: any) => c.name !== sender);
+        
+        if (availableContacts.length > 0) {
+          const selectedContact = availableContacts[Math.floor(Math.random() * availableContacts.length)];
+          
+          // Créer un prompt pour la réponse additionnelle
+          const colleaguePrompt = `
+Tu es ${selectedContact.name}, ${selectedContact.role} dans l'entreprise. 
+Tu dois réagir brièvement (2-3 phrases maximum) au message de ${sender} qui vient de dire: "${response}".
+Ta réaction doit être cohérente avec ton rôle et ton expertise en ${selectedContact.expertise}.
+Réponds directement sans introduction ni formule de politesse, comme si tu intervenais dans une conversation.`;
+
+          const colleagueMessages: ChatCompletionRequestMessage[] = [
+            { role: "system", content: colleaguePrompt },
+            { role: "user", content: "Génère une réaction courte et professionnelle" }
+          ];
+          
+          const colleagueResponse = await openAIService.getChatCompletionWithCache(
+            colleagueMessages,
+            0.8, // Légèrement plus créatif
+            200  // Réponse courte
+          );
+          
+          additionalResponse = {
+            response: colleagueResponse,
+            sender: selectedContact.name,
+            senderRole: selectedContact.role
+          };
+        }
+      }
+      
+      // Retourner la réponse complète
+      res.json({
+        response,
+        sender,
+        senderRole,
+        additionalResponse,
+        decision
       });
-    } catch (error) {
-      console.error('Erreur lors de la génération des titres:', error);
-      return res.status(500).json({ 
-        message: 'Une erreur est survenue lors de la génération des titres',
-        error: (error as Error).message 
+      
+    } catch (error: any) {
+      console.error('Error evaluating decision:', error);
+      console.error('Error generating cyber defense response:', error);
+      res.status(500).json({ 
+        error: error.message || 'Error generating cyber defense response'
       });
     }
   });
+  
+  // API pour évaluer les décisions prises dans le module Cyber Defense
+  app.post("/api/cyber-defense/evaluate-decision", evaluateDecision);
   
   // API route pour basculer entre les clés API
   app.post('/api/cyber/switch-api-key', (req: Request, res: Response) => {
@@ -1775,66 +1770,34 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
         });
       }
       
-      console.log(`Switching to ${keyType} API key (${keyType === 'primary' ? 'gpt-4o' : 'gpt-4o-mini'})`);
-      
-      // Effectuer le changement de clé API avec le service OpenAI
       openAIService.switchApiKey(keyType);
       
-      const currentApiKey = openAIService.getCurrentApiKeyType();
-      const modelName = openAIService.getCurrentModelName();
-      
-      console.log(`API key switched to: ${currentApiKey}, using model: ${modelName}`);
-      
-      // Renvoyer les informations mises à jour
       res.json({
         status: 'success',
-        currentApiKey: currentApiKey,
-        modelName: modelName
+        currentApiKey: keyType,
+        modelName: openAIService.getCurrentModelName()
       });
     } catch (error) {
       console.error('Error switching API key:', error);
-      
-      if (error instanceof Error) {
-        console.error('Error details:', error.message);
-        console.error('Error stack:', error.stack);
-      }
-      
-      // Même en cas d'erreur, renvoyer une réponse avec les informations actuelles
-      res.json({
-        status: 'success', 
-        currentApiKey: openAIService.getCurrentApiKeyType(),
-        modelName: openAIService.getCurrentModelName()
-      });
-    }
-  });
-  
-  // Endpoint pour obtenir le statut de connexion OpenAI
-  app.get('/api/openai/status', async (req: Request, res: Response) => {
-    try {
-      const isConnected = await openAIService.checkConnection();
-      res.json({
-        status: 'success',
-        connectionStatus: openAIService.getConnectionStatus(),
-        currentModel: openAIService.getCurrentModelName(),
-        apiKeyType: openAIService.getCurrentApiKeyType(),
-        lastCheck: openAIService.getLastConnectionCheck()
-      });
-    } catch (error) {
-      console.error("Error checking OpenAI connection status:", error);
       res.status(500).json({
         status: 'error',
-        message: "Erreur lors de la vérification du statut de connexion OpenAI."
+        message: 'Failed to switch API key'
       });
     }
   });
 
-  // Initialisation du client OpenAI pour le chat immersif
-  const apiKey = process.env.OPENAI_API_KEY || "";
-  const primaryModel = process.env.PRIMARY_MODEL || "gpt-4o";
+  // Initialisation du client OpenAI pour le chat immersif avec Azure OpenAI
+  
+  const azureApiKey = "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK";
+  const azureEndpoint = "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com/";
+  const azureDeploymentId = "Eddy-deploy-20-02-2025-gpt-4o"; // Utilisation du modèle principal
+  const azureApiVersion = "2024-12-01-preview";
   
   const openai = new OpenAI({
-    apiKey: apiKey,
-    baseURL: "https://api.openai.com/v1",
+    apiKey: azureApiKey,
+    baseURL: `${azureEndpoint}openai/deployments/${azureDeploymentId}`,
+    defaultQuery: { "api-version": azureApiVersion },
+    defaultHeaders: { "api-key": azureApiKey },
   });
   
   // API route pour le chat immersif
@@ -1869,115 +1832,29 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
       
       systemPrompt += " Tu réponds toujours en français.";
       
-      // Traitement du message pour extraire le nom si c'est une présentation
-      let processedMessage = message;
-      let extractionInfo = "";
-      
-      // Fonction pour nettoyer et extraire uniquement le prénom
-      const extractRealName = (fullNameText: string): string => {
-        console.log("Extracting real name from:", fullNameText);
-        
-        // Simplifier l'extraction en cherchant le dernier mot après "je m'appelle"
-        const simplePattern = /je\s+m['']\s*appelle\s+([a-zA-ZÀ-ÿ]+)(?:\s|$)/i;
-        const match = fullNameText.match(simplePattern);
-        
-        if (match && match[1]) {
-          console.log("Extracted name:", match[1]);
-          return match[1];
-        }
-        
-        // Cas spécifique: "Je suis Je m'appelle Eddy"
-        const reverseMixedPattern = /je\s+suis\s+je\s+m['']\s*appelle\s+([a-zA-ZÀ-ÿ]+)/i;
-        const reverseMixedMatch = fullNameText.match(reverseMixedPattern);
-        if (reverseMixedMatch && reverseMixedMatch[1]) {
-          console.log("Matched reverse mixed pattern, extracted:", reverseMixedMatch[1]);
-          return reverseMixedMatch[1];
-        }
-        
-        // Enlever toutes les formules d'introduction pour garder seulement le dernier mot
-        let cleanText = fullNameText;
-        
-        // Supprimer récursivement les expressions d'introduction jusqu'à ce qu'il n'y en ait plus
-        const introPattern = /(je\s+suis|je\s+m['']\s*appelle)\s+/gi;
-        while (introPattern.test(cleanText)) {
-          cleanText = cleanText.replace(introPattern, "");
-          // Reset le regex pour la prochaine itération
-          introPattern.lastIndex = 0;
-        }
-        
-        console.log("After removing all intros:", cleanText);
-        
-        // Prendre uniquement le premier mot qui reste (prénom)
-        const nameParts = cleanText.split(/\s+/);
-        
-        // Si le premier "mot" est un article/préposition, prendre le suivant
-        const skipWords = ["le", "la", "les", "un", "une", "des", "de", "du", "d'", "l'"];
-        let startIndex = 0;
-        
-        if (nameParts.length > 1 && skipWords.includes(nameParts[0].toLowerCase())) {
-          startIndex = 1;
-        }
-        
-        // Fallback: prendre le dernier mot si aucun mot approprié n'est trouvé
-        if (!nameParts[startIndex]) {
-          const words = fullNameText.trim().split(/\s+/);
-          return words[words.length - 1] || "utilisateur";
-        }
-        
-        console.log("Final extraction:", nameParts[startIndex]);
-        return nameParts[startIndex];
-      };
-      
-      // Extraction simple du prénom
-      const directExtraction = (message: string): string | null => {
-        let processedMsg = message.toLowerCase();
-        
-        // Supprimer toutes les formules d'introduction pour ne garder que le prénom
-        const introRegex = /(je\s+suis|je\s+m['']\s*appelle)\s+/gi;
-        let cleanText = processedMsg.replace(introRegex, '');
-        
-        // Prendre le premier mot restant comme prénom
-        const firstWord = cleanText.trim().split(/\s+/)[0];
-        if (firstWord) {
-          return firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
-        }
-        
-        return null;
-      };
-      
-      // Extraction directe du nom dans le message complet
-      const directName = directExtraction(message);
-      
-      if (directName) {
-        console.log("Extracted name directly:", directName);
-        extractionInfo = `\n\nNOM_UTILISATEUR_EXTRAIT: ${directName}\n(Utilise uniquement ce prénom pour t'adresser à l'utilisateur directement, ne répète jamais "Je m'appelle" ou "Je suis" dans ta réponse)`;
-        processedMessage = message;
-      }
-      
-      // Utiliser notre service OpenAI au lieu de l'API directe
-      const messages: ChatCompletionRequestMessage[] = [
-        { role: "system", content: systemPrompt + extractionInfo },
-        { role: "user", content: processedMessage }
-      ];
-      
-      const responseContent = await openAIService.getChatCompletionWithCache(
-        messages,
-        config?.temperature || 0.7,
-        config?.maxTokens || 800
-      );
+      // Appel à l'API Azure OpenAI
+      const completion = await openai.chat.completions.create({
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: message }
+        ],
+        temperature: config?.temperature || 0.7,
+        max_tokens: config?.maxTokens || 800,
+        model: "gpt-3.5-turbo",
+      });
       
       // Envoi de la réponse au client
       res.json({ 
-        content: responseContent,
-        role: "assistant"
+        response: completion.choices[0].message.content,
+        usage: completion.usage
       });
       
     } catch (error: any) {
-      console.error('Erreur lors de la communication avec OpenAI:', error);
+      console.error('Erreur lors de la communication avec Azure OpenAI:', error);
       
       // Gestion des erreurs spécifiques d'OpenAI
       if (error.status === 401) {
-        res.status(401).json({ error: 'Erreur d\'authentification API OpenAI. Vérifiez votre clé API.' });
+        res.status(401).json({ error: 'Erreur d\'authentification API Azure. Vérifiez votre clé API.' });
       } else if (error.status === 429) {
         res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
       } else {
@@ -1986,735 +1863,255 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
     }
   });
 
-  // API route for network puzzle AI assistant
-  app.post('/api/cyber/network-puzzle/ai-advice', async (req: Request, res: Response) => {
+  // API pour les communications liées aux missions de défense cyber
+  app.post('/api/cyber-defense/chat', async (req: Request, res: Response) => {
     try {
       const { 
-        message, 
-        networkConfig, 
-        currentLevel, 
-        placedConnections, 
-        configuredFirewalls
+        userMessage, 
+        missionId, 
+        missionContext, 
+        currentObjective, 
+        previousMessages, 
+        targetContact,
+        temperature,
+        maxTokens
       } = req.body;
       
-      if (!message && !networkConfig) {
-        return res.status(400).json({ message: 'Either message or network configuration is required' });
+      if (!userMessage) {
+        return res.status(400).json({ message: 'Message utilisateur requis' });
       }
       
-      // Construire le prompt système pour l'assistant IA
-      const systemPrompt = 
-        "Tu es un expert en sécurité réseau qui aide l'utilisateur à concevoir une architecture réseau sécurisée. " +
-        "Tu dois analyser la configuration réseau actuelle et fournir des conseils pour améliorer la sécurité " +
-        "en expliquant les principes de base comme la défense en profondeur, la segmentation réseau et le moindre privilège. " +
-        "Si l'utilisateur pose une question, réponds-y directement de manière pédagogique en utilisant des exemples concrets. " +
-        "Si l'utilisateur te demande d'analyser son réseau, examine attentivement la configuration fournie pour identifier " +
-        "les problèmes de sécurité ou les améliorations possibles.";
+      // Construire le prompt système pour la mission
+      const missionPrompt = `Tu es "I AM CYBER", un assistant spécialisé en cybersécurité qui simule une mission de défense cyber.
       
-      // Contextualiser avec l'état actuel du jeu
-      let contextInfo = "";
-      if (currentLevel) {
-        contextInfo += `\nNiveau actuel: ${currentLevel.name}\n`;
-        contextInfo += `Description: ${currentLevel.description}\n`;
-        contextInfo += `Contraintes: ${currentLevel.constraints.join(', ')}\n`;
-        contextInfo += `Règles de sécurité: ${currentLevel.securityRules.join(', ')}\n`;
-      }
+Tu dois jouer le rôle d'un expert en cybersécurité qui interagit avec l'utilisateur dans le cadre de la mission suivante:
+- Titre: ${missionContext.title}
+- Scénario: ${missionContext.scenario}
+- Difficulté: ${missionContext.difficulty}
+- L'utilisateur joue le rôle de: ${missionContext.userRole}
+- Objectif actuel: ${missionContext.objectives[currentObjective]?.description || "Non défini"}
+
+Directives pour la réponse:
+1. Réponds en utilisant un ton professionnel mais accessible
+2. Adapte ton niveau technique à la difficulté de la mission (${missionContext.difficulty})
+3. Utilise les connaissances à jour en matière de bonnes pratiques de cybersécurité
+4. Si l'utilisateur mentionne spécifiquement un contact (${targetContact || "aucun"}), réponds en tant que cette personne
+5. Si l'utilisateur semble prêt à prendre une décision importante, fournir une structure de décision claire
+6. Évite de mentionner que tu es une IA ou un assistant, reste dans ton rôle
+`;
+
+      // Préparer les messages pour l'API
+      const messages: ChatCompletionRequestMessage[] = [
+        { role: "system", content: missionPrompt },
+        ...previousMessages.map((msg: any) => ({
+          role: msg.role,
+          content: msg.content
+        })),
+        { role: "user", content: userMessage }
+      ];
       
-      if (placedConnections && placedConnections.length > 0) {
-        contextInfo += `\nConnexions établies: ${placedConnections.length}\n`;
+      // Appeler l'API OpenAI
+      const response = await openAIService.getChatCompletionWithCache(
+        messages,
+        temperature || 0.7,
+        maxTokens || 1000
+      );
+      
+      // Analyser le contenu de la réponse pour déterminer le contact et le style
+      let sender = "Expert";
+      let senderRole = "Cybersécurité";
+      
+      // Si un contact spécifique a été ciblé, utiliser ce contact comme expéditeur
+      if (targetContact) {
+        const contact = missionContext.contacts.find((c: any) => c.name === targetContact);
+        if (contact) {
+          sender = contact.name;
+          senderRole = contact.role;
+        }
+      } else {
+        // Sinon, déterminer un contact approprié en fonction du contexte
+        const keyword = userMessage.toLowerCase();
         
-        // Analyse des connexions critiques manquantes
-        if (currentLevel && currentLevel.requiredConnections) {
-          const missingConnections = currentLevel.requiredConnections.filter(([source, target]) => {
-            return !placedConnections.some(conn => 
-              (conn.source === source && conn.target === target) || 
-              (conn.source === target && conn.target === source)
-            );
-          });
-          
-          if (missingConnections.length > 0) {
-            contextInfo += `Connexions requises manquantes: ${missingConnections.length}\n`;
+        // Associer des mots-clés aux contacts pour une réponse contextuelle
+        for (const contact of missionContext.contacts) {
+          const expertise = contact.expertise.toLowerCase();
+          if (keyword.includes(expertise.split(' ')[0]) || 
+              keyword.includes(contact.name.split(' ')[0].toLowerCase())) {
+            sender = contact.name;
+            senderRole = contact.role;
+            break;
           }
         }
       }
       
-      if (configuredFirewalls) {
-        contextInfo += `\nPare-feu configurés: ${
-          Object.entries(configuredFirewalls)
-            .map(([id, config]) => `${id}: Autorise ${config.allowedTraffic.join(', ')}, Bloque ${config.blockedTraffic.join(', ')}`)
-            .join('\n')
-        }\n`;
+      // Déterminer s'il faut déclencher une décision
+      let decision = null;
+      const shouldTriggerDecision = response.toLowerCase().includes('décision') || 
+                                   response.toLowerCase().includes('choix') ||
+                                   response.toLowerCase().includes('options') ||
+                                   response.toLowerCase().includes('alternatives');
+      
+      if (shouldTriggerDecision && missionContext.objectives[currentObjective]?.decisions?.length > 0) {
+        // Prendre la première décision disponible pour l'objectif actuel
+        decision = missionContext.objectives[currentObjective].decisions[0];
       }
       
-      // Construire les messages pour l'API 
-      const messages: ChatCompletionRequestMessage[] = [
-        {
-          role: "system",
-          content: systemPrompt
+      // Déterminer si une réponse additionnelle d'un autre contact est appropriée
+      let additionalResponse = null;
+      const shouldAddColleagueResponse = Math.random() > 0.7; // 30% de chance d'avoir une réponse additionnelle
+      
+      if (shouldAddColleagueResponse && !decision) {
+        // Sélectionner un contact différent du premier répondant
+        const availableContacts = missionContext.contacts.filter((c: any) => c.name !== sender);
+        
+        if (availableContacts.length > 0) {
+          const selectedContact = availableContacts[Math.floor(Math.random() * availableContacts.length)];
+          
+          // Créer un prompt pour la réponse additionnelle
+          const colleaguePrompt = `
+Tu es ${selectedContact.name}, ${selectedContact.role} dans l'entreprise. 
+Tu dois réagir brièvement (2-3 phrases maximum) au message de ${sender} qui vient de dire: "${response}".
+Ta réaction doit être cohérente avec ton rôle et ton expertise en ${selectedContact.expertise}.
+Réponds directement sans introduction ni formule de politesse, comme si tu intervenais dans une conversation.`;
+
+          const colleagueMessages: ChatCompletionRequestMessage[] = [
+            { role: "system", content: colleaguePrompt },
+            { role: "user", content: "Génère une réaction courte et professionnelle" }
+          ];
+          
+          const colleagueResponse = await openAIService.getChatCompletionWithCache(
+            colleagueMessages,
+            0.8, // Légèrement plus créatif
+            200  // Réponse courte
+          );
+          
+          additionalResponse = {
+            response: colleagueResponse,
+            sender: selectedContact.name,
+            senderRole: selectedContact.role
+          };
         }
-      ];
-      
-      // Ajouter le contexte du réseau si disponible
-      if (contextInfo) {
-        messages.push({
-          role: "system",
-          content: `Information sur l'état actuel du réseau:\n${contextInfo}`
-        });
       }
       
-      // Ajouter le message de l'utilisateur
-      messages.push({
-        role: "user",
-        content: message || "Analyse mon réseau actuel et donne-moi des conseils pour l'améliorer."
+      // Retourner la réponse complète
+      res.json({
+        success: true,
+        message: "Response generated successfully"
+      });
+    } catch (error: any) {
+      console.error('Error generating cyber defense response:', error);
+      res.status(500).json({ 
+        error: error.message || 'Error generating cyber defense response'
+      });
+    }
+  });
+  
+      res.status(500).json({ 
+        error: error.message || 'Error evaluating decision'
+        response,
+        sender,
+        senderRole,
+        additionalResponse,
+        decision
       });
       
-      // Appeler l'API OpenAI avec le service existant
-      const responseContent = await openAIService.getChatCompletionWithCache(
-        messages,
-        0.7, // temperature
-        800  // maxTokens
-      );
-      
-      res.json({ 
-        content: responseContent,
-        role: "assistant",
-        model: openAIService.getCurrentModelName()
+    } catch (error: any) {
+      console.error('Error generating cyber defense response:', error);
+      res.status(500).json({ 
+        error: error.message || 'Error generating cyber defense response'
       });
-    } catch (error: any) {
-      console.error('Error generating network puzzle AI advice:', error);
-      
-      // Gestion des erreurs spécifiques d'OpenAI
-      if (error.status === 401) {
-        res.status(401).json({ error: 'Erreur d\'authentification API OpenAI. Vérifiez votre clé API.' });
-      } else if (error.status === 429) {
-        res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
-      } else {
-        res.status(500).json({ 
-          error: 'Erreur lors de la génération du conseil IA',
-          details: error.message || 'Erreur inconnue'
-        });
-      }
     }
   });
-
-  // Enregistrement des routes d'immersion cyber pour la nouvelle version
-  app.use('/api/immersive-simulation', immersiveRoutes);
-  app.use('/api/cyber-ascension', cyberAscensionRoutes);
-
-  // API pour Cyber Quiz Challenge - Génération de questions de quiz
-  app.post('/api/cyber/quiz/generate-question', async (req: Request, res: Response) => {
-    try {
-      const { level = 1, category = 'general' } = req.body;
-      
-      // Construire un prompt système pour générer des questions adaptées
-      const systemPrompt = `
-      Tu es un expert en cybersécurité spécialisé dans la création de contenu éducatif.
-      
-      TÂCHE : Génère une question de quiz EXTRÊMEMENT PÉDAGOGIQUE sur la cybersécurité.
-      
-      Niveau de difficulté: ${level}/5 (où 1 est débutant et 5 est expert)
-      Catégorie: ${category}
-      
-      Les catégories disponibles sont:
-      - general: concepts généraux de cybersécurité
-      - threats: menaces et attaques courantes
-      - defense: mécanismes de défense et bonnes pratiques
-      - compliance: règlementation et conformité
-      - security_culture: sensibilisation et culture de sécurité
-      
-      INSTRUCTIONS IMPORTANTES:
-      - La question doit être claire, précise et adaptée au niveau demandé
-      - Fournir exactement 4 options de réponse
-      - Une seule réponse doit être correcte
-      - Les mauvaises réponses doivent être plausibles mais clairement incorrectes
-      - Fournir une explication détaillée sur la bonne réponse
-      - Inclure des informations supplémentaires pour approfondir le sujet
-      
-      RÉPONDS STRICTEMENT AU FORMAT JSON SUIVANT sans texte additionnel:
-      {
-        "question": "question complète et précise",
-        "options": {
-          "A": "première option",
-          "B": "deuxième option",
-          "C": "troisième option",
-          "D": "quatrième option"
-        },
-        "correctAnswer": "A, B, C ou D",
-        "explanation": "explication détaillée et pédagogique de la bonne réponse",
-        "additionalInfo": "information complémentaire sur le sujet",
-        "difficulty": ${level},
-        "category": "${category}"
-      }`;
-
-      const userPrompt = `Génère une question de quiz de niveau ${level} dans la catégorie ${category} pour le Cyber Quiz Challenge.`;
-      
-      // Utiliser le service OpenAI pour générer la question
-      const messages: ChatCompletionRequestMessage[] = [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt }
-      ];
-      
-      const responseContent = await openAIService.getChatCompletionWithCache(
-        messages,
-        0.7, // temperature
-        2000  // maxTokens - suffisant pour une question de quiz complète
-      );
-      
-      // Extraction et analyse du JSON
-      try {
-        // Recherche du début et de la fin du JSON dans la réponse
-        const content = responseContent;
-        const jsonStart = content.indexOf('{');
-        const jsonEnd = content.lastIndexOf('}') + 1;
-        
-        if (jsonStart === -1 || jsonEnd === 0) {
-          throw new Error("Format JSON introuvable dans la réponse");
-        }
-        
-        const jsonStr = content.substring(jsonStart, jsonEnd);
-        const questionData = JSON.parse(jsonStr);
-        
-        // Ajout d'un ID unique
-        questionData.id = `quiz-${Date.now()}`;
-        questionData.model = openAIService.getCurrentModelName();
-        
-        res.json(questionData);
-      } catch (error) {
-        console.error("Erreur lors du parsing JSON:", error);
-        res.status(500).json({ 
-          error: 'Erreur lors du parsing de la question générée',
-          details: error.message
-        });
-      }
-    } catch (error: any) {
-      console.error('Erreur lors de la génération de question pour Cyber Quiz:', error);
-      
-      if (error.status === 401) {
-        res.status(401).json({ error: 'Erreur d\'authentification API OpenAI. Vérifiez votre clé API.' });
-      } else if (error.status === 429) {
-        res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
-      } else {
-        res.status(500).json({ 
-          error: 'Erreur lors de la génération de la question',
-          details: error.message || 'Erreur inconnue'
-        });
-      }
-    }
-  });
-
-  // API pour l'évaluation des réponses dans Cyber Quiz Challenge
-  app.post('/api/cyber/quiz/evaluate-answer', async (req: Request, res: Response) => {
-    try {
-      const { question, userAnswer, userLevel = 1 } = req.body;
-      
-      if (!question || typeof userAnswer !== 'string') {
-        return res.status(400).json({ message: 'Question et réponse utilisateur requises' });
-      }
-      
-      // Construire le prompt pour l'évaluation
-      const systemPrompt = `
-      Tu es un coach pédagogique spécialisé en cybersécurité.
-      
-      TÂCHE : Évalue la réponse de l'utilisateur à une question de quiz et fournis un feedback personnalisé et constructif.
-      
-      Niveau actuel de l'utilisateur: ${userLevel}/5
-      
-      INSTRUCTIONS:
-      1. Détermine si la réponse de l'utilisateur est correcte
-      2. Fournis un feedback constructif, même si la réponse est incorrecte
-      3. Extrais les points d'apprentissage clés de cette question
-      4. Suggère une progression adaptée (niveau, catégorie)
-      5. Utilise un ton encourageant et positif
-      
-      FORMAT DE RÉPONSE:
-      {
-        "isCorrect": true/false,
-        "feedbackTitle": "titre accrocheur pour le feedback",
-        "feedback": "feedback détaillé et pédagogique",
-        "learningPoints": ["point clé 1", "point clé 2", "point clé 3"],
-        "suggestionTitle": "titre pour la suggestion de progression",
-        "nextSteps": ["conseil 1", "conseil 2"],
-        "recommendedLevel": ${userAnswer === question.correctAnswer ? Math.min(userLevel + 1, 5) : userLevel},
-        "recommendedCategory": "suggestion de catégorie pour la prochaine question"
-      }`;
-
-      const userPrompt = `
-      Question: ${question.question}
-      
-      Options:
-      A: ${question.options.A}
-      B: ${question.options.B}
-      C: ${question.options.C}
-      D: ${question.options.D}
-      
-      Réponse correcte: ${question.correctAnswer}
-      Réponse de l'utilisateur: ${userAnswer}
-      
-      Explication: ${question.explanation}
-      Informations supplémentaires: ${question.additionalInfo}
-      Difficulté: ${question.difficulty}
-      Catégorie: ${question.category}
-      
-      Évalue cette réponse et fournis un feedback personnalisé.`;
-      
-      // Utiliser le service OpenAI pour l'évaluation
-      const messages: ChatCompletionRequestMessage[] = [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt }
-      ];
-      
-      const responseContent = await openAIService.getChatCompletionWithCache(
-        messages,
-        0.7, // temperature
-        1500  // maxTokens
-      );
-      
-      // Extraction et analyse du JSON
-      try {
-        // Recherche du début et de la fin du JSON dans la réponse
-        const content = responseContent;
-        const jsonStart = content.indexOf('{');
-        const jsonEnd = content.lastIndexOf('}') + 1;
-        
-        if (jsonStart === -1 || jsonEnd === 0) {
-          throw new Error("Format JSON introuvable dans la réponse");
-        }
-        
-        const jsonStr = content.substring(jsonStart, jsonEnd);
-        const evaluationData = JSON.parse(jsonStr);
-        
-        res.json({
-          ...evaluationData,
-          model: openAIService.getCurrentModelName()
-        });
-      } catch (error) {
-        console.error("Erreur lors du parsing JSON de l'évaluation:", error);
-        res.status(500).json({ 
-          error: 'Erreur lors du parsing de l\'évaluation',
-          details: error.message
-        });
-      }
-    } catch (error: any) {
-      console.error('Erreur lors de l\'évaluation de réponse pour Cyber Quiz:', error);
-      
-      if (error.status === 401) {
-        res.status(401).json({ error: 'Erreur d\'authentification API OpenAI. Vérifiez votre clé API.' });
-      } else if (error.status === 429) {
-        res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
-      } else {
-        res.status(500).json({ 
-          error: 'Erreur lors de l\'évaluation de la réponse',
-          details: error.message || 'Erreur inconnue'
-        });
-      }
-    }
-  });
-
-  // Routes pour le module AMOA Quest
-  app.post('/api/amoa/quest/initialize', handleQuestInitialization);
-  app.post('/api/amoa/quest/choice', handleQuestChoice);
-
-  // Routes pour le module de simulation d'entretien dans I AM CYBER et I AM AMOA
-  // Ces routes permettent d'évaluer les candidats MC2i via des situations simulées
   
-  // Démarrer une simulation d'entretien pour Cyber
-  app.post('/api/cyber/interview-simulation/start', startInterviewSimulation);
-  // Traiter un message pendant la simulation Cyber
-  app.post('/api/cyber/interview-simulation/message', processInterviewMessage);
-  // Finaliser et évaluer une simulation Cyber
-  app.post('/api/cyber/interview-simulation/complete', completeInterviewSimulation);
-  
-  // Démarrer une simulation d'entretien pour AMOA
-  app.post('/api/amoa/interview-simulation/start', startInterviewSimulation);
-  // Traiter un message pendant la simulation AMOA
-  app.post('/api/amoa/interview-simulation/message', processInterviewMessage);
-  // Finaliser et évaluer une simulation AMOA
-  app.post('/api/amoa/interview-simulation/complete', completeInterviewSimulation);
-  
-  // Analyser les notes et générer une synthèse structurée pour Cyber
-  app.post('/api/cyber/interview-simulation/analyze-notes', async (req: Request, res: Response) => {
-    try {
-      const {
-        notes,
-        candidateName,
-        profileType,
-        experienceLevel,
-        evaluationResult
+        missionId, 
+        missionContext, 
+        decisionId, 
+        choiceId, 
+        currentObjective,
+        userRole
       } = req.body;
-
-      if (!notes) {
-        return res.status(400).json({ 
-          success: false, 
-          error: 'Notes manquantes. Veuillez fournir des notes à analyser.'
-        });
-      }
-
-      // Générer le prompt pour structurer les notes
-      const systemPrompt = `Vous êtes un assistant spécialisé dans l'analyse et la structuration des notes d'audition de candidats pour mc2i. 
-Votre tâche est d'analyser les notes fournies par le responsable et de générer une synthèse structurée selon le format standard mc2i.
-
-Les informations du candidat :
-- Nom: ${candidateName || 'Non spécifié'}
-- Profil: ${profileType || 'Non spécifié'}
-- Niveau d'expérience: ${experienceLevel || 'Non spécifié'}
-
-Structurez la synthèse selon les sections suivantes (chaque section est obligatoire) :
-1. "Présentation générale du profil"
-2. "Description du parcours" : Formation (du bac au master), Expérience (date, rôle, mission, contexte), trous dans le CV (indiquer les raisons)
-3. "Présentation du profil" : Premières impressions, posture, etc.
-4. "Motivations conseil, SI, mc2i" : Compréhension de nos métiers/Renseignement sur le cabinet
-5. "Projet professionnel et perspectives" : Souhaits du candidat court terme, moyen terme et long terme (mission, évolution, secteur)
-6. "Potentiel du candidat vs Ambition"
-7. "Autres processus en cours et planning de décision" : Sociétés (Nom + secteur)
-8. "Critères et Planning de décision"
-9. "Évaluation des compétences" : Communication orale / Élocution
-10. "Forces de la candidature" : Compétences fonctionnelles/sectorielles, techniques, méthodologiques, soft skills
-11. "Faiblesses de la candidature / ou points à approfondir"
-12. "Niveau d'Anglais"
-
-Si le candidat est un stagiaire ou alternant, incluez ces sections supplémentaires :
-- "Période de formation supplémentaire ou départ à l'étranger après son stage de fin d'études"
-- "Si alternance, rythme du candidat (temps passé en entreprise, temps passé en formation)"
-- "Si stagiaire, niveau de la synthèse écrite"
-
-Terminez par :
-- "Synthèse écrite" : évaluation globale
-- "La raison principale de la décision (avis positif ou non) & Les points à approfondir"
-
-Répondez avec un objet JSON contenant les champs suivants, en utilisant les informations des notes pour remplir chaque section :
-{
-  "presentation": "Contenu pour Présentation générale du profil",
-  "parcours": "Contenu pour Description du parcours",
-  "impressions": "Contenu pour Premières impressions, posture",
-  "motivations": "Contenu pour Motivations conseil, SI, mc2i",
-  "projet": "Contenu pour Projet professionnel et perspectives",
-  "potentiel": "Contenu pour Potentiel vs Ambition",
-  "processus": "Contenu pour Autres processus en cours (ou null si non mentionné)",
-  "criteres": "Contenu pour Critères et évaluation des compétences",
-  "forces": "Contenu pour Forces de la candidature",
-  "faiblesses": "Contenu pour Faiblesses de la candidature",
-  "anglais": "Contenu pour Niveau d'Anglais (ou null si non mentionné)",
-  "stage": "Contenu pour informations stage/alternance (ou null si non applicable)",
-  "synthese": "Contenu pour Synthèse écrite",
-  "raison": "Contenu pour Raison principale de la décision"
-}
-
-Si certaines informations ne sont pas mentionnées dans les notes, indiquez-le clairement dans la section correspondante.`;
-
-      // Utiliser l'évaluation existante pour enrichir l'analyse si disponible
-      let evaluationInfo = "";
-      if (evaluationResult) {
-        evaluationInfo = `\n\nÉvaluation automatique réalisée par l'IA durant l'audition :\n`;
-        if (evaluationResult.summary) {
-          evaluationInfo += `Résumé : ${evaluationResult.summary}\n`;
-        }
-        if (evaluationResult.strengths && evaluationResult.strengths.length > 0) {
-          evaluationInfo += `Points forts : ${evaluationResult.strengths.join(', ')}\n`;
-        }
-        if (evaluationResult.improvements && evaluationResult.improvements.length > 0) {
-          evaluationInfo += `Points à améliorer : ${evaluationResult.improvements.join(', ')}\n`;
-        }
-        if (evaluationResult.recommendations) {
-          evaluationInfo += `Recommandations : ${evaluationResult.recommendations}\n`;
-        }
-      }
-
-      // Envoyer la requête à OpenAI
-      const messages: ChatCompletionRequestMessage[] = [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: notes + evaluationInfo }
-      ];
-
-      // Utiliser le service OpenAI pour obtenir une réponse
-      const response = await openAIService.getChatCompletion(
-        messages,
-        0.7,
-        2000
-      );
-
-      try {
-        // Tenter de parser la réponse JSON
-        const synthesis = JSON.parse(response);
-        
-        res.json({
-          success: true,
-          synthesis,
-          model: openAIService.getCurrentModelName()
-        });
-      } catch (parseError) {
-        console.error("Erreur lors du parsing JSON de la synthèse:", parseError);
-        
-        // Si le parsing échoue, retourner la réponse brute
-        res.status(500).json({ 
-          success: false,
-          error: "Erreur lors du parsing de la synthèse",
-          rawResponse: response
-        });
-      }
-    } catch (error: any) {
-      console.error('Erreur lors de l\'analyse des notes:', error);
       
-      if (error.status === 401) {
-        res.status(401).json({ error: 'Erreur d\'authentification API OpenAI. Vérifiez votre clé API.' });
-      } else if (error.status === 429) {
-        res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
-      } else {
-        res.status(500).json({ 
-          error: 'Erreur lors de l\'analyse des notes',
-          details: error.message || 'Erreur inconnue'
-        });
-      }
-    }
-  });
-  
-  // Analyser les notes et générer une synthèse structurée pour AMOA
-  app.post('/api/amoa/interview-simulation/analyze-notes', async (req: Request, res: Response) => {
-    try {
-      const {
-        notes,
-        candidateName,
-        profileType,
-        experienceLevel,
-        sectorFocus,
-        evaluationResult
-      } = req.body;
-
-      if (!notes) {
-        return res.status(400).json({ 
-          success: false, 
-          error: 'Notes manquantes. Veuillez fournir des notes à analyser.'
-        });
-      }
-
-      // Générer le prompt pour structurer les notes
-      const systemPrompt = `Vous êtes un assistant spécialisé dans l'analyse et la structuration des notes d'audition de candidats pour mc2i. 
-Votre tâche est d'analyser les notes fournies par le responsable et de générer une synthèse structurée selon le format standard mc2i.
-
-Les informations du candidat :
-- Nom: ${candidateName || 'Non spécifié'}
-- Profil: ${profileType || 'Non spécifié'}
-- Niveau d'expérience: ${experienceLevel || 'Non spécifié'}
-- Secteur d'activité: ${sectorFocus || 'Non spécifié'}
-
-Structurez la synthèse selon les sections suivantes (chaque section est obligatoire) :
-1. "Présentation générale du profil"
-2. "Description du parcours" : Formation (du bac au master), Expérience (date, rôle, mission, contexte), trous dans le CV (indiquer les raisons)
-3. "Présentation du profil" : Premières impressions, posture, etc.
-4. "Motivations conseil, SI, mc2i" : Compréhension de nos métiers/Renseignement sur le cabinet
-5. "Projet professionnel et perspectives" : Souhaits du candidat court terme, moyen terme et long terme (mission, évolution, secteur)
-6. "Potentiel du candidat vs Ambition"
-7. "Autres processus en cours et planning de décision" : Sociétés (Nom + secteur)
-8. "Critères et Planning de décision"
-9. "Évaluation des compétences" : Communication orale / Élocution
-10. "Forces de la candidature" : Compétences fonctionnelles/sectorielles, techniques, méthodologiques, soft skills
-11. "Faiblesses de la candidature / ou points à approfondir"
-12. "Niveau d'Anglais"
-
-Si le candidat est un stagiaire ou alternant, incluez ces sections supplémentaires :
-- "Période de formation supplémentaire ou départ à l'étranger après son stage de fin d'études"
-- "Si alternance, rythme du candidat (temps passé en entreprise, temps passé en formation)"
-- "Si stagiaire, niveau de la synthèse écrite"
-
-Terminez par :
-- "Synthèse écrite" : évaluation globale
-- "La raison principale de la décision (avis positif ou non) & Les points à approfondir"
-
-Répondez avec un objet JSON contenant les champs suivants, en utilisant les informations des notes pour remplir chaque section :
-{
-  "presentation": "Contenu pour Présentation générale du profil",
-  "parcours": "Contenu pour Description du parcours",
-  "impressions": "Contenu pour Premières impressions, posture",
-  "motivations": "Contenu pour Motivations conseil, SI, mc2i",
-  "projet": "Contenu pour Projet professionnel et perspectives",
-  "potentiel": "Contenu pour Potentiel vs Ambition",
-  "processus": "Contenu pour Autres processus en cours (ou null si non mentionné)",
-  "criteres": "Contenu pour Critères et évaluation des compétences",
-  "forces": "Contenu pour Forces de la candidature",
-  "faiblesses": "Contenu pour Faiblesses de la candidature",
-  "anglais": "Contenu pour Niveau d'Anglais (ou null si non mentionné)",
-  "stage": "Contenu pour informations stage/alternance (ou null si non applicable)",
-  "synthese": "Contenu pour Synthèse écrite",
-  "raison": "Contenu pour Raison principale de la décision"
-}
-
-Si certaines informations ne sont pas mentionnées dans les notes, indiquez-le clairement dans la section correspondante.`;
-
-      // Utiliser l'évaluation existante pour enrichir l'analyse si disponible
-      let evaluationInfo = "";
-      if (evaluationResult) {
-        evaluationInfo = `\n\nÉvaluation automatique réalisée par l'IA durant l'audition :\n`;
-        if (evaluationResult.summary) {
-          evaluationInfo += `Résumé : ${evaluationResult.summary}\n`;
-        }
-        if (evaluationResult.strengths && evaluationResult.strengths.length > 0) {
-          evaluationInfo += `Points forts : ${evaluationResult.strengths.join(', ')}\n`;
-        }
-        if (evaluationResult.improvements && evaluationResult.improvements.length > 0) {
-          evaluationInfo += `Points à améliorer : ${evaluationResult.improvements.join(', ')}\n`;
-        }
-        if (evaluationResult.recommendations) {
-          evaluationInfo += `Recommandations : ${evaluationResult.recommendations}\n`;
-        }
-      }
-
-      // Envoyer la requête à OpenAI
-      const messages: ChatCompletionRequestMessage[] = [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: notes + evaluationInfo }
-      ];
-
-      // Utiliser le service OpenAI pour obtenir une réponse
-      const response = await openAIService.getChatCompletion(
-        messages,
-        0.7,
-        2000
-      );
-
-      try {
-        // Tenter de parser la réponse JSON
-        const synthesis = JSON.parse(response);
-        
-        res.json({
-          success: true,
-          synthesis,
-          model: openAIService.getCurrentModelName()
-        });
-      } catch (parseError) {
-        console.error("Erreur lors du parsing JSON de la synthèse:", parseError);
-        
-        // Si le parsing échoue, retourner la réponse brute
-        res.status(500).json({ 
-          success: false,
-          error: "Erreur lors du parsing de la synthèse",
-          rawResponse: response
-        });
-      }
-    } catch (error: any) {
-      console.error('Erreur lors de l\'analyse des notes:', error);
-      
-      if (error.status === 401) {
-        res.status(401).json({ error: 'Erreur d\'authentification API OpenAI. Vérifiez votre clé API.' });
-      } else if (error.status === 429) {
-        res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
-      } else {
-        res.status(500).json({ 
-          error: 'Erreur lors de l\'analyse des notes',
-          details: error.message || 'Erreur inconnue'
-        });
-      }
-    }
-  });
-  
-  // Routes pour l'Agent IA (I AM CYBER) avec timer et rapport email
-  // Middleware pour assurer que les réponses sont toujours JSON
-  const enforceJsonResponse = (req: Request, res: Response, next: NextFunction) => {
-    res.setHeader('Content-Type', 'application/json');
-    next();
-  };
-  
-  app.post('/api/cyber/agent/start', enforceJsonResponse, startAgentSession);
-  app.post('/api/cyber/agent/complete', enforceJsonResponse, completeAgentSession);
-
-  // Route pour la conversation libre avec les parties prenantes dans AMOA Quest
-  app.post('/api/amoa/quest/chat', async (req: Request, res: Response) => {
-    try {
-      const { message, phaseId, phaseTitle, playerMetrics, conversationHistory } = req.body;
-      
-      if (!message) {
-        return res.status(400).json({ error: 'Message requis' });
+      if (!missionId || !decisionId || !choiceId) {
+        return res.status(400).json({ message: 'Informations de décision requises' });
       }
       
-      // Formatage de l'historique pour l'envoi à l'API OpenAI
-      const formattedHistory = conversationHistory && Array.isArray(conversationHistory) 
-        ? conversationHistory.map(msg => ({
-            role: msg.role === 'user' ? 'user' : 'assistant',
-            content: msg.content
-          }))
-        : [];
+      // Trouver la décision et l'option choisie
+      const objective = missionContext.objectives.find((obj: any) => obj.id === currentObjective);
+      const decision = objective?.decisions.find((d: any) => d.id === decisionId);
+      const choice = decision?.options.find((opt: any) => opt.id === choiceId);
       
-      // Contexte du système pour l'IA
-      const systemMessage = `Tu es un assistant spécialisé pour simuler un environnement AMOA (Assistance à Maîtrise d'Ouvrage).
-      
-Phase actuelle: ${phaseTitle || 'Cadrage du projet'}
-Contexte: L'utilisateur joue le rôle d'un AMOA dans un projet et discute avec les parties prenantes.
-
-Voici les parties prenantes disponibles pour la conversation:
-- Mathilde Comte, Directrice de Projet, responsable de la supervision globale
-- Thomas Dubois, Chef de Projet IT, spécialiste technique
-- Marie Laurent, Représentante des Utilisateurs, porte-parole des besoins métiers
-- Sophie Girard, Responsable Financier, en charge du budget
-- Jean Mercier, Consultant Expert, apportant une vision externe
-
-Métriques actuelles du joueur:
-- Satisfaction des parties prenantes: ${playerMetrics?.stakeholderSatisfaction || 75}%
-- Qualité technique: ${playerMetrics?.technicalQuality || 75}%
-- Respect du budget: ${playerMetrics?.budgetAdherence || 75}%
-- Respect des délais: ${playerMetrics?.timelineAdherence || 75}%
-
-Instructions:
-1. Réponds en tant que la partie prenante la plus appropriée selon la question posée.
-2. Adapte ton style, ton ton et ta personnalité au personnage que tu incarnes.
-3. Fournis des informations pertinentes et réalistes en lien avec le projet et la phase.
-4. Si la question concerne des aspects techniques, réponds en tant que Thomas.
-5. Si la question concerne les besoins des utilisateurs, réponds en tant que Marie.
-6. Si la question concerne le budget, réponds en tant que Sophie.
-7. Si la question concerne la gestion globale, réponds en tant que Mathilde.
-8. Si la question nécessite une expertise spécifique, réponds en tant que Jean.
-9. Reste dans ton rôle de partie prenante et ne révèle pas que tu es une IA.
-10. IMPORTANT: Réponds en texte normal, PAS au format JSON. Ne formate jamais ta réponse en JSON, n'utilise pas de blocks de code ni de balises.
-11. Commence ta réponse par le nom de la personne qui répond suivi de deux points, par exemple "Mathilde Comte: Bonjour, je suis..."
-`;
-
-      // Construction du tableau de messages pour l'API
-      const messages: ChatCompletionRequestMessage[] = [
-        { role: 'system', content: systemMessage },
-        ...formattedHistory,
-        { role: 'user', content: message }
-      ];
-      
-      // Appel à l'API OpenAI via le service approprié
-      const completion = await openAIService.getChatCompletion(
-        messages,
-        0.7,  // temperature
-        1000  // max_tokens
-      );
-      
-      // Vérifier que la réponse a un contenu
-      if (!completion) {
-        return res.status(500).json({ error: 'Réponse invalide de l\'API' });
+      if (!decision || !choice) {
+        return res.status(404).json({ message: 'Décision ou choix non trouvé' });
       }
       
-      // Utiliser directement la réponse en texte brut sans tenter le parsing JSON
-      const responseContent = { 
-        message: completion,
-        character: {
-          id: "assistant",
-          name: "Mathilde Comte",
-          role: "Directrice de Projet",
-          avatar: "",
-          mood: "neutral"
-        },
-        impact: {}
+      // Mettre à jour la mission avec le choix effectué
+      const updatedMission = { ...missionContext };
+      const objectiveIndex = updatedMission.objectives.findIndex((obj: any) => obj.id === currentObjective);
+      const decisionIndex = updatedMission.objectives[objectiveIndex].decisions.findIndex((d: any) => d.id === decisionId);
+      
+      // Marquer la décision comme prise
+      updatedMission.objectives[objectiveIndex].decisions[decisionIndex].madeChoice = choiceId;
+      
+      // Ajuster le score de la mission
+      updatedMission.currentScore = (updatedMission.currentScore || 0) + choice.score;
+      
+      // Déterminer si l'objectif est complété (ici nous considérons qu'une bonne décision complète l'objectif)
+      const objectiveCompleted = choice.score > 0;
+      
+      // Si l'objectif est complété, le marquer comme tel
+      if (objectiveCompleted) {
+        updatedMission.objectives[objectiveIndex].completed = true;
+      }
+      
+      // Sélectionner un superviseur pour l'évaluation
+      const supervisor = missionContext.supervisors?.[Math.floor(Math.random() * missionContext.supervisors.length)] || {
+        name: "Direction",
+        role: "Comité de direction"
       };
       
-      // Retourner la réponse au client
-      res.json(responseContent);
+      // Générer l'évaluation de la décision avec OpenAI
+      const evaluationPrompt = `
+Tu es ${supervisor.name}, ${supervisor.role} dans une organisation. Tu dois évaluer une décision prise par ${userRole} dans le cadre d'une mission de cybersécurité.
+
+Contexte de la décision:
+- Mission: ${missionContext.title}
+- Objectif: ${objective?.description}
+- Décision à prendre: ${decision.description}
+- Option choisie: ${choice.text}
+
+Conséquences connues de ce choix:
+- Points positifs: ${choice.consequences.positive.join(', ')}
+- Points négatifs: ${choice.consequences.negative.join(', ')}
+- Impact sur le score: ${choice.score > 0 ? 'Positif' : choice.score < 0 ? 'Négatif' : 'Neutre'}
+
+Ta tâche:
+Rédige une évaluation concise (3-4 phrases) de cette décision du point de vue de ${supervisor.name}. 
+${choice.score > 0 ? 'Félicite pour ce bon choix tout en soulignant les aspects positifs.' : 
+  choice.score < 0 ? 'Soulève poliment les problèmes de ce choix et suggère ce qui aurait pu être mieux fait.' : 
+  'Donne un feedback nuancé, reconnaissant les aspects positifs mais suggérant des améliorations.'}
+
+Réponds directement à la première personne comme si tu étais ${supervisor.name} qui s'adresse au ${userRole}.`;
+
+      const evaluationMessages: ChatCompletionRequestMessage[] = [
+        { role: "system", content: evaluationPrompt },
+        { role: "user", content: "Génère une évaluation professionnelle de cette décision" }
+      ];
+      
+      const evaluationContent = await openAIService.getChatCompletionWithCache(
+        evaluationMessages,
+        0.7,
+        400
+      );
+      
+      // Retourner l'évaluation et la mission mise à jour
+      res.json({
+        evaluation: {
+          content: evaluationContent,
+          supervisor: supervisor.name,
+          supervisorRole: supervisor.role,
+          objectiveCompleted
+        },
+        updatedMission
+      });
       
     } catch (error: any) {
-      console.error('Erreur lors de la conversation AMOA:', error);
-      
-      if (error.status === 401) {
-        res.status(401).json({ error: 'Erreur d\'authentification API OpenAI. Vérifiez votre clé API.' });
-      } else if (error.status === 429) {
-        res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
-      } else {
-        res.status(500).json({ 
-          error: 'Erreur lors de la conversation',
-          details: error.message || 'Erreur inconnue'
-        });
-      }
-    }
-  });
-
-  const server = createServer(app);
-  return server;
-}

@@ -1,0 +1,20 @@
+          success: false,
+          error: `Erreur lors du traitement de la synthèse: ${parseError.message}`,
+          rawResponse: response
+        });
+      }
+    } catch (error: any) {
+      console.error('Erreur lors de l\'analyse des notes:', error);
+      
+      if (error.status === 401) {
+        res.status(401).json({ error: 'Erreur d\'authentification API OpenAI. Vérifiez votre clé API.' });
+      } else if (error.status === 429) {
+        res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
+      } else {
+        res.status(500).json({ 
+          error: 'Erreur lors de l\'analyse des notes',
+          details: error.message || 'Erreur inconnue'
+        });
+      }
+    }
+  });
