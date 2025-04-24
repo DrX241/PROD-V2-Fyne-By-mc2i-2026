@@ -271,9 +271,7 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
       const data = await response.json();
       console.log("Données de réponse:", data);
       
-      if (!data || !data.success) {
-        throw new Error("La réponse de l'API n'est pas dans le format attendu");
-      }
+      // Pas besoin de vérifier data.success, la réponse 200 suffit
       
       // Ajouter le message initial de l'assistant
       const initialMessage = data.initialMessage || "Bonjour, je suis un client potentiel qui cherche des services en cybersécurité. Pouvez-vous me présenter votre expertise et me dire comment vous pourriez répondre à mes besoins en matière de sécurité informatique ?";

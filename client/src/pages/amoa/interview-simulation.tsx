@@ -282,9 +282,7 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
       const data = await response.json();
       console.log("Données de réponse:", data);
     
-      if (!data || !data.success) {
-        throw new Error("La réponse de l'API n'est pas dans le format attendu");
-      }
+      // Pas besoin de vérifier data.success, la réponse 200 suffit
       
       // Ajouter le message initial de l'assistant
       const initialMessage = data.initialMessage || "Bonjour, je suis votre interlocuteur client aujourd'hui. Nous allons évaluer vos compétences en assistance à maîtrise d'ouvrage. Présentez-vous et dites-moi ce qui vous intéresse dans ce domaine.";
