@@ -1587,7 +1587,27 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
 
   // Route de listage des documents supprimée car nous n'utilisons plus de pièces jointes
 
-  // API route pour vérifier le statut de la connexion à Azure OpenAI
+  // API routes pour vérifier le statut de la connexion à Azure OpenAI
+  app.get('/api/openai/status', async (req: Request, res: Response) => {
+    try {
+      const isConnected = await openAIService.checkConnection();
+      res.json({
+        connectionStatus: isConnected ? 'connected' : 'disconnected',
+        currentModel: openAIService.getCurrentModelName(),
+        apiKeyType: openAIService.getCurrentConfig(),
+        lastCheck: Date.now()
+      });
+    } catch (error) {
+      console.error('Error checking API status:', error);
+      res.status(500).json({
+        connectionStatus: 'error',
+        message: 'Failed to check API connection',
+        time: new Date().toISOString()
+      });
+    }
+  });
+  
+  // Route de compatibilité pour l'ancien endpoint
   app.get('/api/cyber/status', async (req: Request, res: Response) => {
     try {
       const isConnected = await openAIService.checkConnection();
