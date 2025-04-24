@@ -1,4 +1,5 @@
 import { useChatContext } from "@/contexts/ChatContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { useLocation } from "wouter";
 import mclogo from "@/assets/mc2i.png";
 import OpenAIStatusIndicator from '@/components/OpenAIStatusIndicator';
@@ -45,14 +46,36 @@ interface HeaderProps {
 
 export default function Header({ isFeny = false }: HeaderProps) {
   const { userName } = useChatContext();
+  const { themeMode } = useTheme();
   const [location] = useLocation();
   
   // Extraire le prénom propre et obtenir son initiale
   const displayName = userName ? extractFirstName(userName) : "";
   const userInitial = displayName ? displayName.charAt(0).toUpperCase() : "U";
+  
+  // Détermine les styles en fonction du thème
+  const headerBgClass = themeMode === 'futuristic' 
+    ? 'bg-gray-900 shadow-md border-b border-blue-900/50' 
+    : 'bg-white shadow-sm border-b border-gray-100';
+    
+  const logoTextClass = themeMode === 'futuristic'
+    ? 'text-cyan-400'
+    : 'text-blue-600';
+    
+  const separatorClass = themeMode === 'futuristic'
+    ? 'text-blue-700'
+    : 'text-neutral-300';
+    
+  const userInitialBgClass = themeMode === 'futuristic'
+    ? 'bg-blue-900 text-cyan-300'
+    : 'bg-blue-100 text-blue-600';
+    
+  const userNameClass = themeMode === 'futuristic'
+    ? 'text-blue-200'
+    : 'text-neutral-700';
 
   return (
-    <header className="bg-white shadow-sm w-full border-b border-gray-100 max-w-[100vw] overflow-hidden fixed top-0 left-0 right-0 z-50">
+    <header className={`w-full max-w-[100vw] overflow-hidden fixed top-0 left-0 right-0 z-50 ${headerBgClass}`}>
       <div className="w-full px-3 sm:px-5 md:px-8 py-3 sm:py-4 flex items-center justify-between">
         <div className="flex items-center">
           {/* Switch de thème classique/futuriste */}
@@ -64,8 +87,8 @@ export default function Header({ isFeny = false }: HeaderProps) {
             className="flex items-center gap-2 sm:gap-3 cursor-pointer"
           >
             <img src={mclogo} alt="mc2i Logo" className="h-6 sm:h-8" />
-            <span className="text-neutral-300 hidden xs:inline-block">|</span>
-            <div className="text-blue-600 text-base sm:text-xl font-bold whitespace-nowrap">
+            <span className={`hidden xs:inline-block ${separatorClass}`}>|</span>
+            <div className={`${logoTextClass} text-base sm:text-xl font-bold whitespace-nowrap`}>
               {isFeny ? 'FYNE' : (
                 location.includes('/cyber') ? 'I AM CYBER' : 
                 location.includes('/data-ia') ? 'I AM DATA & IA' : 
@@ -83,10 +106,10 @@ export default function Header({ isFeny = false }: HeaderProps) {
           <div className="flex items-center gap-1 sm:gap-2">
             {userName && (
               <>
-                <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-medium text-xs sm:text-base">
+                <div className={`h-6 w-6 sm:h-8 sm:w-8 rounded-full ${userInitialBgClass} flex items-center justify-center font-medium text-xs sm:text-base`}>
                   {userInitial}
                 </div>
-                <span className="text-neutral-700 text-xs sm:text-sm font-medium hidden sm:inline-block">
+                <span className={`${userNameClass} text-xs sm:text-sm font-medium hidden sm:inline-block`}>
                   Bonjour {displayName}
                 </span>
               </>

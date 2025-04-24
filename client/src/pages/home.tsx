@@ -267,17 +267,8 @@ export default function Home() {
               <div className="absolute inset-0 bg-gradient-to-r from-gray-900/20 via-blue-950/10 to-transparent"></div>
             </>
           ) : (
-            // Image de fond classique (ville)
-            <>
-              <img 
-                src={fyneCityBackgroundPath} 
-                alt="Vue urbaine FYNE" 
-                className="w-full h-full object-cover"
-                style={{ objectPosition: "center" }}
-              />
-              {/* Overlay pour améliorer la lisibilité du texte */}
-              <div className="absolute inset-0 bg-gradient-to-r from-gray-800/50 via-gray-900/30 to-gray-800/40"></div>
-            </>
+            // Design épuré pour le mode classique - fond blanc uni
+            <div className="bg-white w-full h-full"></div>
           )}
         </div>
         
@@ -327,52 +318,82 @@ export default function Home() {
           <div className="flex flex-col lg:flex-row items-center justify-between">
             {/* Contenu texte - Déplacé plus à gauche pour ne pas masquer le personnage */}
             <div className="text-center lg:text-left lg:w-2/5 mx-auto lg:ml-12 lg:mr-0 mb-12 lg:mb-0">
-              <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-600/40 border border-blue-500/30 text-blue-300 text-sm font-medium mb-6 backdrop-blur-md">
-                <Sparkles className="mr-2 h-4 w-4" />
-                Propulsé par l'Intelligence Artificielle
-              </div>
+              {/* Badge différent selon le thème */}
+              {isFuturistic ? (
+                <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-600/40 border border-blue-500/30 text-blue-300 text-sm font-medium mb-6 backdrop-blur-md">
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Propulsé par l'Intelligence Artificielle
+                </div>
+              ) : (
+                <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-100 border border-blue-200 text-blue-600 text-sm font-medium mb-6">
+                  <BrainCircuit className="mr-2 h-4 w-4" />
+                  Formation Assistée par IA
+                </div>
+              )}
               
-              {/* Animation du slogan FYNE placée avant le titre principal */}
+              {/* Animation du slogan FYNE placée avant le titre principal - adapté selon le thème */}
               <motion.div
                 className="mb-6 relative"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.8 }}
               >
-                {/* Simple affichage du slogan */}
-                <div className="h-14 text-white text-3xl font-cyber-title flex items-center lg:justify-start justify-center">
-                  <span>
-                    <span className="text-cyan-300">F</span>or 
-                    <span className="text-cyan-300"> Y</span>our 
-                    <span className="text-cyan-300"> N</span>ext 
-                    <span className="text-cyan-300"> E</span>xperience
-                  </span>
+                {/* Simple affichage du slogan - adapté selon le thème */}
+                <div className={`h-14 text-3xl font-medium flex items-center lg:justify-start justify-center ${isFuturistic ? 'text-white font-cyber-title' : 'text-gray-700'}`}>
+                  {isFuturistic ? (
+                    <span>
+                      <span className="text-cyan-300">F</span>or 
+                      <span className="text-cyan-300"> Y</span>our 
+                      <span className="text-cyan-300"> N</span>ext 
+                      <span className="text-cyan-300"> E</span>xperience
+                    </span>
+                  ) : (
+                    <span>
+                      <span className="text-blue-600">F</span>or 
+                      <span className="text-blue-600"> Y</span>our 
+                      <span className="text-blue-600"> N</span>ext 
+                      <span className="text-blue-600"> E</span>xperience
+                    </span>
+                  )}
                 </div>
                 
-                {/* Ligne décorative en dessous */}
+                {/* Ligne décorative en dessous - adapté selon le thème */}
                 <motion.div 
                   className="absolute -bottom-1 lg:left-32 left-1/2 transform lg:-translate-x-0 -translate-x-1/2 w-64 h-[2px]"
                   initial={{ width: 0, opacity: 0 }}
                   animate={{ width: 250, opacity: 1 }}
                   transition={{ duration: 1, delay: 0.5 }}
                 >
-                  <div className="w-full h-full bg-gradient-to-r from-transparent via-cyan-400 to-transparent"></div>
+                  <div className={`w-full h-full ${isFuturistic 
+                    ? 'bg-gradient-to-r from-transparent via-cyan-400 to-transparent' 
+                    : 'bg-gradient-to-r from-transparent via-blue-500 to-transparent'}`}></div>
                 </motion.div>
               </motion.div>
 
               <motion.h1 
-                className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6 font-cyber-title tracking-wide"
+                className={`text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6 ${
+                  isFuturistic 
+                    ? 'text-white font-cyber-title tracking-wide' 
+                    : 'text-gray-800 tracking-normal'
+                }`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7 }}
               >
                 Améliorez<br className="xs:hidden" />
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400"> votre expertise  </span><br className="xs:hidden" />
+                <span className={isFuturistic 
+                  ? "bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400"
+                  : "text-blue-600"
+                }> votre expertise </span><br className="xs:hidden" />
                 avec FYNE
               </motion.h1>
               
               <motion.p 
-                className="text-xl md:text-2xl text-blue-100 mb-10 mx-auto lg:mx-0 lg:max-w-xl font-cyber-body tracking-wide leading-relaxed"
+                className={`text-xl md:text-2xl mb-10 mx-auto lg:mx-0 lg:max-w-xl leading-relaxed ${
+                  isFuturistic 
+                    ? 'text-blue-100 font-cyber-body tracking-wide' 
+                    : 'text-gray-600'
+                }`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.3 }}
@@ -441,57 +462,88 @@ export default function Home() {
               viewport={{ once: true }}
             >
               <div className="inline-block mb-4">
-                <span className="px-4 py-1 rounded-full text-sm font-semibold bg-blue-900/60 text-cyan-300 font-cyber-accent tracking-wide border border-blue-500/30 backdrop-blur-sm">
-                  Découvrez nos solutions
-                </span>
+                {isFuturistic ? (
+                  <span className="px-4 py-1 rounded-full text-sm font-semibold bg-blue-900/60 text-cyan-300 font-cyber-accent tracking-wide border border-blue-500/30 backdrop-blur-sm">
+                    Découvrez nos solutions
+                  </span>
+                ) : (
+                  <span className="px-4 py-1 rounded-full text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                    Découvrez nos solutions
+                  </span>
+                )}
               </div>
-              <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4 tracking-tight font-cyber-title">
-                Nos modules <span className="text-cyan-400 relative">
-                  d'excellence
-                  <svg className="absolute bottom-0 left-0 w-full" height="5" viewBox="0 0 200 5" preserveAspectRatio="none">
-                    <path d="M0 5 Q 40 0, 80 2 T 160 3 T 200 0 V 5 H 0 Z" fill="rgba(34, 211, 238, 0.4)" />
-                  </svg>
-                </span>
-              </h2>
-              <p className="text-xl text-blue-100 max-w-3xl mx-auto font-cyber-body leading-relaxed">
+              
+              {isFuturistic ? (
+                // Titre en mode futuriste
+                <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4 tracking-tight font-cyber-title">
+                  Nos modules <span className="text-cyan-400 relative">
+                    d'excellence
+                    <svg className="absolute bottom-0 left-0 w-full" height="5" viewBox="0 0 200 5" preserveAspectRatio="none">
+                      <path d="M0 5 Q 40 0, 80 2 T 160 3 T 200 0 V 5 H 0 Z" fill="rgba(34, 211, 238, 0.4)" />
+                    </svg>
+                  </span>
+                </h2>
+              ) : (
+                // Titre en mode classique
+                <h2 className="text-4xl sm:text-5xl font-bold text-gray-800 mb-4">
+                  Nos modules <span className="text-blue-600 relative">
+                    d'excellence
+                    <div className="absolute -bottom-1 left-0 w-full h-[3px] bg-blue-500/50 rounded-full"></div>
+                  </span>
+                </h2>
+              )}
+              
+              <p className={`text-xl max-w-3xl mx-auto leading-relaxed ${
+                isFuturistic 
+                  ? 'text-blue-100 font-cyber-body' 
+                  : 'text-gray-600'
+              }`}>
                 Une expérience d'apprentissage nouvelle génération, adaptée à vos besoins
               </p>
             </motion.div>
           </div>
           
-          {/* Grille de modules avec style professionnel futuriste */}
+          {/* Grille de modules avec style adapté selon le thème */}
           <div className="relative z-10 my-12">
-            {/* Fond décoratif avec motif futuriste */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-950/40 to-indigo-950/40 rounded-3xl overflow-hidden -z-10 backdrop-blur-sm">
-              <div className="absolute inset-0 opacity-20" 
-                   style={{ 
-                     backgroundImage: 'radial-gradient(circle at 15% 50%, rgba(6, 182, 212, 0.15) 0%, transparent 25%), radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 25%)',
-                     backgroundSize: '120px 120px',
-                     backgroundRepeat: 'repeat'
-                   }}>
+            {/* Fond décoratif avec motif - adapté selon le thème */}
+            {isFuturistic ? (
+              // Fond futuriste
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-950/40 to-indigo-950/40 rounded-3xl overflow-hidden -z-10 backdrop-blur-sm">
+                <div className="absolute inset-0 opacity-20" 
+                     style={{ 
+                       backgroundImage: 'radial-gradient(circle at 15% 50%, rgba(6, 182, 212, 0.15) 0%, transparent 25%), radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 25%)',
+                       backgroundSize: '120px 120px',
+                       backgroundRepeat: 'repeat'
+                     }}>
+                </div>
+                {/* Bordure lumineuse */}
+                <div className="absolute inset-0 border border-cyan-500/30 rounded-3xl"></div>
+                
+                {/* Effet de particules spatiales */}
+                <div className="absolute inset-0">
+                  {Array.from({ length: 30 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="absolute rounded-full"
+                      style={{
+                        top: `${Math.random() * 100}%`,
+                        left: `${Math.random() * 100}%`,
+                        width: `${Math.max(1, Math.random() * 2)}px`,
+                        height: `${Math.max(1, Math.random() * 2)}px`,
+                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                        boxShadow: '0 0 2px rgba(255, 255, 255, 0.5)',
+                        opacity: Math.random() * 0.7 + 0.3
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
-              {/* Bordure lumineuse */}
-              <div className="absolute inset-0 border border-cyan-500/30 rounded-3xl"></div>
-              
-              {/* Effet de particules spatiales */}
-              <div className="absolute inset-0">
-                {Array.from({ length: 30 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="absolute rounded-full"
-                    style={{
-                      top: `${Math.random() * 100}%`,
-                      left: `${Math.random() * 100}%`,
-                      width: `${Math.max(1, Math.random() * 2)}px`,
-                      height: `${Math.max(1, Math.random() * 2)}px`,
-                      backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                      boxShadow: '0 0 2px rgba(255, 255, 255, 0.5)',
-                      opacity: Math.random() * 0.7 + 0.3
-                    }}
-                  />
-                ))}
+            ) : (
+              // Fond classique
+              <div className="absolute inset-0 bg-white rounded-3xl overflow-hidden -z-10 shadow-sm">
+                <div className="absolute inset-0 border border-blue-100 rounded-3xl"></div>
               </div>
-            </div>
+            )}
             
             {/* Grille principale */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-8">
@@ -504,15 +556,25 @@ export default function Home() {
                   viewport={{ once: true }}
                   className="transform hover:scale-105 hover:z-20 transition-all duration-300 group"
                 >
-                  {/* Wrapper avec effets futuristes */}
-                  <div className="relative bg-gray-900/80 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden group-hover:shadow-cyan-500/40 border border-blue-500/30">
-                    {/* Effet de lueur sur hover */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-tr from-cyan-500/10 to-blue-500/10 transition-opacity duration-300"></div>
-                    {/* Le module */}
-                    <ModuleCard {...module} />
-                    {/* Accent line */}
-                    <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
-                  </div>
+                  {isFuturistic ? (
+                    // Wrapper avec effets futuristes
+                    <div className="relative bg-gray-900/80 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden group-hover:shadow-cyan-500/40 border border-blue-500/30">
+                      {/* Effet de lueur sur hover */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-tr from-cyan-500/10 to-blue-500/10 transition-opacity duration-300"></div>
+                      {/* Le module */}
+                      <ModuleCard {...module} />
+                      {/* Accent line */}
+                      <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+                    </div>
+                  ) : (
+                    // Wrapper avec style classique
+                    <div className="relative bg-white rounded-xl shadow-md overflow-hidden group-hover:shadow-lg border border-gray-200 transition-all duration-300">
+                      {/* Le module avec adaptation au thème classique */}
+                      <ModuleCard {...module} classicMode={true} />
+                      {/* Accent line classique */}
+                      <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+                    </div>
+                  )}
                 </motion.div>
               ))}
             </div>
