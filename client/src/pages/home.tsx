@@ -332,51 +332,7 @@ export default function Home() {
               </motion.div>
             </div>
             
-            {/* Panneau d'information avec effet vitre futuriste - remplace l'avatar */}
-            <motion.div 
-              className="lg:w-2/5 relative lg:ml-auto mt-12 lg:mt-0"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7, delay: 0.3 }}
-            >
-              <div className="backdrop-blur-md bg-white/5 border border-blue-300/20 rounded-xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.12)] overflow-hidden relative">
-                {/* Statistiques et informations */}
-                <div className="space-y-4 text-blue-100 text-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-blue-300 font-cyber-accent">Modules actifs</span>
-                    <span className="font-semibold">5 modules</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-blue-300 font-cyber-accent">Intelligence</span>
-                    <span className="font-semibold">GPT-4o / Claude 3.7</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-blue-300 font-cyber-accent">Languages</span>
-                    <span className="font-semibold">Français / English</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-blue-300 font-cyber-accent">Nouveautés</span>
-                    <span className="font-semibold text-cyan-300">Mise à jour 2.4.1</span>
-                  </div>
-                  
-                  {/* Barre de progression animée */}
-                  <div className="pt-2">
-                    <div className="text-xs text-blue-300 flex justify-between mb-1">
-                      <span>Amélioration continue</span>
-                      <span>97%</span>
-                    </div>
-                    <div className="w-full bg-blue-900/30 rounded-full h-1.5 overflow-hidden">
-                      <motion.div 
-                        className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full"
-                        initial={{ width: "0%" }}
-                        animate={{ width: "97%" }}
-                        transition={{ duration: 1.5, delay: 0.5 }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+            {/* Le panneau d'information a été retiré */}
           </div>
         </div>
       </div>
