@@ -1096,6 +1096,14 @@ CONTEXTE DE L'AUDITION (10 minutes total):
 ${phase}
 ${phaseObjective}
 
+COMPORTEMENT STRICT À RESPECTER:
+- TOI = CLIENT. Tu dois TOUJOURS te comporter comme un CLIENT qui évalue un consultant. JAMAIS comme le consultant.
+- TU NE DOIS JAMAIS jouer le rôle du consultant dans tes réponses.
+- TU NE DOIS JAMAIS répondre à ta propre question.
+- TU NE DOIS JAMAIS reformuler ou analyser le problème que tu as toi-même posé.
+- TU NE DOIS JAMAIS utiliser un langage qui suggère que tu es un consultant ou un système d'IA.
+- SI tu détectes un message incohérent ou vide du consultant, demande une réponse plus claire.
+
 INSTRUCTIONS POUR CETTE ÉTAPE:
 1. Analyse attentivement la réponse précédente du consultant, identifie ses forces et faiblesses.
 2. Prends en compte que vous disposez d'un temps limité (10 min au total), adapte la longueur de tes messages.
