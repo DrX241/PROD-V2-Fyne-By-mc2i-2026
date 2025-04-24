@@ -40,14 +40,9 @@ const extractFirstName = (input: string): string => {
   return firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
 };
 
-interface HeaderProps {
-  isFeny?: boolean;
-}
-
-export default function Header({ isFeny = false }: HeaderProps) {
+export default function Header() {
   const { userName } = useChatContext();
   const { themeMode } = useTheme();
-  const [location] = useLocation();
   
   // Extraire le prénom propre et obtenir son initiale
   const displayName = userName ? extractFirstName(userName) : "";
@@ -58,14 +53,7 @@ export default function Header({ isFeny = false }: HeaderProps) {
     ? 'bg-gray-900 shadow-md border-b border-blue-900/50' 
     : 'bg-white shadow-sm border-b border-gray-100';
     
-  const logoTextClass = themeMode === 'futuristic'
-    ? 'text-cyan-400'
-    : 'text-blue-600';
-    
-  const separatorClass = themeMode === 'futuristic'
-    ? 'text-blue-700'
-    : 'text-neutral-300';
-    
+  // Classes pour l'affichage de l'utilisateur  
   const userInitialBgClass = themeMode === 'futuristic'
     ? 'bg-blue-900 text-cyan-300'
     : 'bg-blue-100 text-blue-600';
@@ -84,18 +72,9 @@ export default function Header({ isFeny = false }: HeaderProps) {
           </div>
 
           <a href="/"
-            className="flex items-center gap-2 sm:gap-3 cursor-pointer"
+            className="flex items-center cursor-pointer"
           >
-            <img src={mclogo} alt="mc2i Logo" className="h-6 sm:h-8" />
-            <span className={`hidden xs:inline-block ${separatorClass}`}>|</span>
-            <div className={`${logoTextClass} text-base sm:text-xl font-bold whitespace-nowrap`}>
-              {isFeny ? 'FYNE' : (
-                location.includes('/cyber') ? 'I AM CYBER' : 
-                location.includes('/data-ia') ? 'I AM DATA & IA' : 
-                location.includes('/amoa') ? 'IAM mc2i' : 
-                'FYNE'
-              )}
-            </div>
+            <img src={mclogo} alt="mc2i Logo" className="h-7 sm:h-9" />
           </a>
         </div>
         <div className="flex items-center gap-2 sm:gap-5">
