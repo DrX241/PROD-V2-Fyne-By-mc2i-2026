@@ -285,8 +285,7 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
       const responseText = await response.text();
       console.log("Réponse brute:", responseText.substring(0, 100)); // Log une portion du texte pour le débogage
       
-      // Déclarer dans une portée accessible au try et au catch
-      let responseData: any = null;
+      // Variable déjà déclarée en amont
       try {
         // Tenter de parser la réponse en JSON
         responseData = JSON.parse(responseText);

@@ -11,6 +11,7 @@ import { ChatCompletionRequestMessage } from "../shared/schema";
 import { evaluateDecision } from "./cyberDefenseEvaluator";
 import { handleCyberDefenseChat, generateCyberDefenseMission } from "./cyberDefenseController";
 import { extractJsonFromOpenAiResponse, createFallbackJson } from "./openAiResponseHelper";
+import { startInterviewSimulation, processInterviewMessage, completeInterviewSimulation } from "./interviewSimulationController";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Nous n'avons plus besoin des répertoires de documents et HTML
