@@ -12,7 +12,6 @@ import { motion } from "framer-motion";
 import Typewriter from "../components/Typewriter";
 import mcLogoPath from "@assets/mc2i.png";
 import fyneAvatarPath from "@assets/image_1745520990954.png";
-import cybercityBgPath from "@assets/image_1745526637057.png";
 import PageTitle from "@/components/utils/PageTitle";
 
 // Carte de module avec animation
@@ -180,28 +179,13 @@ export default function Home() {
       <PageTitle title="Accueil" />
       {/* Hero Section - Fond amélioré */}
       <div className="relative overflow-hidden">
-        {/* Arrière-plan futuriste avec l'image de ville cyber */}
-        <div className="absolute inset-0">
-          {/* Image de fond */}
-          <img 
-            src={cybercityBgPath} 
-            alt="Ville futuriste" 
-            className="object-cover w-full h-full opacity-90" 
-          />
-          
-          {/* Overlay pour améliorer la lisibilité du texte */}
-          <div className="absolute inset-0 bg-black bg-opacity-40 mix-blend-overlay"></div>
-          
-          {/* Ajout d'un gradient pour renforcer l'effet futuriste */}
-          <div className="absolute inset-0 bg-gradient-to-t from-blue-900/40 to-gray-900/10"></div>
-        </div>
-        
-        {/* Éléments décoratifs animés pour un effet high-tech - conservés pour l'animation */}
-        <div className="absolute inset-0 pointer-events-none">
-          {Array.from({ length: 10 }).map((_, i) => (
+        {/* Arrière-plan dynamique */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-indigo-950 to-blue-950">
+          {/* Éléments décoratifs animés pour un effet high-tech */}
+          {Array.from({ length: 20 }).map((_, i) => (
             <motion.div
               key={i}
-              className="absolute rounded-full bg-blue-500/5"
+              className="absolute rounded-full bg-blue-500/10"
               style={{
                 width: `${Math.random() * 300 + 50}px`,
                 height: `${Math.random() * 300 + 50}px`,
@@ -210,7 +194,7 @@ export default function Home() {
               }}
               animate={{
                 scale: [1, 1.2, 1],
-                opacity: [0.05, 0.1, 0.05],
+                opacity: [0.1, 0.2, 0.1],
               }}
               transition={{
                 duration: 8 + Math.random() * 5,
@@ -219,56 +203,26 @@ export default function Home() {
               }}
             />
           ))}
+          
+          {/* Effet de particules connectées */}
+          <div className="absolute inset-0 opacity-30">
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <radialGradient id="grid-gradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                  <stop offset="0%" stopColor="rgba(59, 130, 246, 0.3)" />
+                  <stop offset="100%" stopColor="rgba(59, 130, 246, 0)" />
+                </radialGradient>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#grid-gradient)" />
+            </svg>
+          </div>
         </div>
         
         <div className="w-full max-w-screen-2xl mx-auto px-4 py-24 sm:px-6 lg:px-8 lg:py-32 relative z-10">
-          {/* Réorganisation du layout pour inverser l'ordre - Robot à gauche, texte à droite */}
           <div className="flex flex-col lg:flex-row items-center justify-between">
-            {/* Image FYNE - Placée en premier pour être à gauche sur Desktop */}
-            <motion.div 
-              className="lg:w-2/5 flex justify-center lg:justify-start order-2 lg:order-1 mt-12 lg:mt-0"
-              initial={{ opacity: 0, scale: 0.8, x: -20 }}
-              animate={{ opacity: 1, scale: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            >
-              <div className="w-72 h-72 md:w-96 md:h-96 relative overflow-visible">
-                {/* Positionnement du robot pour qu'il regarde vers la ville futuriste */}
-                <img 
-                  src={fyneAvatarPath} 
-                  alt="FYNE by mc2i" 
-                  className="object-contain drop-shadow-[0_0_30px_rgba(59,130,246,0.3)] transform scale-x-[-1]" 
-                />
-                {/* Cercle décoratif derrière l'image avec effet lumineux plus prononcé */}
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-56 h-56 md:w-80 md:h-80 rounded-full bg-blue-700/20 blur-xl -z-10"></div>
-                
-                {/* Effet de lignes connectées depuis le robot vers la ville futuriste */}
-                <div className="absolute inset-0 pointer-events-none">
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <motion.div
-                      key={i}
-                      className="absolute h-1 bg-gradient-to-r from-blue-400/70 to-transparent rounded-full"
-                      style={{
-                        width: `${120 + i * 30}px`,
-                        top: `${30 + i * 20}%`,
-                        left: '70%',
-                        transformOrigin: 'left center',
-                      }}
-                      initial={{ scaleX: 0, opacity: 0 }}
-                      animate={{ scaleX: 1, opacity: [0, 0.7, 0.5] }}
-                      transition={{
-                        duration: 1.5,
-                        delay: 1 + i * 0.2,
-                        ease: "easeOut",
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-            
-            {/* Contenu texte - Placé en second pour être à droite sur Desktop */}
-            <div className="text-center lg:text-left lg:w-3/5 mx-auto lg:mx-0 mb-12 lg:mb-0 order-1 lg:order-2">
-              <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-600/40 border border-blue-500/30 text-blue-300 text-sm font-medium mb-6 backdrop-blur-md">
+            {/* Contenu texte */}
+            <div className="text-center lg:text-left lg:w-3/5 mx-auto lg:mx-0 mb-12 lg:mb-0">
+              <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-600/30 border border-blue-500/30 text-blue-300 text-sm font-medium mb-6 backdrop-blur-md">
                 <Sparkles className="mr-2 h-4 w-4" />
                 Propulsé par l'Intelligence Artificielle
               </div>
@@ -321,6 +275,24 @@ export default function Home() {
                 Découvrez une nouvelle dimension d'apprentissage interactif grâce à nos modules IA innovants qui s'adaptent parfaitement à votre progression.
               </motion.p>
             </div>
+            
+            {/* Image FYNE */}
+            <motion.div 
+              className="lg:w-2/5 flex justify-center lg:justify-end"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              <div className="w-72 h-72 md:w-96 md:h-96 relative overflow-visible">
+                <img 
+                  src={fyneAvatarPath} 
+                  alt="FYNE by mc2i" 
+                  className="object-contain drop-shadow-[0_0_30px_rgba(59,130,246,0.3)]" 
+                />
+                {/* Cercle décoratif derrière l'image */}
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-56 h-56 md:w-80 md:h-80 rounded-full bg-blue-900/20 blur-md -z-10"></div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </div>
