@@ -13,6 +13,7 @@ import Typewriter from "../components/Typewriter";
 import mcLogoPath from "@assets/mc2i.png";
 import fyneAvatarPath from "@assets/image_1745520990954.png";
 import fyneCityBackgroundPath from "../assets/fyne_city_background.png";
+import fyneSpaceViewPath from "../assets/fyne_space_view.png";
 import PageTitle from "@/components/utils/PageTitle";
 
 // Carte de module avec animation
@@ -209,15 +210,15 @@ export default function Home() {
       <PageTitle title="Accueil" />
       {/* Hero Section avec image de fond futuriste */}
       <div className="relative overflow-hidden h-[85vh] max-h-[800px]">
-        {/* Image de fond de la ville futuriste */}
+        {/* Image de fond de l'espace avec vue de vaisseau */}
         <div className="absolute inset-0 z-0">
           <img 
-            src={fyneCityBackgroundPath} 
-            alt="Ville futuriste FYNE" 
-            className="w-full h-full object-cover brightness-75"
+            src={fyneSpaceViewPath} 
+            alt="Vue spatiale FYNE" 
+            className="w-full h-full object-cover brightness-90"
           />
           {/* Overlay pour améliorer la lisibilité du texte */}
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-900/80 via-blue-950/70 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-900/50 via-blue-950/30 to-transparent"></div>
         </div>
         
         {/* Effet de particules numériques */}
