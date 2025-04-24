@@ -26,7 +26,8 @@ const ModuleCard = ({
   color, 
   bgColor, 
   accentColor, 
-  linkTo 
+  linkTo,
+  classicMode = false
 }: { 
   title: string;
   description: string;
@@ -35,11 +36,14 @@ const ModuleCard = ({
   bgColor: string;
   accentColor: string;
   linkTo: string;
+  classicMode?: boolean;
 }) => {
   const [isHover, setIsHover] = useState(false);
   
-  // Adaptation des couleurs pour thème spatial
-  const baseColor = 'cyan';
+  // Détermine si on utilise le thème futuriste ou classique
+  // Soit via la prop classicMode, soit via le contexte
+  const { themeMode } = useTheme();
+  const isClassic = classicMode || themeMode === 'classic';
   
   return (
     <div
@@ -47,56 +51,79 @@ const ModuleCard = ({
       onMouseEnter={() => setIsHover(true)}
       onMouseLeave={() => setIsHover(false)}
     >
-      {/* Effet de ligne lumineuse en haut */}
-      <div className="absolute inset-x-0 -top-2 h-1 bg-gradient-to-r from-cyan-400/70 to-blue-500/70 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-t-md"></div>
+      {/* Effet de ligne lumineuse en haut - uniquement en mode futuriste */}
+      {!isClassic && (
+        <div className="absolute inset-x-0 -top-2 h-1 bg-gradient-to-r from-cyan-400/70 to-blue-500/70 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-t-md"></div>
+      )}
       
       <div className="p-6 flex flex-col h-full z-10 relative">
-        {/* Icône avec animation futuriste */}
+        {/* Icône avec style adapté au thème */}
         <div className="w-16 h-16 relative mb-6">
-          {/* Cercle/halo lumineux derrière l'icône */}
-          <div className="absolute inset-0 rounded-full bg-cyan-500/20 opacity-30 transform group-hover:scale-110 transition-transform duration-500 group-hover:opacity-50"></div>
+          {!isClassic && (
+            <>
+              {/* Cercle/halo lumineux derrière l'icône - uniquement en mode futuriste */}
+              <div className="absolute inset-0 rounded-full bg-cyan-500/20 opacity-30 transform group-hover:scale-110 transition-transform duration-500 group-hover:opacity-50"></div>
+              
+              {/* Points décoratifs d'arrière-plan - uniquement en mode futuriste */}
+              <div className="absolute -top-2 -right-2 w-3 h-3 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-0 group-hover:opacity-70 transition-opacity duration-500 delay-100"></div>
+              <div className="absolute -bottom-1 -left-1 w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-cyan-400 opacity-0 group-hover:opacity-70 transition-opacity duration-500 delay-150"></div>
+            </>
+          )}
           
-          {/* Icône au centre avec effet de lueur */}
-          <div className="relative w-14 h-14 bg-blue-900/80 rounded-lg flex items-center justify-center 
-            shadow-lg group-hover:shadow-cyan-400/30 transition-all duration-300
-            backdrop-blur-sm border border-cyan-500/30">
-            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-blue-600/10 
-              opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></div>
-            <div className="text-cyan-300 group-hover:text-cyan-200 transition-colors duration-300">
+          {/* Icône au centre avec style adapté au thème */}
+          <div className={`relative w-14 h-14 rounded-lg flex items-center justify-center 
+            ${isClassic 
+              ? 'bg-blue-100 shadow-sm border border-blue-200' 
+              : 'bg-blue-900/80 shadow-lg group-hover:shadow-cyan-400/30 backdrop-blur-sm border border-cyan-500/30'
+            } transition-all duration-300`}>
+            
+            {!isClassic && (
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-blue-600/10 
+                opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></div>
+            )}
+            
+            <div className={`${isClassic ? 'text-blue-600' : 'text-cyan-300 group-hover:text-cyan-200'} transition-colors duration-300`}>
               {icon}
             </div>
           </div>
-          
-          {/* Points décoratifs d'arrière-plan */}
-          <div className="absolute -top-2 -right-2 w-3 h-3 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-0 group-hover:opacity-70 transition-opacity duration-500 delay-100"></div>
-          <div className="absolute -bottom-1 -left-1 w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-cyan-400 opacity-0 group-hover:opacity-70 transition-opacity duration-500 delay-150"></div>
         </div>
         
-        {/* Titre avec animation */}
-        <h3 className="text-xl font-bold mb-3 text-white font-cyber-title tracking-wide group-hover:text-cyan-300 transition-colors duration-300">
+        {/* Titre avec style adapté au thème */}
+        <h3 className={`text-xl font-bold mb-3 ${
+          isClassic 
+            ? 'text-gray-800 font-medium' 
+            : 'text-white font-cyber-title tracking-wide group-hover:text-cyan-300'
+          } transition-colors duration-300`}>
           {title}
         </h3>
         
-        {/* Description avec légère animation */}
-        <p className="text-blue-100/80 mb-6 flex-grow font-cyber-body text-sm">
+        {/* Description avec style adapté au thème */}
+        <p className={`mb-6 flex-grow text-sm ${
+          isClassic 
+            ? 'text-gray-600' 
+            : 'text-blue-100/80 font-cyber-body'
+          }`}>
           {description}
         </p>
         
-        {/* Bouton avec animation améliorée */}
+        {/* Bouton avec style adapté au thème */}
         <div className="mt-auto">
           <Link href={linkTo}>
             <Button 
-              className="bg-blue-800/80 hover:bg-cyan-700/90 group transition-all duration-300 
-                shadow-md hover:shadow-cyan-500/30 text-white
-                border border-cyan-500/30"
+              className={`${isClassic 
+                ? 'bg-blue-600 hover:bg-blue-700 border-none' 
+                : 'bg-blue-800/80 hover:bg-cyan-700/90 shadow-md hover:shadow-cyan-500/30 border border-cyan-500/30'
+              } group transition-all duration-300 text-white`}
             >
               <span className="relative z-10">Explorer le module</span>
               <ArrowRight className={`ml-2 transition-all duration-300 
                 ${isHover ? 'translate-x-1' : ''}`} />
               
-              {/* Effet de pulse sur hover */}
-              <span className="absolute inset-0 bg-gradient-to-r from-cyan-600/80 to-blue-600/80 
-                opacity-0 group-hover:opacity-100 rounded transition-opacity duration-300"></span>
+              {/* Effet de pulse sur hover - uniquement en mode futuriste */}
+              {!isClassic && (
+                <span className="absolute inset-0 bg-gradient-to-r from-cyan-600/80 to-blue-600/80 
+                  opacity-0 group-hover:opacity-100 rounded transition-opacity duration-300"></span>
+              )}
             </Button>
           </Link>
         </div>
