@@ -34,9 +34,24 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
       if (response.ok) {
         const data = await response.json();
         setStatus(data.connectionStatus || 'disconnected');
-        setCurrentModel(data.currentModel || 'Inconnu');
-        setApiKeyType(data.apiKeyType || 'primary');
+        
+        // Définir le modèle courant
+        const model = data.currentModel || 'Inconnu';
+        setCurrentModel(model);
+        
+        // Déterminer le type de clé API en fonction du modèle
+        // Si le modèle est 'gpt-4o-mini', nous sommes en mode économique
+        const keyType = (model === 'gpt-4o-mini') ? 'secondary' : 'primary';
+        setApiKeyType(keyType);
+        
         setLastCheck(data.lastCheck || Date.now());
+        
+        console.log('État mis à jour :', {
+          status: data.connectionStatus,
+          model,
+          keyType,
+          lastCheck: data.lastCheck
+        });
       } else {
         setStatus('disconnected');
       }
@@ -63,9 +78,18 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
       
       if (response.ok) {
         const data = await response.json();
-        setCurrentModel(data.modelName || (newKeyType === 'primary' ? 'gpt-4o' : 'gpt-4o-mini'));
+        
+        // Récupérer le nom du modèle depuis la réponse ou utiliser une valeur par défaut
+        const modelName = data.modelName || (newKeyType === 'primary' ? 'gpt-4o' : 'gpt-4o-mini');
+        setCurrentModel(modelName);
         setApiKeyType(newKeyType);
         setStatus(data.connectionStatus || 'checking');
+        
+        console.log('Changement de modèle réussi:', {
+          newKeyType,
+          modelName,
+          data
+        });
         
         // Vérifier le statut après le changement
         setTimeout(checkStatus, 1000);
