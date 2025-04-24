@@ -234,7 +234,7 @@ export default function CyberModeSelection() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 px-3 sm:px-6 max-w-full mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 px-3 sm:px-6 max-w-full mx-auto">
             {cyberModes.map((category, index) => (
               <motion.div
                 key={category.id}
@@ -309,28 +309,7 @@ export default function CyberModeSelection() {
                       </div>
                     </div>
                     
-                    {/* Bouton d'expansion si nécessaire */}
-                    {category.items && category.items.length > 0 && (
-                      <div className="mt-4 text-center">
-                        <Button 
-                          className="bg-white/30 hover:bg-white/40 text-white transition-all"
-                          size="sm"
-                          onClick={() => setExpandedCategory(expandedCategory === category.id ? null : category.id)}
-                        >
-                          {expandedCategory === category.id ? (
-                            <>
-                              <ChevronUp className="h-4 w-4 mr-2" />
-                              Réduire
-                            </>
-                          ) : (
-                            <>
-                              <ChevronDown className="h-4 w-4 mr-2" />
-                              Voir tout
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    )}
+                    {/* Boutons d'expansion supprimés car ils ne servaient à rien */}
                   </div>
                 </div>
               </motion.div>
