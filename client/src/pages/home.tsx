@@ -209,16 +209,16 @@ export default function Home() {
     <HomeLayout>
       <PageTitle title="Accueil" />
       {/* Hero Section avec image de fond futuriste */}
-      <div className="relative overflow-hidden h-[85vh] max-h-[800px]">
+      <div className="relative overflow-hidden h-[100vh] max-h-[900px]">
         {/* Image de fond de l'espace avec vue de vaisseau */}
         <div className="absolute inset-0 z-0">
           <img 
             src={fyneSpaceViewPath} 
             alt="Vue spatiale FYNE" 
-            className="w-full h-full object-cover brightness-90"
+            className="w-full h-full object-contain brightness-90"
           />
-          {/* Overlay pour améliorer la lisibilité du texte */}
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-900/50 via-blue-950/30 to-transparent"></div>
+          {/* Overlay pour améliorer la lisibilité du texte - Opacité réduite */}
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-900/30 via-blue-950/10 to-transparent"></div>
         </div>
         
         {/* Effet de particules numériques */}
@@ -261,8 +261,8 @@ export default function Home() {
         {/* Contenu principal */}
         <div className="w-full max-w-screen-2xl mx-auto px-4 py-16 sm:px-6 lg:px-8 lg:py-28 relative z-10 h-full flex items-center">
           <div className="flex flex-col lg:flex-row items-center justify-between">
-            {/* Contenu texte */}
-            <div className="text-center lg:text-left lg:w-3/5 mx-auto lg:mx-0 mb-12 lg:mb-0">
+            {/* Contenu texte - Déplacé plus à gauche pour ne pas masquer le personnage */}
+            <div className="text-center lg:text-left lg:w-2/5 mx-auto lg:ml-12 lg:mr-0 mb-12 lg:mb-0">
               <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-600/40 border border-blue-500/30 text-blue-300 text-sm font-medium mb-6 backdrop-blur-md">
                 <Sparkles className="mr-2 h-4 w-4" />
                 Propulsé par l'Intelligence Artificielle
