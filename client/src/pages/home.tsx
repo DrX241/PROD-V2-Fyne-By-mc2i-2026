@@ -339,9 +339,7 @@ export default function Home() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.7, delay: 0.3 }}
             >
-              <div className="backdrop-blur-md bg-white/5 border border-blue-300/20 rounded-xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.12)] overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5"></div>
-                
+              <div className="backdrop-blur-md bg-white/5 border border-blue-300/20 rounded-xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.12)] overflow-hidden relative">
                 {/* En-tête du panneau */}
                 <div className="border-b border-blue-300/10 pb-4 mb-4 relative">
                   <h3 className="text-xl font-bold text-blue-100 font-cyber-title flex items-center">
