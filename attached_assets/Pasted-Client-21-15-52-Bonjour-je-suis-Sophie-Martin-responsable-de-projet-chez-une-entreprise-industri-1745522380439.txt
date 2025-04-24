@@ -1,0 +1,27 @@
+Client
+21:15:52
+Bonjour, je suis Sophie Martin, responsable de projet chez une entreprise industrielle spécialisée dans la fabrication de pièces mécaniques. Nous avons récemment lancé un projet visant à digitaliser notre processus de gestion des stocks, qui repose encore sur des outils manuels et des fichiers Excel.
+
+Le principal défi est de collecter et structurer les besoins métiers des différentes équipes (production, logistique, supply chain) pour choisir une solution adaptée. Les exigences sont nombreuses et parfois contradictoires, ce qui complique la priorisation.
+
+Nous attendons de l’AMOA une aide pour formaliser les besoins, accompagner dans le choix de l’outil, et poser les bases d’un cahier des charges clair.
+
+Pouvez-vous vous présenter brièvement, reformuler votre compréhension de notre besoin, et m’expliquer comment vous aborderiez ce type de mission ? Ou, si nécessaire, poser des questions pour clarifier certains points.
+
+Vous
+21:16:14
+Lou, consultante 10 ans d'exp 
+
+Client
+21:16:20
+Merci pour votre réponse. Je vais reformuler votre besoin pour m'assurer de bien comprendre.
+
+Votre entreprise, spécialisée dans la fabrication de pièces mécaniques, cherche à digitaliser la gestion des stocks. L’objectif principal semble être de passer d’outils manuels et Excel à une solution plus structurée et intégrée, tout en prenant en compte les besoins de plusieurs équipes aux attentes parfois divergentes (production, logistique, supply chain). Vous attendez un accompagnement pour trois aspects clés : la formalisation des besoins, le choix d’un outil adapté, et la structuration d’un cahier des charges.
+
+Pour clarifier et affiner ma compréhension, voici mes questions :
+1. **Sur la formalisation des besoins** : Existe-t-il déjà des documents ou ateliers qui ont permis d’identifier les besoins métiers, ou partons-nous de zéro ?  
+2. **Sur la priorisation** : Avez-vous défini des critères pour arbitrer entre les exigences des différentes équipes, ou cela fait-il partie de l’accompagnement attendu ?  
+3. **Sur le choix de l’outil** : Privilégiez-vous une solution sur étagère ou êtes-vous ouvert à des développements spécifiques ?  
+4. **Sur les délais** : Avez-vous un planning ou des jalons clés pour ce projet ?
+
+En termes d’approche, je privilégierais une démarche itérative : cadrage initial pour définir les objectifs prioritaires, ateliers collaboratifs pour aligner les parties prenantes, et prototypage rapide pour valider les orientations avant de formaliser le cahier des charges. Cela vous semble-t-il aligné avec vos attentes ?
