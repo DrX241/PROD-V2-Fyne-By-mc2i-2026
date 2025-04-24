@@ -724,27 +724,23 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
       </AlertDialog>
       
       <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white p-4">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="max-w-4xl mx-auto pt-6"
-        >
-          <div className="flex items-center mb-6">
-            <Button 
-              variant="ghost" 
-              className="mr-4 text-white hover:text-white hover:bg-gray-700"
-              onClick={() => navigate("/cyber")}
-            >
-              <ArrowLeft className="w-5 h-5 mr-2" />
-              Retour
-            </Button>
-            <h1 className="text-3xl font-bold">Préparation d'audition auprès d'un client</h1>
-          </div>
-          
-          <p className="mb-8 text-gray-300">
+        <div className="flex justify-between items-center mb-4">
+          <Button 
+            variant="ghost" 
+            className="text-white hover:text-white hover:bg-gray-700"
+            onClick={() => navigate("/cyber")}
+          >
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            Retour
+          </Button>
+        </div>
+        
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold mb-4">Préparation d'audition auprès d'un client</h1>
+          <p className="text-gray-300 max-w-3xl mx-auto">
             Cette simulation vous permet de préparer vos consultants à des auditions auprès de clients ou partenaires commerciaux à travers une conversation de 10 minutes avec un client potentiel simulé par l'IA.
           </p>
+        </div>
           
           {/* L'indicateur de statut OpenAI est maintenant affiché dans le Header */}
           
@@ -759,7 +755,7 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
             defaultValue="configuration" 
             value={activeTab}
             onValueChange={setActiveTab}
-            className="w-full"
+            className="w-full max-w-4xl mx-auto"
           >
             <TabsList className="grid grid-cols-3 mb-8">
               <TabsTrigger 
@@ -1087,7 +1083,6 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
 
 
           </Tabs>
-        </motion.div>
       </div>
     </HomeLayout>
   );
