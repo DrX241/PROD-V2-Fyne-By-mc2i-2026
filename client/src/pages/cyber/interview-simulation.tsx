@@ -1171,7 +1171,7 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {synthesisResult ? (
+                  {synthesisResult && Object.keys(synthesisResult).length > 0 ? (
                     <div className="space-y-6">
                       <div className="bg-gray-700 p-4 rounded-md">
                         <h3 className="text-xl font-semibold mb-4">Présentation générale du profil</h3>
@@ -1277,7 +1277,7 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
                   >
                     Nouvelle simulation
                   </Button>
-                  {synthesisResult && (
+                  {synthesisResult && Object.keys(synthesisResult).length > 0 && (
                     <Button
                       onClick={() => {
                         // Générer la requête pour télécharger le rapport HTML
