@@ -209,16 +209,17 @@ export default function Home() {
     <HomeLayout>
       <PageTitle title="Accueil" />
       {/* Hero Section avec image de fond futuriste */}
-      <div className="relative overflow-hidden h-[100vh] max-h-[900px]">
+      <div className="relative overflow-hidden h-screen w-screen">
         {/* Image de fond de l'espace avec vue de vaisseau */}
         <div className="absolute inset-0 z-0">
           <img 
             src={fyneSpaceViewPath} 
             alt="Vue spatiale FYNE" 
-            className="w-full h-full object-contain brightness-90"
+            className="w-full h-full object-cover brightness-95"
+            style={{ objectPosition: "center" }}
           />
           {/* Overlay pour améliorer la lisibilité du texte - Opacité réduite */}
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-900/30 via-blue-950/10 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-900/20 via-blue-950/10 to-transparent"></div>
         </div>
         
         {/* Effet de particules numériques */}
