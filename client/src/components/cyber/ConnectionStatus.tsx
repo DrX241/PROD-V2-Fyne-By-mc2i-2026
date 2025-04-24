@@ -35,7 +35,14 @@ export default function ConnectionStatus() {
       // Utiliser les données réelles de l'API sans référence au modèle
       setStatus(data.status);
       setLastCheck(data.time);
-      setCurrentKey(data.currentApiKey || 'primary');
+      // La valeur currentApiKey est une chaîne représentant le type de clé (primary ou secondary)
+      if (typeof data.currentApiKey === 'string') {
+        setCurrentKey(data.currentApiKey as ApiKeyType);
+      } else {
+        // Si on reçoit un objet de configuration complet au lieu d'une chaîne, 
+        // déterminer le type en fonction du nom du modèle
+        setCurrentKey(data.modelName === 'gpt-4o' ? 'primary' : 'secondary');
+      }
     } catch (error) {
       console.error('Error checking connection status:', error);
       // En cas d'erreur, indiquer déconnecté
@@ -64,7 +71,13 @@ export default function ConnectionStatus() {
       const data = await response.json();
       
       // Mettre à jour l'état avec les données réelles retournées par le serveur
-      setCurrentKey(data.currentApiKey || newKeyType);
+      // La réponse de l'API contient la valeur 'primary' ou 'secondary' dans currentApiKey
+      if (data && data.currentApiKey) {
+        setCurrentKey(data.currentApiKey as ApiKeyType);
+      } else {
+        // Fallback au nouveau type si la réponse ne contient pas de currentApiKey
+        setCurrentKey(newKeyType);
+      }
       
       // Vérifier l'état de la connexion après le changement
       setTimeout(checkStatus, 500);
