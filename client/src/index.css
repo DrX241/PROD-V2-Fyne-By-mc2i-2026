@@ -164,6 +164,25 @@
 }
 
 @layer components {
+  /* Animation de scintillement pour les étoiles */
+  @keyframes twinkle {
+    0% {
+      opacity: 0.3;
+      transform: scale(1);
+      box-shadow: 0 0 2px rgba(255, 255, 255, 0.3);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.5);
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.8), 0 0 12px rgba(96, 165, 250, 0.6);
+    }
+    100% {
+      opacity: 0.3;
+      transform: scale(1);
+      box-shadow: 0 0 2px rgba(255, 255, 255, 0.3);
+    }
+  }
+  
   /* Animations pour le module cyber */
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
