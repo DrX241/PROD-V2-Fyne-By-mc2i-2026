@@ -385,7 +385,7 @@ FORMAT DE RÉPONSE:
       },
       {
         role: 'user',
-        content: `Voici mes notes détaillées sur l'audition réelle avec ${candidateName || "le consultant"} :\n\n${notes}\n\nMerci de générer une synthèse structurée complète en JSON selon les sections demandées.`
+        content: `Voici mes notes détaillées sur l'audition réelle avec ${candidateName || "le consultant"} :\n\n${notes}\n\nIMPORTANT: Analysez méticuleusement ces notes et extrayez toutes les informations pertinentes pour chaque section demandée. Ne retournez JAMAIS 'Information non disponible' si vous pouvez extrapoler ou déduire des informations à partir des notes, même partielles. Générez une synthèse structurée complète en JSON selon les sections demandées.`
       }
     ];
 
@@ -423,19 +423,40 @@ FORMAT DE RÉPONSE:
     } catch (jsonError) {
       console.error('Erreur lors du parsing JSON:', jsonError);
       
-      // Créer un JSON simple formaté en cas d'erreur
+      // Créer un JSON structuré basé sur le contenu des notes
+      // Tenter d'extraire le contenu des sections basé sur les patterns communs dans l'exemple fourni
+      const notesText = notes || "";
+      
+      // Analyser les notes brutes pour extraire des informations pertinentes
+      const extractNotesInfo = (noteText: string, keywords: string[]): string => {
+        // Rechercher les sections correspondantes
+        const lowerNotes = noteText.toLowerCase();
+        let relevantText = "";
+        
+        for (const keyword of keywords) {
+          if (lowerNotes.includes(keyword.toLowerCase())) {
+            const keywordIndex = lowerNotes.indexOf(keyword.toLowerCase());
+            const startIdx = Math.max(0, keywordIndex - 30);
+            const endIdx = Math.min(noteText.length, keywordIndex + 300);
+            relevantText += noteText.substring(startIdx, endIdx) + "\n\n";
+          }
+        }
+        
+        return relevantText.trim() || extractSegment(synthesisContent, ...keywords);
+      };
+      
       structuredSynthesis = {
-        presentation: "Synthèse du profil général du consultant",
-        parcours: extractSegment(synthesisContent, "parcours", "expérience", "formation"),
-        impressions: extractSegment(synthesisContent, "impression", "posture", "présentation"),
-        motivations: extractSegment(synthesisContent, "motivation", "conseil", "si", "mc2i"),
-        projet: extractSegment(synthesisContent, "projet", "perspective", "ambition"),
-        potentiel: extractSegment(synthesisContent, "potentiel", "capacité", "développement"),
-        criteres: extractSegment(synthesisContent, "critère", "évaluation", "compétence"),
-        forces: extractSegment(synthesisContent, "force", "point fort", "avantage"),
-        faiblesses: extractSegment(synthesisContent, "faiblesse", "amélioration", "limitation"),
-        synthese: extractSegment(synthesisContent, "synthèse", "résumé", "conclusion"),
-        raison: extractSegment(synthesisContent, "raison", "décision", "justification")
+        presentation: extractSegment(synthesisContent, "présentation", "profil", "général") || extractNotesInfo(notesText, ["présentation", "profil", "parcours"]),
+        parcours: extractSegment(synthesisContent, "parcours", "expérience", "formation") || extractNotesInfo(notesText, ["parcours", "académique", "expérience", "formation"]),
+        impressions: extractSegment(synthesisContent, "impression", "posture", "présentation") || extractNotesInfo(notesText, ["impression", "posture", "attitude", "présentation"]),
+        motivations: extractSegment(synthesisContent, "motivation", "conseil", "si", "mc2i") || extractNotesInfo(notesText, ["motivation", "conseil", "mc2i", "métier"]),
+        projet: extractSegment(synthesisContent, "projet", "perspective", "ambition") || extractNotesInfo(notesText, ["projet", "professionnel", "perspective", "terme"]),
+        potentiel: extractSegment(synthesisContent, "potentiel", "capacité", "développement") || extractNotesInfo(notesText, ["potentiel", "ambition", "capacité"]),
+        criteres: extractSegment(synthesisContent, "critère", "évaluation", "compétence") || extractNotesInfo(notesText, ["critère", "évaluation", "planning", "décision"]),
+        forces: extractSegment(synthesisContent, "force", "point fort", "avantage") || extractNotesInfo(notesText, ["force", "compétence", "avantage", "point fort"]),
+        faiblesses: extractSegment(synthesisContent, "faiblesse", "amélioration", "limitation") || extractNotesInfo(notesText, ["faiblesse", "point faible", "amélioration", "point à approfondir"]),
+        synthese: extractSegment(synthesisContent, "synthèse", "résumé", "conclusion") || extractNotesInfo(notesText, ["synthèse", "globale", "résumé", "conclusion"]),
+        raison: extractSegment(synthesisContent, "raison", "décision", "justification") || extractNotesInfo(notesText, ["raison", "principale", "décision"])
       };
     }
 
@@ -457,12 +478,32 @@ FORMAT DE RÉPONSE:
  * Fonction utilitaire pour extraire un segment de texte basé sur des mots clés
  */
 function extractSegment(text: string, ...keywords: string[]): string {
+  if (!text || text.trim() === '') {
+    return "Information à compléter à partir des notes";
+  }
+  
   // Convertir en minuscules pour une recherche insensible à la casse
   const lowerText = text.toLowerCase();
   
-  // Rechercher les paragraphes contenant les mots-clés
+  // 1. Rechercher d'abord des sections formatées explicitement
+  for (const keyword of keywords) {
+    // Format: "Section: contenu" ou "Section - contenu"
+    const sectionPatterns = [
+      new RegExp(`(?:^|\\n)\\s*${keyword}s?\\s*[:|-]\\s*([^\\n]+(?:\\n(?!\\n|${keywords.map(k => k + '\\s*[:|-]').join('|')})[^\\n]+)*)`, 'i'),
+      new RegExp(`(?:^|\\n)\\s*${keyword}s?\\s*du\\s*(?:profil|candidat|consultant)\\s*[:|-]\\s*([^\\n]+(?:\\n(?!\\n|${keywords.map(k => k + '\\s*[:|-]').join('|')})[^\\n]+)*)`, 'i')
+    ];
+    
+    for (const pattern of sectionPatterns) {
+      const match = pattern.exec(lowerText);
+      if (match && match[1]) {
+        return match[1].trim();
+      }
+    }
+  }
+  
+  // 2. Rechercher les paragraphes contenant les mots-clés
   const paragraphs = text.split(/\n\n+/);
-  const relevantParagraphs = paragraphs.filter(p => {
+  let relevantParagraphs = paragraphs.filter(p => {
     const lowerP = p.toLowerCase();
     return keywords.some(kw => lowerP.includes(kw.toLowerCase()));
   });
@@ -472,17 +513,44 @@ function extractSegment(text: string, ...keywords: string[]): string {
     return relevantParagraphs.join('\n\n');
   }
   
-  // Chercher des sections avec des titres similaires
+  // 3. Chercher des sections avec des titres similaires avec lookahead/lookbehind pour plus de précision
   for (const keyword of keywords) {
-    const pattern = new RegExp(`(?:^|\\n)\\s*(?:##?\\s*)?(?:[0-9]\\.\\s*)?(?:${keyword}s?)[^\\n]*\\n+([^#]+)(?=\\n+(?:##?\\s*)?(?:[0-9]\\.\\s*)?|$)`, 'i');
+    const pattern = new RegExp(`(?:^|\\n)\\s*(?:##?\\s*)?(?:[0-9]\\.\\s*)?(?:${keyword}s?)[^\\n]*\\n+([^#]+?)(?=\\n+(?:##?\\s*|[0-9]+\\.\\s*)|$)`, 'i');
     const match = pattern.exec(text);
-    if (match && match[1]) {
+    if (match && match[1] && match[1].trim() !== '') {
       return match[1].trim();
     }
   }
   
-  // Si aucune correspondance n'est trouvée, retourner une chaîne vide
-  return "Information non disponible dans les notes.";
+  // 4. Recherche plus large de contexte pour les mots-clés
+  let contextExtract = "";
+  for (const keyword of keywords) {
+    if (lowerText.includes(keyword.toLowerCase())) {
+      const idx = lowerText.indexOf(keyword.toLowerCase());
+      // Prendre 150 caractères avant et 300 après le mot-clé
+      const start = Math.max(0, idx - 150);
+      const end = Math.min(text.length, idx + 300);
+      contextExtract += text.substring(start, end) + "\n\n";
+    }
+  }
+  
+  if (contextExtract.trim() !== '') {
+    return contextExtract.trim();
+  }
+  
+  // 5. Dernière tentative: extraire tout ce qui pourrait être pertinent
+  const contentWords = ["expérience", "parcours", "compétence", "formation", "mission", "profil", "projet"];
+  for (const word of contentWords) {
+    if (lowerText.includes(word)) {
+      const context = lowerText.indexOf(word);
+      const start = Math.max(0, context - 100);
+      const end = Math.min(text.length, context + 200);
+      return text.substring(start, end);
+    }
+  }
+  
+  // Si malgré tout aucune correspondance n'est trouvée
+  return "À extraire des notes fournies. Veuillez vérifier le format des notes.";
 }
 
 export async function completeInterviewSimulation(req: Request, res: Response) {

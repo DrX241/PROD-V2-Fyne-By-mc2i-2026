@@ -1,0 +1,72 @@
+Présentation du profil :
+Candidat avec une posture calme, discours globalement cohérent mais parfois trop technique, peu synthétique, avec des explications longues et peu structurées. A montré des hésitations et un manque de clarté dans la valorisation de ses expériences passées. Difficulté à se souvenir de certaines missions. Toutefois, il présente un vrai intérêt pour la data et la BI, avec une volonté d’articuler technique (Power BI, ETL, Python) et accompagnement fonctionnel.
+
+Motivation conseil / SI / mc2i – Compréhension de nos métiers :
+Motivation conseil :
+
+Expérience préalable en cabinet chez CGI
+
+Souhaite varier les environnements clients et éviter la routine d’une DSI
+
+Recherche de montée en compétences en gestion de projet et dans l’ETL
+
+À long terme : ouverture d’un cabinet de conseil dans son pays d’origine
+
+Motivation data / décisionnel :
+
+Intérêt pour l’extraction de valeur depuis la donnée brute
+
+Souhaite aider à la prise de décision à travers les outils de reporting
+
+Veut renforcer la partie chaîne décisionnelle, en particulier l’ETL
+
+Motivation mc2i :
+
+Motivation centrée sur les éléments génériques (évolution de carrière, environnement de travail, rémunération)
+
+N’a pas réellement creusé notre positionnement, nos offres ou nos spécificités
+
+Compréhension de nos métiers :
+
+Dit connaître l’AMOA mais ne démontre pas une compréhension approfondie
+
+Pas de réelle expérience AMOA, ni posture clairement identifiée
+
+Confusion entre accompagnement métier et posture de conseil
+
+Projet professionnel et perspectives :
+Court terme : Mission data/BI avec un mix entre technique et accompagnement
+Moyen terme : Monter en responsabilité sur des projets décisionnels (ETL + gestion de projet)
+Long terme : Rôle transverse, création de son cabinet de conseil dans son pays d’origine dans 5 à 10 ans
+
+Autres processus en cours et disponibilité :
+Pas d’autre processus identifié à ce jour
+
+Ouvert à CDI et freelance, préférence pour le CDI si les conditions administratives sont réunies
+
+Disponible à partir de début mai
+
+Souhaite rester en Île-de-France
+
+Forces de la candidature :
+Expérience solide sur la chaîne décisionnelle (Power BI, SQL, ETL, Python)
+
+Capacité à travailler en équipe et à dialoguer avec des profils non techniques
+
+Polyvalence technique et fonctionnelle
+
+Profil avec une posture calme et volontaire
+
+Motivation claire pour les environnements de conseil
+
+Faiblesses de la candidature :
+Difficulté à structurer son discours et à synthétiser ses expériences
+
+Mémoire partielle des missions passées, peu de recul ou de valorisation personnelle
+
+Motivation mc2i très générique, peu de recherche sur notre positionnement réel
+
+Niveau d’anglais oral très faible malgré un niveau B2 déclaré
+
+Synthèse globale :
+Candidat avec un socle technique intéressant et une double casquette technique/fonctionnelle. Volonté claire de progresser dans le domaine du décisionnel. Toutefois, des limites importantes dans l’expression orale, la structuration du discours, et la valorisation des expériences. Il faudra un accompagnement fort pour construire une posture de consultant solide. Motivation pour mc2i encore trop superficielle à ce stade. Profil à re-challenger si avancée dans le processus.

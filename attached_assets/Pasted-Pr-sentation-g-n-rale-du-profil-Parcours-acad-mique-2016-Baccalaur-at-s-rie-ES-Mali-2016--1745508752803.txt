@@ -1,0 +1,216 @@
+Présentation générale du profil :
+
+Parcours académique :
+
+2016 : Baccalauréat série ES – Mali
+
+2016 – 2018 : DUT en informatique, développement d’applications (Mali)
+
+2018 – 2019 : Préparation administrative pour venir en France + stage
+
+2019 – 2021 : DEUG Économie-Gestion-Informatique / Licence MIAGE – Université Toulouse
+
+2021 – 2023 : Master MIAGE – Université Toulouse
+
+Expériences professionnelles :
+
+2021 – 2023 : Alternance chez CGI – Développeur BI (Power BI, SQL, Python, SSIS) : participation à la chaîne décisionnelle, création de rapports et tableaux de bord, accompagnement métier
+
+2023 – 2024 : Mission chez Air France – Migration de rapports QlikView vers Power BI, documentation, formation utilisateurs, automatisation de reporting
+
+2024 : Mission freelance chez CFS – Développement de dashboards Power BI, usage de Microsoft Fabric, analyse des besoins, restitution des résultats
+
+Trous dans le CV :
+
+2018 – 2019 : Période de transition administrative entre les études au Mali et l’arrivée en France (démarches et stage).
+Le parcours est globalement fluide et cohérent, avec une montée en compétence progressive sur des sujets BI et décisionnels.
+
+
+
+
+
+
+Vous avez dit :
+Présentation du profil :
+
+Premières impressions, posture ...
+
+ (Obligatoire)
+
+
+ChatGPT a dit :
+Voici la section Présentation du profil pour Lassina TOURE, au format attendu :
+
+Présentation du profil :
+Première impression calme et posée. Le candidat présente une posture professionnelle correcte et un intérêt sincère pour les sujets data et décisionnels. Son discours est globalement cohérent mais manque de structuration et de clarté. Les réponses sont souvent longues, techniques et peu synthétiques. Quelques hésitations sur son parcours et une difficulté à valoriser ses expériences passées. La posture est à renforcer pour incarner pleinement celle d’un consultant.
+
+
+
+
+
+
+Vous avez dit :
+Motivations conseil, SI, mc2i - Compréhension de nos métiers/
+Renseignement sur le cabinet
+
+ (Obligatoire)
+
+
+ChatGPT a dit :
+Voici la section Motivations conseil, SI, mc2i – Compréhension de nos métiers / Renseignement sur le cabinet pour Lassina TOURE :
+
+Motivation conseil :
+
+Expérience de 2 ans en cabinet (CGI)
+
+Recherche de variété de missions, d’échanges avec les clients, et d’opportunités de progression
+
+Souhait d’éviter la routine perçue en DSI
+
+Projet à long terme de créer son propre cabinet de conseil dans son pays d’origine
+
+Motivation data / décisionnel :
+
+Intérêt pour l’extraction d’informations à partir de données brutes
+
+Volonté d’apporter de la valeur dans l’aide à la décision
+
+Priorité donnée aux missions autour de la BI / décisionnel, avec un souhait d’approfondir l’ETL et la gestion de projet
+
+Motivation mc2i :
+
+Réponse très générique : évoque uniquement l’évolution de carrière, l’environnement de travail et la rémunération
+
+Ne montre pas de recherche approfondie sur le cabinet, ses expertises ou son positionnement différenciant
+
+Compréhension de nos métiers :
+
+A déjà été impliqué dans des missions mêlant technique et accompagnement, mais sans cadre AMOA formel
+
+Dit connaître le rôle d’AMOA, mais ses réponses restent floues
+
+Posture fonctionnelle à structurer, compréhension partielle des attendus du métier de consultant chez mc2i
+
+
+
+
+
+
+Vous avez dit :
+Projet professionnel et perspectives
+
+Souhaits du candidat court terme, moyen terme et long terme (mission, évolution,
+secteur)
+
+ (Obligatoire)
+ChatGPT a dit :
+Voici la section Projet professionnel et perspectives pour Lassina TOURE, au format attendu :
+
+Projet professionnel et perspectives :
+Court terme : intégrer une mission décisionnelle (BI), mêlant technique (Power BI, ETL) et accompagnement fonctionnel. Souhaite approfondir ses compétences en traitement de données, notamment sur l’ETL, tout en étant exposé à la gestion de projet.
+
+Moyen terme : monter en compétence sur la coordination d’équipes, la structuration de projets, et évoluer vers un rôle plus transverse intégrant du pilotage ou du management fonctionnel.
+
+Long terme : créer son propre cabinet de conseil dans son pays d’origine (horizon 5 à 10 ans), en capitalisant sur les compétences techniques et projets développées en France.
+
+Vous avez dit :
+Autres processus en cours et planning de décision
+
+Sociétés (Nom + secteur)
+ChatGPT a dit :
+Voici la section Autres processus en cours et planning de décision pour Lassina TOURE :
+
+Autres processus en cours et planning de décision :
+
+Pas de processus en cours actuellement
+
+A envisagé des missions freelance mais priorise un CDI
+
+Disponible à partir de début mai 2024
+
+Souhaite rester en Île-de-France
+
+Planning de décision : en cours de réflexion, ouvert aux propositions rapidement disponibles et structurantes sur le plan professionnel.
+
+
+
+
+
+
+Vous avez dit :
+Critères et Planning de décision
+
+ (Obligatoire)
+ChatGPT a dit :
+Voici la section Critères et Planning de décision pour Lassina TOURE :
+
+Critères et planning de décision :
+
+Priorité donnée à un CDI pour des raisons de stabilité et de projection à long terme
+
+Critères principaux : évolution de carrière, environnement de travail stimulant, conditions contractuelles (rémunération, accompagnement, encadrement)
+
+Veut continuer dans la BI / décisionnel avec un équilibre entre technique et accompagnement métier
+
+Souhaite rester en Île-de-France
+
+Disponible début mai 2024
+
+Pas de deadline stricte, mais souhaite avancer rapidement si une opportunité claire et alignée avec son projet lui est proposée
+
+Vous avez dit :
+Forces de la candidature
+
+Compétences fonctionnelles/sectorielles, techniques, méthodologiques, soft skills
+
+ (Obligatoire)
+ChatGPT a dit :
+Voici la section Forces de la candidature pour Lassina TOURE :
+
+Forces de la candidature :
+
+Compétences techniques : maîtrise de la chaîne décisionnelle (Power BI, SQL, Python, Microsoft Fabric, SSIS), connaissance des environnements BI
+
+Expériences variées : alternance, mission chez Air France et freelance, permettant d’aborder différents contextes projets
+
+Polyvalence : capacité à intervenir sur des sujets à la fois techniques (développement de dashboards, automatisation) et fonctionnels (recueil de besoin, formation utilisateurs)
+
+Méthodologie : expérience en mode projet, familiarité avec l’Agilité et les outils associés
+
+Soft skills : posture calme, bonne écoute, capacité d’adaptation, ouverture d’esprit sur différents environnements clients.
+
+Vous avez dit :
+Faiblesses de la candidature / ou points à approfondir
+
+Commentaire:
+
+ (Obligatoire)
+ChatGPT a dit :
+Voici la section Faiblesses de la candidature / ou points à approfondir pour Lassina TOURE :
+
+Faiblesses de la candidature / Points à approfondir :
+
+Difficulté à structurer son discours : explications souvent longues, techniques et peu synthétiques
+
+Valorisation des expériences passées insuffisante : plusieurs hésitations, oublis, manque de recul
+
+Motivation pour mc2i très générique : manque de recherche sur le cabinet et compréhension superficielle de notre positionnement
+
+Niveau d’anglais oral faible malgré un niveau B2 déclaré
+
+Connaissance du rôle d’AMOA encore partielle, posture de conseil à construire et à incarner davantage
+
+
+
+
+
+
+Vous avez dit :
+La raison principale de la décision & Les points à approfondir
+
+ (Obligatoire) 5N2GATIF° 
+ChatGPT a dit :
+Voici la section La raison principale de la décision & Les points à approfondir, avec un avis négatif motivé, comme demandé :
+
+La raison principale de la décision & Les points à approfondir :
+Avis négatif. Malgré une base technique correcte en BI et des expériences multiples, le candidat ne présente pas à ce stade les attendus nécessaires pour un poste de consultant chez mc2i. Le manque de clarté dans l’expression orale, la faible capacité à valoriser ses expériences, et une compréhension superficielle de notre positionnement freinent sa projection dans un cabinet de conseil. La motivation exprimée reste trop générique, et la posture de conseil n’est pas encore incarnée. Des points structurants comme la posture AMOA, la relation client et la synthèse doivent être largement renforcés pour envisager une collaboration.
