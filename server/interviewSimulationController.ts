@@ -163,104 +163,140 @@ export async function processInterviewMessage(req: Request, res: Response) {
         error: 'Le message ne peut pas être vide.'
       });
     }
-
-    // Calcul dynamique de l'étape en fonction des messages précédents
-    const userMessageCount = messages.filter((msg: any) => msg.role === 'user').length;
-    const step = Math.min(Math.floor(userMessageCount / 2) + 1, 3);
     
-    console.log(`Traitement du message. Étape: ${step}, Profil: ${profileType}, Niveau: ${experienceLevel}`);
-    
-    // APPROCHE AVEC RÉPONSES PRÉDÉFINIES
-    // Au lieu de générer des réponses avec l'IA qui ne respecte pas les consignes,
-    // nous utilisons un ensemble de réponses prédéfinies adaptées à chaque étape et domaine
-
-    // Vérifier les messages courts avant tout
+    // Détection de messages trop courts ou de tests
     if (message.length < 5 || /^(test|hi|yo|ok)$/i.test(message.trim())) {
       return res.json({
         success: true,
         response: "Je vous prie de fournir une réponse plus détaillée. Pouvez-vous élaborer davantage sur votre approche ?",
         currentModel: openAIService.getCurrentModelName(),
-        step: step
+        step: 1
       });
     }
 
-    // Sélectionner une réponse prédéfinie basée sur le domaine et l'étape
-    let clientResponse = "";
+    // Déterminer l'étape en fonction du nombre de messages
+    const userMessageCount = messages.filter((msg: any) => msg.role === 'user').length;
+    const step = Math.min(Math.floor(userMessageCount / 2) + 1, 3);
     
-    if (domain === 'amoa') {
-      // Réponses prédéfinies pour le domaine AMOA
-      if (step === 1) {
-        const questions = [
-          `Je note votre présentation. Pourriez-vous me détailler davantage votre expérience dans des projets similaires concernant le secteur ${sectorFocus} ? Quels ont été les principaux défis que vous avez rencontrés ?`,
-          
-          `Votre approche m'intéresse. Comment identifieriez-vous concrètement les besoins de nos équipes qui communiquent mal entre elles ? Avez-vous une méthodologie spécifique pour ce cas de figure ?`,
-          
-          `Dans notre contexte, notre équipe technique est particulièrement réticente aux changements. Comment aborderiez-vous cette résistance pour favoriser l'adoption du nouvel outil ?`
-        ];
-        clientResponse = questions[Math.floor(Math.random() * questions.length)];
-      } 
-      else if (step === 2) {
-        const challenges = [
-          `Nous avons des contraintes de temps importantes et la direction attend des résultats rapides. Quels types de livrables produiriez-vous en priorité pour structurer efficacement cette phase d'analyse ?`,
-          
-          `Notre direction s'inquiète des aspects réglementaires, particulièrement importants dans le secteur ${sectorFocus}. Comment intégreriez-vous ces contraintes dans votre démarche d'AMOA ?`,
-          
-          `Nous avons déjà fait deux tentatives de collecte des besoins qui ont échoué. En quoi votre approche serait-elle différente pour assurer la réussite cette fois-ci ?`
-        ];
-        clientResponse = challenges[Math.floor(Math.random() * challenges.length)];
-      } 
-      else { // step 3 ou plus
-        const finalQuestions = [
-          `Pour terminer, j'aimerais comprendre quels indicateurs de réussite vous proposeriez pour cette mission. Comment mesurerons-nous l'efficacité de votre intervention ?`,
-          
-          `Si nous décidions de travailler ensemble, quelles seraient vos trois premières actions concrètes sur ce projet ?`,
-          
-          `Dernière question : qu'est-ce qui vous attire dans ce projet spécifique au secteur ${sectorFocus} ? Quelle valeur ajoutée personnelle apporteriez-vous ?`
-        ];
-        clientResponse = finalQuestions[Math.floor(Math.random() * finalQuestions.length)];
-      }
-    } 
-    else { // domaine cyber
-      // Réponses prédéfinies pour le domaine Cyber
-      if (step === 1) {
-        const cyberQuestions = [
-          `Je comprends votre approche. Pourriez-vous me détailler votre expérience concrète sur des problématiques similaires ? Avez-vous déjà traité ce type de vulnérabilité auparavant ?`,
-          
-          `Intéressant. Comment procéderiez-vous pour évaluer précisément notre niveau de vulnérabilité actuel ? Quelles seraient vos premières actions d'analyse ?`,
-          
-          `Notre comité de direction s'inquiète de l'impact sur notre continuité d'activité. Comment concilieriez-vous les mesures de sécurité avec nos impératifs opérationnels ?`
-        ];
-        clientResponse = cyberQuestions[Math.floor(Math.random() * cyberQuestions.length)];
-      } 
-      else if (step === 2) {
-        const cyberChallenges = [
-          `Si nous subissions une attaque maintenant, quelle serait votre méthodologie d'intervention ? Détaillez les étapes clés et les premières mesures à mettre en place.`,
-          
-          `Nous avons des ressources limitées pour la sécurité. Comment nous aideriez-vous à prioriser les actions en fonction des risques spécifiques à notre organisation ?`,
-          
-          `Notre DSI est persuadé que nos systèmes sont déjà suffisamment protégés. Quels arguments utiliseriez-vous pour justifier des investissements supplémentaires ?`
-        ];
-        clientResponse = cyberChallenges[Math.floor(Math.random() * cyberChallenges.length)];
-      } 
-      else { // step 3 ou plus
-        const cyberFinalQuestions = [
-          `Pour conclure, quels seraient les principaux indicateurs de réussite de votre intervention ? Comment mesureriez-vous l'efficacité des mesures mises en place ?`,
-          
-          `D'après votre expérience, quelles sont les erreurs les plus fréquentes commises par les entreprises après une violation de données ? Comment nous aiderez-vous à les éviter ?`,
-          
-          `Comment restez-vous informé des nouvelles menaces et vulnérabilités émergentes ? Comment garantissez-vous que vos connaissances restent à jour ?`
-        ];
-        clientResponse = cyberFinalQuestions[Math.floor(Math.random() * cyberFinalQuestions.length)];
-      }
+    console.log(`Traitement du message. Étape: ${step}, Profil: ${profileType}, Niveau: ${experienceLevel}`);
+
+    // Générer le prompt de l'assistant en fonction de l'étape et du domaine
+    let systemPrompt = '';
+    
+    if (domain === 'cyber') {
+      systemPrompt = generateCyberStepPrompt(step, profileType, experienceLevel);
+    } else {
+      systemPrompt = generateAmoaStepPrompt(step, profileType, experienceLevel, sectorFocus || '');
     }
 
-    return res.json({
-      success: true,
-      response: clientResponse,
-      currentModel: openAIService.getCurrentModelName(),
-      step: step
-    });
-    
+    // Ajout d'une couche de sécurité supplémentaire pour forcer le rôle de client
+    const roleEnforcementPrompt = `
+ATTENTION: Tu es UNIQUEMENT un CLIENT - NE JOUE JAMAIS le rôle du consultant.
+
+TU NE DOIS JAMAIS:
+- Commencer tes phrases par "Merci pour votre réponse" ou "Je comprends"
+- Dire "Je vais reformuler" ou "Si je comprends bien"
+- Faire une analyse ou reformulation du besoin (c'est le rôle du consultant)
+- Utiliser des termes techniques spécifiques au métier de consultant
+- Donner des conseils ou proposer des solutions méthodologiques
+
+À FAIRE IMPÉRATIVEMENT:
+- Pose UNE SEULE question précise pour challenger le consultant
+- Utilise un ton direct et légèrement exigeant (tu es un client qui évalue)
+- Reste dans ton rôle de client avec un problème à résoudre
+- Garde ta réponse courte (max 100-150 mots)
+- Réagis à ce que le consultant vient de dire sans le féliciter
+
+Ce message est TA DERNIÈRE CHANCE de rester dans ton rôle de CLIENT qui évalue un consultant.
+`;
+
+    // Version améliorée: Ajout d'un contexte de conversation plus structuré
+    // Convertir les messages précédents au format attendu par l'API OpenAI
+    const formattedPreviousMessages = messages.map((msg: any) => ({
+      role: msg.role === 'user' ? 'user' : 'assistant',
+      content: msg.content
+    }));
+
+    // Construction du prompt complet avec rappel fort du rôle
+    const promptMessages: ChatCompletionRequestMessage[] = [
+      // Premier message: instruction système principale
+      { role: 'system', content: systemPrompt },
+      
+      // Deuxième message: rappel explicite du rôle (plus de poids car plus récent)
+      { role: 'system', content: roleEnforcementPrompt },
+      
+      // Historique de la conversation
+      ...formattedPreviousMessages
+    ];
+
+    // Ajouter le message utilisateur actuel s'il n'est pas déjà dans l'historique
+    const lastFormattedMessage = formattedPreviousMessages[formattedPreviousMessages.length - 1];
+    if (!lastFormattedMessage || lastFormattedMessage.role !== 'user' || lastFormattedMessage.content !== message) {
+      promptMessages.push({ role: 'user', content: message });
+    }
+
+    try {
+      // Obtenir la réponse de l'IA avec une température basse pour plus de cohérence
+      const aiResponse = await openAIService.getChatCompletion(
+        promptMessages, 
+        0.3,  // température plus basse pour réduire la créativité et favoriser la cohérence
+        300   // moins de tokens pour éviter les réponses trop longues
+      );
+
+      // Validation supplémentaire pour s'assurer que l'IA n'a pas commencé par des formulations interdites
+      const forbiddenStartPatterns = [
+        /^merci pour votre r[ée]ponse/i,
+        /^je comprends/i,
+        /^je vais reformuler/i,
+        /^si je comprends bien/i,
+        /^pour r[ée]sumer/i,
+        /^votre approche semble/i
+      ];
+
+      let finalResponse = aiResponse;
+
+      // Vérifier si la réponse commence par une formulation interdite
+      const hasInvalidStart = forbiddenStartPatterns.some(pattern => 
+        pattern.test(aiResponse.trim())
+      );
+
+      if (hasInvalidStart) {
+        // Si oui, remplacer par une question directe
+        if (domain === 'amoa') {
+          finalResponse = `Comment comptez-vous concrètement gérer les résistances au changement dans notre contexte spécifique du secteur ${sectorFocus} ? Pouvez-vous me donner un exemple concret de méthode que vous avez déjà utilisée avec succès ?`;
+        } else {
+          finalResponse = `Sur quelles normes ou standards de sécurité vous appuieriez-vous pour évaluer notre niveau de maturité en cybersécurité ? Pourriez-vous détailler votre approche d'analyse de risques ?`;
+        }
+      }
+
+      return res.json({
+        success: true,
+        response: finalResponse,
+        currentModel: openAIService.getCurrentModelName(),
+        step: step
+      });
+    } catch (apiError) {
+      console.error('Erreur API lors du traitement du message d\x27audition:', apiError);
+      
+      // Générer une réponse de secours en cas d'erreur
+      const fallbackResponses = [
+        "Pouvez-vous développer davantage votre approche méthodologique sur ce point précis ?",
+        "Concrètement, comment géreriez-vous les parties prenantes réticentes dans ce contexte ?",
+        "Quelle serait votre première action si nous décidions de travailler ensemble ?",
+        "Avez-vous déjà rencontré ce type de situation dans votre expérience passée ?",
+        "Comment mesureriez-vous le succès de votre intervention sur ce projet ?"
+      ];
+      
+      const fallbackResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+      
+      return res.json({
+        success: true,
+        response: fallbackResponse,
+        fallbackMode: true,
+        currentModel: openAIService.getCurrentModelName(),
+        step: step
+      });
+    }
   } catch (error) {
     console.error('Erreur globale lors du traitement du message d\x27audition:', error);
     return res.status(500).json({
