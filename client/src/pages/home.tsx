@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useChatContext } from "@/contexts/ChatContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { motion } from "framer-motion";
 import Typewriter from "../components/Typewriter";
 import mcLogoPath from "@assets/mc2i.png";
@@ -15,6 +16,7 @@ import fyneAvatarPath from "@assets/image_1745520990954.png";
 import fyneCityBackgroundPath from "../assets/fyne_city_background.png";
 import fyneSpaceViewPath from "../assets/fyne_space_view.png";
 import PageTitle from "@/components/utils/PageTitle";
+import ThemeSwitch from "@/components/ThemeSwitch";
 
 // Carte de module avec animation futuriste spatiale
 const ModuleCard = ({ 
@@ -148,6 +150,8 @@ const FeatureCard = ({
 
 export default function Home() {
   const { userName } = useChatContext();
+  const { themeMode } = useTheme();
+  const isFuturistic = themeMode === 'futuristic';
   
   // Modules avec animations interactives
   const modules = [
@@ -226,56 +230,83 @@ export default function Home() {
   return (
     <HomeLayout>
       <PageTitle title="Accueil" />
-      {/* Hero Section avec image de fond futuriste */}
+      
+      {/* Switch de thème */}
+      <div className="absolute top-6 right-6 z-50">
+        <ThemeSwitch />
+      </div>
+      
+      {/* Hero Section avec image de fond futuriste ou classique */}
       <div className="relative overflow-hidden h-screen w-screen">
-        {/* Image de fond de l'espace avec vue de vaisseau */}
+        {/* Image de fond différente selon le thème */}
         <div className="absolute inset-0 z-0">
-          <img 
-            src={fyneSpaceViewPath} 
-            alt="Vue spatiale FYNE" 
-            className="w-full h-full object-cover brightness-95"
-            style={{ objectPosition: "center" }}
-          />
-          {/* Overlay pour améliorer la lisibilité du texte - Opacité réduite */}
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-900/20 via-blue-950/10 to-transparent"></div>
+          {isFuturistic ? (
+            // Image de fond futuriste (spatiale)
+            <>
+              <img 
+                src={fyneSpaceViewPath} 
+                alt="Vue spatiale FYNE" 
+                className="w-full h-full object-cover brightness-95"
+                style={{ objectPosition: "center" }}
+              />
+              {/* Overlay pour améliorer la lisibilité du texte - Opacité réduite */}
+              <div className="absolute inset-0 bg-gradient-to-r from-gray-900/20 via-blue-950/10 to-transparent"></div>
+            </>
+          ) : (
+            // Image de fond classique (ville)
+            <>
+              <img 
+                src={fyneCityBackgroundPath} 
+                alt="Vue urbaine FYNE" 
+                className="w-full h-full object-cover"
+                style={{ objectPosition: "center" }}
+              />
+              {/* Overlay pour améliorer la lisibilité du texte */}
+              <div className="absolute inset-0 bg-gradient-to-r from-gray-800/50 via-gray-900/30 to-gray-800/40"></div>
+            </>
+          )}
         </div>
         
-        {/* Effet de particules numériques */}
-        <div className="absolute inset-0 z-[1] opacity-20 pointer-events-none">
-          {Array.from({ length: 50 }).map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-[1px] h-[1px] bg-blue-400 rounded-full"
-              style={{
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                boxShadow: '0 0 4px 1px rgba(59, 130, 246, 0.7)'
-              }}
-              animate={{
-                opacity: [0.3, 0.8, 0.3],
-                scale: [1, 1.5, 1],
-              }}
-              transition={{
-                duration: 3 + Math.random() * 3,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: Math.random() * 2
-              }}
-            />
-          ))}
-        </div>
+        {/* Effet de particules numériques - uniquement en mode futuriste */}
+        {isFuturistic && (
+          <div className="absolute inset-0 z-[1] opacity-20 pointer-events-none">
+            {Array.from({ length: 50 }).map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-[1px] h-[1px] bg-blue-400 rounded-full"
+                style={{
+                  top: `${Math.random() * 100}%`,
+                  left: `${Math.random() * 100}%`,
+                  boxShadow: '0 0 4px 1px rgba(59, 130, 246, 0.7)'
+                }}
+                animate={{
+                  opacity: [0.3, 0.8, 0.3],
+                  scale: [1, 1.5, 1],
+                }}
+                transition={{
+                  duration: 3 + Math.random() * 3,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: Math.random() * 2
+                }}
+              />
+            ))}
+          </div>
+        )}
         
-        {/* Lignes numériques animées */}
-        <div className="absolute inset-0 z-[1] opacity-10">
-          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" className="opacity-30">
-            <defs>
-              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(59, 130, 246, 0.3)" strokeWidth="0.5" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-          </svg>
-        </div>
+        {/* Lignes numériques animées - uniquement en mode futuriste */}
+        {isFuturistic && (
+          <div className="absolute inset-0 z-[1] opacity-10">
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" className="opacity-30">
+              <defs>
+                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(59, 130, 246, 0.3)" strokeWidth="0.5" />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#grid)" />
+            </svg>
+          </div>
+        )}
 
         {/* Contenu principal */}
         <div className="w-full max-w-screen-2xl mx-auto px-4 py-16 sm:px-6 lg:px-8 lg:py-28 relative z-10 h-full flex items-center">
@@ -358,32 +389,34 @@ export default function Home() {
       </div>
       
       {/* Section Modules d'Excellence - Mise en avant */}
-      <div className="relative bg-gradient-to-b from-gray-900 to-blue-950 py-16 lg:py-24 overflow-hidden">
-        {/* Éléments décoratifs */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-          <div className="absolute top-10 left-10 w-64 h-64 bg-blue-800/30 rounded-full mix-blend-overlay filter blur-xl opacity-30 animate-blob"></div>
-          <div className="absolute top-10 right-10 w-72 h-72 bg-indigo-900/30 rounded-full mix-blend-overlay filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
-          <div className="absolute bottom-10 left-1/3 w-80 h-80 bg-cyan-900/30 rounded-full mix-blend-overlay filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
-          
-          {/* Étoiles en arrière-plan */}
-          <div className="absolute inset-0">
-            {Array.from({ length: 100 }).map((_, i) => (
-              <div
-                key={i}
-                className="absolute rounded-full"
-                style={{
-                  top: `${Math.random() * 100}%`,
-                  left: `${Math.random() * 100}%`,
-                  width: `${Math.max(1, Math.random() * 3)}px`,
-                  height: `${Math.max(1, Math.random() * 3)}px`,
-                  backgroundColor: 'rgba(255, 255, 255, 0.7)',
-                  boxShadow: '0 0 3px rgba(255, 255, 255, 0.5)',
-                  opacity: Math.random() * 0.8 + 0.2
-                }}
-              />
-            ))}
+      <div className={`relative ${isFuturistic ? 'bg-gradient-to-b from-gray-900 to-blue-950' : 'bg-gradient-to-b from-gray-100 to-slate-200'} py-16 lg:py-24 overflow-hidden`}>
+        {/* Éléments décoratifs - uniquement en mode futuriste */}
+        {isFuturistic && (
+          <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+            <div className="absolute top-10 left-10 w-64 h-64 bg-blue-800/30 rounded-full mix-blend-overlay filter blur-xl opacity-30 animate-blob"></div>
+            <div className="absolute top-10 right-10 w-72 h-72 bg-indigo-900/30 rounded-full mix-blend-overlay filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
+            <div className="absolute bottom-10 left-1/3 w-80 h-80 bg-cyan-900/30 rounded-full mix-blend-overlay filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
+            
+            {/* Étoiles en arrière-plan */}
+            <div className="absolute inset-0">
+              {Array.from({ length: 100 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute rounded-full"
+                  style={{
+                    top: `${Math.random() * 100}%`,
+                    left: `${Math.random() * 100}%`,
+                    width: `${Math.max(1, Math.random() * 3)}px`,
+                    height: `${Math.max(1, Math.random() * 3)}px`,
+                    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                    boxShadow: '0 0 3px rgba(255, 255, 255, 0.5)',
+                    opacity: Math.random() * 0.8 + 0.2
+                  }}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-16">
