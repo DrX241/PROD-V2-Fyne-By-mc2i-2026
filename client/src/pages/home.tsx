@@ -11,6 +11,7 @@ import { useChatContext } from "@/contexts/ChatContext";
 import { motion } from "framer-motion";
 import Typewriter from "../components/Typewriter";
 import mcLogoPath from "@assets/mc2i.png";
+import fyneAvatarPath from "@assets/image_1745520990954.png";
 import PageTitle from "@/components/utils/PageTitle";
 
 // Carte de module avec animation
@@ -218,67 +219,79 @@ export default function Home() {
         </div>
         
         <div className="w-full max-w-screen-2xl mx-auto px-4 py-24 sm:px-6 lg:px-8 lg:py-32 relative z-10">
-          <div className="text-center mx-auto max-w-4xl">
-            <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-600/30 border border-blue-500/30 text-blue-300 text-sm font-medium mb-6 backdrop-blur-md">
-              <Sparkles className="mr-2 h-4 w-4" />
-              Propulsé par l'Intelligence Artificielle
-            </div>
-            
-            {/* Animation du slogan FYNE placée avant le titre principal */}
-            <motion.div
-              className="mb-6 relative"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8 }}
-            >
-              {/* Simple affichage du slogan */}
-              <div className="h-14 text-white text-3xl font-cyber-title flex items-center justify-center">
-                <span>
-                  <span className="text-cyan-300">F</span>or 
-                  <span className="text-cyan-300"> Y</span>our 
-                  <span className="text-cyan-300"> N</span>ext 
-                  <span className="text-cyan-300"> E</span>xperience
-                </span>
+          <div className="flex flex-col lg:flex-row items-center justify-between">
+            {/* Contenu texte */}
+            <div className="text-center lg:text-left lg:w-3/5 mx-auto lg:mx-0 mb-12 lg:mb-0">
+              <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-600/30 border border-blue-500/30 text-blue-300 text-sm font-medium mb-6 backdrop-blur-md">
+                <Sparkles className="mr-2 h-4 w-4" />
+                Propulsé par l'Intelligence Artificielle
               </div>
               
-              {/* Ligne décorative en dessous */}
-              <motion.div 
-                className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-64 h-[2px]"
-                initial={{ width: 0, opacity: 0 }}
-                animate={{ width: 250, opacity: 1 }}
-                transition={{ duration: 1, delay: 0.5 }}
+              {/* Animation du slogan FYNE placée avant le titre principal */}
+              <motion.div
+                className="mb-6 relative"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8 }}
               >
-                <div className="w-full h-full bg-gradient-to-r from-transparent via-cyan-400 to-transparent"></div>
+                {/* Simple affichage du slogan */}
+                <div className="h-14 text-white text-3xl font-cyber-title flex items-center lg:justify-start justify-center">
+                  <span>
+                    <span className="text-cyan-300">F</span>or 
+                    <span className="text-cyan-300"> Y</span>our 
+                    <span className="text-cyan-300"> N</span>ext 
+                    <span className="text-cyan-300"> E</span>xperience
+                  </span>
+                </div>
+                
+                {/* Ligne décorative en dessous */}
+                <motion.div 
+                  className="absolute -bottom-1 lg:left-32 left-1/2 transform lg:-translate-x-0 -translate-x-1/2 w-64 h-[2px]"
+                  initial={{ width: 0, opacity: 0 }}
+                  animate={{ width: 250, opacity: 1 }}
+                  transition={{ duration: 1, delay: 0.5 }}
+                >
+                  <div className="w-full h-full bg-gradient-to-r from-transparent via-cyan-400 to-transparent"></div>
+                </motion.div>
               </motion.div>
-            </motion.div>
 
-            <motion.h1 
-              className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6 font-cyber-title tracking-wide"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7 }}
-            >
-              Améliorez<br className="xs:hidden" />
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400"> votre expertise  </span><br className="xs:hidden" />
-              avec FYNE
-            </motion.h1>
+              <motion.h1 
+                className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6 font-cyber-title tracking-wide"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7 }}
+              >
+                Améliorez<br className="xs:hidden" />
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400"> votre expertise  </span><br className="xs:hidden" />
+                avec FYNE
+              </motion.h1>
+              
+              <motion.p 
+                className="text-xl md:text-2xl text-blue-100 mb-10 mx-auto lg:mx-0 lg:max-w-xl font-cyber-body tracking-wide leading-relaxed"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.3 }}
+              >
+                Découvrez une nouvelle dimension d'apprentissage interactif grâce à nos modules IA innovants qui s'adaptent parfaitement à votre progression.
+              </motion.p>
+            </div>
             
-            <motion.p 
-              className="text-xl md:text-2xl text-blue-100 mb-10 mx-auto font-cyber-body tracking-wide leading-relaxed"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.3 }}
-            >
-              Découvrez une nouvelle dimension d'apprentissage interactif grâce à nos modules IA innovants qui s'adaptent parfaitement à votre progression.
-            </motion.p>
-            
+            {/* Image FYNE */}
             <motion.div 
-              className="mt-10"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.5 }}
+              className="lg:w-2/5 flex justify-center lg:justify-end"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
             >
-              {/* Bouton de découverte supprimé */}
+              <div className="w-72 h-72 md:w-96 md:h-96 relative overflow-visible">
+                <img 
+                  src={fyneAvatarPath} 
+                  alt="FYNE by mc2i" 
+                  className="object-contain drop-shadow-[0_0_30px_rgba(59,130,246,0.3)]" 
+                />
+                {/* Cercle décoratif derrière l'image */}
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-56 h-56 md:w-80 md:h-80 rounded-full bg-blue-900/20 blur-md -z-10"></div>
+              </div>
             </motion.div>
           </div>
         </div>
