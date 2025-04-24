@@ -1399,7 +1399,7 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
                             const a = document.createElement('a');
                             a.style.display = 'none';
                             a.href = url;
-                            a.download = `Synthèse_Audition_${candidateName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.html`;
+                            a.download = `Synthèse_Audition_${form.getValues().candidateName?.replace(/\s+/g, '_') || 'Consultant'}_${new Date().toISOString().split('T')[0]}.html`;
                             document.body.appendChild(a);
                             a.click();
                             window.URL.revokeObjectURL(url);

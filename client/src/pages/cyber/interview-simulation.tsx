@@ -1289,9 +1289,9 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
                             },
                             body: JSON.stringify({
                               domain: 'cyber',
-                              candidateName,
-                              profileType,
-                              experienceLevel,
+                              candidateName: form.getValues().candidateName || 'Consultant',
+                              profileType: form.getValues().profileType,
+                              experienceLevel: form.getValues().experienceLevel,
                               synthesis: synthesisResult
                             }),
                           })
@@ -1302,7 +1302,7 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
                             const a = document.createElement('a');
                             a.style.display = 'none';
                             a.href = url;
-                            a.download = `Synthèse_Audition_${candidateName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.html`;
+                            a.download = `Synthèse_Audition_${form.getValues().candidateName?.replace(/\s+/g, '_') || 'Consultant'}_${new Date().toISOString().split('T')[0]}.html`;
                             document.body.appendChild(a);
                             a.click();
                             window.URL.revokeObjectURL(url);
