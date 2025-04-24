@@ -11,7 +11,7 @@ import { ChatCompletionRequestMessage } from "../shared/schema";
 import { evaluateDecision } from "./cyberDefenseEvaluator";
 import { handleCyberDefenseChat, generateCyberDefenseMission } from "./cyberDefenseController";
 import { extractJsonFromOpenAiResponse, createFallbackJson } from "./openAiResponseHelper";
-import { startInterviewSimulation, processInterviewMessage, completeInterviewSimulation } from "./interviewSimulationController";
+import { startInterviewSimulation, processInterviewMessage, completeInterviewSimulation, analyzeInterviewNotes } from "./interviewSimulationController";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Nous n'avons plus besoin des répertoires de documents et HTML
@@ -2156,8 +2156,8 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
     try {
       // Inclure le domaine 'cyber' dans le corps de la requête
       req.body.domain = 'cyber';
-      // Transmettre à la fonction générique
-      await processInterviewMessage(req, res);
+      // Transmettre à la fonction dédiée d'analyse des notes
+      await analyzeInterviewNotes(req, res);
     } catch (error) {
       console.error('Erreur lors de l\'analyse des notes:', error);
       res.status(500).json({ error: 'Erreur lors de l\'analyse des notes' });
@@ -2172,8 +2172,8 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
     try {
       // Inclure le domaine 'amoa' dans le corps de la requête
       req.body.domain = 'amoa';
-      // Transmettre à la fonction générique
-      await processInterviewMessage(req, res);
+      // Transmettre à la fonction dédiée d'analyse des notes
+      await analyzeInterviewNotes(req, res);
     } catch (error) {
       console.error('Erreur lors de l\'analyse des notes:', error);
       res.status(500).json({ error: 'Erreur lors de l\'analyse des notes' });

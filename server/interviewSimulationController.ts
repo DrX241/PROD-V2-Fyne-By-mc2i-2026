@@ -274,6 +274,104 @@ async function testSendMail(trainerEmail: string, candidateName: string, emailHt
   }
 }
 
+/**
+ * Analyse les notes prises par l'utilisateur et génère une synthèse structurée
+ */
+export async function analyzeInterviewNotes(req: Request, res: Response) {
+  try {
+    const {
+      domain,
+      notes,
+      candidateName,
+      profileType,
+      experienceLevel,
+      sectorFocus,
+      evaluationResult
+    } = req.body;
+
+    if (!notes || !profileType || !experienceLevel) {
+      return res.status(400).json({
+        success: false,
+        error: 'Paramètres incomplets. Veuillez fournir au moins les notes, le type de profil et le niveau d\'expérience.'
+      });
+    }
+
+    // Vérification du domaine
+    if (domain !== 'cyber' && domain !== 'amoa') {
+      return res.status(400).json({
+        success: false,
+        error: 'Domaine invalide. Veuillez spécifier "cyber" ou "amoa".'
+      });
+    }
+
+    // Construire le prompt selon le domaine
+    let systemPrompt = "";
+    if (domain === 'cyber') {
+      systemPrompt = `Vous êtes un expert en analyse d'audition client dans le domaine de la cybersécurité. Votre mission est d'analyser les notes prises pendant une audition et de générer une synthèse structurée.
+
+Vous allez recevoir les notes prises par un formateur lors d'une audition avec un consultant au profil ${profileType} de niveau ${experienceLevel}.
+
+Structurez votre synthèse selon les sections suivantes:
+1. Points forts et compétences techniques
+2. Points d'amélioration et lacunes identifiées
+3. Compréhension du contexte client
+4. Qualité de l'expression et posture
+5. Recommandations pour progresser`;
+    } else {
+      // Domaine AMOA
+      systemPrompt = `Vous êtes un expert en analyse d'audition client dans le domaine de l'assistance à maîtrise d'ouvrage (AMOA). Votre mission est d'analyser les notes prises pendant une audition et de générer une synthèse structurée.
+
+Vous allez recevoir les notes prises par un formateur lors d'une audition avec un consultant au profil ${profileType} de niveau ${experienceLevel} dans le secteur ${sectorFocus || "général"}.
+
+Structurez votre synthèse selon les sections suivantes:
+1. Compréhension du besoin métier
+2. Méthodologie et approche projet
+3. Compétences techniques et outils
+4. Communication et posture client
+5. Recommandations pour progresser`;
+    }
+
+    // Préparer les messages pour l'API
+    const messages: ChatCompletionRequestMessage[] = [
+      {
+        role: 'system',
+        content: systemPrompt
+      },
+      {
+        role: 'user',
+        content: `Voici mes notes sur l'audition avec ${candidateName || "le consultant"} :\n\n${notes}\n\nMerci de générer une synthèse structurée selon les sections demandées.`
+      }
+    ];
+
+    // Si une évaluation précédente existe, l'inclure comme contexte
+    if (evaluationResult) {
+      messages.push({
+        role: 'assistant',
+        content: `Voici l'évaluation générée précédemment que vous pouvez prendre en compte:\n\n${JSON.stringify(evaluationResult)}`
+      });
+    }
+
+    // Appeler OpenAI pour générer l'analyse
+    const synthesisContent = await openAIService.getChatCompletionWithCache(
+      messages,
+      0.7,
+      2000
+    );
+
+    // Renvoyer le résultat
+    res.json({
+      success: true,
+      synthesis: synthesisContent
+    });
+  } catch (error) {
+    console.error('Erreur lors de l\'analyse des notes:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur lors de l\'analyse des notes. Veuillez réessayer.'
+    });
+  }
+}
+
 export async function completeInterviewSimulation(req: Request, res: Response) {
   try {
     // Récupérer les données du corps de la requête
