@@ -279,6 +279,7 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
     // Récupérer les données du corps de la requête
     const {
       domain,
+      trainerEmail,
       recruiterEmail,  // Correspond au nom dans le frontend
       candidateName,
       profileType,
@@ -288,8 +289,8 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
       duration = 0
     } = req.body;
 
-    // Pour assurer la compatibilité si des requêtes utilisent encore le paramètre trainerEmail
-    const trainerEmail = recruiterEmail || req.body.trainerEmail;
+    // Pour assurer la compatibilité entre les deux noms de paramètres
+    const emailToUse = recruiterEmail || trainerEmail;
     
     // Loguer les données reçues pour le débogage
     console.log('Données reçues pour complétion:', {
@@ -302,7 +303,7 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
     });
 
     // Vérifier que les paramètres requis sont présents
-    if (!trainerEmail || !candidateName || !profileType || !experienceLevel) {
+    if (!emailToUse || !candidateName || !profileType || !experienceLevel) {
       return res.status(400).json({
         success: false,
         error: 'Paramètres incomplets. Veuillez fournir l\'email, le nom du consultant, le type de profil et le niveau d\'expérience.'

@@ -213,7 +213,7 @@ const AmoaInterviewSimulation: React.FC = () => {
         description: "La simulation d'audition a commencé. Vous avez 10 minutes.",
       });
     } catch (error) {
-      console.error('Erreur globale:', error);
+      console.error('Erreur:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
