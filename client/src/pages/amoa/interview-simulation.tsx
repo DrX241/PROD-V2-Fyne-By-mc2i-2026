@@ -444,110 +444,95 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
       return;
     }
     
-    await finalizeSimulation();
+    await finalizeSimulation({
+      domain: 'amoa',
+      trainerEmail: recruiterEmail,
+      candidateName,
+      profileType,
+      experienceLevel,
+      sectorFocus,
+      notesText,
+    });
   };
   
-  // Soumettre les informations de contact finales et terminer la simulation
-  const submitContactInfo = async (contactInfo: ContactFormValues) => {
-    // Mettre à jour le formulaire avec toutes les nouvelles valeurs
-    form.setValue('recruiterEmail', contactInfo.recruiterEmail);
-    form.setValue('candidateName', contactInfo.candidateName);
-    form.setValue('profileType', contactInfo.profileType);
-    form.setValue('experienceLevel', contactInfo.experienceLevel);
-    form.setValue('sectorFocus', contactInfo.sectorFocus);
-    
-    // Fermer le formulaire de contact
+  // Formulaire de contact final
+  const contactForm = useForm<ContactFormValues>({
+    resolver: zodResolver(contactFormSchema),
+    defaultValues: {
+      recruiterEmail: '',
+      candidateName: '',
+      profileType: '',
+      experienceLevel: '',
+      sectorFocus: '',
+    },
+  });
+  
+  // Soumission du formulaire de contact final
+  const onContactFormSubmit = async (values: ContactFormValues) => {
     setShowContactForm(false);
     
-    // Finaliser la simulation avec les nouvelles informations
-    await finalizeSimulation();
+    await finalizeSimulation({
+      domain: 'amoa',
+      trainerEmail: values.recruiterEmail,
+      candidateName: values.candidateName,
+      profileType: values.profileType,
+      experienceLevel: values.experienceLevel,
+      sectorFocus: values.sectorFocus,
+      notesText,
+    });
   };
   
-  // Finalisation réelle de la simulation après avoir toutes les informations
-  const finalizeSimulation = async () => {
+  // Finalisation avec toutes les informations
+  const finalizeSimulation = async (params: any) => {
     setIsLoading(true);
     
     try {
-      // Récupérer et vérifier toutes les valeurs
-      const recruiterEmail = form.getValues('recruiterEmail');
-      const candidateName = form.getValues('candidateName');
-      const profileType = form.getValues('profileType');
-      const experienceLevel = form.getValues('experienceLevel');
-      const sectorFocus = form.getValues('sectorFocus');
-      
-      // Vérifier que le secteur d'activité est bien présent (obligatoire pour AMOA)
-      if (!sectorFocus) {
-        toast({
-          variant: "destructive",
-          title: "Erreur de validation",
-          description: "Le secteur d'activité est un champ obligatoire pour finaliser l'audition AMOA."
-        });
-        setIsLoading(false);
-        return;
-      }
-      
-      // Log pour débogage
-      console.log("Envoi de la requête de finalisation avec les données:", {
-        domain: 'amoa',
-        recruiterEmail,
-        candidateName,
-        profileType,
-        experienceLevel,
-        sectorFocus,
-        messagesCount: messages.length
-      });
-      
       const response = await fetch('/api/amoa/interview-simulation/complete', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          domain: 'amoa',
-          recruiterEmail: recruiterEmail,
-          candidateName: candidateName,
-          profileType: profileType,
-          experienceLevel: experienceLevel,
-          sectorFocus: sectorFocus,
-          messages: messages.map(m => ({ role: m.role, content: m.content })),
+          ...params,
           duration: 600 - timeRemaining,
-        })
+          messages: messages.map(m => ({ role: m.role, content: m.content })),
+        }),
       });
       
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erreur lors de la finalisation de la simulation');
+        const errorText = await response.text();
+        throw new Error(`Erreur lors de la finalisation: ${errorText}`);
       }
       
       const data = await response.json();
       
-      setEvaluationResult(data);
+      setEvaluationResult(data.evaluationResult);
       setSimulationComplete(true);
       setActiveTab('evaluation');
       
       toast({
         title: "Simulation terminée",
-        description: "L'évaluation de votre audition a été envoyée à " + recruiterEmail,
+        description: "L'évaluation est disponible dans l'onglet Évaluation.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Impossible de finaliser la simulation. Veuillez réessayer.",
+        description: error.message || "Impossible de finaliser la simulation. Veuillez réessayer.",
       });
     } finally {
       setIsLoading(false);
     }
   };
   
-  // Analyser les notes et générer une synthèse structurée
+  // Fonction pour analyser les notes
   const analyzeNotes = async () => {
     if (!notesText.trim()) {
       toast({
         variant: "destructive",
         title: "Notes vides",
-        description: "Veuillez saisir vos notes avant de générer une synthèse."
+        description: "Veuillez d'abord saisir vos notes avant de les analyser."
       });
       return;
     }
@@ -561,12 +546,12 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          domain: 'amoa',
           notes: notesText,
-          candidateName: form.getValues('candidateName'),
           profileType: form.getValues('profileType'),
           experienceLevel: form.getValues('experienceLevel'),
+          candidateName: form.getValues('candidateName'),
           sectorFocus: form.getValues('sectorFocus'),
-          evaluationResult: evaluationResult
         }),
       });
       
@@ -575,37 +560,41 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
       }
       
       const data = await response.json();
-      setSynthesisResult(data.synthesis);
+      setSynthesisResult(data.synthesisResult);
+      
+      // Naviguer vers l'onglet "Synthèse"
       setActiveTab('synthese');
       
       toast({
-        title: "Synthèse générée",
-        description: "Vos notes ont été analysées et structurées avec succès."
+        title: "Analyse terminée",
+        description: "La synthèse structurée a été générée.",
       });
     } catch (error) {
       console.error('Erreur:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Impossible d'analyser les notes. Veuillez réessayer."
+        description: "Impossible d'analyser les notes. Veuillez réessayer.",
       });
     } finally {
       setIsAnalyzingNotes(false);
     }
   };
   
-  // Vider et recommencer
+  // Reset de la simulation
   const resetSimulation = () => {
-    setMessages([]);
     setIsSimulationActive(false);
-    setTimeRemaining(600);
     setSimulationComplete(false);
+    setMessages([]);
+    setTimeRemaining(600);
     setEvaluationResult(null);
-    setActiveTab('configuration');
-    setIsSkippedInfo(false);
-    setShowContactForm(false);
     setNotesText('');
     setSynthesisResult(null);
+    setActiveTab('configuration');
+    setIsSkippedInfo(false);
+    setUserInput('');
+    
+    // Reset the form
     form.reset({
       recruiterEmail: '',
       candidateName: '',
@@ -615,188 +604,11 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
     });
   };
   
-  // Configuration du formulaire de contact à la fin
-  const contactForm = useForm<ContactFormValues>({
-    resolver: zodResolver(contactFormSchema),
-    defaultValues: {
-      recruiterEmail: '',
-      candidateName: '',
-      // Copier les données déjà saisies à partir du formulaire principal
-      profileType: form.getValues('profileType'),
-      experienceLevel: form.getValues('experienceLevel'),
-      sectorFocus: form.getValues('sectorFocus'),
-    },
-  });
-  
   return (
     <HomeLayout>
-      {/* Dialogue pour saisir les informations de contact à la fin de la simulation */}
-      <AlertDialog open={showContactForm} onOpenChange={setShowContactForm}>
-        <AlertDialogContent className="bg-blue-800 text-white border-blue-700">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl">Informations pour finaliser la simulation</AlertDialogTitle>
-            <AlertDialogDescription className="text-blue-200">
-              Veuillez remplir tous les champs ci-dessous pour finaliser la simulation et recevoir l'évaluation par email.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          
-          <Form {...contactForm}>
-            <form onSubmit={contactForm.handleSubmit((data) => {
-              // Transférer toutes les données du contactForm vers le form principal
-              form.setValue('recruiterEmail', data.recruiterEmail);
-              form.setValue('candidateName', data.candidateName);
-              form.setValue('profileType', data.profileType);
-              form.setValue('experienceLevel', data.experienceLevel);
-              form.setValue('sectorFocus', data.sectorFocus);
-              
-              // Fermer et finaliser
-              setShowContactForm(false);
-              finalizeSimulation();
-            })} className="space-y-4 my-4">
-              {/* Informations de contact */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-blue-200">Informations de contact</h3>
-                
-                <FormField
-                  control={contactForm.control}
-                  name="recruiterEmail"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Email du responsable</FormLabel>
-                      <FormControl>
-                        <div className="flex">
-                          <Mail className="w-5 h-5 mr-2 text-blue-300 self-center" />
-                          <Input placeholder="email@exemple.com" {...field} className="bg-blue-700 border-blue-600 text-white" />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={contactForm.control}
-                  name="candidateName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Nom du consultant</FormLabel>
-                      <FormControl>
-                        <div className="flex">
-                          <User className="w-5 h-5 mr-2 text-blue-300 self-center" />
-                          <Input placeholder="Prénom Nom" {...field} className="bg-blue-700 border-blue-600 text-white" />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              {/* Informations d'évaluation */}
-              <div className="space-y-4 mt-4">
-                <h3 className="text-lg font-semibold text-blue-200">Paramètres d'évaluation</h3>
-                
-                <FormField
-                  control={contactForm.control}
-                  name="profileType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Type de profil *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="bg-blue-700 border-blue-600 text-white">
-                            <SelectValue placeholder="Sélectionnez un profil" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="bg-blue-700 border-blue-600 text-white">
-                          <SelectItem value="amoa_junior">AMOA Junior</SelectItem>
-                          <SelectItem value="amoa_confirme">AMOA Confirmé</SelectItem>
-                          <SelectItem value="amoa_expert">AMOA Expert</SelectItem>
-                          <SelectItem value="chef_de_projet">Chef de Projet</SelectItem>
-                          <SelectItem value="amoa_agile">AMOA Agile/Scrum</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={contactForm.control}
-                  name="experienceLevel"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Niveau d'expérience *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="bg-blue-700 border-blue-600 text-white">
-                            <SelectValue placeholder="Sélectionnez un niveau" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="bg-blue-700 border-blue-600 text-white">
-                          <SelectItem value="junior">Junior (0-2 ans)</SelectItem>
-                          <SelectItem value="intermediaire">Intermédiaire (3-5 ans)</SelectItem>
-                          <SelectItem value="senior">Senior (6-9 ans)</SelectItem>
-                          <SelectItem value="expert">Expert (10+ ans)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={contactForm.control}
-                  name="sectorFocus"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Secteur d'activité *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="bg-blue-700 border-blue-600 text-white">
-                            <SelectValue placeholder="Sélectionnez un secteur" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="bg-blue-700 border-blue-600 text-white">
-                          <SelectItem value="banque_finance">Banque / Finance</SelectItem>
-                          <SelectItem value="assurance">Assurance</SelectItem>
-                          <SelectItem value="secteur_public">Secteur Public</SelectItem>
-                          <SelectItem value="energie">Énergie</SelectItem>
-                          <SelectItem value="telecoms">Télécommunications</SelectItem>
-                          <SelectItem value="transport">Transport & Logistique</SelectItem>
-                          <SelectItem value="sante">Santé</SelectItem>
-                          <SelectItem value="retail">Distribution / Retail</SelectItem>
-                          <SelectItem value="industrie">Industrie</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <AlertDialogFooter className="gap-2 mt-6">
-                <Button
-                  type="submit" 
-                  className="bg-[#006a9e] hover:bg-blue-600"
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Chargement..." : "Soumettre et finaliser"}
-                </Button>
-              </AlertDialogFooter>
-            </form>
-          </Form>
-        </AlertDialogContent>
-      </AlertDialog>
-      
-      <div className="min-h-screen bg-gradient-to-b from-blue-900 to-indigo-800 text-white p-4">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="max-w-4xl mx-auto pt-6"
-        >
-          <div className="flex items-center mb-6">
+      <div className="flex flex-col w-full min-h-screen p-4 md:p-8 bg-gradient-to-b from-blue-900 to-blue-950 text-white">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6">
+          <div className="flex items-center mb-4 md:mb-0">
             <Button 
               variant="ghost" 
               className="mr-4 text-white hover:text-white hover:bg-blue-800"
@@ -853,139 +665,163 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
                 <CardHeader>
                   <CardTitle>Configuration de l'audition</CardTitle>
                   <CardDescription className="text-blue-200">
-                    Configurez les paramètres de la simulation d'audition client
+                    Configurez les paramètres pour la simulation d'audition
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(startSimulation)} className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField
-                          control={form.control}
-                          name="recruiterEmail"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Email du responsable (pour recevoir l'évaluation)</FormLabel>
-                              <FormControl>
-                                <Input placeholder="email@exemple.com" {...field} className="bg-blue-700 border-blue-600 text-white" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="candidateName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Nom du consultant</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Nom complet" {...field} className="bg-blue-700 border-blue-600 text-white" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                      <div className="bg-blue-700 p-4 rounded-md mb-6">
+                        <h3 className="text-lg font-semibold mb-4">Informations optionnelles pour recevoir l'évaluation par email</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="recruiterEmail"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-blue-100">Votre email (envoi du rapport)</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    placeholder="votre.email@example.com" 
+                                    className="bg-blue-900 border-blue-600 text-white"
+                                    {...field} 
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="candidateName"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-blue-100">Nom du consultant</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    placeholder="Prénom Nom" 
+                                    className="bg-blue-900 border-blue-600 text-white"
+                                    {...field} 
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
                       </div>
                       
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <FormField
-                          control={form.control}
-                          name="profileType"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Type de profil *</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger className="bg-blue-700 border-blue-600 text-white">
-                                    <SelectValue placeholder="Sélectionnez un profil" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent className="bg-blue-700 border-blue-600 text-white">
-                                  <SelectItem value="amoa_junior">AMOA Junior</SelectItem>
-                                  <SelectItem value="amoa_confirme">AMOA Confirmé</SelectItem>
-                                  <SelectItem value="amoa_expert">AMOA Expert</SelectItem>
-                                  <SelectItem value="chef_de_projet">Chef de Projet</SelectItem>
-                                  <SelectItem value="amoa_agile">AMOA Agile/Scrum</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="experienceLevel"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Niveau d'expérience *</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger className="bg-blue-700 border-blue-600 text-white">
-                                    <SelectValue placeholder="Sélectionnez un niveau" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent className="bg-blue-700 border-blue-600 text-white">
-                                  <SelectItem value="junior">Junior (0-2 ans)</SelectItem>
-                                  <SelectItem value="intermediaire">Intermédiaire (3-5 ans)</SelectItem>
-                                  <SelectItem value="senior">Senior (6-9 ans)</SelectItem>
-                                  <SelectItem value="expert">Expert (10+ ans)</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="sectorFocus"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Secteur d'activité *</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger className="bg-blue-700 border-blue-600 text-white">
-                                    <SelectValue placeholder="Sélectionnez un secteur" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent className="bg-blue-700 border-blue-600 text-white">
-                                  <SelectItem value="banque_finance">Banque & Finance</SelectItem>
-                                  <SelectItem value="assurance">Assurance</SelectItem>
-                                  <SelectItem value="sante">Santé</SelectItem>
-                                  <SelectItem value="industrie">Industrie</SelectItem>
-                                  <SelectItem value="secteur_public">Secteur Public</SelectItem>
-                                  <SelectItem value="telecom">Télécommunications</SelectItem>
-                                  <SelectItem value="energie">Énergie & Utilities</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                      <div className="bg-blue-700 p-4 rounded-md">
+                        <h3 className="text-lg font-semibold mb-4">Paramètres de simulation (requis)</h3>
+                        <div className="grid grid-cols-1 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="profileType"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-blue-100">Type de profil</FormLabel>
+                                <Select 
+                                  onValueChange={field.onChange} 
+                                  defaultValue={field.value}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger className="bg-blue-900 border-blue-600 text-white">
+                                      <SelectValue placeholder="Sélectionnez un type de profil" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent className="bg-blue-800 border-blue-700 text-white">
+                                    <SelectItem value="Profil junior">Profil junior</SelectItem>
+                                    <SelectItem value="Profil confirmé">Profil confirmé</SelectItem>
+                                    <SelectItem value="Profil senior">Profil senior</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="experienceLevel"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-blue-100">Niveau d'expérience</FormLabel>
+                                <Select 
+                                  onValueChange={field.onChange} 
+                                  defaultValue={field.value}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger className="bg-blue-900 border-blue-600 text-white">
+                                      <SelectValue placeholder="Sélectionnez un niveau d'expérience" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent className="bg-blue-800 border-blue-700 text-white">
+                                    <SelectItem value="Stage/Alternance">Stage ou Alternance</SelectItem>
+                                    <SelectItem value="0-2 ans">0-2 ans</SelectItem>
+                                    <SelectItem value="2-5 ans">2-5 ans</SelectItem>
+                                    <SelectItem value="5-8 ans">5-8 ans</SelectItem>
+                                    <SelectItem value="8-12 ans">8-12 ans</SelectItem>
+                                    <SelectItem value="12+ ans">12+ ans</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="sectorFocus"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-blue-100">Secteur d'activité</FormLabel>
+                                <Select 
+                                  onValueChange={field.onChange} 
+                                  defaultValue={field.value}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger className="bg-blue-900 border-blue-600 text-white">
+                                      <SelectValue placeholder="Sélectionnez un secteur d'activité" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent className="bg-blue-800 border-blue-700 text-white">
+                                    <SelectItem value="Banque & Assurance">Banque & Assurance</SelectItem>
+                                    <SelectItem value="Industrie">Industrie</SelectItem>
+                                    <SelectItem value="Énergie">Énergie</SelectItem>
+                                    <SelectItem value="Secteur Public">Secteur Public</SelectItem>
+                                    <SelectItem value="Retail">Retail</SelectItem>
+                                    <SelectItem value="Santé">Santé</SelectItem>
+                                    <SelectItem value="Luxe">Luxe</SelectItem>
+                                    <SelectItem value="Transport & Logistique">Transport & Logistique</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
                       </div>
                       
-                      <div className="flex gap-4 mt-6">
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          className="flex-1 border-[#006a9e] text-white hover:bg-blue-700"
-                          onClick={() => {
-                            console.log("Bouton Ignorer cliqué");
-                            skipInfoAndStart();
-                          }}
+                      <div className="flex flex-col sm:flex-row justify-between gap-4">
+                        <Button
+                          type="submit"
+                          className="flex-1 bg-green-600 hover:bg-green-700"
+                          disabled={isLoading}
+                        >
+                          {isLoading ? (
+                            <>Chargement...</>
+                          ) : (
+                            <>Démarrer la simulation</>
+                          )}
+                        </Button>
+                        
+                        <Button
+                          type="button"
+                          className="flex-1 bg-blue-700 hover:bg-blue-800"
+                          onClick={skipInfoAndStart}
                           disabled={isLoading}
                         >
                           Ignorer les informations de contact
-                        </Button>
-                        <Button 
-                          type="submit" 
-                          className="flex-1 bg-[#006a9e] hover:bg-blue-600"
-                          disabled={isLoading}
-                        >
-                          {isLoading ? "Chargement..." : "Démarrer la simulation"}
                         </Button>
                       </div>
                     </form>
@@ -997,97 +833,100 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
             <TabsContent value="simulation">
               <Card className="bg-blue-800 border-blue-700">
                 <CardHeader>
-                  <div className="flex justify-between items-center">
-                    <CardTitle>Audition en cours</CardTitle>
-                    <div className={`flex items-center p-2 rounded-md ${
-                      timeRemaining > 60 ? "bg-blue-900" : "bg-red-900"
-                    }`}>
-                      <Clock className="w-5 h-5 mr-2" />
-                      <span className="font-mono">{formatTime(timeRemaining)}</span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <UserCircle className="w-6 h-6 mr-2 text-yellow-500" />
+                      <CardTitle>Simulation d'audition AMOA</CardTitle>
                     </div>
+                    <Badge 
+                      variant="outline" 
+                      className={`${timeRemaining > 300 ? 'border-green-500 text-green-500' : timeRemaining > 60 ? 'border-yellow-500 text-yellow-500' : 'border-red-500 text-red-500'}`}
+                    >
+                      <Clock className="w-4 h-4 mr-1" />
+                      {formatTime(timeRemaining)}
+                    </Badge>
                   </div>
                   <CardDescription className="text-blue-200">
-                    Vous êtes en conversation avec un client potentiel dans le secteur {form.getValues('sectorFocus')?.replace(/_/g, ' ') || 'sélectionné'}
+                    Conversation avec le client potentiel
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-96 overflow-y-auto mb-4 bg-blue-900 rounded-md p-4">
-                    {messages.length === 0 ? (
-                      <div className="flex items-center justify-center h-full text-blue-300">
-                        <p>La conversation va commencer...</p>
+                  {/* Conversation */}
+                  <div className="bg-blue-900 rounded-md p-4 mb-4 h-[400px] overflow-y-auto">
+                    {messages.map((message) => (
+                      <div
+                        key={message.id}
+                        className={`mb-4 p-3 rounded-lg ${
+                          message.role === 'assistant'
+                            ? 'bg-blue-700 mr-12'
+                            : 'bg-green-700 ml-12'
+                        }`}
+                      >
+                        <div className="flex items-center mb-1">
+                          {message.role === 'assistant' ? (
+                            <>
+                              <UserCircle className="w-5 h-5 mr-2 text-blue-300" />
+                              <span className="text-sm font-bold text-blue-300">
+                                Client
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <UserCircle className="w-5 h-5 mr-2 text-green-300" />
+                              <span className="text-sm font-bold text-green-300">
+                                Vous
+                              </span>
+                            </>
+                          )}
+                          <span className="text-xs ml-auto text-blue-300 opacity-70">
+                            {message.timestamp.toLocaleTimeString()}
+                          </span>
+                        </div>
+                        <p className="text-white whitespace-pre-wrap">{message.content}</p>
                       </div>
-                    ) : (
-                      <div className="space-y-4">
-                        {messages.map((message) => (
-                          <div 
-                            key={message.id}
-                            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                          >
-                            <div 
-                              className={`max-w-[80%] p-3 rounded-lg ${
-                                message.role === 'user'
-                                  ? 'bg-[#006a9e] text-white'
-                                  : 'bg-blue-700 text-white'
-                              }`}
-                            >
-                              <div className="flex items-center mb-1">
-                                {message.role === 'user' ? (
-                                  <>
-                                    <span className="font-semibold">{form.getValues('candidateName') || 'Consultant'}</span>
-                                    <span className="text-xs ml-2 text-blue-200">
-                                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    </span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <UserCircle className="w-5 h-5 mr-1" />
-                                    <span className="font-semibold">Client</span>
-                                    <span className="text-xs ml-2 text-blue-200">
-                                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    </span>
-                                  </>
-                                )}
-                              </div>
-                              <p className="whitespace-pre-wrap">{message.content}</p>
-                            </div>
-                          </div>
-                        ))}
-                        <div ref={messagesEndRef} />
-                      </div>
-                    )}
+                    ))}
+                    <div ref={messagesEndRef} />
                   </div>
                   
-                  <div className="flex gap-2">
-                    <Textarea
+                  {/* Input */}
+                  <div className="flex items-center">
+                    <Input
+                      type="text"
+                      placeholder="Saisissez votre message..."
+                      className="flex-1 bg-blue-900 border-blue-600 text-white"
                       value={userInput}
                       onChange={(e) => setUserInput(e.target.value)}
-                      placeholder="Écrivez votre message..."
-                      className="resize-none bg-blue-700 border-blue-600 text-white"
                       onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey && !isLoading) {
+                        if (e.key === 'Enter' && !e.shiftKey) {
                           e.preventDefault();
                           sendMessage();
                         }
                       }}
-                      disabled={isLoading || simulationComplete || timeRemaining === 0}
+                      disabled={isLoading || simulationComplete}
                     />
                     <Button
+                      className="ml-2 bg-green-600 hover:bg-green-700"
                       onClick={sendMessage}
-                      disabled={isLoading || !userInput.trim() || simulationComplete || timeRemaining === 0}
-                      className="bg-[#006a9e] hover:bg-blue-600"
+                      disabled={isLoading || simulationComplete || !userInput.trim()}
                     >
                       <Send className="w-5 h-5" />
                     </Button>
                   </div>
                 </CardContent>
-                <CardFooter>
+                <CardFooter className="flex justify-between">
+                  <Button
+                    onClick={resetSimulation}
+                    variant="outline"
+                    className="border-blue-600 text-blue-100 hover:bg-blue-700"
+                  >
+                    Nouvelle simulation
+                  </Button>
                   <Button
                     onClick={completeSimulation}
-                    disabled={isLoading || simulationComplete || messages.length < 3}
-                    className="w-full bg-green-700 hover:bg-green-800"
+                    className="bg-green-600 hover:bg-green-700"
+                    disabled={messages.length < 2 || simulationComplete || isLoading}
                   >
-                    <CheckCircle className="w-5 h-5 mr-2" />
-                    Terminer l'audition
+                    {isLoading ? "Chargement..." : "Terminer la simulation"}
                   </Button>
                 </CardFooter>
               </Card>
@@ -1097,73 +936,92 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
               <Card className="bg-blue-800 border-blue-700">
                 <CardHeader>
                   <div className="flex items-center">
-                    <FileCheck className="w-6 h-6 mr-2 text-green-400" />
+                    <CheckCircle className="w-6 h-6 mr-2 text-green-500" />
                     <CardTitle>Évaluation de l'audition</CardTitle>
                   </div>
                   <CardDescription className="text-blue-200">
-                    Résultat de l'évaluation de la prestation par l'IA
+                    Analyse de la performance du consultant pendant l'audition
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {!evaluationResult ? (
-                    <div className="py-8 text-center">
-                      <AlertCircle className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
-                      <p className="text-blue-200">Aucune évaluation disponible</p>
-                      <p className="text-blue-300 text-sm mt-2">Terminez l'audition pour voir l'évaluation</p>
+                  {evaluationResult ? (
+                    <div className="space-y-6">
+                      <div className="bg-blue-700 p-4 rounded-md">
+                        <h3 className="text-lg font-semibold mb-2">Résumé de l'audition</h3>
+                        <p className="text-blue-100 mb-4">
+                          {evaluationResult.summary || "Aucun résumé disponible."}
+                        </p>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-blue-700 p-4 rounded-md">
+                          <h3 className="text-lg font-semibold mb-2">Forces identifiées</h3>
+                          <ul className="list-disc ml-5 space-y-1 text-blue-100">
+                            {evaluationResult.strengths && evaluationResult.strengths.map((strength: string, index: number) => (
+                              <li key={`strength-${index}`}>{strength}</li>
+                            ))}
+                            {(!evaluationResult.strengths || evaluationResult.strengths.length === 0) && (
+                              <li>Aucune force identifiée</li>
+                            )}
+                          </ul>
+                        </div>
+                        
+                        <div className="bg-blue-700 p-4 rounded-md">
+                          <h3 className="text-lg font-semibold mb-2">Axes d'amélioration</h3>
+                          <ul className="list-disc ml-5 space-y-1 text-blue-100">
+                            {evaluationResult.improvements && evaluationResult.improvements.map((improvement: string, index: number) => (
+                              <li key={`improvement-${index}`}>{improvement}</li>
+                            ))}
+                            {(!evaluationResult.improvements || evaluationResult.improvements.length === 0) && (
+                              <li>Aucun axe d'amélioration identifié</li>
+                            )}
+                          </ul>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-blue-700 p-4 rounded-md">
+                        <h3 className="text-lg font-semibold mb-2">Notes détaillées</h3>
+                        <p className="text-blue-100 whitespace-pre-wrap">
+                          {evaluationResult.detailedNotes || "Aucune note détaillée disponible."}
+                        </p>
+                      </div>
+                      
+                      <div className="bg-blue-700 p-4 rounded-md">
+                        <h3 className="text-lg font-semibold mb-2">Recommandations</h3>
+                        <ul className="list-disc ml-5 space-y-1 text-blue-100">
+                          {evaluationResult.recommendations && evaluationResult.recommendations.map((recommendation: string, index: number) => (
+                            <li key={`recommendation-${index}`}>{recommendation}</li>
+                          ))}
+                          {(!evaluationResult.recommendations || evaluationResult.recommendations.length === 0) && (
+                            <li>Aucune recommandation disponible</li>
+                          )}
+                        </ul>
+                      </div>
+                      
+                      <div className="bg-blue-700 p-4 rounded-md">
+                        <h3 className="text-lg font-semibold mb-2">Adéquation avec le secteur {form.getValues('sectorFocus')}</h3>
+                        <p className="text-blue-100 mb-2">
+                          {evaluationResult.sectorFitEvaluation || "Aucune évaluation d'adéquation sectorielle disponible."}
+                        </p>
+                      </div>
+                      
+                      <div className="bg-blue-700 p-4 rounded-md">
+                        <h3 className="text-lg font-semibold mb-2">Conclusion</h3>
+                        <p className="text-blue-100 mb-2">
+                          {evaluationResult.conclusion || "Aucune conclusion disponible."}
+                        </p>
+                      </div>
                     </div>
                   ) : (
-                    <div className="space-y-6">
-                      <div>
-                        <h3 className="text-xl font-semibold mb-2">Informations générales</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                          <div className="bg-blue-700 p-3 rounded-md">
-                            <p className="text-blue-200 text-sm">Consultant</p>
-                            <p>{form.getValues('candidateName')}</p>
-                          </div>
-                          <div className="bg-blue-700 p-3 rounded-md">
-                            <p className="text-blue-200 text-sm">Profil</p>
-                            <p>{form.getValues('profileType')?.replace(/_/g, ' ')}</p>
-                          </div>
-                          <div className="bg-blue-700 p-3 rounded-md">
-                            <p className="text-blue-200 text-sm">Expérience</p>
-                            <p>{form.getValues('experienceLevel')}</p>
-                          </div>
-                          <div className="bg-blue-700 p-3 rounded-md">
-                            <p className="text-blue-200 text-sm">Secteur</p>
-                            <p>{form.getValues('sectorFocus')?.replace(/_/g, ' ')}</p>
-                          </div>
-                          <div className="bg-blue-700 p-3 rounded-md col-span-2">
-                            <p className="text-blue-200 text-sm">Durée de l'audition</p>
-                            <p>{Math.floor((600 - timeRemaining) / 60)} min {(600 - timeRemaining) % 60} sec</p>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="bg-blue-700 p-4 rounded-md overflow-auto max-h-[600px]">
-                        <h3 className="text-xl font-semibold mb-3">Évaluation détaillée</h3>
-                        <div className="prose prose-invert max-w-none">
-                          {typeof evaluationResult === 'string' ? (
-                            <div dangerouslySetInnerHTML={{ __html: evaluationResult.replace(/\n/g, '<br>') }} />
-                          ) : evaluationResult.evaluation ? (
-                            <div dangerouslySetInnerHTML={{ __html: evaluationResult.evaluation.replace(/\n/g, '<br>') }} />
-                          ) : evaluationResult.content ? (
-                            <div dangerouslySetInnerHTML={{ __html: evaluationResult.content.replace(/\n/g, '<br>') }} />
-                          ) : (
-                            <p className="text-blue-200 whitespace-pre-wrap">{evaluationResult.feedback || "Aucun détail d'évaluation disponible."}</p>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {evaluationResult.recommendation && (
-                        <div className={`p-4 rounded-md ${
-                          evaluationResult.recommendation === 'Embaucher' ? 'bg-green-800/50 border border-green-600' :
-                          evaluationResult.recommendation === 'Envisager' ? 'bg-blue-900/50 border border-blue-600' :
-                          'bg-red-800/50 border border-red-600'
-                        }`}>
-                          <h3 className="text-lg font-semibold mb-1">Recommandation</h3>
-                          <p className="font-medium">{evaluationResult.recommendation}</p>
-                        </div>
-                      )}
+                    <div className="flex flex-col items-center justify-center p-8">
+                      <AlertCircle className="w-16 h-16 text-blue-400 mb-4" />
+                      <h3 className="text-xl font-bold mb-2">Aucune évaluation disponible</h3>
+                      <p className="text-blue-100 text-center mb-4">
+                        Vous n'avez pas encore terminé la simulation ou une erreur s'est produite lors de l'évaluation.
+                      </p>
+                      <Button onClick={resetSimulation} className="bg-[#006a9e] hover:bg-blue-700">
+                        Démarrer une nouvelle simulation
+                      </Button>
                     </div>
                   )}
                 </CardContent>
@@ -1177,225 +1035,75 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
                 </CardFooter>
               </Card>
             </TabsContent>
-            
-
-                      <ul className="list-disc ml-5 space-y-1 text-blue-200 text-sm">
-                        <li>Présentation générale du profil</li>
-                        <li>Description du parcours</li>
-                        <li>Premières impressions, posture</li>
-                        <li>Motivations conseil, SI, mc2i</li>
-                        <li>Projet professionnel et perspectives</li>
-                        <li>Potentiel du candidat vs Ambition</li>
-                        <li>Autres processus en cours</li>
-                        <li>Critères d'évaluation</li>
-                        <li>Forces et faiblesses</li>
-                        <li>Spécificités stagiaires/alternants</li>
-                        <li>Synthèse écrite et raison de la décision</li>
-                      </ul>
-                    </div>
-                    
-                    <div className="bg-blue-700 p-4 rounded-md">
-                      <h3 className="text-lg font-semibold mb-4">Vos notes sur le consultant</h3>
-                      <Textarea 
-                        value={notesText}
-                        onChange={(e) => setNotesText(e.target.value)}
-                        placeholder="Collez ici vos notes d'audition en format libre..."
-                        className="min-h-[300px] resize-y bg-blue-900 border-blue-600 text-white"
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter className="flex justify-between">
-                  <Button
-                    onClick={resetSimulation}
-                    variant="outline"
-                    className="border-blue-600 bg-blue-700 hover:bg-blue-600"
-                  >
-                    Nouvelle simulation
-                  </Button>
-                  <Button
-                    onClick={analyzeNotes}
-                    className="bg-[#006a9e] hover:bg-blue-700"
-                    disabled={isAnalyzingNotes || !notesText.trim()}
-                  >
-                    {isAnalyzingNotes ? "Analyse en cours..." : "Analyser et créer la synthèse"}
-                  </Button>
-                </CardFooter>
-              </Card>
-            </TabsContent>
-
-            {/* Onglet Synthèse */}
-            <TabsContent value="synthese">
-              <Card className="bg-blue-800 border-blue-700">
-                <CardHeader>
-                  <div className="flex items-center">
-                    <FileCheck className="w-6 h-6 mr-2 text-green-500" />
-                    <CardTitle>Synthèse structurée de l'audition</CardTitle>
-                  </div>
-                  <CardDescription className="text-blue-200">
-                    Synthèse structurée générée à partir de vos notes et de l'évaluation IA
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {synthesisResult && Object.keys(synthesisResult).length > 0 ? (
-                    <div className="space-y-6">
-                      <div className="bg-blue-700 p-4 rounded-md">
-                        <h3 className="text-xl font-semibold mb-4">Présentation générale du profil</h3>
-                        <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.presentation || "Information non disponible"}</p>
-                      </div>
-                      
-                      <div className="bg-blue-700 p-4 rounded-md">
-                        <h3 className="text-xl font-semibold mb-4">Description du parcours</h3>
-                        <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.parcours || "Information non disponible"}</p>
-                      </div>
-                      
-                      <div className="bg-blue-700 p-4 rounded-md">
-                        <h3 className="text-xl font-semibold mb-4">Premières impressions, posture</h3>
-                        <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.impressions || "Information non disponible"}</p>
-                      </div>
-                      
-                      <div className="bg-blue-700 p-4 rounded-md">
-                        <h3 className="text-xl font-semibold mb-4">Motivations conseil, SI, mc2i</h3>
-                        <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.motivations || "Information non disponible"}</p>
-                      </div>
-                      
-                      <div className="bg-blue-700 p-4 rounded-md">
-                        <h3 className="text-xl font-semibold mb-4">Projet professionnel et perspectives</h3>
-                        <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.projet || "Information non disponible"}</p>
-                      </div>
-                      
-                      <div className="bg-blue-700 p-4 rounded-md">
-                        <h3 className="text-xl font-semibold mb-4">Potentiel du candidat vs Ambition</h3>
-                        <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.potentiel || "Information non disponible"}</p>
-                      </div>
-                      
-                      {synthesisResult.processus && (
-                        <div className="bg-blue-700 p-4 rounded-md">
-                          <h3 className="text-xl font-semibold mb-4">Autres processus en cours</h3>
-                          <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.processus}</p>
-                        </div>
-                      )}
-                      
-                      <div className="bg-blue-700 p-4 rounded-md">
-                        <h3 className="text-xl font-semibold mb-4">Critères et évaluation des compétences</h3>
-                        <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.criteres || "Information non disponible"}</p>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="bg-blue-700 p-4 rounded-md">
-                          <h3 className="text-lg font-semibold mb-4 flex items-center">
-                            <CheckCircle className="w-5 h-5 mr-2 text-green-500" />
-                            Forces de la candidature
-                          </h3>
-                          <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.forces || "Information non disponible"}</p>
-                        </div>
-                        
-                        <div className="bg-blue-700 p-4 rounded-md">
-                          <h3 className="text-lg font-semibold mb-4 flex items-center">
-                            <AlertCircle className="w-5 h-5 mr-2 text-amber-500" />
-                            Faiblesses ou points à approfondir
-                          </h3>
-                          <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.faiblesses || "Information non disponible"}</p>
-                        </div>
-                      </div>
-                      
-                      {synthesisResult.anglais && (
-                        <div className="bg-blue-700 p-4 rounded-md">
-                          <h3 className="text-xl font-semibold mb-4">Niveau d'Anglais</h3>
-                          <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.anglais}</p>
-                        </div>
-                      )}
-                      
-                      {synthesisResult.stage && (
-                        <div className="bg-blue-700 p-4 rounded-md">
-                          <h3 className="text-xl font-semibold mb-4">Informations stagiaire/alternant</h3>
-                          <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.stage}</p>
-                        </div>
-                      )}
-                      
-                      <div className="bg-blue-700 p-4 rounded-md">
-                        <h3 className="text-xl font-semibold mb-4">Synthèse écrite</h3>
-                        <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.synthese || "Information non disponible"}</p>
-                      </div>
-                      
-                      <div className="bg-blue-700 p-4 rounded-md">
-                        <h3 className="text-xl font-semibold mb-4">Raison principale de la décision</h3>
-                        <p className="whitespace-pre-wrap text-blue-100">{synthesisResult.raison || "Information non disponible"}</p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center py-12">
-                      <p className="text-blue-200 mb-4">Aucune synthèse disponible. Veuillez d'abord analyser vos notes.</p>
-                      <Button 
-                        onClick={() => setActiveTab('notes')}
-                        className="bg-[#006a9e] hover:bg-blue-700"
-                      >
-                        Aller à l'onglet Notes
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-                <CardFooter className="flex justify-between">
-                  <Button
-                    onClick={resetSimulation}
-                    variant="outline"
-                    className="border-blue-600 bg-blue-700 hover:bg-blue-600"
-                  >
-                    Nouvelle simulation
-                  </Button>
-                  {synthesisResult && Object.keys(synthesisResult).length > 0 && (
-                    <Button
-                      onClick={() => {
-                        // Générer la requête pour télécharger le rapport HTML
-                        if (synthesisResult) {
-                          fetch('/api/amoa/interview-simulation/download-synthesis', {
-                            method: 'POST',
-                            headers: {
-                              'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                              domain: 'amoa',
-                              candidateName: form.getValues().candidateName || 'Consultant',
-                              profileType: form.getValues().profileType,
-                              experienceLevel: form.getValues().experienceLevel,
-                              sectorFocus: form.getValues().sectorFocus,
-                              synthesis: synthesisResult
-                            }),
-                          })
-                          .then(response => response.blob())
-                          .then(blob => {
-                            // Créer un lien temporaire pour télécharger le fichier
-                            const url = window.URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.style.display = 'none';
-                            a.href = url;
-                            a.download = `Synthèse_Audition_${form.getValues().candidateName?.replace(/\s+/g, '_') || 'Consultant'}_${new Date().toISOString().split('T')[0]}.html`;
-                            document.body.appendChild(a);
-                            a.click();
-                            window.URL.revokeObjectURL(url);
-                            a.remove();
-                          })
-                          .catch(error => {
-                            console.error('Erreur lors du téléchargement de la synthèse:', error);
-                            toast({
-                              title: "Erreur",
-                              description: "Impossible de télécharger la synthèse. Veuillez réessayer.",
-                              variant: "destructive"
-                            });
-                          });
-                        }
-                      }}
-                      className="bg-[#006a9e] hover:bg-blue-700"
-                    >
-                      Télécharger la synthèse
-                    </Button>
-                  )}
-                </CardFooter>
-              </Card>
-            </TabsContent>
           </Tabs>
-        </motion.div>
+        </div>
       </div>
+      
+      {/* Formulaire de contact final */}
+      <Dialog open={showContactForm} onOpenChange={setShowContactForm}>
+        <DialogContent className="bg-blue-800 text-white border-blue-700">
+          <DialogHeader>
+            <DialogTitle>Informations nécessaires pour l'évaluation finale</DialogTitle>
+            <DialogDescription className="text-blue-200">
+              Pour recevoir l'évaluation et terminer la simulation, veuillez compléter les informations suivantes.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...contactForm}>
+            <form onSubmit={contactForm.handleSubmit(onContactFormSubmit)} className="space-y-4">
+              <FormField
+                control={contactForm.control}
+                name="recruiterEmail"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Votre email</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="votre.email@example.com" 
+                        className="bg-blue-900 border-blue-600 text-white"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={contactForm.control}
+                name="candidateName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Nom du consultant</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Prénom Nom" 
+                        className="bg-blue-900 border-blue-600 text-white"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogFooter className="flex justify-end gap-2 mt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowContactForm(false)}
+                  className="border-blue-600 text-blue-100 hover:bg-blue-700"
+                >
+                  Annuler
+                </Button>
+                <Button 
+                  type="submit"
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  Valider et terminer
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </HomeLayout>
   );
 };
