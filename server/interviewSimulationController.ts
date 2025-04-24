@@ -988,15 +988,29 @@ function generateCyberStepPrompt(step: number, profileType: string, experienceLe
   // Déterminer la complexité finale
   let complexity = baseComplexity;
   const expLevel = experienceLevel.toLowerCase();
-  
-  if (expLevel === 'junior' && step > 0 && step <= 3) {
-    complexity = complexityByStep.junior[step - 1];
-  } else if ((expLevel === 'confirmé' || expLevel === 'confirme') && step > 0 && step <= 3) {
-    complexity = complexityByStep.confirme[step - 1];
-  } else if (expLevel === 'senior' && step > 0 && step <= 3) {
-    complexity = complexityByStep.senior[step - 1];
-  } else if (expLevel === 'expert' && step > 0 && step <= 3) {
-    complexity = complexityByStep.expert[step - 1];
+  // Pour les étapes > 3, on maintient le niveau de difficulté maximal
+  if (step > 3) {
+    if (expLevel === 'junior') {
+      complexity = 'intermédiaire';
+    } else if (expLevel === 'confirmé' || expLevel === 'confirme') {
+      complexity = 'avancée';
+    } else if (expLevel === 'senior') {
+      complexity = 'avancée';
+    } else if (expLevel === 'expert') {
+      complexity = 'très avancée';
+    }
+  } 
+  // Pour les 3 premières étapes, on utilise la progression définie
+  else if (step > 0) {
+    if (expLevel === 'junior') {
+      complexity = complexityByStep.junior[step - 1];
+    } else if (expLevel === 'confirmé' || expLevel === 'confirme') {
+      complexity = complexityByStep.confirme[step - 1];
+    } else if (expLevel === 'senior') {
+      complexity = complexityByStep.senior[step - 1];
+    } else if (expLevel === 'expert') {
+      complexity = complexityByStep.expert[step - 1];
+    }
   }
   
   // Phase temporelle basée sur l'étape
@@ -1131,41 +1145,51 @@ function generateAmoaStepPrompt(step: number, profileType: string, experienceLev
       complexity = complexityByStep.expert[step - 1];
     }
   }
-  // Phase temporelle basée sur l'étape
+  // Phase temporelle basée sur l'étape (nouvelle version sans limite d'étapes)
   let phase = '';
   let phaseObjective = '';
   
-  switch (step) {
-    case 1:
-      phase = "Phase de compréhension du besoin (minutes 1-3)";
-      phaseObjective = `Cette phase vise à évaluer la capacité du consultant à :
+  // Définir les phases de base
+  const phases = [
+    {
+      title: "Phase de compréhension du besoin (début)",
+      objective: `Cette phase vise à évaluer la capacité du consultant à :
       - Reformuler clairement le besoin avec ses propres mots
       - Identifier les enjeux majeurs du projet
       - Poser des questions pertinentes pour clarifier les points flous
-      - Faire le lien avec ses expériences passées dans des contextes similaires`;
-      break;
-    case 2:
-      phase = "Phase de mise en situation (minutes 4-7)";
-      phaseObjective = `Cette phase vise à évaluer la capacité du consultant à :
+      - Faire le lien avec ses expériences passées dans des contextes similaires`
+    },
+    {
+      title: "Phase de mise en situation (milieu)",
+      objective: `Cette phase vise à évaluer la capacité du consultant à :
       - Proposer une approche méthodologique adaptée
       - Gérer efficacement des parties prenantes aux intérêts divergents
       - Résoudre des problèmes complexes typiques du secteur ${sectorFocus}
-      - Démontrer son expertise technique dans le domaine`;
-      break;
-    case 3:
-      phase = "Phase de recommandation (minutes 8-10)";
-      phaseObjective = `Cette phase finale vise à évaluer la capacité du consultant à :
+      - Démontrer son expertise technique dans le domaine`
+    },
+    {
+      title: "Phase de recommandation (fin de simulation)",
+      objective: `Cette phase vise à évaluer la capacité du consultant à :
       - Synthétiser la situation et les enjeux
       - Formuler des recommandations claires et actionnables
       - Anticiper les risques et proposer des mesures de mitigation
-      - Démontrer sa valeur ajoutée pour cette mission spécifique`;
-      break;
-    default:
-      phase = "Phase intermédiaire";
-      phaseObjective = `Cette phase vise à évaluer les compétences générales du consultant AMOA.`;
+      - Démontrer sa valeur ajoutée pour cette mission spécifique`
+    }
+  ];
+  
+  if (step <= 3) {
+    // Pour les 3 premières étapes, utiliser les phases prédéfinies
+    phase = phases[step - 1].title;
+    phaseObjective = phases[step - 1].objective;
+  } else {
+    // Pour les étapes > 3, alterner entre les phases 2 et 3
+    // On ne revient pas à la phase 1 car la compréhension du besoin est supposée acquise
+    const phaseIndex = (step % 2) === 0 ? 1 : 2; // Alterne entre phase 2 et 3
+    phase = `Phase d'approfondissement ${step - 3}`;
+    phaseObjective = phases[phaseIndex].objective;
   }
   
-  return `CONTEXTE: Tu simules un CLIENT qui évalue un consultant AMOA lors d'une audition - ÉTAPE ${step}/3.
+  return `CONTEXTE: Tu simules un CLIENT qui évalue un consultant AMOA lors d'une audition - ÉTAPE ${step}.
 
 RÔLE: Client/directeur de projet d'une entreprise du secteur ${sectorFocus} qui évalue un consultant.
 Tu n'es PAS un consultant. Tu n'es PAS un système d'IA. Tu es un client RÉEL.

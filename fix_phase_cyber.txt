@@ -1,0 +1,43 @@
+  // Phase temporelle basée sur l'étape (nouvelle version sans limite d'étapes)
+  let phase = '';
+  let phaseObjective = '';
+  
+  // Définir les phases de base
+  const phases = [
+    {
+      title: "Phase de compréhension du contexte (début)",
+      objective: `Cette phase vise à évaluer la capacité du consultant à :
+      - Reformuler clairement la problématique de sécurité
+      - Identifier les risques et vulnérabilités principales
+      - Poser des questions pertinentes pour clarifier le contexte
+      - Démontrer sa compréhension des enjeux de sécurité spécifiques`
+    },
+    {
+      title: "Phase d'analyse technique (milieu)",
+      objective: `Cette phase vise à évaluer la capacité du consultant à :
+      - Proposer une approche méthodologique de sécurité adaptée
+      - Exploiter ses connaissances techniques dans un contexte client
+      - Identifier les priorités et les mesures immédiates à prendre
+      - Démontrer sa maîtrise des frameworks et standards de sécurité`
+    },
+    {
+      title: "Phase de recommandation stratégique (fin de simulation)",
+      objective: `Cette phase vise à évaluer la capacité du consultant à :
+      - Synthétiser la situation de sécurité et les enjeux
+      - Formuler un plan d'action clair avec priorisation des mesures
+      - Proposer des métriques de suivi pertinentes
+      - Présenter une vision stratégique à court et long terme`
+    }
+  ];
+  
+  if (step <= 3) {
+    // Pour les 3 premières étapes, utiliser les phases prédéfinies
+    phase = phases[step - 1].title;
+    phaseObjective = phases[step - 1].objective;
+  } else {
+    // Pour les étapes > 3, alterner entre les phases 2 et 3
+    // On ne revient pas à la phase 1 car la compréhension du contexte est supposée acquise
+    const phaseIndex = (step % 2) === 0 ? 1 : 2; // Alterne entre phase 2 et 3
+    phase = `Phase d'approfondissement ${step - 3}`;
+    phaseObjective = phases[phaseIndex].objective;
+  }
