@@ -276,8 +276,10 @@ async function testSendMail(trainerEmail: string, candidateName: string, emailHt
 
 export async function completeInterviewSimulation(req: Request, res: Response) {
   try {
+    // Récupérer les données du corps de la requête
     const {
-      trainerEmail,
+      domain,
+      recruiterEmail,  // Correspond au nom dans le frontend
       candidateName,
       profileType,
       experienceLevel,
@@ -286,17 +288,30 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
       duration = 0
     } = req.body;
 
-    const domain = req.path.includes('/cyber/') ? 'cyber' : 'amoa';
+    // Pour assurer la compatibilité si des requêtes utilisent encore le paramètre trainerEmail
+    const trainerEmail = recruiterEmail || req.body.trainerEmail;
+    
+    // Loguer les données reçues pour le débogage
+    console.log('Données reçues pour complétion:', {
+      domain,
+      recruiterEmail, 
+      candidateName,
+      profileType, 
+      experienceLevel,
+      sectorFocus: sectorFocus || 'non défini'
+    });
 
+    // Vérifier que les paramètres requis sont présents
     if (!trainerEmail || !candidateName || !profileType || !experienceLevel) {
       return res.status(400).json({
         success: false,
-        error: 'Paramètres incomplets.'
+        error: 'Paramètres incomplets. Veuillez fournir l\'email, le nom du consultant, le type de profil et le niveau d\'expérience.'
       });
     }
     
     // Vérification supplémentaire pour le domaine AMOA qui nécessite le secteur d'activité
-    if (domain === 'amoa' && !sectorFocus) {
+    const isDomainAmoa = domain === 'amoa' || !req.path.includes('/cyber/');
+    if (isDomainAmoa && !sectorFocus) {
       return res.status(400).json({
         success: false,
         error: 'Le secteur d\'activité est obligatoire pour une audition AMOA.'
@@ -428,12 +443,12 @@ Sujet: ${domain === 'amoa' ? `Évaluation de préparation d'audition - ${candida
           
           // Fallback vers Ethereal pour les tests si SendGrid échoue
           console.log('Fallback vers Ethereal...');
-          await testSendMail(trainerEmail, candidateName, emailHtml);
+          await sendWithEthereal(trainerEmail, candidateName, emailHtml);
         }
       } else {
         // Fallback vers Ethereal pour les tests
         console.log("Aucune clé SendGrid trouvée, utilisation d'Ethereal...");
-        await testSendMail(trainerEmail, candidateName, emailHtml);
+        await sendWithEthereal(trainerEmail, candidateName, emailHtml);
       }
     } catch (emailError) {
       console.error('Erreur lors de l\'envoi de l\'email:', emailError);

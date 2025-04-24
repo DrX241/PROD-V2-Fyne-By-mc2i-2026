@@ -440,6 +440,35 @@ const AmoaInterviewSimulation: React.FC = () => {
     setIsLoading(true);
     
     try {
+      // Récupérer et vérifier toutes les valeurs
+      const recruiterEmail = form.getValues('recruiterEmail');
+      const candidateName = form.getValues('candidateName');
+      const profileType = form.getValues('profileType');
+      const experienceLevel = form.getValues('experienceLevel');
+      const sectorFocus = form.getValues('sectorFocus');
+      
+      // Vérifier que le secteur d'activité est bien présent (obligatoire pour AMOA)
+      if (!sectorFocus) {
+        toast({
+          variant: "destructive",
+          title: "Erreur de validation",
+          description: "Le secteur d'activité est un champ obligatoire pour finaliser l'audition AMOA."
+        });
+        setIsLoading(false);
+        return;
+      }
+      
+      // Log pour débogage
+      console.log("Envoi de la requête de finalisation avec les données:", {
+        domain: 'amoa',
+        recruiterEmail,
+        candidateName,
+        profileType,
+        experienceLevel,
+        sectorFocus,
+        messagesCount: messages.length
+      });
+      
       const response = await fetch('/api/amoa/interview-simulation/complete', {
         method: 'POST',
         headers: {
@@ -447,18 +476,19 @@ const AmoaInterviewSimulation: React.FC = () => {
         },
         body: JSON.stringify({
           domain: 'amoa',
-          recruiterEmail: form.getValues('recruiterEmail'),
-          candidateName: form.getValues('candidateName'),
-          profileType: form.getValues('profileType'),
-          experienceLevel: form.getValues('experienceLevel'),
-          sectorFocus: form.getValues('sectorFocus'),
+          recruiterEmail: recruiterEmail,
+          candidateName: candidateName,
+          profileType: profileType,
+          experienceLevel: experienceLevel,
+          sectorFocus: sectorFocus,
           messages: messages.map(m => ({ role: m.role, content: m.content })),
           duration: 600 - timeRemaining,
         })
       });
       
       if (!response.ok) {
-        throw new Error('Erreur lors de la finalisation de la simulation');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erreur lors de la finalisation de la simulation');
       }
       
       const data = await response.json();
@@ -469,7 +499,7 @@ const AmoaInterviewSimulation: React.FC = () => {
       
       toast({
         title: "Simulation terminée",
-        description: "L'évaluation de votre audition a été envoyée à " + form.getValues('recruiterEmail'),
+        description: "L'évaluation de votre audition a été envoyée à " + recruiterEmail,
       });
     } catch (error) {
       console.error('Erreur:', error);
