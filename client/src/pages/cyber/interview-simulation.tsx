@@ -761,7 +761,7 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList className="grid grid-cols-5 mb-8">
+            <TabsList className="grid grid-cols-3 mb-8">
               <TabsTrigger 
                 value="configuration"
                 disabled={isSimulationActive && !simulationComplete}
@@ -780,18 +780,7 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
               >
                 Évaluation
               </TabsTrigger>
-              <TabsTrigger 
-                value="notes"
-                disabled={!simulationComplete}
-              >
-                Notes
-              </TabsTrigger>
-              <TabsTrigger 
-                value="synthese"
-                disabled={!simulationComplete}
-              >
-                Synthèse
-              </TabsTrigger>
+
             </TabsList>
             
             <TabsContent value="configuration">
