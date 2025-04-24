@@ -379,7 +379,7 @@ Axes d'amélioration : approfondissement des connaissances sectorielles, gestion
     // Affichage dans la console pour le débogage
     console.log(`
 ---------- ENVOI D'EMAIL ----------
-À: ${trainerEmail}
+À: ${emailToUse}
 Sujet: ${domain === 'amoa' ? `Évaluation de préparation d'audition - ${candidateName}` : `Évaluation d'audition client - ${candidateName}`}
     `);
 
@@ -421,7 +421,7 @@ Sujet: ${domain === 'amoa' ? `Évaluation de préparation d'audition - ${candida
           sgMail.setApiKey(sendgridApiKey);
           
           const msg = {
-            to: trainerEmail,
+            to: emailToUse,
             from: {
               name: 'FYNE - Audition',
               email: 'eddy.missoni@mc2i.fr' // Adresse vérifiée dans SendGrid
@@ -431,12 +431,12 @@ Sujet: ${domain === 'amoa' ? `Évaluation de préparation d'audition - ${candida
           };
           
           console.log('Envoi d\'email via SendGrid avec configuration:');
-          console.log('- Destinataire:', trainerEmail);
+          console.log('- Destinataire:', emailToUse);
           console.log('- Expéditeur:', 'eddy.missoni@mc2i.fr');
           console.log('- Clé API SendGrid disponible:', !!sendgridApiKey);
           
           await sgMail.send(msg);
-          console.log('Email envoyé avec SendGrid à', trainerEmail);
+          console.log('Email envoyé avec SendGrid à', emailToUse);
         } catch (sendgridError: any) {
           console.error('Erreur lors de l\'envoi avec SendGrid:', sendgridError.code);
           
@@ -447,12 +447,12 @@ Sujet: ${domain === 'amoa' ? `Évaluation de préparation d'audition - ${candida
           
           // Fallback vers Ethereal pour les tests si SendGrid échoue
           console.log('Fallback vers Ethereal...');
-          await sendWithEthereal(trainerEmail, candidateName, emailHtml);
+          await sendWithEthereal(emailToUse, candidateName, emailHtml);
         }
       } else {
         // Fallback vers Ethereal pour les tests
         console.log("Aucune clé SendGrid trouvée, utilisation d'Ethereal...");
-        await sendWithEthereal(trainerEmail, candidateName, emailHtml);
+        await sendWithEthereal(emailToUse, candidateName, emailHtml);
       }
     } catch (emailError) {
       console.error('Erreur lors de l\'envoi de l\'email:', emailError);
