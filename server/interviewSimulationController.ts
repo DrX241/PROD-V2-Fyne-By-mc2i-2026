@@ -312,8 +312,10 @@ export async function analyzeInterviewNotes(req: Request, res: Response) {
 
 CONTEXTE IMPORTANT:
 - Le consultant ${candidateName || "candidat"} a été évalué lors d'une audition réelle (notes prises manuellement) puis dans une simulation en ligne
-- Vous devez analyser les notes manuelles (qui représentent 75% de l'évaluation finale) et les enrichir avec l'évaluation automatique
-- L'objectif est de produire une synthèse complète couvrant tous les aspects de l'audition client
+- PRIORITAIRE: Les notes manuelles représentent 75% de l'évaluation finale et doivent être la source principale de votre analyse
+- Vous devez extraire méticuleusement toutes les informations pertinentes des notes manuelles
+- Ensuite seulement, enrichir votre analyse avec les éléments complémentaires de l'évaluation automatique (25%)
+- L'objectif est de produire une synthèse complète et fidèle aux notes originales
 
 PROFIL DU CONSULTANT:
 - Type de profil: ${profileType.replace(/_/g, ' ')}
@@ -344,8 +346,10 @@ FORMAT DE RÉPONSE:
 
 CONTEXTE IMPORTANT:
 - Le consultant ${candidateName || "candidat"} a été évalué lors d'une audition réelle (notes prises manuellement) puis dans une simulation en ligne
-- Vous devez analyser les notes manuelles (qui représentent 75% de l'évaluation finale) et les enrichir avec l'évaluation automatique
-- L'objectif est de produire une synthèse complète couvrant tous les aspects de l'audition client
+- PRIORITAIRE: Les notes manuelles représentent 75% de l'évaluation finale et doivent être la source principale de votre analyse
+- Vous devez extraire méticuleusement toutes les informations pertinentes des notes manuelles
+- Ensuite seulement, enrichir votre analyse avec les éléments complémentaires de l'évaluation automatique (25%)
+- L'objectif est de produire une synthèse complète et fidèle aux notes originales
 
 PROFIL DU CONSULTANT:
 - Type de profil: ${profileType.replace(/_/g, ' ')}
