@@ -835,7 +835,7 @@ const AmoaInterviewSimulation: React.FC = () => {
                           name="profileType"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Type de profil</FormLabel>
+                              <FormLabel>Type de profil *</FormLabel>
                               <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
                                   <SelectTrigger className="bg-blue-700 border-blue-600 text-white">
@@ -860,7 +860,7 @@ const AmoaInterviewSimulation: React.FC = () => {
                           name="experienceLevel"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Niveau d'expérience</FormLabel>
+                              <FormLabel>Niveau d'expérience *</FormLabel>
                               <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
                                   <SelectTrigger className="bg-blue-700 border-blue-600 text-white">

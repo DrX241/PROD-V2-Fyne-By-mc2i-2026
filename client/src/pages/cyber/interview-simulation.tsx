@@ -383,8 +383,20 @@ const CyberInterviewSimulation: React.FC = () => {
   const completeSimulation = async () => {
     if (simulationComplete) return;
     
-    // Si l'utilisateur a ignoré la saisie des informations de contact, les demander maintenant
-    if (isSkippedInfo) {
+    // Vérifier si toutes les informations nécessaires sont disponibles
+    const trainerEmail = form.getValues('trainerEmail');
+    const candidateName = form.getValues('candidateName');
+    const profileType = form.getValues('profileType');
+    const experienceLevel = form.getValues('experienceLevel');
+    
+    // Si l'utilisateur a ignoré la saisie des informations de contact OU si email/nom manquent, demander les infos
+    if (isSkippedInfo || !trainerEmail || !candidateName) {
+      // Pré-remplir le formulaire final avec les valeurs déjà entrées
+      contactForm.setValue('profileType', profileType);
+      contactForm.setValue('experienceLevel', experienceLevel);
+      if (trainerEmail) contactForm.setValue('trainerEmail', trainerEmail);
+      if (candidateName) contactForm.setValue('candidateName', candidateName);
+      
       setShowContactForm(true);
       return;
     }
@@ -625,7 +637,7 @@ const CyberInterviewSimulation: React.FC = () => {
                   name="profileType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-white">Type de profil</FormLabel>
+                      <FormLabel className="text-white">Type de profil *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
@@ -650,7 +662,7 @@ const CyberInterviewSimulation: React.FC = () => {
                   name="experienceLevel"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-white">Niveau d'expérience</FormLabel>
+                      <FormLabel className="text-white">Niveau d'expérience *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
