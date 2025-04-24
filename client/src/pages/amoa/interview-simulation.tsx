@@ -249,6 +249,9 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
     // Appel direct à l'API sans passer par la validation complète du formulaire
     setIsLoading(true);
     
+    // Déclarer la variable en dehors du bloc try pour qu'elle soit accessible dans le catch
+    let responseData: any = null;
+    
     try {
       console.log("Envoi de la requête API...");
       
@@ -278,9 +281,21 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
         throw new Error(`Erreur lors du démarrage de la simulation: ${response.status}`);
       }
       
-      // Récupérer les données JSON directement
-      let responseData = await response.json();
-      console.log("Données de réponse:", responseData);
+      // Récupérer le texte de la réponse d'abord
+      const responseText = await response.text();
+      console.log("Réponse brute:", responseText.substring(0, 100)); // Log une portion du texte pour le débogage
+      
+      // Déclarer dans une portée accessible au try et au catch
+      let responseData: any = null;
+      try {
+        // Tenter de parser la réponse en JSON
+        responseData = JSON.parse(responseText);
+        console.log("Données de réponse:", responseData);
+      } catch (parseError) {
+        console.error("Erreur de parsing JSON:", parseError);
+        // En cas d'erreur de parsing, utiliser un objet par défaut
+        responseData = { initialMessage: "Bonjour, je suis votre interlocuteur client aujourd'hui. Nous allons évaluer vos compétences en assistance à maîtrise d'ouvrage. Présentez-vous et dites-moi ce qui vous intéresse dans ce domaine." };
+      }
     
       // Pas besoin de vérifier data.success, la réponse 200 suffit
       
@@ -362,7 +377,19 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
         throw new Error('Erreur lors de l\'envoi du message');
       }
       
-      const data = await response.json();
+      // Récupérer le texte de la réponse d'abord
+      const responseText = await response.text();
+      console.log("Réponse message brute:", responseText.substring(0, 100));
+      
+      let data;
+      try {
+        // Tenter de parser la réponse en JSON
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error("Erreur de parsing JSON (message):", parseError);
+        // En cas d'erreur de parsing, utiliser un objet par défaut
+        data = { response: "Je suis désolé, il semble y avoir un problème technique. Pouvez-vous reformuler votre question?" };
+      }
       
       // Limiter à 5 échanges maximum
       if (messages.filter(m => m.role === 'user').length >= 5) {

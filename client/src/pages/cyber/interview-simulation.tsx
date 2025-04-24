@@ -270,9 +270,19 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
         throw new Error(`Erreur lors du démarrage de la simulation: ${response.status}`);
       }
       
-      // Récupérer les données JSON directement
-      responseData = await response.json();
-      console.log("Données de réponse:", responseData);
+      // Récupérer le texte de la réponse d'abord
+      const responseText = await response.text();
+      console.log("Réponse brute:", responseText.substring(0, 100)); // Log une portion du texte pour le débogage
+      
+      try {
+        // Tenter de parser la réponse en JSON
+        responseData = JSON.parse(responseText);
+        console.log("Données de réponse:", responseData);
+      } catch (parseError) {
+        console.error("Erreur de parsing JSON:", parseError);
+        // En cas d'erreur de parsing, utiliser un objet par défaut
+        responseData = { initialMessage: "Bonjour, je suis un client potentiel qui cherche des services en cybersécurité. Pouvez-vous me présenter votre expertise et me dire comment vous pourriez répondre à mes besoins en matière de sécurité informatique ?" };
+      }
       
       // Pas besoin de vérifier data.success, la réponse 200 suffit
       
@@ -352,7 +362,19 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
         throw new Error('Erreur lors de l\'envoi du message');
       }
       
-      const data = await response.json();
+      // Récupérer le texte de la réponse d'abord
+      const responseText = await response.text();
+      console.log("Réponse message brute:", responseText.substring(0, 100));
+      
+      let data;
+      try {
+        // Tenter de parser la réponse en JSON
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error("Erreur de parsing JSON (message):", parseError);
+        // En cas d'erreur de parsing, utiliser un objet par défaut
+        data = { response: "Je suis désolé, il semble y avoir un problème technique. Pouvez-vous reformuler votre question?" };
+      }
       
       // Limiter à 5 échanges maximum
       if (messages.filter(m => m.role === 'user').length >= 5) {
