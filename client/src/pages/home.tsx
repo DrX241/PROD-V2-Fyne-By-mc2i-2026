@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import Typewriter from "../components/Typewriter";
 import mcLogoPath from "@assets/mc2i.png";
 import fyneAvatarPath from "@assets/image_1745520990954.png";
+import fyneCityBackgroundPath from "../assets/fyne_city_background.png";
 import PageTitle from "@/components/utils/PageTitle";
 
 // Carte de module avec animation
@@ -206,52 +207,62 @@ export default function Home() {
   return (
     <HomeLayout>
       <PageTitle title="Accueil" />
-      {/* Hero Section - Fond amélioré */}
-      <div className="relative overflow-hidden">
-        {/* Arrière-plan dynamique */}
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-indigo-950 to-blue-950">
-          {/* Éléments décoratifs animés pour un effet high-tech */}
-          {Array.from({ length: 20 }).map((_, i) => (
+      {/* Hero Section avec image de fond futuriste */}
+      <div className="relative overflow-hidden h-[85vh] max-h-[800px]">
+        {/* Image de fond de la ville futuriste */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={fyneCityBackgroundPath} 
+            alt="Ville futuriste FYNE" 
+            className="w-full h-full object-cover brightness-75"
+          />
+          {/* Overlay pour améliorer la lisibilité du texte */}
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-900/80 via-blue-950/70 to-transparent"></div>
+        </div>
+        
+        {/* Effet de particules numériques */}
+        <div className="absolute inset-0 z-[1] opacity-20 pointer-events-none">
+          {Array.from({ length: 50 }).map((_, i) => (
             <motion.div
               key={i}
-              className="absolute rounded-full bg-blue-500/10"
+              className="absolute w-[1px] h-[1px] bg-blue-400 rounded-full"
               style={{
-                width: `${Math.random() * 300 + 50}px`,
-                height: `${Math.random() * 300 + 50}px`,
                 top: `${Math.random() * 100}%`,
                 left: `${Math.random() * 100}%`,
+                boxShadow: '0 0 4px 1px rgba(59, 130, 246, 0.7)'
               }}
               animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.1, 0.2, 0.1],
+                opacity: [0.3, 0.8, 0.3],
+                scale: [1, 1.5, 1],
               }}
               transition={{
-                duration: 8 + Math.random() * 5,
+                duration: 3 + Math.random() * 3,
                 repeat: Infinity,
                 ease: "easeInOut",
+                delay: Math.random() * 2
               }}
             />
           ))}
-          
-          {/* Effet de particules connectées */}
-          <div className="absolute inset-0 opacity-30">
-            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <radialGradient id="grid-gradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-                  <stop offset="0%" stopColor="rgba(59, 130, 246, 0.3)" />
-                  <stop offset="100%" stopColor="rgba(59, 130, 246, 0)" />
-                </radialGradient>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#grid-gradient)" />
-            </svg>
-          </div>
         </div>
         
-        <div className="w-full max-w-screen-2xl mx-auto px-4 py-24 sm:px-6 lg:px-8 lg:py-32 relative z-10">
+        {/* Lignes numériques animées */}
+        <div className="absolute inset-0 z-[1] opacity-10">
+          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" className="opacity-30">
+            <defs>
+              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(59, 130, 246, 0.3)" strokeWidth="0.5" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+          </svg>
+        </div>
+
+        {/* Contenu principal */}
+        <div className="w-full max-w-screen-2xl mx-auto px-4 py-16 sm:px-6 lg:px-8 lg:py-28 relative z-10 h-full flex items-center">
           <div className="flex flex-col lg:flex-row items-center justify-between">
             {/* Contenu texte */}
             <div className="text-center lg:text-left lg:w-3/5 mx-auto lg:mx-0 mb-12 lg:mb-0">
-              <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-600/30 border border-blue-500/30 text-blue-300 text-sm font-medium mb-6 backdrop-blur-md">
+              <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-600/40 border border-blue-500/30 text-blue-300 text-sm font-medium mb-6 backdrop-blur-md">
                 <Sparkles className="mr-2 h-4 w-4" />
                 Propulsé par l'Intelligence Artificielle
               </div>
@@ -303,23 +314,78 @@ export default function Home() {
               >
                 Découvrez une nouvelle dimension d'apprentissage interactif grâce à nos modules IA innovants qui s'adaptent parfaitement à votre progression.
               </motion.p>
+              
+              {/* Bouton d'action avec effet futuriste */}
+              <motion.div
+                className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center lg:justify-start"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.4 }}
+              >
+                <Link href="/cyber">
+                  <Button size="lg" className="relative px-8 py-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-700 text-white shadow-lg group font-cyber-accent text-lg border border-blue-400/20 overflow-hidden">
+                    <span className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-transparent w-0 group-hover:w-full transition-all duration-700 ease-out" />
+                    <span className="relative z-10">Démarrer une expérience</span>
+                    <ArrowRight className="relative z-10 ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform duration-300" />
+                  </Button>
+                </Link>
+              </motion.div>
             </div>
             
-            {/* Image FYNE */}
+            {/* Panneau d'information avec effet vitre futuriste - remplace l'avatar */}
             <motion.div 
-              className="lg:w-2/5 flex justify-center lg:justify-end"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              className="lg:w-2/5 relative lg:ml-auto mt-12 lg:mt-0"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7, delay: 0.3 }}
             >
-              <div className="w-72 h-72 md:w-96 md:h-96 relative overflow-visible">
-                <img 
-                  src={fyneAvatarPath} 
-                  alt="FYNE by mc2i" 
-                  className="object-contain drop-shadow-[0_0_30px_rgba(59,130,246,0.3)]" 
-                />
-                {/* Cercle décoratif derrière l'image */}
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-56 h-56 md:w-80 md:h-80 rounded-full bg-blue-900/20 blur-md -z-10"></div>
+              <div className="backdrop-blur-md bg-white/5 border border-blue-300/20 rounded-xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.12)] overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5"></div>
+                
+                {/* En-tête du panneau */}
+                <div className="border-b border-blue-300/10 pb-4 mb-4 relative">
+                  <h3 className="text-xl font-bold text-blue-100 font-cyber-title flex items-center">
+                    <BrainCircuit className="w-6 h-6 mr-2 text-blue-300" />
+                    Intelligence Artificielle Avancée
+                  </h3>
+                  <div className="absolute top-0 right-0 h-2 w-2 rounded-full bg-blue-400 animate-pulse"></div>
+                </div>
+                
+                {/* Statistiques et informations */}
+                <div className="space-y-4 text-blue-100 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-blue-300 font-cyber-accent">Modules actifs</span>
+                    <span className="font-semibold">5 modules</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-blue-300 font-cyber-accent">Intelligence</span>
+                    <span className="font-semibold">GPT-4o / Claude 3.7</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-blue-300 font-cyber-accent">Languages</span>
+                    <span className="font-semibold">Français / English</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-blue-300 font-cyber-accent">Nouveautés</span>
+                    <span className="font-semibold text-cyan-300">Mise à jour 2.4.1</span>
+                  </div>
+                  
+                  {/* Barre de progression animée */}
+                  <div className="pt-2">
+                    <div className="text-xs text-blue-300 flex justify-between mb-1">
+                      <span>Amélioration continue</span>
+                      <span>97%</span>
+                    </div>
+                    <div className="w-full bg-blue-900/30 rounded-full h-1.5 overflow-hidden">
+                      <motion.div 
+                        className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full"
+                        initial={{ width: "0%" }}
+                        animate={{ width: "97%" }}
+                        transition={{ duration: 1.5, delay: 0.5 }}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             </motion.div>
           </div>
