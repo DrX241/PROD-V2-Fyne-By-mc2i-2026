@@ -2377,6 +2377,8 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
     }
   });
   
+
+  
   // Routes pour la simulation d'audition AMOA
   app.post('/api/amoa/interview-simulation/start', startInterviewSimulation);
   app.post('/api/amoa/interview-simulation/message', processInterviewMessage);

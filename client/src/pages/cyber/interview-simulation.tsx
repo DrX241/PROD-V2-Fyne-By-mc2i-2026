@@ -1279,7 +1279,45 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
                   </Button>
                   {synthesisResult && (
                     <Button
-                      onClick={() => {/* À implémenter: téléchargement de la synthèse */}}
+                      onClick={() => {
+                        // Générer la requête pour télécharger le rapport HTML
+                        if (synthesisResult) {
+                          fetch('/api/cyber/interview-simulation/download-synthesis', {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                              domain: 'cyber',
+                              candidateName,
+                              profileType,
+                              experienceLevel,
+                              synthesis: synthesisResult
+                            }),
+                          })
+                          .then(response => response.blob())
+                          .then(blob => {
+                            // Créer un lien temporaire pour télécharger le fichier
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.style.display = 'none';
+                            a.href = url;
+                            a.download = `Synthèse_Audition_${candidateName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.html`;
+                            document.body.appendChild(a);
+                            a.click();
+                            window.URL.revokeObjectURL(url);
+                            a.remove();
+                          })
+                          .catch(error => {
+                            console.error('Erreur lors du téléchargement de la synthèse:', error);
+                            toast({
+                              title: "Erreur",
+                              description: "Impossible de télécharger la synthèse. Veuillez réessayer.",
+                              variant: "destructive"
+                            });
+                          });
+                        }
+                      }}
                       className="bg-[#006a9e] hover:bg-blue-700"
                     >
                       Télécharger la synthèse
