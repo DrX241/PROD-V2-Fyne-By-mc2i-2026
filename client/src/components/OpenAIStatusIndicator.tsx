@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, XCircle, LoaderCircle } from 'lucide-react';
+import { CheckCircle, XCircle, LoaderCircle, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
@@ -17,7 +17,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
   position = 'fixed-bottom-right' 
 }) => {
   const [status, setStatus] = useState<'connected' | 'disconnected' | 'checking'>('checking');
-  const [currentModel, setCurrentModel] = useState<string>('');
+  const [currentModel, setCurrentModel] = useState<string>('gpt-4o');
   const [apiKeyType, setApiKeyType] = useState<'primary' | 'secondary'>('primary');
   const [lastCheck, setLastCheck] = useState<number>(0);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
@@ -87,23 +87,13 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
     return () => clearInterval(intervalId);
   }, []);
   
-  // Couleurs et icônes selon le statut
-  const statusColors = {
-    connected: 'bg-green-600',
-    disconnected: 'bg-red-600',
-    checking: 'bg-yellow-600'
-  };
-  
-  const StatusIcon = status === 'connected' ? CheckCircle :
-                     status === 'disconnected' ? XCircle : LoaderCircle;
-  
-  const modelLabel = currentModel === 'gpt-4o' ? 'GPT-4o' : 
-                     currentModel === 'gpt-4o-mini' ? 'GPT-4o-mini' : 
-                     'Modèle inconnu';
-  
+  // Économie activée ou non
   const economyMode = apiKeyType === 'secondary';
   
-  // Styles conditionnels selon la position
+  // Label du modèle en cours d'utilisation
+  const modelLabel = currentModel === 'gpt-4o' ? 'GPT-4o' : 'GPT-4o-mini';
+  
+  // Styles selon la position
   let positionStyles = '';
   
   if (position === 'fixed-bottom-right') {
@@ -111,76 +101,95 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
   } else if (position === 'fixed-bottom') {
     positionStyles = 'fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 bg-opacity-90 bg-slate-900 p-2 rounded-md shadow-lg';
   } else if (position === 'in-header') {
-    positionStyles = 'bg-transparent'; // Style pour s'intégrer dans l'en-tête
+    positionStyles = 'bg-transparent'; // Style pour l'en-tête
   }
   
   return (
     <div className={`flex items-center space-x-2 ${positionStyles} ${className}`}>
+      {/* Indicateur de statut FYNE */}
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="flex items-center">
-              <div className={`relative flex items-center ${status === 'checking' ? 'animate-pulse' : ''}`}>
-                <Badge 
-                  variant="outline" 
-                  className={`px-2 py-1 flex items-center gap-1 ${statusColors[status]} text-white ${position === 'in-header' ? 'scale-75 xs:scale-90' : ''}`}
-                >
-                  <StatusIcon className={`${position === 'in-header' ? 'w-2 h-2 xs:w-3 xs:h-3' : 'w-3 h-3'}`} />
-                  <span className={`${position === 'in-header' ? 'text-[10px] xs:text-xs' : 'text-xs'} font-medium`}>
-                    FYNE {status === 'connected' ? 'Connecté' : status === 'disconnected' ? 'Déconnecté' : 'Vérification...'}
-                  </span>
-                </Badge>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className={`p-1 ml-1 bg-blue-100 text-gray-800 border border-blue-300 rounded-full hover:bg-blue-200 ${position === 'in-header' ? 'h-4 w-4 xs:h-5 xs:w-5' : 'h-6 w-6'}`}
-                  onClick={checkStatus} 
-                  disabled={isRefreshing}
-                >
-                  <LoaderCircle className={`${position === 'in-header' ? 'w-2 h-2 xs:w-3 xs:h-3' : 'w-3 h-3'} ${isRefreshing ? 'animate-spin' : ''}`} />
-                </Button>
-              </div>
+              <Badge 
+                variant="outline"
+                className={`px-2 py-1 flex items-center gap-1 
+                  ${status === 'connected' ? 'bg-green-700' : 
+                    status === 'disconnected' ? 'bg-red-700' : 'bg-yellow-700'} 
+                  text-white border-none`}
+              >
+                {status === 'connected' ? (
+                  <CheckCircle className="w-3 h-3 mr-1" />
+                ) : status === 'disconnected' ? (
+                  <XCircle className="w-3 h-3 mr-1" />
+                ) : (
+                  <LoaderCircle className="w-3 h-3 mr-1 animate-spin" />
+                )}
+                <span className="text-xs font-medium">
+                  FYNE
+                </span>
+              </Badge>
+              
+              <Button 
+                variant="outline"
+                size="icon"
+                className="h-6 w-6 ml-1 rounded-full bg-white"
+                onClick={checkStatus}
+                disabled={isRefreshing}
+              >
+                <LoaderCircle className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
+              </Button>
             </div>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Statut de connexion de FYNE</p>
+            <p>Statut de connexion FYNE</p>
             <p className="text-xs">Dernière vérification: {formattedLastCheck}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
       
+      {/* Sélecteur de modèle - Eco mode */}
       {showModelToggle && (
-        <div className="flex items-center">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className={`flex items-center ml-1 ${position === 'in-header' ? 'space-x-1' : 'ml-2 space-x-2'}`}>
-                  {position !== 'in-header' && (
-                    <span className={`text-xs font-medium ${economyMode ? 'text-yellow-500' : 'text-blue-500'}`}>
-                      {modelLabel}
-                    </span>
-                  )}
-                  
-                  <div className="flex items-center">
-                    <span className={`${position === 'in-header' ? 'text-[10px] xs:text-xs' : 'text-xs'} mr-1 font-semibold text-gray-800`}>
-                      {position === 'in-header' ? 'Éco' : 'Eco'}
-                    </span>
-                    <Switch
-                      checked={economyMode}
-                      onCheckedChange={toggleModel}
-                      disabled={isToggling || status === 'checking'}
-                      className={`${isToggling ? 'opacity-50' : ''} ${position === 'in-header' ? 'h-3 w-6 xs:h-4 xs:w-8' : ''}`}
-                    />
-                  </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center ml-2 space-x-2">
+                {/* Badge du modèle actif avec couleur différente selon mode */}
+                <Badge 
+                  variant={economyMode ? "outline" : "default"}
+                  className={`px-2 py-1 ${economyMode ? 
+                    'bg-purple-700 hover:bg-purple-600 border-purple-400' : 
+                    'bg-blue-700 hover:bg-blue-600'} text-white`}
+                >
+                  <span className="text-xs font-medium">
+                    {modelLabel}
+                  </span>
+                </Badge>
+                
+                {/* Switch avec badge d'économie */}
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-full shadow-sm">
+                  <Zap className={`h-3.5 w-3.5 ${economyMode ? 'text-purple-600' : 'text-gray-400'}`} />
+                  <span className={`text-xs font-semibold ${economyMode ? 'text-purple-700' : 'text-gray-600'}`}>
+                    Éco
+                  </span>
+                  <Switch
+                    checked={economyMode}
+                    onCheckedChange={toggleModel}
+                    disabled={isToggling || status === 'checking'}
+                  />
                 </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Activer le mode économie</p>
-                <p className="text-xs">Optimise les performances du système</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{economyMode ? 'Désactiver' : 'Activer'} le mode économie</p>
+              <p className="text-xs">
+                {economyMode ? 
+                  'Mode économique activé (utilise GPT-4o-mini)' : 
+                  'Utilise actuellement le modèle standard (GPT-4o)'}
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       )}
     </div>
   );
