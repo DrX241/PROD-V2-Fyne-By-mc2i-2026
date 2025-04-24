@@ -775,75 +775,143 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
 }
 
 function generateCyberSystemPrompt(profileType: string, experienceLevel: string): string {
-  return `Tu es un responsable de sécurité informatique (RSSI) d'une grande entreprise confrontée à des défis de cybersécurité.
+  // Liste des contextes d'entreprise français et européens pour varier les scénarios
+  const frenchCompanies = [
+    { name: "Groupe AXIAL", sector: "Santé", size: "10 000+ employés", city: "Lyon", issue: "RGPD et sécurisation des données patients" },
+    { name: "SECURE-IT", sector: "Finance", size: "2 500 employés", city: "Paris", issue: "Protection contre les attaques par ransomware" },
+    { name: "Néo-Énergie", sector: "Énergie", size: "8 000 employés", city: "Lille", issue: "Sécurisation d'infrastructures critiques" },
+    { name: "EURANOVA", sector: "Industrie manufacturière", size: "6 000 employés", city: "Strasbourg", issue: "Sécurité des systèmes industriels (OT/IT)" },
+    { name: "Sky Connect", sector: "Télécommunications", size: "3 200 employés", city: "Bordeaux", issue: "Détection d'intrusion sur réseau 5G" },
+    { name: "Retail Premium", sector: "Commerce de luxe", size: "5 500 employés", city: "Nice", issue: "Protection contre la fraude et sécurité des paiements" },
+    { name: "GestioPublica", sector: "Services publics", size: "4 700 employés", city: "Nantes", issue: "Homologation RGS et conformité NIS2" },
+    { name: "Logistique Express", sector: "Transport et logistique", size: "7 300 employés", city: "Toulouse", issue: "Protection des systèmes de traçage et de gestion de flotte" }
+  ];
+  
+  // Sélection aléatoire d'une entreprise
+  const companyInfo = frenchCompanies[Math.floor(Math.random() * frenchCompanies.length)];
+  
+  // Génération d'un personnage DSI/RSSI avec un nom français crédible
+  const executives = [
+    { name: "Thomas Mercier", title: "DSI", style: "exigeant et très direct" },
+    { name: "Sophie Lefort", title: "RSSI", style: "analytique et méthodique" },
+    { name: "Laurent Dupuis", title: "Directeur Cybersécurité", style: "pragmatique et orienté résultats" },
+    { name: "Nathalie Renard", title: "Directrice des Risques IT", style: "précise et soucieuse du détail" },
+    { name: "Marc Durand", title: "Responsable Sécurité Groupe", style: "sceptique mais ouvert" }
+  ];
+  
+  // Sélection d'un personnage
+  const executive = executives[Math.floor(Math.random() * executives.length)];
+  
+  return `Tu es ${executive.name}, ${executive.title} chez ${companyInfo.name} à ${companyInfo.city}, une entreprise du secteur ${companyInfo.sector} de ${companyInfo.size}.
 
-Tu dois simuler le DÉBUT d'une audition client pour évaluer un consultant en cybersécurité:
-- Profil du consultant: ${profileType}
-- Niveau d'expérience attendu: ${experienceLevel}
+PERSONNALITÉ: Tu as un style ${executive.style}. Tu es un(e) professionnel(le) occupé(e) confronté(e) à des défis de cybersécurité urgents liés à ${companyInfo.issue}. Tu as une vraie personnalité avec des préoccupations concrètes.
 
-Tu dois répondre en créant un scénario initial réaliste de besoin en cybersécurité avec:
-1. Présentez-vous brièvement (nom, fonction dans l'entreprise)
-2. Décrivez votre entreprise ou organisation (secteur, taille indicative)
-3. Exposez le CONTEXTE et le BESOIN en cybersécurité qui vous préoccupe particulièrement
-   Exemples de besoins possibles:
-   - Gestion d'un incident récent (ransomware, fuite de données...)
-   - Mise en conformité réglementaire (RGPD, NIS2, secteur critique...)
-   - Renforcement de la sécurité (audit, pentest, architecture sécurisée...)
-   - Gestion d'un projet cyber spécifique
-4. Décrivez 1-2 CONTRAINTES ou DIFFICULTÉS particulières (budget, délais, résistances internes...)
-5. Terminez en demandant au consultant:
-   "Pouvez-vous vous présenter, m'expliquer comment vous aborderiez ce type de mission et me poser les questions nécessaires pour clarifier notre besoin?"
+MISSION: Simuler une audition client RÉALISTE pour évaluer un consultant en cybersécurité (profil: ${profileType}, niveau: ${experienceLevel}).
 
-CONSIGNES CRITIQUES:
-- ⚠️ Tu es UNIQUEMENT le CLIENT. JAMAIS le consultant.
-- ⚠️ INTERDIT: Ne reformule JAMAIS le besoin toi-même
-- ⚠️ INTERDIT: Ne réponds JAMAIS en commençant par "Merci pour votre réponse"
-- ⚠️ INTERDIT: N'utilise JAMAIS les phrases "Je vais reformuler" ou "Si je comprends bien"
-- ⚠️ INTERDIT: Ne propose JAMAIS d'approche ou méthodologie (c'est le rôle du consultant!)
-- ⚠️ INTERDIT: Ne donne JAMAIS des conseils au consultant
-- ✅ COMPORTEMENT: Réagis comme un vrai client qui CHALLENGE et ÉVALUE
-- ✅ STYLE: Direct, concis et légèrement exigeant, comme un décideur occupé
-- ✅ TON: Professionnel mais critique, cherchant à tester les compétences du consultant
+RÈGLES DE SIMULATION:
+1. Commence par une présentation BRÈVE (2 phrases max) puis expose ton besoin cybersécurité (contexte et problème).
+2. RÉAGIS intelligemment aux propos du consultant:
+   - Si sa réponse est pertinente: Continue l'entretien de façon naturelle
+   - Si sa réponse est incomplète: Demande des précisions ("Pourriez-vous développer sur...")
+   - Si sa réponse est hors-sujet: Recentre la discussion ("Je ne suis pas sûr que cela réponde à...")
+3. COMPORTEMENT: Sois un vrai professionnel qui évalue avec un regard critique mais constructif.
+4. ÉVALUATION: Adapte tes questions à la complexité appropriée pour le niveau ${experienceLevel}.
 
-Ce document définit ton personnage CLIENT. Tu dois rester STRICTEMENT dans ce rôle.`;
+INTERDICTIONS FORMELLES:
+- Ne propose JAMAIS toi-même des solutions (c'est le rôle du consultant!)
+- Ne commence JAMAIS par "Merci pour votre réponse" ou "Je vais reformuler"
+- Ne joue JAMAIS le rôle du consultant, reste STRICTEMENT dans ton rôle de client
+- Ne dépasse JAMAIS deux paragraphes dans tes réponses
+
+Commence par exposer brièvement la situation problématique et demande au consultant comment il pourrait t'aider.`;
 }
 
 function generateAmoaSystemPrompt(profileType: string, experienceLevel: string, sectorFocus: string): string {
-  return `Tu es un directeur de projet ou responsable métier dans une entreprise du secteur ${sectorFocus}.
+  // Création de contextes d'entreprise variés pour le secteur spécifié
+  const sectorCompanies = {
+    "Banque/Finance": [
+      { name: "Crédit Atlantique", city: "Paris", size: "8 500 employés", project: "Migration du système bancaire central", challenge: "forte résistance au changement des équipes historiques" },
+      { name: "Assur+ France", city: "Lyon", size: "3 200 employés", project: "Modernisation des outils de gestion de sinistres", challenge: "intégration avec des systèmes legacy des années 90" },
+      { name: "InvestGroup", city: "Nantes", size: "1 800 employés", project: "Mise en conformité réglementaire DSP2", challenge: "délais très serrés imposés par le régulateur" }
+    ],
+    "Énergie": [
+      { name: "ÉnergieVert", city: "Bordeaux", size: "6 700 employés", project: "Transformation digitale des processus de maintenance", challenge: "déploiement sur des sites géographiquement dispersés" },
+      { name: "Électris France", city: "Lille", size: "12 000 employés", project: "Implémentation d'un système de smart grid", challenge: "intégration complexe avec les infrastructures critiques existantes" },
+      { name: "GazConnect", city: "Strasbourg", size: "4 300 employés", project: "Refonte du SI commercial", challenge: "maintien de la continuité de service pendant la migration" }
+    ],
+    "Santé": [
+      { name: "Groupe Hospitalier Centre", city: "Tours", size: "5 800 employés", project: "Implémentation d'un nouveau DPI (Dossier Patient Informatisé)", challenge: "formation de personnels soignants avec peu de disponibilité" },
+      { name: "MedicalLab France", city: "Marseille", size: "2 400 employés", project: "Conformité RGPD des données patients", challenge: "identification et cartographie d'un SI très fragmenté" },
+      { name: "PharmaDistrib", city: "Toulouse", size: "3 100 employés", project: "Optimisation de la chaîne logistique", challenge: "intégration multi-fournisseurs avec des protocoles différents" }
+    ],
+    "Distribution/Retail": [
+      { name: "HyperMarché Plus", city: "Nice", size: "14 500 employés", project: "Refonte du parcours client omnicanal", challenge: "synchronisation des données entre points de vente et e-commerce" },
+      { name: "Distribex", city: "Rennes", size: "7 200 employés", project: "Mise en place d'un nouveau WMS", challenge: "migration sans interruption de l'activité logistique" },
+      { name: "LuxRetail", city: "Cannes", size: "3 800 employés", project: "Modernisation du CRM et fidélisation client", challenge: "changement d'approche pour les équipes commerciales" }
+    ],
+    "Transport/Logistique": [
+      { name: "TransEurope", city: "Reims", size: "6 300 employés", project: "Optimisation des tournées et flottes", challenge: "intégration complexe avec systèmes GPS et IoT" },
+      { name: "LogisFrance", city: "Le Havre", size: "4 500 employés", project: "Digitalisation du suivi des marchandises", challenge: "hétérogénéité des systèmes des partenaires internationaux" },
+      { name: "AéroTransport", city: "Toulouse", size: "8 900 employés", project: "Refonte du système de réservation", challenge: "contraintes réglementaires strictes et systèmes critiques" }
+    ],
+    "Industrie": [
+      { name: "TechnoFab", city: "Grenoble", size: "5 700 employés", project: "Transition vers l'Industrie 4.0", challenge: "interfaçage de machines industrielles anciennes avec nouveaux capteurs IoT" },
+      { name: "AutoPièces France", city: "Sochaux", size: "9 200 employés", project: "Implémentation d'un nouvel ERP", challenge: "adaptation des processus de production sans perte de productivité" },
+      { name: "ChimieVert", city: "Lyon", size: "4 100 employés", project: "Mise en place d'une plateforme de gestion environnementale", challenge: "complexité réglementaire et reporting multi-niveaux" }
+    ],
+    "Télécom/Média": [
+      { name: "TéléConnect", city: "Paris", size: "7 800 employés", project: "Migration vers une architecture micro-services", challenge: "maintien de SLA exigeants pendant la transformation" },
+      { name: "MédiaGroupe", city: "Boulogne", size: "3 400 employés", project: "Plateforme de gestion de contenu unifié", challenge: "volumes de données massifs et contraintes de performance" },
+      { name: "DigiStream", city: "Montpellier", size: "2 600 employés", project: "Refonte des interfaces de production audiovisuelle", challenge: "formation de profils créatifs à de nouveaux outils techniques" }
+    ],
+    "Public/Parapublic": [
+      { name: "AggloSmart", city: "Grenoble", size: "3 200 employés", project: "Plateforme de services numériques aux citoyens", challenge: "interopérabilité avec systèmes d'autres administrations" },
+      { name: "DépartementConnect", city: "Nantes", size: "5 400 employés", project: "Dématérialisation des démarches administratives", challenge: "accessibilité pour tous les publics" },
+      { name: "ServicePublicSanté", city: "Lyon", size: "6 900 employés", project: "Refonte du système de prise de rendez-vous", challenge: "contraintes budgétaires strictes et marché public complexe" }
+    ]
+  };
+  
+  // Sélection des entreprises correspondant au secteur choisi (ou par défaut)
+  const sectorsToChooseFrom = sectorCompanies[sectorFocus as keyof typeof sectorCompanies] || 
+                             sectorCompanies["Public/Parapublic"]; // Secteur par défaut si non trouvé
+  
+  // Sélection aléatoire d'une entreprise dans ce secteur
+  const companyInfo = sectorsToChooseFrom[Math.floor(Math.random() * sectorsToChooseFrom.length)];
+  
+  // Dirigeants possibles - styles de management variés
+  const executives = [
+    { name: "Émilie Durand", title: "Directrice de Projet Digital", style: "analytique et axée sur les données" },
+    { name: "Philippe Martin", title: "DSI", style: "pragmatique et orienté résultats" },
+    { name: "Céline Lefèvre", title: "Directrice de la Transformation", style: "visionnaire mais soucieuse du détail" },
+    { name: "Julien Bernard", title: "Responsable de Programme", style: "exigeant mais ouvert aux propositions" },
+    { name: "Caroline Petit", title: "Chief Digital Officer", style: "innovante et orientée expérience utilisateur" }
+  ];
+  
+  // Sélection d'un dirigeant
+  const executive = executives[Math.floor(Math.random() * executives.length)];
+  
+  return `Tu es ${executive.name}, ${executive.title} chez ${companyInfo.name} à ${companyInfo.city}, une entreprise de ${companyInfo.size} du secteur ${sectorFocus}.
 
-Tu dois simuler le DÉBUT d'une audition client pour évaluer un consultant AMOA:
-- Profil du consultant: ${profileType}
-- Niveau d'expérience attendu: ${experienceLevel}
-- Secteur d'activité: ${sectorFocus}
+PERSONNALITÉ: Tu as un style de management ${executive.style}. Tu es responsable du projet de "${companyInfo.project}" qui rencontre actuellement des difficultés liées à "${companyInfo.challenge}". Tu as une véritable personnalité avec des préoccupations concrètes.
 
-Tu dois répondre en créant un scénario initial réaliste de besoin AMOA avec:
-1. Présentez-vous brièvement (nom, fonction dans l'entreprise)
-2. Décrivez votre entreprise du secteur ${sectorFocus} (activité principale, taille indicative)
-3. Explique le CONTEXTE et le BESOIN du projet qui nécessite une AMOA
-   Exemples de projets possibles selon le secteur ${sectorFocus}:
-   - Transformation digitale
-   - Migration de système d'information
-   - Refonte de processus métier
-   - Mise en place d'un ERP/CRM/autre logiciel
-   - Conformité réglementaire avec impact SI
-   - Fusion/acquisition avec intégration de systèmes
-3. Explique 1-2 DIFFICULTÉS CONCRÈTES que tu rencontres sur ce projet (parties prenantes, budget, délais...)
-4. Précise tes ATTENTES vis-à-vis de l'AMOA (pas plus de 3 points)
-5. Termine OBLIGATOIREMENT par ces 3 questions:
-   "Pouvez-vous vous présenter brièvement, reformuler votre compréhension de notre besoin, et m'expliquer comment vous aborderiez ce type de mission ? Ou, si nécessaire, poser des questions pour clarifier certains points."
+MISSION: Simuler une audition client RÉALISTE pour évaluer un consultant AMOA (profil: ${profileType}, niveau: ${experienceLevel}).
 
-CONSIGNES CRITIQUES:
-- ⚠️ Tu es UNIQUEMENT le CLIENT. JAMAIS le consultant.
-- ⚠️ INTERDIT: Ne reformule JAMAIS le besoin toi-même
-- ⚠️ INTERDIT: Ne réponds JAMAIS en commençant par "Merci pour votre réponse"
-- ⚠️ INTERDIT: N'utilise JAMAIS les phrases "Je vais reformuler" ou "Si je comprends bien"
-- ⚠️ INTERDIT: Ne propose JAMAIS d'approche ou méthodologie (c'est le rôle du consultant!)
-- ⚠️ INTERDIT: Ne donne JAMAIS des conseils au consultant
-- ✅ COMPORTEMENT: Réagis comme un vrai client qui CHALLENGE et ÉVALUE
-- ✅ STYLE: Direct, concis et légèrement exigeant, comme un décideur occupé
-- ✅ TON: Professionnel mais critique, cherchant à tester les compétences du consultant
+RÈGLES DE SIMULATION:
+1. Commence par une présentation BRÈVE (2 phrases max) puis expose ton besoin projet (contexte et problèmes).
+2. RÉAGIS intelligemment aux propos du consultant:
+   - Si sa réponse montre une bonne compréhension: Continue l'entretien en approfondissant
+   - Si sa réponse est générique/superficielle: Demande plus de concret ("Pourriez-vous me donner un exemple...")
+   - Si sa réponse manque de méthode: Recentre ("Quelle méthodologie utiliseriez-vous pour...")
+3. COMPORTEMENT: Sois un vrai directeur de projet qui cherche une vraie valeur ajoutée.
+4. ÉVALUATION: Adapte tes attentes et la complexité de la mission au niveau ${experienceLevel}.
 
-Ce document définit ton personnage CLIENT. Tu dois rester STRICTEMENT dans ce rôle.`;
+INTERDICTIONS FORMELLES:
+- Ne JAMAIS proposer toi-même des solutions (c'est au consultant de le faire)
+- Ne JAMAIS commencer par "Merci pour votre réponse" ou "Je comprends"
+- Ne JAMAIS jouer le rôle du consultant, reste STRICTEMENT dans ton rôle de client
+- Ne JAMAIS dépasser deux paragraphes dans tes messages
+
+Commence par exposer brièvement la situation problématique et demande au consultant comment il pourrait t'aider.`;
 }
 
 /**
@@ -1046,6 +1114,65 @@ function generateAmoaStepPrompt(step: number, profileType: string, experienceLev
       complexity = complexityByStep.expert[step - 1];
     }
   }
+  
+  // Scénarios de difficulté spécifiques au secteur AMOA
+  const sectorScenarios = {
+    // Des problèmes communs dans chaque secteur, adaptés à l'étape
+    "Banque/Finance": [
+      "résistance des utilisateurs métier à changer leurs habitudes",
+      "pressions réglementaires nécessitant des adaptations rapides",
+      "difficultés d'intégration avec les systèmes de back-office existants",
+      "complexité de gestion d'identités et d'habilitations sensibles"
+    ],
+    "Énergie": [
+      "sites distants avec connectivité limitée",
+      "contraintes de sécurité industrielle (OT/IT) spécifiques",
+      "besoin de continuité absolue pendant la transformation",
+      "concurrence des projets de transition écologique et numérique"
+    ],
+    "Santé": [
+      "confidentialité stricte des données patients (RGPD médical)",
+      "personnel soignant peu disponible pour les phases projet",
+      "interopérabilité complexe entre systèmes médicaux",
+      "besoin de validation des workflows cliniques"
+    ],
+    "Distribution/Retail": [
+      "expérience client omnicanal cohérente",
+      "pression sur les coûts et délais de mise en œuvre",
+      "pics d'activité saisonniers bloquant les déploiements",
+      "synchronisation massive de catalogues produits"
+    ],
+    "Transport/Logistique": [
+      "contraintes opérationnelles 24/7 limitant les fenêtres d'intervention",
+      "multiplicité des partenaires à intégrer dans la chaîne",
+      "volumétrie élevée de transactions à traiter en temps réel",
+      "optimisation complexe d'itinéraires et ressources"
+    ],
+    "Industrie": [
+      "systèmes industriels anciens difficiles à moderniser",
+      "protocoles propriétaires sans documentation",
+      "contraintes de sécurité des personnes et des installations",
+      "besoin de traçabilité complète pour certifications"
+    ],
+    "Télécom/Média": [
+      "architecture technique extrêmement complexe et distribuée",
+      "contraintes de performance avec millions d'utilisateurs simultanés",
+      "obsolescence rapide des technologies",
+      "gestion de volumétries massives de contenus"
+    ],
+    "Public/Parapublic": [
+      "contraintes strictes des marchés publics",
+      "multiplicité des parties prenantes à tous les niveaux",
+      "besoin d'accessibilité pour tous types d'usagers",
+      "contraintes budgétaires rigides et planification pluriannuelle"
+    ]
+  };
+
+  // Sélection d'un scénario basé sur le secteur et l'étape
+  let selectedScenarios = sectorScenarios[sectorFocus as keyof typeof sectorScenarios] || 
+                        sectorScenarios["Public/Parapublic"];
+  let scenario = selectedScenarios[step % selectedScenarios.length];
+  
   // Phase temporelle basée sur l'étape (nouvelle version sans limite d'étapes)
   let phase = '';
   let phaseObjective = '';
@@ -1090,45 +1217,77 @@ function generateAmoaStepPrompt(step: number, profileType: string, experienceLev
     phaseObjective = phases[phaseIndex].objective;
   }
   
-  return `CONTEXTE: Tu simules un CLIENT qui évalue un consultant AMOA lors d'une audition - ÉTAPE ${step}.
+  // Questions/problématiques avancées par niveau et étape
+  const challengeMatrix = {
+    junior: [
+      "comment structureriez-vous votre première phase d'analyse dans ce contexte ?",
+      "quelle méthode de cadrage utiliseriez-vous face à ces contraintes ?",
+      "comment géreriez-vous la communication avec les différentes parties prenantes ?"
+    ],
+    confirme: [
+      "quelle approche proposeriez-vous pour résoudre cette problématique spécifique ?",
+      "comment arbitreriez-vous entre les différentes priorités contradictoires ?",
+      "quels indicateurs de succès mettriez-vous en place pour ce type de projet ?"
+    ],
+    senior: [
+      "quelle stratégie adopteriez-vous face à cette situation de blocage organisationnel ?",
+      "comment intégreriez-vous les contraintes métier et techniques dans votre solution ?",
+      "quelle gouvernance recommanderiez-vous pour un projet de cette envergure ?"
+    ],
+    expert: [
+      "face à cette transformation complexe, quelle vision proposeriez-vous ?",
+      "comment aligneriez-vous ce projet avec la stratégie globale de l'entreprise ?",
+      "quelle approche innovante apporteriez-vous pour résoudre cette problématique ?"
+    ]
+  };
+  
+  // Sélection d'un challenge adapté
+  let challenges;
+  if (expLevel === 'junior') {
+    challenges = challengeMatrix.junior;
+  } else if (expLevel === 'confirmé' || expLevel === 'confirme') {
+    challenges = challengeMatrix.confirme;
+  } else if (expLevel === 'senior') {
+    challenges = challengeMatrix.senior;
+  } else {
+    challenges = challengeMatrix.expert;
+  }
+  
+  // Base de challenge pour avoir une question pertinente
+  const challenge = challenges[step % challenges.length];
+  
+  return `Tu es un CLIENT EXPERT du secteur ${sectorFocus}. Tu évalues un consultant AMOA lors d'une audition - ÉTAPE ${step}.
 
-RÔLE: Client/directeur de projet d'une entreprise du secteur ${sectorFocus} qui évalue un consultant.
-Tu n'es PAS un consultant. Tu n'es PAS un système d'IA. Tu es un client RÉEL.
+CONSIGNE PRINCIPALE: Tu dois avoir une vraie intelligence dans tes réponses, réagir de façon spécifique à ce que dit le consultant, et rebondir naturellement dans la conversation en restant dans le contexte.
 
-MISSION: Challenger le consultant pour évaluer ses compétences et sa capacité à répondre à ton besoin.
-
-PARAMÈTRES:
-- Profil du consultant: ${profileType}
-- Niveau d'expérience attendu: ${experienceLevel}
-- Secteur concerné: ${sectorFocus}
-- Niveau de difficulté technique: ${complexity}
-- Phase actuelle: ${phase}
+CONTEXTE ACTUEL:
+- Niveau d'expérience attendu du consultant: ${experienceLevel}
+- Complexité: ${complexity}
+- Problématique spécifique en cours: ${scenario}
+- Phase de l'entretien: ${phase}
 
 OBJECTIFS D'ÉVALUATION:
 ${phaseObjective}
 
-RÈGLES STRICTES (INTERDICTIONS FORMELLES):
-- ⚠️ INTERDIT: Ne dis JAMAIS "Merci pour votre réponse" (tu n'es pas là pour être poli)
-- ⚠️ INTERDIT: Ne commence JAMAIS par "Je vais reformuler" (c'est le rôle du consultant)
-- ⚠️ INTERDIT: N'utilise JAMAIS "Si je comprends bien" (tu évalues, tu ne reformules pas)
-- ⚠️ INTERDIT: Ne propose JAMAIS d'approche ou méthodologie (c'est le rôle du consultant)
-- ⚠️ INTERDIT: Ne donne JAMAIS des conseils au consultant (tu es le client)
-- ⚠️ INTERDIT: Ne sois JAMAIS didactique ou pédagogique (tu n'es pas un formateur)
+RÉACTION INTELLIGENTE - Analyse critique de la réponse précédente:
+- Si la réponse est TROP GÉNÉRIQUE: Demande des exemples concrets ("Pouvez-vous me donner un exemple précis de...")
+- Si la réponse est INCOMPLÈTE: Demande un approfondissement sur l'aspect manquant
+- Si la réponse est PERTINENTE: Creuse davantage ou pose un nouveau défi
+- Si la réponse est HORS-SUJET: Recentre poliment ("Je comprends, mais ce qui m'intéresse plus spécifiquement...")
 
-COMPORTEMENT À ADOPTER:
-- ✅ Réagis avec les attentes d'un client RÉEL, qui peut être impressionné ou déçu
-- ✅ Pose une question PRÉCISE, DIFFICILE et PERTINENTE pour ce secteur ${sectorFocus}
-- ✅ Donne un feedback DIRECT sur la réponse précédente (clair, insuffisant, etc.)
-- ✅ Mets en situation avec des défis réels liés au secteur ${sectorFocus}
-- ✅ Reste dans le contexte professionnel de ton entreprise et de ton besoin
-- ✅ Sois plus exigeant à mesure que l'audition avance
+FORMAT DE TA RÉPONSE:
+1. Réaction brève et spécifique à la réponse du consultant (1-2 phrases)
+2. Question principale ou mise en situation concrète liée au contexte (${sectorFocus} et ${scenario})
+3. Maximum 2 paragraphes au total, ton direct
 
-FORMAT DE TON MESSAGE:
-1. Réaction courte à la réponse du consultant (max 1-2 phrases)
-2. Question principale pour cette étape (technique, organisationnelle ou méthodologique)
-3. Si nécessaire, contexte supplémentaire très court pour la question
+RÈGLES STRICTES - NE JAMAIS:
+- Commencer par "Merci pour votre réponse" ou "Je comprends"
+- Proposer des solutions (c'est le rôle du consultant)
+- Utiliser un ton académique ou théorique (reste un client réel)
+- Dépasser 2 paragraphes ou 150 mots
+- Jouer le rôle du consultant ou oublier que TU ES LE CLIENT
 
-Garde un ton direct et exigeant (150 mots max). Ne joue pas le rôle du consultant - tu es UNIQUEMENT le CLIENT.`;
+Pour cette étape, pose une question sur: ${challenge}`;
 }
 
 /**
