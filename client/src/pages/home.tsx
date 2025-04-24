@@ -340,15 +340,6 @@ export default function Home() {
               transition={{ duration: 0.7, delay: 0.3 }}
             >
               <div className="backdrop-blur-md bg-white/5 border border-blue-300/20 rounded-xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.12)] overflow-hidden relative">
-                {/* En-tête du panneau */}
-                <div className="border-b border-blue-300/10 pb-4 mb-4 relative">
-                  <h3 className="text-xl font-bold text-blue-100 font-cyber-title flex items-center">
-                    <BrainCircuit className="w-6 h-6 mr-2 text-blue-300" />
-                    Intelligence Artificielle Avancée
-                  </h3>
-                  <div className="absolute top-0 right-0 h-2 w-2 rounded-full bg-blue-400 animate-pulse"></div>
-                </div>
-                
                 {/* Statistiques et informations */}
                 <div className="space-y-4 text-blue-100 text-sm">
                   <div className="flex items-center justify-between">
