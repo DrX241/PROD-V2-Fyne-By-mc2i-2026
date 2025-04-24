@@ -75,12 +75,12 @@ interface Message {
   timestamp: Date;
 }
 
-const CyberInterviewSimulation: React.FC<{}> = () => {
+const CyberInterviewSimulation: React.FC = () => {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('configuration');
   
-  // États pour l'audition
+  // États pour la simulation
   const [isSimulationActive, setIsSimulationActive] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutes en secondes
   const [messages, setMessages] = useState<Message[]>([]);
@@ -90,11 +90,6 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
   const [evaluationResult, setEvaluationResult] = useState<any>(null);
   const [isSkippedInfo, setIsSkippedInfo] = useState(false);
   const [showContactForm, setShowContactForm] = useState(false);
-  
-  // États pour les notes et la synthèse
-  const [notesText, setNotesText] = useState('');
-  const [isAnalyzingNotes, setIsAnalyzingNotes] = useState(false);
-  const [synthesisResult, setSynthesisResult] = useState<any>(null);
   
   // Référence pour le défilement
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -148,7 +143,18 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
     },
   });
   
-  // Démarrage de l'audition
+  // Configuration du formulaire de contact
+  const contactForm = useForm<ContactFormValues>({
+    resolver: zodResolver(contactFormSchema),
+    defaultValues: {
+      trainerEmail: '',
+      candidateName: '',
+      profileType: form.getValues('profileType') || '',
+      experienceLevel: form.getValues('experienceLevel') || '',
+    },
+  });
+  
+  // Démarrage de la simulation
   const startSimulation = async (values: FormValues) => {
     setIsLoading(true);
     
@@ -168,7 +174,7 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
         body: JSON.stringify({
           domain: 'cyber',
           ...values,
-        }),
+        })
       });
       
       if (!response.ok) {
@@ -182,7 +188,7 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
         {
           id: '1',
           role: 'assistant',
-          content: data.initialMessage || "Bonjour, je suis un client potentiel qui cherche des services en cybersécurité. Pouvez-vous me présenter votre expertise et me dire comment vous pourriez répondre à mes besoins en matière de sécurité informatique ?",
+          content: data.initialMessage || "Bonjour, je représente une entreprise qui cherche à renforcer sa sécurité informatique. Pouvez-vous vous présenter et m'expliquer votre expertise en cybersécurité?",
           timestamp: new Date(),
         },
       ]);
@@ -191,7 +197,7 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
       setActiveTab('simulation');
       
       // Démarrer le timer
-      startTimer();
+      setTimeRemaining(600); // 10 minutes en secondes
       
       toast({
         title: "Simulation démarrée",
@@ -209,15 +215,9 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
     }
   };
   
-  // Configuration du compte à rebours
-  const startTimer = () => {
-    console.log("Démarrage du timer...");
-    setTimeRemaining(600); // 10 minutes en secondes
-  };
-  
   // Fonction pour ignorer la saisie des informations de contact (uniquement email et nom)
   const skipInfoAndStart = async () => {
-    console.log("Fonction skipInfoAndStart appelée");
+    console.log("Bouton Ignorer cliqué");
     setIsSkippedInfo(true);
     
     // Récupérer les valeurs obligatoires
@@ -234,94 +234,54 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
       return;
     }
     
-    console.log("Valeurs du formulaire:", { profileType, experienceLevel });
-
     // Appel direct à l'API sans passer par la validation complète du formulaire
     setIsLoading(true);
     
-    // Variable pour stocker la réponse JSON
-    let responseData: any = null;
-    
     try {
-      console.log("Envoi de la requête API...");
-      
-      // Préparer les données à envoyer (sans les informations de contact)
-      const payload = {
-        domain: 'cyber',
-        profileType,
-        experienceLevel
-      };
-      
-      console.log("Payload:", payload);
-      
       const response = await fetch('/api/cyber/interview-simulation/start', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          domain: 'cyber',
+          profileType,
+          experienceLevel
+        })
       });
       
-      console.log("Réponse API status:", response.status);
-      
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Erreur API:", errorText);
-        throw new Error(`Erreur lors du démarrage de la simulation: ${response.status}`);
+        throw new Error('Erreur lors du démarrage de la simulation');
       }
       
-      // Récupérer le texte de la réponse d'abord
-      const responseText = await response.text();
-      console.log("Réponse brute:", responseText.substring(0, 100)); // Log une portion du texte pour le débogage
-      
-      try {
-        // Tenter de parser la réponse en JSON
-        responseData = JSON.parse(responseText);
-        console.log("Données de réponse:", responseData);
-      } catch (parseError) {
-        console.error("Erreur de parsing JSON:", parseError);
-        // En cas d'erreur de parsing, utiliser un objet par défaut
-        responseData = { initialMessage: "Bonjour, je suis un client potentiel qui cherche des services en cybersécurité. Pouvez-vous me présenter votre expertise et me dire comment vous pourriez répondre à mes besoins en matière de sécurité informatique ?" };
-      }
-      
-      // Pas besoin de vérifier data.success, la réponse 200 suffit
+      const data = await response.json();
       
       // Ajouter le message initial de l'assistant
-      const initialMessage = responseData.initialMessage || "Bonjour, je suis un client potentiel qui cherche des services en cybersécurité. Pouvez-vous me présenter votre expertise et me dire comment vous pourriez répondre à mes besoins en matière de sécurité informatique ?";
-      console.log("Message initial:", initialMessage);
-      
       setMessages([
         {
           id: '1',
           role: 'assistant',
-          content: initialMessage,
+          content: data.initialMessage || "Bonjour, je représente une entreprise qui cherche à renforcer sa sécurité informatique. Pouvez-vous vous présenter et m'expliquer votre expertise en cybersécurité?",
           timestamp: new Date(),
         },
       ]);
       
-      // Activer la simulation
       setIsSimulationActive(true);
       setActiveTab('simulation');
       
       // Démarrer le timer
-      startTimer();
+      setTimeRemaining(600); // 10 minutes en secondes
       
       toast({
         title: "Simulation démarrée",
         description: "La simulation d'audition a commencé. Vous avez 10 minutes.",
       });
-    } catch (error: any) {
-      console.error('Erreur lors de l\'initialisation sans contact:', error);
-      
-      // Vérifier si la réponse est déjà arrivée avec succès malgré l'erreur de parsing
-      if (responseData && responseData.initialMessage) {
-        return; // Ne pas afficher d'erreur si nous avons déjà des données valides
-      }
-      
+    } catch (error) {
+      console.error('Erreur:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: (error && error.message) ? error.message : "Impossible de démarrer la simulation. Veuillez réessayer.",
+        description: "Impossible de démarrer la simulation. Veuillez réessayer.",
       });
     } finally {
       setIsLoading(false);
@@ -339,6 +299,7 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
       timestamp: new Date(),
     };
     
+    // Ajouter immédiatement le message de l'utilisateur
     setMessages(prev => [...prev, userMessage]);
     setUserInput('');
     setIsLoading(true);
@@ -351,40 +312,18 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
         },
         body: JSON.stringify({
           domain: 'cyber',
-          message: userInput,
+          message: userMessage.content,
           profileType: form.getValues('profileType'),
           experienceLevel: form.getValues('experienceLevel'),
           messages: messages.map(m => ({ role: m.role, content: m.content })),
-        }),
+        })
       });
       
       if (!response.ok) {
         throw new Error('Erreur lors de l\'envoi du message');
       }
       
-      // Récupérer le texte de la réponse d'abord
-      const responseText = await response.text();
-      console.log("Réponse message brute:", responseText.substring(0, 100));
-      
-      let data;
-      try {
-        // Tenter de parser la réponse en JSON
-        data = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error("Erreur de parsing JSON (message):", parseError);
-        // En cas d'erreur de parsing, utiliser un objet par défaut
-        data = { response: "Je suis désolé, il semble y avoir un problème technique. Pouvez-vous reformuler votre question?" };
-      }
-      
-      // Limiter à 5 échanges maximum
-      if (messages.filter(m => m.role === 'user').length >= 5) {
-        completeSimulation();
-        toast({
-          title: "Limite atteinte",
-          description: "La simulation est limitée à 5 questions. Finalisation en cours..."
-        });
-        return;
-      }
+      const data = await response.json();
       
       const assistantMessage = {
         id: Date.now().toString(),
@@ -406,24 +345,12 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
     }
   };
   
-  // Finalisation de l'audition
+  // Finalisation de la simulation
   const completeSimulation = async () => {
     if (simulationComplete) return;
     
     // Vérifier si toutes les informations nécessaires sont disponibles
-    const trainerEmail = form.getValues('trainerEmail');
-    const candidateName = form.getValues('candidateName');
-    const profileType = form.getValues('profileType');
-    const experienceLevel = form.getValues('experienceLevel');
-    
-    // Si l'utilisateur a ignoré la saisie des informations de contact OU si email/nom manquent, demander les infos
-    if (isSkippedInfo || !trainerEmail || !candidateName) {
-      // Pré-remplir le formulaire final avec les valeurs déjà entrées
-      contactForm.setValue('profileType', profileType);
-      contactForm.setValue('experienceLevel', experienceLevel);
-      if (trainerEmail) contactForm.setValue('trainerEmail', trainerEmail);
-      if (candidateName) contactForm.setValue('candidateName', candidateName);
-      
+    if (isSkippedInfo) {
       setShowContactForm(true);
       return;
     }
@@ -431,24 +358,14 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
     await finalizeSimulation();
   };
   
-  // Soumettre les informations de contact finales et terminer la simulation
-  const submitContactInfo = async (contactInfo: ContactFormValues) => {
-    // Mettre à jour le formulaire avec toutes les nouvelles valeurs
-    form.setValue('trainerEmail', contactInfo.trainerEmail);
-    form.setValue('candidateName', contactInfo.candidateName);
-    form.setValue('profileType', contactInfo.profileType);
-    form.setValue('experienceLevel', contactInfo.experienceLevel);
-    
-    // Fermer le formulaire de contact
-    setShowContactForm(false);
-    
-    // Finaliser la simulation avec les nouvelles informations
-    await finalizeSimulation();
-  };
-  
-  // Finalisation réelle de la simulation après avoir toutes les informations
+  // Finalisation effective de la simulation
   const finalizeSimulation = async () => {
     setIsLoading(true);
+    
+    const trainerEmail = form.getValues('trainerEmail');
+    const candidateName = form.getValues('candidateName');
+    const profileType = form.getValues('profileType');
+    const experienceLevel = form.getValues('experienceLevel');
     
     try {
       const response = await fetch('/api/cyber/interview-simulation/complete', {
@@ -458,13 +375,13 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
         },
         body: JSON.stringify({
           domain: 'cyber',
-          trainerEmail: form.getValues('trainerEmail'),
-          candidateName: form.getValues('candidateName'),
-          profileType: form.getValues('profileType'),
-          experienceLevel: form.getValues('experienceLevel'),
+          trainerEmail,
+          candidateName,
+          profileType,
+          experienceLevel,
           messages: messages.map(m => ({ role: m.role, content: m.content })),
           duration: 600 - timeRemaining,
-        }),
+        })
       });
       
       if (!response.ok) {
@@ -473,35 +390,14 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
       
       const data = await response.json();
       
-      // Récupération de l'évaluation directement depuis la réponse
-      if (data.evaluation) {
-        setEvaluationResult({
-          content: data.evaluation,
-          domain: 'cyber',
-          profileType: form.getValues('profileType'),
-          experienceLevel: form.getValues('experienceLevel'),
-          candidateName: form.getValues('candidateName'),
-          duration: 600 - timeRemaining
-        });
-      } else {
-        setEvaluationResult(data);
-      }
-      
+      setEvaluationResult(data.evaluation);
       setSimulationComplete(true);
       setActiveTab('evaluation');
       
-      const emailReceiver = form.getValues('trainerEmail');
-      if (emailReceiver) {
-        toast({
-          title: "Simulation terminée",
-          description: "L'évaluation de votre audition a été envoyée à " + emailReceiver,
-        });
-      } else {
-        toast({
-          title: "Simulation terminée",
-          description: "L'évaluation de votre audition est disponible dans l'onglet Évaluation.",
-        });
-      }
+      toast({
+        title: "Simulation terminée",
+        description: "L'évaluation de l'audition est disponible.",
+      });
     } catch (error) {
       console.error('Erreur:', error);
       toast({
@@ -514,89 +410,17 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
     }
   };
   
-  // Vider et recommencer
+  // Réinitialisation de la simulation
   const resetSimulation = () => {
-    setMessages([]);
     setIsSimulationActive(false);
-    setTimeRemaining(600);
     setSimulationComplete(false);
-    setEvaluationResult(null);
+    setMessages([]);
+    setTimeRemaining(600);
     setActiveTab('configuration');
+    setEvaluationResult(null);
     setIsSkippedInfo(false);
-    setShowContactForm(false);
-    setNotesText('');
-    setSynthesisResult(null);
-    form.reset({
-      trainerEmail: '',
-      candidateName: '',
-      profileType: '',
-      experienceLevel: '',
-    });
+    form.reset();
   };
-  
-  // Analyser les notes et générer une synthèse structurée
-  const analyzeNotes = async () => {
-    if (!notesText.trim()) {
-      toast({
-        variant: "destructive",
-        title: "Notes vides",
-        description: "Veuillez saisir vos notes avant de générer une synthèse."
-      });
-      return;
-    }
-    
-    setIsAnalyzingNotes(true);
-    
-    try {
-      const response = await fetch('/api/cyber/interview-simulation/analyze-notes', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          notes: notesText,
-          candidateName: form.getValues('candidateName'),
-          profileType: form.getValues('profileType'),
-          experienceLevel: form.getValues('experienceLevel'),
-          evaluationResult: evaluationResult
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Erreur lors de l\'analyse des notes');
-      }
-      
-      const data = await response.json();
-      setSynthesisResult(data.synthesis);
-      setActiveTab('synthese');
-      
-      toast({
-        title: "Synthèse générée",
-        description: "Vos notes ont été analysées et structurées avec succès."
-      });
-    } catch (error) {
-      console.error('Erreur:', error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Impossible d'analyser les notes. Veuillez réessayer."
-      });
-    } finally {
-      setIsAnalyzingNotes(false);
-    }
-  };
-  
-  // Configuration du formulaire de contact à la fin
-  const contactForm = useForm<ContactFormValues>({
-    resolver: zodResolver(contactFormSchema),
-    defaultValues: {
-      trainerEmail: '',
-      candidateName: '',
-      // Copier les données déjà saisies à partir du formulaire principal
-      profileType: form.getValues('profileType'),
-      experienceLevel: form.getValues('experienceLevel'),
-    },
-  });
   
   return (
     <HomeLayout>
@@ -655,16 +479,16 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
                 />
               </div>
               
-              {/* Informations d'évaluation */}
-              <div className="space-y-4 mt-4">
-                <h3 className="text-lg font-semibold text-gray-300">Paramètres d'évaluation</h3>
+              {/* Paramètres de profil */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-300">Paramètres de profil</h3>
                 
                 <FormField
                   control={contactForm.control}
                   name="profileType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-white">Type de profil *</FormLabel>
+                      <FormLabel className="text-white">Type de profil</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
@@ -689,7 +513,7 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
                   name="experienceLevel"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-white">Niveau d'expérience *</FormLabel>
+                      <FormLabel className="text-white">Niveau d'expérience</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
@@ -742,347 +566,338 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
           </p>
         </div>
           
-          {/* L'indicateur de statut OpenAI est maintenant affiché dans le Header */}
+        {/* L'indicateur de statut OpenAI est maintenant affiché dans le Header */}
+        
+        {isSimulationActive && !simulationComplete && (
+          <div className="fixed top-4 right-4 z-50 flex items-center p-2 rounded-md shadow-lg bg-gray-800 border border-gray-700">
+            <Clock className="w-5 h-5 mr-2 text-white" />
+            <span className="font-mono text-white">{formatTime(timeRemaining)}</span>
+          </div>
+        )}
+        
+        <Tabs 
+          defaultValue="configuration" 
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="w-full max-w-4xl mx-auto"
+        >
+          <TabsList className="grid grid-cols-3 mb-8">
+            <TabsTrigger 
+              value="configuration"
+              disabled={isSimulationActive && !simulationComplete}
+            >
+              Configuration
+            </TabsTrigger>
+            <TabsTrigger 
+              value="simulation"
+              disabled={!isSimulationActive}
+            >
+              Simulation
+            </TabsTrigger>
+            <TabsTrigger 
+              value="evaluation"
+              disabled={!simulationComplete}
+            >
+              Évaluation
+            </TabsTrigger>
+          </TabsList>
           
-          {isSimulationActive && !simulationComplete && (
-            <div className="fixed top-4 right-4 z-50 flex items-center p-2 rounded-md shadow-lg bg-gray-800 border border-gray-700">
-              <Clock className="w-5 h-5 mr-2 text-white" />
-              <span className="font-mono text-white">{formatTime(timeRemaining)}</span>
-            </div>
-          )}
-          
-          <Tabs 
-            defaultValue="configuration" 
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="w-full max-w-4xl mx-auto"
-          >
-            <TabsList className="grid grid-cols-3 mb-8">
-              <TabsTrigger 
-                value="configuration"
-                disabled={isSimulationActive && !simulationComplete}
-              >
-                Configuration
-              </TabsTrigger>
-              <TabsTrigger 
-                value="simulation"
-                disabled={!isSimulationActive}
-              >
-                Simulation
-              </TabsTrigger>
-              <TabsTrigger 
-                value="evaluation"
-                disabled={!simulationComplete}
-              >
-                Évaluation
-              </TabsTrigger>
-
-            </TabsList>
-            
-            <TabsContent value="configuration">
-              <Card className="bg-gray-800 border-gray-700">
-                <CardHeader>
-                  <CardTitle>Configuration de l'audition</CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Configurez les paramètres de la simulation d'audition
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(startSimulation)} className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField
-                          control={form.control}
-                          name="trainerEmail"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Email du formateur (pour recevoir l'évaluation)</FormLabel>
-                              <FormControl>
-                                <Input placeholder="email@exemple.com" {...field} className="bg-gray-700 border-gray-600 text-white" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="candidateName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Nom du consultant</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Nom complet" {...field} className="bg-gray-700 border-gray-600 text-white" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
+          <TabsContent value="configuration">
+            <Card className="bg-gray-800 border-gray-700">
+              <CardHeader>
+                <CardTitle>Configuration de l'audition</CardTitle>
+                <CardDescription className="text-gray-400">
+                  Configurez les paramètres de la simulation d'audition
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(startSimulation)} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormField
+                        control={form.control}
+                        name="trainerEmail"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email du formateur (pour recevoir l'évaluation)</FormLabel>
+                            <FormControl>
+                              <Input placeholder="email@exemple.com" {...field} className="bg-gray-700 border-gray-600 text-white" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                       
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField
-                          control={form.control}
-                          name="profileType"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Type de profil *</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
-                                    <SelectValue placeholder="Sélectionnez un profil" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent className="bg-gray-700 border-gray-600 text-white">
-                                  <SelectItem value="analyste_soc">Analyste SOC</SelectItem>
-                                  <SelectItem value="pentester">Pentester</SelectItem>
-                                  <SelectItem value="responsable_securite">Responsable Sécurité</SelectItem>
-                                  <SelectItem value="consultant_cybersecurite">Consultant Cybersécurité</SelectItem>
-                                  <SelectItem value="ingenieur_securite">Ingénieur Sécurité</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="experienceLevel"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Niveau d'expérience *</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
-                                    <SelectValue placeholder="Sélectionnez un niveau" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent className="bg-gray-700 border-gray-600 text-white">
-                                  <SelectItem value="junior">Junior (0-2 ans)</SelectItem>
-                                  <SelectItem value="intermediaire">Intermédiaire (3-5 ans)</SelectItem>
-                                  <SelectItem value="senior">Senior (6-9 ans)</SelectItem>
-                                  <SelectItem value="expert">Expert (10+ ans)</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      
-                      <div className="flex gap-4">
-                        <Button 
-                          type="submit" 
-                          className="flex-1 bg-[#006a9e] hover:bg-blue-700"
-                          disabled={isLoading}
-                        >
-                          {isLoading ? "Chargement..." : "Démarrer la simulation"}
-                        </Button>
-                        
-                        <Button 
-                          type="button" 
-                          variant="outline"
-                          className="flex-1 border-gray-600 bg-gray-700 hover:bg-gray-600"
-                          disabled={isLoading}
-                          onClick={() => {
-                            console.log("Bouton Ignorer cliqué");
-                            skipInfoAndStart();
-                          }}
-                        >
-                          Ignorer les informations de contact
-                        </Button>
-                      </div>
-                    </form>
-                  </Form>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="simulation">
-              <Card className="bg-gray-800 border-gray-700">
-                <CardHeader>
-                  <div className="flex justify-between items-center">
-                    <CardTitle>Audition en cours</CardTitle>
-                    <div className={`flex items-center p-2 rounded-md ${
-                      timeRemaining > 60 ? "bg-blue-900" : "bg-red-900"
-                    }`}>
-                      <Clock className="w-5 h-5 mr-2" />
-                      <span className="font-mono">{formatTime(timeRemaining)}</span>
+                      <FormField
+                        control={form.control}
+                        name="candidateName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Nom du consultant</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Nom complet" {...field} className="bg-gray-700 border-gray-600 text-white" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormField
+                        control={form.control}
+                        name="profileType"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Type de profil *</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                                  <SelectValue placeholder="Sélectionnez un profil" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent className="bg-gray-700 border-gray-600 text-white">
+                                <SelectItem value="analyste_soc">Analyste SOC</SelectItem>
+                                <SelectItem value="pentester">Pentester</SelectItem>
+                                <SelectItem value="responsable_securite">Responsable Sécurité</SelectItem>
+                                <SelectItem value="consultant_cybersecurite">Consultant Cybersécurité</SelectItem>
+                                <SelectItem value="ingenieur_securite">Ingénieur Sécurité</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="experienceLevel"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Niveau d'expérience *</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                                  <SelectValue placeholder="Sélectionnez un niveau" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent className="bg-gray-700 border-gray-600 text-white">
+                                <SelectItem value="junior">Junior (0-2 ans)</SelectItem>
+                                <SelectItem value="intermediaire">Intermédiaire (3-5 ans)</SelectItem>
+                                <SelectItem value="senior">Senior (6-9 ans)</SelectItem>
+                                <SelectItem value="expert">Expert (10+ ans)</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    
+                    <div className="flex gap-4">
+                      <Button 
+                        type="submit" 
+                        className="flex-1 bg-[#006a9e] hover:bg-blue-700"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? "Chargement..." : "Démarrer la simulation"}
+                      </Button>
+                      
+                      <Button 
+                        type="button" 
+                        variant="outline"
+                        className="flex-1 border-gray-600 bg-gray-700 hover:bg-gray-600"
+                        disabled={isLoading}
+                        onClick={skipInfoAndStart}
+                      >
+                        Ignorer les informations de contact
+                      </Button>
+                    </div>
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="simulation">
+            <Card className="bg-gray-800 border-gray-700">
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <CardTitle>Audition en cours</CardTitle>
+                  <div className={`flex items-center p-2 rounded-md ${
+                    timeRemaining > 60 ? "bg-blue-900" : "bg-red-900"
+                  }`}>
+                    <Clock className="w-5 h-5 mr-2" />
+                    <span className="font-mono">{formatTime(timeRemaining)}</span>
                   </div>
-                  <CardDescription className="text-gray-400">
-                    Vous êtes en conversation avec un client potentiel cherchant des services en cybersécurité
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-96 overflow-y-auto mb-4 bg-gray-900 rounded-md p-4">
-                    {messages.length === 0 ? (
-                      <div className="flex items-center justify-center h-full text-gray-500">
-                        <p>La conversation va commencer...</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        {messages.map((message) => (
+                </div>
+                <CardDescription className="text-gray-400">
+                  Vous êtes en conversation avec un client potentiel cherchant des services en cybersécurité
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-96 overflow-y-auto mb-4 bg-gray-900 rounded-md p-4">
+                  {messages.length === 0 ? (
+                    <div className="flex items-center justify-center h-full text-gray-500">
+                      <p>La conversation va commencer...</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {messages.map((message) => (
+                        <div 
+                          key={message.id}
+                          className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                        >
                           <div 
-                            key={message.id}
-                            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                            className={`max-w-[80%] p-3 rounded-lg ${
+                              message.role === 'user'
+                                ? 'bg-[#006a9e] text-white'
+                                : 'bg-gray-700 text-white'
+                            }`}
                           >
-                            <div 
-                              className={`max-w-[80%] p-3 rounded-lg ${
-                                message.role === 'user'
-                                  ? 'bg-[#006a9e] text-white'
-                                  : 'bg-gray-700 text-white'
-                              }`}
-                            >
-                              <div className="flex items-center mb-1">
-                                {message.role === 'user' ? (
-                                  <>
-                                    <span className="font-semibold">{form.getValues('candidateName') || 'Consultant'}</span>
-                                    <span className="text-xs ml-2 text-gray-300">
-                                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    </span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <UserCircle className="w-5 h-5 mr-1" />
-                                    <span className="font-semibold">Client</span>
-                                    <span className="text-xs ml-2 text-gray-300">
-                                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    </span>
-                                  </>
-                                )}
-                              </div>
-                              <p className="whitespace-pre-wrap">{message.content}</p>
+                            <div className="flex items-center mb-1">
+                              {message.role === 'user' ? (
+                                <>
+                                  <span className="font-semibold">{form.getValues('candidateName') || 'Consultant'}</span>
+                                  <span className="text-xs ml-2 text-gray-300">
+                                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  </span>
+                                </>
+                              ) : (
+                                <>
+                                  <UserCircle className="w-5 h-5 mr-1" />
+                                  <span className="font-semibold">Client</span>
+                                  <span className="text-xs ml-2 text-gray-300">
+                                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  </span>
+                                </>
+                              )}
                             </div>
+                            <p className="whitespace-pre-wrap">{message.content}</p>
                           </div>
-                        ))}
-                        <div ref={messagesEndRef} />
+                        </div>
+                      ))}
+                      <div ref={messagesEndRef} />
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex gap-2">
+                  <Textarea
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    placeholder="Écrivez votre message..."
+                    className="resize-none bg-gray-700 border-gray-600 text-white"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey && !isLoading) {
+                        e.preventDefault();
+                        sendMessage();
+                      }
+                    }}
+                    disabled={isLoading || simulationComplete || timeRemaining === 0}
+                  />
+                  <Button
+                    onClick={sendMessage}
+                    disabled={isLoading || !userInput.trim() || simulationComplete || timeRemaining === 0}
+                    className="bg-[#006a9e] hover:bg-blue-700"
+                  >
+                    <Send className="w-5 h-5" />
+                  </Button>
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button
+                  onClick={completeSimulation}
+                  disabled={isLoading || simulationComplete || messages.length < 3}
+                  className="w-full bg-green-700 hover:bg-green-800"
+                >
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                  {isLoading ? "Chargement..." : "Terminer la simulation"}
+                </Button>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="evaluation">
+            <Card className="bg-gray-800 border-gray-700">
+              <CardHeader>
+                <div className="flex items-center">
+                  <CheckCircle className="w-6 h-6 mr-2 text-green-500" />
+                  <CardTitle>Évaluation de l'audition</CardTitle>
+                </div>
+                <CardDescription className="text-gray-400">
+                  Analyse de la performance du consultant pendant l'audition client
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {evaluationResult ? (
+                  <div className="space-y-6">
+                    <div className="bg-gray-700 p-4 rounded-md">
+                      <h3 className="text-lg font-semibold mb-2">Résumé de l'audition</h3>
+                      <p className="text-gray-300">{evaluationResult.summary}</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="bg-gray-700 p-4 rounded-md">
+                        <h3 className="text-lg font-semibold mb-2">Points forts</h3>
+                        <ul className="list-disc ml-5 space-y-1 text-gray-300">
+                          {evaluationResult.strengths && evaluationResult.strengths.map((strength: string, index: number) => (
+                            <li key={`strength-${index}`}>{strength}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      
+                      <div className="bg-gray-700 p-4 rounded-md">
+                        <h3 className="text-lg font-semibold mb-2">Axes d'amélioration</h3>
+                        <ul className="list-disc ml-5 space-y-1 text-gray-300">
+                          {evaluationResult.weaknesses && evaluationResult.weaknesses.map((weakness: string, index: number) => (
+                            <li key={`weakness-${index}`}>{weakness}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-gray-700 p-4 rounded-md">
+                      <h3 className="text-lg font-semibold mb-2">Compétences techniques</h3>
+                      <p className="text-gray-300">{evaluationResult.technicalSkills}</p>
+                    </div>
+                    
+                    <div className="bg-gray-700 p-4 rounded-md">
+                      <h3 className="text-lg font-semibold mb-2">Compétences de communication</h3>
+                      <p className="text-gray-300">{evaluationResult.communicationSkills}</p>
+                    </div>
+                    
+                    {evaluationResult.recommendation && (
+                      <div className="bg-gray-700 p-4 rounded-md">
+                        <h3 className="text-lg font-semibold mb-1">Recommandation</h3>
+                        <p className="font-medium">{evaluationResult.recommendation}</p>
                       </div>
                     )}
                   </div>
-                  
-                  <div className="flex gap-2">
-                    <Textarea
-                      value={userInput}
-                      onChange={(e) => setUserInput(e.target.value)}
-                      placeholder="Écrivez votre message..."
-                      className="resize-none bg-gray-700 border-gray-600 text-white"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey && !isLoading) {
-                          e.preventDefault();
-                          sendMessage();
-                        }
-                      }}
-                      disabled={isLoading || simulationComplete || timeRemaining === 0}
-                    />
-                    <Button
-                      onClick={sendMessage}
-                      disabled={isLoading || !userInput.trim() || simulationComplete || timeRemaining === 0}
-                      className="bg-[#006a9e] hover:bg-blue-700"
-                    >
-                      <Send className="w-5 h-5" />
+                ) : (
+                  <div className="flex flex-col items-center justify-center p-8">
+                    <AlertCircle className="w-16 h-16 text-gray-400 mb-4" />
+                    <h3 className="text-xl font-bold mb-2">Aucune évaluation disponible</h3>
+                    <p className="text-gray-400 text-center mb-4">
+                      Vous n'avez pas encore terminé la simulation ou une erreur s'est produite lors de l'évaluation.
+                    </p>
+                    <Button onClick={resetSimulation} className="bg-[#006a9e] hover:bg-blue-700">
+                      Démarrer une nouvelle simulation
                     </Button>
                   </div>
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    onClick={completeSimulation}
-                    disabled={isLoading || simulationComplete || messages.length < 3}
-                    className="w-full bg-green-700 hover:bg-green-800"
-                  >
-                    <CheckCircle className="w-5 h-5 mr-2" />
-                    Terminer l'audition
-                  </Button>
-                </CardFooter>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="evaluation">
-              <Card className="bg-gray-800 border-gray-700">
-                <CardHeader>
-                  <div className="flex items-center">
-                    <FileCheck className="w-6 h-6 mr-2 text-green-500" />
-                    <CardTitle>Évaluation de l'audition</CardTitle>
-                  </div>
-                  <CardDescription className="text-gray-400">
-                    Résultat de l'évaluation du consultant par l'IA
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {!evaluationResult ? (
-                    <div className="py-8 text-center">
-                      <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
-                      <p className="text-gray-400">Aucune évaluation disponible</p>
-                      <p className="text-gray-500 text-sm mt-2">Terminez l'audition pour voir l'évaluation</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-6">
-                      <div>
-                        <h3 className="text-xl font-semibold mb-2">Informations générales</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                          <div className="bg-gray-700 p-3 rounded-md">
-                            <p className="text-gray-400 text-sm">Consultant</p>
-                            <p>{form.getValues('candidateName')}</p>
-                          </div>
-                          <div className="bg-gray-700 p-3 rounded-md">
-                            <p className="text-gray-400 text-sm">Profil</p>
-                            <p>{form.getValues('profileType')?.replace(/_/g, ' ')}</p>
-                          </div>
-                          <div className="bg-gray-700 p-3 rounded-md">
-                            <p className="text-gray-400 text-sm">Expérience</p>
-                            <p>{form.getValues('experienceLevel')}</p>
-                          </div>
-                          <div className="bg-gray-700 p-3 rounded-md">
-                            <p className="text-gray-400 text-sm">Durée de l'audition</p>
-                            <p>{Math.floor((600 - timeRemaining) / 60)} min {(600 - timeRemaining) % 60} sec</p>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="bg-gray-700 p-4 rounded-md overflow-auto max-h-[600px]">
-                        <h3 className="text-xl font-semibold mb-3">Évaluation détaillée</h3>
-                        <div className="prose prose-invert max-w-none">
-                          {typeof evaluationResult === 'string' ? (
-                            <div dangerouslySetInnerHTML={{ __html: evaluationResult.replace(/\n/g, '<br>') }} />
-                          ) : evaluationResult.evaluation ? (
-                            <div dangerouslySetInnerHTML={{ __html: evaluationResult.evaluation.replace(/\n/g, '<br>') }} />
-                          ) : evaluationResult.content ? (
-                            <div dangerouslySetInnerHTML={{ __html: evaluationResult.content.replace(/\n/g, '<br>') }} />
-                          ) : (
-                            <p className="text-gray-200 whitespace-pre-wrap">{evaluationResult.feedback || "Aucun détail d'évaluation disponible."}</p>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {evaluationResult.recommendation && (
-                        <div className={`p-4 rounded-md ${
-                          evaluationResult.recommendation === 'Embaucher' ? 'bg-green-900/50 border border-green-600' :
-                          evaluationResult.recommendation === 'Envisager' ? 'bg-blue-900/50 border border-blue-600' :
-                          'bg-red-900/50 border border-red-600'
-                        }`}>
-                          <h3 className="text-lg font-semibold mb-1">Recommandation</h3>
-                          <p className="font-medium">{evaluationResult.recommendation}</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    onClick={resetSimulation}
-                    className="w-full bg-[#006a9e] hover:bg-blue-700"
-                  >
-                    Nouvelle simulation
-                  </Button>
-                </CardFooter>
-              </Card>
-            </TabsContent>
-
-
-
-
-          </Tabs>
+                )}
+              </CardContent>
+              <CardFooter>
+                <Button
+                  onClick={resetSimulation}
+                  className="w-full bg-[#006a9e] hover:bg-blue-700"
+                >
+                  Nouvelle simulation
+                </Button>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </HomeLayout>
   );
