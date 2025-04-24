@@ -278,12 +278,7 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.5 }}
             >
-              <Link href="/cyber">
-                <Button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition-all shadow-lg hover:shadow-blue-500/30">
-                  Découvrir nos modules
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
+              {/* Bouton de découverte supprimé */}
             </motion.div>
           </div>
         </div>
