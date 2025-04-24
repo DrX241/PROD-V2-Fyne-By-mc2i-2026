@@ -9,6 +9,8 @@ import { openAIService } from "../I_AM_CYBER/services/openai";
 // Import de document-generator supprimé car nous n'utilisons plus de pièces jointes
 import { ChatCompletionRequestMessage } from "../shared/schema";
 import { evaluateDecision } from "./cyberDefenseEvaluator";
+import { handleCyberDefenseChat, generateCyberDefenseMission } from "./cyberDefenseController";
+import { extractJsonFromOpenAiResponse, createFallbackJson } from "./openAiResponseHelper";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Nous n'avons plus besoin des répertoires de documents et HTML
@@ -1593,7 +1595,7 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
         status: isConnected ? 'connected' : 'disconnected',
         lastCheck: openAIService.getLastConnectionCheck(),
         apiEndpoint: process.env.AZURE_OPENAI_ENDPOINT ? 'configured' : 'default',
-        currentApiKey: openAIService.getCurrentConfigType(),
+        currentApiKey: openAIService.getCurrentConfig(),
         modelName: openAIService.getCurrentModelName(),
         time: new Date().toISOString()
       });
@@ -2006,15 +2008,14 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
     }
   });
   
-      res.status(500).json({ 
-        error: error.message || 'Error evaluating decision'
-        response,
-        sender,
-        senderRole,
-        additionalResponse,
-        decision
-      });
+  // Route for evaluating user decisions in cyber defense missions
+  app.post('/api/cyber-defense/evaluate-decision', async (req: Request, res: Response) => {
+    try {
+      // Process the evaluation using the dedicated controller
+      await handleCyberDefenseChat(req, res);
       
+      // The response is handled by the controller directly
+      return;
     } catch (error: any) {
       console.error('Error generating cyber defense response:', error);
       res.status(500).json({ 
@@ -2023,6 +2024,10 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
     }
   });
   
+  // Route for evaluating cyber defense decisions
+  app.post('/api/cyber-defense/decision', async (req: Request, res: Response) => {
+    try {
+      const { 
         missionId, 
         missionContext, 
         decisionId, 
@@ -2115,3 +2120,12 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
       });
       
     } catch (error: any) {
+      console.error('Error evaluating decision:', error);
+      res.status(500).json({
+        error: error.message || 'Error during decision evaluation'
+      });
+    }
+  });
+
+  return createServer(app);
+}
