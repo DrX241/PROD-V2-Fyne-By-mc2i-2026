@@ -75,7 +75,7 @@ interface Message {
   timestamp: Date;
 }
 
-const CyberInterviewSimulation: React.FC = () => {
+const CyberInterviewSimulation: React.FC<{}> = () => {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('configuration');
@@ -261,16 +261,14 @@ const CyberInterviewSimulation: React.FC = () => {
       
       console.log("Réponse API status:", response.status);
       
-      // Lire le contenu de la réponse
-      const responseText = await response.text();
-      console.log("Réponse API brute:", responseText);
-      
       if (!response.ok) {
-        throw new Error(`Erreur lors du démarrage de la simulation: ${responseText}`);
+        const errorText = await response.text();
+        console.error("Erreur API:", errorText);
+        throw new Error(`Erreur lors du démarrage de la simulation: ${response.status}`);
       }
       
-      // Convertir la réponse en JSON
-      const data = responseText ? JSON.parse(responseText) : {};
+      // Récupérer les données JSON directement
+      const data = await response.json();
       console.log("Données de réponse:", data);
       
       if (!data || !data.success) {
