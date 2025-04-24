@@ -15,6 +15,7 @@ import mcLogoPath from "@assets/mc2i.png";
 import fyneAvatarPath from "@assets/image_1745520990954.png";
 import fyneCityBackgroundPath from "../assets/fyne_city_background.png";
 import fyneSpaceViewPath from "../assets/fyne_space_view.png";
+import fyneRobotPath from "../assets/fyne_robot.png";
 import PageTitle from "@/components/utils/PageTitle";
 import ThemeSwitch from "@/components/ThemeSwitch";
 
@@ -294,8 +295,18 @@ export default function Home() {
               <div className="absolute inset-0 bg-gradient-to-r from-gray-900/20 via-blue-950/10 to-transparent"></div>
             </>
           ) : (
-            // Design épuré pour le mode classique - fond blanc uni
-            <div className="bg-white w-full h-full"></div>
+            // Design épuré pour le mode classique - fond blanc uni avec robot
+            <div className="bg-white w-full h-full relative">
+              {/* Robot FYNE en bas à droite */}
+              <img 
+                src={fyneRobotPath} 
+                alt="Robot FYNE" 
+                className="absolute bottom-0 right-8 h-[90vh] object-contain"
+                style={{ objectPosition: "bottom right" }}
+              />
+              {/* Overlay en dégradé pour améliorer la lisibilité du texte */}
+              <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-white/20"></div>
+            </div>
           )}
         </div>
         
@@ -594,21 +605,38 @@ export default function Home() {
                       <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
                     </div>
                   ) : (
-                    // Wrapper avec style classique
-                    <div className="relative bg-white rounded-xl shadow-md overflow-hidden group-hover:shadow-lg border border-gray-200 transition-all duration-300">
-                      {/* Le module avec adaptation au thème classique */}
-                      <ModuleCard 
-                        title={module.title} 
-                        description={module.description} 
-                        icon={module.icon} 
-                        color={module.color}
-                        bgColor={module.bgColor}
-                        accentColor={module.accentColor}
-                        linkTo={module.linkTo}
-                        classicMode={true} 
-                      />
-                      {/* Accent line classique */}
-                      <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+                    // Wrapper avec style classique - design complètement différent
+                    <div className="relative bg-white rounded-lg shadow-md overflow-hidden group-hover:shadow-xl transition-all duration-300 border-2 border-gray-100 flex flex-col">
+                      {/* Header avec la couleur du module */}
+                      <div className={`h-3 w-full ${module.color.replace('bg-', 'bg-')}`}></div>
+                      
+                      {/* Contenu du module - horizontal en mode classique */}
+                      <div className="p-6 flex flex-row items-center h-full">
+                        {/* Icône à gauche */}
+                        <div className={`w-14 h-14 ${module.bgColor} rounded-lg flex items-center justify-center shadow mr-4 flex-shrink-0`}>
+                          <div className={`${module.color} p-2 rounded-md`}>
+                            {module.icon}
+                          </div>
+                        </div>
+                        
+                        {/* Contenu textuel */}
+                        <div className="flex-grow">
+                          <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                            {module.title}
+                          </h3>
+                          <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                            {module.description}
+                          </p>
+                          
+                          {/* Bouton en bas */}
+                          <Link href={module.linkTo}>
+                            <button className={`${module.color} text-white px-4 py-2 rounded-md text-sm font-medium flex items-center transition-all hover:shadow-md`}>
+                              Explorer
+                              <ArrowRight className="h-4 w-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300"/>
+                            </button>
+                          </Link>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </motion.div>
