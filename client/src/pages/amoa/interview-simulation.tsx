@@ -83,7 +83,7 @@ interface Message {
   timestamp: Date;
 }
 
-const AmoaInterviewSimulation: React.FC = () => {
+const AmoaInterviewSimulation: React.FC<{}> = () => {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('configuration');
