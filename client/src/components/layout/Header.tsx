@@ -55,6 +55,11 @@ export default function Header({ isFeny = false }: HeaderProps) {
     <header className="bg-white shadow-sm w-full border-b border-gray-100 max-w-[100vw] overflow-hidden fixed top-0 left-0 right-0 z-50">
       <div className="w-full px-3 sm:px-5 md:px-8 py-3 sm:py-4 flex items-center justify-between">
         <div className="flex items-center">
+          {/* Switch de thème classique/futuriste */}
+          <div className="flex items-center mr-4">
+            <ThemeSwitch />
+          </div>
+
           <a href="/"
             className="flex items-center gap-2 sm:gap-3 cursor-pointer"
           >
@@ -71,10 +76,6 @@ export default function Header({ isFeny = false }: HeaderProps) {
           </a>
         </div>
         <div className="flex items-center gap-2 sm:gap-5">
-          {/* Switch de thème classique/futuriste */}
-          <div className="flex items-center">
-            <ThemeSwitch />
-          </div>
           {/* Indicateur OpenAI affiché dans tous les cas */}
           <div className="flex items-center">
             <OpenAIStatusIndicator position="in-header" showModelToggle={true} />
