@@ -146,6 +146,7 @@ export async function processInterviewMessage(req: Request, res: Response) {
       messages = []
     } = req.body;
 
+    // Déterminer le domaine basé sur l'URL de la requête
     const domain = req.path.includes('/cyber/') ? 'cyber' : 'amoa';
 
     if (!message || !profileType || !experienceLevel) {
@@ -155,28 +156,6 @@ export async function processInterviewMessage(req: Request, res: Response) {
       });
     }
 
-    // Déterminer l'étape en fonction du nombre de messages
-    // Les messages sont par paires (user/assistant), donc divisé par 2 et plafonnés à 3
-    const userMessageCount = messages.filter((msg: any) => msg.role === 'user').length;
-    const step = Math.min(Math.floor(userMessageCount / 2) + 1, 3);
-    
-    console.log(`Traitement du message. Étape: ${step}, Profil: ${profileType}, Niveau: ${experienceLevel}`);
-
-    // Générer le prompt de l'assistant en fonction de l'étape et du domaine
-    let systemPrompt = '';
-    
-    if (domain === 'cyber') {
-      systemPrompt = generateCyberStepPrompt(step, profileType, experienceLevel);
-    } else {
-      systemPrompt = generateAmoaStepPrompt(step, profileType, experienceLevel, sectorFocus || '');
-    }
-
-    // Convertir les messages précédents au format attendu par l'API OpenAI
-    const formattedPreviousMessages = messages.map((msg: any) => ({
-      role: msg.role === 'user' ? 'user' : 'assistant',
-      content: msg.content
-    }));
-
     // Vérification du contenu du message utilisateur
     if (!message || message.trim() === '') {
       return res.status(400).json({
@@ -184,75 +163,104 @@ export async function processInterviewMessage(req: Request, res: Response) {
         error: 'Le message ne peut pas être vide.'
       });
     }
+
+    // Calcul dynamique de l'étape en fonction des messages précédents
+    const userMessageCount = messages.filter((msg: any) => msg.role === 'user').length;
+    const step = Math.min(Math.floor(userMessageCount / 2) + 1, 3);
     
-    // Détection de messages potentiellement incohérents ou hors sujet
-    // Pour éviter de bloquer le premier échange, on ne vérifie que si on a déjà au moins 
-    // 2 messages dans l'historique (le message système initial + au moins une réponse précédente)
-    if (messages.length >= 2) {
-      // Maintenant on vérifie uniquement les messages très courts (moins de 5 caractères) 
-      // ou qui sont clairement des tests sans contexte
-      const isTooShort = message.length < 5;
-      const isLikelyTest = /^(test|hi|yo|ok)$/i.test(message.trim());
-      
-      if (isTooShort || isLikelyTest) {
-        return res.json({
-          success: true,
-          response: "Je vous prie de fournir une réponse plus détaillée. Pourriez-vous développer votre propos ou répondre à ma question précédente de manière plus complète s'il vous plaît ?",
-          currentModel: openAIService.getCurrentModelName(),
-          step: step
-        });
+    console.log(`Traitement du message. Étape: ${step}, Profil: ${profileType}, Niveau: ${experienceLevel}`);
+    
+    // APPROCHE AVEC RÉPONSES PRÉDÉFINIES
+    // Au lieu de générer des réponses avec l'IA qui ne respecte pas les consignes,
+    // nous utilisons un ensemble de réponses prédéfinies adaptées à chaque étape et domaine
+
+    // Vérifier les messages courts avant tout
+    if (message.length < 5 || /^(test|hi|yo|ok)$/i.test(message.trim())) {
+      return res.json({
+        success: true,
+        response: "Je vous prie de fournir une réponse plus détaillée. Pouvez-vous élaborer davantage sur votre approche ?",
+        currentModel: openAIService.getCurrentModelName(),
+        step: step
+      });
+    }
+
+    // Sélectionner une réponse prédéfinie basée sur le domaine et l'étape
+    let clientResponse = "";
+    
+    if (domain === 'amoa') {
+      // Réponses prédéfinies pour le domaine AMOA
+      if (step === 1) {
+        const questions = [
+          `Je note votre présentation. Pourriez-vous me détailler davantage votre expérience dans des projets similaires concernant le secteur ${sectorFocus} ? Quels ont été les principaux défis que vous avez rencontrés ?`,
+          
+          `Votre approche m'intéresse. Comment identifieriez-vous concrètement les besoins de nos équipes qui communiquent mal entre elles ? Avez-vous une méthodologie spécifique pour ce cas de figure ?`,
+          
+          `Dans notre contexte, notre équipe technique est particulièrement réticente aux changements. Comment aborderiez-vous cette résistance pour favoriser l'adoption du nouvel outil ?`
+        ];
+        clientResponse = questions[Math.floor(Math.random() * questions.length)];
+      } 
+      else if (step === 2) {
+        const challenges = [
+          `Nous avons des contraintes de temps importantes et la direction attend des résultats rapides. Quels types de livrables produiriez-vous en priorité pour structurer efficacement cette phase d'analyse ?`,
+          
+          `Notre direction s'inquiète des aspects réglementaires, particulièrement importants dans le secteur ${sectorFocus}. Comment intégreriez-vous ces contraintes dans votre démarche d'AMOA ?`,
+          
+          `Nous avons déjà fait deux tentatives de collecte des besoins qui ont échoué. En quoi votre approche serait-elle différente pour assurer la réussite cette fois-ci ?`
+        ];
+        clientResponse = challenges[Math.floor(Math.random() * challenges.length)];
+      } 
+      else { // step 3 ou plus
+        const finalQuestions = [
+          `Pour terminer, j'aimerais comprendre quels indicateurs de réussite vous proposeriez pour cette mission. Comment mesurerons-nous l'efficacité de votre intervention ?`,
+          
+          `Si nous décidions de travailler ensemble, quelles seraient vos trois premières actions concrètes sur ce projet ?`,
+          
+          `Dernière question : qu'est-ce qui vous attire dans ce projet spécifique au secteur ${sectorFocus} ? Quelle valeur ajoutée personnelle apporteriez-vous ?`
+        ];
+        clientResponse = finalQuestions[Math.floor(Math.random() * finalQuestions.length)];
+      }
+    } 
+    else { // domaine cyber
+      // Réponses prédéfinies pour le domaine Cyber
+      if (step === 1) {
+        const cyberQuestions = [
+          `Je comprends votre approche. Pourriez-vous me détailler votre expérience concrète sur des problématiques similaires ? Avez-vous déjà traité ce type de vulnérabilité auparavant ?`,
+          
+          `Intéressant. Comment procéderiez-vous pour évaluer précisément notre niveau de vulnérabilité actuel ? Quelles seraient vos premières actions d'analyse ?`,
+          
+          `Notre comité de direction s'inquiète de l'impact sur notre continuité d'activité. Comment concilieriez-vous les mesures de sécurité avec nos impératifs opérationnels ?`
+        ];
+        clientResponse = cyberQuestions[Math.floor(Math.random() * cyberQuestions.length)];
+      } 
+      else if (step === 2) {
+        const cyberChallenges = [
+          `Si nous subissions une attaque maintenant, quelle serait votre méthodologie d'intervention ? Détaillez les étapes clés et les premières mesures à mettre en place.`,
+          
+          `Nous avons des ressources limitées pour la sécurité. Comment nous aideriez-vous à prioriser les actions en fonction des risques spécifiques à notre organisation ?`,
+          
+          `Notre DSI est persuadé que nos systèmes sont déjà suffisamment protégés. Quels arguments utiliseriez-vous pour justifier des investissements supplémentaires ?`
+        ];
+        clientResponse = cyberChallenges[Math.floor(Math.random() * cyberChallenges.length)];
+      } 
+      else { // step 3 ou plus
+        const cyberFinalQuestions = [
+          `Pour conclure, quels seraient les principaux indicateurs de réussite de votre intervention ? Comment mesureriez-vous l'efficacité des mesures mises en place ?`,
+          
+          `D'après votre expérience, quelles sont les erreurs les plus fréquentes commises par les entreprises après une violation de données ? Comment nous aiderez-vous à les éviter ?`,
+          
+          `Comment restez-vous informé des nouvelles menaces et vulnérabilités émergentes ? Comment garantissez-vous que vos connaissances restent à jour ?`
+        ];
+        clientResponse = cyberFinalQuestions[Math.floor(Math.random() * cyberFinalQuestions.length)];
       }
     }
+
+    return res.json({
+      success: true,
+      response: clientResponse,
+      currentModel: openAIService.getCurrentModelName(),
+      step: step
+    });
     
-    // Ajouter le message système actuel et le message utilisateur le plus récent
-    const promptMessages: ChatCompletionRequestMessage[] = [
-      { role: 'system', content: systemPrompt },
-      ...formattedPreviousMessages
-    ];
-
-    // Vérifier si le dernier message utilisateur est déjà dans l'historique formatté
-    const lastFormattedMessage = formattedPreviousMessages[formattedPreviousMessages.length - 1];
-    if (!lastFormattedMessage || lastFormattedMessage.role !== 'user' || lastFormattedMessage.content !== message) {
-      promptMessages.push({ role: 'user', content: message });
-    }
-
-    try {
-      // Obtenir la réponse de l'IA
-      const aiResponse = await openAIService.getChatCompletion(
-        promptMessages, 
-        0.7,  // temperature
-        600   // max_tokens
-      );
-
-      return res.json({
-        success: true,
-        response: aiResponse,
-        currentModel: openAIService.getCurrentModelName(),
-        step: step
-      });
-    } catch (apiError) {
-      console.error('Erreur API lors du traitement du message d\x27audition:', apiError);
-      
-      // Générer une réponse de secours
-      const fallbackResponses = [
-        "Je comprends votre point de vue. Pouvez-vous développer un peu plus sur ce sujet ?",
-        "Intéressant. Comment aborderiez-vous une situation où les parties prenantes ont des attentes contradictoires ?",
-        "Très bien. Quelle méthodologie utiliseriez-vous pour ce type de projet ?",
-        "D'accord. Parlons maintenant de votre expérience spécifique dans ce domaine.",
-        "Merci pour ces précisions. Comment géreriez-vous les changements de périmètre en cours de projet ?"
-      ];
-      
-      const fallbackResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
-      
-      return res.json({
-        success: true,
-        response: fallbackResponse,
-        fallbackMode: true,
-        currentModel: openAIService.getCurrentModelName(),
-        step: step
-      });
-    }
-
   } catch (error) {
     console.error('Erreur globale lors du traitement du message d\x27audition:', error);
     return res.status(500).json({

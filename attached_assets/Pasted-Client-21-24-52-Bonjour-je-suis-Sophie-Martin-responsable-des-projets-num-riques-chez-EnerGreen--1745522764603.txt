@@ -1,0 +1,27 @@
+Client
+21:24:52
+Bonjour, je suis Sophie Martin, responsable des projets numériques chez EnerGreen, un fournisseur d’énergie renouvelable. Nous avons lancé un projet pour déployer un outil de gestion des contrats de fourniture d’énergie. L’objectif est d’améliorer le suivi des contrats, la conformité réglementaire et la relation client.
+
+Le projet rencontre une difficulté majeure : nos équipes métiers et techniques communiquent mal, ce qui ralentit la définition des besoins fonctionnels. Nous avons besoin d’un consultant AMOA pour structurer cette phase, assurer une bonne coordination et clarifier les attentes.
+
+Pouvez-vous vous présenter brièvement, reformuler votre compréhension de notre besoin, et proposer une première approche pour améliorer la collaboration entre les équipes ? Si nécessaire, posez des questions pour affiner votre analyse.
+
+Vous
+21:25:13
+Lou, 10 ans d'exp consultante
+
+Client
+21:25:17
+Merci pour votre présentation. Voici ce que je comprends de votre besoin : vous êtes en phase de définition des besoins pour un projet d’outil de gestion des contrats d’énergie. L’objectif est d’améliorer trois axes clés : le suivi des contrats, la conformité réglementaire et la relation client. Cependant, une mauvaise communication entre vos équipes métiers et techniques freine l’avancement. Vous cherchez un consultant pour structurer cette phase, fluidifier la collaboration et clarifier les attentes fonctionnelles.
+
+Pour affiner ma compréhension, pourriez-vous me préciser :  
+1. **Les parties prenantes clés impliquées** : Quels métiers sont concernés (commercial, juridique, opérations…) et quels sont leurs principaux irritants ?  
+2. **Les outils ou processus existants** : Disposez-vous déjà d’un référentiel ou de pratiques pour la collecte des besoins ?  
+3. **Les délais et priorités** : Y a-t-il des contraintes temporelles ou des fonctionnalités critiques pour un déploiement initial ?
+
+Pour une première approche, je proposerais de mettre en place des *ateliers collaboratifs* avec les parties prenantes. Ces ateliers permettraient de :  
+- Formaliser les besoins métiers et techniques dans un langage commun.  
+- Identifier et prioriser les fonctionnalités clés via des cas d’usage concrets.  
+- Définir une matrice de responsabilités (RACI) pour clarifier qui fait quoi.
+
+Cette méthode a porté ses fruits dans un projet similaire où j’ai accompagné une entreprise dans la refonte de son CRM contractuel. Qu’en pensez-vous ?
