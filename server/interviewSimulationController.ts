@@ -3,6 +3,7 @@ import nodemailer from 'nodemailer';
 import sgMail from '@sendgrid/mail';
 import { ChatCompletionRequestMessage } from '@shared/schema';
 import { openAIService } from "../I_AM_CYBER/services/openai";
+import { extractJsonFromOpenAiResponse, createFallbackJson } from "./openAiResponseHelper";
 
 /**
  * Envoie un email de test avec Ethereal
@@ -307,28 +308,69 @@ export async function analyzeInterviewNotes(req: Request, res: Response) {
     // Construire le prompt selon le domaine
     let systemPrompt = "";
     if (domain === 'cyber') {
-      systemPrompt = `Vous êtes un expert en analyse d'audition client dans le domaine de la cybersécurité. Votre mission est d'analyser les notes prises pendant une audition et de générer une synthèse structurée.
+      systemPrompt = `Vous êtes un expert en analyse d'audition client dans le domaine de la cybersécurité. Votre mission est d'analyser les notes prises pendant une audition réelle (hors plateforme) et de les combiner avec l'évaluation de la simulation en ligne pour générer une synthèse structurée complète.
 
-Vous allez recevoir les notes prises par un formateur lors d'une audition avec un consultant au profil ${profileType} de niveau ${experienceLevel}.
+CONTEXTE IMPORTANT:
+- Le consultant ${candidateName || "candidat"} a été évalué lors d'une audition réelle (notes prises manuellement) puis dans une simulation en ligne
+- Vous devez analyser les notes manuelles (qui représentent 75% de l'évaluation finale) et les enrichir avec l'évaluation automatique
+- L'objectif est de produire une synthèse complète couvrant tous les aspects de l'audition client
 
-Structurez votre synthèse selon les sections suivantes:
-1. Points forts et compétences techniques
-2. Points d'amélioration et lacunes identifiées
-3. Compréhension du contexte client
-4. Qualité de l'expression et posture
-5. Recommandations pour progresser`;
+PROFIL DU CONSULTANT:
+- Type de profil: ${profileType.replace(/_/g, ' ')}
+- Niveau d'expérience déclaré: ${experienceLevel}
+
+INSTRUCTIONS DE STRUCTURATION:
+Structurez votre synthèse précisément selon les sections suivantes avec un contenu détaillé pour chaque partie:
+
+1. Présentation générale du profil
+2. Description du parcours
+3. Premières impressions, posture
+4. Motivations conseil, SI, mc2i
+5. Projet professionnel et perspectives
+6. Potentiel du candidat vs Ambition
+7. Critères d'évaluation
+8. Forces (3-4 points forts identifiés)
+9. Faiblesses (3-4 points d'amélioration identifiés)
+10. Synthèse écrite
+11. Raison principale de décision
+
+FORMAT DE RÉPONSE:
+- Renvoyer un JSON contenant toutes les sections mentionnées ci-dessus comme attributs
+- Chaque attribut doit contenir un texte complet et détaillé
+- Le JSON doit être directement utilisable par l'interface`;
     } else {
       // Domaine AMOA
-      systemPrompt = `Vous êtes un expert en analyse d'audition client dans le domaine de l'assistance à maîtrise d'ouvrage (AMOA). Votre mission est d'analyser les notes prises pendant une audition et de générer une synthèse structurée.
+      systemPrompt = `Vous êtes un expert en analyse d'audition client dans le domaine de l'assistance à maîtrise d'ouvrage (AMOA). Votre mission est d'analyser les notes prises pendant une audition réelle (hors plateforme) et de les combiner avec l'évaluation de la simulation en ligne pour générer une synthèse structurée complète.
 
-Vous allez recevoir les notes prises par un formateur lors d'une audition avec un consultant au profil ${profileType} de niveau ${experienceLevel} dans le secteur ${sectorFocus || "général"}.
+CONTEXTE IMPORTANT:
+- Le consultant ${candidateName || "candidat"} a été évalué lors d'une audition réelle (notes prises manuellement) puis dans une simulation en ligne
+- Vous devez analyser les notes manuelles (qui représentent 75% de l'évaluation finale) et les enrichir avec l'évaluation automatique
+- L'objectif est de produire une synthèse complète couvrant tous les aspects de l'audition client
 
-Structurez votre synthèse selon les sections suivantes:
-1. Compréhension du besoin métier
-2. Méthodologie et approche projet
-3. Compétences techniques et outils
-4. Communication et posture client
-5. Recommandations pour progresser`;
+PROFIL DU CONSULTANT:
+- Type de profil: ${profileType.replace(/_/g, ' ')}
+- Niveau d'expérience déclaré: ${experienceLevel}
+- Secteur d'activité: ${sectorFocus || "général"}
+
+INSTRUCTIONS DE STRUCTURATION:
+Structurez votre synthèse précisément selon les sections suivantes avec un contenu détaillé pour chaque partie:
+
+1. Présentation générale du profil
+2. Description du parcours
+3. Premières impressions, posture
+4. Motivations conseil, SI, mc2i
+5. Projet professionnel et perspectives
+6. Potentiel du candidat vs Ambition
+7. Critères d'évaluation
+8. Forces (3-4 points forts identifiés)
+9. Faiblesses (3-4 points d'amélioration identifiés)
+10. Synthèse écrite
+11. Raison principale de décision
+
+FORMAT DE RÉPONSE:
+- Renvoyer un JSON contenant toutes les sections mentionnées ci-dessus comme attributs
+- Chaque attribut doit contenir un texte complet et détaillé
+- Le JSON doit être directement utilisable par l'interface`;
     }
 
     // Préparer les messages pour l'API
@@ -339,29 +381,64 @@ Structurez votre synthèse selon les sections suivantes:
       },
       {
         role: 'user',
-        content: `Voici mes notes sur l'audition avec ${candidateName || "le consultant"} :\n\n${notes}\n\nMerci de générer une synthèse structurée selon les sections demandées.`
+        content: `Voici mes notes détaillées sur l'audition réelle avec ${candidateName || "le consultant"} :\n\n${notes}\n\nMerci de générer une synthèse structurée complète en JSON selon les sections demandées.`
       }
     ];
 
-    // Si une évaluation précédente existe, l'inclure comme contexte
+    // Si une évaluation précédente existe, l'inclure comme contexte important
     if (evaluationResult) {
+      let evaluationText = typeof evaluationResult === 'string' 
+        ? evaluationResult 
+        : evaluationResult.evaluation || evaluationResult.content || JSON.stringify(evaluationResult);
+        
       messages.push({
-        role: 'assistant',
-        content: `Voici l'évaluation générée précédemment que vous pouvez prendre en compte:\n\n${JSON.stringify(evaluationResult)}`
+        role: 'user',
+        content: `Voici l'évaluation de la simulation en ligne pour compléter votre analyse:\n\n${evaluationText}`
       });
     }
 
-    // Appeler OpenAI pour générer l'analyse
+    // Appeler OpenAI pour générer l'analyse avec un modèle plus robuste de traitement JSON
     const synthesisContent = await openAIService.getChatCompletionWithCache(
       messages,
       0.7,
-      2000
+      3000
     );
+
+    // Tentative de conversion en JSON avec gestion d'erreur
+    let structuredSynthesis;
+    try {
+      // Essayer d'extraire le JSON des réponses potentiellement formatées
+      structuredSynthesis = extractJsonFromOpenAiResponse(synthesisContent);
+      
+      // Si extraction échouée, créer un modèle de secours
+      if (!structuredSynthesis) {
+        const expectedFields = ['presentation', 'parcours', 'impressions', 'motivations', 'projet', 
+          'potentiel', 'criteres', 'forces', 'faiblesses', 'synthese', 'raison'];
+        structuredSynthesis = createFallbackJson(synthesisContent, expectedFields);
+      }
+    } catch (jsonError) {
+      console.error('Erreur lors du parsing JSON:', jsonError);
+      
+      // Créer un JSON simple formaté en cas d'erreur
+      structuredSynthesis = {
+        presentation: "Synthèse du profil général du consultant",
+        parcours: extractSegment(synthesisContent, "parcours", "expérience", "formation"),
+        impressions: extractSegment(synthesisContent, "impression", "posture", "présentation"),
+        motivations: extractSegment(synthesisContent, "motivation", "conseil", "si", "mc2i"),
+        projet: extractSegment(synthesisContent, "projet", "perspective", "ambition"),
+        potentiel: extractSegment(synthesisContent, "potentiel", "capacité", "développement"),
+        criteres: extractSegment(synthesisContent, "critère", "évaluation", "compétence"),
+        forces: extractSegment(synthesisContent, "force", "point fort", "avantage"),
+        faiblesses: extractSegment(synthesisContent, "faiblesse", "amélioration", "limitation"),
+        synthese: extractSegment(synthesisContent, "synthèse", "résumé", "conclusion"),
+        raison: extractSegment(synthesisContent, "raison", "décision", "justification")
+      };
+    }
 
     // Renvoyer le résultat
     res.json({
       success: true,
-      synthesis: synthesisContent
+      synthesis: structuredSynthesis
     });
   } catch (error) {
     console.error('Erreur lors de l\'analyse des notes:', error);
@@ -370,6 +447,38 @@ Structurez votre synthèse selon les sections suivantes:
       error: 'Erreur lors de l\'analyse des notes. Veuillez réessayer.'
     });
   }
+}
+
+/**
+ * Fonction utilitaire pour extraire un segment de texte basé sur des mots clés
+ */
+function extractSegment(text: string, ...keywords: string[]): string {
+  // Convertir en minuscules pour une recherche insensible à la casse
+  const lowerText = text.toLowerCase();
+  
+  // Rechercher les paragraphes contenant les mots-clés
+  const paragraphs = text.split(/\n\n+/);
+  const relevantParagraphs = paragraphs.filter(p => {
+    const lowerP = p.toLowerCase();
+    return keywords.some(kw => lowerP.includes(kw.toLowerCase()));
+  });
+  
+  // Si des paragraphes pertinents sont trouvés, les retourner
+  if (relevantParagraphs.length > 0) {
+    return relevantParagraphs.join('\n\n');
+  }
+  
+  // Chercher des sections avec des titres similaires
+  for (const keyword of keywords) {
+    const pattern = new RegExp(`(?:^|\\n)\\s*(?:##?\\s*)?(?:[0-9]\\.\\s*)?(?:${keyword}s?)[^\\n]*\\n+([^#]+)(?=\\n+(?:##?\\s*)?(?:[0-9]\\.\\s*)?|$)`, 'i');
+    const match = pattern.exec(text);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+  }
+  
+  // Si aucune correspondance n'est trouvée, retourner une chaîne vide
+  return "Information non disponible dans les notes.";
 }
 
 export async function completeInterviewSimulation(req: Request, res: Response) {

@@ -13,6 +13,219 @@ import { handleCyberDefenseChat, generateCyberDefenseMission } from "./cyberDefe
 import { extractJsonFromOpenAiResponse, createFallbackJson } from "./openAiResponseHelper";
 import { startInterviewSimulation, processInterviewMessage, completeInterviewSimulation, analyzeInterviewNotes } from "./interviewSimulationController";
 
+/**
+ * Génère un document HTML formaté pour la synthèse d'audition
+ */
+function generateSynthesisHtml(
+  domain: 'cyber' | 'amoa', 
+  synthesis: any, 
+  candidateName: string, 
+  profileType: string, 
+  experienceLevel: string,
+  sectorFocus?: string
+): string {
+  // Récupérer les données de synthèse
+  const {
+    presentation = "Information non disponible",
+    parcours = "Information non disponible",
+    impressions = "Information non disponible",
+    motivations = "Information non disponible",
+    projet = "Information non disponible",
+    potentiel = "Information non disponible",
+    criteres = "Information non disponible",
+    forces = "Information non disponible",
+    faiblesses = "Information non disponible",
+    anglais = "",
+    stage = "",
+    processus = "",
+    synthese = "Information non disponible",
+    raison = "Information non disponible"
+  } = synthesis;
+
+  // Formater le type de profil et niveau d'expérience
+  const formattedProfileType = profileType.replace(/_/g, ' ');
+  const formattedExperienceLevel = experienceLevel.charAt(0).toUpperCase() + experienceLevel.slice(1);
+
+  // Créer le document HTML
+  return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synthèse d'audition - ${candidateName}</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #006a9e;
+    }
+    .logo {
+      width: 120px;
+      margin-bottom: 15px;
+    }
+    .section {
+      margin-bottom: 25px;
+      padding: 15px;
+      background-color: #f5f8fa;
+      border-radius: 5px;
+    }
+    .section-title {
+      color: #006a9e;
+      margin-top: 0;
+      font-size: 18px;
+      font-weight: bold;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 8px;
+    }
+    .meta-info {
+      background-color: #e8f4f8;
+      padding: 10px 15px;
+      border-radius: 5px;
+      margin-bottom: 25px;
+    }
+    .meta-info p {
+      margin: 5px 0;
+    }
+    .two-columns {
+      display: flex;
+      gap: 20px;
+    }
+    .column {
+      flex: 1;
+    }
+    .strengths {
+      background-color: #e8f5e9;
+    }
+    .weaknesses {
+      background-color: #fff8e1;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 12px;
+      color: #777;
+      border-top: 1px solid #ddd;
+      padding-top: 20px;
+    }
+    @media print {
+      body {
+        padding: 0;
+      }
+      .section, .meta-info {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Synthèse d'audition client</h1>
+    <h2>${candidateName}</h2>
+  </div>
+
+  <div class="meta-info">
+    <p><strong>Consultant:</strong> ${candidateName}</p>
+    <p><strong>Domaine:</strong> ${domain === 'cyber' ? 'Cybersécurité' : 'AMOA'}</p>
+    <p><strong>Profil:</strong> ${formattedProfileType} - ${formattedExperienceLevel}</p>
+    ${domain === 'amoa' && sectorFocus ? `<p><strong>Secteur:</strong> ${sectorFocus.replace(/_/g, ' ')}</p>` : ''}
+    <p><strong>Date:</strong> ${new Date().toLocaleDateString('fr-FR')}</p>
+  </div>
+
+  <div class="section">
+    <h3 class="section-title">1. Présentation générale du profil</h3>
+    <p>${presentation}</p>
+  </div>
+
+  <div class="section">
+    <h3 class="section-title">2. Description du parcours</h3>
+    <p>${parcours}</p>
+  </div>
+
+  <div class="section">
+    <h3 class="section-title">3. Premières impressions, posture</h3>
+    <p>${impressions}</p>
+  </div>
+
+  <div class="section">
+    <h3 class="section-title">4. Motivations conseil, SI, mc2i</h3>
+    <p>${motivations}</p>
+  </div>
+
+  <div class="section">
+    <h3 class="section-title">5. Projet professionnel et perspectives</h3>
+    <p>${projet}</p>
+  </div>
+
+  <div class="section">
+    <h3 class="section-title">6. Potentiel du candidat vs Ambition</h3>
+    <p>${potentiel}</p>
+  </div>
+
+  ${processus ? `
+  <div class="section">
+    <h3 class="section-title">7. Autres processus en cours</h3>
+    <p>${processus}</p>
+  </div>
+  ` : ''}
+
+  <div class="section">
+    <h3 class="section-title">7. Critères d'évaluation</h3>
+    <p>${criteres}</p>
+  </div>
+
+  <div class="two-columns">
+    <div class="section column strengths">
+      <h3 class="section-title">8. Forces</h3>
+      <p>${forces}</p>
+    </div>
+    
+    <div class="section column weaknesses">
+      <h3 class="section-title">9. Faiblesses</h3>
+      <p>${faiblesses}</p>
+    </div>
+  </div>
+
+  ${anglais ? `
+  <div class="section">
+    <h3 class="section-title">Niveau d'Anglais</h3>
+    <p>${anglais}</p>
+  </div>
+  ` : ''}
+
+  ${stage ? `
+  <div class="section">
+    <h3 class="section-title">Informations stagiaire/alternant</h3>
+    <p>${stage}</p>
+  </div>
+  ` : ''}
+
+  <div class="section">
+    <h3 class="section-title">10. Synthèse écrite</h3>
+    <p>${synthese}</p>
+  </div>
+
+  <div class="section">
+    <h3 class="section-title">11. Raison principale de la décision</h3>
+    <p>${raison}</p>
+  </div>
+
+  <div class="footer">
+    <p>Document généré automatiquement par la plateforme FYNE - mc2i</p>
+    <p>© ${new Date().getFullYear()} mc2i. Tous droits réservés.</p>
+  </div>
+</body>
+</html>`;
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Nous n'avons plus besoin des répertoires de documents et HTML
   // car nous n'utilisons plus de pièces jointes
@@ -2177,6 +2390,53 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
     } catch (error) {
       console.error('Erreur lors de l\'analyse des notes:', error);
       res.status(500).json({ error: 'Erreur lors de l\'analyse des notes' });
+    }
+  });
+  
+  // Routes pour télécharger la synthèse d'audition en HTML
+  app.post('/api/cyber/interview-simulation/download-synthesis', async (req, res) => {
+    try {
+      const { synthesis, candidateName, profileType, experienceLevel } = req.body;
+      
+      if (!synthesis) {
+        return res.status(400).json({ error: 'Synthèse manquante' });
+      }
+      
+      // Générer un document HTML formaté
+      const htmlContent = generateSynthesisHtml('cyber', synthesis, candidateName, profileType, experienceLevel);
+      
+      // Configurer les en-têtes pour téléchargement
+      res.setHeader('Content-Type', 'text/html');
+      res.setHeader('Content-Disposition', `attachment; filename="synthese_audition_${candidateName || 'consultant'}.html"`);
+      
+      // Envoyer le contenu HTML
+      res.send(htmlContent);
+    } catch (error) {
+      console.error('Erreur lors de la génération du fichier de synthèse:', error);
+      res.status(500).json({ error: 'Erreur lors de la génération du fichier de synthèse' });
+    }
+  });
+  
+  app.post('/api/amoa/interview-simulation/download-synthesis', async (req, res) => {
+    try {
+      const { synthesis, candidateName, profileType, experienceLevel, sectorFocus } = req.body;
+      
+      if (!synthesis) {
+        return res.status(400).json({ error: 'Synthèse manquante' });
+      }
+      
+      // Générer un document HTML formaté
+      const htmlContent = generateSynthesisHtml('amoa', synthesis, candidateName, profileType, experienceLevel, sectorFocus);
+      
+      // Configurer les en-têtes pour téléchargement
+      res.setHeader('Content-Type', 'text/html');
+      res.setHeader('Content-Disposition', `attachment; filename="synthese_audition_${candidateName || 'consultant'}.html"`);
+      
+      // Envoyer le contenu HTML
+      res.send(htmlContent);
+    } catch (error) {
+      console.error('Erreur lors de la génération du fichier de synthèse:', error);
+      res.status(500).json({ error: 'Erreur lors de la génération du fichier de synthèse' });
     }
   });
 
