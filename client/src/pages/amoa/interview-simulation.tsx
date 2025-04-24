@@ -279,13 +279,13 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
       }
       
       // Récupérer les données JSON directement
-      const data = await response.json();
-      console.log("Données de réponse:", data);
+      let responseData = await response.json();
+      console.log("Données de réponse:", responseData);
     
       // Pas besoin de vérifier data.success, la réponse 200 suffit
       
       // Ajouter le message initial de l'assistant
-      const initialMessage = data.initialMessage || "Bonjour, je suis votre interlocuteur client aujourd'hui. Nous allons évaluer vos compétences en assistance à maîtrise d'ouvrage. Présentez-vous et dites-moi ce qui vous intéresse dans ce domaine.";
+      const initialMessage = responseData.initialMessage || "Bonjour, je suis votre interlocuteur client aujourd'hui. Nous allons évaluer vos compétences en assistance à maîtrise d'ouvrage. Présentez-vous et dites-moi ce qui vous intéresse dans ce domaine.";
       console.log("Message initial:", initialMessage);
       
       setMessages([
@@ -310,10 +310,16 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
       });
     } catch (error: any) {
       console.error('Erreur lors de l\'initialisation sans contact:', error);
+      
+      // Vérifier si la réponse est déjà arrivée avec succès malgré l'erreur de parsing
+      if (responseData && responseData.initialMessage) {
+        return; // Ne pas afficher d'erreur si nous avons déjà des données valides
+      }
+      
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: error.message || "Impossible de démarrer la simulation. Veuillez réessayer.",
+        description: (error && error.message) ? error.message : "Impossible de démarrer la simulation. Veuillez réessayer.",
       });
     } finally {
       setIsLoading(false);

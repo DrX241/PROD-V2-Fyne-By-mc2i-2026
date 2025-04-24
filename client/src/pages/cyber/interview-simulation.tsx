@@ -239,6 +239,9 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
     // Appel direct à l'API sans passer par la validation complète du formulaire
     setIsLoading(true);
     
+    // Variable pour stocker la réponse JSON
+    let responseData: any = null;
+    
     try {
       console.log("Envoi de la requête API...");
       
@@ -268,13 +271,13 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
       }
       
       // Récupérer les données JSON directement
-      const data = await response.json();
-      console.log("Données de réponse:", data);
+      responseData = await response.json();
+      console.log("Données de réponse:", responseData);
       
       // Pas besoin de vérifier data.success, la réponse 200 suffit
       
       // Ajouter le message initial de l'assistant
-      const initialMessage = data.initialMessage || "Bonjour, je suis un client potentiel qui cherche des services en cybersécurité. Pouvez-vous me présenter votre expertise et me dire comment vous pourriez répondre à mes besoins en matière de sécurité informatique ?";
+      const initialMessage = responseData.initialMessage || "Bonjour, je suis un client potentiel qui cherche des services en cybersécurité. Pouvez-vous me présenter votre expertise et me dire comment vous pourriez répondre à mes besoins en matière de sécurité informatique ?";
       console.log("Message initial:", initialMessage);
       
       setMessages([
@@ -299,10 +302,16 @@ const CyberInterviewSimulation: React.FC<{}> = () => {
       });
     } catch (error: any) {
       console.error('Erreur lors de l\'initialisation sans contact:', error);
+      
+      // Vérifier si la réponse est déjà arrivée avec succès malgré l'erreur de parsing
+      if (responseData && responseData.initialMessage) {
+        return; // Ne pas afficher d'erreur si nous avons déjà des données valides
+      }
+      
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: error.message || "Impossible de démarrer la simulation. Veuillez réessayer.",
+        description: (error && error.message) ? error.message : "Impossible de démarrer la simulation. Veuillez réessayer.",
       });
     } finally {
       setIsLoading(false);
