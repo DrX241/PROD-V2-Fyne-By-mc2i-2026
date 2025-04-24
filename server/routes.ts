@@ -2148,5 +2148,37 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
     }
   });
 
+  // Routes pour la simulation d'audition CYBER
+  app.post('/api/cyber/interview-simulation/start', startInterviewSimulation);
+  app.post('/api/cyber/interview-simulation/message', processInterviewMessage);
+  app.post('/api/cyber/interview-simulation/complete', completeInterviewSimulation);
+  app.post('/api/cyber/interview-simulation/analyze-notes', async (req, res) => {
+    try {
+      // Inclure le domaine 'cyber' dans le corps de la requête
+      req.body.domain = 'cyber';
+      // Transmettre à la fonction générique
+      await processInterviewMessage(req, res);
+    } catch (error) {
+      console.error('Erreur lors de l\'analyse des notes:', error);
+      res.status(500).json({ error: 'Erreur lors de l\'analyse des notes' });
+    }
+  });
+  
+  // Routes pour la simulation d'audition AMOA
+  app.post('/api/amoa/interview-simulation/start', startInterviewSimulation);
+  app.post('/api/amoa/interview-simulation/message', processInterviewMessage);
+  app.post('/api/amoa/interview-simulation/complete', completeInterviewSimulation);
+  app.post('/api/amoa/interview-simulation/analyze-notes', async (req, res) => {
+    try {
+      // Inclure le domaine 'amoa' dans le corps de la requête
+      req.body.domain = 'amoa';
+      // Transmettre à la fonction générique
+      await processInterviewMessage(req, res);
+    } catch (error) {
+      console.error('Erreur lors de l\'analyse des notes:', error);
+      res.status(500).json({ error: 'Erreur lors de l\'analyse des notes' });
+    }
+  });
+
   return createServer(app);
 }
