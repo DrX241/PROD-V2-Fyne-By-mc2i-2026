@@ -597,7 +597,16 @@ export default function Home() {
                     // Wrapper avec style classique
                     <div className="relative bg-white rounded-xl shadow-md overflow-hidden group-hover:shadow-lg border border-gray-200 transition-all duration-300">
                       {/* Le module avec adaptation au thème classique */}
-                      <ModuleCard {...module} classicMode={true} />
+                      <ModuleCard 
+                        title={module.title} 
+                        description={module.description} 
+                        icon={module.icon} 
+                        color={module.color}
+                        bgColor={module.bgColor}
+                        accentColor={module.accentColor}
+                        linkTo={module.linkTo}
+                        classicMode={true} 
+                      />
                       {/* Accent line classique */}
                       <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
                     </div>

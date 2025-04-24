@@ -24,9 +24,11 @@ export const useTheme = () => useContext(ThemeContext);
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Initialisation avec le thème stocké dans localStorage ou 'classic' par défaut
   const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
-    // Force reset to classic on reload to ensure theme switch works
-    localStorage.setItem('fyne-theme-mode', 'classic');
-    return 'classic';
+    // Récupère le thème depuis localStorage ou 'classic' par défaut
+    const savedTheme = localStorage.getItem('fyne-theme-mode');
+    return (savedTheme === 'futuristic' || savedTheme === 'classic') 
+      ? savedTheme 
+      : 'classic';
   });
 
   // Sauvegarde le thème dans localStorage quand il change
