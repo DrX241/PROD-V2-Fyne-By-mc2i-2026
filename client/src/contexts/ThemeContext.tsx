@@ -11,14 +11,16 @@ interface ThemeContextType {
 }
 
 // Création du contexte avec des valeurs par défaut
-const ThemeContext = createContext<ThemeContextType>({
+export const ThemeContext = createContext<ThemeContextType>({
   themeMode: 'classic',
   toggleTheme: () => {},
   setThemeMode: () => {},
 });
 
-// Hook personnalisé pour utiliser le contexte
-export const useTheme = () => useContext(ThemeContext);
+// Hook personnalisé pour utiliser le contexte - exporté comme fonction nommée pour éviter des problèmes avec Fast Refresh
+export function useTheme() {
+  return useContext(ThemeContext);
+}
 
 // Provider qui fournit le contexte aux composants enfants
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
