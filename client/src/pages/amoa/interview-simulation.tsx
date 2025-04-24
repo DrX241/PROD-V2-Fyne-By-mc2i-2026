@@ -640,13 +640,6 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
         
         {/* L'indicateur de statut OpenAI est maintenant affiché dans le Header */}
         
-        {isSimulationActive && !simulationComplete && (
-          <div className="fixed top-4 right-4 z-50 flex items-center p-2 rounded-md shadow-lg bg-blue-800 border border-blue-700">
-            <Clock className="w-5 h-5 mr-2 text-white" />
-            <span className="font-mono text-white">{formatTime(timeRemaining)}</span>
-          </div>
-        )}
-        
         <Tabs 
           defaultValue="configuration" 
           value={activeTab}
