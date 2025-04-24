@@ -15,6 +15,7 @@ import { startInterviewSimulation, processInterviewMessage, completeInterviewSim
 import { startAgentSession, completeAgentSession } from "./cyberAgentController";
 import immersiveRoutes from "./routes/immersive-simulation";
 import cyberAscensionRoutes from "./routes/cyber-ascension";
+import { extractJsonFromOpenAiResponse, createFallbackJson } from "./openAiResponseHelper";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Nous n'avons plus besoin des répertoires de documents et HTML
