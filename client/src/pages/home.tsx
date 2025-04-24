@@ -297,15 +297,15 @@ export default function Home() {
           ) : (
             // Design épuré pour le mode classique - fond blanc uni avec robot
             <div className="bg-white w-full h-full relative">
-              {/* Robot FYNE en bas à droite */}
+              {/* Robot FYNE en bas à droite - plus visible et position ajustée */}
               <img 
                 src={fyneRobotPath} 
                 alt="Robot FYNE" 
-                className="absolute bottom-0 right-8 h-[90vh] object-contain"
+                className="absolute bottom-0 right-0 h-[95vh] object-contain z-10"
                 style={{ objectPosition: "bottom right" }}
               />
-              {/* Overlay en dégradé pour améliorer la lisibilité du texte */}
-              <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-white/20"></div>
+              {/* Overlay très léger - seulement du côté gauche pour le contraste du texte */}
+              <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent z-0"></div>
             </div>
           )}
         </div>
@@ -351,11 +351,11 @@ export default function Home() {
           </div>
         )}
 
-        {/* Contenu principal */}
-        <div className="w-full max-w-screen-2xl mx-auto px-4 py-16 sm:px-6 lg:px-8 lg:py-28 relative z-10 h-full flex items-center">
+        {/* Contenu principal - Ajusté pour le mode classique afin de préserver la visibilité du robot */}
+        <div className={`w-full max-w-screen-2xl mx-auto px-4 py-16 sm:px-6 ${isFuturistic ? 'lg:px-8' : 'lg:px-4'} lg:py-28 relative z-10 h-full flex items-center`}>
           <div className="flex flex-col lg:flex-row items-center justify-between">
             {/* Contenu texte - Déplacé plus à gauche pour ne pas masquer le personnage */}
-            <div className="text-center lg:text-left lg:w-2/5 mx-auto lg:ml-12 lg:mr-0 mb-12 lg:mb-0">
+            <div className={`text-center lg:text-left ${isFuturistic ? 'lg:w-2/5' : 'lg:w-1/3'} mx-auto lg:ml-12 lg:mr-0 mb-12 lg:mb-0`}>
               {/* Badge différent selon le thème */}
               {isFuturistic ? (
                 <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-600/40 border border-blue-500/30 text-blue-300 text-sm font-medium mb-6 backdrop-blur-md">
