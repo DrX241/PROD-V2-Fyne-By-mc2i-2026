@@ -250,11 +250,6 @@ export default function Home() {
     <HomeLayout>
       <PageTitle title="Accueil" />
       
-      {/* Switch de thème */}
-      <div className="absolute top-6 right-6 z-50">
-        <ThemeSwitch />
-      </div>
-      
       {/* Hero Section avec image de fond futuriste ou classique */}
       <div className="relative overflow-hidden h-screen w-screen">
         {/* Image de fond différente selon le thème */}
