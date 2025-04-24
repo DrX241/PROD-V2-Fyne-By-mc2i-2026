@@ -177,6 +177,27 @@ export async function processInterviewMessage(req: Request, res: Response) {
       content: msg.content
     }));
 
+    // Vérification du contenu du message utilisateur
+    if (!message || message.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        error: 'Le message ne peut pas être vide.'
+      });
+    }
+    
+    // Détection de messages potentiellement incohérents ou hors sujet
+    const isVeryShortMessage = message.length < 10;
+    const isLikelyTest = /^(test|bonjour|hello|salut|hey|hi|yo|ok|oui|non)$/i.test(message.trim());
+    
+    if (isVeryShortMessage || isLikelyTest) {
+      return res.json({
+        success: true,
+        response: "Je vous prie de fournir une réponse plus détaillée. Pourriez-vous développer votre propos ou répondre à ma question précédente de manière plus complète s'il vous plaît ?",
+        currentModel: openAIService.getCurrentModelName(),
+        step: step
+      });
+    }
+    
     // Ajouter le message système actuel et le message utilisateur le plus récent
     const promptMessages: ChatCompletionRequestMessage[] = [
       { role: 'system', content: systemPrompt },
@@ -824,11 +845,20 @@ INSTRUCTIONS:
    - Reformuler sa compréhension de ton problème de sécurité
    - Proposer une première approche ou poser des questions de clarification
 
-IMPORTANT:
+COMPORTEMENT STRICT À RESPECTER:
+- TOI = CLIENT. Tu dois TOUJOURS te comporter comme un CLIENT qui évalue un consultant. JAMAIS comme le consultant.
+- TU NE DOIS JAMAIS jouer le rôle du consultant dans tes réponses.
+- TU NE DOIS JAMAIS répondre à ta propre question.
+- TU NE DOIS JAMAIS reformuler ou analyser le problème que tu as toi-même posé.
+- TU NE DOIS JAMAIS utiliser un langage qui suggère que tu es un consultant ou un système d'IA.
+- SI tu détectes un message incohérent ou vide du consultant, demande une réponse plus claire.
+
+FORMAT ET STYLE:
 - Ton message initial NE DOIT PAS dépasser 150 mots.
-- Utilise un langage direct, concis, et professionnel.
+- Utilise un langage direct, concis, et professionnel d'un client réel.
+- Adapte la difficulté technique au niveau d'expérience ${experienceLevel}.
 - Ne mentionne pas qu'il s'agit d'une simulation.
-- L'objectif est d'évaluer la capacité du consultant à comprendre rapidement une problématique de sécurité, structurer sa pensée, et proposer une démarche adaptée en 10 minutes.`;
+- L'objectif est d'évaluer la capacité du consultant à comprendre rapidement une problématique de sécurité et proposer une démarche adaptée.`;
 }
 
 /**
@@ -851,11 +881,20 @@ INSTRUCTIONS:
    - Reformuler sa compréhension de ton besoin
    - Proposer une première approche ou poser des questions de clarification
 
-IMPORTANT:
+COMPORTEMENT STRICT À RESPECTER:
+- TOI = CLIENT. Tu dois TOUJOURS te comporter comme un CLIENT qui évalue un consultant. JAMAIS comme le consultant.
+- TU NE DOIS JAMAIS jouer le rôle du consultant dans tes réponses.
+- TU NE DOIS JAMAIS répondre à ta propre question.
+- TU NE DOIS JAMAIS reformuler ou analyser le problème que tu as toi-même posé.
+- TU NE DOIS JAMAIS utiliser un langage qui suggère que tu es un consultant ou un système d'IA.
+- SI tu détectes un message incohérent ou vide du consultant, demande une réponse plus claire.
+
+FORMAT ET STYLE:
 - Ton message initial NE DOIT PAS dépasser 150 mots.
-- Utilise un langage direct, concis, et professionnel.
+- Utilise un langage direct, concis, et professionnel d'un client réel.
+- Adapte la difficulté technique au niveau d'expérience ${experienceLevel}.
 - Ne mentionne pas qu'il s'agit d'une simulation.
-- L'objectif est d'évaluer la capacité du consultant à comprendre rapidement un besoin, structurer sa pensée, et proposer une démarche adaptée en 10 minutes.`;
+- L'objectif est d'évaluer la capacité du consultant à comprendre rapidement un besoin et proposer une démarche adaptée.`;
 }
 
 /**
@@ -944,6 +983,14 @@ CONTEXTE DE L'AUDITION (10 minutes total):
 
 ${phase}
 ${phaseObjective}
+
+COMPORTEMENT STRICT À RESPECTER:
+- TOI = CLIENT. Tu dois TOUJOURS te comporter comme un CLIENT qui évalue un consultant. JAMAIS comme le consultant.
+- TU NE DOIS JAMAIS jouer le rôle du consultant dans tes réponses.
+- TU NE DOIS JAMAIS répondre à ta propre question.
+- TU NE DOIS JAMAIS reformuler ou analyser le problème que tu as toi-même posé.
+- TU NE DOIS JAMAIS utiliser un langage qui suggère que tu es un consultant ou un système d'IA.
+- SI tu détectes un message incohérent ou vide du consultant, demande une réponse plus claire.
 
 INSTRUCTIONS POUR CETTE ÉTAPE:
 1. Analyse attentivement la réponse précédente du consultant, identifie ses forces et faiblesses.

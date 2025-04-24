@@ -1,0 +1,22 @@
+Bonjour, je suis Sophie Martin, responsable du projet "Simplification des démarches administratives en ligne" au sein d'une direction régionale des services publics. Notre objectif est de moderniser les outils numériques pour que les citoyens puissent réaliser leurs démarches de manière plus intuitive et rapide.  
+
+Actuellement, nous rencontrons des difficultés à bien identifier les attentes des utilisateurs et à traduire ces besoins en spécifications fonctionnelles claires pour les équipes techniques.  
+
+Nous recherchons un consultant AMOA pour nous aider à structurer cette phase, assurer la liaison entre les parties prenantes, et garantir que les solutions proposées soient alignées sur les besoins réels.  
+
+Pouvez-vous vous présenter brièvement, reformuler votre compréhension de notre besoin, et proposer une première approche pour répondre à cette problématique ou poser des questions de clarification ?
+
+Vous
+21:03:42
+rest
+
+Client
+21:03:46
+Merci pour ces précisions. Voici ce que je comprends de votre besoin : vous travaillez sur un projet visant à simplifier les démarches administratives en ligne pour les citoyens, avec une priorité sur l’amélioration de l’expérience utilisateur. Vous êtes confrontée à la difficulté de récolter et formaliser les attentes des utilisateurs pour les traduire en spécifications fonctionnelles exploitables par les équipes techniques.  
+
+Pour clarifier davantage, pourriez-vous me préciser :  
+1. Quels types de démarches en ligne sont concernés (par exemple, demandes de documents officiels, déclarations, paiements) ?  
+2. Disposez-vous déjà d'un outil ou d'une plateforme existante, ou s'agit-il d'une création de solution de A à Z ?  
+3. Quels sont les principaux groupes d’utilisateurs ciblés (particuliers, professionnels, associations) et avez-vous déjà des retours utilisateur sur leurs frustrations ou attentes ?  
+
+Mon approche initiale serait d’organiser des ateliers de co-construction avec les parties prenantes (utilisateurs, équipes métiers, équipes techniques) pour définir les besoins clés. Je veillerais également à structurer un cahier des charges clair et aligné sur les objectifs fonctionnels. Est-ce que cela correspond à vos attentes ?
