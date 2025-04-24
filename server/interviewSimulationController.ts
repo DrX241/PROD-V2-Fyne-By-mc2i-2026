@@ -428,6 +428,18 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
     } else {
       evaluationPrompt = generateAmoaEvaluationPrompt(candidateName, profileType, experienceLevel, sectorFocus || '');
     }
+    
+    // Enrichir le prompt pour une meilleure analyse d'évaluation
+    evaluationPrompt += `\n\nIMPORTANT: Votre évaluation détaillée doit analyser la performance du consultant lors de l'audition en termes de:
+    1. Présentation et attitude professionnelle
+    2. Cohérence du discours et articulation des idées
+    3. Capacité à reformuler le contexte vs simple copier-coller
+    4. Forces et faiblesses identifiées pendant l'échange
+    5. Adéquation entre le niveau déclaré (${experienceLevel}) et la prestation réelle
+    
+    Structurez votre réponse avec des titres pour chaque section et concluez par une évaluation globale.
+    N'incluez PAS la transcription des échanges mais analysez-les.
+    Votre analyse sera affichée directement dans l'interface, pas envoyée par email.`;
 
     // Convertir les messages précédents au format attendu par l'API OpenAI
     const formattedMessages = messages.map((msg: any) => ({
@@ -454,23 +466,59 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
     } catch (apiError) {
       console.error('Erreur API lors de la génération de l\'évaluation:', apiError);
       
-      // Générer une évaluation de secours
+      // Générer une évaluation de secours structurée
       fallbackMode = true;
       
       if (domain === 'cyber') {
-        evaluation = `La personne consultante ${candidateName} a fait preuve de bonnes connaissances en cybersécurité pour un profil ${profileType} de niveau ${experienceLevel}. 
-        
-Points forts : compréhension des concepts, capacité d'analyse technique.
-Axes d'amélioration : approfondir les méthodologies de sécurité, développer la vision stratégique.
+        evaluation = `## 1. Présentation et attitude professionnelle
+Le consultant ${candidateName} a démontré une attitude professionnelle adéquate durant cette audition client. Sa présentation initiale, bien que brève, a établi un premier contact positif.
 
-Note globale : 3.5/5`;
+## 2. Compréhension et reformulation du contexte
+Le consultant a démontré une compréhension générale du contexte présenté et a tenté de reformuler les points essentiels de la problématique de cybersécurité exposée.
+
+## 3. Expertise technique et méthodologie
+Les solutions techniques proposées correspondent au niveau attendu pour un profil ${profileType.replace(/_/g, ' ')} de niveau ${experienceLevel}. La méthodologie présentée pourrait être approfondie avec plus de détails opérationnels.
+
+## 4. Forces identifiées
+- Bonne compréhension initiale des enjeux de sécurité présentés
+- Capacité à structurer une première réponse face à une problématique technique
+- Communication claire et professionnelle adaptée au contexte client
+
+## 5. Axes d'amélioration
+- Approfondir les méthodologies de sécurité proposées avec plus de détails techniques
+- Développer la vision stratégique au-delà des aspects techniques immédiats
+- Poser davantage de questions pour clarifier le périmètre exact de la mission
+
+## 6. Adéquation au niveau déclaré
+Le niveau démontré pendant cette audition correspond globalement au niveau ${experienceLevel} déclaré, avec quelques variations selon les aspects techniques abordés. La prestation est alignée avec les attentes pour ce niveau d'expérience en cybersécurité.
+
+## 7. Évaluation globale
+Note: 3.5/5. Le consultant a fourni une prestation satisfaisante qui correspond aux attentes pour un profil ${profileType.replace(/_/g, ' ')} de niveau ${experienceLevel}. Recommandation: À considérer.`;
       } else {
-        evaluation = `La personne consultante ${candidateName} a démontré une bonne compréhension du rôle d'AMOA pour un profil ${profileType} de niveau ${experienceLevel} dans le secteur ${sectorFocus}.
-        
-Points forts : méthodologie projet, communication avec les parties prenantes.
-Axes d'amélioration : approfondissement des connaissances sectorielles, gestion des situations complexes.
+        evaluation = `## 1. Présentation et attitude professionnelle
+Le consultant ${candidateName} a fait preuve d'un bon niveau de professionnalisme lors de cette audition client. Sa présentation était structurée et adaptée au contexte.
 
-Évaluation globale : Satisfaisant`;
+## 2. Compréhension et reformulation du contexte
+La reformulation du besoin client présenté montre une compréhension générale des enjeux du projet, même si certains aspects spécifiques auraient pu être davantage approfondis.
+
+## 3. Expertise méthodologique et connaissance sectorielle
+Les approches méthodologiques proposées sont adaptées au contexte du secteur ${sectorFocus.replace(/_/g, ' ')}. Le consultant a démontré une connaissance de base des pratiques AMOA applicables à ce type de projet.
+
+## 4. Forces identifiées
+- Bonne capacité de communication et d'écoute active
+- Approche méthodologique structurée pour aborder le projet
+- Capacité à identifier rapidement les parties prenantes clés
+
+## 5. Axes d'amélioration
+- Approfondir les connaissances sectorielles spécifiques au domaine ${sectorFocus.replace(/_/g, ' ')}
+- Développer un questionnement plus précis pour mieux cerner les besoins détaillés
+- Renforcer la proposition de valeur avec des exemples concrets de réalisations similaires
+
+## 6. Adéquation au niveau déclaré
+Le niveau démontré correspond globalement à un niveau ${experienceLevel} en AMOA dans le secteur ${sectorFocus.replace(/_/g, ' ')}, avec quelques variations selon les aspects méthodologiques abordés.
+
+## 7. Évaluation globale
+Note: 3.5/5. La prestation du consultant est satisfaisante et correspond aux attentes pour un profil AMOA de niveau ${experienceLevel}. Recommandation: À considérer.`;
       }
     }
 
@@ -840,48 +888,47 @@ Note: Plus l'audition avance, plus tes questions doivent être spécifiques et s
  * Génère le prompt pour l'évaluation finale d'une audition client cybersécurité
  */
 function generateCyberEvaluationPrompt(candidateName: string, profileType: string, experienceLevel: string): string {
-  return `Tu es un expert en évaluation des performances de consultants en cybersécurité lors de missions client.
+  return `Tu es un expert en évaluation des performances de consultants en cybersécurité lors d'auditions client.
 
-Tu dois évaluer les réponses d'un consultant lors d'une audition client professionnelle:
+Tu dois évaluer une audition client professionnelle qui vient de se terminer:
 - Nom du consultant: ${candidateName}
 - Type de profil: ${profileType}
 - Niveau d'expérience déclaré: ${experienceLevel}
 
-INSTRUCTIONS:
-1. Analyse soigneusement toutes les réponses du consultant pendant la audition.
-2. Évalue les compétences techniques et comportementales manifestées pendant la mission.
-3. Sois bienveillant, même si la simulation a été courte ou interrompue.
-4. Fournis une évaluation pertinente adaptée au profil et niveau d'expérience.
-5. NE repète PAS les questions ou scénarios que tu as posés, concentre-toi uniquement sur l'analyse des réponses du consultant.
-6. Concentre-toi exclusivement sur les compétences du consultant démontrées dans ses réponses.
-7. IMPORTANT: Évalue si le niveau réel démontré par le consultant correspond bien au niveau d'expérience déclaré (${experienceLevel}).
+IMPORTANT - TON ÉVALUATION DOIT ÊTRE STRUCTURÉE EXACTEMENT AVEC LES SECTIONS SUIVANTES:
 
-FORMAT DE RÉPONSE:
-Structure ton rapport d'évaluation comme suit (sans utiliser de markdown):
+## 1. Présentation et attitude professionnelle
+[Analyser comment le consultant s'est présenté, sa posture, son professionnalisme et sa capacité à établir une relation de confiance. Donner des exemples concrets tirés de ses réponses.]
 
-Synthèse générale du consultant
-[2-3 phrases résumant l'impression générale]
+## 2. Compréhension et reformulation du contexte
+[Évaluer si le consultant a bien compris et reformulé le problème de cybersécurité présenté de façon personnalisée, ou s'il s'est contenté de répéter textuellement les informations données. Donner des exemples concrets.]
 
-Points forts
-- [Point fort 1]
-- [Point fort 2]
-- [Point fort 3]
+## 3. Expertise technique et méthodologie
+[Évaluer la pertinence des solutions techniques proposées et l'approche méthodologique pour le problème présenté. Être spécifique sur les éléments techniques mentionnés ou manquants.]
 
-Axes d'amélioration
-- [Axe d'amélioration 1]
-- [Axe d'amélioration 2]
-- [Axe d'amélioration 3]
+## 4. Forces identifiées
+- [Point fort 1 - Spécifique et illustré par un exemple]
+- [Point fort 2 - Spécifique et illustré par un exemple]
+- [Point fort 3 - Spécifique et illustré par un exemple]
 
-Adéquation avec le niveau déclaré
-[Analyse si le niveau des réponses correspond au niveau ${experienceLevel} déclaré. Indique si le consultant semble sous-évalué, surévalué ou correctement auto-évalué]
+## 5. Axes d'amélioration
+- [Axe d'amélioration 1 - Concret avec suggestion]
+- [Axe d'amélioration 2 - Concret avec suggestion]
+- [Axe d'amélioration 3 - Concret avec suggestion]
 
-Recommandation pour la mission
-[Recommandation claire: Excellent / Satisfaisant / À renforcer]
+## 6. Adéquation au niveau déclaré
+[Évaluer de façon détaillée si le niveau réel démontré correspond au niveau ${experienceLevel}. Justifier pourquoi il correspond ou non en comparant avec les standards attendus pour ce niveau d'expérience en cybersécurité.]
 
-IMPORTANT: 
-- Ton évaluation doit être constructive, pertinente et adaptée au niveau d'expérience demandé.
-- N'inclus PAS le contenu de tes propres messages ou du scénario, focalise-toi uniquement sur les RÉPONSES du consultant.
-- N'utilise PAS de markdown (pas de ## ou de *) dans ta réponse finale.`;
+## 7. Évaluation globale
+[Donner une note sur 5 et une évaluation synthétique de la prestation avec une recommandation finale (À recruter / À considérer / À renforcer).]
+
+CONSIGNES ESSENTIELLES:
+- Utilise exclusivement les titres de section avec ce format exact (incluant la numérotation et les ##)
+- Ta réponse sera affichée directement dans l'interface de l'application, pas envoyée par email
+- Ton analyse doit être factuelle et basée uniquement sur le contenu des échanges
+- Ne reprends pas de longs extraits des réponses du consultant
+- Concentre-toi sur l'analyse des compétences démontrées et non sur le contenu des questions
+- Sois précis et constructif, même en cas de performance limitée`;
 }
 
 /**
@@ -890,63 +937,45 @@ IMPORTANT:
 function generateAmoaEvaluationPrompt(candidateName: string, profileType: string, experienceLevel: string, sectorFocus: string): string {
   return `Tu es un expert en évaluation des performances de consultants AMOA (Assistance à Maîtrise d'Ouvrage) chez mc2i lors d'auditions client.
 
-Tu dois évaluer cette audition limitée à 10 minutes pour le consultant:
+Tu dois évaluer une audition client professionnelle qui vient de se terminer:
 - Nom du consultant: ${candidateName}
 - Type de profil visé: ${profileType}
 - Niveau d'expérience déclaré: ${experienceLevel}
 - Secteur d'activité: ${sectorFocus}
 
-CONTEXTE ET CRITÈRES D'ÉVALUATION CHEZ MC2I:
-Une audition réussie chez mc2i doit démontrer les compétences suivantes:
-1. Compréhension du besoin: Le consultant doit clairement reformuler et s'approprier le besoin exprimé.
-2. Posture professionnelle: Clarté d'expression, écoute active, structure du discours et professionnalisme.
-3. Capacité de projection: Questions pertinentes, référence à des expériences passées, proposition d'approches concrètes.
-4. Maîtrise du temps: Gestion efficace des 10 minutes d'échange, concentration sur les points essentiels.
-5. Expertise sectorielle: Connaissance des spécificités du secteur ${sectorFocus} et adaptation des méthodes.
+IMPORTANT - TON ÉVALUATION DOIT ÊTRE STRUCTURÉE EXACTEMENT AVEC LES SECTIONS SUIVANTES:
 
-INSTRUCTIONS:
-1. Analyse en détail toutes les réponses du consultant sur l'ensemble de l'audition de 10 minutes.
-2. Évalue la qualité de sa présentation initiale et sa reformulation du besoin.
-3. Identifie les questions pertinentes qu'il a posées pour clarifier le contexte et les enjeux.
-4. Vérifie si le consultant a fait référence à des expériences passées pertinentes.
-5. Évalue la qualité des approches et solutions proposées en fonction du contexte client.
-6. Examine la clarté, la structure et le professionnalisme de son expression.
-7. Évalue la maîtrise du temps et la capacité à être synthétique sur l'ensemble de l'audition.
+## 1. Présentation et attitude professionnelle
+[Analyser comment le consultant s'est présenté, sa posture, son professionnalisme et sa capacité à établir une relation de confiance. Donner des exemples concrets tirés de ses réponses.]
 
-FORMAT DE RÉPONSE:
-Structure ton rapport d'évaluation comme suit (sans utiliser de markdown):
+## 2. Compréhension et reformulation du contexte
+[Évaluer si le consultant a bien compris et reformulé le besoin client présenté de façon personnalisée, ou s'il s'est contenté de répéter textuellement les informations données. Donner des exemples concrets.]
 
-Synthèse générale
-[2-3 phrases résumant l'impression globale et l'adéquation au profil recherché]
+## 3. Expertise méthodologique et connaissance sectorielle
+[Évaluer la pertinence des approches méthodologiques proposées pour le besoin exprimé et la connaissance du secteur ${sectorFocus}. Analyser si les méthodes sont adaptées au contexte sectoriel.]
 
-Compréhension du besoin client
-[Évaluation de la capacité du consultant à reformuler et s'approprier le besoin]
+## 4. Forces identifiées
+- [Point fort 1 - Spécifique et illustré par un exemple]
+- [Point fort 2 - Spécifique et illustré par un exemple]
+- [Point fort 3 - Spécifique et illustré par un exemple]
 
-Posture et communication
-[Évaluation de la clarté, de la structure et du professionnalisme]
+## 5. Axes d'amélioration
+- [Axe d'amélioration 1 - Concret avec suggestion]
+- [Axe d'amélioration 2 - Concret avec suggestion]
+- [Axe d'amélioration 3 - Concret avec suggestion]
 
-Questions et approche méthodologique
-[Évaluation de la pertinence des questions et des méthodes proposées]
+## 6. Adéquation au niveau déclaré
+[Évaluer de façon détaillée si le niveau réel démontré correspond au niveau ${experienceLevel}. Justifier pourquoi il correspond ou non en comparant avec les standards attendus pour ce niveau d'expérience en AMOA dans le secteur ${sectorFocus}.]
 
-Points forts
-- [Point fort 1]
-- [Point fort 2]
-- [Point fort 3]
+## 7. Évaluation globale
+[Donner une note sur 5 et une évaluation synthétique de la prestation avec une recommandation finale (À recruter / À considérer / À renforcer).]
 
-Axes d'amélioration
-- [Axe d'amélioration 1]
-- [Axe d'amélioration 2]
-- [Axe d'amélioration 3]
-
-Adéquation avec le niveau et le secteur
-[Analyse si les compétences démontrées correspondent au niveau ${experienceLevel} et aux exigences du secteur ${sectorFocus}]
-
-Recommandation finale
-[Recommandation claire: Excellent / Satisfaisant / À renforcer]
-
-IMPORTANT: 
-- Ton évaluation doit être constructive et précise, avec des exemples tirés des réponses du consultant.
-- Focalise-toi uniquement sur les RÉPONSES du consultant, pas sur tes questions.
-- Évalue si le consultant a su gérer efficacement le temps limité de 10 minutes.
-- N'utilise PAS de markdown dans ta réponse finale.`;
+CONSIGNES ESSENTIELLES:
+- Utilise exclusivement les titres de section avec ce format exact (incluant la numérotation et les ##)
+- Ta réponse sera affichée directement dans l'interface de l'application, pas envoyée par email
+- Ton analyse doit être factuelle et basée uniquement sur le contenu des échanges
+- Ne reprends pas de longs extraits des réponses du consultant
+- Concentre-toi sur l'analyse des compétences démontrées et non sur le contenu des questions
+- Évalue particulièrement l'adéquation entre les compétences démontrées et les exigences spécifiques du secteur ${sectorFocus}
+- Sois précis et constructif, même en cas de performance limitée`;
 }
