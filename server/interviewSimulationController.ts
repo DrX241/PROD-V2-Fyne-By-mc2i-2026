@@ -294,6 +294,14 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
         error: 'Paramètres incomplets.'
       });
     }
+    
+    // Vérification supplémentaire pour le domaine AMOA qui nécessite le secteur d'activité
+    if (domain === 'amoa' && !sectorFocus) {
+      return res.status(400).json({
+        success: false,
+        error: 'Le secteur d\'activité est obligatoire pour une audition AMOA.'
+      });
+    }
 
     // Générer le prompt d'évaluation
     let evaluationPrompt = '';
