@@ -310,7 +310,10 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
     }
     
     // Vérification supplémentaire pour le domaine AMOA qui nécessite le secteur d'activité
-    const isDomainAmoa = domain === 'amoa' || !req.path.includes('/cyber/');
+    // Si domain est 'amoa' explicitement ou si l'URL contient '/amoa/' (et non pas l'absence de '/cyber/')
+    const isDomainAmoa = domain === 'amoa' || req.path.includes('/amoa/');
+    console.log(`Path: ${req.path}, Détection AMOA: ${isDomainAmoa}, Secteur fourni: ${!!sectorFocus}`);
+    
     if (isDomainAmoa && !sectorFocus) {
       return res.status(400).json({
         success: false,
