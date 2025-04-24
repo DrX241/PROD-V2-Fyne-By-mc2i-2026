@@ -105,7 +105,7 @@ const ModuleCard = ({
   );
 };
 
-// Fonctionnalité Card avec style futuriste spatial
+// Fonctionnalité Card avec style adaptatif (futuriste ou classique)
 const FeatureCard = ({ 
   icon, 
   title, 
@@ -115,35 +115,54 @@ const FeatureCard = ({
   title: string;
   description: string;
 }) => {
+  const { themeMode } = useTheme();
+  const isFuturistic = themeMode === 'futuristic';
+
   return (
     <motion.div
-      className="bg-gray-900/80 backdrop-blur-sm rounded-xl p-6 shadow-md border border-blue-500/30 h-full relative overflow-hidden"
-      whileHover={{ y: -5, boxShadow: '0 12px 30px rgba(0, 182, 212, 0.15)' }}
+      className={`${isFuturistic 
+        ? 'bg-gray-900/80 backdrop-blur-sm border border-blue-500/30 text-white' 
+        : 'bg-white border border-gray-200 text-gray-800'} 
+        rounded-xl p-6 shadow-md h-full relative overflow-hidden`}
+      whileHover={{ y: -5, boxShadow: isFuturistic ? '0 12px 30px rgba(0, 182, 212, 0.15)' : '0 12px 30px rgba(0, 0, 0, 0.1)' }}
     >
-      {/* Particules en arrière-plan */}
-      <div className="absolute top-0 right-0 w-16 h-16 opacity-10">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
-          <circle cx="20" cy="20" r="1" fill="#06b6d4" />
-          <circle cx="40" cy="10" r="1.5" fill="#06b6d4" />
-          <circle cx="70" cy="30" r="1" fill="#06b6d4" />
-          <circle cx="90" cy="15" r="2" fill="#06b6d4" />
-          <circle cx="30" cy="50" r="1" fill="#06b6d4" />
-          <circle cx="50" cy="70" r="1.5" fill="#06b6d4" />
-          <circle cx="85" cy="80" r="1" fill="#06b6d4" />
-        </svg>
-      </div>
+      {/* Particules en arrière-plan - uniquement en mode futuriste */}
+      {isFuturistic && (
+        <div className="absolute top-0 right-0 w-16 h-16 opacity-10">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+            <circle cx="20" cy="20" r="1" fill="#06b6d4" />
+            <circle cx="40" cy="10" r="1.5" fill="#06b6d4" />
+            <circle cx="70" cy="30" r="1" fill="#06b6d4" />
+            <circle cx="90" cy="15" r="2" fill="#06b6d4" />
+            <circle cx="30" cy="50" r="1" fill="#06b6d4" />
+            <circle cx="50" cy="70" r="1.5" fill="#06b6d4" />
+            <circle cx="85" cy="80" r="1" fill="#06b6d4" />
+          </svg>
+        </div>
+      )}
       
-      {/* Icône avec style spatial */}
-      <div className="p-3 bg-blue-900/70 rounded-xl w-fit mb-4 text-cyan-400 border border-cyan-500/30 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 opacity-50"></div>
+      {/* Icône avec style adaptatif */}
+      <div className={`p-3 ${isFuturistic 
+        ? 'bg-blue-900/70 text-cyan-400 border border-cyan-500/30' 
+        : 'bg-blue-100 text-blue-600 border border-blue-200'} 
+        rounded-xl w-fit mb-4 relative overflow-hidden`}>
+        {isFuturistic && (
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 opacity-50"></div>
+        )}
         <div className="relative z-10">{icon}</div>
       </div>
       
-      <h3 className="text-lg font-semibold mb-2 text-white font-cyber-title">{title}</h3>
-      <p className="text-blue-100/80 text-sm font-cyber-body">{description}</p>
+      <h3 className={`text-lg font-semibold mb-2 ${isFuturistic ? 'text-white' : 'text-gray-800'} font-cyber-title`}>
+        {title}
+      </h3>
+      <p className={`${isFuturistic ? 'text-blue-100/80' : 'text-gray-600'} text-sm font-cyber-body`}>
+        {description}
+      </p>
       
-      {/* Ligne décorative en bas */}
-      <div className="absolute bottom-0 left-0 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"></div>
+      {/* Ligne décorative en bas - uniquement en mode futuriste */}
+      {isFuturistic && (
+        <div className="absolute bottom-0 left-0 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"></div>
+      )}
     </motion.div>
   );
 };
@@ -509,28 +528,30 @@ export default function Home() {
       </div>
       
       {/* Section Caracteristiques */}
-      <div className="bg-gradient-to-b from-blue-950 to-gray-900 py-16 lg:py-24 relative overflow-hidden">
-        {/* Fond étoilé */}
-        <div className="absolute inset-0 z-0">
-          {Array.from({ length: 150 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full"
-              style={{
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                width: `${Math.max(1, Math.random() * 2)}px`,
-                height: `${Math.max(1, Math.random() * 2)}px`,
-                backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                boxShadow: '0 0 2px rgba(255, 255, 255, 0.5)',
-                opacity: Math.random() * 0.7 + 0.3
-              }}
-            />
-          ))}
-          {/* Nébuleuse décorative */}
-          <div className="absolute top-1/3 right-10 w-96 h-96 bg-blue-800/10 rounded-full mix-blend-overlay filter blur-3xl opacity-30"></div>
-          <div className="absolute bottom-1/4 left-10 w-80 h-80 bg-purple-800/10 rounded-full mix-blend-overlay filter blur-3xl opacity-20"></div>
-        </div>
+      <div className={`relative ${isFuturistic ? 'bg-gradient-to-b from-blue-950 to-gray-900' : 'bg-gradient-to-b from-blue-100 to-white'} py-16 lg:py-24 relative overflow-hidden`}>
+        {/* Fond étoilé - uniquement en mode futuriste */}
+        {isFuturistic && (
+          <div className="absolute inset-0 z-0">
+            {Array.from({ length: 150 }).map((_, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full"
+                style={{
+                  top: `${Math.random() * 100}%`,
+                  left: `${Math.random() * 100}%`,
+                  width: `${Math.max(1, Math.random() * 2)}px`,
+                  height: `${Math.max(1, Math.random() * 2)}px`,
+                  backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                  boxShadow: '0 0 2px rgba(255, 255, 255, 0.5)',
+                  opacity: Math.random() * 0.7 + 0.3
+                }}
+              />
+            ))}
+            {/* Nébuleuse décorative */}
+            <div className="absolute top-1/3 right-10 w-96 h-96 bg-blue-800/10 rounded-full mix-blend-overlay filter blur-3xl opacity-30"></div>
+            <div className="absolute bottom-1/4 left-10 w-80 h-80 bg-purple-800/10 rounded-full mix-blend-overlay filter blur-3xl opacity-20"></div>
+          </div>
+        )}
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-16">
@@ -541,19 +562,19 @@ export default function Home() {
               viewport={{ once: true }}
             >
               <div className="inline-block mb-4">
-                <span className="px-4 py-1 rounded-full text-sm font-semibold bg-blue-900/60 text-cyan-300 font-cyber-accent tracking-wide border border-blue-500/30 backdrop-blur-sm">
+                <span className={`px-4 py-1 rounded-full text-sm font-semibold ${isFuturistic ? 'bg-blue-900/60 text-cyan-300 border-blue-500/30' : 'bg-blue-600/80 text-white border-blue-400/50'} font-cyber-accent tracking-wide border backdrop-blur-sm`}>
                   Technologies avancées
                 </span>
               </div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 font-cyber-title tracking-wide">
-                Une expérience d'apprentissage <span className="text-cyan-400 relative">
+              <h2 className={`text-3xl sm:text-4xl font-bold ${isFuturistic ? 'text-white' : 'text-blue-900'} mb-4 font-cyber-title tracking-wide`}>
+                Une expérience d'apprentissage <span className={`${isFuturistic ? 'text-cyan-400' : 'text-blue-600'} relative`}>
                   inégalée
                   <svg className="absolute bottom-0 left-0 w-full" height="5" viewBox="0 0 200 5" preserveAspectRatio="none">
-                    <path d="M0 5 Q 40 0, 80 2 T 160 3 T 200 0 V 5 H 0 Z" fill="rgba(34, 211, 238, 0.4)" />
+                    <path d="M0 5 Q 40 0, 80 2 T 160 3 T 200 0 V 5 H 0 Z" fill={isFuturistic ? "rgba(34, 211, 238, 0.4)" : "rgba(37, 99, 235, 0.4)"} />
                   </svg>
                 </span>
               </h2>
-              <p className="text-xl text-blue-100/90 max-w-3xl mx-auto font-cyber-body">
+              <p className={`text-xl ${isFuturistic ? 'text-blue-100/90' : 'text-slate-700'} max-w-3xl mx-auto font-cyber-body`}>
                 Notre technologie d'IA générative crée un environnement personnalisé qui s'adapte à vos besoins
               </p>
             </motion.div>
@@ -575,26 +596,28 @@ export default function Home() {
         </div>
       </div>
       
-      {/* Call-to-Action avec style spatial */}
-      <div className="bg-gradient-to-b from-blue-950 to-indigo-950 py-20 relative overflow-hidden">
-        {/* Éléments décoratifs futuristes */}
-        <div className="absolute inset-0 overflow-hidden opacity-20">
-          {/* Cercles lumineux */}
-          <div className="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-gradient-to-br from-cyan-500/30 to-blue-600/20 blur-3xl"></div>
-          <div className="absolute -bottom-40 -left-20 w-96 h-96 rounded-full bg-gradient-to-tr from-blue-600/20 to-purple-600/20 blur-3xl"></div>
-          
-          {/* Lignes de grille */}
-          <div className="absolute inset-0">
-            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" className="opacity-10">
-              <defs>
-                <pattern id="smallgrid" width="20" height="20" patternUnits="userSpaceOnUse">
-                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(59, 130, 246, 0.3)" strokeWidth="0.5" />
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#smallgrid)" />
-            </svg>
+      {/* Call-to-Action avec style adaptatif */}
+      <div className={`${isFuturistic ? 'bg-gradient-to-b from-blue-950 to-indigo-950' : 'bg-gradient-to-b from-blue-500 to-blue-600'} py-20 relative overflow-hidden`}>
+        {/* Éléments décoratifs futuristes - uniquement en mode futuriste */}
+        {isFuturistic && (
+          <div className="absolute inset-0 overflow-hidden opacity-20">
+            {/* Cercles lumineux */}
+            <div className="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-gradient-to-br from-cyan-500/30 to-blue-600/20 blur-3xl"></div>
+            <div className="absolute -bottom-40 -left-20 w-96 h-96 rounded-full bg-gradient-to-tr from-blue-600/20 to-purple-600/20 blur-3xl"></div>
+            
+            {/* Lignes de grille */}
+            <div className="absolute inset-0">
+              <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" className="opacity-10">
+                <defs>
+                  <pattern id="smallgrid" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(59, 130, 246, 0.3)" strokeWidth="0.5" />
+                  </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#smallgrid)" />
+              </svg>
+            </div>
           </div>
-        </div>
+        )}
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <motion.div
@@ -602,19 +625,27 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
             viewport={{ once: true }}
-            className="bg-blue-950/40 backdrop-blur-sm px-8 py-12 rounded-2xl border border-blue-500/20 shadow-xl"
+            className={`${isFuturistic 
+              ? 'bg-blue-950/40 backdrop-blur-sm border border-blue-500/20' 
+              : 'bg-white border border-blue-200'} 
+              px-8 py-12 rounded-2xl shadow-xl`}
           >
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6 font-cyber-title tracking-wide">
-              Prêt à <span className="text-cyan-400">transformer</span> votre parcours ?
+            <h2 className={`text-3xl sm:text-4xl font-bold ${isFuturistic ? 'text-white' : 'text-blue-800'} mb-6 font-cyber-title tracking-wide`}>
+              Prêt à <span className={`${isFuturistic ? 'text-cyan-400' : 'text-blue-500'}`}>transformer</span> votre parcours ?
             </h2>
-            <p className="text-xl text-blue-100/90 mb-10 max-w-3xl mx-auto font-cyber-body">
+            <p className={`text-xl ${isFuturistic ? 'text-blue-100/90' : 'text-slate-600'} mb-10 max-w-3xl mx-auto font-cyber-body`}>
               Rejoignez plus de 1000 professionnels qui ont déjà révolutionné leur façon d'apprendre
             </p>
             
-            {/* Bouton d'action spatial */}
+            {/* Bouton d'action adaptatif */}
             <Link href="/cyber">
-              <Button className="bg-gradient-to-r from-cyan-500/80 to-blue-600/80 hover:from-cyan-400/80 hover:to-blue-500/80 text-white font-cyber-accent px-8 py-6 text-lg group relative overflow-hidden border border-cyan-400/30">
-                <span className="absolute inset-0 w-0 bg-gradient-to-r from-cyan-300/20 to-transparent group-hover:w-full transition-all duration-700 ease-out"></span>
+              <Button className={`${isFuturistic 
+                ? 'bg-gradient-to-r from-cyan-500/80 to-blue-600/80 hover:from-cyan-400/80 hover:to-blue-500/80 border border-cyan-400/30' 
+                : 'bg-blue-600 hover:bg-blue-700 border-none'} 
+                text-white font-cyber-accent px-8 py-6 text-lg group relative overflow-hidden`}>
+                {isFuturistic && (
+                  <span className="absolute inset-0 w-0 bg-gradient-to-r from-cyan-300/20 to-transparent group-hover:w-full transition-all duration-700 ease-out"></span>
+                )}
                 <span className="relative z-10 flex items-center">
                   Commencer maintenant 
                   <Rocket className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform duration-300" />
@@ -622,59 +653,65 @@ export default function Home() {
               </Button>
             </Link>
             
-            {/* Ligne décorative en bas */}
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-48 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"></div>
+            {/* Ligne décorative en bas - uniquement en mode futuriste */}
+            {isFuturistic && (
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-48 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"></div>
+            )}
           </motion.div>
         </div>
       </div>
       
-      {/* Section Footer - Style spatial */}
-      <footer className="bg-gray-950 text-white pt-16 pb-8 relative overflow-hidden">
-        {/* Fond étoilé subtil */}
-        <div className="absolute inset-0 z-0 opacity-20">
-          {Array.from({ length: 50 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full"
-              style={{
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                width: `${Math.max(1, Math.random() * 2)}px`,
-                height: `${Math.max(1, Math.random() * 2)}px`,
-                backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                boxShadow: '0 0 2px rgba(255, 255, 255, 0.5)',
-                opacity: Math.random() * 0.5 + 0.3
-              }}
-            />
-          ))}
-        </div>
+      {/* Section Footer - Style adaptatif */}
+      <footer className={`${isFuturistic ? 'bg-gray-950 text-white' : 'bg-gray-100 text-gray-800'} pt-16 pb-8 relative overflow-hidden`}>
+        {/* Fond étoilé subtil - uniquement en mode futuriste */}
+        {isFuturistic && (
+          <div className="absolute inset-0 z-0 opacity-20">
+            {Array.from({ length: 50 }).map((_, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full"
+                style={{
+                  top: `${Math.random() * 100}%`,
+                  left: `${Math.random() * 100}%`,
+                  width: `${Math.max(1, Math.random() * 2)}px`,
+                  height: `${Math.max(1, Math.random() * 2)}px`,
+                  backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                  boxShadow: '0 0 2px rgba(255, 255, 255, 0.5)',
+                  opacity: Math.random() * 0.5 + 0.3
+                }}
+              />
+            ))}
+          </div>
+        )}
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
             {/* Logo et description */}
             <div className="col-span-1 md:col-span-1">
               <div className="flex items-center mb-2">
-                <div className="h-8 w-8 text-cyan-400 mr-2 relative">
+                <div className={`h-8 w-8 ${isFuturistic ? 'text-cyan-400' : 'text-blue-600'} mr-2 relative`}>
                   <BrainCircuit className="absolute inset-0" />
-                  <div className="absolute inset-0 bg-cyan-400 rounded-full filter blur-sm opacity-30"></div>
+                  {isFuturistic && (
+                    <div className="absolute inset-0 bg-cyan-400 rounded-full filter blur-sm opacity-30"></div>
+                  )}
                 </div>
-                <span className="text-xl font-bold font-cyber-title tracking-wide text-white">FYNE</span>
+                <span className={`text-xl font-bold font-cyber-title tracking-wide ${isFuturistic ? 'text-white' : 'text-blue-800'}`}>FYNE</span>
               </div>
-              <div className="mb-3 text-cyan-400/80 italic text-sm font-cyber-accent tracking-wide">
+              <div className={`mb-3 ${isFuturistic ? 'text-cyan-400/80' : 'text-blue-500'} italic text-sm font-cyber-accent tracking-wide`}>
                 For Your Next Experience
               </div>
-              <p className="text-blue-200/60 mb-4 font-cyber-body">
+              <p className={`${isFuturistic ? 'text-blue-200/60' : 'text-gray-600'} mb-4 font-cyber-body`}>
                 Une plateforme d'apprentissage nouvelle génération alimentée par l'intelligence artificielle avancée
               </p>
             </div>
             
             {/* Liens rapides */}
             <div>
-              <h3 className="text-lg font-semibold mb-4 text-cyan-300 font-cyber-accent">Modules</h3>
+              <h3 className={`text-lg font-semibold mb-4 ${isFuturistic ? 'text-cyan-300' : 'text-blue-700'} font-cyber-accent`}>Modules</h3>
               <ul className="space-y-2">
                 {['I AM CYBER', 'CENTRE DE CRISE ÉVOLUTIF', 'I AM DATA & IA', 'IAM mc2i', 'Personnalisé'].map(link => (
                   <li key={link}>
-                    <a href="#" className="text-blue-200/60 hover:text-cyan-300 transition-colors">
+                    <a href="#" className={`${isFuturistic ? 'text-blue-200/60 hover:text-cyan-300' : 'text-gray-600 hover:text-blue-800'} transition-colors`}>
                       {link}
                     </a>
                   </li>
@@ -684,11 +721,11 @@ export default function Home() {
             
             {/* Support */}
             <div>
-              <h3 className="text-lg font-semibold mb-4 text-cyan-300 font-cyber-accent">Support</h3>
+              <h3 className={`text-lg font-semibold mb-4 ${isFuturistic ? 'text-cyan-300' : 'text-blue-700'} font-cyber-accent`}>Support</h3>
               <ul className="space-y-2">
                 {['Documentation', 'FAQ', 'Communauté', 'Tutoriels', 'Contact'].map(link => (
                   <li key={link}>
-                    <a href="#" className="text-blue-200/60 hover:text-cyan-300 transition-colors">
+                    <a href="#" className={`${isFuturistic ? 'text-blue-200/60 hover:text-cyan-300' : 'text-gray-600 hover:text-blue-800'} transition-colors`}>
                       {link}
                     </a>
                   </li>
@@ -698,17 +735,21 @@ export default function Home() {
             
             {/* Newsletter */}
             <div>
-              <h3 className="text-lg font-semibold mb-4 text-cyan-300 font-cyber-accent">Restez informé</h3>
-              <p className="text-blue-200/60 mb-4 font-cyber-body">
+              <h3 className={`text-lg font-semibold mb-4 ${isFuturistic ? 'text-cyan-300' : 'text-blue-700'} font-cyber-accent`}>Restez informé</h3>
+              <p className={`${isFuturistic ? 'text-blue-200/60' : 'text-gray-600'} mb-4 font-cyber-body`}>
                 Recevez les dernières mises à jour sur nos modules et fonctionnalités
               </p>
               <div className="flex">
                 <input
                   type="email"
                   placeholder="Votre email"
-                  className="bg-gray-900 border border-blue-900/80 text-blue-100 px-3 py-2 rounded-l-md w-full focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                  className={`${isFuturistic 
+                    ? 'bg-gray-900 border-blue-900/80 text-blue-100 focus:ring-cyan-500' 
+                    : 'bg-white border-gray-300 text-gray-800 focus:ring-blue-500'} 
+                    border px-3 py-2 rounded-l-md w-full focus:outline-none focus:ring-1`}
                 />
-                <button className="bg-cyan-600 hover:bg-cyan-700 px-4 py-2 rounded-r-md transition-colors">
+                <button className={`${isFuturistic ? 'bg-cyan-600 hover:bg-cyan-700' : 'bg-blue-600 hover:bg-blue-700'} 
+                  px-4 py-2 rounded-r-md transition-colors text-white`}>
                   <ArrowRight className="h-5 w-5" />
                 </button>
               </div>
@@ -716,14 +757,21 @@ export default function Home() {
           </div>
           
           {/* Barre de séparation */}
-          <div className="border-t border-blue-900/40 pt-8 pb-4">
+          <div className={`border-t ${isFuturistic ? 'border-blue-900/40' : 'border-gray-300'} pt-8 pb-4`}>
             <div className="flex flex-col md:flex-row justify-between items-center">
-              <p className="text-blue-200/40 text-sm mb-4 md:mb-0 font-cyber-body">
+              <p className={`${isFuturistic ? 'text-blue-200/40' : 'text-gray-500'} text-sm mb-4 md:mb-0 font-cyber-body`}>
                 © {new Date().getFullYear()} FYNE. Tous droits réservés.
               </p>
               <div className="flex space-x-6">
                 {['Conditions d\'utilisation', 'Politique de confidentialité', 'Cookies'].map(item => (
-                  <a key={item} href="#" className="text-blue-200/40 hover:text-cyan-300 text-sm transition-colors font-cyber-body">
+                  <a 
+                    key={item} 
+                    href="#" 
+                    className={`${isFuturistic 
+                      ? 'text-blue-200/40 hover:text-cyan-300' 
+                      : 'text-gray-500 hover:text-blue-600'} 
+                      text-sm transition-colors font-cyber-body`}
+                  >
                     {item}
                   </a>
                 ))}
