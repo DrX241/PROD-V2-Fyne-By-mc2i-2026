@@ -34,42 +34,71 @@ const ModuleCard = ({
 }) => {
   const [isHover, setIsHover] = useState(false);
   
+  // Extraction de l'ID de couleur pour les animations
+  const colorClass = color.split(' ')[0]; // Prend la première classe (ex: bg-blue-600 -> bg-blue)
+  const baseColor = colorClass.includes('blue') ? 'blue' : 
+                    colorClass.includes('purple') ? 'purple' : 
+                    colorClass.includes('indigo') ? 'indigo' : 'blue';
+  
   return (
-    <motion.div
-      className={`relative overflow-hidden rounded-2xl shadow-lg ${bgColor} border border-gray-200 transition-all duration-300 h-full flex flex-col`}
-      whileHover={{ 
-        y: -8,
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)'
-      }}
-      onHoverStart={() => setIsHover(true)}
-      onHoverEnd={() => setIsHover(false)}
+    <div
+      className="relative overflow-hidden h-full flex flex-col"
+      onMouseEnter={() => setIsHover(true)}
+      onMouseLeave={() => setIsHover(false)}
     >
-      {/* Background Pattern */}
-      <div className={`absolute top-0 right-0 w-40 h-40 ${accentColor} rounded-full -mr-16 -mt-16 opacity-10`}></div>
+      {/* Fond avec effets futuristes */}
+      <div className={`absolute inset-x-0 -top-2 h-2 bg-gradient-to-r from-${baseColor}-500 to-${baseColor}-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-t-md opacity-60`}></div>
       
-      <div className="p-8 flex flex-col h-full z-10 relative">
-        {/* Icon */}
-        <div className={`w-16 h-16 ${color} rounded-2xl flex items-center justify-center mb-6`}>
-          {icon}
+      <div className="p-6 flex flex-col h-full z-10 relative">
+        {/* Icône avec animation futuriste */}
+        <div className={`w-16 h-16 relative mb-6`}>
+          {/* Cercle animé derrière l'icône */}
+          <div className={`absolute inset-0 rounded-full ${color} opacity-20 transform group-hover:scale-110 transition-transform duration-500`}></div>
+          
+          {/* Icône au centre avec effet de lueur */}
+          <div className={`relative w-14 h-14 ${color} rounded-lg flex items-center justify-center 
+            shadow-lg group-hover:shadow-${baseColor}-300/30 transition-all duration-300
+            backdrop-blur-sm border border-${baseColor}-100 dark:border-${baseColor}-900/30`}>
+            <div className={`absolute inset-0 bg-gradient-to-br from-${baseColor}-500/10 to-${baseColor}-600/10 
+              opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg`}></div>
+            {icon}
+          </div>
+          
+          {/* Points décoratifs d'arrière-plan */}
+          <div className="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-gradient-to-r from-blue-400 to-indigo-500 opacity-0 group-hover:opacity-70 transition-opacity duration-500 delay-100"></div>
+          <div className="absolute -bottom-1 -left-1 w-2 h-2 rounded-full bg-gradient-to-r from-indigo-500 to-blue-400 opacity-0 group-hover:opacity-70 transition-opacity duration-500 delay-150"></div>
         </div>
         
-        {/* Content */}
-        <h3 className="text-2xl font-bold mb-3 text-gray-900">{title}</h3>
-        <p className="text-gray-600 mb-6 flex-grow">{description}</p>
+        {/* Titre avec animation */}
+        <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-white font-cyber-title tracking-wide group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors duration-300">
+          {title}
+        </h3>
         
-        {/* Footer - Button */}
+        {/* Description avec légère animation */}
+        <p className="text-gray-600 dark:text-gray-300 mb-6 flex-grow font-cyber-body text-sm">
+          {description}
+        </p>
+        
+        {/* Bouton avec animation améliorée */}
         <div className="mt-auto">
           <Link href={linkTo}>
             <Button 
-              className={`${color} hover:${color}/90 group transition-all duration-300`}
+              className={`${color} hover:${color}/90 group transition-all duration-300 
+                shadow-md hover:shadow-${baseColor}-500/20 
+                border border-${baseColor}-400/20 dark:border-${baseColor}-400/10`}
             >
-              Explorer le module
-              <ArrowRight className={`ml-2 transition-all duration-300 ${isHover ? 'translate-x-1' : ''}`} />
+              <span className="relative z-10">Explorer le module</span>
+              <ArrowRight className={`ml-2 transition-all duration-300 
+                ${isHover ? 'translate-x-1' : ''}`} />
+              
+              {/* Effet de pulse sur hover */}
+              <span className={`absolute inset-0 bg-gradient-to-r from-${baseColor}-600 to-${baseColor}-500 
+                opacity-0 group-hover:opacity-100 rounded transition-opacity duration-300`}></span>
             </Button>
           </Link>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
@@ -333,19 +362,44 @@ export default function Home() {
             </motion.div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {modules.map((module, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="transform hover:scale-105 transition-transform duration-300"
-              >
-                <ModuleCard {...module} />
-              </motion.div>
-            ))}
+          {/* Grille de modules avec style professionnel futuriste */}
+          <div className="relative z-10 my-12">
+            {/* Fond décoratif avec motif futuriste */}
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-900/5 to-blue-900/5 rounded-3xl overflow-hidden -z-10">
+              <div className="absolute inset-0 opacity-10" 
+                   style={{ 
+                     backgroundImage: 'radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 25%), radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.1) 0%, transparent 25%)',
+                     backgroundSize: '120px 120px',
+                     backgroundRepeat: 'repeat'
+                   }}>
+              </div>
+              {/* Bordure lumineuse */}
+              <div className="absolute inset-0 border border-blue-500/20 rounded-3xl"></div>
+            </div>
+            
+            {/* Grille principale */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-8">
+              {modules.map((module, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="transform hover:scale-105 hover:z-20 transition-all duration-300 group"
+                >
+                  {/* Wrapper avec effets futuristes */}
+                  <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden group-hover:shadow-blue-500/20 border border-blue-100 dark:border-blue-900/30">
+                    {/* Effet de lueur sur hover */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-tr from-blue-500/5 to-indigo-500/5 transition-opacity duration-300"></div>
+                    {/* Le module */}
+                    <ModuleCard {...module} />
+                    {/* Accent line */}
+                    <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
           
           {/* Bouton "Explorer tous nos modules" supprimé */}
