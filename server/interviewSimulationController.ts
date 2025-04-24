@@ -176,7 +176,7 @@ export async function processInterviewMessage(req: Request, res: Response) {
 
     // Déterminer l'étape en fonction du nombre de messages
     const userMessageCount = messages.filter((msg: any) => msg.role === 'user').length;
-    const step = Math.min(Math.floor(userMessageCount / 2) + 1, 3);
+    const step = Math.floor(userMessageCount / 2) + 1; // Pas de limite maximale d'étapes
     
     console.log(`Traitement du message. Étape: ${step}, Profil: ${profileType}, Niveau: ${experienceLevel}`);
 
@@ -1094,6 +1094,7 @@ function generateAmoaStepPrompt(step: number, profileType: string, experienceLev
   }
   
   // Augmenter progressivement la difficulté en fonction de l'étape
+  // Version avec support illimité d'étapes
   const complexityByStep = {
     junior: ['basique', 'intermédiaire', 'intermédiaire'],
     confirmé: ['intermédiaire', 'intermédiaire', 'avancée'],
@@ -1106,16 +1107,30 @@ function generateAmoaStepPrompt(step: number, profileType: string, experienceLev
   let complexity = baseComplexity;
   const expLevel = experienceLevel.toLowerCase();
   
-  if (expLevel === 'junior' && step > 0 && step <= 3) {
-    complexity = complexityByStep.junior[step - 1];
-  } else if ((expLevel === 'confirmé' || expLevel === 'confirme') && step > 0 && step <= 3) {
-    complexity = complexityByStep.confirme[step - 1];
-  } else if (expLevel === 'senior' && step > 0 && step <= 3) {
-    complexity = complexityByStep.senior[step - 1];
-  } else if (expLevel === 'expert' && step > 0 && step <= 3) {
-    complexity = complexityByStep.expert[step - 1];
+  // Pour les étapes > 3, on maintient le niveau de difficulté maximal
+  if (step > 3) {
+    if (expLevel === 'junior') {
+      complexity = 'intermédiaire';
+    } else if (expLevel === 'confirmé' || expLevel === 'confirme') {
+      complexity = 'avancée';
+    } else if (expLevel === 'senior') {
+      complexity = 'avancée';
+    } else if (expLevel === 'expert') {
+      complexity = 'très avancée';
+    }
+  } 
+  // Pour les 3 premières étapes, on utilise la progression définie
+  else if (step > 0) {
+    if (expLevel === 'junior') {
+      complexity = complexityByStep.junior[step - 1];
+    } else if (expLevel === 'confirmé' || expLevel === 'confirme') {
+      complexity = complexityByStep.confirme[step - 1];
+    } else if (expLevel === 'senior') {
+      complexity = complexityByStep.senior[step - 1];
+    } else if (expLevel === 'expert') {
+      complexity = complexityByStep.expert[step - 1];
+    }
   }
-  
   // Phase temporelle basée sur l'étape
   let phase = '';
   let phaseObjective = '';
