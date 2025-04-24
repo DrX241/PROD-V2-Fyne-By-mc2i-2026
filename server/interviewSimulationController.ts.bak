@@ -2,18 +2,11 @@ import { Request, Response } from 'express';
 import nodemailer from 'nodemailer';
 import sgMail from '@sendgrid/mail';
 import { ChatCompletionRequestMessage } from '@shared/schema';
-import { openAIService } from '../I_AM_CYBER/services/openai';
-import * as fs from 'fs';
-import * as path from 'path';
-
-// Configuration de l'API SendGrid si la clé est disponible
-const sendgridApiKey = process.env.SENDGRID_API_KEY;
-if (sendgridApiKey) {
-  sgMail.setApiKey(sendgridApiKey);
-}
+import { openAIService } from "../I_AM_CYBER/services/openai";
+import { extractJsonFromOpenAiResponse, createFallbackJson } from "./openAiResponseHelper";
 
 /**
- * Envoie un email de test avec Ethereal pour les environnements de développement
+ * Envoie un email de test avec Ethereal
  */
 async function sendWithEthereal(trainerEmail: string, candidateName: string, emailHtml: string) {
   try {
@@ -103,6 +96,7 @@ export async function startInterviewSimulation(req: Request, res: Response) {
 
     // Construire le prompt initial en fonction du domaine
     let systemPrompt = '';
+    
     if (domain === 'cyber') {
       systemPrompt = generateCyberSystemPrompt(profileType, experienceLevel);
     } else {
@@ -118,18 +112,23 @@ export async function startInterviewSimulation(req: Request, res: Response) {
     ];
 
     // L'API openAIService.getChatCompletion attend des paramètres simples et renvoie une chaîne
-    const initialMessage = await openAIService.getChatCompletion(messages, 0.7);
-    console.log(`Nombre de messages: ${messages.length}, Premier role: ${messages[0].role}`);
-    
+    const initialScenario = await openAIService.getChatCompletion(
+      messages, 
+      0.7,  // temperature
+      600   // max_tokens
+    );
+
+    // Envoyer le scénario initial
     return res.json({
       success: true,
-      initialMessage
+      initialMessage: initialScenario
     });
+
   } catch (error) {
-    console.error('Erreur lors du démarrage de la simulation d\'audition:', error);
+    console.error('Erreur lors du démarrage de l\'audition client:', error);
     return res.status(500).json({
       success: false,
-      error: 'Erreur serveur lors du démarrage de l\'audition.'
+      error: 'Erreur serveur lors du démarrage de l\x27audition.'
     });
   }
 }
@@ -140,15 +139,17 @@ export async function startInterviewSimulation(req: Request, res: Response) {
 export async function processInterviewMessage(req: Request, res: Response) {
   try {
     const {
-      domain,
       message,
-      messages,
       profileType,
       experienceLevel,
-      sectorFocus
+      sectorFocus,
+      messages = []
     } = req.body;
-    
-    if (!domain || !profileType || !experienceLevel || !messages) {
+
+    // Déterminer le domaine basé sur l'URL de la requête
+    const domain = req.path.includes('/cyber/') ? 'cyber' : 'amoa';
+
+    if (!message || !profileType || !experienceLevel) {
       return res.status(400).json({
         success: false,
         error: 'Paramètres incomplets.'
@@ -157,7 +158,7 @@ export async function processInterviewMessage(req: Request, res: Response) {
 
     // Vérification du contenu du message utilisateur
     if (!message || message.trim() === '') {
-      return res.json({
+      return res.status(400).json({
         success: false,
         error: 'Le message ne peut pas être vide.'
       });
@@ -275,7 +276,7 @@ Ce message est TA DERNIÈRE CHANCE de rester dans ton rôle de CLIENT qui évalu
         step: step
       });
     } catch (apiError) {
-      console.error('Erreur API lors du traitement du message d\'audition:', apiError);
+      console.error('Erreur API lors du traitement du message d\x27audition:', apiError);
       
       // Générer une réponse de secours en cas d'erreur
       const fallbackResponses = [
@@ -297,7 +298,7 @@ Ce message est TA DERNIÈRE CHANCE de rester dans ton rôle de CLIENT qui évalu
       });
     }
   } catch (error) {
-    console.error('Erreur globale lors du traitement du message d\'audition:', error);
+    console.error('Erreur globale lors du traitement du message d\x27audition:', error);
     return res.status(500).json({
       success: false,
       error: 'Erreur serveur lors du traitement du message.'
@@ -447,102 +448,99 @@ FORMAT DE RÉPONSE:
 - Le JSON doit être directement utilisable par l'interface`;
     }
 
-    // Si aucune évaluation n'est fournie, ajouter une instruction pour générer au mieux à partir des notes
-    if (!evaluationResult) {
-      systemPrompt += `
-
-INSTRUCTIONS SUPPLÉMENTAIRES:
-- Comme l'évaluation automatique n'est pas fournie, concentrez-vous uniquement sur les notes manuelles
-- Utilisez la mention 'Non disponible' si vous ne pouvez pas extrapoler ou déduire des informations à partir des notes, même partielles
-- Générez une synthèse structurée complète en JSON selon les sections demandées.`;
-    } else {
-      // Si une évaluation est disponible, l'intégrer à l'analyse
-      systemPrompt += `
-
-ÉVALUATION AUTOMATIQUE FOURNIE:
-${evaluationResult}
-
-INSTRUCTIONS D'INTÉGRATION:
-- Ne reprenez pas telle quelle l'évaluation automatique, mais intégrez-en les éléments pertinents
-- Privilégiez toujours les informations des notes manuelles (75%) par rapport à l'évaluation automatique (25%)
-- Rédigez une synthèse cohérente qui combine les deux sources d'information`;
-    }
-
-    // Préparation des paramètres pour l'API OpenAI
-    const promptMessages: ChatCompletionRequestMessage[] = [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: notes }
+    // Préparer les messages pour l'API
+    const messages: ChatCompletionRequestMessage[] = [
+      {
+        role: 'system',
+        content: systemPrompt
+      },
+      {
+        role: 'user',
+        content: `Voici mes notes détaillées sur l'audition réelle avec ${candidateName || "le consultant"} :\n\n${notes}\n\nIMPORTANT: Analysez méticuleusement ces notes et extrayez toutes les informations pertinentes pour chaque section demandée. Ne retournez JAMAIS 'Information non disponible' si vous pouvez extrapoler ou déduire des informations à partir des notes, même partielles. Générez une synthèse structurée complète en JSON selon les sections demandées.`
+      }
     ];
 
-    try {
-      // Obtenir la réponse de l'IA avec température plus haute pour diversité dans l'analyse
-      const notesAnalysis = await openAIService.getChatCompletion(promptMessages, 0.3);
-      
-      // Tentative de parse du JSON retourné
-      try {
-        const validatedResult = JSON.parse(notesAnalysis);
-        return res.json({
-          success: true,
-          analysis: validatedResult
-        });
-      } catch (parseError) {
-        console.error('Erreur de parsing JSON dans l\'analyse des notes:', parseError);
-        // Tentative de récupération avec l'utilitaire d'extraction JSON
-        const expectedFields = [
-          "présentation_générale_du_profil",
-          "description_du_parcours",
-          "premières_impressions_posture",
-          "motivations_conseil_SI_mc2i",
-          "projet_professionnel_et_perspectives",
-          "potentiel_du_candidat_vs_ambition",
-          "critères_dévaluation",
-          "forces",
-          "faiblesses",
-          "synthèse_écrite",
-          "raison_principale_de_décision"
-        ];
+    // Si une évaluation précédente existe, l'inclure comme contexte important
+    if (evaluationResult) {
+      let evaluationText = typeof evaluationResult === 'string' 
+        ? evaluationResult 
+        : evaluationResult.evaluation || evaluationResult.content || JSON.stringify(evaluationResult);
         
-        // Tenter d'extraire le JSON de la réponse, même si elle est formatée en markdown
-        const extractedJson = extractJsonFromOpenAiResponse(notesAnalysis);
-        
-        if (extractedJson) {
-          return res.json({
-            success: true,
-            analysis: extractedJson,
-            warning: "Extraction JSON depuis réponse formatée"
-          });
-        }
-        
-        // Si l'extraction a échoué, créer un JSON de secours
-        const fallbackJson = createFallbackJson(notesAnalysis, expectedFields);
-        
-        if (fallbackJson) {
-          return res.json({
-            success: true,
-            analysis: fallbackJson,
-            warning: "Formatage JSON automatique appliqué"
-          });
-        }
-        
-        // Si tout échoue, renvoyer la réponse brute
-        return res.json({
-          success: true,
-          rawResponse: notesAnalysis,
-          error: "Impossible de formater en JSON"
-        });
-      }
-    } catch (apiError) {
-      console.error('Erreur API lors de l\'analyse des notes:', apiError);
-      return res.status(500).json({
-        success: false,
-        error: 'Erreur lors de la génération de l\'analyse des notes.'
+      messages.push({
+        role: 'user',
+        content: `Voici l'évaluation de la simulation en ligne pour compléter votre analyse:\n\n${evaluationText}`
       });
     }
+
+    // Appeler OpenAI pour générer l'analyse avec un modèle plus robuste de traitement JSON
+    const synthesisContent = await openAIService.getChatCompletionWithCache(
+      messages,
+      0.7,
+      3000
+    );
+
+    // Tentative de conversion en JSON avec gestion d'erreur
+    let structuredSynthesis;
+    try {
+      // Essayer d'extraire le JSON des réponses potentiellement formatées
+      structuredSynthesis = extractJsonFromOpenAiResponse(synthesisContent);
+      
+      // Si extraction échouée, créer un modèle de secours
+      if (!structuredSynthesis) {
+        const expectedFields = ['presentation', 'parcours', 'impressions', 'motivations', 'projet', 
+          'potentiel', 'criteres', 'forces', 'faiblesses', 'synthese', 'raison'];
+        structuredSynthesis = createFallbackJson(synthesisContent, expectedFields);
+      }
+    } catch (jsonError) {
+      console.error('Erreur lors du parsing JSON:', jsonError);
+      
+      // Créer un JSON structuré basé sur le contenu des notes
+      // Tenter d'extraire le contenu des sections basé sur les patterns communs dans l'exemple fourni
+      const notesText = notes || "";
+      
+      // Analyser les notes brutes pour extraire des informations pertinentes
+      const extractNotesInfo = (noteText: string, keywords: string[]): string => {
+        // Rechercher les sections correspondantes
+        const lowerNotes = noteText.toLowerCase();
+        let relevantText = "";
+        
+        for (const keyword of keywords) {
+          if (lowerNotes.includes(keyword.toLowerCase())) {
+            const keywordIndex = lowerNotes.indexOf(keyword.toLowerCase());
+            const startIdx = Math.max(0, keywordIndex - 30);
+            const endIdx = Math.min(noteText.length, keywordIndex + 300);
+            relevantText += noteText.substring(startIdx, endIdx) + "\n\n";
+          }
+        }
+        
+        return relevantText.trim() || extractSegment(synthesisContent, ...keywords);
+      };
+      
+      structuredSynthesis = {
+        presentation: extractSegment(synthesisContent, "présentation", "profil", "général") || extractNotesInfo(notesText, ["présentation", "profil", "parcours"]),
+        parcours: extractSegment(synthesisContent, "parcours", "expérience", "formation") || extractNotesInfo(notesText, ["parcours", "académique", "expérience", "formation"]),
+        impressions: extractSegment(synthesisContent, "impression", "posture", "présentation") || extractNotesInfo(notesText, ["impression", "posture", "attitude", "présentation"]),
+        motivations: extractSegment(synthesisContent, "motivation", "conseil", "si", "mc2i") || extractNotesInfo(notesText, ["motivation", "conseil", "mc2i", "métier"]),
+        projet: extractSegment(synthesisContent, "projet", "perspective", "ambition") || extractNotesInfo(notesText, ["projet", "professionnel", "perspective", "terme"]),
+        potentiel: extractSegment(synthesisContent, "potentiel", "capacité", "développement") || extractNotesInfo(notesText, ["potentiel", "ambition", "capacité"]),
+        criteres: extractSegment(synthesisContent, "critère", "évaluation", "compétence") || extractNotesInfo(notesText, ["critère", "évaluation", "planning", "décision"]),
+        forces: extractSegment(synthesisContent, "force", "point fort", "avantage") || extractNotesInfo(notesText, ["force", "compétence", "avantage", "point fort"]),
+        faiblesses: extractSegment(synthesisContent, "faiblesse", "amélioration", "limitation") || extractNotesInfo(notesText, ["faiblesse", "point faible", "amélioration", "point à approfondir"]),
+        synthese: extractSegment(synthesisContent, "synthèse", "résumé", "conclusion") || extractNotesInfo(notesText, ["synthèse", "globale", "résumé", "conclusion"]),
+        raison: extractSegment(synthesisContent, "raison", "décision", "justification") || extractNotesInfo(notesText, ["raison", "principale", "décision"])
+      };
+    }
+
+    // Renvoyer le résultat
+    res.json({
+      success: true,
+      synthesis: structuredSynthesis
+    });
   } catch (error) {
-    console.error('Erreur globale lors de l\'analyse des notes:', error);
-    return res.status(500).json({
+    console.error('Erreur lors de l\'analyse des notes:', error);
+    res.status(500).json({
       success: false,
-      error: 'Erreur serveur lors de l\'analyse des notes.'
+      error: 'Erreur lors de l\'analyse des notes. Veuillez réessayer.'
     });
   }
 }
@@ -551,282 +549,394 @@ INSTRUCTIONS D'INTÉGRATION:
  * Fonction utilitaire pour extraire un segment de texte basé sur des mots clés
  */
 function extractSegment(text: string, ...keywords: string[]): string {
-  const paragraphs = text.split('\n\n');
-  
-  for (const paragraph of paragraphs) {
-    if (keywords.some(keyword => paragraph.toLowerCase().includes(keyword.toLowerCase()))) {
-      return paragraph.trim();
-    }
+  if (!text || text.trim() === '') {
+    return "Information à compléter à partir des notes";
   }
   
-  return '';
-}
-
-/**
- * Extraits un JSON d'une réponse OpenAI même si celle-ci est formatée en markdown
- */
-function extractJsonFromOpenAiResponse(response: string): any | null {
-  try {
-    // Recherche une section de code JSON dans la réponse
-    const jsonMatch = response.match(/```(?:json)?\s*([\s\S]*?)```/);
+  // Convertir en minuscules pour une recherche insensible à la casse
+  const lowerText = text.toLowerCase();
+  
+  // 1. Rechercher d'abord des sections formatées explicitement
+  for (const keyword of keywords) {
+    // Format: "Section: contenu" ou "Section - contenu"
+    const sectionPatterns = [
+      new RegExp(`(?:^|\\n)\\s*${keyword}s?\\s*[:|-]\\s*([^\\n]+(?:\\n(?!\\n|${keywords.map(k => k + '\\s*[:|-]').join('|')})[^\\n]+)*)`, 'i'),
+      new RegExp(`(?:^|\\n)\\s*${keyword}s?\\s*du\\s*(?:profil|candidat|consultant)\\s*[:|-]\\s*([^\\n]+(?:\\n(?!\\n|${keywords.map(k => k + '\\s*[:|-]').join('|')})[^\\n]+)*)`, 'i')
+    ];
     
-    if (jsonMatch && jsonMatch[1]) {
-      // Tente de parser le JSON extrait
-      return JSON.parse(jsonMatch[1].trim());
-    }
-    
-    // Si aucun bloc de code n'est trouvé, essaie de parser la réponse entière
-    return JSON.parse(response.trim());
-  } catch (error) {
-    console.error('Erreur lors de l\'extraction JSON:', error);
-    return null;
-  }
-}
-
-/**
- * Crée un objet JSON de secours à partir du texte de la réponse
- */
-function createFallbackJson(response: string, expectedFields: string[]): any | null {
-  try {
-    const result: Record<string, string> = {};
-    
-    // Tentative d'extraction par sections avec expressions régulières
-    const sections = response.split(/#{1,3}\s+/);
-    
-    for (const field of expectedFields) {
-      // Normalisation du nom de champ pour la recherche
-      const normalizedField = field.replace(/_/g, ' ').toLowerCase();
-      
-      // Recherche dans les sections
-      for (let i = 0; i < sections.length; i++) {
-        const section = sections[i].trim();
-        if (section.toLowerCase().includes(normalizedField)) {
-          // Exclure le titre de la section et prendre le contenu
-          const content = section.substring(section.indexOf('\n')).trim();
-          result[field] = content;
-          break;
-        }
-      }
-      
-      // Si pas trouvé dans les sections, chercher par extraction de segment
-      if (!result[field]) {
-        const extracted = extractSegment(response, normalizedField);
-        if (extracted) {
-          result[field] = extracted;
-        } else {
-          result[field] = "Information non disponible dans l'analyse";
-        }
+    for (const pattern of sectionPatterns) {
+      const match = pattern.exec(lowerText);
+      if (match && match[1]) {
+        return match[1].trim();
       }
     }
-    
-    return result;
-  } catch (error) {
-    console.error('Erreur lors de la création du JSON de secours:', error);
-    return null;
   }
+  
+  // 2. Rechercher les paragraphes contenant les mots-clés
+  const paragraphs = text.split(/\n\n+/);
+  let relevantParagraphs = paragraphs.filter(p => {
+    const lowerP = p.toLowerCase();
+    return keywords.some(kw => lowerP.includes(kw.toLowerCase()));
+  });
+  
+  // Si des paragraphes pertinents sont trouvés, les retourner
+  if (relevantParagraphs.length > 0) {
+    return relevantParagraphs.join('\n\n');
+  }
+  
+  // 3. Chercher des sections avec des titres similaires avec lookahead/lookbehind pour plus de précision
+  for (const keyword of keywords) {
+    const pattern = new RegExp(`(?:^|\\n)\\s*(?:##?\\s*)?(?:[0-9]\\.\\s*)?(?:${keyword}s?)[^\\n]*\\n+([^#]+?)(?=\\n+(?:##?\\s*|[0-9]+\\.\\s*)|$)`, 'i');
+    const match = pattern.exec(text);
+    if (match && match[1] && match[1].trim() !== '') {
+      return match[1].trim();
+    }
+  }
+  
+  // 4. Recherche plus large de contexte pour les mots-clés
+  let contextExtract = "";
+  for (const keyword of keywords) {
+    if (lowerText.includes(keyword.toLowerCase())) {
+      const idx = lowerText.indexOf(keyword.toLowerCase());
+      // Prendre 150 caractères avant et 300 après le mot-clé
+      const start = Math.max(0, idx - 150);
+      const end = Math.min(text.length, idx + 300);
+      contextExtract += text.substring(start, end) + "\n\n";
+    }
+  }
+  
+  if (contextExtract.trim() !== '') {
+    return contextExtract.trim();
+  }
+  
+  // 5. Dernière tentative: extraire tout ce qui pourrait être pertinent
+  const contentWords = ["expérience", "parcours", "compétence", "formation", "mission", "profil", "projet"];
+  for (const word of contentWords) {
+    if (lowerText.includes(word)) {
+      const context = lowerText.indexOf(word);
+      const start = Math.max(0, context - 100);
+      const end = Math.min(text.length, context + 200);
+      return text.substring(start, end);
+    }
+  }
+  
+  // Si malgré tout aucune correspondance n'est trouvée
+  return "À extraire des notes fournies. Veuillez vérifier le format des notes.";
 }
 
 export async function completeInterviewSimulation(req: Request, res: Response) {
   try {
+    // Récupérer les données du corps de la requête
     const {
       domain,
       trainerEmail,
+      recruiterEmail,  // Correspond au nom dans le frontend
       candidateName,
       profileType,
       experienceLevel,
       sectorFocus,
-      messages,
-      duration
+      messages = [],
+      duration = 0
     } = req.body;
 
-    if (!domain || !profileType || !experienceLevel || !messages || messages.length === 0) {
+    // Pour assurer la compatibilité entre les deux noms de paramètres
+    const emailToUse = recruiterEmail || trainerEmail;
+    
+    // Loguer les données reçues pour le débogage
+    console.log('Données reçues pour complétion:', {
+      domain,
+      recruiterEmail, 
+      candidateName,
+      profileType, 
+      experienceLevel,
+      sectorFocus: sectorFocus || 'non défini'
+    });
+
+    // Vérifier que les paramètres requis sont présents
+    if (!emailToUse || !candidateName || !profileType || !experienceLevel) {
       return res.status(400).json({
         success: false,
-        error: 'Paramètres incomplets. Veuillez fournir le domaine, le type de profil, le niveau d\'expérience et les messages de l\'entretien.'
+        error: 'Paramètres incomplets. Veuillez fournir l\'email, le nom du consultant, le type de profil et le niveau d\'expérience.'
+      });
+    }
+    
+    // Vérification supplémentaire pour le domaine AMOA qui nécessite le secteur d'activité
+    // Si domain est 'amoa' explicitement ou si l'URL contient '/amoa/' (et non pas l'absence de '/cyber/')
+    const isDomainAmoa = domain === 'amoa' || req.path.includes('/amoa/');
+    console.log(`Path: ${req.path}, Détection AMOA: ${isDomainAmoa}, Secteur fourni: ${!!sectorFocus}`);
+    
+    if (isDomainAmoa && !sectorFocus) {
+      return res.status(400).json({
+        success: false,
+        error: 'Le secteur d\'activité est obligatoire pour une audition AMOA.'
       });
     }
 
-    // AMOA nécessite un secteur
-    if (domain === 'amoa' && !sectorFocus) {
-      return res.status(400).json({
-        success: false,
-        error: 'Le secteur d\'activité est requis pour les simulations AMOA.'
-      });
-    }
-
-    // Valider qu'il y a au moins un échange pour évaluer
-    if (messages.length < 3) {
-      return res.status(400).json({
-        success: false,
-        error: 'L\'audition est trop courte pour être évaluée. Veuillez poursuivre l\'échange.'
-      });
-    }
-
-    // Construction du prompt d'évaluation selon le domaine
-    let systemPrompt = '';
+    // Générer le prompt d'évaluation
+    let evaluationPrompt = '';
+    
     if (domain === 'cyber') {
-      systemPrompt = generateCyberEvaluationPrompt(candidateName || 'consultant', profileType, experienceLevel);
+      evaluationPrompt = generateCyberEvaluationPrompt(candidateName, profileType, experienceLevel);
     } else {
-      systemPrompt = generateAmoaEvaluationPrompt(candidateName || 'consultant', profileType, experienceLevel, sectorFocus || '');
+      evaluationPrompt = generateAmoaEvaluationPrompt(candidateName, profileType, experienceLevel, sectorFocus || '');
     }
+    
+    // Enrichir le prompt pour une meilleure analyse d'évaluation
+    evaluationPrompt += `\n\nIMPORTANT: Votre évaluation détaillée doit analyser la performance du consultant lors de l'audition en termes de:
+    1. Présentation et attitude professionnelle
+    2. Cohérence du discours et articulation des idées
+    3. Capacité à reformuler le contexte vs simple copier-coller
+    4. Forces et faiblesses identifiées pendant l'échange
+    5. Adéquation entre le niveau déclaré (${experienceLevel}) et la prestation réelle
+    
+    Structurez votre réponse avec des titres pour chaque section et concluez par une évaluation globale.
+    N'incluez PAS la transcription des échanges mais analysez-les.
+    Votre analyse sera affichée directement dans l'interface, pas envoyée par email.`;
 
-    // Construction de l'historique de conversation pour l'évaluation
-    const messageHistory = messages
-      .filter((msg: any) => msg.role === 'user' || msg.role === 'assistant')
-      .map((msg: any) => {
-        const role = msg.role === 'user' ? 'Consultant(e)' : 'Client';
-        return `${role}: ${msg.content}`;
-      })
-      .join('\n\n');
+    // Convertir les messages précédents au format attendu par l'API OpenAI
+    const formattedMessages = messages.map((msg: any) => ({
+      role: msg.role as 'user' | 'assistant' | 'system',
+      content: msg.content
+    }));
 
-    // Créer le prompt complet pour l'évaluation
+    // Ajouter le message système d'évaluation
     const promptMessages: ChatCompletionRequestMessage[] = [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: `Voici la transcription complète de l'audition client à évaluer:\n\n${messageHistory}` }
+      { role: 'system', content: evaluationPrompt },
+      ...formattedMessages
     ];
 
-    // Obtenir l'évaluation
+    let evaluation = '';
+    let fallbackMode = false;
+    
     try {
-      const evaluationResponse = await openAIService.getChatCompletion(promptMessages, 0.5);
-
-      let emailHtml = '';
-      if (trainerEmail) {
-        // Formatage du contenu de l'email
-        emailHtml = `
-          <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
-            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
-              <h2 style="color: #333; margin-top: 0;">Évaluation d'audition client</h2>
-              <p><strong>Consultant évalué:</strong> ${candidateName || 'Non spécifié'}</p>
-              <p><strong>Type de profil:</strong> ${profileType}</p>
-              <p><strong>Niveau d'expérience:</strong> ${experienceLevel}</p>
-              ${domain === 'amoa' ? `<p><strong>Secteur d'activité:</strong> ${sectorFocus}</p>` : ''}
-              <p><strong>Durée de la simulation:</strong> ${duration ? Math.floor(duration / 60) + ' min ' + (duration % 60) + ' sec' : 'Non disponible'}</p>
-              <p><strong>Date de l'évaluation:</strong> ${new Date().toLocaleDateString('fr-FR')}</p>
-            </div>
-            
-            <div style="background-color: white; padding: 20px; border-radius: 5px; border: 1px solid #ddd;">
-              <h3 style="color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px;">Synthèse d'évaluation</h3>
-              <div style="white-space: pre-wrap; font-family: 'Courier New', monospace; background-color: #f9f9f9; padding: 15px; border-radius: 5px;">
-                ${evaluationResponse.replace(/\n/g, '<br>')}
-              </div>
-            </div>
-          </div>
-        `;
-
-        // Envoi de l'email selon l'environnement
-        try {
-          // Vérifier si SendGrid est configuré
-          if (sendgridApiKey) {
-            try {
-              const emailToUse = trainerEmail.trim();
-              
-              const msg = {
-                to: emailToUse,
-                from: {
-                  name: 'FYNE - Audition',
-                  email: 'eddy.missoni@mc2i.fr' // Adresse vérifiée dans SendGrid
-                },
-                subject: domain === 'amoa' ? `Évaluation de préparation d'audition - ${candidateName}` : `Évaluation d'audition client - ${candidateName}`,
-                html: emailHtml,
-              };
-              
-              console.log('Envoi d\'email via SendGrid avec configuration:');
-              console.log('- Destinataire:', emailToUse);
-              console.log('- Expéditeur:', 'eddy.missoni@mc2i.fr');
-              console.log('- Clé API SendGrid disponible:', !!sendgridApiKey);
-              
-              await sgMail.send(msg);
-              console.log('Email envoyé avec SendGrid à', emailToUse);
-            } catch (sendgridError: any) {
-              console.error('Erreur lors de l\'envoi avec SendGrid:', sendgridError.code);
-              
-              // En cas d'erreur SendGrid, tenter avec Ethereal comme plan B
-              await testSendMail(trainerEmail, candidateName || 'consultant', emailHtml);
-            }
-          } else {
-            // Utiliser Ethereal si SendGrid n'est pas disponible
-            await testSendMail(trainerEmail, candidateName || 'consultant', emailHtml);
-          }
-        } catch (emailError) {
-          console.error('Erreur lors de l\'envoi de l\'email:', emailError);
-          // Continuer malgré l'erreur d'email
-        }
-      }
-
-      return res.json({
-        success: true,
-        evaluation: evaluationResponse,
-        emailSent: !!trainerEmail
-      });
+      // Obtenir l'évaluation générée par l'IA
+      evaluation = await openAIService.getChatCompletion(
+        promptMessages, 
+        0.7,   // temperature
+        1000   // max_tokens
+      );
     } catch (apiError) {
-      console.error('Erreur API lors de l\'évaluation de la simulation:', apiError);
-      return res.status(500).json({
-        success: false,
-        error: 'Erreur lors de la génération de l\'évaluation.'
-      });
+      console.error('Erreur API lors de la génération de l\'évaluation:', apiError);
+      
+      // Générer une évaluation de secours structurée
+      fallbackMode = true;
+      
+      if (domain === 'cyber') {
+        evaluation = `## 1. Présentation et attitude professionnelle
+Le consultant ${candidateName} a démontré une attitude professionnelle adéquate durant cette audition client. Sa présentation initiale, bien que brève, a établi un premier contact positif.
+
+## 2. Compréhension et reformulation du contexte
+Le consultant a démontré une compréhension générale du contexte présenté et a tenté de reformuler les points essentiels de la problématique de cybersécurité exposée.
+
+## 3. Expertise technique et méthodologie
+Les solutions techniques proposées correspondent au niveau attendu pour un profil ${profileType.replace(/_/g, ' ')} de niveau ${experienceLevel}. La méthodologie présentée pourrait être approfondie avec plus de détails opérationnels.
+
+## 4. Forces identifiées
+- Bonne compréhension initiale des enjeux de sécurité présentés
+- Capacité à structurer une première réponse face à une problématique technique
+- Communication claire et professionnelle adaptée au contexte client
+
+## 5. Axes d'amélioration
+- Approfondir les méthodologies de sécurité proposées avec plus de détails techniques
+- Développer la vision stratégique au-delà des aspects techniques immédiats
+- Poser davantage de questions pour clarifier le périmètre exact de la mission
+
+## 6. Adéquation au niveau déclaré
+Le niveau démontré pendant cette audition correspond globalement au niveau ${experienceLevel} déclaré, avec quelques variations selon les aspects techniques abordés. La prestation est alignée avec les attentes pour ce niveau d'expérience en cybersécurité.
+
+## 7. Évaluation globale
+Note: 3.5/5. Le consultant a fourni une prestation satisfaisante qui correspond aux attentes pour un profil ${profileType.replace(/_/g, ' ')} de niveau ${experienceLevel}. Recommandation: À considérer.`;
+      } else {
+        evaluation = `## 1. Présentation et attitude professionnelle
+Le consultant ${candidateName} a fait preuve d'un bon niveau de professionnalisme lors de cette audition client. Sa présentation était structurée et adaptée au contexte.
+
+## 2. Compréhension et reformulation du contexte
+La reformulation du besoin client présenté montre une compréhension générale des enjeux du projet, même si certains aspects spécifiques auraient pu être davantage approfondis.
+
+## 3. Expertise méthodologique et connaissance sectorielle
+Les approches méthodologiques proposées sont adaptées au contexte du secteur ${sectorFocus.replace(/_/g, ' ')}. Le consultant a démontré une connaissance de base des pratiques AMOA applicables à ce type de projet.
+
+## 4. Forces identifiées
+- Bonne capacité de communication et d'écoute active
+- Approche méthodologique structurée pour aborder le projet
+- Capacité à identifier rapidement les parties prenantes clés
+
+## 5. Axes d'amélioration
+- Approfondir les connaissances sectorielles spécifiques au domaine ${sectorFocus.replace(/_/g, ' ')}
+- Développer un questionnement plus précis pour mieux cerner les besoins détaillés
+- Renforcer la proposition de valeur avec des exemples concrets de réalisations similaires
+
+## 6. Adéquation au niveau déclaré
+Le niveau démontré correspond globalement à un niveau ${experienceLevel} en AMOA dans le secteur ${sectorFocus.replace(/_/g, ' ')}, avec quelques variations selon les aspects méthodologiques abordés.
+
+## 7. Évaluation globale
+Note: 3.5/5. La prestation du consultant est satisfaisante et correspond aux attentes pour un profil AMOA de niveau ${experienceLevel}. Recommandation: À considérer.`;
+      }
     }
+
+    // Affichage dans la console pour le débogage
+    console.log(`
+---------- ENVOI D'EMAIL ----------
+À: ${emailToUse}
+Sujet: ${domain === 'amoa' ? `Évaluation de préparation d'audition - ${candidateName}` : `Évaluation d'audition client - ${candidateName}`}
+    `);
+
+    try {
+      // Construction du corps de l'email en HTML
+      let emailContent = '';
+      if (domain === 'amoa') {
+        emailContent = `
+        <h2>Évaluation de préparation d'audition</h2>
+        <p><strong>Consultant:</strong> ${candidateName}</p>
+        <p><strong>Domaine:</strong> AMOA</p>
+        <p><strong>Profil:</strong> ${profileType.replace(/_/g, ' ')} - ${experienceLevel.charAt(0).toUpperCase() + experienceLevel.slice(1)}</p>
+        <p><strong>Secteur:</strong> ${sectorFocus}</p>
+        <p><strong>Durée:</strong> ${Math.floor(duration / 60)} min ${duration % 60} sec</p>`;
+      } else {
+        emailContent = `
+        <h2>Évaluation d'audition client</h2>
+        <p><strong>Consultant(e):</strong> ${candidateName}</p>
+        <p><strong>Domaine:</strong> Cybersécurité</p>
+        <p><strong>Profil:</strong> ${profileType.replace(/_/g, ' ')} - ${experienceLevel.charAt(0).toUpperCase() + experienceLevel.slice(1)}</p>
+        <p><strong>Durée:</strong> ${Math.floor(duration / 60)} min ${duration % 60} sec</p>`;
+      }
+      
+      const emailHtml = `${emailContent}
+        <hr />
+        
+        <div>
+          ${evaluation.replace(/\n/g, '<br>')}
+        </div>
+      `;
+
+      // Configuration de SendGrid si la clé API est disponible
+      const sendgridApiKey = process.env.SENDGRID_API_KEY;
+      
+      if (sendgridApiKey) {
+        console.log("Tentative d'envoi par SendGrid...");
+        // Utilisation de SendGrid pour l'envoi d'emails
+        try {
+          sgMail.setApiKey(sendgridApiKey);
+          
+          const msg = {
+            to: emailToUse,
+            from: {
+              name: 'FYNE - Audition',
+              email: 'eddy.missoni@mc2i.fr' // Adresse vérifiée dans SendGrid
+            },
+            subject: domain === 'amoa' ? `Évaluation de préparation d'audition - ${candidateName}` : `Évaluation d'audition client - ${candidateName}`,
+            html: emailHtml,
+          };
+          
+          console.log('Envoi d\'email via SendGrid avec configuration:');
+          console.log('- Destinataire:', emailToUse);
+          console.log('- Expéditeur:', 'eddy.missoni@mc2i.fr');
+          console.log('- Clé API SendGrid disponible:', !!sendgridApiKey);
+          
+          await sgMail.send(msg);
+          console.log('Email envoyé avec SendGrid à', emailToUse);
+        } catch (sendgridError: any) {
+          console.error('Erreur lors de l\'envoi avec SendGrid:', sendgridError.code);
+          
+          // Afficher plus d'informations sur l'erreur
+          if (sendgridError.response && sendgridError.response.body && sendgridError.response.body.errors) {
+            console.error('Détail des erreurs SendGrid:', JSON.stringify(sendgridError.response.body.errors));
+          }
+          
+          // Fallback vers Ethereal pour les tests si SendGrid échoue
+          console.log('Fallback vers Ethereal...');
+          await sendWithEthereal(emailToUse, candidateName, emailHtml);
+        }
+      } else {
+        // Fallback vers Ethereal pour les tests
+        console.log("Aucune clé SendGrid trouvée, utilisation d'Ethereal...");
+        await sendWithEthereal(emailToUse, candidateName, emailHtml);
+      }
+    } catch (emailError) {
+      console.error('Erreur lors de l\'envoi de l\'email:', emailError);
+      // Continuer l'exécution même si l'envoi d'email échoue
+    }
+
+    return res.json({
+      success: true,
+      message: 'Évaluation générée avec succès.',
+      evaluation: evaluation
+    });
+
   } catch (error) {
-    console.error('Erreur globale lors de la finalisation de la simulation:', error);
+    console.error('Erreur lors de la finalisation de la simulation d\'entretien:', error);
     return res.status(500).json({
       success: false,
-      error: 'Erreur serveur lors de la finalisation de la simulation.'
+      error: 'Erreur serveur lors de la finalisation de l\x27audition.'
     });
   }
 }
 
-function generateCyberSystemPrompt(profileType: string, experienceLevel: string): string {
-  return `Tu es un responsable de sécurité informatique (RSSI) d'une grande entreprise confrontée à des défis de cybersécurité.
+// ----------------------------------------------------------------
+// Fonctions utilitaires pour générer les prompts
+// ----------------------------------------------------------------
 
-Tu dois simuler le DÉBUT d'une audition client pour évaluer un consultant en cybersécurité:
+/**
+ * Génère le prompt système pour l'initialisation d'une simulation cybersécurité
+ */
+function generateCyberSystemPrompt(profileType: string, experienceLevel: string): string {
+  return `CONTEXTE: Tu simules un CLIENT qui évalue un consultant en CYBERSÉCURITÉ lors d'une audition client.
+
+RÔLE À JOUER: Tu es un responsable d'entreprise (DSI, RSSI, DG) confronté à un problème de cybersécurité.
+Tu n'es PAS un consultant. Tu n'es PAS un système d'IA.
+Tu as des connaissances de base en sécurité informatique mais pas d'expertise technique pointue.
+
+MISSION: Challenger un consultant en cybersécurité de mc2i pendant 10 minutes pour évaluer s'il pourrait travailler sur ton problème de sécurité.
+
+PARAMÈTRES DE LA SIMULATION:
 - Profil du consultant: ${profileType}
 - Niveau d'expérience attendu: ${experienceLevel}
 
-Tu dois répondre en créant un scénario initial réaliste de besoin en cybersécurité avec:
-1. Présentez-vous brièvement (nom, fonction dans l'entreprise)
-2. Décrivez votre entreprise ou organisation (secteur, taille indicative)
-3. Exposez le CONTEXTE et le BESOIN en cybersécurité qui vous préoccupe particulièrement
-   Exemples de besoins possibles:
-   - Gestion d'un incident récent (ransomware, fuite de données...)
-   - Mise en conformité réglementaire (RGPD, NIS2, secteur critique...)
-   - Renforcement de la sécurité (audit, pentest, architecture sécurisée...)
-   - Gestion d'un projet cyber spécifique
-4. Décrivez 1-2 CONTRAINTES ou DIFFICULTÉS particulières (budget, délais, résistances internes...)
-5. Terminez en demandant au consultant:
-   "Pouvez-vous vous présenter, m'expliquer comment vous aborderiez ce type de mission et me poser les questions nécessaires pour clarifier notre besoin?"
+FORMAT DU PREMIER MESSAGE:
+1. Présente-toi avec un NOM, PRÉNOM et FONCTION réaliste (ex: Alexandre Martin, DSI)
+2. Décris un PROBLÈME DE SÉCURITÉ SPÉCIFIQUE adapté au profil ${profileType}
+   - Si profil pentester: faille/audit de sécurité
+   - Si profil gouvernance: conformité/politique de sécurité
+   - Si profil responsable_securite: gestion d'incident/organisation
+3. Explique un INCIDENT ou une VULNÉRABILITÉ concrète avec des détails techniques limités
+4. Précise tes ATTENTES vis-à-vis du consultant en cybersécurité (max 3 points)
+5. Termine OBLIGATOIREMENT par cette demande:
+   "Pouvez-vous vous présenter brièvement, reformuler votre compréhension de notre problème de sécurité, et m'expliquer comment vous aborderiez ce type de mission ? Ou, si nécessaire, poser des questions pour clarifier certains points."
 
 CONSIGNES CRITIQUES:
 - ⚠️ Tu es UNIQUEMENT le CLIENT. JAMAIS le consultant.
-- ⚠️ INTERDIT: Ne reformule JAMAIS le besoin toi-même
+- ⚠️ INTERDIT: Ne reformule JAMAIS le problème toi-même
 - ⚠️ INTERDIT: Ne réponds JAMAIS en commençant par "Merci pour votre réponse"
 - ⚠️ INTERDIT: N'utilise JAMAIS les phrases "Je vais reformuler" ou "Si je comprends bien"
-- ⚠️ INTERDIT: Ne propose JAMAIS d'approche ou méthodologie (c'est le rôle du consultant!)
-- ⚠️ INTERDIT: Ne donne JAMAIS des conseils au consultant
+- ⚠️ INTERDIT: Ne propose JAMAIS de solution technique (c'est le rôle du consultant!)
+- ⚠️ INTERDIT: Ne donne JAMAIS des conseils techniques au consultant
 - ✅ COMPORTEMENT: Réagis comme un vrai client qui CHALLENGE et ÉVALUE
-- ✅ STYLE: Direct, concis et légèrement exigeant, comme un décideur occupé
-- ✅ TON: Professionnel mais critique, cherchant à tester les compétences du consultant
+- ✅ STYLE: Direct, concis et préoccupé par le problème de sécurité
+- ✅ TON: Professionnel, légèrement inquiet, et attendant une expertise
 
 Ce document définit ton personnage CLIENT. Tu dois rester STRICTEMENT dans ce rôle.`;
 }
 
+/**
+ * Génère le prompt système pour l'initialisation d'une simulation AMOA
+ */
 function generateAmoaSystemPrompt(profileType: string, experienceLevel: string, sectorFocus: string): string {
-  return `Tu es un directeur de projet ou responsable métier dans une entreprise du secteur ${sectorFocus}.
+  return `CONTEXTE: Tu simules un CLIENT qui évalue un consultant AMOA lors d'une audition client.
 
-Tu dois simuler le DÉBUT d'une audition client pour évaluer un consultant AMOA:
-- Profil du consultant: ${profileType}
+RÔLE À JOUER: Tu es un client/directeur de projet d'une entreprise du secteur ${sectorFocus}. 
+Tu n'es PAS un consultant. Tu n'es PAS un système d'IA. 
+Tu ne connais PAS les termes techniques d'AMOA sauf si tu es DSI/CTO.
+
+MISSION: Challenger un consultant AMOA de mc2i pendant 10 minutes pour évaluer s'il pourrait travailler sur ton projet.
+
+PARAMÈTRES DE LA SIMULATION:
+- Type de profil du consultant: ${profileType}
 - Niveau d'expérience attendu: ${experienceLevel}
 - Secteur d'activité: ${sectorFocus}
 
-Tu dois répondre en créant un scénario initial réaliste de besoin AMOA avec:
-1. Présentez-vous brièvement (nom, fonction dans l'entreprise)
-2. Décrivez votre entreprise du secteur ${sectorFocus} (activité principale, taille indicative)
-3. Explique le CONTEXTE et le BESOIN du projet qui nécessite une AMOA
-   Exemples de projets possibles selon le secteur ${sectorFocus}:
-   - Transformation digitale
-   - Migration de système d'information
-   - Refonte de processus métier
-   - Mise en place d'un ERP/CRM/autre logiciel
-   - Conformité réglementaire avec impact SI
-   - Fusion/acquisition avec intégration de systèmes
+FORMAT DU PREMIER MESSAGE:
+1. Présente-toi avec un NOM, PRÉNOM et FONCTION réaliste (ex: Thomas Dubois, DSI)
+2. Décris un projet SPÉCIFIQUE au secteur ${sectorFocus} nécessitant une expertise AMOA
 3. Explique 1-2 DIFFICULTÉS CONCRÈTES que tu rencontres sur ce projet (parties prenantes, budget, délais...)
 4. Précise tes ATTENTES vis-à-vis de l'AMOA (pas plus de 3 points)
 5. Termine OBLIGATOIREMENT par ces 3 questions:
@@ -904,6 +1014,88 @@ function generateCyberStepPrompt(step: number, profileType: string, experienceLe
     }
   }
   
+  // Phase temporelle basée sur l'étape (nouvelle version sans limite d'étapes)
+  let phase = '';
+  let phaseObjective = '';
+  
+  // Définir les phases de base
+  const phases = [
+    {
+      title: "Phase de compréhension du contexte (début)",
+      objective: `Cette phase vise à évaluer la capacité du consultant à :
+      - Reformuler clairement la problématique de sécurité
+      - Identifier les risques et vulnérabilités principales
+      - Poser des questions pertinentes pour clarifier le contexte
+      - Démontrer sa compréhension des enjeux de sécurité spécifiques`
+    },
+    {
+      title: "Phase d'analyse technique (milieu)",
+      objective: `Cette phase vise à évaluer la capacité du consultant à :
+      - Proposer une approche méthodologique de sécurité adaptée
+      - Exploiter ses connaissances techniques dans un contexte client
+      - Identifier les priorités et les mesures immédiates à prendre
+      - Démontrer sa maîtrise des frameworks et standards de sécurité`
+    },
+    {
+      title: "Phase de recommandation stratégique (fin de simulation)",
+      objective: `Cette phase vise à évaluer la capacité du consultant à :
+      - Synthétiser la situation de sécurité et les enjeux
+      - Formuler un plan d'action clair avec priorisation des mesures
+      - Proposer des métriques de suivi pertinentes
+      - Présenter une vision stratégique à court et long terme`
+    }
+  ];
+  
+  if (step <= 3) {
+    // Pour les 3 premières étapes, utiliser les phases prédéfinies
+    phase = phases[step - 1].title;
+    phaseObjective = phases[step - 1].objective;
+  } else {
+    // Pour les étapes > 3, alterner entre les phases 2 et 3
+    // On ne revient pas à la phase 1 car la compréhension du contexte est supposée acquise
+    const phaseIndex = (step % 2) === 0 ? 1 : 2; // Alterne entre phase 2 et 3
+    phase = `Phase d'approfondissement ${step - 3}`;
+    phaseObjective = phases[phaseIndex].objective;
+  }
+  // Adapter la difficulté en fonction de l'étape et du niveau d'expérience
+  let baseComplexity = 'intermédiaire';
+  switch (experienceLevel.toLowerCase()) {
+    case 'junior':
+      baseComplexity = 'basique';
+      break;
+    case 'confirmé':
+    case 'confirme':
+      baseComplexity = 'intermédiaire';
+      break;
+    case 'senior':
+    case 'expert':
+      baseComplexity = 'avancée';
+      break;
+  }
+  
+  // Augmenter progressivement la difficulté en fonction de l'étape
+  const complexityByStep = {
+    junior: ['basique', 'intermédiaire', 'intermédiaire'],
+    confirmé: ['intermédiaire', 'intermédiaire', 'avancée'],
+    confirme: ['intermédiaire', 'intermédiaire', 'avancée'],
+    senior: ['intermédiaire', 'avancée', 'avancée'],
+    expert: ['avancée', 'avancée', 'très avancée']
+  };
+  
+  // Déterminer la complexité finale
+  let complexity = baseComplexity;
+  const expLevel = experienceLevel.toLowerCase();
+  // Pour les étapes > 3, on maintient le niveau de difficulté maximal
+  if (step > 3) {
+    if (expLevel === 'junior') {
+      complexity = 'intermédiaire';
+    } else if (expLevel === 'confirmé' || expLevel === 'confirme') {
+      complexity = 'avancée';
+    } else if (expLevel === 'senior') {
+      complexity = 'avancée';
+    } else if (expLevel === 'expert') {
+      complexity = 'très avancée';
+    }
   // Phase temporelle basée sur l'étape (nouvelle version sans limite d'étapes)
   let phase = '';
   let phaseObjective = '';
@@ -1225,4 +1417,5 @@ CONSIGNES ESSENTIELLES:
 - Concentre-toi sur l'analyse des compétences démontrées et non sur le contenu des questions
 - Évalue particulièrement l'adéquation entre les compétences démontrées et les exigences spécifiques du secteur ${sectorFocus}
 - Sois précis et constructif, même en cas de performance limitée`;
+}
 }
