@@ -241,7 +241,7 @@ export default function CyberModeSelection() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.2 }}
-                className="relative overflow-hidden shadow-xl cursor-pointer transform transition-all duration-300 hover:shadow-2xl h-full w-full flex-1 rounded-xl"
+                className="relative overflow-hidden shadow-xl transform transition-all duration-300 hover:shadow-2xl h-full w-full flex-1 rounded-xl"
                 onMouseEnter={() => setHoveredMode(category.id)}
                 onMouseLeave={() => setHoveredMode(null)}
               >
@@ -286,7 +286,7 @@ export default function CyberModeSelection() {
                       <div className="space-y-3">
                         {category.items && category.items.map((item) => (
                           <Link key={item.id} href={item.comingSoon ? '#' : item.destination} onClick={(e) => item.comingSoon && e.preventDefault()}>
-                            <div className="flex items-center p-3 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors">
+                            <div className="flex items-center p-3 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors cursor-pointer border border-white/20 shadow-sm hover:shadow-md hover:border-white/40">
                               <div className="mr-3 text-white">
                                 {item.icon}
                               </div>
@@ -299,7 +299,7 @@ export default function CyberModeSelection() {
                                   Bientôt
                                 </div>
                               ) : (
-                                <div className="text-white">
+                                <div className="text-white bg-blue-500/30 p-1 rounded-full">
                                   <ArrowRight className="h-4 w-4" />
                                 </div>
                               )}
