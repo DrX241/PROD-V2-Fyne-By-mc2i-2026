@@ -186,16 +186,22 @@ export async function processInterviewMessage(req: Request, res: Response) {
     }
     
     // Détection de messages potentiellement incohérents ou hors sujet
-    const isVeryShortMessage = message.length < 10;
-    const isLikelyTest = /^(test|bonjour|hello|salut|hey|hi|yo|ok|oui|non)$/i.test(message.trim());
-    
-    if (isVeryShortMessage || isLikelyTest) {
-      return res.json({
-        success: true,
-        response: "Je vous prie de fournir une réponse plus détaillée. Pourriez-vous développer votre propos ou répondre à ma question précédente de manière plus complète s'il vous plaît ?",
-        currentModel: openAIService.getCurrentModelName(),
-        step: step
-      });
+    // Pour éviter de bloquer le premier échange, on ne vérifie que si on a déjà au moins 
+    // 2 messages dans l'historique (le message système initial + au moins une réponse précédente)
+    if (messages.length >= 2) {
+      // Maintenant on vérifie uniquement les messages très courts (moins de 5 caractères) 
+      // ou qui sont clairement des tests sans contexte
+      const isTooShort = message.length < 5;
+      const isLikelyTest = /^(test|hi|yo|ok)$/i.test(message.trim());
+      
+      if (isTooShort || isLikelyTest) {
+        return res.json({
+          success: true,
+          response: "Je vous prie de fournir une réponse plus détaillée. Pourriez-vous développer votre propos ou répondre à ma question précédente de manière plus complète s'il vous plaît ?",
+          currentModel: openAIService.getCurrentModelName(),
+          step: step
+        });
+      }
     }
     
     // Ajouter le message système actuel et le message utilisateur le plus récent
