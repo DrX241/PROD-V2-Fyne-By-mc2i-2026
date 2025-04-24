@@ -396,8 +396,22 @@ const AmoaInterviewSimulation: React.FC = () => {
   const completeSimulation = async () => {
     if (simulationComplete) return;
     
-    // Si l'utilisateur a ignoré la saisie des informations de contact, les demander maintenant
-    if (isSkippedInfo) {
+    // Vérifier si toutes les informations nécessaires sont disponibles
+    const recruiterEmail = form.getValues('recruiterEmail');
+    const candidateName = form.getValues('candidateName');
+    const profileType = form.getValues('profileType');
+    const experienceLevel = form.getValues('experienceLevel');
+    const sectorFocus = form.getValues('sectorFocus');
+    
+    // Si l'utilisateur a ignoré la saisie des informations de contact OU si email/nom manquent, demander les infos
+    if (isSkippedInfo || !recruiterEmail || !candidateName) {
+      // Pré-remplir le formulaire final avec les valeurs déjà entrées
+      contactForm.setValue('profileType', profileType);
+      contactForm.setValue('experienceLevel', experienceLevel);
+      contactForm.setValue('sectorFocus', sectorFocus);
+      if (recruiterEmail) contactForm.setValue('recruiterEmail', recruiterEmail);
+      if (candidateName) contactForm.setValue('candidateName', candidateName);
+      
       setShowContactForm(true);
       return;
     }
@@ -629,7 +643,7 @@ const AmoaInterviewSimulation: React.FC = () => {
                   name="profileType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-white">Type de profil</FormLabel>
+                      <FormLabel className="text-white">Type de profil *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger className="bg-blue-700 border-blue-600 text-white">
@@ -654,7 +668,7 @@ const AmoaInterviewSimulation: React.FC = () => {
                   name="experienceLevel"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-white">Niveau d'expérience</FormLabel>
+                      <FormLabel className="text-white">Niveau d'expérience *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger className="bg-blue-700 border-blue-600 text-white">
@@ -678,7 +692,7 @@ const AmoaInterviewSimulation: React.FC = () => {
                   name="sectorFocus"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-white">Secteur d'activité</FormLabel>
+                      <FormLabel className="text-white">Secteur d'activité *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger className="bg-blue-700 border-blue-600 text-white">
@@ -884,7 +898,7 @@ const AmoaInterviewSimulation: React.FC = () => {
                           name="sectorFocus"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Secteur d'activité</FormLabel>
+                              <FormLabel>Secteur d'activité *</FormLabel>
                               <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
                                   <SelectTrigger className="bg-blue-700 border-blue-600 text-white">
