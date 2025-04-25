@@ -14,6 +14,7 @@ import { extractJsonFromOpenAiResponse, createFallbackJson } from "./openAiRespo
 import { startInterviewSimulation, processInterviewMessage, completeInterviewSimulation, analyzeInterviewNotes } from "./interviewSimulationController";
 import { getRandomScenarios, getScenarioById, getScenariosByDifficulty } from "./impostorService";
 import { startAgentSession, completeAgentSession } from "./cyberAgentController";
+import { generateDebriefing, getContextualDocumentation } from "./cyberLearningController";
 
 /**
  * Génère un document HTML formaté pour la synthèse d'audition
