@@ -183,14 +183,27 @@ const EvidenceViewer = ({ evidence }: { evidence: Evidence | null }) => {
           </div>
         )}
         
-        <div className="mt-6 text-gray-200 whitespace-pre-line bg-gray-800 p-4 rounded-md border border-gray-700">
+        <div className="mt-6 text-gray-200 bg-gray-800 p-4 rounded-md border border-gray-700">
           <div className="evidence-content" style={{ 
             whiteSpace: 'pre-wrap',
             lineHeight: '1.6', 
             letterSpacing: '0.01em',
             fontSize: '0.95rem'
           }}>
-            {evidence.content}
+            {/* Remplacer les sauts de ligne uniques par des sauts de paragraphe pour une meilleure lisibilité */}
+            {evidence.content
+              .split('\n\n')
+              .map((paragraph, idx) => (
+                <p key={idx} className={idx < evidence.content.split('\n\n').length - 1 ? "mb-4" : "mb-0"}>
+                  {paragraph.split('\n').map((line, lineIdx) => (
+                    <React.Fragment key={lineIdx}>
+                      {line}
+                      {lineIdx < paragraph.split('\n').length - 1 && <br />}
+                    </React.Fragment>
+                  ))}
+                </p>
+              ))
+            }
           </div>
         </div>
       </div>
@@ -905,45 +918,24 @@ export default function ProjetImposteur() {
                     </div>
                   )}
                 
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button 
-                      variant="outline" 
-                      onClick={() => generateNewScenario(0)}
-                      disabled={isGeneratingScenario}
-                      className="text-white border-gray-600 hover:bg-gray-800"
-                    >
-                      {isGeneratingScenario ? (
-                        <span className="flex items-center gap-2">
-                          <span className="h-4 w-4 animate-spin rounded-full border-b-2 border-primary"></span>
-                          Génération...
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-2">
-                          <PlusCircle className="h-4 w-4" />
-                          Générer un scénario
-                        </span>
-                      )}
-                    </Button>
-                    
-                    <Button 
-                      variant="default" 
-                      onClick={() => generateNewScenario(0, true)}
-                      disabled={isGeneratingScenario}
-                      className="text-white bg-red-700 hover:bg-red-800"
-                    >
-                      {isGeneratingScenario ? (
-                        <span className="flex items-center gap-2">
-                          <span className="h-4 w-4 animate-spin rounded-full border-b-2 border-primary"></span>
-                          Génération...
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-2">
-                          <FlameIcon className="h-4 w-4" />
-                          Tester un scénario difficile
-                        </span>
-                      )}
-                    </Button>
-                  </div>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => generateNewScenario(0)}
+                    disabled={isGeneratingScenario}
+                    className="text-white border-gray-600 hover:bg-gray-800"
+                  >
+                    {isGeneratingScenario ? (
+                      <span className="flex items-center gap-2">
+                        <span className="h-4 w-4 animate-spin rounded-full border-b-2 border-primary"></span>
+                        Génération...
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <PlusCircle className="h-4 w-4" />
+                        Générer un nouveau scénario
+                      </span>
+                    )}
+                  </Button>
                 </div>
               </div>
             </motion.div>
