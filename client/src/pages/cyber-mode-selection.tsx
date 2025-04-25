@@ -283,23 +283,23 @@ export default function CyberModeSelection() {
                     
                     {/* Liste des modules dans cette catégorie */}
                     <div className="mt-4 flex-grow">
-                      <div className="space-y-6">
+                      <div className="space-y-4">
                         {category.items && category.items.map((item) => (
                           <Link key={item.id} href={item.comingSoon ? '#' : item.destination} onClick={(e) => item.comingSoon && e.preventDefault()}>
-                            <div className="flex items-center p-4 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors cursor-pointer border border-white/20 shadow-sm hover:shadow-md hover:border-white/40">
-                              <div className="mr-4 text-white">
+                            <div className="flex items-center p-3 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors cursor-pointer border border-white/20 shadow-sm hover:shadow-md hover:border-white/40">
+                              <div className="mr-3 text-white">
                                 {item.icon}
                               </div>
                               <div className="flex-grow">
                                 <h3 className="text-white font-medium">{item.title}</h3>
                               </div>
                               {item.comingSoon ? (
-                                <div className="text-xs bg-blue-900/60 text-white px-3 py-1.5 rounded flex items-center ml-3">
-                                  <span className="animate-pulse mr-1.5">•</span>
+                                <div className="text-xs bg-blue-900/60 text-white px-2 py-1 rounded flex items-center">
+                                  <span className="animate-pulse mr-1">•</span>
                                   Bientôt
                                 </div>
                               ) : (
-                                <div className="text-white bg-blue-500/30 p-1.5 rounded-full ml-3">
+                                <div className="text-white bg-blue-500/30 p-1 rounded-full">
                                   <ArrowRight className="h-4 w-4" />
                                 </div>
                               )}
