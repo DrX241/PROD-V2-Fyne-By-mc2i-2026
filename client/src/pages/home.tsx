@@ -400,51 +400,11 @@ export default function Home() {
   const isFuturistic = themeMode === 'futuristic';
   
   // État pour stocker les scénarios chargés
-  const [scenarios, setScenarios] = useState<any[]>([]);
-  const [isLoadingScenarios, setIsLoadingScenarios] = useState(true);
-  const [refreshTime, setRefreshTime] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  // Les états et fonctions liés aux scénarios ont été supprimés de la page d'accueil
+  // Ils sont maintenant uniquement dans la section "GAMIFICATION AVANCÉE" de "I AM mc2i"
   
-  // Fonction pour charger les scénarios depuis l'API
-  const loadScenarios = async (force = false) => {
-    try {
-      setIsLoadingScenarios(true);
-      setError(null);
-      
-      const response = await axios.get('/api/amoa/scenarios', {
-        params: {
-          count: 10,
-          force: force ? 'true' : 'false'
-        }
-      });
-      
-      if (response.data && response.data.scenarios) {
-        setScenarios(response.data.scenarios);
-        
-        // Mise à jour du temps de rafraîchissement
-        if (response.data.nextUpdate) {
-          setRefreshTime(new Date(response.data.nextUpdate).toLocaleTimeString());
-        }
-      }
-    } catch (err) {
-      console.error("Erreur lors du chargement des scénarios:", err);
-      setError("Impossible de charger les scénarios. Veuillez réessayer plus tard.");
-    } finally {
-      setIsLoadingScenarios(false);
-    }
-  };
-  
-  // Charger les scénarios au chargement de la page
-  useEffect(() => {
-    loadScenarios();
-    
-    // Configurer un intervalle pour vérifier si de nouveaux scénarios sont disponibles
-    const intervalId = setInterval(() => {
-      loadScenarios();
-    }, 60000); // Vérification toutes les minutes
-    
-    return () => clearInterval(intervalId);
-  }, []);
+  // L'effet de chargement des scénarios a été supprimé
+  // Ce code est maintenant uniquement dans la section "GAMIFICATION AVANCÉE" de "I AM mc2i"
   
   // Modules avec animations interactives
   const modules = [
@@ -957,101 +917,7 @@ export default function Home() {
           </div>
         )}
         
-        <div className="container px-4 mx-auto relative z-10">
-          {/* En-tête de la section avec animation */}
-          <motion.div 
-            className="max-w-xl mx-auto text-center mb-12 lg:mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-          >
-            <div className={`inline-flex items-center px-3 py-1.5 rounded-full ${
-              isFuturistic 
-                ? 'bg-emerald-900/30 border border-emerald-700/30 text-emerald-400' 
-                : 'bg-emerald-100 text-emerald-800'
-              } text-sm font-medium mb-6`}>
-              <ListChecks className="mr-2 h-4 w-4" />
-              IA & Gestion de projet
-            </div>
-            
-            <h2 className={`text-3xl font-bold mb-6 ${
-              isFuturistic 
-                ? 'text-white font-cyber-title' 
-                : 'text-gray-800'
-              }`}>
-              Scénarios de projet enrichis par l'IA
-            </h2>
-            
-            <p className={`text-lg ${
-              isFuturistic ? 'text-blue-100/80' : 'text-gray-600'
-             }`}>
-              Explorez des scénarios générés automatiquement pour le module "Qui est l'imposteur?". Ces simulations évoluent toutes les 10 minutes pour vous offrir une expérience d'apprentissage unique.
-            </p>
-            
-            {refreshTime && (
-              <p className={`mt-4 text-sm ${isFuturistic ? 'text-emerald-400/80' : 'text-emerald-600'}`}>
-                Prochaine actualisation à {refreshTime}
-              </p>
-            )}
-            
-            {error && (
-              <p className="mt-4 text-sm text-red-500">
-                {error}
-              </p>
-            )}
-            
-            {/* Bouton pour rafraîchir manuellement */}
-            <Button 
-              onClick={() => loadScenarios(true)} 
-              disabled={isLoadingScenarios}
-              className={`mt-6 ${
-                isFuturistic 
-                  ? 'bg-gradient-to-r from-emerald-800 to-blue-800 hover:from-emerald-700 hover:to-blue-700 border border-emerald-600/30' 
-                  : 'bg-emerald-600 hover:bg-emerald-700'
-                } text-white`}
-            >
-              {isLoadingScenarios ? (
-                <div className="flex items-center">
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Génération...
-                </div>
-              ) : (
-                <div className="flex items-center">
-                  <Sparkles className="mr-2 h-4 w-4" />
-                  Générer de nouveaux scénarios
-                </div>
-              )}
-            </Button>
-          </motion.div>
-          
-          {/* Grille de scénarios avec loading state */}
-          <div className="mt-8">
-            {isLoadingScenarios && scenarios.length === 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-                {Array.from({ length: 10 }).map((_, i) => (
-                  <div key={i} className={`${isFuturistic ? 'bg-blue-900/40' : 'bg-gray-100'} rounded-xl h-64 animate-pulse`}></div>
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-                {scenarios.map((scenario, index) => (
-                  <ScenarioCard key={scenario.id || index} scenario={scenario} index={index} />
-                ))}
-              </div>
-            )}
-          </div>
-          
-          {/* Note en bas de la section */}
-          <div className="text-center mt-12">
-            <p className={`text-sm ${isFuturistic ? 'text-blue-300/70' : 'text-gray-500'}`}>
-              Cliquez sur un scénario pour lancer l'enquête ou générez-en un nouveau à tout moment.
-            </p>
-          </div>
-        </div>
+        {/* Section des scénarios supprimée - Maintenant disponible uniquement dans GAMIFICATION AVANCÉE de I AM mc2i */}
       </div>
       
       {/* Section Caracteristiques */}
