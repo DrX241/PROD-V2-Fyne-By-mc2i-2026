@@ -824,47 +824,31 @@ export default function ProjetImposteur() {
                   {/* Message informatif sur la génération manuelle */}
                   <p className="text-center text-sm text-gray-400">La génération est désormais manuelle pour économiser les ressources.</p>
                   
-                  {availableScenarios.length === 0 && (
-                    <Button 
-                      variant="default" 
-                      onClick={() => generateNewScenario(0)}
-                      disabled={isGeneratingScenario}
-                      className="bg-purple-700 hover:bg-purple-800"
-                    >
-                      {isGeneratingScenario ? (
-                        <span className="flex items-center gap-2">
-                          <span className="h-4 w-4 animate-spin rounded-full border-b-2 border-primary"></span>
-                          Génération...
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-2">
-                          <PlusCircle className="h-4 w-4" />
-                          Générer votre premier scénario
-                        </span>
-                      )}
-                    </Button>
-                  )}
-                  
-                  {availableScenarios.length > 0 && (
-                    <Button 
-                      variant="outline" 
-                      onClick={() => generateNewScenario(0)}
-                      disabled={isGeneratingScenario}
-                      className="text-white border-gray-600 hover:bg-gray-800"
-                    >
-                      {isGeneratingScenario ? (
-                        <span className="flex items-center gap-2">
-                          <span className="h-4 w-4 animate-spin rounded-full border-b-2 border-primary"></span>
-                          Génération...
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-2">
-                          <PlusCircle className="h-4 w-4" />
-                          Générer un nouveau scénario
-                        </span>
-                      )}
-                    </Button>
-                  )}
+                  {/* Bouton pour générer un scénario - toujours affiché */}
+                  <Button 
+                    variant={availableScenarios.length === 0 ? "default" : "outline"}
+                    onClick={() => generateNewScenario(0)}
+                    disabled={isGeneratingScenario}
+                    className={availableScenarios.length === 0 
+                      ? "bg-purple-700 hover:bg-purple-800" 
+                      : "text-white border-gray-600 hover:bg-gray-800"
+                    }
+                  >
+                    {isGeneratingScenario ? (
+                      <span className="flex items-center gap-2">
+                        <span className="h-4 w-4 animate-spin rounded-full border-b-2 border-primary"></span>
+                        Génération...
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <PlusCircle className="h-4 w-4" />
+                        {availableScenarios.length === 0 
+                          ? "Générer votre premier scénario" 
+                          : "Générer un nouveau scénario"
+                        }
+                      </span>
+                    )}
+                  </Button>
                 </div>
               </div>
             </motion.div>
