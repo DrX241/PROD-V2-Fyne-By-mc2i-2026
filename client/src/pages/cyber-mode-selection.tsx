@@ -46,6 +46,22 @@ export default function CyberModeSelection() {
       ]
     },
     {
+      id: 'gamification',
+      title: 'GAMIFICATION AVANCÉE',
+      description: "Testez vos connaissances en cybersécurité avec des jeux interactifs adaptés à tous les niveaux.",
+      icon: null,
+      gradient: 'from-purple-700 to-purple-900',
+      destination: '#',
+      items: [
+        {
+          id: 'cyber-arcade',
+          title: 'CYBER ARCADE',
+          icon: null,
+          destination: '#'
+        }
+      ]
+    },
+    {
       id: 'recrutement',
       title: 'MISE EN SITUATION D\'AUDITION',
       description: "Préparez vos consultants aux auditions clients avec évaluation détaillée de leur prestation.",
@@ -58,6 +74,22 @@ export default function CyberModeSelection() {
           title: 'PRÉPARATION D\'AUDITION CLIENT',
           icon: null,
           destination: '/cyber/interview-simulation'
+        }
+      ]
+    },
+    {
+      id: 'parcours-certifiant',
+      title: 'PARCOURS CERTIFIANT',
+      description: "Formations pour préparer des certifications professionnelles en cybersécurité.",
+      icon: null,
+      gradient: 'from-amber-700 to-amber-900',
+      destination: '#',
+      items: [
+        {
+          id: 'parcours-certifiant',
+          title: 'PARCOURS CERTIFIANT',
+          icon: null,
+          destination: '#'
         }
       ]
     }
