@@ -561,6 +561,7 @@ export default function ProjetImposteur() {
   const [isLoadingScenarios, setIsLoadingScenarios] = useState(true);
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
   const [nextUpdateTime, setNextUpdateTime] = useState<string | null>(null); // Heure de la prochaine mise à jour
+  const [timeRemaining, setTimeRemaining] = useState<string | null>(null); // Temps restant formaté
   
   const handleAccuse = () => {
     if (!selectedMember) {
@@ -697,6 +698,53 @@ export default function ProjetImposteur() {
     setScenarioLoaded(true);
   };
 
+  // Fonction pour formater le temps restant
+  const formatTimeRemaining = (nextUpdateISO: string) => {
+    const now = new Date();
+    const nextUpdate = new Date(nextUpdateISO);
+    const diffMs = nextUpdate.getTime() - now.getTime();
+    
+    if (diffMs <= 0) {
+      return "En cours d'actualisation...";
+    }
+    
+    // Convertir en minutes et secondes
+    const diffMinutes = Math.floor(diffMs / 60000);
+    const diffSeconds = Math.floor((diffMs % 60000) / 1000);
+    
+    return `${diffMinutes} min ${diffSeconds} sec`;
+  };
+  
+  // Mettre à jour le temps restant toutes les secondes et recharger quand nécessaire
+  useEffect(() => {
+    if (nextUpdateTime) {
+      // Fonction pour vérifier et mettre à jour le temps restant
+      const checkAndUpdateTime = () => {
+        const now = new Date();
+        const nextUpdate = new Date(nextUpdateTime);
+        const diffMs = nextUpdate.getTime() - now.getTime();
+        
+        // Si le temps est écoulé, recharger les scénarios
+        if (diffMs <= 0) {
+          loadAvailableScenarios();
+          return "En cours d'actualisation...";
+        }
+        
+        return formatTimeRemaining(nextUpdateTime);
+      };
+      
+      // Initialiser le temps restant
+      setTimeRemaining(checkAndUpdateTime());
+      
+      // Mettre à jour toutes les secondes
+      const interval = setInterval(() => {
+        setTimeRemaining(checkAndUpdateTime());
+      }, 1000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [nextUpdateTime]);
+  
   // Charger les scénarios au chargement de la page
   useEffect(() => {
     // Si on est en mode sélection, charger les scénarios disponibles
@@ -822,11 +870,11 @@ export default function ProjetImposteur() {
                 )}
                 
                 <div className="flex flex-col items-center mt-8 space-y-4">
-                  {nextUpdateTime && (
-                    <div className="text-center mb-2 bg-white/10 rounded-lg p-3 inline-flex items-center text-gray-900 bg-gray-100">
+                  {timeRemaining && (
+                    <div className="text-center mb-2 rounded-lg p-3 inline-flex items-center text-gray-900 bg-gray-100">
                       <Clock className="h-4 w-4 mr-2 text-purple-700" />
                       <span className="text-sm font-medium">
-                        Prochaine actualisation : {nextUpdateTime}
+                        Actualisation dans : {timeRemaining}
                       </span>
                     </div>
                   )}
