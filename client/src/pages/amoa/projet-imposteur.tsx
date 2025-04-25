@@ -499,22 +499,43 @@ const ScenarioSelectionCard = ({
   onClick: () => void;
   isSelected: boolean;
 }) => {
-  const { themeMode } = { themeMode: 'classic' }; // Mock pour compatibilité avec le reste de l'application
-  const isFuturistic = themeMode === 'futuristic';
   const [isHover, setIsHover] = useState(false);
   
-  // Extraire les membres de l'équipe
+  // Extraire les membres de l'équipe et les preuves pour l'affichage
   const teamCount = scenario.team?.length || 0;
+  const evidenceCount = scenario.evidence?.length || 0;
   
-  // Trouver le membre coupable (pour l'admin uniquement)
-  const guiltyMember = scenario.team?.find(member => member.isGuilty);
+  // Définir le style en fonction de la difficulté
+  const getDifficultyStyle = () => {
+    if (scenario.difficulty === 'facile') {
+      return { 
+        bg: 'from-green-950 to-gray-950',
+        border: isSelected ? 'border-green-500' : 'border-gray-800',
+        badge: 'bg-green-700 text-white'
+      };
+    } else if (scenario.difficulty === 'moyen') {
+      return {
+        bg: 'from-blue-950 to-gray-950',
+        border: isSelected ? 'border-blue-500' : 'border-gray-800',
+        badge: 'bg-blue-700 text-white'
+      };
+    } else {
+      return {
+        bg: 'from-red-950 to-gray-950',
+        border: isSelected ? 'border-red-500' : 'border-gray-800',
+        badge: 'bg-red-700 text-white'
+      };
+    }
+  };
+  
+  const style = getDifficultyStyle();
   
   return (
     <motion.div
       className={`rounded-xl p-5 shadow-md h-full relative overflow-hidden cursor-pointer ${
         isSelected 
-          ? 'bg-white border-2 border-purple-500' 
-          : 'bg-white border border-gray-200 hover:bg-gray-50'
+          ? `bg-gradient-to-br ${style.bg} border-2 ${style.border} ring-1 ring-white/5 shadow-xl` 
+          : `bg-gradient-to-br ${style.bg} border border-gray-800 hover:border-gray-700`
       }`}
       whileHover={{ y: -5, boxShadow: '0 12px 30px rgba(124, 58, 237, 0.15)' }}
       onClick={onClick}
@@ -645,24 +666,44 @@ export default function ProjetImposteur() {
       // Si forceDifficult est true, on force un scénario difficile
       const difficultyToUse = forceDifficult ? 'difficile' : randomDifficulty;
       
-      // Récupérer un scénario aléatoire par difficulté
-      const response = await axios.get(`/api/amoa/scenarios/${difficultyToUse}`, {
-        params: { count: 1 }
-      });
+      // Récupérer un scénario aléatoire par difficulté avec un timeout de 3 secondes
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
       
-      if (response && response.data) {
-        // Récupérer le premier scénario de la liste si c'est un array
-        const scenarioData = response.data.scenarios && response.data.scenarios.length > 0 
-          ? response.data.scenarios[0] 
-          : response.data.scenario || response.data;
-        
-        setScenario(scenarioData);
-        
-        toast({
-          title: "Scénario chargé",
-          description: `Un scénario de difficulté ${scenarioData.difficulty} a été chargé avec succès !`,
-          variant: "default"
+      try {
+        const response = await axios.get(`/api/amoa/scenarios/${difficultyToUse}`, {
+          params: { count: 1 },
+          signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
+        
+        if (response && response.data) {
+          // Récupérer le premier scénario de la liste si c'est un array
+          const scenarioData = response.data.scenarios && response.data.scenarios.length > 0 
+            ? response.data.scenarios[0] 
+            : response.data.scenario || response.data;
+          
+          if (!scenarioData || !scenarioData.id) {
+            throw new Error("Format de scénario invalide");
+          }
+          
+          setScenario(scenarioData);
+          setSelectedScenarioId(scenarioData.id);
+          setScenarioLoaded(true);
+          
+          toast({
+            title: "Scénario chargé",
+            description: `Un scénario de difficulté ${scenarioData.difficulty} a été chargé avec succès !`,
+            variant: "default"
+          });
+        }
+      } catch (e: any) {
+        // Vérifier si c'est une erreur d'expiration du délai
+        if (e && e.name === 'AbortError') {
+          throw new Error("Délai d'attente dépassé");
+        }
+        throw e;
       }
     } catch (error) {
       console.error("Erreur lors de la génération du scénario:", (error as any)?.response?.data || error);
@@ -695,23 +736,41 @@ export default function ProjetImposteur() {
   const loadAvailableScenarios = async () => {
     try {
       setIsLoadingScenarios(true);
+      
+      // Charger les scénarios pré-générés
       const response = await axios.get('/api/amoa/scenarios', {
-        params: { count: 10 }
+        params: { count: 6 } // Limiter à 6 scénarios pour un affichage plus propre
       });
       
       if (response.data && response.data.scenarios) {
-        setAvailableScenarios(response.data.scenarios);
+        // Trier les scénarios par difficulté
+        const sortedScenarios = [...response.data.scenarios].sort((a, b) => {
+          const difficultyOrder = { 'facile': 0, 'moyen': 1, 'difficile': 2 };
+          return difficultyOrder[a.difficulty as keyof typeof difficultyOrder] - 
+                 difficultyOrder[b.difficulty as keyof typeof difficultyOrder];
+        });
         
-        // Récupérer l'heure de prochaine mise à jour
-        if (response.data.nextUpdate) {
-          setNextUpdateTime(response.data.nextUpdate);
+        setAvailableScenarios(sortedScenarios);
+        
+        // Définir un temps d'actualisation de 5 minutes
+        const now = new Date();
+        const nextUpdate = new Date(now.getTime() + 5 * 60 * 1000); // +5 minutes
+        setNextUpdateTime(nextUpdate.toISOString());
+        
+        // Si aucun scénario n'est disponible, générer un message d'erreur
+        if (sortedScenarios.length === 0) {
+          toast({
+            title: "Aucun scénario disponible",
+            description: "Veuillez réessayer plus tard ou contacter l'administrateur.",
+            variant: "destructive"
+          });
         }
       }
     } catch (error) {
       console.error("Erreur lors du chargement des scénarios:", error);
       toast({
         title: "Erreur",
-        description: "Impossible de charger les scénarios disponibles. Un scénario par défaut sera utilisé.",
+        description: "Impossible de charger les scénarios disponibles. Veuillez réessayer.",
         variant: "destructive"
       });
     } finally {
