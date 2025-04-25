@@ -28,6 +28,8 @@ import FirewallDefense from "@/pages/cyber/arcade/firewall-defense";
 // Nouveaux jeux d'enquête
 import CyberInvestigator from "@/pages/cyber/arcade/cyber-investigator";
 import DataLeakInvestigation from "@/pages/cyber/arcade/cyber-investigator/data-leak";
+import RansomwareAttack from "@/pages/cyber/arcade/cyber-investigator/ransomware-attack";
+import InsiderThreat from "@/pages/cyber/arcade/cyber-investigator/insider-threat";
 import DigitalForensics from "@/pages/cyber/arcade/digital-forensics";
 import ThreatIntelligence from "@/pages/cyber/arcade/threat-intelligence";
 // Pages AMOA
@@ -90,6 +92,8 @@ function App() {
             {/* Nouvelles routes pour les jeux d'enquête */}
             <Route path="/cyber/arcade/cyber-investigator" component={CyberInvestigator} />
             <Route path="/cyber/arcade/cyber-investigator/data-leak" component={DataLeakInvestigation} />
+            <Route path="/cyber/arcade/cyber-investigator/ransomware-attack" component={RansomwareAttack} />
+            <Route path="/cyber/arcade/cyber-investigator/insider-threat" component={InsiderThreat} />
             <Route path="/cyber/arcade/digital-forensics" component={DigitalForensics} />
             <Route path="/cyber/arcade/threat-intelligence" component={ThreatIntelligence} />
             <Route path="/cyber-defense-new" component={CentreDeCriseEvolutifPage} />
