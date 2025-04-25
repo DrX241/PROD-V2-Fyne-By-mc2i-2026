@@ -2421,6 +2421,19 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
     }
   });
   
+  // Routes pour l'Expert Cyber Conversationnel
+  app.post('/api/cyber/agent/start', (req, res) => {
+    // S'assurer que les en-têtes sont correctement configurés pour JSON
+    res.setHeader('Content-Type', 'application/json');
+    return startAgentSession(req, res);
+  });
+  
+  app.post('/api/cyber/agent/complete', (req, res) => {
+    // S'assurer que les en-têtes sont correctement configurés pour JSON
+    res.setHeader('Content-Type', 'application/json');
+    return completeAgentSession(req, res);
+  });
+  
   app.post('/api/amoa/interview-simulation/download-synthesis', async (req, res) => {
     try {
       const { synthesis, candidateName, profileType, experienceLevel, sectorFocus } = req.body;
