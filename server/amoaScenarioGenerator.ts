@@ -20,6 +20,9 @@ const scenarioCache: ScenarioCache = {
 // Durée de validité du cache en millisecondes (10 minutes)
 const CACHE_TTL = 10 * 60 * 1000;
 
+// Nombre de scénarios à générer par défaut
+const DEFAULT_SCENARIO_COUNT = 4;
+
 /**
  * Génère dynamiquement un nouveau scénario pour le jeu "Qui est l'imposteur ?"
  */
@@ -412,7 +415,7 @@ async function generateSingleScenario(difficultyLevel = 'moyen'): Promise<any> {
  */
 export async function getMultipleScenarios(req: Request, res: Response) {
   try {
-    const count = parseInt(req.query.count as string) || 10;
+    const count = DEFAULT_SCENARIO_COUNT; // Utilisation de la constante définie plus haut (4 scénarios)
     const force = req.query.force === 'true';
     
     // Vérifier si nous avons des scénarios en cache qui sont encore valides
