@@ -80,11 +80,11 @@ const CountdownTimer = ({ seconds, onComplete }: { seconds: number, onComplete: 
   
   return (
     <div className="flex items-center space-x-2">
-      <Clock className="h-5 w-5 text-red-500" />
-      <div className="text-xl font-mono font-bold">
+      <Clock className="h-5 w-5 text-red-400" />
+      <div className="text-xl font-mono font-bold text-white">
         {minutes.toString().padStart(2, '0')}:{remainingSeconds.toString().padStart(2, '0')}
       </div>
-      <Progress value={(timeLeft / seconds) * 100} className="w-40 h-2" />
+      <Progress value={(timeLeft / seconds) * 100} className="w-40 h-2 bg-gray-800" />
     </div>
   );
 };
@@ -101,7 +101,9 @@ const MemberCard = ({
   return (
     <Card 
       className={`p-4 cursor-pointer transition-all ${
-        isSelected ? 'ring-2 ring-purple-500 shadow-lg bg-purple-100' : 'hover:shadow-md hover:bg-gray-50'
+        isSelected 
+          ? 'ring-2 ring-purple-500 shadow-lg bg-gray-900' 
+          : 'hover:shadow-md hover:bg-gray-800'
       }`}
       onClick={onClick}
     >
@@ -111,8 +113,8 @@ const MemberCard = ({
           <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
         </Avatar>
         <div>
-          <h3 className="font-medium text-gray-900">{member.name}</h3>
-          <p className="text-sm text-gray-700">{member.role}</p>
+          <h3 className="font-medium text-white">{member.name}</h3>
+          <p className="text-sm text-gray-300">{member.role}</p>
         </div>
       </div>
     </Card>
@@ -130,16 +132,16 @@ const EvidenceCard = ({ evidence, onClick }: { evidence: Evidence, onClick: () =
   
   return (
     <Card 
-      className="p-4 cursor-pointer hover:shadow-md hover:bg-gray-50 transition-all"
+      className="p-4 cursor-pointer hover:shadow-md hover:bg-gray-800 transition-all bg-gray-900"
       onClick={onClick}
     >
       <div className="flex items-center space-x-3">
-        <div className="bg-purple-100 p-2 rounded-lg">
-          <Icon className="h-5 w-5 text-purple-600" />
+        <div className="bg-purple-900 p-2 rounded-lg">
+          <Icon className="h-5 w-5 text-purple-200" />
         </div>
         <div>
-          <h3 className="font-medium text-sm text-gray-900">{evidence.title}</h3>
-          <p className="text-xs text-gray-700">{evidence.type === 'email' ? `De: ${evidence.from}` : evidence.type}</p>
+          <h3 className="font-medium text-sm text-white">{evidence.title}</h3>
+          <p className="text-xs text-gray-300">{evidence.type === 'email' ? `De: ${evidence.from}` : evidence.type}</p>
         </div>
       </div>
     </Card>
@@ -543,8 +545,8 @@ export default function ProjetImposteur() {
           </motion.div>
         ) : (
           <div className="space-y-6">
-            <div className="flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-lg shadow-sm">
-              <h1 className="text-2xl font-bold">{scenario.title}</h1>
+            <div className="flex flex-col md:flex-row justify-between items-center bg-gray-950 p-4 rounded-lg shadow-sm border border-gray-800">
+              <h1 className="text-2xl font-bold text-white">{scenario.title}</h1>
               
               <div className="flex items-center space-x-4 mt-4 md:mt-0">
                 <CountdownTimer seconds={180} onComplete={handleTimeOver} />
@@ -560,9 +562,9 @@ export default function ProjetImposteur() {
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="bg-white rounded-lg shadow-sm p-4 lg:col-span-1">
-                <h2 className="text-xl font-bold mb-4 flex items-center">
-                  <Users className="h-5 w-5 mr-2 text-purple-600" />
+              <div className="bg-gray-950 rounded-lg shadow-sm p-4 lg:col-span-1 border border-gray-800">
+                <h2 className="text-xl font-bold mb-4 flex items-center text-white">
+                  <Users className="h-5 w-5 mr-2 text-purple-400" />
                   Équipe Projet
                 </h2>
                 <div className="space-y-3">
@@ -582,11 +584,11 @@ export default function ProjetImposteur() {
                   defaultValue="dossier" 
                   value={activeTab} 
                   onValueChange={setActiveTab}
-                  className="bg-white rounded-lg shadow-sm p-4"
+                  className="bg-white rounded-lg shadow-sm p-4 border border-blue-100"
                 >
-                  <TabsList className="mb-4">
-                    <TabsTrigger value="dossier">Dossier</TabsTrigger>
-                    <TabsTrigger value="preuves">Preuves</TabsTrigger>
+                  <TabsList className="mb-4 bg-blue-50">
+                    <TabsTrigger value="dossier" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">Dossier</TabsTrigger>
+                    <TabsTrigger value="preuves" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">Preuves</TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="dossier" className="space-y-4">
@@ -631,8 +633,8 @@ export default function ProjetImposteur() {
                   
                   <TabsContent value="preuves" className="space-y-4">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                      <div className="space-y-3">
-                        <h2 className="text-lg font-bold">Documents disponibles</h2>
+                      <div className="space-y-3 bg-gray-950 p-4 rounded-lg border border-gray-800">
+                        <h2 className="text-lg font-bold text-white">Documents disponibles</h2>
                         {scenario.evidence.map(ev => (
                           <EvidenceCard 
                             key={ev.id} 
