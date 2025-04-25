@@ -253,18 +253,16 @@ export default function CyberAgentPage() {
   return (
     <CyberLayout>
       <PageTitle title="EXPERT CYBER CONVERSATIONNEL" />
-      <div className="mb-2 px-4 sm:px-6 flex items-center justify-between">
+      <div className="mb-2 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-10 bg-gray-950/80 backdrop-blur-sm py-2 shadow-md">
         <Link href="/cyber" className="inline-flex items-center text-[#46cada] hover:text-blue-600 transition-colors">
           <ArrowLeft className="mr-2 h-5 w-5" />
           Retour à I AM CYBER
         </Link>
         
-        {isSessionActive && (
-          <div className="flex items-center text-white bg-blue-600/80 px-3 py-1 rounded-full">
-            <Clock className="mr-2 h-4 w-4" />
-            <span className="font-mono">{formatTime(timeRemaining)}</span>
-          </div>
-        )}
+        <div className="flex items-center text-white bg-blue-600/80 px-3 py-1 rounded-full">
+          <Clock className="mr-2 h-4 w-4" />
+          <span className="font-mono">{isSessionActive ? formatTime(timeRemaining) : "10:00"}</span>
+        </div>
       </div>
 
       {!isSessionActive ? (
