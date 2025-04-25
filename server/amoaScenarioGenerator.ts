@@ -34,6 +34,39 @@ async function generateSingleScenario(difficultyLevel = 'moyen'): Promise<any> {
     console.log(`Difficulté non valide, utilisation de la valeur par défaut: ${difficultyLevel}`);
   }
   
+  // Prompt adaptatif selon le niveau de difficulté
+  let difficultySpecificInstructions = '';
+  
+  // Pour le niveau difficile, on ajoute des instructions spécifiques pour une difficulté extrême
+  if (difficultyLevel === 'difficile') {
+    difficultySpecificInstructions = `
+    NIVEAU DIFFICILE - ÉLÉMENTS SPÉCIFIQUES:
+    - Inclure des indices CACHÉS dans les documents (initiales, dates significatives, références obscures)
+    - Créer des contradictions subtiles entre différents témoignages
+    - Ajouter des fausses pistes délibérées
+    - Dans certains emails, cacher des détails importants dans des tournures de phrases
+    - Utiliser des initiales ou des surnoms qui référencent indirectement des personnes
+    - Insérer des détails techniques qui demandent une analyse approfondie
+    - Camoufler les erreurs critiques du coupable derrière des apparences de bonne pratique
+    `;
+  } else if (difficultyLevel === 'facile') {
+    difficultySpecificInstructions = `
+    NIVEAU FACILE - ÉLÉMENTS SPÉCIFIQUES:
+    - Indices très explicites sur le coupable
+    - Erreurs flagrantes et facilement identifiables
+    - Pas d'ambiguïté dans les documents
+    - Relations claires entre les preuves et les personnes
+    `;
+  } else {
+    // Niveau moyen par défaut
+    difficultySpecificInstructions = `
+    NIVEAU MOYEN - ÉLÉMENTS SPÉCIFIQUES:
+    - Indices modérément subtils
+    - Quelques détails à analyser, mais repérables
+    - Une légère ambiguïté dans certaines preuves
+    `;
+  }
+
   const systemPrompt = `
     Tu es un générateur de scénarios courts pour un jeu d'investigation AMOA.
     
@@ -41,15 +74,32 @@ async function generateSingleScenario(difficultyLevel = 'moyen'): Promise<any> {
     - Contexte: projets AMOA informatiques en France
     - Structure: 5 membres d'équipe avec fonctions différentes, dont un coupable
     - Contenu: 5-6 preuves (emails, documents) avec indices
-    - Difficulté: ${difficultyLevel} (facile = indices explicites, difficile = indices subtils)
+    - Difficulté: ${difficultyLevel}
     - Format: UNIQUEMENT JSON sans texte supplémentaire, structure exacte fournie
-    - Spécificité: noms français variés, preuves avec indices simples mais cohérents
+    - Spécificité: noms français variés, preuves avec indices cohérents
+    
+    ${difficultySpecificInstructions}
     
     RAPPEL IMPORTANT:
     - Créer un scénario COURT et CONCIS
     - Respecter exactement le format fourni
     - Générer un contenu RAPIDE à lire
   `;
+
+  // Adapter les instructions selon le niveau de difficulté
+  let specificContentInstructions = '';
+  
+  if (difficultyLevel === 'difficile') {
+    specificContentInstructions = `
+    Pour le niveau DIFFICILE:
+    - Dans les preuves, cache des indices dans les initiales, dates ou tournures de phrases
+    - Crée des contradictions subtiles entre les documents
+    - Les documents doivent contenir des éléments techniques qui demandent analyse
+    - L'identité du coupable doit être difficile à déterminer sans analyse approfondie
+    - Certains emails doivent contenir des détails cachés (dates significatives, références codées)
+    - Insère des fausses pistes convaincantes pointant vers des innocents
+    `;
+  }
 
   const userPrompt = `
     Génère un scénario court et direct pour le jeu AMOA selon cette structure JSON :
@@ -83,6 +133,8 @@ async function generateSingleScenario(difficultyLevel = 'moyen'): Promise<any> {
     }
     
     IMPORTANT: 5 membres (un coupable), 5-6 preuves courtes, contenu professionnel, JSON valide.
+    
+    ${specificContentInstructions}
   `;
 
   // Appel à l'API OpenAI pour générer le scénario via le service openAIService
@@ -136,11 +188,23 @@ async function generateSingleScenario(difficultyLevel = 'moyen'): Promise<any> {
     
     while (retryCount <= maxRetries) {
       try {
-        // Réduire les tokens pour accélérer la génération
+        // Ajuster les tokens selon la difficulté et le nombre de tentatives
+        let maxTokens = 1200;
+        
+        // Plus de tokens pour le niveau difficile pour permettre des indices cachés et détails complexes
+        if (difficultyLevel === 'difficile') {
+          maxTokens = 1500;
+        } else if (difficultyLevel === 'facile') {
+          maxTokens = 1000; // Moins de tokens pour les scénarios faciles
+        }
+        
+        // Réduire le nombre de tokens en cas de retry
+        maxTokens = maxTokens - (retryCount * 200);
+        
         const generatedContent = await openAIService.getChatCompletion(
           messages,
           randomTemp,
-          1200 - (retryCount * 200) // Réduire encore le nombre de tokens en cas de retry
+          maxTokens
         );
         
         // Utilisation de l'utilitaire robuste d'extraction JSON
