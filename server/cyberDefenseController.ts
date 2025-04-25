@@ -5,8 +5,9 @@ import { ChatCompletionRequestMessage } from "../shared/schema";
 import { v4 as uuidv4 } from 'uuid';
 
 /**
- * Contrôleur pour gérer toutes les interactions IA du module CENTRE DE CRISE ÉVOLUTIF.
- * Ce contrôleur met l'intelligence artificielle Azure OpenAI au centre de toutes les interactions.
+ * Contrôleur pour gérer toutes les interactions IA du module CENTRE DE CRISE.
+ * Ce contrôleur utilise l'intelligence artificielle Azure OpenAI pour créer des simulations
+ * d'incidents de cybersécurité avec des objectifs progressifs.
  */
 export async function handleCyberDefenseChat(req: Request, res: Response) {
   try {

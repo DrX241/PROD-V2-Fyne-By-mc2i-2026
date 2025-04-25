@@ -79,12 +79,12 @@ export default function CyberDefenseSession() {
       id: '1',
       levelNumber: 1,
       title: "Alerte Phishing",
-      description: "Un email suspect a été signalé par un employé. Identifiez la menace et prenez les premières mesures.",
-      scenario: "Un employé vient de signaler avoir reçu un email suspect lui demandant de changer son mot de passe via un lien externe. Plusieurs autres employés ont peut-être reçu le même message.",
+      description: "En tant que Responsable Cybersécurité, analysez un email suspect signalé par un employé du service comptabilité et prenez les mesures appropriées.",
+      scenario: "Un employé du service comptabilité vient de vous transférer un email suspect qui semble provenir du service informatique, lui demandant de changer son mot de passe en urgence via un lien. L'email contient le logo de l'entreprise et semble officiel à première vue. Le texte mentionne une 'violation de sécurité détectée' et demande une action immédiate.",
       objectives: [
-        "Identifier la nature de l'attaque",
-        "Évaluer l'étendue potentielle de l'incident",
-        "Prendre des mesures de protection immédiates"
+        "Identifier les 5 indicateurs de phishing dans l'email suspect",
+        "Déterminer quels services et combien d'employés ont potentiellement reçu cet email",
+        "Mettre en place des mesures de protection et de remédiation"
       ],
       complexity: "Basique",
       duration: "10-15 min"
@@ -325,11 +325,31 @@ J'attends vos instructions pour agir. Comment souhaitez-vous procéder?`,
       const content = responseContent.toLowerCase();
       const objective = level?.objectives[currentObjective] || '';
       
-      // Analyse simplifiée de progression basée sur les mots-clés
+      // Analyse de progression en fonction des objectifs spécifiques
       if (
-        (currentObjective === 0 && (content.includes('phishing') || content.includes('attaque') || content.includes('menace'))) ||
-        (currentObjective === 1 && (content.includes('étendue') || content.includes('impact') || content.includes('compromis'))) ||
-        (currentObjective === 2 && (content.includes('mesure') || content.includes('protection') || content.includes('bloquer')))
+        // Premier objectif: Identifier les indicateurs de phishing
+        (currentObjective === 0 && 
+          // Indicateurs spécifiques du phishing qu'il faut trouver
+          [
+            content.includes('adresse email') || content.includes('expéditeur suspect'),
+            content.includes('lien') || content.includes('url') || content.includes('redirection'),
+            content.includes('urgence') || content.includes('menace') || content.includes('immédiat'),
+            content.includes('faute') || content.includes('orthographe') || content.includes('grammaire'),
+            content.includes('données personnelles') || content.includes('informations sensibles')
+          ].filter(Boolean).length >= 2 // Progression si au moins 2 indicateurs sont mentionnés
+        ) ||
+        // Deuxième objectif: Déterminer l'étendue
+        (currentObjective === 1 && (
+          content.includes('service') || content.includes('département') || 
+          content.includes('employés') || content.includes('comptabilité') ||
+          content.includes('informatique') || content.includes('propagation')
+        )) ||
+        // Troisième objectif: Mettre en place des mesures
+        (currentObjective === 2 && (
+          content.includes('mesure') || content.includes('protection') || 
+          content.includes('bloquer') || content.includes('sensibilisation') ||
+          content.includes('notification') || content.includes('sécurisation')
+        ))
       ) {
         // Augmenter la progression
         setProgress(prev => {
