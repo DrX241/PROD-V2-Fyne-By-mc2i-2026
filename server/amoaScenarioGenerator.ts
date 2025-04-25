@@ -8,32 +8,57 @@ import { extractJsonFromOpenAiResponse } from './openAiResponseHelper';
  */
 export async function generateScenario(req: Request, res: Response) {
   try {
-    const { difficultyLevel = 'moyen' } = req.body;
+    // Validation du niveau de difficulté
+    let { difficultyLevel = 'moyen' } = req.body;
+    
+    // S'assurer que la difficulté est une valeur valide
+    if (!['facile', 'moyen', 'difficile'].includes(difficultyLevel)) {
+      difficultyLevel = 'moyen';
+      console.log(`Difficulté non valide, utilisation de la valeur par défaut: ${difficultyLevel}`);
+    }
     
     const systemPrompt = `
-      Tu es un expert en scénarisation de cas d'échecs de projets informatiques réalistes pour le jeu "Qui est l'imposteur ?".
+      Tu es un expert en scénarisation de cas d'échecs de projets informatiques réalistes pour le jeu "Qui est l'imposteur ?", spécialisé en contexte AMOA (Assistance à Maîtrise d'Ouvrage) en entreprise.
       
       RÔLE
-      Créer un scénario professionnel d'échec de projet informatique ou de transformation digitale avec des personnages crédibles et des preuves cohérentes qui permettent d'identifier clairement le responsable.
+      Créer un scénario professionnel d'échec de projet AMOA avec des personnages crédibles et des preuves contenant à la fois des indices visibles et des indices cachés que le joueur devra découvrir par une analyse minutieuse.
       
       CONTEXTE
-      Le jeu "Qui est l'imposteur ?" est une simulation d'investigation professionnelle où le joueur doit analyser des preuves (emails, documents, conversations) pour déterminer quel membre de l'équipe est principalement responsable de l'échec d'un projet.
+      Le jeu "Qui est l'imposteur ?" est une simulation d'investigation professionnelle autour des problématiques métier d'AMOA réelles où le joueur doit analyser des preuves (emails, documents, conversations) pour déterminer qui est responsable de l'échec d'un projet.
 
       CONSIGNES STRICTES :
-      - Cadre: uniquement en France ou en Union Européenne, après 2023
-      - Contexte: exclusivement professionnel et réaliste
-      - Structure: exactement 5 membres d'équipe avec rôles distincts
+      - Thématique: UNIQUEMENT des problématiques AMOA réelles (cahier des charges, expression de besoins, recette utilisateur, etc.)
+      - Cadre: exclusivement en France ou en Union Européenne, après 2023
+      - Contexte: exclusivement professionnel et réaliste avec des technologies/outils actuels
+      - Structure: exactement 5 membres d'équipe avec rôles distincts (dont un AMOA obligatoirement)
       - Culpabilité: un seul membre doit être clairement coupable (attribut isGuilty=true)
-      - Preuves: 6-8 éléments qui permettent de résoudre l'énigme
-      - Équilibre: le cas doit être résolvable mais pas trop évident (difficulté: ${difficultyLevel})
-      - Format: répondre UNIQUEMENT en JSON valide et correctement formaté, sans texte d'introduction ni conclusion
-      - Cohérence: tous les échanges doivent avoir des dates cohérentes et des références croisées logiques
+      - Preuves sophistiquées: 7-8 éléments contenant:
+         * Des indices évidents
+         * Des indices cachés (dates qui ne correspondent pas, contradictions, mentions subtiles)
+         * Des détails qui se recoupent entre plusieurs documents
+         * Des sous-entendus qu'il faut interpréter
+      - Niveau de difficulté: ${difficultyLevel} (facile = indices plus visibles, difficile = indices plus subtils)
+      - Format: répondre UNIQUEMENT en JSON valide sans texte supplémentaire
+      - Cohérence: tous les échanges doivent former une histoire complète avec des références croisées
+      
+      SPÉCIFICITÉS PAR NIVEAU DE DIFFICULTÉ:
+      - Facile: indices assez explicites, contradictions visibles, peu d'interprétation nécessaire
+      - Moyen: mélange d'indices explicites et implicites, quelques contradictions subtiles
+      - Difficile: indices très subtils, contradictions cachées, beaucoup d'interprétation nécessaire
+      
+      TYPES DE SCÉNARIOS AMOA (exemples, ne pas se limiter à cette liste):
+      - Problèmes de cahier des charges incomplet ou mal défini
+      - Expression de besoins détournée ou mal comprise
+      - Échecs de recette utilisateur
+      - Échec d'implémentation de processus métier
+      - Problèmes de communication entre MOA et MOE
+      - Décisions stratégiques d'AMOA erronées
+      - Mauvaise gestion des incidents ou des risques
       
       RÉPONSE FORMAT:
-      - Utilise uniquement la syntaxe JSON standard
-      - Ne pas inclure de commentaires dans le JSON (pas de "//" ni de "/* */")
-      - Ne pas utiliser de retour à la ligne '\n' dans les chaînes de caractères (utiliser des espaces)
-      - Pas de texte supplémentaire en dehors de l'objet JSON
+      - JSON standard et valide sans commentaires
+      - Contenus formatés avec des espaces à la place des retours à la ligne
+      - Aucun texte en dehors de l'objet JSON
     `;
 
     const userPrompt = `

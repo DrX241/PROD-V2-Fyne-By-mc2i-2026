@@ -408,6 +408,8 @@ export default function ProjetImposteur() {
   const [activeTab, setActiveTab] = useState("dossier");
   const [accusationMade, setAccusationMade] = useState(false);
   const [isGeneratingScenario, setIsGeneratingScenario] = useState(false);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<'facile' | 'moyen' | 'difficile'>('moyen');
+  const [showFailureDialog, setShowFailureDialog] = useState(false);
   
   const handleAccuse = () => {
     if (!selectedMember) {
@@ -442,7 +444,7 @@ export default function ProjetImposteur() {
   
   const handleTimeOver = () => {
     setTimeOver(true);
-    setShowResult(true);
+    setShowFailureDialog(true);
   };
 
   // Fonction pour générer un nouveau scénario
@@ -451,14 +453,14 @@ export default function ProjetImposteur() {
       setIsGeneratingScenario(true);
       
       const response = await axios.post('/api/amoa/generate-scenario', {
-        difficultyLevel: 'moyen' // On peut permettre à l'utilisateur de choisir la difficulté plus tard
+        difficultyLevel: selectedDifficulty
       });
       
       if (response.data) {
         setScenario(response.data);
         toast({
           title: "Nouveau scénario généré",
-          description: "Un nouveau scénario a été généré avec succès !",
+          description: `Un nouveau scénario de difficulté ${selectedDifficulty} a été généré avec succès !`,
           variant: "default"
         });
       }
@@ -504,9 +506,36 @@ export default function ProjetImposteur() {
                   <h2 className="text-xl font-bold mb-4 text-white">Scénario : {scenario.title}</h2>
                   <p className="text-gray-300 mb-6">{scenario.description}</p>
                   
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold mb-2 text-white">Niveau de difficulté :</h3>
+                    <div className="flex flex-wrap justify-center gap-2">
+                      <Button 
+                        variant={selectedDifficulty === 'facile' ? 'default' : 'outline'} 
+                        onClick={() => setSelectedDifficulty('facile')}
+                        className={selectedDifficulty === 'facile' ? 'bg-green-700 hover:bg-green-800' : 'border-gray-600 text-gray-300'}
+                      >
+                        Facile
+                      </Button>
+                      <Button 
+                        variant={selectedDifficulty === 'moyen' ? 'default' : 'outline'} 
+                        onClick={() => setSelectedDifficulty('moyen')}
+                        className={selectedDifficulty === 'moyen' ? 'bg-blue-700 hover:bg-blue-800' : 'border-gray-600 text-gray-300'}
+                      >
+                        Moyen
+                      </Button>
+                      <Button 
+                        variant={selectedDifficulty === 'difficile' ? 'default' : 'outline'} 
+                        onClick={() => setSelectedDifficulty('difficile')}
+                        className={selectedDifficulty === 'difficile' ? 'bg-red-700 hover:bg-red-800' : 'border-gray-600 text-gray-300'}
+                      >
+                        Difficile
+                      </Button>
+                    </div>
+                  </div>
+                  
                   <div className="flex items-center justify-center space-x-2 mb-6">
                     <Badge className="px-3 py-1 text-sm bg-purple-900 text-white hover:bg-purple-800">
-                      Difficulté : {scenario.difficulty}
+                      Difficulté actuelle : {scenario.difficulty}
                     </Badge>
                     <Badge variant="outline" className="px-3 py-1 text-sm border-gray-600 text-gray-300">
                       Temps : 3 minutes
