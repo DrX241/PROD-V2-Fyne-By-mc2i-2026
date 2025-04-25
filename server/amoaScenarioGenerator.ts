@@ -418,7 +418,23 @@ export async function getMultipleScenarios(req: Request, res: Response) {
     const count = DEFAULT_SCENARIO_COUNT;
     const force = req.query.force === 'true';
     
-    // Toujours retourner ce qui est disponible dans le cache sans générer automatiquement
+    // Si le cache est vide ou forcé, générer quelques scénarios initiaux
+    if (scenarioCache.scenarios.length === 0 || force) {
+      // Générer un scénario simple
+      try {
+        // Seule fois où nous générons automatiquement - pour avoir un exemple initial
+        const newScenario = await generateSingleScenario('moyen');
+        if (newScenario) {
+          scenarioCache.scenarios = [newScenario];
+          scenarioCache.lastUpdated = Date.now();
+        }
+      } catch (error) {
+        console.error("Erreur lors de la génération du scénario initial:", error);
+        // Continuer même en cas d'erreur - retourner ce qui est disponible
+      }
+    }
+    
+    // Retourner les scénarios disponibles dans le cache
     if (scenarioCache.scenarios.length > 0) {
       return res.json({
         scenarios: scenarioCache.scenarios.slice(0, count),
