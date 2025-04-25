@@ -284,41 +284,86 @@ async function generateSingleScenario(difficultyLevel = 'moyen'): Promise<any> {
     scenarioData.difficulty = difficultyLevel;
   }
   
-  // Pour le niveau difficile, vérifier que les preuves contiennent au moins 15 lignes
-  if (difficultyLevel === 'difficile' && scenarioData.evidence && Array.isArray(scenarioData.evidence)) {
-    scenarioData.evidence.forEach(evidence => {
-      // Compter les lignes dans le contenu
+  // Pour le niveau difficile, s'assurer que les preuves contiennent beaucoup de lignes bien formatées
+  if (scenarioData.evidence && Array.isArray(scenarioData.evidence)) {
+    scenarioData.evidence.forEach((evidence: any) => {
+      // Si le contenu existe mais qu'il n'a pas de sauts de ligne, on le découpe en paragraphes
+      if (evidence.content && !evidence.content.includes('\n')) {
+        // Tenter de découper aux points, puis aux virgules si nécessaire
+        let paragraphs = evidence.content.split('. ');
+        
+        if (paragraphs.length > 1) {
+          // Reformater avec un saut de ligne après chaque phrase qui finit par un point
+          evidence.content = paragraphs.join('.\n\n');
+        } else {
+          // Si pas assez de points, essayer de découper aux virgules
+          paragraphs = evidence.content.split(', ');
+          if (paragraphs.length > 1) {
+            evidence.content = paragraphs.join(',\n');
+          }
+        }
+      }
+      
+      // Compter les lignes dans le contenu après le reformatage
       const lineCount = (evidence.content?.split('\n')?.length || 0);
       
       // Si moins de 15 lignes, ajouter des lignes avec des détails supplémentaires
       if (lineCount < 15) {
         // Créer un complément de texte générique avec des informations supplémentaires
         let additionalLines = [
-          "\nVeuillez noter que ce message contient des informations confidentielles à usage interne uniquement.",
+          "",
+          "Veuillez noter que ce message contient des informations confidentielles à usage interne uniquement.",
+          "",
           "Ces informations sont protégées par nos politiques de sécurité de l'information.",
+          "",
           "Pour rappel, notre dernier audit de sécurité a mis en évidence plusieurs points critiques.",
+          "",
           "Nous devons maintenir une vigilance constante sur les processus et les accès.",
+          "",
           "Notre projet est soumis à des contraintes réglementaires strictes.",
+          "",
           "Par ailleurs, les dernières mises à jour de notre infrastructure ont été déployées le mois dernier.",
+          "",
           "Il est essentiel de respecter rigoureusement le planning des livrables.",
+          "",
           "Chaque modification du périmètre doit être documentée et validée par le comité de pilotage.",
+          "",
           "Je reste à votre disposition pour toute question complémentaire.",
+          "",
           "Bien cordialement,",
           "",
           "P.S. : N'oubliez pas la réunion hebdomadaire prévue demain à 10h00.",
+          "",
           "Les points à l'ordre du jour incluent les derniers développements et les retours utilisateurs.",
+          "",
           "Veuillez préparer vos rapports d'avancement pour cette session."
         ];
         
+        // Calculer combien de lignes additionnelles sont nécessaires
+        const additionalLinesNeeded = 15 - lineCount;
+        
         // Ajouter suffisamment de lignes pour atteindre au moins 15 lignes au total
-        evidence.content += additionalLines.join('\n');
+        if (additionalLinesNeeded > 0) {
+          // Assurer que le contenu original se termine par un saut de ligne
+          if (!evidence.content.endsWith('\n')) {
+            evidence.content += '\n\n';
+          }
+          
+          // Ajouter les lignes nécessaires
+          evidence.content += additionalLines.slice(0, Math.min(additionalLines.length, additionalLinesNeeded * 2)).join('\n');
+        }
       }
     });
   }
   
   // Vérifier que le titre ne spoile pas la solution
   if (scenarioData.team && Array.isArray(scenarioData.team)) {
-    const guiltyMember = scenarioData.team.find(member => member.isGuilty);
+    // Utiliser une fonction avec typage explicite pour trouver le coupable
+    const findGuiltyMember = (members: any[]): any => {
+      return members.find(member => member.isGuilty);
+    };
+    
+    const guiltyMember = findGuiltyMember(scenarioData.team);
     if (guiltyMember && scenarioData.title) {
       // Vérifier si le titre contient le nom ou le rôle du coupable
       const lowerTitle = scenarioData.title.toLowerCase();
