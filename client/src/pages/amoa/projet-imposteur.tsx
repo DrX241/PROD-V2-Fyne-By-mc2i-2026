@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import axios from 'axios';
 import { 
   SearchCheck, 
   Clock, 
@@ -404,6 +405,7 @@ export default function ProjetImposteur() {
   const [showResult, setShowResult] = useState(false);
   const [activeTab, setActiveTab] = useState("dossier");
   const [accusationMade, setAccusationMade] = useState(false);
+  const [isGeneratingScenario, setIsGeneratingScenario] = useState(false);
   
   const handleAccuse = () => {
     if (!selectedMember) {
@@ -439,6 +441,35 @@ export default function ProjetImposteur() {
   const handleTimeOver = () => {
     setTimeOver(true);
     setShowResult(true);
+  };
+
+  // Fonction pour générer un nouveau scénario
+  const generateNewScenario = async () => {
+    try {
+      setIsGeneratingScenario(true);
+      
+      const response = await axios.post('/api/amoa/generate-scenario', {
+        difficultyLevel: 'moyen' // On peut permettre à l'utilisateur de choisir la difficulté plus tard
+      });
+      
+      if (response.data) {
+        setScenario(response.data);
+        toast({
+          title: "Nouveau scénario généré",
+          description: "Un nouveau scénario a été généré avec succès !",
+          variant: "default"
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors de la génération du scénario:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de générer un nouveau scénario. Veuillez réessayer.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingScenario(false);
+    }
   };
   
   const isCorrectAccusation = selectedMember?.isGuilty === true;
@@ -481,9 +512,32 @@ export default function ProjetImposteur() {
                   </div>
                 </div>
                 
-                <Button size="lg" onClick={startGame}>
-                  Commencer l'enquête
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button 
+                    size="lg" 
+                    onClick={startGame}
+                    className="min-w-[180px]"
+                  >
+                    Commencer l'enquête
+                  </Button>
+                  
+                  <Button 
+                    size="lg" 
+                    variant="outline" 
+                    onClick={generateNewScenario}
+                    disabled={isGeneratingScenario}
+                    className="min-w-[180px]"
+                  >
+                    {isGeneratingScenario ? (
+                      <span className="flex items-center gap-2">
+                        <span className="h-4 w-4 animate-spin rounded-full border-b-2 border-primary"></span>
+                        Génération...
+                      </span>
+                    ) : (
+                      'Nouveau scénario'
+                    )}
+                  </Button>
+                </div>
               </div>
             </Card>
           </motion.div>
