@@ -22,8 +22,14 @@ import CyberDefenseMissionPage from "@/pages/cyber-defense-mission"; // Ancienne
 
 // Arcade et mini-jeux
 import CyberArcade from "@/pages/cyber/arcade";
+// Anciens jeux
 import PasswordPuzzle from "@/pages/cyber/arcade/password-puzzle";
 import FirewallDefense from "@/pages/cyber/arcade/firewall-defense";
+// Nouveaux jeux d'enquête
+import CyberInvestigator from "@/pages/cyber/arcade/cyber-investigator";
+import DataLeakInvestigation from "@/pages/cyber/arcade/cyber-investigator/data-leak";
+import DigitalForensics from "@/pages/cyber/arcade/digital-forensics";
+import ThreatIntelligence from "@/pages/cyber/arcade/threat-intelligence";
 // Pages AMOA
 import AmoaPage from "@/pages/amoa";
 import AmoaModeSelection from "@/pages/amoa-mode-selection";
@@ -78,8 +84,14 @@ function App() {
             <Route path="/cyber" component={CyberModeSelection} />
             <Route path="/cyber/agent" component={CyberAgentPage} />
             <Route path="/cyber/arcade" component={CyberArcade} />
+            {/* Anciennes routes de jeux (pour compatibilité) */}
             <Route path="/cyber/arcade/password-puzzle" component={PasswordPuzzle} />
             <Route path="/cyber/arcade/firewall-defense" component={FirewallDefense} />
+            {/* Nouvelles routes pour les jeux d'enquête */}
+            <Route path="/cyber/arcade/cyber-investigator" component={CyberInvestigator} />
+            <Route path="/cyber/arcade/cyber-investigator/data-leak" component={DataLeakInvestigation} />
+            <Route path="/cyber/arcade/digital-forensics" component={DigitalForensics} />
+            <Route path="/cyber/arcade/threat-intelligence" component={ThreatIntelligence} />
             <Route path="/cyber-defense-new" component={CentreDeCriseEvolutifPage} />
             <Route path="/cyber-defense/session/:levelId" component={CyberDefenseSessionPage} />
             <Route path="/cyber-defense" component={CentreDeCriseEvolutifPage} />

@@ -134,7 +134,7 @@ Julie`,
   },
   {
     id: 'access-card-logs',
-    title: 'Registre des badges d'accès',
+    title: "Registre des badges d'accès",
     type: 'log',
     content: `REGISTRE DES ACCÈS - BÂTIMENT PRINCIPAL (19-20 AVRIL 2025)
 
