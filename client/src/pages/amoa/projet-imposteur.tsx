@@ -152,28 +152,28 @@ const EvidenceViewer = ({ evidence }: { evidence: Evidence | null }) => {
   if (!evidence) return null;
   
   return (
-    <Card className="p-6 h-[400px] overflow-y-auto bg-white">
+    <Card className="p-6 h-[400px] overflow-y-auto bg-gray-900 border border-gray-800">
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold text-gray-900">{evidence.title}</h2>
+          <h2 className="text-xl font-bold text-white">{evidence.title}</h2>
           <Badge variant={
             evidence.type === 'email' ? 'default' : 
             evidence.type === 'chat' ? 'outline' : 'secondary'
-          }>
+          } className="bg-blue-800 text-white border-none">
             {evidence.type === 'email' ? 'Email' : 
              evidence.type === 'chat' ? 'Conversation' : 'Document'}
           </Badge>
         </div>
         
         {evidence.type === 'email' && (
-          <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
-            <p className="text-sm text-gray-800"><strong>De:</strong> {evidence.from}</p>
-            <p className="text-sm text-gray-800"><strong>À:</strong> {evidence.to}</p>
-            <p className="text-sm text-gray-800"><strong>Date:</strong> {evidence.date}</p>
+          <div className="bg-gray-800 p-3 rounded-md border border-gray-700">
+            <p className="text-sm text-gray-200"><strong>De:</strong> {evidence.from}</p>
+            <p className="text-sm text-gray-200"><strong>À:</strong> {evidence.to}</p>
+            <p className="text-sm text-gray-200"><strong>Date:</strong> {evidence.date}</p>
           </div>
         )}
         
-        <div className="mt-6 text-gray-800 whitespace-pre-line bg-white p-3 rounded-md border border-gray-100">
+        <div className="mt-6 text-gray-200 whitespace-pre-line bg-gray-800 p-3 rounded-md border border-gray-700">
           {evidence.content}
         </div>
       </div>
@@ -198,40 +198,40 @@ const ResultDialog = ({
   
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl bg-gray-900 border border-gray-800">
         <DialogHeader>
-          <DialogTitle className="text-2xl flex items-center">
+          <DialogTitle className="text-2xl flex items-center text-white">
             {isCorrect ? (
-              <><Check className="h-6 w-6 text-green-500 mr-2" /> Félicitations !</>
+              <><Check className="h-6 w-6 text-green-400 mr-2" /> Félicitations !</>
             ) : (
-              <><X className="h-6 w-6 text-red-500 mr-2" /> Ce n'est pas la bonne personne</>
+              <><X className="h-6 w-6 text-red-400 mr-2" /> Ce n'est pas la bonne personne</>
             )}
           </DialogTitle>
         </DialogHeader>
         
         <div className="space-y-6 my-6">
           {!isCorrect && selectedMember && (
-            <Card className="p-4 bg-red-50 border-red-200">
+            <Card className="p-4 bg-red-900 border border-red-800 text-white">
               <h3 className="font-bold text-lg mb-2">Pourquoi ce n'est pas {selectedMember.name} ?</h3>
-              <p>{selectedMember.alibi}</p>
+              <p className="text-gray-200">{selectedMember.alibi}</p>
             </Card>
           )}
           
           {guiltyMember && (
-            <Card className="p-4 bg-green-50 border-green-200">
+            <Card className="p-4 bg-green-900 border border-green-800 text-white">
               <div className="flex items-center space-x-4 mb-4">
                 <Avatar className="h-12 w-12">
                   <AvatarImage src={`/avatars/${guiltyMember.avatar}`} alt={guiltyMember.name} />
                   <AvatarFallback>{guiltyMember.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <h3 className="font-bold text-lg">{guiltyMember.name} était responsable</h3>
-                  <p className="text-sm text-gray-600">{guiltyMember.role}</p>
+                  <h3 className="font-bold text-lg text-white">{guiltyMember.name} était responsable</h3>
+                  <p className="text-sm text-gray-300">{guiltyMember.role}</p>
                 </div>
               </div>
               
-              <h4 className="font-semibold mb-2">Indices clés :</h4>
-              <ul className="list-disc list-inside space-y-1">
+              <h4 className="font-semibold mb-2 text-white">Indices clés :</h4>
+              <ul className="list-disc list-inside space-y-1 text-gray-200">
                 {guiltyMember.clues.map((clue, i) => (
                   <li key={i} className="text-sm">{clue}</li>
                 ))}
@@ -240,13 +240,13 @@ const ResultDialog = ({
           )}
           
           <div>
-            <h3 className="text-xl font-bold mb-4">Leçons à retenir :</h3>
+            <h3 className="text-xl font-bold mb-4 text-white">Leçons à retenir :</h3>
             <div className="grid gap-4">
               {scenario.lessons.map((lesson, i) => (
-                <div key={i} className="bg-purple-50 p-4 rounded-lg">
+                <div key={i} className="bg-gray-800 p-4 rounded-lg border border-gray-700">
                   <div className="flex items-start">
-                    <ChevronRight className="h-5 w-5 text-purple-500 mt-0.5 mr-2 flex-shrink-0" />
-                    <p>{lesson}</p>
+                    <ChevronRight className="h-5 w-5 text-purple-400 mt-0.5 mr-2 flex-shrink-0" />
+                    <p className="text-gray-200">{lesson}</p>
                   </div>
                 </div>
               ))}
@@ -255,7 +255,7 @@ const ResultDialog = ({
         </div>
         
         <DialogFooter>
-          <Button onClick={() => setOpen(false)}>Retour au jeu</Button>
+          <Button onClick={() => setOpen(false)} className="bg-blue-700 hover:bg-blue-800">Retour au jeu</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -488,27 +488,27 @@ export default function ProjetImposteur() {
             transition={{ duration: 0.5 }}
             className="max-w-4xl mx-auto"
           >
-            <Card className="p-8 shadow-lg">
+            <Card className="p-8 shadow-lg bg-gray-950 border border-gray-800">
               <div className="flex flex-col items-center space-y-6 text-center">
-                <div className="p-3 bg-purple-100 rounded-full">
-                  <SearchCheck className="h-10 w-10 text-purple-600" />
+                <div className="p-3 bg-purple-900 rounded-full">
+                  <SearchCheck className="h-10 w-10 text-purple-300" />
                 </div>
-                <h1 className="text-3xl font-bold">Qui est l'imposteur ?</h1>
-                <p className="text-lg text-gray-700 max-w-2xl">
+                <h1 className="text-3xl font-bold text-white">Qui est l'imposteur ?</h1>
+                <p className="text-lg text-gray-300 max-w-2xl">
                   Un projet important a échoué, et vous devez découvrir qui est le principal responsable. 
                   Analysez les documents, les emails et les conversations pour identifier le coupable.
-                  Vous avez seulement <span className="font-bold text-red-500">3 minutes</span> pour résoudre l'enquête !
+                  Vous avez seulement <span className="font-bold text-red-400">3 minutes</span> pour résoudre l'enquête !
                 </p>
                 
-                <div className="border-t border-gray-200 w-full pt-6 mt-6">
-                  <h2 className="text-xl font-bold mb-4">Scénario : {scenario.title}</h2>
-                  <p className="text-gray-700 mb-6">{scenario.description}</p>
+                <div className="border-t border-gray-700 w-full pt-6 mt-6">
+                  <h2 className="text-xl font-bold mb-4 text-white">Scénario : {scenario.title}</h2>
+                  <p className="text-gray-300 mb-6">{scenario.description}</p>
                   
                   <div className="flex items-center justify-center space-x-2 mb-6">
-                    <Badge className="px-3 py-1 text-sm">
+                    <Badge className="px-3 py-1 text-sm bg-purple-900 text-white hover:bg-purple-800">
                       Difficulté : {scenario.difficulty}
                     </Badge>
-                    <Badge variant="outline" className="px-3 py-1 text-sm">
+                    <Badge variant="outline" className="px-3 py-1 text-sm border-gray-600 text-gray-300">
                       Temps : 3 minutes
                     </Badge>
                   </div>
@@ -584,38 +584,38 @@ export default function ProjetImposteur() {
                   defaultValue="dossier" 
                   value={activeTab} 
                   onValueChange={setActiveTab}
-                  className="bg-white rounded-lg shadow-sm p-4 border border-blue-100"
+                  className="bg-gray-950 rounded-lg shadow-sm p-4 border border-gray-800"
                 >
-                  <TabsList className="mb-4 bg-blue-50">
-                    <TabsTrigger value="dossier" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">Dossier</TabsTrigger>
-                    <TabsTrigger value="preuves" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">Preuves</TabsTrigger>
+                  <TabsList className="mb-4 bg-gray-800">
+                    <TabsTrigger value="dossier" className="data-[state=active]:bg-blue-600 data-[state=inactive]:text-gray-300 data-[state=active]:text-white">Dossier</TabsTrigger>
+                    <TabsTrigger value="preuves" className="data-[state=active]:bg-blue-600 data-[state=inactive]:text-gray-300 data-[state=active]:text-white">Preuves</TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="dossier" className="space-y-4">
-                    <h2 className="text-xl font-bold">Résumé de l'incident</h2>
-                    <p className="text-gray-700">{scenario.description}</p>
+                    <h2 className="text-xl font-bold text-white">Résumé de l'incident</h2>
+                    <p className="text-gray-300">{scenario.description}</p>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                      <Card className="p-4">
-                        <h3 className="font-bold text-lg mb-2">Objectif</h3>
-                        <p>{scenario.expectedOutcome}</p>
+                      <Card className="p-4 bg-gray-900 border border-gray-800">
+                        <h3 className="font-bold text-lg mb-2 text-white">Objectif</h3>
+                        <p className="text-gray-300">{scenario.expectedOutcome}</p>
                       </Card>
-                      <Card className="p-4">
-                        <h3 className="font-bold text-lg mb-2">Impact de l'échec</h3>
-                        <p>{scenario.failureSummary}</p>
+                      <Card className="p-4 bg-gray-900 border border-gray-800">
+                        <h3 className="font-bold text-lg mb-2 text-white">Impact de l'échec</h3>
+                        <p className="text-gray-300">{scenario.failureSummary}</p>
                       </Card>
                     </div>
                     
                     {selectedMember && (
-                      <Card className="p-4 mt-4 bg-purple-50">
+                      <Card className="p-4 mt-4 bg-gray-900 border border-purple-800">
                         <div className="flex items-center space-x-4 mb-4">
                           <Avatar className="h-12 w-12">
                             <AvatarImage src={`/avatars/${selectedMember.avatar}`} alt={selectedMember.name} />
                             <AvatarFallback>{selectedMember.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                           </Avatar>
                           <div>
-                            <h3 className="font-bold text-lg">{selectedMember.name}</h3>
-                            <p className="text-sm text-gray-600">{selectedMember.role}</p>
+                            <h3 className="font-bold text-lg text-white">{selectedMember.name}</h3>
+                            <p className="text-sm text-gray-300">{selectedMember.role}</p>
                           </div>
                         </div>
                         
@@ -648,7 +648,7 @@ export default function ProjetImposteur() {
                         {selectedEvidence ? (
                           <EvidenceViewer evidence={selectedEvidence} />
                         ) : (
-                          <Card className="p-6 h-[400px] flex items-center justify-center text-gray-400">
+                          <Card className="p-6 h-[400px] flex items-center justify-center text-gray-300 bg-gray-900 border border-gray-800">
                             Sélectionnez un document pour le consulter
                           </Card>
                         )}

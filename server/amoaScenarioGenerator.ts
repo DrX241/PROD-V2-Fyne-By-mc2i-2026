@@ -89,8 +89,28 @@ export async function generateScenario(req: Request, res: Response) {
     );
     
     try {
-      // Tentative de parsing du JSON
-      const scenarioData = JSON.parse(generatedContent || "{}");
+      // Extraction du JSON valide depuis la réponse (qui pourrait contenir du texte markdown)
+      let jsonContent = generatedContent || "{}";
+      
+      // Nettoyer la réponse si elle contient des délimiteurs markdown ou autres
+      if (jsonContent.includes("```json")) {
+        // Extraction à partir d'un bloc de code JSON en markdown
+        const jsonStart = jsonContent.indexOf("```json") + 7;
+        const jsonEnd = jsonContent.lastIndexOf("```");
+        if (jsonEnd > jsonStart) {
+          jsonContent = jsonContent.substring(jsonStart, jsonEnd).trim();
+        }
+      } else if (jsonContent.includes("```")) {
+        // Extraction à partir d'un bloc de code générique en markdown
+        const jsonStart = jsonContent.indexOf("```") + 3;
+        const jsonEnd = jsonContent.lastIndexOf("```");
+        if (jsonEnd > jsonStart) {
+          jsonContent = jsonContent.substring(jsonStart, jsonEnd).trim();
+        }
+      }
+      
+      // Tentative de parsing du JSON nettoyé
+      const scenarioData = JSON.parse(jsonContent);
       
       // Validation du format
       if (!scenarioData.title || !scenarioData.team || !scenarioData.evidence) {
@@ -105,6 +125,8 @@ export async function generateScenario(req: Request, res: Response) {
       res.json(scenarioData);
     } catch (parseError: unknown) {
       console.error("Erreur de parsing JSON:", parseError);
+      // Log pour debug
+      console.log("Contenu problématique:", generatedContent?.substring(0, 200) + "...");
       const errorMessage = parseError instanceof Error ? parseError.message : "Erreur inconnue";
       res.status(500).json({
         error: "Erreur lors de la génération du scénario",
