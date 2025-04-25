@@ -15,7 +15,9 @@ import {
   Medal,
   BookText,
   Clock,
-  BarChart2
+  BarChart2,
+  SearchCheck,
+  UserSearch
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
@@ -74,6 +76,12 @@ export default function AmoaModeSelection() {
       gradient: 'from-purple-700 to-purple-900',
       destination: '#',
       items: [
+        {
+          id: 'projet-imposteur',
+          title: 'QUI EST L\'IMPOSTEUR ?',
+          icon: <SearchCheck className="w-8 h-8" />,
+          destination: '/amoa/projet-imposteur'
+        },
         {
           id: 'simulateur-projet',
           title: 'SIMULATEUR DE PROJET',
