@@ -271,6 +271,11 @@ export default function DataLeakInvestigation() {
   const [evidencesAnalyzed, setEvidencesAnalyzed] = useState<number>(0);
   const [docsOpen, setDocsOpen] = useState<boolean>(false);
   const [currentDocContext, setCurrentDocContext] = useState<string>("data_breach");
+  
+  // États pour le système d'apprentissage
+  const [userActions, setUserActions] = useState<string[]>([]);
+  const [performanceScore, setPerformanceScore] = useState<number>(0);
+  const [showDebriefing, setShowDebriefing] = useState<boolean>(false);
 
   // Décompte du temps
   useEffect(() => {
@@ -311,16 +316,35 @@ export default function DataLeakInvestigation() {
   const accuseSuspect = (id: string) => {
     setAccusation(id);
     setAccusationSubmitted(true);
+    
     // Dans ce cas, Sophie Mercier est la coupable
-    setConclusionCorrect(id === 'sophie-mercier');
+    const isCorrect = id === 'sophie-mercier';
+    setConclusionCorrect(isCorrect);
+    
+    // Calculer le score de performance en fonction des preuves analysées et de l'exactitude de l'accusation
+    const evidenceScore = Math.round((evidencesAnalyzed / evidences.length) * 50); // 50% du score basé sur les preuves
+    const accusationScore = isCorrect ? 50 : 0; // 50% du score basé sur l'accusation
+    const totalScore = evidenceScore + accusationScore;
+    setPerformanceScore(totalScore);
+    
+    // Enregistrer l'accusation dans les actions de l'utilisateur
+    const suspectName = suspects.find(s => s.id === id)?.name || id;
+    setUserActions(prev => [...prev, `Accusation portée contre: ${suspectName}`]);
+    
+    // Afficher le débriefing
+    setShowDebriefing(true);
   };
 
   // Afficher une preuve
   const viewEvidence = (evidence: Evidence) => {
     setSelectedEvidence(evidence);
     setEvidenceDialogOpen(true);
+    
+    // Si la preuve n'a pas encore été analysée, la marquer comme telle et enregistrer l'action
     if (!evidence.analyzed) {
       markEvidenceAsAnalyzed(evidence.id);
+      // Ajouter cette action à l'historique des actions de l'utilisateur
+      setUserActions(prev => [...prev, `Analyse de la preuve: ${evidence.title}`]);
     }
   };
 
@@ -328,6 +352,9 @@ export default function DataLeakInvestigation() {
   const viewSuspect = (suspect: Suspect) => {
     setSelectedSuspect(suspect);
     setSuspectDialogOpen(true);
+    
+    // Enregistrer l'action pour le débriefing
+    setUserActions(prev => [...prev, `Analyse du suspect: ${suspect.name}`]);
   };
 
   // Obtenir l'icône selon le type de preuve
@@ -398,11 +425,7 @@ export default function DataLeakInvestigation() {
         {/* Débriefing pédagogique */}
         <div className="mt-6 mb-4">
           <DebriefingComponent 
-            userActions={[
-              accusation === 'sophie-mercier' ? "Accusation correcte de Sophie Mercier" : "Accusation incorrecte",
-              `${evidencesAnalyzed} preuves analysées sur ${evidences.length}`,
-              conclusionCorrect ? "Bonne interprétation des indices clés" : "Interprétation incomplète des preuves"
-            ]}
+            userActions={userActions}
             correctApproach={[
               "Analyser toutes les preuves avant de tirer des conclusions",
               "Porter attention aux incohérences (comme l'autorisation falsifiée)",
@@ -410,7 +433,7 @@ export default function DataLeakInvestigation() {
               "Vérifier les horodatages et la chronologie des événements"
             ]}
             scenario="data_breach"
-            performanceScore={conclusionCorrect ? 100 : 40}
+            performanceScore={performanceScore}
           />
         </div>
 
