@@ -426,8 +426,8 @@ export default function Home() {
         {/* Contenu principal - Ajusté pour le mode classique afin de préserver la visibilité du robot */}
         <div className={`w-full max-w-screen-2xl mx-auto px-4 py-16 sm:px-6 ${isFuturistic ? 'lg:px-8' : 'lg:px-4'} lg:py-28 relative z-10 h-full flex items-center`}>
           <div className="flex flex-col lg:flex-row items-center justify-between">
-            {/* Contenu texte - Déplacé plus à gauche pour ne pas masquer le personnage */}
-            <div className={`text-center lg:text-left ${isFuturistic ? 'lg:w-2/5' : 'lg:w-1/3'} mx-auto lg:ml-12 lg:mr-0 mb-12 lg:mb-0`}>
+            {/* Contenu texte - Position adaptée selon le thème */}
+            <div className={`text-center lg:text-left ${isFuturistic ? 'lg:w-2/5 lg:ml-12' : 'lg:w-2/5 lg:ml-32'} mx-auto lg:mr-0 mb-12 lg:mb-0`}>
               {/* Badge différent selon le thème */}
               {isFuturistic ? (
                 <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-600/40 border border-blue-500/30 text-blue-300 text-sm font-medium mb-6 backdrop-blur-md">
@@ -469,7 +469,7 @@ export default function Home() {
                 
                 {/* Ligne décorative en dessous - adapté selon le thème */}
                 <motion.div 
-                  className="absolute -bottom-1 lg:left-32 left-1/2 transform lg:-translate-x-0 -translate-x-1/2 w-64 h-[2px]"
+                  className={`absolute -bottom-1 ${isFuturistic ? 'lg:left-32' : 'lg:left-24'} left-1/2 transform lg:-translate-x-0 -translate-x-1/2 w-64 h-[2px]`}
                   initial={{ width: 0, opacity: 0 }}
                   animate={{ width: 250, opacity: 1 }}
                   transition={{ duration: 1, delay: 0.5 }}
