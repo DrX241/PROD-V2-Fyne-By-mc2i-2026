@@ -26,9 +26,6 @@ import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
 import { toast } from '@/hooks/use-toast';
 
-// Durée du cache en millisecondes (10 minutes)
-const CACHE_TTL = 10 * 60 * 1000;
-
 // Types
 interface TeamMember {
   id: string;
@@ -588,7 +585,6 @@ export default function ProjetImposteur() {
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
   const [nextUpdateTime, setNextUpdateTime] = useState<string | null>(null); // Heure de la prochaine mise à jour
   const [timeRemaining, setTimeRemaining] = useState<string | null>(null); // Temps restant formaté
-  const [updateProgress, setUpdateProgress] = useState<number>(0); // Pourcentage de progression pour la barre
   
   const handleAccuse = () => {
     if (!selectedMember) {
@@ -753,9 +749,6 @@ export default function ProjetImposteur() {
   // Mettre à jour le temps restant toutes les secondes et recharger quand nécessaire
   useEffect(() => {
     if (nextUpdateTime) {
-      // Calculer la durée totale de l'intervalle de mise à jour (10 minutes = 600000ms)
-      const totalDuration = CACHE_TTL || 10 * 60 * 1000;
-      
       // Fonction pour vérifier et mettre à jour le temps restant
       const checkAndUpdateTime = () => {
         const now = new Date();
@@ -767,10 +760,6 @@ export default function ProjetImposteur() {
           loadAvailableScenarios();
           return "En cours d'actualisation...";
         }
-        
-        // Calculer le pourcentage de temps écoulé (inversé pour montrer le temps passé)
-        const percentElapsed = 100 - Math.round((diffMs / totalDuration) * 100);
-        setUpdateProgress(Math.min(percentElapsed, 100));
         
         return formatTimeRemaining(nextUpdateTime);
       };
@@ -893,16 +882,11 @@ export default function ProjetImposteur() {
                 
                 <div className="flex flex-col items-center mt-8 space-y-4">
                   {timeRemaining && (
-                    <div className="text-center mb-2 p-4 bg-gray-800 rounded-lg border border-gray-700 w-full max-w-md">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="text-gray-300 text-sm">Prochains scénarios</div>
-                        <div className="text-white text-sm font-medium flex items-center">
-                          <Clock className="h-4 w-4 mr-2 text-purple-400" />
-                          {timeRemaining}
-                        </div>
-                      </div>
-                      <Progress value={updateProgress} className="h-2 w-full bg-gray-700" />
-                      <p className="text-xs text-gray-400 mt-2">4 nouveaux scénarios générés toutes les 10 minutes</p>
+                    <div className="text-center mb-2 rounded-lg p-3 inline-flex items-center text-gray-900 bg-gray-100">
+                      <Clock className="h-4 w-4 mr-2 text-purple-700" />
+                      <span className="text-sm font-medium">
+                        Actualisation dans : {timeRemaining}
+                      </span>
                     </div>
                   )}
                 
