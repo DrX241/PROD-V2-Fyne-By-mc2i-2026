@@ -184,27 +184,21 @@ const EvidenceViewer = ({ evidence }: { evidence: Evidence | null }) => {
         )}
         
         <div className="mt-6 text-gray-200 bg-gray-800 p-4 rounded-md border border-gray-700">
-          <div className="evidence-content" style={{ 
-            whiteSpace: 'pre-wrap',
-            lineHeight: '1.6', 
-            letterSpacing: '0.01em',
-            fontSize: '0.95rem'
-          }}>
-            {/* Remplacer les sauts de ligne uniques par des sauts de paragraphe pour une meilleure lisibilité */}
-            {evidence.content
-              .split('\n\n')
-              .map((paragraph, idx) => (
-                <p key={idx} className={idx < evidence.content.split('\n\n').length - 1 ? "mb-4" : "mb-0"}>
-                  {paragraph.split('\n').map((line, lineIdx) => (
-                    <React.Fragment key={lineIdx}>
-                      {line}
-                      {lineIdx < paragraph.split('\n').length - 1 && <br />}
-                    </React.Fragment>
-                  ))}
-                </p>
-              ))
-            }
-          </div>
+          <div 
+            className="evidence-content" 
+            style={{ 
+              whiteSpace: 'pre-wrap',
+              lineHeight: '1.6', 
+              letterSpacing: '0.01em',
+              fontSize: '0.95rem'
+            }}
+            dangerouslySetInnerHTML={{ 
+              __html: evidence.content
+                .split('\n\n')
+                .map(paragraph => `<p>${paragraph.replace(/\n/g, '<br />')}</p>`)
+                .join('')
+            }}
+          ></div>
         </div>
       </div>
     </Card>
@@ -232,9 +226,9 @@ const ResultDialog = ({
         <DialogHeader>
           <DialogTitle className="text-2xl flex items-center text-white">
             {isCorrect ? (
-              <><Check className="h-6 w-6 text-green-400 mr-2" /> Félicitations !</>
+              <div className="flex items-center"><Check className="h-6 w-6 text-green-400 mr-2" /> Félicitations !</div>
             ) : (
-              <><X className="h-6 w-6 text-red-400 mr-2" /> Ce n'est pas la bonne personne</>
+              <div className="flex items-center"><X className="h-6 w-6 text-red-400 mr-2" /> Ce n'est pas la bonne personne</div>
             )}
           </DialogTitle>
         </DialogHeader>
