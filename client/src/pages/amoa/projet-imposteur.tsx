@@ -491,7 +491,7 @@ const ScenarioSelectionCard = ({
       className={`rounded-xl p-5 shadow-md h-full relative overflow-hidden cursor-pointer ${
         isSelected 
           ? 'bg-white border-2 border-purple-500' 
-          : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
+          : 'bg-white border border-gray-200 hover:bg-gray-50'
       }`}
       whileHover={{ y: -5, boxShadow: '0 12px 30px rgba(124, 58, 237, 0.15)' }}
       onClick={onClick}
@@ -535,7 +535,7 @@ const ScenarioSelectionCard = ({
       
       {/* Effet sur survol */}
       {isHover && (
-        <div className="absolute inset-0 bg-purple-100/50 z-0"></div>
+        <div className="absolute inset-0 bg-purple-100/70 z-0"></div>
       )}
     </motion.div>
   );
@@ -798,7 +798,7 @@ export default function ProjetImposteur() {
                         // Filtrer les scénarios affichés
                         loadAvailableScenarios();
                       }}
-                      className={selectedDifficulty === 'facile' ? 'bg-green-700 hover:bg-green-800' : 'border-gray-600 text-gray-300'}
+                      className={selectedDifficulty === 'facile' ? 'bg-green-700 hover:bg-green-800 text-white' : 'border-gray-600 text-white'}
                     >
                       Facile
                     </Button>
@@ -809,7 +809,7 @@ export default function ProjetImposteur() {
                         // Filtrer les scénarios affichés
                         loadAvailableScenarios();
                       }}
-                      className={selectedDifficulty === 'moyen' ? 'bg-blue-700 hover:bg-blue-800' : 'border-gray-600 text-gray-300'}
+                      className={selectedDifficulty === 'moyen' ? 'bg-blue-700 hover:bg-blue-800 text-white' : 'border-gray-600 text-white'}
                     >
                       Moyen
                     </Button>
@@ -820,7 +820,7 @@ export default function ProjetImposteur() {
                         // Filtrer les scénarios affichés
                         loadAvailableScenarios();
                       }}
-                      className={selectedDifficulty === 'difficile' ? 'bg-red-700 hover:bg-red-800' : 'border-gray-600 text-gray-300'}
+                      className={selectedDifficulty === 'difficile' ? 'bg-red-700 hover:bg-red-800 text-white' : 'border-gray-600 text-white'}
                     >
                       Difficile
                     </Button>
@@ -884,7 +884,7 @@ export default function ProjetImposteur() {
                     variant="outline" 
                     onClick={() => generateNewScenario(0)}
                     disabled={isGeneratingScenario}
-                    className="min-w-[220px]"
+                    className="min-w-[220px] text-white border-gray-600 hover:bg-gray-800"
                   >
                     {isGeneratingScenario ? (
                       <span className="flex items-center gap-2">
@@ -949,7 +949,7 @@ export default function ProjetImposteur() {
                       size="lg" 
                       variant="outline" 
                       onClick={() => setShowScenarioSelection(true)}
-                      className="min-w-[180px]"
+                      className="min-w-[180px] text-white border-gray-600 hover:bg-gray-800"
                     >
                       Revenir à la sélection
                     </Button>
