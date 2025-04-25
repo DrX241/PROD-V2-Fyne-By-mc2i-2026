@@ -44,7 +44,7 @@ export default function CyberModeSelection() {
         },
         {
           id: 'cyber-defense',
-          title: 'CENTRE DE CRISE ÉVOLUTIF',
+          title: 'CENTRE DE CRISE',
           icon: <Shield className="w-8 h-8" />,
           destination: '/cyber-defense'
         }

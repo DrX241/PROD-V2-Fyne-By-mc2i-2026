@@ -455,7 +455,7 @@ export default function CentreDeCriseEvolutif() {
           
           {/* Section explicative */}
           <div className="bg-white p-8 rounded-xl border border-gray-200 mb-12">
-            <h3 className="text-2xl font-bold text-[#006a9e] mb-6">Comment fonctionne le CENTRE DE CRISE ÉVOLUTIF</h3>
+            <h3 className="text-2xl font-bold text-[#006a9e] mb-6">Comment fonctionne le CENTRE DE CRISE</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="flex flex-col">

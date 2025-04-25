@@ -285,7 +285,8 @@ J'attends vos instructions pour agir. Comment souhaitez-vous procéder?`,
           level: level?.complexity,
           scenario: level?.scenario,
           objectives: level?.objectives,
-          currentObjective: currentObjective
+          currentObjective: currentObjective,
+          contacts: activeContacts
         },
         previousMessages: [...recentMessages, {
           role: "user",
