@@ -12,7 +12,8 @@ import {
   X,
   ChevronRight,
   Users,
-  PlusCircle
+  PlusCircle,
+  Flame as FlameIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -133,7 +134,7 @@ const EvidenceCard = ({ evidence, onClick }: { evidence: Evidence, onClick: () =
     note: FileText,
     "feuille-calcul": FileText,
     presentation: FileText,
-    screenshot: Image
+    screenshot: FileText // Changé de Image à FileText car Image n'est pas importé
   };
   
   // Utiliser FileText par défaut si le type n'est pas trouvé dans la map
@@ -904,24 +905,45 @@ export default function ProjetImposteur() {
                     </div>
                   )}
                 
-                  <Button 
-                    variant="outline" 
-                    onClick={() => generateNewScenario(0)}
-                    disabled={isGeneratingScenario}
-                    className="min-w-[220px] text-white border-gray-600 hover:bg-gray-800"
-                  >
-                    {isGeneratingScenario ? (
-                      <span className="flex items-center gap-2">
-                        <span className="h-4 w-4 animate-spin rounded-full border-b-2 border-primary"></span>
-                        Génération...
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-2">
-                        <PlusCircle className="h-4 w-4" />
-                        Générer un nouveau scénario
-                      </span>
-                    )}
-                  </Button>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => generateNewScenario(0)}
+                      disabled={isGeneratingScenario}
+                      className="text-white border-gray-600 hover:bg-gray-800"
+                    >
+                      {isGeneratingScenario ? (
+                        <span className="flex items-center gap-2">
+                          <span className="h-4 w-4 animate-spin rounded-full border-b-2 border-primary"></span>
+                          Génération...
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          <PlusCircle className="h-4 w-4" />
+                          Générer un scénario
+                        </span>
+                      )}
+                    </Button>
+                    
+                    <Button 
+                      variant="default" 
+                      onClick={() => generateNewScenario(0, true)}
+                      disabled={isGeneratingScenario}
+                      className="text-white bg-red-700 hover:bg-red-800"
+                    >
+                      {isGeneratingScenario ? (
+                        <span className="flex items-center gap-2">
+                          <span className="h-4 w-4 animate-spin rounded-full border-b-2 border-primary"></span>
+                          Génération...
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          <FlameIcon className="h-4 w-4" />
+                          Tester un scénario difficile
+                        </span>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </div>
             </motion.div>
