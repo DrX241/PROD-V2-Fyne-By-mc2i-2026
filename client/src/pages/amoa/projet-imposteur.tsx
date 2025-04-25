@@ -7,11 +7,12 @@ import {
   FileText, 
   User, 
   Mail, 
-  MessageSquare, 
+  MessagesSquare, 
   Check, 
   X,
   ChevronRight,
-  Users
+  Users,
+  PlusCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -124,7 +125,7 @@ const MemberCard = ({
 const EvidenceCard = ({ evidence, onClick }: { evidence: Evidence, onClick: () => void }) => {
   const IconMap = {
     email: Mail,
-    chat: MessageSquare,
+    chat: MessagesSquare,
     document: FileText
   };
   
@@ -711,89 +712,115 @@ export default function ProjetImposteur() {
       
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {!gameStarted ? (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="max-w-4xl mx-auto"
-          >
-            <Card className="p-8 shadow-lg bg-gray-950 border border-gray-800">
-              <div className="flex flex-col items-center space-y-6 text-center">
-                <div className="p-3 bg-purple-900 rounded-full">
+          showScenarioSelection ? (
+            // Page de sélection des scénarios
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="text-center mb-10">
+                <div className="inline-flex p-3 bg-purple-900 rounded-full mb-4">
                   <SearchCheck className="h-10 w-10 text-purple-300" />
                 </div>
-                <h1 className="text-3xl font-bold text-white">Qui est l'imposteur ?</h1>
-                <p className="text-lg text-gray-300 max-w-2xl">
+                <h1 className="text-3xl font-bold text-white mb-3">Qui est l'imposteur ?</h1>
+                <p className="text-lg text-gray-300 max-w-2xl mx-auto">
                   Un projet important a échoué, et vous devez découvrir qui est le principal responsable. 
                   Analysez les documents, les emails et les conversations pour identifier le coupable.
                   Vous avez seulement <span className="font-bold text-red-400">3 minutes</span> pour résoudre l'enquête !
                 </p>
+              </div>
+  
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold mb-6 text-center text-white">Choisissez un scénario</h2>
                 
-                <div className="border-t border-gray-700 w-full pt-6 mt-6">
-                  <h2 className="text-xl font-bold mb-4 text-white">Scénario : {scenario.title}</h2>
-                  <p className="text-gray-300 mb-6">{scenario.description}</p>
-                  
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold mb-2 text-white">Niveau de difficulté :</h3>
-                    <div className="flex flex-wrap justify-center gap-2">
-                      <Button 
-                        variant={selectedDifficulty === 'facile' ? 'default' : 'outline'} 
-                        onClick={() => {
-                          setSelectedDifficulty('facile');
-                          generateNewScenario(0);
-                        }}
-                        className={selectedDifficulty === 'facile' ? 'bg-green-700 hover:bg-green-800' : 'border-gray-600 text-gray-300'}
-                      >
-                        Facile
-                      </Button>
-                      <Button 
-                        variant={selectedDifficulty === 'moyen' ? 'default' : 'outline'} 
-                        onClick={() => {
-                          setSelectedDifficulty('moyen');
-                          generateNewScenario(0);
-                        }}
-                        className={selectedDifficulty === 'moyen' ? 'bg-blue-700 hover:bg-blue-800' : 'border-gray-600 text-gray-300'}
-                      >
-                        Moyen
-                      </Button>
-                      <Button 
-                        variant={selectedDifficulty === 'difficile' ? 'default' : 'outline'} 
-                        onClick={() => {
-                          setSelectedDifficulty('difficile');
-                          generateNewScenario(0);
-                        }}
-                        className={selectedDifficulty === 'difficile' ? 'bg-red-700 hover:bg-red-800' : 'border-gray-600 text-gray-300'}
-                      >
-                        Difficile
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-center space-x-2 mb-6">
-                    <Badge className="px-3 py-1 text-sm bg-purple-900 text-white hover:bg-purple-800">
-                      Difficulté actuelle : {scenario.difficulty}
-                    </Badge>
-                    <Badge variant="outline" className="px-3 py-1 text-sm border-gray-600 text-gray-300">
-                      Temps : 3 minutes
-                    </Badge>
+                <div className="flex justify-center mb-4">
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    <Button 
+                      variant={selectedDifficulty === 'facile' ? 'default' : 'outline'} 
+                      onClick={() => {
+                        setSelectedDifficulty('facile');
+                        // Filtrer les scénarios affichés
+                        loadAvailableScenarios();
+                      }}
+                      className={selectedDifficulty === 'facile' ? 'bg-green-700 hover:bg-green-800' : 'border-gray-600 text-gray-300'}
+                    >
+                      Facile
+                    </Button>
+                    <Button 
+                      variant={selectedDifficulty === 'moyen' ? 'default' : 'outline'} 
+                      onClick={() => {
+                        setSelectedDifficulty('moyen');
+                        // Filtrer les scénarios affichés
+                        loadAvailableScenarios();
+                      }}
+                      className={selectedDifficulty === 'moyen' ? 'bg-blue-700 hover:bg-blue-800' : 'border-gray-600 text-gray-300'}
+                    >
+                      Moyen
+                    </Button>
+                    <Button 
+                      variant={selectedDifficulty === 'difficile' ? 'default' : 'outline'} 
+                      onClick={() => {
+                        setSelectedDifficulty('difficile');
+                        // Filtrer les scénarios affichés
+                        loadAvailableScenarios();
+                      }}
+                      className={selectedDifficulty === 'difficile' ? 'bg-red-700 hover:bg-red-800' : 'border-gray-600 text-gray-300'}
+                    >
+                      Difficile
+                    </Button>
                   </div>
                 </div>
                 
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                {isLoadingScenarios ? (
+                  <div className="flex justify-center items-center py-20">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="h-10 w-10 animate-spin rounded-full border-b-4 border-purple-600"></div>
+                      <p className="text-purple-300 font-medium">Chargement des scénarios...</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    {availableScenarios.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {availableScenarios
+                          .filter(s => selectedDifficulty === 'moyen' || s.difficulty === selectedDifficulty)
+                          .map(availableScenario => (
+                            <ScenarioSelectionCard
+                              key={availableScenario.id}
+                              scenario={availableScenario}
+                              onClick={() => selectScenarioAndPlay(availableScenario)}
+                              isSelected={selectedScenarioId === availableScenario.id}
+                            />
+                          ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-10">
+                        <p className="text-gray-400 mb-4">Aucun scénario disponible. Essayez de générer un nouveau scénario.</p>
+                        <Button 
+                          onClick={() => generateNewScenario(0)}
+                          disabled={isGeneratingScenario}
+                        >
+                          {isGeneratingScenario ? (
+                            <span className="flex items-center gap-2">
+                              <span className="h-4 w-4 animate-spin rounded-full border-b-2 border-primary"></span>
+                              Génération...
+                            </span>
+                          ) : (
+                            'Générer un scénario'
+                          )}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                <div className="flex justify-center mt-8">
                   <Button 
-                    size="lg" 
-                    onClick={startGame}
-                    className="min-w-[180px]"
-                  >
-                    Commencer l'enquête
-                  </Button>
-                  
-                  <Button 
-                    size="lg" 
                     variant="outline" 
                     onClick={() => generateNewScenario(0)}
                     disabled={isGeneratingScenario}
-                    className="min-w-[180px]"
+                    className="min-w-[220px]"
                   >
                     {isGeneratingScenario ? (
                       <span className="flex items-center gap-2">
@@ -801,13 +828,72 @@ export default function ProjetImposteur() {
                         Génération...
                       </span>
                     ) : (
-                      'Nouveau scénario'
+                      <span className="flex items-center gap-2">
+                        <PlusCircle className="h-4 w-4" />
+                        Générer un nouveau scénario
+                      </span>
                     )}
                   </Button>
                 </div>
               </div>
-            </Card>
-          </motion.div>
+            </motion.div>
+          ) : (
+            // Page de détail du scénario sélectionné
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="max-w-4xl mx-auto"
+            >
+              <Card className="p-8 shadow-lg bg-gray-950 border border-gray-800">
+                <div className="flex flex-col items-center space-y-6 text-center">
+                  <div className="p-3 bg-purple-900 rounded-full">
+                    <SearchCheck className="h-10 w-10 text-purple-300" />
+                  </div>
+                  <h1 className="text-3xl font-bold text-white">Qui est l'imposteur ?</h1>
+                  
+                  <div className="border-t border-gray-700 w-full pt-6 mt-6">
+                    <h2 className="text-xl font-bold mb-4 text-white">Scénario : {scenario.title}</h2>
+                    <p className="text-gray-300 mb-6">{scenario.description}</p>
+                    
+                    <div className="flex items-center justify-center space-x-2 mb-6">
+                      <Badge className={`px-3 py-1 text-sm text-white ${
+                        scenario.difficulty === 'facile' 
+                          ? 'bg-green-700' 
+                          : scenario.difficulty === 'moyen'
+                            ? 'bg-blue-700'
+                            : 'bg-red-700'
+                      }`}>
+                        Difficulté : {scenario.difficulty}
+                      </Badge>
+                      <Badge variant="outline" className="px-3 py-1 text-sm border-gray-600 text-gray-300">
+                        Temps : 3 minutes
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Button 
+                      size="lg" 
+                      onClick={startGame}
+                      className="min-w-[180px]"
+                    >
+                      Commencer l'enquête
+                    </Button>
+                    
+                    <Button 
+                      size="lg" 
+                      variant="outline" 
+                      onClick={() => setShowScenarioSelection(true)}
+                      className="min-w-[180px]"
+                    >
+                      Revenir à la sélection
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          )
         ) : (
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-center bg-gray-950 p-4 rounded-lg shadow-sm border border-gray-800">
