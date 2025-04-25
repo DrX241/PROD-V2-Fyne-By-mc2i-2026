@@ -45,13 +45,18 @@ export async function handleCyberDefenseChat(req: Request, res: Response) {
 
 CONTEXTE DE LA MISSION:
 • Titre: ${missionContext.title}
-• Organisation: ${missionContext.companyName} (Secteur: ${missionContext.secteurActivite})
+• Organisation: ${missionContext.companyName || "TransCorp SARL"} (Secteur: ${missionContext.secteurActivite || "Services informatiques"})
 • Rôle de l'utilisateur: ${missionContext.userRole || "Responsable Cybersécurité"}
 • Difficulté: ${missionContext.difficulty || missionContext.level}
-• Objectif actuel (${currentObjective + 1}/${missionContext.objectives?.length}): ${objectiveDescription}
+• Objectif actuel (${currentObjective + 1}/${missionContext.objectives?.length}): ${missionContext.objectives?.[currentObjective] || objectiveDescription}
 
 SCÉNARIO ACTUEL:
 ${missionContext.scenario}
+
+${missionContext.emailDetails ? `
+DÉTAILS DE L'EMAIL SUSPECT:
+${missionContext.emailDetails}
+` : ''}
 
 CONTACTS DISPONIBLES:
 - ${availableContacts}

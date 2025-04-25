@@ -137,7 +137,14 @@ export default function CyberDefenseSession() {
               level: level.complexity,
               scenario: level.scenario,
               objectives: level.objectives,
-              contacts: [initialContact]
+              userRole: "Responsable Cybersécurité",
+              contacts: [initialContact],
+              emailDetails: level.title.includes("Phishing") ? 
+                `- Expéditeur: "Support Informatique <support-it@entrepise-secure.com>" (notez la faute d'orthographe dans le domaine)
+                - Objet: "URGENT: Violation de sécurité détectée - Action immédiate requise"
+                - Contenu: "Cher(e) employé(e), Une activité suspecte a été détectée sur votre compte. Veuillez changer immédiatement votre mot de passe en cliquant sur le lien ci-dessous. Ne pas agir dans les 24h entraînera la suspension de votre compte. [LIEN: http://reset-password.entrepise-secure.com]"
+                - Pièce jointe: "Directives_securite.pdf.exe"
+                - En-tête technique: L'adresse IP d'origine ne correspond pas aux serveurs de l'entreprise` : undefined
             },
             previousMessages: [{
               role: "system", 
@@ -286,7 +293,14 @@ J'attends vos instructions pour agir. Comment souhaitez-vous procéder?`,
           scenario: level?.scenario,
           objectives: level?.objectives,
           currentObjective: currentObjective,
-          contacts: activeContacts
+          userRole: "Responsable Cybersécurité",
+          contacts: activeContacts,
+          emailDetails: level?.title?.includes("Phishing") ? 
+            `- Expéditeur: "Support Informatique <support-it@entrepise-secure.com>" (notez la faute d'orthographe dans le domaine)
+            - Objet: "URGENT: Violation de sécurité détectée - Action immédiate requise"
+            - Contenu: "Cher(e) employé(e), Une activité suspecte a été détectée sur votre compte. Veuillez changer immédiatement votre mot de passe en cliquant sur le lien ci-dessous. Ne pas agir dans les 24h entraînera la suspension de votre compte. [LIEN: http://reset-password.entrepise-secure.com]"
+            - Pièce jointe: "Directives_securite.pdf.exe"
+            - En-tête technique: L'adresse IP d'origine ne correspond pas aux serveurs de l'entreprise` : undefined
         },
         previousMessages: [...recentMessages, {
           role: "user",
