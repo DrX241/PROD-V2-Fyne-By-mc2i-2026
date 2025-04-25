@@ -490,8 +490,8 @@ const ScenarioSelectionCard = ({
     <motion.div
       className={`rounded-xl p-5 shadow-md h-full relative overflow-hidden cursor-pointer ${
         isSelected 
-          ? 'bg-purple-900 border-2 border-purple-500' 
-          : 'bg-gray-900 border border-gray-800 hover:bg-gray-800'
+          ? 'bg-white border-2 border-purple-500' 
+          : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
       }`}
       whileHover={{ y: -5, boxShadow: '0 12px 30px rgba(124, 58, 237, 0.15)' }}
       onClick={onClick}
@@ -504,27 +504,27 @@ const ScenarioSelectionCard = ({
       {/* Badge de difficulté */}
       <div className={`absolute top-3 right-3 text-xs px-2 py-1 rounded-full ${
         scenario.difficulty === 'facile' 
-          ? 'bg-green-800/80 text-green-200' 
+          ? 'bg-green-100 text-green-800 border border-green-300' 
           : scenario.difficulty === 'moyen'
-            ? 'bg-blue-800/80 text-blue-200'
-            : 'bg-red-800/80 text-red-200'
+            ? 'bg-blue-100 text-blue-800 border border-blue-300'
+            : 'bg-red-100 text-red-800 border border-red-300'
       } font-medium`}>
         {scenario.difficulty.charAt(0).toUpperCase() + scenario.difficulty.slice(1)}
       </div>
       
       {/* Titre */}
-      <h3 className="text-lg font-semibold mb-2 mt-1 pr-20 text-white">
+      <h3 className="text-lg font-semibold mb-2 mt-1 pr-20 text-gray-900">
         {scenario.title}
       </h3>
       
       {/* Description */}
-      <p className="text-gray-300 text-sm line-clamp-3 mb-3">
+      <p className="text-gray-700 text-sm line-clamp-3 mb-3">
         {scenario.description}
       </p>
       
       {/* Information sur l'équipe */}
       <div className="mt-3 mb-2">
-        <div className="flex items-center text-xs uppercase tracking-wide font-semibold mb-2 text-purple-300">
+        <div className="flex items-center text-xs uppercase tracking-wide font-semibold mb-2 text-purple-700">
           <Users className="h-3.5 w-3.5 mr-1" />
           Équipe: {teamCount} membres
         </div>
@@ -535,7 +535,7 @@ const ScenarioSelectionCard = ({
       
       {/* Effet sur survol */}
       {isHover && (
-        <div className="absolute inset-0 bg-purple-800/10 z-0"></div>
+        <div className="absolute inset-0 bg-purple-100/50 z-0"></div>
       )}
     </motion.div>
   );
@@ -560,6 +560,7 @@ export default function ProjetImposteur() {
   const [availableScenarios, setAvailableScenarios] = useState<Scenario[]>([]);
   const [isLoadingScenarios, setIsLoadingScenarios] = useState(true);
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
+  const [nextUpdateTime, setNextUpdateTime] = useState<string | null>(null); // Heure de la prochaine mise à jour
   
   const handleAccuse = () => {
     if (!selectedMember) {
@@ -670,6 +671,11 @@ export default function ProjetImposteur() {
       
       if (response.data && response.data.scenarios) {
         setAvailableScenarios(response.data.scenarios);
+        
+        // Récupérer l'heure de prochaine mise à jour
+        if (response.data.nextUpdate) {
+          setNextUpdateTime(response.data.nextUpdate);
+        }
       }
     } catch (error) {
       console.error("Erreur lors du chargement des scénarios:", error);
@@ -815,7 +821,16 @@ export default function ProjetImposteur() {
                   </div>
                 )}
                 
-                <div className="flex justify-center mt-8">
+                <div className="flex flex-col items-center mt-8 space-y-4">
+                  {nextUpdateTime && (
+                    <div className="text-center mb-2 bg-white/10 rounded-lg p-3 inline-flex items-center text-gray-900 bg-gray-100">
+                      <Clock className="h-4 w-4 mr-2 text-purple-700" />
+                      <span className="text-sm font-medium">
+                        Prochaine actualisation : {nextUpdateTime}
+                      </span>
+                    </div>
+                  )}
+                
                   <Button 
                     variant="outline" 
                     onClick={() => generateNewScenario(0)}
