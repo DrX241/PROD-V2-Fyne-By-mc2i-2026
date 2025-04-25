@@ -87,15 +87,7 @@ export default function CyberModeSelection() {
       gradient: 'from-amber-700 to-amber-900',
       destination: '#',
       comingSoon: true,
-      items: [
-        {
-          id: 'parcours-certifiant',
-          title: 'PARCOURS CERTIFIANT',
-          icon: null,
-          destination: '#',
-          comingSoon: true
-        }
-      ]
+      items: []
     }
   ];
 
