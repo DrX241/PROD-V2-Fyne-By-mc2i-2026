@@ -898,7 +898,7 @@ export default function ProjetImposteur() {
                   >
                     {isGeneratingScenario ? (
                       <span className="flex items-center gap-2">
-                        <span className="h-4 w-4 animate-spin rounded-full border-b-2 border-primary"></span>
+                        <Progress className="h-2 w-16" value={75} />
                         Génération...
                       </span>
                     ) : (
