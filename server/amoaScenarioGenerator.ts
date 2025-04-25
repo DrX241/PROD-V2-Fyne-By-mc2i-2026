@@ -40,14 +40,24 @@ async function generateSingleScenario(difficultyLevel = 'moyen'): Promise<any> {
   // Pour le niveau difficile, on ajoute des instructions spécifiques pour une difficulté extrême
   if (difficultyLevel === 'difficile') {
     difficultySpecificInstructions = `
-    NIVEAU DIFFICILE - ÉLÉMENTS SPÉCIFIQUES:
-    - Inclure des indices CACHÉS dans les documents (initiales, dates significatives, références obscures)
-    - Créer des contradictions subtiles entre différents témoignages
-    - Ajouter des fausses pistes délibérées
-    - Dans certains emails, cacher des détails importants dans des tournures de phrases
-    - Utiliser des initiales ou des surnoms qui référencent indirectement des personnes
-    - Insérer des détails techniques qui demandent une analyse approfondie
-    - Camoufler les erreurs critiques du coupable derrière des apparences de bonne pratique
+    NIVEAU DIFFICILE - ÉLÉMENTS CRYPTIQUES ET COMPLEXES:
+    - Inclure des CODES À DÉCHIFFRER dans les documents (comme des mots de passe dissimulés, des acronymes à décoder)
+    - Créer des MESSAGES CACHÉS où les premières lettres de chaque paragraphe forment un mot révélateur
+    - Dissimuler des indices dans des DATES SPÉCIFIQUES mentionnées dans les emails (jj/mm significatifs)
+    - Insérer des CONTRE-VÉRITÉS flagrantes où un membre de l'équipe ment ouvertement 
+    - Créer des CONTRADICTIONS DÉLIBÉRÉES entre emails qui ne peuvent pas être vraies simultanément
+    - Utiliser des TERMES TECHNIQUES spécifiques qui révèlent l'incompétence ou la négligence
+    - Insérer des RÉFÉRENCES CODÉES aux personnes (par ex: "notre ami du 3ème étage" pour désigner quelqu'un)
+    - Placer des MÉTAPHORES qui décrivent subtilement la situation réelle
+    - Créer des FAUSSES PISTES élaborées qui semblent incriminer un innocent
+    - Inclure des LOGS TECHNIQUES avec des horodatages qui contredisent les déclarations
+    - Utiliser des formulations où les MAJUSCULES de certains mots forment un message
+    
+    CONTENU PLUS RICHE:
+    - Emails bien plus longs (minimum 10 lignes) avec des détails inutiles camouflant des indices clés
+    - Documents techniques plus complexes (logs, rapports, etc.)
+    - Nomenclature unique pour les systèmes et projets, créant une terminologie à comprendre
+    - Historique de communications fragmenté à reconstituer
     `;
   } else if (difficultyLevel === 'facile') {
     difficultySpecificInstructions = `
@@ -91,13 +101,25 @@ async function generateSingleScenario(difficultyLevel = 'moyen'): Promise<any> {
   
   if (difficultyLevel === 'difficile') {
     specificContentInstructions = `
-    Pour le niveau DIFFICILE:
-    - Dans les preuves, cache des indices dans les initiales, dates ou tournures de phrases
-    - Crée des contradictions subtiles entre les documents
-    - Les documents doivent contenir des éléments techniques qui demandent analyse
-    - L'identité du coupable doit être difficile à déterminer sans analyse approfondie
-    - Certains emails doivent contenir des détails cachés (dates significatives, références codées)
-    - Insère des fausses pistes convaincantes pointant vers des innocents
+    ÉLÉMENTS CRYPTOGRAPHIQUES POUR NIVEAU DIFFICILE:
+    - Cryptographie: Utilise des chiffrements simples comme le chiffrement de César ou le remplacement de lettres
+    - Stéganographie: Cache un message dans les premières lettres de chaque paragraphe ou ligne
+    - Messages inversés: Certains mots lus à l'envers révèlent des informations
+    - Jargon technique: Utilise un lexique technique spécifique où seuls certains termes sont révélateurs
+    - Horodatages contradictoires: Des incohérences de dates/heures qui révèlent des mensonges
+    - Mots en majuscules: Des mots en majuscules dans un texte qui forment un message quand assemblés
+    - Références numériques: Des numéros de version ou références qui cachent des dates clés
+    - Métadonnées: Mentions d'informations techniques (logs, versions) qui contredisent des témoignages
+    - Double langage: Utilise des phrases à double sens où le contexte technique révèle la vérité
+    - Indices visuels: Descriptions de diagrammes ou captures d'écran qui contiennent des indices
+    - Métaphores: Allusions indirectes à travers des métaphores techniques ou d'entreprise
+
+    CONTENU TRÈS RICHE (AU MOINS 15 LIGNES PAR EMAIL):
+    - Les emails doivent être longs et détaillés (minimum 15 lignes)
+    - Inclure des éléments de distraction délibérés (fausses pistes)
+    - Fragmenter les informations clés entre plusieurs documents
+    - Utiliser une terminologie spécifique qui doit être déchiffrée
+    - Créer des contradictions délibérées difficiles à repérer
     `;
   }
 
@@ -191,9 +213,9 @@ async function generateSingleScenario(difficultyLevel = 'moyen'): Promise<any> {
         // Ajuster les tokens selon la difficulté et le nombre de tentatives
         let maxTokens = 1200;
         
-        // Plus de tokens pour le niveau difficile pour permettre des indices cachés et détails complexes
+        // Beaucoup plus de tokens pour le niveau difficile pour permettre des indices cachés, codes et détails complexes
         if (difficultyLevel === 'difficile') {
-          maxTokens = 1500;
+          maxTokens = 2500; // Doublé pour permettre des emails bien plus longs avec codes cachés
         } else if (difficultyLevel === 'facile') {
           maxTokens = 1000; // Moins de tokens pour les scénarios faciles
         }

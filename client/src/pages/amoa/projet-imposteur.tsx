@@ -126,10 +126,18 @@ const EvidenceCard = ({ evidence, onClick }: { evidence: Evidence, onClick: () =
   const IconMap = {
     email: Mail,
     chat: MessagesSquare,
-    document: FileText
+    document: FileText,
+    // Fallback pour tous les autres types de documents
+    rapport: FileText,
+    "compte-rendu": FileText,
+    note: FileText,
+    "feuille-calcul": FileText,
+    presentation: FileText,
+    screenshot: Image
   };
   
-  const Icon = IconMap[evidence.type];
+  // Utiliser FileText par défaut si le type n'est pas trouvé dans la map
+  const Icon = IconMap[evidence.type] || FileText;
   
   return (
     <Card 
