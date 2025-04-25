@@ -415,101 +415,33 @@ async function generateSingleScenario(difficultyLevel = 'moyen'): Promise<any> {
  */
 export async function getMultipleScenarios(req: Request, res: Response) {
   try {
-    const count = DEFAULT_SCENARIO_COUNT; // Utilisation de la constante définie plus haut (4 scénarios)
+    const count = DEFAULT_SCENARIO_COUNT;
     const force = req.query.force === 'true';
     
-    // Vérifier si nous avons des scénarios en cache qui sont encore valides
-    const now = Date.now();
-    const isCacheValid = !force && 
-                        scenarioCache.scenarios.length >= count && 
-                        (now - scenarioCache.lastUpdated) < CACHE_TTL;
-    
-    // Si le cache est valide, renvoyer les scénarios du cache
-    if (isCacheValid) {
-      return res.json({
-        scenarios: scenarioCache.scenarios.slice(0, count),
-        fromCache: true,
-        lastUpdated: new Date(scenarioCache.lastUpdated).toISOString(),
-        nextUpdate: new Date(scenarioCache.lastUpdated + CACHE_TTL).toISOString()
-      });
-    }
-    
-    // Si une génération est déjà en cours, attendre un peu et renvoyer ce qui est disponible
-    if (scenarioCache.isGenerating) {
-      // Attendre un peu pour voir si la génération se termine
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Renvoyer ce qui est disponible, même si c'est incomplet ou ancien
-      return res.json({
-        scenarios: scenarioCache.scenarios.slice(0, count),
-        fromCache: true,
-        isGenerating: true,
-        lastUpdated: new Date(scenarioCache.lastUpdated).toISOString(),
-        message: "Génération de nouveaux scénarios en cours, veuillez réessayer dans quelques secondes"
-      });
-    }
-    
-    // Marquer comme en cours de génération
-    scenarioCache.isGenerating = true;
-    
-    try {
-      // Générer de nouveaux scénarios en parallèle avec diverses difficultés
-      const difficulties = ['facile', 'moyen', 'difficile'];
-      const generatePromises = [];
-      
-      // Équilibrer les difficultés parmi les scénarios
-      for (let i = 0; i < count; i++) {
-        const difficulty = difficulties[i % difficulties.length];
-        generatePromises.push(generateSingleScenario(difficulty));
-      }
-      
-      // Attendre que tous les scénarios soient générés
-      const newScenarios = await Promise.all(
-        generatePromises.map(p => p.catch(err => {
-          console.error("Erreur lors de la génération d'un scénario:", err);
-          // Retourner null en cas d'erreur pour que le filtre suivant le supprime
-          return null;
-        }))
-      );
-      
-      // Filtrer les scénarios null (erreurs) et mettre à jour le cache
-      const validScenarios = newScenarios.filter(s => s !== null);
-      
-      if (validScenarios.length > 0) {
-        scenarioCache.scenarios = validScenarios;
-        scenarioCache.lastUpdated = Date.now();
-      }
-      
-      // Répondre avec les scénarios générés
-      res.json({
-        scenarios: scenarioCache.scenarios.slice(0, count),
-        fromCache: false,
-        lastUpdated: new Date(scenarioCache.lastUpdated).toISOString(),
-        nextUpdate: new Date(scenarioCache.lastUpdated + CACHE_TTL).toISOString()
-      });
-    } finally {
-      // Marquer comme terminé
-      scenarioCache.isGenerating = false;
-    }
-    
-  } catch (error) {
-    console.error("Erreur lors de la récupération de multiples scénarios:", error);
-    const errorMessage = error instanceof Error ? error.message : "Erreur inconnue";
-    
-    // En cas d'erreur, renvoyer ce qui est disponible dans le cache
+    // Toujours retourner ce qui est disponible dans le cache sans générer automatiquement
     if (scenarioCache.scenarios.length > 0) {
-      return res.status(207).json({
-        scenarios: scenarioCache.scenarios,
-        error: "Erreur partielle: " + errorMessage,
+      return res.json({
+        scenarios: scenarioCache.scenarios.slice(0, count),
         fromCache: true,
+        manualGeneration: true, // Indication que la génération est manuelle uniquement
         lastUpdated: new Date(scenarioCache.lastUpdated).toISOString()
       });
     }
     
-    res.status(500).json({
-      error: "Erreur lors de la génération des scénarios",
-      details: errorMessage
+    // Si aucun scénario n'est disponible dans le cache, retourner un tableau vide
+    // L'utilisateur devra générer manuellement des scénarios
+    return res.json({
+      scenarios: [],
+      fromCache: true,
+      manualGeneration: true,
+      message: "Aucun scénario disponible. Veuillez générer des scénarios manuellement."
     });
+    
+  } catch (error) {
+    console.error("Erreur lors de la récupération des scénarios:", error);
+    const errorMessage = error instanceof Error ? error.message : "Erreur inconnue";
+    
+    res.status(500).json({ error: errorMessage });
   }
 }
 

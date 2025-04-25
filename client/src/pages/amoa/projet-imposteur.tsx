@@ -586,9 +586,7 @@ export default function ProjetImposteur() {
   const [availableScenarios, setAvailableScenarios] = useState<Scenario[]>([]);
   const [isLoadingScenarios, setIsLoadingScenarios] = useState(true);
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
-  const [nextUpdateTime, setNextUpdateTime] = useState<string | null>(null); // Heure de la prochaine mise à jour
-  const [timeRemaining, setTimeRemaining] = useState<string | null>(null); // Temps restant formaté
-  const [updateProgress, setUpdateProgress] = useState<number>(0); // Pourcentage de progression pour la barre
+  // États de génération manuelle uniquement (pas d'auto-génération)
   
   const handleAccuse = () => {
     if (!selectedMember) {
@@ -707,11 +705,7 @@ export default function ProjetImposteur() {
       
       if (response.data && response.data.scenarios) {
         setAvailableScenarios(response.data.scenarios);
-        
-        // Récupérer l'heure de prochaine mise à jour
-        if (response.data.nextUpdate) {
-          setNextUpdateTime(response.data.nextUpdate);
-        }
+        // Plus de mise à jour automatique - tout est manuel maintenant
       }
     } catch (error) {
       console.error("Erreur lors du chargement des scénarios:", error);
@@ -733,59 +727,7 @@ export default function ProjetImposteur() {
     setScenarioLoaded(true);
   };
 
-  // Fonction pour formater le temps restant
-  const formatTimeRemaining = (nextUpdateISO: string) => {
-    const now = new Date();
-    const nextUpdate = new Date(nextUpdateISO);
-    const diffMs = nextUpdate.getTime() - now.getTime();
-    
-    if (diffMs <= 0) {
-      return "En cours d'actualisation...";
-    }
-    
-    // Convertir en minutes et secondes
-    const diffMinutes = Math.floor(diffMs / 60000);
-    const diffSeconds = Math.floor((diffMs % 60000) / 1000);
-    
-    return `${diffMinutes} min ${diffSeconds} sec`;
-  };
-  
-  // Mettre à jour le temps restant toutes les secondes et recharger quand nécessaire
-  useEffect(() => {
-    if (nextUpdateTime) {
-      // Calculer la durée totale de l'intervalle de mise à jour (10 minutes = 600000ms)
-      const totalDuration = CACHE_TTL || 10 * 60 * 1000;
-      
-      // Fonction pour vérifier et mettre à jour le temps restant
-      const checkAndUpdateTime = () => {
-        const now = new Date();
-        const nextUpdate = new Date(nextUpdateTime);
-        const diffMs = nextUpdate.getTime() - now.getTime();
-        
-        // Si le temps est écoulé, recharger les scénarios
-        if (diffMs <= 0) {
-          loadAvailableScenarios();
-          return "En cours d'actualisation...";
-        }
-        
-        // Calculer le pourcentage de temps écoulé (inversé pour montrer le temps passé)
-        const percentElapsed = 100 - Math.round((diffMs / totalDuration) * 100);
-        setUpdateProgress(Math.min(percentElapsed, 100));
-        
-        return formatTimeRemaining(nextUpdateTime);
-      };
-      
-      // Initialiser le temps restant
-      setTimeRemaining(checkAndUpdateTime());
-      
-      // Mettre à jour toutes les secondes
-      const interval = setInterval(() => {
-        setTimeRemaining(checkAndUpdateTime());
-      }, 1000);
-      
-      return () => clearInterval(interval);
-    }
-  }, [nextUpdateTime]);
+  // Génération manuelle uniquement - les fonctions liées au temps restant ont été supprimées
   
   // Charger les scénarios au chargement de la page
   useEffect(() => {
@@ -892,19 +834,7 @@ export default function ProjetImposteur() {
                 )}
                 
                 <div className="flex flex-col items-center mt-8 space-y-4">
-                  {timeRemaining && (
-                    <div className="text-center mb-2 p-4 bg-gray-800 rounded-lg border border-gray-700 w-full max-w-md">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="text-gray-300 text-sm">Prochains scénarios</div>
-                        <div className="text-white text-sm font-medium flex items-center">
-                          <Clock className="h-4 w-4 mr-2 text-purple-400" />
-                          {timeRemaining}
-                        </div>
-                      </div>
-                      <Progress value={updateProgress} className="h-2 w-full bg-gray-700" />
-                      <p className="text-xs text-gray-400 mt-2">4 nouveaux scénarios générés toutes les 10 minutes</p>
-                    </div>
-                  )}
+                  {/* Barre de progression supprimée - génération manuelle uniquement */}
                 
                   <Button 
                     variant="outline" 
