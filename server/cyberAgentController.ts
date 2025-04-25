@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import nodemailer from 'nodemailer';
 import sgMail from '@sendgrid/mail';
 import { ChatCompletionRequestMessage } from '@shared/schema';
-import { openAIService } from "../I_AM_CYBER/services/openai";
+import { openAIService } from "./services/openai";
 
 /**
  * Envoie un email de test avec Ethereal pour les environnements de développement
