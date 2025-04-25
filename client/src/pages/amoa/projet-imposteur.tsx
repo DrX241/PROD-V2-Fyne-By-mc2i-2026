@@ -100,7 +100,7 @@ const MemberCard = ({
   return (
     <Card 
       className={`p-4 cursor-pointer transition-all ${
-        isSelected ? 'ring-2 ring-purple-500 shadow-lg bg-purple-50' : 'hover:shadow-md'
+        isSelected ? 'ring-2 ring-purple-500 shadow-lg bg-purple-100' : 'hover:shadow-md hover:bg-gray-50'
       }`}
       onClick={onClick}
     >
@@ -110,8 +110,8 @@ const MemberCard = ({
           <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
         </Avatar>
         <div>
-          <h3 className="font-medium">{member.name}</h3>
-          <p className="text-sm text-gray-500">{member.role}</p>
+          <h3 className="font-medium text-gray-900">{member.name}</h3>
+          <p className="text-sm text-gray-700">{member.role}</p>
         </div>
       </div>
     </Card>
@@ -129,7 +129,7 @@ const EvidenceCard = ({ evidence, onClick }: { evidence: Evidence, onClick: () =
   
   return (
     <Card 
-      className="p-4 cursor-pointer hover:shadow-md"
+      className="p-4 cursor-pointer hover:shadow-md hover:bg-gray-50 transition-all"
       onClick={onClick}
     >
       <div className="flex items-center space-x-3">
@@ -137,8 +137,8 @@ const EvidenceCard = ({ evidence, onClick }: { evidence: Evidence, onClick: () =
           <Icon className="h-5 w-5 text-purple-600" />
         </div>
         <div>
-          <h3 className="font-medium text-sm">{evidence.title}</h3>
-          <p className="text-xs text-gray-500">{evidence.type === 'email' ? `De: ${evidence.from}` : evidence.type}</p>
+          <h3 className="font-medium text-sm text-gray-900">{evidence.title}</h3>
+          <p className="text-xs text-gray-700">{evidence.type === 'email' ? `De: ${evidence.from}` : evidence.type}</p>
         </div>
       </div>
     </Card>
@@ -149,10 +149,10 @@ const EvidenceViewer = ({ evidence }: { evidence: Evidence | null }) => {
   if (!evidence) return null;
   
   return (
-    <Card className="p-6 h-[400px] overflow-y-auto">
+    <Card className="p-6 h-[400px] overflow-y-auto bg-white">
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold">{evidence.title}</h2>
+          <h2 className="text-xl font-bold text-gray-900">{evidence.title}</h2>
           <Badge variant={
             evidence.type === 'email' ? 'default' : 
             evidence.type === 'chat' ? 'outline' : 'secondary'
@@ -163,14 +163,14 @@ const EvidenceViewer = ({ evidence }: { evidence: Evidence | null }) => {
         </div>
         
         {evidence.type === 'email' && (
-          <div className="bg-gray-50 p-3 rounded-md">
-            <p className="text-sm"><strong>De:</strong> {evidence.from}</p>
-            <p className="text-sm"><strong>À:</strong> {evidence.to}</p>
-            <p className="text-sm"><strong>Date:</strong> {evidence.date}</p>
+          <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
+            <p className="text-sm text-gray-800"><strong>De:</strong> {evidence.from}</p>
+            <p className="text-sm text-gray-800"><strong>À:</strong> {evidence.to}</p>
+            <p className="text-sm text-gray-800"><strong>Date:</strong> {evidence.date}</p>
           </div>
         )}
         
-        <div className="mt-6 text-gray-700 whitespace-pre-line">
+        <div className="mt-6 text-gray-800 whitespace-pre-line bg-white p-3 rounded-md border border-gray-100">
           {evidence.content}
         </div>
       </div>

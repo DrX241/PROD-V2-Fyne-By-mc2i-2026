@@ -12,6 +12,7 @@ import { evaluateDecision } from "./cyberDefenseEvaluator";
 import { handleCyberDefenseChat, generateCyberDefenseMission } from "./cyberDefenseController";
 import { extractJsonFromOpenAiResponse, createFallbackJson } from "./openAiResponseHelper";
 import { startInterviewSimulation, processInterviewMessage, completeInterviewSimulation, analyzeInterviewNotes } from "./interviewSimulationController";
+import { generateScenario } from "./amoaScenarioGenerator";
 
 /**
  * Génère un document HTML formaté pour la synthèse d'audition
