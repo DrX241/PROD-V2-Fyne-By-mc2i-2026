@@ -5,14 +5,15 @@ import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import OpenAI from 'openai';
-import { openAIService } from "../I_AM_CYBER/services/openai";
+import { openAIService } from "./services/openai";
 // Import de document-generator supprimé car nous n'utilisons plus de pièces jointes
-import { ChatCompletionRequestMessage } from "../shared/schema";
+import { ChatCompletionRequestMessage } from "@shared/schema";
 import { evaluateDecision } from "./cyberDefenseEvaluator";
 import { handleCyberDefenseChat, generateCyberDefenseMission } from "./cyberDefenseController";
 import { extractJsonFromOpenAiResponse, createFallbackJson } from "./openAiResponseHelper";
 import { startInterviewSimulation, processInterviewMessage, completeInterviewSimulation, analyzeInterviewNotes } from "./interviewSimulationController";
 import { getRandomScenarios, getScenarioById, getScenariosByDifficulty } from "./impostorService";
+import { startAgentSession, completeAgentSession } from "./cyberAgentController";
 
 /**
  * Génère un document HTML formaté pour la synthèse d'audition
