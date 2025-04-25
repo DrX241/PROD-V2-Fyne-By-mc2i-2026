@@ -52,14 +52,12 @@ export default function CyberModeSelection() {
       icon: null,
       gradient: 'from-purple-700 to-purple-900',
       destination: '#',
-      comingSoon: true,
       items: [
         {
           id: 'cyber-arcade',
           title: 'CYBER ARCADE',
           icon: null,
-          destination: '/cyber/arcade',
-          comingSoon: true
+          destination: '/cyber/arcade'
         }
       ]
     },
