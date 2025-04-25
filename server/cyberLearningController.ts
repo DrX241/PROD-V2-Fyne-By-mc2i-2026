@@ -54,8 +54,8 @@ export async function generateDebriefing(req: Request, res: Response) {
       "realWorldExample": "exemple concret..."
     }`;
     
-    // Utiliser le modèle mini pour des réponses rapides
-    openAIService.switchToSecondaryKey();
+    // Utiliser openAIService pour générer le débriefing
+    // Par défaut on utilise déjà le modèle mini
     const completion = await openAIService.getChatCompletion(
       [{ role: "user", content: prompt }],
       0.7,
@@ -93,18 +93,16 @@ export async function getContextualDocumentation(req: Request, res: Response) {
       Fournis une définition, des exemples d'application, et des mesures associées.
       Limite ta réponse à 150 mots maximum.`;
       
-      const response = await openAIService.generateChatCompletion(
+      const content = await openAIService.getChatCompletion(
         [{ role: "user", content: prompt }],
-        {
-          temperature: 0.5,
-          useSecondaryModel: true
-        }
+        0.5,
+        500
       );
       
       res.json({
         documents: [{
           title: `${term} - Définition technique`,
-          content: response.choices[0].message.content
+          content: content
         }]
       });
     } else {

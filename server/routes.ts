@@ -2522,5 +2522,9 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
     }
   });
 
+  // Routes pour les fonctionnalités d'apprentissage
+  app.post('/api/cyber/debriefing', generateDebriefing);
+  app.get('/api/cyber/documentation', getContextualDocumentation);
+
   return createServer(app);
 }
