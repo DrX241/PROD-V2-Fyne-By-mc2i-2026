@@ -927,6 +927,132 @@ export default function Home() {
           {/* Bouton "Explorer tous nos modules" supprimé */}
         </div>
       </div>
+
+      {/* Section Scénarios AMOA - Générés automatiquement par IA */}
+      <div className={`relative ${isFuturistic ? 'bg-gradient-to-b from-blue-950 to-gray-900' : 'bg-white'} py-16 lg:py-24 relative overflow-hidden`}>
+        {/* Fond étoilé subtil - uniquement en mode futuriste */}
+        {isFuturistic && (
+          <div className="absolute inset-0 overflow-hidden">
+            {/* Nébuleuses en arrière-plan */}
+            <div className="absolute top-0 right-0 w-full h-full opacity-20 mix-blend-screen">
+              <div className="absolute top-0 right-0 w-3/4 h-3/4 bg-emerald-500/10 rounded-full filter blur-[100px]"></div>
+              <div className="absolute bottom-0 left-0 w-2/3 h-2/3 bg-blue-500/10 rounded-full filter blur-[100px]"></div>
+            </div>
+            
+            {/* Petites étoiles scintillantes */}
+            {Array.from({ length: 50 }).map((_, i) => (
+              <div 
+                key={i}
+                className="absolute rounded-full bg-white"
+                style={{
+                  top: `${Math.random() * 100}%`,
+                  left: `${Math.random() * 100}%`,
+                  width: `${Math.max(1, Math.random() * 2)}px`,
+                  height: `${Math.max(1, Math.random() * 2)}px`,
+                  opacity: Math.random() * 0.7 + 0.3,
+                  animation: `twinkle ${1.5 + Math.random() * 2}s infinite ease-in-out ${Math.random() * 2}s`
+                }}
+              />
+            ))}
+          </div>
+        )}
+        
+        <div className="container px-4 mx-auto relative z-10">
+          {/* En-tête de la section avec animation */}
+          <motion.div 
+            className="max-w-xl mx-auto text-center mb-12 lg:mb-16"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+          >
+            <div className={`inline-flex items-center px-3 py-1.5 rounded-full ${
+              isFuturistic 
+                ? 'bg-emerald-900/30 border border-emerald-700/30 text-emerald-400' 
+                : 'bg-emerald-100 text-emerald-800'
+              } text-sm font-medium mb-6`}>
+              <ListChecks className="mr-2 h-4 w-4" />
+              IA & Gestion de projet
+            </div>
+            
+            <h2 className={`text-3xl font-bold mb-6 ${
+              isFuturistic 
+                ? 'text-white font-cyber-title' 
+                : 'text-gray-800'
+              }`}>
+              Scénarios de projet enrichis par l'IA
+            </h2>
+            
+            <p className={`text-lg ${
+              isFuturistic ? 'text-blue-100/80' : 'text-gray-600'
+             }`}>
+              Explorez des scénarios générés automatiquement pour le module "Qui est l'imposteur?". Ces simulations évoluent toutes les 10 minutes pour vous offrir une expérience d'apprentissage unique.
+            </p>
+            
+            {refreshTime && (
+              <p className={`mt-4 text-sm ${isFuturistic ? 'text-emerald-400/80' : 'text-emerald-600'}`}>
+                Prochaine actualisation à {refreshTime}
+              </p>
+            )}
+            
+            {error && (
+              <p className="mt-4 text-sm text-red-500">
+                {error}
+              </p>
+            )}
+            
+            {/* Bouton pour rafraîchir manuellement */}
+            <Button 
+              onClick={() => loadScenarios(true)} 
+              disabled={isLoadingScenarios}
+              className={`mt-6 ${
+                isFuturistic 
+                  ? 'bg-gradient-to-r from-emerald-800 to-blue-800 hover:from-emerald-700 hover:to-blue-700 border border-emerald-600/30' 
+                  : 'bg-emerald-600 hover:bg-emerald-700'
+                } text-white`}
+            >
+              {isLoadingScenarios ? (
+                <div className="flex items-center">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Génération...
+                </div>
+              ) : (
+                <div className="flex items-center">
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Générer de nouveaux scénarios
+                </div>
+              )}
+            </Button>
+          </motion.div>
+          
+          {/* Grille de scénarios avec loading state */}
+          <div className="mt-8">
+            {isLoadingScenarios && scenarios.length === 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <div key={i} className={`${isFuturistic ? 'bg-blue-900/40' : 'bg-gray-100'} rounded-xl h-64 animate-pulse`}></div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                {scenarios.map((scenario, index) => (
+                  <ScenarioCard key={scenario.id || index} scenario={scenario} index={index} />
+                ))}
+              </div>
+            )}
+          </div>
+          
+          {/* Note en bas de la section */}
+          <div className="text-center mt-12">
+            <p className={`text-sm ${isFuturistic ? 'text-blue-300/70' : 'text-gray-500'}`}>
+              Cliquez sur un scénario pour lancer l'enquête ou générez-en un nouveau à tout moment.
+            </p>
+          </div>
+        </div>
+      </div>
       
       {/* Section Caracteristiques */}
       <div className={`relative ${isFuturistic ? 'bg-gradient-to-b from-blue-950 to-gray-900' : 'bg-gradient-to-b from-blue-100 to-white'} py-16 lg:py-24 relative overflow-hidden`}>
