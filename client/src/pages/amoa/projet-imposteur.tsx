@@ -580,7 +580,7 @@ export default function ProjetImposteur() {
   const [activeTab, setActiveTab] = useState("dossier");
   const [accusationMade, setAccusationMade] = useState(false);
   const [isGeneratingScenario, setIsGeneratingScenario] = useState(true); // Démarrer avec génération en cours
-  const [selectedDifficulty, setSelectedDifficulty] = useState<'facile' | 'moyen' | 'difficile'>('moyen');
+  // Suppression de la variable selectedDifficulty qui n'est plus nécessaire
   const [showFailureDialog, setShowFailureDialog] = useState(false);
   const [scenarioLoaded, setScenarioLoaded] = useState(false); // Pour suivre si un scénario a été chargé
   
@@ -825,6 +825,7 @@ export default function ProjetImposteur() {
   
               <div className="mb-8">
                 <h2 className="text-2xl font-bold mb-6 text-center text-white">Choisissez un scénario</h2>
+                <p className="text-center text-gray-300 mb-6">Les scénarios sont classés par niveau de difficulté croissant (facile, moyen, difficile)</p>
                 
                 {isLoadingScenarios ? (
                   <div className="flex justify-center items-center py-20">
