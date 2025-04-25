@@ -254,8 +254,75 @@ const ResultDialog = ({
           </div>
         </div>
         
-        <DialogFooter>
+        <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-4">
           <Button onClick={() => setOpen(false)} className="bg-blue-700 hover:bg-blue-800">Retour au jeu</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+// Dialogue d'échec lorsque le temps est écoulé
+const FailureDialog = ({ 
+  open, 
+  setOpen, 
+  scenario,
+  onRetry,
+  onNew
+}: { 
+  open: boolean, 
+  setOpen: (open: boolean) => void, 
+  scenario: Scenario,
+  onRetry: () => void,
+  onNew: () => void
+}) => {
+  const guiltyMember = scenario.team.find(m => m.isGuilty);
+  
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className="max-w-2xl bg-gray-900 border border-gray-800">
+        <DialogHeader>
+          <DialogTitle className="text-2xl flex items-center text-white">
+            <X className="h-6 w-6 text-red-400 mr-2" /> Temps écoulé !
+          </DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-6 my-6">
+          <Card className="p-4 bg-red-900 border border-red-800 text-white">
+            <h3 className="font-bold text-lg mb-2">Mission échouée</h3>
+            <p className="text-gray-200">{scenario.failureSummary}</p>
+          </Card>
+          
+          {guiltyMember && (
+            <Card className="p-4 bg-gray-800 border border-gray-700 text-white">
+              <div className="flex items-center space-x-4 mb-4">
+                <Avatar className="h-12 w-12">
+                  <AvatarImage src={`/avatars/${guiltyMember.avatar}`} alt={guiltyMember.name} />
+                  <AvatarFallback>{guiltyMember.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="font-bold text-lg text-white">{guiltyMember.name} était responsable</h3>
+                  <p className="text-sm text-gray-300">{guiltyMember.role}</p>
+                </div>
+              </div>
+              
+              <h4 className="font-semibold mb-2 text-white">Indices que vous avez manqués :</h4>
+              <ul className="list-disc list-inside space-y-1 text-gray-200">
+                {guiltyMember.clues.map((clue, i) => (
+                  <li key={i} className="text-sm">{clue}</li>
+                ))}
+              </ul>
+            </Card>
+          )}
+        </div>
+        
+        <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-4">
+          <Button onClick={onRetry} className="bg-blue-700 hover:bg-blue-800 flex-1">
+            Recommencer ce scénario
+          </Button>
+          <Button onClick={onNew} variant="outline" className="border-gray-600 text-white hover:bg-gray-700 flex-1">
+            Essayer un nouveau scénario
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -422,7 +489,17 @@ export default function ProjetImposteur() {
     }
     
     setAccusationMade(true);
-    setShowResult(true);
+    
+    // Vérifier si l'accusation est correcte ou non
+    const isCorrect = selectedMember.isGuilty === true;
+    
+    if (isCorrect) {
+      // Si l'accusation est correcte, afficher le dialogue de réussite
+      setShowResult(true);
+    } else {
+      // Si l'accusation est incorrecte, afficher le dialogue d'échec
+      setShowFailureDialog(true);
+    }
   };
   
   const startGame = () => {
@@ -438,6 +515,7 @@ export default function ProjetImposteur() {
     setTimeOver(false);
     setAccusationMade(false);
     setShowResult(false);
+    setShowFailureDialog(false);
     setSelectedMember(null);
     setSelectedEvidence(null);
   };
@@ -700,6 +778,23 @@ export default function ProjetImposteur() {
         isCorrect={isCorrectAccusation}
         scenario={scenario}
         selectedMember={selectedMember}
+      />
+      
+      <FailureDialog
+        open={showFailureDialog}
+        setOpen={(open) => {
+          setShowFailureDialog(open);
+          if (!open) resetGame();
+        }}
+        scenario={scenario}
+        onRetry={() => {
+          setShowFailureDialog(false);
+          startGame();
+        }}
+        onNew={() => {
+          setShowFailureDialog(false);
+          generateNewScenario().then(() => resetGame());
+        }}
       />
     </HomeLayout>
   );
