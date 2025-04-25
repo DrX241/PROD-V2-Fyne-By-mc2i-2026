@@ -14,7 +14,7 @@ import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
 import { v4 as uuidv4 } from 'uuid';
 
-// Structure d'un niveau de CENTRE DE CRISE ÉVOLUTIF
+// Structure d'un niveau de CENTRE DE CRISE
 interface DefenseLevel {
   id: string;
   levelNumber: number;
@@ -45,7 +45,7 @@ interface Contact {
 export default function CentreDeCriseEvolutif() {
   const [, navigate] = useLocation();
   
-  // Liste des contacts disponibles dans le CENTRE DE CRISE ÉVOLUTIF
+  // Liste des contacts disponibles dans le CENTRE DE CRISE
   // Ils seront débloqués progressivement au fil des niveaux
   const contacts: Contact[] = [
     {
@@ -113,7 +113,7 @@ export default function CentreDeCriseEvolutif() {
     }
   ];
   
-  // Liste des niveaux du CENTRE DE CRISE ÉVOLUTIF
+  // Liste des niveaux du CENTRE DE CRISE
   const levels: DefenseLevel[] = [
     // Niveau 1: Première alerte - Premier contact uniquement (Yousra)
     {
@@ -251,7 +251,7 @@ export default function CentreDeCriseEvolutif() {
   
   return (
     <HomeLayout>
-      <PageTitle title="CENTRE DE CRISE ÉVOLUTIF" />
+      <PageTitle title="CENTRE DE CRISE" />
       
       {/* En-tête et introduction */}
       <div className="bg-gradient-to-br from-[#003a5d] to-[#006a9e] text-white">
@@ -273,7 +273,7 @@ export default function CentreDeCriseEvolutif() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7 }}
               >
-                CENTRE DE CRISE ÉVOLUTIF
+                CENTRE DE CRISE
               </motion.h1>
               
               <motion.p 
