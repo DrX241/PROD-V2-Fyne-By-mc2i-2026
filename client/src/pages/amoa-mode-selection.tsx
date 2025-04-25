@@ -325,10 +325,7 @@ export default function AmoaModeSelection() {
                   <div className="absolute h-24 w-2 bottom-10 -left-1 bg-white opacity-20 rounded-full blur-sm transform rotate-45"></div>
                   
                   <div className="flex flex-col h-full relative z-10">
-                    {/* Icon container */}
-                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-opacity-20 bg-white flex items-center justify-center mb-3 backdrop-blur-sm mx-auto">
-                      {category.icon}
-                    </div>
+
                     
                     <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-2 text-center">
                       {category.title}

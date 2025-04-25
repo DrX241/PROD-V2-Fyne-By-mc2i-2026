@@ -2,11 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useLocation } from 'wouter';
 import HomeLayout from "@/components/layout/HomeLayout";
-import { 
-  ShieldCheck, Shield, Database, ListChecks, Plus, ArrowRight, 
-  BrainCircuit, Bot, Sparkles, Star, BookOpen, Zap, 
-  Users, Award, Brain, Laptop, Package, Target, Gamepad, Rocket
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useChatContext } from "@/contexts/ChatContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -411,7 +407,7 @@ export default function Home() {
     {
       title: "I AM CYBER",
       description: "Immergez-vous dans des simulations de cybersécurité interactives et choisissez entre le mode agent IA conversationnel ou les scénarios tactiques de défense.",
-      icon: <ShieldCheck className="w-8 h-8 text-white" />,
+      icon: null,
       color: "bg-blue-600",
       bgColor: "bg-gradient-to-br from-blue-50 to-blue-100",
       accentColor: "bg-blue-500",
@@ -420,7 +416,7 @@ export default function Home() {
     {
       title: "I AM DATA & IA",
       description: "Maîtrisez les concepts avancés de data science et d'intelligence artificielle à travers des simulations pratiques et des défis concrets.",
-      icon: <Database className="w-8 h-8 text-white" />,
+      icon: null,
       color: "bg-purple-600",
       bgColor: "bg-gradient-to-br from-purple-50 to-purple-100",
       accentColor: "bg-purple-500",
@@ -429,7 +425,7 @@ export default function Home() {
     {
       title: "IAM mc2i",
       description: "Perfectionnez vos compétences en assistance à maîtrise d'ouvrage avec des experts virtuels qui vous guideront à travers des cas complexes.",
-      icon: <ListChecks className="w-8 h-8 text-white" />,
+      icon: null,
       color: "bg-emerald-600",
       bgColor: "bg-gradient-to-br from-emerald-50 to-emerald-100",
       accentColor: "bg-emerald-500",
@@ -438,7 +434,7 @@ export default function Home() {
     {
       title: "Soyez qui vous voulez",
       description: "Créez votre propre parcours d'apprentissage personnalisé avec notre IA générative qui s'adapte à vos besoins spécifiques et objectifs professionnels.",
-      icon: <Plus className="w-8 h-8 text-white" />,
+      icon: null,
       color: "bg-rose-600",
       bgColor: "bg-gradient-to-br from-rose-50 to-rose-100",
       accentColor: "bg-rose-500",
@@ -449,32 +445,32 @@ export default function Home() {
   // Fonctionnalités
   const features = [
     {
-      icon: <Bot size={24} />,
+      icon: null,
       title: "Personnages IA avancés",
       description: "Interagissez avec des PNJ ultra-réalistes qui s'adaptent à votre style d'apprentissage"
     },
     {
-      icon: <BrainCircuit size={24} />,
+      icon: null,
       title: "Apprentissage adaptatif",
       description: "Algorithmes d'IA qui ajustent la difficulté et le contenu selon votre progression"
     },
     {
-      icon: <Sparkles size={24} />,
+      icon: null,
       title: "Scénarios contextuels",
       description: "Simulation de situations professionnelles réelles pour un apprentissage applicable"
     },
     {
-      icon: <Zap size={24} />,
+      icon: null,
       title: "Feedback instantané",
       description: "Évaluation continue et suggestions d'amélioration par l'intelligence artificielle"
     },
     {
-      icon: <Package size={24} />,
+      icon: null,
       title: "Modules sectoriels",
       description: "Contenus spécialisés adaptés aux enjeux spécifiques de votre industrie"
     },
     {
-      icon: <Laptop size={24} />,
+      icon: null,
       title: "Accessibilité totale",
       description: "Disponible sur tous vos appareils avec synchronisation automatique"
     }
@@ -565,12 +561,10 @@ export default function Home() {
               {/* Badge différent selon le thème */}
               {isFuturistic ? (
                 <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-600/40 border border-blue-500/30 text-blue-300 text-sm font-medium mb-6 backdrop-blur-md">
-                  <Sparkles className="mr-2 h-4 w-4" />
                   Propulsé par l'Intelligence Artificielle
                 </div>
               ) : (
                 <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-100 border border-blue-200 text-blue-600 text-sm font-medium mb-6">
-                  <BrainCircuit className="mr-2 h-4 w-4" />
                   Formation Assistée par IA
                 </div>
               )}
@@ -1041,7 +1035,7 @@ export default function Home() {
                 )}
                 <span className="relative z-10 flex items-center">
                   Commencer maintenant 
-                  <Rocket className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform duration-300" />
+                  <ArrowRight className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform duration-300" />
                 </span>
               </Button>
             </Link>
@@ -1083,7 +1077,6 @@ export default function Home() {
             <div className="col-span-1 md:col-span-1">
               <div className="flex items-center mb-2">
                 <div className={`h-8 w-8 ${isFuturistic ? 'text-cyan-400' : 'text-blue-600'} mr-2 relative`}>
-                  <BrainCircuit className="absolute inset-0" />
                   {isFuturistic && (
                     <div className="absolute inset-0 bg-cyan-400 rounded-full filter blur-sm opacity-30"></div>
                   )}
