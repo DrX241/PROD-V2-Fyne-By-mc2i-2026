@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Link, useLocation } from 'wouter';
 import HomeLayout from "@/components/layout/HomeLayout";
 import { 
@@ -174,6 +175,132 @@ const ModuleCard = ({
 };
 
 // Fonctionnalité Card avec style adaptatif (futuriste ou classique)
+// Carte pour les scénarios AMOA
+const ScenarioCard = ({ 
+  scenario,
+  index 
+}: { 
+  scenario: any;
+  index: number;
+}) => {
+  const { themeMode } = useTheme();
+  const isFuturistic = themeMode === 'futuristic';
+  const [isHover, setIsHover] = useState(false);
+  
+  // Extraire les détails du scénario
+  const { title, description, difficulty, team = [] } = scenario;
+  
+  // Trouver le membre coupable
+  const guiltyMember = team.find((member: any) => member.isGuilty);
+  
+  return (
+    <motion.div
+      className={`${isFuturistic 
+        ? 'bg-gradient-to-b from-emerald-950/90 to-blue-950/90 backdrop-blur-sm border border-emerald-500/30 text-white' 
+        : 'bg-white border border-gray-200 text-gray-800'} 
+        rounded-xl p-5 shadow-md h-full relative overflow-hidden`}
+      whileHover={{ y: -5, boxShadow: isFuturistic ? '0 12px 30px rgba(16, 185, 129, 0.15)' : '0 12px 30px rgba(0, 0, 0, 0.1)' }}
+      onMouseEnter={() => setIsHover(true)}
+      onMouseLeave={() => setIsHover(false)}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.1 }}
+    >
+      {/* Fond galactique - uniquement en mode futuriste */}
+      {isFuturistic && (
+        <div className="absolute inset-0 overflow-hidden opacity-40">
+          {/* Nébuleuses et lueurs */}
+          <div className="absolute top-0 right-0 w-full h-full mix-blend-screen">
+            <div className="absolute top-10 right-10 w-40 h-40 bg-emerald-500/10 rounded-full filter blur-xl opacity-40"></div>
+            <div className="absolute bottom-5 left-5 w-32 h-32 bg-blue-500/10 rounded-full filter blur-xl opacity-30"></div>
+          </div>
+          
+          {/* Petites étoiles scintillantes */}
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div 
+              key={i}
+              className="absolute rounded-full bg-white"
+              style={{
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                width: `${Math.max(1, Math.random() * 2)}px`,
+                height: `${Math.max(1, Math.random() * 2)}px`,
+                opacity: Math.random() * 0.7 + 0.3,
+                animation: `twinkle ${1 + Math.random() * 3}s infinite ease-in-out ${Math.random() * 2}s`
+              }}
+            />
+          ))}
+        </div>
+      )}
+      
+      {/* Badge de difficulté */}
+      <div className={`absolute top-3 right-3 text-xs px-2 py-1 rounded-full ${
+        difficulty === 'facile' 
+          ? isFuturistic ? 'bg-green-800/80 text-green-200' : 'bg-green-100 text-green-800'
+          : difficulty === 'moyen'
+            ? isFuturistic ? 'bg-yellow-800/80 text-yellow-200' : 'bg-yellow-100 text-yellow-800'
+            : isFuturistic ? 'bg-red-800/80 text-red-200' : 'bg-red-100 text-red-800'
+      } font-medium`}>
+        {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+      </div>
+      
+      {/* Titre avec style adaptatif */}
+      <h3 className={`text-lg font-semibold mb-2 mt-1 pr-20 ${
+        isFuturistic 
+          ? 'text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-blue-300' 
+          : 'text-gray-800'
+        } font-cyber-title`}>
+        {title}
+      </h3>
+      
+      {/* Description */}
+      <p className={`${isFuturistic ? 'text-blue-100/80' : 'text-gray-600'} text-sm font-cyber-body mb-3 line-clamp-2`}>
+        {description}
+      </p>
+      
+      {/* Information sur l'équipe */}
+      <div className="mt-3 mb-2">
+        <div className={`text-xs uppercase tracking-wide font-semibold mb-2 ${isFuturistic ? 'text-emerald-400' : 'text-emerald-600'}`}>
+          Équipe: {team.length} membres
+        </div>
+        
+        {guiltyMember && (
+          <div className={`text-xs ${isFuturistic ? 'text-purple-300/80' : 'text-purple-600'} font-medium line-clamp-1`}>
+            <span className="opacity-70">Responsable caché:</span> {guiltyMember.role}
+          </div>
+        )}
+      </div>
+      
+      {/* Bouton pour jouer */}
+      <div className="mt-auto pt-3">
+        <Link href="/amoa/projet-imposteur">
+          <Button 
+            className={`${isFuturistic 
+              ? 'bg-gradient-to-r from-emerald-800/90 via-blue-800/80 to-emerald-800/90 hover:from-emerald-700/90 hover:via-blue-700/80 hover:to-emerald-700/90 shadow-md hover:shadow-emerald-500/30 border border-emerald-500/30 text-white overflow-hidden' 
+              : 'bg-emerald-600 hover:bg-emerald-700 text-white border-none'
+            } text-xs h-8 px-3 w-full group transition-all duration-300 relative`}
+          >
+            <span className="relative z-10 flex items-center justify-center">
+              Lancer l'enquête
+              <ArrowRight className={`w-4 h-4 ml-1.5 transition-all duration-500 ${isHover ? 'translate-x-1' : ''}`} />
+            </span>
+            
+            {/* Effet animé sur hover - uniquement en mode futuriste */}
+            {isFuturistic && (
+              <span className="absolute inset-0 w-0 bg-gradient-to-r from-blue-600/40 via-emerald-600/40 to-transparent group-hover:w-full transition-all duration-700 ease-out"></span>
+            )}
+          </Button>
+        </Link>
+      </div>
+      
+      {/* Ligne décorative en bas - uniquement en mode futuriste */}
+      {isFuturistic && (
+        <div className="absolute bottom-0 left-0 w-3/4 h-[1px] bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent"></div>
+      )}
+    </motion.div>
+  );
+};
+
 const FeatureCard = ({ 
   icon, 
   title, 
@@ -271,6 +398,53 @@ export default function Home() {
   const { userName } = useChatContext();
   const { themeMode } = useTheme();
   const isFuturistic = themeMode === 'futuristic';
+  
+  // État pour stocker les scénarios chargés
+  const [scenarios, setScenarios] = useState<any[]>([]);
+  const [isLoadingScenarios, setIsLoadingScenarios] = useState(true);
+  const [refreshTime, setRefreshTime] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Fonction pour charger les scénarios depuis l'API
+  const loadScenarios = async (force = false) => {
+    try {
+      setIsLoadingScenarios(true);
+      setError(null);
+      
+      const response = await axios.get('/api/amoa/scenarios', {
+        params: {
+          count: 10,
+          force: force ? 'true' : 'false'
+        }
+      });
+      
+      if (response.data && response.data.scenarios) {
+        setScenarios(response.data.scenarios);
+        
+        // Mise à jour du temps de rafraîchissement
+        if (response.data.nextUpdate) {
+          setRefreshTime(new Date(response.data.nextUpdate).toLocaleTimeString());
+        }
+      }
+    } catch (err) {
+      console.error("Erreur lors du chargement des scénarios:", err);
+      setError("Impossible de charger les scénarios. Veuillez réessayer plus tard.");
+    } finally {
+      setIsLoadingScenarios(false);
+    }
+  };
+  
+  // Charger les scénarios au chargement de la page
+  useEffect(() => {
+    loadScenarios();
+    
+    // Configurer un intervalle pour vérifier si de nouveaux scénarios sont disponibles
+    const intervalId = setInterval(() => {
+      loadScenarios();
+    }, 60000); // Vérification toutes les minutes
+    
+    return () => clearInterval(intervalId);
+  }, []);
   
   // Modules avec animations interactives
   const modules = [
