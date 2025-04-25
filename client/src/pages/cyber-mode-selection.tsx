@@ -286,20 +286,29 @@ export default function CyberModeSelection() {
                       <div className="space-y-4">
                         {category.items && category.items.map((item) => (
                           <Link key={item.id} href={item.comingSoon ? '#' : item.destination} onClick={(e) => item.comingSoon && e.preventDefault()}>
-                            <div className="flex items-center p-3 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors cursor-pointer border border-white/20 shadow-sm hover:shadow-md hover:border-white/40">
-                              <div className="mr-3 text-white">
+                            <div className="flex items-center p-4 rounded-lg bg-gradient-to-r from-blue-800/30 to-purple-800/30 backdrop-blur-md hover:from-blue-700/40 hover:to-purple-600/40 transition-all duration-300 cursor-pointer border border-blue-400/20 shadow-lg hover:shadow-blue-500/20 hover:border-blue-300/30 group relative overflow-hidden">
+                              {/* Effet de lumière animé au survol */}
+                              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/0 via-cyan-500/10 to-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 -translate-x-full group-hover:translate-x-0 transform"></div>
+                              
+                              {/* Particules lumineuses */}
+                              <div className="absolute top-0 right-0 w-24 h-full overflow-hidden opacity-30">
+                                <div className="absolute w-1 h-1 bg-cyan-400 rounded-full animate-pulse" style={{top: '20%', left: '30%', animationDuration: '2.5s'}}></div>
+                                <div className="absolute w-1 h-1 bg-blue-300 rounded-full animate-pulse" style={{top: '70%', left: '60%', animationDuration: '3.8s'}}></div>
+                              </div>
+                              
+                              <div className="mr-4 text-cyan-300 relative z-10">
                                 {item.icon}
                               </div>
-                              <div className="flex-grow">
-                                <h3 className="text-white font-medium">{item.title}</h3>
+                              <div className="flex-grow relative z-10">
+                                <h3 className="text-white font-medium text-lg">{item.title}</h3>
                               </div>
                               {item.comingSoon ? (
-                                <div className="text-xs bg-blue-900/60 text-white px-2 py-1 rounded flex items-center">
-                                  <span className="animate-pulse mr-1">•</span>
+                                <div className="text-xs bg-blue-900/60 text-cyan-200 px-3 py-1.5 rounded-md flex items-center backdrop-blur-sm border border-blue-500/20 relative z-10">
+                                  <span className="animate-pulse mr-1.5 text-cyan-400">•</span>
                                   Bientôt
                                 </div>
                               ) : (
-                                <div className="text-white bg-blue-500/30 p-1 rounded-full">
+                                <div className="relative group-hover:translate-x-1 transition-transform duration-300 bg-blue-600/30 p-2 rounded-full border border-blue-400/30 text-cyan-300 z-10">
                                   <ArrowRight className="h-4 w-4" />
                                 </div>
                               )}
