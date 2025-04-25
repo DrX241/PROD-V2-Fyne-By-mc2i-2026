@@ -38,7 +38,7 @@ export default function CyberModeSelection() {
       items: [
         {
           id: 'agent-ia',
-          title: 'EXPERT CYBER CONVERSATIONNEL',
+          title: 'AGENT CONVERSATIONNEL',
           icon: <Bot className="w-8 h-8" />,
           destination: '/cyber/agent'
         }
@@ -107,108 +107,20 @@ export default function CyberModeSelection() {
     <HomeLayout>
       <PageTitle title="I AM CYBER" />
       <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-gray-900 to-blue-900">
-        {/* Arrière-plan cybersécurité */}
-        <div className="absolute inset-0 w-full h-full">
-          {/* Grille numérique */}
-          <div className="absolute inset-0 z-0 grid grid-cols-12 grid-rows-12 gap-4 opacity-30">
-            {Array.from({ length: 144 }).map((_, i) => (
-              <div key={i} className="bg-blue-500 rounded-md opacity-10"></div>
-            ))}
-          </div>
-          
-          {/* Éléments d'arrière-plan pour suggérer la cybersécurité */}
-          <div className="absolute top-0 left-0 w-full h-full">
-            {/* Lignes connectées représentant un réseau */}
-            <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="grid-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4" />
-                  <stop offset="100%" stopColor="#60a5fa" stopOpacity="0.7" />
-                </linearGradient>
-              </defs>
-              {/* Lignes horizontales */}
-              {Array.from({ length: 10 }).map((_, i) => (
-                <line 
-                  key={`h-${i}`}
-                  x1="0" 
-                  y1={i * 120} 
-                  x2="100%" 
-                  y2={i * 120 + (Math.random() * 50)} 
-                  stroke="url(#grid-gradient)" 
-                  strokeWidth="1.5"
-                />
+        {/* Arrière-plan cybersécurité simplifié */}
+        <div className="absolute inset-0 w-full h-full opacity-20">
+          {/* Fond cybersécurité statique avec motif simplifié */}
+          <div className="absolute inset-0 bg-[#001529] overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 bottom-0 grid grid-cols-12 gap-3 opacity-30">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <div key={i} className="border-r border-blue-500/20 h-full"></div>
               ))}
-              {/* Lignes verticales */}
-              {Array.from({ length: 10 }).map((_, i) => (
-                <line 
-                  key={`v-${i}`}
-                  x1={i * 120} 
-                  y1="0" 
-                  x2={i * 120 + (Math.random() * 50)} 
-                  y2="100%" 
-                  stroke="url(#grid-gradient)" 
-                  strokeWidth="1.5"
-                />
+            </div>
+            <div className="absolute top-0 left-0 right-0 bottom-0 grid grid-rows-12 gap-3 opacity-30">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <div key={i} className="border-b border-blue-500/20 w-full"></div>
               ))}
-              {/* Cercles pour représenter des noeuds */}
-              {Array.from({ length: 15 }).map((_, i) => (
-                <circle
-                  key={`c-${i}`}
-                  cx={Math.random() * 100 + "%"}
-                  cy={Math.random() * 100 + "%"}
-                  r={Math.random() * 5 + 3}
-                  fill="#60a5fa"
-                  opacity="0.6"
-                />
-              ))}
-            </svg>
-          </div>
-
-          {/* Animation des bits */}
-          <div className="absolute inset-0 overflow-hidden">
-            {Array.from({ length: 40 }).map((_, i) => (
-              <div 
-                key={`bit-${i}`}
-                className="absolute text-blue-300 font-bold animate-float"
-                style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  animationDelay: `${Math.random() * 5}s`,
-                  animationDuration: `${Math.random() * 5 + 10}s`,
-                  fontSize: `${Math.random() * 14 + 12}px`,
-                  opacity: Math.random() * 0.3 + 0.4
-                }}
-              >
-                {Math.random() > 0.5 ? "1" : "0"}
-              </div>
-            ))}
-          </div>
-
-          {/* Hexagones de cybersécurité */}
-          <div className="absolute inset-0 overflow-hidden">
-            {Array.from({ length: 10 }).map((_, i) => (
-              <svg 
-                key={`hex-${i}`}
-                className="absolute animate-float"
-                style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  width: `${Math.random() * 40 + 40}px`,
-                  height: `${Math.random() * 40 + 40}px`,
-                  animationDelay: `${Math.random() * 5}s`,
-                  animationDuration: `${Math.random() * 10 + 15}s`,
-                  opacity: Math.random() * 0.2 + 0.1
-                }}
-                viewBox="0 0 100 100"
-              >
-                <polygon 
-                  points="50,3 100,28 100,72 50,97 3,72 3,28" 
-                  fill="none" 
-                  stroke="#60a5fa" 
-                  strokeWidth="3"
-                />
-              </svg>
-            ))}
+            </div>
           </div>
         </div>
         
@@ -259,11 +171,6 @@ export default function CyberModeSelection() {
                   <div className="absolute h-24 w-2 bottom-10 -left-1 bg-white opacity-20 rounded-full blur-sm transform rotate-45"></div>
                   
                   <div className="flex flex-col h-full relative z-10">
-                    {/* Icon container */}
-                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-opacity-20 bg-white flex items-center justify-center mb-3 backdrop-blur-sm mx-auto">
-                      {category.icon}
-                    </div>
-                    
                     <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-2 text-center">
                       {category.title}
                       {(category.id === 'programme-ascension' || category.id === 'gamification') && (
