@@ -649,8 +649,12 @@ export default function ProjetImposteur() {
         setTimeout(() => reject(new Error("Timeout dépassé")), 15000);
       });
       
+      // Utiliser une répartition équilibrée de difficulté
+      const difficulties = ['facile', 'moyen', 'difficile'];
+      const randomDifficulty = difficulties[Math.floor(Math.random() * difficulties.length)];
+      
       // Si forceDifficult est true, on force un scénario difficile
-      const difficultyToUse = forceDifficult ? 'difficile' : selectedDifficulty;
+      const difficultyToUse = forceDifficult ? 'difficile' : randomDifficulty;
       
       const fetchPromise = axios.post('/api/amoa/generate-scenario', {
         difficultyLevel: difficultyToUse
@@ -662,14 +666,9 @@ export default function ProjetImposteur() {
       if (response && response.data) {
         setScenario(response.data);
         
-        // Si le scénario a été forcé en difficile, mettre à jour la difficulté sélectionnée
-        if (forceDifficult) {
-          setSelectedDifficulty('difficile');
-        }
-        
         toast({
           title: "Nouveau scénario généré",
-          description: `Un nouveau scénario de difficulté ${forceDifficult ? 'difficile' : selectedDifficulty} a été généré avec succès !`,
+          description: `Un nouveau scénario de difficulté ${response.data.difficulty} a été généré avec succès !`,
           variant: "default"
         });
       }
@@ -827,44 +826,6 @@ export default function ProjetImposteur() {
               <div className="mb-8">
                 <h2 className="text-2xl font-bold mb-6 text-center text-white">Choisissez un scénario</h2>
                 
-                <div className="flex justify-center mb-4">
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    <Button 
-                      variant={selectedDifficulty === 'facile' ? 'default' : 'outline'} 
-                      onClick={() => {
-                        setSelectedDifficulty('facile');
-                        // Filtrer les scénarios affichés
-                        loadAvailableScenarios();
-                      }}
-                      className={selectedDifficulty === 'facile' ? 'bg-green-700 hover:bg-green-800 text-white' : 'border-gray-600 text-white'}
-                    >
-                      Facile
-                    </Button>
-                    <Button 
-                      variant={selectedDifficulty === 'moyen' ? 'default' : 'outline'} 
-                      onClick={() => {
-                        setSelectedDifficulty('moyen');
-                        // Filtrer les scénarios affichés
-                        loadAvailableScenarios();
-                      }}
-                      className={selectedDifficulty === 'moyen' ? 'bg-blue-700 hover:bg-blue-800 text-white' : 'border-gray-600 text-white'}
-                    >
-                      Moyen
-                    </Button>
-                    <Button 
-                      variant={selectedDifficulty === 'difficile' ? 'default' : 'outline'} 
-                      onClick={() => {
-                        setSelectedDifficulty('difficile');
-                        // Filtrer les scénarios affichés
-                        loadAvailableScenarios();
-                      }}
-                      className={selectedDifficulty === 'difficile' ? 'bg-red-700 hover:bg-red-800 text-white' : 'border-gray-600 text-white'}
-                    >
-                      Difficile
-                    </Button>
-                  </div>
-                </div>
-                
                 {isLoadingScenarios ? (
                   <div className="flex justify-center items-center py-20">
                     <div className="flex flex-col items-center gap-3">
@@ -877,7 +838,11 @@ export default function ProjetImposteur() {
                     {availableScenarios.length > 0 ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {availableScenarios
-                          .filter(s => s.difficulty === selectedDifficulty)
+                          .sort((a, b) => {
+                            // Trier les scénarios par difficulté: facile, moyen, difficile
+                            const difficultyOrder = { 'facile': 0, 'moyen': 1, 'difficile': 2 };
+                            return difficultyOrder[a.difficulty as keyof typeof difficultyOrder] - difficultyOrder[b.difficulty as keyof typeof difficultyOrder];
+                          })
                           .map(availableScenario => (
                             <ScenarioSelectionCard
                               key={availableScenario.id}
