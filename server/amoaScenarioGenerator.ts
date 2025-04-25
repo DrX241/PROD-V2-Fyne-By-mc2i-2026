@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { openAIService } from '../I_AM_CYBER/services/openai';
 import { ChatCompletionRequestMessage } from '../shared/schema';
+import { extractJsonFromOpenAiResponse } from './openAiResponseHelper';
 
 /**
  * Génère dynamiquement un nouveau scénario pour le jeu "Qui est l'imposteur ?"
@@ -10,70 +11,100 @@ export async function generateScenario(req: Request, res: Response) {
     const { difficultyLevel = 'moyen' } = req.body;
     
     const systemPrompt = `
-      Tu es un générateur de scénarios pour un jeu d'enquête professionnel intitulé "Qui est l'imposteur ?".
-      Ton rôle est de créer un scénario d'échec de projet informatique ou de transformation digitale réaliste.
+      Tu es un expert en scénarisation de cas d'échecs de projets informatiques réalistes pour le jeu "Qui est l'imposteur ?".
       
-      Le joueur doit analyser des preuves (emails, documents, conversations) pour déterminer quel membre
-      de l'équipe projet est principalement responsable de l'échec.
+      RÔLE
+      Créer un scénario professionnel d'échec de projet informatique ou de transformation digitale avec des personnages crédibles et des preuves cohérentes qui permettent d'identifier clairement le responsable.
+      
+      CONTEXTE
+      Le jeu "Qui est l'imposteur ?" est une simulation d'investigation professionnelle où le joueur doit analyser des preuves (emails, documents, conversations) pour déterminer quel membre de l'équipe est principalement responsable de l'échec d'un projet.
 
-      CONSIGNES IMPORTANTES :
-      - Le scénario doit se dérouler uniquement en France ou en Europe
-      - Le contexte doit être réaliste et professionnel
-      - Chaque scénario doit avoir exactement 5 membres d'équipe
-      - Un seul membre doit être clairement coupable (attribut isGuilty=true)
-      - Chaque membre doit avoir une explication (alibi) claire sur pourquoi il est ou n'est pas responsable
-      - Niveau de difficulté demandé : ${difficultyLevel}
-      - Générer 6-8 preuves (emails, documents, conversations) qui permettent de résoudre l'enquête
-      - Inclure 4-5 leçons à retenir de cet échec
+      CONSIGNES STRICTES :
+      - Cadre: uniquement en France ou en Union Européenne, après 2023
+      - Contexte: exclusivement professionnel et réaliste
+      - Structure: exactement 5 membres d'équipe avec rôles distincts
+      - Culpabilité: un seul membre doit être clairement coupable (attribut isGuilty=true)
+      - Preuves: 6-8 éléments qui permettent de résoudre l'énigme
+      - Équilibre: le cas doit être résolvable mais pas trop évident (difficulté: ${difficultyLevel})
+      - Format: répondre UNIQUEMENT en JSON valide et correctement formaté, sans texte d'introduction ni conclusion
+      - Cohérence: tous les échanges doivent avoir des dates cohérentes et des références croisées logiques
       
-      Réponds uniquement avec un objet JSON et aucun texte supplémentaire.
+      RÉPONSE FORMAT:
+      - Utilise uniquement la syntaxe JSON standard
+      - Ne pas inclure de commentaires dans le JSON (pas de "//" ni de "/* */")
+      - Ne pas utiliser de retour à la ligne '\n' dans les chaînes de caractères (utiliser des espaces)
+      - Pas de texte supplémentaire en dehors de l'objet JSON
     `;
 
     const userPrompt = `
-      Génère un scénario complet pour le jeu "Qui est l'imposteur ?" avec le format JSON suivant :
+      Génère un scénario complet pour le jeu "Qui est l'imposteur ?" selon le format JSON spécifié ci-dessous.
+      
+      Voici la structure exacte à respecter pour la réponse JSON :
       
       {
-        "id": "projet-X", // Identifiant unique du scénario
-        "title": "Titre du Scénario", // Un titre accrocheur
-        "description": "Description détaillée du contexte et de l'échec du projet", // 2-3 phrases max
-        "difficulty": "${difficultyLevel}", // "facile", "moyen" ou "difficile"
-        "failureSummary": "Résumé des raisons de l'échec en une phrase",
-        "expectedOutcome": "Ce que le joueur doit découvrir", // Généralement identifier le responsable
-        "team": [ // Exactement 5 membres d'équipe
+        "id": "Un identifiant unique au format projet-XXX",
+        "title": "Un titre accrocheur évoquant l'échec du projet",
+        "description": "Une description détaillée en 2-3 phrases maximum du contexte et de l'échec",
+        "difficulty": "${difficultyLevel}",
+        "failureSummary": "Un résumé concis des causes principales de l'échec en une phrase",
+        "expectedOutcome": "L'objectif du joueur (généralement identifier le responsable)",
+        "team": [
           {
             "id": "tm1",
-            "name": "Prénom Nom", // Noms français réalistes
-            "role": "Rôle dans le projet",
+            "name": "Prénom et nom d'une personne (français réaliste)",
+            "role": "Poste ou fonction précise dans le projet",
             "avatar": "avatar1.svg",
-            "isGuilty": true, // Un seul membre doit avoir cette valeur à true
-            "clues": [ // 3-4 indices sur pourquoi ce membre est coupable (uniquement si isGuilty=true)
-              "Indice 1",
-              "Indice 2",
-              "Indice 3"
+            "isGuilty": true,
+            "clues": [
+              "Indice précis pointant vers la culpabilité",
+              "Indice précis pointant vers la culpabilité",
+              "Indice précis pointant vers la culpabilité"
             ],
-            "alibi": "Explication sur la culpabilité ou l'innocence du membre"
+            "alibi": "Explication détaillée justifiant la culpabilité"
           },
-          // Répéter pour 4 autres membres (avec isGuilty=false)
+          {
+            "id": "tm2",
+            "name": "Prénom et nom d'une personne",
+            "role": "Poste ou fonction précise",
+            "avatar": "avatar2.svg",
+            "isGuilty": false,
+            "clues": [],
+            "alibi": "Explication démontrant l'innocence"
+          }
         ],
-        "evidence": [ // 6-8 preuves
+        "evidence": [
           {
             "id": "ev1",
-            "type": "email", // Type: "email", "chat" ou "document"
-            "title": "Titre de l'email",
-            "from": "Expéditeur", // Uniquement pour les emails
-            "to": "Destinataire(s)", // Uniquement pour les emails
-            "date": "JJ/MM/AAAA", // Format date française
-            "content": "Contenu détaillé de la preuve",
-            "relatedTo": ["tm1", "tm2"] // IDs des membres concernés par cette preuve
+            "type": "email",
+            "title": "Titre explicite de l'email",
+            "from": "Expéditeur (membre de l'équipe)",
+            "to": "Destinataire(s)",
+            "date": "JJ/MM/AAAA",
+            "content": "Contenu détaillé sans retours à la ligne",
+            "relatedTo": ["tm1", "tm2"]
           },
-          // Répéter pour 5-7 autres preuves
+          {
+            "id": "ev2",
+            "type": "document",
+            "title": "Titre du document",
+            "content": "Contenu détaillé sans retours à la ligne",
+            "relatedTo": ["tm1", "tm3"]
+          }
         ],
-        "lessons": [ // 4-5 leçons à retenir
-          "Leçon 1 à retenir de cet échec",
-          "Leçon 2 à retenir de cet échec"
-          // Etc.
+        "lessons": [
+          "Leçon concrète à retenir de cet échec",
+          "Leçon concrète à retenir de cet échec",
+          "Leçon concrète à retenir de cet échec",
+          "Leçon concrète à retenir de cet échec"
         ]
       }
+      
+      IMPORTANT:
+      - Génère exactement 5 membres dans l'équipe (un coupable, quatre innocents)
+      - Génère entre 6 et 8 preuves (emails, documents, conversations)
+      - Assure-toi que les indices et preuves pointent clairement vers le coupable
+      - Le contenu doit être strictement professionnel et réaliste
+      - Le JSON doit être parfaitement valide, sans commentaires
     `;
 
     // Appel à l'API OpenAI pour générer le scénario via le service openAIService
@@ -82,39 +113,33 @@ export async function generateScenario(req: Request, res: Response) {
       { role: "user", content: userPrompt }
     ];
     
+    // Ajoutez de la randomisation via la température et ajouter un timestamp pour éviter le cache
+    const randomTemp = 0.7 + (Math.random() * 0.2); // Température entre 0.7 et 0.9
+    const timestamp = new Date().toISOString();
+    
+    messages.push({ 
+      role: "user", 
+      content: `Génère un scénario totalement unique et différent des précédents. Timestamp: ${timestamp}` 
+    });
+    
     const generatedContent = await openAIService.getChatCompletionWithCache(
       messages,
-      0.7,
-      1500
+      randomTemp,
+      1800 // Plus de tokens pour des scenarios plus détaillés
     );
     
     try {
-      // Extraction du JSON valide depuis la réponse (qui pourrait contenir du texte markdown)
-      let jsonContent = generatedContent || "{}";
+      // Utilisation de l'utilitaire robuste d'extraction JSON
+      const scenarioData = extractJsonFromOpenAiResponse(generatedContent || "{}");
       
-      // Nettoyer la réponse si elle contient des délimiteurs markdown ou autres
-      if (jsonContent.includes("```json")) {
-        // Extraction à partir d'un bloc de code JSON en markdown
-        const jsonStart = jsonContent.indexOf("```json") + 7;
-        const jsonEnd = jsonContent.lastIndexOf("```");
-        if (jsonEnd > jsonStart) {
-          jsonContent = jsonContent.substring(jsonStart, jsonEnd).trim();
-        }
-      } else if (jsonContent.includes("```")) {
-        // Extraction à partir d'un bloc de code générique en markdown
-        const jsonStart = jsonContent.indexOf("```") + 3;
-        const jsonEnd = jsonContent.lastIndexOf("```");
-        if (jsonEnd > jsonStart) {
-          jsonContent = jsonContent.substring(jsonStart, jsonEnd).trim();
-        }
+      // Vérifier si l'extraction a réussi
+      if (!scenarioData) {
+        throw new Error("Impossible d'extraire un JSON valide de la réponse");
       }
-      
-      // Tentative de parsing du JSON nettoyé
-      const scenarioData = JSON.parse(jsonContent);
       
       // Validation du format
       if (!scenarioData.title || !scenarioData.team || !scenarioData.evidence) {
-        throw new Error("Format de scénario incorrect");
+        throw new Error("Format de scénario incorrect - champs requis manquants");
       }
       
       // Correction des avatars
