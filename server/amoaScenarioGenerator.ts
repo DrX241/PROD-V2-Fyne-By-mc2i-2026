@@ -114,12 +114,18 @@ async function generateSingleScenario(difficultyLevel = 'moyen'): Promise<any> {
     - Indices visuels: Descriptions de diagrammes ou captures d'écran qui contiennent des indices
     - Métaphores: Allusions indirectes à travers des métaphores techniques ou d'entreprise
 
-    CONTENU TRÈS RICHE (AU MOINS 15 LIGNES PAR EMAIL):
-    - Les emails doivent être longs et détaillés (minimum 15 lignes)
-    - Inclure des éléments de distraction délibérés (fausses pistes)
-    - Fragmenter les informations clés entre plusieurs documents
+    CONTENU OBLIGATOIREMENT TRÈS RICHE :
+    - TOUS les éléments de preuve (emails, documents, etc.) DOIVENT contenir au minimum 15 lignes de texte
+    - Éviter les emails courts à tout prix, ils doivent contenir beaucoup d'informations et de détails
+    - Inclure des éléments de distraction délibérés (fausses pistes) noyés dans les textes longs
+    - Fragmenter les informations clés entre plusieurs documents longs
     - Utiliser une terminologie spécifique qui doit être déchiffrée
     - Créer des contradictions délibérées difficiles à repérer
+
+    TITRES NON RÉVÉLATEURS :
+    - Les titres des scénarios NE DOIVENT JAMAIS révéler ou suggérer l'identité du coupable
+    - Utiliser des titres neutres ou énigmatiques qui ne donnent aucun indice sur la solution
+    - Éviter toute référence directe ou indirecte à la fonction ou au rôle du coupable dans le titre
     `;
   }
 
@@ -276,6 +282,67 @@ async function generateSingleScenario(difficultyLevel = 'moyen'): Promise<any> {
   // S'assurer que le niveau de difficulté est correctement défini
   if (!scenarioData.difficulty || !["facile", "moyen", "difficile"].includes(scenarioData.difficulty)) {
     scenarioData.difficulty = difficultyLevel;
+  }
+  
+  // Pour le niveau difficile, vérifier que les preuves contiennent au moins 15 lignes
+  if (difficultyLevel === 'difficile' && scenarioData.evidence && Array.isArray(scenarioData.evidence)) {
+    scenarioData.evidence.forEach(evidence => {
+      // Compter les lignes dans le contenu
+      const lineCount = (evidence.content?.split('\n')?.length || 0);
+      
+      // Si moins de 15 lignes, ajouter des lignes avec des détails supplémentaires
+      if (lineCount < 15) {
+        // Créer un complément de texte générique avec des informations supplémentaires
+        let additionalLines = [
+          "\nVeuillez noter que ce message contient des informations confidentielles à usage interne uniquement.",
+          "Ces informations sont protégées par nos politiques de sécurité de l'information.",
+          "Pour rappel, notre dernier audit de sécurité a mis en évidence plusieurs points critiques.",
+          "Nous devons maintenir une vigilance constante sur les processus et les accès.",
+          "Notre projet est soumis à des contraintes réglementaires strictes.",
+          "Par ailleurs, les dernières mises à jour de notre infrastructure ont été déployées le mois dernier.",
+          "Il est essentiel de respecter rigoureusement le planning des livrables.",
+          "Chaque modification du périmètre doit être documentée et validée par le comité de pilotage.",
+          "Je reste à votre disposition pour toute question complémentaire.",
+          "Bien cordialement,",
+          "",
+          "P.S. : N'oubliez pas la réunion hebdomadaire prévue demain à 10h00.",
+          "Les points à l'ordre du jour incluent les derniers développements et les retours utilisateurs.",
+          "Veuillez préparer vos rapports d'avancement pour cette session."
+        ];
+        
+        // Ajouter suffisamment de lignes pour atteindre au moins 15 lignes au total
+        evidence.content += additionalLines.join('\n');
+      }
+    });
+  }
+  
+  // Vérifier que le titre ne spoile pas la solution
+  if (scenarioData.team && Array.isArray(scenarioData.team)) {
+    const guiltyMember = scenarioData.team.find(member => member.isGuilty);
+    if (guiltyMember && scenarioData.title) {
+      // Vérifier si le titre contient le nom ou le rôle du coupable
+      const lowerTitle = scenarioData.title.toLowerCase();
+      const lowerName = guiltyMember.name.toLowerCase();
+      const lowerRole = guiltyMember.role.toLowerCase();
+      
+      if (lowerTitle.includes(lowerName) || lowerTitle.includes(lowerRole)) {
+        // Remplacer par un titre plus générique
+        const genericTitles = [
+          "L'Énigme du Projet X",
+          "Mystère au Département IT",
+          "Le Projet qui a Échoué",
+          "Échec & Conséquences",
+          "L'Incident Critique",
+          "La Défaillance Systémique",
+          "Le Bug Fatal",
+          "Sous les Décombres du Projet",
+          "Autopsie d'un Échec",
+          "Les Coulisses d'une Catastrophe"
+        ];
+        
+        scenarioData.title = genericTitles[Math.floor(Math.random() * genericTitles.length)];
+      }
+    }
   }
   
   // Compléter les champs manquants avec des valeurs par défaut si nécessaire
