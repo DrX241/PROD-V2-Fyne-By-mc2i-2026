@@ -586,7 +586,9 @@ export default function ProjetImposteur() {
   const [availableScenarios, setAvailableScenarios] = useState<Scenario[]>([]);
   const [isLoadingScenarios, setIsLoadingScenarios] = useState(true);
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
-  // États de génération manuelle uniquement (pas d'auto-génération)
+  const [nextUpdateTime, setNextUpdateTime] = useState<string | null>(null); // Heure de la prochaine mise à jour
+  const [timeRemaining, setTimeRemaining] = useState<string | null>(null); // Temps restant formaté
+  const [updateProgress, setUpdateProgress] = useState<number>(0); // Pourcentage de progression pour la barre
   
   const handleAccuse = () => {
     if (!selectedMember) {
@@ -642,7 +644,7 @@ export default function ProjetImposteur() {
       
       // Ajouter un timeout pour éviter d'attendre trop longtemps
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("Timeout dépassé")), 30000); // Augmenté à 30s
+        setTimeout(() => reject(new Error("Timeout dépassé")), 15000);
       });
       
       // Utiliser une répartition équilibrée de difficulté
@@ -660,32 +662,13 @@ export default function ProjetImposteur() {
       const response = await Promise.race([fetchPromise, timeoutPromise]) as any;
       
       if (response && response.data) {
-        // Mettre à jour le scénario actuel
         setScenario(response.data);
-        
-        // Ajouter le nouveau scénario à la liste des scénarios disponibles
-        setAvailableScenarios(prevScenarios => {
-          // Éviter les duplications en vérifiant si le scénario existe déjà
-          const scenarioExists = prevScenarios.some(s => s.id === response.data.id);
-          if (scenarioExists) {
-            return prevScenarios;
-          }
-          // Ajouter le nouveau scénario au début du tableau
-          return [response.data, ...prevScenarios];
-        });
-        
-        // Mettre à jour le scénario courant
-        setSelectedScenarioId(response.data.id);
-        setScenarioLoaded(true);
         
         toast({
           title: "Nouveau scénario généré",
           description: `Un nouveau scénario de difficulté ${response.data.difficulty} a été généré avec succès !`,
           variant: "default"
         });
-        
-        // Assurer que nous désactivons l'état de génération
-        setIsGeneratingScenario(false);
       }
     } catch (error) {
       console.error("Erreur lors de la génération du scénario:", (error as any)?.response?.data || error);
@@ -710,10 +693,7 @@ export default function ProjetImposteur() {
       });
       setIsGeneratingScenario(false);
     } finally {
-      // Toujours désactiver l'état de génération à la fin, sauf en cas de retry
-      if (retryCount > 0 || !isGeneratingScenario) {
-        setIsGeneratingScenario(false);
-      }
+      if (retryCount > 0) setIsGeneratingScenario(false);
     }
   };
   
@@ -727,7 +707,11 @@ export default function ProjetImposteur() {
       
       if (response.data && response.data.scenarios) {
         setAvailableScenarios(response.data.scenarios);
-        // Plus de mise à jour automatique - tout est manuel maintenant
+        
+        // Récupérer l'heure de prochaine mise à jour
+        if (response.data.nextUpdate) {
+          setNextUpdateTime(response.data.nextUpdate);
+        }
       }
     } catch (error) {
       console.error("Erreur lors du chargement des scénarios:", error);
@@ -749,7 +733,59 @@ export default function ProjetImposteur() {
     setScenarioLoaded(true);
   };
 
-  // Génération manuelle uniquement - les fonctions liées au temps restant ont été supprimées
+  // Fonction pour formater le temps restant
+  const formatTimeRemaining = (nextUpdateISO: string) => {
+    const now = new Date();
+    const nextUpdate = new Date(nextUpdateISO);
+    const diffMs = nextUpdate.getTime() - now.getTime();
+    
+    if (diffMs <= 0) {
+      return "En cours d'actualisation...";
+    }
+    
+    // Convertir en minutes et secondes
+    const diffMinutes = Math.floor(diffMs / 60000);
+    const diffSeconds = Math.floor((diffMs % 60000) / 1000);
+    
+    return `${diffMinutes} min ${diffSeconds} sec`;
+  };
+  
+  // Mettre à jour le temps restant toutes les secondes et recharger quand nécessaire
+  useEffect(() => {
+    if (nextUpdateTime) {
+      // Calculer la durée totale de l'intervalle de mise à jour (10 minutes = 600000ms)
+      const totalDuration = CACHE_TTL || 10 * 60 * 1000;
+      
+      // Fonction pour vérifier et mettre à jour le temps restant
+      const checkAndUpdateTime = () => {
+        const now = new Date();
+        const nextUpdate = new Date(nextUpdateTime);
+        const diffMs = nextUpdate.getTime() - now.getTime();
+        
+        // Si le temps est écoulé, recharger les scénarios
+        if (diffMs <= 0) {
+          loadAvailableScenarios();
+          return "En cours d'actualisation...";
+        }
+        
+        // Calculer le pourcentage de temps écoulé (inversé pour montrer le temps passé)
+        const percentElapsed = 100 - Math.round((diffMs / totalDuration) * 100);
+        setUpdateProgress(Math.min(percentElapsed, 100));
+        
+        return formatTimeRemaining(nextUpdateTime);
+      };
+      
+      // Initialiser le temps restant
+      setTimeRemaining(checkAndUpdateTime());
+      
+      // Mettre à jour toutes les secondes
+      const interval = setInterval(() => {
+        setTimeRemaining(checkAndUpdateTime());
+      }, 1000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [nextUpdateTime]);
   
   // Charger les scénarios au chargement de la page
   useEffect(() => {
@@ -836,25 +872,45 @@ export default function ProjetImposteur() {
                       </div>
                     ) : (
                       <div className="text-center py-10">
-                        <p className="text-gray-400 mb-4">Aucun scénario disponible. Utilisez le bouton ci-dessous pour générer un scénario.</p>
+                        <p className="text-gray-400 mb-4">Aucun scénario disponible. Essayez de générer un nouveau scénario.</p>
+                        <Button 
+                          onClick={() => generateNewScenario(0)}
+                          disabled={isGeneratingScenario}
+                        >
+                          {isGeneratingScenario ? (
+                            <span className="flex items-center gap-2">
+                              <span className="h-4 w-4 animate-spin rounded-full border-b-2 border-primary"></span>
+                              Génération...
+                            </span>
+                          ) : (
+                            'Générer un scénario'
+                          )}
+                        </Button>
                       </div>
                     )}
                   </div>
                 )}
                 
                 <div className="flex flex-col items-center mt-8 space-y-4">
-                  {/* Message informatif sur la génération manuelle */}
-                  <p className="text-center text-sm text-gray-400">La génération est désormais manuelle pour économiser les ressources.</p>
-                  
-                  {/* Bouton pour générer un scénario - toujours affiché */}
+                  {timeRemaining && (
+                    <div className="text-center mb-2 p-4 bg-gray-800 rounded-lg border border-gray-700 w-full max-w-md">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="text-gray-300 text-sm">Prochains scénarios</div>
+                        <div className="text-white text-sm font-medium flex items-center">
+                          <Clock className="h-4 w-4 mr-2 text-purple-400" />
+                          {timeRemaining}
+                        </div>
+                      </div>
+                      <Progress value={updateProgress} className="h-2 w-full bg-gray-700" />
+                      <p className="text-xs text-gray-400 mt-2">4 nouveaux scénarios générés toutes les 10 minutes</p>
+                    </div>
+                  )}
+                
                   <Button 
-                    variant={availableScenarios.length === 0 ? "default" : "outline"}
+                    variant="outline" 
                     onClick={() => generateNewScenario(0)}
                     disabled={isGeneratingScenario}
-                    className={availableScenarios.length === 0 
-                      ? "bg-purple-700 hover:bg-purple-800" 
-                      : "text-white border-gray-600 hover:bg-gray-800"
-                    }
+                    className="text-white border-gray-600 hover:bg-gray-800"
                   >
                     {isGeneratingScenario ? (
                       <span className="flex items-center gap-2">
@@ -864,10 +920,7 @@ export default function ProjetImposteur() {
                     ) : (
                       <span className="flex items-center gap-2">
                         <PlusCircle className="h-4 w-4" />
-                        {availableScenarios.length === 0 
-                          ? "Générer votre premier scénario" 
-                          : "Générer un nouveau scénario"
-                        }
+                        Générer un nouveau scénario
                       </span>
                     )}
                   </Button>
