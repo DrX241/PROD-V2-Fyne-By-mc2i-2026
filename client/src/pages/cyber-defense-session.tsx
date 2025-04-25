@@ -3,7 +3,7 @@ import { Link, useRoute, useLocation } from 'wouter';
 import { v4 as uuidv4 } from 'uuid';
 import { 
   Shield, ArrowLeft, Send, AlertCircle, 
-  ChevronDown, Brain, Clock, User
+  ChevronDown, Brain, Clock, User, Terminal
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -670,7 +670,7 @@ J'attends vos instructions pour agir. Comment souhaitez-vous procéder?`,
                               <p className="text-xs text-gray-400">Disponible au niveau {contact.unlockedAtLevel}</p>
                             </div>
                             <div className="ml-auto">
-                              <Lock className="h-4 w-4 text-gray-400" />
+                              <Shield className="h-4 w-4 text-gray-400" />
                             </div>
                           </div>
                         </div>
