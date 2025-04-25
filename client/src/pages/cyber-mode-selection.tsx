@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
-import { Shield, MessageSquare, Bot, ArrowRight, Command, User, Joystick, BrainCircuit, Rocket, ChevronDown, ChevronUp, Medal } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
@@ -32,14 +32,14 @@ export default function CyberModeSelection() {
       id: 'scenarios-formation',
       title: 'SCÉNARIOS DE FORMATION',
       description: "Développez vos compétences en cybersécurité grâce à des mises en situation immersives guidées par l'IA.",
-      icon: <BrainCircuit className="w-12 h-12 text-blue-100" />,
+      icon: null,
       gradient: 'from-blue-700 to-blue-900',
       destination: '#',
       items: [
         {
           id: 'agent-ia',
           title: 'AGENT CONVERSATIONNEL',
-          icon: <Bot className="w-8 h-8" />,
+          icon: null,
           destination: '/cyber/agent'
         }
       ]
@@ -48,14 +48,14 @@ export default function CyberModeSelection() {
       id: 'gamification',
       title: 'GAMIFICATION AVANCÉE',
       description: "Testez vos connaissances en cybersécurité avec des jeux interactifs et ludiques adaptés à tous les niveaux.",
-      icon: <Joystick className="w-12 h-12 text-purple-100" />,
+      icon: null,
       gradient: 'from-purple-700 to-purple-900',
       destination: '#',
       items: [
         {
           id: 'cyber-arcade',
           title: 'CYBER ARCADE',
-          icon: <Command className="w-8 h-8" />,
+          icon: null,
           destination: '/cyber/arcade',
           comingSoon: true
         }
@@ -65,14 +65,14 @@ export default function CyberModeSelection() {
       id: 'recrutement',
       title: 'MISE EN SITUATION D\'AUDITION',
       description: "Préparez vos consultants à des auditions auprès de clients en cybersécurité avec évaluation détaillée de la prestation.",
-      icon: <User className="w-12 h-12 text-green-100" />,
+      icon: null,
       gradient: 'from-green-700 to-green-900',
       destination: '#',
       items: [
         {
           id: 'interview-simulation',
           title: 'PRÉPARATION D\'AUDITION CLIENT',
-          icon: <User className="w-8 h-8" />,
+          icon: null,
           destination: '/cyber/interview-simulation'
         }
       ]
@@ -81,21 +81,21 @@ export default function CyberModeSelection() {
       id: 'programme-ascension',
       title: 'PROGRAMME ASCENSION',
       description: "Suivez un parcours personnalisé d'accompagnement pour atteindre l'excellence en cybersécurité, préparer des certifications professionnelles et développer vos compétences de manière progressive.",
-      icon: <Rocket className="w-12 h-12 text-amber-100" />,
+      icon: null,
       gradient: 'from-amber-700 to-amber-900',
       destination: '#',
       items: [
         {
           id: 'cyber-ascension',
           title: 'CYBER ASCENSION',
-          icon: <Rocket className="w-8 h-8" />,
+          icon: null,
           destination: '#',
           comingSoon: true
         },
         {
           id: 'parcours-certifiant',
           title: 'PARCOURS CERTIFIANT',
-          icon: <Medal className="w-8 h-8" />,
+          icon: null,
           destination: '#',
           comingSoon: true
         }
@@ -188,9 +188,6 @@ export default function CyberModeSelection() {
                         {category.items && category.items.map((item) => (
                           <Link key={item.id} href={item.comingSoon ? '#' : item.destination} onClick={(e) => item.comingSoon && e.preventDefault()}>
                             <div className="flex items-center p-3 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors cursor-pointer border border-white/20 shadow-sm hover:shadow-md hover:border-white/40">
-                              <div className="mr-3 text-white">
-                                {item.icon}
-                              </div>
                               <div className="flex-grow">
                                 <h3 className="text-white font-medium">{item.title}</h3>
                               </div>
