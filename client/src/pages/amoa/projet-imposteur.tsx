@@ -877,7 +877,7 @@ export default function ProjetImposteur() {
                     {availableScenarios.length > 0 ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {availableScenarios
-                          .filter(s => selectedDifficulty === 'moyen' || s.difficulty === selectedDifficulty)
+                          .filter(s => s.difficulty === selectedDifficulty)
                           .map(availableScenario => (
                             <ScenarioSelectionCard
                               key={availableScenario.id}
