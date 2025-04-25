@@ -12,7 +12,7 @@ import { evaluateDecision } from "./cyberDefenseEvaluator";
 import { handleCyberDefenseChat, generateCyberDefenseMission } from "./cyberDefenseController";
 import { extractJsonFromOpenAiResponse, createFallbackJson } from "./openAiResponseHelper";
 import { startInterviewSimulation, processInterviewMessage, completeInterviewSimulation, analyzeInterviewNotes } from "./interviewSimulationController";
-import { generateScenario } from "./amoaScenarioGenerator";
+import { generateScenario, getMultipleScenarios } from "./amoaScenarioGenerator";
 
 /**
  * Génère un document HTML formaté pour la synthèse d'audition
@@ -2443,8 +2443,9 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
     }
   });
 
-  // Route pour la génération dynamique de scénarios "Qui est l'imposteur?"
+  // Routes pour la génération dynamique de scénarios "Qui est l'imposteur?"
   app.post('/api/amoa/generate-scenario', generateScenario);
+  app.get('/api/amoa/scenarios', getMultipleScenarios);
 
   return createServer(app);
 }
