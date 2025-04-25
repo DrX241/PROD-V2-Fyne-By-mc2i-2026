@@ -36,6 +36,7 @@ import AmoaQuestPage from "@/pages/amoa/quest";
 // Modules Simulation d'Entretien
 import CyberInterviewSimulation from "@/pages/cyber/interview-simulation";
 import AmoaInterviewSimulation from "@/pages/amoa/interview-simulation";
+import ProjetImposteur from "@/pages/amoa/projet-imposteur";
 // Autres pages
 import ImmersiveSimulation from "@/pages/immersive-simulation";
 import ImmersiveScenarioDetail from "@/pages/immersive-scenario-detail";
@@ -76,6 +77,7 @@ function Router() {
       <Route path="/amoa" component={AmoaPage} />
       <Route path="/amoa-mode-selection" component={AmoaModeSelection} />
       <Route path="/amoa/quest" component={AmoaQuestPage} />
+      <Route path="/amoa/projet-imposteur" component={ProjetImposteur} />
       <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
       <Route path="/cyber/interview-simulation" component={CyberInterviewSimulation} />
       <Route path="/custom" component={NotYetImplemented} />
@@ -145,6 +147,7 @@ function App() {
             <Route path="/amoa" component={AmoaPage} />
             <Route path="/amoa-mode-selection" component={AmoaModeSelection} />
             <Route path="/amoa/quest" component={AmoaQuestPage} />
+            <Route path="/amoa/projet-imposteur" component={ProjetImposteur} />
             <Route path="/custom" component={NotYetImplemented} />
             <Route component={NotFound} />
           </Switch>

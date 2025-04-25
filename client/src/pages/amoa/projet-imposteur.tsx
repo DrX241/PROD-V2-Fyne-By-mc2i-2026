@@ -280,7 +280,7 @@ const projectFailureScenario: Scenario = {
         "A délibérément dissimulé des problèmes lors des réunions d'avancement",
         "A priorisé la date de livraison au détriment de la qualité"
       ],
-      alibi: ''
+      alibi: "En tant que chef de projet, Marc est effectivement responsable de l'échec du déploiement. Il a systématiquement ignoré les alertes de l'équipe technique, minimisé les problèmes dans ses rapports à la direction, et forcé le déploiement malgré les risques identifiés."
     },
     {
       id: 'tm2',
