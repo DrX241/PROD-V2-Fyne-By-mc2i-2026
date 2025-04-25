@@ -1,0 +1,370 @@
+{
+  "scenarios": [
+    {
+      "id": "projet-101",
+      "title": "La Refonte du Site E-commerce Échouée",
+      "description": "Une entreprise de vente en ligne a investi dans la refonte de son site e-commerce pour améliorer l'expérience utilisateur et augmenter ses ventes. Malgré un budget conséquent et six mois de travail, le nouveau site présente de nombreux bugs, des temps de chargement lents et une expérience utilisateur dégradée, entraînant une baisse significative des ventes.",
+      "difficulty": "facile",
+      "failureSummary": "La refonte a abouti à une plateforme instable qui a entraîné une perte de 30% du chiffre d'affaires en ligne et une dégradation de l'image de marque.",
+      "expectedOutcome": "Un site e-commerce performant avec une navigation fluide, des fonctionnalités optimisées et une augmentation des ventes de 20%.",
+      "team": [
+        {
+          "id": "membre-101",
+          "name": "Thomas Martin",
+          "role": "Chef de Projet",
+          "avatar": "avatar1.jpg",
+          "clues": [
+            "A refusé d'écouter les retours de l'équipe technique concernant les délais irréalistes",
+            "A minimisé l'importance des tests de charge et de compatibilité",
+            "A approuvé des changements de périmètre majeurs sans ajuster le planning"
+          ],
+          "alibi": "J'ai constamment mis à jour la direction sur les défis rencontrés et ai proposé de rallonger les délais, mais ma demande a été refusée. Tous mes rapports de suivi le confirment."
+        },
+        {
+          "id": "membre-102",
+          "name": "Julie Dupont",
+          "role": "Directrice Marketing",
+          "avatar": "avatar2.jpg",
+          "clues": [
+            "A insisté pour ajouter de nombreuses fonctionnalités non prioritaires en cours de projet",
+            "N'a pas fourni de cahier des charges clair pour les besoins marketing",
+            "A validé les maquettes sans consulter les retours des tests utilisateurs"
+          ],
+          "alibi": "J'ai simplement suivi les directives du comité de direction pour positionner notre site face à la concurrence. Les fonctionnalités demandées étaient essentielles pour notre stratégie."
+        },
+        {
+          "id": "membre-103",
+          "name": "Alexandre Dubois",
+          "role": "Lead Développeur",
+          "avatar": "avatar3.jpg",
+          "isGuilty": true,
+          "clues": [
+            "A choisi une architecture technique complexe sans s'assurer que l'équipe maîtrisait les technologies",
+            "A ignoré les alertes sur la dette technique qui s'accumulait",
+            "A négligé les tests automatisés, privilégiant les nouvelles fonctionnalités",
+            "A rejeté les recommandations d'optimisation des performances"
+          ],
+          "alibi": "Les retards sont dus aux changements constants des spécifications et au manque de ressources allouées. L'architecture choisie était la meilleure option à long terme."
+        },
+        {
+          "id": "membre-104",
+          "name": "Émilie Rousseau",
+          "role": "UX Designer",
+          "avatar": "avatar4.jpg",
+          "clues": [
+            "A créé des maquettes visuellement attrayantes mais techniquement difficiles à implémenter",
+            "A insisté sur des animations complexes qui ralentissent le chargement des pages"
+          ],
+          "alibi": "Mes designs ont été validés par l'ensemble des parties prenantes, et j'ai fourni des alternatives plus légères qui n'ont pas été retenues par la direction."
+        },
+        {
+          "id": "membre-105",
+          "name": "Nicolas Bernard",
+          "role": "Responsable Qualité",
+          "avatar": "avatar5.jpg",
+          "clues": [
+            "A réduit le temps alloué aux tests pour respecter les délais",
+            "N'a pas mis en place de procédures de non-régression efficaces"
+          ],
+          "alibi": "J'ai formellement alerté sur les risques liés au manque de tests dans trois réunions différentes, comme en témoignent les comptes-rendus. J'ai même proposé un plan de test prioritaire qui n'a pas été approuvé."
+        }
+      ],
+      "evidence": [
+        {
+          "id": "preuve-101",
+          "type": "email",
+          "title": "Alerte sur les performances",
+          "from": "Nicolas Bernard",
+          "to": "Alexandre Dubois, Thomas Martin",
+          "date": "15/03/2025",
+          "content": "Bonjour,\n\nLes premiers tests de performance sont alarmants. Le temps de chargement moyen des pages dépasse 7 secondes sur mobile, bien au-delà de notre objectif de 2 secondes.\n\nLes problèmes identifiés incluent:\n- Architecture de données trop complexe générant des requêtes multiples\n- Absence d'optimisation des images et ressources\n- Scripts JS non minifiés et trop nombreux\n\nJe recommande de mettre en pause les développements de nouvelles fonctionnalités pour résoudre ces problèmes critiques avant la mise en production.\n\nCordialement,\nNicolas",
+          "relatedTo": ["membre-103", "membre-105"]
+        },
+        {
+          "id": "preuve-102",
+          "type": "email",
+          "title": "Réponse à l'alerte performances",
+          "from": "Alexandre Dubois",
+          "to": "Nicolas Bernard, Thomas Martin",
+          "date": "16/03/2025",
+          "content": "Bonjour Nicolas,\n\nMerci pour ton rapport, mais nous n'avons pas le temps de nous pencher sur ces optimisations maintenant.\n\nL'architecture choisie est évolutive et nous permettra d'ajouter facilement des fonctionnalités à l'avenir. Les performances seront optimisées dans une phase ultérieure.\n\nNous devons respecter le calendrier de livraison des fonctionnalités prioritaires demandées par la direction. Les tests ont été effectués dans un environnement de développement qui n'est pas représentatif de la production.\n\nNous verrons ces points après la mise en ligne initiale.\n\nAlexandre",
+          "relatedTo": ["membre-103", "membre-105"]
+        },
+        {
+          "id": "preuve-103",
+          "type": "document",
+          "title": "Compte-rendu de réunion technique",
+          "date": "10/02/2025",
+          "content": "RÉUNION TECHNIQUE - REFONTE SITE E-COMMERCE\n\nParticipants: Alexandre Dubois, Julie Dupont, Émilie Rousseau, deux développeurs\n\nPoints discutés:\n\n1. Architecture technique:\nAlexandre présente l'architecture microservices avec 8 composants indépendants.\nQuestions soulevées par l'équipe sur la complexité et le temps d'apprentissage nécessaire.\nAlexandre confirme que cette approche est l'avenir du développement web et qu'il formera l'équipe.\n\n2. Dette technique:\nDéveloppeur junior signale accumulation de problèmes dans le code.\nAlexandre indique que la priorité est de livrer les fonctionnalités, la refactorisation viendra plus tard.\n\n3. Tests automatisés:\nProposition d'augmenter la couverture de tests.\nAlexandre considère que c'est un luxe dans le calendrier actuel.\n\n4. Conclusion:\nArchitecture validée malgré les réserves exprimées.\nCalendrier maintenu sans modification.",
+          "relatedTo": ["membre-103", "membre-102", "membre-104"]
+        },
+        {
+          "id": "preuve-104",
+          "type": "chat",
+          "title": "Conversation Slack - Équipe dev",
+          "date": "05/04/2025",
+          "content": "**Dev1**: @Alexandre Les nouveaux modules sont complètement incompatibles avec l'ancien système de panier. C'est un cauchemar à intégrer.\n\n**Alexandre**: Utilisez les adaptateurs que j'ai mis en place, ça devrait fonctionner.\n\n**Dev2**: On les utilise déjà, mais ça crée des problèmes de performance. Chaque page fait plus de 50 requêtes API.\n\n**Alexandre**: On optimisera plus tard, continuez l'intégration pour l'instant.\n\n**Dev1**: @Thomas Pouvons-nous avoir plus de temps pour revoir cette architecture? Elle ne tiendra jamais en production.\n\n**Thomas**: Désolé, pas possible de décaler, la direction a déjà communiqué sur la date de sortie. Faites au mieux.\n\n**Alexandre**: Ne vous inquiétez pas, j'ai travaillé sur des systèmes bien plus complexes. Faites-moi confiance, ça fonctionnera.",
+          "relatedTo": ["membre-103", "membre-101"]
+        },
+        {
+          "id": "preuve-105",
+          "type": "document",
+          "title": "Rapport d'audit technique",
+          "date": "01/04/2025",
+          "content": "RAPPORT D'AUDIT TECHNIQUE - CONFIDENTIEL\n\nConclusions principales:\n\n1. Architecture:\n- Architecture excessivement complexe pour les besoins du projet\n- Courbe d'apprentissage trop élevée pour l'équipe actuelle\n- Couplage fort entre des composants supposés indépendants\n\n2. Qualité du code:\n- Duplication importante (28% du code est dupliqué)\n- Absence de standards cohérents\n- Documentation insuffisante\n\n3. Performance:\n- Temps de chargement 3x plus long que le site actuel\n- Trop de requêtes API en cascade\n- Absence d'optimisation des ressources statiques\n\n4. Recommandations:\n- Simplifier l'architecture en priorité\n- Mettre en place un plan de refactorisation progressif\n- Reporter le lancement ou réduire le périmètre fonctionnel\n\nNote: Ce rapport a été partagé avec Alexandre Dubois le 03/04/2025. Aucune action corrective n'a été initiée à ce jour.",
+          "relatedTo": ["membre-103"]
+        }
+      ],
+      "lessons": [
+        "Privilégier une architecture technique adaptée à l'équipe et aux besoins réels du projet plutôt qu'aux dernières tendances technologiques",
+        "Mettre en place des tests de performance dès le début du projet et régulièrement pendant le développement",
+        "Accorder autant d'importance à la qualité technique qu'aux fonctionnalités visibles par l'utilisateur",
+        "Être transparent sur les risques techniques et ne pas minimiser les alertes émises par l'équipe"
+      ]
+    },
+    {
+      "id": "projet-102",
+      "title": "Le Système de Gestion Client Défaillant",
+      "description": "Une institution financière a lancé un projet de modernisation de son système de gestion de la relation client (CRM) pour améliorer la qualité de service et optimiser ses processus internes. Après 18 mois de développement et un investissement de 2 millions d'euros, le système déployé est instable, lent et n'intègre pas correctement les données clients existantes, provoquant confusion et inefficacité.",
+      "difficulty": "moyen",
+      "failureSummary": "Le CRM défaillant a entraîné des pertes de données clients, une chute de productivité de 40% dans les services concernés et une dégradation de la satisfaction client.",
+      "expectedOutcome": "Un CRM moderne, intégré aux systèmes existants, offrant une vue à 360° des clients et améliorant l'efficacité des conseillers de 25%.",
+      "team": [
+        {
+          "id": "membre-201",
+          "name": "Philippe Laurent",
+          "role": "Chef de Projet",
+          "avatar": "avatar6.jpg",
+          "clues": [
+            "A accepté un calendrier irréaliste pour plaire à la direction",
+            "N'a pas alerté sur les retards significatifs jusqu'à la veille du déploiement"
+          ],
+          "alibi": "J'ai suivi méthodiquement le plan projet validé par le comité de pilotage. Les retards dans certains modules ont été compensés par l'avance prise sur d'autres aspects. Tous les rapports d'avancement ont été communiqués à temps."
+        },
+        {
+          "id": "membre-202",
+          "name": "Élodie Moreau",
+          "role": "Architecte Système",
+          "avatar": "avatar7.jpg",
+          "clues": [
+            "A conçu une architecture qui ne prenait pas en compte les contraintes des systèmes legacy",
+            "A sous-estimé la complexité de la migration des données"
+          ],
+          "alibi": "L'architecture proposée respectait toutes les exigences du cahier des charges. Les problèmes d'intégration sont dus à la découverte tardive de spécificités techniques non documentées dans les anciens systèmes."
+        },
+        {
+          "id": "membre-203",
+          "name": "Mathieu Petit",
+          "role": "Responsable des Opérations",
+          "avatar": "avatar8.jpg",
+          "clues": [
+            "A ignoré les recommandations concernant les besoins en infrastructure",
+            "A réduit le budget serveurs et réseau pour économiser des coûts"
+          ],
+          "alibi": "Les spécifications d'infrastructure que j'ai approuvées correspondaient exactement aux recommandations des consultants externes. La réduction du budget a été décidée collectivement suite à une analyse de coûts."
+        },
+        {
+          "id": "membre-204",
+          "name": "Sophia Benchekroun",
+          "role": "Directrice Métier",
+          "avatar": "avatar9.jpg",
+          "isGuilty": true,
+          "clues": [
+            "A imposé des changements majeurs dans les spécifications en cours de projet sans accepter d'impact sur les délais",
+            "A refusé de former correctement les équipes métier avant le déploiement",
+            "A négligé les retours des utilisateurs lors des phases de test",
+            "A forcé le déploiement malgré les alertes de l'équipe technique"
+          ],
+          "alibi": "Les modifications demandées étaient indispensables pour que le système réponde aux besoins métier. La formation était bien planifiée mais repoussée après le déploiement pour des raisons d'efficacité."
+        },
+        {
+          "id": "membre-205",
+          "name": "Antoine Girard",
+          "role": "Responsable Qualité",
+          "avatar": "avatar10.jpg",
+          "clues": [
+            "A validé des critères d'acceptation incomplets",
+            "N'a pas insisté suffisamment sur les tests d'intégration"
+          ],
+          "alibi": "J'ai documenté tous les risques qualité dans mes rapports hebdomadaires et ai recommandé de reporter le déploiement lors des trois dernières réunions de go/no-go. Ces réserves ont été ignorées par la direction."
+        }
+      ],
+      "evidence": [
+        {
+          "id": "preuve-201",
+          "type": "email",
+          "title": "Demande de modifications supplémentaires",
+          "from": "Sophia Benchekroun",
+          "to": "Philippe Laurent, Élodie Moreau",
+          "date": "10/11/2024",
+          "content": "Bonjour à tous,\n\nSuite à la réunion avec les directeurs régionaux, nous devons impérativement ajouter les fonctionnalités suivantes au nouveau CRM avant son déploiement :\n\n1. Module d'analyse prédictive des comportements clients\n2. Intégration avec notre nouvelle plateforme de marketing automation\n3. Tableaux de bord personnalisés par profil utilisateur\n4. Synchronisation mobile en temps réel\n\nCes éléments sont non négociables pour assurer l'adoption du système par nos conseillers. La date de mise en production du 15 janvier reste inchangée.\n\nMerci de revenir vers moi avec un plan d'implémentation sous 48h.\n\nCordialement,\nSophia",
+          "relatedTo": ["membre-204", "membre-201", "membre-202"]
+        },
+        {
+          "id": "preuve-202",
+          "type": "email",
+          "title": "RE: Demande de modifications supplémentaires",
+          "from": "Élodie Moreau",
+          "to": "Sophia Benchekroun, Philippe Laurent",
+          "date": "11/11/2024",
+          "content": "Bonjour Sophia,\n\nCes nouvelles fonctionnalités représentent un volume de travail considérable et n'étaient pas prévues dans le périmètre initial.\n\nLeur ajout à ce stade du projet (70% d'avancement) nécessiterait :\n- Min. 2 mois de développement supplémentaire\n- Refonte partielle de l'architecture\n- Tests complets d'intégration\n\nJe recommande vivement :\n1. Soit de reporter la date de mise en production à mars 2025\n2. Soit de planifier ces fonctionnalités pour une V2 post-déploiement\n\nL'ajout de ces éléments sans ajustement du calendrier compromettrait sérieusement la qualité et la stabilité du système.\n\nCordialement,\nÉlodie",
+          "relatedTo": ["membre-202", "membre-204", "membre-201"]
+        },
+        {
+          "id": "preuve-203",
+          "type": "email",
+          "title": "RE: RE: Demande de modifications supplémentaires",
+          "from": "Sophia Benchekroun",
+          "to": "Élodie Moreau, Philippe Laurent",
+          "date": "11/11/2024",
+          "content": "Élodie,\n\nJe comprends vos préoccupations, mais ces fonctionnalités sont essentielles pour notre stratégie 2025. Le conseil d'administration a déjà communiqué sur ce projet comme pilier de notre transformation numérique.\n\nNous ne pouvons pas reporter le déploiement. Votre équipe devra trouver des solutions pour intégrer ces éléments dans le calendrier actuel. Si nécessaire, nous pouvons réduire certaines phases de test non critiques.\n\nPhilippe, merci de revoir le plan projet pour intégrer ces changements sans impact sur la date de livraison.\n\nSophia",
+          "relatedTo": ["membre-204", "membre-202", "membre-201"]
+        },
+        {
+          "id": "preuve-204",
+          "type": "document",
+          "title": "Compte-rendu de la réunion Go/No-Go",
+          "date": "10/01/2025",
+          "content": "COMPTE-RENDU RÉUNION GO/NO-GO - DÉPLOIEMENT CRM\n\nParticipants : Philippe Laurent, Élodie Moreau, Mathieu Petit, Sophia Benchekroun, Antoine Girard + équipe technique\n\nPoints abordés :\n\n1. État d'avancement :\n- Développement fonctionnel : 95% (reste : correctifs mineurs)\n- Tests unitaires : 82% de couverture\n- Tests d'intégration : 45% réalisés, plusieurs anomalies critiques en cours de correction\n- Migration données : test partiel réalisé, problèmes d'intégrité identifiés\n\n2. Blocages identifiés :\n- Performance dégradée avec plus de 100 utilisateurs simultanés\n- Problèmes de synchronisation avec les systèmes existants\n- 4 anomalies critiques non résolues\n\n3. Recommandations techniques :\n- Antoine G. : Report du déploiement de 6 semaines pour finaliser tests\n- Élodie M. : Déploiement progressif par région plutôt que big bang\n\n4. Décision :\nSophia B. insiste sur la nécessité de respecter la date communiquée. Décision prise de déployer comme prévu le 15/01 avec plan de correction accéléré post-déploiement.\n\nMathieu P. et Philippe L. soutiennent cette approche.\nÉlodie M. et Antoine G. expriment des réserves formelles, notées au présent CR.",
+          "relatedTo": ["membre-201", "membre-202", "membre-203", "membre-204", "membre-205"]
+        },
+        {
+          "id": "preuve-205",
+          "type": "chat",
+          "title": "Conversation Teams - Équipe projet",
+          "date": "14/01/2025",
+          "content": "**Antoine**: J'ai les résultats des derniers tests de charge, c'est catastrophique. Le système s'effondre avec seulement 50 utilisateurs simultanés. Nous ne pouvons pas déployer demain.\n\n**Élodie**: Je confirme. De plus, la migration test de ce weekend a échoué, 30% des données clients sont corrompues ou incomplètes.\n\n**Philippe**: @Sophia Ces éléments sont très préoccupants. Je propose une réunion d'urgence pour envisager un report.\n\n**Sophia**: Pas question de reporter. Nous avons déjà communiqué sur cette date auprès de tous nos clients. La mobilisation des équipes est planifiée. Nous déploierons comme prévu.\n\n**Antoine**: Mais le système n'est pas prêt! C'est de la folie.\n\n**Sophia**: Les problèmes seront résolus en post-production. J'ai obtenu un budget supplémentaire pour une task-force de support. Le déploiement est maintenu, c'est ma décision finale.\n\n**Mathieu**: Je soutiens Sophia. Un report serait désastreux pour notre image. Nous gérerons les problèmes au fur et à mesure.\n\n**Élodie**: Je tiens à ce que mon désaccord soit formellement enregistré. Ce déploiement prématuré va créer un chaos dans l'organisation.",
+          "relatedTo": ["membre-201", "membre-202", "membre-203", "membre-204", "membre-205"]
+        }
+      ],
+      "lessons": [
+        "Ne jamais compromettre la qualité et la stabilité d'un système pour respecter une date de déploiement arbitraire",
+        "Formaliser un processus de gestion des changements avec impact systématique sur le planning ou le périmètre",
+        "Valoriser et prendre en compte les alertes émises par les experts techniques",
+        "Impliquer les utilisateurs finaux tout au long du projet et non uniquement en phase de test"
+      ]
+    },
+    {
+      "id": "projet-103",
+      "title": "L'Application Mobile Abandonnée",
+      "description": "Une compagnie d'assurance a investi dans le développement d'une application mobile pour permettre à ses clients de gérer leurs contrats, déclarer des sinistres et accéder à leurs documents. Après un an de développement et 800 000€ investis, l'application a été mise en ligne mais pratiquement inutilisée par les clients, avec un taux d'abandon de 92% après la première utilisation.",
+      "difficulty": "facile",
+      "failureSummary": "L'application, techniquement fonctionnelle mais inadaptée aux besoins réels des utilisateurs, a été un échec commercial complet nécessitant son abandon six mois après le lancement.",
+      "expectedOutcome": "Une application mobile intuitive avec un taux d'adoption de 40% des clients en ligne, réduisant de 30% les appels au service client.",
+      "team": [
+        {
+          "id": "membre-301",
+          "name": "Claire Dubois",
+          "role": "Cheffe de Projet Digital",
+          "avatar": "avatar11.jpg",
+          "clues": [
+            "A imposé une interface calquée sur le site web sans adaptation mobile",
+            "A refusé de réaliser des tests utilisateurs avant le développement"
+          ],
+          "alibi": "J'ai suivi les directives du comité innovation qui souhaitait une cohérence visuelle avec nos autres canaux. Les délais imposés ne permettaient pas de phases de test préalables."
+        },
+        {
+          "id": "membre-302",
+          "name": "Laurent Mercier",
+          "role": "Responsable Marketing",
+          "avatar": "avatar12.jpg",
+          "isGuilty": true,
+          "clues": [
+            "A imposé le projet sans étude de besoins clients préalable",
+            "A défini les fonctionnalités selon ses propres préférences sans consulter les utilisateurs",
+            "A ignoré les retours des beta-testeurs jugés 'trop négatifs'",
+            "A mis la priorité sur l'esthétique plutôt que sur l'usage pratique"
+          ],
+          "alibi": "Notre étude de marché montrait clairement que nos concurrents avaient tous des applications mobiles. Nous devions combler ce retard rapidement pour ne pas perdre des parts de marché."
+        },
+        {
+          "id": "membre-303",
+          "name": "Hugo Blanc",
+          "role": "Développeur Lead",
+          "avatar": "avatar13.jpg",
+          "clues": [
+            "A privilégié une technologie complexe qu'il souhaitait apprendre plutôt qu'une solution éprouvée",
+            "A négligé l'optimisation des performances sur les appareils d'entrée de gamme"
+          ],
+          "alibi": "La technologie choisie offrait de meilleures perspectives d'évolution future, même si la courbe d'apprentissage était plus importante. Les problèmes de performance sont liés aux contraintes imposées par le marketing."
+        },
+        {
+          "id": "membre-304",
+          "name": "Camille Leroy",
+          "role": "UI/UX Designer",
+          "avatar": "avatar14.jpg",
+          "clues": [
+            "A créé des écrans visuellement attrayants mais peu fonctionnels",
+            "N'a pas respecté les standards d'accessibilité"
+          ],
+          "alibi": "Mes designs initiaux suivaient toutes les bonnes pratiques UX, mais ils ont été considérablement modifiés à la demande de Laurent qui voulait 'quelque chose de plus sexy et innovant'."
+        },
+        {
+          "id": "membre-305",
+          "name": "Romain Fabre",
+          "role": "Directeur Client",
+          "avatar": "avatar15.jpg",
+          "clues": [
+            "Ne s'est pas impliqué dans le projet malgré son importance pour la relation client",
+            "N'a pas fourni d'insights basés sur les retours clients existants"
+          ],
+          "alibi": "J'ai été consulté tardivement dans le projet, alors que les principales décisions étaient déjà prises. J'ai alerté sur l'importance d'inclure les fonctionnalités les plus demandées au service client, mais ces recommandations n'ont pas été prises en compte."
+        }
+      ],
+      "evidence": [
+        {
+          "id": "preuve-301",
+          "type": "email",
+          "title": "Lancement du projet application mobile",
+          "from": "Laurent Mercier",
+          "to": "Équipe projet, Direction",
+          "date": "05/05/2024",
+          "content": "Chers collègues,\n\nJ'ai le plaisir de vous annoncer le lancement officiel de notre projet d'application mobile, que j'ai baptisé \"AssurConnect\".\n\nCe projet stratégique nous permettra de rattraper notre retard sur la concurrence et d'offrir une expérience digitale complète à nos clients. Notre étude de marché montre que 7 de nos 8 concurrents directs proposent déjà une application.\n\nVoici les fonctionnalités que j'ai identifiées comme essentielles :\n- Visualisation des contrats et garanties\n- Déclaration de sinistre avec photos\n- Géolocalisation des agences\n- Paiement des cotisations\n- Module de chat avec nos conseillers\n- Simulation de contrats avec réalité augmentée\n- Système de fidélité avec points et récompenses\n\nLe budget a été validé par la direction et nous visons une mise en ligne dans 12 mois maximum.\n\nBien cordialement,\nLaurent Mercier",
+          "relatedTo": ["membre-302"]
+        },
+        {
+          "id": "preuve-302",
+          "type": "document",
+          "title": "Compte-rendu réunion cadrage",
+          "date": "12/05/2024",
+          "content": "COMPTE-RENDU RÉUNION DE CADRAGE - PROJET APP MOBILE\n\nParticipants : Claire Dubois, Laurent Mercier, Hugo Blanc, Camille Leroy\n\nDiscussions et décisions :\n\n1. Étude préalable :\n- Camille propose de réaliser des entretiens utilisateurs pour valider les besoins\n- Laurent considère que c'est inutile : \"Nous connaissons déjà les besoins de nos clients\"\n- Décision : Pas d'étude utilisateur, documentation existante jugée suffisante\n\n2. Technologie :\n- Hugo propose d'utiliser un framework hybride avancé qu'il étudie actuellement\n- Claire s'inquiète du manque d'expertise interne sur cette technologie\n- Laurent soutient l'approche innovante proposée par Hugo\n- Décision : Adoption du framework proposé par Hugo\n\n3. Design :\n- Camille présente deux approches : une spécifiquement mobile et une cohérente avec le site web\n- Laurent insiste pour que l'app soit visuellement impressionnante avec animations et effets\n- Camille alerte sur les risques pour l'ergonomie et les performances\n- Décision : Approche visuelle premium avec tous les effets proposés\n\n4. Planning :\n- Développement : 8 mois\n- Tests internes : 2 mois\n- Beta utilisateurs : 1 mois\n- Finalisation et mise en ligne : 1 mois",
+          "relatedTo": ["membre-301", "membre-302", "membre-303", "membre-304"]
+        },
+        {
+          "id": "preuve-303",
+          "type": "email",
+          "title": "Synthèse des tests utilisateurs",
+          "from": "Camille Leroy",
+          "to": "Claire Dubois, Laurent Mercier",
+          "date": "10/02/2025",
+          "content": "Bonjour,\n\nVoici la synthèse des tests utilisateurs réalisés la semaine dernière sur notre beta.\n\nNous avons observé 12 utilisateurs représentatifs de notre base clients, et les résultats sont malheureusement préoccupants :\n\n- Temps moyen pour réaliser une tâche simple : 2min45s (objectif : <30s)\n- Taux d'échec sur la déclaration de sinistre : 67%\n- Note moyenne de satisfaction : 4/10\n\nProblèmes principaux identifiés :\n1. Navigation non intuitive, menus trop profonds\n2. Lenteur du chargement sur la plupart des appareils testés\n3. Frustration face aux effets visuels qui ralentissent les interactions\n4. Fonctionnalités prioritaires pour les utilisateurs (consultation de remboursements) absentes\n\nJe recommande vivement de repenser l'interface avant le lancement et d'ajouter les fonctionnalités identifiées comme prioritaires par les utilisateurs.\n\nCordialement,\nCamille",
+          "relatedTo": ["membre-304", "membre-301", "membre-302"]
+        },
+        {
+          "id": "preuve-304",
+          "type": "email",
+          "title": "RE: Synthèse des tests utilisateurs",
+          "from": "Laurent Mercier",
+          "to": "Camille Leroy, Claire Dubois",
+          "date": "11/02/2025",
+          "content": "Bonjour Camille,\n\nJe trouve cette analyse beaucoup trop pessimiste. Nos testeurs ne sont clairement pas représentatifs de la cible que nous visons avec cette application - des utilisateurs plus jeunes et digitalisés.\n\nJe pense que nous devrions relativiser ces retours et poursuivre avec notre vision initiale. Les utilisateurs s'adapteront progressivement à notre interface innovante. C'est souvent le cas avec les produits réellement disruptifs.\n\nConcernant les fonctionnalités manquantes, nous les ajouterons dans une V2 si la demande se confirme après le lancement.\n\nMerci de préparer un rapport plus équilibré pour la présentation au comité directeur la semaine prochaine, en mettant en avant les aspects positifs.\n\nBien cordialement,\nLaurent",
+          "relatedTo": ["membre-302", "membre-304", "membre-301"]
+        },
+        {
+          "id": "preuve-305",
+          "type": "document",
+          "title": "Analyse post-lancement",
+          "date": "20/07/2025",
+          "content": "RAPPORT D'ANALYSE - 3 MOIS POST-LANCEMENT APPLICATION\n\nStatistiques clés :\n\n- Téléchargements : 24,562 (14% des clients en ligne)\n- Utilisateurs actifs mensuels : 2,187 (9% des téléchargements)\n- Temps moyen passé dans l'app : 1min23s\n- Taux de finalisation des processus (ex: déclaration sinistre) : 22%\n- Désinstallations après première utilisation : 68%\n\nRetours utilisateurs (App Store & Play Store) :\n- Note moyenne : 2.2/5\n- Commentaires négatifs récurrents :\n  * Application lente et qui consomme trop de batterie\n  * Interface confuse et non intuitive\n  * Fonctionnalités essentielles manquantes\n  * Processus trop complexes comparés au site web\n\nImpact sur les autres canaux :\n- Aucune réduction mesurable des appels au service client\n- Augmentation des plaintes liées à l'expérience digitale (+15%)\n\nConclusion :\nL'application dans sa forme actuelle ne répond pas aux objectifs fixés et génère de la frustration client. Une refonte majeure ou un repositionnement stratégique est nécessaire.",
+          "relatedTo": ["membre-301", "membre-302", "membre-304"]
+        }
+      ],
+      "lessons": [
+        "Toujours partir des besoins réels des utilisateurs plutôt que des tendances du marché ou de la concurrence",
+        "Valider les concepts et fonctionnalités auprès des utilisateurs avant le développement",
+        "Privilégier l'utilisabilité et la performance à l'esthétique et aux effets visuels",
+        "Écouter attentivement les retours négatifs pendant les phases de test, ils sont souvent les plus précieux"
+      ]
+    }
+  ]
+}
