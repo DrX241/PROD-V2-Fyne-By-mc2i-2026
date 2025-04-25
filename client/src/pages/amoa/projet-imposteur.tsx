@@ -813,8 +813,20 @@ export default function ProjetImposteur() {
                 <p className="text-lg text-gray-300 max-w-2xl mx-auto">
                   Un projet important a échoué, et vous devez découvrir qui est le principal responsable. 
                   Analysez les documents, les emails et les conversations pour identifier le coupable.
-                  Vous avez seulement <span className="font-bold text-red-400">3 minutes</span> pour résoudre l'enquête !
+                  Vous avez seulement <span className="font-bold text-red-400">2 minutes</span> pour résoudre l'enquête !
                 </p>
+                <div className="mt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => window.location.href = '/amoa-mode-selection'}
+                    className="text-white border-gray-600 hover:bg-gray-800"
+                  >
+                    <span className="flex items-center gap-2">
+                      <ChevronRight className="h-4 w-4 rotate-180" />
+                      Retour à I AM mc2i
+                    </span>
+                  </Button>
+                </div>
               </div>
   
               <div className="mb-8">
@@ -929,7 +941,7 @@ export default function ProjetImposteur() {
                         Difficulté : {scenario.difficulty}
                       </Badge>
                       <Badge variant="outline" className="px-3 py-1 text-sm border-gray-600 text-gray-300">
-                        Temps : 3 minutes
+                        Temps : 2 minutes
                       </Badge>
                     </div>
                   </div>
@@ -962,7 +974,7 @@ export default function ProjetImposteur() {
               <h1 className="text-2xl font-bold text-white">{scenario.title}</h1>
               
               <div className="flex items-center space-x-4 mt-4 md:mt-0">
-                <CountdownTimer seconds={180} onComplete={handleTimeOver} />
+                <CountdownTimer seconds={120} onComplete={handleTimeOver} />
                 
                 <Button 
                   onClick={handleAccuse} 
