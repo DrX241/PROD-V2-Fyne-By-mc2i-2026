@@ -465,6 +465,81 @@ const projectFailureScenario: Scenario = {
 };
 
 // Composant Principal
+// Carte de scénario pour la sélection
+const ScenarioSelectionCard = ({ 
+  scenario,
+  onClick,
+  isSelected
+}: { 
+  scenario: Scenario;
+  onClick: () => void;
+  isSelected: boolean;
+}) => {
+  const { themeMode } = { themeMode: 'classic' }; // Mock pour compatibilité avec le reste de l'application
+  const isFuturistic = themeMode === 'futuristic';
+  const [isHover, setIsHover] = useState(false);
+  
+  // Extraire les membres de l'équipe
+  const teamCount = scenario.team?.length || 0;
+  
+  // Trouver le membre coupable (pour l'admin uniquement)
+  const guiltyMember = scenario.team?.find(member => member.isGuilty);
+  
+  return (
+    <motion.div
+      className={`rounded-xl p-5 shadow-md h-full relative overflow-hidden cursor-pointer ${
+        isSelected 
+          ? 'bg-purple-900 border-2 border-purple-500' 
+          : 'bg-gray-900 border border-gray-800 hover:bg-gray-800'
+      }`}
+      whileHover={{ y: -5, boxShadow: '0 12px 30px rgba(124, 58, 237, 0.15)' }}
+      onClick={onClick}
+      onMouseEnter={() => setIsHover(true)}
+      onMouseLeave={() => setIsHover(false)}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      {/* Badge de difficulté */}
+      <div className={`absolute top-3 right-3 text-xs px-2 py-1 rounded-full ${
+        scenario.difficulty === 'facile' 
+          ? 'bg-green-800/80 text-green-200' 
+          : scenario.difficulty === 'moyen'
+            ? 'bg-blue-800/80 text-blue-200'
+            : 'bg-red-800/80 text-red-200'
+      } font-medium`}>
+        {scenario.difficulty.charAt(0).toUpperCase() + scenario.difficulty.slice(1)}
+      </div>
+      
+      {/* Titre */}
+      <h3 className="text-lg font-semibold mb-2 mt-1 pr-20 text-white">
+        {scenario.title}
+      </h3>
+      
+      {/* Description */}
+      <p className="text-gray-300 text-sm line-clamp-3 mb-3">
+        {scenario.description}
+      </p>
+      
+      {/* Information sur l'équipe */}
+      <div className="mt-3 mb-2">
+        <div className="flex items-center text-xs uppercase tracking-wide font-semibold mb-2 text-purple-300">
+          <Users className="h-3.5 w-3.5 mr-1" />
+          Équipe: {teamCount} membres
+        </div>
+      </div>
+      
+      {/* Ligne décorative en bas */}
+      <div className="absolute bottom-0 left-0 w-3/4 h-[1px] bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
+      
+      {/* Effet sur survol */}
+      {isHover && (
+        <div className="absolute inset-0 bg-purple-800/10 z-0"></div>
+      )}
+    </motion.div>
+  );
+};
+
 export default function ProjetImposteur() {
   const [scenario, setScenario] = useState<Scenario>(projectFailureScenario);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
@@ -478,6 +553,12 @@ export default function ProjetImposteur() {
   const [selectedDifficulty, setSelectedDifficulty] = useState<'facile' | 'moyen' | 'difficile'>('moyen');
   const [showFailureDialog, setShowFailureDialog] = useState(false);
   const [scenarioLoaded, setScenarioLoaded] = useState(false); // Pour suivre si un scénario a été chargé
+  
+  // Nouveaux états pour la sélection de scénarios
+  const [showScenarioSelection, setShowScenarioSelection] = useState(true); // Commencer par la sélection
+  const [availableScenarios, setAvailableScenarios] = useState<Scenario[]>([]);
+  const [isLoadingScenarios, setIsLoadingScenarios] = useState(true);
+  const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
   
   const handleAccuse = () => {
     if (!selectedMember) {
@@ -578,13 +659,49 @@ export default function ProjetImposteur() {
     }
   };
   
-  // Générer un nouveau scénario au chargement de la page
+  // Fonction pour charger les scénarios disponibles
+  const loadAvailableScenarios = async () => {
+    try {
+      setIsLoadingScenarios(true);
+      const response = await axios.get('/api/amoa/scenarios', {
+        params: { count: 10 }
+      });
+      
+      if (response.data && response.data.scenarios) {
+        setAvailableScenarios(response.data.scenarios);
+      }
+    } catch (error) {
+      console.error("Erreur lors du chargement des scénarios:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les scénarios disponibles. Un scénario par défaut sera utilisé.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoadingScenarios(false);
+    }
+  };
+
+  // Fonction pour sélectionner un scénario et commencer le jeu
+  const selectScenarioAndPlay = (selectedScenario: Scenario) => {
+    setScenario(selectedScenario);
+    setShowScenarioSelection(false);
+    setSelectedScenarioId(selectedScenario.id);
+    setScenarioLoaded(true);
+  };
+
+  // Charger les scénarios au chargement de la page
   useEffect(() => {
-    if (!scenarioLoaded) {
+    // Si on est en mode sélection, charger les scénarios disponibles
+    if (showScenarioSelection) {
+      loadAvailableScenarios();
+    }
+    // Sinon, générer un scénario unique si nécessaire
+    else if (!scenarioLoaded) {
       generateNewScenario(0);
       setScenarioLoaded(true);
     }
-  }, [scenarioLoaded]);
+  }, [showScenarioSelection, scenarioLoaded]);
 
   const isCorrectAccusation = selectedMember?.isGuilty === true;
   
