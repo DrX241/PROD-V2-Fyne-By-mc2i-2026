@@ -2443,5 +2443,8 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
     }
   });
 
+  // Route pour la génération dynamique de scénarios "Qui est l'imposteur?"
+  app.post('/api/amoa/generate-scenario', generateScenario);
+
   return createServer(app);
 }
