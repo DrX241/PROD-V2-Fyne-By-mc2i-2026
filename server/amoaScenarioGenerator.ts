@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import OpenAI from 'openai';
+import { openAIService } from '../I_AM_CYBER/services/openai';
+import { ChatCompletionRequestMessage } from '../shared/schema';
 
 /**
  * Génère dynamiquement un nouveau scénario pour le jeu "Qui est l'imposteur ?"
@@ -75,18 +76,17 @@ export async function generateScenario(req: Request, res: Response) {
       }
     `;
 
-    // Appel à l'API OpenAI pour générer le scénario
-    const completion = await openaiClient.chat.completions.create({
-      model: process.env.OPENAI_MODEL || "gpt-4o",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt }
-      ],
-      temperature: 0.7,
-      response_format: { type: "json_object" }
-    });
-
-    const generatedContent = completion.choices[0].message.content;
+    // Appel à l'API OpenAI pour générer le scénario via le service openAIService
+    const messages: ChatCompletionRequestMessage[] = [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt }
+    ];
+    
+    const generatedContent = await openAIService.getChatCompletionWithCache(
+      messages,
+      0.7,
+      1500
+    );
     
     try {
       // Tentative de parsing du JSON
@@ -103,18 +103,20 @@ export async function generateScenario(req: Request, res: Response) {
       });
       
       res.json(scenarioData);
-    } catch (parseError) {
+    } catch (parseError: unknown) {
       console.error("Erreur de parsing JSON:", parseError);
+      const errorMessage = parseError instanceof Error ? parseError.message : "Erreur inconnue";
       res.status(500).json({
         error: "Erreur lors de la génération du scénario",
-        details: parseError.message
+        details: errorMessage
       });
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Erreur lors de la génération du scénario:", error);
+    const errorMessage = error instanceof Error ? error.message : "Erreur inconnue";
     res.status(500).json({
       error: "Erreur lors de la génération du scénario",
-      details: error.message
+      details: errorMessage
     });
   }
 }
