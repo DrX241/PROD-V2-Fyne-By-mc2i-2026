@@ -41,12 +41,6 @@ export default function CyberModeSelection() {
           title: 'EXPERT CYBER CONVERSATIONNEL',
           icon: <Bot className="w-8 h-8" />,
           destination: '/cyber/agent'
-        },
-        {
-          id: 'cyber-defense',
-          title: 'CENTRE DE CRISE',
-          icon: <Shield className="w-8 h-8" />,
-          destination: '/cyber-defense'
         }
       ]
     },
