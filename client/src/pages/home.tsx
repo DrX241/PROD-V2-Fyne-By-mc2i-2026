@@ -48,7 +48,7 @@ const ModuleCard = ({
   
   return (
     <div
-      className="relative overflow-hidden h-full flex flex-col"
+      className="relative overflow-hidden h-full flex flex-col flex-1"
       onMouseEnter={() => setIsHover(true)}
       onMouseLeave={() => setIsHover(false)}
     >
@@ -84,7 +84,7 @@ const ModuleCard = ({
         <div className="absolute inset-x-0 -top-2 h-1 bg-gradient-to-r from-purple-400/70 via-cyan-400/70 to-blue-500/70 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left rounded-t-md"></div>
       )}
       
-      <div className="p-6 flex flex-col h-full z-10 relative">
+      <div className="p-6 flex flex-col h-full z-10 relative flex-1">
         {/* Icône avec style adapté au thème */}
         <div className="w-16 h-16 relative mb-6">
           {!isClassic && (
@@ -126,10 +126,10 @@ const ModuleCard = ({
         </h3>
         
         {/* Description avec style adapté au thème */}
-        <p className={`mb-6 flex-grow text-sm ${
+        <p className={`mb-6 flex-grow text-sm overflow-hidden ${
           isClassic 
-            ? 'text-gray-600' 
-            : 'text-blue-100/80 font-cyber-body'
+            ? 'text-gray-600 line-clamp-3' 
+            : 'text-blue-100/80 font-cyber-body line-clamp-3'
           }`}>
           {description}
         </p>
@@ -668,7 +668,7 @@ export default function Home() {
                 >
                   {isFuturistic ? (
                     // Wrapper avec effets futuristes galactiques
-                    <div className="relative bg-gradient-to-b from-blue-950/90 to-indigo-950/90 backdrop-blur-md rounded-xl shadow-xl overflow-hidden group-hover:shadow-cyan-500/60 border border-purple-500/40">
+                    <div className="relative bg-gradient-to-b from-blue-950/90 to-indigo-950/90 backdrop-blur-md rounded-xl shadow-xl overflow-hidden group-hover:shadow-cyan-500/60 border border-purple-500/40 h-72">
                       {/* Effet de nébuleuse et étoiles en arrière-plan */}
                       <div className="absolute inset-0 overflow-hidden">
                         {/* Nébuleuse en arrière-plan */}
@@ -705,30 +705,36 @@ export default function Home() {
                       <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 via-purple-500 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out origin-left"></div>
                     </div>
                   ) : (
-                    // Wrapper avec style classique - design complètement différent
-                    <div className="relative bg-white rounded-lg shadow-md overflow-hidden group-hover:shadow-xl transition-all duration-300 border-2 border-gray-100 flex flex-col">
+                    // Wrapper avec style classique - design avec taille égale
+                    <div className="relative bg-white rounded-lg shadow-md overflow-hidden group-hover:shadow-xl transition-all duration-300 border-2 border-gray-100 flex flex-col h-72">
                       {/* Header avec la couleur du module */}
                       <div className={`h-3 w-full ${module.color.replace('bg-', 'bg-')}`}></div>
                       
-                      {/* Contenu du module - horizontal en mode classique */}
-                      <div className="p-6 flex flex-row items-center h-full">
-                        {/* Icône à gauche */}
-                        <div className={`w-14 h-14 ${module.bgColor} rounded-lg flex items-center justify-center shadow mr-4 flex-shrink-0`}>
-                          <div className={`${module.color} p-2 rounded-md`}>
-                            {module.icon}
+                      {/* Contenu du module - layout vertical pour avoir une taille uniforme */}
+                      <div className="p-6 flex flex-col h-full">
+                        {/* Icône en haut */}
+                        <div className="flex items-center mb-4">
+                          <div className={`w-14 h-14 ${module.bgColor} rounded-lg flex items-center justify-center shadow mr-4 flex-shrink-0`}>
+                            <div className={`${module.color} p-2 rounded-md`}>
+                              {module.icon}
+                            </div>
                           </div>
+                          
+                          {/* Titre à côté de l'icône */}
+                          <h3 className="text-lg font-semibold text-gray-800">
+                            {module.title}
+                          </h3>
                         </div>
                         
                         {/* Contenu textuel */}
                         <div className="flex-grow">
-                          <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                            {module.title}
-                          </h3>
-                          <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                          <p className="text-gray-600 text-sm mb-6">
                             {module.description}
                           </p>
-                          
-                          {/* Bouton en bas */}
+                        </div>
+                        
+                        {/* Bouton en bas */}
+                        <div className="mt-auto">
                           <Link href={module.linkTo}>
                             <button className={`${module.color} text-white px-4 py-2 rounded-md text-sm font-medium flex items-center transition-all hover:shadow-md`}>
                               Explorer
