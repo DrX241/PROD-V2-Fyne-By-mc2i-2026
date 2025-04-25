@@ -772,6 +772,7 @@ export default function ProjetImposteur() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
+              className="bg-gray-950 p-6 rounded-xl border border-gray-800"
             >
               <div className="text-center mb-10">
                 <div className="inline-flex p-3 bg-purple-900 rounded-full mb-4">
