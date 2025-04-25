@@ -552,7 +552,7 @@ export default function ProjetImposteur() {
         });
       }
     } catch (error) {
-      console.error("Erreur lors de la génération du scénario:", error);
+      console.error("Erreur lors de la génération du scénario:", (error as any)?.response?.data || error);
       
       // Retry une fois en cas d'erreur
       if (retryCount < 1) {
@@ -581,7 +581,7 @@ export default function ProjetImposteur() {
   // Générer un nouveau scénario au chargement de la page
   useEffect(() => {
     if (!scenarioLoaded) {
-      generateNewScenario();
+      generateNewScenario(0);
       setScenarioLoaded(true);
     }
   }, [scenarioLoaded]);
@@ -623,7 +623,7 @@ export default function ProjetImposteur() {
                         variant={selectedDifficulty === 'facile' ? 'default' : 'outline'} 
                         onClick={() => {
                           setSelectedDifficulty('facile');
-                          generateNewScenario();
+                          generateNewScenario(0);
                         }}
                         className={selectedDifficulty === 'facile' ? 'bg-green-700 hover:bg-green-800' : 'border-gray-600 text-gray-300'}
                       >
@@ -633,7 +633,7 @@ export default function ProjetImposteur() {
                         variant={selectedDifficulty === 'moyen' ? 'default' : 'outline'} 
                         onClick={() => {
                           setSelectedDifficulty('moyen');
-                          generateNewScenario();
+                          generateNewScenario(0);
                         }}
                         className={selectedDifficulty === 'moyen' ? 'bg-blue-700 hover:bg-blue-800' : 'border-gray-600 text-gray-300'}
                       >
@@ -643,7 +643,7 @@ export default function ProjetImposteur() {
                         variant={selectedDifficulty === 'difficile' ? 'default' : 'outline'} 
                         onClick={() => {
                           setSelectedDifficulty('difficile');
-                          generateNewScenario();
+                          generateNewScenario(0);
                         }}
                         className={selectedDifficulty === 'difficile' ? 'bg-red-700 hover:bg-red-800' : 'border-gray-600 text-gray-300'}
                       >
@@ -674,7 +674,7 @@ export default function ProjetImposteur() {
                   <Button 
                     size="lg" 
                     variant="outline" 
-                    onClick={generateNewScenario}
+                    onClick={() => generateNewScenario(0)}
                     disabled={isGeneratingScenario}
                     className="min-w-[180px]"
                   >
@@ -834,7 +834,7 @@ export default function ProjetImposteur() {
         }}
         onNew={() => {
           setShowFailureDialog(false);
-          generateNewScenario().then(() => resetGame());
+          generateNewScenario(0).then(() => resetGame());
         }}
       />
     </HomeLayout>
