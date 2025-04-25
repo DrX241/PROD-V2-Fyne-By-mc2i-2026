@@ -54,14 +54,16 @@ export async function generateDebriefing(req: Request, res: Response) {
       "realWorldExample": "exemple concret..."
     }`;
     
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // Utilisation du modèle mini pour des réponses rapides
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" },
-      temperature: 0.7,
-    });
+    // Utiliser le modèle mini pour des réponses rapides
+    openAIService.switchToSecondaryKey();
+    const completion = await openAIService.getChatCompletion(
+      [{ role: "user", content: prompt }],
+      0.7,
+      1000
+    );
     
-    const result = JSON.parse(response.choices[0].message.content);
+    // Convertir la réponse en objet JSON
+    const result = JSON.parse(completion);
     res.json(result);
   } catch (error) {
     console.error("Error generating debriefing:", error);
@@ -91,11 +93,13 @@ export async function getContextualDocumentation(req: Request, res: Response) {
       Fournis une définition, des exemples d'application, et des mesures associées.
       Limite ta réponse à 150 mots maximum.`;
       
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.5,
-      });
+      const response = await openAIService.generateChatCompletion(
+        [{ role: "user", content: prompt }],
+        {
+          temperature: 0.5,
+          useSecondaryModel: true
+        }
+      );
       
       res.json({
         documents: [{
