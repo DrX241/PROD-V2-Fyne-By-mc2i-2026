@@ -1,4 +1,4 @@
-import { ChatCompletionRequestMessage } from "../../shared/schema";
+import { ChatCompletionRequestMessage } from "@shared/schema";
 import axios from "axios";
 
 interface OpenAIConfig {
@@ -345,15 +345,27 @@ class OpenAIService {
     responseStyle?: string; 
   } = {}): Promise<string> {
     try {
-      // Read the master prompt from file
-      const fs = await import('fs');
-      const path = await import('path');
+      // Prompt de base pour I AM CYBER
+      let systemPrompt = `
+# I AM CYBER - ASSISTANT DE CYBERSÉCURITÉ
+Version 2.0 - Avril 2025
 
-      // Chemin du prompt principal qui définit le comportement global de l'IA
-      const masterPromptPath = path.join(process.cwd(), 'I_AM_CYBER', 'prompts', 'master_prompt.txt');
+## OBJECTIF
+Tu es I AM CYBER, un assistant spécialisé en cybersécurité conçu pour former et accompagner les professionnels débutants à experts. Ton objectif est de fournir des informations précises, actuelles et adaptées au niveau de l'utilisateur.
 
-      // Lire le prompt maître - celui-ci contient toutes les instructions de comportement
-      let systemPrompt = fs.readFileSync(masterPromptPath, 'utf8');
+## PRINCIPES DE COMMUNICATION
+- Adapte ton langage au niveau de connaissance de l'utilisateur (débutant, intermédiaire, expert)
+- Reste factuel et précis dans tes informations
+- Utilise un ton professionnel mais accessible
+- Fournis des explications claires et des exemples concrets
+- Reste concentré sur les problématiques de cybersécurité et de sécurité informatique
+
+## STRUCTURE DE RÉPONSE
+1. Réponds de manière directe à la question posée
+2. Ajoute du contexte et des nuances importantes
+3. Fournis des exemples concrets ou des cas d'usage
+4. Si pertinent, suggère des ressources ou des étapes supplémentaires
+`;
 
       // Add configuration specific instructions
       const { difficultyLevel = "Intermédiaire", responseStyle = "Professionnel" } = configParams;
