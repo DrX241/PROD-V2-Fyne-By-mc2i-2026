@@ -42,13 +42,6 @@ export default function AmoaModeSelection() {
           title: 'AMOA QUEST',
           icon: null,
           destination: '/amoa/quest'
-        },
-        {
-          id: 'toolkit-amoa',
-          title: 'TOOLKIT AMOA',
-          icon: null,
-          destination: '#',
-          comingSoon: true
         }
       ]
     },
@@ -65,20 +58,6 @@ export default function AmoaModeSelection() {
           title: 'QUI EST L\'IMPOSTEUR ?',
           icon: null,
           destination: '/amoa/projet-imposteur'
-        },
-        {
-          id: 'simulateur-projet',
-          title: 'SIMULATEUR DE PROJET',
-          icon: null,
-          destination: '#',
-          comingSoon: true
-        },
-        {
-          id: 'business-optimizer',
-          title: 'BUSINESS VALUE OPTIMIZER',
-          icon: null,
-          destination: '#',
-          comingSoon: true
         }
       ]
     },
