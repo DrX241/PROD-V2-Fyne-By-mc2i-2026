@@ -964,6 +964,19 @@ export default function ProjetImposteur() {
                       Revenir à la sélection
                     </Button>
                   </div>
+                  
+                  <div className="mt-4">
+                    <Button
+                      variant="ghost"
+                      onClick={() => window.location.href = '/amoa-mode-selection'}
+                      className="text-gray-400 hover:text-white hover:bg-gray-800"
+                    >
+                      <span className="flex items-center gap-2">
+                        <ChevronRight className="h-4 w-4 rotate-180" />
+                        Retour à I AM mc2i
+                      </span>
+                    </Button>
+                  </div>
                 </div>
               </Card>
             </motion.div>
@@ -971,7 +984,19 @@ export default function ProjetImposteur() {
         ) : (
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-center bg-gray-950 p-4 rounded-lg shadow-sm border border-gray-800">
-              <h1 className="text-2xl font-bold text-white">{scenario.title}</h1>
+              <div>
+                <h1 className="text-2xl font-bold text-white">{scenario.title}</h1>
+                <Button
+                  variant="ghost"
+                  onClick={() => setScenarioLoaded(false)}
+                  className="mt-2 text-gray-400 hover:text-white hover:bg-gray-800 p-0"
+                >
+                  <span className="flex items-center gap-1 text-sm">
+                    <ChevronRight className="h-3 w-3 rotate-180" />
+                    Retour au scénario
+                  </span>
+                </Button>
+              </div>
               
               <div className="flex items-center space-x-4 mt-4 md:mt-0">
                 <CountdownTimer seconds={120} onComplete={handleTimeOver} />
