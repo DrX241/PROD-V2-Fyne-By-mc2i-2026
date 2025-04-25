@@ -46,24 +46,6 @@ export default function CyberModeSelection() {
       ]
     },
     {
-      id: 'gamification',
-      title: 'GAMIFICATION AVANCÉE',
-      description: "Testez vos connaissances en cybersécurité avec des jeux interactifs adaptés à tous les niveaux.",
-      icon: null,
-      gradient: 'from-purple-700 to-purple-900',
-      destination: '#',
-      comingSoon: true,
-      items: [
-        {
-          id: 'cyber-arcade',
-          title: 'CYBER ARCADE',
-          icon: null,
-          destination: '/cyber/arcade',
-          comingSoon: true
-        }
-      ]
-    },
-    {
       id: 'recrutement',
       title: 'MISE EN SITUATION D\'AUDITION',
       description: "Préparez vos consultants aux auditions clients avec évaluation détaillée de leur prestation.",
@@ -76,24 +58,6 @@ export default function CyberModeSelection() {
           title: 'PRÉPARATION D\'AUDITION CLIENT',
           icon: null,
           destination: '/cyber/interview-simulation'
-        }
-      ]
-    },
-    {
-      id: 'parcours-certifiant',
-      title: 'PARCOURS CERTIFIANT',
-      description: "Formations pour préparer des certifications professionnelles en cybersécurité.",
-      icon: null,
-      gradient: 'from-amber-700 to-amber-900',
-      destination: '#',
-      comingSoon: true,
-      items: [
-        {
-          id: 'parcours-certifiant',
-          title: 'PARCOURS CERTIFIANT',
-          icon: null,
-          destination: '#',
-          comingSoon: true
         }
       ]
     }
@@ -169,32 +133,21 @@ export default function CyberModeSelection() {
                     <div className="mt-4 flex-grow">
                       <div className="space-y-3">
                         {category.items && category.items.map((item) => (
-                          <Link key={item.id} href={item.comingSoon ? '#' : item.destination} onClick={(e) => item.comingSoon && e.preventDefault()}>
+                          <Link key={item.id} href={item.destination}>
                             <div className="flex items-center p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors cursor-pointer border border-white/20 shadow-sm hover:shadow-md hover:border-white/40">
                               <div className="flex-grow">
                                 <h3 className="text-white font-medium">{item.title}</h3>
                               </div>
-                              {item.comingSoon ? (
-                                <div className="text-white bg-blue-500/30 p-1 rounded-full">
-                                  <ArrowRight className="h-4 w-4" />
-                                </div>
-                              ) : (
-                                <div className="text-white bg-blue-500/30 p-1 rounded-full">
-                                  <ArrowRight className="h-4 w-4" />
-                                </div>
-                              )}
+                              <div className="text-white bg-blue-500/30 p-1 rounded-full">
+                                <ArrowRight className="h-4 w-4" />
+                              </div>
                             </div>
                           </Link>
                         ))}
                       </div>
                     </div>
                     
-                    {/* Message "Bientôt disponible" pour les modules qui ne sont pas encore disponibles */}
-                    {category.comingSoon && (
-                      <div className="mt-3 text-center">
-                        <p className="text-gray-300 text-xs px-3 py-1.5 rounded">Bientôt disponible</p>
-                      </div>
-                    )}
+
                   </div>
                 </div>
               </motion.div>
