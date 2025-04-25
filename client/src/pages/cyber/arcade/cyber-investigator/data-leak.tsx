@@ -4,11 +4,13 @@ import { motion } from 'framer-motion';
 import { 
   ArrowLeft, Clock, File, Mail, Shield, 
   Server, AlertCircle, FileText, Folders, 
-  User, Users, CheckCircle, XCircle
+  User, Users, CheckCircle, XCircle, BookOpen
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
+import DebriefingComponent from '@/components/cyber/DebriefingComponent';
+import ContextualDocumentation from '@/components/cyber/ContextualDocumentation';
 import {
   Tabs,
   TabsContent,
@@ -267,6 +269,8 @@ export default function DataLeakInvestigation() {
   const [accusationSubmitted, setAccusationSubmitted] = useState<boolean>(false);
   const [conclusionCorrect, setConclusionCorrect] = useState<boolean | null>(null);
   const [evidencesAnalyzed, setEvidencesAnalyzed] = useState<number>(0);
+  const [docsOpen, setDocsOpen] = useState<boolean>(false);
+  const [currentDocContext, setCurrentDocContext] = useState<string>("data_breach");
 
   // Décompte du temps
   useEffect(() => {
@@ -391,6 +395,35 @@ export default function DataLeakInvestigation() {
           </ul>
         </div>
         
+        {/* Débriefing pédagogique */}
+        <div className="mt-6 mb-4">
+          <DebriefingComponent 
+            userActions={[
+              accusation === 'sophie-mercier' ? "Accusation correcte de Sophie Mercier" : "Accusation incorrecte",
+              `${evidencesAnalyzed} preuves analysées sur ${evidences.length}`,
+              conclusionCorrect ? "Bonne interprétation des indices clés" : "Interprétation incomplète des preuves"
+            ]}
+            correctApproach={[
+              "Analyser toutes les preuves avant de tirer des conclusions",
+              "Porter attention aux incohérences (comme l'autorisation falsifiée)",
+              "Identifier les indicateurs financiers suspects",
+              "Vérifier les horodatages et la chronologie des événements"
+            ]}
+            scenario="data_breach"
+            performanceScore={conclusionCorrect ? 100 : 40}
+          />
+        </div>
+
+        <div className="flex justify-center mb-6">
+          <Button 
+            onClick={() => setDocsOpen(true)}
+            variant="outline" 
+            className="border-indigo-500 text-indigo-200 hover:bg-indigo-900/30"
+          >
+            <BookOpen className="mr-2 h-4 w-4" /> Documentation sur les fuites de données
+          </Button>
+        </div>
+        
         <div className="flex justify-center mt-6">
           <Link href="/cyber/arcade/cyber-investigator">
             <Button variant="outline" className="mr-4 border-indigo-500 text-indigo-200 hover:bg-indigo-900/30">
@@ -411,6 +444,13 @@ export default function DataLeakInvestigation() {
     <HomeLayout>
       <PageTitle title="Enquête - Fuite de Données" />
       <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900">
+        {/* Documentation contextuelle */}
+        <ContextualDocumentation 
+          context="data_breach"
+          isOpen={docsOpen}
+          onClose={() => setDocsOpen(false)}
+        />
+        
         <div className="relative z-10 max-w-7xl w-full mx-auto px-4 py-8 sm:px-6">
           {!accusationSubmitted ? (
             <>
