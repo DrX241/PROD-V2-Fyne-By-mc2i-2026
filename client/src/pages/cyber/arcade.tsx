@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
 import { Button } from '@/components/ui/button';
-import { ShieldCheck, LockKeyhole, Network, Zap, ArrowLeft, Brain } from 'lucide-react';
+import { Search, FileSearch, ArrowLeft, Fingerprint, HardDrive, Shield } from 'lucide-react';
 
 interface Game {
   id: string;
@@ -22,49 +22,31 @@ export default function CyberArcade() {
 
   const games: Game[] = [
     {
-      id: 'password-puzzle',
-      title: 'LE DÉFI DES MOTS DE PASSE',
-      description: 'Testez et améliorez vos connaissances sur les mots de passe sécurisés',
-      icon: <LockKeyhole className="w-6 h-6" />,
-      gradient: 'from-blue-600 to-blue-800',
+      id: 'cyber-investigator',
+      title: 'CYBER INVESTIGATEUR',
+      description: 'Résolvez des enquêtes sur des incidents de cybersécurité et identifiez les responsables',
+      icon: <Search className="w-6 h-6" />,
+      gradient: 'from-indigo-600 to-indigo-900',
       available: true,
-      route: '/cyber/arcade/password-puzzle'
+      route: '/cyber/arcade/cyber-investigator'
     },
     {
-      id: 'firewall-defense',
-      title: 'DÉFENSE DU FIREWALL',
-      description: 'Protégez votre réseau contre les attaques en temps réel',
-      icon: <ShieldCheck className="w-6 h-6" />,
-      gradient: 'from-red-600 to-red-800',
+      id: 'digital-forensics',
+      title: 'ANALYSE FORENSIQUE',
+      description: 'Analysez des preuves numériques pour reconstruire la chronologie d\'attaques sophistiquées',
+      icon: <Fingerprint className="w-6 h-6" />,
+      gradient: 'from-emerald-600 to-emerald-900',
       available: true,
-      route: '/cyber/arcade/firewall-defense'
+      route: '/cyber/arcade/digital-forensics'
     },
     {
-      id: 'phishing-detector',
-      title: 'DÉTECTEUR DE PHISHING',
-      description: 'Apprenez à identifier les tentatives de phishing dans une course contre la montre',
-      icon: <Network className="w-6 h-6" />,
-      gradient: 'from-purple-600 to-purple-800',
+      id: 'threat-intelligence',
+      title: 'MENACES AVANCÉES',
+      description: 'Traquez des acteurs malveillants grâce à l\'analyse de renseignements sur les menaces',
+      icon: <Shield className="w-6 h-6" />,
+      gradient: 'from-purple-600 to-purple-900',
       available: true,
-      route: '/cyber/arcade/phishing-detector'
-    },
-    {
-      id: 'cyber-quiz',
-      title: 'CYBER QUIZ',
-      description: 'Testez vos connaissances générales en cybersécurité',
-      icon: <Brain className="w-6 h-6" />,
-      gradient: 'from-green-600 to-green-800',
-      available: true,
-      route: '/cyber/arcade/cyber-quiz'
-    },
-    {
-      id: 'encryption-challenge',
-      title: 'DÉFI DE CRYPTAGE',
-      description: 'Décryptez des messages et apprenez les bases du chiffrement',
-      icon: <Zap className="w-6 h-6" />,
-      gradient: 'from-amber-600 to-amber-800',
-      available: true,
-      route: '/cyber/arcade/encryption-challenge'
+      route: '/cyber/arcade/threat-intelligence'
     }
   ];
 
