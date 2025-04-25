@@ -474,9 +474,10 @@ export default function ProjetImposteur() {
   const [showResult, setShowResult] = useState(false);
   const [activeTab, setActiveTab] = useState("dossier");
   const [accusationMade, setAccusationMade] = useState(false);
-  const [isGeneratingScenario, setIsGeneratingScenario] = useState(false);
+  const [isGeneratingScenario, setIsGeneratingScenario] = useState(true); // Démarrer avec génération en cours
   const [selectedDifficulty, setSelectedDifficulty] = useState<'facile' | 'moyen' | 'difficile'>('moyen');
   const [showFailureDialog, setShowFailureDialog] = useState(false);
+  const [scenarioLoaded, setScenarioLoaded] = useState(false); // Pour suivre si un scénario a été chargé
   
   const handleAccuse = () => {
     if (!selectedMember) {
@@ -554,6 +555,14 @@ export default function ProjetImposteur() {
     }
   };
   
+  // Générer un nouveau scénario au chargement de la page
+  useEffect(() => {
+    if (!scenarioLoaded) {
+      generateNewScenario();
+      setScenarioLoaded(true);
+    }
+  }, [scenarioLoaded]);
+
   const isCorrectAccusation = selectedMember?.isGuilty === true;
   
   return (
@@ -589,21 +598,30 @@ export default function ProjetImposteur() {
                     <div className="flex flex-wrap justify-center gap-2">
                       <Button 
                         variant={selectedDifficulty === 'facile' ? 'default' : 'outline'} 
-                        onClick={() => setSelectedDifficulty('facile')}
+                        onClick={() => {
+                          setSelectedDifficulty('facile');
+                          generateNewScenario();
+                        }}
                         className={selectedDifficulty === 'facile' ? 'bg-green-700 hover:bg-green-800' : 'border-gray-600 text-gray-300'}
                       >
                         Facile
                       </Button>
                       <Button 
                         variant={selectedDifficulty === 'moyen' ? 'default' : 'outline'} 
-                        onClick={() => setSelectedDifficulty('moyen')}
+                        onClick={() => {
+                          setSelectedDifficulty('moyen');
+                          generateNewScenario();
+                        }}
                         className={selectedDifficulty === 'moyen' ? 'bg-blue-700 hover:bg-blue-800' : 'border-gray-600 text-gray-300'}
                       >
                         Moyen
                       </Button>
                       <Button 
                         variant={selectedDifficulty === 'difficile' ? 'default' : 'outline'} 
-                        onClick={() => setSelectedDifficulty('difficile')}
+                        onClick={() => {
+                          setSelectedDifficulty('difficile');
+                          generateNewScenario();
+                        }}
                         className={selectedDifficulty === 'difficile' ? 'bg-red-700 hover:bg-red-800' : 'border-gray-600 text-gray-300'}
                       >
                         Difficile
