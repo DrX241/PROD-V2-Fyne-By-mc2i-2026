@@ -19,7 +19,7 @@ export type ApiKeyType = 'primary' | 'secondary';
 class OpenAIService {
   private primaryConfig: OpenAIConfig;
   private secondaryConfig: OpenAIConfig;
-  private currentConfig: ApiKeyType = 'primary';
+  private currentConfig: ApiKeyType = 'secondary';
   private responseCache: Map<string, CachedResponse> = new Map();
   private readonly CACHE_TTL = 1000 * 60 * 60;
   private connectionStatus: 'connected' | 'disconnected' | 'reconnecting' = 'disconnected';
@@ -93,12 +93,12 @@ class OpenAIService {
     
     // Vérification initiale de la connexion avec le service Azure OpenAI
     // Formatage correct de l'URL : suppression des doubles slashes
-    let baseEndpoint = this.primaryConfig.endpoint;
+    let baseEndpoint = this.secondaryConfig.endpoint;
     if (baseEndpoint.endsWith('/')) {
       baseEndpoint = baseEndpoint.slice(0, -1);
     }
     
-    console.log(`Checking connection to Azure OpenAI at: ${baseEndpoint}/openai/deployments/${this.primaryConfig.deploymentName}/chat/completions?api-version=${this.primaryConfig.apiVersion}`);
+    console.log(`Checking connection to Azure OpenAI at: ${baseEndpoint}/openai/deployments/${this.secondaryConfig.deploymentName}/chat/completions?api-version=${this.secondaryConfig.apiVersion}`);
     
     this.checkConnection();
   }
