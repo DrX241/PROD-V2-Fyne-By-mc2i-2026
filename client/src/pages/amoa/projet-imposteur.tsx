@@ -638,11 +638,6 @@ export default function ProjetImposteur() {
     try {
       setIsGeneratingScenario(true);
       
-      // Ajouter un timeout pour éviter d'attendre trop longtemps
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("Timeout dépassé")), 15000);
-      });
-      
       // Utiliser une répartition équilibrée de difficulté
       const difficulties = ['facile', 'moyen', 'difficile'];
       const randomDifficulty = difficulties[Math.floor(Math.random() * difficulties.length)];
@@ -650,19 +645,22 @@ export default function ProjetImposteur() {
       // Si forceDifficult est true, on force un scénario difficile
       const difficultyToUse = forceDifficult ? 'difficile' : randomDifficulty;
       
-      const fetchPromise = axios.post('/api/amoa/generate-scenario', {
-        difficultyLevel: difficultyToUse
+      // Récupérer un scénario aléatoire par difficulté
+      const response = await axios.get(`/api/amoa/scenarios/${difficultyToUse}`, {
+        params: { count: 1 }
       });
       
-      // Race entre le timeout et la requête
-      const response = await Promise.race([fetchPromise, timeoutPromise]) as any;
-      
       if (response && response.data) {
-        setScenario(response.data);
+        // Récupérer le premier scénario de la liste si c'est un array
+        const scenarioData = response.data.scenarios && response.data.scenarios.length > 0 
+          ? response.data.scenarios[0] 
+          : response.data.scenario || response.data;
+        
+        setScenario(scenarioData);
         
         toast({
-          title: "Nouveau scénario généré",
-          description: `Un nouveau scénario de difficulté ${response.data.difficulty} a été généré avec succès !`,
+          title: "Scénario chargé",
+          description: `Un scénario de difficulté ${scenarioData.difficulty} a été chargé avec succès !`,
           variant: "default"
         });
       }

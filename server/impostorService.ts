@@ -1,7 +1,14 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-// Types
+// Obtenir le chemin du fichier actuel et le répertoire
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+/**
+ * Interface pour un membre de l'équipe
+ */
 interface TeamMember {
   id: string;
   name: string;
@@ -12,6 +19,9 @@ interface TeamMember {
   alibi?: string;
 }
 
+/**
+ * Interface pour une preuve
+ */
 interface Evidence {
   id: string;
   type: string;
@@ -23,6 +33,9 @@ interface Evidence {
   relatedTo: string[];
 }
 
+/**
+ * Interface pour un scénario
+ */
 interface Scenario {
   id: string;
   title: string;
@@ -35,23 +48,37 @@ interface Scenario {
   lessons: string[];
 }
 
+/**
+ * Interface pour les données de scénarios
+ */
 interface ScenariosData {
   scenarios: Scenario[];
 }
 
-// Chemin vers le fichier de scénarios
-const scenariosFilePath = path.join(__dirname, 'data/impostor-scenarios.json');
+// Chemin vers le fichier JSON des scénarios
+const DATA_FILE_PATH = path.join(__dirname, 'data', 'impostor-scenarios.json');
 
 /**
  * Récupère tous les scénarios préconçus
  */
 function getAllScenarios(): Scenario[] {
   try {
-    const rawData = fs.readFileSync(scenariosFilePath, 'utf8');
+    // Vérifier si le fichier existe
+    if (!fs.existsSync(DATA_FILE_PATH)) {
+      // Si le fichier n'existe pas, retourner un tableau vide
+      // En production, vous devriez générer ou copier le fichier au besoin
+      console.warn(`Le fichier de scénarios n'existe pas à l'emplacement: ${DATA_FILE_PATH}`);
+      return [];
+    }
+    
+    // Lire le fichier JSON
+    const rawData = fs.readFileSync(DATA_FILE_PATH, 'utf8');
     const data: ScenariosData = JSON.parse(rawData);
+    
+    // Retourner les scénarios
     return data.scenarios;
   } catch (error) {
-    console.error('Erreur lors de la lecture des scénarios:', error);
+    console.error(`Erreur lors de la lecture des scénarios:`, error);
     return [];
   }
 }
@@ -60,25 +87,26 @@ function getAllScenarios(): Scenario[] {
  * Récupère un échantillon aléatoire de scénarios
  * @param count Nombre de scénarios à récupérer
  */
-function getRandomScenarios(count: number): Scenario[] {
+export function getRandomScenarios(count: number): Scenario[] {
   const allScenarios = getAllScenarios();
-  if (allScenarios.length === 0) return [];
   
-  // Mélanger les scénarios
+  // Si nous n'avons pas assez de scénarios, retourner tous ceux disponibles
+  if (allScenarios.length <= count) {
+    return allScenarios;
+  }
+  
+  // Mélanger les scénarios et prendre les premiers 'count'
   const shuffled = [...allScenarios].sort(() => 0.5 - Math.random());
-  
-  // Prendre les n premiers
-  return shuffled.slice(0, Math.min(count, allScenarios.length));
+  return shuffled.slice(0, count);
 }
 
 /**
  * Récupère un scénario spécifique par son ID
  * @param id ID du scénario à récupérer
  */
-function getScenarioById(id: string): Scenario | null {
+export function getScenarioById(id: string): Scenario | null {
   const allScenarios = getAllScenarios();
-  const scenario = allScenarios.find(s => s.id === id);
-  return scenario || null;
+  return allScenarios.find(scenario => scenario.id === id) || null;
 }
 
 /**
@@ -86,23 +114,26 @@ function getScenarioById(id: string): Scenario | null {
  * @param difficulty Niveau de difficulté ('facile', 'moyen', 'difficile')
  * @param count Nombre maximum de scénarios à retourner
  */
-function getScenariosByDifficulty(difficulty: string, count: number): Scenario[] {
+export function getScenariosByDifficulty(difficulty: string, count: number): Scenario[] {
   const allScenarios = getAllScenarios();
-  const filtered = allScenarios.filter(s => s.difficulty === difficulty);
   
-  // Mélanger les scénarios
-  const shuffled = [...filtered].sort(() => 0.5 - Math.random());
+  // Filtrer par difficulté
+  const filteredScenarios = allScenarios.filter(scenario => 
+    scenario.difficulty.toLowerCase() === difficulty.toLowerCase()
+  );
   
-  // Prendre les n premiers
-  return shuffled.slice(0, Math.min(count, filtered.length));
+  // Si nous n'avons pas assez de scénarios filtrés, retourner tous ceux disponibles
+  if (filteredScenarios.length <= count) {
+    return filteredScenarios;
+  }
+  
+  // Mélanger les scénarios filtrés et prendre les premiers 'count'
+  const shuffled = [...filteredScenarios].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
 }
 
-export {
-  getAllScenarios,
-  getRandomScenarios,
-  getScenarioById,
-  getScenariosByDifficulty,
-  Scenario,
-  TeamMember,
-  Evidence
-};
+// Si le fichier de scénarios n'existe pas, créer un fichier avec quelques scénarios d'exemple
+if (!fs.existsSync(DATA_FILE_PATH)) {
+  // Le fichier sera créé manuellement, contenant les 100 scénarios pré-générés
+  console.info("Le fichier de scénarios n'existe pas encore. Il sera créé séparément avec les scénarios pré-générés.");
+}

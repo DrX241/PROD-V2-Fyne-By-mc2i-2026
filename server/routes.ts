@@ -12,7 +12,7 @@ import { evaluateDecision } from "./cyberDefenseEvaluator";
 import { handleCyberDefenseChat, generateCyberDefenseMission } from "./cyberDefenseController";
 import { extractJsonFromOpenAiResponse, createFallbackJson } from "./openAiResponseHelper";
 import { startInterviewSimulation, processInterviewMessage, completeInterviewSimulation, analyzeInterviewNotes } from "./interviewSimulationController";
-import { generateScenario, getMultipleScenarios } from "./amoaScenarioGenerator";
+import { getRandomScenarios, getScenarioById, getScenariosByDifficulty } from "./impostorService";
 
 /**
  * Génère un document HTML formaté pour la synthèse d'audition
@@ -2443,9 +2443,69 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
     }
   });
 
-  // Routes pour la génération dynamique de scénarios "Qui est l'imposteur?"
-  app.post('/api/amoa/generate-scenario', generateScenario);
-  app.get('/api/amoa/scenarios', getMultipleScenarios);
+  // Routes pour les scénarios préconçus de "Qui est l'imposteur"
+  app.get('/api/amoa/scenarios', (req, res) => {
+    try {
+      const count = parseInt(req.query.count as string) || 6;
+      const scenarios = getRandomScenarios(count);
+      
+      res.json({
+        scenarios,
+        fromCache: false,
+        lastUpdated: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("Erreur lors de la récupération des scénarios:", error);
+      res.status(500).json({
+        error: "Erreur lors de la récupération des scénarios",
+        details: error instanceof Error ? error.message : "Erreur inconnue"
+      });
+    }
+  });
+  
+  app.get('/api/amoa/scenarios/:difficulty', (req, res) => {
+    try {
+      const { difficulty } = req.params;
+      const count = parseInt(req.query.count as string) || 6;
+      
+      if (!['facile', 'moyen', 'difficile'].includes(difficulty)) {
+        return res.status(400).json({ error: "Niveau de difficulté invalide" });
+      }
+      
+      const scenarios = getScenariosByDifficulty(difficulty, count);
+      
+      res.json({
+        scenarios,
+        difficulty,
+        count: scenarios.length
+      });
+    } catch (error) {
+      console.error("Erreur lors de la récupération des scénarios par difficulté:", error);
+      res.status(500).json({
+        error: "Erreur lors de la récupération des scénarios",
+        details: error instanceof Error ? error.message : "Erreur inconnue"
+      });
+    }
+  });
+  
+  app.get('/api/amoa/scenario/:id', (req, res) => {
+    try {
+      const { id } = req.params;
+      const scenario = getScenarioById(id);
+      
+      if (!scenario) {
+        return res.status(404).json({ error: "Scénario non trouvé" });
+      }
+      
+      res.json({ scenario });
+    } catch (error) {
+      console.error("Erreur lors de la récupération du scénario:", error);
+      res.status(500).json({
+        error: "Erreur lors de la récupération du scénario",
+        details: error instanceof Error ? error.message : "Erreur inconnue"
+      });
+    }
+  });
 
   return createServer(app);
 }
