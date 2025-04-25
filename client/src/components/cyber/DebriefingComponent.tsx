@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { CheckCircle2, BookOpen, Save, AlertCircle } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { CheckCircle, XCircle, BookOpen, ArrowDown, Info } from 'lucide-react';
+import { Separator } from "@/components/ui/separator";
+import axios from 'axios';
 
 interface DebriefingProps {
   userActions: string[]; // Actions que l'utilisateur a prises
@@ -12,158 +12,179 @@ interface DebriefingProps {
   performanceScore: number; // Score de l'utilisateur
 }
 
-export default function DebriefingComponent({ userActions, correctApproach, scenario, performanceScore }: DebriefingProps) {
-  const [learningPoints, setLearningPoints] = useState<string[]>([]);
-  const [realWorldExample, setRealWorldExample] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<boolean>(false);
-  const { toast } = useToast();
-  
-  // Génère un débriefing personnalisé basé sur les actions de l'utilisateur
+export default function DebriefingComponent({ 
+  userActions, 
+  correctApproach, 
+  scenario, 
+  performanceScore 
+}: DebriefingProps) {
+  const [debriefing, setDebriefing] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
-    async function generateDebriefing() {
+    async function fetchDebriefing() {
       try {
-        setIsLoading(true);
-        const response = await fetch("/api/cyber/debriefing", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userActions, correctApproach, scenario, performanceScore }),
+        setLoading(true);
+        
+        // Appel à l'API pour générer le débriefing
+        const response = await axios.post('/api/cyber/debriefing', {
+          userActions,
+          correctApproach,
+          scenario,
+          performanceScore
         });
-        
-        if (!response.ok) {
-          throw new Error("Failed to fetch debriefing");
+
+        if (response.data.success) {
+          setDebriefing(response.data.debriefing);
+        } else {
+          throw new Error(response.data.error || "Échec de génération du débriefing");
         }
+      } catch (err) {
+        console.error("Erreur lors du chargement du débriefing:", err);
+        setError("Impossible de générer le débriefing pédagogique. Veuillez réessayer ultérieurement.");
         
-        const data = await response.json();
-        setLearningPoints(data.learningPoints || []);
-        setRealWorldExample(data.realWorldExample || "");
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error in debriefing:", error);
-        setError(true);
-        setIsLoading(false);
-        
-        // Fallback content in case of error
-        setLearningPoints([
-          "Analyser systématiquement les logs et journaux d'accès pour établir la chronologie des événements.",
-          "Vérifier la légitimité des autorisations exceptionnelles auprès des personnes concernées.",
-          "Recouper les preuves financières avec les activités suspectes pour identifier des motivations."
-        ]);
-        setRealWorldExample("Une entreprise française du secteur des technologies a connu une fuite de données sensibles en 2022. L'enquête a révélé qu'un employé avait accédé en dehors des heures de bureau à des serveurs avec une autorisation falsifiée. Les journaux d'audit et les enregistrements d'accès physiques ont permis d'identifier le coupable. Suite à cet incident, l'entreprise a mis en place une authentification multifacteur et une revue systématique des accès privilégiés.");
+        // Débriefing de secours en cas d'échec
+        setDebriefing(`
+          **Résumé de votre performance**
+          
+          Vous avez complété ce scénario de ${mapScenarioToFrench(scenario)} avec un score de ${performanceScore}/100.
+          
+          **Points clés à retenir**
+          
+          - Les fuites de données peuvent provenir de sources internes ou externes
+          - Une investigation méthodique est essentielle pour identifier le coupable
+          - La chronologie des événements et les preuves physiques sont cruciales
+          
+          **Pour approfondir**
+          
+          Consultez les ressources de l'ANSSI sur la gestion des incidents de sécurité.
+        `);
+      } finally {
+        setLoading(false);
       }
     }
-    
-    generateDebriefing();
+
+    fetchDebriefing();
   }, [userActions, correctApproach, scenario, performanceScore]);
-  
-  const saveToNotes = () => {
-    // Ici, on pourrait implémenter une fonction pour sauvegarder les notes
-    // Pour l'instant, on simule avec un toast
-    toast({
-      title: "Notes sauvegardées",
-      description: "Vos notes d'apprentissage ont été enregistrées avec succès.",
-      variant: "default",
+
+  // Fonction pour convertir les types de scénarios en français
+  const mapScenarioToFrench = (scenarioType: string): string => {
+    const scenarioMap: Record<string, string> = {
+      'data_breach': 'fuite de données',
+      'ransomware': 'rançongiciel',
+      'phishing': 'hameçonnage',
+      'insider_threat': 'menace interne',
+      'social_engineering': 'ingénierie sociale'
+    };
+    
+    return scenarioMap[scenarioType] || 'cybersécurité';
+  };
+
+  // Fonction pour rendre le texte Markdown en HTML simplifié
+  const renderMarkdown = (text: string): JSX.Element[] => {
+    if (!text) return [<p key="empty">Chargement du débriefing...</p>];
+    
+    // Séparation par lignes
+    const lines = text.split('\n');
+    
+    return lines.map((line, index) => {
+      // Titre en gras (regex pour **texte**)
+      if (line.match(/^\s*\*\*(.+)\*\*\s*$/)) {
+        const title = line.replace(/^\s*\*\*(.+)\*\*\s*$/, '$1');
+        return <h3 key={index} className="text-lg font-semibold text-indigo-200 mt-4 mb-2">{title}</h3>;
+      }
+      
+      // Puce (ligne commençant par - ou *)
+      if (line.match(/^\s*[\-\*]\s+(.+)$/)) {
+        const content = line.replace(/^\s*[\-\*]\s+(.+)$/, '$1');
+        return (
+          <div key={index} className="flex items-start mb-1">
+            <div className="text-indigo-400 mr-2">•</div>
+            <p className="text-gray-300">{content}</p>
+          </div>
+        );
+      }
+      
+      // Ligne vide
+      if (line.trim() === '') {
+        return <div key={index} className="h-2"></div>;
+      }
+      
+      // Texte normal
+      return <p key={index} className="text-gray-300 mb-2">{line}</p>;
     });
   };
-  
-  const getPerformanceLabel = (score: number): string => {
-    if (score >= 90) return "Excellent";
-    if (score >= 75) return "Très bien";
-    if (score >= 60) return "Bien";
-    if (score >= 45) return "Passable";
-    return "À améliorer";
-  };
-  
-  const getPerformanceColor = (score: number): string => {
-    if (score >= 90) return "text-green-500";
-    if (score >= 75) return "text-green-400";
-    if (score >= 60) return "text-yellow-400";
-    if (score >= 45) return "text-orange-400";
-    return "text-red-400";
-  };
-  
-  if (isLoading) {
-    return (
-      <Card className="bg-slate-900/60 border border-indigo-500/30 shadow-xl">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center">
-            <BookOpen className="mr-2 h-5 w-5 text-indigo-400" />
-            Analyse de votre approche
-          </CardTitle>
-          <CardDescription className="text-gray-400">
-            Génération de votre rapport personnalisé...
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-full bg-slate-800" />
-            <Skeleton className="h-4 w-5/6 bg-slate-800" />
-            <Skeleton className="h-4 w-4/6 bg-slate-800" />
-          </div>
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-full bg-slate-800" />
-            <Skeleton className="h-4 w-full bg-slate-800" />
-            <Skeleton className="h-4 w-3/4 bg-slate-800" />
-          </div>
-          <div className="space-y-2">
-            <Skeleton className="h-20 w-full bg-slate-800 rounded-md" />
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-  
+
   return (
-    <Card className="bg-slate-900/60 border border-indigo-500/30 shadow-xl">
-      <CardHeader>
-        <CardTitle className="text-white flex items-center">
-          {error ? (
-            <AlertCircle className="mr-2 h-5 w-5 text-yellow-500" />
-          ) : (
-            <BookOpen className="mr-2 h-5 w-5 text-indigo-400" />
-          )}
-          Analyse de votre approche
-        </CardTitle>
-        <CardDescription className="text-gray-400 flex justify-between items-center">
-          <span>Rapport personnalisé basé sur vos actions</span>
-          <span className={`font-semibold ${getPerformanceColor(performanceScore)}`}>
-            {getPerformanceLabel(performanceScore)} ({performanceScore}/100)
-          </span>
+    <Card className="bg-gray-900/70 border border-indigo-800/40 w-full">
+      <CardHeader className="pb-2">
+        <div className="flex items-center mb-1">
+          <Info className="h-5 w-5 text-indigo-400 mr-2" />
+          <CardTitle className="text-xl text-white">Débriefing pédagogique</CardTitle>
+        </div>
+        <CardDescription className="text-gray-400">
+          Analyse des actions et leçons à retenir
         </CardDescription>
       </CardHeader>
       
-      <CardContent className="space-y-6">
-        <div>
-          <h3 className="text-lg font-semibold text-indigo-300 mb-2 flex items-center">
-            <CheckCircle2 className="mr-2 h-4 w-4" /> Points d'apprentissage clés
-          </h3>
-          <ul className="space-y-2">
-            {learningPoints.map((point, index) => (
-              <li key={index} className="flex items-start text-gray-200">
-                <div className="text-indigo-400 mr-2 mt-0.5">•</div>
-                <span>{point}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-        
-        <div>
-          <h3 className="text-lg font-semibold text-indigo-300 mb-2">Cas similaire en entreprise</h3>
-          <div className="bg-gray-800/50 p-4 rounded-md text-gray-200 text-sm leading-relaxed">
-            {realWorldExample}
+      <CardContent>
+        {/* Score et performance */}
+        <div className="mb-6">
+          <div className="flex justify-between text-sm text-gray-400 mb-1">
+            <span>Performance</span>
+            <span>{performanceScore}%</span>
+          </div>
+          <Progress 
+            value={performanceScore} 
+            className="h-2" 
+            indicatorClassName={
+              performanceScore > 75 ? "bg-green-500" : 
+              performanceScore > 40 ? "bg-amber-500" : 
+              "bg-red-500"
+            }
+          />
+          <div className="flex justify-center mt-2">
+            {performanceScore > 75 ? (
+              <span className="text-green-400 text-sm flex items-center">
+                <CheckCircle className="h-4 w-4 mr-1" /> Excellent travail
+              </span>
+            ) : performanceScore > 40 ? (
+              <span className="text-amber-400 text-sm flex items-center">
+                <Info className="h-4 w-4 mr-1" /> Des points à améliorer
+              </span>
+            ) : (
+              <span className="text-red-400 text-sm flex items-center">
+                <XCircle className="h-4 w-4 mr-1" /> Nécessite révision
+              </span>
+            )}
           </div>
         </div>
+        
+        <Separator className="bg-indigo-800/30 my-4" />
+        
+        {/* Débriefing */}
+        <div className="px-1">
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-6">
+              <div className="h-8 w-8 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin mb-4"></div>
+              <p className="text-indigo-200">Génération du débriefing en cours...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-6">
+              <p className="text-red-400 mb-2">{error}</p>
+              <p className="text-gray-400 text-sm">Un débriefing simplifié est affiché ci-dessous.</p>
+              <div className="mt-4 text-left">
+                {renderMarkdown(debriefing)}
+              </div>
+            </div>
+          ) : (
+            <div>
+              {renderMarkdown(debriefing)}
+            </div>
+          )}
+        </div>
       </CardContent>
-      
-      <CardFooter>
-        <Button 
-          onClick={saveToNotes}
-          className="bg-indigo-700 hover:bg-indigo-800 text-white"
-        >
-          <Save className="mr-2 h-4 w-4" />
-          Sauvegarder dans mes notes d'apprentissage
-        </Button>
-      </CardFooter>
     </Card>
   );
 }

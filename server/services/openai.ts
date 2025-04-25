@@ -322,6 +322,54 @@ class OpenAIService {
     return content;
   }
 
+  // Méthode pour obtenir une complétion directement avec le modèle secondaire (GPT-4o-mini)
+  async getChatCompletionSecondary(options: {
+    messages: {role: string, content: string}[];
+    temperature?: number;
+    max_tokens?: number;
+  }) {
+    try {
+      const config = this.secondaryConfig;
+      
+      // Formatage correct de l'URL : suppression des doubles slashes
+      let baseEndpoint = config.endpoint;
+      if (baseEndpoint.endsWith('/')) {
+        baseEndpoint = baseEndpoint.slice(0, -1);
+      }
+      
+      const url = `${baseEndpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
+      
+      console.log(`Making secondary API request to: ${url} with ${config.modelName}`);
+      
+      // Formater la requête pour l'API
+      const requestBody = {
+        messages: options.messages,
+        temperature: options.temperature || 0.7,
+        max_tokens: options.max_tokens || 1024
+      };
+      
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'api-key': config.apiKey
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`Azure OpenAI API error (${response.status}): ${errorText}`);
+        throw new Error(`Azure OpenAI API error (${response.status}): ${errorText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error calling secondary Azure OpenAI API:", error);
+      throw error;
+    }
+  }
+
 
   // Cette méthode n'est plus utilisée - Nous utilisons toujours l'API réelle
   // Conservée uniquement comme référence, mais jamais appelée
