@@ -13,6 +13,7 @@ interface ModeOption {
   icon: React.ReactNode;
   gradient: string;
   destination: string;
+  comingSoon?: boolean;
   items?: Array<{
     id: string;
     title: string;
@@ -31,7 +32,7 @@ export default function AmoaModeSelection() {
     {
       id: 'scenarios-formation',
       title: 'SCÉNARIOS DE FORMATION',
-      description: "Développez vos compétences en AMOA grâce à des mises en situation immersives guidées par l'IA.",
+      description: "Développez vos compétences en AMOA grâce à des mises en situation guidées par l'IA.",
       icon: null,
       gradient: 'from-blue-700 to-blue-900',
       destination: '#',
@@ -54,7 +55,7 @@ export default function AmoaModeSelection() {
     {
       id: 'gamification',
       title: 'GAMIFICATION AVANCÉE',
-      description: "Testez vos connaissances en AMOA avec des jeux interactifs et ludiques adaptés à tous les niveaux.",
+      description: "Testez vos connaissances en AMOA avec des jeux interactifs adaptés à tous les niveaux.",
       icon: null,
       gradient: 'from-purple-700 to-purple-900',
       destination: '#',
@@ -84,7 +85,7 @@ export default function AmoaModeSelection() {
     {
       id: 'recrutement',
       title: 'MISE EN SITUATION D\'AUDITION',
-      description: "Préparez vos consultants à des auditions auprès de clients et partenaires commerciaux avec évaluation détaillée de la prestation.",
+      description: "Préparez vos consultants aux auditions clients avec évaluation détaillée de leur prestation.",
       icon: null,
       gradient: 'from-green-700 to-green-900',
       destination: '#',
@@ -98,20 +99,14 @@ export default function AmoaModeSelection() {
       ]
     },
     {
-      id: 'programme-ascension',
-      title: 'PROGRAMME ASCENSION',
-      description: "Suivez un parcours personnalisé d'accompagnement pour atteindre l'excellence en AMOA, préparer des certifications professionnelles et développer vos compétences de manière progressive.",
+      id: 'parcours-certifiant',
+      title: 'PARCOURS CERTIFIANT',
+      description: "Formations pour préparer des certifications professionnelles en assistance à maîtrise d'ouvrage.",
       icon: null,
       gradient: 'from-amber-700 to-amber-900',
       destination: '#',
+      comingSoon: true,
       items: [
-        {
-          id: 'amoa-ascension',
-          title: 'AMOA ASCENSION',
-          icon: null,
-          destination: '#',
-          comingSoon: true
-        },
         {
           id: 'parcours-certifiant',
           title: 'PARCOURS CERTIFIANT',
@@ -329,12 +324,6 @@ export default function AmoaModeSelection() {
                     
                     <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-2 text-center">
                       {category.title}
-                      {category.id === 'programme-ascension' && (
-                        <span className="ml-2 text-xs bg-blue-900/60 text-white px-2 py-1 rounded-full inline-flex items-center">
-                          <span className="animate-pulse mr-1">•</span>
-                          Bientôt
-                        </span>
-                      )}
                     </h2>
                     <p className="text-blue-100 mb-3 text-xs lg:text-sm text-center">{category.description}</p>
                     
@@ -347,21 +336,21 @@ export default function AmoaModeSelection() {
                               <div className="flex-grow">
                                 <h3 className="text-white font-medium">{item.title}</h3>
                               </div>
-                              {item.comingSoon ? (
-                                <div className="text-xs bg-blue-900/60 text-white px-2 py-1 rounded flex items-center">
-                                  <span className="animate-pulse mr-1">•</span>
-                                  Bientôt
-                                </div>
-                              ) : (
-                                <div className="text-white bg-blue-500/30 p-1 rounded-full">
-                                  <ArrowRight className="h-4 w-4" />
-                                </div>
-                              )}
+                              <div className="text-white bg-blue-500/30 p-1 rounded-full">
+                                <ArrowRight className="h-4 w-4" />
+                              </div>
                             </div>
                           </Link>
                         ))}
                       </div>
                     </div>
+                    
+                    {/* Message "Bientôt disponible" pour les modules qui ne sont pas encore disponibles */}
+                    {category.comingSoon && (
+                      <div className="mt-3 text-center">
+                        <p className="text-gray-300 text-xs px-3 py-1.5 rounded">Bientôt disponible</p>
+                      </div>
+                    )}
                     
                     {/* Boutons d'expansion supprimés car ils ne servaient à rien */}
                   </div>
