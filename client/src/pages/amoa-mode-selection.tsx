@@ -1,24 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
-import { 
-  FileText, 
-  Brain, 
-  Users, 
-  ArrowRight, 
-  Command, 
-  Presentation, 
-  BrainCircuit, 
-  Rocket, 
-  ChevronDown, 
-  ChevronUp, 
-  Medal,
-  BookText,
-  Clock,
-  BarChart2,
-  SearchCheck,
-  UserSearch
-} from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
@@ -49,20 +32,20 @@ export default function AmoaModeSelection() {
       id: 'scenarios-formation',
       title: 'SCÉNARIOS DE FORMATION',
       description: "Développez vos compétences en AMOA grâce à des mises en situation immersives guidées par l'IA.",
-      icon: <BrainCircuit className="w-12 h-12 text-blue-100" />,
+      icon: null,
       gradient: 'from-blue-700 to-blue-900',
       destination: '#',
       items: [
         {
           id: 'amoa-quest',
           title: 'AMOA QUEST',
-          icon: <Brain className="w-8 h-8" />,
+          icon: null,
           destination: '/amoa/quest'
         },
         {
           id: 'toolkit-amoa',
           title: 'TOOLKIT AMOA',
-          icon: <FileText className="w-8 h-8" />,
+          icon: null,
           destination: '#',
           comingSoon: true
         }
@@ -72,27 +55,27 @@ export default function AmoaModeSelection() {
       id: 'gamification',
       title: 'GAMIFICATION AVANCÉE',
       description: "Testez vos connaissances en AMOA avec des jeux interactifs et ludiques adaptés à tous les niveaux.",
-      icon: <Command className="w-12 h-12 text-purple-100" />,
+      icon: null,
       gradient: 'from-purple-700 to-purple-900',
       destination: '#',
       items: [
         {
           id: 'projet-imposteur',
           title: 'QUI EST L\'IMPOSTEUR ?',
-          icon: <SearchCheck className="w-8 h-8" />,
+          icon: null,
           destination: '/amoa/projet-imposteur'
         },
         {
           id: 'simulateur-projet',
           title: 'SIMULATEUR DE PROJET',
-          icon: <Clock className="w-8 h-8" />,
+          icon: null,
           destination: '#',
           comingSoon: true
         },
         {
           id: 'business-optimizer',
           title: 'BUSINESS VALUE OPTIMIZER',
-          icon: <BarChart2 className="w-8 h-8" />,
+          icon: null,
           destination: '#',
           comingSoon: true
         }
@@ -102,14 +85,14 @@ export default function AmoaModeSelection() {
       id: 'recrutement',
       title: 'MISE EN SITUATION D\'AUDITION',
       description: "Préparez vos consultants à des auditions auprès de clients et partenaires commerciaux avec évaluation détaillée de la prestation.",
-      icon: <Users className="w-12 h-12 text-green-100" />,
+      icon: null,
       gradient: 'from-green-700 to-green-900',
       destination: '#',
       items: [
         {
           id: 'interview-simulation',
           title: 'PRÉPARATION D\'AUDITION CLIENT',
-          icon: <Users className="w-8 h-8" />,
+          icon: null,
           destination: '/amoa/interview-simulation'
         }
       ]
@@ -118,21 +101,21 @@ export default function AmoaModeSelection() {
       id: 'programme-ascension',
       title: 'PROGRAMME ASCENSION',
       description: "Suivez un parcours personnalisé d'accompagnement pour atteindre l'excellence en AMOA, préparer des certifications professionnelles et développer vos compétences de manière progressive.",
-      icon: <Rocket className="w-12 h-12 text-amber-100" />,
+      icon: null,
       gradient: 'from-amber-700 to-amber-900',
       destination: '#',
       items: [
         {
           id: 'amoa-ascension',
           title: 'AMOA ASCENSION',
-          icon: <Rocket className="w-8 h-8" />,
+          icon: null,
           destination: '#',
           comingSoon: true
         },
         {
           id: 'parcours-certifiant',
           title: 'PARCOURS CERTIFIANT',
-          icon: <Medal className="w-8 h-8" />,
+          icon: null,
           destination: '#',
           comingSoon: true
         }
@@ -364,9 +347,6 @@ export default function AmoaModeSelection() {
                         {category.items && category.items.map((item) => (
                           <Link key={item.id} href={item.comingSoon ? '#' : item.destination} onClick={(e) => item.comingSoon && e.preventDefault()}>
                             <div className="flex items-center p-3 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors cursor-pointer border border-white/20 shadow-sm hover:shadow-md hover:border-white/40">
-                              <div className="mr-3 text-white">
-                                {item.icon}
-                              </div>
                               <div className="flex-grow">
                                 <h3 className="text-white font-medium">{item.title}</h3>
                               </div>
