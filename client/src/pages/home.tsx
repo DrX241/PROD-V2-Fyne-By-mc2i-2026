@@ -227,7 +227,7 @@ const FeatureCard = ({
       {/* Icône avec style adaptatif */}
       <div className={`p-3.5 ${isFuturistic 
         ? 'bg-gradient-to-br from-blue-900/80 to-purple-900/80 text-cyan-300 border border-purple-500/40 shadow-md' 
-        : 'bg-blue-100 text-blue-600 border border-blue-200'} 
+        : 'bg-blue-100 text-blue-600 border border-gray-200'} 
         rounded-xl w-fit mb-4 relative overflow-hidden group`}>
         {isFuturistic && (
           <>
@@ -706,7 +706,7 @@ export default function Home() {
                     </div>
                   ) : (
                     // Wrapper avec style classique - design avec taille égale
-                    <div className="relative bg-white rounded-lg shadow-md overflow-hidden group-hover:shadow-xl transition-all duration-300 border-2 border-gray-100 flex flex-col h-72">
+                    <div className="relative bg-white rounded-xl shadow-md overflow-hidden group-hover:shadow-xl transition-all duration-300 border border-gray-200 flex flex-col h-72">
                       {/* Header avec la couleur du module */}
                       <div className={`h-3 w-full ${module.color.replace('bg-', 'bg-')}`}></div>
                       
@@ -714,7 +714,7 @@ export default function Home() {
                       <div className="p-6 flex flex-col h-full">
                         {/* Icône en haut */}
                         <div className="flex items-center mb-4">
-                          <div className={`w-14 h-14 ${module.bgColor} rounded-lg flex items-center justify-center shadow mr-4 flex-shrink-0`}>
+                          <div className={`w-14 h-14 ${module.bgColor} rounded-xl flex items-center justify-center shadow mr-4 flex-shrink-0`}>
                             <div className={`${module.color} p-2 rounded-md`}>
                               {module.icon}
                             </div>
@@ -728,7 +728,7 @@ export default function Home() {
                         
                         {/* Contenu textuel */}
                         <div className="flex-grow">
-                          <p className="text-gray-600 text-sm mb-6">
+                          <p className="text-gray-600 text-sm mb-6 line-clamp-3">
                             {module.description}
                           </p>
                         </div>
@@ -736,7 +736,7 @@ export default function Home() {
                         {/* Bouton en bas */}
                         <div className="mt-auto">
                           <Link href={module.linkTo}>
-                            <button className={`${module.color} text-white px-4 py-2 rounded-md text-sm font-medium flex items-center transition-all hover:shadow-md`}>
+                            <button className={`${module.color} text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center transition-all hover:shadow-md`}>
                               Explorer
                               <ArrowRight className="h-4 w-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300"/>
                             </button>
@@ -854,8 +854,8 @@ export default function Home() {
             viewport={{ once: true }}
             className={`${isFuturistic 
               ? 'bg-blue-950/40 backdrop-blur-sm border border-blue-500/20' 
-              : 'bg-white border border-blue-200'} 
-              px-8 py-12 rounded-2xl shadow-xl`}
+              : 'bg-white border border-gray-200'} 
+              px-8 py-12 rounded-xl shadow-xl`}
           >
             <h2 className={`text-3xl sm:text-4xl font-bold ${isFuturistic ? 'text-white' : 'text-blue-800'} mb-6 font-cyber-title tracking-wide`}>
               Prêt à <span className={`${isFuturistic ? 'text-cyan-400' : 'text-blue-500'}`}>transformer</span> votre parcours ?
@@ -869,7 +869,7 @@ export default function Home() {
               <Button className={`${isFuturistic 
                 ? 'bg-gradient-to-r from-cyan-500/80 to-blue-600/80 hover:from-cyan-400/80 hover:to-blue-500/80 border border-cyan-400/30' 
                 : 'bg-blue-600 hover:bg-blue-700 border-none'} 
-                text-white font-cyber-accent px-8 py-6 text-lg group relative overflow-hidden`}>
+                text-white font-cyber-accent px-8 py-6 text-lg group relative overflow-hidden rounded-xl`}>
                 {isFuturistic && (
                   <span className="absolute inset-0 w-0 bg-gradient-to-r from-cyan-300/20 to-transparent group-hover:w-full transition-all duration-700 ease-out"></span>
                 )}
@@ -972,11 +972,11 @@ export default function Home() {
                   placeholder="Votre email"
                   className={`${isFuturistic 
                     ? 'bg-gray-900 border-blue-900/80 text-blue-100 focus:ring-cyan-500' 
-                    : 'bg-white border-gray-300 text-gray-800 focus:ring-blue-500'} 
-                    border px-3 py-2 rounded-l-md w-full focus:outline-none focus:ring-1`}
+                    : 'bg-white border-gray-200 text-gray-800 focus:ring-blue-500'} 
+                    border px-3 py-2 rounded-l-xl w-full focus:outline-none focus:ring-1`}
                 />
                 <button className={`${isFuturistic ? 'bg-cyan-600 hover:bg-cyan-700' : 'bg-blue-600 hover:bg-blue-700'} 
-                  px-4 py-2 rounded-r-md transition-colors text-white`}>
+                  px-4 py-2 rounded-r-xl transition-colors text-white`}>
                   <ArrowRight className="h-5 w-5" />
                 </button>
               </div>
