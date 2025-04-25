@@ -30,7 +30,10 @@ export async function generateScenario(req: Request, res: Response) {
       - Thématique: UNIQUEMENT des problématiques AMOA réelles (cahier des charges, expression de besoins, recette utilisateur, etc.)
       - Cadre: exclusivement en France ou en Union Européenne, après 2023
       - Contexte: exclusivement professionnel et réaliste avec des technologies/outils actuels
-      - Structure: exactement 5 membres d'équipe avec rôles distincts (dont un AMOA obligatoirement)
+      - Structure: exactement 5 membres d'équipe aux fonctions variées (dont un AMOA obligatoirement)
+      - Créativité: utiliser des noms et prénoms français variés, jamais les mêmes, pas de Marc Durand, Sophie Martin, etc.
+      - Fonctions AMOA: varier les titres (AMOA, consultant fonctionnel, analyste métier, chef de projet MOA, PO, etc.)
+      - Scénarios: chaque scénario doit être complètement unique, avec une problématique différente
       - Culpabilité: un seul membre doit être clairement coupable (attribut isGuilty=true)
       - Preuves sophistiquées: 7-8 éléments contenant:
          * Des indices évidents
@@ -46,7 +49,7 @@ export async function generateScenario(req: Request, res: Response) {
       - Moyen: mélange d'indices explicites et implicites, quelques contradictions subtiles
       - Difficile: indices très subtils, contradictions cachées, beaucoup d'interprétation nécessaire
       
-      TYPES DE SCÉNARIOS AMOA (exemples, ne pas se limiter à cette liste):
+      TYPES DE SCÉNARIOS AMOA (ne jamais répéter le même type de scénario):
       - Problèmes de cahier des charges incomplet ou mal défini
       - Expression de besoins détournée ou mal comprise
       - Échecs de recette utilisateur
@@ -54,6 +57,14 @@ export async function generateScenario(req: Request, res: Response) {
       - Problèmes de communication entre MOA et MOE
       - Décisions stratégiques d'AMOA erronées
       - Mauvaise gestion des incidents ou des risques
+      - Non-respect des exigences réglementaires
+      - Mauvaise anticipation des contraintes techniques
+      - Sous-estimation des impacts métiers
+      - Erreurs dans la priorisation des besoins
+      - Mauvaise définition des critères d'acceptation
+      - Manque d'implication des utilisateurs finaux
+      - Problèmes de conduite du changement
+      - Conflit d'intérêts dans la gouvernance du projet
       
       RÉPONSE FORMAT:
       - JSON standard et valide sans commentaires
@@ -138,16 +149,55 @@ export async function generateScenario(req: Request, res: Response) {
       { role: "user", content: userPrompt }
     ];
     
-    // Ajoutez de la randomisation via la température et ajouter un timestamp pour éviter le cache
-    const randomTemp = 0.7 + (Math.random() * 0.2); // Température entre 0.7 et 0.9
+    // Ajout d'une forte randomisation pour garantir des scénarios très différents
+    const randomTemp = 0.7 + (Math.random() * 0.25); // Température entre 0.7 et 0.95 pour plus de créativité
     const timestamp = new Date().toISOString();
+    
+    // Tableau de contextes AMOA différents pour diversifier les scénarios
+    const contextesProjets = [
+      "transformation digitale d'une entreprise industrielle",
+      "refonte d'un système d'information RH",
+      "mise en place d'un ERP dans le secteur public",
+      "implémentation d'un CRM pour une banque",
+      "migration vers le cloud d'applications critiques",
+      "déploiement d'un système de gestion documentaire",
+      "développement d'une application métier sur-mesure",
+      "intégration de systèmes suite à une fusion d'entreprises",
+      "mise en conformité RGPD d'un système existant",
+      "modernisation d'une architecture legacy"
+    ];
+    
+    // Tableau de secteurs d'activité variés
+    const secteurs = [
+      "secteur bancaire",
+      "secteur public",
+      "secteur de l'énergie",
+      "secteur des télécommunications",
+      "secteur de l'assurance",
+      "industrie manufacturière",
+      "secteur de la santé",
+      "grande distribution",
+      "transport et logistique",
+      "secteur agroalimentaire"
+    ];
+    
+    // Création d'une combinaison aléatoire pour garantir l'unicité
+    const randomContexte = contextesProjets[Math.floor(Math.random() * contextesProjets.length)];
+    const randomSecteur = secteurs[Math.floor(Math.random() * secteurs.length)];
+    const randomId = Math.floor(Math.random() * 1000);
     
     messages.push({ 
       role: "user", 
-      content: `Génère un scénario totalement unique et différent des précédents. Timestamp: ${timestamp}` 
+      content: `Génère un scénario totalement unique pour un projet de ${randomContexte} dans le ${randomSecteur}. 
+      Utilise des noms, fonctions et situations qui n'ont jamais été utilisés avant. 
+      Assure-toi que les preuves contiennent des indices à la fois évidents et subtils.
+      Ne réutilise pas de motifs narratifs similaires à des scénarios précédents.
+      Timestamp: ${timestamp}
+      ID unique: projet-${randomId}` 
     });
     
-    const generatedContent = await openAIService.getChatCompletionWithCache(
+    // Utiliser directement getChatCompletion sans cache pour garantir un nouveau scénario à chaque fois
+    const generatedContent = await openAIService.getChatCompletion(
       messages,
       randomTemp,
       1800 // Plus de tokens pour des scenarios plus détaillés
@@ -171,6 +221,11 @@ export async function generateScenario(req: Request, res: Response) {
       scenarioData.team.forEach((member: any, index: number) => {
         member.avatar = `avatar${index + 1}.svg`;
       });
+      
+      // S'assurer que l'ID est correctement défini et unique
+      if (!scenarioData.id || scenarioData.id === "Un identifiant unique au format projet-XXX") {
+        scenarioData.id = `projet-${randomId}`;
+      }
       
       res.json(scenarioData);
     } catch (parseError: unknown) {
