@@ -182,8 +182,15 @@ const EvidenceViewer = ({ evidence }: { evidence: Evidence | null }) => {
           </div>
         )}
         
-        <div className="mt-6 text-gray-200 whitespace-pre-line bg-gray-800 p-3 rounded-md border border-gray-700">
-          {evidence.content}
+        <div className="mt-6 text-gray-200 whitespace-pre-line bg-gray-800 p-4 rounded-md border border-gray-700">
+          <div className="evidence-content" style={{ 
+            whiteSpace: 'pre-wrap',
+            lineHeight: '1.6', 
+            letterSpacing: '0.01em',
+            fontSize: '0.95rem'
+          }}>
+            {evidence.content}
+          </div>
         </div>
       </div>
     </Card>
@@ -619,7 +626,7 @@ export default function ProjetImposteur() {
   };
 
   // Fonction pour générer un nouveau scénario avec timeout et retry
-  const generateNewScenario = async (retryCount = 0) => {
+  const generateNewScenario = async (retryCount = 0, forceDifficult = false) => {
     try {
       setIsGeneratingScenario(true);
       
@@ -628,8 +635,11 @@ export default function ProjetImposteur() {
         setTimeout(() => reject(new Error("Timeout dépassé")), 15000);
       });
       
+      // Si forceDifficult est true, on force un scénario difficile
+      const difficultyToUse = forceDifficult ? 'difficile' : selectedDifficulty;
+      
       const fetchPromise = axios.post('/api/amoa/generate-scenario', {
-        difficultyLevel: selectedDifficulty
+        difficultyLevel: difficultyToUse
       });
       
       // Race entre le timeout et la requête
@@ -637,9 +647,15 @@ export default function ProjetImposteur() {
       
       if (response && response.data) {
         setScenario(response.data);
+        
+        // Si le scénario a été forcé en difficile, mettre à jour la difficulté sélectionnée
+        if (forceDifficult) {
+          setSelectedDifficulty('difficile');
+        }
+        
         toast({
           title: "Nouveau scénario généré",
-          description: `Un nouveau scénario de difficulté ${selectedDifficulty} a été généré avec succès !`,
+          description: `Un nouveau scénario de difficulté ${forceDifficult ? 'difficile' : selectedDifficulty} a été généré avec succès !`,
           variant: "default"
         });
       }
@@ -654,8 +670,8 @@ export default function ProjetImposteur() {
           variant: "default"
         });
         
-        // Attendre une seconde avant de réessayer
-        setTimeout(() => generateNewScenario(retryCount + 1), 1000);
+        // Attendre une seconde avant de réessayer en gardant le même forceDifficult
+        setTimeout(() => generateNewScenario(retryCount + 1, forceDifficult), 1000);
         return;
       }
       
