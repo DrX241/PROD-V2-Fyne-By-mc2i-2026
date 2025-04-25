@@ -526,16 +526,24 @@ export default function ProjetImposteur() {
     setShowFailureDialog(true);
   };
 
-  // Fonction pour générer un nouveau scénario
-  const generateNewScenario = async () => {
+  // Fonction pour générer un nouveau scénario avec timeout et retry
+  const generateNewScenario = async (retryCount = 0) => {
     try {
       setIsGeneratingScenario(true);
       
-      const response = await axios.post('/api/amoa/generate-scenario', {
+      // Ajouter un timeout pour éviter d'attendre trop longtemps
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error("Timeout dépassé")), 15000);
+      });
+      
+      const fetchPromise = axios.post('/api/amoa/generate-scenario', {
         difficultyLevel: selectedDifficulty
       });
       
-      if (response.data) {
+      // Race entre le timeout et la requête
+      const response = await Promise.race([fetchPromise, timeoutPromise]) as any;
+      
+      if (response && response.data) {
         setScenario(response.data);
         toast({
           title: "Nouveau scénario généré",
@@ -545,13 +553,28 @@ export default function ProjetImposteur() {
       }
     } catch (error) {
       console.error("Erreur lors de la génération du scénario:", error);
+      
+      // Retry une fois en cas d'erreur
+      if (retryCount < 1) {
+        toast({
+          title: "Nouvelle tentative",
+          description: "La première tentative a échoué, essai avec des paramètres simplifiés...",
+          variant: "default"
+        });
+        
+        // Attendre une seconde avant de réessayer
+        setTimeout(() => generateNewScenario(retryCount + 1), 1000);
+        return;
+      }
+      
       toast({
         title: "Erreur",
         description: "Impossible de générer un nouveau scénario. Veuillez réessayer.",
         variant: "destructive"
       });
-    } finally {
       setIsGeneratingScenario(false);
+    } finally {
+      if (retryCount > 0) setIsGeneratingScenario(false);
     }
   };
   
