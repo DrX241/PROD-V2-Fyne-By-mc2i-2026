@@ -642,7 +642,7 @@ export default function ProjetImposteur() {
       
       // Ajouter un timeout pour éviter d'attendre trop longtemps
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("Timeout dépassé")), 15000);
+        setTimeout(() => reject(new Error("Timeout dépassé")), 30000); // Augmenté à 30s
       });
       
       // Utiliser une répartition équilibrée de difficulté
@@ -660,13 +660,32 @@ export default function ProjetImposteur() {
       const response = await Promise.race([fetchPromise, timeoutPromise]) as any;
       
       if (response && response.data) {
+        // Mettre à jour le scénario actuel
         setScenario(response.data);
+        
+        // Ajouter le nouveau scénario à la liste des scénarios disponibles
+        setAvailableScenarios(prevScenarios => {
+          // Éviter les duplications en vérifiant si le scénario existe déjà
+          const scenarioExists = prevScenarios.some(s => s.id === response.data.id);
+          if (scenarioExists) {
+            return prevScenarios;
+          }
+          // Ajouter le nouveau scénario au début du tableau
+          return [response.data, ...prevScenarios];
+        });
+        
+        // Mettre à jour le scénario courant
+        setSelectedScenarioId(response.data.id);
+        setScenarioLoaded(true);
         
         toast({
           title: "Nouveau scénario généré",
           description: `Un nouveau scénario de difficulté ${response.data.difficulty} a été généré avec succès !`,
           variant: "default"
         });
+        
+        // Assurer que nous désactivons l'état de génération
+        setIsGeneratingScenario(false);
       }
     } catch (error) {
       console.error("Erreur lors de la génération du scénario:", (error as any)?.response?.data || error);
@@ -691,7 +710,10 @@ export default function ProjetImposteur() {
       });
       setIsGeneratingScenario(false);
     } finally {
-      if (retryCount > 0) setIsGeneratingScenario(false);
+      // Toujours désactiver l'état de génération à la fin, sauf en cas de retry
+      if (retryCount > 0 || !isGeneratingScenario) {
+        setIsGeneratingScenario(false);
+      }
     }
   };
   
