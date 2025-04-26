@@ -158,6 +158,7 @@ export default function CyberAiAgentPage() {
   const [activeStepIndex, setActiveStepIndex] = useState<number>(0);
   const [discoveredDocuments, setDiscoveredDocuments] = useState<Document[]>([]);
   const [notifications, setNotifications] = useState<{id: string, message: string, urgent: boolean}[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
 
   // Configurer le formulaire
   const form = useForm<FormValues>({
@@ -194,6 +195,16 @@ export default function CyberAiAgentPage() {
           setCurrentNPC("Alex Dupont");
         } else if (values.virtualEnvironment === "crisis-room") {
           setCurrentNPC("Malik Johnson");
+          // Ajouter un message de bienvenue spécifique à la Salle de Crise
+          setTimeout(() => {
+            setMessages([
+              {
+                type: 'assistant',
+                content: "Bienvenue dans la Salle de Crise. Nous sommes confrontés à un incident de cybersécurité critique sur notre système SCADA. Les indicateurs montrent une possible intrusion sur notre réseau industriel avec des tentatives de manipulation des valeurs de contrôle. Nous devons agir rapidement pour évaluer la situation et limiter l'impact potentiel.",
+                timestamp: new Date().toLocaleTimeString()
+              }
+            ]);
+          }, 1000);
         }
 
         // Créer des étapes de mission fictives (à remplacer par des données réelles)
@@ -358,14 +369,83 @@ export default function CyberAiAgentPage() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Gestion des messages avec mise à jour des compétences
+  // Réponses prédéfinies pour la salle de crise
+  const crisisRoomResponses = [
+    "Nous devons évaluer rapidement la situation. D'après nos premières analyses, il s'agit d'une attaque sophistiquée ciblant notre système SCADA. Les systèmes de contrôle industriel montrent des comportements anormaux depuis 45 minutes.",
+    "Excellente observation. Les journaux système indiquent une activité inhabituelle sur notre réseau OT. Nous avons détecté des tentatives de manipulation des valeurs de pression dans les conduites principales.",
+    "C'est une approche judicieuse. Nous devons établir un périmètre de sécurité et isoler les systèmes critiques. Les procédures d'urgence de la norme ISO 27001 recommandent d'activer notre plan de continuité d'activité.",
+    "Je suis d'accord avec votre analyse. Les indicateurs de compromission suggèrent un acteur étatique. La signature correspond à des attaques précédemment documentées contre des infrastructures critiques.",
+    "Votre stratégie est cohérente avec notre plan de gestion de crise. Nous devrions également notifier les autorités compétentes conformément à la directive NIS2 sur la cybersécurité des infrastructures critiques.",
+    "Les données forensiques que nous avons collectées révèlent une compromission initiale via un email de phishing ciblé envoyé à un membre de l'équipe technique il y a environ trois semaines.",
+    "Je vous recommande d'activer immédiatement notre cellule de crise et de mettre en place une communication coordonnée avec les parties prenantes. Nous devons éviter toute panique tout en assurant la transparence nécessaire."
+  ];
+
+  // Fonction pour générer une réponse automatique basée sur le contexte
+  const generateAIResponse = (userMessage: string) => {
+    // Simulation d'une réponse IA contextualisée
+    const randomIndex = Math.floor(Math.random() * crisisRoomResponses.length);
+    return {
+      type: 'assistant',
+      content: crisisRoomResponses[randomIndex],
+      timestamp: new Date().toLocaleTimeString()
+    };
+  };
+
+  // Gestion des messages avec simulation de réponse IA
   const handleMessagesUpdate = (newMessages: any[]) => {
     setMessages(newMessages);
     
     if (newMessages.length > messages.length) {
       const lastMessage = newMessages[newMessages.length - 1];
       if (lastMessage.type === 'user') {
+        // Mettre à jour les compétences
         updateSkills(lastMessage.content);
+        
+        // Simuler la réponse de l'IA
+        setIsTyping(true);
+        
+        // Temps de délai dynamique basé sur la longueur du message (entre 1.5 et 4 secondes)
+        const typingDelay = Math.min(1500 + lastMessage.content.length * 20, 4000);
+        
+        setTimeout(() => {
+          setIsTyping(false);
+          
+          // Ajouter la réponse de l'IA après le délai de frappe
+          const aiResponse = generateAIResponse(lastMessage.content);
+          setMessages(prev => [...prev, aiResponse]);
+          
+          // Mettre à jour les compétences aléatoirement pour simuler une analyse de l'IA
+          const randomSkillIncrement = {
+            technical: Math.floor(Math.random() * 5) + 2,
+            analytical: Math.floor(Math.random() * 5) + 2,
+            strategic: Math.floor(Math.random() * 5) + 2,
+            communication: Math.floor(Math.random() * 5) + 2
+          };
+          
+          setSkillAssessment(prev => ({
+            technical: Math.min(prev.technical + randomSkillIncrement.technical, 100),
+            analytical: Math.min(prev.analytical + randomSkillIncrement.analytical, 100),
+            strategic: Math.min(prev.strategic + randomSkillIncrement.strategic, 100),
+            communication: Math.min(prev.communication + randomSkillIncrement.communication, 100)
+          }));
+          
+          // Mise à jour aléatoire des objectifs si compétences suffisantes
+          if (Math.random() > 0.7) { // 30% de chance de compléter une étape
+            setMissionSteps(prev => {
+              const updatedSteps = [...prev];
+              if (activeStepIndex < updatedSteps.length && !updatedSteps[activeStepIndex].completed) {
+                updatedSteps[activeStepIndex].completed = true;
+                
+                // Débloquer l'étape suivante si elle existe
+                if (activeStepIndex + 1 < updatedSteps.length) {
+                  updatedSteps[activeStepIndex + 1].unlocked = true;
+                  setActiveStepIndex(activeStepIndex + 1);
+                }
+              }
+              return updatedSteps;
+            });
+          }
+        }, typingDelay);
       }
     }
   };
@@ -714,6 +794,26 @@ export default function CyberAiAgentPage() {
                         )}
                       </div>
                     ))}
+                    
+                    {/* Message de saisie de l'IA - effet d'écriture en temps réel */}
+                    {isTyping && (
+                      <div className="flex items-start gap-3">
+                        <Avatar className="h-9 w-9 border border-violet-600/30">
+                          <AvatarFallback className="bg-violet-900 text-violet-200">MJ</AvatarFallback>
+                        </Avatar>
+                        <div className="bg-gray-800/50 rounded-lg p-3 max-w-[85%] shadow-md border border-violet-900/20">
+                          <div className="flex justify-between items-center">
+                            <span className="font-semibold text-violet-300">{currentNPC}</span>
+                            <span className="text-xs text-gray-500">Maintenant</span>
+                          </div>
+                          <div className="flex space-x-1 mt-2">
+                            <div className="h-2 w-2 rounded-full bg-violet-500 animate-pulse"></div>
+                            <div className="h-2 w-2 rounded-full bg-violet-500 animate-pulse delay-75"></div>
+                            <div className="h-2 w-2 rounded-full bg-violet-500 animate-pulse delay-150"></div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   
                   {/* Input area */}
