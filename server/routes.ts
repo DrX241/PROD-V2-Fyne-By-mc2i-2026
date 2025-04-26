@@ -486,10 +486,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const dateStr = today.toLocaleDateString('fr-FR', options);
       
       if (newsItem) {
-        // Création d'un message d'accueil avec l'actualité récupérée
+        // Création d'un message d'accueil avec l'actualité récupérée et formatée
+        const newsTitle = newsItem.formattedTitle || newsItem.title;
+        const newsDesc = newsItem.formattedDescription || newsItem.description.substring(0, 100) + '...';
+        
         const welcomeMessage = `Bonjour, je suis I AM CYBER, votre allié dans le domaine de la cybersécurité.
 
-Saviez-vous que... ${newsItem.title} ? ${newsItem.description.substring(0, 100)}${newsItem.description.length > 100 ? '...' : ''}
+Saviez-vous que... ${newsTitle} ? ${newsDesc}
 
 Quel est votre prénom ?`;
         
