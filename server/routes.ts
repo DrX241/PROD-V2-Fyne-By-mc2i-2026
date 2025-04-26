@@ -559,11 +559,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Reformater le conseil pour qu'il soit présenté correctement
       let formattedTip = randomTip;
       
-      // Si le conseil commence déjà par "**Saviez-vous que**" ou "**Conseil cyber**", on le reformate
+      // Retirer tous les préfixes formatés, pas seulement ceux entre **
+      // D'abord, retirer les préfixes entre **
       if (formattedTip.startsWith("**Saviez-vous que**") || formattedTip.startsWith("**Conseil cyber**")) {
-        // Retirer le préfixe formaté
         formattedTip = formattedTip.replace(/^\*\*(Saviez-vous que|Conseil cyber)(\*\*|:)\s*/i, "");
       }
+      
+      // Ensuite, retirer les préfixes "Conseil cyber : " ou "Saviez-vous que : " sans formatage
+      formattedTip = formattedTip.replace(/^(Conseil cyber|Saviez-vous que)(\s*:|:)?\s+/i, "");
       
       const welcomeMessage = `Bonjour, je suis I AM CYBER, votre partenaire d'apprentissage cybersécurité pour cette session.
 
