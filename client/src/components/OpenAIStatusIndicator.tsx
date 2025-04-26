@@ -33,8 +33,11 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
       const response = await fetch('/api/openai/status');
       if (response.ok) {
         const data = await response.json();
+        console.log('Réponse API brute:', data);
+        
         // Si l'API renvoie un statut de succès, considérer que la connexion est établie
-        setStatus(data.status === 'success' ? 'connected' : 'disconnected');
+        const connectionStatus = data.status === 'success' ? 'connected' : 'disconnected';
+        setStatus(connectionStatus);
         
         // Définir le modèle courant (utiliser model au lieu de currentModel)
         const model = data.model || 'Inconnu';
@@ -48,10 +51,10 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
         setLastCheck(data.lastCheck || Date.now());
         
         console.log('État mis à jour :', {
-          status: data.connectionStatus,
+          status: connectionStatus,
           model,
           keyType,
-          lastCheck: data.lastCheck
+          lastCheck: data.lastCheck || Date.now()
         });
       } else {
         setStatus('disconnected');
