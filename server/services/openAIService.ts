@@ -240,6 +240,98 @@ class OpenAIService {
   }
   
   /**
+   * Méthode pour obtenir une réponse complète du modèle, incluant tous les détails
+   * (Cette méthode est utilisée pour le message d'accueil et autres cas où on a besoin
+   * de la réponse complète de l'API plutôt que juste le contenu texte)
+   */
+  async getModelResponse(options: {
+    messages: any[];
+    temperature?: number;
+    max_tokens?: number;
+    model?: 'primary' | 'secondary';
+  }): Promise<any> {
+    try {
+      // Si en mode mock, générer une réponse simulée
+      if (this.mockMode) {
+        const content = this.generateMockResponse(options.messages);
+        return {
+          choices: [
+            {
+              message: {
+                content
+              }
+            }
+          ]
+        };
+      }
+      
+      // Déterminer la configuration à utiliser
+      let config: OpenAIConfig | null;
+      if (options.model === 'secondary' && this.secondaryConfig) {
+        config = this.secondaryConfig;
+      } else if (options.model === 'primary' && this.primaryConfig) {
+        config = this.primaryConfig;
+      } else {
+        // Utiliser ce qui est défini par l'environnement ou par défaut
+        const isEcoMode = process.env.ACTIVE_KEY_TYPE === 'secondary';
+        config = isEcoMode && this.secondaryConfig ? this.secondaryConfig : (this.primaryConfig || this.secondaryConfig);
+      }
+      
+      // Si aucune configuration n'est disponible, revenir au mode mock
+      if (!config) {
+        console.warn('No OpenAI configuration available. Falling back to mock mode.');
+        const content = this.generateMockResponse(options.messages);
+        return {
+          choices: [
+            {
+              message: {
+                content
+              }
+            }
+          ]
+        };
+      }
+      
+      // Préparer l'URL
+      const url = `${config.endpoint}/openai/deployments/${config.modelName}/chat/completions?api-version=${config.apiVersion}`;
+      
+      // Préparer les en-têtes
+      const headers = {
+        'Content-Type': 'application/json',
+        'api-key': config.apiKey
+      };
+      
+      // Préparer le corps de la requête
+      const body = {
+        messages: options.messages,
+        temperature: options.temperature || 0.7,
+        max_tokens: options.max_tokens || 800,
+        model: config.modelName
+      };
+      
+      // Effectuer l'appel API
+      const response = await axios.post(url, body, { headers });
+      
+      // Retourner la réponse complète
+      return response.data;
+    } catch (error: any) {
+      console.error('Error calling Azure OpenAI getModelResponse:', error.message);
+      
+      // En cas d'erreur, retourner une réponse simulée
+      const content = this.generateMockResponse(options.messages);
+      return {
+        choices: [
+          {
+            message: {
+              content
+            }
+          }
+        ]
+      };
+    }
+  }
+  
+  /**
    * Vérifie la connectivité à l'API OpenAI
    */
   async checkAPIConnection(): Promise<boolean> {

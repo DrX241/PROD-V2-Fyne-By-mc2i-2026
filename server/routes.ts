@@ -18,6 +18,18 @@ if (!openAIService) {
     },
     async getChatCompletionWithCache(messages: any[], temperature: number, maxTokens: number) {
       return "Réponse générée par le service de secours OpenAI. Veuillez configurer correctement le service.";
+    },
+    async getModelResponse(options: any) {
+      console.warn("Using fallback for OpenAI getModelResponse");
+      return {
+        choices: [
+          {
+            message: {
+              content: "**Conseil cyber** : Utilisez un gestionnaire de mots de passe pour créer et stocker des mots de passe uniques et complexes sans avoir à les mémoriser."
+            }
+          }
+        ]
+      };
     }
   };
 }
@@ -503,7 +515,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       try {
         // Tenter de générer un conseil personnalisé avec Azure OpenAI
-        const response = await getOpenAIService().getModelResponse(
+        const response = await openAIService.getModelResponse(
           {
             messages: [
               {
@@ -544,11 +556,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Création d'un message d'accueil avec le conseil généré ou de secours
-      const welcomeMessage = `Bonjour, je suis I AM CYBER, votre allié dans le monde passionnant de la cybersécurité.
+      // Reformater le conseil pour qu'il soit présenté correctement
+      let formattedTip = randomTip;
+      
+      // Si le conseil commence déjà par "**Saviez-vous que**" ou "**Conseil cyber**", on le reformate
+      if (formattedTip.startsWith("**Saviez-vous que**") || formattedTip.startsWith("**Conseil cyber**")) {
+        // Retirer le préfixe formaté
+        formattedTip = formattedTip.replace(/^\*\*(Saviez-vous que|Conseil cyber)(\*\*|:)\s*/i, "");
+      }
+      
+      const welcomeMessage = `Bonjour, je suis I AM CYBER, votre partenaire d'apprentissage cybersécurité pour cette session.
 
-${randomTip}
+J'en profite, savez-vous que ${formattedTip}
 
-Je vais vous guider dans votre parcours d'apprentissage. Quel est votre prénom ?`;
+En attendant, je vais vous guider dans votre parcours d'apprentissage. Quel est votre prénom ?`;
       
       // Renvoyer le message généré
       return res.json({
