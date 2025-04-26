@@ -6,6 +6,7 @@ import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import OpenAI from 'openai';
 import { openAIService } from "./services/openAIService";
+import { getCyberNews } from './services/newsService';
 
 // Si le module n'existe pas, créons une version de secours
 if (!openAIService) {
@@ -471,61 +472,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Nouvel endpoint pour générer un message d'accueil dynamique
+
+  
+  // Nouvel endpoint pour générer un message d'accueil dynamique avec actualités réelles
   app.get('/api/cyber/welcome-message', async (req: Request, res: Response) => {
     try {
+      // Récupérer une actualité cybersécurité récente et réelle
+      const newsItem = await getCyberNews();
+      
       // Date du jour au format français
       const today = new Date();
       const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
       const dateStr = today.toLocaleDateString('fr-FR', options);
       
-      // Générer un prompt système pour le message d'accueil avec actualités
-      const systemPrompt = `Tu es I AM CYBER, un assistant virtuel spécialisé en cybersécurité. 
-      Ta mission est de générer un message d'accueil attrayant qui inclut une actualité récente sur la cybersécurité.
-      
-      Nous sommes le ${dateStr}.
-      
-      CONSIGNES IMPORTANTES:
-      1. Commence par te présenter brièvement: "Bonjour, je suis I AM CYBER, votre allié dans le domaine de la cybersécurité."
-      2. Mentionne ensuite une actualité récente et pertinente sur la cybersécurité (tu peux l'inventer, mais elle doit être réaliste, comme une nouvelle vulnérabilité, une attaque récente, une nouvelle réglementation, etc.)
-      3. Utilise la formulation "Saviez-vous que..." pour introduire cette actualité.
-      4. Termine TOUJOURS ton message en demandant le prénom de l'utilisateur.
-      5. Utilise un ton professionnel mais chaleureux.
-      6. Adapte ton message pour des professionnels intéressés par la cybersécurité.
-      7. Garde le message concis mais informatif (environ 4-5 lignes).
-      8. N'utilise pas d'émojis.
-      9. Assure-toi que l'actualité mentionnée semble récente et crédible.`;
-      
-      // Préparer les messages pour l'API
-      const messages: ChatCompletionMessageParam[] = [
-        {
-          role: "system",
-          content: systemPrompt
-        },
-        {
-          role: "user",
-          content: "Génère un message d'accueil pour la plateforme I AM CYBER qui inclut une actualité récente sur la cybersécurité."
-        }
-      ];
-      
-      // Obtenir la réponse de l'API avec une température plus élevée pour plus de variété
-      const welcomeMessage = await openAIService.getChatCompletionWithCache(
-        messages,
-        0.7, // Température plus élevée pour la variété des actualités
-        350  // Limite de tokens augmentée pour permettre l'ajout de l'actualité
-      );
-      
-      // Renvoyer le message généré
-      return res.json({
-        success: true,
-        welcomeMessage
-      });
-      
+      if (newsItem) {
+        // Création d'un message d'accueil avec l'actualité récupérée
+        const welcomeMessage = `Bonjour, je suis I AM CYBER, votre allié dans le domaine de la cybersécurité.
+
+Saviez-vous que... ${newsItem.title} ? ${newsItem.description.substring(0, 100)}${newsItem.description.length > 100 ? '...' : ''}
+
+Quel est votre prénom ?`;
+        
+        // Renvoyer le message généré
+        return res.json({
+          success: true,
+          welcomeMessage,
+          newsSource: newsItem.source,
+          newsDate: newsItem.publishedAt
+        });
+      } else {
+        // Si aucune actualité n'est disponible, générer un message sans actualité
+        const welcomeMessage = `Bonjour, je suis I AM CYBER, votre allié dans le domaine de la cybersécurité.
+
+Je suis ici pour vous accompagner dans votre parcours d'apprentissage en cybersécurité.
+
+Quel est votre prénom ?`;
+        
+        return res.json({
+          success: true,
+          welcomeMessage
+        });
+      }
     } catch (error: any) {
       console.error("Erreur lors de la génération du message d'accueil:", error);
-      return res.status(500).json({
-        success: false,
-        message: "Impossible de générer un message d'accueil",
+      
+      // En cas d'erreur, retourner un message par défaut
+      const fallbackMessage = `Bonjour, je suis I AM CYBER, votre allié dans le domaine de la cybersécurité.
+
+Je suis là pour vous accompagner dans une expérience d'apprentissage immersive et interactive.
+
+Quel est votre prénom ?`;
+      
+      return res.json({
+        success: true,
+        welcomeMessage: fallbackMessage,
         error: error.message || "Erreur inconnue"
       });
     }
