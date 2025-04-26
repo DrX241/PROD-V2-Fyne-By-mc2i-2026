@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond de la salle serveur -->
+  <rect width="100%" height="100%" fill="#0f1620"/>
+  
+  <!-- Sol de la salle -->
+  <rect y="550" width="1200" height="250" fill="#1c2630"/>
+  
+  <!-- Mur de la salle -->
+  <rect y="0" width="1200" height="550" fill="#151f2e"/>
+  
+  <!-- Rangée de serveurs 1 -->
+  <rect x="100" y="150" width="350" height="400" fill="#1d2936"/>
+  <rect x="110" y="160" width="330" height="380" fill="#17212b"/>
+  
+  <!-- Serveurs individuels dans la rangée 1 -->
+  <rect x="120" y="170" width="310" height="60" rx="2" fill="#2c3e50"/>
+  <rect x="130" y="180" width="290" height="40" rx="2" fill="#34495e"/>
+  <circle cx="140" cy="200" r="5" fill="#e74c3c"/>
+  <circle cx="160" cy="200" r="5" fill="#2ecc71"/>
+  
+  <rect x="120" y="240" width="310" height="60" rx="2" fill="#2c3e50"/>
+  <rect x="130" y="250" width="290" height="40" rx="2" fill="#34495e"/>
+  <circle cx="140" cy="270" r="5" fill="#e74c3c"/>
+  <circle cx="160" cy="270" r="5" fill="#2ecc71"/>
+  
+  <rect x="120" y="310" width="310" height="60" rx="2" fill="#2c3e50"/>
+  <rect x="130" y="320" width="290" height="40" rx="2" fill="#34495e"/>
+  <circle cx="140" cy="340" r="5" fill="#e74c3c"/>
+  <circle cx="160" cy="340" r="5" fill="#f39c12"/>
+  
+  <rect x="120" y="380" width="310" height="60" rx="2" fill="#2c3e50"/>
+  <rect x="130" y="390" width="290" height="40" rx="2" fill="#34495e"/>
+  <circle cx="140" cy="410" r="5" fill="#e74c3c"/>
+  <circle cx="160" cy="410" r="5" fill="#2ecc71"/>
+  
+  <rect x="120" y="450" width="310" height="60" rx="2" fill="#2c3e50"/>
+  <rect x="130" y="460" width="290" height="40" rx="2" fill="#34495e"/>
+  <circle cx="140" cy="480" r="5" fill="#e74c3c"/>
+  <circle cx="160" cy="480" r="5" fill="#2ecc71"/>
+  
+  <!-- Rangée de serveurs 2 -->
+  <rect x="550" y="150" width="350" height="400" fill="#1d2936"/>
+  <rect x="560" y="160" width="330" height="380" fill="#17212b"/>
+  
+  <!-- Serveurs individuels dans la rangée 2 -->
+  <rect x="570" y="170" width="310" height="60" rx="2" fill="#2c3e50"/>
+  <rect x="580" y="180" width="290" height="40" rx="2" fill="#34495e"/>
+  <circle cx="590" cy="200" r="5" fill="#e74c3c"/>
+  <circle cx="610" cy="200" r="5" fill="#2ecc71"/>
+  
+  <rect x="570" y="240" width="310" height="60" rx="2" fill="#2c3e50"/>
+  <rect x="580" y="250" width="290" height="40" rx="2" fill="#34495e"/>
+  <circle cx="590" cy="270" r="5" fill="#e74c3c"/>
+  <circle cx="610" cy="270" r="5" fill="#2ecc71"/>
+  
+  <rect x="570" y="310" width="310" height="60" rx="2" fill="#2c3e50"/>
+  <rect x="580" y="320" width="290" height="40" rx="2" fill="#34495e"/>
+  <circle cx="590" cy="340" r="5" fill="#e74c3c"/>
+  <circle cx="610" cy="340" r="5" fill="#2ecc71"/>
+  
+  <rect x="570" y="380" width="310" height="60" rx="2" fill="#2c3e50"/>
+  <rect x="580" y="390" width="290" height="40" rx="2" fill="#34495e"/>
+  <circle cx="590" cy="410" r="5" fill="#e74c3c"/>
+  <circle cx="610" cy="410" r="5" fill="#2ecc71"/>
+  
+  <rect x="570" y="450" width="310" height="60" rx="2" fill="#2c3e50"/>
+  <rect x="580" y="460" width="290" height="40" rx="2" fill="#34495e"/>
+  <circle cx="590" cy="480" r="5" fill="#e74c3c"/>
+  <circle cx="610" cy="480" r="5" fill="#f39c12"/>
+  
+  <!-- Terminal avec logs -->
+  <rect x="300" y="250" width="100" height="80" rx="5" fill="#2c3e50"/>
+  <rect x="310" y="260" width="80" height="60" rx="3" fill="#3498db"/>
+  <line x1="320" y1="270" x2="380" y2="270" stroke="#ecf0f1" stroke-width="2"/>
+  <line x1="320" y1="280" x2="370" y2="280" stroke="#ecf0f1" stroke-width="2"/>
+  <line x1="320" y1="290" x2="380" y2="290" stroke="#ecf0f1" stroke-width="2"/>
+  <line x1="320" y1="300" x2="360" y2="300" stroke="#ecf0f1" stroke-width="2"/>
+  <line x1="320" y1="310" x2="375" y2="310" stroke="#ecf0f1" stroke-width="2"/>
+  
+  <!-- Terminal principal -->
+  <rect x="700" y="250" width="150" height="120" rx="5" fill="#2c3e50"/>
+  <rect x="710" y="260" width="130" height="100" rx="3" fill="#16a085"/>
+  <rect x="720" y="270" width="110" height="20" rx="2" fill="#ecf0f1"/>
+  <text x="725" y="285" font-family="monospace" font-size="12" fill="#2c3e50">$ ssh admin@server</text>
+  <line x1="720" y1="300" x2="820" y2="300" stroke="#ecf0f1" stroke-width="1"/>
+  <line x1="720" y1="310" x2="800" y2="310" stroke="#ecf0f1" stroke-width="1"/>
+  <line x1="720" y1="320" x2="810" y2="320" stroke="#ecf0f1" stroke-width="1"/>
+  <line x1="720" y1="330" x2="720" y2="330" stroke="#ecf0f1" stroke-width="1"/>
+  <line x1="720" y1="340" x2="720" y2="340" stroke="#ecf0f1" stroke-width="1"/>
+  <text x="720" y="350" font-family="monospace" font-size="12" fill="#ecf0f1">_</text>
+  
+  <!-- Câbles et connexions -->
+  <path d="M430 200 Q 450 230, 470 200" stroke="#e74c3c" stroke-width="3" fill="none"/>
+  <path d="M430 250 Q 490 280, 530 250" stroke="#3498db" stroke-width="3" fill="none"/>
+  <path d="M430 320 Q 500 350, 530 320" stroke="#2ecc71" stroke-width="3" fill="none"/>
+  <path d="M430 410 Q 460 440, 530 410" stroke="#f39c12" stroke-width="3" fill="none"/>
+  <path d="M430 480 Q 470 510, 530 480" stroke="#9b59b6" stroke-width="3" fill="none"/>
+  
+  <!-- Voyants lumineux d'état -->
+  <circle cx="900" y="230" r="10" fill="#2ecc71"/>
+  <circle cx="900" y="260" r="10" fill="#e74c3c"/>
+  <circle cx="900" y="290" r="10" fill="#f39c12"/>
+  
+  <!-- Porte de retour vers le bureau -->
+  <rect x="50" y="250" width="100" height="250" fill="#2c3e50"/>
+  <circle cx="130" cy="380" r="10" fill="#f39c12"/>
+  
+  <!-- Faille de sécurité (représentée symboliquement) -->
+  <rect x="620" y="380" width="60" height="40" rx="3" fill="#34495e"/>
+  <text x="630" y="405" font-family="Arial" font-size="12" fill="#e74c3c">VULN</text>
+  <path d="M640 380 L 640 340 L 680 340 L 680 380" stroke="#e74c3c" stroke-width="2" fill="none" stroke-dasharray="5,5"/>
+</svg>
