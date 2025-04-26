@@ -196,12 +196,34 @@ const activeSessions: Map<string, EmergencySessionData> = new Map();
  */
 export async function getEmergencyScenarios(req: Request, res: Response) {
   try {
-    // Simplement retourner la liste des types d'urgence
+    // Récupérer les types et les scénarios disponibles
     const scenarioTypes = Object.values(CyberEmergencyType);
+    
+    // Organiser les scénarios par catégorie
+    const scenariosByCategory: { [key: string]: any[] } = {};
+    
+    // Initialiser chaque catégorie avec un tableau vide
+    scenarioTypes.forEach(type => {
+      scenariosByCategory[type] = [];
+    });
+    
+    // Remplir les catégories avec les scénarios correspondants
+    emergencyScenarios.forEach(scenario => {
+      if (scenariosByCategory[scenario.type]) {
+        scenariosByCategory[scenario.type].push({
+          id: scenario.id,
+          title: scenario.title,
+          urgency: scenario.urgencyLevel,
+          expertise: 'intermediate', // Par défaut
+          description: scenario.description
+        });
+      }
+    });
     
     res.json({
       success: true,
       scenarioTypes,
+      scenariosByCategory,
       currentDateTime: getCurrentDateTimeString()
     });
   } catch (error) {

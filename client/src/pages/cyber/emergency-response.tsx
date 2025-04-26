@@ -555,32 +555,71 @@ export default function EmergencyResponsePage() {
                   {/* Tabs de catégories */}
                   <div className="border-b border-gray-700 mb-6">
                     <div className="flex flex-wrap gap-2">
-                      {scenarioTypes.map((type) => (
-                        <button
-                          key={type}
-                          className={`px-4 py-2 text-sm rounded-t-lg transition-colors ${
-                            selectedType === type
-                              ? "bg-blue-700 text-white"
-                              : "bg-blue-900/40 text-blue-300 hover:bg-blue-800/60 hover:text-white"
-                          }`}
-                          onClick={() => setSelectedType(type)}
-                        >
-                          {type}
-                        </button>
-                      ))}
+                      {scenarioTypes && scenarioTypes.length > 0 ? (
+                        scenarioTypes.map((type) => (
+                          <button
+                            key={type}
+                            className={`px-4 py-2 text-sm rounded-t-lg transition-colors ${
+                              selectedType === type
+                                ? "bg-blue-700 text-white"
+                                : "bg-blue-900/40 text-blue-300 hover:bg-blue-800/60 hover:text-white"
+                            }`}
+                            onClick={() => setSelectedType(type)}
+                          >
+                            {type}
+                          </button>
+                        ))
+                      ) : (
+                        <div className="text-blue-300 py-2">
+                          Chargement des catégories de scénarios...
+                        </div>
+                      )}
                     </div>
                   </div>
                   
                   {/* Liste des scénarios disponibles */}
-                  {selectedType && scenariosByCategory[selectedType as keyof typeof scenariosByCategory] && (
+                  {selectedType && (
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold text-white">
                         Scénarios de {selectedType}
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {scenariosByCategory[selectedType as keyof typeof scenariosByCategory].map((scenario: ScenarioItem) => (
+                        {scenariosByCategory && scenariosByCategory[selectedType as keyof typeof scenariosByCategory] ? (
+                          scenariosByCategory[selectedType as keyof typeof scenariosByCategory].map((scenario: ScenarioItem) => (
+                            <Card 
+                              key={scenario.id} 
+                              className="bg-blue-900/40 border-blue-700/50 cursor-pointer transition-all hover:bg-blue-800/40 hover:border-blue-600 hover:shadow-lg hover:translate-y-[-2px]"
+                              onClick={() => {
+                                setSelectedType(selectedType);
+                                startEmergencySession(selectedType);
+                              }}
+                            >
+                              <CardHeader className="py-3 px-4">
+                                <div className="flex gap-2 mb-2">
+                                  <Badge className={urgencyBadges[scenario.urgency as keyof typeof urgencyBadges].color}>
+                                    {urgencyBadges[scenario.urgency as keyof typeof urgencyBadges].label}
+                                  </Badge>
+                                  <Badge className={expertiseBadges[scenario.expertise as keyof typeof expertiseBadges].color}>
+                                    {expertiseBadges[scenario.expertise as keyof typeof expertiseBadges].label}
+                                  </Badge>
+                                </div>
+                                <CardTitle className="text-base text-white">{scenario.title}</CardTitle>
+                              </CardHeader>
+                              <CardFooter className="pt-0 pb-3 px-4 flex justify-between items-center">
+                                <div className="text-xs text-blue-300">Durée: 20 minutes</div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-blue-300 hover:text-white hover:bg-blue-700"
+                                >
+                                  <ArrowRight className="h-4 w-4" />
+                                </Button>
+                              </CardFooter>
+                            </Card>
+                          ))
+                        ) : (
+                          // Afficher un scénario par défaut quand les données ne sont pas encore disponibles
                           <Card 
-                            key={scenario.id} 
                             className="bg-blue-900/40 border-blue-700/50 cursor-pointer transition-all hover:bg-blue-800/40 hover:border-blue-600 hover:shadow-lg hover:translate-y-[-2px]"
                             onClick={() => {
                               setSelectedType(selectedType);
@@ -589,14 +628,12 @@ export default function EmergencyResponsePage() {
                           >
                             <CardHeader className="py-3 px-4">
                               <div className="flex gap-2 mb-2">
-                                <Badge className={urgencyBadges[scenario.urgency as keyof typeof urgencyBadges].color}>
-                                  {urgencyBadges[scenario.urgency as keyof typeof urgencyBadges].label}
-                                </Badge>
-                                <Badge className={expertiseBadges[scenario.expertise as keyof typeof expertiseBadges].color}>
-                                  {expertiseBadges[scenario.expertise as keyof typeof expertiseBadges].label}
-                                </Badge>
+                                <Badge className="bg-amber-600 text-white">Urgence Moyenne</Badge>
+                                <Badge className="bg-blue-600 text-white">Niveau Intermédiaire</Badge>
                               </div>
-                              <CardTitle className="text-base text-white">{scenario.title}</CardTitle>
+                              <CardTitle className="text-base text-white">
+                                Scénario de {selectedType}
+                              </CardTitle>
                             </CardHeader>
                             <CardFooter className="pt-0 pb-3 px-4 flex justify-between items-center">
                               <div className="text-xs text-blue-300">Durée: 20 minutes</div>
@@ -609,7 +646,7 @@ export default function EmergencyResponsePage() {
                               </Button>
                             </CardFooter>
                           </Card>
-                        ))}
+                        )}
                       </div>
                     </div>
                   )}
