@@ -61,6 +61,8 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Progress } from "@/components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Textarea } from "@/components/ui/textarea";
 
 // Définition des phases de l'expérience immersive
 enum Phase {
@@ -125,6 +127,16 @@ const formSchema = z.object({
 
 // Type d'inférence pour le schéma de formulaire
 type FormValues = z.infer<typeof formSchema>;
+
+// Schéma de validation pour le message
+const messageSchema = z.object({
+  message: z.string().min(1, {
+    message: "Le message ne peut pas être vide.",
+  }),
+});
+
+// Type pour le message
+type MessageValues = z.infer<typeof messageSchema>;
 
 export default function CyberAiAgentPage() {
   const { toast } = useToast();
@@ -631,19 +643,271 @@ export default function CyberAiAgentPage() {
         </div>
       ) : (
         <div className="container mx-auto px-4 py-4">
-          <div className="text-center text-white mb-6">
-            <h2 className="text-2xl font-bold mb-4">Session en cours : {getEnvironmentName(activeEnvironment)}</h2>
-            <p className="text-blue-300">Version simplifiée pour le développement</p>
-          </div>
-          
-          <div className="flex justify-end mb-4">
-            <Button 
-              onClick={completeSession}
-              className="bg-red-600 hover:bg-red-700 text-white py-2 flex items-center gap-2"
-            >
-              <LogOut className="h-4 w-4" />
-              Terminer la mission
-            </Button>
+          {/* Section Salle de Crise */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Zone principale - Salle de Crise */}
+            <div className="lg:col-span-8">
+              <Card className="bg-gray-900/90 border-violet-900/50 shadow-lg overflow-hidden mb-6">
+                <div className="p-0 relative bg-gradient-to-r from-violet-900/30 to-indigo-900/30">
+                  <div className="flex items-center justify-between p-4 bg-gradient-to-r from-violet-950/80 to-indigo-950/80">
+                    <div className="flex items-center">
+                      <AlertCircle className="h-5 w-5 text-violet-300 mr-2" />
+                      <span className="font-medium text-white">Salle de Crise - Incident en cours</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Clock className="h-4 w-4 text-violet-300 mr-1" />
+                      <span className="text-sm font-mono text-violet-100">{formatTime(timeRemaining)}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-6 bg-gradient-to-b from-gray-900 to-gray-950 h-[600px] flex flex-col">
+                  {/* Messages area */}
+                  <div className="flex-grow overflow-y-auto mb-4 p-2 space-y-4 scrollbar-thin">
+                    {/* Message de présentation du NPC */}
+                    <div className="flex items-start gap-3 text-white">
+                      <Avatar className="h-9 w-9 border border-violet-600/30">
+                        <AvatarFallback className="bg-violet-900 text-violet-200">MJ</AvatarFallback>
+                      </Avatar>
+                      <div className="bg-gray-800/50 rounded-lg p-3 max-w-[85%] space-y-2 shadow-md border border-violet-900/20">
+                        <div className="flex justify-between items-center">
+                          <span className="font-semibold text-violet-300">{currentNPC}</span>
+                          <span className="text-xs text-gray-500">Coordinateur de crise</span>
+                        </div>
+                        <p className="text-gray-200 text-sm">
+                          Bienvenue dans la Salle de Crise. Nous sommes confrontés à un incident de cybersécurité majeur. 
+                          Notre système de contrôle industriel montre des signes d'activité suspecte. 
+                          Nous devons agir rapidement pour évaluer la situation et mettre en place une réponse appropriée.
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Affichage des messages */}
+                    {messages.map((msg, index) => (
+                      <div key={index} className={`flex items-start gap-3 ${msg.type === 'user' ? 'justify-end' : ''}`}>
+                        {msg.type !== 'user' && (
+                          <Avatar className="h-9 w-9 border border-violet-600/30">
+                            <AvatarFallback className="bg-violet-900 text-violet-200">MJ</AvatarFallback>
+                          </Avatar>
+                        )}
+                        
+                        <div className={`rounded-lg p-3 max-w-[85%] space-y-1 shadow-md ${
+                          msg.type === 'user' 
+                            ? 'bg-violet-900/30 text-white border border-violet-700/30' 
+                            : 'bg-gray-800/50 text-white border border-violet-900/20'
+                        }`}>
+                          <div className="flex justify-between items-center">
+                            <span className={`font-semibold ${msg.type === 'user' ? 'text-violet-200' : 'text-violet-300'}`}>
+                              {msg.type === 'user' ? 'Vous' : currentNPC}
+                            </span>
+                            <span className="text-xs text-gray-500">{msg.timestamp || 'Maintenant'}</span>
+                          </div>
+                          <p className="text-gray-200 text-sm">{msg.content}</p>
+                        </div>
+                        
+                        {msg.type === 'user' && (
+                          <Avatar className="h-9 w-9 border border-indigo-600/30">
+                            <AvatarFallback className="bg-indigo-900 text-indigo-200">
+                              <User className="h-5 w-5" />
+                            </AvatarFallback>
+                          </Avatar>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Input area */}
+                  <div className="mt-auto">
+                    <div className="flex gap-2">
+                      <div className="flex-grow relative">
+                        <Textarea
+                          placeholder="Tapez votre message..."
+                          className="min-h-[60px] resize-none border-violet-800/30 bg-gray-800/30 text-white"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault();
+                              const messageText = e.currentTarget.value.trim();
+                              if (messageText) {
+                                const newMessage = {
+                                  type: 'user',
+                                  content: messageText,
+                                  timestamp: new Date().toLocaleTimeString()
+                                };
+                                const updatedMessages = [...messages, newMessage];
+                                handleMessagesUpdate(updatedMessages);
+                                // Réinitialiser le champ de texte
+                                e.currentTarget.value = '';
+                              }
+                            }
+                          }}
+                        />
+                      </div>
+                      <Button 
+                        onClick={() => {
+                          const textarea = document.querySelector('textarea');
+                          if (textarea) {
+                            const messageText = textarea.value.trim();
+                            if (messageText) {
+                              const newMessage = {
+                                type: 'user',
+                                content: messageText,
+                                timestamp: new Date().toLocaleTimeString()
+                              };
+                              const updatedMessages = [...messages, newMessage];
+                              handleMessagesUpdate(updatedMessages);
+                              // Réinitialiser le champ de texte
+                              textarea.value = '';
+                            }
+                          }
+                        }}
+                        className="h-[60px] px-4 bg-violet-700 hover:bg-violet-600"
+                      >
+                        <Send className="h-5 w-5" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </div>
+            
+            {/* Panneau latéral - Informations sur la crise */}
+            <div className="lg:col-span-4 space-y-6">
+              {/* Carte de progression des compétences */}
+              <Card className="border-violet-800/30 bg-gray-900/60 shadow-lg overflow-hidden">
+                <div className="bg-gradient-to-r from-violet-900/80 to-indigo-900/80 pb-2 pt-4 px-4">
+                  <div className="text-base font-medium text-white flex items-center">
+                    <BarChart2 className="mr-2 h-5 w-5 text-violet-300" />
+                    Évaluation des compétences
+                  </div>
+                </div>
+                <div className="p-4 pt-4">
+                  <div className="space-y-4">
+                    {/* Compétence technique */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-cyan-400 flex items-center">
+                          <Code className="h-3.5 w-3.5 mr-1" /> Technique
+                        </span>
+                        <span className="text-cyan-300 font-medium">{skillAssessment.technical}%</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-gray-800/70 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-gradient-to-r from-cyan-500 to-blue-700 rounded-full" 
+                          style={{ width: `${skillAssessment.technical}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                    
+                    {/* Compétence analytique */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-indigo-400 flex items-center">
+                          <BarChart3 className="h-3.5 w-3.5 mr-1" /> Analytique
+                        </span>
+                        <span className="text-indigo-300 font-medium">{skillAssessment.analytical}%</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-gray-800/70 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-gradient-to-r from-indigo-500 to-blue-600 rounded-full" 
+                          style={{ width: `${skillAssessment.analytical}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                    
+                    {/* Compétence stratégique */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-violet-400 flex items-center">
+                          <Shield className="h-3.5 w-3.5 mr-1" /> Stratégique
+                        </span>
+                        <span className="text-violet-300 font-medium">{skillAssessment.strategic}%</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-gray-800/70 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-gradient-to-r from-violet-600 to-purple-800 rounded-full" 
+                          style={{ width: `${skillAssessment.strategic}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                    
+                    {/* Compétence communication */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-emerald-400 flex items-center">
+                          <MessageCircle className="h-3.5 w-3.5 mr-1" /> Communication
+                        </span>
+                        <span className="text-emerald-300 font-medium">{skillAssessment.communication}%</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-gray-800/70 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-gradient-to-r from-emerald-500 to-green-600 rounded-full" 
+                          style={{ width: `${skillAssessment.communication}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+              
+              {/* Objectifs de mission */}
+              <Card className="border-violet-800/30 bg-gray-900/60 shadow-lg">
+                <div className="bg-gradient-to-r from-violet-900/80 to-indigo-900/80 pb-2 pt-4 px-4">
+                  <div className="text-base font-medium text-white flex items-center">
+                    <Target className="mr-2 h-5 w-5 text-violet-300" />
+                    Objectifs de mission
+                  </div>
+                </div>
+                <div className="p-4">
+                  <div className="space-y-2">
+                    {missionSteps.map((step, index) => (
+                      <div 
+                        key={step.id}
+                        className={`p-2 rounded-md border border-violet-900/30 ${
+                          index === activeStepIndex 
+                            ? "bg-violet-900/30 border-l-4 border-l-violet-500" 
+                            : step.completed 
+                              ? "bg-green-900/20 border-l-4 border-l-green-500" 
+                              : "bg-indigo-950/30"
+                        }`}
+                      >
+                        <div className="flex items-center">
+                          {step.completed ? (
+                            <div className="h-5 w-5 mr-2 rounded-full bg-green-500 flex items-center justify-center">
+                              <Check className="h-3 w-3 text-green-950" />
+                            </div>
+                          ) : index === activeStepIndex ? (
+                            <div className="h-5 w-5 mr-2 rounded-full bg-violet-500 flex items-center justify-center">
+                              <div className="h-2 w-2 rounded-full bg-white animate-pulse"></div>
+                            </div>
+                          ) : (
+                            <div className="h-5 w-5 mr-2 rounded-full border-2 border-gray-600"></div>
+                          )}
+                          
+                          <span className={`text-sm font-medium ${
+                            step.completed 
+                              ? "text-green-300" 
+                              : index === activeStepIndex 
+                                ? "text-violet-300" 
+                                : "text-gray-400"
+                          }`}>
+                            {step.title}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Card>
+              
+              {/* Bouton terminer mission */}
+              <Button 
+                onClick={completeSession}
+                className="w-full bg-red-600 hover:bg-red-700 text-white py-2.5 flex items-center justify-center gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Terminer la mission
+              </Button>
+            </div>
           </div>
         </div>
       )}
