@@ -374,7 +374,7 @@ export default function CyberAiAgentPage() {
                                       onClick={() => field.onChange("command-center")}
                                     >
                                       {/* Arrière-plan avec overlay gradient */}
-                                      <div className="absolute inset-0 bg-gradient-to-b from-cyan-900/30 via-blue-900/40 to-gray-900/90 z-10"></div>
+                                      <div className="absolute inset-0 bg-gradient-to-b from-cyan-900/30 via-blue-900/50 to-gray-900/95 z-10"></div>
                                       <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-50"></div>
                                       
                                       {/* Contenu de la carte */}
@@ -392,7 +392,7 @@ export default function CyberAiAgentPage() {
                                           <div className="mb-3 bg-cyan-700/70 p-2 rounded-lg w-min">
                                             <Command className="h-6 w-6 text-cyan-200" />
                                           </div>
-                                          <h3 className="font-bold text-lg text-white mb-3 line-clamp-1">Centre de Commandement</h3>
+                                          <h3 className="font-bold text-xl text-white mb-3 line-clamp-1 drop-shadow-md">Centre de Commandement</h3>
                                           <p className="text-sm text-cyan-100/80 line-clamp-2 group-hover:line-clamp-3 transition-all">
                                             Planification stratégique et coordination d'équipe.
                                           </p>
@@ -412,7 +412,7 @@ export default function CyberAiAgentPage() {
                                       onClick={() => field.onChange("analysis-lab")}
                                     >
                                       {/* Arrière-plan avec overlay gradient */}
-                                      <div className="absolute inset-0 bg-gradient-to-b from-indigo-900/30 via-indigo-900/40 to-gray-900/90 z-10"></div>
+                                      <div className="absolute inset-0 bg-gradient-to-b from-indigo-900/30 via-indigo-900/50 to-gray-900/95 z-10"></div>
                                       <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1581093196277-9f608bb3a604?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-50"></div>
                                       
                                       {/* Contenu de la carte */}
@@ -430,7 +430,7 @@ export default function CyberAiAgentPage() {
                                           <div className="mb-3 bg-indigo-700/70 p-2 rounded-lg w-min">
                                             <Microscope className="h-6 w-6 text-indigo-200" />
                                           </div>
-                                          <h3 className="font-bold text-lg text-white mb-3 line-clamp-1">Laboratoire d'Analyse</h3>
+                                          <h3 className="font-bold text-xl text-white mb-3 line-clamp-1 drop-shadow-md">Laboratoire d'Analyse</h3>
                                           <p className="text-sm text-indigo-100/80 line-clamp-2 group-hover:line-clamp-3 transition-all">
                                             Investigation technique et analyse forensique.
                                           </p>
@@ -450,7 +450,7 @@ export default function CyberAiAgentPage() {
                                       onClick={() => field.onChange("crisis-room")}
                                     >
                                       {/* Arrière-plan avec overlay gradient */}
-                                      <div className="absolute inset-0 bg-gradient-to-b from-violet-900/30 via-violet-900/40 to-gray-900/90 z-10"></div>
+                                      <div className="absolute inset-0 bg-gradient-to-b from-violet-900/30 via-violet-900/50 to-gray-900/95 z-10"></div>
                                       <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-50"></div>
                                       
                                       {/* Contenu de la carte */}
@@ -468,7 +468,7 @@ export default function CyberAiAgentPage() {
                                           <div className="mb-3 bg-violet-700/70 p-2 rounded-lg w-min">
                                             <AlertCircle className="h-6 w-6 text-violet-200" />
                                           </div>
-                                          <h3 className="font-bold text-lg text-white mb-3 line-clamp-1">Salle de Crise</h3>
+                                          <h3 className="font-bold text-xl text-white mb-3 line-clamp-1 drop-shadow-md">Salle de Crise</h3>
                                           <p className="text-sm text-violet-100/80 line-clamp-2 group-hover:line-clamp-3 transition-all">
                                             Gestion d'incidents critiques et coordination.
                                           </p>
