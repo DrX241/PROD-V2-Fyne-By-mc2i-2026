@@ -1,13 +1,29 @@
 /**
  * Point d'entrée du module I_AM_CYBER
- * Ce fichier exporte tous les composants, pages et fonctionnalités du module
  */
 
-// Pages principales
+// Exportation des composants
+export * from './src/components';
+
+// Exportation des pages
 export * from './src/pages';
 
-// Composants
-export * from './src/components/cyber';
+// Exportation des contextes
+export * from './src/contexts';
 
-// Types et utilitaires spécifiques
-// export * from './types';
+// Exportation des services
+// export * from './src/services';
+
+// Exportation des types
+// export * from './src/types';
+
+// Exportation des données
+// export * from './src/data';
+
+// Configuration du module
+export const moduleConfig = {
+  name: 'I_AM_CYBER',
+  title: 'I AM CYBER',
+  description: 'Plateforme de formation à la cybersécurité',
+  basePath: '/cyber',
+};

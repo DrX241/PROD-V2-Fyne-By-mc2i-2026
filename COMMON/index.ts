@@ -1,21 +1,22 @@
 /**
  * Point d'entrée du module COMMON
- * Ce fichier exporte tous les composants, contextes et utilitaires communs
  */
 
-// Contextes d'application
-export * from './src/contexts/ChatContext';
-export * from './src/contexts/ThemeContext';
+// Exportation des composants
+export * from './src/components';
 
-// Composants UI
-export * from './src/components/ui';
-export * from './src/components/layout';
-export * from './src/components/utils';
+// Exportation des types
+// export * from './src/types';
 
-// Hooks communs
-export * from './src/hooks/use-toast';
+// Exportation des utilitaires
+// export * from './src/utils';
 
-// Pages communes
-export * from './src/pages/common/home';
-export * from './src/pages/common/modules';
-export * from './src/pages/common/not-found';
+// Exportation des services
+// export * from './src/services';
+
+// Configuration du module
+export const moduleConfig = {
+  name: 'COMMON',
+  title: 'Composants Communs',
+  description: 'Bibliothèque de composants et services communs',
+};
