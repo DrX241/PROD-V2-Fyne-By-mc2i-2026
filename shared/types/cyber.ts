@@ -227,6 +227,8 @@ export interface EmailMessageContent {
   date?: string;
   body: string;
   attachment?: string;
+  scenarioContacts?: ScenarioContact[];
+  timestamp?: number;
   
   // Propriétés alternatives pour la rétrocompatibilité
   sender?: string;
@@ -250,11 +252,6 @@ export interface EmailMessageContent {
     }
   };
   
-  // Liste des contacts pour le scénario
-  scenarioContacts?: ScenarioContact[];
-  
-  // Horodatage
-  timestamp?: number;
 }
 
 export interface ChatMessage {
