@@ -312,9 +312,6 @@ export default function CyberAiAgentPage() {
             className="mb-6 text-center"
           >
             <h2 className="text-2xl md:text-4xl font-bold text-white mb-4 flex items-center justify-center">
-              <div className="mr-3 p-2 bg-gradient-to-br from-blue-700 to-indigo-800 rounded-lg shadow-lg">
-                <Bot className="h-8 w-8 text-blue-200" />
-              </div>
               Agent IA Immersif
             </h2>
             
@@ -337,14 +334,7 @@ export default function CyberAiAgentPage() {
                   alt="Robot FYNE - Assistant IA" 
                   className="h-[350px] sm:h-[450px] md:h-[550px] w-auto drop-shadow-2xl object-contain"
                 />
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, delay: 0.5 }}
-                  className="absolute -top-2 -right-2 bg-indigo-600/90 text-white text-sm px-3 py-1 rounded-full shadow-lg border border-indigo-400 font-medium"
-                >
-                  Agent IA - FYNE
-                </motion.div>
+
               </motion.div>
             </div>
             
@@ -359,10 +349,7 @@ export default function CyberAiAgentPage() {
                     transition={{ duration: 0.5, delay: 0.2 }}
                   >
                     <div className="space-y-6">
-                      <h3 className="text-2xl font-bold text-white flex items-center">
-                        <div className="mr-3 p-2 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-lg shadow-lg">
-                          <Command className="h-6 w-6 text-blue-100" />
-                        </div>
+                      <h3 className="text-2xl font-bold text-white">
                         Environnement Immersif
                       </h3>
                       
