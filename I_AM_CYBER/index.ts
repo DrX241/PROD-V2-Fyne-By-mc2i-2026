@@ -12,13 +12,13 @@ export * from './src/pages';
 export * from './src/contexts';
 
 // Exportation des services
-// export * from './src/services';
+export * from './src/services';
 
 // Exportation des types
-// export * from './src/types';
+export * from './src/types';
 
 // Exportation des données
-// export * from './src/data';
+export * from './src/data/cyber-defense-missions';
 
 // Configuration du module
 export const moduleConfig = {

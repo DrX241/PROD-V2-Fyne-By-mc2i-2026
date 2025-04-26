@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-opacity="0.5"/>
+    </filter>
+    <linearGradient id="key-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffd700"/>
+      <stop offset="100%" stop-color="#ff8c00"/>
+    </linearGradient>
+    <linearGradient id="glow-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Fond luisant -->
+  <circle cx="100" cy="100" r="70" fill="url(#glow-gradient)" filter="url(#shadow)" opacity="0.5"/>
+  
+  <!-- Tête de la clé (cercle) -->
+  <circle cx="60" cy="60" r="30" fill="url(#key-gradient)" stroke="#d4af37" stroke-width="2" filter="url(#shadow)"/>
+  
+  <!-- Tige de la clé -->
+  <rect x="90" y="54" width="80" height="12" fill="url(#key-gradient)" stroke="#d4af37" stroke-width="2" filter="url(#shadow)"/>
+  
+  <!-- Dents de la clé -->
+  <rect x="110" y="66" width="10" height="15" fill="url(#key-gradient)" stroke="#d4af37" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="130" y="66" width="10" height="20" fill="url(#key-gradient)" stroke="#d4af37" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="150" y="66" width="10" height="12" fill="url(#key-gradient)" stroke="#d4af37" stroke-width="2" filter="url(#shadow)"/>
+  
+  <!-- Détails décoratifs sur la tête de la clé -->
+  <circle cx="60" cy="60" r="20" fill="none" stroke="#d4af37" stroke-width="2"/>
+  <circle cx="60" cy="60" r="12" fill="none" stroke="#d4af37" stroke-width="2"/>
+  
+  <!-- Symbole de sécurité -->
+  <path d="M60,52 L60,52 C57,52 54,54 54,58 C54,62 57,65 60,65 C63,65 66,62 66,58 C66,54 63,52 60,52 Z M63,61 L60,60 L57,61 L58,58 L56,56 L59,55 L60,53 L61,55 L64,56 L62,58 Z" fill="#d4af37"/>
+  
+  <!-- Texte "MASTER" en léger relief -->
+  <text x="130" y="50" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#d4af37" filter="url(#shadow)">MASTER</text>
+  
+  <!-- Reflet -->
+  <ellipse cx="45" cy="45" rx="8" ry="5" fill="#ffffff" opacity="0.6" transform="rotate(-15 45 45)"/>
+</svg>

@@ -1,51 +1,82 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-// Type de thème possible
-export type ThemeMode = 'classic' | 'futuristic';
+type ThemeType = 'classic' | 'space';
 
-// Interface du contexte
 interface ThemeContextType {
-  themeMode: ThemeMode;
+  theme: ThemeType;
+  setTheme: (theme: ThemeType) => void;
   toggleTheme: () => void;
-  setThemeMode: (mode: ThemeMode) => void;
 }
 
-// Création du contexte avec des valeurs par défaut
-export const ThemeContext = createContext<ThemeContextType>({
-  themeMode: 'classic',
-  toggleTheme: () => {},
-  setThemeMode: () => {},
-});
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-// Hook personnalisé pour utiliser le contexte - exporté comme fonction nommée pour éviter des problèmes avec Fast Refresh
-export function useTheme() {
-  return useContext(ThemeContext);
+interface ThemeProviderProps {
+  children: ReactNode;
 }
 
-// Provider qui fournit le contexte aux composants enfants
-export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Initialisation avec le thème stocké dans localStorage ou 'classic' par défaut
-  const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
-    // Récupère le thème depuis localStorage ou 'classic' par défaut
-    const savedTheme = localStorage.getItem('fyne-theme-mode');
-    return (savedTheme === 'futuristic' || savedTheme === 'classic') 
+export function ThemeProvider({ children }: ThemeProviderProps) {
+  // Récupérer le thème depuis le localStorage ou utiliser 'classic' par défaut
+  const [theme, setTheme] = useState<ThemeType>(() => {
+    const savedTheme = localStorage.getItem('theme') as ThemeType;
+    return savedTheme && ['classic', 'space'].includes(savedTheme) 
       ? savedTheme 
       : 'classic';
   });
 
-  // Sauvegarde le thème dans localStorage quand il change
+  // Appliquer les classes CSS en fonction du thème
   useEffect(() => {
-    localStorage.setItem('fyne-theme-mode', themeMode);
-  }, [themeMode]);
+    // Enregistrer le thème dans localStorage pour persister
+    localStorage.setItem('theme', theme);
+    
+    // Afficher le thème dans la console pour le débogage
+    console.log('Theme actuel:', theme);
+    
+    // Appliquer les classes CSS en fonction du thème
+    const bodyElement = document.body;
+    
+    if (theme === 'classic') {
+      bodyElement.classList.remove('theme-space');
+      bodyElement.classList.add('theme-classic');
+    } else {
+      bodyElement.classList.remove('theme-classic');
+      bodyElement.classList.add('theme-space');
+    }
+    
+    console.log('Thème appliqué:', theme);
+  }, [theme]);
 
   // Fonction pour basculer entre les thèmes
   const toggleTheme = () => {
-    setThemeMode(prevMode => prevMode === 'classic' ? 'futuristic' : 'classic');
+    setTheme(prevTheme => prevTheme === 'classic' ? 'space' : 'classic');
   };
 
   return (
-    <ThemeContext.Provider value={{ themeMode, toggleTheme, setThemeMode }}>
+    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
-};
+}
+
+// Hook personnalisé pour utiliser le contexte de thème
+export function useTheme() {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error("useTheme doit être utilisé à l'intérieur d'un ThemeProvider");
+  }
+  return context;
+}
+
+// Composant de bouton pour changer de thème
+export function ThemeSwitch() {
+  const { theme, toggleTheme } = useTheme();
+  
+  return (
+    <button
+      onClick={toggleTheme}
+      className="px-3 py-1 rounded-md bg-gray-700 hover:bg-gray-600 transition-colors text-white text-sm"
+      aria-label="Changer de thème"
+    >
+      {theme === 'classic' ? 'Thème Futuriste' : 'Thème Classique'}
+    </button>
+  );
+}
