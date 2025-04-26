@@ -160,69 +160,8 @@ export default function EmergencyResponsePage() {
     expert: { color: 'bg-red-500', label: 'EXPERT' }
   };
 
-  // Données fictives pour les scénarios disponibles par catégorie
-  const scenariosByCategory: ScenarioCategoryMap = {
-    [EmergencyType.FORMATION]: [
-      { id: 'phishing-formation-1', title: 'Campagne de phishing ciblée', urgency: 'medium', expertise: 'intermediate' },
-      { id: 'formation-securite-1', title: 'Programme de sensibilisation urgent', urgency: 'low', expertise: 'beginner' },
-      { id: 'formation-direction-1', title: 'Briefing direction générale', urgency: 'high', expertise: 'advanced' }
-    ],
-    [EmergencyType.CRISE]: [
-      { id: 'ransomware-sante-1', title: 'Attaque ransomware - Secteur Santé', urgency: 'critical', expertise: 'expert' },
-      { id: 'ddos-services-1', title: 'Attaque DDoS massive', urgency: 'high', expertise: 'advanced' },
-      { id: 'crise-supply-chain-1', title: 'Compromission chaîne logistique', urgency: 'high', expertise: 'expert' }
-    ],
-    [EmergencyType.DONNEES]: [
-      { id: 'fuite-donnees-1', title: 'Fuite massive de données personnelles', urgency: 'high', expertise: 'advanced' },
-      { id: 'vol-propriete-1', title: 'Vol de propriété intellectuelle', urgency: 'medium', expertise: 'intermediate' },
-      { id: 'incident-rgpd-1', title: 'Incident RGPD majeur', urgency: 'high', expertise: 'advanced' }
-    ],
-    [EmergencyType.VULNERABILITES]: [
-      { id: 'zero-day-1', title: 'Exploitation de vulnérabilité 0-day', urgency: 'critical', expertise: 'expert' },
-      { id: 'patch-critique-1', title: 'Déploiement de patch critique', urgency: 'high', expertise: 'intermediate' },
-      { id: 'scan-infrastructure-1', title: 'Analyse de vulnérabilités post-incident', urgency: 'medium', expertise: 'intermediate' }
-    ],
-    [EmergencyType.OSINT]: [
-      { id: 'fuite-information-1', title: 'Fuites d\'informations stratégiques', urgency: 'medium', expertise: 'intermediate' },
-      { id: 'usurpation-identite-1', title: 'Usurpation d\'identité corporate', urgency: 'medium', expertise: 'intermediate' },
-      { id: 'exposition-donnees-1', title: 'Exposition de données confidentielles', urgency: 'high', expertise: 'advanced' }
-    ],
-    [EmergencyType.CONFORMITE]: [
-      { id: 'audit-surprise-1', title: 'Audit de conformité surprise', urgency: 'medium', expertise: 'intermediate' },
-      { id: 'mise-demeure-1', title: 'Mise en demeure réglementaire', urgency: 'high', expertise: 'advanced' },
-      { id: 'non-conformite-1', title: 'Non-conformité critique', urgency: 'high', expertise: 'advanced' }
-    ],
-    [EmergencyType.STRATEGIE]: [
-      { id: 'elevation-menace-1', title: 'Élévation niveau de menace', urgency: 'medium', expertise: 'advanced' },
-      { id: 'nouvelle-reglementation-1', title: 'Nouvelle réglementation urgente', urgency: 'medium', expertise: 'intermediate' },
-      { id: 'securisation-acquisition-1', title: 'Sécurisation d\'acquisition', urgency: 'high', expertise: 'expert' }
-    ],
-    [EmergencyType.SUPPLY_CHAIN]: [
-      { id: 'fournisseur-compromis-1', title: 'Fournisseur critique compromis', urgency: 'high', expertise: 'advanced' },
-      { id: 'software-malveillant-1', title: 'Logiciel malveillant dans la chaîne', urgency: 'critical', expertise: 'expert' },
-      { id: 'audit-fournisseurs-1', title: 'Audit de fournisseurs d\'urgence', urgency: 'medium', expertise: 'intermediate' }
-    ],
-    [EmergencyType.IAM]: [
-      { id: 'compromission-admin-1', title: 'Compromission compte admin', urgency: 'critical', expertise: 'expert' },
-      { id: 'vol-identifiants-1', title: 'Vol d\'identifiants massif', urgency: 'high', expertise: 'advanced' },
-      { id: 'gestion-acces-urgence-1', title: 'Gestion d\'accès d\'urgence', urgency: 'medium', expertise: 'intermediate' }
-    ],
-    [EmergencyType.CLOUD]: [
-      { id: 'compromission-cloud-1', title: 'Compromission environnement cloud', urgency: 'high', expertise: 'advanced' },
-      { id: 'fuite-bucket-1', title: 'Fuite d\'accès bucket S3', urgency: 'high', expertise: 'intermediate' },
-      { id: 'shadow-it-critique-1', title: 'Shadow IT critique', urgency: 'medium', expertise: 'intermediate' }
-    ],
-    [EmergencyType.INCIDENTS]: [
-      { id: 'incident-major-1', title: 'Incident de sécurité majeur', urgency: 'critical', expertise: 'expert' },
-      { id: 'malware-interne-1', title: 'Propagation malware interne', urgency: 'high', expertise: 'advanced' },
-      { id: 'attaque-ciblee-1', title: 'Attaque ciblée persistante', urgency: 'high', expertise: 'expert' }
-    ],
-    [EmergencyType.FORENSICS]: [
-      { id: 'analyse-post-incident-1', title: 'Analyse post-incident critique', urgency: 'medium', expertise: 'advanced' },
-      { id: 'extraction-logs-1', title: 'Extraction et analyse de logs', urgency: 'medium', expertise: 'intermediate' },
-      { id: 'investigation-numerique-1', title: 'Investigation numérique complexe', urgency: 'high', expertise: 'expert' }
-    ]
-  };
+  // État pour stocker les scénarios par catégorie (récupérés depuis l'API)
+  const [scenariosByCategory, setScenariosByCategory] = useState<ScenarioCategoryMap>({} as ScenarioCategoryMap);
 
   // Au chargement, récupérer la liste des types de scénarios d'urgence
   useEffect(() => {
@@ -235,6 +174,13 @@ export default function EmergencyResponsePage() {
         if (data.success) {
           setScenarioTypes(data.scenarioTypes);
           setCurrentDateTime(data.currentDateTime);
+          
+          // Mettre à jour les scénarios par catégorie si disponibles
+          if (data.scenariosByCategory) {
+            setScenariosByCategory(data.scenariosByCategory);
+            console.log("Scénarios récupérés:", data.scenariosByCategory);
+          }
+          
           toast({
             title: "Centre d'urgence activé",
             description: "Tous les modules sont disponibles et prêts à l'emploi",
