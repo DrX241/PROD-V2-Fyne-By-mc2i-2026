@@ -123,16 +123,16 @@ export default function EmailMessage({ email }: EmailMessageProps) {
             <div className="flex items-center">
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-600/50 to-indigo-700/50 rounded-full flex items-center justify-center text-white mr-3 sm:mr-4 border border-blue-500/30 shadow-glow-sm">
                 <span className="font-semibold text-sm sm:text-base">
-                  {email.from?.name ? email.from.name.split(' ').map((n: string) => n[0]).join('') : (email.sender ? email.sender[0].toUpperCase() : 'U')}
+                  {email.from.name.split(' ').map((n: string) => n[0]).join('')}
                 </span>
               </div>
               <div>
-                <h3 className="font-bold text-white text-base sm:text-lg">{email.from?.name || email.sender || 'Expéditeur'}</h3>
-                <p className="text-white text-xs sm:text-sm">{email.from?.role || email.senderRole || 'Non spécifié'}</p>
+                <h3 className="font-bold text-white text-base sm:text-lg">{email.from.name}</h3>
+                <p className="text-white text-xs sm:text-sm">{email.from.role}</p>
               </div>
             </div>
             <div className="text-white text-xs sm:text-sm bg-blue-900/50 px-3 py-1 rounded-md border border-blue-700/30 self-start sm:self-auto">
-              {email.date ? formatDate(email.date) : formatDate(new Date().toISOString())}
+              {formatDate(email.date)}
             </div>
           </div>
           
@@ -140,13 +140,9 @@ export default function EmailMessage({ email }: EmailMessageProps) {
             <div className="flex flex-wrap sm:flex-nowrap">
               <p className="font-medium text-white w-12 sm:w-16 text-sm sm:text-base">À :</p>
               <p className="text-white text-sm sm:text-base">
-                {email.to 
-                  ? (typeof email.to === 'string' && email.to.includes('@') 
-                     ? email.to 
-                     : email.to.split(' ').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' '))
-                  : (email.recipients && email.recipients.length > 0 
-                     ? email.recipients.join(', ') 
-                     : 'Vous')}
+                {typeof email.to === 'string' && email.to.includes('@') 
+                  ? email.to 
+                  : email.to.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
               </p>
             </div>
             <div className="flex flex-wrap sm:flex-nowrap">

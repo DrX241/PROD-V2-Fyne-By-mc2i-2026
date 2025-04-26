@@ -103,29 +103,6 @@ const initialDomains: CyberDomain[] = [
   }
 ];
 
-// Fonction pour associer un nom de domaine depuis un domainId
-const getDomainNameFromId = (domainId: string): string => {
-  const domain = initialDomains.find(d => d.id === domainId);
-  if (domain) {
-    return domain.name;
-  }
-  
-  // Correspondances pour les domainIds non standards
-  const domainNameMap: Record<string, string> = {
-    'ingenierie-sociale': 'Ingénierie sociale et phishing',
-    'strategie-cyber': 'Stratégie et gouvernance cyber',
-    'gestion-crise': 'Gestion de crise cyber',
-    'rgpd': 'RGPD et conformité',
-    'chaine-approvisionnement': 'Sécurité de la chaîne d\'approvisionnement',
-    'supply-chain': 'Sécurité de la chaîne d\'approvisionnement',
-    'secteur-financier': 'Cybersécurité du secteur financier',
-    'donnees-personnelles': 'Protection des données personnelles',
-    'gestion-incidents': 'Gestion des incidents de sécurité'
-  };
-  
-  return domainNameMap[domainId] || 'Domaine non spécifié';
-};
-
 // Initial scenarios data
 const initialScenarios: CyberScenario[] = [
   // Ingénierie sociale et phishing
@@ -139,8 +116,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Débutant",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "ingenierie-sociale",
-    domain: "Ingénierie sociale et phishing"
+    domainId: "ingenierie-sociale"
   },
   {
     id: "social-engineering-incident",
@@ -152,8 +128,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-[#006a9e]/10 text-[#006a9e]",
-    domainId: "ingenierie-sociale",
-    domain: "Ingénierie sociale et phishing"
+    domainId: "ingenierie-sociale"
   },
   {
     id: "advanced-social-attacks",
@@ -165,8 +140,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Expert",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "ingenierie-sociale",
-    domain: "Ingénierie sociale et phishing"
+    domainId: "ingenierie-sociale"
   },
   
   // Stratégie cyber
@@ -180,8 +154,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Débutant",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "strategie-cyber",
-    domain: "Stratégie et gouvernance"
+    domainId: "strategie-cyber"
   },
   {
     id: "security-roadmap",
@@ -193,8 +166,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-[#006a9e]/10 text-[#006a9e]",
-    domainId: "strategie-cyber",
-    domain: "Stratégie et gouvernance"
+    domainId: "strategie-cyber"
   },
   {
     id: "cyber-strategy",
@@ -206,8 +178,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Expert",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "strategie-cyber",
-    domain: "Stratégie et gouvernance"
+    domainId: "strategie-cyber"
   },
   
   // Gestion de crise
@@ -221,8 +192,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Débutant",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "gestion-crise",
-    domain: "Gestion de crise cyber"
+    domainId: "gestion-crise"
   },
   {
     id: "crisis-plan",
@@ -234,8 +204,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "gestion-crise",
-    domain: "Gestion de crise cyber"
+    domainId: "gestion-crise"
   },
   {
     id: "ransomware-crisis",
@@ -247,8 +216,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Expert",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "gestion-crise",
-    domain: "Gestion de crise cyber"
+    domainId: "gestion-crise"
   },
   
   // Supply Chain
@@ -262,8 +230,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Débutant",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "supply-chain",
-    domain: "Sécurité de la chaîne d'approvisionnement"
+    domainId: "supply-chain"
   },
   {
     id: "vendor-assessment",
@@ -275,8 +242,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "supply-chain",
-    domain: "Sécurité de la chaîne d'approvisionnement"
+    domainId: "supply-chain"
   },
   {
     id: "supply-chain-incident",
@@ -288,8 +254,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Expert",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "supply-chain",
-    domain: "Sécurité de la chaîne d'approvisionnement"
+    domainId: "supply-chain"
   },
   
   // Données personnelles / RGPD
@@ -303,8 +268,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Débutant",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "donnees-personnelles",
-    domain: "RGPD"
+    domainId: "donnees-personnelles"
   },
   {
     id: "data-breach-response",
@@ -316,8 +280,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "donnees-personnelles",
-    domain: "RGPD"
+    domainId: "donnees-personnelles"
   },
   {
     id: "rgpd-compliance-program",
@@ -329,8 +292,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Expert",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "donnees-personnelles",
-    domain: "RGPD"
+    domainId: "donnees-personnelles"
   },
   
   // Gestion des incidents
@@ -344,8 +306,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Débutant",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "gestion-incidents",
-    domain: "Gestion des incidents"
+    domainId: "gestion-incidents"
   },
   {
     id: "incident-response",
@@ -357,8 +318,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "gestion-incidents",
-    domain: "Gestion des incidents"
+    domainId: "gestion-incidents"
   },
   {
     id: "security-monitoring",
@@ -370,8 +330,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Expert",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "gestion-incidents",
-    domain: "Gestion des incidents"
+    domainId: "gestion-incidents"
   }
 ];
 
@@ -400,63 +359,20 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [config, setConfig] = useState<AIConfig>(initialConfig);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Initialize the chat with a dynamic welcome message from the API
+  // Initialize the chat with a welcome message
   useEffect(() => {
-    async function fetchWelcomeMessage() {
-      if (!isInitialized) {
-        try {
-          setIsTyping(true);
-          
-          // Appel à l'API pour générer un message d'accueil dynamique
-          const response = await fetch('/api/cyber/welcome-message');
-          
-          if (!response.ok) {
-            throw new Error('Échec de récupération du message d\'accueil');
-          }
-          
-          const data = await response.json();
-          
-          if (data.success && data.welcomeMessage) {
-            // Utiliser le message généré par l'IA
-            const initialMessage: ChatMessage = {
-              id: uuidv4(),
-              type: "bot",
-              content: data.welcomeMessage,
-              timestamp: Date.now()
-            };
-            
-            setMessages([initialMessage]);
-          } else {
-            // Message de secours si l'API échoue
-            const fallbackMessage: ChatMessage = {
-              id: uuidv4(),
-              type: "bot",
-              content: "Bonjour !\nJe suis I AM CYBER, votre assistant virtuel dans le monde passionnant de la cybersécurité. Je suis là pour vous accompagner dans une expérience d'apprentissage immersive et interactive.\nPour commencer, Quel est votre prénom ?",
-              timestamp: Date.now()
-            };
-            
-            setMessages([fallbackMessage]);
-          }
-        } catch (error) {
-          console.error("Erreur lors de la récupération du message d'accueil:", error);
-          
-          // Message de secours en cas d'erreur
-          const errorFallbackMessage: ChatMessage = {
-            id: uuidv4(),
-            type: "bot",
-            content: "Bonjour !\nJe suis I AM CYBER, votre assistant virtuel dans le monde passionnant de la cybersécurité. Je suis là pour vous accompagner dans une expérience d'apprentissage immersive et interactive.\nPour commencer, Quel est votre prénom ?",
-            timestamp: Date.now()
-          };
-          
-          setMessages([errorFallbackMessage]);
-        } finally {
-          setIsTyping(false);
-          setIsInitialized(true);
-        }
-      }
+    if (!isInitialized) {
+      // Initial welcome message exactement comme demandé
+      const initialMessage: ChatMessage = {
+        id: uuidv4(),
+        type: "bot",
+        content: "Bonjour !\nJe suis I AM CYBER, votre assistant virtuel dans le monde passionnant de la cybersécurité. Je suis là pour vous accompagner dans une expérience d'apprentissage immersive et interactive.\nPour commencer, Quel est votre prénom ?",
+        timestamp: Date.now()
+      };
+      
+      setMessages([initialMessage]);
+      setIsInitialized(true);
     }
-    
-    fetchWelcomeMessage();
   }, [isInitialized]);
 
   // Handler to set the user's name
@@ -577,11 +493,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const selectedScenario = initialScenarios.find(s => s.id === scenarioId);
     if (!selectedScenario) return;
     
-    // S'assurer que le scénario a un domaine (requis par le type CyberScenario)
-    if (!selectedScenario.domain && selectedScenario.domainId) {
-      selectedScenario.domain = getDomainNameFromId(selectedScenario.domainId);
-    }
-    
     setIsTyping(true);
     setScenario(prev => ({ 
       ...prev, 
@@ -604,44 +515,25 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // Send the scenario selection to the server to generate initial email
     try {
-      // Récupérer le domaine associé au scénario
-      const scenarioDomain = initialDomains.find(d => d.id === selectedScenario.domainId)?.name || '';
-      
       const data = await apiRequest<any>('/api/cyber/start-scenario', {
         method: 'POST',
         body: JSON.stringify({
           scenarioId,
-          userId: config?.userId || "user-" + Date.now(), // Utiliser un ID unique si pas disponible
-          displayName: userName, // Utiliser le nom d'utilisateur comme displayName
-          difficulty: selectedScenario?.difficulty || "Intermédiaire",
-          domain: scenarioDomain, // Ajouter le domaine pour éviter l'erreur 400
-          profile: config?.config?.profile || "Généraliste"
+          userName,
+          config
         })
       });
       
-      // Vérifier que la réponse inclut un prompt initial
-      if (!data.initialPrompt) {
-        throw new Error("Erreur: Le serveur n'a pas retourné de contenu initial valide");
+      // Vérifier que l'email existe bien dans la réponse
+      if (!data.email) {
+        throw new Error("Erreur: Le serveur n'a pas retourné de contenu d'email valide");
       }
-
-      // Créer un message simulant un email basé sur le prompt initial
-      const emailContent: EmailMessageContent = {
-        subject: `Re: ${data.scenario?.title || "Votre scénario cybersécurité"}`,
-        sender: data.context?.primaryContact?.name || "Support I AM CYBER",
-        senderRole: data.context?.primaryContact?.role || "Expert en cybersécurité",
-        company: data.context?.companyName || "I AM CYBER",
-        recipients: ["vous"],
-        body: data.initialPrompt,
-        // Si nous avons des contacts de scénario, les ajouter à l'email
-        scenarioContacts: data.context?.additionalContacts || [],
-        timestamp: Date.now()
-      };
 
       // Add the email message
       const emailMessage: ChatMessage = {
         id: uuidv4(),
         type: "email",
-        content: emailContent,
+        content: data.email as EmailMessageContent,
         timestamp: Date.now()
       };
       

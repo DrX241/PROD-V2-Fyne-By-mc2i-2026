@@ -33,28 +33,24 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
       const response = await fetch('/api/openai/status');
       if (response.ok) {
         const data = await response.json();
-        console.log('Réponse API brute:', data);
+        setStatus(data.connectionStatus || 'disconnected');
         
-        // Si l'API renvoie un statut de succès, considérer que la connexion est établie
-        const connectionStatus = data.status === 'success' ? 'connected' : 'disconnected';
-        setStatus(connectionStatus);
-        
-        // Définir le modèle courant (utiliser model au lieu de currentModel)
-        const model = data.model || 'Inconnu';
+        // Définir le modèle courant
+        const model = data.currentModel || 'Inconnu';
         setCurrentModel(model);
         
-        // Récupérer directement le type de clé depuis la réponse API 
-        // (plus fiable que de le déduire du modèle)
-        const keyType = data.keyType || 'primary';
-        setApiKeyType(keyType as 'primary' | 'secondary');
+        // Déterminer le type de clé API en fonction du modèle
+        // Si le modèle est 'gpt-4o-mini', nous sommes en mode économique
+        const keyType = (model === 'gpt-4o-mini') ? 'secondary' : 'primary';
+        setApiKeyType(keyType);
         
         setLastCheck(data.lastCheck || Date.now());
         
         console.log('État mis à jour :', {
-          status: connectionStatus,
+          status: data.connectionStatus,
           model,
           keyType,
-          lastCheck: data.lastCheck || Date.now()
+          lastCheck: data.lastCheck
         });
       } else {
         setStatus('disconnected');
@@ -84,10 +80,10 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
         const data = await response.json();
         
         // Récupérer le nom du modèle depuis la réponse ou utiliser une valeur par défaut
-        const modelName = data.model || (newKeyType === 'primary' ? 'gpt-4o' : 'gpt-4o-mini');
+        const modelName = data.modelName || (newKeyType === 'primary' ? 'gpt-4o' : 'gpt-4o-mini');
         setCurrentModel(modelName);
         setApiKeyType(newKeyType);
-        setStatus('connected');
+        setStatus(data.connectionStatus || 'checking');
         
         console.log('Changement de modèle réussi:', {
           newKeyType,

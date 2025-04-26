@@ -86,7 +86,6 @@ function App() {
             <Route path="/modules" component={ModulesPage} />
             <Route path="/cyber" component={CyberModeSelection} />
             <Route path="/cyber/agent" component={CyberAgentPage} />
-            <Route path="/cyber-agent" component={CyberAgentPage} /> {/* Route alternative pour compatibilité */}
             <Route path="/cyber/emergency-response" component={EmergencyResponsePage} />
             <Route path="/cyber/arcade" component={CyberArcade} />
             {/* Anciennes routes de jeux (pour compatibilité) */}
