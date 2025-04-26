@@ -139,7 +139,11 @@ export default function EmailMessage({ email }: EmailMessageProps) {
           <div className="space-y-2 sm:space-y-3 pt-3 border-t border-blue-700/30">
             <div className="flex flex-wrap sm:flex-nowrap">
               <p className="font-medium text-white w-12 sm:w-16 text-sm sm:text-base">À :</p>
-              <p className="text-white text-sm sm:text-base">{email.to}</p>
+              <p className="text-white text-sm sm:text-base">
+                {typeof email.to === 'string' && email.to.includes('@') 
+                  ? email.to 
+                  : email.to.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
+              </p>
             </div>
             <div className="flex flex-wrap sm:flex-nowrap">
               <p className="font-medium text-white w-12 sm:w-16 text-sm sm:text-base">Objet :</p>
