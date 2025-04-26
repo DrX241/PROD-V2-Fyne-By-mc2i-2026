@@ -9,6 +9,7 @@ import {
   ShieldAlert, 
   Send, 
   ArrowLeft, 
+  ArrowRight,
   RefreshCw, 
   ChevronDown,
   CheckCircle2,
@@ -55,6 +56,38 @@ interface ChatMessage {
   contactRole?: string;
 }
 
+// Interface pour les scénarios disponibles
+interface ScenarioItem {
+  id: string;
+  title: string;
+  urgency: 'low' | 'medium' | 'high' | 'critical';
+  expertise: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+}
+
+// Type pour les catégories de scénarios
+type ScenarioCategoryMap = {
+  [key in EmergencyType]: ScenarioItem[];
+}
+
+// Interface pour le scénario courant
+interface CyberScenario {
+  id: string;
+  title: string;
+  description: string;
+  urgencyLevel: 'low' | 'medium' | 'high' | 'critical';
+  context: string;
+  objectives: string[];
+  npcs: {
+    id: string;
+    name: string;
+    role: string;
+    personality: string;
+    expertise: string[];
+  }[];
+  initialPrompt: string;
+  type: string;
+}
+
 // Interface pour la progression de la session
 interface SessionProgress {
   currentStage: number;
@@ -96,6 +129,86 @@ export default function EmergencyResponsePage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const startTimeRef = useRef<number>(0);
   
+  // Définir les badges pour les différents niveaux d'urgence
+  const urgencyBadges = {
+    low: { color: 'bg-blue-500', label: 'FAIBLE' },
+    medium: { color: 'bg-yellow-500', label: 'MOYENNE' },
+    high: { color: 'bg-orange-500', label: 'ÉLEVÉE' },
+    critical: { color: 'bg-red-500 animate-pulse', label: 'CRITIQUE' }
+  };
+
+  // Définir les badges d'expertise
+  const expertiseBadges = {
+    beginner: { color: 'bg-green-500', label: 'DÉBUTANT' },
+    intermediate: { color: 'bg-blue-500', label: 'INTERMÉDIAIRE' },
+    advanced: { color: 'bg-purple-500', label: 'AVANCÉ' },
+    expert: { color: 'bg-red-500', label: 'EXPERT' }
+  };
+
+  // Données fictives pour les scénarios disponibles par catégorie
+  const scenariosByCategory: ScenarioCategoryMap = {
+    [EmergencyType.FORMATION]: [
+      { id: 'phishing-formation-1', title: 'Campagne de phishing ciblée', urgency: 'medium', expertise: 'intermediate' },
+      { id: 'formation-securite-1', title: 'Programme de sensibilisation urgent', urgency: 'low', expertise: 'beginner' },
+      { id: 'formation-direction-1', title: 'Briefing direction générale', urgency: 'high', expertise: 'advanced' }
+    ],
+    [EmergencyType.CRISE]: [
+      { id: 'ransomware-sante-1', title: 'Attaque ransomware - Secteur Santé', urgency: 'critical', expertise: 'expert' },
+      { id: 'ddos-services-1', title: 'Attaque DDoS massive', urgency: 'high', expertise: 'advanced' },
+      { id: 'crise-supply-chain-1', title: 'Compromission chaîne logistique', urgency: 'high', expertise: 'expert' }
+    ],
+    [EmergencyType.DONNEES]: [
+      { id: 'fuite-donnees-1', title: 'Fuite massive de données personnelles', urgency: 'high', expertise: 'advanced' },
+      { id: 'vol-propriete-1', title: 'Vol de propriété intellectuelle', urgency: 'medium', expertise: 'intermediate' },
+      { id: 'incident-rgpd-1', title: 'Incident RGPD majeur', urgency: 'high', expertise: 'advanced' }
+    ],
+    [EmergencyType.VULNERABILITES]: [
+      { id: 'zero-day-1', title: 'Exploitation de vulnérabilité 0-day', urgency: 'critical', expertise: 'expert' },
+      { id: 'patch-critique-1', title: 'Déploiement de patch critique', urgency: 'high', expertise: 'intermediate' },
+      { id: 'scan-infrastructure-1', title: 'Analyse de vulnérabilités post-incident', urgency: 'medium', expertise: 'intermediate' }
+    ],
+    [EmergencyType.OSINT]: [
+      { id: 'fuite-information-1', title: 'Fuites d\'informations stratégiques', urgency: 'medium', expertise: 'intermediate' },
+      { id: 'usurpation-identite-1', title: 'Usurpation d\'identité corporate', urgency: 'medium', expertise: 'intermediate' },
+      { id: 'exposition-donnees-1', title: 'Exposition de données confidentielles', urgency: 'high', expertise: 'advanced' }
+    ],
+    [EmergencyType.CONFORMITE]: [
+      { id: 'audit-surprise-1', title: 'Audit de conformité surprise', urgency: 'medium', expertise: 'intermediate' },
+      { id: 'mise-demeure-1', title: 'Mise en demeure réglementaire', urgency: 'high', expertise: 'advanced' },
+      { id: 'non-conformite-1', title: 'Non-conformité critique', urgency: 'high', expertise: 'advanced' }
+    ],
+    [EmergencyType.STRATEGIE]: [
+      { id: 'elevation-menace-1', title: 'Élévation niveau de menace', urgency: 'medium', expertise: 'advanced' },
+      { id: 'nouvelle-reglementation-1', title: 'Nouvelle réglementation urgente', urgency: 'medium', expertise: 'intermediate' },
+      { id: 'securisation-acquisition-1', title: 'Sécurisation d\'acquisition', urgency: 'high', expertise: 'expert' }
+    ],
+    [EmergencyType.SUPPLY_CHAIN]: [
+      { id: 'fournisseur-compromis-1', title: 'Fournisseur critique compromis', urgency: 'high', expertise: 'advanced' },
+      { id: 'software-malveillant-1', title: 'Logiciel malveillant dans la chaîne', urgency: 'critical', expertise: 'expert' },
+      { id: 'audit-fournisseurs-1', title: 'Audit de fournisseurs d\'urgence', urgency: 'medium', expertise: 'intermediate' }
+    ],
+    [EmergencyType.IAM]: [
+      { id: 'compromission-admin-1', title: 'Compromission compte admin', urgency: 'critical', expertise: 'expert' },
+      { id: 'vol-identifiants-1', title: 'Vol d\'identifiants massif', urgency: 'high', expertise: 'advanced' },
+      { id: 'gestion-acces-urgence-1', title: 'Gestion d\'accès d\'urgence', urgency: 'medium', expertise: 'intermediate' }
+    ],
+    [EmergencyType.CLOUD]: [
+      { id: 'compromission-cloud-1', title: 'Compromission environnement cloud', urgency: 'high', expertise: 'advanced' },
+      { id: 'fuite-bucket-1', title: 'Fuite d\'accès bucket S3', urgency: 'high', expertise: 'intermediate' },
+      { id: 'shadow-it-critique-1', title: 'Shadow IT critique', urgency: 'medium', expertise: 'intermediate' }
+    ],
+    [EmergencyType.INCIDENTS]: [
+      { id: 'incident-major-1', title: 'Incident de sécurité majeur', urgency: 'critical', expertise: 'expert' },
+      { id: 'malware-interne-1', title: 'Propagation malware interne', urgency: 'high', expertise: 'advanced' },
+      { id: 'attaque-ciblee-1', title: 'Attaque ciblée persistante', urgency: 'high', expertise: 'expert' }
+    ],
+    [EmergencyType.FORENSICS]: [
+      { id: 'analyse-post-incident-1', title: 'Analyse post-incident critique', urgency: 'medium', expertise: 'advanced' },
+      { id: 'extraction-logs-1', title: 'Extraction et analyse de logs', urgency: 'medium', expertise: 'intermediate' },
+      { id: 'investigation-numerique-1', title: 'Investigation numérique complexe', urgency: 'high', expertise: 'expert' }
+    ]
+  };
+
   // Au chargement, récupérer la liste des types de scénarios d'urgence
   useEffect(() => {
     const fetchScenarioTypes = async () => {
@@ -108,8 +221,8 @@ export default function EmergencyResponsePage() {
           setScenarioTypes(data.scenarioTypes);
           setCurrentDateTime(data.currentDateTime);
           toast({
-            title: "Système d'urgence initialisé",
-            description: "Sélectionnez un type d'urgence pour commencer",
+            title: "Centre d'urgence activé",
+            description: "Tous les modules sont disponibles et prêts à l'emploi",
           });
         } else {
           toast({
@@ -387,7 +500,7 @@ export default function EmergencyResponsePage() {
       
       {!isSessionActive ? (
         <div className="container mx-auto px-4 py-8">
-          <Card className="bg-gradient-to-br from-blue-950 to-indigo-900 text-white border-blue-800 max-w-3xl mx-auto">
+          <Card className="bg-gradient-to-br from-blue-950 to-indigo-900 text-white border-blue-800 max-w-6xl mx-auto">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -402,56 +515,115 @@ export default function EmergencyResponsePage() {
                 )}
               </div>
               <CardDescription className="text-blue-200 mt-2">
-                Sélectionnez le type d'urgence cyber que vous souhaitez traiter. Vous devrez prendre des décisions rapides et pertinentes pour résoudre la situation de crise.
+                Sélectionnez un scénario d'urgence cyber pour commencer la simulation. Vous devrez prendre des décisions rapides et pertinentes pour résoudre la situation de crise. Des interlocuteurs experts vous guideront tout au long de l'exercice.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {isLoading ? (
-                  <div className="col-span-2 py-8 flex justify-center">
-                    <RefreshCw className="h-8 w-8 animate-spin text-blue-400" />
-                  </div>
-                ) : (
-                  scenarioTypes.map((type) => (
-                    <Card 
-                      key={type} 
-                      className={`bg-blue-900/40 border-blue-700/50 cursor-pointer transition-all hover:bg-blue-800/40 hover:border-blue-600 ${selectedType === type ? 'ring-2 ring-blue-500' : ''}`}
-                      onClick={() => setSelectedType(type)}
-                    >
-                      <CardHeader className="py-3 px-4">
-                        <CardTitle className="text-base text-white">{type}</CardTitle>
-                      </CardHeader>
-                    </Card>
-                  ))
-                )}
-              </div>
-              
-              {selectedType && (
-                <div className="mt-6 flex justify-center">
-                  <Button 
-                    className="bg-red-600 hover:bg-red-700 text-white px-6 py-6"
-                    onClick={() => startEmergencySession(selectedType)}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <RefreshCw className="mr-2 h-5 w-5 animate-spin" />
-                    ) : (
-                      <AlertTriangle className="mr-2 h-5 w-5" />
-                    )}
-                    Activer le protocole d'urgence
-                  </Button>
+              {isLoading ? (
+                <div className="py-8 flex justify-center">
+                  <RefreshCw className="h-12 w-12 animate-spin text-blue-400" />
                 </div>
+              ) : (
+                <>
+                  {/* Filtres de recherche */}
+                  <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
+                    <div className="space-x-2">
+                      <span className="text-sm text-blue-300">Filtrer par niveau d'urgence:</span>
+                      {Object.entries(urgencyBadges).map(([key, value]) => (
+                        <Badge key={key} className={`${value.color} hover:opacity-80 cursor-pointer`}>
+                          {value.label}
+                        </Badge>
+                      ))}
+                    </div>
+                    <div className="space-x-2">
+                      <span className="text-sm text-blue-300">Filtrer par niveau d'expertise:</span>
+                      {Object.entries(expertiseBadges).map(([key, value]) => (
+                        <Badge key={key} className={`${value.color} hover:opacity-80 cursor-pointer`}>
+                          {value.label}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Tabs de catégories */}
+                  <div className="border-b border-gray-700 mb-6">
+                    <div className="flex flex-wrap gap-2">
+                      {scenarioTypes.map((type) => (
+                        <button
+                          key={type}
+                          className={`px-4 py-2 text-sm rounded-t-lg transition-colors ${
+                            selectedType === type
+                              ? "bg-blue-700 text-white"
+                              : "bg-blue-900/40 text-blue-300 hover:bg-blue-800/60 hover:text-white"
+                          }`}
+                          onClick={() => setSelectedType(type)}
+                        >
+                          {type}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Liste des scénarios disponibles */}
+                  {selectedType && scenariosByCategory[selectedType] && (
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold text-white">
+                        Scénarios de {selectedType}
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {scenariosByCategory[selectedType].map((scenario) => (
+                          <Card 
+                            key={scenario.id} 
+                            className="bg-blue-900/40 border-blue-700/50 cursor-pointer transition-all hover:bg-blue-800/40 hover:border-blue-600 hover:shadow-lg hover:translate-y-[-2px]"
+                            onClick={() => {
+                              setSelectedType(selectedType);
+                              startEmergencySession(selectedType);
+                            }}
+                          >
+                            <CardHeader className="py-3 px-4">
+                              <div className="flex gap-2 mb-2">
+                                <Badge className={urgencyBadges[scenario.urgency as keyof typeof urgencyBadges].color}>
+                                  {urgencyBadges[scenario.urgency as keyof typeof urgencyBadges].label}
+                                </Badge>
+                                <Badge className={expertiseBadges[scenario.expertise as keyof typeof expertiseBadges].color}>
+                                  {expertiseBadges[scenario.expertise as keyof typeof expertiseBadges].label}
+                                </Badge>
+                              </div>
+                              <CardTitle className="text-base text-white">{scenario.title}</CardTitle>
+                            </CardHeader>
+                            <CardFooter className="pt-0 pb-3 px-4 flex justify-between items-center">
+                              <div className="text-xs text-blue-300">Durée: 20 minutes</div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-blue-300 hover:text-white hover:bg-blue-700"
+                              >
+                                <ArrowRight className="h-4 w-4" />
+                              </Button>
+                            </CardFooter>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </CardContent>
-            <CardFooter className="flex justify-between text-xs text-blue-300 border-t border-blue-800/50 pt-4">
-              <div>Temps estimé de l'exercice: 20 minutes</div>
-              <div>Niveau de difficulté: Adaptable</div>
+            <CardFooter className="flex justify-between items-center text-xs text-blue-300 border-t border-blue-800/50 pt-4">
+              <div className="flex items-center gap-2">
+                <Timer className="h-4 w-4 text-blue-400" />
+                <span>Temps estimé par session: 20 minutes</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-blue-400" />
+                <span>Débriefing complet à la fin de chaque session</span>
+              </div>
             </CardFooter>
           </Card>
         </div>
       ) : (
         <div className="h-[calc(100vh-150px)] flex flex-col">
-          {/* En-tête du scénario */}
+          {/* En-tête du scénario avec plus d'informations et de badges */}
           {currentScenario && (
             <div className="bg-gradient-to-r from-blue-900/80 to-indigo-900/80 border-b border-blue-700/50 px-4 py-3">
               <div className="container mx-auto">
@@ -463,17 +635,59 @@ export default function EmergencyResponsePage() {
                       {getUrgencyBadge(currentScenario.urgencyLevel)}
                     </h2>
                     <p className="text-sm text-blue-200">{currentScenario.description}</p>
+                    
+                    {/* Objectifs de la mission */}
+                    {progress && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {currentScenario.objectives.map((objective: string, index: number) => (
+                          <Badge 
+                            key={index} 
+                            className={`${
+                              progress.completedObjectives.includes(objective) 
+                                ? 'bg-green-500 text-white' 
+                                : 'bg-blue-900/70 text-gray-300'
+                            }`}
+                          >
+                            {progress.completedObjectives.includes(objective) && (
+                              <CheckCircle2 className="h-3 w-3 mr-1" />
+                            )}
+                            {objective}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   
+                  {/* Statistiques de progression interactive */}
                   {progress && (
-                    <div className="flex items-center gap-2">
-                      <div className="text-xs text-blue-300">Score:</div>
-                      <Progress 
-                        value={progress.performanceScore} 
-                        max={100} 
-                        className="w-24 h-2 bg-blue-900/50" 
-                      />
-                      <div className="text-sm font-mono text-white">{progress.performanceScore}</div>
+                    <div className="flex flex-col items-end gap-2 min-w-[160px]">
+                      <div className="flex items-center justify-between w-full">
+                        <div className="text-xs text-blue-300">Score:</div>
+                        <div className="flex items-center gap-2">
+                          <Progress 
+                            value={progress.performanceScore} 
+                            max={100} 
+                            className="w-24 h-2 bg-blue-900/50" 
+                          />
+                          <div className="text-sm font-mono text-white">{progress.performanceScore}</div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <div className="text-xs text-blue-300">Temps:</div>
+                        <div className="flex items-center gap-1 text-amber-400 font-mono">
+                          <Clock className="h-3 w-3" />
+                          <span>{formatTime(remainingTime)}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <div className="text-xs text-blue-300">Phase:</div>
+                        <Badge className="bg-purple-600">
+                          {progress.currentStage === 1 ? "Analyse" : 
+                           progress.currentStage === 2 ? "Action" : "Résolution"}
+                        </Badge>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -481,92 +695,212 @@ export default function EmergencyResponsePage() {
             </div>
           )}
           
-          {/* Zone de chat */}
-          <div 
-            ref={chatContainerRef}
-            className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-cyber"
-          >
-            {messages.map((message) => (
+          {/* Zone de chat avec avatars et design amélioré */}
+          <div className="grid grid-cols-12 h-full">
+            {/* Partie gauche avec liste des interlocuteurs */}
+            <div className="col-span-3 md:col-span-2 bg-slate-900 border-r border-slate-800 overflow-y-auto">
+              <div className="p-3">
+                <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Interlocuteurs</h3>
+                
+                {currentScenario && currentScenario.npcs && (
+                  <div className="space-y-3">
+                    {currentScenario.npcs.map((npc: any) => (
+                      <div key={npc.id} className="flex items-center gap-2 p-2 rounded-lg hover:bg-blue-900/30 cursor-pointer transition-colors">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-semibold">
+                          {npc.name.charAt(0)}
+                        </div>
+                        <div className="overflow-hidden">
+                          <div className="text-sm text-white font-medium truncate">{npc.name}</div>
+                          <div className="text-xs text-slate-400 truncate">{npc.role}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                <div className="mt-6">
+                  <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Expertise</h3>
+                  
+                  {currentScenario && currentScenario.npcs && (
+                    <div className="space-y-1">
+                      {/* Agrégation des compétences de tous les interlocuteurs */}
+                      {Array.from(new Set(currentScenario.npcs.flatMap((npc: any) => npc.expertise))).map((expertise: string, index: number) => (
+                        <Badge key={index} variant="outline" className="mr-1 mb-1 bg-slate-800 text-xs border-slate-700 text-slate-300">
+                          {expertise}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            {/* Partie droite avec le chat */}
+            <div className="col-span-9 md:col-span-10 flex flex-col h-full">
               <div 
-                key={message.id} 
-                className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'} animate-fadeIn`}
+                ref={chatContainerRef}
+                className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-cyber"
               >
-                <div 
-                  className={`max-w-[80%] md:max-w-[70%] rounded-lg px-4 py-3 ${
-                    message.type === 'user' 
-                      ? 'bg-blue-600 text-white'
-                      : message.type === 'system'
-                        ? 'bg-red-900/80 text-white border border-red-700'
-                        : 'bg-slate-800 text-white border border-slate-700'
-                  }`}
-                >
-                  {message.type === 'bot' && message.contactName && (
-                    <div className="text-xs text-blue-300 font-semibold mb-1">
-                      {message.contactName} {message.contactRole && `— ${message.contactRole}`}
+                {messages.map((message) => (
+                  <div 
+                    key={message.id} 
+                    className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'} animate-fadeIn transition-all duration-300 hover:scale-[1.01]`}
+                  >
+                    {message.type !== 'user' && message.contactName && (
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-semibold mr-2 mt-2">
+                        {message.contactName.charAt(0)}
+                      </div>
+                    )}
+                    
+                    <div 
+                      className={`max-w-[80%] md:max-w-[70%] rounded-lg px-4 py-3 shadow-md ${
+                        message.type === 'user' 
+                          ? 'bg-blue-600 text-white'
+                          : message.type === 'system'
+                            ? 'bg-red-900/80 text-white border border-red-700'
+                            : 'bg-slate-800 text-white border border-slate-700'
+                      }`}
+                    >
+                      {message.type === 'bot' && message.contactName && (
+                        <div className="flex items-center justify-between">
+                          <div className="text-xs text-blue-300 font-semibold mb-1">
+                            {message.contactName} 
+                            {message.contactRole && (
+                              <span className="text-slate-400"> — {message.contactRole}</span>
+                            )}
+                          </div>
+                          
+                          {/* Icône de niveau d'expertise */}
+                          <Badge className="bg-indigo-800 text-xs">Expert</Badge>
+                        </div>
+                      )}
+                      
+                      {message.type === 'system' && (
+                        <div className="text-xs text-red-300 font-semibold mb-1 flex items-center gap-1">
+                          <AlertTriangle className="h-3 w-3" /> 
+                          Alerte Système
+                        </div>
+                      )}
+                      
+                      <div className="whitespace-pre-wrap">{message.content}</div>
+                      
+                      <div className="flex justify-between mt-2 text-xs opacity-70">
+                        <div>
+                          {message.type === 'bot' && (
+                            <div className="flex gap-1">
+                              {/* Tags reliés au message - exemple */}
+                              {Math.random() > 0.5 && (
+                                <Badge variant="outline" className="text-[10px] bg-transparent border-blue-600/30 text-blue-400">
+                                  #Conseil
+                                </Badge>
+                              )}
+                              {Math.random() > 0.7 && (
+                                <Badge variant="outline" className="text-[10px] bg-transparent border-green-600/30 text-green-400">
+                                  #BonnePratique
+                                </Badge>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          {new Date(message.timestamp).toLocaleTimeString()}
+                        </div>
+                      </div>
                     </div>
-                  )}
-                  
-                  {message.type === 'system' && (
-                    <div className="text-xs text-red-300 font-semibold mb-1 flex items-center gap-1">
-                      <AlertTriangle className="h-3 w-3" /> 
-                      Alerte Système
-                    </div>
-                  )}
-                  
-                  <div className="whitespace-pre-wrap">{message.content}</div>
-                  
-                  <div className="text-right mt-1 text-xs opacity-70">
-                    {new Date(message.timestamp).toLocaleTimeString()}
+                    
+                    {message.type === 'user' && (
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-600 to-teal-700 flex items-center justify-center text-white font-semibold ml-2 mt-2">
+                        V
+                      </div>
+                    )}
                   </div>
+                ))}
+                
+                {isTyping && (
+                  <div className="flex justify-start animate-fadeIn">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-semibold mr-2"></div>
+                    <div className="bg-slate-800 text-white border border-slate-700 rounded-lg px-4 py-3">
+                      <div className="flex space-x-2">
+                        <div className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                        <div className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                        <div className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '600ms' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Suggestions et zone de saisie */}
+              <div className="p-4 bg-slate-900 border-t border-slate-800">
+                {/* Suggestions rapides */}
+                <div className="mb-3 flex flex-wrap gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="bg-blue-900/30 border-blue-800 text-blue-300 hover:bg-blue-800/50 hover:text-white"
+                    onClick={() => {
+                      setInputMessage("Quelles sont les prochaines étapes à suivre ?");
+                      setTimeout(() => sendMessage(), 100);
+                    }}
+                  >
+                    Prochaines étapes ?
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="bg-blue-900/30 border-blue-800 text-blue-300 hover:bg-blue-800/50 hover:text-white"
+                    onClick={() => {
+                      setInputMessage("Pouvez-vous résumer la situation actuelle ?");
+                      setTimeout(() => sendMessage(), 100);
+                    }}
+                  >
+                    Résumer la situation
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="bg-blue-900/30 border-blue-800 text-blue-300 hover:bg-blue-800/50 hover:text-white"
+                    onClick={() => {
+                      setInputMessage("Quels sont les risques principaux ?");
+                      setTimeout(() => sendMessage(), 100);
+                    }}
+                  >
+                    Risques principaux
+                  </Button>
+                </div>
+                
+                <form onSubmit={sendMessage} className="flex gap-2">
+                  <textarea
+                    ref={textareaRef}
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Tapez votre message ou sélectionnez une suggestion..."
+                    className="flex-1 min-h-[50px] max-h-24 p-3 bg-slate-800 border border-slate-700 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled={remainingTime <= 0}
+                  />
+                  <Button 
+                    type="submit" 
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    disabled={!inputMessage.trim() || remainingTime <= 0}
+                  >
+                    <Send className="h-5 w-5" />
+                  </Button>
+                </form>
+                
+                <div className="flex justify-between mt-2 text-xs text-slate-400">
+                  <div>Shift+Entrée pour nouvelle ligne • Entrée pour envoyer</div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className="text-xs text-red-400 hover:text-red-300 hover:bg-red-900/20 p-1 h-auto"
+                    onClick={completeSession}
+                  >
+                    <Timer className="h-3 w-3 mr-1" />
+                    Terminer la session
+                  </Button>
                 </div>
               </div>
-            ))}
-            
-            {isTyping && (
-              <div className="flex justify-start animate-fadeIn">
-                <div className="bg-slate-800 text-white border border-slate-700 rounded-lg px-4 py-3">
-                  <div className="flex space-x-2">
-                    <div className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                    <div className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                    <div className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '600ms' }}></div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-          
-          {/* Zone de saisie */}
-          <div className="p-4 bg-slate-900 border-t border-slate-800">
-            <form onSubmit={sendMessage} className="flex gap-2">
-              <textarea
-                ref={textareaRef}
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Tapez votre message..."
-                className="flex-1 min-h-[50px] max-h-24 p-3 bg-slate-800 border border-slate-700 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-                disabled={remainingTime <= 0}
-              />
-              <Button 
-                type="submit" 
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-                disabled={!inputMessage.trim() || remainingTime <= 0}
-              >
-                <Send className="h-5 w-5" />
-              </Button>
-            </form>
-            
-            <div className="flex justify-between mt-2 text-xs text-slate-400">
-              <div>Shift+Entrée pour nouvelle ligne • Entrée pour envoyer</div>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                className="text-xs text-red-400 hover:text-red-300 hover:bg-red-900/20 p-1 h-auto"
-                onClick={completeSession}
-              >
-                <Timer className="h-3 w-3 mr-1" />
-                Terminer la session
-              </Button>
             </div>
           </div>
         </div>
