@@ -272,10 +272,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // API route for starting a scenario
   app.post('/api/cyber/start-scenario', async (req, res) => {
-    // Importer le module de gestion du démarrage de scénario
-    const { handleStartScenario } = require('./routes.start-scenario');
-    
-    // Déléguer à notre nouvelle implémentation
+    // Déléguer à notre nouvelle implémentation importée en haut du fichier
     return handleStartScenario(req, res);
   });
   
@@ -404,13 +401,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const azureKey = process.env.GPT4O_API_KEY || process.env.AZURE_OPENAI_API_KEY;
       const openaiKey = process.env.OPENAI_API_KEY;
       
+      // Déterminer le type de clé actuellement utilisé (primary ou secondary)
+      const keyType = process.env.ACTIVE_KEY_TYPE || 'primary';
+      
+      // Déterminer le modèle actuellement utilisé en fonction du type de clé
+      let currentModel;
+      if (keyType === 'primary') {
+        currentModel = process.env.GPT4O_DEPLOYMENT_NAME || 'gpt-4o';
+      } else {
+        currentModel = process.env.GPT4O_MINI_DEPLOYMENT_NAME || 'gpt-4o-mini';
+      }
+      
       // Si nous avons Azure OpenAI configuré, c'est notre priorité
       if (azureKey) {
         return res.json({ 
           status: 'success', 
           provider: 'Azure OpenAI',
-          model: process.env.GPT4O_DEPLOYMENT_NAME || process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4o',
-          message: 'Azure OpenAI API is properly configured',
+          keyType: keyType,
+          model: currentModel,
+          message: `Azure OpenAI API is properly configured (${keyType} key)`,
           needsSetup: false
         });
       }
@@ -420,6 +429,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({ 
           status: 'success', 
           provider: 'OpenAI',
+          keyType: 'primary', // OpenAI standard n'a pas de concept de clé primaire/secondaire
           model: process.env.OPENAI_MODEL || 'gpt-4o',
           message: 'OpenAI API is properly configured',
           needsSetup: false
@@ -434,8 +444,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({ 
           status: 'success',
           provider: 'Azure OpenAI (From Logs)',
-          model: 'gpt-4o-mini',
-          message: 'Azure OpenAI API connection detected from logs',
+          keyType: keyType,
+          model: currentModel,
+          message: `Azure OpenAI API connection detected from logs (${keyType} key)`,
           needsSetup: false
         });
       }
@@ -444,6 +455,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.json({ 
         status: 'success', // Changé à success car nous utilisons le service de secours
         provider: 'Fallback Service',
+        keyType: 'none',
         model: 'Internal Fallback',
         message: 'Using fallback service for OpenAI functionality',
         needsSetup: false // Nous ne forçons pas la configuration puisque le service de secours fonctionne

@@ -35,14 +35,14 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
         const data = await response.json();
         setStatus(data.connectionStatus || 'disconnected');
         
-        // Définir le modèle courant
-        const model = data.currentModel || 'Inconnu';
+        // Définir le modèle courant (utiliser model au lieu de currentModel)
+        const model = data.model || 'Inconnu';
         setCurrentModel(model);
         
-        // Déterminer le type de clé API en fonction du modèle
-        // Si le modèle est 'gpt-4o-mini', nous sommes en mode économique
-        const keyType = (model === 'gpt-4o-mini') ? 'secondary' : 'primary';
-        setApiKeyType(keyType);
+        // Récupérer directement le type de clé depuis la réponse API 
+        // (plus fiable que de le déduire du modèle)
+        const keyType = data.keyType || 'primary';
+        setApiKeyType(keyType as 'primary' | 'secondary');
         
         setLastCheck(data.lastCheck || Date.now());
         
@@ -80,10 +80,10 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
         const data = await response.json();
         
         // Récupérer le nom du modèle depuis la réponse ou utiliser une valeur par défaut
-        const modelName = data.modelName || (newKeyType === 'primary' ? 'gpt-4o' : 'gpt-4o-mini');
+        const modelName = data.model || (newKeyType === 'primary' ? 'gpt-4o' : 'gpt-4o-mini');
         setCurrentModel(modelName);
         setApiKeyType(newKeyType);
-        setStatus(data.connectionStatus || 'checking');
+        setStatus('connected');
         
         console.log('Changement de modèle réussi:', {
           newKeyType,
