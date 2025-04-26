@@ -474,17 +474,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Nouvel endpoint pour générer un message d'accueil dynamique
   app.get('/api/cyber/welcome-message', async (req: Request, res: Response) => {
     try {
-      // Générer un prompt système pour le message d'accueil
+      // Date du jour au format français
+      const today = new Date();
+      const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+      const dateStr = today.toLocaleDateString('fr-FR', options);
+      
+      // Générer un prompt système pour le message d'accueil avec actualités
       const systemPrompt = `Tu es I AM CYBER, un assistant virtuel spécialisé en cybersécurité. 
-      Ta mission est de générer un message d'accueil attrayant et engageant pour les utilisateurs qui arrivent sur la plateforme.
+      Ta mission est de générer un message d'accueil attrayant qui inclut une actualité récente sur la cybersécurité.
+      
+      Nous sommes le ${dateStr}.
       
       CONSIGNES IMPORTANTES:
-      1. Termine TOUJOURS ton message en demandant le prénom de l'utilisateur.
-      2. Utilise un ton professionnel mais chaleureux.
-      3. Mentionne que tu es "I AM CYBER" et que tu es là pour les accompagner dans une expérience d'apprentissage immersive et interactive.
-      4. Adapte ton message pour des professionnels intéressés par la cybersécurité.
-      5. Garde le message concis (environ 3-4 lignes maximum).
-      6. N'utilise pas d'émojis.`;
+      1. Commence par te présenter brièvement: "Bonjour, je suis I AM CYBER, votre allié dans le domaine de la cybersécurité."
+      2. Mentionne ensuite une actualité récente et pertinente sur la cybersécurité (tu peux l'inventer, mais elle doit être réaliste, comme une nouvelle vulnérabilité, une attaque récente, une nouvelle réglementation, etc.)
+      3. Utilise la formulation "Saviez-vous que..." pour introduire cette actualité.
+      4. Termine TOUJOURS ton message en demandant le prénom de l'utilisateur.
+      5. Utilise un ton professionnel mais chaleureux.
+      6. Adapte ton message pour des professionnels intéressés par la cybersécurité.
+      7. Garde le message concis mais informatif (environ 4-5 lignes).
+      8. N'utilise pas d'émojis.
+      9. Assure-toi que l'actualité mentionnée semble récente et crédible.`;
       
       // Préparer les messages pour l'API
       const messages: ChatCompletionMessageParam[] = [
@@ -494,15 +504,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         {
           role: "user",
-          content: "Génère un message d'accueil pour la plateforme I AM CYBER."
+          content: "Génère un message d'accueil pour la plateforme I AM CYBER qui inclut une actualité récente sur la cybersécurité."
         }
       ];
       
-      // Obtenir la réponse de l'API avec une température plus basse pour plus de cohérence
+      // Obtenir la réponse de l'API avec une température plus élevée pour plus de variété
       const welcomeMessage = await openAIService.getChatCompletionWithCache(
         messages,
-        0.4, // Température basse pour la cohérence
-        250  // Limite de tokens
+        0.7, // Température plus élevée pour la variété des actualités
+        350  // Limite de tokens augmentée pour permettre l'ajout de l'actualité
       );
       
       // Renvoyer le message généré
