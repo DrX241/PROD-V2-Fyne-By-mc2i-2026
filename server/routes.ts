@@ -568,11 +568,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Ensuite, retirer les préfixes "Conseil cyber : " ou "Saviez-vous que : " sans formatage
       formattedTip = formattedTip.replace(/^(Conseil cyber|Saviez-vous que)(\s*:|:)?\s+/i, "");
       
-      const welcomeMessage = `Bonjour, je suis I AM CYBER, votre partenaire d'apprentissage cybersécurité pour cette session.
+      const welcomeMessage = `Bonjour, je suis I AM CYBER, votre compagnon d'apprentissage en cybersécurité pour cette session.
 
-J'en profite, savez-vous que ${formattedTip}
+À propos, saviez-vous que ${formattedTip} ? Pensez à protéger vos données !
 
-En attendant, je vais vous guider dans votre parcours d'apprentissage. Quel est votre prénom ?`;
+En attendant, je suis là pour vous accompagner. Comment vous appelez-vous ?`;
       
       // Renvoyer le message généré
       return res.json({
@@ -583,11 +583,11 @@ En attendant, je vais vous guider dans votre parcours d'apprentissage. Quel est 
       console.error("Erreur lors de la génération du message d'accueil:", error);
       
       // En cas d'erreur, retourner un message par défaut
-      const fallbackMessage = `Bonjour, je suis I AM CYBER, votre allié dans le domaine de la cybersécurité.
+      const fallbackMessage = `Bonjour, je suis I AM CYBER, votre compagnon d'apprentissage en cybersécurité pour cette session.
 
-Je suis là pour vous accompagner dans une expérience d'apprentissage immersive et interactive.
+À propos, saviez-vous que 81% des violations de données sont causées par des mots de passe faibles ou réutilisés ? Pensez à protéger vos données !
 
-Quel est votre prénom ?`;
+En attendant, je suis là pour vous accompagner. Comment vous appelez-vous ?`;
       
       return res.json({
         success: true,
