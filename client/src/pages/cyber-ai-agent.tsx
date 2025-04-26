@@ -63,7 +63,7 @@ export default function CyberAiAgentPage() {
     strategic: 20,
     communication: 20
   });
-  const [currentNPC, setCurrentNPC] = useState<string>("SOC Analyst");
+  const [currentNPC, setCurrentNPC] = useState<string>("Sarah Chen");
   const startTimeRef = useRef<number>(0);
 
   // Configurer le formulaire
