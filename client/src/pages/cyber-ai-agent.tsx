@@ -332,38 +332,6 @@ export default function CyberAiAgentPage() {
                     Plongez dans une expérience d'apprentissage avancée en cybersécurité avec évaluation des compétences en temps réel.
                   </p>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-                    <motion.div 
-                      whileHover={{ scale: 1.03 }}
-                      className="bg-gradient-to-br from-cyan-900/30 to-blue-950/80 border border-cyan-800/40 rounded-lg p-4 text-center shadow-md"
-                    >
-                      <div className="bg-gradient-to-br from-cyan-800/70 to-cyan-700/30 p-2 rounded-full inline-block mb-3">
-                        <Command className="h-7 w-7 text-cyan-300" />
-                      </div>
-                      <h3 className="font-medium text-white text-sm">Centre de commandement</h3>
-                    </motion.div>
-                    
-                    <motion.div 
-                      whileHover={{ scale: 1.03 }}
-                      className="bg-gradient-to-br from-indigo-900/30 to-blue-950/80 border border-indigo-800/40 rounded-lg p-4 text-center shadow-md"
-                    >
-                      <div className="bg-gradient-to-br from-indigo-800/70 to-indigo-700/30 p-2 rounded-full inline-block mb-3">
-                        <Microscope className="h-7 w-7 text-indigo-300" />
-                      </div>
-                      <h3 className="font-medium text-white text-sm">Laboratoire d'analyse</h3>
-                    </motion.div>
-                    
-                    <motion.div 
-                      whileHover={{ scale: 1.03 }}
-                      className="bg-gradient-to-br from-violet-900/30 to-blue-950/80 border border-violet-800/40 rounded-lg p-4 text-center shadow-md"
-                    >
-                      <div className="bg-gradient-to-br from-violet-800/70 to-violet-700/30 p-2 rounded-full inline-block mb-3">
-                        <AlertCircle className="h-7 w-7 text-violet-300" />
-                      </div>
-                      <h3 className="font-medium text-white text-sm">Salle de crise</h3>
-                    </motion.div>
-                  </div>
-                  
                   <div className="bg-gradient-to-br from-blue-900/40 to-indigo-900/40 rounded-lg p-5 border border-blue-700/30 shadow-lg relative overflow-hidden">
                     {/* Effet de particules */}
                     <div className="absolute top-0 right-0 w-16 h-16 bg-blue-500/10 rounded-full blur-xl"></div>
