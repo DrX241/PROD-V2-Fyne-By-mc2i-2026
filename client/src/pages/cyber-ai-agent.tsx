@@ -392,7 +392,7 @@ export default function CyberAiAgentPage() {
                                           <div className="mb-3 bg-cyan-700/70 p-2 rounded-lg w-min">
                                             <Command className="h-6 w-6 text-cyan-200" />
                                           </div>
-                                          <h3 className="font-bold text-lg text-white mb-3 line-clamp-2 drop-shadow-md">Centre de Commandement</h3>
+                                          <h3 className="font-bold text-base text-white mb-3 drop-shadow-md">Centre de Commandement</h3>
                                           <p className="text-sm text-cyan-100/80 line-clamp-2 group-hover:line-clamp-3 transition-all">
                                             Planification stratégique et coordination d'équipe.
                                           </p>
@@ -430,7 +430,7 @@ export default function CyberAiAgentPage() {
                                           <div className="mb-3 bg-indigo-700/70 p-2 rounded-lg w-min">
                                             <Microscope className="h-6 w-6 text-indigo-200" />
                                           </div>
-                                          <h3 className="font-bold text-lg text-white mb-3 line-clamp-2 drop-shadow-md">Laboratoire d'Analyse</h3>
+                                          <h3 className="font-bold text-base text-white mb-3 drop-shadow-md">Laboratoire d'Analyse</h3>
                                           <p className="text-sm text-indigo-100/80 line-clamp-2 group-hover:line-clamp-3 transition-all">
                                             Investigation technique et analyse forensique.
                                           </p>
@@ -468,7 +468,7 @@ export default function CyberAiAgentPage() {
                                           <div className="mb-3 bg-violet-700/70 p-2 rounded-lg w-min">
                                             <AlertCircle className="h-6 w-6 text-violet-200" />
                                           </div>
-                                          <h3 className="font-bold text-lg text-white mb-3 line-clamp-2 drop-shadow-md">Salle de Crise</h3>
+                                          <h3 className="font-bold text-base text-white mb-3 drop-shadow-md">Salle de Crise</h3>
                                           <p className="text-sm text-violet-100/80 line-clamp-2 group-hover:line-clamp-3 transition-all">
                                             Gestion d'incidents critiques et coordination.
                                           </p>
