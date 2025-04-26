@@ -615,7 +615,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         company: data.context?.companyName || "I AM CYBER",
         recipients: ["vous"],
         body: data.initialPrompt,
-        attachments: [],
+        // Si nous avons des contacts de scénario, les ajouter à l'email
+        scenarioContacts: data.context?.additionalContacts || [],
         timestamp: Date.now()
       };
 
