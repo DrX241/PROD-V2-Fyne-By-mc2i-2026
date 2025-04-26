@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { openAIService } from "./services/openAIService";
+import { openAIService } from './services/openAIService';
 import { getRandomAnecdote, getDifficultyText, getSecteurActivite, getCompanyName, getRelevantContacts } from './anecdoteGenerator';
 
 // Constantes pour le scénario

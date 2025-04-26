@@ -291,6 +291,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return completeAgentSession(req, res);
   });
   
+  // Route pour changer le type de clé API (primaire/secondaire)
+  app.post('/api/cyber/switch-api-key', (req, res) => {
+    try {
+      const { keyType } = req.body;
+      
+      if (!keyType || (keyType !== 'primary' && keyType !== 'secondary')) {
+        return res.status(400).json({
+          success: false,
+          message: "Le type de clé doit être 'primary' ou 'secondary'"
+        });
+      }
+      
+      // Enregistrer le type de clé actuel dans les variables d'environnement
+      process.env.ACTIVE_KEY_TYPE = keyType;
+      
+      // Déterminer le modèle actif en fonction du type de clé
+      const activeModel = keyType === 'primary' ? 
+        (process.env.GPT4O_DEPLOYMENT_NAME || 'gpt-4o') : 
+        (process.env.GPT4O_MINI_DEPLOYMENT_NAME || 'gpt-4o-mini');
+      
+      process.env.ACTIVE_MODEL = activeModel;
+      
+      console.log(`Switched to ${keyType} API key with model: ${activeModel}`);
+      
+      return res.json({
+        success: true,
+        keyType,
+        model: activeModel,
+        message: `API key switched to ${keyType} (${activeModel})`
+      });
+    } catch (error) {
+      console.error('Error switching API key:', error);
+      return res.status(500).json({
+        success: false,
+        message: "Erreur lors du changement de clé API"
+      });
+    }
+  });
+  
   // API route for chat messages
   app.post('/api/cyber/chat', async (req, res) => {
     try {

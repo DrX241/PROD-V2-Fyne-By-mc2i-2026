@@ -1,250 +1,307 @@
 /**
- * Service OpenAI pour générer des prompts et des réponses
- * Ce service gère les interactions avec les modèles d'OpenAI et Azure OpenAI
- * Il fournit des méthodes pour générer des prompts systèmes et des completions
+ * Service OpenAI pour l'interaction avec Azure OpenAI / OpenAI
  */
+import { extractJsonFromOpenAiResponse, createFallbackJson } from '../openAiResponseHelper';
+import axios from 'axios';
+import crypto from 'crypto';
 
-import { OpenAI } from 'openai';
-import type { ChatCompletionMessageParam } from 'openai/resources';
-
-// Cache pour les completions pour éviter de refaire les mêmes appels
-interface CacheEntry {
-  result: string;
+// Type pour le cache
+interface CacheItem {
+  response: string;
   timestamp: number;
+  hash: string;
 }
 
-// Durée de validité du cache en millisecondes (15 minutes)
-const CACHE_TTL = 15 * 60 * 1000;
-
-// Configuration du service OpenAI/Azure OpenAI
-interface OpenAIServiceConfig {
-  apiKey?: string;
-  endpoint?: string;
-  deploymentName?: string;
-  apiVersion?: string;
-  isAzure?: boolean;
+// Configuration pour le modèle OpenAI
+interface OpenAIConfig {
+  modelName: string;
+  endpoint: string;
+  apiKey: string;
+  apiVersion: string;
 }
 
 class OpenAIService {
-  private openai: OpenAI;
-  private completionCache: Map<string, CacheEntry>;
-  private config: OpenAIServiceConfig;
-  private fallbackMessages: string[];
-
+  // Cache pour éviter des appels redondants à OpenAI
+  private cache: Record<string, CacheItem> = {};
+  private cacheTTL: number = 1000 * 60 * 60; // 1 heure
+  private cacheEnabled: boolean = true;
+  
+  // Configuration pour les modèles OpenAI
+  private primaryConfig: OpenAIConfig | null = null;
+  private secondaryConfig: OpenAIConfig | null = null;
+  private mockMode: boolean = false;
+  
   constructor() {
-    this.completionCache = new Map();
-    this.fallbackMessages = [
-      "Je vais analyser cette situation et vous proposer une réponse détaillée.",
-      "Voici quelques éléments de réflexion sur ce sujet complexe.",
-      "En tant qu'expert en cybersécurité, je peux vous proposer plusieurs approches.",
-      "Cette problématique mérite une analyse approfondie. Voici mes recommandations.",
-      "Analysons ensemble cette situation pour identifier les meilleures pratiques à appliquer."
-    ];
-    
-    // Configuration par défaut
-    this.config = {
-      isAzure: true
-    };
-    
-    // Initialiser avec la configuration par défaut ou à partir des variables d'environnement
-    this.initializeClient();
+    this.initializeFromEnvironment();
   }
-
+  
   /**
-   * Initialise le client OpenAI avec les configurations disponibles
+   * Initialise le service depuis les variables d'environnement
    */
-  private initializeClient() {
-    // Vérifier si les variables d'environnement Azure OpenAI sont disponibles
-    if (process.env.AZURE_OPENAI_API_KEY && process.env.AZURE_OPENAI_ENDPOINT) {
-      this.config = {
-        apiKey: process.env.AZURE_OPENAI_API_KEY,
-        endpoint: process.env.AZURE_OPENAI_ENDPOINT,
-        deploymentName: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4o',
-        apiVersion: process.env.AZURE_OPENAI_API_VERSION || '2023-05-15',
-        isAzure: true
+  private initializeFromEnvironment(): void {
+    // Vérifier si GPT-4o est configuré
+    const gpt4oKey = process.env.GPT4O_API_KEY;
+    const gpt4oEndpoint = process.env.GPT4O_ENDPOINT;
+    const gpt4oDeployment = process.env.GPT4O_DEPLOYMENT_NAME;
+    const gpt4oApiVersion = process.env.GPT4O_API_VERSION;
+    
+    // Vérifier si GPT-4o-mini est configuré
+    const gpt4oMiniKey = process.env.GPT4O_MINI_API_KEY;
+    const gpt4oMiniEndpoint = process.env.GPT4O_MINI_ENDPOINT;
+    const gpt4oMiniDeployment = process.env.GPT4O_MINI_DEPLOYMENT_NAME;
+    const gpt4oMiniApiVersion = process.env.GPT4O_MINI_API_VERSION;
+    
+    // Configurer le modèle principal si les variables sont présentes
+    if (gpt4oKey && gpt4oEndpoint && gpt4oDeployment) {
+      this.primaryConfig = {
+        modelName: gpt4oDeployment,
+        endpoint: gpt4oEndpoint,
+        apiKey: gpt4oKey,
+        apiVersion: gpt4oApiVersion || '2025-01-01-preview'
       };
-      
-      // Créer un client Azure OpenAI
-      this.openai = new OpenAI({
-        apiKey: this.config.apiKey,
-        baseURL: `${this.config.endpoint}/openai/deployments/${this.config.deploymentName}`,
-        defaultQuery: { 'api-version': this.config.apiVersion },
-        defaultHeaders: { 'api-key': this.config.apiKey }
-      });
-      
-      console.log('OpenAI service initialized with Azure OpenAI');
-      return;
+      console.log('Azure OpenAI Service initialized with primary model:', gpt4oDeployment);
     }
     
-    // Sinon, vérifier si l'API OpenAI standard est disponible
-    if (process.env.OPENAI_API_KEY) {
-      this.config = {
-        apiKey: process.env.OPENAI_API_KEY,
-        isAzure: false
+    // Configurer le modèle secondaire si les variables sont présentes
+    if (gpt4oMiniKey && gpt4oMiniEndpoint && gpt4oMiniDeployment) {
+      this.secondaryConfig = {
+        modelName: gpt4oMiniDeployment,
+        endpoint: gpt4oMiniEndpoint,
+        apiKey: gpt4oMiniKey,
+        apiVersion: gpt4oMiniApiVersion || '2024-12-01-preview'
       };
-      
-      // Créer un client OpenAI standard
-      this.openai = new OpenAI({
-        apiKey: this.config.apiKey
-      });
-      
-      console.log('OpenAI service initialized with standard OpenAI');
-      return;
+      console.log('Azure OpenAI Service initialized with secondary model:', gpt4oMiniDeployment);
     }
     
-    // Si aucune configuration n'est disponible, utiliser un client fictif
-    console.warn('No OpenAI configuration found. Using mock OpenAI client.');
-    
-    // @ts-ignore - Création d'un client fictif pour éviter les erreurs
-    this.openai = {
-      chat: {
-        completions: {
-          create: this.mockChatCompletions.bind(this)
-        }
-      }
-    };
+    // Si aucun modèle n'est configuré, activer le mode mock
+    if (!this.primaryConfig && !this.secondaryConfig) {
+      console.log('No OpenAI configuration found. Using mock OpenAI client.');
+      this.mockMode = true;
+    }
   }
-
+  
   /**
-   * Fonction de secours pour simuler les appels à l'API OpenAI
+   * Crée un hash MD5 d'une requête pour le cache
    */
-  private async mockChatCompletions(params: any) {
-    // Simuler un délai pour rendre la réponse plus réaliste
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // Extraire le dernier message utilisateur pour le contexte
-    let userMessage = '';
-    for (let i = params.messages.length - 1; i >= 0; i--) {
-      if (params.messages[i].role === 'user') {
-        userMessage = params.messages[i].content.slice(0, 50);
-        break;
-      }
-    }
-    
-    // Sélectionner un message aléatoire dans la liste des réponses de secours
-    const randomIndex = Math.floor(Math.random() * this.fallbackMessages.length);
-    const baseMessage = this.fallbackMessages[randomIndex];
-    
-    // Construire une réponse contextualisée
-    const response = `${baseMessage} À propos de "${userMessage}...", je recommande de vérifier les meilleures pratiques en matière de cybersécurité et de consulter les référentiels reconnus comme l'ANSSI ou le NIST.`;
-    
-    // Simuler la structure de la réponse API
-    return {
-      choices: [
-        {
-          message: {
-            content: response
-          }
-        }
-      ]
-    };
+  private createRequestHash(messages: any[], temperature: number, maxTokens: number): string {
+    const data = JSON.stringify({ messages, temperature, maxTokens });
+    return crypto.createHash('md5').update(data).digest('hex');
   }
-
+  
   /**
-   * Génère un prompt système adapté au contexte
-   * @param options Options de configuration du prompt (difficulté, style)
-   * @returns Prompt système configuré
-   */
-  async generateSystemPrompt(options: { difficultyLevel?: string, responseStyle?: string } = {}): Promise<string> {
-    const { difficultyLevel = 'Intermédiaire', responseStyle = 'Professionnel' } = options;
-    
-    // Adaptation de la complexité technique basée sur le niveau de difficulté
-    let technicalComplexity = '';
-    if (difficultyLevel === 'Débutant') {
-      technicalComplexity = 'Utilise un langage simple et accessible, évite le jargon technique sauf si nécessaire. Explique les concepts de base avant d\'entrer dans les détails.';
-    } else if (difficultyLevel === 'Intermédiaire') {
-      technicalComplexity = 'Utilise un niveau technique modéré, en expliquant les concepts avancés mais en supposant une connaissance des fondamentaux de la cybersécurité.';
-    } else if (difficultyLevel === 'Expert') {
-      technicalComplexity = 'Utilise un langage technique précis et détaillé, en supposant une connaissance approfondie du domaine. N\'hésite pas à référencer des normes, des attaques ou des techniques spécifiques.';
-    }
-    
-    // Adaptation du style de réponse
-    let toneStyle = '';
-    if (responseStyle === 'Professionnel') {
-      toneStyle = 'Adopte un ton formel et professionnel, tout en restant accessible. Privilégie la précision et la clarté.';
-    } else if (responseStyle === 'Pédagogique') {
-      toneStyle = 'Adopte un ton explicatif et didactique. Structure tes réponses en allant du général au particulier. Utilise des exemples concrets pour illustrer les concepts.';
-    } else if (responseStyle === 'Directif') {
-      toneStyle = 'Adopte un ton direct et concis. Concentre-toi sur les actions concrètes et les recommandations pratiques.';
-    }
-    
-    // Construction du prompt système
-    return `Tu es I AM CYBER, un assistant virtuel spécialisé en cybersécurité, conçu pour accompagner les professionnels dans leurs défis. 
-
-Tu possèdes une expertise approfondie dans tous les domaines de la cybersécurité, notamment la gestion des incidents, la protection des données, la stratégie de sécurité, l'analyse de vulnérabilités, et la conformité réglementaire.
-
-${technicalComplexity}
-
-${toneStyle}
-
-Dans tes réponses:
-- Utilise le vouvoiement
-- Sois précis et factuel
-- Structure clairement tes réponses
-- Apporte des conseils concrets et applicables
-- Évite les généralités inutiles
-- Adapte-toi au contexte spécifique fourni par l'utilisateur
-- Concentre-toi uniquement sur des aspects liés à la cybersécurité
-
-La date actuelle est le ${new Date().toLocaleDateString('fr-FR')}. Tiens compte de ce contexte temporel dans tes réponses si nécessaire.`;
-  }
-
-  /**
-   * Génère une complétion de chat avec OpenAI et utilise un cache pour éviter les appels redondants
-   * 
-   * @param messages Messages pour la complétion
-   * @param temperature Température pour la génération (0.0 à 1.0)
-   * @param maxTokens Nombre maximum de tokens
-   * @returns Contenu de la complétion
+   * Effectue un appel à l'API OpenAI avec gestion du cache
    */
   async getChatCompletionWithCache(
-    messages: Array<ChatCompletionMessageParam>,
+    messages: any[],
     temperature: number = 0.7,
-    maxTokens: number = 1000
+    maxTokens: number = 800
   ): Promise<string> {
-    // Créer une clé de cache unique basée sur les messages et les paramètres
-    const cacheKey = JSON.stringify({ messages, temperature, maxTokens });
+    // Générer un hash pour cette requête
+    const requestHash = this.createRequestHash(messages, temperature, maxTokens);
     
-    // Vérifier si la réponse est en cache et toujours valide
-    const cachedEntry = this.completionCache.get(cacheKey);
-    if (cachedEntry && Date.now() - cachedEntry.timestamp < CACHE_TTL) {
-      console.log('Using cached response for chat completion');
-      return cachedEntry.result;
+    // Vérifier si une réponse est en cache et encore valide
+    if (this.cacheEnabled && this.cache[requestHash]) {
+      const cachedItem = this.cache[requestHash];
+      const now = Date.now();
+      
+      // Si le cache est encore valide, retourner la réponse en cache
+      if (now - cachedItem.timestamp < this.cacheTTL) {
+        // console.log('Using cached response for request:', requestHash);
+        return cachedItem.response;
+      }
+    }
+    
+    // Sinon, effectuer un appel à l'API
+    try {
+      const response = await this.getChatCompletion(messages, temperature, maxTokens);
+      
+      // Mettre en cache la réponse
+      if (this.cacheEnabled) {
+        this.cache[requestHash] = {
+          response,
+          timestamp: Date.now(),
+          hash: requestHash
+        };
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('Error getting chat completion:', error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Effectue un appel à l'API OpenAI (sans cache)
+   */
+  async getChatCompletion(
+    messages: any[],
+    temperature: number = 0.7,
+    maxTokens: number = 800
+  ): Promise<string> {
+    // Si en mode mock, générer une réponse simulée
+    if (this.mockMode) {
+      return this.generateMockResponse(messages);
+    }
+    
+    // Vérifier quel modèle utiliser (utiliser le secondaire en mode eco si défini, sinon le principal)
+    const isEcoMode = process.env.ACTIVE_KEY_TYPE === 'secondary';
+    const config = isEcoMode && this.secondaryConfig ? this.secondaryConfig : (this.primaryConfig || this.secondaryConfig);
+    
+    // Si aucune configuration n'est disponible, revenir au mode mock
+    if (!config) {
+      console.warn('No OpenAI configuration available. Falling back to mock mode.');
+      return this.generateMockResponse(messages);
     }
     
     try {
-      // Appeler l'API OpenAI pour obtenir une complétion
-      const response = await this.openai.chat.completions.create({
-        model: this.config.isAzure ? undefined : (process.env.OPENAI_MODEL || 'gpt-4o'),
+      // Préparer l'URL
+      const url = `${config.endpoint}/openai/deployments/${config.modelName}/chat/completions?api-version=${config.apiVersion}`;
+      
+      // Préparer les en-têtes
+      const headers = {
+        'Content-Type': 'application/json',
+        'api-key': config.apiKey
+      };
+      
+      // Préparer le corps de la requête
+      const body = {
         messages,
         temperature,
-        max_tokens: maxTokens
-      });
+        max_tokens: maxTokens,
+        model: config.modelName
+      };
       
-      // Extraire le contenu de la réponse
-      const content = response.choices[0]?.message?.content || 'Je n\'ai pas pu générer une réponse. Veuillez réessayer.';
+      // Effectuer l'appel API
+      const response = await axios.post(url, body, { headers });
       
-      // Mettre la réponse en cache
-      this.completionCache.set(cacheKey, {
-        result: content,
-        timestamp: Date.now()
-      });
+      // Extraire et retourner le contenu de la réponse
+      return response.data.choices[0].message.content;
+    } catch (error: any) {
+      console.error('Error calling Azure OpenAI:', error.message);
       
-      return content;
+      // En cas d'erreur de taux de requêtes, basculer vers l'autre modèle si disponible
+      if (error.response && error.response.status === 429) {
+        console.log('Rate limit exceeded, switching to alternative model...');
+        
+        // Si on était sur le modèle principal, essayer le secondaire
+        if (!isEcoMode && this.secondaryConfig) {
+          process.env.ACTIVE_KEY_TYPE = 'secondary';
+          return this.getChatCompletion(messages, temperature, maxTokens);
+        }
+        // Si on était sur le modèle secondaire, essayer le principal
+        else if (isEcoMode && this.primaryConfig) {
+          process.env.ACTIVE_KEY_TYPE = 'primary';
+          return this.getChatCompletion(messages, temperature, maxTokens);
+        }
+      }
+      
+      // En cas d'erreur, générer une réponse de fallback
+      return this.generateMockResponse(messages);
+    }
+  }
+  
+  /**
+   * Génère une réponse simulée pour le mode mock ou en cas d'erreur
+   */
+  private generateMockResponse(messages: any[]): string {
+    try {
+      // Obtenir le dernier message utilisateur
+      const lastUserMessage = messages.slice().reverse().find(msg => msg.role === 'user');
+      const content = lastUserMessage?.content || '';
+      
+      // Récupérer le prompt système si présent
+      const systemMessage = messages.find(msg => msg.role === 'system');
+      const systemContent = systemMessage?.content || '';
+      
+      // Simuler une réponse basée sur le contenu de la demande
+      if (content.toLowerCase().includes('erreur') || content.toLowerCase().includes('problème')) {
+        return "Je comprends que vous rencontrez une difficulté. Pour un problème lié à la cybersécurité, je vous conseille d'abord d'isoler les systèmes potentiellement affectés, puis de documenter précisément les symptômes observés avant de procéder à une analyse plus approfondie.";
+      }
+      
+      if (content.toLowerCase().includes('bonjour') || content.toLowerCase().includes('salut')) {
+        return "Bonjour ! Je suis I AM CYBER, votre assistant spécialisé en cybersécurité. Comment puis-je vous aider aujourd'hui ?";
+      }
+      
+      if (content.toLowerCase().includes('merci')) {
+        return "Je vous en prie ! N'hésitez pas si vous avez d'autres questions concernant la cybersécurité.";
+      }
+      
+      if (systemContent.includes('scénario')) {
+        return "Pour résoudre ce scénario efficacement, je vous suggère d'adopter une approche méthodique : d'abord évaluer les risques potentiels, puis identifier les mesures de protection les plus adaptées au contexte, et enfin élaborer un plan d'action priorisé. Avez-vous des contraintes particulières à prendre en compte ?";
+      }
+      
+      // Réponse par défaut
+      return "En tant qu'expert en cybersécurité, je peux vous aider sur de nombreux sujets comme la gestion des incidents, la conformité RGPD, la sécurité des infrastructures ou encore la sensibilisation des équipes. N'hésitez pas à me poser des questions spécifiques.";
     } catch (error) {
-      console.error('Error in getChatCompletionWithCache:', error);
+      console.error('Error generating mock response:', error);
+      return "Je suis désolé, je rencontre actuellement un problème technique. Pourriez-vous reformuler votre question ?";
+    }
+  }
+  
+  /**
+   * Vérifie la connectivité à l'API OpenAI
+   */
+  async checkAPIConnection(): Promise<boolean> {
+    try {
+      // Utiliser de préférence le modèle secondaire pour le test de connectivité (moins cher)
+      const config = this.secondaryConfig || this.primaryConfig;
       
-      // En cas d'erreur, générer une réponse de secours et ne pas la mettre en cache
-      return `Je rencontre des difficultés à traiter votre demande actuellement. Voici quelques éléments de réflexion généraux sur le sujet :
+      if (!config) {
+        console.warn('No OpenAI configuration available to check connection.');
+        return false;
+      }
       
-1. La cybersécurité repose sur plusieurs piliers fondamentaux : confidentialité, intégrité et disponibilité des données.
-2. Une approche défense en profondeur est généralement recommandée, avec plusieurs couches de protection.
-3. La sensibilisation des utilisateurs reste un élément crucial de toute stratégie de sécurité efficace.
+      console.log(`Checking connection to Azure OpenAI at: ${config.endpoint}/openai/deployments/${config.modelName}/chat/completions?api-version=${config.apiVersion}`);
       
-Pourriez-vous reformuler votre question ou réessayer ultérieurement ?`;
+      // Simple message pour tester la connexion
+      const testMessage = [
+        { role: "system", content: "You are a test assistant." },
+        { role: "user", content: "Say 'Connection successful' if you can read this." }
+      ];
+      
+      // Préparer les en-têtes
+      const headers = {
+        'Content-Type': 'application/json',
+        'api-key': config.apiKey
+      };
+      
+      // Préparer le corps de la requête
+      const body = {
+        messages: testMessage,
+        temperature: 0.1,
+        max_tokens: 30,
+        model: config.modelName
+      };
+      
+      // Effectuer l'appel API
+      const response = await axios.post(
+        `${config.endpoint}/openai/deployments/${config.modelName}/chat/completions?api-version=${config.apiVersion}`,
+        body,
+        { headers }
+      );
+      
+      // Vérifier que nous avons obtenu une réponse valide
+      if (response.data && response.data.choices && response.data.choices.length > 0) {
+        console.log(`Connection to Azure OpenAI successful with model: ${config.modelName} (${config.modelName})`);
+        process.env.CONNECTION_VERIFIED = 'true';
+        return true;
+      }
+      
+      return false;
+    } catch (error: any) {
+      console.error('Error checking API connection:', error.message);
+      if (error.response) {
+        console.error('Response status:', error.response.status);
+        console.error('Response data:', error.response.data);
+      }
+      return false;
     }
   }
 }
 
-// Exporter une instance unique du service
+// Créer une instance singleton
 export const openAIService = new OpenAIService();
+
+// Vérifier la connexion au démarrage
+openAIService.checkAPIConnection().catch(err => console.error('Failed to check API connection:', err));

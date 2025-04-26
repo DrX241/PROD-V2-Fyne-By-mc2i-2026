@@ -99,7 +99,7 @@ export function createFallbackJson(domain: string, defaultTitle: string = "Scén
         "Réagir efficacement face à une attaque réussie"
       ];
       break;
-    case 'sécurité de la chaîne d'approvisionnement':
+    case 'sécurité de la chaîne d\'approvisionnement':
       description = "Ce scénario examine les risques de sécurité liés à votre écosystème de fournisseurs et partenaires.";
       objectives = [
         "Cartographier les risques de la chaîne d'approvisionnement",
