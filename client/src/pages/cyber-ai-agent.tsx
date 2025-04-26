@@ -6,7 +6,10 @@ import CyberLayout from "@/components/layout/CyberLayout";
 import EnhancedChatInterface from "@/components/cyber/EnhancedChatInterface";
 import PageTitle from "@/components/utils/PageTitle";
 import { Link } from "wouter";
-import { ArrowLeft, Clock, Mail, AreaChart, Send, Command, Microscope, AlertCircle } from "lucide-react";
+import { 
+  ArrowLeft, Clock, Mail, AreaChart, Send, Command, Microscope, AlertCircle, 
+  Bot, Info, Code, BarChart3, Shield, MessageCircle, User, LogOut
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
