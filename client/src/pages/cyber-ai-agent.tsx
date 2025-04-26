@@ -8,7 +8,7 @@ import PageTitle from "@/components/utils/PageTitle";
 import { Link } from "wouter";
 import { 
   ArrowLeft, Clock, Mail, AreaChart, Send, Command, Microscope, AlertCircle, 
-  Bot, Info, Code, BarChart3, Shield, MessageCircle, User, LogOut, ArrowRight
+  Bot, Info, Code, BarChart3, Shield, MessageCircle, User, LogOut
 } from "lucide-react";
 import FyneRobotImage from "@assets/image_1745662756764.png";
 import { Button } from "@/components/ui/button";
@@ -131,11 +131,9 @@ export default function CyberAiAgentPage() {
       
       if (response.success) {
         setSkillAssessment(response.skillAssessment);
-        // Option: ajouter notification visuelle subtile des compétences mises à jour
       }
     } catch (error) {
       console.error("Erreur lors de la mise à jour des compétences:", error);
-      // Continuer sans mise à jour des compétences si erreur
     }
   };
 
@@ -150,9 +148,9 @@ export default function CyberAiAgentPage() {
         method: 'POST',
         body: JSON.stringify({
           virtualEnvironment: sessionData.virtualEnvironment,
-          messages, // Historique complet des messages
-          duration, // Durée en millisecondes
-          skillAssessment // État final des compétences
+          messages,
+          duration,
+          skillAssessment
         })
       });
       
@@ -162,7 +160,6 @@ export default function CyberAiAgentPage() {
           description: "Le centre de crise a reçu votre rapport d'évaluation final.",
         });
 
-        // Réinitialiser la session
         setIsSessionActive(false);
         setTimeRemaining(600);
         setMessages([]);
@@ -174,7 +171,6 @@ export default function CyberAiAgentPage() {
           communication: 20
         });
       } else {
-        console.warn("Réponse sans succès (complete):", response);
         toast({
           variant: "destructive",
           title: "Erreur de transmission",
@@ -224,7 +220,6 @@ export default function CyberAiAgentPage() {
   const handleMessagesUpdate = (newMessages: any[]) => {
     setMessages(newMessages);
     
-    // Si un nouveau message de l'utilisateur a été ajouté
     if (newMessages.length > messages.length) {
       const lastMessage = newMessages[newMessages.length - 1];
       if (lastMessage.type === 'user') {
@@ -308,57 +303,60 @@ export default function CyberAiAgentPage() {
       </div>
 
       {!isSessionActive ? (
-        <div className="container max-w-5xl mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
-            <div className="lg:col-span-2 flex flex-col justify-center">
+        <div className="container mx-auto px-4 py-4">
+          {/* Image du Robot FYNE en grand */}
+          <div className="flex justify-center mb-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
+              className="relative"
+            >
+              <img 
+                src={FyneRobotImage} 
+                alt="Robot FYNE - Assistant IA" 
+                className="h-[300px] sm:h-[350px] md:h-[400px] w-auto drop-shadow-2xl object-contain"
+              />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                className="absolute -top-2 -right-2 bg-indigo-600/90 text-white text-sm px-3 py-1 rounded-full shadow-lg border border-indigo-400 font-medium"
+              >
+                Agent IA - FYNE
+              </motion.div>
+            </motion.div>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 max-w-6xl mx-auto">
+            <div className="lg:col-span-2">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
-                className="mb-6 relative"
+                className="mb-6"
               >
-                {/* Élément graphique en arrière-plan */}
-                <div className="absolute -top-10 -left-20 w-40 h-40 bg-blue-500/5 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-20 right-0 w-60 h-60 bg-indigo-500/5 rounded-full blur-3xl"></div>
+                <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 flex items-center">
+                  <div className="mr-3 p-2 bg-gradient-to-br from-blue-700 to-indigo-800 rounded-lg shadow-lg">
+                    <Bot className="h-7 w-7 text-blue-200" />
+                  </div>
+                  Agent IA Immersif
+                </h2>
                 
-                <div className="relative z-10">
-                  <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 flex items-center">
-                    <div className="mr-3 p-2 bg-gradient-to-br from-blue-700 to-indigo-800 rounded-lg shadow-lg">
-                      <Bot className="h-7 w-7 text-blue-200" />
+                <p className="text-blue-200 mb-6 border-l-2 border-blue-700 pl-4 py-1">
+                  Plongez dans une expérience d'apprentissage avancée en cybersécurité avec évaluation des compétences en temps réel.
+                </p>
+                
+                <div className="bg-gradient-to-br from-blue-900/40 to-indigo-900/40 rounded-lg p-5 border border-blue-700/30 shadow-lg">
+                  <div className="flex items-start space-x-3">
+                    <div className="bg-blue-600/20 p-2 rounded-full shrink-0">
+                      <Info className="h-5 w-5 text-blue-300" />
                     </div>
-                    Agent IA Immersif
-                  </h2>
-                  
-                  <p className="text-blue-200 mb-8 border-l-2 border-blue-700 pl-4 py-1">
-                    Plongez dans une expérience d'apprentissage avancée en cybersécurité avec évaluation des compétences en temps réel.
-                  </p>
-                  
-                  <div className="bg-gradient-to-br from-blue-900/40 to-indigo-900/40 rounded-lg p-5 border border-blue-700/30 shadow-lg relative overflow-hidden">
-                    {/* Effet de particules */}
-                    <div className="absolute top-0 right-0 w-16 h-16 bg-blue-500/10 rounded-full blur-xl"></div>
-                    <div className="flex flex-col items-center space-y-4">
-                      <div className="w-40 relative">
-                        <img 
-                          src={FyneRobotImage} 
-                          alt="Robot FYNE - Assistant IA" 
-                          className="w-full h-auto drop-shadow-xl"
-                        />
-                        <div className="absolute -bottom-1 -right-2 bg-indigo-600 text-white text-xs px-2 py-1 rounded-full shadow-md border border-indigo-400">
-                          Agent IA
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-start space-x-3 w-full">
-                        <div className="bg-blue-600/20 p-2 rounded-full">
-                          <Info className="h-5 w-5 text-blue-300" />
-                        </div>
-                        <div>
-                          <h4 className="text-blue-300 font-medium mb-2 text-sm">Information sur la session</h4>
-                          <p className="text-sm text-blue-200 leading-relaxed">
-                            La session durera 10 minutes. Un rapport d'évaluation détaillé de vos compétences sera produit dans le centre de crise à la fin de la simulation.
-                          </p>
-                        </div>
-                      </div>
+                    <div>
+                      <h4 className="text-blue-300 font-medium mb-2 text-sm">Information sur la session</h4>
+                      <p className="text-sm text-blue-200 leading-relaxed">
+                        La session durera 10 minutes. Un rapport d'évaluation détaillé de vos compétences sera produit dans le centre de crise à la fin de la simulation.
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -371,12 +369,8 @@ export default function CyberAiAgentPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
               >
-                <Card className="bg-gradient-to-br from-gray-900 via-blue-950/50 to-gray-900 border border-blue-800/50 shadow-xl overflow-hidden relative">
-                  {/* Effet visuel en arrière-plan */}
-                  <div className="absolute top-0 right-0 w-60 h-60 bg-blue-500/5 rounded-full blur-3xl"></div>
-                  <div className="absolute bottom-0 left-20 w-40 h-40 bg-indigo-500/5 rounded-full blur-3xl"></div>
-                  
-                  <CardHeader className="pb-4 relative z-10">
+                <Card className="bg-gradient-to-br from-gray-900 via-blue-950/50 to-gray-900 border border-blue-800/50 shadow-xl overflow-hidden">
+                  <CardHeader className="pb-4">
                     <div className="flex items-center mb-2">
                       <div className="bg-gradient-to-r from-blue-600 to-indigo-600 h-6 w-6 rounded-full flex items-center justify-center mr-2">
                         <span className="text-xs text-white font-bold">IA</span>
@@ -384,11 +378,11 @@ export default function CyberAiAgentPage() {
                       <CardTitle className="text-xl text-white">Configuration de la session</CardTitle>
                     </div>
                     <CardDescription className="text-blue-200">
-                      Entrez vos informations pour personnaliser l'expérience d'apprentissage
+                      Sélectionnez votre environnement immersif préféré
                     </CardDescription>
                   </CardHeader>
                   
-                  <CardContent className="relative z-10">
+                  <CardContent>
                     <Form {...form}>
                       <form onSubmit={form.handleSubmit(startSession)} className="space-y-5">
                         <FormField
@@ -584,15 +578,12 @@ export default function CyberAiAgentPage() {
               </div>
             </div>
             
-            <div className="mt-8 p-4 bg-gradient-to-br from-gray-800/90 to-blue-950/90 rounded-lg border border-blue-900/30 shadow-md relative overflow-hidden">
-              {/* Élément décoratif */}
-              <div className="absolute -top-10 -right-10 w-20 h-20 bg-blue-500/10 rounded-full blur-2xl"></div>
-              
-              <h4 className="text-sm font-medium text-blue-300 mb-3 flex items-center relative z-10">
+            <div className="mt-8 p-4 bg-gradient-to-br from-gray-800/90 to-blue-950/90 rounded-lg border border-blue-900/30 shadow-md">
+              <h4 className="text-sm font-medium text-blue-300 mb-3 flex items-center">
                 <User className="h-4 w-4 mr-2" />
                 Expert actuel
               </h4>
-              <div className="flex items-center relative z-10">
+              <div className="flex items-center">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-600 to-violet-700 flex items-center justify-center text-white font-bold border-2 border-blue-500/30 shadow-md">
                   {currentNPC.split(' ')[0][0]}
                 </div>
