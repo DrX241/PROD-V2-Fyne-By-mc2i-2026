@@ -8,7 +8,7 @@ import PageTitle from "@/components/utils/PageTitle";
 import { Link } from "wouter";
 import { 
   ArrowLeft, Clock, Mail, AreaChart, Send, Command, Microscope, AlertCircle, 
-  Bot, Info, Code, BarChart3, Shield, MessageCircle, User, LogOut
+  Bot, Info, Code, BarChart3, Shield, MessageCircle, User, LogOut, ArrowRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,12 +41,6 @@ import { motion } from "framer-motion";
 
 // Schéma de formulaire pour la configuration de la session Agent IA
 const formSchema = z.object({
-  userEmail: z.string().email({
-    message: "Veuillez entrer une adresse email valide.",
-  }),
-  userName: z.string().min(2, {
-    message: "Votre nom doit contenir au moins 2 caractères.",
-  }),
   virtualEnvironment: z.enum(["command-center", "analysis-lab", "crisis-room"], {
     required_error: "Veuillez sélectionner un environnement virtuel.",
   }),
@@ -75,8 +69,6 @@ export default function CyberAiAgentPage() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      userEmail: "",
-      userName: "",
       virtualEnvironment: "command-center",
     },
   });
@@ -87,16 +79,12 @@ export default function CyberAiAgentPage() {
       const response = await apiRequest('/api/cyber/ai-agent/start', {
         method: 'POST',
         body: JSON.stringify({
-          userEmail: values.userEmail,
-          userName: values.userName,
           virtualEnvironment: values.virtualEnvironment
         })
       });
       
       if (response.success) {
         setSessionData({
-          userEmail: values.userEmail,
-          userName: values.userName,
           virtualEnvironment: values.virtualEnvironment,
           startTime: Date.now()
         });
@@ -105,23 +93,23 @@ export default function CyberAiAgentPage() {
         startTimeRef.current = Date.now();
 
         toast({
-          title: "Session démarrée",
-          description: "Votre session Agent IA Immersif a démarré. Un rapport sera envoyé à votre email à la fin.",
+          title: "Environnement virtuel activé",
+          description: `Session immersive démarrée dans ${getEnvironmentName(values.virtualEnvironment)}.`,
         });
       } else {
         console.warn("Réponse sans succès:", response);
         toast({
           variant: "destructive",
-          title: "Erreur",
-          description: response?.error || "Impossible de démarrer la session. Veuillez réessayer.",
+          title: "Erreur d'initialisation",
+          description: response?.error || "Impossible d'activer l'environnement virtuel. Veuillez réessayer.",
         });
       }
     } catch (error) {
       console.error("Erreur lors du démarrage de la session:", error);
       toast({
         variant: "destructive",
-        title: "Erreur",
-        description: "Impossible de démarrer la session. Veuillez réessayer.",
+        title: "Erreur d'initialisation",
+        description: "Impossible d'activer l'environnement virtuel. Veuillez réessayer.",
       });
     }
   };
@@ -150,7 +138,7 @@ export default function CyberAiAgentPage() {
     }
   };
 
-  // Fonction pour terminer la session et envoyer le rapport
+  // Fonction pour terminer la session et générer un rapport d'évaluation
   const completeSession = async () => {
     if (!sessionData) return;
 
@@ -160,8 +148,7 @@ export default function CyberAiAgentPage() {
       const response = await apiRequest('/api/cyber/ai-agent/complete', {
         method: 'POST',
         body: JSON.stringify({
-          userEmail: sessionData.userEmail,
-          userName: sessionData.userName,
+          virtualEnvironment: sessionData.virtualEnvironment,
           messages, // Historique complet des messages
           duration, // Durée en millisecondes
           skillAssessment // État final des compétences
@@ -170,8 +157,8 @@ export default function CyberAiAgentPage() {
       
       if (response.success) {
         toast({
-          title: "Session terminée",
-          description: "Un rapport d'évaluation personnalisé a été envoyé à votre adresse email.",
+          title: "Mission accomplie",
+          description: "Le centre de crise a reçu votre rapport d'évaluation final.",
         });
 
         // Réinitialiser la session
@@ -189,16 +176,16 @@ export default function CyberAiAgentPage() {
         console.warn("Réponse sans succès (complete):", response);
         toast({
           variant: "destructive",
-          title: "Erreur",
-          description: response?.error || "Impossible d'envoyer le rapport. Veuillez contacter le support.",
+          title: "Erreur de transmission",
+          description: response?.error || "Impossible de transmettre les données au centre de crise.",
         });
       }
     } catch (error) {
       console.error("Erreur lors de la finalisation de la session:", error);
       toast({
         variant: "destructive",
-        title: "Erreur",
-        description: "Impossible d'envoyer le rapport. Veuillez contacter le support.",
+        title: "Erreur de transmission",
+        description: "Impossible de transmettre les données au centre de crise.",
       });
     }
   };
@@ -387,7 +374,7 @@ export default function CyberAiAgentPage() {
                       <div>
                         <h4 className="text-blue-300 font-medium mb-2 text-sm">Information sur la session</h4>
                         <p className="text-sm text-blue-200 leading-relaxed">
-                          La session durera 10 minutes. Un rapport d'évaluation détaillé de vos compétences sera envoyé à l'adresse email indiquée.
+                          La session durera 10 minutes. Un rapport d'évaluation détaillé de vos compétences sera produit dans le centre de crise à la fin de la simulation.
                         </p>
                       </div>
                     </div>
@@ -424,90 +411,98 @@ export default function CyberAiAgentPage() {
                       <form onSubmit={form.handleSubmit(startSession)} className="space-y-5">
                         <FormField
                           control={form.control}
-                          name="userEmail"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-blue-100 font-medium">Email</FormLabel>
-                              <FormControl>
-                                <div className="relative">
-                                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-400" />
-                                  <Input 
-                                    placeholder="votre.email@exemple.com" 
-                                    className="pl-10 bg-blue-900/40 border-blue-700/80 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500" 
-                                    {...field} 
-                                  />
-                                </div>
-                              </FormControl>
-                              <FormMessage className="text-red-400" />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="userName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-blue-100 font-medium">Nom complet</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  placeholder="Prénom Nom" 
-                                  className="bg-blue-900/40 border-blue-700/80 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500" 
-                                  {...field} 
-                                />
-                              </FormControl>
-                              <FormMessage className="text-red-400" />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
                           name="virtualEnvironment"
                           render={({ field }) => (
-                            <FormItem className="space-y-3">
-                              <FormLabel className="text-blue-100 font-medium">Environnement virtuel</FormLabel>
+                            <FormItem className="space-y-5">
+                              <FormLabel className="text-lg text-blue-100 font-medium flex items-center">
+                                <div className="bg-blue-900/30 p-2 rounded-full mr-2">
+                                  <Command className="h-5 w-5 text-cyan-400" />
+                                </div>
+                                Sélectionnez votre environnement immersif
+                              </FormLabel>
                               <FormControl>
-                                <Tabs
-                                  defaultValue="command-center"
-                                  value={field.value}
-                                  onValueChange={field.onChange}
-                                  className="w-full"
-                                >
-                                  <TabsList className="grid grid-cols-3 w-full bg-gray-800 border border-blue-800/40 p-1">
-                                    <TabsTrigger 
-                                      value="command-center" 
-                                      className="data-[state=active]:bg-blue-700 data-[state=active]:text-white text-gray-300 px-3 py-1.5"
-                                    >
-                                      <Command className="h-4 w-4 mr-2" />
-                                      <span className="hidden sm:inline">Centre de commandement</span>
-                                      <span className="inline sm:hidden">Centre</span>
-                                    </TabsTrigger>
-                                    <TabsTrigger 
-                                      value="analysis-lab" 
-                                      className="data-[state=active]:bg-indigo-700 data-[state=active]:text-white text-gray-300 px-3 py-1.5"
-                                    >
-                                      <Microscope className="h-4 w-4 mr-2" />
-                                      <span className="hidden sm:inline">Laboratoire d'analyse</span>
-                                      <span className="inline sm:hidden">Labo</span>
-                                    </TabsTrigger>
-                                    <TabsTrigger 
-                                      value="crisis-room" 
-                                      className="data-[state=active]:bg-purple-700 data-[state=active]:text-white text-gray-300 px-3 py-1.5"
-                                    >
-                                      <AlertCircle className="h-4 w-4 mr-2" />
-                                      <span className="hidden sm:inline">Salle de crise</span>
-                                      <span className="inline sm:hidden">Crise</span>
-                                    </TabsTrigger>
-                                  </TabsList>
-                                  <TabsContent value="command-center" className="mt-3 text-sm text-blue-200 bg-blue-900/20 p-3 rounded-md border border-blue-800/30">
-                                    <p>Environnement idéal pour la planification stratégique et la coordination des équipes en cybersécurité.</p>
-                                  </TabsContent>
-                                  <TabsContent value="analysis-lab" className="mt-3 text-sm text-blue-200 bg-indigo-900/20 p-3 rounded-md border border-indigo-800/30">
-                                    <p>Espace technique pour l'investigation d'incidents et l'analyse forensique approfondie.</p>
-                                  </TabsContent>
-                                  <TabsContent value="crisis-room" className="mt-3 text-sm text-blue-200 bg-purple-900/20 p-3 rounded-md border border-purple-800/30">
-                                    <p>Centre de gestion pour les incidents critiques nécessitant une réponse rapide et coordonnée.</p>
-                                  </TabsContent>
-                                </Tabs>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                  <motion.div
+                                    whileHover={{ y: -5 }}
+                                    className={`relative overflow-hidden rounded-lg border p-4 ${
+                                      field.value === "command-center" 
+                                        ? "bg-gradient-to-b from-cyan-900/50 to-blue-950 border-cyan-500/50 ring-2 ring-cyan-500/30"
+                                        : "bg-gradient-to-b from-gray-800/80 to-blue-950/60 border-gray-700/50 hover:border-cyan-700/50"
+                                    } transition-all duration-200 cursor-pointer`}
+                                    onClick={() => field.onChange("command-center")}
+                                  >
+                                    {field.value === "command-center" && (
+                                      <div className="absolute top-2 right-2 bg-cyan-500 text-xs p-1 px-1.5 rounded-full text-white">
+                                        Sélectionné
+                                      </div>
+                                    )}
+                                    <div className="flex flex-col items-center text-center space-y-3">
+                                      <div className="bg-gradient-to-b from-cyan-800 to-cyan-900 p-3 rounded-full">
+                                        <Command className="h-8 w-8 text-cyan-300" />
+                                      </div>
+                                      <div>
+                                        <h3 className="font-bold text-white">Centre de commandement</h3>
+                                        <p className="text-xs text-blue-200 mt-1.5">
+                                          Planification stratégique et coordination d'équipe
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </motion.div>
+                                  
+                                  <motion.div
+                                    whileHover={{ y: -5 }}
+                                    className={`relative overflow-hidden rounded-lg border p-4 ${
+                                      field.value === "analysis-lab" 
+                                        ? "bg-gradient-to-b from-indigo-900/50 to-blue-950 border-indigo-500/50 ring-2 ring-indigo-500/30"
+                                        : "bg-gradient-to-b from-gray-800/80 to-blue-950/60 border-gray-700/50 hover:border-indigo-700/50"
+                                    } transition-all duration-200 cursor-pointer`}
+                                    onClick={() => field.onChange("analysis-lab")}
+                                  >
+                                    {field.value === "analysis-lab" && (
+                                      <div className="absolute top-2 right-2 bg-indigo-500 text-xs p-1 px-1.5 rounded-full text-white">
+                                        Sélectionné
+                                      </div>
+                                    )}
+                                    <div className="flex flex-col items-center text-center space-y-3">
+                                      <div className="bg-gradient-to-b from-indigo-800 to-indigo-900 p-3 rounded-full">
+                                        <Microscope className="h-8 w-8 text-indigo-300" />
+                                      </div>
+                                      <div>
+                                        <h3 className="font-bold text-white">Laboratoire d'analyse</h3>
+                                        <p className="text-xs text-blue-200 mt-1.5">
+                                          Investigation technique et analyse forensique
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </motion.div>
+                                  
+                                  <motion.div
+                                    whileHover={{ y: -5 }}
+                                    className={`relative overflow-hidden rounded-lg border p-4 ${
+                                      field.value === "crisis-room" 
+                                        ? "bg-gradient-to-b from-violet-900/50 to-blue-950 border-violet-500/50 ring-2 ring-violet-500/30"
+                                        : "bg-gradient-to-b from-gray-800/80 to-blue-950/60 border-gray-700/50 hover:border-violet-700/50"
+                                    } transition-all duration-200 cursor-pointer`}
+                                    onClick={() => field.onChange("crisis-room")}
+                                  >
+                                    {field.value === "crisis-room" && (
+                                      <div className="absolute top-2 right-2 bg-violet-500 text-xs p-1 px-1.5 rounded-full text-white">
+                                        Sélectionné
+                                      </div>
+                                    )}
+                                    <div className="flex flex-col items-center text-center space-y-3">
+                                      <div className="bg-gradient-to-b from-violet-800 to-violet-900 p-3 rounded-full">
+                                        <AlertCircle className="h-8 w-8 text-violet-300" />
+                                      </div>
+                                      <div>
+                                        <h3 className="font-bold text-white">Salle de crise</h3>
+                                        <p className="text-xs text-blue-200 mt-1.5">
+                                          Gestion d'incidents et réponse d'urgence
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </motion.div>
+                                </div>
                               </FormControl>
                               <FormMessage className="text-red-400" />
                             </FormItem>
