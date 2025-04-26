@@ -349,7 +349,7 @@ export default function CyberAiAgentPage() {
                     transition={{ duration: 0.5, delay: 0.2 }}
                   >
                     <div className="space-y-6">
-                      <h3 className="text-2xl font-bold text-white">
+                      <h3 className="text-2xl font-bold text-white mb-6">
                         Environnement Immersif
                       </h3>
                       
@@ -361,12 +361,12 @@ export default function CyberAiAgentPage() {
                             render={({ field }) => (
                               <FormItem className="space-y-5">
                                 <FormControl>
-                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     {/* CARTE #1: CENTRE DE COMMANDEMENT */}
                                     <motion.div
                                       whileHover={{ y: -8, scale: 1.02 }}
                                       transition={{ duration: 0.3 }}
-                                      className={`relative overflow-hidden rounded-xl border-2 p-0 h-[260px] cursor-pointer group
+                                      className={`relative overflow-hidden rounded-xl border-2 p-0 h-[280px] cursor-pointer group
                                         ${field.value === "command-center" 
                                           ? "border-cyan-500 ring-2 ring-cyan-500/30 shadow-lg shadow-cyan-500/20" 
                                           : "border-gray-700/50 shadow-md hover:shadow-lg hover:shadow-cyan-900/20"
@@ -394,7 +394,7 @@ export default function CyberAiAgentPage() {
                                           </div>
                                           <h3 className="font-bold text-lg text-white mb-2 line-clamp-1">Centre de Commandement</h3>
                                           <p className="text-sm text-cyan-100/80 line-clamp-2 group-hover:line-clamp-3 transition-all">
-                                            Planification stratégique et coordination d'équipe pour répondre aux incidents cyber.
+                                            Planification stratégique et coordination d'équipe.
                                           </p>
                                         </div>
                                       </div>
@@ -404,7 +404,7 @@ export default function CyberAiAgentPage() {
                                     <motion.div
                                       whileHover={{ y: -8, scale: 1.02 }}
                                       transition={{ duration: 0.3 }}
-                                      className={`relative overflow-hidden rounded-xl border-2 p-0 h-[260px] cursor-pointer group
+                                      className={`relative overflow-hidden rounded-xl border-2 p-0 h-[280px] cursor-pointer group
                                         ${field.value === "analysis-lab" 
                                           ? "border-indigo-500 ring-2 ring-indigo-500/30 shadow-lg shadow-indigo-500/20" 
                                           : "border-gray-700/50 shadow-md hover:shadow-lg hover:shadow-indigo-900/20"
@@ -432,7 +432,7 @@ export default function CyberAiAgentPage() {
                                           </div>
                                           <h3 className="font-bold text-lg text-white mb-2 line-clamp-1">Laboratoire d'Analyse</h3>
                                           <p className="text-sm text-indigo-100/80 line-clamp-2 group-hover:line-clamp-3 transition-all">
-                                            Investigation technique et analyse forensique des attaques.
+                                            Investigation technique et analyse forensique.
                                           </p>
                                         </div>
                                       </div>
@@ -442,7 +442,7 @@ export default function CyberAiAgentPage() {
                                     <motion.div
                                       whileHover={{ y: -8, scale: 1.02 }}
                                       transition={{ duration: 0.3 }}
-                                      className={`relative overflow-hidden rounded-xl border-2 p-0 h-[260px] cursor-pointer group
+                                      className={`relative overflow-hidden rounded-xl border-2 p-0 h-[280px] cursor-pointer group
                                         ${field.value === "crisis-room" 
                                           ? "border-violet-500 ring-2 ring-violet-500/30 shadow-lg shadow-violet-500/20" 
                                           : "border-gray-700/50 shadow-md hover:shadow-lg hover:shadow-violet-900/20"
@@ -470,7 +470,7 @@ export default function CyberAiAgentPage() {
                                           </div>
                                           <h3 className="font-bold text-lg text-white mb-2 line-clamp-1">Salle de Crise</h3>
                                           <p className="text-sm text-violet-100/80 line-clamp-2 group-hover:line-clamp-3 transition-all">
-                                            Gestion d'incidents critiques et coordination d'urgence.
+                                            Gestion d'incidents critiques et coordination.
                                           </p>
                                         </div>
                                       </div>
