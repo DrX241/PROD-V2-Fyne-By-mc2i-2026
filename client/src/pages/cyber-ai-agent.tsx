@@ -317,37 +317,78 @@ export default function CyberAiAgentPage() {
       </div>
 
       {!isSessionActive ? (
-        <div className="container max-w-4xl mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <div className="container max-w-5xl mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
             <div className="lg:col-span-2 flex flex-col justify-center">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
-                className="mb-6"
+                className="mb-6 relative"
               >
-                <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">Agent IA Immersif</h2>
-                <p className="text-blue-200 mb-6">
-                  Plongez dans une expérience d'apprentissage avancée en cybersécurité avec évaluation des compétences en temps réel.
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                  <div className="bg-blue-900/30 border border-blue-800/60 rounded-lg p-3 text-center">
-                    <Command className="h-8 w-8 mx-auto mb-2 text-cyan-400" />
-                    <h3 className="font-medium text-white text-sm">Centre de commandement</h3>
-                  </div>
-                  <div className="bg-blue-900/30 border border-blue-800/60 rounded-lg p-3 text-center">
-                    <Microscope className="h-8 w-8 mx-auto mb-2 text-indigo-400" />
-                    <h3 className="font-medium text-white text-sm">Laboratoire d'analyse</h3>
-                  </div>
-                  <div className="bg-blue-900/30 border border-blue-800/60 rounded-lg p-3 text-center">
-                    <AlertCircle className="h-8 w-8 mx-auto mb-2 text-purple-400" />
-                    <h3 className="font-medium text-white text-sm">Salle de crise</h3>
-                  </div>
-                </div>
-                <div className="bg-gradient-to-br from-blue-900/60 to-indigo-900/60 rounded-lg p-4 border border-blue-700/50">
-                  <p className="text-sm text-blue-200">
-                    La session durera 10 minutes. Un rapport d'évaluation détaillé de vos compétences sera envoyé à l'adresse email indiquée.
+                {/* Élément graphique en arrière-plan */}
+                <div className="absolute -top-10 -left-20 w-40 h-40 bg-blue-500/5 rounded-full blur-3xl"></div>
+                <div className="absolute bottom-20 right-0 w-60 h-60 bg-indigo-500/5 rounded-full blur-3xl"></div>
+                
+                <div className="relative z-10">
+                  <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 flex items-center">
+                    <div className="mr-3 p-2 bg-gradient-to-br from-blue-700 to-indigo-800 rounded-lg shadow-lg">
+                      <Bot className="h-7 w-7 text-blue-200" />
+                    </div>
+                    Agent IA Immersif
+                  </h2>
+                  
+                  <p className="text-blue-200 mb-8 border-l-2 border-blue-700 pl-4 py-1">
+                    Plongez dans une expérience d'apprentissage avancée en cybersécurité avec évaluation des compétences en temps réel.
                   </p>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                    <motion.div 
+                      whileHover={{ scale: 1.03 }}
+                      className="bg-gradient-to-br from-cyan-900/30 to-blue-950/80 border border-cyan-800/40 rounded-lg p-4 text-center shadow-md"
+                    >
+                      <div className="bg-gradient-to-br from-cyan-800/70 to-cyan-700/30 p-2 rounded-full inline-block mb-3">
+                        <Command className="h-7 w-7 text-cyan-300" />
+                      </div>
+                      <h3 className="font-medium text-white text-sm">Centre de commandement</h3>
+                    </motion.div>
+                    
+                    <motion.div 
+                      whileHover={{ scale: 1.03 }}
+                      className="bg-gradient-to-br from-indigo-900/30 to-blue-950/80 border border-indigo-800/40 rounded-lg p-4 text-center shadow-md"
+                    >
+                      <div className="bg-gradient-to-br from-indigo-800/70 to-indigo-700/30 p-2 rounded-full inline-block mb-3">
+                        <Microscope className="h-7 w-7 text-indigo-300" />
+                      </div>
+                      <h3 className="font-medium text-white text-sm">Laboratoire d'analyse</h3>
+                    </motion.div>
+                    
+                    <motion.div 
+                      whileHover={{ scale: 1.03 }}
+                      className="bg-gradient-to-br from-violet-900/30 to-blue-950/80 border border-violet-800/40 rounded-lg p-4 text-center shadow-md"
+                    >
+                      <div className="bg-gradient-to-br from-violet-800/70 to-violet-700/30 p-2 rounded-full inline-block mb-3">
+                        <AlertCircle className="h-7 w-7 text-violet-300" />
+                      </div>
+                      <h3 className="font-medium text-white text-sm">Salle de crise</h3>
+                    </motion.div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-blue-900/40 to-indigo-900/40 rounded-lg p-5 border border-blue-700/30 shadow-lg relative overflow-hidden">
+                    {/* Effet de particules */}
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-blue-500/10 rounded-full blur-xl"></div>
+                    <div className="flex items-start space-x-3">
+                      <div className="bg-blue-600/20 p-2 rounded-full">
+                        <Info className="h-5 w-5 text-blue-300" />
+                      </div>
+                      <div>
+                        <h4 className="text-blue-300 font-medium mb-2 text-sm">Information sur la session</h4>
+                        <p className="text-sm text-blue-200 leading-relaxed">
+                          La session durera 10 minutes. Un rapport d'évaluation détaillé de vos compétences sera envoyé à l'adresse email indiquée.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             </div>
@@ -358,14 +399,24 @@ export default function CyberAiAgentPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
               >
-                <Card className="bg-gradient-to-br from-gray-900 to-blue-950 border border-blue-800/80 shadow-xl">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="text-xl text-white">Configuration de la session</CardTitle>
+                <Card className="bg-gradient-to-br from-gray-900 via-blue-950/50 to-gray-900 border border-blue-800/50 shadow-xl overflow-hidden relative">
+                  {/* Effet visuel en arrière-plan */}
+                  <div className="absolute top-0 right-0 w-60 h-60 bg-blue-500/5 rounded-full blur-3xl"></div>
+                  <div className="absolute bottom-0 left-20 w-40 h-40 bg-indigo-500/5 rounded-full blur-3xl"></div>
+                  
+                  <CardHeader className="pb-4 relative z-10">
+                    <div className="flex items-center mb-2">
+                      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 h-6 w-6 rounded-full flex items-center justify-center mr-2">
+                        <span className="text-xs text-white font-bold">IA</span>
+                      </div>
+                      <CardTitle className="text-xl text-white">Configuration de la session</CardTitle>
+                    </div>
                     <CardDescription className="text-blue-200">
-                      Entrez vos informations pour personnaliser l'expérience
+                      Entrez vos informations pour personnaliser l'expérience d'apprentissage
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  
+                  <CardContent className="relative z-10">
                     <Form {...form}>
                       <form onSubmit={form.handleSubmit(startSession)} className="space-y-5">
                         <FormField
@@ -477,7 +528,7 @@ export default function CyberAiAgentPage() {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 h-[calc(100vh-160px)]">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 h-full">
           <div className="md:col-span-3 h-full">
             <EnhancedChatInterface 
               onMessagesUpdate={handleMessagesUpdate} 
@@ -485,63 +536,102 @@ export default function CyberAiAgentPage() {
               environmentContext={activeEnvironment}
             />
           </div>
-          <div className="hidden md:block bg-gray-900 rounded-lg p-4 overflow-y-auto">
+          <div className="hidden md:block bg-gradient-to-b from-gray-900 to-blue-950/80 rounded-lg p-4 overflow-y-auto border border-blue-900/30 shadow-md my-3 mr-3">
             <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-              <AreaChart className="mr-2 h-5 w-5" />
+              <AreaChart className="mr-2 h-5 w-5 text-cyan-400" />
               Évaluation des compétences
             </h3>
             
             <div className="space-y-6">
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm text-blue-200">Technique</span>
-                  <span className="text-sm font-medium text-white">{skillAssessment.technical}%</span>
+                  <div className="flex items-center">
+                    <Code className="h-4 w-4 mr-2 text-cyan-400" />
+                    <span className="text-sm font-medium text-blue-200">Technique</span>
+                  </div>
+                  <span className="text-sm font-medium text-white px-1.5 py-0.5 bg-gray-800/80 rounded-md">{skillAssessment.technical}%</span>
                 </div>
-                <Progress value={skillAssessment.technical} className="h-2 bg-blue-950" indicatorClassName="bg-cyan-500" />
+                <Progress 
+                  value={skillAssessment.technical} 
+                  className="h-3 bg-blue-950/50 rounded-full border border-blue-900/20" 
+                  indicatorClassName="bg-gradient-to-r from-cyan-500 to-cyan-600 rounded-full" 
+                />
               </div>
               
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm text-blue-200">Analytique</span>
-                  <span className="text-sm font-medium text-white">{skillAssessment.analytical}%</span>
+                  <div className="flex items-center">
+                    <BarChart3 className="h-4 w-4 mr-2 text-indigo-400" />
+                    <span className="text-sm font-medium text-blue-200">Analytique</span>
+                  </div>
+                  <span className="text-sm font-medium text-white px-1.5 py-0.5 bg-gray-800/80 rounded-md">{skillAssessment.analytical}%</span>
                 </div>
-                <Progress value={skillAssessment.analytical} className="h-2 bg-blue-950" indicatorClassName="bg-indigo-500" />
+                <Progress 
+                  value={skillAssessment.analytical} 
+                  className="h-3 bg-blue-950/50 rounded-full border border-blue-900/20" 
+                  indicatorClassName="bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full" 
+                />
               </div>
               
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm text-blue-200">Stratégique</span>
-                  <span className="text-sm font-medium text-white">{skillAssessment.strategic}%</span>
+                  <div className="flex items-center">
+                    <Shield className="h-4 w-4 mr-2 text-violet-400" />
+                    <span className="text-sm font-medium text-blue-200">Stratégique</span>
+                  </div>
+                  <span className="text-sm font-medium text-white px-1.5 py-0.5 bg-gray-800/80 rounded-md">{skillAssessment.strategic}%</span>
                 </div>
-                <Progress value={skillAssessment.strategic} className="h-2 bg-blue-950" indicatorClassName="bg-violet-500" />
+                <Progress 
+                  value={skillAssessment.strategic} 
+                  className="h-3 bg-blue-950/50 rounded-full border border-blue-900/20" 
+                  indicatorClassName="bg-gradient-to-r from-violet-500 to-violet-600 rounded-full" 
+                />
               </div>
               
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm text-blue-200">Communication</span>
-                  <span className="text-sm font-medium text-white">{skillAssessment.communication}%</span>
+                  <div className="flex items-center">
+                    <MessageCircle className="h-4 w-4 mr-2 text-emerald-400" />
+                    <span className="text-sm font-medium text-blue-200">Communication</span>
+                  </div>
+                  <span className="text-sm font-medium text-white px-1.5 py-0.5 bg-gray-800/80 rounded-md">{skillAssessment.communication}%</span>
                 </div>
-                <Progress value={skillAssessment.communication} className="h-2 bg-blue-950" indicatorClassName="bg-emerald-500" />
+                <Progress 
+                  value={skillAssessment.communication} 
+                  className="h-3 bg-blue-950/50 rounded-full border border-blue-900/20" 
+                  indicatorClassName="bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full" 
+                />
               </div>
             </div>
             
-            <div className="mt-8 p-4 bg-gray-800 rounded-lg border border-gray-700">
-              <h4 className="text-sm font-medium text-blue-300 mb-2">Expert actuel</h4>
-              <div className="flex items-center">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
+            <div className="mt-8 p-4 bg-gradient-to-br from-gray-800/90 to-blue-950/90 rounded-lg border border-blue-900/30 shadow-md relative overflow-hidden">
+              {/* Élément décoratif */}
+              <div className="absolute -top-10 -right-10 w-20 h-20 bg-blue-500/10 rounded-full blur-2xl"></div>
+              
+              <h4 className="text-sm font-medium text-blue-300 mb-3 flex items-center relative z-10">
+                <User className="h-4 w-4 mr-2" />
+                Expert actuel
+              </h4>
+              <div className="flex items-center relative z-10">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-600 to-violet-700 flex items-center justify-center text-white font-bold border-2 border-blue-500/30 shadow-md">
                   {currentNPC.split(' ')[0][0]}
                 </div>
                 <div className="ml-3">
                   <p className="text-sm font-medium text-white">{currentNPC}</p>
-                  <p className="text-xs text-gray-400">Expert en cybersécurité</p>
+                  <p className="text-xs text-blue-300 flex items-center">
+                    <Shield className="h-3 w-3 mr-1" />
+                    Expert en cybersécurité
+                  </p>
                 </div>
               </div>
             </div>
             
             <Button 
               onClick={completeSession}
-              className="w-full mt-8 bg-red-900 hover:bg-red-800 text-white"
+              className="w-full mt-8 bg-gradient-to-r from-red-800 to-red-700 hover:from-red-700 hover:to-red-600 text-white border border-red-700/50 shadow-md py-2"
+              variant="outline"
             >
+              <LogOut className="h-4 w-4 mr-2" />
               Terminer la session
             </Button>
           </div>

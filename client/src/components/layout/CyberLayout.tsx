@@ -18,10 +18,10 @@ export default function CyberLayout({ children }: CyberLayoutProps) {
       
       {/* L'affichage du statut de connexion a été déplacé vers le header */}
 
-      <main className="flex-1 flex w-full overflow-hidden relative z-10 pt-[70px]" style={{ height: `calc(100vh - ${headerHeight})` }}>
+      <main className="flex-1 relative z-10 pt-[70px]" style={{ height: `calc(100vh - ${headerHeight})` }}>
         {/* Zone principale de contenu */}
-        <div className="flex-1 overflow-y-auto flex justify-center">
-          <div className="w-full max-w-5xl overflow-y-auto backdrop-blur-sm bg-black/10 rounded-lg shadow-xl my-4 mx-4">
+        <div className="h-full flex justify-center px-4 pb-4">
+          <div className="w-full max-w-7xl backdrop-blur-sm bg-black/10 rounded-lg shadow-xl">
             {children}
           </div>
         </div>
