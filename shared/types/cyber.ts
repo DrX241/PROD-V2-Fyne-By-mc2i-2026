@@ -220,13 +220,21 @@ export function calculateGlobalSkillProgress(skillsProgress: { [skill: string]: 
 }
 
 export interface EmailMessageContent {
-  id: string;
-  from: ScenarioContact;
-  to: string;
+  id?: string;
+  from?: ScenarioContact;
+  to?: string;
   subject: string;
-  date: string;
+  date?: string;
   body: string;
   attachment?: string;
+  
+  // Propriétés alternatives pour la rétrocompatibilité
+  sender?: string;
+  senderRole?: string;
+  company?: string;
+  recipients?: string[];
+  
+  // Évaluation du message
   evaluation?: {
     id: string;
     title: string;
@@ -241,7 +249,12 @@ export interface EmailMessageContent {
       }
     }
   };
+  
+  // Liste des contacts pour le scénario
   scenarioContacts?: ScenarioContact[];
+  
+  // Horodatage
+  timestamp?: number;
 }
 
 export interface ChatMessage {
@@ -284,13 +297,18 @@ export interface CyberDomain {
   id: string;
   name: string;
   description: string;
+  icon?: string;
+  iconBgColor?: string;
+  iconColor?: string;
 }
 
 export interface CyberScenario {
   id: string;
   domain: string;
+  domainId?: string;         // Identifiant du domaine pour la compatibilité
   title: string;
   difficulty: string;
+  difficultyColor?: string;  // Couleur associée au niveau de difficulté
   description?: string;
   contact: {
     name: string;
@@ -306,6 +324,9 @@ export interface AIConfig {
   responseStyle: 'Professionnel' | 'Détaillé et pédagogique' | 'Concis et direct';
   temperature?: number;
   maxTokens?: number;
+  userId?: string;         // ID utilisateur pour identification
+  profile?: string;        // Profil utilisateur (ex: "Généraliste", "Technique", etc.)
+  keyType?: 'primary' | 'secondary';  // Type de clé API utilisée
 }
 
 export interface ChatContextType {
