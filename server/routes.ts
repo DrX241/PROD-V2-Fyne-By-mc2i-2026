@@ -477,27 +477,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Endpoint pour générer un message d'accueil avec conseils de bonnes pratiques cyber
   app.get('/api/cyber/welcome-message', async (req: Request, res: Response) => {
     try {
-      // Liste de bonnes pratiques en cybersécurité
-      const cyberTips = [
-        "Une authentification à double facteur (2FA) réduit de 99% les risques de piratage de compte.",
-        "Utiliser un gestionnaire de mots de passe permet de générer et stocker des mots de passe complexes sans avoir à les mémoriser.",
-        "Les mises à jour logicielles sont essentielles car elles corrigent souvent des failles de sécurité découvertes récemment.",
-        "La sauvegarde régulière de vos données est votre meilleure défense contre les ransomwares.",
-        "Avant de cliquer sur un lien, prenez l'habitude de vérifier l'URL réelle en survolant le lien avec votre souris.",
-        "Ne réutilisez jamais le même mot de passe sur plusieurs sites; c'est comme utiliser la même clé pour votre maison, votre voiture et votre bureau.",
-        "La sensibilisation des équipes aux risques cyber reste le meilleur rempart contre les attaques d'ingénierie sociale.",
-        "Les connexions aux réseaux Wi-Fi publics devraient toujours se faire via un VPN pour chiffrer vos communications.",
-        "Les exercices de simulation d'intrusion (pentests) permettent d'identifier les vulnérabilités avant que les attaquants ne le fassent.",
-        "L'analyse régulière des journaux de sécurité permet de détecter rapidement les tentatives d'intrusion sur vos systèmes."
+      // Liste de thématiques de cybersécurité pour générer des conseils variés
+      const cyberTopics = [
+        "authentification multifacteur",
+        "gestion des mots de passe",
+        "ingénierie sociale",
+        "mises à jour logicielles",
+        "sauvegardes de données",
+        "réseaux Wi-Fi publics",
+        "sécurité mobile",
+        "phishing",
+        "ransomware",
+        "communications chiffrées",
+        "protection des données sensibles",
+        "vérification des URL",
+        "sécurité des objets connectés",
+        "sensibilisation des collaborateurs",
+        "journalisation et surveillance"
       ];
       
-      // Sélectionner aléatoirement une bonne pratique
-      const randomTip = cyberTips[Math.floor(Math.random() * cyberTips.length)];
+      let randomTip = "";
       
-      // Création d'un message d'accueil avec une bonne pratique
+      // Sélectionner aléatoirement un thème de cybersécurité
+      const randomTopic = cyberTopics[Math.floor(Math.random() * cyberTopics.length)];
+      
+      try {
+        // Tenter de générer un conseil personnalisé avec Azure OpenAI
+        const response = await getOpenAIService().getModelResponse(
+          {
+            messages: [
+              {
+                role: "system",
+                content: "Tu es un expert en cybersécurité spécialisé dans la sensibilisation et la formation. Tu fournis des conseils clairs, précis et pédagogiques. Réponds toujours en français."
+              },
+              {
+                role: "user", 
+                content: `Génère un conseil de cybersécurité concis (maximum 30 mots) et percutant sur le thème: ${randomTopic}. 
+                Rédige une phrase informative qui commence par "**Saviez-vous que**" ou "**Conseil cyber**". 
+                N'utilise pas de tirets ni de puces. Intègre un fait étonnant ou une statistique réelle quand c'est pertinent.`
+              }
+            ],
+            temperature: 0.7,
+            max_tokens: 100,
+            model: "secondary" // Utilise le modèle secondaire (gpt-4o-mini) pour une réponse rapide
+          }
+        );
+        
+        if (response.choices && response.choices.length > 0) {
+          randomTip = response.choices[0].message.content.trim();
+          console.log("Conseil généré avec succès:", randomTip);
+        } else {
+          throw new Error("Réponse d'IA vide");
+        }
+      } catch (aiError) {
+        console.error("Erreur lors de la génération du conseil avec l'IA:", aiError);
+        
+        // Conseils de secours si l'IA échoue
+        const fallbackTips = [
+          "**Saviez-vous que** l'authentification à deux facteurs réduit de 99% les risques de piratage de compte ?",
+          "**Conseil cyber** : Utilisez un gestionnaire de mots de passe pour créer et stocker des mots de passe uniques et complexes sans avoir à les mémoriser.",
+          "**Saviez-vous que** la majorité des violations de données commencent par une attaque de phishing ciblant les employés ?",
+          "**Conseil cyber** : Effectuez régulièrement des sauvegardes chiffrées de vos données critiques pour vous protéger contre les ransomwares."
+        ];
+        
+        randomTip = fallbackTips[Math.floor(Math.random() * fallbackTips.length)];
+      }
+      
+      // Création d'un message d'accueil avec le conseil généré ou de secours
       const welcomeMessage = `Bonjour, je suis I AM CYBER, votre allié dans le monde passionnant de la cybersécurité.
 
-Le saviez-vous ? ${randomTip}
+${randomTip}
 
 Je vais vous guider dans votre parcours d'apprentissage. Quel est votre prénom ?`;
       
