@@ -6,7 +6,7 @@ import CyberLayout from "@/components/layout/CyberLayout";
 import ChatInterface from "@/components/cyber/ChatInterface";
 import PageTitle from "@/components/utils/PageTitle";
 import { Link } from "wouter";
-import { ArrowLeft, Clock, Mail, Send } from "lucide-react";
+import { ArrowLeft, Clock, Mail, Send, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -26,9 +26,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
-// Schéma de formulaire pour la configuration de la session Expert Cyber Conversationnel
+// Schéma de formulaire pour la configuration de la session Agent IA
 const formSchema = z.object({
   userEmail: z.string().email({
     message: "Veuillez entrer une adresse email valide.",
@@ -47,6 +47,8 @@ export default function CyberAgentPage() {
   const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutes en secondes
   const [messages, setMessages] = useState<any[]>([]);
   const [sessionData, setSessionData] = useState<any>(null);
+  const [showEndDialog, setShowEndDialog] = useState(false);
+  const [isSubmittingReport, setIsSubmittingReport] = useState(false);
   const startTimeRef = useRef<number>(0);
 
   // Configurer le formulaire
@@ -57,74 +59,18 @@ export default function CyberAgentPage() {
       userName: "",
     },
   });
-
-  // Fonction pour démarrer la session
-  const startSession = async (values: FormValues) => {
+  
+  // Fonction pour démarrer la session sans email (sera demandé à la fin)
+  const startSession = () => {
     try {
-      // Utiliser fetch directement pour mieux voir la réponse complète
-      const fetchResponse = await fetch('/api/cyber/agent/start', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          userEmail: values.userEmail,
-          userName: values.userName
-        })
+      setIsSessionActive(true);
+      startTimeRef.current = Date.now();
+      setSessionData({ startTime: Date.now() });
+
+      toast({
+        title: "Session démarrée",
+        description: "Votre session avec votre Agent IA a démarré.",
       });
-      
-      console.log("Status:", fetchResponse.status);
-      console.log("Content-Type:", fetchResponse.headers.get('Content-Type'));
-      
-      // Essayer de lire le corps de la réponse comme JSON
-      let response;
-      try {
-        const contentType = fetchResponse.headers.get('Content-Type');
-        if (contentType && contentType.includes('application/json')) {
-          response = await fetchResponse.json();
-          console.log("Response JSON:", response);
-        } else {
-          const text = await fetchResponse.text();
-          console.log("Response TEXT (first 100 chars):", text.substring(0, 100));
-          toast({
-            variant: "destructive",
-            title: "Erreur de format",
-            description: "La réponse du serveur n'est pas au format JSON attendu.",
-          });
-          return;
-        }
-      } catch (parseError) {
-        console.error("Erreur lors du parsing de la réponse:", parseError);
-        toast({
-          variant: "destructive",
-          title: "Erreur de parsing",
-          description: "Impossible de lire la réponse du serveur.",
-        });
-        return;
-      }
-
-      if (response && response.success) {
-        setSessionData({
-          userEmail: values.userEmail,
-          userName: values.userName,
-          startTime: Date.now()
-        });
-        setIsSessionActive(true);
-        startTimeRef.current = Date.now();
-
-        toast({
-          title: "Session démarrée",
-          description: "Votre session Expert Cyber Conversationnel a démarré. Un rapport sera envoyé à votre email à la fin.",
-        });
-      } else {
-        console.warn("Réponse sans succès:", response);
-        toast({
-          variant: "destructive",
-          title: "Erreur",
-          description: response?.error || "Impossible de démarrer la session. Veuillez réessayer.",
-        });
-      }
     } catch (error) {
       console.error("Erreur lors du démarrage de la session:", error);
       toast({
@@ -135,14 +81,19 @@ export default function CyberAgentPage() {
     }
   };
 
-  // Fonction pour terminer la session et envoyer le rapport
-  const completeSession = async () => {
-    if (!sessionData) return;
+  // Fonction pour terminer la session et montrer le formulaire d'email
+  const endSession = () => {
+    setShowEndDialog(true);
+  };
 
+  // Fonction pour envoyer le rapport
+  const sendReport = async (values: FormValues) => {
+    if (isSubmittingReport) return;
+    
+    setIsSubmittingReport(true);
     const duration = Date.now() - startTimeRef.current;
     
     try {
-      // Utiliser fetch directement pour mieux voir la réponse complète
       const fetchResponse = await fetch('/api/cyber/agent/complete', {
         method: 'POST',
         headers: {
@@ -150,15 +101,14 @@ export default function CyberAgentPage() {
           'Accept': 'application/json'
         },
         body: JSON.stringify({
-          userEmail: sessionData.userEmail,
-          userName: sessionData.userName,
+          userEmail: values.userEmail,
+          userName: values.userName,
           messages, // Historique complet des messages
           duration // Durée en millisecondes
         })
       });
       
       console.log("Complete Status:", fetchResponse.status);
-      console.log("Complete Content-Type:", fetchResponse.headers.get('Content-Type'));
       
       // Essayer de lire le corps de la réponse comme JSON
       let response;
@@ -166,7 +116,6 @@ export default function CyberAgentPage() {
         const contentType = fetchResponse.headers.get('Content-Type');
         if (contentType && contentType.includes('application/json')) {
           response = await fetchResponse.json();
-          console.log("Complete Response JSON:", response);
         } else {
           const text = await fetchResponse.text();
           console.log("Complete Response TEXT (first 100 chars):", text.substring(0, 100));
@@ -175,6 +124,7 @@ export default function CyberAgentPage() {
             title: "Erreur de format",
             description: "La réponse du serveur n'est pas au format JSON attendu.",
           });
+          setIsSubmittingReport(false);
           return;
         }
       } catch (parseError) {
@@ -184,12 +134,13 @@ export default function CyberAgentPage() {
           title: "Erreur de parsing",
           description: "Impossible de lire la réponse du serveur.",
         });
+        setIsSubmittingReport(false);
         return;
       }
 
       if (response && response.success) {
         toast({
-          title: "Session terminée",
+          title: "Rapport envoyé",
           description: "Un rapport détaillé a été envoyé à votre adresse email.",
         });
 
@@ -198,6 +149,7 @@ export default function CyberAgentPage() {
         setTimeRemaining(600);
         setMessages([]);
         setSessionData(null);
+        setShowEndDialog(false);
       } else {
         console.warn("Réponse sans succès (complete):", response);
         toast({
@@ -213,6 +165,8 @@ export default function CyberAgentPage() {
         title: "Erreur",
         description: "Impossible d'envoyer le rapport. Veuillez contacter le support.",
       });
+    } finally {
+      setIsSubmittingReport(false);
     }
   };
 
@@ -225,7 +179,7 @@ export default function CyberAgentPage() {
         setTimeRemaining(prev => {
           if (prev <= 1) {
             clearInterval(timer);
-            completeSession();
+            endSession(); // Afficher le formulaire d'email à la fin au lieu d'envoyer automatiquement
             return 0;
           }
           return prev - 1;
@@ -252,7 +206,7 @@ export default function CyberAgentPage() {
 
   return (
     <CyberLayout>
-      <PageTitle title="EXPERT CYBER CONVERSATIONNEL" />
+      <PageTitle title="AGENT IA CONVERSATIONNEL" />
       <div className="mb-2 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-10 bg-gray-950/80 backdrop-blur-sm py-2 shadow-md">
         <Link href="/cyber" className="inline-flex items-center text-[#46cada] hover:text-blue-600 transition-colors">
           <ArrowLeft className="mr-2 h-5 w-5" />
@@ -271,67 +225,101 @@ export default function CyberAgentPage() {
             <CardHeader>
               <CardTitle className="text-xl text-center">Démarrez votre session avec votre Agent IA</CardTitle>
               <CardDescription className="text-blue-200 text-center">
-                Un rapport détaillé sera envoyé à votre email à la fin de la session de 10 minutes
+                Discutez avec un agent IA spécialisé pendant 10 minutes
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(startSession)} className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="userEmail"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-blue-200">Email</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-400" />
-                            <Input 
-                              placeholder="votre.email@exemple.com" 
-                              className="pl-10 bg-blue-900/50 border-blue-700 text-white" 
-                              {...field} 
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="userName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-blue-200">Votre nom</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="Prénom Nom" 
-                            className="bg-blue-900/50 border-blue-700 text-white" 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-blue-600 hover:bg-blue-700"
-                  >
-                    <Send className="mr-2 h-4 w-4" />
-                    Démarrer la session
-                  </Button>
-                </form>
-              </Form>
+            <CardContent className="flex justify-center">
+              <Button 
+                onClick={startSession} 
+                className="bg-blue-600 hover:bg-blue-700 px-6 py-6 text-lg"
+              >
+                <Send className="mr-2 h-5 w-5" />
+                Démarrer la session
+              </Button>
             </CardContent>
             <CardFooter className="text-xs text-center text-blue-300 justify-center">
-              <p>La session durera 10 minutes. Vous recevrez un rapport détaillé par email.</p>
+              <p>La session durera 10 minutes. Vous pourrez recevoir un rapport détaillé par email à la fin.</p>
             </CardFooter>
           </Card>
         </div>
       ) : (
         <ChatInterface onMessagesUpdate={handleMessagesUpdate} />
       )}
+
+      {/* Dialog pour l'email en fin de session */}
+      <Dialog open={showEndDialog} onOpenChange={setShowEndDialog}>
+        <DialogContent className="bg-gradient-to-br from-blue-950 to-indigo-900 text-white border-blue-800">
+          <DialogHeader>
+            <DialogTitle className="text-xl text-center">Votre session est terminée</DialogTitle>
+            <DialogDescription className="text-blue-200 text-center">
+              Pour recevoir un rapport détaillé de votre conversation, veuillez saisir vos coordonnées ci-dessous.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(sendReport)} className="space-y-6 mt-4">
+              <FormField
+                control={form.control}
+                name="userEmail"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-blue-200">Email</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-400" />
+                        <Input 
+                          placeholder="votre.email@exemple.com" 
+                          className="pl-10 bg-blue-900/50 border-blue-700 text-white" 
+                          {...field} 
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="userName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-blue-200">Votre nom</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Prénom Nom" 
+                        className="bg-blue-900/50 border-blue-700 text-white" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="flex justify-center pt-2">
+                <Button 
+                  type="submit" 
+                  className="bg-blue-600 hover:bg-blue-700 px-6"
+                  disabled={isSubmittingReport}
+                >
+                  {isSubmittingReport ? (
+                    <span className="flex items-center">
+                      <Clock className="animate-spin mr-2 h-4 w-4" />
+                      Envoi en cours...
+                    </span>
+                  ) : (
+                    <span className="flex items-center">
+                      <Send className="mr-2 h-4 w-4" />
+                      Recevoir le rapport
+                    </span>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Form>
+          <div className="text-xs text-center text-blue-300 mt-4">
+            <p>Un rapport détaillé de votre conversation sera envoyé à l'email indiqué.</p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </CyberLayout>
   );
 }
