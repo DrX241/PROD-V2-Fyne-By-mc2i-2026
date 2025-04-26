@@ -69,17 +69,11 @@ interface AiAgentSessionData {
 
 /**
  * Initialise une session d'Agent IA Immersif
+ * Note: Pour la version immersive, l'email et le nom ne sont plus requis
  */
 export async function startAiAgentSession(req: Request, res: Response) {
   try {
-    const { userEmail, userName, virtualEnvironment = 'command-center' } = req.body;
-    
-    if (!userEmail || !userName) {
-      return res.status(400).json({
-        success: false,
-        error: 'Email et nom d\'utilisateur requis'
-      });
-    }
+    const { virtualEnvironment = 'command-center' } = req.body;
     
     // Initialiser les compétences avec des valeurs de base
     const initialSkills = {
@@ -89,10 +83,10 @@ export async function startAiAgentSession(req: Request, res: Response) {
       communication: 20
     };
     
-    // Créer la session avec les paramètres initiaux
+    // Créer la session avec les paramètres initiaux sans email ni nom pour la version immersive
     const sessionData: AiAgentSessionData = {
-      userEmail,
-      userName,
+      userEmail: 'immersif@i-am-cyber.com', // Valeur par défaut pour la version immersive
+      userName: 'Utilisateur Immersif',     // Valeur par défaut pour la version immersive
       messages: [],
       duration: 0,
       skillAssessment: initialSkills,
@@ -124,15 +118,23 @@ export async function startAiAgentSession(req: Request, res: Response) {
 
 /**
  * Termine une session Agent IA Immersif et envoie un rapport par email
+ * Note: Pour la version immersive, l'email et le nom utilisent des valeurs par défaut si non fournis
  */
 export async function completeAiAgentSession(req: Request, res: Response) {
   try {
-    const { userEmail, userName, messages, duration, skillAssessment } = req.body;
+    const { 
+      userEmail = 'immersif@i-am-cyber.com', 
+      userName = 'Utilisateur Immersif', 
+      messages, 
+      duration, 
+      skillAssessment, 
+      virtualEnvironment 
+    } = req.body;
     
-    if (!userEmail || !userName || !messages) {
+    if (!messages) {
       return res.status(400).json({
         success: false,
-        error: 'Paramètres manquants pour générer le rapport'
+        error: 'Historique des messages requis pour générer le rapport'
       });
     }
     

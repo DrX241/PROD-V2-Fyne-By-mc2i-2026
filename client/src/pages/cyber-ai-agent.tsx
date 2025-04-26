@@ -304,9 +304,28 @@ export default function CyberAiAgentPage() {
 
       {!isSessionActive ? (
         <div className="container mx-auto px-4 py-4">
+          {/* Titre principal en haut */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mb-6 text-center"
+          >
+            <h2 className="text-2xl md:text-4xl font-bold text-white mb-4 flex items-center justify-center">
+              <div className="mr-3 p-2 bg-gradient-to-br from-blue-700 to-indigo-800 rounded-lg shadow-lg">
+                <Bot className="h-8 w-8 text-blue-200" />
+              </div>
+              Agent IA Immersif
+            </h2>
+            
+            <p className="text-blue-200 mb-6 max-w-2xl mx-auto">
+              Plongez dans une expérience d'apprentissage avancée en cybersécurité avec évaluation des compétences en temps réel.
+            </p>
+          </motion.div>
+        
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Image du Robot FYNE à GAUCHE */}
-            <div className="lg:col-span-4 flex items-center justify-center lg:justify-start">
+            <div className="lg:col-span-5 flex items-center justify-center lg:justify-start">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -316,7 +335,7 @@ export default function CyberAiAgentPage() {
                 <img 
                   src={FyneRobotImage} 
                   alt="Robot FYNE - Assistant IA" 
-                  className="h-[300px] sm:h-[350px] md:h-[400px] w-auto drop-shadow-2xl object-contain"
+                  className="h-[350px] sm:h-[450px] md:h-[550px] w-auto drop-shadow-2xl object-contain"
                 />
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.8 }}
@@ -330,183 +349,187 @@ export default function CyberAiAgentPage() {
             </div>
             
             {/* Contenu à DROITE */}
-            <div className="lg:col-span-8">
-              <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                {/* Informations sur la session */}
-                <div className="lg:col-span-2">
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="mb-6"
-                  >
-                    <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 flex items-center">
-                      <div className="mr-3 p-2 bg-gradient-to-br from-blue-700 to-indigo-800 rounded-lg shadow-lg">
-                        <Bot className="h-7 w-7 text-blue-200" />
-                      </div>
-                      Agent IA Immersif
-                    </h2>
-                    
-                    <p className="text-blue-200 mb-6 border-l-2 border-blue-700 pl-4 py-1">
-                      Plongez dans une expérience d'apprentissage avancée en cybersécurité avec évaluation des compétences en temps réel.
-                    </p>
-                    
-                    <div className="bg-gradient-to-br from-blue-900/40 to-indigo-900/40 rounded-lg p-5 border border-blue-700/30 shadow-lg">
-                      <div className="flex items-start space-x-3">
-                        <div className="bg-blue-600/20 p-2 rounded-full shrink-0">
-                          <Info className="h-5 w-5 text-blue-300" />
-                        </div>
-                        <div>
-                          <h4 className="text-blue-300 font-medium mb-2 text-sm">Information sur la session</h4>
-                          <p className="text-sm text-blue-200 leading-relaxed">
-                            La session durera 10 minutes. Un rapport d'évaluation détaillé de vos compétences sera produit dans le centre de crise à la fin de la simulation.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                </div>
-                
+            <div className="lg:col-span-7">
+              <div className="flex flex-col h-full">
                 {/* Sélection d'environnement */}
-                <div className="lg:col-span-3">
+                <div className="flex-grow">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
                   >
-                    <Card className="bg-gradient-to-br from-gray-900 via-blue-950/50 to-gray-900 border border-blue-800/50 shadow-xl overflow-hidden">
-                      <CardHeader className="pb-4">
-                        <div className="flex items-center mb-2">
-                          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 h-6 w-6 rounded-full flex items-center justify-center mr-2">
-                            <span className="text-xs text-white font-bold">IA</span>
-                          </div>
-                          <CardTitle className="text-xl text-white">Configuration de la session</CardTitle>
+                    <div className="space-y-6">
+                      <h3 className="text-2xl font-bold text-white flex items-center">
+                        <div className="mr-3 p-2 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-lg shadow-lg">
+                          <Command className="h-6 w-6 text-blue-100" />
                         </div>
-                        <CardDescription className="text-blue-200">
-                          Sélectionnez votre environnement immersif préféré
-                        </CardDescription>
-                      </CardHeader>
+                        Environnement Immersif
+                      </h3>
                       
-                      <CardContent>
-                        <Form {...form}>
-                          <form onSubmit={form.handleSubmit(startSession)} className="space-y-5">
-                            <FormField
-                              control={form.control}
-                              name="virtualEnvironment"
-                              render={({ field }) => (
-                                <FormItem className="space-y-5">
-                                  <FormLabel className="text-lg text-blue-100 font-medium flex items-center">
-                                    <div className="bg-blue-900/30 p-2 rounded-full mr-2">
-                                      <Command className="h-5 w-5 text-cyan-400" />
-                                    </div>
-                                    Sélectionnez votre environnement immersif
-                                  </FormLabel>
-                                  <FormControl>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                      <motion.div
-                                        whileHover={{ y: -5 }}
-                                        className={`relative overflow-hidden rounded-lg border p-4 ${
-                                          field.value === "command-center" 
-                                            ? "bg-gradient-to-b from-cyan-900/50 to-blue-950 border-cyan-500/50 ring-2 ring-cyan-500/30"
-                                            : "bg-gradient-to-b from-gray-800/80 to-blue-950/60 border-gray-700/50 hover:border-cyan-700/50"
-                                        } transition-all duration-200 cursor-pointer`}
-                                        onClick={() => field.onChange("command-center")}
-                                      >
+                      <Form {...form}>
+                        <form onSubmit={form.handleSubmit(startSession)} className="space-y-6">
+                          <FormField
+                            control={form.control}
+                            name="virtualEnvironment"
+                            render={({ field }) => (
+                              <FormItem className="space-y-5">
+                                <FormControl>
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                    {/* CARTE #1: CENTRE DE COMMANDEMENT */}
+                                    <motion.div
+                                      whileHover={{ y: -8, scale: 1.02 }}
+                                      transition={{ duration: 0.3 }}
+                                      className={`relative overflow-hidden rounded-xl border-2 p-0 h-[260px] cursor-pointer group
+                                        ${field.value === "command-center" 
+                                          ? "border-cyan-500 ring-2 ring-cyan-500/30 shadow-lg shadow-cyan-500/20" 
+                                          : "border-gray-700/50 shadow-md hover:shadow-lg hover:shadow-cyan-900/20"
+                                        }`}
+                                      onClick={() => field.onChange("command-center")}
+                                    >
+                                      {/* Arrière-plan avec overlay gradient */}
+                                      <div className="absolute inset-0 bg-gradient-to-b from-cyan-900/30 via-blue-900/40 to-gray-900/90 z-10"></div>
+                                      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-50"></div>
+                                      
+                                      {/* Contenu de la carte */}
+                                      <div className="relative z-20 h-full flex flex-col">
+                                        {/* Badge de sélection */}
                                         {field.value === "command-center" && (
-                                          <div className="absolute top-2 right-2 bg-cyan-500 text-xs p-1 px-1.5 rounded-full text-white">
-                                            Sélectionné
+                                          <div className="absolute top-2 right-2 bg-cyan-500 text-xs p-1 px-2 rounded-full text-white flex items-center space-x-1">
+                                            <span className="h-2 w-2 rounded-full bg-white"></span>
+                                            <span>Sélectionné</span>
                                           </div>
                                         )}
-                                        <div className="flex flex-col items-center text-center space-y-3">
-                                          <div className="bg-gradient-to-b from-cyan-800 to-cyan-900 p-3 rounded-full">
-                                            <Command className="h-8 w-8 text-cyan-300" />
+                                        
+                                        {/* Icône et détails */}
+                                        <div className="mt-auto p-5">
+                                          <div className="mb-4 bg-cyan-700/70 p-3 rounded-lg w-min">
+                                            <Command className="h-8 w-8 text-cyan-200" />
                                           </div>
-                                          <div>
-                                            <h3 className="font-bold text-white">Centre de commandement</h3>
-                                            <p className="text-xs text-blue-200 mt-1.5">
-                                              Planification stratégique et coordination d'équipe
-                                            </p>
-                                          </div>
+                                          <h3 className="font-bold text-xl text-white mb-2">Centre de Commandement</h3>
+                                          <p className="text-sm text-cyan-100/80 line-clamp-2 group-hover:line-clamp-none transition-all">
+                                            Planification stratégique et coordination d'équipe pour répondre aux incidents cyber avancés.
+                                          </p>
                                         </div>
-                                      </motion.div>
+                                      </div>
+                                    </motion.div>
+                                    
+                                    {/* CARTE #2: LABORATOIRE D'ANALYSE */}
+                                    <motion.div
+                                      whileHover={{ y: -8, scale: 1.02 }}
+                                      transition={{ duration: 0.3 }}
+                                      className={`relative overflow-hidden rounded-xl border-2 p-0 h-[260px] cursor-pointer group
+                                        ${field.value === "analysis-lab" 
+                                          ? "border-indigo-500 ring-2 ring-indigo-500/30 shadow-lg shadow-indigo-500/20" 
+                                          : "border-gray-700/50 shadow-md hover:shadow-lg hover:shadow-indigo-900/20"
+                                        }`}
+                                      onClick={() => field.onChange("analysis-lab")}
+                                    >
+                                      {/* Arrière-plan avec overlay gradient */}
+                                      <div className="absolute inset-0 bg-gradient-to-b from-indigo-900/30 via-indigo-900/40 to-gray-900/90 z-10"></div>
+                                      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1581093196277-9f608bb3a604?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-50"></div>
                                       
-                                      <motion.div
-                                        whileHover={{ y: -5 }}
-                                        className={`relative overflow-hidden rounded-lg border p-4 ${
-                                          field.value === "analysis-lab" 
-                                            ? "bg-gradient-to-b from-indigo-900/50 to-blue-950 border-indigo-500/50 ring-2 ring-indigo-500/30"
-                                            : "bg-gradient-to-b from-gray-800/80 to-blue-950/60 border-gray-700/50 hover:border-indigo-700/50"
-                                        } transition-all duration-200 cursor-pointer`}
-                                        onClick={() => field.onChange("analysis-lab")}
-                                      >
+                                      {/* Contenu de la carte */}
+                                      <div className="relative z-20 h-full flex flex-col">
+                                        {/* Badge de sélection */}
                                         {field.value === "analysis-lab" && (
-                                          <div className="absolute top-2 right-2 bg-indigo-500 text-xs p-1 px-1.5 rounded-full text-white">
-                                            Sélectionné
+                                          <div className="absolute top-2 right-2 bg-indigo-500 text-xs p-1 px-2 rounded-full text-white flex items-center space-x-1">
+                                            <span className="h-2 w-2 rounded-full bg-white"></span>
+                                            <span>Sélectionné</span>
                                           </div>
                                         )}
-                                        <div className="flex flex-col items-center text-center space-y-3">
-                                          <div className="bg-gradient-to-b from-indigo-800 to-indigo-900 p-3 rounded-full">
-                                            <Microscope className="h-8 w-8 text-indigo-300" />
+                                        
+                                        {/* Icône et détails */}
+                                        <div className="mt-auto p-5">
+                                          <div className="mb-4 bg-indigo-700/70 p-3 rounded-lg w-min">
+                                            <Microscope className="h-8 w-8 text-indigo-200" />
                                           </div>
-                                          <div>
-                                            <h3 className="font-bold text-white">Laboratoire d'analyse</h3>
-                                            <p className="text-xs text-blue-200 mt-1.5">
-                                              Investigation technique et analyse forensique
-                                            </p>
-                                          </div>
+                                          <h3 className="font-bold text-xl text-white mb-2">Laboratoire d'Analyse</h3>
+                                          <p className="text-sm text-indigo-100/80 line-clamp-2 group-hover:line-clamp-none transition-all">
+                                            Investigation technique et analyse forensique pour découvrir les sources d'attaque.
+                                          </p>
                                         </div>
-                                      </motion.div>
+                                      </div>
+                                    </motion.div>
+                                    
+                                    {/* CARTE #3: SALLE DE CRISE */}
+                                    <motion.div
+                                      whileHover={{ y: -8, scale: 1.02 }}
+                                      transition={{ duration: 0.3 }}
+                                      className={`relative overflow-hidden rounded-xl border-2 p-0 h-[260px] cursor-pointer group
+                                        ${field.value === "crisis-room" 
+                                          ? "border-violet-500 ring-2 ring-violet-500/30 shadow-lg shadow-violet-500/20" 
+                                          : "border-gray-700/50 shadow-md hover:shadow-lg hover:shadow-violet-900/20"
+                                        }`}
+                                      onClick={() => field.onChange("crisis-room")}
+                                    >
+                                      {/* Arrière-plan avec overlay gradient */}
+                                      <div className="absolute inset-0 bg-gradient-to-b from-violet-900/30 via-violet-900/40 to-gray-900/90 z-10"></div>
+                                      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-50"></div>
                                       
-                                      <motion.div
-                                        whileHover={{ y: -5 }}
-                                        className={`relative overflow-hidden rounded-lg border p-4 ${
-                                          field.value === "crisis-room" 
-                                            ? "bg-gradient-to-b from-violet-900/50 to-blue-950 border-violet-500/50 ring-2 ring-violet-500/30"
-                                            : "bg-gradient-to-b from-gray-800/80 to-blue-950/60 border-gray-700/50 hover:border-violet-700/50"
-                                        } transition-all duration-200 cursor-pointer`}
-                                        onClick={() => field.onChange("crisis-room")}
-                                      >
+                                      {/* Contenu de la carte */}
+                                      <div className="relative z-20 h-full flex flex-col">
+                                        {/* Badge de sélection */}
                                         {field.value === "crisis-room" && (
-                                          <div className="absolute top-2 right-2 bg-violet-500 text-xs p-1 px-1.5 rounded-full text-white">
-                                            Sélectionné
+                                          <div className="absolute top-2 right-2 bg-violet-500 text-xs p-1 px-2 rounded-full text-white flex items-center space-x-1">
+                                            <span className="h-2 w-2 rounded-full bg-white"></span>
+                                            <span>Sélectionné</span>
                                           </div>
                                         )}
-                                        <div className="flex flex-col items-center text-center space-y-3">
-                                          <div className="bg-gradient-to-b from-violet-800 to-violet-900 p-3 rounded-full">
-                                            <AlertCircle className="h-8 w-8 text-violet-300" />
+                                        
+                                        {/* Icône et détails */}
+                                        <div className="mt-auto p-5">
+                                          <div className="mb-4 bg-violet-700/70 p-3 rounded-lg w-min">
+                                            <AlertCircle className="h-8 w-8 text-violet-200" />
                                           </div>
-                                          <div>
-                                            <h3 className="font-bold text-white">Salle de crise</h3>
-                                            <p className="text-xs text-blue-200 mt-1.5">
-                                              Gestion d'incidents et réponse d'urgence
-                                            </p>
-                                          </div>
+                                          <h3 className="font-bold text-xl text-white mb-2">Salle de Crise</h3>
+                                          <p className="text-sm text-violet-100/80 line-clamp-2 group-hover:line-clamp-none transition-all">
+                                            Gestion d'incidents critiques et coordination de la réponse d'urgence sous pression.
+                                          </p>
                                         </div>
-                                      </motion.div>
-                                    </div>
-                                  </FormControl>
-                                  <FormMessage className="text-red-400" />
-                                </FormItem>
-                              )}
-                            />
-                            <div className="pt-2">
-                              <Button 
-                                type="submit" 
-                                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-2.5 font-medium shadow-lg"
-                              >
-                                <Send className="mr-2 h-4 w-4" />
-                                Démarrer la session immersive
-                              </Button>
-                            </div>
-                          </form>
-                        </Form>
-                      </CardContent>
-                    </Card>
+                                      </div>
+                                    </motion.div>
+                                  </div>
+                                </FormControl>
+                                <FormMessage className="text-red-400" />
+                              </FormItem>
+                            )}
+                          />
+                          <div className="pt-2">
+                            <Button 
+                              type="submit" 
+                              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 font-medium shadow-lg rounded-lg text-base"
+                            >
+                              <Send className="mr-2 h-5 w-5" />
+                              Démarrer la session immersive
+                            </Button>
+                          </div>
+                        </form>
+                      </Form>
+                    </div>
                   </motion.div>
                 </div>
               </div>
             </div>
           </div>
+          
+          {/* Information sur la session en bas de page (horizontal) */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className="mt-8 max-w-6xl mx-auto"
+          >
+            <div className="bg-gradient-to-r from-blue-900/40 via-indigo-900/40 to-blue-900/40 rounded-lg p-5 border border-blue-700/30 shadow-lg">
+              <div className="flex items-center justify-center space-x-2">
+                <div className="bg-blue-600/20 p-2 rounded-full shrink-0">
+                  <Info className="h-5 w-5 text-blue-300" />
+                </div>
+                <p className="text-blue-200 text-center">
+                  <span className="font-medium text-blue-300">Information sur la session:</span> La session durera 10 minutes. Un rapport d'évaluation détaillé de vos compétences sera produit dans le centre de crise à la fin de la simulation.
+                </p>
+              </div>
+            </div>
+          </motion.div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 h-full">
