@@ -35,6 +35,7 @@ import {
   processEmergencyMessage,
   completeEmergencySession
 } from "./cyberEmergencyController";
+import { handleStartScenario } from "./routes.start-scenario";
 
 /**
  * Génère un document HTML formaté pour la synthèse d'audition
