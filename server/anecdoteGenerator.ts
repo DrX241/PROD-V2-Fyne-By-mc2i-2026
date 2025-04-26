@@ -3,66 +3,162 @@
  * Ce module sélectionne aléatoirement des anecdotes pertinentes en fonction du domaine de cybersécurité
  */
 
+// Définir la structure de la base de données d'anecdotes
 interface AnecdoteDatabase {
   [key: string]: string[]
 }
 
-// Banque d'anecdotes par domaine de cybersécurité
+// Base de données d'anecdotes organisées par domaine de cybersécurité
 const anecdotesByCyberDomain: AnecdoteDatabase = {
-  "Gestion de crise cyber": [
-    "En 2017, la cyberattaque NotPetya a coûté plus de 10 milliards d'euros de dommages au niveau mondial en seulement quelques heures.",
-    "Lors d'une récente simulation de crise, une entreprise du CAC 40 a découvert qu'elle aurait mis 72 heures à identifier une intrusion sophistiquée sur son réseau.",
-    "Les entreprises disposant d'un plan de réponse aux incidents bien testé réduisent en moyenne de 28% le coût d'une violation de données."
+  "Stratégie et gouvernance": [
+    "En 2022, une étude du CESIN a révélé que 43% des entreprises du CAC 40 ont un RSSI qui reporte directement au COMEX, montrant l'importance croissante de la cybersécurité dans la gouvernance d'entreprise.",
+    "Après l'attaque NotPetya en 2017, Maersk a dû reconstruire son infrastructure IT complète. Cet incident a conduit le groupe à revoir entièrement sa stratégie de cybersécurité et à quadrupler ses investissements en sécurité.",
+    "La méthodologie EBIOS Risk Manager, développée par l'ANSSI, est devenue une référence pour l'analyse des risques cyber. Elle permet d'aligner la stratégie de sécurité avec les objectifs métiers de l'organisation.",
+    "Une enquête menée en 2023 a révélé que les entreprises avec un comité cybersécurité au niveau du conseil d'administration ont 43% moins de chances de subir une violation de données majeure.",
+    "En 2021, le coût moyen d'une violation de données en France était de 4,24 millions d'euros selon IBM, démontrant l'impact financier crucial d'une bonne stratégie de cybersécurité."
   ],
-  "Protection des données personnelles / RGPD": [
-    "La première amende RGPD en France a concerné une entreprise qui n'avait pas suffisamment sécurisé les données de ses clients sur son site web.",
-    "Savais-tu que 60% des entreprises européennes ne sont toujours pas entièrement conformes au RGPD depuis son entrée en vigueur en 2018?",
-    "En 2022, les autorités européennes ont infligé plus de 1,6 milliard d'euros d'amendes pour des violations du RGPD."
+  "Gestion des incidents": [
+    "Lors de l'attaque SolarWinds en 2020, certaines organisations ont mis plus de 9 mois à détecter la compromission, illustrant l'importance d'une détection précoce dans la gestion des incidents.",
+    "Le Centre Hospitalier de Versailles a dû fermer ses urgences en décembre 2022 suite à une cyberattaque. Leur plan de gestion de crise leur a permis de maintenir les soins critiques tout en isolant leurs systèmes.",
+    "En 2021, Colonial Pipeline a payé une rançon de 4,4 millions de dollars suite à une attaque ransomware. Le FBI a réussi à récupérer 2,3 millions, montrant l'importance de la collaboration avec les autorités.",
+    "L'entreprise Norsk Hydro a refusé de payer une rançon suite à l'attaque LockerGoga en 2019. Sa transparence et sa gestion efficace de l'incident ont été saluées comme un modèle de réponse aux cyberattaques.",
+    "Après l'incident Equifax de 2017, la FTC a imposé un programme de tests de pénétration et d'audit bisannuel pour 20 ans, démontrant les conséquences réglementaires d'une mauvaise gestion d'incident."
   ],
-  "Ingénierie sociale et phishing": [
-    "Une étude récente a montré que 32% des violations de données commencent par une attaque de phishing réussie.",
-    "Lors d'un test d'hameçonnage dans une multinationale française, 43% des employés ont cliqué sur un lien suspect malgré les formations de sensibilisation.",
-    "Les attaques de phishing ont augmenté de 350% pendant la pandémie de COVID-19 lorsque les entreprises sont passées au télétravail."
+  "RGPD": [
+    "En 2023, la CNIL a infligé une amende de 60 millions d'euros à une grande entreprise française pour des violations du RGPD liées à la gestion des cookies et au consentement des utilisateurs.",
+    "Une étude menée en 2022 a montré que 65% des entreprises européennes utilisent encore des clauses standards pour les transferts de données vers les États-Unis, malgré l'invalidation du Privacy Shield.",
+    "Le délai moyen de notification d'une violation de données aux autorités de contrôle est passé de 72 jours en 2018 à 26 jours en 2022, montrant une meilleure conformité à l'obligation de notification de 72 heures.",
+    "Un sondage de 2023 révèle que seulement 47% des PME françaises ont mis en place un registre des traitements conforme au RGPD, bien que cela soit obligatoire depuis 2018.",
+    "La Cour de justice de l'UE a rendu en juillet 2022 l'arrêt Schrems II, remettant en question les transferts de données vers les pays tiers et imposant des évaluations d'impact supplémentaires."
   ],
-  "Gestion des incidents de sécurité": [
-    "Le temps moyen de détection d'une intrusion dans les systèmes d'information est de 207 jours selon le rapport de Ponemon Institute.",
-    "Une étude de l'ANSSI montre que 60% des entreprises victimes d'incidents majeurs n'avaient pas de procédure de gestion de crise cyber formalisée.",
-    "Les entreprises qui disposent d'une équipe dédiée à la réponse aux incidents réduisent le coût moyen d'une violation de 80%."
+  "Ingénierie sociale/phishing": [
+    "En 2020, Twitter a subi une attaque majeure après qu'un employé ait été victime d'une attaque de vishing (phishing vocal). Les pirates ont obtenu l'accès aux outils d'administration et compromis les comptes de personnalités.",
+    "Une étude de ProofPoint a révélé que plus de 96% des attaques de phishing observées en 2022 désactivaient le contenu malveillant après la première visite, rendant leur détection plus difficile.",
+    "En 2021, 47% des entreprises françaises ont signalé avoir été victimes d'attaques d'ingénierie sociale visant à effectuer des virements frauduleux (Business Email Compromise).",
+    "Les tests de phishing simulés montrent que le taux de clics diminue de 50% après seulement un an de formation régulière des employés aux techniques d'ingénierie sociale.",
+    "En 2023, une nouvelle technique de phishing utilisant des deepfakes audio pour imiter la voix des dirigeants a été utilisée pour autoriser un transfert de 23 millions d'euros dans une entreprise européenne."
   ],
   "Sécurité de la chaîne d'approvisionnement": [
-    "L'attaque SolarWinds de 2020 a compromis plus de 18 000 organisations via une simple mise à jour logicielle.",
-    "Près de 60% des violations de données sont liées à des vulnérabilités introduites par des tiers ou des fournisseurs.",
-    "Une étude du CESIN révèle que seulement 23% des entreprises françaises auditent régulièrement la sécurité de leurs fournisseurs critiques."
-  ],
-  "Stratégie et gouvernance": [
-    "Les entreprises avec un RSSI qui rapporte directement au CEO réduisent de 35% le coût moyen des incidents de sécurité.",
-    "Selon le World Economic Forum, les cyber-risques figurent parmi les 5 principales préoccupations des dirigeants depuis 2018.",
-    "Une étude Gartner montre que 40% des budgets de cybersécurité sont alloués à des projets sans alignement stratégique clair."
+    "L'attaque SolarWinds de 2020 a compromis plus de 18 000 organisations via une mise à jour logicielle infectée, démontrant la vulnérabilité des chaînes d'approvisionnement logicielles.",
+    "En 2021, l'attaque contre Kaseya a affecté entre 800 et 1 500 entreprises via leurs fournisseurs de services managés, illustrant l'effet domino dans la chaîne d'approvisionnement IT.",
+    "Une étude de 2022 a révélé que seulement 34% des entreprises vérifient rigoureusement la sécurité de leurs fournisseurs de logiciels open source, malgré les risques croissants.",
+    "La norme ISO 28001 fournit un cadre pour identifier les risques dans la chaîne d'approvisionnement et mettre en place des mesures de sécurité appropriées.",
+    "En 2023, une vulnérabilité dans une bibliothèque JavaScript utilisée par plus de 8 millions de sites web a conduit à une compromission massive, montrant l'importance de la gestion des dépendances."
   ]
 };
 
+// Secteurs d'activité pour la génération de contexte
+const secteursDActivite = [
+  "Banque et Assurance",
+  "Santé et Pharmaceutique",
+  "Énergie et Utilities",
+  "Transport et Logistique",
+  "Industrie Manufacturière",
+  "Commerce et Distribution",
+  "Services Publics",
+  "Télécommunications",
+  "Aéronautique et Défense",
+  "Automobile"
+];
+
+// Noms d'entreprises fictifs par secteur
+const entreprisesParSecteur: {[key: string]: string[]} = {
+  "Banque et Assurance": [
+    "CrédiSecure", "BanqueProtect", "AssurCyber", "FinanceShield", "SécuriBank"
+  ],
+  "Santé et Pharmaceutique": [
+    "MédiData", "PharmaSecure", "SantéProtect", "BioSécurité", "HealthGuard"
+  ],
+  "Énergie et Utilities": [
+    "ÉnergieSecure", "ElectraProtect", "GasSafe", "HydroShield", "PowerSecurity"
+  ],
+  "Transport et Logistique": [
+    "TransSecure", "LogiProtect", "MobileSafe", "FreightGuard", "ShipSecure"
+  ],
+  "Industrie Manufacturière": [
+    "IndustrieSafe", "ProduSecure", "ManufactShield", "FabriProtect", "InduGuard"
+  ],
+  "Commerce et Distribution": [
+    "CommerceSecure", "DistribSafe", "RetailProtect", "ShopGuard", "MarketSecurity"
+  ],
+  "Services Publics": [
+    "PubliSecure", "AdminSafe", "GovProtect", "CitySecurity", "StateSafe"
+  ],
+  "Télécommunications": [
+    "TelecomSecure", "CommSafe", "NetProtect", "DataShield", "InfoSecure"
+  ],
+  "Aéronautique et Défense": [
+    "AéroSecurity", "DéfenseProtect", "AirSafe", "SpaceGuard", "MilSecure"
+  ],
+  "Automobile": [
+    "AutoSecure", "MobileSecurity", "CarShield", "DriveProtect", "VéhiSafe"
+  ]
+};
+
+// Interlocuteurs additionnels par expertise
+const interlocuteursParExpertise: {[key: string]: Array<{name: string, role: string}>} = {
+  "technique": [
+    { name: "Nicolas Martin", role: "Responsable Infrastructure IT" },
+    { name: "Emma Dubois", role: "Architecte Sécurité" },
+    { name: "Thomas Richard", role: "Administrateur Systèmes" },
+    { name: "Julie Lambert", role: "Chef de Projet IT" },
+    { name: "Alexandre Petit", role: "DevSecOps Engineer" }
+  ],
+  "réglementaire": [
+    { name: "Claire Moreau", role: "Juriste Spécialisée RGPD" },
+    { name: "Philippe Bernard", role: "Responsable Conformité" },
+    { name: "Marie Lefèvre", role: "DPO (Délégué à la Protection des Données)" },
+    { name: "Éric Durand", role: "Auditeur Interne" },
+    { name: "Sophie Rousseau", role: "Responsable Qualité et Risques" }
+  ],
+  "métier": [
+    { name: "Laurent Girard", role: "Directeur Général" },
+    { name: "Céline Robert", role: "Directrice des Opérations" },
+    { name: "Stéphane Simon", role: "Chief Financial Officer" },
+    { name: "Isabelle Fournier", role: "Directrice Marketing" },
+    { name: "David Mercier", role: "Responsable Service Client" }
+  ]
+};
+
+// Mapping des domaines vers les types d'expertise pertinents
+const expertiseParDomaine: {[key: string]: string[]} = {
+  "Stratégie et gouvernance": ["métier", "réglementaire", "technique"],
+  "Gestion des incidents": ["technique", "métier"],
+  "RGPD": ["réglementaire", "technique"],
+  "Ingénierie sociale/phishing": ["technique", "métier"],
+  "Sécurité de la chaîne d'approvisionnement": ["technique", "métier", "réglementaire"]
+};
+
+// Fonction pour sélectionner une anecdote aléatoire pertinente pour un domaine donné
 /**
  * Sélectionne une anecdote aléatoire pertinente pour un domaine donné
  * @param domain Le domaine de cybersécurité
  * @returns Une anecdote aléatoire liée au domaine
  */
 export function getRandomAnecdote(domain: string): string {
-  // Domaine par défaut si aucune correspondance n'est trouvée
-  let domainKey = "Stratégie et gouvernance";
-  
-  // Rechercher une correspondance partielle dans les clés du dictionnaire
-  for (const key of Object.keys(anecdotesByCyberDomain)) {
-    if (domain.toLowerCase().includes(key.toLowerCase())) {
-      domainKey = key;
-      break;
+  // Trouver le domaine le plus proche si le domaine exact n'existe pas
+  let targetDomain = domain;
+  if (!anecdotesByCyberDomain[domain]) {
+    // Chercher un domaine similaire
+    const domains = Object.keys(anecdotesByCyberDomain);
+    for (const d of domains) {
+      if (d.toLowerCase().includes(domain.toLowerCase()) || domain.toLowerCase().includes(d.toLowerCase())) {
+        targetDomain = d;
+        break;
+      }
+    }
+    
+    // Si toujours pas trouvé, prendre un domaine au hasard
+    if (!anecdotesByCyberDomain[targetDomain]) {
+      const randomDomain = Object.keys(anecdotesByCyberDomain)[Math.floor(Math.random() * Object.keys(anecdotesByCyberDomain).length)];
+      targetDomain = randomDomain;
     }
   }
   
-  // Récupérer les anecdotes pour ce domaine
-  const anecdotes = anecdotesByCyberDomain[domainKey];
-  
-  // Sélectionner aléatoirement une anecdote
-  return anecdotes[Math.floor(Math.random() * anecdotes.length)];
+  // Sélectionner une anecdote aléatoire pour le domaine cible
+  const anecdotes = anecdotesByCyberDomain[targetDomain];
+  const randomIndex = Math.floor(Math.random() * anecdotes.length);
+  return anecdotes[randomIndex];
 }
 
 /**
@@ -74,92 +170,52 @@ export function getRandomAnecdote(domain: string): string {
 export function getRelevantContacts(domain: string, primaryContact: { name: string, role: string }): Array<{
   name: string;
   role: string;
-  expertise: string;
 }> {
-  // Liste complète d'experts disponibles
-  const allExperts = [
-    {
-      name: "Lorenzo Bertola",
-      role: "Directeur Général Adjoint et Directeur du pôle BFA",
-      expertise: "Cybersécurité dans le secteur bancaire et financier"
-    },
-    {
-      name: "Vincent Terrier",
-      role: "Senior Partner, Directeur Financier",
-      expertise: "Gestion des risques financiers liés aux cyber-attaques"
-    },
-    {
-      name: "Guillaume Lechevallier",
-      role: "Directeur Général Adjoint et Directeur du pôle IMPULSE",
-      expertise: "Transformation numérique sécurisée dans les secteurs industriels"
-    },
-    {
-      name: "Fares SAYADI",
-      role: "Spécialiste Data / IA",
-      expertise: "Sécurisation des données dans le secteur public et la santé"
-    },
-    {
-      name: "Nicolas Paolantonacci",
-      role: "Senior Partner et Directeur du pôle RETAIL & LUXE",
-      expertise: "Protection des actifs digitaux dans le secteur du luxe"
-    },
-    {
-      name: "Marion Lopez",
-      role: "Senior Partner et Directrice Marketing, Communication et RSE",
-      expertise: "Communication de crise et gestion de la réputation"
-    },
-    {
-      name: "Anthony Frescal",
-      role: "Directeur Général Adjoint et Directeur du pôle ENERGIES & UTILITIES",
-      expertise: "Sécurité des infrastructures critiques énergétiques"
-    },
-    {
-      name: "Neil LEVIN",
-      role: "Expert cybersécurité & CFO",
-      expertise: "Stratégies de défense et solutions techniques de cybersécurité"
-    },
-    {
-      name: "Yousra SAIDANI",
-      role: "Experte Cybersécurité & CFO",
-      expertise: "Analyse forensique et réponse aux incidents"
-    },
-    {
-      name: "Eddy MISSONI IDEMBI",
-      role: "Expert Data / IA & CTO",
-      expertise: "Sécurisation des modèles d'IA et protection des données"
-    },
-    {
-      name: "Vincent Pascal",
-      role: "Directeur Général Adjoint et Directeur du Développement",
-      expertise: "Conformité réglementaire en matière de cybersécurité"
-    },
-    {
-      name: "Arnaud Gauthier",
-      role: "Président",
-      expertise: "Vision stratégique et gouvernance de la cybersécurité"
-    },
-    {
-      name: "Olivier Hervo",
-      role: "Directeur Général",
-      expertise: "Arbitrage risques/opportunités en matière de sécurité"
-    },
-    {
-      name: "Isabelle Dubacq",
-      role: "Senior Partner, Directrice des Ressources Humaines",
-      expertise: "Formation et sensibilisation des collaborateurs"
+  // Déterminer les types d'expertise pertinents pour ce domaine
+  let expertiseTypes = expertiseParDomaine[domain] || ["technique", "métier"];
+  
+  // Si le domaine n'est pas reconnu, utiliser tous les types d'expertise
+  if (!expertiseTypes) {
+    expertiseTypes = ["technique", "métier", "réglementaire"];
+  }
+  
+  // Sélectionner 2-3 contacts pertinents (un par type d'expertise si possible)
+  const selectedContacts: Array<{name: string, role: string}> = [];
+  const contactCount = Math.floor(Math.random() * 2) + 2; // 2 ou 3 contacts
+  
+  for (const expertiseType of expertiseTypes) {
+    if (selectedContacts.length >= contactCount) break;
+    
+    const contactsForExpertise = interlocuteursParExpertise[expertiseType];
+    if (contactsForExpertise) {
+      // Choisir un contact aléatoire de ce type d'expertise
+      const randomIndex = Math.floor(Math.random() * contactsForExpertise.length);
+      const contact = contactsForExpertise[randomIndex];
+      
+      // Ajouter uniquement si ce n'est pas le contact principal et s'il n'est pas déjà sélectionné
+      if (contact.name !== primaryContact.name && !selectedContacts.some(c => c.name === contact.name)) {
+        selectedContacts.push(contact);
+      }
     }
-  ];
+  }
   
-  // Filtrer pour exclure le contact principal
-  const filteredExperts = allExperts.filter(expert => 
-    expert.name !== primaryContact.name
-  );
+  // Si nous n'avons pas assez de contacts, ajouter des contacts aléatoires
+  while (selectedContacts.length < contactCount) {
+    // Choisir un type d'expertise au hasard
+    const randomExpertiseType = ["technique", "métier", "réglementaire"][Math.floor(Math.random() * 3)];
+    const contactsForExpertise = interlocuteursParExpertise[randomExpertiseType];
+    
+    // Choisir un contact aléatoire
+    const randomIndex = Math.floor(Math.random() * contactsForExpertise.length);
+    const contact = contactsForExpertise[randomIndex];
+    
+    // Ajouter uniquement si ce n'est pas le contact principal et s'il n'est pas déjà sélectionné
+    if (contact.name !== primaryContact.name && !selectedContacts.some(c => c.name === contact.name)) {
+      selectedContacts.push(contact);
+    }
+  }
   
-  // Mélanger aléatoirement les experts
-  const shuffledExperts = [...filteredExperts].sort(() => Math.random() - 0.5);
-  
-  // Sélectionner 2 experts maximum
-  return shuffledExperts.slice(0, 2);
+  return selectedContacts;
 }
 
 /**
@@ -168,13 +224,16 @@ export function getRelevantContacts(domain: string, primaryContact: { name: stri
  * @returns Une description textuelle du niveau de difficulté
  */
 export function getDifficultyText(difficulty: string): string {
-  const difficultyMap: {[key: string]: string} = {
-    "Débutant": "une introduction accessible aux principes fondamentaux",
-    "Intermédiaire": "un problème concret nécessitant une certaine maîtrise technique",
-    "Expert": "un défi complexe requérant une expertise approfondie"
-  };
-  
-  return difficultyMap[difficulty] || "un cas pratique adapté à ton niveau";
+  switch(difficulty.toLowerCase()) {
+    case 'débutant':
+      return "Ce scénario introduit les concepts fondamentaux et convient aux personnes débutant dans le domaine.";
+    case 'intermédiaire':
+      return "Ce scénario nécessite une connaissance pratique du domaine et aborde des situations réalistes de complexité moyenne.";
+    case 'expert':
+      return "Ce scénario présente des défis avancés qui nécessitent une expertise approfondie et une pensée critique.";
+    default:
+      return "Scénario adapté à différents niveaux d'expertise en fonction de votre approche.";
+  }
 }
 
 /**
@@ -183,23 +242,11 @@ export function getDifficultyText(difficulty: string): string {
  * @returns Le secteur d'activité
  */
 export function getSecteurActivite(contactName: string): string {
-  if (contactName === "Lorenzo Bertola" || contactName === "Vincent Terrier") {
-    return 'BANCAIRE/FINANCIER (BFA)';
-  }
-  else if (contactName === "Guillaume Lechevallier" || contactName === "Fares SAYADI") {
-    return 'INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)';
-  }
-  else if (contactName === "Nicolas Paolantonacci" || contactName === "Marion Lopez") {
-    return 'RETAIL & LUXE';
-  }
-  else if (contactName === "Anthony Frescal") {
-    return 'ÉNERGIE & UTILITIES';
-  }
-  else {
-    // Si pas de correspondance, choisir aléatoirement
-    const secteurs = ['BANCAIRE/FINANCIER (BFA)', 'INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)', 'RETAIL & LUXE', 'ÉNERGIE & UTILITIES'];
-    return secteurs[Math.floor(Math.random() * secteurs.length)];
-  }
+  // Utiliser les initiales du nom pour déterminer un secteur de manière déterministe
+  const initials = contactName.trim().charAt(0).toUpperCase();
+  const asciiValue = initials.charCodeAt(0);
+  const index = asciiValue % secteursDActivite.length;
+  return secteursDActivite[index];
 }
 
 /**
@@ -208,15 +255,11 @@ export function getSecteurActivite(contactName: string): string {
  * @returns Un nom d'entreprise fictif
  */
 export function getCompanyName(secteurActivite: string): string {
-  if (secteurActivite === 'BANCAIRE/FINANCIER (BFA)') {
-    return "SECURE FINANCE SOLUTIONS";
-  } else if (secteurActivite === 'INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)') {
-    return "HEALTH & INDUSTRY SHIELD";
-  } else if (secteurActivite === 'RETAIL & LUXE') {
-    return "ELITE RETAIL SECURITY";
-  } else if (secteurActivite === 'ÉNERGIE & UTILITIES') {
-    return "ENERGY SHIELD SYSTEMS";
-  } else {
-    return "CYBER SECURE SOLUTIONS";
-  }
+  // Récupérer la liste des entreprises pour ce secteur
+  const entreprises = entreprisesParSecteur[secteurActivite] || 
+                     ["CyberCorp", "SecuriTech", "DataProtect", "InfoSécurité", "TechShield"];
+  
+  // Sélectionner une entreprise aléatoire
+  const randomIndex = Math.floor(Math.random() * entreprises.length);
+  return entreprises[randomIndex];
 }

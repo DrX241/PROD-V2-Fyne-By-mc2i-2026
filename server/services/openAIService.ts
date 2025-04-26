@@ -1,87 +1,250 @@
-import { ChatCompletionRequestMessage } from "openai";
-
 /**
  * Service OpenAI pour générer des prompts et des réponses
+ * Ce service gère les interactions avec les modèles d'OpenAI et Azure OpenAI
+ * Il fournit des méthodes pour générer des prompts systèmes et des completions
  */
-export const openAIService = {
+
+import { OpenAI } from 'openai';
+import type { ChatCompletionMessageParam } from 'openai/resources';
+
+// Cache pour les completions pour éviter de refaire les mêmes appels
+interface CacheEntry {
+  result: string;
+  timestamp: number;
+}
+
+// Durée de validité du cache en millisecondes (15 minutes)
+const CACHE_TTL = 15 * 60 * 1000;
+
+// Configuration du service OpenAI/Azure OpenAI
+interface OpenAIServiceConfig {
+  apiKey?: string;
+  endpoint?: string;
+  deploymentName?: string;
+  apiVersion?: string;
+  isAzure?: boolean;
+}
+
+class OpenAIService {
+  private openai: OpenAI;
+  private completionCache: Map<string, CacheEntry>;
+  private config: OpenAIServiceConfig;
+  private fallbackMessages: string[];
+
+  constructor() {
+    this.completionCache = new Map();
+    this.fallbackMessages = [
+      "Je vais analyser cette situation et vous proposer une réponse détaillée.",
+      "Voici quelques éléments de réflexion sur ce sujet complexe.",
+      "En tant qu'expert en cybersécurité, je peux vous proposer plusieurs approches.",
+      "Cette problématique mérite une analyse approfondie. Voici mes recommandations.",
+      "Analysons ensemble cette situation pour identifier les meilleures pratiques à appliquer."
+    ];
+    
+    // Configuration par défaut
+    this.config = {
+      isAzure: true
+    };
+    
+    // Initialiser avec la configuration par défaut ou à partir des variables d'environnement
+    this.initializeClient();
+  }
+
+  /**
+   * Initialise le client OpenAI avec les configurations disponibles
+   */
+  private initializeClient() {
+    // Vérifier si les variables d'environnement Azure OpenAI sont disponibles
+    if (process.env.AZURE_OPENAI_API_KEY && process.env.AZURE_OPENAI_ENDPOINT) {
+      this.config = {
+        apiKey: process.env.AZURE_OPENAI_API_KEY,
+        endpoint: process.env.AZURE_OPENAI_ENDPOINT,
+        deploymentName: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4o',
+        apiVersion: process.env.AZURE_OPENAI_API_VERSION || '2023-05-15',
+        isAzure: true
+      };
+      
+      // Créer un client Azure OpenAI
+      this.openai = new OpenAI({
+        apiKey: this.config.apiKey,
+        baseURL: `${this.config.endpoint}/openai/deployments/${this.config.deploymentName}`,
+        defaultQuery: { 'api-version': this.config.apiVersion },
+        defaultHeaders: { 'api-key': this.config.apiKey }
+      });
+      
+      console.log('OpenAI service initialized with Azure OpenAI');
+      return;
+    }
+    
+    // Sinon, vérifier si l'API OpenAI standard est disponible
+    if (process.env.OPENAI_API_KEY) {
+      this.config = {
+        apiKey: process.env.OPENAI_API_KEY,
+        isAzure: false
+      };
+      
+      // Créer un client OpenAI standard
+      this.openai = new OpenAI({
+        apiKey: this.config.apiKey
+      });
+      
+      console.log('OpenAI service initialized with standard OpenAI');
+      return;
+    }
+    
+    // Si aucune configuration n'est disponible, utiliser un client fictif
+    console.warn('No OpenAI configuration found. Using mock OpenAI client.');
+    
+    // @ts-ignore - Création d'un client fictif pour éviter les erreurs
+    this.openai = {
+      chat: {
+        completions: {
+          create: this.mockChatCompletions.bind(this)
+        }
+      }
+    };
+  }
+
+  /**
+   * Fonction de secours pour simuler les appels à l'API OpenAI
+   */
+  private async mockChatCompletions(params: any) {
+    // Simuler un délai pour rendre la réponse plus réaliste
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Extraire le dernier message utilisateur pour le contexte
+    let userMessage = '';
+    for (let i = params.messages.length - 1; i >= 0; i--) {
+      if (params.messages[i].role === 'user') {
+        userMessage = params.messages[i].content.slice(0, 50);
+        break;
+      }
+    }
+    
+    // Sélectionner un message aléatoire dans la liste des réponses de secours
+    const randomIndex = Math.floor(Math.random() * this.fallbackMessages.length);
+    const baseMessage = this.fallbackMessages[randomIndex];
+    
+    // Construire une réponse contextualisée
+    const response = `${baseMessage} À propos de "${userMessage}...", je recommande de vérifier les meilleures pratiques en matière de cybersécurité et de consulter les référentiels reconnus comme l'ANSSI ou le NIST.`;
+    
+    // Simuler la structure de la réponse API
+    return {
+      choices: [
+        {
+          message: {
+            content: response
+          }
+        }
+      ]
+    };
+  }
+
   /**
    * Génère un prompt système adapté au contexte
    * @param options Options de configuration du prompt (difficulté, style)
    * @returns Prompt système configuré
    */
-  async generateSystemPrompt(options: { difficultyLevel?: string, responseStyle?: string }): Promise<string> {
-    const { difficultyLevel = "Intermédiaire", responseStyle = "Professionnel" } = options;
-
-    let difficultyGuidance = "";
-    if (difficultyLevel === "Débutant") {
-      difficultyGuidance = "Utilisez un langage simple et expliquez les concepts de base. Évitez le jargon technique inutile.";
-    } else if (difficultyLevel === "Intermédiaire") {
-      difficultyGuidance = "Utilisez un vocabulaire technique approprié, avec des explications contextuelles au besoin.";
-    } else if (difficultyLevel === "Expert") {
-      difficultyGuidance = "N'hésitez pas à utiliser un vocabulaire technique avancé et à aborder des problématiques complexes.";
-    }
-
-    let styleGuidance = "";
-    if (responseStyle === "Professionnel") {
-      styleGuidance = "Adoptez un ton formel mais accessible, adapté au contexte d'entreprise.";
-    } else if (responseStyle === "Pédagogique") {
-      styleGuidance = "Adoptez un ton explicatif et éducatif, en mettant l'accent sur la compréhension des concepts.";
-    } else if (responseStyle === "Technique") {
-      styleGuidance = "Adoptez un ton précis et factuel, axé sur les aspects techniques et pratiques.";
-    }
-
-    return `Vous êtes I AM CYBER, un assistant IA spécialisé en cybersécurité.
+  async generateSystemPrompt(options: { difficultyLevel?: string, responseStyle?: string } = {}): Promise<string> {
+    const { difficultyLevel = 'Intermédiaire', responseStyle = 'Professionnel' } = options;
     
-    ${difficultyGuidance}
-    ${styleGuidance}
+    // Adaptation de la complexité technique basée sur le niveau de difficulté
+    let technicalComplexity = '';
+    if (difficultyLevel === 'Débutant') {
+      technicalComplexity = 'Utilise un langage simple et accessible, évite le jargon technique sauf si nécessaire. Explique les concepts de base avant d\'entrer dans les détails.';
+    } else if (difficultyLevel === 'Intermédiaire') {
+      technicalComplexity = 'Utilise un niveau technique modéré, en expliquant les concepts avancés mais en supposant une connaissance des fondamentaux de la cybersécurité.';
+    } else if (difficultyLevel === 'Expert') {
+      technicalComplexity = 'Utilise un langage technique précis et détaillé, en supposant une connaissance approfondie du domaine. N\'hésite pas à référencer des normes, des attaques ou des techniques spécifiques.';
+    }
     
-    Votre mission est de fournir des informations précises et pertinentes dans le domaine de la cybersécurité.`;
-  },
+    // Adaptation du style de réponse
+    let toneStyle = '';
+    if (responseStyle === 'Professionnel') {
+      toneStyle = 'Adopte un ton formel et professionnel, tout en restant accessible. Privilégie la précision et la clarté.';
+    } else if (responseStyle === 'Pédagogique') {
+      toneStyle = 'Adopte un ton explicatif et didactique. Structure tes réponses en allant du général au particulier. Utilise des exemples concrets pour illustrer les concepts.';
+    } else if (responseStyle === 'Directif') {
+      toneStyle = 'Adopte un ton direct et concis. Concentre-toi sur les actions concrètes et les recommandations pratiques.';
+    }
+    
+    // Construction du prompt système
+    return `Tu es I AM CYBER, un assistant virtuel spécialisé en cybersécurité, conçu pour accompagner les professionnels dans leurs défis. 
+
+Tu possèdes une expertise approfondie dans tous les domaines de la cybersécurité, notamment la gestion des incidents, la protection des données, la stratégie de sécurité, l'analyse de vulnérabilités, et la conformité réglementaire.
+
+${technicalComplexity}
+
+${toneStyle}
+
+Dans tes réponses:
+- Utilise le vouvoiement
+- Sois précis et factuel
+- Structure clairement tes réponses
+- Apporte des conseils concrets et applicables
+- Évite les généralités inutiles
+- Adapte-toi au contexte spécifique fourni par l'utilisateur
+- Concentre-toi uniquement sur des aspects liés à la cybersécurité
+
+La date actuelle est le ${new Date().toLocaleDateString('fr-FR')}. Tiens compte de ce contexte temporel dans tes réponses si nécessaire.`;
+  }
 
   /**
-   * Génère une complétion de chat via Azure OpenAI avec cache
-   * Remarque: Cette fonction assume que le service Azure OpenAI est déjà configuré
-   * Dans l'implémentation réelle, vous connecteriez ceci au vrai service Azure OpenAI
+   * Génère une complétion de chat avec OpenAI et utilise un cache pour éviter les appels redondants
    * 
    * @param messages Messages pour la complétion
-   * @param temperature Température pour la génération
+   * @param temperature Température pour la génération (0.0 à 1.0)
    * @param maxTokens Nombre maximum de tokens
    * @returns Contenu de la complétion
    */
   async getChatCompletionWithCache(
-    messages: ChatCompletionRequestMessage[],
+    messages: Array<ChatCompletionMessageParam>,
     temperature: number = 0.7,
-    maxTokens: number = 2000
+    maxTokens: number = 1000
   ): Promise<string> {
-    // En temps normal, nous enverrions ceci à Azure OpenAI
-    // Mais pour les besoins de cette démo, nous générons un exemple de réponse
-    // Cette fonction est un placeholder - dans l'application réelle, elle enverrait la requête au service OpenAI
+    // Créer une clé de cache unique basée sur les messages et les paramètres
+    const cacheKey = JSON.stringify({ messages, temperature, maxTokens });
     
-    // Structure de base d'un message
-    const exampleResponse = `Objet: Bienvenue chez ELITE RETAIL SECURITY - Mission de sensibilisation aux attaques de phishing
-
-Bonjour ${messages[1].content.includes('userName') ? 'Utilisateur' : 'Utilisateur'},
-
-Je suis Marion Lopez, Senior Partner et Directrice Marketing, Communication et RSE chez ELITE RETAIL SECURITY, une entreprise spécialisée dans la protection des actifs numériques dans le secteur du RETAIL & LUXE.
-
-Notre entreprise accompagne depuis plus de 10 ans les grandes marques et enseignes de distribution dans la sécurisation de leurs environnements digitaux, de leurs données clients sensibles et de leur image de marque en ligne.
-
-Une étude récente a montré que 32% des violations de données commencent par une attaque de phishing réussie. C'est pourquoi nous avons décidé de lancer une initiative de sensibilisation aux techniques de phishing auprès de tous nos partenaires.
-
-Nous sommes confrontés à un défi croissant : malgré les formations traditionnelles, nos clients continuent de subir des attaques de phishing de plus en plus sophistiquées. J'aimerais faire appel à ton expertise pour nous aider à concevoir une introduction accessible aux principes fondamentaux que nous pourrons déployer auprès des équipes non techniques.
-
-Pour t'accompagner dans cette mission, je te présente les autres interlocuteurs qui participeront à nos échanges :
-* Neil LEVIN, Expert cybersécurité & CFO, expert en Stratégies de défense et solutions techniques de cybersécurité
-* Yousra SAIDANI, Experte Cybersécurité & CFO, expert en Analyse forensique et réponse aux incidents
-
-Nous sommes impatients de collaborer avec toi sur ce projet crucial pour nos clients.
-
-Cordialement,
-
-Marion Lopez
-Senior Partner et Directrice Marketing, Communication et RSE
-ELITE RETAIL SECURITY`;
-
-    return exampleResponse;
+    // Vérifier si la réponse est en cache et toujours valide
+    const cachedEntry = this.completionCache.get(cacheKey);
+    if (cachedEntry && Date.now() - cachedEntry.timestamp < CACHE_TTL) {
+      console.log('Using cached response for chat completion');
+      return cachedEntry.result;
+    }
+    
+    try {
+      // Appeler l'API OpenAI pour obtenir une complétion
+      const response = await this.openai.chat.completions.create({
+        model: this.config.isAzure ? undefined : (process.env.OPENAI_MODEL || 'gpt-4o'),
+        messages,
+        temperature,
+        max_tokens: maxTokens
+      });
+      
+      // Extraire le contenu de la réponse
+      const content = response.choices[0]?.message?.content || 'Je n\'ai pas pu générer une réponse. Veuillez réessayer.';
+      
+      // Mettre la réponse en cache
+      this.completionCache.set(cacheKey, {
+        result: content,
+        timestamp: Date.now()
+      });
+      
+      return content;
+    } catch (error) {
+      console.error('Error in getChatCompletionWithCache:', error);
+      
+      // En cas d'erreur, générer une réponse de secours et ne pas la mettre en cache
+      return `Je rencontre des difficultés à traiter votre demande actuellement. Voici quelques éléments de réflexion généraux sur le sujet :
+      
+1. La cybersécurité repose sur plusieurs piliers fondamentaux : confidentialité, intégrité et disponibilité des données.
+2. Une approche défense en profondeur est généralement recommandée, avec plusieurs couches de protection.
+3. La sensibilisation des utilisateurs reste un élément crucial de toute stratégie de sécurité efficace.
+      
+Pourriez-vous reformuler votre question ou réessayer ultérieurement ?`;
+    }
   }
-};
+}
+
+// Exporter une instance unique du service
+export const openAIService = new OpenAIService();
