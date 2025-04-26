@@ -152,7 +152,8 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-[#006a9e]/10 text-[#006a9e]",
-    domainId: "ingenierie-sociale"
+    domainId: "ingenierie-sociale",
+    domain: "Ingénierie sociale et phishing"
   },
   {
     id: "advanced-social-attacks",
@@ -164,7 +165,8 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Expert",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "ingenierie-sociale"
+    domainId: "ingenierie-sociale",
+    domain: "Ingénierie sociale et phishing"
   },
   
   // Stratégie cyber
@@ -301,7 +303,8 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Débutant",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "donnees-personnelles"
+    domainId: "donnees-personnelles",
+    domain: "RGPD"
   },
   {
     id: "data-breach-response",
@@ -313,7 +316,8 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "donnees-personnelles"
+    domainId: "donnees-personnelles",
+    domain: "RGPD"
   },
   {
     id: "rgpd-compliance-program",
@@ -325,7 +329,8 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Expert",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "donnees-personnelles"
+    domainId: "donnees-personnelles",
+    domain: "RGPD"
   },
   
   // Gestion des incidents
@@ -339,7 +344,8 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Débutant",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "gestion-incidents"
+    domainId: "gestion-incidents",
+    domain: "Gestion des incidents"
   },
   {
     id: "incident-response",
@@ -351,7 +357,8 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "gestion-incidents"
+    domainId: "gestion-incidents",
+    domain: "Gestion des incidents"
   },
   {
     id: "security-monitoring",
@@ -363,7 +370,8 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Expert",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "gestion-incidents"
+    domainId: "gestion-incidents",
+    domain: "Gestion des incidents"
   }
 ];
 
