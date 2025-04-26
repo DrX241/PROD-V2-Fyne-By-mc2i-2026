@@ -474,45 +474,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
 
   
-  // Nouvel endpoint pour générer un message d'accueil dynamique avec actualités réelles
+  // Endpoint pour générer un message d'accueil avec conseils de bonnes pratiques cyber
   app.get('/api/cyber/welcome-message', async (req: Request, res: Response) => {
     try {
-      // Récupérer une actualité cybersécurité récente et réelle
-      const newsItem = await getCyberNews();
+      // Liste de bonnes pratiques en cybersécurité
+      const cyberTips = [
+        "Une authentification à double facteur (2FA) réduit de 99% les risques de piratage de compte.",
+        "Utiliser un gestionnaire de mots de passe permet de générer et stocker des mots de passe complexes sans avoir à les mémoriser.",
+        "Les mises à jour logicielles sont essentielles car elles corrigent souvent des failles de sécurité découvertes récemment.",
+        "La sauvegarde régulière de vos données est votre meilleure défense contre les ransomwares.",
+        "Avant de cliquer sur un lien, prenez l'habitude de vérifier l'URL réelle en survolant le lien avec votre souris.",
+        "Ne réutilisez jamais le même mot de passe sur plusieurs sites; c'est comme utiliser la même clé pour votre maison, votre voiture et votre bureau.",
+        "La sensibilisation des équipes aux risques cyber reste le meilleur rempart contre les attaques d'ingénierie sociale.",
+        "Les connexions aux réseaux Wi-Fi publics devraient toujours se faire via un VPN pour chiffrer vos communications.",
+        "Les exercices de simulation d'intrusion (pentests) permettent d'identifier les vulnérabilités avant que les attaquants ne le fassent.",
+        "L'analyse régulière des journaux de sécurité permet de détecter rapidement les tentatives d'intrusion sur vos systèmes."
+      ];
       
-      // Date du jour au format français
-      const today = new Date();
-      const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-      const dateStr = today.toLocaleDateString('fr-FR', options);
+      // Sélectionner aléatoirement une bonne pratique
+      const randomTip = cyberTips[Math.floor(Math.random() * cyberTips.length)];
       
-      if (newsItem) {
-        // Création d'un message d'accueil avec l'actualité récupérée
-        const welcomeMessage = `Bonjour, je suis I AM CYBER, votre allié dans le domaine de la cybersécurité.
+      // Création d'un message d'accueil avec une bonne pratique
+      const welcomeMessage = `Bonjour, je suis I AM CYBER, votre allié dans le monde passionnant de la cybersécurité.
 
-Saviez-vous que... ${newsItem.title} ? ${newsItem.description}
+Le saviez-vous ? ${randomTip}
 
-Quel est votre prénom ?`;
-        
-        // Renvoyer le message généré
-        return res.json({
-          success: true,
-          welcomeMessage,
-          newsSource: newsItem.source,
-          newsDate: newsItem.publishedAt
-        });
-      } else {
-        // Si aucune actualité n'est disponible, générer un message sans actualité
-        const welcomeMessage = `Bonjour, je suis I AM CYBER, votre allié dans le domaine de la cybersécurité.
-
-Je suis ici pour vous accompagner dans votre parcours d'apprentissage en cybersécurité.
-
-Quel est votre prénom ?`;
-        
-        return res.json({
-          success: true,
-          welcomeMessage
-        });
-      }
+Je vais vous guider dans votre parcours d'apprentissage. Quel est votre prénom ?`;
+      
+      // Renvoyer le message généré
+      return res.json({
+        success: true,
+        welcomeMessage
+      });
     } catch (error: any) {
       console.error("Erreur lors de la génération du message d'accueil:", error);
       
