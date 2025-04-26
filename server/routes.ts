@@ -424,54 +424,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         currentModel = process.env.GPT4O_MINI_DEPLOYMENT_NAME || 'gpt-4o-mini';
       }
+
+      // Effectuer une vérification de connexion réelle en utilisant le service OpenAI
+      let isConnected = false;
+      try {
+        // Essayer de vérifier la connexion
+        isConnected = await openAIService.checkConnection();
+        console.log(`OpenAI connection test result: ${isConnected ? 'SUCCESS' : 'FAILED'}`);
+      } catch (connError) {
+        console.error('Error during OpenAI connection test:', connError);
+        isConnected = false;
+      }
       
-      // Si nous avons Azure OpenAI configuré, c'est notre priorité
-      if (azureKey) {
+      // Si la connexion a échoué, renvoyer un état déconnecté même si les clés sont présentes
+      if (!isConnected) {
+        return res.json({ 
+          status: 'error', 
+          provider: 'Azure OpenAI',
+          keyType: keyType,
+          model: currentModel,
+          message: `Azure OpenAI API is not responding (${keyType} key)`,
+          needsSetup: false
+        });
+      }
+      
+      // Si nous avons Azure OpenAI configuré et la connexion est OK, c'est notre priorité
+      if (azureKey && isConnected) {
         return res.json({ 
           status: 'success', 
           provider: 'Azure OpenAI',
           keyType: keyType,
           model: currentModel,
-          message: `Azure OpenAI API is properly configured (${keyType} key)`,
+          message: `Azure OpenAI API is properly configured and connected (${keyType} key)`,
           needsSetup: false
         });
       }
       
       // Sinon, vérifie l'API OpenAI standard
-      if (openaiKey) {
+      if (openaiKey && isConnected) {
         return res.json({ 
           status: 'success', 
           provider: 'OpenAI',
           keyType: 'primary', // OpenAI standard n'a pas de concept de clé primaire/secondaire
           model: process.env.OPENAI_MODEL || 'gpt-4o',
-          message: 'OpenAI API is properly configured',
+          message: 'OpenAI API is properly configured and connected',
           needsSetup: false
         });
       }
       
-      // Vérifier si les logs indiquent une connexion réussie
-      console.log('Checking if logs indicate a successful Azure OpenAI connection...');
-      
-      // Si aucune des deux n'est configurée mais les logs indiquent une connexion
-      if (process.env.CONNECTION_VERIFIED === 'true') {
-        return res.json({ 
-          status: 'success',
-          provider: 'Azure OpenAI (From Logs)',
-          keyType: keyType,
-          model: currentModel,
-          message: `Azure OpenAI API connection detected from logs (${keyType} key)`,
-          needsSetup: false
-        });
-      }
-      
-      // Fallback complet
+      // Fallback complet - avec statut d'erreur car l'API n'est pas vraiment disponible
       return res.json({ 
-        status: 'success', // Changé à success car nous utilisons le service de secours
+        status: 'error', 
         provider: 'Fallback Service',
         keyType: 'none',
         model: 'Internal Fallback',
-        message: 'Using fallback service for OpenAI functionality',
-        needsSetup: false // Nous ne forçons pas la configuration puisque le service de secours fonctionne
+        message: 'API connection unavailable - using fallback service',
+        needsSetup: false
       });
     } catch (error: any) {
       console.error('Error checking AI service status:', error);
@@ -479,7 +487,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: 'error', 
         message: 'Error checking AI service configuration',
         error: error.message,
-        needsSetup: false // Ne force pas la configuration puisque l'erreur peut être temporaire
+        needsSetup: false
       });
     }
   });
