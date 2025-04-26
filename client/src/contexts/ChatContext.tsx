@@ -103,6 +103,29 @@ const initialDomains: CyberDomain[] = [
   }
 ];
 
+// Fonction pour associer un nom de domaine depuis un domainId
+const getDomainNameFromId = (domainId: string): string => {
+  const domain = initialDomains.find(d => d.id === domainId);
+  if (domain) {
+    return domain.name;
+  }
+  
+  // Correspondances pour les domainIds non standards
+  const domainNameMap: Record<string, string> = {
+    'ingenierie-sociale': 'Ingénierie sociale et phishing',
+    'strategie-cyber': 'Stratégie et gouvernance cyber',
+    'gestion-crise': 'Gestion de crise cyber',
+    'rgpd': 'RGPD et conformité',
+    'chaine-approvisionnement': 'Sécurité de la chaîne d\'approvisionnement',
+    'supply-chain': 'Sécurité de la chaîne d\'approvisionnement',
+    'secteur-financier': 'Cybersécurité du secteur financier',
+    'donnees-personnelles': 'Protection des données personnelles',
+    'gestion-incidents': 'Gestion des incidents de sécurité'
+  };
+  
+  return domainNameMap[domainId] || 'Domaine non spécifié';
+};
+
 // Initial scenarios data
 const initialScenarios: CyberScenario[] = [
   // Ingénierie sociale et phishing
@@ -116,7 +139,8 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Débutant",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "ingenierie-sociale"
+    domainId: "ingenierie-sociale",
+    domain: "Ingénierie sociale et phishing"
   },
   {
     id: "social-engineering-incident",
@@ -535,6 +559,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const handleSelectScenario = async (scenarioId: string) => {
     const selectedScenario = initialScenarios.find(s => s.id === scenarioId);
     if (!selectedScenario) return;
+    
+    // S'assurer que le scénario a un domaine (requis par le type CyberScenario)
+    if (!selectedScenario.domain && selectedScenario.domainId) {
+      selectedScenario.domain = getDomainNameFromId(selectedScenario.domainId);
+    }
     
     setIsTyping(true);
     setScenario(prev => ({ 
