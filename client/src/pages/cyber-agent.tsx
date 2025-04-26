@@ -269,7 +269,7 @@ export default function CyberAgentPage() {
         <div className="max-w-md mx-auto mt-8">
           <Card className="bg-gradient-to-br from-blue-950 to-indigo-900 text-white border-blue-800">
             <CardHeader>
-              <CardTitle className="text-xl text-center">Démarrez votre session Expert Cyber Conversationnel</CardTitle>
+              <CardTitle className="text-xl text-center">Démarrez votre session avec votre Agent IA</CardTitle>
               <CardDescription className="text-blue-200 text-center">
                 Un rapport détaillé sera envoyé à votre email à la fin de la session de 10 minutes
               </CardDescription>
