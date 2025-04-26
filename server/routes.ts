@@ -535,6 +535,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
         concern: "Préoccupations liées aux enjeux cyber dans son domaine d'expertise"
       };
 
+      // Banque d'anecdotes liées au domaine pour une sélection aléatoire
+      const anecdotesByCyberDomain = {
+        "Gestion de crise cyber": [
+          "En 2017, la cyberattaque NotPetya a coûté plus de 10 milliards d'euros de dommages au niveau mondial en seulement quelques heures.",
+          "Lors d'une récente simulation de crise, une entreprise du CAC 40 a découvert qu'elle aurait mis 72 heures à identifier une intrusion sophistiquée sur son réseau.",
+          "Les entreprises disposant d'un plan de réponse aux incidents bien testé réduisent en moyenne de 28% le coût d'une violation de données."
+        ],
+        "Protection des données personnelles / RGPD": [
+          "La première amende RGPD en France a concerné une entreprise qui n'avait pas suffisamment sécurisé les données de ses clients sur son site web.",
+          "Savais-tu que 60% des entreprises européennes ne sont toujours pas entièrement conformes au RGPD depuis son entrée en vigueur en 2018?",
+          "En 2022, les autorités européennes ont infligé plus de 1,6 milliard d'euros d'amendes pour des violations du RGPD."
+        ],
+        "Ingénierie sociale et phishing": [
+          "Une étude récente a montré que 32% des violations de données commencent par une attaque de phishing réussie.",
+          "Lors d'un test d'hameçonnage dans une multinationale française, 43% des employés ont cliqué sur un lien suspect malgré les formations de sensibilisation.",
+          "Les attaques de phishing ont augmenté de 350% pendant la pandémie de COVID-19 lorsque les entreprises sont passées au télétravail."
+        ],
+        "Gestion des incidents de sécurité": [
+          "Le temps moyen de détection d'une intrusion dans les systèmes d'information est de 207 jours selon le rapport de Ponemon Institute.",
+          "Une étude de l'ANSSI montre que 60% des entreprises victimes d'incidents majeurs n'avaient pas de procédure de gestion de crise cyber formalisée.",
+          "Les entreprises qui disposent d'une équipe dédiée à la réponse aux incidents réduisent le coût moyen d'une violation de 80%."
+        ],
+        "Sécurité de la chaîne d'approvisionnement": [
+          "L'attaque SolarWinds de 2020 a compromis plus de 18 000 organisations via une simple mise à jour logicielle.",
+          "Près de 60% des violations de données sont liées à des vulnérabilités introduites par des tiers ou des fournisseurs.",
+          "Une étude du CESIN révèle que seulement 23% des entreprises françaises auditent régulièrement la sécurité de leurs fournisseurs critiques."
+        ],
+        "Stratégie et gouvernance": [
+          "Les entreprises avec un RSSI qui rapporte directement au CEO réduisent de 35% le coût moyen des incidents de sécurité.",
+          "Selon le World Economic Forum, les cyber-risques figurent parmi les 5 principales préoccupations des dirigeants depuis 2018.",
+          "Une étude Gartner montre que 40% des budgets de cybersécurité sont alloués à des projets sans alignement stratégique clair."
+        ]
+      };
+
+      // Sélectionner une anecdote aléatoire liée au domaine
+      const domainForAnecdote = Object.keys(anecdotesByCyberDomain).find(key => 
+        scenario.domain.toLowerCase().includes(key.toLowerCase())
+      ) || "Stratégie et gouvernance"; // Domaine par défaut si aucune correspondance
+      
+      const anecdotes = anecdotesByCyberDomain[domainForAnecdote];
+      const randomAnecdote = anecdotes[Math.floor(Math.random() * anecdotes.length)];
+      
+      // Variable pour stocker le niveau de difficulté technique à intégrer
+      const difficultyText = {
+        "Débutant": "une introduction accessible aux principes fondamentaux",
+        "Intermédiaire": "un problème concret nécessitant une certaine maîtrise technique",
+        "Expert": "un défi complexe requérant une expertise approfondie"
+      }[scenario.difficulty] || "un cas pratique adapté à ton niveau";
+
       const messages: ChatCompletionRequestMessage[] = [
         {
           role: "system",
@@ -542,19 +591,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         {
           role: "user",
-          content: `Générez un email COURT et ACCUEILLANT (maximum 150 mots) pour le scénario "${scenario.title}" dans le domaine "${scenario.domain}" avec les détails suivants:
-          - L'email doit provenir de ${contactPrincipal.name} (${contactPrincipal.role})
-          - L'email doit être adressé à ${userName} en utilisant le tutoiement ("tu") 
-          - Le secteur d'activité pour ce scénario est: ${secteurActivite}
-          - Le nom d'entreprise pour ce scénario est: ${companyName}
-          - L'email doit être un message d'accueil chaleureux où le PNJ se présente, présente brièvement l'entreprise ${companyName}
-          - IMPORTANT: Invite explicitement ${userName} à se présenter en détaillant son parcours, son expérience professionnelle et son niveau de connaissance en cybersécurité
-          - Précise que ces informations sont nécessaires pour mieux adapter la mission à son profil
-          - IMPORTANT: NE PAS mentionner ou faire référence à des pièces jointes, documents ou fichiers
-          - N'incluez PAS encore de problème ou de mission spécifique à résoudre
-          - Le ton doit être chaleureux, accueillant et professionnel, en utilisant le tutoiement
-          - Le style d'écriture doit correspondre au rôle de ${contactPrincipal.role}: professionnel et adapté
-          - Rédigez uniquement l'email, pas de commentaires ou d'explications`
+          content: `Générez un email PROFESSIONNEL et DÉTAILLÉ (environ 250 mots) pour le scénario "${scenario.title}" dans le domaine "${scenario.domain}" avec les détails suivants:
+          
+          STRUCTURE DE L'EMAIL:
+          1. Présentation personnelle: Le PNJ ${contactPrincipal.name} se présente avec son rôle (${contactPrincipal.role})
+          2. Présentation de l'entreprise: Il présente brièvement l'entreprise ${companyName} dans le secteur ${secteurActivite}
+          3. Contexte: Il expose le contexte professionnel et business de la situation
+          4. Présentation du problème: Il présente un problème de cybersécurité adapté au niveau d'expertise "${scenario.difficulty}"
+          5. Présentation des interlocuteurs: Il présente les autres interlocuteurs qui participeront à la conversation
+          
+          ÉLÉMENTS SPÉCIFIQUES À INCLURE:
+          - L'email doit être adressé à ${userName} en utilisant le tutoiement ("tu")
+          - IMPORTANT: Inclure cette anecdote sur le domaine quelque part dans l'email: "${randomAnecdote}"
+          - Préciser que le problème à résoudre représente ${difficultyText}
+          - Présenter chacun des interlocuteurs suivants qui participeront à la discussion:
+          ${scenarioContacts.map((contact, index) => 
+            index === 0 ? '' : `  * ${contact.name}, ${contact.role}, expert en ${contact.expertise}`
+          ).filter(text => text !== '').join('\n')}
+          
+          STYLE ET TON:
+          - Le style d'écriture doit être professionnel mais chaleureux
+          - Utiliser un ton courtois et enthousiaste
+          - Adapter le vocabulaire technique au niveau d'expertise "${scenario.difficulty}"
+          - Rédigez uniquement l'email en français, pas de commentaires explicatifs`
         }
       ];
       
