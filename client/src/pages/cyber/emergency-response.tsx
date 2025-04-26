@@ -67,7 +67,7 @@ interface ScenarioItem {
 // Type pour les catégories de scénarios
 type ScenarioCategoryMap = {
   [key in EmergencyType]: ScenarioItem[];
-}
+} & { [key: string]: ScenarioItem[] };
 
 // Interface pour le scénario courant
 interface CyberScenario {
@@ -108,6 +108,13 @@ const getUrgencyBadge = (level: string) => {
   }
 };
 
+// Formater le temps pour affichage (format mm:ss)
+const formatTime = (seconds: number): string => {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+};
+
 export default function EmergencyResponsePage() {
   const { toast } = useToast();
   const [currentDateTime, setCurrentDateTime] = useState<string>("");
@@ -116,7 +123,7 @@ export default function EmergencyResponsePage() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [isSessionActive, setIsSessionActive] = useState<boolean>(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [currentScenario, setCurrentScenario] = useState<any>(null);
+  const [currentScenario, setCurrentScenario] = useState<CyberScenario | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState<string>("");
   const [progress, setProgress] = useState<SessionProgress | null>(null);
@@ -124,6 +131,14 @@ export default function EmergencyResponsePage() {
   const [showDebriefing, setShowDebriefing] = useState<boolean>(false);
   const [debriefingHtml, setDebriefingHtml] = useState<string>("");
   const [isTyping, setIsTyping] = useState<boolean>(false);
+  
+  // Gérer les touches (Shift+Entrée pour ajouter une nouvelle ligne, Entrée pour envoyer)
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
   
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -462,14 +477,6 @@ export default function EmergencyResponsePage() {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
   
-  // Gérer les touches du clavier pour l'envoi de messages
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
-  
   return (
     <CyberLayout>
       <PageTitle title="CENTRE D'URGENCE CYBER" />
@@ -565,13 +572,13 @@ export default function EmergencyResponsePage() {
                   </div>
                   
                   {/* Liste des scénarios disponibles */}
-                  {selectedType && scenariosByCategory[selectedType] && (
+                  {selectedType && scenariosByCategory[selectedType as keyof typeof scenariosByCategory] && (
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold text-white">
                         Scénarios de {selectedType}
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {scenariosByCategory[selectedType].map((scenario) => (
+                        {scenariosByCategory[selectedType as keyof typeof scenariosByCategory].map((scenario: ScenarioItem) => (
                           <Card 
                             key={scenario.id} 
                             className="bg-blue-900/40 border-blue-700/50 cursor-pointer transition-all hover:bg-blue-800/40 hover:border-blue-600 hover:shadow-lg hover:translate-y-[-2px]"
@@ -724,7 +731,11 @@ export default function EmergencyResponsePage() {
                   {currentScenario && currentScenario.npcs && (
                     <div className="space-y-1">
                       {/* Agrégation des compétences de tous les interlocuteurs */}
-                      {Array.from(new Set(currentScenario.npcs.flatMap((npc: any) => npc.expertise))).map((expertise: string, index: number) => (
+                      {Array.from(
+                        new Set(
+                          currentScenario.npcs.flatMap((npc: { expertise: string[] }) => npc.expertise)
+                        ) as Set<string>
+                      ).map((expertise: string, index: number) => (
                         <Badge key={index} variant="outline" className="mr-1 mb-1 bg-slate-800 text-xs border-slate-700 text-slate-300">
                           {expertise}
                         </Badge>
