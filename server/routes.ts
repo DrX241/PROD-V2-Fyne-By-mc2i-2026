@@ -15,6 +15,12 @@ import { startInterviewSimulation, processInterviewMessage, completeInterviewSim
 import { getRandomScenarios, getScenarioById, getScenariosByDifficulty } from "./impostorService";
 import { startAgentSession, completeAgentSession } from "./cyberAgentController";
 import { generateDebriefing, getContextualDocumentation } from "./cyberLearningController";
+import { 
+  getEmergencyScenarios,
+  startEmergencySession,
+  processEmergencyMessage,
+  completeEmergencySession
+} from "./cyberEmergencyController";
 
 /**
  * Génère un document HTML formaté pour la synthèse d'audition
@@ -2525,6 +2531,12 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
   // Routes pour les fonctionnalités d'apprentissage
   app.post('/api/cyber/debriefing', generateDebriefing);
   app.get('/api/cyber/documentation', getContextualDocumentation);
+
+  // Routes pour le système d'urgence cyber interactif
+  app.get('/api/cyber/emergency/scenarios', getEmergencyScenarios);
+  app.post('/api/cyber/emergency/start', startEmergencySession);
+  app.post('/api/cyber/emergency/message', processEmergencyMessage);
+  app.post('/api/cyber/emergency/complete', completeEmergencySession);
 
   return createServer(app);
 }

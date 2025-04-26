@@ -13,6 +13,7 @@ import Home from "@/pages/home";
 import ModulesPage from "@/pages/modules";
 import CyberModeSelection from "@/pages/cyber-mode-selection";
 import CyberAgentPage from "@/pages/cyber-agent";
+import EmergencyResponsePage from "@/pages/cyber/emergency-response"; // Nouveau système d'urgence cyber interactif
 
 // Import des pages CENTRE DE CRISE (anciennes et nouvelles pour permettre une transition)
 import CyberDefensePage from "@/pages/cyber-defense"; // Ancienne implémentation 
@@ -85,6 +86,7 @@ function App() {
             <Route path="/modules" component={ModulesPage} />
             <Route path="/cyber" component={CyberModeSelection} />
             <Route path="/cyber/agent" component={CyberAgentPage} />
+            <Route path="/cyber/emergency-response" component={EmergencyResponsePage} />
             <Route path="/cyber/arcade" component={CyberArcade} />
             {/* Anciennes routes de jeux (pour compatibilité) */}
             <Route path="/cyber/arcade/password-puzzle" component={PasswordPuzzle} />
