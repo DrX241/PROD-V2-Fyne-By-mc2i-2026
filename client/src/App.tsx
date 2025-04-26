@@ -6,45 +6,41 @@ import { Suspense, lazy } from "react";
 import { ChatProvider } from "./contexts/ChatContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
-// Importation des pages communes
-import NotFound from "@/pages/common/not-found";
-import Home from "@/pages/common/home";
-import ModulesPage from "@/pages/common/modules";
+// Importation des composants directement car le lazy loading provoque des problèmes
+// avec wouter dans cette implémentation
+import NotFound from "@/pages/not-found";
+import Home from "@/pages/home";
+import ModulesPage from "@/pages/modules";
+import CyberModeSelection from "@/pages/cyber-mode-selection";
+import CyberAgentPage from "@/pages/cyber-agent";
 
-// Pages I AM CYBER
-import CyberModeSelection from "@/pages/iamcyber/mode-selection";
-import CyberAgentPage from "@/pages/iamcyber/agent";
-import CyberMainPage from "@/pages/iamcyber";
-
-// Centre de crise
-import CentreDeCriseEvolutifPage from "@/pages/iamcyber/defense"; // Nouvelle implémentation
-import CyberDefenseSessionPage from "@/pages/iamcyber/defense/session"; // Session
-import CyberDefenseMissionPage from "@/pages/iamcyber/defense/mission"; // Mission
+// Import des pages CENTRE DE CRISE (anciennes et nouvelles pour permettre une transition)
+import CyberDefensePage from "@/pages/cyber-defense"; // Ancienne implémentation 
+import CentreDeCriseEvolutifPage from "@/pages/cyber-defense-new"; // Nouvelle implémentation
+import CyberDefenseSessionPage from "@/pages/cyber-defense-session"; // Nouvelle implémentation de session
+import CyberDefenseMissionPage from "@/pages/cyber-defense-mission"; // Ancienne implémentation
 
 // Arcade et mini-jeux
-import CyberArcade from "@/pages/iamcyber/arcade";
-// Anciens jeux (garder la compatibilité temporairement)
+import CyberArcade from "@/pages/cyber/arcade";
+// Anciens jeux
 import PasswordPuzzle from "@/pages/cyber/arcade/password-puzzle";
 import FirewallDefense from "@/pages/cyber/arcade/firewall-defense";
 // Nouveaux jeux d'enquête
-import CyberInvestigator from "@/pages/iamcyber/arcade/investigator";
-import DataLeakInvestigation from "@/pages/iamcyber/arcade/investigator/data-leak";
-import RansomwareAttack from "@/pages/iamcyber/arcade/investigator/ransomware-attack";
-import InsiderThreat from "@/pages/iamcyber/arcade/investigator/insider-threat";
-import DigitalForensics from "@/pages/iamcyber/arcade/digital-forensics";
-import ThreatIntelligence from "@/pages/iamcyber/arcade/threat-intelligence";
-
-// Pages I AM mc2i (AMOA)
-import AmoaMainPage from "@/pages/iammc2i";
-import AmoaModeSelection from "@/pages/iammc2i/mode-selection";
-import AmoaQuestPage from "@/pages/iammc2i/quest";
-import ProjetImposteur from "@/pages/iammc2i/impostor";
-
+import CyberInvestigator from "@/pages/cyber/arcade/cyber-investigator";
+import DataLeakInvestigation from "@/pages/cyber/arcade/cyber-investigator/data-leak";
+import RansomwareAttack from "@/pages/cyber/arcade/cyber-investigator/ransomware-attack";
+import InsiderThreat from "@/pages/cyber/arcade/cyber-investigator/insider-threat";
+import DigitalForensics from "@/pages/cyber/arcade/digital-forensics";
+import ThreatIntelligence from "@/pages/cyber/arcade/threat-intelligence";
+// Pages AMOA
+import AmoaPage from "@/pages/amoa";
+import AmoaModeSelection from "@/pages/amoa-mode-selection";
+import AmoaQuestPage from "@/pages/amoa/quest";
 // Modules Simulation d'Entretien
-import CyberInterviewSimulation from "@/pages/iamcyber/interview";
-import AmoaInterviewSimulation from "@/pages/iammc2i/interview";
-
-// Autres pages (à déplacer plus tard)
+import CyberInterviewSimulation from "@/pages/cyber/interview-simulation";
+import AmoaInterviewSimulation from "@/pages/amoa/interview-simulation";
+import ProjetImposteur from "@/pages/amoa/projet-imposteur";
+// Autres pages
 import ImmersiveSimulation from "@/pages/immersive-simulation";
 import ImmersiveScenarioDetail from "@/pages/immersive-scenario-detail";
 import ImmersiveSession from "@/pages/immersive-session";
@@ -83,70 +79,39 @@ function App() {
       <ThemeProvider>
         <ChatProvider>
           <Switch>
-            {/* Routes Communes */}
+            <Route path="/cyber/interview-simulation" component={CyberInterviewSimulation} />
+            <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
             <Route path="/" component={Home} />
             <Route path="/modules" component={ModulesPage} />
-            
-            {/* Routes I AM CYBER */}
-            <Route path="/cyber" component={CyberMainPage} />
-            <Route path="/cyber/mode-selection" component={CyberModeSelection} />
+            <Route path="/cyber" component={CyberModeSelection} />
             <Route path="/cyber/agent" component={CyberAgentPage} />
-            <Route path="/cyber/interview" component={CyberInterviewSimulation} />
-            
-            {/* Ancienne URL pour compatibilité */}
-            <Route path="/cyber/interview-simulation" component={CyberInterviewSimulation} />
-            
-            {/* Arcade et jeux */}
             <Route path="/cyber/arcade" component={CyberArcade} />
-            {/* Anciennes routes de jeux (pour compatibilité temporaire) */}
+            {/* Anciennes routes de jeux (pour compatibilité) */}
             <Route path="/cyber/arcade/password-puzzle" component={PasswordPuzzle} />
             <Route path="/cyber/arcade/firewall-defense" component={FirewallDefense} />
             {/* Nouvelles routes pour les jeux d'enquête */}
-            <Route path="/cyber/arcade/investigator" component={CyberInvestigator} />
-            <Route path="/cyber/arcade/investigator/data-leak" component={DataLeakInvestigation} />
-            <Route path="/cyber/arcade/investigator/ransomware-attack" component={RansomwareAttack} />
-            <Route path="/cyber/arcade/investigator/insider-threat" component={InsiderThreat} />
+            <Route path="/cyber/arcade/cyber-investigator" component={CyberInvestigator} />
+            <Route path="/cyber/arcade/cyber-investigator/data-leak" component={DataLeakInvestigation} />
+            <Route path="/cyber/arcade/cyber-investigator/ransomware-attack" component={RansomwareAttack} />
+            <Route path="/cyber/arcade/cyber-investigator/insider-threat" component={InsiderThreat} />
             <Route path="/cyber/arcade/digital-forensics" component={DigitalForensics} />
             <Route path="/cyber/arcade/threat-intelligence" component={ThreatIntelligence} />
-            
-            {/* Centre de crise */}
-            <Route path="/cyber/defense" component={CentreDeCriseEvolutifPage} />
-            <Route path="/cyber/defense/session/:levelId" component={CyberDefenseSessionPage} />
-            <Route path="/cyber/defense/mission/:id" component={CyberDefenseMissionPage} />
-            
-            {/* Anciennes URLs pour compatibilité */}
             <Route path="/cyber-defense-new" component={CentreDeCriseEvolutifPage} />
-            <Route path="/cyber-defense" component={CentreDeCriseEvolutifPage} />
             <Route path="/cyber-defense/session/:levelId" component={CyberDefenseSessionPage} />
+            <Route path="/cyber-defense" component={CentreDeCriseEvolutifPage} />
             <Route path="/cyber-defense/mission/:id" component={CyberDefenseMissionPage} />
-            
-            {/* Programme Ascension */}
-            <Route path="/cyber/ascension" component={NotYetImplemented} />
-            <Route path="/cyber/ascension/theme/:themeId" component={NotYetImplemented} />
-            <Route path="/cyber/ascension/theme/:themeId/level/:levelId" component={NotYetImplemented} />
-            
-            {/* Anciennes URLs pour compatibilité */}
-            <Route path="/cyber-ascension" component={NotYetImplemented} />
-            <Route path="/cyber-ascension/theme/:themeId" component={NotYetImplemented} />
-            <Route path="/cyber-ascension/theme/:themeId/level/:levelId" component={NotYetImplemented} />
-            
-            {/* Routes I AM mc2i (AMOA) */}
-            <Route path="/amoa" component={AmoaMainPage} />
-            <Route path="/amoa/mode-selection" component={AmoaModeSelection} />
-            <Route path="/amoa-mode-selection" component={AmoaModeSelection} />
-            <Route path="/amoa/quest" component={AmoaQuestPage} />
-            <Route path="/amoa/projet-imposteur" component={ProjetImposteur} />
-            <Route path="/amoa/interview" component={AmoaInterviewSimulation} />
-            <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
-            
-            {/* Autres routes */}
             <Route path="/immersive-simulation" component={ImmersiveSimulation} />
             <Route path="/immersive-simulation/:id" component={ImmersiveScenarioDetail} />
             <Route path="/immersive-simulation/session/:id" component={ImmersiveSession} />
+            <Route path="/cyber-ascension" component={NotYetImplemented} />
+            <Route path="/cyber-ascension/theme/:themeId" component={NotYetImplemented} />
+            <Route path="/cyber-ascension/theme/:themeId/level/:levelId" component={NotYetImplemented} />
             <Route path="/data-ia" component={NotYetImplemented} />
+            <Route path="/amoa" component={AmoaPage} />
+            <Route path="/amoa-mode-selection" component={AmoaModeSelection} />
+            <Route path="/amoa/quest" component={AmoaQuestPage} />
+            <Route path="/amoa/projet-imposteur" component={ProjetImposteur} />
             <Route path="/custom" component={NotYetImplemented} />
-            
-            {/* Page 404 */}
             <Route component={NotFound} />
           </Switch>
           <Toaster />
