@@ -14,6 +14,7 @@ import { extractJsonFromOpenAiResponse, createFallbackJson } from "./openAiRespo
 import { startInterviewSimulation, processInterviewMessage, completeInterviewSimulation, analyzeInterviewNotes } from "./interviewSimulationController";
 import { getRandomScenarios, getScenarioById, getScenariosByDifficulty } from "./impostorService";
 import { startAgentSession, completeAgentSession } from "./cyberAgentController";
+import { startAiAgentSession, completeAiAgentSession, updateSkillAssessment, generateResponseSuggestions } from "./cyberAiAgentController";
 import { generateDebriefing, getContextualDocumentation } from "./cyberLearningController";
 
 /**
@@ -2433,6 +2434,31 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
     // S'assurer que les en-têtes sont correctement configurés pour JSON
     res.setHeader('Content-Type', 'application/json');
     return completeAgentSession(req, res);
+  });
+  
+  // Routes pour l'Agent IA Immersif (version améliorée)
+  app.post('/api/cyber/ai-agent/start', (req, res) => {
+    // S'assurer que les en-têtes sont correctement configurés pour JSON
+    res.setHeader('Content-Type', 'application/json');
+    return startAiAgentSession(req, res);
+  });
+  
+  app.post('/api/cyber/ai-agent/complete', (req, res) => {
+    // S'assurer que les en-têtes sont correctement configurés pour JSON
+    res.setHeader('Content-Type', 'application/json');
+    return completeAiAgentSession(req, res);
+  });
+  
+  app.post('/api/cyber/ai-agent/update-skills', (req, res) => {
+    // S'assurer que les en-têtes sont correctement configurés pour JSON
+    res.setHeader('Content-Type', 'application/json');
+    return updateSkillAssessment(req, res);
+  });
+  
+  app.post('/api/cyber/ai-agent/suggestions', (req, res) => {
+    // S'assurer que les en-têtes sont correctement configurés pour JSON
+    res.setHeader('Content-Type', 'application/json');
+    return generateResponseSuggestions(req, res);
   });
   
   app.post('/api/amoa/interview-simulation/download-synthesis', async (req, res) => {

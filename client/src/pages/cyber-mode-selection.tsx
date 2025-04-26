@@ -38,10 +38,16 @@ export default function CyberModeSelection() {
       destination: '#',
       items: [
         {
-          id: 'agent-ia',
+          id: 'agent-conversationnel',
           title: 'AGENT CONVERSATIONNEL',
           icon: null,
           destination: '/cyber/agent'
+        },
+        {
+          id: 'agent-ia',
+          title: 'AGENT IA IMMERSIF',
+          icon: null, 
+          destination: '/cyber/ai-agent'
         }
       ]
     },
