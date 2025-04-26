@@ -1,0 +1,38 @@
+[vite] connecting...
+[vite] connected.
+Theme actuel: classic
+Thème appliqué: classic
+Theme actuel: classic
+Réponse API brute: 
+Object {status: "error", provider: "Azure OpenAI", keyType: "secondary", model: "Eddy-02-2025-gpt-4o-mini", message: "Azure OpenAI API is not responding (secondary key)", …}
+État mis à jour : 
+Object {status: "disconnected", model: "Eddy-02-2025-gpt-4o-mini", keyType: "secondary", lastCheck: 1745707992494}
+Theme actuel: classic
+Changement de modèle réussi: 
+Object {newKeyType: "primary", modelName: "Eddy-deploy-20-02-2025-gpt-4o", data: {…}}
+Theme actuel: classic
+Réponse API brute: 
+Object {status: "error", provider: "Azure OpenAI", keyType: "primary", model: "Eddy-deploy-20-02-2025-gpt-4o", message: "Azure OpenAI API is not responding (primary key)", …}
+État mis à jour : 
+Object {status: "disconnected", model: "Eddy-deploy-20-02-2025-gpt-4o", keyType: "primary", lastCheck: 1745708044305}
+Theme actuel: classic
+Réponse API brute: 
+Object {status: "error", provider: "Azure OpenAI", keyType: "primary", model: "Eddy-deploy-20-02-2025-gpt-4o", message: "Azure OpenAI API is not responding (primary key)", …}
+État mis à jour : 
+Object {status: "disconnected", model: "Eddy-deploy-20-02-2025-gpt-4o", keyType: "primary", lastCheck: 1745708292584}
+Theme actuel: classic
+Changement de modèle réussi: 
+Object {newKeyType: "secondary", modelName: "Eddy-02-2025-gpt-4o-mini", data: {…}}
+Theme actuel: classic
+Réponse API brute: 
+Object {status: "error", provider: "Azure OpenAI", keyType: "secondary", model: "Eddy-02-2025-gpt-4o-mini", message: "Azure OpenAI API is not responding (secondary key)", …}
+État mis à jour : 
+Object {status: "disconnected", model: "Eddy-02-2025-gpt-4o-mini", keyType: "secondary", lastCheck: 1745708328519}
+Theme actuel: classic
+Error starting scenario: 
+Error {}
+
+at t.value (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400

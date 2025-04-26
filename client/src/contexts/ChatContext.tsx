@@ -558,6 +558,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // Send the scenario selection to the server to generate initial email
     try {
+      // Récupérer le domaine associé au scénario
+      const scenarioDomain = initialDomains.find(d => d.id === selectedScenario.domainId)?.name || '';
+      
       const data = await apiRequest<any>('/api/cyber/start-scenario', {
         method: 'POST',
         body: JSON.stringify({
@@ -565,7 +568,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           userId: config?.userId || "user-" + Date.now(), // Utiliser un ID unique si pas disponible
           displayName: userName, // Utiliser le nom d'utilisateur comme displayName
           difficulty: selectedScenario?.difficulty || "Intermédiaire",
-          profile: config?.profile || "Généraliste"
+          domain: scenarioDomain, // Ajouter le domaine pour éviter l'erreur 400
+          profile: config?.config?.profile || "Généraliste"
         })
       });
       
