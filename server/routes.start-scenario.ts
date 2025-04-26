@@ -225,8 +225,8 @@ async function handleDynamicScenario(req: Request, res: Response) {
     
     Assure-toi que le scénario est réaliste, situé en France ou en Europe, et adapté au niveau de difficulté demandé.`;
     
-    // Appel à l'API OpenAI pour générer le scénario
     try {
+      // Appel à l'API OpenAI pour générer le scénario
       const response = await openAIService.getChatCompletionWithCache(
         [{ role: 'system', content: systemPrompt }],
         0.7,
@@ -235,23 +235,43 @@ async function handleDynamicScenario(req: Request, res: Response) {
       
       // Extraire le JSON de la réponse
       let scenarioData;
+      
       try {
-        // Essayer de parser la réponse JSON
-        scenarioData = JSON.parse(response);
+        // Nettoyer la réponse avant de la parser
+        let cleanedResponse = response;
+        
+        // Supprimer les marqueurs de code Markdown (```json et ```)
+        cleanedResponse = cleanedResponse.replace(/```json\s*/g, '');
+        cleanedResponse = cleanedResponse.replace(/```\s*$/g, '');
+        
+        // Essayer de parser la réponse JSON nettoyée
+        scenarioData = JSON.parse(cleanedResponse);
       } catch (jsonError) {
         console.error('Erreur de parsing JSON:', jsonError);
         console.log('Réponse brute:', response);
         
-        // Créer un scénario de secours si le parsing échoue
-        scenarioData = {
-          title: `Scénario ${domain} - Niveau ${difficulty}`,
-          description: `Un scénario de formation en ${domain} adapté au niveau ${difficulty}.`,
-          objectives: [
-            "Comprendre les principes fondamentaux du domaine",
-            "Identifier les risques et menaces associés",
-            "Mettre en place des mesures de protection adaptées"
-          ]
-        };
+        // Tenter une deuxième approche de parsing en extrayant le JSON entre ```
+        try {
+          const jsonMatch = response.match(/```(?:json)?\s*([\s\S]*?)```/);
+          if (jsonMatch && jsonMatch[1]) {
+            scenarioData = JSON.parse(jsonMatch[1].trim());
+          } else {
+            throw new Error("Impossible d'extraire le JSON de la réponse");
+          }
+        } catch (secondError) {
+          console.error('Seconde tentative de parsing échouée:', secondError);
+          
+          // Créer un scénario de secours si le parsing échoue
+          scenarioData = {
+            title: `Scénario ${domain} - Niveau ${difficulty}`,
+            description: `Un scénario de formation en ${domain} adapté au niveau ${difficulty}.`,
+            objectives: [
+              "Comprendre les principes fondamentaux du domaine",
+              "Identifier les risques et menaces associés",
+              "Mettre en place des mesures de protection adaptées"
+            ]
+          };
+        }
       }
       
       // Générer un prompt initial pour l'interaction
