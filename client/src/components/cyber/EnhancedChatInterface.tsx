@@ -305,17 +305,26 @@ export default function EnhancedChatInterface({
   };
 
   return (
-    <div className="flex flex-col h-full bg-gray-950 rounded-lg border border-gray-800 overflow-hidden">
+    <div className="flex flex-col h-full bg-gradient-to-b from-gray-950 to-blue-950/80 rounded-lg border border-blue-900/50 overflow-hidden shadow-xl">
       {/* En-tête du chat */}
-      <div className="bg-gradient-to-r from-blue-900 to-indigo-900 p-4 border-b border-gray-800">
-        <h2 className="text-lg font-semibold text-white">Session Agent IA Immersif</h2>
-        <p className="text-sm text-blue-200">
-          Interagissez avec des experts en cybersécurité dans un environnement d'apprentissage immersif
-        </p>
+      <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-indigo-800 p-4 border-b border-blue-800/70 relative overflow-hidden">
+        {/* Élément graphique décoratif */}
+        <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4"></div>
+        <div className="absolute bottom-0 left-0 w-20 h-20 bg-indigo-500/10 rounded-full blur-2xl translate-y-1/3 -translate-x-1/4"></div>
+        
+        <div className="relative z-10">
+          <h2 className="text-lg font-semibold text-white flex items-center">
+            <Bot className="h-5 w-5 mr-2 text-cyan-400" />
+            Session Agent IA Immersif
+          </h2>
+          <p className="text-sm text-blue-200 mt-1 max-w-2xl">
+            Interagissez avec des experts en cybersécurité dans un environnement d'apprentissage personnalisé
+          </p>
+        </div>
       </div>
 
       {/* Zone des messages */}
-      <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-[#0a101f]">
+      <div className="flex-1 p-4 overflow-y-auto space-y-5 bg-gradient-to-b from-[#0a101f] to-[#0a1a2e]">
         <AnimatePresence>
           {messages.map((message) => (
             <motion.div
@@ -329,40 +338,62 @@ export default function EnhancedChatInterface({
               }`}
             >
               <div
-                className={`flex max-w-[80%] ${
+                className={`flex max-w-[85%] ${
                   message.type === "user" ? "flex-row-reverse" : "flex-row"
                 }`}
               >
-                <Avatar className={`${message.type === "user" ? "ml-2" : "mr-2"} flex-shrink-0`}>
-                  {message.type === "user" ? (
-                    <>
-                      <AvatarFallback className="bg-blue-700">
-                        <User className="h-4 w-4" />
-                      </AvatarFallback>
-                    </>
-                  ) : (
-                    <>
-                      <AvatarFallback className="bg-indigo-700">
-                        <Bot className="h-4 w-4" />
-                      </AvatarFallback>
-                    </>
-                  )}
-                </Avatar>
+                <div className={`${message.type === "user" ? "ml-3" : "mr-3"} flex-shrink-0 mt-1`}>
+                  <Avatar className={`border-2 ${
+                    message.type === "user" 
+                      ? "border-blue-600/50 shadow-sm shadow-blue-500/20" 
+                      : "border-indigo-700/50 shadow-sm shadow-indigo-500/20"
+                  }`}>
+                    {message.type === "user" ? (
+                      <>
+                        <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-800">
+                          <User className="h-4 w-4 text-blue-100" />
+                        </AvatarFallback>
+                      </>
+                    ) : (
+                      <>
+                        <AvatarFallback className="bg-gradient-to-br from-indigo-600 to-violet-800">
+                          <Bot className="h-4 w-4 text-indigo-100" />
+                        </AvatarFallback>
+                      </>
+                    )}
+                  </Avatar>
+                </div>
 
                 <div
-                  className={`${
+                  className={`relative ${
                     message.type === "user"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-800 text-gray-100"
-                  } p-3 rounded-lg shadow`}
+                      ? "bg-gradient-to-br from-blue-600 to-blue-700 text-white"
+                      : "bg-gradient-to-br from-gray-800 to-gray-900 text-gray-100"
+                  } p-3 rounded-lg shadow-md border ${
+                    message.type === "user"
+                      ? "border-blue-500/30"
+                      : "border-indigo-500/20"
+                  }`}
                 >
+                  {/* Petit indicateur de direction du message */}
+                  <div className={`absolute top-3 ${
+                    message.type === "user" ? "right-[-6px]" : "left-[-6px]"
+                  } w-3 h-3 transform rotate-45 ${
+                    message.type === "user" ? "bg-blue-600" : "bg-gray-800"
+                  } border-t ${
+                    message.type === "user" ? "border-r" : "border-l"
+                  } ${
+                    message.type === "user" ? "border-blue-500/30" : "border-indigo-500/20"
+                  }`}></div>
+                
                   {message.type !== "user" && message.contactName && (
-                    <div className="text-xs font-medium text-blue-300 mb-1">
+                    <div className="text-xs font-medium text-blue-300 mb-1.5 flex items-center">
+                      <div className="w-2 h-2 rounded-full bg-cyan-400 mr-1.5"></div>
                       {message.contactName}
                     </div>
                   )}
-                  <div className="text-sm">{message.content}</div>
-                  <div className="text-xs text-right mt-1 opacity-70 flex items-center justify-end">
+                  <div className="text-sm leading-relaxed">{message.content}</div>
+                  <div className="text-xs mt-2 opacity-70 flex items-center justify-end text-right">
                     <Clock className="h-3 w-3 mr-1" />
                     {formatMessageTime(message.timestamp)}
                   </div>
@@ -382,12 +413,15 @@ export default function EnhancedChatInterface({
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="border-t border-gray-800 bg-gray-900"
+            className="border-t border-blue-900/30 bg-gradient-to-r from-gray-900 to-blue-950/90"
           >
-            <div className="p-3 flex justify-between items-center">
+            <div className="p-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <div className="flex items-center text-blue-300">
-                <Lightbulb className="h-4 w-4 mr-2" />
-                <span className="text-sm font-medium">Suggestions de réponse</span>
+                <Lightbulb className="h-5 w-5 mr-2 text-amber-400" />
+                <span className="text-sm font-medium">Approches suggérées</span>
+                <span className="ml-2 text-xs bg-blue-900/50 px-2 py-0.5 rounded-full text-blue-300">
+                  {filteredSuggestions.length} disponibles
+                </span>
               </div>
               
               <Tabs 
@@ -395,19 +429,31 @@ export default function EnhancedChatInterface({
                 onValueChange={setActiveApproach}
                 className="h-8"
               >
-                <TabsList className="bg-gray-800 h-8">
-                  <TabsTrigger value="all" className="h-7 px-2 text-xs">
+                <TabsList className="bg-gray-800/80 border border-blue-900/20 h-8 p-0.5">
+                  <TabsTrigger 
+                    value="all" 
+                    className="h-7 px-3 text-xs data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+                  >
                     Toutes
                   </TabsTrigger>
-                  <TabsTrigger value="technique" className="h-7 px-2 text-xs">
+                  <TabsTrigger 
+                    value="technique" 
+                    className="h-7 px-3 text-xs data-[state=active]:bg-cyan-600 data-[state=active]:text-white"
+                  >
                     <Code className="h-3 w-3 mr-1" />
                     Technique
                   </TabsTrigger>
-                  <TabsTrigger value="analytique" className="h-7 px-2 text-xs">
+                  <TabsTrigger 
+                    value="analytique" 
+                    className="h-7 px-3 text-xs data-[state=active]:bg-indigo-600 data-[state=active]:text-white"
+                  >
                     <BarChart3 className="h-3 w-3 mr-1" />
                     Analytique
                   </TabsTrigger>
-                  <TabsTrigger value="stratégique" className="h-7 px-2 text-xs">
+                  <TabsTrigger 
+                    value="stratégique" 
+                    className="h-7 px-3 text-xs data-[state=active]:bg-violet-600 data-[state=active]:text-white"
+                  >
                     <Shield className="h-3 w-3 mr-1" />
                     Stratégique
                   </TabsTrigger>
@@ -415,27 +461,47 @@ export default function EnhancedChatInterface({
               </Tabs>
             </div>
             
-            <div className="p-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-40 overflow-y-auto">
+            <div className="px-3 pb-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-800 scrollbar-track-gray-900">
               {filteredSuggestions.map((suggestion, index) => (
-                <Card 
-                  key={index} 
-                  className="bg-gray-800 border-gray-700 p-2 cursor-pointer hover:bg-gray-750 transition-colors"
-                  onClick={() => useSuggestion(suggestion)}
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, delay: index * 0.05 }}
                 >
-                  <div className="text-xs mb-1 flex items-center">
-                    {getApproachIcon(suggestion.approach)}
-                    <span className="ml-1 text-gray-300 capitalize">{suggestion.approach}</span>
-                  </div>
-                  <p className="text-sm text-white">{suggestion.text}</p>
-                  <div className="flex mt-2 text-xs">
-                    <span className={`${getSkillColor(suggestion.skillImpact.primary)} mr-2`}>
-                      {suggestion.skillImpact.primary.charAt(0).toUpperCase() + suggestion.skillImpact.primary.slice(1)}
-                    </span>
-                    <span className={`${getSkillColor(suggestion.skillImpact.secondary)} opacity-70`}>
-                      {suggestion.skillImpact.secondary.charAt(0).toUpperCase() + suggestion.skillImpact.secondary.slice(1)}
-                    </span>
-                  </div>
-                </Card>
+                  <Card 
+                    className={`bg-gradient-to-br ${
+                      suggestion.approach === 'technique' ? 'from-cyan-900/40 to-gray-900' :
+                      suggestion.approach === 'analytique' ? 'from-indigo-900/40 to-gray-900' :
+                      'from-violet-900/40 to-gray-900'
+                    } border ${
+                      suggestion.approach === 'technique' ? 'border-cyan-800/30' :
+                      suggestion.approach === 'analytique' ? 'border-indigo-800/30' :
+                      'border-violet-800/30'
+                    } p-3 cursor-pointer hover:bg-opacity-80 transition-colors shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200`}
+                    onClick={() => useSuggestion(suggestion)}
+                  >
+                    <div className="text-xs mb-1.5 flex items-center">
+                      <div className={`p-1 rounded-full ${
+                        suggestion.approach === 'technique' ? 'bg-cyan-700/50' :
+                        suggestion.approach === 'analytique' ? 'bg-indigo-700/50' :
+                        'bg-violet-700/50'
+                      }`}>
+                        {getApproachIcon(suggestion.approach)}
+                      </div>
+                      <span className="ml-1.5 text-gray-300 capitalize font-medium">{suggestion.approach}</span>
+                    </div>
+                    <p className="text-sm text-white">{suggestion.text}</p>
+                    <div className="flex mt-2.5 text-xs">
+                      <span className={`${getSkillColor(suggestion.skillImpact.primary)} mr-2 px-1.5 py-0.5 rounded-sm bg-gray-800/80`}>
+                        {suggestion.skillImpact.primary.charAt(0).toUpperCase() + suggestion.skillImpact.primary.slice(1)}
+                      </span>
+                      <span className={`${getSkillColor(suggestion.skillImpact.secondary)} opacity-80 px-1.5 py-0.5 rounded-sm bg-gray-800/80`}>
+                        {suggestion.skillImpact.secondary.charAt(0).toUpperCase() + suggestion.skillImpact.secondary.slice(1)}
+                      </span>
+                    </div>
+                  </Card>
+                </motion.div>
               ))}
             </div>
           </motion.div>
@@ -443,11 +509,11 @@ export default function EnhancedChatInterface({
       </AnimatePresence>
 
       {/* Zone de saisie du message */}
-      <div className="p-3 border-t border-gray-800 bg-gray-900">
+      <div className="p-4 border-t border-blue-900/30 bg-gradient-to-r from-gray-900 to-gray-900/95">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(sendMessage)}
-            className="flex space-x-2"
+            className="flex space-x-3"
           >
             <FormField
               control={form.control}
@@ -457,7 +523,7 @@ export default function EnhancedChatInterface({
                   <div className="relative flex-1">
                     <Textarea
                       placeholder="Entrez votre message..."
-                      className="min-h-12 resize-none bg-gray-800 border-gray-700 text-white pr-12"
+                      className="min-h-[60px] resize-none bg-gray-800/90 border-blue-900/40 rounded-lg text-white pr-12 focus:border-blue-700 focus:ring-1 focus:ring-blue-700 shadow-inner"
                       {...field}
                     />
                     {!showSuggestions && suggestions.length > 0 && (
@@ -465,8 +531,9 @@ export default function EnhancedChatInterface({
                         type="button"
                         size="icon"
                         variant="ghost"
-                        className="absolute right-2 top-3 text-blue-400 hover:text-blue-300 hover:bg-transparent"
+                        className="absolute right-3 top-3.5 text-amber-400 hover:text-amber-300 hover:bg-blue-900/30 rounded-full"
                         onClick={() => setShowSuggestions(true)}
+                        title="Afficher les suggestions"
                       >
                         <Lightbulb className="h-5 w-5" />
                       </Button>
@@ -477,10 +544,14 @@ export default function EnhancedChatInterface({
             />
             <Button
               type="submit"
-              className="h-full bg-blue-700 hover:bg-blue-600"
+              className={`h-auto px-5 ${isLoading ? 'bg-gray-700' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700'} text-white py-3 rounded-lg shadow-md`}
               disabled={isLoading}
             >
-              <Send className="h-5 w-5" />
+              {isLoading ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white/90 rounded-full animate-spin"></div>
+              ) : (
+                <Send className="h-5 w-5" />
+              )}
             </Button>
           </form>
         </Form>

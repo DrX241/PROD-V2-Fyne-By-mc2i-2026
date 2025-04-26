@@ -317,113 +317,164 @@ export default function CyberAiAgentPage() {
       </div>
 
       {!isSessionActive ? (
-        <div className="max-w-md mx-auto mt-8">
-          <Card className="bg-gradient-to-br from-blue-950 to-indigo-900 text-white border-blue-800">
-            <CardHeader>
-              <CardTitle className="text-xl text-center">Agent IA Immersif</CardTitle>
-              <CardDescription className="text-blue-200 text-center">
-                Expérience d'apprentissage avancée avec évaluation des compétences en temps réel
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(startSession)} className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="userEmail"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-blue-200">Email</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-400" />
-                            <Input 
-                              placeholder="votre.email@exemple.com" 
-                              className="pl-10 bg-blue-900/50 border-blue-700 text-white" 
-                              {...field} 
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="userName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-blue-200">Votre nom</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="Prénom Nom" 
-                            className="bg-blue-900/50 border-blue-700 text-white" 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="virtualEnvironment"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-blue-200">Environnement virtuel</FormLabel>
-                        <FormControl>
-                          <Tabs
-                            defaultValue="command-center"
-                            value={field.value}
-                            onValueChange={field.onChange}
-                            className="w-full"
+        <div className="container max-w-4xl mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+            <div className="lg:col-span-2 flex flex-col justify-center">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                className="mb-6"
+              >
+                <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">Agent IA Immersif</h2>
+                <p className="text-blue-200 mb-6">
+                  Plongez dans une expérience d'apprentissage avancée en cybersécurité avec évaluation des compétences en temps réel.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                  <div className="bg-blue-900/30 border border-blue-800/60 rounded-lg p-3 text-center">
+                    <Command className="h-8 w-8 mx-auto mb-2 text-cyan-400" />
+                    <h3 className="font-medium text-white text-sm">Centre de commandement</h3>
+                  </div>
+                  <div className="bg-blue-900/30 border border-blue-800/60 rounded-lg p-3 text-center">
+                    <Microscope className="h-8 w-8 mx-auto mb-2 text-indigo-400" />
+                    <h3 className="font-medium text-white text-sm">Laboratoire d'analyse</h3>
+                  </div>
+                  <div className="bg-blue-900/30 border border-blue-800/60 rounded-lg p-3 text-center">
+                    <AlertCircle className="h-8 w-8 mx-auto mb-2 text-purple-400" />
+                    <h3 className="font-medium text-white text-sm">Salle de crise</h3>
+                  </div>
+                </div>
+                <div className="bg-gradient-to-br from-blue-900/60 to-indigo-900/60 rounded-lg p-4 border border-blue-700/50">
+                  <p className="text-sm text-blue-200">
+                    La session durera 10 minutes. Un rapport d'évaluation détaillé de vos compétences sera envoyé à l'adresse email indiquée.
+                  </p>
+                </div>
+              </motion.div>
+            </div>
+            
+            <div className="lg:col-span-3">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <Card className="bg-gradient-to-br from-gray-900 to-blue-950 border border-blue-800/80 shadow-xl">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-xl text-white">Configuration de la session</CardTitle>
+                    <CardDescription className="text-blue-200">
+                      Entrez vos informations pour personnaliser l'expérience
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Form {...form}>
+                      <form onSubmit={form.handleSubmit(startSession)} className="space-y-5">
+                        <FormField
+                          control={form.control}
+                          name="userEmail"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-blue-100 font-medium">Email</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-400" />
+                                  <Input 
+                                    placeholder="votre.email@exemple.com" 
+                                    className="pl-10 bg-blue-900/40 border-blue-700/80 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500" 
+                                    {...field} 
+                                  />
+                                </div>
+                              </FormControl>
+                              <FormMessage className="text-red-400" />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="userName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-blue-100 font-medium">Nom complet</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="Prénom Nom" 
+                                  className="bg-blue-900/40 border-blue-700/80 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500" 
+                                  {...field} 
+                                />
+                              </FormControl>
+                              <FormMessage className="text-red-400" />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="virtualEnvironment"
+                          render={({ field }) => (
+                            <FormItem className="space-y-3">
+                              <FormLabel className="text-blue-100 font-medium">Environnement virtuel</FormLabel>
+                              <FormControl>
+                                <Tabs
+                                  defaultValue="command-center"
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                  className="w-full"
+                                >
+                                  <TabsList className="grid grid-cols-3 w-full bg-gray-800 border border-blue-800/40 p-1">
+                                    <TabsTrigger 
+                                      value="command-center" 
+                                      className="data-[state=active]:bg-blue-700 data-[state=active]:text-white text-gray-300 px-3 py-1.5"
+                                    >
+                                      <Command className="h-4 w-4 mr-2" />
+                                      <span className="hidden sm:inline">Centre de commandement</span>
+                                      <span className="inline sm:hidden">Centre</span>
+                                    </TabsTrigger>
+                                    <TabsTrigger 
+                                      value="analysis-lab" 
+                                      className="data-[state=active]:bg-indigo-700 data-[state=active]:text-white text-gray-300 px-3 py-1.5"
+                                    >
+                                      <Microscope className="h-4 w-4 mr-2" />
+                                      <span className="hidden sm:inline">Laboratoire d'analyse</span>
+                                      <span className="inline sm:hidden">Labo</span>
+                                    </TabsTrigger>
+                                    <TabsTrigger 
+                                      value="crisis-room" 
+                                      className="data-[state=active]:bg-purple-700 data-[state=active]:text-white text-gray-300 px-3 py-1.5"
+                                    >
+                                      <AlertCircle className="h-4 w-4 mr-2" />
+                                      <span className="hidden sm:inline">Salle de crise</span>
+                                      <span className="inline sm:hidden">Crise</span>
+                                    </TabsTrigger>
+                                  </TabsList>
+                                  <TabsContent value="command-center" className="mt-3 text-sm text-blue-200 bg-blue-900/20 p-3 rounded-md border border-blue-800/30">
+                                    <p>Environnement idéal pour la planification stratégique et la coordination des équipes en cybersécurité.</p>
+                                  </TabsContent>
+                                  <TabsContent value="analysis-lab" className="mt-3 text-sm text-blue-200 bg-indigo-900/20 p-3 rounded-md border border-indigo-800/30">
+                                    <p>Espace technique pour l'investigation d'incidents et l'analyse forensique approfondie.</p>
+                                  </TabsContent>
+                                  <TabsContent value="crisis-room" className="mt-3 text-sm text-blue-200 bg-purple-900/20 p-3 rounded-md border border-purple-800/30">
+                                    <p>Centre de gestion pour les incidents critiques nécessitant une réponse rapide et coordonnée.</p>
+                                  </TabsContent>
+                                </Tabs>
+                              </FormControl>
+                              <FormMessage className="text-red-400" />
+                            </FormItem>
+                          )}
+                        />
+                        <div className="pt-2">
+                          <Button 
+                            type="submit" 
+                            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-2.5 font-medium shadow-lg"
                           >
-                            <TabsList className="grid grid-cols-3 w-full bg-blue-900/50">
-                              <TabsTrigger value="command-center" className="data-[state=active]:bg-blue-700">
-                                <Command className="h-4 w-4 mr-2" />
-                                <span className="hidden md:inline">Centre de commandement</span>
-                                <span className="inline md:hidden">Centre</span>
-                              </TabsTrigger>
-                              <TabsTrigger value="analysis-lab" className="data-[state=active]:bg-blue-700">
-                                <Microscope className="h-4 w-4 mr-2" />
-                                <span className="hidden md:inline">Laboratoire d'analyse</span>
-                                <span className="inline md:hidden">Labo</span>
-                              </TabsTrigger>
-                              <TabsTrigger value="crisis-room" className="data-[state=active]:bg-blue-700">
-                                <AlertCircle className="h-4 w-4 mr-2" />
-                                <span className="hidden md:inline">Salle de crise</span>
-                                <span className="inline md:hidden">Crise</span>
-                              </TabsTrigger>
-                            </TabsList>
-                            <TabsContent value="command-center" className="mt-2 text-sm text-blue-200">
-                              <p>Environnement idéal pour la planification stratégique et la coordination des équipes en cybersécurité.</p>
-                            </TabsContent>
-                            <TabsContent value="analysis-lab" className="mt-2 text-sm text-blue-200">
-                              <p>Espace technique pour l'investigation d'incidents et l'analyse forensique approfondie.</p>
-                            </TabsContent>
-                            <TabsContent value="crisis-room" className="mt-2 text-sm text-blue-200">
-                              <p>Centre de gestion pour les incidents critiques nécessitant une réponse rapide et coordonnée.</p>
-                            </TabsContent>
-                          </Tabs>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-blue-600 hover:bg-blue-700"
-                  >
-                    <Send className="mr-2 h-4 w-4" />
-                    Démarrer la session immersive
-                  </Button>
-                </form>
-              </Form>
-            </CardContent>
-            <CardFooter className="text-xs text-center text-blue-300 justify-center">
-              <p>La session durera 10 minutes. Vous recevrez un rapport d'évaluation détaillé par email.</p>
-            </CardFooter>
-          </Card>
+                            <Send className="mr-2 h-4 w-4" />
+                            Démarrer la session immersive
+                          </Button>
+                        </div>
+                      </form>
+                    </Form>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 h-[calc(100vh-160px)]">
