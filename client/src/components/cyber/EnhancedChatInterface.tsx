@@ -154,7 +154,7 @@ export default function EnhancedChatInterface({
         setShowSuggestions(true);
       } else {
         // Utiliser des suggestions de secours si l'API ne retourne pas de suggestions valides
-        const fallbackSuggestions = [
+        const fallbackSuggestions: Suggestion[] = [
           {
             text: "Je vais d'abord analyser la structure du réseau pour identifier les vecteurs d'attaque potentiels et ensuite déterminer les mesures de protection adaptées.",
             approach: "analytique",
@@ -177,7 +177,7 @@ export default function EnhancedChatInterface({
     } catch (error) {
       console.error("Erreur lors de la génération des suggestions:", error);
       // Utiliser des suggestions de secours en cas d'erreur
-      const fallbackSuggestions = [
+      const fallbackSuggestions: Suggestion[] = [
         {
           text: "Je vais d'abord analyser la structure du réseau pour identifier les vecteurs d'attaque potentiels et ensuite déterminer les mesures de protection adaptées.",
           approach: "analytique",

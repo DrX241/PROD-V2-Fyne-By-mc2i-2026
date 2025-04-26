@@ -92,6 +92,15 @@ export default function CyberAiAgentPage() {
         setActiveEnvironment(values.virtualEnvironment);
         setIsSessionActive(true);
         startTimeRef.current = Date.now();
+        
+        // Mettre à jour le NPC en fonction de l'environnement choisi
+        if (values.virtualEnvironment === "command-center") {
+          setCurrentNPC("Sarah Chen");
+        } else if (values.virtualEnvironment === "analysis-lab") {
+          setCurrentNPC("Alex Dupont");
+        } else if (values.virtualEnvironment === "crisis-room") {
+          setCurrentNPC("Malik Johnson");
+        }
 
         toast({
           title: "Environnement virtuel activé",
