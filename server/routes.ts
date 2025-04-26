@@ -429,7 +429,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let isConnected = false;
       try {
         // Essayer de vérifier la connexion
-        isConnected = await openAIService.checkConnection();
+        isConnected = await openAIService.checkAPIConnection();
         console.log(`OpenAI connection test result: ${isConnected ? 'SUCCESS' : 'FAILED'}`);
       } catch (connError) {
         console.error('Error during OpenAI connection test:', connError);

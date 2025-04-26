@@ -335,6 +335,13 @@ class OpenAIService {
    * Vérifie la connectivité à l'API OpenAI
    */
   async checkAPIConnection(): Promise<boolean> {
+    return this.checkConnection();
+  }
+  
+  /**
+   * Alias pour checkAPIConnection, utilisé dans routes.ts
+   */
+  async checkConnection(): Promise<boolean> {
     try {
       // Utiliser de préférence le modèle secondaire pour le test de connectivité (moins cher)
       const config = this.secondaryConfig || this.primaryConfig;
