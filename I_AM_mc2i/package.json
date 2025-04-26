@@ -1,0 +1,8 @@
+{
+  "name": "i-am-mc2i",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Module AMOA",
+  "main": "index.ts",
+  "types": "index.ts"
+}

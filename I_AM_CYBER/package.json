@@ -1,0 +1,8 @@
+{
+  "name": "i-am-cyber",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Module de cybersécurité",
+  "main": "index.ts",
+  "types": "index.ts"
+}

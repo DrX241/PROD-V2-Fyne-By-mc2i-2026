@@ -1,0 +1,8 @@
+{
+  "name": "common",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Module de composants et utilitaires communs",
+  "main": "index.ts",
+  "types": "index.ts"
+}
