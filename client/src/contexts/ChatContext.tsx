@@ -519,21 +519,35 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         method: 'POST',
         body: JSON.stringify({
           scenarioId,
-          userName,
-          config
+          userId: config?.userId || "user-" + Date.now(), // Utiliser un ID unique si pas disponible
+          displayName: userName, // Utiliser le nom d'utilisateur comme displayName
+          difficulty: selectedScenario?.difficulty || "Intermédiaire",
+          profile: config?.profile || "Généraliste"
         })
       });
       
-      // Vérifier que l'email existe bien dans la réponse
-      if (!data.email) {
-        throw new Error("Erreur: Le serveur n'a pas retourné de contenu d'email valide");
+      // Vérifier que la réponse inclut un prompt initial
+      if (!data.initialPrompt) {
+        throw new Error("Erreur: Le serveur n'a pas retourné de contenu initial valide");
       }
+
+      // Créer un message simulant un email basé sur le prompt initial
+      const emailContent: EmailMessageContent = {
+        subject: `Re: ${data.scenario?.title || "Votre scénario cybersécurité"}`,
+        sender: data.context?.primaryContact?.name || "Support I AM CYBER",
+        senderRole: data.context?.primaryContact?.role || "Expert en cybersécurité",
+        company: data.context?.companyName || "I AM CYBER",
+        recipients: ["vous"],
+        body: data.initialPrompt,
+        attachments: [],
+        timestamp: Date.now()
+      };
 
       // Add the email message
       const emailMessage: ChatMessage = {
         id: uuidv4(),
         type: "email",
-        content: data.email as EmailMessageContent,
+        content: emailContent,
         timestamp: Date.now()
       };
       

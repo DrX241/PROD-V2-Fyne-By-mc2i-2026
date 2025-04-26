@@ -33,7 +33,8 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
       const response = await fetch('/api/openai/status');
       if (response.ok) {
         const data = await response.json();
-        setStatus(data.connectionStatus || 'disconnected');
+        // Si l'API renvoie un statut de succès, considérer que la connexion est établie
+        setStatus(data.status === 'success' ? 'connected' : 'disconnected');
         
         // Définir le modèle courant (utiliser model au lieu de currentModel)
         const model = data.model || 'Inconnu';
