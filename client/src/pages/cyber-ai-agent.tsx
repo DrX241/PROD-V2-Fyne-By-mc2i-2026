@@ -389,12 +389,12 @@ export default function CyberAiAgentPage() {
                                         
                                         {/* Icône et détails */}
                                         <div className="mt-auto p-5">
-                                          <div className="mb-4 bg-cyan-700/70 p-3 rounded-lg w-min">
-                                            <Command className="h-8 w-8 text-cyan-200" />
+                                          <div className="mb-3 bg-cyan-700/70 p-2 rounded-lg w-min">
+                                            <Command className="h-6 w-6 text-cyan-200" />
                                           </div>
-                                          <h3 className="font-bold text-xl text-white mb-2">Centre de Commandement</h3>
-                                          <p className="text-sm text-cyan-100/80 line-clamp-2 group-hover:line-clamp-none transition-all">
-                                            Planification stratégique et coordination d'équipe pour répondre aux incidents cyber avancés.
+                                          <h3 className="font-bold text-lg text-white mb-2 line-clamp-1">Centre de Commandement</h3>
+                                          <p className="text-sm text-cyan-100/80 line-clamp-2 group-hover:line-clamp-3 transition-all">
+                                            Planification stratégique et coordination d'équipe pour répondre aux incidents cyber.
                                           </p>
                                         </div>
                                       </div>
@@ -427,12 +427,12 @@ export default function CyberAiAgentPage() {
                                         
                                         {/* Icône et détails */}
                                         <div className="mt-auto p-5">
-                                          <div className="mb-4 bg-indigo-700/70 p-3 rounded-lg w-min">
-                                            <Microscope className="h-8 w-8 text-indigo-200" />
+                                          <div className="mb-3 bg-indigo-700/70 p-2 rounded-lg w-min">
+                                            <Microscope className="h-6 w-6 text-indigo-200" />
                                           </div>
-                                          <h3 className="font-bold text-xl text-white mb-2">Laboratoire d'Analyse</h3>
-                                          <p className="text-sm text-indigo-100/80 line-clamp-2 group-hover:line-clamp-none transition-all">
-                                            Investigation technique et analyse forensique pour découvrir les sources d'attaque.
+                                          <h3 className="font-bold text-lg text-white mb-2 line-clamp-1">Laboratoire d'Analyse</h3>
+                                          <p className="text-sm text-indigo-100/80 line-clamp-2 group-hover:line-clamp-3 transition-all">
+                                            Investigation technique et analyse forensique des attaques.
                                           </p>
                                         </div>
                                       </div>
@@ -465,12 +465,12 @@ export default function CyberAiAgentPage() {
                                         
                                         {/* Icône et détails */}
                                         <div className="mt-auto p-5">
-                                          <div className="mb-4 bg-violet-700/70 p-3 rounded-lg w-min">
-                                            <AlertCircle className="h-8 w-8 text-violet-200" />
+                                          <div className="mb-3 bg-violet-700/70 p-2 rounded-lg w-min">
+                                            <AlertCircle className="h-6 w-6 text-violet-200" />
                                           </div>
-                                          <h3 className="font-bold text-xl text-white mb-2">Salle de Crise</h3>
-                                          <p className="text-sm text-violet-100/80 line-clamp-2 group-hover:line-clamp-none transition-all">
-                                            Gestion d'incidents critiques et coordination de la réponse d'urgence sous pression.
+                                          <h3 className="font-bold text-lg text-white mb-2 line-clamp-1">Salle de Crise</h3>
+                                          <p className="text-sm text-violet-100/80 line-clamp-2 group-hover:line-clamp-3 transition-all">
+                                            Gestion d'incidents critiques et coordination d'urgence.
                                           </p>
                                         </div>
                                       </div>
@@ -528,8 +528,7 @@ export default function CyberAiAgentPage() {
             />
           </div>
           <div className="hidden md:block bg-gradient-to-b from-gray-900 to-blue-950/80 rounded-lg p-4 overflow-y-auto border border-blue-900/30 shadow-md my-3 mr-3">
-            <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-              <AreaChart className="mr-2 h-5 w-5 text-cyan-400" />
+            <h3 className="text-lg font-semibold text-white mb-4">
               Évaluation des compétences
             </h3>
             
@@ -596,8 +595,7 @@ export default function CyberAiAgentPage() {
             </div>
             
             <div className="mt-8 p-4 bg-gradient-to-br from-gray-800/90 to-blue-950/90 rounded-lg border border-blue-900/30 shadow-md">
-              <h4 className="text-sm font-medium text-blue-300 mb-3 flex items-center">
-                <User className="h-4 w-4 mr-2" />
+              <h4 className="text-sm font-medium text-blue-300 mb-3">
                 Expert actuel
               </h4>
               <div className="flex items-center">
@@ -606,8 +604,7 @@ export default function CyberAiAgentPage() {
                 </div>
                 <div className="ml-3">
                   <p className="text-sm font-medium text-white">{currentNPC}</p>
-                  <p className="text-xs text-blue-300 flex items-center">
-                    <Shield className="h-3 w-3 mr-1" />
+                  <p className="text-xs text-blue-300">
                     Expert en cybersécurité
                   </p>
                 </div>
