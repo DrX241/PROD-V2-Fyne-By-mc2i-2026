@@ -46,8 +46,9 @@ const extractFirstName = (input: string): string => {
   // Étape 5: Extraire le premier mot (prénom)
   const firstWord = cleanedInput.split(/\s+/)[0];
   
-  // Étape 6: Mettre la première lettre en majuscule
-  return firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
+  // Étape 6: Mettre la première lettre en majuscule et le reste en minuscules 
+  // pour assurer que peu importe comment l'utilisateur a écrit son prénom
+  return firstWord.charAt(0).toUpperCase() + firstWord.slice(1).toLowerCase();
 };
 
 // Initial domains data
@@ -361,11 +362,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Initialize the chat with a welcome message
   useEffect(() => {
     if (!isInitialized) {
-      // Initial welcome message
+      // Initial welcome message exactement comme demandé
       const initialMessage: ChatMessage = {
         id: uuidv4(),
         type: "bot",
-        content: "Bonjour !\n\nJe suis I AM CYBER, votre assistant virtuel dans le monde passionnant de la cybersécurité. Je suis là pour vous accompagner dans une expérience d'apprentissage immersive et interactive.\n\nComment puis-je vous appeler ?",
+        content: "Bonjour !\nJe suis I AM CYBER, votre assistant virtuel dans le monde passionnant de la cybersécurité. Je suis là pour vous accompagner dans une expérience d'apprentissage immersive et interactive.\nPour commencer, Quel est votre prénom ?",
         timestamp: Date.now()
       };
       
@@ -428,22 +429,62 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Obtenir le prénom extrait
     const firstName = extractFirstName(userName);
     
+    // Créer un message avec des explications et anecdotes sur le domaine sélectionné
+    let explanationContent = `**Excellent choix, ${firstName} !** Vous avez sélectionné la **${selectedDomain.name}**.\n\n`;
+    
+    // Ajouter des explications spécifiques au domaine avec des anecdotes
+    switch (domainId) {
+      case "gestion-crise":
+        explanationContent += `La gestion de crise cyber est un domaine crucial qui exige préparation et réactivité. Saviez-vous que selon une étude récente, les organisations avec un plan de gestion de crise formalisé réduisent en moyenne de 38% le coût d'une cyberattaque ? Une anecdote intéressante : lors de l'attaque NotPetya en 2017, la société maritime Maersk a dû reconstruire son infrastructure informatique complète en quelques semaines. Leur résilience est devenue un cas d'école en matière de gestion de crise.`;
+        break;
+      case "donnees-personnelles":
+        explanationContent += `La protection des données personnelles est devenue incontournable avec le RGPD. Une anecdote marquante : en 2019, une entreprise hôtelière internationale a été sanctionnée à hauteur de 110 millions d'euros pour ne pas avoir suffisamment protégé les données de ses clients. Ce cas démontre l'importance de traiter la conformité comme un investissement plutôt qu'une contrainte.`;
+        break;
+      case "ingenierie-sociale":
+        explanationContent += `L'ingénierie sociale reste le vecteur d'attaque le plus efficace car elle cible la vulnérabilité humaine. Un exemple frappant : en 2020, des pirates ont réussi à compromettre les comptes Twitter de personnalités comme Bill Gates et Elon Musk simplement en manipulant des employés par téléphone. Cette technique appelée "vishing" (phishing vocal) prouve que la sécurité technique ne suffit pas sans sensibilisation humaine.`;
+        break;
+      case "gestion-incidents":
+        explanationContent += `La gestion des incidents de sécurité est l'art de détecter, analyser et remédier efficacement aux menaces. Une statistique intéressante : le temps moyen de détection d'une brèche est de 197 jours (IBM, 2022). Un cas d'école : la société Equifax a mis plus de 76 jours pour détecter une intrusion massive qui a compromis les données de 147 millions de personnes, démontrant l'importance cruciale d'une détection précoce.`;
+        break;
+      case "supply-chain":
+        explanationContent += `La sécurité de la chaîne d'approvisionnement est devenue un enjeu majeur avec l'attaque SolarWinds en 2020, où des hackers ont compromis le code source d'un logiciel utilisé par des milliers d'entreprises et administrations. Cette attaque a démontré qu'une organisation peut être parfaitement sécurisée mais vulnérable via ses fournisseurs - on n'est jamais plus fort que le maillon le plus faible de sa chaîne.`;
+        break;
+      case "strategie-cyber":
+        explanationContent += `La stratégie et gouvernance cybersécurité est l'épine dorsale de toute protection efficace. Une analogie pertinente : tout comme un général ne part pas au combat sans plan, une entreprise ne devrait pas aborder sa sécurité numérique sans stratégie. Le WannaCry de 2017 illustre parfaitement ce point : les organisations avec une stratégie de mise à jour claire ont été largement épargnées, tandis que d'autres ont subi des pertes considérables.`;
+        break;
+      default:
+        explanationContent += `Ce domaine de la cybersécurité représente un enjeu majeur pour les organisations modernes. À travers des cas concrets et des mises en situation, nous allons explorer ensemble les meilleures pratiques et développer votre expertise.`;
+    }
+    
+    // Ajouter l'annonce d'un email à venir
+    explanationContent += `\n\nJe vais maintenant vous envoyer un premier email avec un problème concret à résoudre dans ce domaine. Cet exercice vous permettra de mettre en pratique vos connaissances.`;
+    
     const botConfirmation: ChatMessage = {
       id: uuidv4(),
       type: "bot",
-      content: `**Excellent choix, ${firstName} !** Vous avez sélectionné la **${selectedDomain.name}**.\n\nJ'ai plusieurs scénarios de différents niveaux à vous proposer. Choisissez celui qui vous intéresse le plus :`,
+      content: explanationContent,
       timestamp: Date.now()
     };
     
-    // Add scenario selection component
-    const scenarioSelection: ChatMessage = {
-      id: uuidv4(),
-      type: "scenario-selection",
-      content: "",
-      timestamp: Date.now()
-    };
+    // Nous n'affichons plus le sélecteur de scénario, car nous allons directement
+    // envoyer un email après l'explication
+    setMessages(prev => [...prev, botConfirmation]);
     
-    setMessages(prev => [...prev, botConfirmation, scenarioSelection]);
+    // Sélectionner automatiquement un scénario de difficulté intermédiaire pour ce domaine
+    const scenariosForDomain = initialScenarios.filter(s => s.domainId === domainId);
+    let selectedScenario = scenariosForDomain.find(s => s.difficulty === "Intermédiaire");
+    
+    // Si pas de scénario intermédiaire, prendre le premier disponible
+    if (!selectedScenario && scenariosForDomain.length > 0) {
+      selectedScenario = scenariosForDomain[0];
+    }
+    
+    // Si un scénario est trouvé, le sélectionner automatiquement
+    if (selectedScenario) {
+      setTimeout(() => {
+        handleSelectScenario(selectedScenario!.id);
+      }, 3000); // Attendre 3 secondes pour que l'utilisateur puisse lire les explications
+    }
     setIsTyping(false);
   };
 
@@ -463,21 +504,14 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Obtenir le prénom extrait
     const firstName = extractFirstName(userName);
     
-    const botConfirmation: ChatMessage = {
+    const botMessage: ChatMessage = {
       id: uuidv4(),
       type: "bot",
-      content: `**Parfait, ${firstName} !** Vous avez sélectionné le scénario **${selectedScenario.title}**.\n\nVoici le contexte de ce scenario :`,
+      content: `Je vous prépare maintenant un email avec un problème concret à résoudre dans le domaine que vous avez choisi. Cet exercice vous permettra de mettre en pratique vos connaissances, ${firstName}.`,
       timestamp: Date.now()
     };
     
-    const scenarioContext: ChatMessage = {
-      id: uuidv4(),
-      type: "scenario-context",
-      content: selectedScenario.description,
-      timestamp: Date.now()
-    };
-    
-    setMessages(prev => [...prev, botConfirmation, scenarioContext]);
+    setMessages(prev => [...prev, botMessage]);
     
     // Send the scenario selection to the server to generate initial email
     try {
