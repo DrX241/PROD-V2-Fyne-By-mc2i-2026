@@ -489,6 +489,18 @@ export default function CyberAiAgentPage() {
                               <Send className="mr-2 h-5 w-5" />
                               Démarrer la session immersive
                             </Button>
+                            
+                            {/* Information sur la session en dessous du bouton */}
+                            <div className="mt-6 bg-gradient-to-r from-blue-900/40 via-indigo-900/40 to-blue-900/40 rounded-lg p-5 border border-blue-700/30 shadow-lg">
+                              <div className="flex items-center justify-center space-x-2">
+                                <div className="bg-blue-600/20 p-2 rounded-full shrink-0">
+                                  <Info className="h-5 w-5 text-blue-300" />
+                                </div>
+                                <p className="text-blue-200 text-center">
+                                  <span className="font-medium text-blue-300">Information sur la session:</span> La session durera 10 minutes. Un rapport d'évaluation détaillé de vos compétences sera produit dans le centre de crise à la fin de la simulation.
+                                </p>
+                              </div>
+                            </div>
                           </div>
                         </form>
                       </Form>
@@ -498,25 +510,6 @@ export default function CyberAiAgentPage() {
               </div>
             </div>
           </div>
-          
-          {/* Information sur la session en bas de page (horizontal) */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-            className="mt-8 max-w-6xl mx-auto"
-          >
-            <div className="bg-gradient-to-r from-blue-900/40 via-indigo-900/40 to-blue-900/40 rounded-lg p-5 border border-blue-700/30 shadow-lg">
-              <div className="flex items-center justify-center space-x-2">
-                <div className="bg-blue-600/20 p-2 rounded-full shrink-0">
-                  <Info className="h-5 w-5 text-blue-300" />
-                </div>
-                <p className="text-blue-200 text-center">
-                  <span className="font-medium text-blue-300">Information sur la session:</span> La session durera 10 minutes. Un rapport d'évaluation détaillé de vos compétences sera produit dans le centre de crise à la fin de la simulation.
-                </p>
-              </div>
-            </div>
-          </motion.div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 h-full">
