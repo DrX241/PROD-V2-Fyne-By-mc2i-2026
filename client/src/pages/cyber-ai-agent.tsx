@@ -10,6 +10,7 @@ import {
   ArrowLeft, Clock, Mail, AreaChart, Send, Command, Microscope, AlertCircle, 
   Bot, Info, Code, BarChart3, Shield, MessageCircle, User, LogOut, ArrowRight
 } from "lucide-react";
+import FyneRobotImage from "@assets/image_1745662756764.png";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -335,15 +336,28 @@ export default function CyberAiAgentPage() {
                   <div className="bg-gradient-to-br from-blue-900/40 to-indigo-900/40 rounded-lg p-5 border border-blue-700/30 shadow-lg relative overflow-hidden">
                     {/* Effet de particules */}
                     <div className="absolute top-0 right-0 w-16 h-16 bg-blue-500/10 rounded-full blur-xl"></div>
-                    <div className="flex items-start space-x-3">
-                      <div className="bg-blue-600/20 p-2 rounded-full">
-                        <Info className="h-5 w-5 text-blue-300" />
+                    <div className="flex flex-col items-center space-y-4">
+                      <div className="w-40 relative">
+                        <img 
+                          src={FyneRobotImage} 
+                          alt="Robot FYNE - Assistant IA" 
+                          className="w-full h-auto drop-shadow-xl"
+                        />
+                        <div className="absolute -bottom-1 -right-2 bg-indigo-600 text-white text-xs px-2 py-1 rounded-full shadow-md border border-indigo-400">
+                          Agent IA
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="text-blue-300 font-medium mb-2 text-sm">Information sur la session</h4>
-                        <p className="text-sm text-blue-200 leading-relaxed">
-                          La session durera 10 minutes. Un rapport d'évaluation détaillé de vos compétences sera produit dans le centre de crise à la fin de la simulation.
-                        </p>
+                      
+                      <div className="flex items-start space-x-3 w-full">
+                        <div className="bg-blue-600/20 p-2 rounded-full">
+                          <Info className="h-5 w-5 text-blue-300" />
+                        </div>
+                        <div>
+                          <h4 className="text-blue-300 font-medium mb-2 text-sm">Information sur la session</h4>
+                          <p className="text-sm text-blue-200 leading-relaxed">
+                            La session durera 10 minutes. Un rapport d'évaluation détaillé de vos compétences sera produit dans le centre de crise à la fin de la simulation.
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
