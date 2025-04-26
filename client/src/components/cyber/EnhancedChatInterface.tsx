@@ -66,10 +66,8 @@ export default function EnhancedChatInterface({
     getInitialMessage();
   }, []);
 
-  // Effet pour le défilement automatique jusqu'au dernier message
+  // Effet pour mettre à jour les messages parents sans défilement automatique
   useEffect(() => {
-    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    
     // Mettre à jour le parent si la fonction de rappel est fournie
     if (onMessagesUpdate) {
       onMessagesUpdate(messages);
@@ -149,11 +147,55 @@ export default function EnhancedChatInterface({
     
     try {
       const suggestionsList = await generateSuggestions(currentMessage);
-      setSuggestions(suggestionsList);
-      setShowSuggestions(suggestionsList.length > 0);
+      console.log("Suggestions reçues:", suggestionsList);
+      // S'assurer que les suggestions sont valides et non vides
+      if (suggestionsList && Array.isArray(suggestionsList) && suggestionsList.length > 0) {
+        setSuggestions(suggestionsList);
+        setShowSuggestions(true);
+      } else {
+        // Utiliser des suggestions de secours si l'API ne retourne pas de suggestions valides
+        const fallbackSuggestions = [
+          {
+            text: "Je vais d'abord analyser la structure du réseau pour identifier les vecteurs d'attaque potentiels et ensuite déterminer les mesures de protection adaptées.",
+            approach: "analytique",
+            skillImpact: { primary: "analytical", secondary: "technical" }
+          },
+          {
+            text: "Nous devrions immédiatement isoler les systèmes critiques et lancer une analyse des logs pour identifier l'origine de la compromission.",
+            approach: "technique",
+            skillImpact: { primary: "technical", secondary: "strategic" }
+          },
+          {
+            text: "Je propose de réunir l'équipe de gestion de crise et d'établir un plan de communication transparent tout en mobilisant nos ressources techniques.",
+            approach: "stratégique",
+            skillImpact: { primary: "strategic", secondary: "communication" }
+          }
+        ];
+        setSuggestions(fallbackSuggestions);
+        setShowSuggestions(true);
+      }
     } catch (error) {
       console.error("Erreur lors de la génération des suggestions:", error);
-      // Silencieusement échouer - ne pas montrer d'erreur à l'utilisateur pour les suggestions
+      // Utiliser des suggestions de secours en cas d'erreur
+      const fallbackSuggestions = [
+        {
+          text: "Je vais d'abord analyser la structure du réseau pour identifier les vecteurs d'attaque potentiels et ensuite déterminer les mesures de protection adaptées.",
+          approach: "analytique",
+          skillImpact: { primary: "analytical", secondary: "technical" }
+        },
+        {
+          text: "Nous devrions immédiatement isoler les systèmes critiques et lancer une analyse des logs pour identifier l'origine de la compromission.",
+          approach: "technique",
+          skillImpact: { primary: "technical", secondary: "strategic" }
+        },
+        {
+          text: "Je propose de réunir l'équipe de gestion de crise et d'établir un plan de communication transparent tout en mobilisant nos ressources techniques.",
+          approach: "stratégique",
+          skillImpact: { primary: "strategic", secondary: "communication" }
+        }
+      ];
+      setSuggestions(fallbackSuggestions);
+      setShowSuggestions(true);
     }
   };
 
