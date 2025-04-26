@@ -35,21 +35,38 @@ type Suggestion = {
 
 // Props pour le composant ChatInterface
 interface EnhancedChatInterfaceProps {
+  messages?: any[];
   onMessagesUpdate?: (messages: any[]) => void;
+  onSuggestionSelect?: (suggestion: Suggestion) => void;
   generateSuggestions?: (currentMessage: string) => Promise<Suggestion[]>;
-  environmentContext?: string;
+  environment?: string;
+  currentNPC?: string;
+  timeRemaining?: string;
+  skillAssessment?: {
+    technical: number;
+    analytical: number;
+    strategic: number;
+    communication: number;
+  };
+  showSuggestions?: boolean;
 }
 
 export default function EnhancedChatInterface({ 
+  messages: externalMessages,
   onMessagesUpdate, 
+  onSuggestionSelect,
   generateSuggestions,
-  environmentContext = "command-center"
+  environment = "command-center",
+  currentNPC = "Sarah Chen",
+  timeRemaining = "10:00",
+  skillAssessment,
+  showSuggestions: displaySuggestions = true
 }: EnhancedChatInterfaceProps) {
   const { toast } = useToast();
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<any[]>(externalMessages || []);
   const [isLoading, setIsLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(displaySuggestions);
   const messageEndRef = useRef<HTMLDivElement>(null);
   const [activeApproach, setActiveApproach] = useState<string>("all");
 
@@ -92,11 +109,11 @@ export default function EnhancedChatInterface({
   const getInitialMessage = async () => {
     setIsLoading(true);
     try {
-      // Utiliser le contexte d'environnement pour adapter le message initial
+      // Utiliser l'environnement pour adapter le message initial
       let initialContent = "";
       let contactName = "";
       
-      switch(environmentContext) {
+      switch(environment) {
         case "command-center":
           initialContent = "Bienvenue au Centre de Commandement. Je suis Sarah Chen, Responsable SOC. Ici, nous coordonnons toutes les opérations de cybersécurité de l'organisation. Nous surveillons constamment les menaces et dirigeons les équipes de réponse. Comment puis-je vous aider dans votre mission aujourd'hui ?";
           contactName = "Sarah Chen";
@@ -229,7 +246,7 @@ export default function EnhancedChatInterface({
       let botResponseContent = "";
       let contactName = "";
       
-      switch(environmentContext) {
+      switch(environment) {
         case "command-center":
           // Réponses orientées coordination et stratégie
           if (values.message.toLowerCase().includes("menace") || values.message.toLowerCase().includes("attaque")) {
