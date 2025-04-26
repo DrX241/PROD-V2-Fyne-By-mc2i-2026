@@ -359,20 +359,63 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [config, setConfig] = useState<AIConfig>(initialConfig);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Initialize the chat with a welcome message
+  // Initialize the chat with a dynamic welcome message from the API
   useEffect(() => {
-    if (!isInitialized) {
-      // Initial welcome message exactement comme demandé
-      const initialMessage: ChatMessage = {
-        id: uuidv4(),
-        type: "bot",
-        content: "Bonjour !\nJe suis I AM CYBER, votre assistant virtuel dans le monde passionnant de la cybersécurité. Je suis là pour vous accompagner dans une expérience d'apprentissage immersive et interactive.\nPour commencer, Quel est votre prénom ?",
-        timestamp: Date.now()
-      };
-      
-      setMessages([initialMessage]);
-      setIsInitialized(true);
+    async function fetchWelcomeMessage() {
+      if (!isInitialized) {
+        try {
+          setIsTyping(true);
+          
+          // Appel à l'API pour générer un message d'accueil dynamique
+          const response = await fetch('/api/cyber/welcome-message');
+          
+          if (!response.ok) {
+            throw new Error('Échec de récupération du message d\'accueil');
+          }
+          
+          const data = await response.json();
+          
+          if (data.success && data.welcomeMessage) {
+            // Utiliser le message généré par l'IA
+            const initialMessage: ChatMessage = {
+              id: uuidv4(),
+              type: "bot",
+              content: data.welcomeMessage,
+              timestamp: Date.now()
+            };
+            
+            setMessages([initialMessage]);
+          } else {
+            // Message de secours si l'API échoue
+            const fallbackMessage: ChatMessage = {
+              id: uuidv4(),
+              type: "bot",
+              content: "Bonjour !\nJe suis I AM CYBER, votre assistant virtuel dans le monde passionnant de la cybersécurité. Je suis là pour vous accompagner dans une expérience d'apprentissage immersive et interactive.\nPour commencer, Quel est votre prénom ?",
+              timestamp: Date.now()
+            };
+            
+            setMessages([fallbackMessage]);
+          }
+        } catch (error) {
+          console.error("Erreur lors de la récupération du message d'accueil:", error);
+          
+          // Message de secours en cas d'erreur
+          const errorFallbackMessage: ChatMessage = {
+            id: uuidv4(),
+            type: "bot",
+            content: "Bonjour !\nJe suis I AM CYBER, votre assistant virtuel dans le monde passionnant de la cybersécurité. Je suis là pour vous accompagner dans une expérience d'apprentissage immersive et interactive.\nPour commencer, Quel est votre prénom ?",
+            timestamp: Date.now()
+          };
+          
+          setMessages([errorFallbackMessage]);
+        } finally {
+          setIsTyping(false);
+          setIsInitialized(true);
+        }
+      }
     }
+    
+    fetchWelcomeMessage();
   }, [isInitialized]);
 
   // Handler to set the user's name

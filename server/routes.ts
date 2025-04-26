@@ -470,6 +470,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+  
+  // Nouvel endpoint pour générer un message d'accueil dynamique
+  app.get('/api/cyber/welcome-message', async (req: Request, res: Response) => {
+    try {
+      // Générer un prompt système pour le message d'accueil
+      const systemPrompt = `Tu es I AM CYBER, un assistant virtuel spécialisé en cybersécurité. 
+      Ta mission est de générer un message d'accueil attrayant et engageant pour les utilisateurs qui arrivent sur la plateforme.
+      
+      CONSIGNES IMPORTANTES:
+      1. Termine TOUJOURS ton message en demandant le prénom de l'utilisateur.
+      2. Utilise un ton professionnel mais chaleureux.
+      3. Mentionne que tu es "I AM CYBER" et que tu es là pour les accompagner dans une expérience d'apprentissage immersive et interactive.
+      4. Adapte ton message pour des professionnels intéressés par la cybersécurité.
+      5. Garde le message concis (environ 3-4 lignes maximum).
+      6. N'utilise pas d'émojis.`;
+      
+      // Préparer les messages pour l'API
+      const messages: ChatCompletionMessageParam[] = [
+        {
+          role: "system",
+          content: systemPrompt
+        },
+        {
+          role: "user",
+          content: "Génère un message d'accueil pour la plateforme I AM CYBER."
+        }
+      ];
+      
+      // Obtenir la réponse de l'API avec une température plus basse pour plus de cohérence
+      const welcomeMessage = await openAIService.getChatCompletionWithCache(
+        messages,
+        0.4, // Température basse pour la cohérence
+        250  // Limite de tokens
+      );
+      
+      // Renvoyer le message généré
+      return res.json({
+        success: true,
+        welcomeMessage
+      });
+      
+    } catch (error: any) {
+      console.error("Erreur lors de la génération du message d'accueil:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Impossible de générer un message d'accueil",
+        error: error.message || "Erreur inconnue"
+      });
+    }
+  });
 
   // Routes pour la gestion des incidents cyber
   app.post('/api/cyber-defense/chat', async (req: Request, res: Response) => {
