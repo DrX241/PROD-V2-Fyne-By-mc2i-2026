@@ -530,7 +530,8 @@ export default function EmergencyResponsePage() {
                         Scénarios de {selectedType}
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {scenariosByCategory && scenariosByCategory[selectedType as keyof typeof scenariosByCategory] ? (
+                        {scenariosByCategory && selectedType && scenariosByCategory[selectedType as keyof typeof scenariosByCategory] && 
+                         Array.isArray(scenariosByCategory[selectedType as keyof typeof scenariosByCategory]) ? (
                           scenariosByCategory[selectedType as keyof typeof scenariosByCategory].map((scenario: ScenarioItem) => (
                             <Card 
                               key={scenario.id} 
