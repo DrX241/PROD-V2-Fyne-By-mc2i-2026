@@ -374,7 +374,7 @@ const CyberChallenge: React.FC = () => {
         </div>
       )}
       
-      <div className="flex-1 overflow-y-auto px-4 py-2">
+      <div className="flex-1 overflow-y-auto px-4 py-2 text-white">
         <div className="space-y-2">
           {messages.map(renderMessage)}
           <div ref={messagesEndRef} />
