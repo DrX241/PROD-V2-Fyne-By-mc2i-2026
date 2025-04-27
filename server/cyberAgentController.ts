@@ -3,7 +3,6 @@ import nodemailer from 'nodemailer';
 import sgMail from '@sendgrid/mail';
 import { ChatCompletionRequestMessage } from '@shared/schema';
 import { openAIService } from "./services/openai";
-import { extractJsonFromOpenAiResponse, createFallbackJson } from "./openAiResponseHelper";
 
 /**
  * Envoie un email de test avec Ethereal pour les environnements de développement
@@ -106,98 +105,6 @@ export async function startAgentSession(req: Request, res: Response) {
 /**
  * Termine une session Expert Cyber Conversationnel et envoie un rapport par email
  */
-/**
- * Génère dynamiquement des explications et anecdotes pour un domaine de cybersécurité spécifique
- */
-export async function generateDomainExplanation(req: Request, res: Response) {
-  try {
-    const { domainId, userName } = req.body;
-    
-    if (!domainId) {
-      return res.status(400).json({
-        success: false,
-        error: 'ID de domaine requis'
-      });
-    }
-    
-    // Déterminer le nom du domaine en fonction de l'ID
-    let domainName = "cybersécurité";
-    switch (domainId) {
-      case "gestion-crise":
-        domainName = "gestion de crise cyber";
-        break;
-      case "donnees-personnelles":
-        domainName = "protection des données personnelles et RGPD";
-        break;
-      case "ingenierie-sociale":
-        domainName = "ingénierie sociale et phishing";
-        break;
-      case "gestion-incidents":
-        domainName = "gestion des incidents de sécurité";
-        break;
-      case "supply-chain":
-        domainName = "sécurité de la chaîne d'approvisionnement";
-        break;
-      case "strategie-cyber":
-        domainName = "stratégie et gouvernance cybersécurité";
-        break;
-    }
-    
-    // Construire le prompt pour générer les explications
-    const systemPrompt = `Tu es un expert en cybersécurité chargé de fournir des explications pédagogiques et pertinentes.
-    
-L'utilisateur a sélectionné le domaine "${domainName}". 
-Génère une explication informative et éducative sur ce domaine spécifique.
-
-Ton explication doit inclure:
-1. Une introduction concise sur l'importance de ce domaine en cybersécurité
-2. Une statistique récente et véridique liée à ce domaine (avec sa source si possible)
-3. Une anecdote ou un cas réel intéressant qui illustre un point clé (récente, des 5 dernières années)
-4. Un élément de réflexion ou conseil pratique
-
-Ton explication doit être accessible à un public ayant des connaissances basiques en informatique, éviter le jargon trop technique sans être simpliste.
-Format: 3-4 phrases maximum pour chaque partie, totalisant environ 150-200 mots.
-
-IMPORTANT: Ne mentionne JAMAIS que tu es une IA ou que tu génères cette explication. Parle comme un expert humain en cybersécurité.`;
-
-    // Construire le message utilisateur
-    const userPrompt = `Crée une explication éducative sur la ${domainName} pour ${userName || "un utilisateur"}.`;
-    
-    // Messages pour l'API
-    const promptMessages: ChatCompletionRequestMessage[] = [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt }
-    ];
-
-    // Obtenir l'explication générée par l'IA
-    const explanation = await openAIService.getChatCompletion(
-      promptMessages, 
-      0.8,   // temperature plus élevée pour plus de variété
-      800    // max_tokens
-    );
-    
-    // S'assurer que l'en-tête Content-Type est correctement défini
-    res.setHeader('Content-Type', 'application/json');
-    
-    return res.json({
-      success: true,
-      explanation
-    });
-    
-  } catch (error) {
-    console.error('Erreur lors de la génération de l\'explication du domaine:', error);
-    
-    // S'assurer que l'en-tête Content-Type est correctement défini même en cas d'erreur
-    res.setHeader('Content-Type', 'application/json');
-    
-    return res.status(500).json({
-      success: false,
-      error: 'Erreur serveur lors de la génération de l\'explication',
-      details: error instanceof Error ? error.message : 'Erreur inconnue'
-    });
-  }
-}
-
 export async function completeAgentSession(req: Request, res: Response) {
   try {
     const { userEmail, userName, messages, duration } = req.body;

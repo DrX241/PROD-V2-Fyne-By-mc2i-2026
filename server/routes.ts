@@ -13,7 +13,7 @@ import { handleCyberDefenseChat, generateCyberDefenseMission } from "./cyberDefe
 import { extractJsonFromOpenAiResponse, createFallbackJson } from "./openAiResponseHelper";
 import { startInterviewSimulation, processInterviewMessage, completeInterviewSimulation, analyzeInterviewNotes } from "./interviewSimulationController";
 import { getRandomScenarios, getScenarioById, getScenariosByDifficulty } from "./impostorService";
-import { startAgentSession, completeAgentSession, generateDomainExplanation } from "./cyberAgentController";
+import { startAgentSession, completeAgentSession } from "./cyberAgentController";
 import { generateDebriefing, getContextualDocumentation } from "./cyberLearningController";
 import { 
   getEmergencyScenarios,
@@ -462,20 +462,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Déterminer le secteur d'activité en fonction du domaine et du titre du scénario
       let secteurActivite = '';
       
-      if (effectiveScenario.domain.toLowerCase().includes('finance') || 
-          effectiveScenario.domain.toLowerCase().includes('banque') ||
-          effectiveScenario.title.toLowerCase().includes('finance') ||
-          effectiveScenario.title.toLowerCase().includes('banque') ||
-          effectiveScenario.title.toLowerCase().includes('fraude')) {
+      if (scenario.domain.toLowerCase().includes('finance') || 
+          scenario.domain.toLowerCase().includes('banque') ||
+          scenario.title.toLowerCase().includes('finance') ||
+          scenario.title.toLowerCase().includes('banque') ||
+          scenario.title.toLowerCase().includes('fraude')) {
         secteurActivite = 'BANCAIRE/FINANCIER (BFA)';
       } 
-      else if (effectiveScenario.domain.toLowerCase().includes('santé') || 
-               effectiveScenario.domain.toLowerCase().includes('industriel') || 
-               effectiveScenario.domain.toLowerCase().includes('public') ||
-               effectiveScenario.title.toLowerCase().includes('santé') ||
-               effectiveScenario.title.toLowerCase().includes('industriel') ||
-               effectiveScenario.title.toLowerCase().includes('patient') ||
-               effectiveScenario.title.toLowerCase().includes('médical')) {
+      else if (scenario.domain.toLowerCase().includes('santé') || 
+               scenario.domain.toLowerCase().includes('industriel') || 
+               scenario.domain.toLowerCase().includes('public') ||
+               scenario.title.toLowerCase().includes('santé') ||
+               scenario.title.toLowerCase().includes('industriel') ||
+               scenario.title.toLowerCase().includes('patient') ||
+               scenario.title.toLowerCase().includes('médical')) {
         secteurActivite = 'INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)';
       }
       else if (scenario.domain.toLowerCase().includes('retail') || 
@@ -1109,26 +1109,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       ];
       
-      // Rechercher le scénario correspondant
-      const scenario = scenarioId ? scenarios.find(s => s.id === scenarioId) : null;
+      const scenario = scenarios.find(s => s.id === scenarioId);
       
-      // Si un scenarioId est fourni mais que le scénario n'existe pas, alors c'est une erreur
-      // Sinon, on continue avec ou sans scénario (pour permettre les conversations générales)
-      if (scenarioId && !scenario) {
+      if (!scenario) {
         return res.status(404).json({ message: 'Scenario not found' });
       }
-      
-      // Si aucun scénario n'est trouvé, on crée un scénario par défaut
-      const effectiveScenario = scenario || {
-        id: "general-conversation",
-        title: "Conversation générale",
-        domain: "Cybersécurité générale",
-        contact: {
-          name: "Expert Cyber",
-          role: "Conseiller en cybersécurité"
-        },
-        difficulty: "Adaptable"
-      };
       
       // Vérifier si nous avons des contacts disponibles pour le jeu de rôle
       let availableContacts = scenarioContacts;
@@ -2454,12 +2439,6 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
     // S'assurer que les en-têtes sont correctement configurés pour JSON
     res.setHeader('Content-Type', 'application/json');
     return completeAgentSession(req, res);
-  });
-  
-  app.post('/api/cyber/agent/generate-explanation', (req, res) => {
-    // S'assurer que les en-têtes sont correctement configurés pour JSON
-    res.setHeader('Content-Type', 'application/json');
-    return generateDomainExplanation(req, res);
   });
   
   app.post('/api/amoa/interview-simulation/download-synthesis', async (req, res) => {
