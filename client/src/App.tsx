@@ -11,6 +11,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import ModulesPage from "@/pages/modules";
+import CyberPage from "@/pages/cyber";
 import CyberModeSelection from "@/pages/cyber-mode-selection";
 import CyberAgentPage from "@/pages/cyber-agent";
 // EmergencyResponsePage a été supprimé
@@ -90,7 +91,8 @@ function App() {
             <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
             <Route path="/" component={Home} />
             <Route path="/modules" component={ModulesPage} />
-            <Route path="/cyber" component={CyberModeSelection} />
+            <Route path="/cyber" component={CyberPage} />
+            <Route path="/cyber/config" component={CyberModeSelection} />
             <Route path="/cyber/agent" component={CyberAgentPage} />
             <Route path="/cyber/emergency-response" component={NotYetImplemented} /> {/* Redirection vers page non implémentée */}
             <Route path="/cyber/arcade" component={CyberArcade} />

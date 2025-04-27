@@ -43,8 +43,20 @@ const itemVariants = {
   }
 };
 
+// Définir les types pour les propriétés du composant ModuleCard
+interface ModuleCardProps {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  comingSoon?: boolean;
+  path: string;
+  color?: string;
+  badgeText?: string;
+  onClick?: (path: string) => void;
+}
+
 // Composant carte de module Cyber
-const ModuleCard = ({ 
+const ModuleCard: React.FC<ModuleCardProps> = ({ 
   title, 
   description, 
   icon, 
@@ -60,7 +72,7 @@ const ModuleCard = ({
   const handleClick = () => {
     if (comingSoon) return;
     if (onClick) {
-      onClick();
+      onClick(path);
     } else if (path) {
       setLocation(path);
     }
@@ -136,7 +148,7 @@ export default function CyberPage() {
   const textClasses = themeMode === 'futuristic' ? 'text-white' : 'text-gray-900';
   
   // Gestion du clic sur les cartes
-  const handleModuleClick = (path, userName = "") => {
+  const handleModuleClick = (path: string, userName: string = "") => {
     if (userName) {
       setUserName(userName);
     }
@@ -210,10 +222,10 @@ export default function CyberPage() {
                 title="Mise en situation d'audition"
                 description="Entraînez-vous à réaliser des auditions client dans le cadre de missions RSSI. Améliorez vos compétences en communication technique et en analyse des besoins."
                 icon={<UserCheck className="h-6 w-6" />}
-                path="/cyber"
+                path="/cyber/config"
                 badgeText="AGENT CONVERSATIONNEL"
                 color="from-emerald-900/40 to-blue-900/40 border-emerald-700/30"
-                onClick={() => handleModuleClick('/cyber/agent')}
+                onClick={() => handleModuleClick('/cyber/config')}
               />
             </motion.div>
             
