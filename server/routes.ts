@@ -535,6 +535,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
         concern: "Préoccupations liées aux enjeux cyber dans son domaine d'expertise"
       };
 
+      // Obtenir 2 contacts supplémentaires pertinents pour ce scénario
+      const additionalContacts = getAdditionalContacts(scenario.domain, scenario.contact);
+      
+      // Créer la structure d'interlocuteurs pour ce scénario
+      // Limiter à un total de 3 interlocuteurs maximum
+      // Le contact principal du scénario est toujours inclus
+      const scenarioContacts = [scenario.contact];
+      
+      // Ajouter jusqu'à deux contacts supplémentaires (pour un total de 3 maximum)
+      if (additionalContacts.length > 0) {
+        // Ajouter le premier contact supplémentaire généré
+        scenarioContacts.push(additionalContacts[0]);
+        
+        // Si disponible, ajouter un deuxième contact supplémentaire
+        if (additionalContacts.length > 1) {
+          scenarioContacts.push(additionalContacts[1]);
+        }
+      }
+      
+      // Préparer les prénoms des autres interlocuteurs pour l'instruction
+      const otherContactFirstNames = scenarioContacts
+        .slice(1) // Ignorer le premier contact (expéditeur)
+        .map(contact => {
+          // Extraire le prénom (premier mot du nom)
+          const firstName = contact.name.split(' ')[0];
+          return firstName;
+        });
+      
+      // Préparer la mention des collègues avec leurs prénoms
+      const colleaguesNames = otherContactFirstNames.length > 0 
+        ? otherContactFirstNames.join(' et ') 
+        : "mes collègues";
+        
       const messages: ChatCompletionRequestMessage[] = [
         {
           role: "system",
@@ -551,8 +584,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           - IMPORTANT: Expose directement un problème ou une question de cybersécurité spécifique au domaine "${scenario.domain}" et demande explicitement l'avis de ${userName} sur cette question
           - Le problème doit être concret, spécifique et adapté au secteur d'activité
           - Demande à ${userName} d'expliquer son point de vue ou de proposer une approche pour résoudre ce problème
-          - CRUCIAL: Mentionner explicitement que plusieurs collègues (sans les nommer individuellement) interviendront dans cet échange pour apporter leurs perspectives et expertises
-          - CRUCIAL: Indiquer clairement que ${userName} peut adresser des questions à une personne spécifique en mentionnant simplement son nom dans son message
+          ${otherContactFirstNames.length > 0 
+            ? `- CRUCIAL: Mentionner explicitement que ${colleaguesNames} interviendra(ont) également dans cet échange pour apporter leur(s) perspective(s) et expertise(s)` 
+            : '- CRUCIAL: Mentionner que d\'autres experts interviendront dans cet échange'}
+          - CRUCIAL: Indiquer clairement que ${userName} peut adresser des questions à une personne spécifique en mentionnant simplement son nom ou prénom dans son message
           - IMPORTANT: NE PAS mentionner ou faire référence à des pièces jointes, documents ou fichiers
           - Le ton doit être chaleureux, accueillant et professionnel, en utilisant le tutoiement
           - Le style d'écriture doit correspondre au rôle de ${contactPrincipal.role}: professionnel et adapté
@@ -869,12 +904,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       // Obtenir 2 contacts supplémentaires pertinents pour ce scénario
-      const additionalContacts = getAdditionalContacts(scenario.domain, scenario.contact);
-      
-      // Créer la structure d'interlocuteurs pour ce scénario
-      // Limiter à un total de 3 interlocuteurs maximum
-      // Le contact principal du scénario est toujours inclus
-      const scenarioContacts = [scenario.contact];
       
       // Ajouter jusqu'à deux contacts supplémentaires (pour un total de 3 maximum)
       if (additionalContacts.length > 0) {
