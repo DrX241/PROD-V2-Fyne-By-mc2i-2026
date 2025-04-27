@@ -125,11 +125,11 @@ export default function ChatMessage({ type, content, contactName, contactRole }:
   
   // Traitement du texte en gras (** **)
   const processStrongText = (text: string) => {
-    if (!text || typeof text !== 'string' || !text.includes('**')) return text;
+    if (!text.includes('**')) return text;
     
     const parts = text.split(/(\*\*.*?\*\*)/g);
     return parts.map((part, i) => {
-      if (part && part.startsWith('**') && part.endsWith('**')) {
+      if (part.startsWith('**') && part.endsWith('**')) {
         return <strong key={i} className="text-[#006a9e] font-semibold">{part.slice(2, -2)}</strong>;
       }
       return part;

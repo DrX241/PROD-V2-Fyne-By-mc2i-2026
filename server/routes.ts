@@ -13,7 +13,7 @@ import { handleCyberDefenseChat, generateCyberDefenseMission } from "./cyberDefe
 import { extractJsonFromOpenAiResponse, createFallbackJson } from "./openAiResponseHelper";
 import { startInterviewSimulation, processInterviewMessage, completeInterviewSimulation, analyzeInterviewNotes } from "./interviewSimulationController";
 import { getRandomScenarios, getScenarioById, getScenariosByDifficulty } from "./impostorService";
-import { startAgentSession, completeAgentSession, generateDomainExplanation } from "./cyberAgentController";
+import { startAgentSession, completeAgentSession } from "./cyberAgentController";
 import { generateDebriefing, getContextualDocumentation } from "./cyberLearningController";
 import { 
   getEmergencyScenarios,
@@ -2439,13 +2439,6 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
     // S'assurer que les en-têtes sont correctement configurés pour JSON
     res.setHeader('Content-Type', 'application/json');
     return completeAgentSession(req, res);
-  });
-  
-  // Route pour générer dynamiquement une explication de domaine
-  app.post('/api/cyber/agent/domain-explanation', (req, res) => {
-    // S'assurer que les en-têtes sont correctement configurés pour JSON
-    res.setHeader('Content-Type', 'application/json');
-    return generateDomainExplanation(req, res);
   });
   
   app.post('/api/amoa/interview-simulation/download-synthesis', async (req, res) => {

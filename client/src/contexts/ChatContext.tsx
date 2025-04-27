@@ -425,57 +425,50 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsTyping(true);
     setScenario(prev => ({ ...prev, activeDomain: selectedDomain }));
     
-    try {
-      // Appeler l'API pour obtenir une explication de domaine dynamique et à jour
-      const response = await fetch('/api/cyber/agent/domain-explanation', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          domainId: domainId,
-          userName: userName
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Erreur lors de la récupération de l\'explication du domaine');
-      }
-      
-      const data = await response.json();
-      
-      // Créer un message bot avec l'explication générée
-      const botConfirmation: ChatMessage = {
-        id: uuidv4(),
-        type: "bot",
-        content: data.explanation,
-        timestamp: Date.now()
-      };
-      
-      // Ajouter le message à la conversation
-      setMessages(prev => [...prev, botConfirmation]);
-      
-    } catch (error) {
-      console.error('Erreur lors de la génération de l\'explication:', error);
-      
-      // Fallback en cas d'erreur - créer un message basique
-      // Obtenir le prénom extrait
-      const firstName = extractFirstName(userName);
-      
-      const fallbackExplanation = `**Excellent choix, ${firstName} !** Vous avez sélectionné la **${selectedDomain.name}**.\n\n
-Ce domaine de la cybersécurité représente un enjeu majeur pour les organisations modernes. À travers des cas concrets et des mises en situation, nous allons explorer ensemble les meilleures pratiques.\n\n
-Je vais maintenant vous envoyer un premier email avec un problème concret à résoudre dans ce domaine. Cet exercice vous permettra de mettre en pratique vos connaissances.`;
-      
-      const botFallback: ChatMessage = {
-        id: uuidv4(),
-        type: "bot",
-        content: fallbackExplanation,
-        timestamp: Date.now()
-      };
-      
-      // Ajouter le message de secours à la conversation
-      setMessages(prev => [...prev, botFallback]);
+    // Bot confirmation message
+    // Obtenir le prénom extrait
+    const firstName = extractFirstName(userName);
+    
+    // Créer un message avec des explications et anecdotes sur le domaine sélectionné
+    let explanationContent = `**Excellent choix, ${firstName} !** Vous avez sélectionné la **${selectedDomain.name}**.\n\n`;
+    
+    // Ajouter des explications spécifiques au domaine avec des anecdotes
+    switch (domainId) {
+      case "gestion-crise":
+        explanationContent += `La gestion de crise cyber est un domaine crucial qui exige préparation et réactivité. Saviez-vous que selon une étude récente, les organisations avec un plan de gestion de crise formalisé réduisent en moyenne de 38% le coût d'une cyberattaque ? Une anecdote intéressante : lors de l'attaque NotPetya en 2017, la société maritime Maersk a dû reconstruire son infrastructure informatique complète en quelques semaines. Leur résilience est devenue un cas d'école en matière de gestion de crise.`;
+        break;
+      case "donnees-personnelles":
+        explanationContent += `La protection des données personnelles est devenue incontournable avec le RGPD. Une anecdote marquante : en 2019, une entreprise hôtelière internationale a été sanctionnée à hauteur de 110 millions d'euros pour ne pas avoir suffisamment protégé les données de ses clients. Ce cas démontre l'importance de traiter la conformité comme un investissement plutôt qu'une contrainte.`;
+        break;
+      case "ingenierie-sociale":
+        explanationContent += `L'ingénierie sociale reste le vecteur d'attaque le plus efficace car elle cible la vulnérabilité humaine. Un exemple frappant : en 2020, des pirates ont réussi à compromettre les comptes Twitter de personnalités comme Bill Gates et Elon Musk simplement en manipulant des employés par téléphone. Cette technique appelée "vishing" (phishing vocal) prouve que la sécurité technique ne suffit pas sans sensibilisation humaine.`;
+        break;
+      case "gestion-incidents":
+        explanationContent += `La gestion des incidents de sécurité est l'art de détecter, analyser et remédier efficacement aux menaces. Une statistique intéressante : le temps moyen de détection d'une brèche est de 197 jours (IBM, 2022). Un cas d'école : la société Equifax a mis plus de 76 jours pour détecter une intrusion massive qui a compromis les données de 147 millions de personnes, démontrant l'importance cruciale d'une détection précoce.`;
+        break;
+      case "supply-chain":
+        explanationContent += `La sécurité de la chaîne d'approvisionnement est devenue un enjeu majeur avec l'attaque SolarWinds en 2020, où des hackers ont compromis le code source d'un logiciel utilisé par des milliers d'entreprises et administrations. Cette attaque a démontré qu'une organisation peut être parfaitement sécurisée mais vulnérable via ses fournisseurs - on n'est jamais plus fort que le maillon le plus faible de sa chaîne.`;
+        break;
+      case "strategie-cyber":
+        explanationContent += `La stratégie et gouvernance cybersécurité est l'épine dorsale de toute protection efficace. Une analogie pertinente : tout comme un général ne part pas au combat sans plan, une entreprise ne devrait pas aborder sa sécurité numérique sans stratégie. Le WannaCry de 2017 illustre parfaitement ce point : les organisations avec une stratégie de mise à jour claire ont été largement épargnées, tandis que d'autres ont subi des pertes considérables.`;
+        break;
+      default:
+        explanationContent += `Ce domaine de la cybersécurité représente un enjeu majeur pour les organisations modernes. À travers des cas concrets et des mises en situation, nous allons explorer ensemble les meilleures pratiques et développer votre expertise.`;
     }
+    
+    // Ajouter l'annonce d'un email à venir
+    explanationContent += `\n\nJe vais maintenant vous envoyer un premier email avec un problème concret à résoudre dans ce domaine. Cet exercice vous permettra de mettre en pratique vos connaissances.`;
+    
+    const botConfirmation: ChatMessage = {
+      id: uuidv4(),
+      type: "bot",
+      content: explanationContent,
+      timestamp: Date.now()
+    };
+    
+    // Nous n'affichons plus le sélecteur de scénario, car nous allons directement
+    // envoyer un email après l'explication
+    setMessages(prev => [...prev, botConfirmation]);
     
     // Sélectionner automatiquement un scénario de difficulté intermédiaire pour ce domaine
     const scenariosForDomain = initialScenarios.filter(s => s.domainId === domainId);

@@ -3,7 +3,6 @@ import nodemailer from 'nodemailer';
 import sgMail from '@sendgrid/mail';
 import { ChatCompletionRequestMessage } from '@shared/schema';
 import { openAIService } from "./services/openai";
-import axios from 'axios';
 
 /**
  * Envoie un email de test avec Ethereal pour les environnements de développement
@@ -99,106 +98,6 @@ export async function startAgentSession(req: Request, res: Response) {
     return res.status(500).json({
       success: false,
       error: 'Erreur serveur lors de l\'initialisation de la session'
-    });
-  }
-}
-
-/**
- * Génère une explication de domaine cybersécurité dynamique et à jour
- * Cette fonction recherche des actualités et des statistiques récentes 
- * pour créer un contenu toujours différent et pertinent
- */
-export async function generateDomainExplanation(req: Request, res: Response) {
-  try {
-    const { domainId, userName } = req.body;
-    
-    if (!domainId) {
-      return res.status(400).json({
-        success: false,
-        error: 'Domaine de cybersécurité requis'
-      });
-    }
-    
-    // Récupérer le nom du domaine en français
-    const domainNames: {[key: string]: string} = {
-      "gestion-crise": "Gestion de crise cyber",
-      "donnees-personnelles": "Protection des données personnelles / RGPD",
-      "ingenierie-sociale": "Ingénierie sociale et phishing",
-      "gestion-incidents": "Gestion des incidents de sécurité",
-      "supply-chain": "Sécurité de la chaîne d'approvisionnement",
-      "strategie-cyber": "Stratégie et gouvernance cybersécurité"
-    };
-    
-    const domainName = domainNames[domainId] || "Cybersécurité";
-    const firstName = userName ? userName.split(' ')[0] : "utilisateur";
-    
-    // Construire la demande avec la date actuelle pour garantir des informations à jour
-    const currentDate = new Date().toISOString().split('T')[0];
-    
-    const promptMessages: ChatCompletionRequestMessage[] = [
-      { 
-        role: 'system', 
-        content: `Tu es un expert en cybersécurité qui génère des explications pédagogiques dynamiques et toujours différentes.
-        
-Pour chaque domaine de la cybersécurité, tu dois:
-1. Créer une explication courte mais informative (maximum 5 phrases)
-2. Intégrer une anecdote ou un cas réel RÉCENT (2024-2025) lié au domaine
-3. Mentionner des statistiques ou tendances actuelles
-4. Utiliser un ton pédagogique mais professionnel
-5. Format: Markdown avec des mots clés en **gras** et des chiffres mis en évidence
-
-La date actuelle est le ${currentDate}.`
-      },
-      { 
-        role: 'user', 
-        content: `Génère une explication dynamique pour le domaine: "${domainName}" qui commencerait par "**Excellent choix, ${firstName} !** Vous avez sélectionné la **${domainName}**.\n\n"`
-      }
-    ];
-    
-    // Obtenir l'explication générée par l'IA avec une température plus élevée pour la variété
-    let explanation = '';
-    
-    try {
-      explanation = await openAIService.getChatCompletion(
-        promptMessages, 
-        0.8,   // temperature élevée pour garantir la variété
-        800    // max_tokens suffisant pour une explication détaillée
-      );
-      
-      // S'assurer que l'explication commence correctement
-      if (!explanation.startsWith("**Excellent choix")) {
-        explanation = `**Excellent choix, ${firstName} !** Vous avez sélectionné la **${domainName}**.\n\n${explanation}`;
-      }
-      
-      // Ajouter l'annonce de l'email
-      explanation += `\n\nJe vais maintenant vous envoyer un premier email avec un problème concret à résoudre dans ce domaine. Cet exercice vous permettra de mettre en pratique vos connaissances.`;
-      
-    } catch (apiError) {
-      console.error('Erreur API lors de la génération de l\'explication:', apiError);
-      
-      // Générer une explication de secours en cas d'erreur
-      explanation = `**Excellent choix, ${firstName} !** Vous avez sélectionné la **${domainName}**.\n\n
-Ce domaine essentiel de la cybersécurité représente un enjeu majeur pour les organisations modernes. L'importance de ce domaine ne cesse de croître alors que les menaces évoluent constamment.\n\n
-Je vais maintenant vous envoyer un premier email avec un problème concret à résoudre dans ce domaine. Cet exercice vous permettra de mettre en pratique vos connaissances.`;
-    }
-    
-    // S'assurer que l'en-tête Content-Type est correctement défini
-    res.setHeader('Content-Type', 'application/json');
-    
-    return res.json({
-      success: true,
-      explanation: explanation
-    });
-    
-  } catch (error) {
-    console.error('Erreur lors de la génération de l\'explication du domaine:', error);
-    
-    // S'assurer que l'en-tête Content-Type est correctement défini même en cas d'erreur
-    res.setHeader('Content-Type', 'application/json');
-    
-    return res.status(500).json({
-      success: false,
-      error: 'Erreur serveur lors de la génération de l\'explication du domaine'
     });
   }
 }
