@@ -42,12 +42,6 @@ export default function CyberModeSelection() {
           title: 'AGENT CONVERSATIONNEL',
           icon: null,
           destination: '/cyber/agent'
-        },
-        {
-          id: 'emergency-response',
-          title: 'CENTRE D\'URGENCE CYBER',
-          icon: null,
-          destination: '/cyber/emergency-response'
         }
       ]
     },

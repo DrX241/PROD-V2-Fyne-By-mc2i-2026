@@ -13,7 +13,7 @@ import Home from "@/pages/home";
 import ModulesPage from "@/pages/modules";
 import CyberModeSelection from "@/pages/cyber-mode-selection";
 import CyberAgentPage from "@/pages/cyber-agent";
-import EmergencyResponsePage from "@/pages/cyber/emergency-response"; // Nouveau système d'urgence cyber interactif
+// EmergencyResponsePage a été supprimé
 
 // Import des pages CENTRE DE CRISE (anciennes et nouvelles pour permettre une transition)
 import CyberDefensePage from "@/pages/cyber-defense"; // Ancienne implémentation 
@@ -48,17 +48,23 @@ import ImmersiveSession from "@/pages/immersive-session";
 
 // Router principal - toutes les routes sont définies dans App()
 
-// Composant temporaire pour les modules non encore implémentés
+// Composant pour les modules non encore implémentés ou supprimés
 function NotYetImplemented() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 px-4">
-      <h1 className="text-3xl font-bold mb-4 text-gray-900">Module en développement</h1>
+      <h1 className="text-3xl font-bold mb-4 text-gray-900">Module non disponible</h1>
       <p className="text-xl text-gray-600 mb-8 text-center max-w-md">
-        Ce module est actuellement en cours de développement et sera disponible prochainement.
+        Ce module n'est plus disponible ou est en cours de restructuration.
       </p>
       <a 
+        href="/cyber" 
+        className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors mb-4"
+      >
+        Retour aux modules Cyber
+      </a>
+      <a 
         href="/" 
-        className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        className="px-6 py-3 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
       >
         Retour à l'accueil
       </a>
@@ -86,7 +92,7 @@ function App() {
             <Route path="/modules" component={ModulesPage} />
             <Route path="/cyber" component={CyberModeSelection} />
             <Route path="/cyber/agent" component={CyberAgentPage} />
-            <Route path="/cyber/emergency-response" component={EmergencyResponsePage} />
+            <Route path="/cyber/emergency-response" component={NotYetImplemented} /> {/* Redirection vers page non implémentée */}
             <Route path="/cyber/arcade" component={CyberArcade} />
             {/* Anciennes routes de jeux (pour compatibilité) */}
             <Route path="/cyber/arcade/password-puzzle" component={PasswordPuzzle} />
