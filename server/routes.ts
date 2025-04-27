@@ -15,6 +15,14 @@ import { startInterviewSimulation, processInterviewMessage, completeInterviewSim
 import { getRandomScenarios, getScenarioById, getScenariosByDifficulty } from "./impostorService";
 import { startAgentSession, completeAgentSession } from "./cyberAgentController";
 import { generateDebriefing, getContextualDocumentation } from "./cyberLearningController";
+import { 
+  evaluateQCM, 
+  getAvailableScenarios, 
+  startChallengeSession, 
+  processChallengeMessage, 
+  completeChallengeSession,
+  getQuestionsForRole
+} from "./cyberAgentChallengeController";
 // Import des fonctions d'urgence cyber supprimé
 
 /**
@@ -2607,6 +2615,14 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
   // Routes pour les fonctionnalités d'apprentissage
   app.post('/api/cyber/debriefing', generateDebriefing);
   app.get('/api/cyber/documentation', getContextualDocumentation);
+
+  // Routes pour le nouveau module Cyber Agent Challenge
+  app.post('/api/cyber/cyber-agent/evaluate-qcm', evaluateQCM);
+  app.get('/api/cyber/cyber-agent/scenarios', getAvailableScenarios);
+  app.post('/api/cyber/cyber-agent/start-session', startChallengeSession);
+  app.post('/api/cyber/cyber-agent/message', processChallengeMessage);
+  app.post('/api/cyber/cyber-agent/complete-session', completeChallengeSession);
+  app.get('/api/cyber/cyber-agent/questions', getQuestionsForRole);
 
   // Routes pour le système d'urgence cyber interactif
   // Les routes d'urgence cyber ont été supprimées

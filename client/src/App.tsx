@@ -92,6 +92,7 @@ function App() {
             <Route path="/modules" component={ModulesPage} />
             <Route path="/cyber" component={CyberModeSelection} />
             <Route path="/cyber/agent" component={CyberAgentPage} />
+            <Route path="/cyber/cyber-agent" component={NotYetImplemented} /> {/* À remplacer par le composant réel une fois créé */}
             <Route path="/cyber/emergency-response" component={NotYetImplemented} /> {/* Redirection vers page non implémentée */}
             <Route path="/cyber/arcade" component={CyberArcade} />
             {/* Anciennes routes de jeux (pour compatibilité) */}

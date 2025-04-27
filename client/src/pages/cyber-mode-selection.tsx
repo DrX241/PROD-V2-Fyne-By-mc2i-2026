@@ -42,6 +42,12 @@ export default function CyberModeSelection() {
           title: 'AGENT CONVERSATIONNEL',
           icon: null,
           destination: '/cyber/agent'
+        },
+        {
+          id: 'cyber-agent',
+          title: 'CYBER AGENT',
+          icon: null,
+          destination: '/cyber/cyber-agent'
         }
       ]
     },
