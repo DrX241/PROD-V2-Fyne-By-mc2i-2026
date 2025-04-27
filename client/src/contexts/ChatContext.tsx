@@ -620,17 +620,24 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .filter(msg => msg.type === 'user' || msg.type === 'bot')
         .slice(-10); // Get last 10 messages for context
       
+      // Préparer les données à envoyer au serveur
+      const requestData: Record<string, any> = {
+        message: messageText,
+        userName,
+        config,
+        chatHistory: relevantMessages,
+        scenarioContacts: scenario.scenarioContacts // Transmettre la liste des interlocuteurs
+      };
+      
+      // N'inclure le scenarioId que si un scénario est activement sélectionné
+      if (scenario.activeScenario?.id) {
+        requestData.scenarioId = scenario.activeScenario.id;
+      }
+      
       // Send message to server for processing
       const data = await apiRequest<any>('/api/cyber/chat', {
         method: 'POST',
-        body: JSON.stringify({
-          message: messageText,
-          userName,
-          scenarioId: scenario.activeScenario?.id,
-          config,
-          chatHistory: relevantMessages,
-          scenarioContacts: scenario.scenarioContacts // Transmettre la liste des interlocuteurs
-        })
+        body: JSON.stringify(requestData)
       });
       
       // Si nous recevons les contacts du scénario, mettons à jour notre état
