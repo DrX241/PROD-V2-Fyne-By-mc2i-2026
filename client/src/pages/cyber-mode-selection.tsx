@@ -72,8 +72,8 @@ export default function CyberModeSelection() {
   };
 
   const handleCancel = () => {
-    // Retour à la page d'accueil I AM CYBER
-    setLocation('/');
+    // Retour à la page des modules
+    setLocation('/modules');
   };
 
   return (
