@@ -1,5 +1,5 @@
 import React from "react";
-import { BotMessageSquare, User } from "lucide-react";
+import { BotMessageSquare, User, Zap } from "lucide-react";
 
 interface ChatMessageProps {
   type: "user" | "bot" | "scenario-context";
@@ -7,9 +7,21 @@ interface ChatMessageProps {
   contactName?: string;
   contactRole?: string;
   userName?: string; // Ajouter le nom de l'utilisateur pour le formatage du prénom
+  isIAMCYBERIntervention?: boolean; // Indique si c'est une intervention du système I AM CYBER
+  iamCyberContent?: string; // Contenu spécifique de l'intervention I AM CYBER
+  contactContent?: string; // Contenu de la partie contact après l'intervention
 }
 
-export default function ChatMessage({ type, content, contactName, contactRole, userName }: ChatMessageProps) {
+export default function ChatMessage({ 
+  type, 
+  content, 
+  contactName, 
+  contactRole, 
+  userName,
+  isIAMCYBERIntervention,
+  iamCyberContent,
+  contactContent 
+}: ChatMessageProps) {
   // Fonction pour formater correctement le prénom (première lettre en majuscule, reste en minuscules)
   const formatFirstName = (text: string, name?: string) => {
     if (!text || !name || typeof text !== 'string' || typeof name !== 'string') {
@@ -180,6 +192,127 @@ export default function ChatMessage({ type, content, contactName, contactRole, u
     messageBgColor = "bg-white border-gray-300"; // Fond blanc uniquement pour les messages du joueur
   }
 
+  // Fonction pour formater un contenu spécifique
+  const formatSpecificContent = (contentToFormat: string) => {
+    // Formater d'abord le contenu pour corriger les noms
+    let formattedContent = contentToFormat;
+    if (userName) {
+      formattedContent = formatFirstName(contentToFormat, userName);
+    }
+    
+    // Amélioration de la détection des listes - détecte aussi les listes avec numéros (1., 2., etc)
+    const paragraphs = formattedContent.split('\n\n');
+    
+    // Traiter chaque paragraphe
+    return (
+      <div className="space-y-4">
+        {paragraphs.map((paragraph, idx) => {
+          const trimmedParagraph = paragraph.trim();
+          if (!trimmedParagraph) return null;
+          
+          // Utiliser la même fonction processText que dans formatContent
+          return <div key={idx}>{processText(trimmedParagraph)}</div>;
+        })}
+      </div>
+    );
+  };
+  
+  // Fonction pour traiter un texte et détecter les listes
+  const processText = (text: string) => {
+    // Détecte si le texte contient une liste
+    if (text.includes('\n- ') || text.includes('\n• ') || /\n\d+\.\s/.test(text)) {
+      // Diviser en lignes
+      const lines = text.split('\n');
+      const items: JSX.Element[] = [];
+      let currentList: JSX.Element[] = [];
+      let inList = false;
+      let listType: 'ul' | 'ol' = 'ul';
+      
+      lines.forEach((line, i) => {
+        // Ligne vide
+        if (!line.trim()) {
+          if (inList && currentList.length > 0) {
+            // Terminer la liste actuelle
+            items.push(
+              listType === 'ul' 
+                ? <ul key={`ul-${i}`} className="list-disc pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ul>
+                : <ol key={`ol-${i}`} className="list-decimal pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ol>
+            );
+            currentList = [];
+            inList = false;
+          }
+          return;
+        }
+        
+        // Détecte si c'est un élément de liste
+        const bulletMatch = line.trim().match(/^[•-]\s+(.+)$/);
+        const numberMatch = line.trim().match(/^(\d+)\.\s+(.+)$/);
+        
+        if (bulletMatch || numberMatch) {
+          // C'est un élément de liste
+          const content = bulletMatch ? bulletMatch[1] : (numberMatch ? numberMatch[2] : '');
+          
+          // Si on n'était pas déjà dans une liste, ou si on change de type de liste
+          const newListType = numberMatch ? 'ol' : 'ul';
+          if (!inList || (inList && listType !== newListType)) {
+            if (inList && currentList.length > 0) {
+              // Terminer la liste précédente
+              items.push(
+                listType === 'ul' 
+                  ? <ul key={`ul-${i}`} className="list-disc pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ul>
+                  : <ol key={`ol-${i}`} className="list-decimal pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ol>
+              );
+              currentList = [];
+            }
+            
+            listType = newListType;
+            inList = true;
+          }
+          
+          // Ajouter l'élément à la liste courante
+          currentList.push(
+            <li key={i} className="ml-1 my-1 text-gray-800">
+              {processStrongText(content)}
+            </li>
+          );
+        } else {
+          // Ce n'est pas un élément de liste
+          if (inList && currentList.length > 0) {
+            // Terminer la liste actuelle
+            items.push(
+              listType === 'ul' 
+                ? <ul key={`ul-${i}`} className="list-disc pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ul>
+                : <ol key={`ol-${i}`} className="list-decimal pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ol>
+            );
+            currentList = [];
+            inList = false;
+          }
+          
+          // Ajouter le paragraphe normal
+          items.push(
+            <p key={i} className="text-gray-800">
+              {processStrongText(line)}
+            </p>
+          );
+        }
+      });
+      
+      // Terminer la dernière liste si nécessaire
+      if (inList && currentList.length > 0) {
+        items.push(
+          listType === 'ul' 
+            ? <ul key="ul-last" className="list-disc pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ul>
+            : <ol key="ol-last" className="list-decimal pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ol>
+        );
+      }
+      
+      return <div className="space-y-2">{items}</div>;
+    } else {
+      // Texte normal sans liste
+      return <p className="text-gray-800">{processStrongText(text)}</p>;
+    }
+  };
+  
   // Style spécial pour le contexte de scénario
   if (type === "scenario-context") {
     return (
@@ -200,6 +333,53 @@ export default function ChatMessage({ type, content, contactName, contactRole, u
           
           <div className="text-sm sm:text-base leading-relaxed">
             {formatContent()}
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  // Cas spécial : intervention du système I AM CYBER
+  if (type === "bot" && isIAMCYBERIntervention && iamCyberContent && contactContent) {
+    return (
+      <div className="w-full flex flex-col mb-4 animate-fadeIn">
+        {/* Message du système I AM CYBER */}
+        <div className="w-full mb-4 animate-fadeIn">
+          <div className="flex items-start gap-3 mb-2">
+            <div className="w-9 h-9 rounded-full bg-orange-600 flex items-center justify-center flex-shrink-0 shadow-sm border border-orange-400">
+              <Zap className="h-5 w-5 text-white" />
+            </div>
+            
+            <div className="text-left max-w-[80%] rounded-lg bg-orange-50 border-orange-300 p-4 border shadow-sm">
+              <div className="mb-2 pb-2 border-b border-orange-200">
+                <div className="font-bold text-orange-700 text-base">I AM CYBER</div>
+                <div className="text-xs text-orange-600">Système d'apprentissage</div>
+              </div>
+              
+              <div className="text-sm sm:text-base leading-relaxed">
+                {formatSpecificContent(iamCyberContent)}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Message du contact après l'intervention */}
+        <div className="flex items-start gap-3 mb-2">
+          <div className={`w-9 h-9 rounded-full ${avatarColor} flex items-center justify-center flex-shrink-0 shadow-sm border border-[#006a9e]/20`}>
+            <BotMessageSquare className="h-5 w-5 text-white" />
+          </div>
+          
+          <div className="text-left max-w-[80%] rounded-lg bg-blue-50 border-[#006a9e]/30 p-4 border shadow-sm">
+            {contactName && contactRole && (
+              <div className="mb-2 pb-2 border-b border-[#006a9e]/10">
+                <div className="font-bold text-[#006a9e] text-base">{contactName}</div>
+                <div className="text-xs text-gray-600">{contactRole}</div>
+              </div>
+            )}
+            
+            <div className="text-sm sm:text-base leading-relaxed">
+              {formatSpecificContent(contactContent)}
+            </div>
           </div>
         </div>
       </div>

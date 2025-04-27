@@ -131,6 +131,9 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
             contactName={message.contactName} 
             contactRole={message.contactRole}
             userName={userName}
+            isIAMCYBERIntervention={message.isIAMCYBERIntervention}
+            iamCyberContent={message.iamCyberContent}
+            contactContent={message.contactContent}
           />
         );
       default:

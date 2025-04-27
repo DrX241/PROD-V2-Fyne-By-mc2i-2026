@@ -1807,6 +1807,9 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
         let iamCyberContent = null;
         let contactContent = null;
         
+        // Debug logs pour comprendre l'état de la conversation
+        console.log(`Exchange count: ${exchangeCount}, isIamCyberIntervention: ${isIamCyberIntervention}`);
+        
         if (isIamCyberIntervention) {
           // Si c'est une intervention système, vérifier si la réponse commence par la formule attendue
           const interventionMarker = "Je me permets de faire une pause dans cette simulation pour résumer des concepts importants que vous abordez.";
