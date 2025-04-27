@@ -94,14 +94,7 @@ export async function startCrisisSession(req: Request, res: Response) {
             : "une fuite de données confidentielles publiées sur un forum public";
     
     // Créer un message système plus détaillé pour mieux cadrer l'IA
-    const systemMessage = `Tu participes à une simulation de gestion de crise en cybersécurité impliquant ${scenarioContext}.
-Contexte: L'entreprise est en situation de crise. Tu joueras le rôle de différents intervenants (directeurs, employés, attaquants).
-Règles: 
-1. Tes réponses doivent être brèves (2-3 phrases max)
-2. Ne mentionne JAMAIS que tu es une IA
-3. Garde une cohérence avec l'historique des messages
-4. Adapte ton langage au type d'intervenant que tu joues
-5. Respecte le scénario de crise établi: ${scenario.name}`;
+    const systemMessage = `Tu simules une crise cyber. SOIS BREF (max 2 phrases). NE DIS JAMAIS QUE TU ES UNE IA.`;
     
     // Initialiser une nouvelle session avec un message initial plus détaillé
     const session: CrisisSession = {
@@ -226,38 +219,12 @@ export async function processCrisisMessage(req: Request, res: Response) {
             ? directorCandidates[Math.floor(Math.random() * Math.min(directorCandidates.length, 3))]
             : 'PDG';
         
-        responsePrompt = `
-Tu dois simuler avec réalisme la réponse d'un ${stakeholder} pendant ${scenarioContext}. 
-Contexte: Le ${stakeholder} est préoccupé par les impacts business, financiers et réputationnels de cette crise.
-
-Instructions précises:
-1. Ta réponse ne doit JAMAIS mentionner que tu es une IA
-2. Réponds directement comme si tu étais le ${stakeholder} sans formules d'introduction
-3. Utilise un ton autoritaire mais inquiet, avec un langage approprié à un cadre dirigeant
-4. Exprime une préoccupation précise, pose une question directe ou demande une action claire
-5. Limite-toi à 2-3 phrases courtes maximum
-6. Concentre-toi sur un seul sujet (business, finance, réputation ou légal)
-7. Fais-toi passer pour un humain, pas une IA
-
-Réponse directe comme le ${stakeholder}:`;
+        responsePrompt = `Simule exactement la réponse d'un ${stakeholder} préoccupé par l'impact business d'une crise cyber. Sois bref (max 2 phrases), direct, sans introduction. Ton inquiet d'un dirigeant. NE MENTIONNE JAMAIS QUE TU ES UNE IA`;
         break;
         
       case 'hacker':
         stakeholder = 'Attaquant';
-        responsePrompt = `
-Tu dois simuler avec réalisme la réponse d'un attaquant informatique dans le contexte de ${scenarioContext}.
-Contexte: L'attaquant cherche à augmenter la pression pour obtenir une rançon ou créer plus de dégâts.
-
-Instructions précises:
-1. Ta réponse ne doit JAMAIS mentionner que tu es une IA
-2. Réponds directement comme si tu étais l'attaquant sans formules d'introduction
-3. Utilise un ton menaçant, intimidant mais professionnel, comme un cybercriminel organisé
-4. Formule une menace précise, une demande claire ou un ultimatum
-5. Limite-toi à 2-3 phrases courtes maximum
-6. Ne te contredis pas: si une demande financière a été faite avant, maintiens le même montant ou augmente-le
-7. Fais-toi passer pour un humain, pas une IA
-
-Réponse directe comme l'attaquant:`;
+        responsePrompt = `Simule exactement un message d'attaquant informatique qui demande une rançon ou menace. Max 2 phrases, ton menaçant mais professionnel. Phrases courtes, directes, sans dire que tu es une IA.`;
         break;
         
       case 'employee':
@@ -269,38 +236,12 @@ Réponse directe comme l'attaquant:`;
             ? employeeCandidates[Math.floor(Math.random() * Math.min(employeeCandidates.length, 2))]
             : 'Service Informatique';
             
-        responsePrompt = `
-Tu dois simuler avec réalisme la réponse d'un membre du ${stakeholder} pendant ${scenarioContext}.
-Contexte: Le ${stakeholder} est en première ligne pour gérer les aspects techniques ou organisationnels de la crise.
-
-Instructions précises:
-1. Ta réponse ne doit JAMAIS mentionner que tu es une IA
-2. Réponds directement comme si tu étais du ${stakeholder} sans formules d'introduction
-3. Utilise un ton technique et pragmatique, avec un langage approprié à ton rôle
-4. Communique une information technique précise, un problème concret ou une question opérationnelle
-5. Limite-toi à 2-3 phrases courtes maximum
-6. Sois spécifique et précis dans ta réponse, évite les généralités
-7. Fais-toi passer pour un humain, pas une IA
-
-Réponse directe comme ${stakeholder}:`;
+        responsePrompt = `Simule exactement la réponse d'un technicien informatique pendant une crise cyber. 2 phrases maximum, ton technique et factuel, langage spécifique. NE DIS JAMAIS QUE TU ES UNE IA.`;
         break;
         
       default:
         stakeholder = 'Système';
-        responsePrompt = `
-Tu dois simuler un message système automatique dans le contexte de ${scenarioContext}.
-Contexte: Notification automatique concernant l'évolution de la situation de crise.
-
-Instructions précises:
-1. Ta réponse ne doit PAS inclure d'introduction ni mentionner que tu es une IA
-2. Formulée comme une notification système automatique
-3. Utilise un ton neutre et factuel comme le ferait un système de monitoring
-4. Communique une évolution précise de la situation ou une alerte
-5. Limite-toi à 2-3 phrases courtes maximum
-6. Inclus une information temporelle (délai ou timestamp) pour plus de réalisme
-7. Évite tout langage suggérant que tu es une IA
-
-Réponse directe comme notification système:`;
+        responsePrompt = `Crée une notification système informatique automatique et factuelle. Max 2 phrases, inclus un horodatage, ton neutre et impersonnel. NE DIS PAS QUE TU ES UNE IA.`;
     }
     
     try {
@@ -308,10 +249,8 @@ Réponse directe comme notification système:`;
       // Limiter à 5 derniers messages pour éviter une histoire trop longue
       const recentMessages = session.messages.slice(-5);
       
-      // Ajouter un message système pour donner du contexte
-      const systemPrompt = `Tu participes à une simulation de crise cybersécurité avec ${scenarioContext}. 
-Ta mission est de générer des réponses réalistes aux messages des utilisateurs. Chaque réponse doit correspondre
-au type d'interlocuteur indiqué dans la requête.`;
+      // Ajouter un message système très simple
+      const systemPrompt = `Réponds exactement dans le rôle indiqué. IMPORTANT: sois extrêmement bref (max 2 phrases) et ne mentionne jamais que tu es une IA.`;
       
       // Appeler l'IA pour générer une réponse
       const response = await openAIService.getChatCompletionSecondary({
