@@ -15,9 +15,11 @@ interface Question {
   }[];
 }
 
+import { type CyberSkillLevel } from "@shared/schema";
+
 interface QuizEvaluationProps {
   domain: string;
-  onComplete: (score: number, level: string) => void;
+  onComplete: (score: number, level: CyberSkillLevel) => void;
   onCancel: () => void;
 }
 
@@ -27,7 +29,7 @@ export default function QuizEvaluation({ domain, onComplete, onCancel }: QuizEva
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState(0);
-  const [level, setLevel] = useState("Intermédiaire");
+  const [level, setLevel] = useState<CyberSkillLevel>("Intermédiaire");
 
   // Ensemble de questions adaptées au domaine sélectionné
   const questions = getQuestionsByDomain(domain);
@@ -72,7 +74,7 @@ export default function QuizEvaluation({ domain, onComplete, onCancel }: QuizEva
       const maxPossibleScore = questions.length * 3; // Score maximum possible
       const percentage = (totalScore / maxPossibleScore) * 100;
       
-      let determinedLevel;
+      let determinedLevel: CyberSkillLevel;
       if (percentage >= 75) {
         determinedLevel = "Expert";
       } else if (percentage >= 40) {

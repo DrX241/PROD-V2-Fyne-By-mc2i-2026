@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from 'lucide-react';
+import { type CyberUserRole } from "@shared/schema";
 
 // Définition des rôles disponibles
 const availableRoles = [
@@ -105,13 +106,13 @@ const availableRoles = [
 ];
 
 interface RoleSelectionProps {
-  onSelectRole: (roleId: string) => void;
+  onSelectRole: (roleId: CyberUserRole) => void;
 }
 
 export default function RoleSelection({ onSelectRole }: RoleSelectionProps) {
-  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [selectedRole, setSelectedRole] = useState<CyberUserRole | null>(null);
 
-  const handleRoleSelect = (roleId: string) => {
+  const handleRoleSelect = (roleId: CyberUserRole) => {
     setSelectedRole(roleId);
   };
 
