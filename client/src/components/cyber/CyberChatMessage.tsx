@@ -35,7 +35,7 @@ export default function CyberChatMessage({ message }: CyberChatMessageProps) {
               line.trim().startsWith('* ') || 
               line.trim().startsWith('• ')
             ).map((line, i) => (
-              <li key={i} className="ml-1 my-1">
+              <li key={i} className="ml-1 my-1 text-black">
                 {line.trim().replace(/^[-*•]\s+/, '')}
               </li>
             ));
@@ -55,7 +55,7 @@ export default function CyberChatMessage({ message }: CyberChatMessageProps) {
             const listItems = lines.filter(line => 
               /^\d+\.\s/.test(line.trim())
             ).map((line, i) => (
-              <li key={i} className="ml-1 my-1">
+              <li key={i} className="ml-1 my-1 text-black">
                 {line.trim().replace(/^\d+\.\s+/, '')}
               </li>
             ));
@@ -80,7 +80,7 @@ export default function CyberChatMessage({ message }: CyberChatMessageProps) {
           }
           
           // Texte normal
-          return <p key={idx}>{trimmedParagraph}</p>;
+          return <p key={idx} className="text-black">{trimmedParagraph}</p>;
         })}
       </div>
     );
@@ -116,10 +116,10 @@ export default function CyberChatMessage({ message }: CyberChatMessageProps) {
         className={cn(
           "max-w-[80%] rounded-lg p-4 shadow-sm",
           isUser 
-            ? "bg-white border border-gray-300" 
+            ? "bg-white border border-gray-300 text-black" 
             : isSystem 
-              ? "bg-gray-100 border border-gray-300" 
-              : "bg-cyan-50 border border-cyan-200"
+              ? "bg-gray-100 border border-gray-300 text-black" 
+              : "bg-cyan-50 border border-cyan-200 text-black"
         )}
       >
         {formatContent(message.content)}
