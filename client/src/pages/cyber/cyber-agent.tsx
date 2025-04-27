@@ -720,7 +720,7 @@ export default function CyberAgentPage() {
               
               <div className="h-[calc(100vh-300px)] overflow-y-auto p-4">
                 {messages.map((message) => (
-                  <ChatMessage key={message.id} message={message} />
+                  <CyberChatMessage key={message.id} message={message} />
                 ))}
                 
                 {isLoading && (

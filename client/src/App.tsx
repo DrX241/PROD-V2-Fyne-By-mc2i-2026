@@ -13,6 +13,7 @@ import Home from "@/pages/home";
 import ModulesPage from "@/pages/modules";
 import CyberModeSelection from "@/pages/cyber-mode-selection";
 import CyberAgentPage from "@/pages/cyber-agent";
+import CyberAgentChallengePage from "@/pages/cyber/cyber-agent";
 // EmergencyResponsePage a été supprimé
 
 // Import des pages CENTRE DE CRISE (anciennes et nouvelles pour permettre une transition)
@@ -92,7 +93,7 @@ function App() {
             <Route path="/modules" component={ModulesPage} />
             <Route path="/cyber" component={CyberModeSelection} />
             <Route path="/cyber/agent" component={CyberAgentPage} />
-            <Route path="/cyber/cyber-agent" component={NotYetImplemented} /> {/* À remplacer par le composant réel une fois créé */}
+            <Route path="/cyber/cyber-agent" component={CyberAgentChallengePage} /> {/* Nouveau module Cyber Agent implémenté */}
             <Route path="/cyber/emergency-response" component={NotYetImplemented} /> {/* Redirection vers page non implémentée */}
             <Route path="/cyber/arcade" component={CyberArcade} />
             {/* Anciennes routes de jeux (pour compatibilité) */}
