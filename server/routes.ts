@@ -2595,8 +2595,6 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
   app.post('/api/cyber/challenge/initialize', initializeCyberChallenge);
   app.post('/api/cyber/challenge/message', processChallengeMessage);
   app.post('/api/cyber/challenge/complete', completeChallengeSession);
-  app.post('/api/cyber/challenge/message', processChallengeMessage);
-  app.post('/api/cyber/challenge/complete', completeChallengeSession);
 
   return createServer(app);
 }

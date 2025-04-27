@@ -302,7 +302,7 @@ const CyberChallenge: React.FC = () => {
               </div>
               
               <div className="mt-1 text-xs">
-                {sessionContext.currentStage >= 4 && (
+                {sessionContext.currentStage !== undefined && sessionContext.currentStage >= 4 && (
                   <>
                     {sessionContext.currentLevel && sessionContext.maxLevel && (
                       <div className="flex justify-between">
@@ -327,7 +327,7 @@ const CyberChallenge: React.FC = () => {
                   </>
                 )}
                 
-                {sessionContext.currentStage < 4 && (
+                {sessionContext.currentStage !== undefined && sessionContext.currentStage < 4 && (
                   <div className="flex justify-between">
                     <span>Configuration</span>
                     <span>Étape {sessionContext.currentStage}/4</span>
@@ -346,7 +346,7 @@ const CyberChallenge: React.FC = () => {
                   <span className="text-sm font-medium">Tour actuel</span>
                 </div>
                 
-                {sessionContext.currentStage >= 4 && (
+                {sessionContext.currentStage !== undefined && sessionContext.currentStage >= 4 && (
                   <Button
                     variant="outline"
                     size="sm"
@@ -358,7 +358,7 @@ const CyberChallenge: React.FC = () => {
                 )}
               </div>
               
-              {sessionContext.currentStage >= 4 && sessionContext.currentPlayer && (
+              {sessionContext.currentStage !== undefined && sessionContext.currentStage >= 4 && sessionContext.currentPlayer && (
                 <div className="flex justify-between items-center mt-1">
                   <Badge>
                     {sessionContext.currentPlayer}
@@ -402,7 +402,7 @@ const CyberChallenge: React.FC = () => {
           )}
         </form>
         
-        {sessionContext?.currentStage >= 4 && (
+        {sessionContext?.currentStage !== undefined && sessionContext?.currentStage >= 4 && (
           <div className="flex justify-between items-center mt-2 text-xs text-muted-foreground">
             <div className="flex items-center">
               <span>Votre nom: </span>
