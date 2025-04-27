@@ -324,7 +324,11 @@ Intègre des éléments visuels pertinents (comme un email, une alerte de sécur
     
     let response;
     try {
-      response = await openAIService.sendChatCompletionRequest(messages, "gpt-4o-mini");
+      response = await openAIService.getChatCompletionSecondary({
+        messages: messages.map(m => ({ role: m.role, content: m.content })),
+        temperature: 0.7,
+        max_tokens: 2000
+      });
     } catch (error) {
       console.error("Erreur OpenAI lors de la génération du message initial:", error);
       response = {
@@ -409,7 +413,11 @@ Si la réponse est incorrecte, fournis des indices adaptés sans donner directem
     // Envoyer la requête à l'API OpenAI
     let response;
     try {
-      response = await openAIService.sendChatCompletionRequest([...session.messages, { role: 'user', content: prompt }], "gpt-4o-mini");
+      response = await openAIService.getChatCompletionSecondary({
+        messages: [...session.messages, { role: 'user', content: prompt }].map(m => ({ role: m.role, content: m.content })),
+        temperature: 0.7,
+        max_tokens: 2000
+      });
     } catch (error) {
       console.error("Erreur OpenAI lors du traitement du message:", error);
       response = {
@@ -495,7 +503,11 @@ Inclus un certificat de réussite attestant de l'achèvement du défi.`;
     // Envoyer la requête à l'API OpenAI
     let response;
     try {
-      response = await openAIService.sendChatCompletionRequest([...session.messages, { role: 'user', content: summaryPrompt }], "gpt-4o-mini");
+      response = await openAIService.getChatCompletionSecondary({
+        messages: [...session.messages, { role: 'user', content: summaryPrompt }].map(m => ({ role: m.role, content: m.content })),
+        temperature: 0.7,
+        max_tokens: 2000
+      });
     } catch (error) {
       console.error("Erreur OpenAI lors de la génération du rapport:", error);
       response = {
@@ -567,7 +579,19 @@ export async function getQuestionsForRole(req: Request, res: Response) {
     ];
     
     // Questions spécifiques au rôle
-    let roleSpecificQuestions = [];
+    interface QuestionOption {
+      id: string;
+      text: string;
+      correct: boolean;
+    }
+    
+    interface Question {
+      id: number;
+      text: string;
+      options: QuestionOption[];
+    }
+    
+    let roleSpecificQuestions: Question[] = [];
     
     if (userRole === 'rssi') {
       roleSpecificQuestions = [

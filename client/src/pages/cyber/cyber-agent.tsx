@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import HomeLayout from '@/components/layout/HomeLayout';
-import ChatMessage from '@/components/cyber/ChatMessage';
+import CyberChatMessage from '@/components/cyber/CyberChatMessage';
 import { Separator } from '@/components/ui/separator';
 import PageTitle from '@/components/utils/PageTitle';
 
