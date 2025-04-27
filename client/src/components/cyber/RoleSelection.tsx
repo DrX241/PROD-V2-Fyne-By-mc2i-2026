@@ -12,7 +12,19 @@ import { CheckCircle } from 'lucide-react';
 import { type CyberUserRole } from "@shared/schema";
 
 // Définition des rôles disponibles
-const availableRoles = [
+const availableRoles: {
+  id: CyberUserRole;
+  title: string;
+  fullTitle: string;
+  description: string;
+  responsibilities: string[];
+  color: string;
+  borderColor: string;
+  hoverBorderColor: string;
+  buttonColor: string;
+  textColor: string;
+  bgColor: string;
+}[] = [
   {
     id: "rssi",
     title: "RSSI",

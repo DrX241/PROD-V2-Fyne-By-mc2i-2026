@@ -18,9 +18,10 @@ import {
   DialogTrigger,
   DialogClose
 } from "@/components/ui/dialog";
+import { type CyberGameMode } from "@shared/schema";
 
 interface GameModeSelectionProps {
-  onSelectMode: (mode: "classic" | "tunnel") => void;
+  onSelectMode: (mode: CyberGameMode) => void;
 }
 
 export default function GameModeSelection({ onSelectMode }: GameModeSelectionProps) {
