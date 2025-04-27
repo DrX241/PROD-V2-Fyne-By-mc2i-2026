@@ -283,7 +283,7 @@ const CyberChallenge: React.FC = () => {
               <div className="mt-1">
                 {sessionContext.players.map((player, index) => (
                   <div key={index} className="flex items-center justify-between text-xs">
-                    <span className="font-medium">{player.name} ({player.role})</span>
+                    <span className="font-medium text-white">{player.name} ({player.role})</span>
                     <Badge variant="secondary" className="ml-1 font-bold text-black bg-gray-200">
                       {player.points} pts
                     </Badge>
@@ -306,21 +306,21 @@ const CyberChallenge: React.FC = () => {
                   <>
                     {sessionContext.currentLevel && sessionContext.maxLevel && (
                       <div className="flex justify-between font-medium">
-                        <span>Niveau</span>
+                        <span className="text-white">Niveau</span>
                         <span className="text-white font-bold">{sessionContext.currentLevel}/{sessionContext.maxLevel}</span>
                       </div>
                     )}
                     
                     {sessionContext.discoveredIndices !== undefined && (
                       <div className="flex justify-between font-medium">
-                        <span>Indices</span>
+                        <span className="text-white">Indices</span>
                         <span className="text-white font-bold">{sessionContext.discoveredIndices}/10</span>
                       </div>
                     )}
                     
                     {sessionContext.remainingBudget !== undefined && (
                       <div className="flex justify-between font-medium">
-                        <span>Budget</span>
+                        <span className="text-white">Budget</span>
                         <span className="text-white font-bold">{sessionContext.remainingBudget.toLocaleString('fr-FR')}€</span>
                       </div>
                     )}
@@ -329,7 +329,7 @@ const CyberChallenge: React.FC = () => {
                 
                 {sessionContext.currentStage !== undefined && sessionContext.currentStage < 4 && (
                   <div className="flex justify-between font-medium">
-                    <span>Configuration</span>
+                    <span className="text-white">Configuration</span>
                     <span className="text-white font-bold">Étape {sessionContext.currentStage}/4</span>
                   </div>
                 )}
@@ -364,7 +364,7 @@ const CyberChallenge: React.FC = () => {
                     {sessionContext.currentPlayer}
                   </Badge>
                   
-                  <span className={`text-xs font-medium ${playerName === sessionContext.currentPlayer ? 'text-black font-bold' : 'text-foreground/80'}`}>
+                  <span className={`text-xs font-medium ${playerName === sessionContext.currentPlayer ? 'text-white font-bold' : 'text-white/80'}`}>
                     {playerName === sessionContext.currentPlayer ? 'À toi de jouer!' : 'En attente...'}
                   </span>
                 </div>
@@ -405,7 +405,7 @@ const CyberChallenge: React.FC = () => {
         {sessionContext?.currentStage !== undefined && sessionContext?.currentStage >= 4 && (
           <div className="flex justify-between items-center mt-2 text-xs font-medium">
             <div className="flex items-center">
-              <span className="text-foreground">Votre nom: </span>
+              <span className="text-white">Votre nom: </span>
               <Input
                 className="h-6 w-32 ml-1 text-xs bg-background"
                 value={playerName}
