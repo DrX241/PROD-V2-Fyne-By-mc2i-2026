@@ -86,12 +86,29 @@ export async function startCrisisSession(req: Request, res: Response) {
     
     const sessionId = uuidv4();
     
-    // Initialiser une nouvelle session
+    // Déterminer le contexte spécifique du scénario
+    const scenarioContext = scenario.id === 'ransomware' 
+        ? "une attaque de ransomware qui a chiffré tous les serveurs de production" 
+        : scenario.id === 'email-hack' 
+            ? "une compromission des comptes de messagerie de plusieurs directeurs permettant l'envoi d'emails frauduleux" 
+            : "une fuite de données confidentielles publiées sur un forum public";
+    
+    // Créer un message système plus détaillé pour mieux cadrer l'IA
+    const systemMessage = `Tu participes à une simulation de gestion de crise en cybersécurité impliquant ${scenarioContext}.
+Contexte: L'entreprise est en situation de crise. Tu joueras le rôle de différents intervenants (directeurs, employés, attaquants).
+Règles: 
+1. Tes réponses doivent être brèves (2-3 phrases max)
+2. Ne mentionne JAMAIS que tu es une IA
+3. Garde une cohérence avec l'historique des messages
+4. Adapte ton langage au type d'intervenant que tu joues
+5. Respecte le scénario de crise établi: ${scenario.name}`;
+    
+    // Initialiser une nouvelle session avec un message initial plus détaillé
     const session: CrisisSession = {
       id: sessionId,
       scenarioId,
       messages: [
-        { role: 'system', content: `Vous êtes un simulateur de crise de cybersécurité. Vous simulez différentes parties prenantes dans le cadre du scénario: ${scenario.name}. Votre objectif est de tester les compétences de l'utilisateur en gestion de crise. Adaptez vos réponses pour simuler différentes parties prenantes: dirigeants, hackers et employés.` },
+        { role: 'system', content: systemMessage },
         { role: 'assistant', content: scenario.initialPrompt }
       ],
       budget: scenario.initialBudget,
@@ -144,46 +161,166 @@ export async function processCrisisMessage(req: Request, res: Response) {
     // Ajouter le message de l'utilisateur
     session.messages.push({ role: 'user', content: message });
     
-    // Déterminer le type de partie prenante à simuler
+    // Récupérer le scénario
     const scenario = scenarios.find(s => s.id === session.scenarioId);
     
     if (!scenario) {
       return res.status(404).json({ message: 'Scénario non trouvé' });
     }
     
-    // Préparer le prompt pour générer une réponse dynamique
-    const stakeholderTypes = ['director', 'hacker', 'employee'];
-    const randomType = stakeholderTypes[Math.floor(Math.random() * stakeholderTypes.length)];
+    // Déterminer le contexte du scénario
+    const scenarioContext = scenario.id === 'ransomware' 
+        ? "une attaque de ransomware qui a chiffré tous les serveurs de production" 
+        : scenario.id === 'email-hack' 
+            ? "une compromission des comptes de messagerie de plusieurs directeurs permettant l'envoi d'emails frauduleux" 
+            : "une fuite de données confidentielles publiées sur un forum public";
+    
+    // Déterminer la partie prenante de manière plus intelligente en fonction du contexte
+    // Examiner le message utilisateur pour voir s'il est pertinent de choisir un type spécifique
+    const userMessage = message.toLowerCase();
+    
+    let stakeholderTypes = ['director', 'hacker', 'employee'];
+    let randomType = '';
+    
+    // Si l'utilisateur parle de rançon, négociation, ou paiement, privilégier le hacker
+    if (userMessage.includes('rançon') || userMessage.includes('paiement') || 
+        userMessage.includes('négoci') || userMessage.includes('demande') || 
+        userMessage.includes('attaquant') || userMessage.includes('hacker')) {
+      randomType = 'hacker';
+    } 
+    // Si l'utilisateur parle de budget, coûts, stratégie, décisions, privilégier un directeur
+    else if (userMessage.includes('budget') || userMessage.includes('coût') || 
+             userMessage.includes('stratégie') || userMessage.includes('décision') ||
+             userMessage.includes('direction') || userMessage.includes('conseil')) {
+      randomType = 'director';
+    }
+    // Si l'utilisateur parle de technique, opérations, équipes, état, privilégier un employé
+    else if (userMessage.includes('équipe') || userMessage.includes('opération') || 
+             userMessage.includes('technique') || userMessage.includes('systèmes') ||
+             userMessage.includes('informatique') || userMessage.includes('état')) {
+      randomType = 'employee';
+    }
+    // Sinon choisir aléatoirement, mais avec une distribution plus réaliste
+    else {
+      const rand = Math.random();
+      // 40% chance d'avoir un directeur, 30% un employé, 30% un hacker
+      if (rand < 0.4) {
+        randomType = 'director';
+      } else if (rand < 0.7) {
+        randomType = 'employee';
+      } else {
+        randomType = 'hacker';
+      }
+    }
     
     let stakeholder;
     let responsePrompt;
     
     switch (randomType) {
       case 'director':
-        stakeholder = scenario.stakeholders.filter(s => ['PDG', 'Directeur', 'DSI', 'RSSI', 'DRH'].some(role => s.includes(role)))[Math.floor(Math.random() * 3)];
-        responsePrompt = `Simulez la réponse du ${stakeholder} face à ce message dans un contexte de crise liée à la cybersécurité. Le ${stakeholder} doit exprimer des préoccupations, demander des explications ou contester certaines décisions. Répondez de manière concise en moins de 3 phrases. Ne mentionnez pas que vous êtes une IA.`;
+        // Choisir un directeur pertinent selon le contexte
+        const directorCandidates = scenario.stakeholders.filter(s => 
+          ['PDG', 'Directeur', 'DSI', 'RSSI', 'DRH'].some(role => s.includes(role))
+        );
+        stakeholder = directorCandidates.length > 0 
+            ? directorCandidates[Math.floor(Math.random() * Math.min(directorCandidates.length, 3))]
+            : 'PDG';
+        
+        responsePrompt = `
+Tu dois simuler avec réalisme la réponse d'un ${stakeholder} pendant ${scenarioContext}. 
+Contexte: Le ${stakeholder} est préoccupé par les impacts business, financiers et réputationnels de cette crise.
+
+Instructions précises:
+1. Ta réponse ne doit JAMAIS mentionner que tu es une IA
+2. Réponds directement comme si tu étais le ${stakeholder} sans formules d'introduction
+3. Utilise un ton autoritaire mais inquiet, avec un langage approprié à un cadre dirigeant
+4. Exprime une préoccupation précise, pose une question directe ou demande une action claire
+5. Limite-toi à 2-3 phrases courtes maximum
+6. Concentre-toi sur un seul sujet (business, finance, réputation ou légal)
+7. Fais-toi passer pour un humain, pas une IA
+
+Réponse directe comme le ${stakeholder}:`;
         break;
+        
       case 'hacker':
         stakeholder = 'Attaquant';
-        responsePrompt = `Simulez la réponse d'un hacker qui a mené l'attaque. Le hacker doit exercer une pression, menacer, ou augmenter ses exigences. Répondez de manière concise en moins de 3 phrases. Ne mentionnez pas que vous êtes une IA.`;
+        responsePrompt = `
+Tu dois simuler avec réalisme la réponse d'un attaquant informatique dans le contexte de ${scenarioContext}.
+Contexte: L'attaquant cherche à augmenter la pression pour obtenir une rançon ou créer plus de dégâts.
+
+Instructions précises:
+1. Ta réponse ne doit JAMAIS mentionner que tu es une IA
+2. Réponds directement comme si tu étais l'attaquant sans formules d'introduction
+3. Utilise un ton menaçant, intimidant mais professionnel, comme un cybercriminel organisé
+4. Formule une menace précise, une demande claire ou un ultimatum
+5. Limite-toi à 2-3 phrases courtes maximum
+6. Ne te contredis pas: si une demande financière a été faite avant, maintiens le même montant ou augmente-le
+7. Fais-toi passer pour un humain, pas une IA
+
+Réponse directe comme l'attaquant:`;
         break;
+        
       case 'employee':
-        stakeholder = scenario.stakeholders.filter(s => s.includes('Employé') || s.includes('Service'))[Math.floor(Math.random() * 2)];
-        responsePrompt = `Simulez la réponse d'un ${stakeholder} inquiet ou transmettant des informations dans cette crise. Le ${stakeholder} peut exprimer du stress, poser des questions, ou signaler des problèmes liés à la situation. Répondez de manière concise en moins de 3 phrases. Ne mentionnez pas que vous êtes une IA.`;
+        // Choisir un employé pertinent selon le contexte
+        const employeeCandidates = scenario.stakeholders.filter(s => 
+          s.includes('Employé') || s.includes('Service') || s.includes('Technique')
+        );
+        stakeholder = employeeCandidates.length > 0 
+            ? employeeCandidates[Math.floor(Math.random() * Math.min(employeeCandidates.length, 2))]
+            : 'Service Informatique';
+            
+        responsePrompt = `
+Tu dois simuler avec réalisme la réponse d'un membre du ${stakeholder} pendant ${scenarioContext}.
+Contexte: Le ${stakeholder} est en première ligne pour gérer les aspects techniques ou organisationnels de la crise.
+
+Instructions précises:
+1. Ta réponse ne doit JAMAIS mentionner que tu es une IA
+2. Réponds directement comme si tu étais du ${stakeholder} sans formules d'introduction
+3. Utilise un ton technique et pragmatique, avec un langage approprié à ton rôle
+4. Communique une information technique précise, un problème concret ou une question opérationnelle
+5. Limite-toi à 2-3 phrases courtes maximum
+6. Sois spécifique et précis dans ta réponse, évite les généralités
+7. Fais-toi passer pour un humain, pas une IA
+
+Réponse directe comme ${stakeholder}:`;
         break;
+        
       default:
         stakeholder = 'Système';
-        responsePrompt = `Donnez une actualisation générale de la situation de crise, comme le ferait un système de monitoring ou un rapport de situation. Soyez concis en moins de 3 phrases. Ne mentionnez pas que vous êtes une IA.`;
+        responsePrompt = `
+Tu dois simuler un message système automatique dans le contexte de ${scenarioContext}.
+Contexte: Notification automatique concernant l'évolution de la situation de crise.
+
+Instructions précises:
+1. Ta réponse ne doit PAS inclure d'introduction ni mentionner que tu es une IA
+2. Formulée comme une notification système automatique
+3. Utilise un ton neutre et factuel comme le ferait un système de monitoring
+4. Communique une évolution précise de la situation ou une alerte
+5. Limite-toi à 2-3 phrases courtes maximum
+6. Inclus une information temporelle (délai ou timestamp) pour plus de réalisme
+7. Évite tout langage suggérant que tu es une IA
+
+Réponse directe comme notification système:`;
     }
     
     try {
+      // Créer un historique concis pour l'IA 
+      // Limiter à 5 derniers messages pour éviter une histoire trop longue
+      const recentMessages = session.messages.slice(-5);
+      
+      // Ajouter un message système pour donner du contexte
+      const systemPrompt = `Tu participes à une simulation de crise cybersécurité avec ${scenarioContext}. 
+Ta mission est de générer des réponses réalistes aux messages des utilisateurs. Chaque réponse doit correspondre
+au type d'interlocuteur indiqué dans la requête.`;
+      
       // Appeler l'IA pour générer une réponse
       const response = await openAIService.getChatCompletionSecondary({
         messages: [
-          ...session.messages,
+          { role: 'system', content: systemPrompt },
+          ...recentMessages,
           { role: 'user', content: responsePrompt }
         ],
-        temperature: 0.7,
+        temperature: 0.8,  // Légèrement plus élevé pour plus de créativité
         max_tokens: 150
       });
       
