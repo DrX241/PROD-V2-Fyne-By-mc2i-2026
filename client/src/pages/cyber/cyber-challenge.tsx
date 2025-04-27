@@ -178,15 +178,15 @@ const CyberChallenge: React.FC = () => {
           <div 
             className={`px-4 py-3 rounded-lg ${
               isSystem 
-                ? 'bg-secondary text-secondary-foreground' 
-                : 'bg-primary text-primary-foreground'
+                ? 'bg-secondary text-secondary-foreground font-medium' 
+                : 'bg-primary text-white font-medium'
             }`}
           >
             {msg.sender && <div className="font-bold mb-1">{msg.sender}</div>}
-            <div className="prose prose-sm dark:prose-invert">
+            <div className="prose prose-sm dark:prose-invert max-w-none">
               <Markdown>{msg.content}</Markdown>
             </div>
-            <div className="text-xs mt-1 opacity-70 text-right">
+            <div className="text-xs mt-1 text-right font-normal text-white/90">
               {formatTime(msg.timestamp)}
             </div>
           </div>
@@ -226,7 +226,7 @@ const CyberChallenge: React.FC = () => {
               </Badge>
             </div>
             
-            <div className="prose prose-lg dark:prose-invert max-w-none">
+            <div className="prose prose-lg dark:prose-invert max-w-none bg-card p-4 rounded-lg border shadow-sm">
               <Markdown>{debriefing}</Markdown>
             </div>
             
@@ -249,7 +249,7 @@ const CyberChallenge: React.FC = () => {
   // Interface principale
   return (
     <div className="container mx-auto h-screen flex flex-col max-w-4xl">
-      <div className="flex justify-between items-center p-4">
+      <div className="flex justify-between items-center p-4 bg-card">
         <Link href="/cyber-mode-selection">
           <Button variant="outline" size="sm" className="flex items-center gap-1">
             <ChevronLeft size={16} />
@@ -258,7 +258,7 @@ const CyberChallenge: React.FC = () => {
         </Link>
         
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="flex items-center gap-1">
+          <Badge variant="outline" className="flex items-center gap-1 bg-primary text-primary-foreground">
             <Shield size={14} />
             CyberChallenge
           </Badge>
@@ -283,8 +283,8 @@ const CyberChallenge: React.FC = () => {
               <div className="mt-1">
                 {sessionContext.players.map((player, index) => (
                   <div key={index} className="flex items-center justify-between text-xs">
-                    <span>{player.name} ({player.role})</span>
-                    <Badge variant="secondary" className="ml-1">
+                    <span className="font-medium">{player.name} ({player.role})</span>
+                    <Badge variant="secondary" className="ml-1 font-bold text-foreground bg-secondary-foreground/10">
                       {player.points} pts
                     </Badge>
                   </div>
@@ -297,7 +297,7 @@ const CyberChallenge: React.FC = () => {
           <Card>
             <CardContent className="py-2 px-3">
               <div className="flex items-center">
-                <BrainCircuit size={16} className="mr-1" />
+                <BrainCircuit size={16} className="mr-1 text-primary" />
                 <span className="text-sm font-medium">Progression</span>
               </div>
               
@@ -305,32 +305,32 @@ const CyberChallenge: React.FC = () => {
                 {sessionContext.currentStage !== undefined && sessionContext.currentStage >= 4 && (
                   <>
                     {sessionContext.currentLevel && sessionContext.maxLevel && (
-                      <div className="flex justify-between">
+                      <div className="flex justify-between font-medium">
                         <span>Niveau</span>
-                        <span>{sessionContext.currentLevel}/{sessionContext.maxLevel}</span>
+                        <span className="text-primary font-bold">{sessionContext.currentLevel}/{sessionContext.maxLevel}</span>
                       </div>
                     )}
                     
                     {sessionContext.discoveredIndices !== undefined && (
-                      <div className="flex justify-between">
+                      <div className="flex justify-between font-medium">
                         <span>Indices</span>
-                        <span>{sessionContext.discoveredIndices}/10</span>
+                        <span className="text-primary font-bold">{sessionContext.discoveredIndices}/10</span>
                       </div>
                     )}
                     
                     {sessionContext.remainingBudget !== undefined && (
-                      <div className="flex justify-between">
+                      <div className="flex justify-between font-medium">
                         <span>Budget</span>
-                        <span>{sessionContext.remainingBudget.toLocaleString('fr-FR')}€</span>
+                        <span className="text-primary font-bold">{sessionContext.remainingBudget.toLocaleString('fr-FR')}€</span>
                       </div>
                     )}
                   </>
                 )}
                 
                 {sessionContext.currentStage !== undefined && sessionContext.currentStage < 4 && (
-                  <div className="flex justify-between">
+                  <div className="flex justify-between font-medium">
                     <span>Configuration</span>
-                    <span>Étape {sessionContext.currentStage}/4</span>
+                    <span className="text-primary font-bold">Étape {sessionContext.currentStage}/4</span>
                   </div>
                 )}
               </div>
@@ -342,7 +342,7 @@ const CyberChallenge: React.FC = () => {
             <CardContent className="py-2 px-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <Clock size={16} className="mr-1" />
+                  <Clock size={16} className="mr-1 text-primary" />
                   <span className="text-sm font-medium">Tour actuel</span>
                 </div>
                 
@@ -350,7 +350,7 @@ const CyberChallenge: React.FC = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-6 text-xs"
+                    className="h-6 text-xs font-medium"
                     onClick={completeSession}
                   >
                     Terminer
@@ -360,11 +360,11 @@ const CyberChallenge: React.FC = () => {
               
               {sessionContext.currentStage !== undefined && sessionContext.currentStage >= 4 && sessionContext.currentPlayer && (
                 <div className="flex justify-between items-center mt-1">
-                  <Badge>
+                  <Badge variant="default" className="bg-primary text-white font-medium">
                     {sessionContext.currentPlayer}
                   </Badge>
                   
-                  <span className="text-xs opacity-75">
+                  <span className={`text-xs font-medium ${playerName === sessionContext.currentPlayer ? 'text-primary' : 'text-foreground/80'}`}>
                     {playerName === sessionContext.currentPlayer ? 'À toi de jouer!' : 'En attente...'}
                   </span>
                 </div>
@@ -381,10 +381,10 @@ const CyberChallenge: React.FC = () => {
         </div>
       </div>
       
-      <div className="p-4 border-t">
+      <div className="p-4 border-t bg-card">
         <form onSubmit={handleSubmit} className="flex gap-2">
           <Input
-            className="flex-1"
+            className="flex-1 bg-background"
             placeholder={loading ? "Chargement..." : "Tapez votre message..."}
             value={message}
             onChange={e => setMessage(e.target.value)}
@@ -403,11 +403,11 @@ const CyberChallenge: React.FC = () => {
         </form>
         
         {sessionContext?.currentStage !== undefined && sessionContext?.currentStage >= 4 && (
-          <div className="flex justify-between items-center mt-2 text-xs text-muted-foreground">
+          <div className="flex justify-between items-center mt-2 text-xs font-medium">
             <div className="flex items-center">
-              <span>Votre nom: </span>
+              <span className="text-foreground">Votre nom: </span>
               <Input
-                className="h-6 w-32 ml-1 text-xs"
+                className="h-6 w-32 ml-1 text-xs bg-background"
                 value={playerName}
                 onChange={e => setPlayerName(e.target.value)}
                 placeholder="Votre nom"
