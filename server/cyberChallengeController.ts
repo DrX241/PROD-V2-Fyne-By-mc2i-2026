@@ -428,7 +428,7 @@ Joueur 1: `;
         session.players.push(newPlayer);
         
         // Vérifier si tous les joueurs ont été saisis
-        if (session.players.length < session.context.maxPlayersCount) {
+        if (session.context.maxPlayersCount && session.players.length < session.context.maxPlayersCount) {
           responseContent = `Joueur ${session.players.length + 1}: `;
         } else {
           // Passer à l'étape de sélection des rôles
@@ -784,8 +784,7 @@ Utilise une présentation soignée avec des sections clairement délimitées, de
         { role: "system", content: debriefingPrompt }
       ],
       0.7,
-      2000,
-      "primary" // Utiliser le modèle principal pour un débriefing de qualité
+      2000
     );
     
     // Supprimer la session
