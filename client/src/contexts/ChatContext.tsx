@@ -456,8 +456,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         explanationContent += `Ce domaine de la cybersécurité représente un enjeu majeur pour les organisations modernes. À travers des cas concrets et des mises en situation, nous allons explorer ensemble les meilleures pratiques et développer votre expertise.`;
     }
     
-    // Ajouter l'annonce d'un email à venir
-    explanationContent += `\n\nJe vais maintenant vous envoyer un premier email avec un problème concret à résoudre dans ce domaine. Cet exercice vous permettra de mettre en pratique vos connaissances.`;
+    // Préparation pour l'envoi d'email
     
     const botConfirmation: ChatMessage = {
       id: uuidv4(),
