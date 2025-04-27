@@ -2441,6 +2441,13 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
     return completeAgentSession(req, res);
   });
   
+  // Route pour générer dynamiquement une explication de domaine
+  app.post('/api/cyber/agent/domain-explanation', (req, res) => {
+    // S'assurer que les en-têtes sont correctement configurés pour JSON
+    res.setHeader('Content-Type', 'application/json');
+    return generateDomainExplanation(req, res);
+  });
+  
   app.post('/api/amoa/interview-simulation/download-synthesis', async (req, res) => {
     try {
       const { synthesis, candidateName, profileType, experienceLevel, sectorFocus } = req.body;
