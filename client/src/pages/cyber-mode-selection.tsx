@@ -72,8 +72,8 @@ export default function CyberModeSelection() {
   };
 
   const handleCancel = () => {
-    // Retour à la page des modules
-    setLocation('/modules');
+    // Retour à la page d'accueil
+    setLocation('/');
   };
 
   return (
