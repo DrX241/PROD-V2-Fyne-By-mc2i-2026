@@ -21,6 +21,11 @@ import {
   processEmergencyMessage,
   completeEmergencySession
 } from "./cyberEmergencyController";
+import {
+  initializeCyberChallenge,
+  processChallengeMessage,
+  completeChallengeSession
+} from "./cyberChallengeController";
 
 /**
  * Génère un document HTML formaté pour la synthèse d'audition
@@ -2585,6 +2590,11 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
   app.post('/api/cyber/emergency/start', startEmergencySession);
   app.post('/api/cyber/emergency/message', processEmergencyMessage);
   app.post('/api/cyber/emergency/complete', completeEmergencySession);
+  
+  // Routes pour le module CyberChallenge
+  app.post('/api/cyber/challenge/initialize', initializeCyberChallenge);
+  app.post('/api/cyber/challenge/message', processChallengeMessage);
+  app.post('/api/cyber/challenge/complete', completeChallengeSession);
 
   return createServer(app);
 }

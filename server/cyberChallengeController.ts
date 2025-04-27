@@ -57,6 +57,7 @@ interface ChallengeSessionData {
     remainingBudget?: number;
     completedObjectives: string[];
     detectedKeywords: string[];
+    maxPlayersCount?: number;
   };
   startTime: number;
 }
@@ -411,6 +412,7 @@ export async function processChallengeMessage(req: Request, res: Response) {
           responseContent = `Parfait ! Veuillez maintenant saisir le nom de chaque joueur, un par un.
 Joueur 1: `;
           session.context.currentStage = 0.5; // Sous-étape pour saisie des noms
+          session.context.maxPlayersCount = playerCount; // Stocker le nombre de joueurs
         }
         break;
         
@@ -521,12 +523,12 @@ Joueur 1: `;
         }
         
         // Attribuer le scénario correspondant
-        const selectedScenario = scenariosForModule[scenarioNumber - 1];
-        session.scenarioId = selectedScenario.id;
+        const scenarioSelected = scenariosForModule[scenarioNumber - 1];
+        session.scenarioId = scenarioSelected.id;
         
         // Si c'est un PCA, initialiser le budget
-        if (session.moduleType === CyberChallengeModuleType.PCA_GESTION_CRISE && selectedScenario.budget) {
-          session.context.remainingBudget = selectedScenario.budget;
+        if (session.moduleType === CyberChallengeModuleType.PCA_GESTION_CRISE && scenarioSelected.budget) {
+          session.context.remainingBudget = scenarioSelected.budget;
         }
         
         // Définir le joueur qui commence
@@ -535,19 +537,19 @@ Joueur 1: `;
         // Préparer le message de début de scénario
         const scenarioIntro = `🛡️ **CyberChallenge - ${session.moduleType}** 🛡️
 
-**Scénario:** ${selectedScenario.title}
-**Difficulté:** ${selectedScenario.difficultyLevel}
+**Scénario:** ${scenarioSelected.title}
+**Difficulté:** ${scenarioSelected.difficultyLevel}
 
 **Contexte:**
-${selectedScenario.context}
+${scenarioSelected.context}
 
 **Objectifs:**
-${selectedScenario.objectives.map((obj, i) => `${i+1}. ${obj}`).join('\n')}
+${scenarioSelected.objectives.map((obj, i) => `${i+1}. ${obj}`).join('\n')}
 
-${selectedScenario.moduleType === CyberChallengeModuleType.PCA_GESTION_CRISE ? 
-  `**Budget initial:** ${selectedScenario.budget?.toLocaleString('fr-FR')}€` : ''}
+${session.moduleType === CyberChallengeModuleType.PCA_GESTION_CRISE && scenarioSelected.budget ? 
+  `**Budget initial:** ${scenarioSelected.budget.toLocaleString('fr-FR')}€` : ''}
 
-${selectedScenario.initialPrompt}
+${scenarioSelected.initialPrompt}
 
 🎮 **Tour de jeu:** C'est à ${session.context.currentPlayer} de jouer.`;
 
@@ -557,9 +559,9 @@ ${selectedScenario.initialPrompt}
         
       case 4: // Session de jeu en cours
         // Envoyer le message à l'IA pour générer une réponse contextualisée au scénario
-        const selectedScenario = challengeScenarios.find(s => s.id === session.scenarioId);
+        const currentScenario = challengeScenarios.find(s => s.id === session.scenarioId);
         
-        if (!selectedScenario) {
+        if (!currentScenario) {
           responseContent = "⚠️ Erreur: Scénario non trouvé.";
           break;
         }
@@ -575,7 +577,7 @@ ${selectedScenario.initialPrompt}
         // Construire le prompt système pour le contexte
         const systemPrompt = `Tu es "CyberChallenge", un chatbot de défis en cybersécurité simulant une interface structurée avec une esthétique épurée et élégante.
 
-Le module actuel est "${session.moduleType}" avec le scénario "${selectedScenario.title}".
+Le module actuel est "${session.moduleType}" avec le scénario "${currentScenario.title}".
 
 Informations sur les joueurs:
 ${session.players.map(p => `- ${p.name}: ${p.role} (${p.points} points)`).join('\n')}
@@ -584,10 +586,10 @@ Personnages Non-Joueurs (PNJ):
 ${session.pnjs.map(pnj => `- ${pnj.name}: ${pnj.role} (${pnj.personality})`).join('\n')}
 
 Contexte du scénario:
-${selectedScenario.context}
+${currentScenario.context}
 
 Objectifs:
-${selectedScenario.objectives.map((obj, i) => `${i+1}. ${obj}`).join('\n')}
+${currentScenario.objectives.map((obj, i) => `${i+1}. ${obj}`).join('\n')}
 
 ${session.moduleType === CyberChallengeModuleType.PCA_GESTION_CRISE ? 
   `Budget restant: ${session.context.remainingBudget?.toLocaleString('fr-FR')}€` : ''}
@@ -623,8 +625,7 @@ Ta réponse doit:
               ...messageHistory.slice(-10) // Limiter l'historique pour éviter les dépassements de contexte
             ],
             0.7, // Température pour favoriser la créativité
-            1500, // Longueur maximale de la réponse
-            "secondary" // Utiliser le modèle secondaire
+            1500 // Longueur maximale de la réponse
           );
           
           responseContent = aiResponse;
