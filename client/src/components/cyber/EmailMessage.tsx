@@ -235,7 +235,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
             </div>
             
             <p className="text-xs sm:text-sm text-white mt-3 sm:mt-4">
-              Ces interlocuteurs interviendront dans ce scénario pour vous offrir différentes perspectives sur la problématique. Vous pouvez adresser vos questions à un interlocuteur spécifique en mentionnant simplement son nom ou prénom dans votre message.
+              Ces interlocuteurs interviendront dans ce scénario pour vous offrir différentes perspectives sur la problématique cyber centrale.
             </p>
           </div>
         )}
