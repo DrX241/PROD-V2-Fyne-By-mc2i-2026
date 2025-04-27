@@ -26,6 +26,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+  
+  // Alias pour la compatibilité avec le frontend
+  app.get('/api/openai/status', async (req: Request, res: Response) => {
+    try {
+      const connectionStatus = await openAIService.checkConnection();
+      const currentModel = openAIService.getCurrentConfig().modelName;
+      const lastCheck = Date.now();
+      res.json({ 
+        connectionStatus: connectionStatus ? 'connected' : 'disconnected',
+        currentModel,
+        lastCheck,
+      });
+    } catch (error: any) {
+      console.error('Error checking API status:', error);
+      res.status(500).json({ 
+        error: error.message || 'Error checking API status'
+      });
+    }
+  });
 
   // API route for simple chat
   app.post('/api/cyber/simple-chat', async (req: Request, res: Response) => {
@@ -72,18 +91,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API route for switching API key
   app.post('/api/cyber/switch-api-key', (req: Request, res: Response) => {
     try {
-      const { api_type } = req.body;
+      // Accepter soit api_type soit keyType pour la compatibilité
+      const apiType = req.body.api_type || req.body.keyType;
       
-      if (!api_type || (api_type !== 'primary' && api_type !== 'secondary')) {
+      if (!apiType || (apiType !== 'primary' && apiType !== 'secondary')) {
         return res.status(400).json({ message: 'Valid API type required (primary or secondary)' });
       }
       
-      openAIService.switchApiKey(api_type);
+      openAIService.switchApiKey(apiType);
       
       res.json({ 
         success: true, 
-        message: `API key switched to ${api_type}`,
-        model: openAIService.getCurrentConfig().modelName
+        connectionStatus: 'connected',
+        message: `API key switched to ${apiType}`,
+        model: openAIService.getCurrentConfig().modelName,
+        modelName: openAIService.getCurrentConfig().modelName
       });
     } catch (error: any) {
       console.error('Error switching API key:', error);
