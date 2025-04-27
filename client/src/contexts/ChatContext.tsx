@@ -425,35 +425,34 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsTyping(true);
     setScenario(prev => ({ ...prev, activeDomain: selectedDomain }));
     
-    // Bot confirmation message
     // Obtenir le prénom extrait
     const firstName = extractFirstName(userName);
     
-    // Créer un message avec des explications et anecdotes sur le domaine sélectionné
+    // Créer un message initial avec le domaine sélectionné
     let explanationContent = `**Excellent choix, ${firstName} !** Vous avez sélectionné la **${selectedDomain.name}**.\n\n`;
     
-    // Ajouter des explications spécifiques au domaine avec des anecdotes
-    switch (domainId) {
-      case "gestion-crise":
-        explanationContent += `La gestion de crise cyber est un domaine crucial qui exige préparation et réactivité. Saviez-vous que selon une étude récente, les organisations avec un plan de gestion de crise formalisé réduisent en moyenne de 38% le coût d'une cyberattaque ? Une anecdote intéressante : lors de l'attaque NotPetya en 2017, la société maritime Maersk a dû reconstruire son infrastructure informatique complète en quelques semaines. Leur résilience est devenue un cas d'école en matière de gestion de crise.`;
-        break;
-      case "donnees-personnelles":
-        explanationContent += `La protection des données personnelles est devenue incontournable avec le RGPD. Une anecdote marquante : en 2019, une entreprise hôtelière internationale a été sanctionnée à hauteur de 110 millions d'euros pour ne pas avoir suffisamment protégé les données de ses clients. Ce cas démontre l'importance de traiter la conformité comme un investissement plutôt qu'une contrainte.`;
-        break;
-      case "ingenierie-sociale":
-        explanationContent += `L'ingénierie sociale reste le vecteur d'attaque le plus efficace car elle cible la vulnérabilité humaine. Un exemple frappant : en 2020, des pirates ont réussi à compromettre les comptes Twitter de personnalités comme Bill Gates et Elon Musk simplement en manipulant des employés par téléphone. Cette technique appelée "vishing" (phishing vocal) prouve que la sécurité technique ne suffit pas sans sensibilisation humaine.`;
-        break;
-      case "gestion-incidents":
-        explanationContent += `La gestion des incidents de sécurité est l'art de détecter, analyser et remédier efficacement aux menaces. Une statistique intéressante : le temps moyen de détection d'une brèche est de 197 jours (IBM, 2022). Un cas d'école : la société Equifax a mis plus de 76 jours pour détecter une intrusion massive qui a compromis les données de 147 millions de personnes, démontrant l'importance cruciale d'une détection précoce.`;
-        break;
-      case "supply-chain":
-        explanationContent += `La sécurité de la chaîne d'approvisionnement est devenue un enjeu majeur avec l'attaque SolarWinds en 2020, où des hackers ont compromis le code source d'un logiciel utilisé par des milliers d'entreprises et administrations. Cette attaque a démontré qu'une organisation peut être parfaitement sécurisée mais vulnérable via ses fournisseurs - on n'est jamais plus fort que le maillon le plus faible de sa chaîne.`;
-        break;
-      case "strategie-cyber":
-        explanationContent += `La stratégie et gouvernance cybersécurité est l'épine dorsale de toute protection efficace. Une analogie pertinente : tout comme un général ne part pas au combat sans plan, une entreprise ne devrait pas aborder sa sécurité numérique sans stratégie. Le WannaCry de 2017 illustre parfaitement ce point : les organisations avec une stratégie de mise à jour claire ont été largement épargnées, tandis que d'autres ont subi des pertes considérables.`;
-        break;
-      default:
+    try {
+      // Appel à l'API pour générer dynamiquement une explication et des anecdotes pour ce domaine
+      const response = await apiRequest<{ success: boolean, explanation: string }>('/api/cyber/agent/generate-explanation', {
+        method: 'POST',
+        body: JSON.stringify({
+          domainId,
+          userName: firstName
+        })
+      });
+      
+      if (response.success && response.explanation) {
+        // Ajouter l'explication générée dynamiquement
+        explanationContent += response.explanation;
+      } else {
+        // Message de secours si l'API ne retourne pas d'explication
         explanationContent += `Ce domaine de la cybersécurité représente un enjeu majeur pour les organisations modernes. À travers des cas concrets et des mises en situation, nous allons explorer ensemble les meilleures pratiques et développer votre expertise.`;
+      }
+    } catch (error) {
+      console.error('Erreur lors de la génération de l\'explication:', error);
+      
+      // Message de secours en cas d'erreur
+      explanationContent += `Ce domaine de la cybersécurité représente un enjeu majeur pour les organisations modernes. À travers des cas concrets et des mises en situation, nous allons explorer ensemble les meilleures pratiques et développer votre expertise.`;
     }
     
     // Ajouter l'annonce d'un email à venir
@@ -742,6 +741,15 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsInitialized(false);
   };
 
+  // Adapter nos fonctions pour qu'elles correspondent aux types attendus
+  const selectDomainAdapter = (domain: CyberDomain) => {
+    handleSelectDomain(domain.id);
+  };
+  
+  const selectScenarioAdapter = (scenario: CyberScenario) => {
+    handleSelectScenario(scenario.id);
+  };
+
   return (
     <ChatContext.Provider
       value={{
@@ -753,8 +761,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         domains: initialDomains,
         scenarios: initialScenarios,
         setUserName: handleSetUserName,
-        selectDomain: handleSelectDomain,
-        selectScenario: handleSelectScenario,
+        selectDomain: selectDomainAdapter,
+        selectScenario: selectScenarioAdapter,
         sendMessage: handleSendMessage,
         updateConfig: handleUpdateConfig,
         resetChat: handleResetChat

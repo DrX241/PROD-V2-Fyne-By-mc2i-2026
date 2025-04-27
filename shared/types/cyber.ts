@@ -284,13 +284,16 @@ export interface CyberDomain {
   id: string;
   name: string;
   description: string;
+  icon?: React.ComponentType<any> | string; // Icône optionnelle pour le domaine (peut être un composant React ou une chaîne)
 }
 
 export interface CyberScenario {
   id: string;
   domain: string;
+  domainId?: string;  // ID du domaine auquel le scénario est rattaché
   title: string;
   difficulty: string;
+  difficultyColor?: string; // Couleur associée au niveau de difficulté (pour l'affichage)
   description?: string;
   contact: {
     name: string;
