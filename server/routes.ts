@@ -1635,11 +1635,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Calcul du nombre d'échanges complets (un échange = un message utilisateur + une réponse du bot)
       // On compte le nombre de paires utilisateur-bot dans l'historique (en excluant l'email initial)
       let exchangeCount = 0;
+      
+      // Debug log pour afficher l'historique complet des messages
+      console.log("DEBUG - Chat history length:", chatHistory ? chatHistory.length : 0);
+      if (chatHistory && chatHistory.length > 0) {
+        console.log("DEBUG - Chat history types:", chatHistory.map(item => item.type).join(", "));
+      }
+      
       if (chatHistory && Array.isArray(chatHistory) && chatHistory.length > 0) {
         // On commence à 1 pour ignorer l'email initial
         for (let i = 1; i < chatHistory.length; i += 2) {
           if (i+1 < chatHistory.length && chatHistory[i].type === 'user' && chatHistory[i+1].type === 'bot') {
             exchangeCount++;
+            console.log(`DEBUG - Exchange found: ${i}:${chatHistory[i].type} and ${i+1}:${chatHistory[i+1].type}`);
           }
         }
       }
@@ -1648,6 +1656,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Après 3 échanges complets, l'historique contient: email + 3*(user+bot) + user = 8 messages
       // Et le message actuel est le 9ème (pour un total de 9 messages dans l'historique après cette requête)
       const isIamCyberIntervention = exchangeCount === 3;
+      
+      console.log(`DEBUG - Final exchange count: ${exchangeCount}`);
+      console.log(`DEBUG - Is I AM CYBER intervention: ${isIamCyberIntervention}`);
       
       // Ajouter des métadonnées structurées pour aider l'IA à suivre le flux de conversation
       const contextMetadata = {
@@ -1808,20 +1819,33 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
         let contactContent = null;
         
         // Debug logs pour comprendre l'état de la conversation
-        console.log(`Exchange count: ${exchangeCount}, isIamCyberIntervention: ${isIamCyberIntervention}`);
+        console.log(`DEBUG - Response processing - Exchange count: ${exchangeCount}, isIamCyberIntervention: ${isIamCyberIntervention}`);
         
         if (isIamCyberIntervention) {
+          console.log("DEBUG - This should be an I AM CYBER intervention");
+          
           // Si c'est une intervention système, vérifier si la réponse commence par la formule attendue
           const interventionMarker = "Je me permets de faire une pause dans cette simulation pour résumer des concepts importants que vous abordez.";
+          
+          // Vérifier si la réponse contient le marqueur d'intervention
           if (responseContent.includes(interventionMarker)) {
+            console.log("DEBUG - Intervention marker found in response");
+            
             // Trouver où le système termine et où le contact reprend
             const contactResumePattern = /Je laisse maintenant .+ reprendre la conversation\./;
             const resumeMatch = responseContent.match(contactResumePattern);
             
-            if (resumeMatch && resumeMatch.index) {
+            console.log("DEBUG - Resume match found:", !!resumeMatch);
+            
+            if (resumeMatch && resumeMatch.index !== undefined) {
+              console.log(`DEBUG - Splitting content at index: ${resumeMatch.index}, match: "${resumeMatch[0]}"`);
+              
               // Séparer le contenu en deux parties
               iamCyberContent = responseContent.substring(0, resumeMatch.index + resumeMatch[0].length).trim();
               contactContent = responseContent.substring(resumeMatch.index + resumeMatch[0].length).trim();
+              
+              console.log("DEBUG - I AM CYBER content length:", iamCyberContent.length);
+              console.log("DEBUG - Contact content length:", contactContent.length);
               
               // Envoyer une réponse spéciale avec les deux contenus distincts
               res.json({ 
@@ -1835,8 +1859,14 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
                 contactRole: respondingContact.role,
                 scenarioContacts: availableContacts
               });
+              console.log("DEBUG - Sent response with I AM CYBER intervention");
               return;
+            } else {
+              console.log("DEBUG - Could not find the end of I AM CYBER intervention");
             }
+          } else {
+            console.log("DEBUG - Intervention marker not found even though exchangeCount is 3");
+            console.log("DEBUG - First 100 chars of response:", responseContent.substring(0, 100));
           }
         }
         
