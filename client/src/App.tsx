@@ -88,7 +88,7 @@ function App() {
             <Route path="/cyber" component={CyberModeSelection} />
             <Route path="/cyber/agent" component={CyberAgentPage} />
             <Route path="/cyber/emergency-response" component={EmergencyResponsePage} />
-            <Route path="/cyber/challenge" component={CyberChallengePage} />
+            <Route path="/cyber/cyber-challenge" component={CyberChallengePage} />
             <Route path="/cyber/arcade" component={CyberArcade} />
             {/* Anciennes routes de jeux (pour compatibilité) */}
             <Route path="/cyber/arcade/password-puzzle" component={PasswordPuzzle} />
