@@ -59,7 +59,7 @@ export default function CyberModeSelection() {
         role: userRole as string,
         mode: mode
       });
-      setLocation(`/cyber-agent?${params.toString()}`);
+      setLocation(`/cyber/agent?${params.toString()}`);
     }, 1500);
   };
 
@@ -72,8 +72,8 @@ export default function CyberModeSelection() {
   };
 
   const handleCancel = () => {
-    // Retour à la page principale des modules cyber
-    setLocation('/cyber');
+    // Retour à la page d'accueil I AM CYBER
+    setLocation('/');
   };
 
   return (
