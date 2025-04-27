@@ -13,7 +13,7 @@ import { handleCyberDefenseChat, generateCyberDefenseMission } from "./cyberDefe
 import { extractJsonFromOpenAiResponse, createFallbackJson } from "./openAiResponseHelper";
 import { startInterviewSimulation, processInterviewMessage, completeInterviewSimulation, analyzeInterviewNotes } from "./interviewSimulationController";
 import { getRandomScenarios, getScenarioById, getScenariosByDifficulty } from "./impostorService";
-import { startAgentSession, completeAgentSession } from "./cyberAgentController";
+import { startAgentSession, completeAgentSession, generateDomainExplanation } from "./cyberAgentController";
 import { generateDebriefing, getContextualDocumentation } from "./cyberLearningController";
 import { 
   getEmergencyScenarios,
