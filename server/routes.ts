@@ -551,6 +551,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           - IMPORTANT: Expose directement un problème ou une question de cybersécurité spécifique au domaine "${scenario.domain}" et demande explicitement l'avis de ${userName} sur cette question
           - Le problème doit être concret, spécifique et adapté au secteur d'activité
           - Demande à ${userName} d'expliquer son point de vue ou de proposer une approche pour résoudre ce problème
+          - CRUCIAL: Mentionner explicitement que plusieurs collègues (sans les nommer individuellement) interviendront dans cet échange pour apporter leurs perspectives et expertises
+          - CRUCIAL: Indiquer clairement que ${userName} peut adresser des questions à une personne spécifique en mentionnant simplement son nom dans son message
           - IMPORTANT: NE PAS mentionner ou faire référence à des pièces jointes, documents ou fichiers
           - Le ton doit être chaleureux, accueillant et professionnel, en utilisant le tutoiement
           - Le style d'écriture doit correspondre au rôle de ${contactPrincipal.role}: professionnel et adapté
