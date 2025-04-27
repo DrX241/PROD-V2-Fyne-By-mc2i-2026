@@ -119,6 +119,7 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
             content={message.content as string}
             contactName="Système" 
             contactRole="Contexte de mission"
+            userName={userName}
           />
         );
       case 'user':
@@ -129,6 +130,7 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
             content={message.content as string} 
             contactName={message.contactName} 
             contactRole={message.contactRole}
+            userName={userName}
           />
         );
       default:

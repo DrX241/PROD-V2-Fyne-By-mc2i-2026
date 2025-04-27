@@ -6,13 +6,48 @@ interface ChatMessageProps {
   content: string;
   contactName?: string;
   contactRole?: string;
+  userName?: string; // Ajouter le nom de l'utilisateur pour le formatage du prénom
 }
 
-export default function ChatMessage({ type, content, contactName, contactRole }: ChatMessageProps) {
+export default function ChatMessage({ type, content, contactName, contactRole, userName }: ChatMessageProps) {
+  // Fonction pour formater correctement le prénom (première lettre en majuscule, reste en minuscules)
+  const formatFirstName = (text: string, name?: string) => {
+    if (!text || !name || typeof text !== 'string' || typeof name !== 'string') {
+      return text;
+    }
+    
+    // Obtenir le prénom formaté correctement (première lettre majuscule, reste minuscule)
+    const formattedName = name.split(' ')[0];
+    if (!formattedName) return text;
+    
+    const properName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1).toLowerCase();
+    
+    // Remplacer toutes les variations du prénom (tout min, tout maj, etc.) par la version formatée
+    const variations = [
+      name.toLowerCase(),
+      name.toUpperCase(),
+      name.charAt(0).toUpperCase() + name.slice(1).toLowerCase(),
+      name
+    ];
+    
+    let result = text;
+    variations.forEach(variant => {
+      result = result.replace(new RegExp(variant, 'g'), properName);
+    });
+    
+    return result;
+  };
+
   // Fonction pour formater le contenu de manière plus professionnelle et concise
   const formatContent = () => {
+    // Formater d'abord le contenu pour corriger les noms
+    let formattedContent = content;
+    if (userName) {
+      formattedContent = formatFirstName(content, userName);
+    }
+    
     // Amélioration de la détection des listes - détecte aussi les listes avec numéros (1., 2., etc)
-    const paragraphs = content.split('\n\n');
+    const paragraphs = formattedContent.split('\n\n');
     
     // Traitement spécial pour les listes dans le texte (- ou • ou 1.)
     const processText = (text: string) => {
@@ -125,7 +160,7 @@ export default function ChatMessage({ type, content, contactName, contactRole }:
   
   // Traitement du texte en gras (** **)
   const processStrongText = (text: string) => {
-    if (!text.includes('**')) return text;
+    if (!text || typeof text !== 'string' || !text.includes('**')) return text;
     
     const parts = text.split(/(\*\*.*?\*\*)/g);
     return parts.map((part, i) => {

@@ -547,11 +547,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           - L'email doit être adressé à ${userName} en utilisant le tutoiement ("tu") 
           - Le secteur d'activité pour ce scénario est: ${secteurActivite}
           - Le nom d'entreprise pour ce scénario est: ${companyName}
-          - L'email doit être un message d'accueil chaleureux où le PNJ se présente, présente brièvement l'entreprise ${companyName}
-          - IMPORTANT: Invite explicitement ${userName} à se présenter en détaillant son parcours, son expérience professionnelle et son niveau de connaissance en cybersécurité
-          - Précise que ces informations sont nécessaires pour mieux adapter la mission à son profil
+          - L'email doit être un message d'accueil chaleureux où le PNJ se présente brièvement et présente l'entreprise ${companyName} succinctement
+          - IMPORTANT: Expose directement un problème ou une question de cybersécurité spécifique au domaine "${scenario.domain}" et demande explicitement l'avis de ${userName} sur cette question
+          - Le problème doit être concret, spécifique et adapté au secteur d'activité
+          - Demande à ${userName} d'expliquer son point de vue ou de proposer une approche pour résoudre ce problème
           - IMPORTANT: NE PAS mentionner ou faire référence à des pièces jointes, documents ou fichiers
-          - N'incluez PAS encore de problème ou de mission spécifique à résoudre
           - Le ton doit être chaleureux, accueillant et professionnel, en utilisant le tutoiement
           - Le style d'écriture doit correspondre au rôle de ${contactPrincipal.role}: professionnel et adapté
           - Rédigez uniquement l'email, pas de commentaires ou d'explications`
@@ -1631,11 +1631,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Contexte de la conversation (pattern du flux)
       const isFirstResponse = chatHistory && chatHistory.length === 2 && chatHistory[0].type === 'email' && chatHistory[1].type === 'user';
-      const isPresentationValidation = chatHistory && chatHistory.length === 4 && 
-                                     chatHistory[0].type === 'email' && 
-                                     chatHistory[1].type === 'user' && 
-                                     chatHistory[2].type === 'bot' && 
-                                     chatHistory[3].type === 'user';
+      
+      // Calcul du nombre d'échanges complets (un échange = un message utilisateur + une réponse du bot)
+      // On compte le nombre de paires utilisateur-bot dans l'historique (en excluant l'email initial)
+      let exchangeCount = 0;
+      if (chatHistory && Array.isArray(chatHistory) && chatHistory.length > 0) {
+        // On commence à 1 pour ignorer l'email initial
+        for (let i = 1; i < chatHistory.length; i += 2) {
+          if (i+1 < chatHistory.length && chatHistory[i].type === 'user' && chatHistory[i+1].type === 'bot') {
+            exchangeCount++;
+          }
+        }
+      }
+      
+      // Vérifier si c'est le moment d'intervenir avec le système I AM CYBER
+      // Après 3 échanges complets, l'historique contient: email + 3*(user+bot) + user = 8 messages
+      // Et le message actuel est le 9ème (pour un total de 9 messages dans l'historique après cette requête)
+      const isIamCyberIntervention = exchangeCount === 3;
       
       // Ajouter des métadonnées structurées pour aider l'IA à suivre le flux de conversation
       const contextMetadata = {
@@ -1649,8 +1661,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         contactRole: respondingContact.role,
         expertContactName: scenario.contact.name,
         expertContactRole: scenario.contact.role,
-        conversationState: isFirstResponse ? "VALIDATION_PRESENTATION" :
-                          isPresentationValidation ? "MISSION_INTRODUCTION" : "CONVERSATION_STANDARD",
+        exchangeCount: exchangeCount,
+        isIamCyberIntervention: isIamCyberIntervention,
+        conversationState: isFirstResponse ? "REPONSE_INITIALE" : 
+                           isIamCyberIntervention ? "INTERVENTION_SYSTEM" : "CONVERSATION_STANDARD",
         messageHistoryLength: chatHistory ? chatHistory.length : 0
       };
       
@@ -1665,9 +1679,9 @@ ${JSON.stringify(contextMetadata, null, 2)}
 Utilise les métadonnées ci-dessus et le master prompt pour déterminer comment répondre selon le flux de conversation défini.
 
 IMPORTANT:
-- SI c'est la validation d'une présentation (VALIDATION_PRESENTATION), vérifie que la présentation contient les informations nécessaires. NE TE PRÉSENTE PAS À NOUVEAU car tu l'as déjà fait dans le premier email.
-- SI c'est l'introduction de la mission (MISSION_INTRODUCTION), présente directement le problème SANS TE PRÉSENTER À NOUVEAU (c'est inutile car tu l'as déjà fait dans le premier email).
-- SI c'est une conversation standard (CONVERSATION_STANDARD), reste dans le contexte et réponds à la question.
+- SI c'est une réponse initiale (REPONSE_INITIALE), réponds directement à ce que l'utilisateur dit concernant le problème que tu as exposé. NE DEMANDE PAS à l'utilisateur de se présenter.
+- SI c'est une intervention système (INTERVENTION_SYSTEM), ta réponse DOIT commencer par: "Je me permets de faire une pause dans cette simulation pour résumer des concepts importants que vous abordez." Puis, en tant que système "I AM CYBER", présente un résumé éducatif de 2 notions importantes abordées dans la conversation. Pour chaque notion, explique: 1) son historique, 2) son impact business et 3) les bonnes pratiques associées. Après ce résumé, termine par "Je laisse maintenant [nom du contact] reprendre la conversation." puis continue avec la réponse normale de ce contact.
+- SI c'est une conversation standard (CONVERSATION_STANDARD), reste dans le contexte et réponds à la question en tant que le contact désigné.
 
 Adapte toujours ton style de communication à ton rôle (${respondingContact.role}) et au secteur d'activité (${secteurActivite}).`
       });
@@ -1789,6 +1803,40 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
           scenarioContacts: availableContacts
         });
       } else {
+        // Déterminer s'il s'agit d'une intervention système
+        let iamCyberContent = null;
+        let contactContent = null;
+        
+        if (isIamCyberIntervention) {
+          // Si c'est une intervention système, vérifier si la réponse commence par la formule attendue
+          const interventionMarker = "Je me permets de faire une pause dans cette simulation pour résumer des concepts importants que vous abordez.";
+          if (responseContent.includes(interventionMarker)) {
+            // Trouver où le système termine et où le contact reprend
+            const contactResumePattern = /Je laisse maintenant .+ reprendre la conversation\./;
+            const resumeMatch = responseContent.match(contactResumePattern);
+            
+            if (resumeMatch && resumeMatch.index) {
+              // Séparer le contenu en deux parties
+              iamCyberContent = responseContent.substring(0, resumeMatch.index + resumeMatch[0].length).trim();
+              contactContent = responseContent.substring(resumeMatch.index + resumeMatch[0].length).trim();
+              
+              // Envoyer une réponse spéciale avec les deux contenus distincts
+              res.json({ 
+                type: 'bot',
+                content: responseContent,
+                isIAMCYBERIntervention: true,
+                iamCyberContent: iamCyberContent,
+                contactContent: contactContent,
+                resetScenario: isScenarioTerminated,
+                contactName: respondingContact.name,
+                contactRole: respondingContact.role,
+                scenarioContacts: availableContacts
+              });
+              return;
+            }
+          }
+        }
+        
         // Réponse standard
         res.json({ 
           type: 'bot',

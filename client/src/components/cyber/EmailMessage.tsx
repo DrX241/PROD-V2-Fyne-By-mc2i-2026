@@ -23,31 +23,67 @@ export default function EmailMessage({ email }: EmailMessageProps) {
     }).format(date);
   };
 
+  // Fonction pour formater correctement le prénom (première lettre en majuscule, reste en minuscules)
+  const formatFirstName = (text: string, userName: string) => {
+    if (!text || !userName || typeof text !== 'string' || typeof userName !== 'string') {
+      return text;
+    }
+    
+    // Obtenir le prénom formaté correctement (première lettre majuscule, reste minuscule)
+    const formattedName = userName.split(' ')[0];
+    if (!formattedName) return text;
+    
+    const properName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1).toLowerCase();
+    
+    // Remplacer toutes les variations du prénom (tout min, tout maj, etc.) par la version formatée
+    const variations = [
+      userName.toLowerCase(),
+      userName.toUpperCase(),
+      userName.charAt(0).toUpperCase() + userName.slice(1).toLowerCase(),
+      userName
+    ];
+    
+    let result = text;
+    variations.forEach(variant => {
+      result = result.replace(new RegExp(variant, 'g'), properName);
+    });
+    
+    return result;
+  };
+
   // Convert email body text to paragraphs
   const formattedBody = email.body.split('\n').map((line: string, i: number) => {
     if (line.trim() === '') return <div key={i} className="h-4"></div>;
     
+    // Formater le prénom dans la ligne
+    const formattedLine = formatFirstName(line, email.to);
+    
     // Handle bullet points or numbered lists
-    if (line.trim().match(/^[•\-*]\s/)) {
-      return <li key={i} className="ml-6 mb-1 text-white">{line.replace(/^[•\-*]\s/, '')}</li>;
+    if (formattedLine.trim().match(/^[•\-*]\s/)) {
+      const bulletText = formattedLine.replace(/^[•\-*]\s/, '');
+      // Aussi formater le texte dans les puces
+      const formattedBulletText = formatFirstName(bulletText, email.to);
+      return <li key={i} className="ml-6 mb-1 text-white">{formattedBulletText}</li>;
     }
     
     // Check for numbered list items
-    const numberedListMatch = line.trim().match(/^(\d+\.)\s(.+)/);
+    const numberedListMatch = formattedLine.trim().match(/^(\d+\.)\s(.+)/);
     if (numberedListMatch) {
-      return <li key={i} className="ml-6 mb-1 text-white">{numberedListMatch[2]}</li>;
+      // S'assurer que le texte du point numéroté est aussi formaté avec un prénom correct
+      const formattedListItem = formatFirstName(numberedListMatch[2], email.to);
+      return <li key={i} className="ml-6 mb-1 text-white">{formattedListItem}</li>;
     }
     
     // Traitement amélioré pour les titres et sous-titres (qui étaient en markdown)
-    if (line.trim().match(/^\*\*.*\*\*$/) || line.trim().match(/^__.*__$/)) {
-      const boldText = line.replace(/^\*\*|\*\*$|^__|__$/g, '');
+    if (formattedLine.trim().match(/^\*\*.*\*\*$/) || formattedLine.trim().match(/^__.*__$/)) {
+      const boldText = formattedLine.replace(/^\*\*|\*\*$|^__|__$/g, '');
       return <p key={i} className="mb-3 font-medium text-white">{boldText}</p>;
     }
     
     // Convertir tout le markdown en HTML correct
-    if (line.includes('**') || line.includes('__')) {
+    if (formattedLine.includes('**') || formattedLine.includes('__')) {
       // Convertir le markdown en HTML propre
-      let processedLine = line;
+      let processedLine = formattedLine;
       
       // Remplacer **text** par du texte en gras
       processedLine = processedLine.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>');
@@ -60,7 +96,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
       return <p key={i} className="mb-3 text-white" dangerouslySetInnerHTML={{ __html: processedLine }} />;
     }
     
-    return <p key={i} className="mb-3 text-white">{line}</p>;
+    return <p key={i} className="mb-3 text-white">{formattedLine}</p>;
   });
 
   // Group list items into proper lists
