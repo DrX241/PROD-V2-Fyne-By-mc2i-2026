@@ -23,6 +23,12 @@ import {
   completeChallengeSession,
   getQuestionsForRole
 } from "./cyberAgentChallengeController";
+import {
+  getScenarios,
+  startCrisisSession,
+  processCrisisMessage,
+  completeCrisisSession
+} from "./pcaCrisisController";
 // Import des fonctions d'urgence cyber supprimé
 
 /**
@@ -2615,6 +2621,12 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
   // Routes pour les fonctionnalités d'apprentissage
   app.post('/api/cyber/debriefing', generateDebriefing);
   app.get('/api/cyber/documentation', getContextualDocumentation);
+
+  // Routes pour le module PCA - Gestion de Crise
+  app.get('/api/cyber/pca-crisis/scenarios', getScenarios);
+  app.post('/api/cyber/pca-crisis/start', startCrisisSession);
+  app.post('/api/cyber/pca-crisis/message', processCrisisMessage);
+  app.post('/api/cyber/pca-crisis/complete', completeCrisisSession);
 
   // Routes pour le nouveau module Cyber Agent Challenge
   app.post('/api/cyber/cyber-agent/evaluate-qcm', evaluateQCM);
