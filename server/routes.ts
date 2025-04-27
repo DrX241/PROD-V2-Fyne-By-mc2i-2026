@@ -462,20 +462,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Déterminer le secteur d'activité en fonction du domaine et du titre du scénario
       let secteurActivite = '';
       
-      if (scenario.domain.toLowerCase().includes('finance') || 
-          scenario.domain.toLowerCase().includes('banque') ||
-          scenario.title.toLowerCase().includes('finance') ||
-          scenario.title.toLowerCase().includes('banque') ||
-          scenario.title.toLowerCase().includes('fraude')) {
+      if (effectiveScenario.domain.toLowerCase().includes('finance') || 
+          effectiveScenario.domain.toLowerCase().includes('banque') ||
+          effectiveScenario.title.toLowerCase().includes('finance') ||
+          effectiveScenario.title.toLowerCase().includes('banque') ||
+          effectiveScenario.title.toLowerCase().includes('fraude')) {
         secteurActivite = 'BANCAIRE/FINANCIER (BFA)';
       } 
-      else if (scenario.domain.toLowerCase().includes('santé') || 
-               scenario.domain.toLowerCase().includes('industriel') || 
-               scenario.domain.toLowerCase().includes('public') ||
-               scenario.title.toLowerCase().includes('santé') ||
-               scenario.title.toLowerCase().includes('industriel') ||
-               scenario.title.toLowerCase().includes('patient') ||
-               scenario.title.toLowerCase().includes('médical')) {
+      else if (effectiveScenario.domain.toLowerCase().includes('santé') || 
+               effectiveScenario.domain.toLowerCase().includes('industriel') || 
+               effectiveScenario.domain.toLowerCase().includes('public') ||
+               effectiveScenario.title.toLowerCase().includes('santé') ||
+               effectiveScenario.title.toLowerCase().includes('industriel') ||
+               effectiveScenario.title.toLowerCase().includes('patient') ||
+               effectiveScenario.title.toLowerCase().includes('médical')) {
         secteurActivite = 'INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)';
       }
       else if (scenario.domain.toLowerCase().includes('retail') || 
@@ -1109,11 +1109,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       ];
       
-      const scenario = scenarios.find(s => s.id === scenarioId);
+      // Rechercher le scénario correspondant
+      const scenario = scenarioId ? scenarios.find(s => s.id === scenarioId) : null;
       
-      if (!scenario) {
+      // Si un scenarioId est fourni mais que le scénario n'existe pas, alors c'est une erreur
+      // Sinon, on continue avec ou sans scénario (pour permettre les conversations générales)
+      if (scenarioId && !scenario) {
         return res.status(404).json({ message: 'Scenario not found' });
       }
+      
+      // Si aucun scénario n'est trouvé, on crée un scénario par défaut
+      const effectiveScenario = scenario || {
+        id: "general-conversation",
+        title: "Conversation générale",
+        domain: "Cybersécurité générale",
+        contact: {
+          name: "Expert Cyber",
+          role: "Conseiller en cybersécurité"
+        },
+        difficulty: "Adaptable"
+      };
       
       // Vérifier si nous avons des contacts disponibles pour le jeu de rôle
       let availableContacts = scenarioContacts;
