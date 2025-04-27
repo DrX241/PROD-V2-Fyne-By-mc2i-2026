@@ -10,7 +10,8 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
-import { AlertTriangle, Clock, DollarSign, Send, User, Bot, FileText } from 'lucide-react';
+import { AlertTriangle, Clock, DollarSign, Send, User, Bot, FileText, Loader2 } from 'lucide-react';
+import axios from 'axios';
 
 // Types pour les messages de chat
 interface ChatMessage {
@@ -47,29 +48,7 @@ export default function PCACrisisPage() {
   const [simulationState, setSimulationState] = useState<SimulationState>('scenario-selection');
   
   // État du scénario
-  const [scenarios, setScenarios] = useState<Scenario[]>([
-    {
-      id: 'ransomware',
-      name: 'Rançongiciel sur serveurs de production',
-      description: 'Serveurs critiques chiffrés, activité paralysée.',
-      initialAlert: 'ALERTE CRITIQUE : Nos serveurs de production ont été chiffrés par un rançongiciel. Toutes les opérations sont arrêtées. Une demande de rançon de 200 000 € a été reçue. Comment souhaitez-vous réagir ?',
-      initialBudget: 400000
-    },
-    {
-      id: 'email-hack',
-      name: 'Piratage de messageries',
-      description: 'Prises de contrôle des emails de la direction.',
-      initialAlert: 'ALERTE SÉCURITÉ : Les comptes de messagerie de plusieurs directeurs ont été compromis. Des emails frauduleux sont envoyés depuis ces comptes. Quelle est votre première action ?',
-      initialBudget: 400000
-    },
-    {
-      id: 'data-leak',
-      name: 'Fuite de Données Confidentielles',
-      description: 'Documents internes publiés sur Internet.',
-      initialAlert: 'INCIDENT MAJEUR : Des documents confidentiels de l\'entreprise ont été publiés sur un forum public. La presse commence à s\'intéresser à l\'affaire. Comment gérez-vous cette situation ?',
-      initialBudget: 400000
-    }
-  ]);
+  const [scenarios, setScenarios] = useState<Scenario[]>([]);
   
   // Actions possibles 
   const [possibleActions, setPossibleActions] = useState<Action[]>([
@@ -81,6 +60,13 @@ export default function PCACrisisPage() {
   
   // Scénario sélectionné
   const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
+  
+  // Session ID
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  
+  // États de chargement
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingScenarios, setIsLoadingScenarios] = useState(true);
   
   // Messages de chat
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -120,103 +106,233 @@ export default function PCACrisisPage() {
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   
   // Sélection d'un scénario
-  const handleScenarioSelect = (scenarioId: string) => {
-    const scenario = scenarios.find(s => s.id === scenarioId);
-    if (scenario) {
-      setSelectedScenario(scenario);
-      setRemainingBudget(scenario.initialBudget);
-      setMessages([
-        {
-          id: '1',
-          role: 'system',
-          content: scenario.initialAlert,
-          timestamp: new Date()
-        }
-      ]);
-      setFictitiousTime(0);
-      setTimerActive(true);
-      setSimulationState('ongoing');
+  const handleScenarioSelect = async (scenarioId: string) => {
+    try {
+      setIsLoading(true);
+      const scenario = scenarios.find(s => s.id === scenarioId);
+      
+      if (!scenario) {
+        toast({
+          title: "Erreur",
+          description: "Scénario non trouvé.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Démarrer la session sur le serveur
+      const response = await axios.post('/api/cyber/pca-crisis/start', {
+        scenarioId: scenario.id
+      });
+      
+      if (response.data) {
+        setSessionId(response.data.sessionId);
+        setSelectedScenario(scenario);
+        setRemainingBudget(scenario.initialBudget);
+        setMessages([
+          {
+            id: '1',
+            role: 'system',
+            content: response.data.initialMessage || scenario.initialAlert,
+            timestamp: new Date()
+          }
+        ]);
+        setFictitiousTime(0);
+        setTimerActive(true);
+        setSimulationState('ongoing');
+      }
+    } catch (error) {
+      console.error("Erreur lors du démarrage de la session:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de démarrer la session. Veuillez réessayer.",
+        variant: "destructive",
+      });
+      
+      // Fallback en cas d'erreur (mode local)
+      const scenario = scenarios.find(s => s.id === scenarioId);
+      if (scenario) {
+        setSelectedScenario(scenario);
+        setRemainingBudget(scenario.initialBudget);
+        setMessages([
+          {
+            id: '1',
+            role: 'system',
+            content: scenario.initialAlert,
+            timestamp: new Date()
+          }
+        ]);
+        setFictitiousTime(0);
+        setTimerActive(true);
+        setSimulationState('ongoing');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
   
   // Envoi d'un message utilisateur
-  const handleSendMessage = () => {
-    if (!userInput.trim()) return;
+  const handleSendMessage = async () => {
+    if (!userInput.trim() || !sessionId) return;
     
-    // Ajouter le message de l'utilisateur
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: userInput,
-      timestamp: new Date()
-    };
-    
-    setMessages(prev => [...prev, userMessage]);
-    setUserInput('');
-    
-    // Si une action a été sélectionnée, déduire son coût
-    if (selectedAction) {
-      const action = possibleActions.find(a => a.id === selectedAction);
-      if (action) {
-        const newBudget = remainingBudget - action.cost;
-        setRemainingBudget(newBudget);
-        
-        if (newBudget < 0) {
-          toast({
-            title: "Budget dépassé !",
-            description: "Vous avez dépassé le budget alloué pour cette crise.",
-            variant: "destructive",
-          });
-        }
-      }
-      setSelectedAction(null);
-    }
-    
-    // Générer une réponse (simulée ici, à remplacer par API)
-    setTimeout(() => {
-      // Déterminer le type de réponse (directeur, hacker, employé)
-      const stakeholderTypes = ['director', 'hacker', 'employee'];
-      const randomType = stakeholderTypes[Math.floor(Math.random() * stakeholderTypes.length)] as 'director' | 'hacker' | 'employee';
+    try {
+      setIsLoading(true);
       
-      let responseContent = '';
-      let stakeholderName = '';
-      
-      switch (randomType) {
-        case 'director':
-          stakeholderName = ['PDG', 'Directeur Financier', 'DSI'][Math.floor(Math.random() * 3)];
-          responseContent = generateDirectorResponse(stakeholderName, userInput);
-          break;
-        case 'hacker':
-          stakeholderName = 'Attaquant';
-          responseContent = generateHackerResponse(userInput);
-          break;
-        case 'employee':
-          stakeholderName = ['Employé inquiet', 'Service Informatique', 'Responsable Communication'][Math.floor(Math.random() * 3)];
-          responseContent = generateEmployeeResponse(stakeholderName, userInput);
-          break;
-      }
-      
-      const responseMessage: ChatMessage = {
+      // Ajouter le message de l'utilisateur
+      const userMessage: ChatMessage = {
         id: Date.now().toString(),
-        role: randomType,
-        content: responseContent,
-        timestamp: new Date(),
-        stakeholder: stakeholderName
+        role: 'user',
+        content: userInput,
+        timestamp: new Date()
       };
       
-      setMessages(prev => [...prev, responseMessage]);
+      setMessages(prev => [...prev, userMessage]);
+      setUserInput('');
       
-      // Avancer le temps fictif
-      setFictitiousTime(prev => prev + Math.floor(Math.random() * 10) + 5);
-      
-      // Vérifier si la simulation doit se terminer
-      if (messages.length >= 10) {
-        // Calculer le score final
-        calculateFinalScore();
-        setTimerActive(false);
-        setSimulationState('completed');
+      // Calculer le coût de l'action sélectionnée
+      let actionCost = 0;
+      if (selectedAction) {
+        const action = possibleActions.find(a => a.id === selectedAction);
+        if (action) {
+          actionCost = action.cost;
+          const newBudget = remainingBudget - actionCost;
+          setRemainingBudget(newBudget);
+          
+          if (newBudget < 0) {
+            toast({
+              title: "Budget dépassé !",
+              description: "Vous avez dépassé le budget alloué pour cette crise.",
+              variant: "destructive",
+            });
+          }
+        }
+        setSelectedAction(null);
       }
-    }, 1000);
+      
+      // Envoyer le message à l'API
+      const response = await axios.post('/api/cyber/pca-crisis/message', {
+        sessionId,
+        message: userInput,
+        actionCost
+      });
+      
+      if (response.data && response.data.message) {
+        const { type, stakeholder, content, timestamp } = response.data.message;
+        
+        const responseMessage: ChatMessage = {
+          id: Date.now().toString(),
+          role: type as 'director' | 'hacker' | 'employee',
+          content,
+          timestamp: new Date(timestamp),
+          stakeholder
+        };
+        
+        setMessages(prev => [...prev, responseMessage]);
+        
+        // Mettre à jour le budget restant si l'API nous indique une modification
+        if (response.data.remainingBudget !== undefined) {
+          setRemainingBudget(response.data.remainingBudget);
+        }
+        
+        // Avancer le temps fictif
+        setFictitiousTime(prev => prev + Math.floor(Math.random() * 10) + 5);
+        
+        // Vérifier si la simulation doit se terminer (après 10 échanges)
+        if (messages.length >= 10) {
+          handleCompleteSession();
+        }
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'envoi du message:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible d'envoyer le message. Utilisation du mode local.",
+        variant: "destructive",
+      });
+      
+      // Mode local (fallback) en cas d'erreur API
+      setTimeout(() => {
+        // Déterminer le type de réponse (directeur, hacker, employé)
+        const stakeholderTypes = ['director', 'hacker', 'employee'];
+        const randomType = stakeholderTypes[Math.floor(Math.random() * stakeholderTypes.length)] as 'director' | 'hacker' | 'employee';
+        
+        let responseContent = '';
+        let stakeholderName = '';
+        
+        switch (randomType) {
+          case 'director':
+            stakeholderName = ['PDG', 'Directeur Financier', 'DSI'][Math.floor(Math.random() * 3)];
+            responseContent = generateDirectorResponse(stakeholderName, userInput);
+            break;
+          case 'hacker':
+            stakeholderName = 'Attaquant';
+            responseContent = generateHackerResponse(userInput);
+            break;
+          case 'employee':
+            stakeholderName = ['Employé inquiet', 'Service Informatique', 'Responsable Communication'][Math.floor(Math.random() * 3)];
+            responseContent = generateEmployeeResponse(stakeholderName, userInput);
+            break;
+        }
+        
+        const responseMessage: ChatMessage = {
+          id: Date.now().toString(),
+          role: randomType,
+          content: responseContent,
+          timestamp: new Date(),
+          stakeholder: stakeholderName
+        };
+        
+        setMessages(prev => [...prev, responseMessage]);
+        
+        // Avancer le temps fictif
+        setFictitiousTime(prev => prev + Math.floor(Math.random() * 10) + 5);
+        
+        // Vérifier si la simulation doit se terminer
+        if (messages.length >= 10) {
+          calculateFinalScore();
+          setTimerActive(false);
+          setSimulationState('completed');
+        }
+      }, 1000);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Terminer la session et calculer le score final
+  const handleCompleteSession = async () => {
+    if (!sessionId) {
+      calculateFinalScore();
+      setTimerActive(false);
+      setSimulationState('completed');
+      return;
+    }
+    
+    try {
+      setIsLoading(true);
+      const response = await axios.post('/api/cyber/pca-crisis/complete', {
+        sessionId
+      });
+      
+      if (response.data) {
+        setScore(response.data.score);
+        if (response.data.fictitiousTime) {
+          setFictitiousTime(response.data.fictitiousTime);
+        }
+        if (response.data.remainingBudget !== undefined) {
+          setRemainingBudget(response.data.remainingBudget);
+        }
+      } else {
+        calculateFinalScore();
+      }
+    } catch (error) {
+      console.error("Erreur lors de la complétion de la session:", error);
+      calculateFinalScore(); // Fallback
+    } finally {
+      setTimerActive(false);
+      setSimulationState('completed');
+      setIsLoading(false);
+    }
   };
   
   // Fonction pour générer une réponse d'un directeur
@@ -294,6 +410,54 @@ export default function PCACrisisPage() {
     });
   };
   
+  // Charger les scénarios au chargement de la page
+  useEffect(() => {
+    const fetchScenarios = async () => {
+      try {
+        setIsLoadingScenarios(true);
+        const response = await axios.get('/api/cyber/pca-crisis/scenarios');
+        if (response.data && response.data.scenarios) {
+          setScenarios(response.data.scenarios);
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement des scénarios:", error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les scénarios. Veuillez réessayer.",
+          variant: "destructive",
+        });
+        // Scénarios de secours si l'API échoue
+        setScenarios([
+          {
+            id: 'ransomware',
+            name: 'Rançongiciel sur serveurs de production',
+            description: 'Serveurs critiques chiffrés, activité paralysée.',
+            initialAlert: 'ALERTE CRITIQUE : Nos serveurs de production ont été chiffrés par un rançongiciel. Toutes les opérations sont arrêtées.',
+            initialBudget: 400000
+          },
+          {
+            id: 'email-hack',
+            name: 'Piratage de messageries',
+            description: 'Prises de contrôle des emails de la direction.',
+            initialAlert: 'ALERTE SÉCURITÉ : Les comptes de messagerie de plusieurs directeurs ont été compromis.',
+            initialBudget: 400000
+          },
+          {
+            id: 'data-leak',
+            name: 'Fuite de Données Confidentielles',
+            description: 'Documents internes publiés sur Internet.',
+            initialAlert: 'INCIDENT MAJEUR : Des documents confidentiels ont été publiés sur un forum public.',
+            initialBudget: 400000
+          }
+        ]);
+      } finally {
+        setIsLoadingScenarios(false);
+      }
+    };
+    
+    fetchScenarios();
+  }, [toast]);
+  
   // Effet pour faire défiler le chat automatiquement
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -328,23 +492,41 @@ export default function PCACrisisPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {scenarios.map((scenario) => (
-                  <Card key={scenario.id} className="cursor-pointer transition-all hover:shadow-md" onClick={() => handleScenarioSelect(scenario.id)}>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-lg font-semibold">{scenario.name}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-gray-600">{scenario.description}</p>
-                    </CardContent>
-                    <CardFooter>
-                      <Button className="w-full" onClick={() => handleScenarioSelect(scenario.id)}>
-                        Sélectionner
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
+              {isLoadingScenarios ? (
+                <div className="flex flex-col items-center justify-center py-10">
+                  <Loader2 className="h-10 w-10 animate-spin text-blue-600 mb-4" />
+                  <p className="text-gray-600">Chargement des scénarios...</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {scenarios.map((scenario) => (
+                    <Card key={scenario.id} className="cursor-pointer transition-all hover:shadow-md" onClick={() => !isLoading && handleScenarioSelect(scenario.id)}>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg font-semibold">{scenario.name}</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-gray-600">{scenario.description}</p>
+                      </CardContent>
+                      <CardFooter>
+                        <Button 
+                          className="w-full" 
+                          onClick={() => !isLoading && handleScenarioSelect(scenario.id)}
+                          disabled={isLoading}
+                        >
+                          {isLoading ? (
+                            <>
+                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                              Chargement...
+                            </>
+                          ) : (
+                            "Sélectionner"
+                          )}
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </div>
         );
@@ -501,11 +683,24 @@ export default function PCACrisisPage() {
                         onChange={(e) => setUserInput(e.target.value)}
                         placeholder="Décrivez votre action ou réponse..."
                         className="flex-1"
-                        onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                        onKeyDown={(e) => e.key === 'Enter' && !isLoading && handleSendMessage()}
+                        disabled={isLoading}
                       />
-                      <Button onClick={handleSendMessage} disabled={!userInput.trim()}>
-                        <Send className="h-4 w-4 mr-2" />
-                        Envoyer
+                      <Button 
+                        onClick={handleSendMessage} 
+                        disabled={!userInput.trim() || isLoading}
+                      >
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            Envoi...
+                          </>
+                        ) : (
+                          <>
+                            <Send className="h-4 w-4 mr-2" />
+                            Envoyer
+                          </>
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -650,11 +845,29 @@ export default function PCACrisisPage() {
               </div>
             </CardContent>
             <CardFooter className="flex justify-center gap-4">
-              <Button onClick={resetSimulation}>
-                Nouveau scénario
+              <Button 
+                onClick={resetSimulation} 
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Chargement...
+                  </>
+                ) : (
+                  "Nouveau scénario"
+                )}
               </Button>
-              <Button variant="outline" className="gap-2">
-                <FileText className="h-4 w-4" />
+              <Button 
+                variant="outline" 
+                className="gap-2"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <FileText className="h-4 w-4" />
+                )}
                 Télécharger le rapport (PDF)
               </Button>
             </CardFooter>
