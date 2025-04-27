@@ -178,7 +178,7 @@ const CyberChallenge: React.FC = () => {
           <div 
             className={`px-4 py-3 rounded-lg ${
               isSystem 
-                ? 'bg-secondary text-secondary-foreground font-medium' 
+                ? 'bg-secondary text-white font-medium' 
                 : 'bg-primary text-white font-medium'
             }`}
           >
@@ -186,7 +186,7 @@ const CyberChallenge: React.FC = () => {
             <div className="prose prose-sm dark:prose-invert max-w-none">
               <Markdown>{msg.content}</Markdown>
             </div>
-            <div className="text-xs mt-1 text-right font-normal text-white/90">
+            <div className="text-xs mt-1 text-right font-normal text-white">
               {formatTime(msg.timestamp)}
             </div>
           </div>
@@ -284,7 +284,7 @@ const CyberChallenge: React.FC = () => {
                 {sessionContext.players.map((player, index) => (
                   <div key={index} className="flex items-center justify-between text-xs">
                     <span className="font-medium">{player.name} ({player.role})</span>
-                    <Badge variant="secondary" className="ml-1 font-bold text-foreground bg-secondary-foreground/10">
+                    <Badge variant="secondary" className="ml-1 font-bold text-black bg-gray-200">
                       {player.points} pts
                     </Badge>
                   </div>
@@ -297,7 +297,7 @@ const CyberChallenge: React.FC = () => {
           <Card>
             <CardContent className="py-2 px-3">
               <div className="flex items-center">
-                <BrainCircuit size={16} className="mr-1 text-primary" />
+                <BrainCircuit size={16} className="mr-1 text-black" />
                 <span className="text-sm font-medium">Progression</span>
               </div>
               
@@ -307,21 +307,21 @@ const CyberChallenge: React.FC = () => {
                     {sessionContext.currentLevel && sessionContext.maxLevel && (
                       <div className="flex justify-between font-medium">
                         <span>Niveau</span>
-                        <span className="text-primary font-bold">{sessionContext.currentLevel}/{sessionContext.maxLevel}</span>
+                        <span className="text-black font-bold">{sessionContext.currentLevel}/{sessionContext.maxLevel}</span>
                       </div>
                     )}
                     
                     {sessionContext.discoveredIndices !== undefined && (
                       <div className="flex justify-between font-medium">
                         <span>Indices</span>
-                        <span className="text-primary font-bold">{sessionContext.discoveredIndices}/10</span>
+                        <span className="text-black font-bold">{sessionContext.discoveredIndices}/10</span>
                       </div>
                     )}
                     
                     {sessionContext.remainingBudget !== undefined && (
                       <div className="flex justify-between font-medium">
                         <span>Budget</span>
-                        <span className="text-primary font-bold">{sessionContext.remainingBudget.toLocaleString('fr-FR')}€</span>
+                        <span className="text-black font-bold">{sessionContext.remainingBudget.toLocaleString('fr-FR')}€</span>
                       </div>
                     )}
                   </>
@@ -330,7 +330,7 @@ const CyberChallenge: React.FC = () => {
                 {sessionContext.currentStage !== undefined && sessionContext.currentStage < 4 && (
                   <div className="flex justify-between font-medium">
                     <span>Configuration</span>
-                    <span className="text-primary font-bold">Étape {sessionContext.currentStage}/4</span>
+                    <span className="text-black font-bold">Étape {sessionContext.currentStage}/4</span>
                   </div>
                 )}
               </div>
@@ -342,7 +342,7 @@ const CyberChallenge: React.FC = () => {
             <CardContent className="py-2 px-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <Clock size={16} className="mr-1 text-primary" />
+                  <Clock size={16} className="mr-1 text-black" />
                   <span className="text-sm font-medium">Tour actuel</span>
                 </div>
                 
@@ -364,7 +364,7 @@ const CyberChallenge: React.FC = () => {
                     {sessionContext.currentPlayer}
                   </Badge>
                   
-                  <span className={`text-xs font-medium ${playerName === sessionContext.currentPlayer ? 'text-primary' : 'text-foreground/80'}`}>
+                  <span className={`text-xs font-medium ${playerName === sessionContext.currentPlayer ? 'text-black font-bold' : 'text-foreground/80'}`}>
                     {playerName === sessionContext.currentPlayer ? 'À toi de jouer!' : 'En attente...'}
                   </span>
                 </div>
