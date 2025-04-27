@@ -274,10 +274,10 @@ const CyberChallenge: React.FC = () => {
             <CardContent className="py-2 px-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <Users size={16} className="mr-1" />
-                  <span className="text-sm font-medium">Joueurs</span>
+                  <Users size={16} className="mr-1 text-white" />
+                  <span className="text-sm font-medium text-white">Joueurs</span>
                 </div>
-                <span className="text-xs">{sessionContext.players.length}</span>
+                <span className="text-xs text-white">{sessionContext.players.length}</span>
               </div>
               
               <div className="mt-1">
@@ -297,8 +297,8 @@ const CyberChallenge: React.FC = () => {
           <Card>
             <CardContent className="py-2 px-3">
               <div className="flex items-center">
-                <BrainCircuit size={16} className="mr-1 text-black" />
-                <span className="text-sm font-medium">Progression</span>
+                <BrainCircuit size={16} className="mr-1 text-white" />
+                <span className="text-sm font-medium text-white">Progression</span>
               </div>
               
               <div className="mt-1 text-xs">
@@ -307,21 +307,21 @@ const CyberChallenge: React.FC = () => {
                     {sessionContext.currentLevel && sessionContext.maxLevel && (
                       <div className="flex justify-between font-medium">
                         <span>Niveau</span>
-                        <span className="text-black font-bold">{sessionContext.currentLevel}/{sessionContext.maxLevel}</span>
+                        <span className="text-white font-bold">{sessionContext.currentLevel}/{sessionContext.maxLevel}</span>
                       </div>
                     )}
                     
                     {sessionContext.discoveredIndices !== undefined && (
                       <div className="flex justify-between font-medium">
                         <span>Indices</span>
-                        <span className="text-black font-bold">{sessionContext.discoveredIndices}/10</span>
+                        <span className="text-white font-bold">{sessionContext.discoveredIndices}/10</span>
                       </div>
                     )}
                     
                     {sessionContext.remainingBudget !== undefined && (
                       <div className="flex justify-between font-medium">
                         <span>Budget</span>
-                        <span className="text-black font-bold">{sessionContext.remainingBudget.toLocaleString('fr-FR')}€</span>
+                        <span className="text-white font-bold">{sessionContext.remainingBudget.toLocaleString('fr-FR')}€</span>
                       </div>
                     )}
                   </>
@@ -330,7 +330,7 @@ const CyberChallenge: React.FC = () => {
                 {sessionContext.currentStage !== undefined && sessionContext.currentStage < 4 && (
                   <div className="flex justify-between font-medium">
                     <span>Configuration</span>
-                    <span className="text-black font-bold">Étape {sessionContext.currentStage}/4</span>
+                    <span className="text-white font-bold">Étape {sessionContext.currentStage}/4</span>
                   </div>
                 )}
               </div>
@@ -342,8 +342,8 @@ const CyberChallenge: React.FC = () => {
             <CardContent className="py-2 px-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <Clock size={16} className="mr-1 text-black" />
-                  <span className="text-sm font-medium">Tour actuel</span>
+                  <Clock size={16} className="mr-1 text-white" />
+                  <span className="text-sm font-medium text-white">Tour actuel</span>
                 </div>
                 
                 {sessionContext.currentStage !== undefined && sessionContext.currentStage >= 4 && (
