@@ -96,8 +96,8 @@ function App() {
             <Route path="/modules" component={ModulesPage} />
             <Route path="/cyber" component={CyberModeSelection} />
             <Route path="/cyber/agent" component={CyberAgentPage} />
-            <Route path="/cyber/cyber-agent" component={CyberAgentNewPage} /> {/* Redirigé vers la nouvelle version */}
-            <Route path="/cyber/cyber-agent-old" component={CyberAgentChallengePage} /> {/* Ancienne version (déconseillée) */}
+            <Route path="/cyber/cyber-agent" component={CyberAgentRedirectPage} /> {/* Redirection vers la nouvelle version */}
+            <Route path="/cyber/cyber-agent-old" component={CyberAgentRedirectPage} /> {/* Ancienne version (redirection) */}
             <Route path="/cyber/cyber-agent-new" component={CyberAgentNewPage} /> {/* Nouvelle version du module Cyber Agent */}
             <Route path="/cyber/pca-crisis" component={PCACrisisPage} /> {/* Nouveau module PCA - Gestion de Crise */}
             <Route path="/cyber/emergency-response" component={NotYetImplemented} /> {/* Redirection vers page non implémentée */}

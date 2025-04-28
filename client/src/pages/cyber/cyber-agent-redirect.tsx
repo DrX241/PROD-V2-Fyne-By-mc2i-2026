@@ -1,11 +1,8 @@
 // Redirection vers la nouvelle page Cyber Agent
 import { useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
 import { AlertCircle, ArrowRight } from 'lucide-react';
-import PageTitle from '@/components/utils/PageTitle';
 
 export default function CyberAgentRedirectPage() {
   // Navigation
@@ -27,15 +24,8 @@ export default function CyberAgentRedirectPage() {
 
   return (
     <div className="bg-white dark:bg-gray-900 min-h-screen">
-      <PageTitle title="Redirection Cyber Agent" />
-      
       <div className="max-w-4xl mx-auto px-4 py-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 md:p-8 text-center"
-        >
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 md:p-8 text-center">
           <div className="inline-flex items-center justify-center p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-full mb-4">
             <AlertCircle className="h-8 w-8 text-yellow-600 dark:text-yellow-400" />
           </div>
@@ -57,7 +47,7 @@ export default function CyberAgentRedirectPage() {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
