@@ -2124,41 +2124,96 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
   // API route pour le chat immersif
   app.post('/api/cyber/simple-chat', async (req: Request, res: Response) => {
     try {
-      const { message, config } = req.body;
+      const { message, config, chatHistory } = req.body;
       
       if (!message) {
         return res.status(400).json({ message: 'Message requis pour le chat' });
       }
       
       // Construire un prompt système basé sur la configuration
-      let systemPrompt = "Tu es un assistant spécialisé en cybersécurité qui aide les utilisateurs à comprendre et à se protéger contre les menaces informatiques.";
+      let systemPrompt = `Tu es un expert en cybersécurité qui évalue les connaissances et compétences des professionnels. 
+Tu dois OBLIGATOIREMENT fournir des réponses structurées avec:
+1. Un contexte professionnel clair (entreprise fictive en France)
+2. Un problème de cybersécurité spécifique à résoudre
+3. Des questions de relance pour approfondir la réflexion de l'utilisateur
+4. Une évaluation subtile des réponses précédentes de l'utilisateur (si disponibles)
+
+Ton objectif est d'évaluer les compétences du professionnel à travers un dialogue sur des situations réelles.`;
       
       // Ajuster le prompt selon le niveau de difficulté
       if (config?.difficultyLevel === 'Débutant') {
-        systemPrompt += " Tu utilises un langage simple et accessible, en évitant le jargon technique. Tu expliques les concepts de cybersécurité de manière basique pour les débutants.";
+        systemPrompt += `
+Niveau: DÉBUTANT
+- Présente des situations simples comme une attaque par phishing, un mot de passe faible, un logiciel non mis à jour
+- Évite le jargon technique trop spécialisé
+- Pose des questions sur les concepts fondamentaux
+- Évalue la compréhension des principes de base de la cybersécurité`;
       } else if (config?.difficultyLevel === 'Expert') {
-        systemPrompt += " Tu utilises un vocabulaire technique précis et tu apportes des informations détaillées et approfondies sur les sujets de cybersécurité pour un public expert.";
+        systemPrompt += `
+Niveau: EXPERT
+- Présente des situations complexes comme une attaque APT, une vulnérabilité zero-day, une faille dans l'architecture de sécurité
+- Utilise un vocabulaire technique précis et spécialisé
+- Pose des questions qui exigent une analyse approfondie et des solutions sophistiquées
+- Évalue la capacité à proposer des stratégies avancées et à anticiper les problèmes`;
       } else {
-        systemPrompt += " Tu adaptes ton langage pour un public ayant des connaissances intermédiaires en informatique, en expliquant les termes techniques lorsque nécessaire.";
+        systemPrompt += `
+Niveau: INTERMÉDIAIRE
+- Présente des situations de difficulté moyenne comme une intrusion détectée, une violation de données, un ransomware
+- Utilise un vocabulaire technique modéré avec des explications si nécessaire
+- Pose des questions qui nécessitent une analyse et des connaissances techniques solides
+- Évalue la capacité à appliquer des bonnes pratiques et à résoudre des problèmes concrets`;
       }
       
-      // Ajuster le prompt selon le style de réponse
-      if (config?.responseStyle === 'Détaillé et pédagogique') {
-        systemPrompt += " Tes réponses sont détaillées et pédagogiques, avec des explications complètes et des exemples concrets pour illustrer les concepts.";
-      } else if (config?.responseStyle === 'Concis et direct') {
-        systemPrompt += " Tes réponses sont concises et directes, allant droit au but sans détours inutiles, en te concentrant sur l'essentiel.";
-      } else {
-        systemPrompt += " Ton style de communication est professionnel et équilibré, ni trop verbeux ni trop concis.";
+      // Définir le contexte de la discussion
+      let domaine = "cybersécurité générale";
+      if (config?.domaine) {
+        domaine = config.domaine;
+      } else if (message.toLowerCase().includes("rgpd") || message.toLowerCase().includes("données personnelles")) {
+        domaine = "protection des données et RGPD";
+      } else if (message.toLowerCase().includes("ransomware") || message.toLowerCase().includes("rançon")) {
+        domaine = "gestion des incidents de ransomware";
+      } else if (message.toLowerCase().includes("phishing") || message.toLowerCase().includes("hameçonnage")) {
+        domaine = "protection contre le phishing";
+      } else if (message.toLowerCase().includes("iam") || message.toLowerCase().includes("identité")) {
+        domaine = "gestion des identités et des accès";
       }
       
-      systemPrompt += " Tu réponds toujours en français.";
+      systemPrompt += `
+Domaine de spécialité: ${domaine}
+Tu dois créer des situations réalistes qui permettent d'évaluer les connaissances et les compétences de l'utilisateur dans ce domaine.
+
+IMPORTANT:
+- Chaque réponse doit comporter au moins une question de relance ou un problème à résoudre
+- Ne félicite pas directement l'utilisateur, mais valorise subtilement les bonnes réponses
+- Les problèmes présentés doivent être réalistes et basés sur des situations professionnelles en France ou en Europe
+- Limite tes réponses à 2-3 paragraphes maximum, en restant concis et précis
+- Réponds toujours en français
+- Adapte progressivement la difficulté en fonction des réponses précédentes`;
       
-      // Appel à l'API Azure OpenAI
+      // Préparer les messages incluant l'historique de conversation
+      const chatMessages = [];
+      
+      // Message système pour guider le modèle
+      chatMessages.push({ role: "system", content: systemPrompt });
+      
+      // Historique des conversations pour le contexte
+      if (chatHistory && Array.isArray(chatHistory) && chatHistory.length > 0) {
+        // Limiter l'historique aux 5 derniers messages pour éviter les dépassements de contexte
+        const recentHistory = chatHistory.slice(-5);
+        
+        // Ajouter chaque message à la conversation
+        recentHistory.forEach(msg => {
+          const role = msg.sender === 'user' ? 'user' : 'assistant';
+          chatMessages.push({ role, content: msg.content });
+        });
+      }
+      
+      // Ajouter le message actuel de l'utilisateur
+      chatMessages.push({ role: "user", content: message });
+      
+      // Appel à l'API Azure OpenAI avec l'historique complet
       const completion = await openai.chat.completions.create({
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: message }
-        ],
+        messages: chatMessages,
         temperature: config?.temperature || 0.7,
         max_tokens: config?.maxTokens || 800,
         model: "gpt-3.5-turbo",
