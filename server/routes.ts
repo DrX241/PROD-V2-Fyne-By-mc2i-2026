@@ -2608,6 +2608,78 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
   app.post('/api/cyber/debriefing', generateDebriefing);
   app.get('/api/cyber/documentation', getContextualDocumentation);
 
+  // Routes pour le nouveau module Cyber Agent (version 2)
+  app.get('/api/cyber/cyber-agent/roles', (req, res) => {
+    // Définition des rôles disponibles pour le module Cyber Agent v2
+    const roles = [
+      {
+        id: 'rssi',
+        title: 'Responsable Sécurité des Systèmes d\'Information (RSSI)',
+        description: 'Vous êtes responsable de la stratégie de sécurité et de la conformité de l\'entreprise.',
+      },
+      {
+        id: 'ethical-hacker',
+        title: 'Ethical Hacker',
+        description: 'Vous êtes spécialisé(e) dans l\'identification des vulnérabilités via des tests d\'intrusion.',
+      },
+      {
+        id: 'developer',
+        title: 'Développeur Sécurité',
+        description: 'Vous intégrez les principes de sécurité dès la conception des applications (Security by Design).',
+      },
+      {
+        id: 'sysadmin',
+        title: 'Administrateur Systèmes',
+        description: 'Vous gérez l\'infrastructure IT et assurez sa sécurisation au quotidien.',
+      },
+      {
+        id: 'consultant',
+        title: 'Consultant Cybersécurité',
+        description: 'Vous conseillez différentes organisations sur leurs problématiques de sécurité.',
+      }
+    ];
+
+    res.json({ roles });
+  });
+
+  app.post('/api/cyber/cyber-agent/start-session', (req, res) => {
+    try {
+      const { role, level, userName } = req.body;
+      
+      if (!role || !level || !userName) {
+        return res.status(400).json({ error: 'Paramètres manquants (rôle, niveau ou nom d\'utilisateur)' });
+      }
+      
+      // Génération d'un ID de session unique
+      const sessionId = uuidv4();
+      
+      // Configuration de la session en fonction du rôle et du niveau
+      const session = {
+        id: sessionId,
+        role,
+        level,
+        userName,
+        startTime: new Date().toISOString(),
+        messages: [],
+        status: 'active'
+      };
+      
+      // Dans une version production, on sauvegarderait cette session en base de données
+      // Pour cette implémentation, nous renvoyons simplement les informations de session
+      
+      res.status(201).json({
+        success: true,
+        session
+      });
+    } catch (error) {
+      console.error('Erreur lors de la création de la session Cyber Agent:', error);
+      res.status(500).json({
+        error: 'Erreur lors de la création de la session',
+        details: error instanceof Error ? error.message : 'Erreur inconnue'
+      });
+    }
+  });
+
   // Routes pour le système d'urgence cyber interactif
   // Les routes d'urgence cyber ont été supprimées
 
