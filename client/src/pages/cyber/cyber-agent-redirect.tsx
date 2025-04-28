@@ -1,5 +1,5 @@
 // Page de redirection du module CYBER AGENT
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -9,24 +9,25 @@ export default function CyberAgentRedirectPage() {
   const [, setLocation] = useLocation();
   const [countdown, setCountdown] = useState(5);
   
+  // Fonction pour rediriger
+  const redirectToNewPage = useCallback(() => {
+    setLocation('/cyber/cyber-agent-new');
+  }, [setLocation]);
+  
   // Effet pour le compte à rebours et la redirection automatique
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          setTimeout(() => {
-            setLocation('/cyber/cyber-agent-new');
-          }, 0);
-          return 0;
-        }
-        return prev - 1;
-      });
+    if (countdown <= 0) {
+      redirectToNewPage();
+      return;
+    }
+    
+    const timer = setTimeout(() => {
+      setCountdown(countdown - 1);
     }, 1000);
     
     // Nettoyage à la destruction du composant
-    return () => clearInterval(timer);
-  }, [setLocation]);
+    return () => clearTimeout(timer);
+  }, [countdown, redirectToNewPage]);
 
   // Animation de transition
   const containerVariants = {
