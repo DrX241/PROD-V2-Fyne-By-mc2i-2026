@@ -326,6 +326,7 @@ export interface ChatContextType {
   config: AIConfig;
   domains: CyberDomain[];
   scenarios: CyberScenario[];
+  currentStage: number;
   setUserName: (name: string) => void;
   setUserRole: (role: string) => void;
   selectDomain: (domain: CyberDomain) => void;

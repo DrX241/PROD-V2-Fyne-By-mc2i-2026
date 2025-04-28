@@ -360,6 +360,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [scenario, setScenario] = useState<ScenarioState>(initialScenarioState);
   const [config, setConfig] = useState<AIConfig>(initialConfig);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [currentStage, setCurrentStage] = useState<number>(0);
 
   // Initialize the chat with a welcome message
   useEffect(() => {
@@ -415,6 +416,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       
       setMessages(prev => [...prev, botResponse, roleSelection]);
+      setCurrentStage(currentStage + 1);
       setIsTyping(false);
     }, 1000);
   };
@@ -463,6 +465,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       
       setMessages(prev => [...prev, botResponse, domainSelection]);
+      setCurrentStage(currentStage + 1);
       setIsTyping(false);
     }, 1000);
   };
@@ -519,6 +522,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Nous n'affichons plus le sélecteur de scénario, car nous allons directement
     // envoyer un email après l'explication
     setMessages(prev => [...prev, botConfirmation]);
+    setCurrentStage(currentStage + 1);
     
     // Sélectionner automatiquement un scénario de difficulté intermédiaire pour ce domaine
     const scenariosForDomain = initialScenarios.filter(s => s.domainId === domainId);
@@ -588,6 +592,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       
       setMessages(prev => [...prev, emailMessage]);
+      setCurrentStage(currentStage + 1);
     } catch (error) {
       console.error('Error starting scenario:', error);
       
@@ -787,8 +792,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const handleResetChat = () => {
     setMessages([]);
     setUserName("");
+    setUserRole("");
     setScenario(initialScenarioState);
     setConfig(initialConfig);
+    setCurrentStage(0);
     setIsInitialized(false);
   };
 
@@ -803,6 +810,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         config,
         domains: initialDomains,
         scenarios: initialScenarios,
+        currentStage,
         setUserName: handleSetUserName,
         setUserRole: handleSetUserRole,
         selectDomain: handleSelectDomain,
