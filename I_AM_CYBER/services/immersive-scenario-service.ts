@@ -1,23 +1,27 @@
 import { 
   ImmersiveScenario,
   NPCCharacter, 
-  DecisionPoint, 
-  ScenarioPhase, 
+  ScenarioStage,
   UserRole, 
   SimulationSession,
   ImmersiveConversation
-} from '../../shared/types/immersive-cyber';
+} from '../types';
 import { v4 as uuidv4 } from 'uuid';
 import { openAIService } from './openai';
 import { ChatCompletionRequestMessage } from '../../shared/schema';
 
-/**
- * Service responsable de la gestion des scénarios immersifs et des interactions avec les PNJ
- */
 export class ImmersiveScenarioService {
   private activeScenarios: Map<string, ImmersiveScenario> = new Map();
   private activeSessions: Map<string, SimulationSession> = new Map();
   private conversations: Map<string, ImmersiveConversation> = new Map();
+  private currentStage: number = 1;
+  private stageDescriptions = {
+    1: "Détection initiale d'un incident de cybersécurité",
+    2: "Premières décisions urgentes à prendre",
+    3: "Aggravation de la crise cyber",
+    4: "Gestion sous haute pression",
+    5: "Évaluation finale"
+  };
 
   /**
    * Initialise le service avec les scénarios prédéfinis
@@ -134,7 +138,8 @@ export class ImmersiveScenarioService {
           name: 'Session démarrée',
           description: `Début du scénario: ${scenario.title}`
         }
-      }]
+      }],
+      currentStage: 1 // Initialize the stage
     };
     
     // Initialiser les relations avec les personnages
@@ -412,35 +417,35 @@ export class ImmersiveScenarioService {
     
     // Préparer le prompt pour l'IA
     const promptContext = `
-Tu incarnes ${character.name}, ${character.role} dans le scénario "${scenario.title}".
-Important: Ta réponse doit suivre ces règles d'immersion:
-1. Réagis émotionnellement en fonction du niveau de tension (${progressionTracker.tensionLevel}/10)
-2. Adapte ton urgence au contexte actuel
-3. Fais référence aux décisions précédentes du joueur
-4. Utilise des éléments de mise en situation (sons, actions, environnement)
-
-Profil du personnage:
-- Expertise: ${character.expertise.join(', ')}
-- Personnalité: ${character.personality}
-- Style de communication: ${character.communicationStyle}
-
-Contexte du scénario: ${conversation.context}
-
-Ce que tu sais sur la situation actuelle:
-${conversation.knowledgeConstraints.characterKnows.join('\n')}
-
-Information importante: Tu ne sais PAS les choses suivantes (ne les mentionne pas):
-${conversation.knowledgeConstraints.characterDoesntKnow.join('\n')}
-
-Tu parles à un utilisateur qui joue le rôle de: ${conversation.playerRole}
-
-Historique de la conversation:
-${conversation.history.map(h => `${h.speaker === 'player' ? 'Utilisateur' : character.name}: ${h.content}`).join('\n')}
-
-Réponds de manière professionnelle mais avec la personnalité de ${character.name}. 
-Ta réponse doit être cohérente avec ton expertise, ton niveau de connaissance et ta relation avec l'utilisateur.
-N'invente pas d'informations que tu ne peux pas connaître dans ton rôle.
-`;
+    Tu incarnes ${character.name}, ${character.role} dans le scénario "${scenario.title}".
+    Important: Ta réponse doit suivre ces règles d'immersion:
+    1. Réagis émotionnellement en fonction du niveau de tension (${progressionTracker.tensionLevel}/10)
+    2. Adapte ton urgence au contexte actuel
+    3. Fais référence aux décisions précédentes du joueur
+    4. Utilise des éléments de mise en situation (sons, actions, environnement)
+    
+    Profil du personnage:
+    - Expertise: ${character.expertise.join(', ')}
+    - Personnalité: ${character.personality}
+    - Style de communication: ${character.communicationStyle}
+    
+    Contexte du scénario: ${conversation.context}
+    
+    Ce que tu sais sur la situation actuelle:
+    ${conversation.knowledgeConstraints.characterKnows.join('\n')}
+    
+    Information importante: Tu ne sais PAS les choses suivantes (ne les mentionne pas):
+    ${conversation.knowledgeConstraints.characterDoesntKnow.join('\n')}
+    
+    Tu parles à un utilisateur qui joue le rôle de: ${conversation.playerRole}
+    
+    Historique de la conversation:
+    ${conversation.history.map(h => `${h.speaker === 'player' ? 'Utilisateur' : character.name}: ${h.content}`).join('\n')}
+    
+    Réponds de manière professionnelle mais avec la personnalité de ${character.name}. 
+    Ta réponse doit être cohérente avec ton expertise, ton niveau de connaissance et ta relation avec l'utilisateur.
+    N'invente pas d'informations que tu ne peux pas connaître dans ton rôle.
+    `;
     
     const messages: ChatCompletionRequestMessage[] = [
       { role: "system", content: promptContext },
@@ -511,7 +516,126 @@ N'invente pas d'informations que tu ne peux pas connaître dans ton rôle.
     // Pour l'instant, retournons un ID factice
     throw new Error("Génération dynamique des scénarios non implémentée");
   }
+
+  async processUserMessage(
+    message: string,
+    sessionId: string,
+    currentStage: number
+  ): Promise<{
+    response: string;
+    nextStage: number;
+    situationUpdate: string;
+    consequence: string;
+  }> {
+    const session = this.getSession(sessionId);
+    if (!session) {
+      throw new Error(`Session not found: ${sessionId}`);
+    }
+
+    // Analyse subtile de la réponse précédente
+    const analysis = await this.analyzeResponse(message, currentStage);
+
+    // Générer la progression du scénario
+    const progression = await this.generateProgression(currentStage, analysis);
+
+    // Générer la réponse
+    const response = await this.generateResponse(progression, session);
+
+    const updatedSession = this.updateSession(sessionId, { currentStage: currentStage < 5 ? currentStage + 1 : 5 });
+
+    return {
+      response: response.content,
+      nextStage: currentStage < 5 ? currentStage + 1 : 5,
+      situationUpdate: response.situation,
+      consequence: response.consequence
+    };
+  }
+
+  private async analyzeResponse(message: string, stage: number): Promise<string> {
+    const prompt = `
+    En tant qu'expert cybersécurité, analysez subtilement cette réponse de l'utilisateur à l'étape ${stage}/5:
+    "${message}"
+
+    Contexte: ${this.stageDescriptions[stage as keyof typeof this.stageDescriptions]}
+    `;
+
+    return await this.getAIResponse(prompt);
+  }
+
+  private async generateProgression(stage: number, analysis: string): Promise<string> {
+    const prompt = `
+    Étape ${stage}/5 - ${this.stageDescriptions[stage as keyof typeof this.stageDescriptions]}
+
+    Analyse de la réponse: ${analysis}
+
+    Générez la prochaine situation avec:
+    1. Une brève description de l'évolution (1 paragraphe)
+    2. Une question précise
+    3. Une conséquence directe des actions précédentes
+    `;
+
+    const response = await this.getAIResponse(prompt);
+    return response;
+  }
+
+  private async generateResponse(progression: string, session: SimulationSession): Promise<{ content: string; situation: string; consequence: string }> {
+    const prompt = `
+    Progression du scénario: ${progression}
+
+    Contexte de la session: ${JSON.stringify(session, null, 2)}
+
+    Générer une réponse pour l'utilisateur avec:
+    1. Un contenu pertinent (réponse à la question et description de la situation)
+    2. Une description de la situation
+    3. Une conséquence directe des actions précédentes
+    `;
+
+    const response = await this.getAIResponse(prompt);
+    const parts = response.split('\n\n');
+    return {
+      content: parts[0],
+      situation: parts[1],
+      consequence: parts[2]
+    };
+  }
+
+
+  private async getAIResponse(prompt: string): Promise<string> {
+    const messages: ChatCompletionRequestMessage[] = [
+      { role: "system", content: prompt },
+    ];
+    const aiResponse = await openAIService.getChatCompletionWithCache(
+      messages,
+      0.7,
+      500
+    );
+    return aiResponse;
+  }
 }
 
-// Exporter l'instance singleton
 export const immersiveScenarioService = new ImmersiveScenarioService();
+
+// Placeholder function - needs actual implementation
+function calculateTensionModifier(option: any, currentPhase: any): number {
+  return 0; // Replace with actual tension calculation
+}
+
+interface ScenarioPhase {
+  id: string;
+  description: string;
+  decisionPoints: DecisionPoint[];
+}
+
+interface DecisionPoint {
+  id: string;
+  options: {
+    id: string;
+    requiredRole?: UserRole[];
+    consequences: {
+      type: 'direct' | 'delayed' | 'cascading';
+      narrative: string;
+      metrics?: { metricId: string; change: number }[];
+    }[];
+    feedback: { immediate: string; delayed: string };
+  }[];
+}
