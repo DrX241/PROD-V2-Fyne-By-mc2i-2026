@@ -574,7 +574,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: JSON.stringify({
           scenarioId,
           userName,
-          config
+          config,
+          currentStage
         })
       });
       
@@ -687,7 +688,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           scenarioId: scenario.activeScenario?.id,
           config,
           chatHistory: relevantMessages,
-          scenarioContacts: scenario.scenarioContacts // Transmettre la liste des interlocuteurs
+          scenarioContacts: scenario.scenarioContacts, // Transmettre la liste des interlocuteurs
+          currentStage: currentStage // Ajouter l'information de progression
         })
       });
       
