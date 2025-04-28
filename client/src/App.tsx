@@ -14,6 +14,7 @@ import ModulesPage from "@/pages/modules";
 import CyberModeSelection from "@/pages/cyber-mode-selection";
 import CyberAgentPage from "@/pages/cyber-agent";
 import CyberAgentChallengePage from "@/pages/cyber/cyber-agent";
+import CyberAgentNewPage from "@/pages/cyber/cyber-agent-new";
 import PCACrisisPage from "@/pages/cyber/pca-crisis";
 // EmergencyResponsePage a été supprimé
 
@@ -94,7 +95,8 @@ function App() {
             <Route path="/modules" component={ModulesPage} />
             <Route path="/cyber" component={CyberModeSelection} />
             <Route path="/cyber/agent" component={CyberAgentPage} />
-            <Route path="/cyber/cyber-agent" component={CyberAgentChallengePage} /> {/* Nouveau module Cyber Agent implémenté */}
+            <Route path="/cyber/cyber-agent" component={CyberAgentChallengePage} /> {/* Ancien module Cyber Agent */}
+            <Route path="/cyber/cyber-agent-new" component={CyberAgentNewPage} /> {/* Nouvelle version du module Cyber Agent */}
             <Route path="/cyber/pca-crisis" component={PCACrisisPage} /> {/* Nouveau module PCA - Gestion de Crise */}
             <Route path="/cyber/emergency-response" component={NotYetImplemented} /> {/* Redirection vers page non implémentée */}
             <Route path="/cyber/arcade" component={CyberArcade} />

@@ -453,7 +453,7 @@ export default function CyberAgentPage() {
     try {
       setIsLoading(true);
       
-      const response = await fetch('/api/cyber-agent/complete', {
+      const response = await fetch('/api/cyber/cyber-agent/complete-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -944,11 +944,17 @@ export default function CyberAgentPage() {
 
   return (
     <HomeLayout>
-      <PageTitle
-        title="Cyber Agent"
-        subtitle="Mise en situation d'audition avec interaction avancée"
-        className="mb-6"
-      />
+      {/* Mise à jour du titre de la page */}
+      <PageTitle title="Cyber Agent" />
+      
+      <div className="max-w-4xl mx-auto mb-6 px-4">
+        <div className="border-b pb-4 mb-6">
+          <h1 className="text-3xl font-bold">Cyber Agent</h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-1">
+            Mise en situation d'audition avec interaction avancée
+          </p>
+        </div>
+      </div>
       
       {error && (
         <div className="max-w-4xl mx-auto px-4 mb-6">
