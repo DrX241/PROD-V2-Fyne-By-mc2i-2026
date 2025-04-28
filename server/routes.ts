@@ -15,20 +15,6 @@ import { startInterviewSimulation, processInterviewMessage, completeInterviewSim
 import { getRandomScenarios, getScenarioById, getScenariosByDifficulty } from "./impostorService";
 import { startAgentSession, completeAgentSession } from "./cyberAgentController";
 import { generateDebriefing, getContextualDocumentation } from "./cyberLearningController";
-import { 
-  getAvailableRoles,
-  startCyberAgentSession,
-  processUserPresentation,
-  processExpertInteraction,
-  resumeAfterPause,
-  completeCyberAgentSession
-} from "./cyberAgentChallengeController";
-import {
-  getScenarios,
-  startCrisisSession,
-  processCrisisMessage,
-  completeCrisisSession
-} from "./pcaCrisisController";
 // Import des fonctions d'urgence cyber supprimé
 
 /**
@@ -2621,20 +2607,6 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
   // Routes pour les fonctionnalités d'apprentissage
   app.post('/api/cyber/debriefing', generateDebriefing);
   app.get('/api/cyber/documentation', getContextualDocumentation);
-
-  // Routes pour le module PCA - Gestion de Crise
-  app.get('/api/cyber/pca-crisis/scenarios', getScenarios);
-  app.post('/api/cyber/pca-crisis/start', startCrisisSession);
-  app.post('/api/cyber/pca-crisis/message', processCrisisMessage);
-  app.post('/api/cyber/pca-crisis/complete', completeCrisisSession);
-
-  // Routes pour le module CYBER AGENT (version refactorisée)
-  app.get('/api/cyber/cyber-agent/roles', getAvailableRoles);
-  app.post('/api/cyber/cyber-agent/start-session', startCyberAgentSession);
-  app.post('/api/cyber/cyber-agent/presentation', processUserPresentation);
-  app.post('/api/cyber/cyber-agent/interaction', processExpertInteraction);
-  app.post('/api/cyber/cyber-agent/resume-after-pause', resumeAfterPause);
-  app.post('/api/cyber/cyber-agent/complete-session', completeCyberAgentSession);
 
   // Routes pour le système d'urgence cyber interactif
   // Les routes d'urgence cyber ont été supprimées

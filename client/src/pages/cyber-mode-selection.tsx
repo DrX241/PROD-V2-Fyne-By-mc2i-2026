@@ -42,12 +42,6 @@ export default function CyberModeSelection() {
           title: 'AGENT CONVERSATIONNEL',
           icon: null,
           destination: '/cyber/agent'
-        },
-        {
-          id: 'cyber-agent',
-          title: 'CYBER AGENT',
-          icon: null,
-          destination: '/cyber/cyber-agent'
         }
       ]
     },
@@ -64,12 +58,6 @@ export default function CyberModeSelection() {
           title: 'CYBER ARCADE',
           icon: null,
           destination: '/cyber/arcade'
-        },
-        {
-          id: 'pca-crisis',
-          title: 'PCA - GESTION DE CRISE',
-          icon: null,
-          destination: '/cyber/pca-crisis'
         }
       ]
     },
