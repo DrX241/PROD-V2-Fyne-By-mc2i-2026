@@ -16,12 +16,12 @@ import { getRandomScenarios, getScenarioById, getScenariosByDifficulty } from ".
 import { startAgentSession, completeAgentSession } from "./cyberAgentController";
 import { generateDebriefing, getContextualDocumentation } from "./cyberLearningController";
 import { 
-  evaluateQCM, 
-  getAvailableScenarios, 
-  startChallengeSession, 
-  processChallengeMessage, 
-  completeChallengeSession,
-  getQuestionsForRole
+  getAvailableRoles,
+  startCyberAgentSession,
+  processUserPresentation,
+  processExpertInteraction,
+  resumeAfterPause,
+  completeCyberAgentSession
 } from "./cyberAgentChallengeController";
 import {
   getScenarios,
@@ -2628,13 +2628,13 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
   app.post('/api/cyber/pca-crisis/message', processCrisisMessage);
   app.post('/api/cyber/pca-crisis/complete', completeCrisisSession);
 
-  // Routes pour le nouveau module Cyber Agent Challenge
-  app.post('/api/cyber/cyber-agent/evaluate-qcm', evaluateQCM);
-  app.get('/api/cyber/cyber-agent/scenarios', getAvailableScenarios);
-  app.post('/api/cyber/cyber-agent/start-session', startChallengeSession);
-  app.post('/api/cyber/cyber-agent/message', processChallengeMessage);
-  app.post('/api/cyber/cyber-agent/complete-session', completeChallengeSession);
-  app.get('/api/cyber/cyber-agent/questions', getQuestionsForRole);
+  // Routes pour le module CYBER AGENT (version refactorisée)
+  app.get('/api/cyber/cyber-agent/roles', getAvailableRoles);
+  app.post('/api/cyber/cyber-agent/start-session', startCyberAgentSession);
+  app.post('/api/cyber/cyber-agent/presentation', processUserPresentation);
+  app.post('/api/cyber/cyber-agent/interaction', processExpertInteraction);
+  app.post('/api/cyber/cyber-agent/resume-after-pause', resumeAfterPause);
+  app.post('/api/cyber/cyber-agent/complete-session', completeCyberAgentSession);
 
   // Routes pour le système d'urgence cyber interactif
   // Les routes d'urgence cyber ont été supprimées

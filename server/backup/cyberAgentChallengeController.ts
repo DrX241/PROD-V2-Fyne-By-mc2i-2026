@@ -311,7 +311,7 @@ export async function processUserPresentation(req: Request, res: Response) {
       // Réponse complète - Isabelle remercie et passe au scénario
       session.userPresentation = message;
       
-      const thankYouMessage: ChatConversationMessage = {
+      const thankYouMessage = {
         id: uuidv4(),
         role: 'assistant',
         content: `Merci ${session.userName} pour ces informations complètes.\n\nJ'ai transmis votre profil à l'expert qui s'occupera de votre scénario. Il vous contactera très prochainement.\n\nCordialement,\nIsabelle Dubacq\nDirectrice des Ressources Humaines`,
@@ -355,7 +355,7 @@ Limite ta réponse à 250 mots maximum.`;
         
         const expertIntroContent = expertResponse.choices[0].message.content;
         
-        const expertIntroMessage: ChatConversationMessage = {
+        const expertIntroMessage = {
           id: uuidv4(),
           role: 'assistant',
           content: expertIntroContent,
@@ -575,89 +575,148 @@ Limite ta réponse à 250 mots maximum.`;
     return res.status(500).json({ message: 'Erreur lors du traitement de l\'interaction' });
   }
 }
-
-/**
- * Fonction pour continuer après une pause pédagogique
- * Reprend l'interaction avec l'expert après l'intervention de I AM CYBER
- */
-export async function resumeAfterPause(req: Request, res: Response) {
-  try {
-    const { sessionId } = req.body;
     
-    if (!sessionId) {
-      return res.status(400).json({ message: 'ID de session manquant' });
-    }
-    
-    const session = activeSessions.get(sessionId);
-    
-    if (!session) {
-      return res.status(404).json({ message: 'Session non trouvée' });
-    }
-    
-    // Vérifier que nous sommes bien en phase de pause
-    if (session.currentPhase !== 'pause') {
-      return res.status(400).json({ message: 'Action invalide dans cette phase' });
-    }
-    
-    // Revenir à la phase d'interaction
-    session.currentPhase = 'interaction';
-    
-    // Générer un message de l'expert pour reprendre la conversation
-    const expertContact = session.currentContact;
-    if (!expertContact) {
-      return res.status(500).json({ message: 'Erreur: pas d\'expert assigné à cette session' });
-    }
-    
-    // Prompt pour générer le message de reprise
-    const resumePrompt = `Tu es ${expertContact.name}, ${expertContact.role}. Suite à une pause pédagogique de l'assistant I AM CYBER, tu reprends la conversation avec ${session.userName}.
-
-Rédige un court message qui:
-1. Fait référence aux explications données par I AM CYBER
-2. Propose de continuer le scénario ou d'approfondir un aspect particulier
-3. Pose une question ouverte pour relancer la conversation
-
-Ton style doit être professionnel mais accessible, en utilisant le tutoiement.
-Limite ta réponse à 150 mots maximum.`;
-
+    let response;
     try {
-      const resumeResponse = await openAIService.getChatCompletionSecondary({
-        messages: [{ role: 'system', content: resumePrompt }],
+      response = await openAIService.getChatCompletionSecondary({
+        messages: messages.map(m => ({ role: m.role, content: m.content })),
         temperature: 0.7,
-        max_tokens: 300
-      });
-      
-      const resumeContent = resumeResponse.choices[0].message.content;
-      
-      const resumeMessage: ChatConversationMessage = {
-        id: uuidv4(),
-        role: 'assistant',
-        content: resumeContent,
-        contact: expertContact,
-        timestamp: new Date()
-      };
-      
-      // Ajouter le message à l'historique
-      session.messages.push(resumeMessage);
-      
-      return res.status(200).json({
-        response: resumeContent,
-        contact: expertContact
+        max_tokens: 2000
       });
     } catch (error) {
-      console.error("Erreur lors de la génération du message de reprise:", error);
-      return res.status(500).json({ message: "Erreur lors de la génération du message de reprise" });
+      console.error("Erreur OpenAI lors de la génération du message initial:", error);
+      response = {
+        choices: [
+          {
+            message: {
+              content: "Désolé, une erreur est survenue lors de la génération du scénario initial. Veuillez réessayer."
+            }
+          }
+        ]
+      };
     }
+    
+    const initialMessage = response.choices[0].message.content;
+    
+    // Ajouter le message à la session
+    sessionData.messages.push(
+      { role: 'user', content: initialPrompt },
+      { role: 'assistant', content: initialMessage }
+    );
+    
+    return res.status(200).json({
+      sessionId,
+      initialMessage,
+      context: sessionData.context
+    });
   } catch (error) {
-    console.error('Erreur lors de la reprise après pause:', error);
-    return res.status(500).json({ message: 'Erreur lors de la reprise après pause' });
+    console.error('Erreur lors du démarrage de la session:', error);
+    return res.status(500).json({ message: 'Erreur lors du démarrage de la session' });
   }
 }
 
 /**
- * Clôture une session CYBER AGENT et génère une évaluation finale
- * Correspond à la phase 'evaluation' (section C.6)
+ * Traite un message dans une session de défi Cyber Agent en cours
  */
-export async function completeCyberAgentSession(req: Request, res: Response) {
+export async function processChallengeMessage(req: Request, res: Response) {
+  try {
+    const { sessionId, message } = req.body;
+    
+    if (!sessionId || !message) {
+      return res.status(400).json({ message: 'Paramètres manquants' });
+    }
+    
+    const session = activeSessions.get(sessionId);
+    
+    if (!session) {
+      return res.status(404).json({ message: 'Session non trouvée' });
+    }
+    
+    // Ajouter le message utilisateur à la session
+    session.messages.push({ role: 'user', content: message });
+    
+    // Construire le prompt pour l'IA en fonction du contexte actuel
+    let prompt = '';
+    
+    if (session.gameMode === 'tunnel') {
+      prompt = `L'utilisateur a envoyé: "${message}"
+      
+En tant que ${session.userRole} dans l'étape ${session.context.currentStep} du scénario, analyse sa réponse et:
+1. Évalue si la décision est pertinente pour la situation actuelle
+2. Fais progresser le scénario en fonction de cette décision (conséquences directes)
+3. Introduis de nouveaux éléments ou complications en fonction des actions précédentes
+4. Présente clairement les conséquences des choix précédents
+
+Si la décision est particulièrement bonne, attribue des points bonus.
+Si la décision est risquée ou incorrecte, expose les conséquences négatives.
+
+Maintiens la cohérence avec les étapes précédentes et les décisions déjà prises.`;
+    } else {
+      prompt = `L'utilisateur a envoyé: "${message}"
+      
+En tant que ${session.userRole} face à ce défi, analyse sa réponse et:
+1. Évalue si la solution proposée est adaptée au problème
+2. Fournit un feedback détaillé sur l'approche choisie
+3. Introduis la prochaine étape du défi ou la conclusion si approprié
+
+Ajuste le niveau de détail technique en fonction du niveau ${session.skillLevel} de l'utilisateur.
+Si la réponse est particulièrement bonne, attribue des points bonus.
+Si la réponse est incorrecte, fournis des indices adaptés sans donner directement la solution.`;
+    }
+    
+    // Envoyer la requête à l'API OpenAI
+    let response;
+    try {
+      response = await openAIService.getChatCompletionSecondary({
+        messages: [...session.messages, { role: 'user', content: prompt }].map(m => ({ role: m.role, content: m.content })),
+        temperature: 0.7,
+        max_tokens: 2000
+      });
+    } catch (error) {
+      console.error("Erreur OpenAI lors du traitement du message:", error);
+      response = {
+        choices: [
+          {
+            message: {
+              content: "Désolé, une erreur est survenue lors du traitement de votre message. Veuillez réessayer."
+            }
+          }
+        ]
+      };
+    }
+    
+    const assistantMessage = response.choices[0].message.content;
+    
+    // Ajouter les messages à la session
+    session.messages.push(
+      { role: 'user', content: prompt },
+      { role: 'assistant', content: assistantMessage }
+    );
+    
+    // Mettre à jour le contexte (ceci est simplifié, dans une implémentation réelle, 
+    // on analyserait la réponse pour mettre à jour précisément le score, les étapes, etc.)
+    session.context.decisions.push(message);
+    
+    // Dans une implémentation réelle, on analyserait la réponse de l'IA pour déterminer 
+    // le score, les réussites, etc. Ici, on simule une progression simple
+    if (session.gameMode === 'tunnel' && session.context.decisions.length % 2 === 0) {
+      session.context.currentStep++;
+    }
+    
+    return res.status(200).json({
+      response: assistantMessage,
+      context: session.context
+    });
+  } catch (error) {
+    console.error('Erreur lors du traitement du message:', error);
+    return res.status(500).json({ message: 'Erreur lors du traitement du message' });
+  }
+}
+
+/**
+ * Termine une session de défi Cyber Agent et génère un rapport de performance
+ */
+export async function completeChallengeSession(req: Request, res: Response) {
   try {
     const { sessionId } = req.body;
     
@@ -670,155 +729,201 @@ export async function completeCyberAgentSession(req: Request, res: Response) {
     if (!session) {
       return res.status(404).json({ message: 'Session non trouvée' });
     }
-    
-    // Passer à la phase d'évaluation
-    session.currentPhase = 'evaluation';
     
     // Calculer la durée de la session
     const duration = Date.now() - session.startTime;
     const durationMinutes = Math.round(duration / 60000);
     
-    // Récupérer l'historique des messages pertinents (exclure les messages système)
-    const relevantMessages = session.messages
-      .filter(msg => msg.role !== 'system')
-      .map(msg => {
-        const sender = msg.role === 'user' 
-          ? session.userName 
-          : (msg.contact?.name || 'Assistant');
-        return `${sender}: ${msg.content}`;
-      })
-      .join('\n\n');
-    
-    // Construire le prompt pour générer l'évaluation finale
-    const evaluationPrompt = `Tu es un Expert en Formation Cybersécurité. Ta mission est de générer une évaluation complète de la session d'entraînement qui vient de se terminer.
+    // Construire le prompt pour générer le rapport final
+    const summaryPrompt = `Génère un rapport final détaillé pour cette session de cybersécurité.
 
 Informations sur la session:
-- Participant: ${session.userName}
 - Rôle: ${session.userRole}
-- Niveau: ${session.expertiseLevel}
+- Niveau: ${session.skillLevel}
+- Mode: ${session.gameMode}
 - Durée: ${durationMinutes} minutes
+- Score actuel: ${session.context.score} points
 
-Voici un résumé des échanges principaux:
-${relevantMessages.length > 3000 ? relevantMessages.substring(0, 3000) + '...' : relevantMessages}
+Analyse:
+1. Évalue les compétences démontrées et les domaines d'expertise
+2. Identifie les points forts et les axes d'amélioration
+3. Fournis des recommandations personnalisées pour progresser
+4. Attribue un score final en ajoutant des points pour la performance globale
 
-Génère une évaluation structurée avec les sections suivantes:
-1. Note globale (sur 20)
-2. Points forts (3-5 éléments)
-3. Axes d'amélioration (2-3 éléments)
-4. Bonnes pratiques et concepts clés (liste concise)
-5. Compétences acquises
-6. Recommandations et ressources
+Organise le rapport en sections clairement définies avec des titres.
+Utilise une mise en forme soignée pour améliorer la lisibilité.
+Inclus un certificat de réussite attestant de l'achèvement du défi.`;
 
-Ton évaluation doit être:
-- Précise et basée sur les interactions observées
-- Bienveillante et constructive
-- Adaptée au niveau du participant
-- Formatée pour une lecture claire
-
-Pour la note, tiens compte de la pertinence des réponses, de la rigueur méthodologique et de la capacité à mobiliser les bonnes pratiques de cybersécurité.`;
-
+    // Envoyer la requête à l'API OpenAI
+    let response;
     try {
-      const evaluationResponse = await openAIService.getChatCompletionSecondary({
-        messages: [{ role: 'system', content: evaluationPrompt }],
+      response = await openAIService.getChatCompletionSecondary({
+        messages: [...session.messages, { role: 'user', content: summaryPrompt }].map(m => ({ role: m.role, content: m.content })),
         temperature: 0.7,
-        max_tokens: 1000
-      });
-      
-      const evaluationContent = evaluationResponse.choices[0].message.content;
-      
-      // Essayer de structurer l'évaluation
-      let structuredEvaluation: CyberAgentEvaluation;
-      try {
-        // Analyser le texte pour en extraire les sections structurées
-        const overallScoreMatch = evaluationContent.match(/note glob\w+.+?(\d+)[\/\s]*20/i);
-        const overallScore = overallScoreMatch ? parseInt(overallScoreMatch[1]) : 15; // Valeur par défaut si non trouvée
-        
-        // Extraire les points forts (liste à puces ou numérotée après "Points forts" ou "Forces")
-        const strengthsMatch = evaluationContent.match(/points? forts?|forces?:?([^#]+?)(?=\n\s*\n|\n\s*[#*]|$)/i);
-        const strengthsText = strengthsMatch ? strengthsMatch[1] : '';
-        const strengths = strengthsText
-          .split(/\n[-*•]|\n\d+\./)
-          .map(s => s.trim())
-          .filter(s => s.length > 5);
-        
-        // Extraire les axes d'amélioration
-        const improvementsMatch = evaluationContent.match(/axes? d['']amélioration|points? à améliorer|faiblesses?:?([^#]+?)(?=\n\s*\n|\n\s*[#*]|$)/i);
-        const improvementsText = improvementsMatch ? improvementsMatch[1] : '';
-        const areasToImprove = improvementsText
-          .split(/\n[-*•]|\n\d+\./)
-          .map(s => s.trim())
-          .filter(s => s.length > 5);
-        
-        // Extraire les concepts clés
-        const conceptsMatch = evaluationContent.match(/bonnes? pratiques?|concepts? clés?:?([^#]+?)(?=\n\s*\n|\n\s*[#*]|$)/i);
-        const conceptsText = conceptsMatch ? conceptsMatch[1] : '';
-        const keyLearnings = conceptsText
-          .split(/\n[-*•]|\n\d+\./)
-          .map(s => s.trim())
-          .filter(s => s.length > 5);
-        
-        // Extraire les compétences acquises
-        const skillsMatch = evaluationContent.match(/compétences? acquises?:?([^#]+?)(?=\n\s*\n|\n\s*[#*]|$)/i);
-        const skillsText = skillsMatch ? skillsMatch[1] : '';
-        const acquiredSkills = skillsText
-          .split(/\n[-*•]|\n\d+\./)
-          .map(s => s.trim())
-          .filter(s => s.length > 5);
-        
-        // Extraire les recommandations
-        const recommendationsMatch = evaluationContent.match(/recommandations?|ressources?:?([^#]+?)(?=\n\s*\n|\n\s*[#*]|$)/i);
-        const recommendationsText = recommendationsMatch ? recommendationsMatch[1] : '';
-        const recommendations = recommendationsText
-          .split(/\n[-*•]|\n\d+\./)
-          .map(s => s.trim())
-          .filter(s => s.length > 5);
-        
-        structuredEvaluation = {
-          overallScore,
-          strengths: strengths.length > 0 ? strengths : ['Bonne compréhension des enjeux de cybersécurité'],
-          areasToImprove: areasToImprove.length > 0 ? areasToImprove : ['Approfondir les aspects techniques de la sécurité'],
-          keyLearnings: keyLearnings.length > 0 ? keyLearnings : ['Principes fondamentaux de la cybersécurité'],
-          acquiredSkills: acquiredSkills.length > 0 ? acquiredSkills : ['Analyse des risques de sécurité'],
-          recommendations: recommendations.length > 0 ? recommendations : ['Consulter des ressources spécialisées en cybersécurité']
-        };
-      } catch (parseError) {
-        console.error("Erreur lors de l'analyse structurée de l'évaluation:", parseError);
-        // Fallback avec une structure par défaut
-        structuredEvaluation = {
-          overallScore: 15,
-          strengths: ['Bonne compréhension des concepts', 'Approche méthodique des problèmes'],
-          areasToImprove: ['Approfondir les connaissances techniques', 'Développer une vision plus stratégique'],
-          keyLearnings: ['Principes de base de la cybersécurité', 'Gestion des incidents'],
-          acquiredSkills: ['Analyse des risques', 'Communication en situation de crise'],
-          recommendations: ['Consulter des ressources spécialisées', 'Participer à des exercices pratiques']
-        };
-      }
-      
-      // Ajouter le message d'évaluation à l'historique
-      const evaluationMessage: ChatConversationMessage = {
-        id: uuidv4(),
-        role: 'assistant',
-        content: evaluationContent,
-        timestamp: new Date()
-      };
-      
-      session.messages.push(evaluationMessage);
-      session.currentPhase = 'complete';
-      
-      // Marquer la session comme terminée mais la conserver pour référence
-      // Dans une implémentation réelle, on la sauvegarderait en base de données
-      
-      return res.status(200).json({
-        rawEvaluation: evaluationContent,
-        evaluation: structuredEvaluation,
-        duration: durationMinutes
+        max_tokens: 2000
       });
     } catch (error) {
-      console.error("Erreur lors de la génération de l'évaluation:", error);
-      return res.status(500).json({ message: "Erreur lors de la génération de l'évaluation" });
+      console.error("Erreur OpenAI lors de la génération du rapport:", error);
+      response = {
+        choices: [
+          {
+            message: {
+              content: "Désolé, une erreur est survenue lors de la génération de votre rapport final. Veuillez réessayer."
+            }
+          }
+        ]
+      };
     }
+    
+    const summaryMessage = response.choices[0].message.content;
+    
+    // Dans une implémentation réelle, on stockerait ce rapport en base de données
+    // et on enverrait éventuellement un email à l'utilisateur avec le rapport
+    
+    // Supprimer la session
+    activeSessions.delete(sessionId);
+    
+    return res.status(200).json({
+      summary: summaryMessage,
+      duration: durationMinutes,
+      finalScore: session.context.score
+    });
   } catch (error) {
-    console.error('Erreur lors de la complétion de la session:', error);
-    return res.status(500).json({ message: 'Erreur lors de la complétion de la session' });
+    console.error('Erreur lors de la finalisation de la session:', error);
+    return res.status(500).json({ message: 'Erreur lors de la finalisation de la session' });
+  }
+}
+
+/**
+ * Récupère les questions du QCM pour un rôle spécifique
+ */
+export async function getQuestionsForRole(req: Request, res: Response) {
+  try {
+    const { userRole } = req.query;
+    
+    if (!userRole) {
+      return res.status(400).json({ message: 'Rôle utilisateur manquant' });
+    }
+    
+    // Dans une implémentation réelle, ces questions seraient stockées en base de données
+    // et seraient récupérées dynamiquement en fonction du rôle
+    
+    // Questions communes à tous les rôles
+    const commonQuestions = [
+      {
+        id: 1,
+        text: 'Qu\'est-ce qu\'une attaque par déni de service (DoS)?',
+        options: [
+          { id: 'a', text: 'Une attaque visant à rendre un service indisponible', correct: true },
+          { id: 'b', text: 'Un malware qui vole des données confidentielles', correct: false },
+          { id: 'c', text: 'Une technique pour forcer des mots de passe', correct: false },
+          { id: 'd', text: 'Un logiciel qui surveille les activités des utilisateurs', correct: false }
+        ]
+      },
+      {
+        id: 2,
+        text: 'Qu\'est-ce que le phishing?',
+        options: [
+          { id: 'a', text: 'Un protocole de sécurité réseau', correct: false },
+          { id: 'b', text: 'Une technique d\'ingénierie sociale visant à obtenir des informations confidentielles', correct: true },
+          { id: 'c', text: 'Un logiciel antivirus', correct: false },
+          { id: 'd', text: 'Une méthode de chiffrement', correct: false }
+        ]
+      }
+    ];
+    
+    // Questions spécifiques au rôle
+    interface QuestionOption {
+      id: string;
+      text: string;
+      correct: boolean;
+    }
+    
+    interface Question {
+      id: number;
+      text: string;
+      options: QuestionOption[];
+    }
+    
+    let roleSpecificQuestions: Question[] = [];
+    
+    if (userRole === 'rssi') {
+      roleSpecificQuestions = [
+        {
+          id: 3,
+          text: 'Quelle est la principale responsabilité d\'un RSSI?',
+          options: [
+            { id: 'a', text: 'Développer des applications sécurisées', correct: false },
+            { id: 'b', text: 'Définir et mettre en œuvre la stratégie de sécurité de l\'information', correct: true },
+            { id: 'c', text: 'Gérer les serveurs et l\'infrastructure réseau', correct: false },
+            { id: 'd', text: 'Former les utilisateurs à l\'utilisation des logiciels', correct: false }
+          ]
+        },
+        {
+          id: 4,
+          text: 'Qu\'est-ce qu\'une analyse de risques?',
+          options: [
+            { id: 'a', text: 'Un test de pénétration', correct: false },
+            { id: 'b', text: 'Un audit des vulnérabilités techniques', correct: false },
+            { id: 'c', text: 'L\'identification et l\'évaluation des menaces et vulnérabilités', correct: true },
+            { id: 'd', text: 'Une vérification de la conformité légale', correct: false }
+          ]
+        }
+      ];
+    } else if (userRole === 'hacker') {
+      roleSpecificQuestions = [
+        {
+          id: 3,
+          text: 'Qu\'est-ce qu\'une vulnérabilité de type XSS?',
+          options: [
+            { id: 'a', text: 'Une faille permettant d\'exécuter du code JavaScript malveillant dans le navigateur d\'un utilisateur', correct: true },
+            { id: 'b', text: 'Une attaque visant les serveurs DNS', correct: false },
+            { id: 'c', text: 'Un type de malware qui affecte les systèmes Linux', correct: false },
+            { id: 'd', text: 'Une technique de cryptage des données', correct: false }
+          ]
+        },
+        {
+          id: 4,
+          text: 'Qu\'est-ce que le principe d\'un test d\'intrusion?',
+          options: [
+            { id: 'a', text: 'Bloquer toutes les tentatives d\'accès non autorisées', correct: false },
+            { id: 'b', text: 'Simuler une attaque réelle pour identifier les vulnérabilités', correct: true },
+            { id: 'c', text: 'Analyser le code source pour détecter les bugs', correct: false },
+            { id: 'd', text: 'Surveiller le trafic réseau pour détecter des anomalies', correct: false }
+          ]
+        }
+      ];
+    } else if (userRole === 'developer') {
+      roleSpecificQuestions = [
+        {
+          id: 3,
+          text: 'Quelle pratique permet de se prémunir contre les injections SQL?',
+          options: [
+            { id: 'a', text: 'Utiliser des requêtes préparées avec des paramètres', correct: true },
+            { id: 'b', text: 'Désactiver la base de données en production', correct: false },
+            { id: 'c', text: 'Limiter le nombre de connexions à la base de données', correct: false },
+            { id: 'd', text: 'Chiffrer toutes les données stockées', correct: false }
+          ]
+        },
+        {
+          id: 4,
+          text: 'Qu\'est-ce que le OWASP Top 10?',
+          options: [
+            { id: 'a', text: 'Une liste des 10 meilleurs outils de développement', correct: false },
+            { id: 'b', text: 'Les 10 langages de programmation les plus sécurisés', correct: false },
+            { id: 'c', text: 'Les 10 risques de sécurité les plus critiques pour les applications web', correct: true },
+            { id: 'd', text: 'Un ensemble de 10 principes pour une architecture logicielle robuste', correct: false }
+          ]
+        }
+      ];
+    }
+    // Ajouter des questions pour les autres rôles...
+    
+    const questions = [...commonQuestions, ...roleSpecificQuestions];
+    
+    return res.status(200).json({ questions });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des questions:', error);
+    return res.status(500).json({ message: 'Erreur lors de la récupération des questions' });
   }
 }
