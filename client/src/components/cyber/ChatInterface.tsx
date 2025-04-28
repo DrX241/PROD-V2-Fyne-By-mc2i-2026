@@ -3,6 +3,7 @@ import { useChatContext } from "@/contexts/ChatContext";
 import ChatMessage from "./ChatMessage";
 import DomainSelection from "./DomainSelection";
 import ScenarioSelection from "./ScenarioSelection";
+import RoleSelection from "./RoleSelection";
 import EmailMessage from "./EmailMessage";
 import ContextBanner from "./ContextBanner";
 import { Send, RefreshCw, ChevronDown } from "lucide-react";
@@ -17,7 +18,8 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
     sendMessage, 
     isTyping,
     userName,
-    resetChat
+    resetChat,
+    setUserRole
   } = useChatContext();
   
   const [inputMessage, setInputMessage] = useState("");
@@ -110,6 +112,8 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
         return <DomainSelection />;
       case 'scenario-selection':
         return <ScenarioSelection />;
+      case 'role-selection':
+        return <RoleSelection onSelectRole={setUserRole} />;
       case 'email':
         return <EmailMessage email={message.content} />;
       case 'scenario-context':
