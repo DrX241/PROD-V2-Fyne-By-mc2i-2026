@@ -39,11 +39,20 @@ export default function LevelAssessment({ domain, onComplete }: LevelAssessmentP
     const fetchQuestions = async () => {
       try {
         setLoading(true);
-        const data = await apiRequest<Question[]>(`/api/cyber/assessment/questions?domain=${domain}`, {
+        // La réponse de l'API contient un objet avec une propriété "questions"
+        const response = await apiRequest<{questions: Question[]}>(`/api/cyber/assessment/questions?domain=${encodeURIComponent(domain)}`, {
           method: 'GET'
         });
         
-        setQuestions(data);
+        // Vérifier si nous avons bien reçu des questions
+        if (response && response.questions && Array.isArray(response.questions)) {
+          console.log("Questions reçues:", response.questions);
+          setQuestions(response.questions);
+        } else {
+          console.error('Format de réponse inattendu:', response);
+          setError('Format de réponse inattendu. Veuillez réessayer.');
+        }
+        
         setLoading(false);
       } catch (err) {
         console.error('Erreur lors du chargement des questions:', err);

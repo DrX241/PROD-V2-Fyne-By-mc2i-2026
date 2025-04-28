@@ -37,11 +37,13 @@ export default function ChatInterface({ onMessagesUpdate, initialConfig }: ChatI
       }
       
       // Mettre à jour toute autre configuration nécessaire
-      updateConfig({
-        ...(initialConfig.domain && { domain: initialConfig.domain })
-      });
+      if (initialConfig.domain) {
+        // Nous n'avons pas besoin d'envoyer un objet domain directement, 
+        // car ce n'est pas une propriété de AIConfig
+        console.log(`Domaine sélectionné: ${initialConfig.domain}`);
+      }
     }
-  }, [initialConfig, updateConfig, updateUserLevel]);
+  }, [initialConfig, updateUserLevel]);
   
   const [inputMessage, setInputMessage] = useState("");
   const chatContainerRef = useRef<HTMLDivElement>(null);
