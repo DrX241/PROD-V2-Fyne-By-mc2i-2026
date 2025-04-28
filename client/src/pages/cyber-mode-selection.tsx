@@ -58,6 +58,12 @@ export default function CyberModeSelection() {
           title: 'CYBER ARCADE',
           icon: null,
           destination: '/cyber/arcade'
+        },
+        {
+          id: 'cyber-crisis',
+          title: 'SIMULATEUR DE CRISE CYBER',
+          icon: null,
+          destination: '/cyber-crisis'
         }
       ]
     },
