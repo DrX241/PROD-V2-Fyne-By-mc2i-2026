@@ -23,8 +23,25 @@ export default function ChatInterface({ onMessagesUpdate, initialConfig }: ChatI
     sendMessage, 
     isTyping,
     userName,
-    resetChat
+    resetChat,
+    updateConfig,
+    updateUserLevel
   } = useChatContext();
+  
+  // Appliquer la configuration initiale fournie par le parent
+  useEffect(() => {
+    if (initialConfig) {
+      // Mettre à jour le niveau d'expertise de l'utilisateur si présent
+      if (initialConfig.userLevel) {
+        updateUserLevel(initialConfig.userLevel);
+      }
+      
+      // Mettre à jour toute autre configuration nécessaire
+      updateConfig({
+        ...(initialConfig.domain && { domain: initialConfig.domain })
+      });
+    }
+  }, [initialConfig, updateConfig, updateUserLevel]);
   
   const [inputMessage, setInputMessage] = useState("");
   const chatContainerRef = useRef<HTMLDivElement>(null);
