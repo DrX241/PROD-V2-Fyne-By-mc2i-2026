@@ -306,6 +306,7 @@ export interface AIConfig {
   responseStyle: 'Professionnel' | 'Détaillé et pédagogique' | 'Concis et direct';
   temperature?: number;
   maxTokens?: number;
+  userLevel?: string; // Niveau d'expertise de l'utilisateur: débutant, confirmé, senior, expert
 }
 
 export interface ChatContextType {
@@ -321,5 +322,6 @@ export interface ChatContextType {
   selectScenario: (scenario: CyberScenario) => void;
   sendMessage: (message: string) => void;
   updateConfig: (config: Partial<AIConfig>) => void;
+  updateUserLevel: (level: string) => void;
   resetChat: () => void;
 }

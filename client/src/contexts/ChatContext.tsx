@@ -768,6 +768,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         selectScenario: handleSelectScenario,
         sendMessage: handleSendMessage,
         updateConfig: handleUpdateConfig,
+        updateUserLevel: handleUpdateUserLevel,
         resetChat: handleResetChat
       }}
     >

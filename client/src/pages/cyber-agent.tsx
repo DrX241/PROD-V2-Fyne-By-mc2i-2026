@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import CyberLayout from "@/components/layout/CyberLayout";
 import ChatInterface from "@/components/cyber/ChatInterface";
-import { LevelAssessment } from "@/components/cyber/LevelAssessment";
+import LevelAssessment from "@/components/cyber/LevelAssessment";
 import PageTitle from "@/components/utils/PageTitle";
 import { Link } from "wouter";
 import { ArrowLeft, Clock, Mail, Send, Check, ClipboardCheck } from "lucide-react";
@@ -88,23 +88,22 @@ export default function CyberAgentPage() {
   };
   
   // Fonction pour terminer l'évaluation et démarrer la conversation
-  const handleAssessmentComplete = (level: string) => {
-    setUserLevel(level);
+  const handleAssessmentComplete = () => {
+    // Le niveau est déjà mis à jour dans le contexte par le composant LevelAssessment
     setAssessmentCompleted(true);
     setShowLevelAssessment(false);
     
-    // Démarrer effectivement la session avec le niveau déterminé
+    // Démarrer effectivement la session
     startTimeRef.current = Date.now();
     setIsSessionActive(true);
     setSessionData({ 
       startTime: Date.now(),
-      userLevel: level,
       domain: selectedDomain
     });
     
     toast({
-      title: "Niveau d'expertise déterminé",
-      description: `Votre niveau a été évalué : ${level}. La conversation va être adaptée en conséquence.`,
+      title: "Évaluation terminée",
+      description: "Votre niveau d'expertise a été évalué. La conversation va être adaptée en conséquence.",
     });
   };
   
