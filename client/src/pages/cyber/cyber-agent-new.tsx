@@ -594,7 +594,7 @@ export default function CyberAgentPage() {
               className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 md:p-8"
             >
               <h2 className="text-2xl font-bold text-center mb-6">Choisissez votre rôle</h2>
-              <p className="text-gray-600 dark:text-gray-300 mb-6">
+              <p className="text-gray-800 dark:text-gray-200 mb-6 font-medium">
                 Sélectionnez le rôle professionnel que vous souhaitez incarner dans cette simulation. 
                 Chaque rôle offre des défis et perspectives différents sur la cybersécurité.
               </p>
@@ -645,7 +645,7 @@ export default function CyberAgentPage() {
               className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 md:p-8"
             >
               <h2 className="text-2xl font-bold text-center mb-6">Niveau d'expertise</h2>
-              <p className="text-gray-600 dark:text-gray-300 mb-6">
+              <p className="text-gray-800 dark:text-gray-200 mb-6 font-medium">
                 Indiquez votre niveau d'expertise en cybersécurité pour adapter les interactions 
                 et le niveau technique des discussions avec les experts.
               </p>
@@ -721,7 +721,7 @@ export default function CyberAgentPage() {
               )}
               
               <h3 className="text-lg font-semibold mb-3">Votre présentation</h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-4">
+              <p className="text-gray-800 dark:text-gray-200 mb-4 font-medium">
                 Présentez-vous brièvement en précisant votre parcours, vos compétences et votre expérience
                 en cybersécurité. Cette présentation sera utilisée pour personnaliser les interactions.
               </p>
@@ -949,8 +949,8 @@ export default function CyberAgentPage() {
       
       <div className="max-w-4xl mx-auto mb-6 px-4">
         <div className="border-b pb-4 mb-6">
-          <h1 className="text-3xl font-bold">Cyber Agent</h1>
-          <p className="text-gray-600 dark:text-gray-300 mt-1">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Cyber Agent</h1>
+          <p className="text-gray-800 dark:text-gray-200 mt-1 font-medium">
             Mise en situation d'audition avec interaction avancée
           </p>
         </div>
