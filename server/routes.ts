@@ -15,6 +15,7 @@ import { startInterviewSimulation, processInterviewMessage, completeInterviewSim
 import { getRandomScenarios, getScenarioById, getScenariosByDifficulty } from "./impostorService";
 import { startAgentSession, completeAgentSession } from "./cyberAgentController";
 import { generateDebriefing, getContextualDocumentation } from "./cyberLearningController";
+import { handleCrisisChat } from "./cyberCrisisChatController";
 // Import des fonctions d'urgence cyber supprimé
 
 /**
@@ -2570,6 +2571,13 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
     // S'assurer que les en-têtes sont correctement configurés pour JSON
     res.setHeader('Content-Type', 'application/json');
     return completeAgentSession(req, res);
+  });
+  
+  // API route pour le CyberCrisisChallenge
+  app.post('/api/cyber/crisis-chat', (req, res) => {
+    // S'assurer que les en-têtes sont correctement configurés pour JSON
+    res.setHeader('Content-Type', 'application/json');
+    return handleCrisisChat(req, res);
   });
   
   app.post('/api/amoa/interview-simulation/download-synthesis', async (req, res) => {
