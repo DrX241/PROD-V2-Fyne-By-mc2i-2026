@@ -529,19 +529,16 @@ export default function CyberAgentPage() {
     }
   };
   
-  // Effet pour initialiser le QCM quand nécessaire
-  useEffect(() => {
-    if (gameState === 'qcm' && qcmQuestions.length === 0) {
-      initializeQCM();
-    }
-  }, [gameState, qcmQuestions.length]);
+  // Note: Cette version du composant est remplacée par cyber-agent-new.tsx
+  // Les anciennes fonctionnalités ont été désactivées pour éviter les erreurs
   
-  // Effet pour générer les scénarios quand le niveau est évalué
+  // Effet pour générer les scénarios 
   useEffect(() => {
-    if (skillLevel && selectedRole && selectedMode && gameState === 'scenario-selection') {
-      generateAvailableScenarios();
+    if (selectedRole && gameState === 'scenario-selection') {
+      // Les nouvelles fonctionnalités sont disponibles dans cyber-agent-new.tsx
+      console.log("Cette version est remplacée par cyber-agent-new.tsx");
     }
-  }, [skillLevel, selectedRole, selectedMode, gameState]);
+  }, [selectedRole, gameState]);
   
   // Rendu conditionnel en fonction de l'état du jeu
   const renderContent = () => {
