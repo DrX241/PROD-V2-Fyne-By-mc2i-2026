@@ -339,8 +339,7 @@ const initialConfig: AIConfig = {
   difficultyLevel: "Intermédiaire",
   responseStyle: "Professionnel",
   temperature: 0.7,
-  maxTokens: 2000,
-  userLevel: undefined // Le niveau d'expertise de l'utilisateur, déterminé par l'évaluation
+  maxTokens: 2000
 };
 
 // Initial scenario state
@@ -733,16 +732,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const handleUpdateConfig = (newConfig: Partial<AIConfig>) => {
     setConfig(prev => ({ ...prev, ...newConfig }));
   };
-  
-  // Handler to update user expertise level
-  const handleUpdateUserLevel = (level: string) => {
-    setConfig(prev => ({
-      ...prev,
-      userLevel: level
-    }));
-    
-    console.log(`Niveau d'expertise utilisateur mis à jour: ${level}`);
-  };
 
   // Handler to reset the chat
   const handleResetChat = () => {
@@ -768,7 +757,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         selectScenario: handleSelectScenario,
         sendMessage: handleSendMessage,
         updateConfig: handleUpdateConfig,
-        updateUserLevel: handleUpdateUserLevel,
         resetChat: handleResetChat
       }}
     >

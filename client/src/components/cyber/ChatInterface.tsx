@@ -7,43 +7,18 @@ import EmailMessage from "./EmailMessage";
 import ContextBanner from "./ContextBanner";
 import { Send, RefreshCw, ChevronDown } from "lucide-react";
 
-interface ChatConfig {
-  userLevel?: string;
-  domain?: string;
-}
-
 interface ChatInterfaceProps {
   onMessagesUpdate?: (messages: any[]) => void;
-  initialConfig?: ChatConfig;
 }
 
-export default function ChatInterface({ onMessagesUpdate, initialConfig }: ChatInterfaceProps) {
+export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) {
   const { 
     messages, 
     sendMessage, 
     isTyping,
     userName,
-    resetChat,
-    updateConfig,
-    updateUserLevel
+    resetChat
   } = useChatContext();
-  
-  // Appliquer la configuration initiale fournie par le parent
-  useEffect(() => {
-    if (initialConfig) {
-      // Mettre à jour le niveau d'expertise de l'utilisateur si présent
-      if (initialConfig.userLevel) {
-        updateUserLevel(initialConfig.userLevel);
-      }
-      
-      // Mettre à jour toute autre configuration nécessaire
-      if (initialConfig.domain) {
-        // Nous n'avons pas besoin d'envoyer un objet domain directement, 
-        // car ce n'est pas une propriété de AIConfig
-        console.log(`Domaine sélectionné: ${initialConfig.domain}`);
-      }
-    }
-  }, [initialConfig, updateUserLevel]);
   
   const [inputMessage, setInputMessage] = useState("");
   const chatContainerRef = useRef<HTMLDivElement>(null);

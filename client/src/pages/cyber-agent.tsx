@@ -4,10 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import CyberLayout from "@/components/layout/CyberLayout";
 import ChatInterface from "@/components/cyber/ChatInterface";
-import LevelAssessment from "@/components/cyber/LevelAssessment";
 import PageTitle from "@/components/utils/PageTitle";
 import { Link } from "wouter";
-import { ArrowLeft, Clock, Mail, Send, Check, ClipboardCheck } from "lucide-react";
+import { ArrowLeft, Clock, Mail, Send, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -51,12 +50,6 @@ export default function CyberAgentPage() {
   const [showEndDialog, setShowEndDialog] = useState(false);
   const [isSubmittingReport, setIsSubmittingReport] = useState(false);
   const startTimeRef = useRef<number>(0);
-  
-  // États pour l'évaluation du niveau
-  const [showLevelAssessment, setShowLevelAssessment] = useState(false);
-  const [userLevel, setUserLevel] = useState<string | null>(null);
-  const [selectedDomain, setSelectedDomain] = useState<string>("Ingénierie sociale et phishing");
-  const [assessmentCompleted, setAssessmentCompleted] = useState(false);
 
   // Configurer le formulaire
   const form = useForm<FormValues>({
@@ -67,15 +60,16 @@ export default function CyberAgentPage() {
     },
   });
   
-  // Fonction pour démarrer la session avec évaluation préalable du niveau
+  // Fonction pour démarrer la session sans email (sera demandé à la fin)
   const startSession = () => {
     try {
-      // Afficher d'abord l'évaluation du niveau
-      setShowLevelAssessment(true);
-      
+      setIsSessionActive(true);
+      startTimeRef.current = Date.now();
+      setSessionData({ startTime: Date.now() });
+
       toast({
-        title: "Évaluation de vos connaissances",
-        description: "Répondez à quelques questions pour adapter le contenu à votre niveau.",
+        title: "Session démarrée",
+        description: "Votre session avec votre Agent IA a démarré.",
       });
     } catch (error) {
       console.error("Erreur lors du démarrage de la session:", error);
@@ -85,31 +79,6 @@ export default function CyberAgentPage() {
         description: "Impossible de démarrer la session. Veuillez réessayer.",
       });
     }
-  };
-  
-  // Fonction pour terminer l'évaluation et démarrer la conversation
-  const handleAssessmentComplete = () => {
-    // Le niveau est déjà mis à jour dans le contexte par le composant LevelAssessment
-    setAssessmentCompleted(true);
-    setShowLevelAssessment(false);
-    
-    // Démarrer effectivement la session
-    startTimeRef.current = Date.now();
-    setIsSessionActive(true);
-    setSessionData({ 
-      startTime: Date.now(),
-      domain: selectedDomain
-    });
-    
-    toast({
-      title: "Évaluation terminée",
-      description: "Votre niveau d'expertise a été évalué. La conversation va être adaptée en conséquence.",
-    });
-  };
-  
-  // Fonction pour sélectionner un domaine d'expertise
-  const handleDomainSelect = (domain: string) => {
-    setSelectedDomain(domain);
   };
 
   // Fonction pour terminer la session et montrer le formulaire d'email
@@ -250,7 +219,7 @@ export default function CyberAgentPage() {
         </div>
       </div>
 
-      {!isSessionActive && !showLevelAssessment ? (
+      {!isSessionActive ? (
         <div className="max-w-md mx-auto mt-8">
           <Card className="bg-gradient-to-br from-blue-950 to-indigo-900 text-white border-blue-800">
             <CardHeader>
@@ -259,57 +228,22 @@ export default function CyberAgentPage() {
                 Discutez avec un agent IA spécialisé pendant 10 minutes
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-col gap-4 items-center">
-              <div className="w-full">
-                <label className="text-sm font-medium text-blue-200 mb-1 block">Domaine d'expertise</label>
-                <select 
-                  value={selectedDomain}
-                  onChange={(e) => handleDomainSelect(e.target.value)}
-                  className="w-full bg-blue-900/50 border border-blue-700 rounded-md px-3 py-2 text-white"
-                >
-                  <option value="Ingénierie sociale et phishing">Ingénierie sociale / Phishing</option>
-                  <option value="Stratégie et gouvernance cybersécurité">Stratégie / Gouvernance</option>
-                  <option value="Gestion de crise cyber">Gestion de crise</option>
-                  <option value="Sécurité de la chaîne d'approvisionnement">Chaîne d'approvisionnement</option>
-                  <option value="Protection des données personnelles / RGPD">RGPD / Données personnelles</option>
-                  <option value="Gestion des incidents de sécurité">Gestion des incidents</option>
-                </select>
-              </div>
+            <CardContent className="flex justify-center">
               <Button 
                 onClick={startSession} 
-                className="bg-blue-600 hover:bg-blue-700 px-6 py-6 text-lg w-full"
+                className="bg-blue-600 hover:bg-blue-700 px-6 py-6 text-lg"
               >
-                <ClipboardCheck className="mr-2 h-5 w-5" />
-                Commencer l'évaluation
+                <Send className="mr-2 h-5 w-5" />
+                Démarrer la session
               </Button>
             </CardContent>
             <CardFooter className="text-xs text-center text-blue-300 justify-center">
-              <p>Vous passerez d'abord un court questionnaire pour adapter le contenu à votre niveau d'expertise.</p>
+              <p>La session durera 10 minutes. Vous pourrez recevoir un rapport détaillé par email à la fin.</p>
             </CardFooter>
           </Card>
         </div>
-      ) : showLevelAssessment ? (
-        <div className="max-w-2xl mx-auto mt-8 px-4">
-          <Card className="bg-gradient-to-br from-blue-950 to-indigo-900 text-white border-blue-800">
-            <CardHeader>
-              <CardTitle className="text-xl text-center">Évaluation de vos connaissances</CardTitle>
-              <CardDescription className="text-blue-200 text-center">
-                Répondez aux questions suivantes pour que nous puissions adapter le contenu à votre niveau
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <LevelAssessment domain={selectedDomain} onComplete={handleAssessmentComplete} />
-            </CardContent>
-          </Card>
-        </div>
       ) : (
-        <ChatInterface 
-          onMessagesUpdate={handleMessagesUpdate} 
-          initialConfig={{
-            userLevel: userLevel || 'débutant',
-            domain: selectedDomain
-          }}
-        />
+        <ChatInterface onMessagesUpdate={handleMessagesUpdate} />
       )}
 
       {/* Dialog pour l'email en fin de session */}
