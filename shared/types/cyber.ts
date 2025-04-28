@@ -1,4 +1,13 @@
-export type ChatMessageType = 'user' | 'bot' | 'system' | 'email' | 'domain-selection' | 'scenario-selection' | 'scenario-context';
+export type ChatMessageType = 'user' | 'bot' | 'system' | 'email' | 'domain-selection' | 'scenario-selection' | 'scenario-context' | 'role-selection';
+
+export const USER_ROLES = [
+  { id: 'rssi', name: 'RSSI', description: 'Responsable de la Sécurité des Systèmes d\'Information' },
+  { id: 'dsi', name: 'DSI', description: 'Directeur des Systèmes d\'Information' },
+  { id: 'developpeur', name: 'Développeur', description: 'Développeur d\'applications sécurisées' },
+  { id: 'admin', name: 'Administrateur Système', description: 'Administrateur des systèmes et réseaux' },
+  { id: 'consultant', name: 'Consultant Cybersécurité', description: 'Consultant en sécurité informatique' },
+  { id: 'manager', name: 'Manager', description: 'Manager d\'équipe technique' }
+];
 
 export interface ScenarioContact {
   name: string;
@@ -311,12 +320,14 @@ export interface AIConfig {
 export interface ChatContextType {
   messages: ChatMessage[];
   userName: string;
+  userRole: string;
   isTyping: boolean;
   scenario: ScenarioState;
   config: AIConfig;
   domains: CyberDomain[];
   scenarios: CyberScenario[];
   setUserName: (name: string) => void;
+  setUserRole: (role: string) => void;
   selectDomain: (domain: CyberDomain) => void;
   selectScenario: (scenario: CyberScenario) => void;
   sendMessage: (message: string) => void;

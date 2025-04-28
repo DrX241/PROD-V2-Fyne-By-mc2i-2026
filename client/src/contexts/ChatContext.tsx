@@ -11,6 +11,7 @@ import type {
   EmailMessageContent,
   ScenarioContact
 } from "@shared/types/cyber";
+import { USER_ROLES } from "@shared/types/cyber";
 
 /**
  * Fonction utilitaire pour extraire le prénom d'un texte contenant potentiellement 
@@ -354,6 +355,7 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [userName, setUserName] = useState<string>("");
+  const [userRole, setUserRole] = useState<string>("");
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [scenario, setScenario] = useState<ScenarioState>(initialScenarioState);
   const [config, setConfig] = useState<AIConfig>(initialConfig);
@@ -401,7 +403,55 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const botResponse: ChatMessage = {
         id: uuidv4(),
         type: "bot",
-        content: `Merci ${firstName} ! Ravi de vous rencontrer. J'espère que vous allez bien aujourd'hui.\n\nNous allons explorer ensemble différents aspects de la cybersécurité. Veuillez choisir un domaine qui vous intéresse parmi les options suivantes :`,
+        content: `Merci ${firstName} ! Ravi de vous rencontrer. J'espère que vous allez bien aujourd'hui.\n\nPour personnaliser votre expérience d'apprentissage, veuillez choisir le rôle que vous souhaitez incarner :`,
+        timestamp: Date.now()
+      };
+      
+      const roleSelection: ChatMessage = {
+        id: uuidv4(),
+        type: "role-selection",
+        content: "",
+        timestamp: Date.now()
+      };
+      
+      setMessages(prev => [...prev, botResponse, roleSelection]);
+      setIsTyping(false);
+    }, 1000);
+  };
+  
+  // Handler to set the user's role
+  const handleSetUserRole = (roleId: string) => {
+    if (!roleId) return;
+    
+    setIsTyping(true);
+    setUserRole(roleId);
+    
+    // Get role name
+    const role = USER_ROLES.find(r => r.id === roleId);
+    if (!role) {
+      setIsTyping(false);
+      return;
+    }
+    
+    // Add user's role selection message
+    const userMessage: ChatMessage = {
+      id: uuidv4(),
+      type: "user",
+      content: `J'ai choisi le rôle de ${role.name}`,
+      timestamp: Date.now()
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    
+    // Simulate bot response
+    setTimeout(() => {
+      // Obtenir le prénom extrait
+      const firstName = extractFirstName(userName);
+      
+      const botResponse: ChatMessage = {
+        id: uuidv4(),
+        type: "bot",
+        content: `Excellent choix, ${firstName} ! Vous allez incarner le rôle de ${role.name} (${role.description}).\n\nNous allons explorer ensemble différents aspects de la cybersécurité. Veuillez choisir un domaine qui vous intéresse parmi les options suivantes :`,
         timestamp: Date.now()
       };
       
@@ -747,12 +797,14 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         messages,
         userName,
+        userRole,
         isTyping,
         scenario,
         config,
         domains: initialDomains,
         scenarios: initialScenarios,
         setUserName: handleSetUserName,
+        setUserRole: handleSetUserRole,
         selectDomain: handleSelectDomain,
         selectScenario: handleSelectScenario,
         sendMessage: handleSendMessage,
