@@ -13,162 +13,298 @@ import CyberChatMessage from '@/components/cyber/CyberChatMessage';
 import { Separator } from '@/components/ui/separator';
 import PageTitle from '@/components/utils/PageTitle';
 
-// Types pour le QCM
-interface Question {
-  id: number;
-  text: string;
-  options: {
-    id: string;
-    text: string;
-    correct: boolean;
-  }[];
-  explanation?: string;
-}
-
 // Types pour les rôles
 interface Role {
   id: string;
   title: string;
   description: string;
+  isActive: boolean;
 }
 
-// Types pour les modes de jeu
-interface GameMode {
-  id: string;
-  title: string;
-  description: string;
+// Niveaux d'expertise
+type ExpertiseLevel = 'Débutant' | 'Intermédiaire' | 'Expert';
+
+// Types pour un interlocuteur
+interface Contact {
+  name: string;
+  role: string;
+  description?: string;
+  imageUrl?: string;
 }
 
-// Types pour les scénarios
-interface Scenario {
+// Types pour un email
+interface EmailMessage {
   id: string;
-  title: string;
-  description: string;
-  difficulty: 'Débutant' | 'Intermédiaire' | 'Expert';
-  category: string;
+  from: Contact;
+  to: string;
+  subject: string;
+  date: string;
+  body: string;
 }
 
 // Types de message pour le chat
-interface Message {
+interface ChatMessage {
   id: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
+  contact?: Contact; // Pour les messages assistant avec un interlocuteur
   timestamp: Date;
 }
 
+// Structure pour l'évaluation finale
+interface CyberAgentEvaluation {
+  overallScore: number;
+  strengths: string[];
+  areasToImprove: string[];
+  keyLearnings: string[];
+  acquiredSkills: string[];
+  recommendations: string[];
+}
+
 // États de progression du jeu
-type GameState = 'intro' | 'role-selection' | 'mode-selection' | 'qcm' | 'scenario-selection' | 'game';
+type GameState = 
+  'intro' | 
+  'role-selection' | 
+  'expertise-selection' | 
+  'presentation' | 
+  'interaction' | 
+  'pause' | 
+  'evaluation' | 
+  'complete';
 
 export default function CyberAgentPage() {
   // État principal de la progression du jeu
   const [gameState, setGameState] = useState<GameState>('intro');
   
+  // État pour la session utilisateur
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string>('');
+  
   // État pour le rôle sélectionné
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [availableRoles, setAvailableRoles] = useState<Role[]>([]);
   
-  // État pour le mode de jeu sélectionné
-  const [selectedMode, setSelectedMode] = useState<string | null>(null);
-  
-  // État pour le scénario sélectionné
-  const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
-  
-  // État pour le QCM et le niveau évalué
-  const [qcmQuestions, setQcmQuestions] = useState<Question[]>([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<{[key: number]: string}>({});
-  const [skillLevel, setSkillLevel] = useState<'Débutant' | 'Intermédiaire' | 'Expert' | null>(null);
+  // État pour le niveau d'expertise
+  const [expertiseLevel, setExpertiseLevel] = useState<ExpertiseLevel | null>(null);
   
   // État pour la conversation
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [currentContact, setCurrentContact] = useState<Contact | null>(null);
+  const [userPresentation, setUserPresentation] = useState<string>('');
+  
+  // État pour l'email
+  const [emailMessage, setEmailMessage] = useState<EmailMessage | null>(null);
+  
+  // État pour l'évaluation finale
+  const [evaluation, setEvaluation] = useState<CyberAgentEvaluation | null>(null);
+  
+  // États pour le chargement et les erreurs
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   // Autres états utiles
-  const [availableScenarios, setAvailableScenarios] = useState<Scenario[]>([]);
   const { toast } = useToast();
   const [, navigate] = useLocation();
   
-  // Liste des rôles disponibles
-  const availableRoles: Role[] = [
-    {
-      id: 'rssi',
-      title: 'RSSI',
-      description: 'Responsable de la Sécurité des Systèmes d\'Information'
-    },
-    {
-      id: 'hacker',
-      title: 'Hacker éthique',
-      description: 'Expert en tests d\'intrusion et sécurité'
-    },
-    {
-      id: 'developer',
-      title: 'Développeur',
-      description: 'Développeur sensibilisé aux vulnérabilités logicielles'
-    },
-    {
-      id: 'sysadmin',
-      title: 'Administrateur Système',
-      description: 'Gestionnaire de l\'infrastructure sécurisée'
-    },
-    {
-      id: 'consultant',
-      title: 'Consultant en cybersécurité',
-      description: 'Spécialiste des audits de sécurité'
-    }
-  ];
-  
-  // Modes de jeu disponibles
-  const gameModes: GameMode[] = [
-    {
-      id: 'classic',
-      title: 'Mode Classique',
-      description: 'Quatre scénarios indépendants avec différentes situations et défis de cybersécurité'
-    },
-    {
-      id: 'tunnel',
-      title: 'Mode Effet Tunnel',
-      description: 'Six situations liées avec un impact progressif de vos décisions sur l\'évolution du scénario'
-    }
-  ];
-  
-  // Questions du QCM (exemples)
-  const initializeQCM = () => {
-    const questions: Question[] = [
-      {
-        id: 1,
-        text: 'Qu\'est-ce qu\'une attaque par injection SQL?',
-        options: [
-          { id: 'a', text: 'Une attaque ciblant les serveurs DNS', correct: false },
-          { id: 'b', text: 'Une méthode d\'injection de code malveillant dans une base de données via des requêtes SQL', correct: true },
-          { id: 'c', text: 'Un type de virus affectant uniquement les systèmes Linux', correct: false },
-          { id: 'd', text: 'Une attaque par déni de service', correct: false }
-        ],
-        explanation: 'L\'injection SQL est une technique d\'attaque qui exploite une vulnérabilité dans la validation des entrées pour insérer du code SQL malveillant dans les requêtes.'
-      },
-      {
-        id: 2,
-        text: 'Qu\'est-ce que le phishing?',
-        options: [
-          { id: 'a', text: 'Une technique de cryptographie', correct: false },
-          { id: 'b', text: 'Une technique d\'ingénierie sociale visant à obtenir des informations confidentielles', correct: true },
-          { id: 'c', text: 'Un logiciel antivirus', correct: false },
-          { id: 'd', text: 'Un protocole de réseau sécurisé', correct: false }
-        ],
-        explanation: 'Le phishing est une technique de fraude qui consiste à se faire passer pour une entité de confiance pour obtenir des informations personnelles ou sensibles.'
-      },
-      {
-        id: 3,
-        text: 'Qu\'est-ce qu\'une attaque par déni de service (DoS)?',
-        options: [
-          { id: 'a', text: 'Une attaque visant à rendre un service ou une ressource indisponible', correct: true },
-          { id: 'b', text: 'Une attaque pour voler des données confidentielles', correct: false },
-          { id: 'c', text: 'Un type de logiciel malveillant qui chiffre les données', correct: false },
-          { id: 'd', text: 'Une méthode de piratage de mots de passe', correct: false }
-        ],
-        explanation: 'Une attaque par déni de service cherche à submerger les ressources d\'un système pour le rendre inaccessible aux utilisateurs légitimes.'
+  // Chargement des rôles disponibles depuis l'API
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/cyber-agent/roles');
+        
+        if (!response.ok) {
+          throw new Error(`Erreur lors du chargement des rôles: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        setAvailableRoles(data.roles || []);
+      } catch (err) {
+        console.error('Erreur lors du chargement des rôles:', err);
+        setError('Impossible de charger les rôles disponibles');
+        
+        // Fallback roles en cas d'erreur
+        setAvailableRoles([
+          {
+            id: 'rssi',
+            title: 'RSSI',
+            description: 'Responsable de la Sécurité des Systèmes d\'Information',
+            isActive: true
+          },
+          {
+            id: 'hacker',
+            title: 'Hacker éthique',
+            description: 'Expert en tests d\'intrusion et sécurité',
+            isActive: true
+          },
+          {
+            id: 'developer',
+            title: 'Développeur',
+            description: 'Développeur sensibilisé aux vulnérabilités logicielles',
+            isActive: true
+          },
+          {
+            id: 'sysadmin',
+            title: 'Administrateur Système',
+            description: 'Gestionnaire de l\'infrastructure sécurisée',
+            isActive: true
+          },
+          {
+            id: 'consultant',
+            title: 'Consultant en cybersécurité',
+            description: 'Spécialiste des audits de sécurité',
+            isActive: true
+          }
+        ]);
+      } finally {
+        setIsLoading(false);
       }
-    ];
+    };
     
-    setQcmQuestions(questions);
+    if (gameState === 'intro' || gameState === 'role-selection') {
+      fetchRoles();
+    }
+  }, [gameState]);
+  
+  // Démarrer une nouvelle session CYBER AGENT
+  const startCyberAgentSession = async () => {
+    if (!selectedRole || !expertiseLevel || !userName.trim()) {
+      toast({
+        title: "Information incomplète",
+        description: "Veuillez remplir toutes les informations requises",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      setIsLoading(true);
+      
+      const response = await fetch('/api/cyber-agent/start-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userName: userName.trim(),
+          userRole: selectedRole,
+          expertiseLevel
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Erreur lors du démarrage de la session: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      // Sauvegarder l'ID de session et le message d'accueil
+      setSessionId(data.sessionId);
+      
+      // Configurer l'email de bienvenue
+      if (data.initialEmail) {
+        setEmailMessage(data.initialEmail);
+      }
+      
+      // Passer à l'étape de présentation
+      setGameState('presentation');
+      
+    } catch (err) {
+      console.error('Erreur lors du démarrage de la session:', err);
+      setError('Impossible de démarrer la session');
+      
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors du démarrage de la session. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Envoyer la présentation utilisateur
+  const submitUserPresentation = async (presentationText: string) => {
+    if (!sessionId || !presentationText.trim()) {
+      toast({
+        title: "Information incomplète",
+        description: "Veuillez saisir votre présentation",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      setIsLoading(true);
+      
+      // Ajouter le message utilisateur
+      const newUserMessage: ChatMessage = {
+        id: Date.now().toString(),
+        role: 'user',
+        content: presentationText,
+        timestamp: new Date()
+      };
+      
+      setChatMessages(prev => [...prev, newUserMessage]);
+      
+      const response = await fetch('/api/cyber-agent/presentation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sessionId,
+          presentation: presentationText
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Erreur lors de l'envoi de la présentation: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      // Ajouter la réponse à l'historique de chat
+      if (data.response) {
+        const responseMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: data.response,
+          contact: data.contact,
+          timestamp: new Date()
+        };
+        
+        setChatMessages(prev => [...prev, responseMessage]);
+      }
+      
+      // Si la présentation est complète, passons à l'étape d'interaction
+      if (data.isComplete && data.expertMessage) {
+        // Message d'introduction de l'expert
+        const expertMessage: ChatMessage = {
+          id: (Date.now() + 2).toString(),
+          role: 'assistant',
+          content: data.expertMessage.content,
+          contact: data.expertMessage.contact,
+          timestamp: new Date()
+        };
+        
+        setChatMessages(prev => [...prev, expertMessage]);
+        setCurrentContact(data.expertMessage.contact);
+        setGameState('interaction');
+      }
+      
+    } catch (err) {
+      console.error('Erreur lors de l\'envoi de la présentation:', err);
+      setError('Impossible d\'envoyer votre présentation');
+      
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'envoi de votre présentation. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   // Génération des scénarios disponibles en fonction du rôle, du niveau et du mode
