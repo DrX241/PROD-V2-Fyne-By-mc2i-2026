@@ -6,7 +6,6 @@ import ScenarioSelection from "./ScenarioSelection";
 import EmailMessage from "./EmailMessage";
 import ContextBanner from "./ContextBanner";
 import { Send, RefreshCw, ChevronDown } from "lucide-react";
-import { v4 as uuidv4 } from 'uuid';
 
 interface ChatInterfaceProps {
   onMessagesUpdate?: (messages: any[]) => void;
@@ -18,37 +17,41 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
     sendMessage, 
     isTyping,
     userName,
-    resetChat,
-    scenarioState,
-    setScenarioState
+    resetChat
   } = useChatContext();
-
+  
   const [inputMessage, setInputMessage] = useState("");
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Nous avons désactivé le défilement automatique pour donner à l'utilisateur le contrôle
+  // de la barre de défilement. Un bouton de défilement manuel vers le bas est disponible.
   const [showScrollButton, setShowScrollButton] = useState(false);
-
+  
+  // Détection de la position de défilement pour montrer/cacher le bouton
   useEffect(() => {
     if (!chatContainerRef.current) return;
-
+    
     const handleScroll = () => {
       if (!chatContainerRef.current) return;
-
+      
       const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
       const isScrolledUp = scrollHeight - scrollTop - clientHeight > 100;
       setShowScrollButton(isScrolledUp);
     };
-
+    
+    // Vérifier la position initiale
     handleScroll();
-
+    
+    // Ajouter un écouteur de défilement
     chatContainerRef.current.addEventListener('scroll', handleScroll);
-
+    
     return () => {
       chatContainerRef.current?.removeEventListener('scroll', handleScroll);
     };
   }, [messages]);
-
+  
+  // Fonction pour faire défiler vers le bas manuellement
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTo({
@@ -57,25 +60,30 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
       });
     }
   };
-
+  
+  // Effet pour mettre à jour les messages dans le composant parent
   useEffect(() => {
     if (onMessagesUpdate) {
       onMessagesUpdate(messages);
     }
   }, [messages, onMessagesUpdate]);
 
+  // Focus input on load
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.focus();
     }
   }, []);
 
+  // Gérer les entrées clavier, notamment Shift+Enter
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter') {
       if (e.shiftKey) {
-        return; 
+        // Shift+Enter - ajouter une nouvelle ligne
+        return; // Comportement par défaut (insertion d'un saut de ligne)
       } else {
-        e.preventDefault(); 
+        // Enter simple - envoyer le message
+        e.preventDefault(); // Empêcher le saut de ligne
         if (inputMessage.trim()) {
           handleSubmit(e);
         }
@@ -86,21 +94,13 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (inputMessage.trim() === "") return;
-
+    
     const messageToSend = inputMessage;
     setInputMessage("");
-    const currentStage = scenarioState.currentStage || 1;
-    try {
-      await sendMessage({message: messageToSend, stage: currentStage});
-    } catch (error) {
-      console.error('Error sending message:', error);
-      setMessages(prev => [...prev, {
-        id: uuidv4(),
-        type: 'error',
-        content: `Une erreur est survenue: ${error instanceof Error ? error.message : 'An unknown error occurred'}`,
-        timestamp: Date.now()
-      }]);
-    }
+    await sendMessage(messageToSend);
+    
+    // Lorsque l'utilisateur envoie un message, nous lui proposons de défiler vers le bas
+    // sans forcer le défilement automatique
     setShowScrollButton(true);
   };
 
@@ -136,8 +136,6 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
             contactContent={message.contactContent}
           />
         );
-      case 'error':
-        return <ChatMessage type="error" content={message.content} contactName="Error" />;
       default:
         return null;
     }
@@ -145,6 +143,7 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
 
   return (
     <div className="h-full w-full flex flex-col text-blue-50">
+      {/* Bannière contextuelle et bouton réinitialisation */}
       <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-900/80 to-indigo-900/80 backdrop-blur-md border-b border-blue-700/30 w-full shadow-md">
         <div className="flex justify-end p-2">
           {userName && (
@@ -160,6 +159,7 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
         <ContextBanner />
       </div>
 
+      {/* Messages */}
       <div 
         className="flex-1 overflow-y-auto py-4 sm:py-6 px-2 sm:px-4 relative scrollbar-cyber"
         ref={chatContainerRef}
@@ -171,7 +171,8 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
               {renderMessageContent(message)}
             </div>
           ))}
-
+          
+          {/* Indicateur de saisie */}
           {isTyping && (
             <div className="typing-indicator-container mt-3 sm:mt-4 ml-8 sm:ml-12 animate-pulse">
               <div className="typing-indicator-cyber">
@@ -182,7 +183,8 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
             </div>
           )}
         </div>
-
+        
+        {/* Bouton de défilement vers le bas */}
         {showScrollButton && (
           <button 
             onClick={scrollToBottom}
@@ -195,6 +197,7 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
         )}
       </div>
 
+      {/* Zone de saisie */}
       <div className="py-3 sm:py-4 px-2 sm:px-4 bg-gradient-to-r from-blue-900/90 to-indigo-900/90 backdrop-blur-lg border-t border-blue-700/30 sticky bottom-0 shadow-lg">
         <div className="max-w-5xl mx-auto px-2 sm:px-6">
           <form className="flex items-start gap-2 sm:gap-3" onSubmit={handleSubmit}>

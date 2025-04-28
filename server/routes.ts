@@ -15,7 +15,6 @@ import { startInterviewSimulation, processInterviewMessage, completeInterviewSim
 import { getRandomScenarios, getScenarioById, getScenariosByDifficulty } from "./impostorService";
 import { startAgentSession, completeAgentSession } from "./cyberAgentController";
 import { generateDebriefing, getContextualDocumentation } from "./cyberLearningController";
-import { handleCrisisChat } from "./cyberCrisisChatController";
 // Import des fonctions d'urgence cyber supprimé
 
 /**
@@ -2125,79 +2124,50 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
   // API route pour le chat immersif
   app.post('/api/cyber/simple-chat', async (req: Request, res: Response) => {
     try {
-      const { message, chatHistory, config } = req.body;
+      const { message, config } = req.body;
       
       if (!message) {
         return res.status(400).json({ message: 'Message requis pour le chat' });
       }
       
-      // Utiliser le prompt système optimisé de l'Agent Conversationnel
-      const { AGENT_CONVERSATIONNEL_PROMPT } = require('./prompts/agentConversationnel');
+      // Construire un prompt système basé sur la configuration
+      let systemPrompt = "Tu es un assistant spécialisé en cybersécurité qui aide les utilisateurs à comprendre et à se protéger contre les menaces informatiques.";
       
-      // Utiliser le type ChatCompletionRequestMessage déjà importé en haut du fichier
-      
-      // Préparer les messages incluant l'historique de conversation
-      const chatMessages: ChatCompletionRequestMessage[] = [];
-      
-      // Message système pour guider le modèle
-      chatMessages.push({ role: "system", content: AGENT_CONVERSATIONNEL_PROMPT });
-      
-      // Historique des conversations pour le contexte
-      if (chatHistory && Array.isArray(chatHistory) && chatHistory.length > 0) {
-        // Limiter l'historique aux 5 derniers messages pour éviter les dépassements de contexte
-        const recentHistory = chatHistory.slice(-5);
-        
-        // Ajouter chaque message à la conversation
-        recentHistory.forEach(msg => {
-          const msgRole = msg.sender === 'user' ? 'user' : 'assistant';
-          chatMessages.push({ 
-            role: msgRole as "user" | "assistant", 
-            content: msg.content 
-          });
-        });
+      // Ajuster le prompt selon le niveau de difficulté
+      if (config?.difficultyLevel === 'Débutant') {
+        systemPrompt += " Tu utilises un langage simple et accessible, en évitant le jargon technique. Tu expliques les concepts de cybersécurité de manière basique pour les débutants.";
+      } else if (config?.difficultyLevel === 'Expert') {
+        systemPrompt += " Tu utilises un vocabulaire technique précis et tu apportes des informations détaillées et approfondies sur les sujets de cybersécurité pour un public expert.";
+      } else {
+        systemPrompt += " Tu adaptes ton langage pour un public ayant des connaissances intermédiaires en informatique, en expliquant les termes techniques lorsque nécessaire.";
       }
       
-      // Ajouter le message actuel de l'utilisateur
-      chatMessages.push({ role: "user", content: message });
-      
-      // Appel à l'API OpenAI avec l'historique complet
-      const response = await openAIService.getChatCompletion(
-        chatMessages,
-        0.7,   // temperature
-        1200   // max_tokens - longueur suffisante pour les réponses formatées
-      );
-      
-      // Analyse de la réponse pour extraire des métadonnées
-      const isSpecialResponse = response.includes('[IACYBER]');
-      
-      // Déterminer l'expert qui répond
-      let expertName = "Isabelle Dubacq";
-      let expertRole = "RSSI";
-      
-      // Essayer de détecter le nom de l'expert qui répond
-      const experts = [
-        { name: "Isabelle Dubacq", role: "RSSI" },
-        { name: "Thomas Renard", role: "Ethical Hacker" },
-        { name: "Sophie Martin", role: "Experte RGPD" },
-        { name: "Marc Lefort", role: "Architecte Sécurité" }
-      ];
-      
-      for (const expert of experts) {
-        if (response.includes(expert.name)) {
-          expertName = expert.name;
-          expertRole = expert.role;
-          break;
-        }
+      // Ajuster le prompt selon le style de réponse
+      if (config?.responseStyle === 'Détaillé et pédagogique') {
+        systemPrompt += " Tes réponses sont détaillées et pédagogiques, avec des explications complètes et des exemples concrets pour illustrer les concepts.";
+      } else if (config?.responseStyle === 'Concis et direct') {
+        systemPrompt += " Tes réponses sont concises et directes, allant droit au but sans détours inutiles, en te concentrant sur l'essentiel.";
+      } else {
+        systemPrompt += " Ton style de communication est professionnel et équilibré, ni trop verbeux ni trop concis.";
       }
       
-      // Envoi de la réponse au client avec les métadonnées extraites
+      systemPrompt += " Tu réponds toujours en français.";
+      
+      // Appel à l'API Azure OpenAI
+      const completion = await openai.chat.completions.create({
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: message }
+        ],
+        temperature: config?.temperature || 0.7,
+        max_tokens: config?.maxTokens || 800,
+        model: "gpt-3.5-turbo",
+      });
+      
+      // Envoi de la réponse au client
       res.json({ 
-        response,
-        expert: {
-          name: expertName,
-          role: expertRole
-        },
-        isIACYBERIntervention: isSpecialResponse
+        response: completion.choices[0].message.content,
+        usage: completion.usage
       });
       
     } catch (error: any) {
@@ -2545,13 +2515,6 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
     // S'assurer que les en-têtes sont correctement configurés pour JSON
     res.setHeader('Content-Type', 'application/json');
     return completeAgentSession(req, res);
-  });
-  
-  // API route pour le CyberCrisisChallenge
-  app.post('/api/cyber/crisis-chat', (req, res) => {
-    // S'assurer que les en-têtes sont correctement configurés pour JSON
-    res.setHeader('Content-Type', 'application/json');
-    return handleCrisisChat(req, res);
   });
   
   app.post('/api/amoa/interview-simulation/download-synthesis', async (req, res) => {
