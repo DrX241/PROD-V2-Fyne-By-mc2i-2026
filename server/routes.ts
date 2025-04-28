@@ -1634,7 +1634,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Debug log pour afficher l'historique complet des messages
       console.log("DEBUG - Chat history length:", chatHistory ? chatHistory.length : 0);
       if (chatHistory && chatHistory.length > 0) {
-        console.log("DEBUG - Chat history types:", chatHistory.map(item => item.type).join(", "));
+        console.log("DEBUG - Chat history types:", chatHistory.map((item: any) => item.type).join(", "));
       }
       
       if (chatHistory && Array.isArray(chatHistory) && chatHistory.length > 0) {
