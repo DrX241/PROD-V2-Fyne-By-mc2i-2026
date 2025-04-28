@@ -84,6 +84,14 @@ export class ImmersiveScenarioService {
   async startSession(scenarioId: string, userId: string, selectedRole: UserRole): Promise<SimulationSession> {
     const scenario = this.activeScenarios.get(scenarioId);
     
+    // Tracker pour la progression et l'engagement
+    const progressionTracker = {
+      currentStage: 0,
+      tensionLevel: 0,
+      criticalDecisionPoints: [],
+      playerEngagement: 0
+    };
+    
     if (!scenario) {
       throw new Error(`Scénario non trouvé: ${scenarioId}`);
     }
@@ -214,9 +222,18 @@ export class ImmersiveScenarioService {
       throw new Error(`Votre rôle actuel ne vous permet pas de prendre cette décision`);
     }
     
-    // Appliquer les conséquences directes
+    // Système avancé de conséquences
     const consequences: string[] = [];
     const updatedMetrics = { ...session.currentMetrics };
+    const impactFactors = {
+      immediate: [],
+      delayed: [],
+      cascading: []
+    };
+    
+    // Calculer l'impact sur la tension narrative
+    const tensionModifier = calculateTensionModifier(option, session.currentPhase);
+    progressionTracker.tensionLevel += tensionModifier;
     
     for (const consequence of option.consequences) {
       if (consequence.type === 'direct') {
@@ -396,6 +413,11 @@ export class ImmersiveScenarioService {
     // Préparer le prompt pour l'IA
     const promptContext = `
 Tu incarnes ${character.name}, ${character.role} dans le scénario "${scenario.title}".
+Important: Ta réponse doit suivre ces règles d'immersion:
+1. Réagis émotionnellement en fonction du niveau de tension (${progressionTracker.tensionLevel}/10)
+2. Adapte ton urgence au contexte actuel
+3. Fais référence aux décisions précédentes du joueur
+4. Utilise des éléments de mise en situation (sons, actions, environnement)
 
 Profil du personnage:
 - Expertise: ${character.expertise.join(', ')}
