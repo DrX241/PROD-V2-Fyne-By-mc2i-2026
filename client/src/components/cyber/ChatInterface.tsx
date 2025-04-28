@@ -7,11 +7,17 @@ import EmailMessage from "./EmailMessage";
 import ContextBanner from "./ContextBanner";
 import { Send, RefreshCw, ChevronDown } from "lucide-react";
 
-interface ChatInterfaceProps {
-  onMessagesUpdate?: (messages: any[]) => void;
+interface ChatConfig {
+  userLevel?: string;
+  domain?: string;
 }
 
-export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) {
+interface ChatInterfaceProps {
+  onMessagesUpdate?: (messages: any[]) => void;
+  initialConfig?: ChatConfig;
+}
+
+export default function ChatInterface({ onMessagesUpdate, initialConfig }: ChatInterfaceProps) {
   const { 
     messages, 
     sendMessage, 
