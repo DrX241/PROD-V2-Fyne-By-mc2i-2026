@@ -643,6 +643,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       
       setMessages(prev => [...prev, errorMessage]);
+      // Même en cas d'erreur, nous incrémentons le stage pour éviter que l'utilisateur ne soit bloqué
+      setCurrentStage(currentStage + 1);
     }
     
     setIsTyping(false);
@@ -723,6 +725,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         
         setMessages(prev => [...prev, emailMessage]);
+        setCurrentStage(currentStage + 1);
       } else {
         // Otherwise add as a regular bot message with contact info
         const botResponse: ChatMessage = {
@@ -735,6 +738,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
         
         setMessages(prev => [...prev, botResponse]);
+        setCurrentStage(currentStage + 1);
         
         // Check if the scenario should be reset based on the API response
         if (data.resetScenario) {
@@ -778,6 +782,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       
       setMessages(prev => [...prev, errorMessage]);
+      // Même en cas d'erreur, nous incrémentons le stage pour éviter que l'utilisateur ne soit bloqué
+      setCurrentStage(currentStage + 1);
     }
     
     setIsTyping(false);
