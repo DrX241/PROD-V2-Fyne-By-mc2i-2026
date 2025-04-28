@@ -366,7 +366,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const initialMessage: ChatMessage = {
         id: uuidv4(),
         type: "bot",
-        content: "Bonjour !\nJe suis I AM CYBER, votre assistant virtuel dans le monde passionnant de la cybersécurité. Je suis là pour vous accompagner dans une expérience d'apprentissage immersive et interactive.\nPour commencer, Quel est votre prénom ?",
+        content: "Bonjour !\nJe suis I AM CYBER, votre assistant virtuel dans le cadre de cette mise en situation. Je suis là pour vous accompagner dans une expérience d'apprentissage immersive et interactive.\nPour commencer, Quel est votre prénom ?",
         timestamp: Date.now()
       };
       
@@ -457,7 +457,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     
     // Ajouter l'annonce d'un email à venir
-    explanationContent += `\n\nJe vais maintenant vous envoyer un premier email avec un problème concret à résoudre dans ce domaine. Cet exercice vous permettra de mettre en pratique vos connaissances.`;
+    explanationContent += `\n\nJe vais maintenant vous envoyer un premier email avec un problème concret à résoudre dans ce domaine.`;
     
     const botConfirmation: ChatMessage = {
       id: uuidv4(),
@@ -507,7 +507,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const botMessage: ChatMessage = {
       id: uuidv4(),
       type: "bot",
-      content: `Je vous prépare maintenant un email avec un problème concret à résoudre dans le domaine que vous avez choisi. Cet exercice vous permettra de mettre en pratique vos connaissances, ${firstName}.`,
+      content: `Je vous prépare maintenant un email avec un problème concret à résoudre dans le domaine que vous avez choisi.`,
       timestamp: Date.now()
     };
     
