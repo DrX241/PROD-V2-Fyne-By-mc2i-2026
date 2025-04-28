@@ -2125,77 +2125,22 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
   // API route pour le chat immersif
   app.post('/api/cyber/simple-chat', async (req: Request, res: Response) => {
     try {
-      const { message, config, chatHistory } = req.body;
+      const { message, chatHistory, config } = req.body;
       
       if (!message) {
         return res.status(400).json({ message: 'Message requis pour le chat' });
       }
       
-      // Construire un prompt système basé sur la configuration
-      let systemPrompt = `Tu es un expert en cybersécurité qui évalue les connaissances et compétences des professionnels. 
-Tu dois OBLIGATOIREMENT fournir des réponses structurées avec:
-1. Un contexte professionnel clair (entreprise fictive en France)
-2. Un problème de cybersécurité spécifique à résoudre
-3. Des questions de relance pour approfondir la réflexion de l'utilisateur
-4. Une évaluation subtile des réponses précédentes de l'utilisateur (si disponibles)
-
-Ton objectif est d'évaluer les compétences du professionnel à travers un dialogue sur des situations réelles.`;
+      // Utiliser le prompt système optimisé de l'Agent Conversationnel
+      const { AGENT_CONVERSATIONNEL_PROMPT } = require('./prompts/agentConversationnel');
       
-      // Ajuster le prompt selon le niveau de difficulté
-      if (config?.difficultyLevel === 'Débutant') {
-        systemPrompt += `
-Niveau: DÉBUTANT
-- Présente des situations simples comme une attaque par phishing, un mot de passe faible, un logiciel non mis à jour
-- Évite le jargon technique trop spécialisé
-- Pose des questions sur les concepts fondamentaux
-- Évalue la compréhension des principes de base de la cybersécurité`;
-      } else if (config?.difficultyLevel === 'Expert') {
-        systemPrompt += `
-Niveau: EXPERT
-- Présente des situations complexes comme une attaque APT, une vulnérabilité zero-day, une faille dans l'architecture de sécurité
-- Utilise un vocabulaire technique précis et spécialisé
-- Pose des questions qui exigent une analyse approfondie et des solutions sophistiquées
-- Évalue la capacité à proposer des stratégies avancées et à anticiper les problèmes`;
-      } else {
-        systemPrompt += `
-Niveau: INTERMÉDIAIRE
-- Présente des situations de difficulté moyenne comme une intrusion détectée, une violation de données, un ransomware
-- Utilise un vocabulaire technique modéré avec des explications si nécessaire
-- Pose des questions qui nécessitent une analyse et des connaissances techniques solides
-- Évalue la capacité à appliquer des bonnes pratiques et à résoudre des problèmes concrets`;
-      }
-      
-      // Définir le contexte de la discussion
-      let domaine = "cybersécurité générale";
-      if (config?.domaine) {
-        domaine = config.domaine;
-      } else if (message.toLowerCase().includes("rgpd") || message.toLowerCase().includes("données personnelles")) {
-        domaine = "protection des données et RGPD";
-      } else if (message.toLowerCase().includes("ransomware") || message.toLowerCase().includes("rançon")) {
-        domaine = "gestion des incidents de ransomware";
-      } else if (message.toLowerCase().includes("phishing") || message.toLowerCase().includes("hameçonnage")) {
-        domaine = "protection contre le phishing";
-      } else if (message.toLowerCase().includes("iam") || message.toLowerCase().includes("identité")) {
-        domaine = "gestion des identités et des accès";
-      }
-      
-      systemPrompt += `
-Domaine de spécialité: ${domaine}
-Tu dois créer des situations réalistes qui permettent d'évaluer les connaissances et les compétences de l'utilisateur dans ce domaine.
-
-IMPORTANT:
-- Chaque réponse doit comporter au moins une question de relance ou un problème à résoudre
-- Ne félicite pas directement l'utilisateur, mais valorise subtilement les bonnes réponses
-- Les problèmes présentés doivent être réalistes et basés sur des situations professionnelles en France ou en Europe
-- Limite tes réponses à 2-3 paragraphes maximum, en restant concis et précis
-- Réponds toujours en français
-- Adapte progressivement la difficulté en fonction des réponses précédentes`;
+      // Utiliser le type ChatCompletionRequestMessage déjà importé en haut du fichier
       
       // Préparer les messages incluant l'historique de conversation
-      const chatMessages = [];
+      const chatMessages: ChatCompletionRequestMessage[] = [];
       
       // Message système pour guider le modèle
-      chatMessages.push({ role: "system", content: systemPrompt });
+      chatMessages.push({ role: "system", content: AGENT_CONVERSATIONNEL_PROMPT });
       
       // Historique des conversations pour le contexte
       if (chatHistory && Array.isArray(chatHistory) && chatHistory.length > 0) {
@@ -2204,26 +2149,55 @@ IMPORTANT:
         
         // Ajouter chaque message à la conversation
         recentHistory.forEach(msg => {
-          const role = msg.sender === 'user' ? 'user' : 'assistant';
-          chatMessages.push({ role, content: msg.content });
+          const msgRole = msg.sender === 'user' ? 'user' : 'assistant';
+          chatMessages.push({ 
+            role: msgRole as "user" | "assistant", 
+            content: msg.content 
+          });
         });
       }
       
       // Ajouter le message actuel de l'utilisateur
       chatMessages.push({ role: "user", content: message });
       
-      // Appel à l'API Azure OpenAI avec l'historique complet
-      const completion = await openai.chat.completions.create({
-        messages: chatMessages,
-        temperature: config?.temperature || 0.7,
-        max_tokens: config?.maxTokens || 800,
-        model: "gpt-3.5-turbo",
-      });
+      // Appel à l'API OpenAI avec l'historique complet
+      const response = await openAIService.getChatCompletion(
+        chatMessages,
+        0.7,   // temperature
+        1200   // max_tokens - longueur suffisante pour les réponses formatées
+      );
       
-      // Envoi de la réponse au client
+      // Analyse de la réponse pour extraire des métadonnées
+      const isSpecialResponse = response.includes('[IACYBER]');
+      
+      // Déterminer l'expert qui répond
+      let expertName = "Isabelle Dubacq";
+      let expertRole = "RSSI";
+      
+      // Essayer de détecter le nom de l'expert qui répond
+      const experts = [
+        { name: "Isabelle Dubacq", role: "RSSI" },
+        { name: "Thomas Renard", role: "Ethical Hacker" },
+        { name: "Sophie Martin", role: "Experte RGPD" },
+        { name: "Marc Lefort", role: "Architecte Sécurité" }
+      ];
+      
+      for (const expert of experts) {
+        if (response.includes(expert.name)) {
+          expertName = expert.name;
+          expertRole = expert.role;
+          break;
+        }
+      }
+      
+      // Envoi de la réponse au client avec les métadonnées extraites
       res.json({ 
-        response: completion.choices[0].message.content,
-        usage: completion.usage
+        response,
+        expert: {
+          name: expertName,
+          role: expertRole
+        },
+        isIACYBERIntervention: isSpecialResponse
       });
       
     } catch (error: any) {
