@@ -6,6 +6,7 @@ import ScenarioSelection from "./ScenarioSelection";
 import EmailMessage from "./EmailMessage";
 import ContextBanner from "./ContextBanner";
 import { Send, RefreshCw, ChevronDown } from "lucide-react";
+import { v4 as uuidv4 } from 'uuid';
 
 interface ChatInterfaceProps {
   onMessagesUpdate?: (messages: any[]) => void;
@@ -89,7 +90,17 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
     const messageToSend = inputMessage;
     setInputMessage("");
     const currentStage = scenarioState.currentStage || 1;
-    await sendMessage({message: messageToSend, stage: currentStage});
+    try {
+      await sendMessage({message: messageToSend, stage: currentStage});
+    } catch (error) {
+      console.error('Error sending message:', error);
+      setMessages(prev => [...prev, {
+        id: uuidv4(),
+        type: 'error',
+        content: `Une erreur est survenue: ${error instanceof Error ? error.message : 'An unknown error occurred'}`,
+        timestamp: Date.now()
+      }]);
+    }
     setShowScrollButton(true);
   };
 
@@ -125,6 +136,8 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
             contactContent={message.contactContent}
           />
         );
+      case 'error':
+        return <ChatMessage type="error" content={message.content} contactName="Error" />;
       default:
         return null;
     }
