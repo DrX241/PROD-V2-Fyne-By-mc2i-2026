@@ -2680,8 +2680,7 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
     }
   });
 
-  // Routes pour le système d'urgence cyber interactif
-  // Les routes d'urgence cyber ont été supprimées
+  // Fin des routes API
 
   return createServer(app);
 }

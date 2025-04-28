@@ -26,9 +26,7 @@ import CyberDefenseMissionPage from "@/pages/cyber-defense-mission"; // Ancienne
 
 // Arcade et mini-jeux
 import CyberArcade from "@/pages/cyber/arcade";
-// Anciens jeux
-import PasswordPuzzle from "@/pages/cyber/arcade/password-puzzle";
-import FirewallDefense from "@/pages/cyber/arcade/firewall-defense";
+// Les anciens jeux ont été supprimés
 // Nouveaux jeux d'enquête
 import CyberInvestigator from "@/pages/cyber/arcade/cyber-investigator";
 import DataLeakInvestigation from "@/pages/cyber/arcade/cyber-investigator/data-leak";
@@ -98,28 +96,35 @@ function App() {
             <Route path="/cyber/cyber-agent" component={CyberAgentRedirectPage} /> {/* Redirection vers la nouvelle version */}
             <Route path="/cyber/cyber-agent-old" component={CyberAgentRedirectPage} /> {/* Ancienne version (redirection) */}
             <Route path="/cyber/cyber-agent-new" component={CyberAgentNewPage} /> {/* Nouvelle version du module Cyber Agent */}
-            <Route path="/cyber/emergency-response" component={NotYetImplemented} /> {/* Redirection vers page non implémentée */}
+            {/* Module d'arcade cyber et jeux d'enquête */}
             <Route path="/cyber/arcade" component={CyberArcade} />
-            {/* Anciennes routes de jeux (pour compatibilité) */}
-            <Route path="/cyber/arcade/password-puzzle" component={PasswordPuzzle} />
-            <Route path="/cyber/arcade/firewall-defense" component={FirewallDefense} />
-            {/* Nouvelles routes pour les jeux d'enquête */}
             <Route path="/cyber/arcade/cyber-investigator" component={CyberInvestigator} />
             <Route path="/cyber/arcade/cyber-investigator/data-leak" component={DataLeakInvestigation} />
             <Route path="/cyber/arcade/cyber-investigator/ransomware-attack" component={RansomwareAttack} />
             <Route path="/cyber/arcade/cyber-investigator/insider-threat" component={InsiderThreat} />
             <Route path="/cyber/arcade/digital-forensics" component={DigitalForensics} />
             <Route path="/cyber/arcade/threat-intelligence" component={ThreatIntelligence} />
+            
+            {/* Module Centre de Crise */}
             <Route path="/cyber-defense-new" component={CentreDeCriseEvolutifPage} />
             <Route path="/cyber-defense/session/:levelId" component={CyberDefenseSessionPage} />
             <Route path="/cyber-defense" component={CentreDeCriseEvolutifPage} />
             <Route path="/cyber-defense/mission/:id" component={CyberDefenseMissionPage} />
+            
+            {/* Module Simulation Immersive */}
             <Route path="/immersive-simulation" component={ImmersiveSimulation} />
             <Route path="/immersive-simulation/:id" component={ImmersiveScenarioDetail} />
             <Route path="/immersive-simulation/session/:id" component={ImmersiveSession} />
+            
+            {/* Modules obsolètes redirigés vers page d'erreur */}
+            <Route path="/cyber/emergency-response" component={NotYetImplemented} />
             <Route path="/cyber-ascension" component={NotYetImplemented} />
             <Route path="/cyber-ascension/theme/:themeId" component={NotYetImplemented} />
             <Route path="/cyber-ascension/theme/:themeId/level/:levelId" component={NotYetImplemented} />
+            
+            {/* Routes héritées pour compatibilité */}
+            <Route path="/cyber/arcade/password-puzzle" component={NotYetImplemented} />
+            <Route path="/cyber/arcade/firewall-defense" component={NotYetImplemented} />
             <Route path="/data-ia" component={NotYetImplemented} />
             <Route path="/amoa" component={AmoaPage} />
             <Route path="/amoa-mode-selection" component={AmoaModeSelection} />
