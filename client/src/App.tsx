@@ -49,6 +49,9 @@ import ImmersiveSimulation from "@/pages/immersive-simulation";
 import ImmersiveScenarioDetail from "@/pages/immersive-scenario-detail";
 import ImmersiveSession from "@/pages/immersive-session";
 
+// Import des pages du nouveau module CyberCrisisChallenge
+import { CrisisHomePage, CrisisSetupPage, CrisisChatPage } from "./modules/cyber-crisis";
+
 // Router principal - toutes les routes sont définies dans App()
 
 // Composant pour les modules non encore implémentés ou supprimés
@@ -114,6 +117,12 @@ function App() {
             <Route path="/cyber-defense/session/:levelId" component={CyberDefenseSessionPage} />
             <Route path="/cyber-defense" component={CentreDeCriseEvolutifPage} />
             <Route path="/cyber-defense/mission/:id" component={CyberDefenseMissionPage} />
+            
+            {/* Routes pour le nouveau module CyberCrisisChallenge */}
+            <Route path="/cyber-crisis" component={CrisisHomePage} />
+            <Route path="/cyber-crisis/setup" component={CrisisSetupPage} />
+            <Route path="/cyber-crisis/chat" component={CrisisChatPage} />
+            
             <Route path="/immersive-simulation" component={ImmersiveSimulation} />
             <Route path="/immersive-simulation/:id" component={ImmersiveScenarioDetail} />
             <Route path="/immersive-simulation/session/:id" component={ImmersiveSession} />
