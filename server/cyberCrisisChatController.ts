@@ -17,11 +17,11 @@ export async function handleCrisisChat(req: Request, res: Response) {
       userRole,
       scenario,
       currentEvent,
-      activePersonalities,
-      messages,
-      budget,
-      score,
-      reputation
+      activePersonalities = [],
+      messages = [],
+      budget = 1000000,
+      score = 0,
+      reputation = 100
     } = req.body;
     
     if (!message || !userRole || !scenario) {
@@ -31,13 +31,25 @@ export async function handleCrisisChat(req: Request, res: Response) {
       });
     }
     
+    // Éviter les références nulles
+    const safeScenario = {
+      title: scenario.title || "Scénario sans titre",
+      description: scenario.description || "Aucune description disponible",
+      mainPersonality: scenario.mainPersonality || "system",
+      events: scenario.events || {}
+    };
+    
     // Récupérer les personnalités actives et l'événement en cours
-    const currentPersonality = activePersonalities.find((p: any) => p.id === scenario.mainPersonality);
-    const currentEventData = scenario.events[currentEvent] || null;
+    const currentPersonality = activePersonalities && activePersonalities.length > 0 
+      ? activePersonalities.find((p: any) => p.id === safeScenario.mainPersonality) 
+      : null;
+    
+    // Vérifier si les événements existent avant d'accéder à un événement spécifique
+    const currentEventData = safeScenario.events && currentEvent ? safeScenario.events[currentEvent] : null;
     
     // Construire le prompt pour le système
     const systemPrompt = buildSystemPrompt(
-      scenario, 
+      safeScenario, 
       userRole, 
       currentPersonality, 
       budget, 
@@ -48,9 +60,9 @@ export async function handleCrisisChat(req: Request, res: Response) {
     // Construire les messages pour l'IA
     const chatMessages = buildChatHistory(
       messages, 
-      userName, 
+      userName || 'Utilisateur', 
       userRole, 
-      scenario,
+      safeScenario,
       activePersonalities
     );
     
