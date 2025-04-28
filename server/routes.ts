@@ -1937,6 +1937,186 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
     }
   });
   
+  // Routes pour l'évaluation du niveau en cybersécurité
+  app.get('/api/cyber/assessment/questions', async (req: Request, res: Response) => {
+    try {
+      const { domain } = req.query;
+      
+      if (!domain) {
+        return res.status(400).json({ error: 'Le paramètre domain est requis' });
+      }
+      
+      // Générer des questions d'évaluation en fonction du domaine
+      const messages = [
+        {
+          role: "system",
+          content: `Vous êtes un expert en cybersécurité chargé de concevoir des questions pour évaluer le niveau des utilisateurs. 
+          Générez 5 questions pertinentes pour évaluer les connaissances en ${domain}.
+          Chaque question doit avoir 4 options de réponse correspondant aux niveaux:
+          - débutant (connaissance basique)
+          - confirmé (connaissance intermédiaire)
+          - senior (connaissance avancée)
+          - expert (connaissance très avancée et spécialisée)
+          
+          Votre réponse doit être au format JSON uniquement comme ceci:
+          {
+            "questions": [
+              {
+                "id": "q1",
+                "text": "Texte de la question",
+                "options": [
+                  { "id": "o1", "text": "Option débutant", "level": "débutant" },
+                  { "id": "o2", "text": "Option confirmé", "level": "confirmé" },
+                  { "id": "o3", "text": "Option senior", "level": "senior" },
+                  { "id": "o4", "text": "Option expert", "level": "expert" }
+                ]
+              }
+            ]
+          }`
+        },
+        {
+          role: "user",
+          content: `Générez 5 questions d'évaluation dans le domaine: ${domain}`
+        }
+      ];
+      
+      try {
+        // Utiliser gpt-4o-mini pour une réponse rapide
+        const response = await openAIService.getChatCompletionWithCache(
+          messages,
+          0.7,
+          2000,
+          { response_format: { type: "json_object" } },
+          true // Utiliser le modèle secondaire (mini)
+        );
+        
+        // Parser la réponse JSON
+        const data = JSON.parse(response);
+        
+        // Ajouter des identifiants uniques aux questions et options si nécessaire
+        const processedQuestions = data.questions.map((q: any, qIndex: number) => ({
+          ...q,
+          id: q.id || `q${qIndex+1}`,
+          options: q.options.map((opt: any, oIndex: number) => ({
+            ...opt,
+            id: opt.id || `q${qIndex+1}_o${oIndex+1}`
+          }))
+        }));
+        
+        res.json({ questions: processedQuestions });
+      } catch (error) {
+        console.error("Erreur lors de la génération des questions d'évaluation:", error);
+        
+        // Générer des questions aléatoires localement en cas d'erreur
+        const randomId = crypto.randomBytes(4).toString('hex');
+        const fallbackQuestions = [
+          {
+            id: `q1_${randomId}`,
+            text: "Comment évaluez-vous votre connaissance en cybersécurité?",
+            options: [
+              { id: `q1_o1_${randomId}`, text: "Je connais les concepts de base", level: "débutant" },
+              { id: `q1_o2_${randomId}`, text: "Je peux résoudre des problèmes courants", level: "confirmé" },
+              { id: `q1_o3_${randomId}`, text: "Je maîtrise les concepts avancés et peux former les autres", level: "senior" },
+              { id: `q1_o4_${randomId}`, text: "Je suis expert et peux résoudre des cas complexes", level: "expert" }
+            ]
+          },
+          {
+            id: `q2_${randomId}`,
+            text: "Comment abordez-vous les nouveaux défis en cybersécurité?",
+            options: [
+              { id: `q2_o1_${randomId}`, text: "Je cherche des solutions déjà existantes", level: "débutant" },
+              { id: `q2_o2_${randomId}`, text: "J'analyse le problème et applique des méthodes standards", level: "confirmé" },
+              { id: `q2_o3_${randomId}`, text: "Je développe des approches systémiques adaptées au contexte", level: "senior" },
+              { id: `q2_o4_${randomId}`, text: "Je crée des méthodologies innovantes basées sur l'anticipation des menaces", level: "expert" }
+            ]
+          }
+        ];
+        
+        res.json({ questions: fallbackQuestions });
+      }
+    } catch (error) {
+      console.error("Erreur du serveur lors de la génération des questions:", error);
+      res.status(500).json({ error: "Erreur serveur lors de la génération des questions" });
+    }
+  });
+  
+  // Route pour soumettre les résultats de l'évaluation
+  app.post('/api/cyber/assessment/submit', async (req: Request, res: Response) => {
+    try {
+      const { domain, answers, result } = req.body;
+      
+      if (!domain || !answers || !result) {
+        return res.status(400).json({ error: 'Paramètres incomplets' });
+      }
+      
+      // Dans une version complète, nous stockerions ces données dans une base de données
+      // Pour l'instant, nous les enregistrons uniquement dans les logs du serveur
+      console.log(`Évaluation soumise - Domaine: ${domain}, Niveau: ${result}`);
+      console.log("Réponses:", JSON.stringify(answers));
+      
+      // Générer un feedback adapté au niveau déterminé
+      const feedbackMessages = [
+        {
+          role: "system",
+          content: `Vous êtes un expert en cybersécurité spécialisé en évaluation des compétences.
+          Générez un feedback personnalisé pour un utilisateur qui vient de passer une évaluation de compétences dans le domaine "${domain}".
+          Le niveau déterminé est: ${result}.
+          
+          Votre réponse doit être au format JSON uniquement comme ceci:
+          {
+            "title": "Titre court et encourageant",
+            "feedback": "Feedback personnalisé",
+            "recommendations": ["recommandation 1", "recommandation 2", "recommandation 3"]
+          }`
+        },
+        {
+          role: "user",
+          content: `Générez un feedback pour un utilisateur de niveau ${result} dans le domaine ${domain}`
+        }
+      ];
+      
+      try {
+        // Utiliser gpt-4o-mini pour une réponse rapide
+        const feedbackResponse = await openAIService.getChatCompletionWithCache(
+          feedbackMessages,
+          0.7,
+          1000,
+          { response_format: { type: "json_object" } },
+          true // Utiliser le modèle secondaire (mini)
+        );
+        
+        // Parser la réponse JSON
+        const feedback = JSON.parse(feedbackResponse);
+        
+        res.json({ 
+          success: true, 
+          level: result,
+          feedback
+        });
+      } catch (error) {
+        console.error("Erreur lors de la génération du feedback:", error);
+        
+        // Feedback par défaut en cas d'erreur
+        res.json({ 
+          success: true, 
+          level: result,
+          feedback: {
+            title: "Évaluation terminée",
+            feedback: `Votre niveau en ${domain} a été évalué comme: ${result}`,
+            recommendations: [
+              "Continuez à progresser dans ce domaine",
+              "Restez à jour avec les dernières évolutions",
+              "Participez à des échanges avec des experts"
+            ]
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Erreur serveur lors de la soumission de l'évaluation:", error);
+      res.status(500).json({ error: "Erreur serveur lors de la soumission de l'évaluation" });
+    }
+  });
+  
   // API pour les conversations du module Cyber Defense
   app.post('/api/cyber-defense/chat', async (req: Request, res: Response) => {
     try {
