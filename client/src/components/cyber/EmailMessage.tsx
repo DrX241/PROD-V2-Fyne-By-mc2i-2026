@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Users } from "lucide-react";
+import { Users, Paperclip, FileText, FileCode, FileWarning, FileQuestion, Download } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
-import { ScenarioContact, EmailMessageContent } from "@shared/types/cyber";
+import { ScenarioContact, EmailMessageContent, AttachmentMetadata } from "@shared/types/cyber";
 
 // Types aliases pour simplifier la transition
 type EmailContact = ScenarioContact;
@@ -150,6 +150,36 @@ export default function EmailMessage({ email }: EmailMessageProps) {
     return result;
   };
 
+  // Fonction pour obtenir l'icône appropriée selon le type de pièce jointe
+  const getAttachmentIcon = (type: string) => {
+    switch (type) {
+      case 'log_file':
+        return <FileCode className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />;
+      case 'incident_report':
+      case 'security_analysis':
+      case 'vulnerability_scan':
+        return <FileWarning className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />;
+      case 'confidential_memo':
+      case 'regulatory_filing':
+      case 'data_breach_notification':
+      case 'customer_communication':
+        return <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-white" />;
+      default:
+        return <FileQuestion className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />;
+    }
+  };
+
+  // Convertir les tailles de fichiers en format lisible
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + ' B';
+    else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    else return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  };
+
+  // Vérifier si l'email a des pièces jointes (anciennes ou nouvelles)
+  const hasAttachments = (email.attachment && email.attachment.length > 0) || 
+                        (email.attachments && email.attachments.length > 0);
+
   return (
     <div className="my-6 sm:my-8 max-w-4xl mx-auto">
       <div className="backdrop-blur-md bg-gray-900/60 rounded-xl border border-blue-800/40 overflow-hidden shadow-glow-md">
@@ -192,6 +222,50 @@ export default function EmailMessage({ email }: EmailMessageProps) {
         <div className="p-4 sm:p-6 text-white prose prose-invert max-w-none prose-blue text-sm sm:text-base">
           {renderBody()}
         </div>
+        
+        {/* Pièces jointes */}
+        {hasAttachments && (
+          <div className="mx-3 sm:mx-6 my-3 sm:my-4 p-3 sm:p-5 bg-blue-900/40 rounded-lg border border-blue-700/30 backdrop-blur-sm">
+            <h4 className="font-bold text-white mb-3 sm:mb-4 flex items-center text-sm sm:text-base">
+              <Paperclip className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-white" />
+              <span>Pièces jointes</span>
+            </h4>
+            
+            <div className="space-y-2">
+              {/* Anciennes pièces jointes (format chaîne de caractères) */}
+              {email.attachment && email.attachment.length > 0 && (
+                <div className="flex items-center p-2 sm:p-3 backdrop-blur-sm bg-gradient-to-br from-gray-900/70 to-blue-900/40 rounded-lg border border-blue-800/40 text-white">
+                  <FileText className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-white flex-shrink-0" />
+                  <span className="flex-1 text-sm sm:text-base truncate">{email.attachment}</span>
+                </div>
+              )}
+              
+              {/* Nouvelles pièces jointes (format métadonnées) */}
+              {email.attachments && email.attachments.map((attachment: AttachmentMetadata, index: number) => (
+                <a 
+                  key={index}
+                  href={attachment.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between p-2 sm:p-3 backdrop-blur-sm bg-gradient-to-br from-gray-900/70 to-blue-900/40 rounded-lg border border-blue-800/40 text-white hover:bg-blue-800/30 transition-colors"
+                >
+                  <div className="flex items-center flex-1 min-w-0">
+                    {getAttachmentIcon(attachment.type)}
+                    <div className="ml-2 flex-1 min-w-0">
+                      <p className="font-medium text-sm sm:text-base text-white truncate">{attachment.filename}</p>
+                      <p className="text-xs text-gray-300">{formatFileSize(attachment.size)} · {attachment.type.replace(/_/g, ' ')}</p>
+                    </div>
+                  </div>
+                  <Download className="ml-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-400 flex-shrink-0" />
+                </a>
+              ))}
+            </div>
+            
+            <p className="text-xs sm:text-sm text-white mt-3 sm:mt-4">
+              Ces documents contiennent des informations importantes pour l'analyse de la situation.
+            </p>
+          </div>
+        )}
         
         {/* Interlocuteurs */}
         {email.scenarioContacts && email.scenarioContacts.length > 0 && (

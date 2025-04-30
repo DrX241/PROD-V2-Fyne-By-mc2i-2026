@@ -234,6 +234,17 @@ export function calculateGlobalSkillProgress(skillsProgress: { [skill: string]: 
   return Math.round(sum / Object.keys(skillsProgress).length);
 }
 
+// Interface pour les métadonnées des pièces jointes
+export interface AttachmentMetadata {
+  id: string;
+  filename: string;
+  type: string;
+  createdAt: string;
+  scenarioId: string;
+  size: number;
+  url: string;
+}
+
 export interface EmailMessageContent {
   id: string;
   from: ScenarioContact;
@@ -241,7 +252,10 @@ export interface EmailMessageContent {
   subject: string;
   date: string;
   body: string;
+  // Support de l'ancien format pour la rétrocompatibilité
   attachment?: string;
+  // Nouveau format avec support de multiples pièces jointes
+  attachments?: AttachmentMetadata[];
   evaluation?: {
     id: string;
     title: string;
