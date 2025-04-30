@@ -446,7 +446,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Handler to set the user's role
   const handleSetUserRole = (roleId: string) => {
-    if (!roleId) return;
+    // Empêcher la sélection de plusieurs rôles
+    if (!roleId || userRole) return;
     
     setIsTyping(true);
     setUserRole(roleId);
@@ -461,7 +462,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Add user's role selection message
     const userMessage: ChatMessage = {
       id: uuidv4(),
-      type: "role-selection",
+      type: "user",
       content: `J'ai choisi le rôle de ${role.name}`,
       timestamp: Date.now()
     };
