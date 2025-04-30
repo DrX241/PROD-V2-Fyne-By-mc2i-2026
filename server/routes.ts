@@ -263,7 +263,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API route for starting a scenario
   app.post('/api/cyber/start-scenario', async (req, res) => {
     try {
-      const { scenarioId, userName, userRole, config } = req.body;
+      const { scenarioId, userName, userRole, config, currentStage } = req.body;
       
       if (!scenarioId || !userName) {
         return res.status(400).json({ message: 'Missing required parameters' });

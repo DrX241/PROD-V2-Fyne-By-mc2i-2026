@@ -1,0 +1,58 @@
+2. ✅ Ajout d’une variable currentStage pour suivre la progression du scénario
+❓Pourquoi :
+Actuellement, toutes les réponses IA sont de même ton, indépendamment de la phase de crise.
+
+En ajoutant une variable d’étape, on peut faire monter la tension et moduler le scénario dans le temps.
+
+🔁Ce que ça change :
+La première interaction sera une détection douce.
+
+Puis : escalade → choix stratégiques → conséquences → phase post-incident.
+
+On passe d’un chatbot linéaire à un scénario structuré, évolutif, immersif.
+
+3. ✅ Envoyer currentStage et userRole au backend
+❓Pourquoi :
+Pour que le backend puisse générer une réponse contextualisée en fonction :
+
+Du rôle de l’utilisateur
+
+Du moment dans le scénario
+
+🔁Ce que ça change :
+Le prompt envoyé à GPT pourra être plus précis :
+"À ce stade, l'utilisateur est RSSI, et on est en pleine crise de ransomware (stage 2). Voici ce qu'il doit faire..."
+
+4. ✅ Adapter dynamiquement le systemPrompt dans la route /api/cyber/chat selon l'étape
+❓Pourquoi :
+C’est le cœur de l’immersion : le prompt contrôle le ton, la difficulté, le contexte.
+
+Aujourd’hui, le prompt est générique. On veut un prompt modulaire, évolutif.
+
+🔁Ce que ça change :
+À chaque étape (currentStage), le prompt est personnalisé :
+
+Stage 0 : détection → on demande une analyse d’alerte.
+
+Stage 1 : réponse rapide → il faut décider vite.
+
+Stage 2 : pression hiérarchique, coûts, image, RH, etc.
+
+Stage 3 : retour d’expérience post-crise.
+
+L’utilisateur vit un vrai enchaînement de décisions critiques.
+
+5. ✅ Ajout de personnalités des interlocuteurs IA dans le prompt (pressions, désaccords, stress)
+❓Pourquoi :
+Actuellement, tous les interlocuteurs sont plats, pédagogiques, gentils.
+
+Or en crise, les acteurs ne sont pas d’accord et mettent la pression.
+
+🔁Ce que ça change :
+Le DG pourra couper la parole, douter de l’utilisateur.
+
+Le CFO s’opposera aux dépenses.
+
+L’analyste demandera des logs détaillés.
+
+Résultat : une véritable interaction de groupe, comme dans une vraie cellule de crise.
