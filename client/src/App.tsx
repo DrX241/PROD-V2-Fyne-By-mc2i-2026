@@ -46,8 +46,6 @@ import ProjetImposteur from "@/pages/amoa/projet-imposteur";
 import ImmersiveSimulation from "@/pages/immersive-simulation";
 import ImmersiveScenarioDetail from "@/pages/immersive-scenario-detail";
 import ImmersiveSession from "@/pages/immersive-session";
-// CyberChallenge
-import CyberChallengePage from "./pages/cyber-challenge";
 
 // Router principal - toutes les routes sont définies dans App()
 
@@ -133,7 +131,6 @@ function App() {
             <Route path="/amoa/quest" component={AmoaQuestPage} />
             <Route path="/amoa/projet-imposteur" component={ProjetImposteur} />
             <Route path="/custom" component={NotYetImplemented} />
-            <Route path="/cyber-challenge" component={CyberChallengePage} />
             <Route component={NotFound} />
           </Switch>
           <Toaster />
