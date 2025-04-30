@@ -1250,21 +1250,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Generate an attachment based on the scenario context
       let attachments = [];
       try {
-        // Sélectionner un type d'attachement approprié pour le domaine, l'étape du scénario et le rôle de l'utilisateur
-        const attachmentType = selectAppropriateAttachmentType(scenario.domain, 0, userRole || 'expert'); // Étape 0 pour le premier message
+        // Pour le premier message, uniquement générer une pièce jointe pour les scénarios critiques 
+        // ou pour les rôles qui en ont absolument besoin (RSSI, admin système)
+        const needsAttachment = 
+          scenario.domain.toLowerCase().includes('crise') || 
+          scenario.domain.toLowerCase().includes('incident') ||
+          scenario.title.toLowerCase().includes('critique') ||
+          (userRole && (userRole.toLowerCase().includes('rssi') || 
+                        userRole.toLowerCase().includes('admin') || 
+                        userRole.toLowerCase().includes('système')));
         
-        // Générer la pièce jointe avec un contexte approprié
-        const attachment = await generateAttachment(
-          uuidv4(), // ID unique pour ce scénario
-          scenario.title,
-          scenario.domain,
-          attachmentType,
-          `Scénario initial de cybersécurité "${scenario.title}" dans le domaine "${scenario.domain}". ${body.substring(0, 200)}...`, // Utiliser le début du corps de l'email comme contexte
-          0, // étape initiale
-          userRole || 'expert' // rôle de l'utilisateur ou expert par défaut
-        );
-        
-        attachments.push(attachment);
+        if (needsAttachment) {
+          // Sélectionner un type d'attachement approprié pour le domaine, l'étape du scénario et le rôle de l'utilisateur
+          const attachmentType = selectAppropriateAttachmentType(scenario.domain, 0, userRole || 'expert'); // Étape 0 pour le premier message
+          
+          // Générer la pièce jointe avec un contexte approprié
+          const attachment = await generateAttachment(
+            uuidv4(), // ID unique pour ce scénario
+            scenario.title,
+            scenario.domain,
+            attachmentType,
+            `Scénario initial de cybersécurité "${scenario.title}" dans le domaine "${scenario.domain}". ${body.substring(0, 200)}...`, // Utiliser le début du corps de l'email comme contexte
+            0, // étape initiale
+            userRole || 'expert' // rôle de l'utilisateur ou expert par défaut
+          );
+          
+          attachments.push(attachment);
+        }
       } catch (error) {
         console.error("Erreur lors de la génération de la pièce jointe:", error);
         // Continuer même si la génération de pièce jointe échoue
