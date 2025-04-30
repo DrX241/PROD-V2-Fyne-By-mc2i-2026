@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Rocket, History, User, GameController, Award } from 'lucide-react';
+import { ShieldCheck, Rocket, History, User, Gamepad2, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GameProvider } from '@/contexts/cyber-challenge/GameContext';
 import IntroductionPhase from '@/components/cyber-challenge/IntroductionPhase';

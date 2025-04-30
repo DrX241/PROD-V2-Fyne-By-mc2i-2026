@@ -192,7 +192,7 @@ export default function GameModePhase({ onComplete }: GameModePhaseProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className={`w-full max-w-2xl mx-auto rounded-lg p-6 border border-${selectedMode.color}-500/50 bg-gradient-to-r ${selectedMode.gradient}/50`}
+          className="w-full max-w-2xl mx-auto rounded-lg p-6 border border-blue-500/50 bg-gradient-to-r from-blue-900/50 to-purple-900/50"
         >
           <h3 className="text-2xl font-bold mb-4 text-white flex items-center">
             {selectedMode.icon}
@@ -204,7 +204,7 @@ export default function GameModePhase({ onComplete }: GameModePhaseProps) {
             <ul className="space-y-2">
               {selectedMode.features.map((feature, index) => (
                 <li key={index} className="flex items-start">
-                  <CheckCircle2 className={`h-5 w-5 mr-2 text-${selectedMode.color}-400 flex-shrink-0 mt-0.5`} />
+                  <CheckCircle2 className="h-5 w-5 mr-2 text-blue-400 flex-shrink-0 mt-0.5" />
                   <span className="text-blue-100">{feature}</span>
                 </li>
               ))}
@@ -214,7 +214,7 @@ export default function GameModePhase({ onComplete }: GameModePhaseProps) {
           <div className="flex justify-center">
             <Button
               onClick={confirmSelection}
-              className={`bg-gradient-to-r from-${selectedMode.color}-500 to-${selectedMode.color}-700 hover:from-${selectedMode.color}-600 hover:to-${selectedMode.color}-800`}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
               size="lg"
             >
               Lancer le {selectedMode.title}

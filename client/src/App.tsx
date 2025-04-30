@@ -13,6 +13,7 @@ import Home from "@/pages/home";
 import ModulesPage from "@/pages/modules";
 import CyberModeSelection from "@/pages/cyber-mode-selection";
 import CyberAgentPage from "@/pages/cyber-agent";
+import CyberChallengePage from "@/pages/cyber-challenge";
 // Utiliser les chemins relatifs pour les nouveaux composants
 import CyberAgentRedirectPage from "./pages/cyber/cyber-agent-redirect";
 import CyberAgentNewPage from "./pages/cyber/cyber-agent-new";
@@ -104,6 +105,9 @@ function App() {
             <Route path="/cyber/arcade/cyber-investigator/insider-threat" component={InsiderThreat} />
             <Route path="/cyber/arcade/digital-forensics" component={DigitalForensics} />
             <Route path="/cyber/arcade/threat-intelligence" component={ThreatIntelligence} />
+            
+            {/* Nouveau module CyberChallenge */}
+            <Route path="/cyber-challenge" component={CyberChallengePage} />
             
             {/* Module Centre de Crise */}
             <Route path="/cyber-defense-new" component={CentreDeCriseEvolutifPage} />
