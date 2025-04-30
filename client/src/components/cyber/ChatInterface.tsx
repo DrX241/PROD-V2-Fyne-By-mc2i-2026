@@ -239,7 +239,13 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
             </form>
           ) : (
             <div className="bg-blue-800/50 rounded-lg p-3 text-center text-white text-sm border border-blue-700/40">
-              <p>Configuration en cours... Veuillez patienter...</p>
+              <p>
+                <span className="font-semibold">Veuillez sélectionner vos choix ci-dessus</span>
+                <br />
+                <span className="text-blue-200">Choisissez votre rôle et domaine pour continuer la conversation</span>
+                <br />
+                <span className="text-xs text-blue-300 mt-1 italic">La zone de saisie sera disponible après l'étape de configuration</span>
+              </p>
             </div>
           )}
         </div>
