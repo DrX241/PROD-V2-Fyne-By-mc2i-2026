@@ -544,7 +544,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // et ne nécessitent plus la génération de documents séparés
       
       // Generate email content with Azure OpenAI
-      const systemPrompt = await openAIService.generateSystemPrompt({
+      const emailSystemPrompt = await openAIService.generateSystemPrompt({
         difficultyLevel: config?.difficultyLevel || "Intermédiaire",
         responseStyle: config?.responseStyle || "Professionnel"
       });
@@ -723,7 +723,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const messages: ChatCompletionRequestMessage[] = [
         {
           role: "system",
-          content: systemPrompt
+          content: emailSystemPrompt
         },
         {
           role: "user",
@@ -1788,7 +1788,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const contactPersonality = getPersonalityTrait(respondingContact.role, respondingContact.name);
       
       // Définir la situation du scénario en fonction de l'étape actuelle
-      const scenarioSituation = getScenarioSituation(stage);
+      const scenarioSituation = getScenarioSituation(scenario?.domain || "", stage);
       
       // Définir le niveau d'urgence en fonction du domaine, de la difficulté et de l'étape
       const urgencyLevel = getUrgencyLevel(scenario?.domain || "", scenario?.difficulty || "moyen", stage);
