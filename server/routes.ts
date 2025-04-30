@@ -1250,8 +1250,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Generate an attachment based on the scenario context
       let attachments = [];
       try {
-        // Sélectionner un type d'attachement approprié pour le domaine et l'étape du scénario
-        const attachmentType = selectAppropriateAttachmentType(scenario.domain, 0); // Étape 0 pour le premier message
+        // Sélectionner un type d'attachement approprié pour le domaine, l'étape du scénario et le rôle de l'utilisateur
+        const attachmentType = selectAppropriateAttachmentType(scenario.domain, 0, userRole || 'expert'); // Étape 0 pour le premier message
         
         // Générer la pièce jointe avec un contexte approprié
         const attachment = await generateAttachment(

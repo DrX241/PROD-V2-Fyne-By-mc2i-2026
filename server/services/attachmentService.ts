@@ -222,8 +222,8 @@ async function generateAttachmentContent(
     // Utiliser le service Azure OpenAI
     const response = await openAIService.getChatCompletion(
       messages,
-      0.8, // temperature
-      2500  // maxTokens
+      0.7, // temperature réduite pour générer plus rapidement
+      1800  // maxTokens réduits pour accélérer la génération
     );
     return response || "Document non disponible.";
   } catch (error) {
@@ -484,189 +484,100 @@ export function selectAppropriateAttachmentType(domain: string, stage: number, u
 function createLogFilePrompt(domain: string, context: string, stage: number): string {
   return `Créez un fichier de logs de serveur réaliste pour un incident de cybersécurité dans le domaine "${domain}".
   
-CONTEXTE:
-${context}
+CONTEXTE: ${context}
 
 EXIGENCES:
-1. Utilisez le format standard des logs avec horodatage précis, niveau de log, service et message
-2. Incluez des signes d'intrusion/attaque spécifiques et appropriés au domaine "${domain}"
-3. Montrez une progression chronologique détaillée de l'incident avec des timestamps réalistes
-4. Incluez des adresses IP réelles (publiques et privées), des User-Agents, des noms d'utilisateurs, des chemins de fichiers complets
-5. Ajoutez des erreurs, des alertes et des avertissements pertinents avec codes d'erreur spécifiques
-6. Incluez des tentatives de connexion échouées, des modifications de permissions, des exécutions de scripts suspects
-7. Ajoutez des requêtes SQL suspectes si pertinent, des tentatives d'exploitation de vulnérabilités connues (avec CVE)
-8. Incluez des logs de pare-feu, serveur web, système d'authentification et base de données selon le contexte
-9. Le fichier doit contenir au moins 30 lignes de logs montrant l'évolution claire de l'attaque
-10. Utilisez des termes techniques précis et réalistes (noms de services, commandes, paramètres)
-11. Adaptez la gravité des logs à l'étape ${stage} du scénario
-12. Incluez des indices techniques qui pourraient être utiles pour l'analyse (empreintes numériques, hashes, signatures)
+1. Format standard: timestamps, IP, codes d'erreur
+2. Signes d'intrusion adaptés au domaine "${domain}"
+3. Tentatives de connexion suspectes, exécutions de scripts malveillants
+4. Environ 15 lignes montrant l'évolution chronologique de l'incident
+5. Ajoutez 1-2 CVE ou IoCs pertinents au domaine
 
 FORMAT:
-[DATE TIME] [NIVEAU] [SERVICE/COMPOSANT] Message détaillé avec informations techniques (adresses IP, chemins, utilisateurs, paramètres)`;
+[DATE TIME] [NIVEAU] [SERVICE] Message (IP, chemin, utilisateur, paramètre)`;
 }
 
 function createIncidentReportPrompt(domain: string, context: string, stage: number): string {
-  return `Générez un rapport d'incident de cybersécurité complet et détaillé dans le domaine "${domain}".
+  return `Générez un rapport d'incident de cybersécurité dans le domaine "${domain}".
   
-CONTEXTE:
-${context}
+CONTEXTE: ${context}
 
 EXIGENCES:
-1. Utilisez un format professionnel de rapport d'incident avec des sections clairement définies
-2. Incluez l'historique chronologique détaillé de l'incident avec timestamps précis
-3. Identifiez précisément les systèmes, services et applications affectés avec versions et configurations
-4. Détaillez les indicateurs de compromission (IoCs) spécifiques: 
-   - Adresses IP suspectes (avec géolocalisation)
-   - Hashes de fichiers malveillants (MD5, SHA1, SHA256)
-   - Domaines et URLs suspects
-   - User-agents anormaux
-   - Modèles de trafic réseau inhabituels
-   - Signatures YARA si pertinent
-5. Décrivez les techniques d'attaque identifiées avec références MITRE ATT&CK (tactiques et techniques)
-6. Fournissez une analyse de l'infrastructure de l'attaquant et de sa méthode opératoire (TTP)
-7. Évaluez le niveau d'accès obtenu et les permissions compromises
-8. Listez les actions malveillantes spécifiques identifiées (exfiltration de données, latéralisation, etc.)
-9. Adaptez le niveau de détail technique et le ton à l'étape ${stage} du scénario
-10. Ajoutez une classification de la gravité avec justification selon les standards du secteur
-11. Mentionnez les équipes impliquées dans la réponse avec rôles précis
-12. Décrivez les mesures de confinement et de remédiation avec détails techniques
-13. Incluez un plan de reprise détaillé et des recommandations préventives spécifiques
+1. Format professionnel mais concis
+2. Chronologie simplifiée
+3. Systèmes affectés avec versions principales
+4. 2-3 indicateurs techniques (IP, hash, URL)
+5. 1-2 références MITRE ATT&CK
+6. Mesures de remédiation essentielles
 
 FORMAT:
 RAPPORT D'INCIDENT DE CYBERSÉCURITÉ
-[ID d'incident] - [Date]
-Classification: [Niveau de gravité]
-Préparé par: [Nom de l'analyste/équipe]
+[ID] - [Date]
+Classification: [Gravité]
+Préparé par: [Analyste]
 
-RÉSUMÉ EXÉCUTIF:
+RÉSUMÉ:
 ...
 
-CHRONOLOGIE DÉTAILLÉE:
+INDICATEURS TECHNIQUES:
 ...
 
-SYSTÈMES AFFECTÉS:
-...
-
-INDICATEURS DE COMPROMISSION:
-...
-
-TECHNIQUES D'ATTAQUE (MITRE ATT&CK):
-...
-
-ANALYSE DE L'IMPACT:
-...
-
-MESURES DE CONFINEMENT:
-...
-
-ACTIONS DE REMÉDIATION:
-...
-
-PLAN DE REPRISE:
-...
-
-RECOMMANDATIONS:
-...
-
-ANNEXES TECHNIQUES:
+IMPACT ET ACTIONS:
 ...`;
 }
 
 function createSecurityAnalysisPrompt(domain: string, context: string, stage: number): string {
-  return `Créez une analyse de sécurité détaillée et technique pour un problème dans le domaine "${domain}".
+  return `Créez une analyse de sécurité pour un problème dans le domaine "${domain}".
   
-CONTEXTE:
-${context}
+CONTEXTE: ${context}
 
 EXIGENCES:
-1. Présentez une analyse approfondie et technique du problème de sécurité
-2. Décrivez la méthodologie d'analyse avec références aux outils utilisés (Kali Linux, Wireshark, Metasploit, Burp Suite, etc.)
-3. Détaillez les vulnérabilités découvertes avec:
-   - Identifiants CVE précis pour les vulnérabilités connues
-   - Score CVSS détaillé (v3.1) avec vecteur complet (ex: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H)
-   - Classification selon OWASP Top 10 ou CWE si applicable
-   - Captures de trafic réseau ou extraits de logs démontrant l'existence des vulnérabilités
-   - Preuves de concept d'exploitation (PoC)
-4. Présentez une analyse technique approfondie des causes racines avec:
-   - Code vulnérable ou configurations problématiques exactes
-   - Explications sur les mécanismes d'exploitation
-   - Lien avec les tactiques MITRE ATT&CK
-5. Incluez une analyse d'impact détaillée sur les composants spécifiques de l'infrastructure (services, applications, données)
-6. Proposez des mesures d'atténuation concrètes et techniques avec:
-   - Correctifs précis (versions de logiciels, configurations)
-   - Code de correction ou exemples de configurations sécurisées
-   - Commandes et procédures exactes pour l'implémentation
-7. Fournissez une matrice de suivi des vulnérabilités avec états et priorités
-8. Adaptez le niveau d'urgence et la gravité à l'étape ${stage} du scénario
-9. Référencez des standards et frameworks pertinents (NIST 800-53, ISO 27001, PCI DSS, OWASP ASVS)
-10. Incluez des indicateurs de compromission (IoCs) spécifiques si découverts lors de l'analyse
+1. Bref résumé du problème de sécurité
+2. 2-3 outils mentionnés (Kali, Wireshark, etc.)
+3. 1-2 vulnérabilités avec CVE et score
+4. Référence MITRE ATT&CK simple
+5. Mesures d'atténuation essentielles
 
 FORMAT:
 ANALYSE DE SÉCURITÉ 
-Date: [Date actuel]
-Version: 1.0
+Date: [Date]
+Référence: SA-[ID]
 Classification: CONFIDENTIEL
-Référence: SA-[ID aléatoire]
-Préparé par: [Nom d'analyste expert]
 
-1. RÉSUMÉ EXÉCUTIF:
+1. RÉSUMÉ:
 ...
 
-2. MÉTHODOLOGIE ET OUTILS:
+2. VULNÉRABILITÉS:
 ...
 
-3. VULNÉRABILITÉS IDENTIFIÉES:
-...
-
-4. ANALYSE TECHNIQUE DES CAUSES:
-...
-
-5. ÉVALUATION DE L'IMPACT:
-...
-
-6. PLAN DE REMÉDIATION:
-...
-
-7. MESURES PRÉVENTIVES:
-...
-
-8. MATRICE DE SUIVI:
-...
-
-9. ANNEXES TECHNIQUES:
+3. IMPACT ET REMÉDIATION:
 ...`;
 }
 
 function createConfidentialMemoPrompt(domain: string, context: string, stage: number): string {
   return `Rédigez un mémo confidentiel interne concernant un incident de cybersécurité dans le domaine "${domain}".
   
-CONTEXTE:
-${context}
+CONTEXTE: ${context}
 
 EXIGENCES:
-1. Créez un mémo interne destiné à la direction générale/comité exécutif
-2. Le ton doit être professionnel mais refléter l'urgence appropriée à l'étape ${stage}
-3. Incluez un résumé clair de la situation, des impacts actuels et potentiels
-4. Mentionnez les implications business, réglementaires et sur la réputation
-5. Présentez les options et les prochaines étapes recommandées
-6. Ajoutez un niveau de classification (ex: Confidentiel - Usage interne uniquement)
-7. Incluez des détails de contact pour plus d'informations
+1. Mémo court pour la direction (max 200 mots)
+2. Résumé clair de la situation
+3. Points clés et prochaines étapes
+4. Classification de confidentialité
+5. Contact
 
 FORMAT:
 MÉMORANDUM CONFIDENTIEL
 DATE: [Date]
 À: Comité Exécutif
-DE: [Nom], [Titre]
-OBJET: Incident de cybersécurité - [Description courte]
+DE: [Nom]
+OBJET: [Incident]
 
-CLASSIFICATION: CONFIDENTIEL - DIFFUSION RESTREINTE
+CLASSIFICATION: CONFIDENTIEL
 
-[Corps du mémo avec paragraphes structurés]
+[Corps du mémo]
 
-CONTACT POUR SUIVI:
-[Nom]
-[Titre]
-[Coordonnées]`;
+CONTACT: [Nom]`;
 }
 
 function createTechnicalSpecsPrompt(domain: string, context: string, stage: number): string {
@@ -813,92 +724,31 @@ L'équipe [Nom de l'entreprise]`;
 }
 
 function createForensicEvidencePrompt(domain: string, context: string, stage: number): string {
-  return `Créez un rapport d'analyse forensique détaillant les preuves techniques collectées dans un incident de cybersécurité du domaine "${domain}".
+  return `Créez un rapport d'analyse forensique pour un incident de cybersécurité du domaine "${domain}".
   
-CONTEXTE:
-${context}
+CONTEXTE: ${context}
 
 EXIGENCES:
-1. Rédigez un rapport d'analyse forensique technique et détaillé avec un haut niveau de précision technique
-2. Incluez la méthodologie d'investigation et les outils spécifiques utilisés (ex: Volatility, Autopsy, EnCase, FTK, Wireshark, etc.)
-3. Présentez des preuves numériques concrètes avec détails techniques précis:
-   - Extraits de logs système/réseau/application (avec timestamps exacts)
-   - Artefacts de mémoire (dumps mémoire, processus malveillants)
-   - Artefacts disque (fichiers modifiés avec timestamps, métadonnées)
-   - Captures réseau (paquets, flow data) avec détails des communications suspectes
-   - Journaux d'authentification avec utilisateurs et adresses IP
-4. Établissez une chronologie détaillée minute par minute des événements critiques
-5. Fournissez une analyse technique des méthodes d'attaque avec:
-   - Techniques d'intrusion identifiées (exploits spécifiques, vulnérabilités exploitées)
-   - Méthodes d'élévation de privilèges
-   - Techniques de persistance (modifications de registre Windows, tâches cron Linux, etc.)
-   - Mécanismes d'exfiltration de données (protocoles, cryptage, fréquence)
-   - Techniques d'effacement de traces
-6. Identifiez des indicateurs de compromission précis et actionnables:
-   - Hashes de fichiers malveillants (MD5, SHA1, SHA256)
-   - Adresses IP et domaines C2 avec métadonnées (géolocalisation, ASN)
-   - Signatures de trafic réseau anormales (regex, formats de paquets)
-   - Requêtes DNS suspectes et patterns de communication
-   - Timestamps d'activité spécifiques (particulièrement les heures non-ouvrées)
-   - Signatures YARA des malwares identifiés
-   - Modifications de registre ou de configurations système spécifiques
-7. Incluez une analyse comportementale du malware avec détails sur:
-   - Techniques d'obfuscation
-   - Méthodes anti-analyse
-   - Communication avec infrastructure C2
-   - Payloads et fonctionnalités
-8. Utilisez une terminologie forensique précise et respectant les standards judiciaires
-9. Adaptez le niveau de détail technique à l'étape ${stage} du scénario
-10. Incluez des extraits de code malveillant, de configurations ou de scripts pertinents
+1. Court rapport technique avec 2-3 outils d'investigation
+2. 2-3 preuves numériques techniques (logs, capture réseau)
+3. 1-2 IoCs significatifs (hash, IP)
+4. 1 référence à une technique d'attaque
+5. Format professionnel mais concis
 
 FORMAT:
 RAPPORT D'ANALYSE FORENSIQUE
-Référence: FOR-[ID aléatoire]
-Date: [Date actuelle]
-Classification: CONFIDENTIEL - INVESTIGATION EN COURS
-Analyste principal: [Nom d'analyste]
+Référence: FOR-[ID]
+Date: [Date]
+Classification: CONFIDENTIEL
 
-1. RÉSUMÉ EXÉCUTIF:
+1. RÉSUMÉ:
 ...
 
-2. MÉTHODOLOGIE & OUTILS:
+2. PREUVES TECHNIQUES:
 ...
 
-3. ACQUISITION DES PREUVES:
-...
-
-4. CHRONOLOGIE DÉTAILLÉE DE L'INCIDENT:
-...
-
-5. ANALYSE DES ARTEFACTS:
-   5.1 Analyse des fichiers et systèmes
-   5.2 Analyse mémoire
-   5.3 Analyse réseau
-   5.4 Analyse des journaux
-
-6. INDICATEURS DE COMPROMISSION:
-   6.1 Hashes et signatures
-   6.2 Artefacts réseau
-   6.3 Anomalies système
-   6.4 Règles de détection
-
-7. VECTEURS D'ATTAQUE ET TECHNIQUES:
-...
-
-8. ANALYSE DE L'IMPACT:
-...
-
-9. CHAÎNE DE RESPONSABILITÉ:
-...
-
-10. CONCLUSIONS & RECOMMANDATIONS:
-...
-
-ANNEXES TECHNIQUES:
-A. Extraits de logs pertinents
-B. Captures réseau
-C. Analyse de code malveillant
-D. Timeline complète des événements`;
+3. CONCLUSIONS:
+...`;
 }
 
 function createRegulatoryFilingPrompt(domain: string, context: string, stage: number): string {
