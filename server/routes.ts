@@ -1712,7 +1712,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Définir une personnalité pour l'interlocuteur principal en fonction de son rôle
+      const contactPersonality = getPersonalityTrait(respondingContact.role, respondingContact.name);
+      
       // Définir la situation du scénario en fonction de l'étape actuelle
+      const scenarioSituation = getScenarioSituation(stage);
+      
+      // Définir le niveau d'urgence en fonction du domaine, de la difficulté et de l'étape
+      const urgencyLevel = getUrgencyLevel(scenario?.domain || "", scenario?.difficulty || "moyen", stage);
+      
+      const customSystemPrompt =
         `\n\nPERSONNALITÉ ET EXPERTISE: Tu es ${contactPersonality} et tu possèdes l'expertise suivante : ${respondingContact.expertise || 'Non spécifiée'}. Cette personnalité et expertise doivent transparaître dans tes réponses.` +
         
         `\n\nPRÉOCCUPATION PRINCIPALE: ${respondingContact.concern || 'Non spécifiée'}. Chaque interlocuteur a des préoccupations différentes face à la même problématique cyber.` +
