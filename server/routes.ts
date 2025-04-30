@@ -534,28 +534,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // Générer un nom d'entreprise cohérent avec le secteur d'activité
-      let companyName = '';
-      if (secteurActivite === 'BANCAIRE/FINANCIER (BFA)') {
-        companyName = "SECURE FINANCE SOLUTIONS";
-      } else if (secteurActivite === 'INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)') {
-        companyName = "HEALTH & INDUSTRY SHIELD";
-      } else if (secteurActivite === 'RETAIL & LUXE') {
-        companyName = "ELITE RETAIL SECURITY";
-      } else if (secteurActivite === 'ÉNERGIE & UTILITIES') {
-        companyName = "ENERGY SHIELD SYSTEMS";
-      } else {
-        companyName = "CYBER SECURE SOLUTIONS";
-      };
-
-      // Utiliser le contact principal du scénario comme premier interlocuteur
-      const contactPrincipal = {
-        name: scenario.contact.name,
-        role: scenario.contact.role,
-        expertise: "Expertise spécifique au domaine du scénario",
-        concern: "Préoccupations liées aux enjeux cyber dans son domaine d'expertise"
-      };
-
       // Définir une personnalité pour l'interlocuteur principal en fonction de son rôle
       const getPersonalityTrait = (role: string, name: string) => {
         if (role.toLowerCase().includes("président") || role.toLowerCase().includes("directeur général")) {
@@ -574,7 +552,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return "professionnel, direct, cherchant une expertise pointue";
         }
       };
-
+      
       // Définir le niveau d'urgence du problème en fonction du domaine, de la difficulté et de l'étape actuelle
       const getUrgencyLevel = (domain: string, difficulty: string, stage: number = 0) => {
         // Plus l'étape avance, plus l'urgence augmente
@@ -605,7 +583,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return "normal, permettant une réflexion approfondie";
         }
       };
-
+      
       // Définir la situation du scénario en fonction de l'étape actuelle
       const getScenarioSituation = (domain: string, stage: number = 0) => {
         if (stage === 0) {
@@ -617,6 +595,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } else {
           return "d'escalade, où la situation devient de plus en plus complexe avec des pressions internes et externes";
         }
+      };
+      
+      // Récupérer l'étape actuelle (currentStage)
+      const stage = currentStage || 0;
+      
+      // Générer un nom d'entreprise cohérent avec le secteur d'activité
+      let companyName = '';
+      if (secteurActivite === 'BANCAIRE/FINANCIER (BFA)') {
+        companyName = "SECURE FINANCE SOLUTIONS";
+      } else if (secteurActivite === 'INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)') {
+        companyName = "HEALTH & INDUSTRY SHIELD";
+      } else if (secteurActivite === 'RETAIL & LUXE') {
+        companyName = "ELITE RETAIL SECURITY";
+      } else if (secteurActivite === 'ÉNERGIE & UTILITIES') {
+        companyName = "ENERGY SHIELD SYSTEMS";
+      } else {
+        companyName = "CYBER SECURE SOLUTIONS";
+      };
+
+      // Utiliser le contact principal du scénario comme premier interlocuteur
+      const contactPrincipal = {
+        name: scenario.contact.name,
+        role: scenario.contact.role,
+        expertise: "Expertise spécifique au domaine du scénario",
+        concern: "Préoccupations liées aux enjeux cyber dans son domaine d'expertise"
       };
 
       // Définir une attente spécifique en fonction du rôle de l'utilisateur
@@ -1767,6 +1770,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const contactPersonality = getPersonalityTrait(respondingContact.role, respondingContact.name);
       const urgencyLevel = getUrgencyLevel(scenario?.domain || "", scenario?.difficulty || "Intermédiaire", stage);
       const scenarioSituation = getScenarioSituation(scenario?.domain || "", stage);
+
+      // Définir les attentes en fonction du rôle de l'utilisateur
+      const getRoleExpectation = (userRole: string): string => {
+        const role = userRole.toLowerCase();
+        if (role.includes('rssi')) {
+          return "une vision stratégique des risques et des recommandations sur les politiques de sécurité";
+        } else if (role.includes('hacker') || role.includes('pentest')) {
+          return "une analyse technique approfondie des vulnérabilités et des vecteurs d'attaque potentiels";
+        } else if (role.includes('développeur')) {
+          return "des conseils sur les pratiques de codage sécurisé et l'intégration de la sécurité dans le cycle de développement";
+        } else if (role.includes('administrateur')) {
+          return "des recommandations sur la configuration et le renforcement des systèmes et réseaux";
+        } else if (role.includes('consultant')) {
+          return "une analyse complète de la situation et des recommandations adaptées à notre contexte spécifique";
+        } else {
+          return "une expertise en cybersécurité pour nous aider à comprendre et résoudre ce problème";
+        }
+      };
 
       // Add the instruction about response evaluation and interlocutors
       const systemContent = systemPrompt + 
