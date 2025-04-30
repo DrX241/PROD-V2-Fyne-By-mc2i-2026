@@ -303,58 +303,176 @@ function getTypeFromFilename(filename: string): string {
 }
 
 /**
- * Sélectionner le type de pièce jointe approprié en fonction du contexte du scénario
+ * Sélectionner le type de pièce jointe approprié en fonction du contexte du scénario et du rôle de l'utilisateur
  */
-export function selectAppropriateAttachmentType(domain: string, stage: number): AttachmentType {
-  // Au début d'un scénario, on commence par des documents plus généraux
+export function selectAppropriateAttachmentType(domain: string, stage: number, userRole: string = ''): AttachmentType {
+  const role = userRole.toLowerCase();
+  
+  // Au début d'un scénario, on commence par des documents adaptés au rôle et au domaine
   if (stage <= 1) {
-    if (domain.toLowerCase().includes('phishing') || domain.toLowerCase().includes('ingénierie sociale')) {
-      return AttachmentType.SECURITY_ANALYSIS;
-    } else if (domain.toLowerCase().includes('crise')) {
-      return AttachmentType.CONFIDENTIAL_MEMO;
-    } else if (domain.toLowerCase().includes('incident')) {
-      return AttachmentType.INCIDENT_REPORT;
-    } else if (domain.toLowerCase().includes('rgpd') || domain.toLowerCase().includes('données personnelles')) {
-      return AttachmentType.REGULATORY_FILING;
-    } else if (domain.toLowerCase().includes('chaîne') || domain.toLowerCase().includes('supply chain')) {
+    // Adapté pour le RSSI
+    if (role.includes('rssi')) {
+      if (domain.toLowerCase().includes('phishing') || domain.toLowerCase().includes('ingénierie sociale')) {
+        return AttachmentType.INCIDENT_REPORT;
+      } else if (domain.toLowerCase().includes('crise')) {
+        return AttachmentType.CONFIDENTIAL_MEMO;
+      } else if (domain.toLowerCase().includes('rgpd') || domain.toLowerCase().includes('données personnelles')) {
+        return AttachmentType.REGULATORY_FILING;
+      } else {
+        return AttachmentType.SECURITY_ANALYSIS;
+      }
+    }
+    // Adapté pour l'Ethical Hacker
+    else if (role.includes('hacker') || role.includes('pentester')) {
+      if (domain.toLowerCase().includes('phishing') || domain.toLowerCase().includes('ingénierie sociale')) {
+        return AttachmentType.SECURITY_ANALYSIS;
+      } else {
+        return AttachmentType.VULNERABILITY_SCAN;
+      }
+    }
+    // Adapté pour le Développeur
+    else if (role.includes('dev') || role.includes('développeur')) {
       return AttachmentType.TECHNICAL_SPECS;
-    } else {
-      // Pour les autres domaines ou par défaut
+    }
+    // Adapté pour l'Admin Système
+    else if (role.includes('admin') || role.includes('système')) {
+      return AttachmentType.LOG_FILE;
+    }
+    // Adapté pour le Consultant Cybersécurité
+    else if (role.includes('consult')) {
       return AttachmentType.SECURITY_ANALYSIS;
     }
-  }
-  
-  // Au fur et à mesure que le scénario progresse, les pièces jointes deviennent plus techniques
-  else if (stage === 2) {
-    if (domain.toLowerCase().includes('phishing') || domain.toLowerCase().includes('ingénierie sociale')) {
-      return AttachmentType.LOG_FILE;
-    } else if (domain.toLowerCase().includes('crise')) {
-      return AttachmentType.FORENSIC_EVIDENCE;
-    } else if (domain.toLowerCase().includes('incident')) {
-      return AttachmentType.LOG_FILE;
-    } else if (domain.toLowerCase().includes('rgpd') || domain.toLowerCase().includes('données personnelles')) {
-      return AttachmentType.DATA_BREACH_NOTIFICATION;
-    } else if (domain.toLowerCase().includes('chaîne') || domain.toLowerCase().includes('supply chain')) {
-      return AttachmentType.VULNERABILITY_SCAN;
-    } else {
-      return AttachmentType.VULNERABILITY_SCAN;
+    // Par défaut, basé sur le domaine
+    else {
+      if (domain.toLowerCase().includes('phishing') || domain.toLowerCase().includes('ingénierie sociale')) {
+        return AttachmentType.SECURITY_ANALYSIS;
+      } else if (domain.toLowerCase().includes('crise')) {
+        return AttachmentType.CONFIDENTIAL_MEMO;
+      } else if (domain.toLowerCase().includes('incident')) {
+        return AttachmentType.INCIDENT_REPORT;
+      } else if (domain.toLowerCase().includes('rgpd') || domain.toLowerCase().includes('données personnelles')) {
+        return AttachmentType.REGULATORY_FILING;
+      } else if (domain.toLowerCase().includes('chaîne') || domain.toLowerCase().includes('supply chain')) {
+        return AttachmentType.TECHNICAL_SPECS;
+      } else {
+        return AttachmentType.SECURITY_ANALYSIS;
+      }
     }
   }
   
-  // Dans les phases avancées, les pièces jointes reflètent l'urgence et les actions en cours
+  // Au fur et à mesure que le scénario progresse, les pièces jointes deviennent plus techniques et spécifiques
+  else if (stage === 2) {
+    // Adapté pour le RSSI
+    if (role.includes('rssi')) {
+      if (domain.toLowerCase().includes('phishing') || domain.toLowerCase().includes('ingénierie sociale')) {
+        return AttachmentType.FORENSIC_EVIDENCE;
+      } else if (domain.toLowerCase().includes('crise') || domain.toLowerCase().includes('incident')) {
+        return AttachmentType.INCIDENT_REPORT;
+      } else if (domain.toLowerCase().includes('rgpd')) {
+        return AttachmentType.DATA_BREACH_NOTIFICATION;
+      } else {
+        return AttachmentType.VULNERABILITY_SCAN;
+      }
+    }
+    // Adapté pour l'Ethical Hacker
+    else if (role.includes('hacker') || role.includes('pentester')) {
+      if (domain.toLowerCase().includes('phishing')) {
+        return AttachmentType.FORENSIC_EVIDENCE;
+      } else {
+        return AttachmentType.VULNERABILITY_SCAN;
+      }
+    }
+    // Adapté pour le Développeur
+    else if (role.includes('dev') || role.includes('développeur')) {
+      if (domain.toLowerCase().includes('chaîne') || domain.toLowerCase().includes('supply chain')) {
+        return AttachmentType.SOFTWARE_PATCH;
+      } else {
+        return AttachmentType.LOG_FILE;
+      }
+    }
+    // Adapté pour l'Admin Système
+    else if (role.includes('admin') || role.includes('système')) {
+      return AttachmentType.LOG_FILE;
+    }
+    // Adapté pour le Consultant Cybersécurité
+    else if (role.includes('consult')) {
+      if (domain.toLowerCase().includes('crise')) {
+        return AttachmentType.FORENSIC_EVIDENCE;
+      } else {
+        return AttachmentType.SECURITY_ANALYSIS;
+      }
+    }
+    // Par défaut, basé sur le domaine
+    else {
+      if (domain.toLowerCase().includes('phishing') || domain.toLowerCase().includes('ingénierie sociale')) {
+        return AttachmentType.LOG_FILE;
+      } else if (domain.toLowerCase().includes('crise')) {
+        return AttachmentType.FORENSIC_EVIDENCE;
+      } else if (domain.toLowerCase().includes('incident')) {
+        return AttachmentType.LOG_FILE;
+      } else if (domain.toLowerCase().includes('rgpd') || domain.toLowerCase().includes('données personnelles')) {
+        return AttachmentType.DATA_BREACH_NOTIFICATION;
+      } else if (domain.toLowerCase().includes('chaîne') || domain.toLowerCase().includes('supply chain')) {
+        return AttachmentType.VULNERABILITY_SCAN;
+      } else {
+        return AttachmentType.VULNERABILITY_SCAN;
+      }
+    }
+  }
+  
+  // Dans les phases avancées, les pièces jointes reflètent l'urgence et les actions en cours, adaptées au rôle
   else {
-    if (domain.toLowerCase().includes('phishing') || domain.toLowerCase().includes('ingénierie sociale')) {
+    // Adapté pour le RSSI
+    if (role.includes('rssi')) {
+      if (domain.toLowerCase().includes('phishing') || domain.toLowerCase().includes('crise')) {
+        return AttachmentType.CONFIDENTIAL_MEMO;
+      } else if (domain.toLowerCase().includes('rgpd')) {
+        return AttachmentType.REGULATORY_FILING;
+      } else {
+        return AttachmentType.INCIDENT_REPORT;
+      }
+    }
+    // Adapté pour l'Ethical Hacker
+    else if (role.includes('hacker') || role.includes('pentester')) {
       return AttachmentType.FORENSIC_EVIDENCE;
-    } else if (domain.toLowerCase().includes('crise')) {
-      return AttachmentType.DATA_BREACH_NOTIFICATION;
-    } else if (domain.toLowerCase().includes('incident')) {
-      return AttachmentType.CUSTOMER_COMMUNICATION;
-    } else if (domain.toLowerCase().includes('rgpd') || domain.toLowerCase().includes('données personnelles')) {
-      return AttachmentType.CUSTOMER_COMMUNICATION;
-    } else if (domain.toLowerCase().includes('chaîne') || domain.toLowerCase().includes('supply chain')) {
+    }
+    // Adapté pour le Développeur
+    else if (role.includes('dev') || role.includes('développeur')) {
       return AttachmentType.SOFTWARE_PATCH;
-    } else {
-      return AttachmentType.CONFIDENTIAL_MEMO;
+    }
+    // Adapté pour l'Admin Système
+    else if (role.includes('admin') || role.includes('système')) {
+      if (domain.toLowerCase().includes('phishing')) {
+        return AttachmentType.FORENSIC_EVIDENCE;
+      } else {
+        return AttachmentType.LOG_FILE;
+      }
+    }
+    // Adapté pour le Consultant Cybersécurité
+    else if (role.includes('consult')) {
+      if (domain.toLowerCase().includes('crise')) {
+        return AttachmentType.DATA_BREACH_NOTIFICATION;
+      } else if (domain.toLowerCase().includes('rgpd')) {
+        return AttachmentType.REGULATORY_FILING;
+      } else {
+        return AttachmentType.SECURITY_ANALYSIS;
+      }
+    }
+    // Par défaut, basé sur le domaine
+    else {
+      if (domain.toLowerCase().includes('phishing') || domain.toLowerCase().includes('ingénierie sociale')) {
+        return AttachmentType.FORENSIC_EVIDENCE;
+      } else if (domain.toLowerCase().includes('crise')) {
+        return AttachmentType.DATA_BREACH_NOTIFICATION;
+      } else if (domain.toLowerCase().includes('incident')) {
+        return AttachmentType.CUSTOMER_COMMUNICATION;
+      } else if (domain.toLowerCase().includes('rgpd') || domain.toLowerCase().includes('données personnelles')) {
+        return AttachmentType.CUSTOMER_COMMUNICATION;
+      } else if (domain.toLowerCase().includes('chaîne') || domain.toLowerCase().includes('supply chain')) {
+        return AttachmentType.SOFTWARE_PATCH;
+      } else {
+        return AttachmentType.CONFIDENTIAL_MEMO;
+      }
     }
   }
 }
@@ -370,17 +488,21 @@ CONTEXTE:
 ${context}
 
 EXIGENCES:
-1. Utilisez le format standard des logs avec horodatage, niveau de log, service et message
-2. Incluez des signes d'intrusion/attaque appropriés au domaine "${domain}"
-3. Montrez une progression chronologique de l'incident
-4. Incluez des adresses IP, des noms d'utilisateurs, des chemins de fichiers
-5. Ajoutez des erreurs, des alertes et des avertissements pertinents
-6. Le fichier doit contenir au moins 20 lignes de logs
-7. Utilisez des termes techniques précis et réalistes
-8. Adaptez la gravité des logs à l'étape ${stage} du scénario
+1. Utilisez le format standard des logs avec horodatage précis, niveau de log, service et message
+2. Incluez des signes d'intrusion/attaque spécifiques et appropriés au domaine "${domain}"
+3. Montrez une progression chronologique détaillée de l'incident avec des timestamps réalistes
+4. Incluez des adresses IP réelles (publiques et privées), des User-Agents, des noms d'utilisateurs, des chemins de fichiers complets
+5. Ajoutez des erreurs, des alertes et des avertissements pertinents avec codes d'erreur spécifiques
+6. Incluez des tentatives de connexion échouées, des modifications de permissions, des exécutions de scripts suspects
+7. Ajoutez des requêtes SQL suspectes si pertinent, des tentatives d'exploitation de vulnérabilités connues (avec CVE)
+8. Incluez des logs de pare-feu, serveur web, système d'authentification et base de données selon le contexte
+9. Le fichier doit contenir au moins 30 lignes de logs montrant l'évolution claire de l'attaque
+10. Utilisez des termes techniques précis et réalistes (noms de services, commandes, paramètres)
+11. Adaptez la gravité des logs à l'étape ${stage} du scénario
+12. Incluez des indices techniques qui pourraient être utiles pour l'analyse (empreintes numériques, hashes, signatures)
 
 FORMAT:
-[DATE TIME] [LEVEL] [SERVICE] Message détaillé avec informations techniques`;
+[DATE TIME] [NIVEAU] [SERVICE/COMPOSANT] Message détaillé avec informations techniques (adresses IP, chemins, utilisateurs, paramètres)`;
 }
 
 function createIncidentReportPrompt(domain: string, context: string, stage: number): string {
@@ -391,30 +513,62 @@ ${context}
 
 EXIGENCES:
 1. Utilisez un format professionnel de rapport d'incident avec des sections clairement définies
-2. Incluez l'historique chronologique de l'incident, les systèmes affectés, l'évaluation d'impact
-3. Décrivez les actions entreprises et les recommandations
-4. Utilisez des données techniques réalistes (adresses IP, noms de systèmes, horodatages)
-5. Adaptez le niveau de détail et le ton à l'étape ${stage} du scénario
-6. Ajoutez une classification de la gravité
-7. Mentionnez les équipes impliquées dans la réponse
+2. Incluez l'historique chronologique détaillé de l'incident avec timestamps précis
+3. Identifiez précisément les systèmes, services et applications affectés avec versions et configurations
+4. Détaillez les indicateurs de compromission (IoCs) spécifiques: 
+   - Adresses IP suspectes (avec géolocalisation)
+   - Hashes de fichiers malveillants (MD5, SHA1, SHA256)
+   - Domaines et URLs suspects
+   - User-agents anormaux
+   - Modèles de trafic réseau inhabituels
+   - Signatures YARA si pertinent
+5. Décrivez les techniques d'attaque identifiées avec références MITRE ATT&CK (tactiques et techniques)
+6. Fournissez une analyse de l'infrastructure de l'attaquant et de sa méthode opératoire (TTP)
+7. Évaluez le niveau d'accès obtenu et les permissions compromises
+8. Listez les actions malveillantes spécifiques identifiées (exfiltration de données, latéralisation, etc.)
+9. Adaptez le niveau de détail technique et le ton à l'étape ${stage} du scénario
+10. Ajoutez une classification de la gravité avec justification selon les standards du secteur
+11. Mentionnez les équipes impliquées dans la réponse avec rôles précis
+12. Décrivez les mesures de confinement et de remédiation avec détails techniques
+13. Incluez un plan de reprise détaillé et des recommandations préventives spécifiques
 
 FORMAT:
 RAPPORT D'INCIDENT DE CYBERSÉCURITÉ
 [ID d'incident] - [Date]
+Classification: [Niveau de gravité]
+Préparé par: [Nom de l'analyste/équipe]
 
 RÉSUMÉ EXÉCUTIF:
 ...
 
-DÉTAILS DE L'INCIDENT:
+CHRONOLOGIE DÉTAILLÉE:
 ...
 
-IMPACT ET ÉVALUATION:
+SYSTÈMES AFFECTÉS:
 ...
 
-ACTIONS ENTREPRISES:
+INDICATEURS DE COMPROMISSION:
+...
+
+TECHNIQUES D'ATTAQUE (MITRE ATT&CK):
+...
+
+ANALYSE DE L'IMPACT:
+...
+
+MESURES DE CONFINEMENT:
+...
+
+ACTIONS DE REMÉDIATION:
+...
+
+PLAN DE REPRISE:
 ...
 
 RECOMMANDATIONS:
+...
+
+ANNEXES TECHNIQUES:
 ...`;
 }
 
@@ -426,32 +580,60 @@ ${context}
 
 EXIGENCES:
 1. Présentez une analyse approfondie et technique du problème de sécurité
-2. Incluez des sections sur la méthodologie, les vulnérabilités découvertes, l'analyse des causes
-3. Fournissez une évaluation des risques avec scoring (ex: CVSS)
-4. Proposez des mesures d'atténuation concrètes et techniques
-5. Utilisez un langage d'expert en sécurité informatique
-6. Incluez des références à des frameworks de sécurité (NIST, ISO 27001, OWASP, etc.)
-7. Adaptez le niveau d'urgence et la gravité à l'étape ${stage} du scénario
+2. Décrivez la méthodologie d'analyse avec références aux outils utilisés (Kali Linux, Wireshark, Metasploit, Burp Suite, etc.)
+3. Détaillez les vulnérabilités découvertes avec:
+   - Identifiants CVE précis pour les vulnérabilités connues
+   - Score CVSS détaillé (v3.1) avec vecteur complet (ex: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H)
+   - Classification selon OWASP Top 10 ou CWE si applicable
+   - Captures de trafic réseau ou extraits de logs démontrant l'existence des vulnérabilités
+   - Preuves de concept d'exploitation (PoC)
+4. Présentez une analyse technique approfondie des causes racines avec:
+   - Code vulnérable ou configurations problématiques exactes
+   - Explications sur les mécanismes d'exploitation
+   - Lien avec les tactiques MITRE ATT&CK
+5. Incluez une analyse d'impact détaillée sur les composants spécifiques de l'infrastructure (services, applications, données)
+6. Proposez des mesures d'atténuation concrètes et techniques avec:
+   - Correctifs précis (versions de logiciels, configurations)
+   - Code de correction ou exemples de configurations sécurisées
+   - Commandes et procédures exactes pour l'implémentation
+7. Fournissez une matrice de suivi des vulnérabilités avec états et priorités
+8. Adaptez le niveau d'urgence et la gravité à l'étape ${stage} du scénario
+9. Référencez des standards et frameworks pertinents (NIST 800-53, ISO 27001, PCI DSS, OWASP ASVS)
+10. Incluez des indicateurs de compromission (IoCs) spécifiques si découverts lors de l'analyse
 
 FORMAT:
 ANALYSE DE SÉCURITÉ 
-Date: [Date]
+Date: [Date actuel]
 Version: 1.0
 Classification: CONFIDENTIEL
+Référence: SA-[ID aléatoire]
+Préparé par: [Nom d'analyste expert]
 
-RÉSUMÉ EXÉCUTIF:
+1. RÉSUMÉ EXÉCUTIF:
 ...
 
-MÉTHODOLOGIE:
+2. MÉTHODOLOGIE ET OUTILS:
 ...
 
-VULNÉRABILITÉS DÉCOUVERTES:
+3. VULNÉRABILITÉS IDENTIFIÉES:
 ...
 
-ANALYSE DES CAUSES:
+4. ANALYSE TECHNIQUE DES CAUSES:
 ...
 
-RECOMMANDATIONS:
+5. ÉVALUATION DE L'IMPACT:
+...
+
+6. PLAN DE REMÉDIATION:
+...
+
+7. MESURES PRÉVENTIVES:
+...
+
+8. MATRICE DE SUIVI:
+...
+
+9. ANNEXES TECHNIQUES:
 ...`;
 }
 
@@ -637,37 +819,86 @@ CONTEXTE:
 ${context}
 
 EXIGENCES:
-1. Rédigez un rapport d'analyse forensique technique et détaillé
-2. Incluez la méthodologie d'investigation, les outils utilisés
-3. Présentez les preuves collectées (logs, artifacts, timestamps, IOCs)
-4. Établissez une chronologie détaillée de l'incident
-5. Incluez l'analyse de l'origine de l'attaque, les vecteurs et techniques utilisés
-6. Identifiez des indicateurs de compromission spécifiques
-7. Adaptez le niveau de détail technique à l'étape ${stage} du scénario
+1. Rédigez un rapport d'analyse forensique technique et détaillé avec un haut niveau de précision technique
+2. Incluez la méthodologie d'investigation et les outils spécifiques utilisés (ex: Volatility, Autopsy, EnCase, FTK, Wireshark, etc.)
+3. Présentez des preuves numériques concrètes avec détails techniques précis:
+   - Extraits de logs système/réseau/application (avec timestamps exacts)
+   - Artefacts de mémoire (dumps mémoire, processus malveillants)
+   - Artefacts disque (fichiers modifiés avec timestamps, métadonnées)
+   - Captures réseau (paquets, flow data) avec détails des communications suspectes
+   - Journaux d'authentification avec utilisateurs et adresses IP
+4. Établissez une chronologie détaillée minute par minute des événements critiques
+5. Fournissez une analyse technique des méthodes d'attaque avec:
+   - Techniques d'intrusion identifiées (exploits spécifiques, vulnérabilités exploitées)
+   - Méthodes d'élévation de privilèges
+   - Techniques de persistance (modifications de registre Windows, tâches cron Linux, etc.)
+   - Mécanismes d'exfiltration de données (protocoles, cryptage, fréquence)
+   - Techniques d'effacement de traces
+6. Identifiez des indicateurs de compromission précis et actionnables:
+   - Hashes de fichiers malveillants (MD5, SHA1, SHA256)
+   - Adresses IP et domaines C2 avec métadonnées (géolocalisation, ASN)
+   - Signatures de trafic réseau anormales (regex, formats de paquets)
+   - Requêtes DNS suspectes et patterns de communication
+   - Timestamps d'activité spécifiques (particulièrement les heures non-ouvrées)
+   - Signatures YARA des malwares identifiés
+   - Modifications de registre ou de configurations système spécifiques
+7. Incluez une analyse comportementale du malware avec détails sur:
+   - Techniques d'obfuscation
+   - Méthodes anti-analyse
+   - Communication avec infrastructure C2
+   - Payloads et fonctionnalités
+8. Utilisez une terminologie forensique précise et respectant les standards judiciaires
+9. Adaptez le niveau de détail technique à l'étape ${stage} du scénario
+10. Incluez des extraits de code malveillant, de configurations ou de scripts pertinents
 
 FORMAT:
 RAPPORT D'ANALYSE FORENSIQUE
-Référence: FOR-[ID]
-Date: [Date]
+Référence: FOR-[ID aléatoire]
+Date: [Date actuelle]
 Classification: CONFIDENTIEL - INVESTIGATION EN COURS
+Analyste principal: [Nom d'analyste]
 
-RÉSUMÉ EXÉCUTIF:
+1. RÉSUMÉ EXÉCUTIF:
 ...
 
-MÉTHODOLOGIE & OUTILS:
+2. MÉTHODOLOGIE & OUTILS:
 ...
 
-ÉLÉMENTS DE PREUVE:
+3. ACQUISITION DES PREUVES:
 ...
 
-CHRONOLOGIE DE L'INCIDENT:
+4. CHRONOLOGIE DÉTAILLÉE DE L'INCIDENT:
 ...
 
-INDICATEURS DE COMPROMISSION:
+5. ANALYSE DES ARTEFACTS:
+   5.1 Analyse des fichiers et systèmes
+   5.2 Analyse mémoire
+   5.3 Analyse réseau
+   5.4 Analyse des journaux
+
+6. INDICATEURS DE COMPROMISSION:
+   6.1 Hashes et signatures
+   6.2 Artefacts réseau
+   6.3 Anomalies système
+   6.4 Règles de détection
+
+7. VECTEURS D'ATTAQUE ET TECHNIQUES:
 ...
 
-CONCLUSIONS & RECOMMANDATIONS:
-...`;
+8. ANALYSE DE L'IMPACT:
+...
+
+9. CHAÎNE DE RESPONSABILITÉ:
+...
+
+10. CONCLUSIONS & RECOMMANDATIONS:
+...
+
+ANNEXES TECHNIQUES:
+A. Extraits de logs pertinents
+B. Captures réseau
+C. Analyse de code malveillant
+D. Timeline complète des événements`;
 }
 
 function createRegulatoryFilingPrompt(domain: string, context: string, stage: number): string {
