@@ -1,223 +1,305 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGame } from '@/contexts/GameContext';
-import { GameEvent as GameEventType, EventType } from '@shared/types/challenge';
-import { Send, AlertTriangle, DollarSign, Info, Mail, MessageSquare, User } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
+import { EventType, UrgencyLevel } from '@shared/types/challenge';
+import { MessageCircle, Send, AlertTriangle, Clock, FileText, Euro } from 'lucide-react';
 
 interface GameplayPhaseProps {
   onComplete: () => void;
 }
 
 export default function GameplayPhase({ onComplete }: GameplayPhaseProps) {
-  const { state, submitPlayerAction, endGame, getActivePlayer, isLoading, error } = useGame();
+  const { state, submitAction, endGame, isLoading, error } = useGame();
   const [action, setAction] = useState('');
-  
-  const activePlayer = getActivePlayer();
-  
-  // Fonction pour soumettre une action
-  const handleSubmitAction = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!action.trim() || isLoading || !activePlayer) return;
-    
-    await submitPlayerAction(action);
-    setAction('');
-  };
-  
-  // Fonction pour formater un montant
-  const formatBudget = (budget: number) => {
-    return budget.toLocaleString('fr-FR') + ' €';
-  };
-  
-  // Fonction pour vérifier si le jeu devrait se terminer
-  const shouldEndGame = () => {
-    return (
-      state.scenario.currentStage >= state.scenario.maxStages ||
-      state.scenario.remainingBudget <= 0 ||
-      state.gameEvents.length > 30
-    );
-  };
-  
-  // Fonction pour terminer le jeu
-  const handleEndGame = async () => {
-    await endGame();
-    onComplete();
-  };
-  
-  return (
-    <div className="h-[calc(100vh-12rem)] flex flex-col">
-      {/* En-tête avec informations de jeu */}
-      <div className="bg-slate-900 border-b border-blue-900/40 p-4 flex flex-wrap justify-between gap-2">
-        <div className="flex items-center space-x-2">
-          <div className="bg-blue-900/30 px-3 py-1 rounded-lg flex items-center">
-            <DollarSign className="h-4 w-4 text-blue-400 mr-1" />
-            <span className="text-sm font-medium">
-              Budget: <span className={state.scenario.remainingBudget < 100000 ? 'text-orange-400' : 'text-blue-300'}>
-                {formatBudget(state.scenario.remainingBudget)}
-              </span>
-              <span className="text-slate-400 text-xs"> / {formatBudget(state.scenario.initialBudget)}</span>
-            </span>
-          </div>
-          
-          <div className="bg-slate-800/80 px-3 py-1 rounded-lg flex items-center">
-            <AlertTriangle className="h-4 w-4 text-yellow-400 mr-1" />
-            <span className="text-sm">
-              Étape: <span className="font-medium">{state.scenario.currentStage + 1}</span>/<span>{state.scenario.maxStages}</span>
-            </span>
-          </div>
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <div className="bg-slate-800/80 px-3 py-1 rounded-lg flex items-center">
-            <Info className="h-4 w-4 text-blue-400 mr-1" />
-            <span className="text-sm">
-              {state.scenario.companyName}
-            </span>
-          </div>
-          
-          {shouldEndGame() && (
-            <button
-              onClick={handleEndGame}
-              className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded-lg text-sm font-medium transition-colors"
-            >
-              Terminer la crise
-            </button>
-          )}
-        </div>
-      </div>
-      
-      {/* Liste des messages/événements */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-950/30">
-        {state.gameEvents.map(event => (
-          <GameEvent key={event.id} event={event} />
-        ))}
-      </div>
-      
-      {/* Zone de saisie */}
-      <div className="bg-slate-900 border-t border-blue-900/40 p-4">
-        {error && (
-          <div className="bg-red-500/20 border border-red-500/50 text-red-100 p-2 rounded-md mb-3 text-sm">
-            {error}
-          </div>
-        )}
-        
-        <div className="mb-2 text-sm">
-          <span className="text-slate-400">Tour de:</span>{' '}
-          <span className="font-semibold text-blue-300">{activePlayer?.name || 'Chargement...'}</span>{' '}
-          <span className="text-slate-400">({activePlayer?.role || ''})</span>
-        </div>
-        
-        <form onSubmit={handleSubmitAction} className="flex gap-2">
-          <textarea
-            value={action}
-            onChange={(e) => setAction(e.target.value)}
-            disabled={isLoading || !activePlayer}
-            placeholder={
-              isLoading ? "Traitement en cours..." : 
-              !activePlayer ? "Attendez votre tour..." :
-              "Décrivez votre action ou décision..."
-            }
-            className="flex-1 p-3 rounded-md bg-slate-800 border border-blue-700/50
-                     focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none
-                     disabled:opacity-70 disabled:cursor-not-allowed"
-            rows={3}
-          />
-          
-          <button
-            type="submit"
-            disabled={!action.trim() || isLoading || !activePlayer}
-            className="self-end p-3 bg-blue-600 hover:bg-blue-500 rounded-md transition-colors
-                     disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
-          >
-            {isLoading ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-            ) : (
-              <Send className="h-5 w-5" />
-            )}
-          </button>
-        </form>
-      </div>
-    </div>
-  );
-}
+  const [selectedNpcId, setSelectedNpcId] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [progressPercentage, setProgressPercentage] = useState(0);
 
-// Composant pour afficher un événement de jeu
-function GameEvent({ event }: { event: GameEventType }) {
-  // Calculer les styles selon le type d'événement
-  let className = "p-4 rounded-lg ";
-  let icon = <Info className="h-5 w-5" />;
+  const isGameOver = state.isGameOver;
+  const activePlayer = state.players.find(p => p.isActive);
   
-  switch (event.type) {
-    case EventType.PLAYER_ACTION:
-      className += "bg-blue-900/30 border border-blue-700/40";
-      icon = <User className="h-5 w-5 text-blue-400" />;
-      break;
-    case EventType.NPC_RESPONSE:
-      className += "bg-slate-800/60 border border-slate-700/40";
-      icon = <MessageSquare className="h-5 w-5 text-purple-400" />;
-      break;
-    case EventType.EMAIL:
-      className += "bg-slate-800/60 border border-yellow-700/20";
-      icon = <Mail className="h-5 w-5 text-yellow-400" />;
-      break;
-    case EventType.BUDGET_UPDATE:
-      className += "bg-slate-800/60 border-l-4 border-orange-500/50";
-      icon = <DollarSign className="h-5 w-5 text-orange-400" />;
-      break;
-    case EventType.SYSTEM_EVENT:
-    default:
-      className += "bg-slate-800/40 border border-slate-700/30";
-      icon = <Info className="h-5 w-5 text-blue-400" />;
-      break;
-  }
-  
-  // Formater le contenu d'un email
-  const renderContent = () => {
-    if (event.type === EventType.EMAIL) {
-      try {
-        const emailData = JSON.parse(event.content);
-        return (
-          <div className="bg-slate-900/50 p-3 rounded border border-slate-700/50 mt-2">
-            <div className="mb-2">
-              <span className="text-slate-400">De:</span> {emailData.sender.name} ({emailData.sender.email})
-              <br />
-              <span className="text-slate-400">Objet:</span> <span className="font-medium">{emailData.subject}</span>
-              {emailData.isUrgent && (
-                <span className="bg-red-900/30 text-red-300 text-xs px-2 py-0.5 rounded ml-2">
-                  URGENT
-                </span>
-              )}
-            </div>
-            <div className="whitespace-pre-wrap text-slate-200">{emailData.content}</div>
-          </div>
-        );
-      } catch (e) {
-        return <div>{event.content}</div>;
-      }
-    } else if (event.type === EventType.BUDGET_UPDATE && event.metadata) {
-      return (
-        <div>
-          <div className="font-medium">{event.content}</div>
-          <div className="text-sm text-slate-400">
-            Budget restant: {(event.metadata.remainingBudget as number).toLocaleString('fr-FR')} €
-          </div>
-        </div>
-      );
-    } else {
-      return <div className="whitespace-pre-wrap">{event.content}</div>;
+  useEffect(() => {
+    if (state.scenario.currentStage && state.scenario.maxStages) {
+      setProgressPercentage((state.scenario.currentStage / state.scenario.maxStages) * 100);
+    }
+  }, [state.scenario.currentStage, state.scenario.maxStages]);
+
+  const handleSubmitAction = async () => {
+    if (!action.trim()) {
+      setErrorMessage('Veuillez entrer une action.');
+      return;
+    }
+    
+    setErrorMessage(null);
+    
+    try {
+      await submitAction(action, selectedNpcId || undefined);
+      setAction('');
+    } catch (error) {
+      setErrorMessage('Erreur lors de la soumission de l\'action. Veuillez réessayer.');
+      console.error(error);
     }
   };
-  
+
+  const handleEndGame = async () => {
+    try {
+      await endGame("Terminated by player");
+      onComplete();
+    } catch (error) {
+      setErrorMessage('Erreur lors de la fin du jeu. Veuillez réessayer.');
+      console.error(error);
+    }
+  };
+
+  const getUrgencyColor = (level?: string) => {
+    switch (level) {
+      case UrgencyLevel.LOW:
+        return 'text-green-500';
+      case UrgencyLevel.MEDIUM:
+        return 'text-yellow-500';
+      case UrgencyLevel.HIGH:
+        return 'text-orange-500';
+      case UrgencyLevel.CRITICAL:
+        return 'text-red-500';
+      default:
+        return 'text-yellow-500';
+    }
+  };
+
+  const formatTimestamp = (timestamp: number) => {
+    return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
   return (
-    <div className={className}>
-      <div className="flex items-start gap-3">
-        <div className="bg-slate-900/50 p-2 rounded-full">
-          {icon}
+    <div className="space-y-6">
+      <div className="flex justify-between items-center mb-4">
+        <div>
+          <h2 className="text-2xl font-bold">{state.scenario.title || 'Simulation en cours'}</h2>
+          <p className="text-muted-foreground mt-1">
+            {state.scenario.description || 'Gérez la crise cybersécurité'}
+          </p>
         </div>
-        <div className="flex-1">
-          {renderContent()}
+        
+        <div className="flex items-center space-x-2">
+          <div className={`flex items-center ${getUrgencyColor(state.scenario.urgencyLevel)}`}>
+            <AlertTriangle className="h-4 w-4 mr-1" />
+            <span className="text-sm font-medium">
+              {state.scenario.urgencyLevel || UrgencyLevel.MEDIUM}
+            </span>
+          </div>
+          
+          <Badge variant="outline" className="flex items-center">
+            <Clock className="h-4 w-4 mr-1" />
+            <span>Étape {state.scenario.currentStage || 1}/{state.scenario.maxStages || 5}</span>
+          </Badge>
+          
+          <Badge variant="outline" className="flex items-center">
+            <Euro className="h-4 w-4 mr-1" />
+            <span>{state.scenario.remainingBudget?.toLocaleString() || 0} €</span>
+          </Badge>
         </div>
-        <div className="text-xs text-slate-500">
-          {new Date(event.timestamp).toLocaleTimeString()}
+      </div>
+      
+      <Progress value={progressPercentage} className="w-full h-2" />
+      
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="col-span-1 space-y-4">
+          <Card>
+            <CardHeader className="p-4">
+              <CardTitle className="text-lg">Objectifs</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0">
+              <ul className="space-y-2 list-disc list-inside">
+                {state.scenario.objectives?.map((objective, index) => (
+                  <li key={index} className="text-sm">{objective}</li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="p-4">
+              <CardTitle className="text-lg">Équipe</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0 space-y-3">
+              {state.npcs.map((npc) => (
+                <div 
+                  key={npc.id}
+                  className={`flex items-center p-2 rounded cursor-pointer hover:bg-muted transition-colors ${selectedNpcId === npc.id ? 'bg-muted' : ''}`}
+                  onClick={() => setSelectedNpcId(prev => prev === npc.id ? null : npc.id)}
+                >
+                  <Avatar className="h-8 w-8 mr-2">
+                    <AvatarFallback>{npc.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="font-medium text-sm">{npc.name}</div>
+                    <div className="text-xs text-muted-foreground">{npc.role}</div>
+                  </div>
+                </div>
+              ))}
+              
+              {state.players.map((player) => (
+                <div 
+                  key={player.id}
+                  className="flex items-center p-2 rounded"
+                >
+                  <Avatar className="h-8 w-8 mr-2">
+                    <AvatarFallback>{player.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="font-medium text-sm flex items-center">
+                      {player.name}
+                      {player.isActive && (
+                        <Badge className="ml-2 text-xs" variant="outline">Vous</Badge>
+                      )}
+                    </div>
+                    <div className="text-xs text-muted-foreground">{player.role}</div>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="p-4">
+              <CardTitle className="text-lg">Score</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0">
+              <div className="text-2xl font-bold text-center">
+                {activePlayer?.score || 0}
+              </div>
+              <div className="text-sm text-center text-muted-foreground">
+                points
+              </div>
+            </CardContent>
+            <CardFooter className="p-4 pt-0">
+              <Button 
+                variant="destructive" 
+                className="w-full"
+                onClick={handleEndGame}
+                disabled={isLoading}
+              >
+                Terminer la simulation
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+        
+        <div className="col-span-1 md:col-span-3 space-y-4">
+          <Card className="flex flex-col h-full max-h-[600px]">
+            <CardHeader className="p-4">
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-lg flex items-center">
+                  <MessageCircle className="h-5 w-5 mr-2" />
+                  Fil de communication
+                </CardTitle>
+                {selectedNpcId && (
+                  <Badge variant="outline">
+                    Parler à: {state.npcs.find(n => n.id === selectedNpcId)?.name || 'Équipe'}
+                  </Badge>
+                )}
+              </div>
+            </CardHeader>
+            
+            <CardContent className="p-4 pt-0 flex-grow overflow-y-auto">
+              <div className="space-y-4">
+                {state.gameEvents.map((event) => {
+                  const isPlayerEvent = event.type === EventType.PLAYER_ACTION;
+                  const isNpcEvent = event.type === EventType.NPC_RESPONSE;
+                  const isSystemEvent = event.type === EventType.SYSTEM_EVENT;
+                  const isDecisionPoint = event.type === EventType.DECISION_POINT;
+                  
+                  const sender = isPlayerEvent 
+                    ? state.players.find(p => p.id === event.playerId)?.name 
+                    : isNpcEvent 
+                      ? state.npcs.find(n => n.id === event.npcId)?.name 
+                      : 'Système';
+                  
+                  return (
+                    <div 
+                      key={event.id}
+                      className={`flex ${isPlayerEvent ? 'justify-end' : 'justify-start'}`}
+                    >
+                      <div 
+                        className={`max-w-[75%] rounded-lg p-3 ${
+                          isPlayerEvent 
+                            ? 'bg-primary text-primary-foreground' 
+                            : isSystemEvent || isDecisionPoint
+                              ? 'bg-muted text-muted-foreground border' 
+                              : 'bg-secondary text-secondary-foreground'
+                        }`}
+                      >
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="font-medium text-sm">{sender}</span>
+                          <span className="text-xs opacity-70">{formatTimestamp(event.timestamp)}</span>
+                        </div>
+                        <p className="text-sm whitespace-pre-wrap">{event.content}</p>
+                        
+                        {event.metadata?.budgetChange && (
+                          <div className={`text-xs mt-1 ${event.metadata.budgetChange > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                            {event.metadata.budgetChange > 0 ? '+' : ''}{event.metadata.budgetChange.toLocaleString()} € | Budget restant: {event.metadata.remainingBudget?.toLocaleString() || 0} €
+                          </div>
+                        )}
+                        
+                        {event.metadata?.points && (
+                          <div className={`text-xs mt-1 ${event.metadata.points > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                            {event.metadata.points > 0 ? '+' : ''}{event.metadata.points} points
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+            
+            <Separator />
+            
+            <CardFooter className="p-4">
+              {isGameOver ? (
+                <div className="w-full text-center">
+                  <p className="text-muted-foreground mb-2">La simulation est terminée</p>
+                  <Button onClick={onComplete}>Voir les résultats</Button>
+                </div>
+              ) : (
+                <div className="flex w-full space-x-2">
+                  <Input
+                    placeholder={`${selectedNpcId 
+                      ? `Message à ${state.npcs.find(n => n.id === selectedNpcId)?.name}` 
+                      : "Décrivez votre action..."}`}
+                    value={action}
+                    onChange={(e) => setAction(e.target.value)}
+                    disabled={isLoading || isGameOver}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSubmitAction();
+                      }
+                    }}
+                  />
+                  <Button 
+                    size="icon"
+                    onClick={handleSubmitAction}
+                    disabled={isLoading || isGameOver || !action.trim()}
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </CardFooter>
+          </Card>
+          
+          {errorMessage && (
+            <div className="text-red-500 text-sm mt-2">
+              {errorMessage}
+            </div>
+          )}
         </div>
       </div>
     </div>

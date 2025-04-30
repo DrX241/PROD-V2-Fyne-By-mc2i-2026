@@ -1,192 +1,261 @@
 import React, { useState } from 'react';
 import { useGame } from '@/contexts/GameContext';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { PlayerRole } from '@shared/types/challenge';
-import { Users, Shield, Terminal, Star, Scale } from 'lucide-react';
+import { Check, Shield, Code, FileText, Scale, AlertTriangle } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 
 interface OnboardingPhaseProps {
   onComplete: () => void;
 }
 
 export default function OnboardingPhase({ onComplete }: OnboardingPhaseProps) {
-  const { createGame, addPlayer, state, error, isLoading } = useGame();
-  const [playerCount, setPlayerCount] = useState<number | null>(null);
+  const { createGame, addPlayer, isLoading, error } = useGame();
   const [playerName, setPlayerName] = useState('');
   const [selectedRole, setSelectedRole] = useState<PlayerRole | null>(null);
-  const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
-  const [gameId, setGameId] = useState<string | null>(null);
-  
-  // Fonction pour gérer la création du jeu
+  const [step, setStep] = useState<'welcome' | 'createGame' | 'addPlayer'>('welcome');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const handleCreateGame = async () => {
-    if (!playerCount) return;
+    setErrorMessage(null);
+    try {
+      await createGame(1); // Single-player mode for now
+      setStep('addPlayer');
+    } catch (error) {
+      setErrorMessage('Erreur lors de la création du jeu. Veuillez réessayer.');
+      console.error(error);
+    }
+  };
+
+  const handleAddPlayer = async () => {
+    if (!playerName.trim()) {
+      setErrorMessage('Veuillez entrer votre nom.');
+      return;
+    }
+    
+    if (!selectedRole) {
+      setErrorMessage('Veuillez sélectionner un rôle.');
+      return;
+    }
+    
+    setErrorMessage(null);
     
     try {
-      const id = await createGame();
-      setGameId(id);
-    } catch (error) {
-      console.error('Error creating game:', error);
-    }
-  };
-  
-  // Fonction pour gérer l'ajout d'un joueur
-  const handleAddPlayer = () => {
-    if (!playerName || !selectedRole) return;
-    
-    addPlayer(playerName, selectedRole);
-    
-    // Réinitialiser les champs
-    setPlayerName('');
-    setSelectedRole(null);
-    
-    // Vérifier si tous les joueurs ont été ajoutés
-    if (currentPlayerIndex + 1 >= playerCount!) {
+      await addPlayer(playerName, selectedRole);
       onComplete();
-    } else {
-      setCurrentPlayerIndex(prev => prev + 1);
+    } catch (error) {
+      setErrorMessage('Erreur lors de l\'ajout du joueur. Veuillez réessayer.');
+      console.error(error);
     }
   };
-  
-  // Icônes pour les différents rôles
-  const roleIcons = {
-    [PlayerRole.RSSI]: <Shield className="h-5 w-5" />,
-    [PlayerRole.HACKER]: <Star className="h-5 w-5" />,
-    [PlayerRole.DEVELOPER]: <Terminal className="h-5 w-5" />,
-    [PlayerRole.CONSULTANT]: <Users className="h-5 w-5" />,
-    [PlayerRole.LEGAL]: <Scale className="h-5 w-5" />,
-    [PlayerRole.SYSADMIN]: <Terminal className="h-5 w-5" />,
+
+  const roleDescriptions = {
+    [PlayerRole.RSSI]: 'Responsable de la stratégie de sécurité et de la conformité',
+    [PlayerRole.ETHICAL_HACKER]: 'Expert en tests d\'intrusion et identification des vulnérabilités',
+    [PlayerRole.DEVELOPER]: 'Spécialiste en développement sécurisé',
+    [PlayerRole.CONSULTANT]: 'Expert en conseil et audit de sécurité',
+    [PlayerRole.LEGAL_EXPERT]: 'Spécialiste des aspects légaux et réglementaires'
   };
-  
-  return (
-    <div className="p-6 space-y-8">
-      <div className="text-center space-y-4">
-        <h2 className="text-2xl font-bold">🛡️ CyberChallenge - Phase d'enregistrement 🛡️</h2>
-        <p className="text-blue-300">
-          Bienvenue dans la simulation de gestion de crise cybersécurité.
-          Chaque décision compte!
+
+  const roleIcons = {
+    [PlayerRole.RSSI]: <Shield className="h-6 w-6" />,
+    [PlayerRole.ETHICAL_HACKER]: <AlertTriangle className="h-6 w-6" />,
+    [PlayerRole.DEVELOPER]: <Code className="h-6 w-6" />,
+    [PlayerRole.CONSULTANT]: <FileText className="h-6 w-6" />,
+    [PlayerRole.LEGAL_EXPERT]: <Scale className="h-6 w-6" />
+  };
+
+  const renderWelcomeStep = () => (
+    <div className="space-y-6">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold">Bienvenue dans CyberChallenge</h2>
+        <p className="text-muted-foreground mt-2">
+          Testez vos compétences en cybersécurité dans une simulation de gestion de crise réaliste
         </p>
       </div>
       
+      <div className="space-y-4">
+        <div className="flex items-start space-x-3">
+          <div className="bg-primary/10 p-2 rounded-full">
+            <Check className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h3 className="font-medium">Scénarios réalistes</h3>
+            <p className="text-sm text-muted-foreground">Faites face à des incidents inspirés de cas réels</p>
+          </div>
+        </div>
+        
+        <div className="flex items-start space-x-3">
+          <div className="bg-primary/10 p-2 rounded-full">
+            <Check className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h3 className="font-medium">Prise de décision sous pression</h3>
+            <p className="text-sm text-muted-foreground">Gérez votre budget et votre temps pour résoudre la crise</p>
+          </div>
+        </div>
+        
+        <div className="flex items-start space-x-3">
+          <div className="bg-primary/10 p-2 rounded-full">
+            <Check className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h3 className="font-medium">Interaction avec l'équipe</h3>
+            <p className="text-sm text-muted-foreground">Communiquez avec différentes parties prenantes</p>
+          </div>
+        </div>
+      </div>
+      
+      <Button 
+        className="w-full mt-6" 
+        onClick={() => setStep('createGame')}
+        disabled={isLoading}
+      >
+        Commencer
+      </Button>
+    </div>
+  );
+
+  const renderCreateGameStep = () => (
+    <div className="space-y-6">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold">Créer une nouvelle simulation</h2>
+        <p className="text-muted-foreground mt-2">
+          Configurez votre session de gestion de crise
+        </p>
+      </div>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Mode Solo</CardTitle>
+          <CardDescription>
+            Affrontez la crise seul avec l'assistance d'une équipe virtuelle
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            En mode solo, vous êtes le principal décideur dans la gestion de crise. 
+            Vous interagirez avec différents membres de l'équipe dirigeante et 
+            devrez prendre les décisions critiques.
+          </p>
+        </CardContent>
+        <CardFooter>
+          <Button 
+            className="w-full" 
+            onClick={handleCreateGame}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Création en cours...' : 'Créer une simulation en mode solo'}
+          </Button>
+        </CardFooter>
+      </Card>
+      
       {error && (
-        <div className="bg-red-500/20 border border-red-500/50 text-red-100 p-4 rounded-md">
+        <div className="text-red-500 text-sm mt-2">
           {error}
         </div>
       )}
       
-      {!playerCount ? (
-        <div className="bg-slate-700/50 p-6 rounded-lg border border-blue-600/30 max-w-md mx-auto">
-          <h3 className="text-xl font-semibold mb-4">Nombre de participants</h3>
-          <p className="mb-4 text-sm">Combien de joueurs vont participer à cette session?</p>
-          <div className="flex justify-center gap-4">
-            {[1, 2, 3, 4, 5].map(num => (
-              <button 
-                key={num}
-                onClick={() => setPlayerCount(num)} 
-                className="w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-500 
-                           flex items-center justify-center font-bold transition-colors"
-              >
-                {num}
-              </button>
-            ))}
-          </div>
+      <Button 
+        variant="outline" 
+        className="w-full" 
+        onClick={() => setStep('welcome')}
+        disabled={isLoading}
+      >
+        Retour
+      </Button>
+    </div>
+  );
+
+  const renderAddPlayerStep = () => (
+    <div className="space-y-6">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold">Choisissez votre rôle</h2>
+        <p className="text-muted-foreground mt-2">
+          Sélectionnez le rôle que vous souhaitez jouer dans cette simulation
+        </p>
+      </div>
+      
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="playerName">Votre nom</Label>
+          <Input
+            id="playerName"
+            placeholder="Entrez votre nom"
+            value={playerName}
+            onChange={(e) => setPlayerName(e.target.value)}
+          />
         </div>
-      ) : !gameId ? (
-        <div className="bg-slate-700/50 p-6 rounded-lg border border-blue-600/30 max-w-md mx-auto">
-          <h3 className="text-xl font-semibold mb-4">Configuration du jeu</h3>
-          <p className="mb-6">Nous allons créer une session pour {playerCount} joueur{playerCount > 1 ? 's' : ''}.</p>
-          
-          <button
-            onClick={handleCreateGame}
-            disabled={isLoading}
-            className="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-md font-medium 
-                       disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex justify-center items-center"
+        
+        <Separator className="my-4" />
+        
+        <div className="space-y-2">
+          <Label>Choisissez votre rôle</Label>
+          <RadioGroup 
+            value={selectedRole || ''} 
+            onValueChange={(value) => setSelectedRole(value as PlayerRole)}
           >
-            {isLoading ? (
-              <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                Création en cours...
-              </>
-            ) : (
-              'Créer la partie'
-            )}
-          </button>
-        </div>
-      ) : (
-        <div className="bg-slate-700/50 p-6 rounded-lg border border-blue-600/30 max-w-md mx-auto">
-          <h3 className="text-xl font-semibold mb-4">
-            Joueur {currentPlayerIndex + 1} / {playerCount}
-          </h3>
-          
-          <div className="space-y-6">
-            <div>
-              <label htmlFor="playerName" className="block text-sm font-medium mb-2">
-                Votre prénom
-              </label>
-              <input
-                id="playerName"
-                type="text"
-                value={playerName}
-                onChange={(e) => setPlayerName(e.target.value)}
-                className="w-full p-3 rounded-md bg-slate-800 border border-blue-700/50 
-                           focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white"
-                placeholder="Entrez votre prénom..."
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium mb-2">Choisissez votre rôle</label>
-              <div className="grid grid-cols-1 gap-3">
-                {Object.values(PlayerRole).map(role => (
-                  <button
-                    key={role}
-                    onClick={() => setSelectedRole(role)}
-                    className={`p-3 rounded-md text-left hover:bg-blue-700/30 transition-colors flex items-center
-                               ${selectedRole === role ? 'bg-blue-600/40 border-2 border-blue-500' : 'bg-slate-800/80 border border-blue-700/30'}`}
+            {Object.values(PlayerRole).map((role) => (
+              <div key={role} className="flex items-center space-x-2 space-y-1">
+                <RadioGroupItem value={role} id={role} />
+                <div className="flex flex-1 items-center space-x-2">
+                  <Label 
+                    htmlFor={role}
+                    className="flex items-center p-2 cursor-pointer rounded hover:bg-muted transition-colors"
                   >
-                    <span className="bg-blue-900/50 rounded-full p-2 mr-3">
+                    <div className="mr-2 text-primary">
                       {roleIcons[role]}
-                    </span>
-                    <span className="font-medium">{role}</span>
-                  </button>
-                ))}
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-medium">{role}</div>
+                      <div className="text-sm text-muted-foreground">{roleDescriptions[role]}</div>
+                    </div>
+                  </Label>
+                </div>
               </div>
-            </div>
-            
-            <button
-              onClick={handleAddPlayer}
-              disabled={!playerName || !selectedRole || isLoading}
-              className="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-md font-medium 
-                         disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex justify-center items-center"
-            >
-              {isLoading ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  Enregistrement...
-                </>
-              ) : (
-                'Confirmer'
-              )}
-            </button>
-          </div>
+            ))}
+          </RadioGroup>
+        </div>
+      </div>
+      
+      {errorMessage && (
+        <div className="text-red-500 text-sm mt-2">
+          {errorMessage}
         </div>
       )}
       
-      {state.players.length > 0 && (
-        <div className="bg-slate-700/30 p-4 rounded-lg max-w-md mx-auto">
-          <h4 className="font-medium mb-2 text-blue-300">Joueurs enregistrés</h4>
-          <ul className="space-y-2">
-            {state.players.map((player, index) => (
-              <li key={player.id} className="flex items-center gap-3 bg-slate-800/40 p-2 rounded">
-                <span className="bg-blue-900/50 rounded-full p-1">
-                  {roleIcons[player.role]}
-                </span>
-                <div>
-                  <p className="font-medium">{player.name}</p>
-                  <p className="text-xs text-slate-400">{player.role}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <div className="flex gap-4">
+        <Button
+          variant="outline"
+          className="flex-1"
+          onClick={() => setStep('createGame')}
+          disabled={isLoading}
+        >
+          Retour
+        </Button>
+        <Button
+          className="flex-1"
+          onClick={handleAddPlayer}
+          disabled={isLoading || !playerName || !selectedRole}
+        >
+          {isLoading ? 'Chargement...' : 'Continuer'}
+        </Button>
+      </div>
     </div>
   );
+
+  switch (step) {
+    case 'welcome':
+      return renderWelcomeStep();
+    case 'createGame':
+      return renderCreateGameStep();
+    case 'addPlayer':
+      return renderAddPlayerStep();
+    default:
+      return renderWelcomeStep();
+  }
 }

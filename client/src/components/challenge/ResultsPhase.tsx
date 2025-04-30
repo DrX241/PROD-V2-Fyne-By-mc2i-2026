@@ -1,138 +1,318 @@
 import React from 'react';
 import { useGame } from '@/contexts/GameContext';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { EventType } from '@shared/types/challenge';
-import { Award, DollarSign, Clock, ArrowLeft, User, BarChart } from 'lucide-react';
+import { Award, Clock, BarChart, ArrowDown, ArrowUp, Euro, MessageCircle, AlertTriangle, Check, X, FileText } from 'lucide-react';
 
 interface ResultsPhaseProps {
-  onRestart: () => void;
+  onComplete: () => void;
 }
 
-export default function ResultsPhase({ onRestart }: ResultsPhaseProps) {
+export default function ResultsPhase({ onComplete }: ResultsPhaseProps) {
   const { state } = useGame();
   
-  // Trouver le résumé de fin de jeu (dernier événement système)
-  const summaryEvent = [...state.gameEvents]
-    .reverse()
-    .find(event => event.type === EventType.SYSTEM_EVENT);
+  const activePlayer = state.players.find(p => p.isActive);
+  const totalEvents = state.gameEvents.length;
+  const playerActions = state.gameEvents.filter(e => e.type === EventType.PLAYER_ACTION);
+  const npcResponses = state.gameEvents.filter(e => e.type === EventType.NPC_RESPONSE);
+  const systemEvents = state.gameEvents.filter(e => e.type === EventType.SYSTEM_EVENT);
+  const decisionPoints = state.gameEvents.filter(e => e.type === EventType.DECISION_POINT);
   
-  // Calculer le temps total de jeu
-  const gameDuration = state.endedAt 
-    ? Math.floor((state.endedAt - state.startedAt) / 1000 / 60) 
+  // Calculer le temps total de la simulation en minutes
+  const totalTimeMinutes = state.endedAt && state.startedAt 
+    ? Math.floor((state.endedAt - state.startedAt) / (1000 * 60)) 
     : 0;
   
-  // Calculer le budget utilisé
-  const budgetUsed = state.scenario.initialBudget - state.scenario.remainingBudget;
-  const budgetPercentage = Math.round((budgetUsed / state.scenario.initialBudget) * 100);
+  // Calculer le pourcentage du budget utilisé
+  const budgetPercentageUsed = state.scenario.initialBudget 
+    ? 100 - ((state.scenario.remainingBudget / state.scenario.initialBudget) * 100)
+    : 0;
+    
+  // Obtenir les événements avec des points (positifs et négatifs)
+  const positiveScoreEvents = state.gameEvents.filter(e => e.metadata?.points && e.metadata.points > 0);
+  const negativeScoreEvents = state.gameEvents.filter(e => e.metadata?.points && e.metadata.points < 0);
   
-  // Trier les joueurs par score
-  const sortedPlayers = [...state.players].sort((a, b) => b.score - a.score);
+  // Calculer le score maximal possible (basé sur le nombre de décisions)
+  const maxPossibleScore = decisionPoints.length * 10;
+  const scorePercentage = maxPossibleScore > 0 ? (activePlayer?.score || 0) / maxPossibleScore * 100 : 0;
   
+  const formatTimestamp = (timestamp: number) => {
+    return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+  
+  const formatDuration = (startTime: number, endTime: number) => {
+    const durationInSeconds = Math.floor((endTime - startTime) / 1000);
+    const minutes = Math.floor(durationInSeconds / 60);
+    const seconds = durationInSeconds % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+  
+  const determinePerformanceLevel = (scorePercentage: number) => {
+    if (scorePercentage >= 80) return "Expert";
+    if (scorePercentage >= 60) return "Avancé";
+    if (scorePercentage >= 40) return "Intermédiaire";
+    return "Débutant";
+  };
+  
+  const generateFeedback = (scorePercentage: number, budgetPercentageUsed: number) => {
+    if (scorePercentage >= 80) {
+      return "Excellente performance! Vous avez démontré une expertise en matière de gestion de crise cybersécurité. Vos décisions étaient stratégiques et bien équilibrées.";
+    } else if (scorePercentage >= 60) {
+      return "Bonne performance! Vous avez fait preuve de solides compétences en gestion de crise, mais il y a encore place à l'amélioration, particulièrement dans l'optimisation des ressources.";
+    } else if (scorePercentage >= 40) {
+      return "Performance moyenne. Vous avez réussi à gérer certains aspects de la crise, mais plusieurs décisions clés auraient pu être améliorées pour un meilleur résultat global.";
+    } else {
+      return "Des améliorations sont nécessaires. Il est recommandé de réviser les bonnes pratiques en gestion de crise cybersécurité et de vous concentrer sur la priorisation des actions.";
+    }
+  };
+
   return (
-    <div className="p-6 space-y-8">
-      <div className="text-center space-y-4">
-        <h2 className="text-2xl font-bold">Résultats de la Gestion de Crise</h2>
-        <p className="text-blue-300">
-          Synthèse des actions et évaluation de la gestion de crise
+    <div className="space-y-6">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold">Résultats de la simulation</h2>
+        <p className="text-muted-foreground mt-2">
+          Analyse de votre performance dans la gestion de crise
         </p>
       </div>
       
-      {/* Statistiques du jeu */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-slate-800/60 p-4 rounded-lg border border-blue-700/30 flex items-center">
-          <div className="bg-blue-900/50 rounded-full p-2 mr-3">
-            <Clock className="h-5 w-5" />
-          </div>
-          <div>
-            <h3 className="text-sm text-slate-400">Durée de la crise</h3>
-            <p className="font-medium">{gameDuration} minutes</p>
-          </div>
-        </div>
-        
-        <div className="bg-slate-800/60 p-4 rounded-lg border border-blue-700/30 flex items-center">
-          <div className="bg-blue-900/50 rounded-full p-2 mr-3">
-            <DollarSign className="h-5 w-5" />
-          </div>
-          <div>
-            <h3 className="text-sm text-slate-400">Budget utilisé</h3>
-            <div>
-              <span className="font-medium">{budgetUsed.toLocaleString('fr-FR')} € </span>
-              <span className="text-xs text-slate-400">({budgetPercentage}%)</span>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center">
+              <Award className="h-5 w-5 mr-2 text-primary" />
+              Score final
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-4xl font-bold text-center">
+              {activePlayer?.score || 0}
+              <span className="text-sm font-normal text-muted-foreground"> / {maxPossibleScore}</span>
             </div>
-          </div>
-        </div>
+            <Progress value={scorePercentage} className="h-2 mt-2" />
+            <div className="text-center text-sm text-muted-foreground mt-1">
+              Niveau: {determinePerformanceLevel(scorePercentage)}
+            </div>
+          </CardContent>
+        </Card>
         
-        <div className="bg-slate-800/60 p-4 rounded-lg border border-blue-700/30 flex items-center">
-          <div className="bg-blue-900/50 rounded-full p-2 mr-3">
-            <BarChart className="h-5 w-5" />
-          </div>
-          <div>
-            <h3 className="text-sm text-slate-400">Actions totales</h3>
-            <p className="font-medium">
-              {state.gameEvents.filter(e => e.type === EventType.PLAYER_ACTION).length}
-            </p>
-          </div>
-        </div>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center">
+              <Clock className="h-5 w-5 mr-2 text-primary" />
+              Temps total
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-4xl font-bold text-center">
+              {totalTimeMinutes} <span className="text-sm font-normal text-muted-foreground">min</span>
+            </div>
+            <div className="text-center text-sm text-muted-foreground mt-1">
+              {formatTimestamp(state.startedAt)} - {formatTimestamp(state.endedAt || Date.now())}
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center">
+              <Euro className="h-5 w-5 mr-2 text-primary" />
+              Budget utilisé
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-4xl font-bold text-center">
+              {Math.round(budgetPercentageUsed)}%
+            </div>
+            <Progress value={budgetPercentageUsed} className="h-2 mt-2" />
+            <div className="text-center text-sm text-muted-foreground mt-1">
+              Restant: {state.scenario.remainingBudget?.toLocaleString() || 0} €
+            </div>
+          </CardContent>
+        </Card>
       </div>
       
-      {/* Tableau des scores */}
-      <div className="bg-slate-800/40 rounded-lg border border-blue-800/30 overflow-hidden">
-        <h3 className="text-lg font-semibold p-4 border-b border-blue-800/30 flex items-center">
-          <Award className="h-5 w-5 mr-2 text-yellow-500" />
-          Tableau des scores
-        </h3>
-        
-        <div className="p-4">
-          <div className="grid grid-cols-12 text-sm text-slate-400 mb-2 px-2">
-            <div className="col-span-1">#</div>
-            <div className="col-span-4">Joueur</div>
-            <div className="col-span-4">Rôle</div>
-            <div className="col-span-3 text-right">Score</div>
-          </div>
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Évaluation de la performance</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground mb-4">
+            {generateFeedback(scorePercentage, budgetPercentageUsed)}
+          </p>
           
-          {sortedPlayers.map((player, index) => (
-            <div 
-              key={player.id} 
-              className={`grid grid-cols-12 p-2 rounded-md items-center ${index === 0 ? 'bg-yellow-900/20' : 'hover:bg-slate-700/30'}`}
-            >
-              <div className="col-span-1 font-bold">
-                {index === 0 ? '🏆' : index + 1}
-              </div>
-              <div className="col-span-4 font-medium flex items-center">
-                <User className="h-4 w-4 mr-2 text-blue-400" />
-                {player.name}
-              </div>
-              <div className="col-span-4 text-slate-300">
-                {player.role}
-              </div>
-              <div className="col-span-3 text-right font-bold">
-                {player.score} pts
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+            <div className="space-y-2">
+              <div className="font-medium">Points forts:</div>
+              <ul className="space-y-1">
+                {positiveScoreEvents.slice(0, 3).map((event, index) => (
+                  <li key={index} className="text-sm flex items-start">
+                    <Check className="h-4 w-4 mr-2 text-green-500 mt-0.5" />
+                    <span>{event.content.length > 60 ? `${event.content.substring(0, 60)}...` : event.content}</span>
+                  </li>
+                ))}
+                {positiveScoreEvents.length === 0 && (
+                  <li className="text-sm text-muted-foreground">
+                    Aucun point fort particulier identifié
+                  </li>
+                )}
+              </ul>
             </div>
-          ))}
-        </div>
-      </div>
-      
-      {/* Résumé de fin de jeu */}
-      {summaryEvent && (
-        <div className="bg-slate-800/40 rounded-lg border border-blue-800/30 p-4">
-          <h3 className="text-lg font-semibold mb-4 pb-2 border-b border-blue-800/20">
-            Synthèse de la gestion de crise
-          </h3>
-          <div className="whitespace-pre-wrap text-slate-200 leading-relaxed">
-            {summaryEvent.content}
+            
+            <div className="space-y-2">
+              <div className="font-medium">Points à améliorer:</div>
+              <ul className="space-y-1">
+                {negativeScoreEvents.slice(0, 3).map((event, index) => (
+                  <li key={index} className="text-sm flex items-start">
+                    <X className="h-4 w-4 mr-2 text-red-500 mt-0.5" />
+                    <span>{event.content.length > 60 ? `${event.content.substring(0, 60)}...` : event.content}</span>
+                  </li>
+                ))}
+                {negativeScoreEvents.length === 0 && (
+                  <li className="text-sm text-muted-foreground">
+                    Aucun point d'amélioration majeur identifié
+                  </li>
+                )}
+              </ul>
+            </div>
           </div>
-        </div>
-      )}
+        </CardContent>
+      </Card>
       
-      {/* Bouton pour recommencer */}
-      <div className="flex justify-center pt-4">
-        <button
-          onClick={onRestart}
-          className="flex items-center gap-2 py-3 px-6 bg-blue-600 hover:bg-blue-500 rounded-md font-medium transition-colors"
-        >
-          <ArrowLeft className="h-5 w-5" />
-          Commencer une nouvelle simulation
-        </button>
+      <Tabs defaultValue="stats" className="mb-8">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="stats">Statistiques</TabsTrigger>
+          <TabsTrigger value="timeline">Chronologie</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="stats">
+          <Card>
+            <CardHeader>
+              <CardTitle>Statistiques de la simulation</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="space-y-1">
+                  <div className="text-sm text-muted-foreground">Actions joueur</div>
+                  <div className="text-2xl font-bold">{playerActions.length}</div>
+                </div>
+                
+                <div className="space-y-1">
+                  <div className="text-sm text-muted-foreground">Réponses NPC</div>
+                  <div className="text-2xl font-bold">{npcResponses.length}</div>
+                </div>
+                
+                <div className="space-y-1">
+                  <div className="text-sm text-muted-foreground">Points de décision</div>
+                  <div className="text-2xl font-bold">{decisionPoints.length}</div>
+                </div>
+                
+                <div className="space-y-1">
+                  <div className="text-sm text-muted-foreground">Interactions totales</div>
+                  <div className="text-2xl font-bold">{totalEvents}</div>
+                </div>
+              </div>
+              
+              <Separator className="my-4" />
+              
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm">Bonnes décisions</span>
+                    <span className="text-sm font-medium">{positiveScoreEvents.length}</span>
+                  </div>
+                  <Progress value={(positiveScoreEvents.length / (positiveScoreEvents.length + negativeScoreEvents.length || 1)) * 100} className="h-2" />
+                </div>
+                
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm">Efficacité budgétaire</span>
+                    <span className="text-sm font-medium">{Math.round(100 - budgetPercentageUsed)}%</span>
+                  </div>
+                  <Progress value={100 - budgetPercentageUsed} className="h-2" />
+                </div>
+                
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm">Objectifs atteints</span>
+                    <span className="text-sm font-medium">{Math.round(scorePercentage)}%</span>
+                  </div>
+                  <Progress value={scorePercentage} className="h-2" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="timeline">
+          <Card>
+            <CardHeader>
+              <CardTitle>Chronologie des événements clés</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="relative">
+                <div className="absolute left-0 top-0 bottom-0 w-px bg-muted ml-4 mt-3"></div>
+                <div className="space-y-8">
+                  {state.gameEvents
+                    .filter(e => e.type === EventType.DECISION_POINT || e.metadata?.points)
+                    .map((event, index) => (
+                      <div key={index} className="flex relative">
+                        <div className="mr-4">
+                          <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center z-10 relative">
+                            {event.type === EventType.DECISION_POINT ? (
+                              <AlertTriangle className="h-4 w-4" />
+                            ) : event.metadata?.points && event.metadata.points > 0 ? (
+                              <ArrowUp className="h-4 w-4" />
+                            ) : (
+                              <ArrowDown className="h-4 w-4" />
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-sm font-medium">
+                            {event.type === EventType.DECISION_POINT ? 'Point de décision' : 'Résultat d\'action'}
+                          </div>
+                          <div className="text-sm text-muted-foreground mb-1">
+                            {formatTimestamp(event.timestamp)}
+                            {event.metadata?.points && (
+                              <Badge 
+                                variant={event.metadata.points > 0 ? 'default' : 'destructive'}
+                                className="ml-2"
+                              >
+                                {event.metadata.points > 0 ? '+' : ''}{event.metadata.points} pts
+                              </Badge>
+                            )}
+                            {event.metadata?.budgetChange && (
+                              <Badge 
+                                variant="outline"
+                                className="ml-2"
+                              >
+                                {event.metadata.budgetChange > 0 ? '+' : ''}{event.metadata.budgetChange} €
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm border p-3 rounded-md bg-muted/50">
+                            {event.content}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+      
+      <div className="flex justify-center">
+        <Button onClick={onComplete} className="px-8">
+          Nouvelle simulation
+        </Button>
       </div>
     </div>
   );
