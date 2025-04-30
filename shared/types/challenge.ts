@@ -97,6 +97,7 @@ export interface GameEvent {
     points?: number;
     budgetChange?: number;
     decision?: string;
+    remainingBudget?: number;
   };
 }
 
