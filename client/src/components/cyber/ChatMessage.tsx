@@ -28,26 +28,32 @@ export default function ChatMessage({
       return text;
     }
     
-    // Obtenir le prénom formaté correctement (première lettre majuscule, reste minuscule)
-    const formattedName = name.split(' ')[0];
-    if (!formattedName) return text;
-    
-    const properName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1).toLowerCase();
-    
-    // Remplacer toutes les variations du prénom (tout min, tout maj, etc.) par la version formatée
-    const variations = [
-      name.toLowerCase(),
-      name.toUpperCase(),
-      name.charAt(0).toUpperCase() + name.slice(1).toLowerCase(),
-      name
-    ];
-    
-    let result = text;
-    variations.forEach(variant => {
-      result = result.replace(new RegExp(variant, 'g'), properName);
-    });
-    
-    return result;
+    try {
+      // Obtenir le prénom formaté correctement (première lettre majuscule, reste minuscule)
+      const nameParts = name.split(' ');
+      const formattedName = nameParts && nameParts.length > 0 ? nameParts[0] : '';
+      if (!formattedName) return text;
+      
+      const properName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1).toLowerCase();
+      
+      // Remplacer toutes les variations du prénom par la version formatée
+      const variations = [
+        name.toLowerCase(),
+        name.toUpperCase(),
+        name.charAt(0).toUpperCase() + name.slice(1).toLowerCase(),
+        name
+      ];
+      
+      let result = text;
+      variations.forEach(variant => {
+        result = result.replace(new RegExp(variant, 'g'), properName);
+      });
+      
+      return result;
+    } catch (error) {
+      console.warn('Erreur lors du formatage du prénom:', error);
+      return text;
+    }
   };
 
   // Fonction pour formater le contenu de manière plus professionnelle et concise
