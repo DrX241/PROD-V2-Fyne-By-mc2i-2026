@@ -421,6 +421,29 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, 1000);
   };
   
+  // Fonction pour générer le descriptif détaillé du rôle
+  const getRoleDescription = (roleId: string): string => {
+    switch (roleId) {
+      case 'rssi':
+        return "En tant que Responsable de la Sécurité des Systèmes d'Information (RSSI), vous êtes chargé(e) d'élaborer et de mettre en œuvre la politique de sécurité informatique de l'entreprise. Vos missions principales incluent l'analyse des risques, la définition des procédures de sécurité, la sensibilisation des collaborateurs, et la gestion des incidents de sécurité. Vous êtes également responsable de la conformité règlementaire (RGPD, NIS2, etc.) et devez régulièrement rendre compte à la direction générale de l'état de la sécurité.";
+      
+      case 'hacker':
+        return "En tant que Hacker éthique, vous êtes spécialisé(e) dans les tests d'intrusion et d'audit de sécurité. Votre mission est d'identifier les vulnérabilités des systèmes avant que des acteurs malveillants ne les exploitent. Vous utilisez des techniques avancées comme le pentesting, le social engineering et l'analyse de code pour détecter les failles de sécurité. Vous devez ensuite produire des rapports détaillés et proposer des solutions concrètes pour renforcer la sécurité des infrastructures testées.";
+      
+      case 'developpeur':
+        return "En tant que Développeur sensibilisé aux vulnérabilités logicielles, vous intégrez la sécurité à chaque étape du cycle de développement (Security by Design). Vos responsabilités incluent la mise en œuvre de bonnes pratiques de codage sécurisé, la réalisation de tests de sécurité (SAST, DAST), et la correction des vulnérabilités identifiées. Vous devez rester constamment informé(e) des nouvelles menaces et développer des applications résilientes face aux attaques comme les injections SQL, XSS, ou les problèmes d'authentification.";
+      
+      case 'admin':
+        return "En tant qu'Administrateur Système spécialisé en sécurité, vous êtes responsable de la protection de l'infrastructure informatique. Vos missions comprennent la configuration sécurisée des serveurs et réseaux, la gestion des mises à jour et correctifs, l'implémentation de solutions de détection d'intrusion, et la surveillance active des systèmes. Vous devez également gérer les droits d'accès, maintenir les sauvegardes, et être capable de réagir rapidement en cas d'incident pour assurer la continuité de service.";
+      
+      case 'consultant':
+        return "En tant que Consultant en cybersécurité, vous accompagnez les organisations dans l'amélioration de leur posture de sécurité. Vos missions incluent la réalisation d'audits de sécurité, l'analyse des risques, et la formulation de recommandations adaptées aux enjeux métiers. Vous devez avoir une vision globale de la cybersécurité (technique, organisationnelle et humaine) et être capable de traduire des concepts complexes en termes compréhensibles pour les décideurs. Vous intervenez souvent lors des phases de transformation numérique pour garantir que la sécurité est bien intégrée.";
+      
+      default:
+        return "Vous avez choisi un rôle spécialisé en cybersécurité. Dans ce contexte, vous allez pouvoir explorer différentes problématiques liées à la protection des systèmes d'information.";
+    }
+  };
+
   // Handler to set the user's role
   const handleSetUserRole = (roleId: string) => {
     if (!roleId) return;
@@ -438,22 +461,25 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Add user's role selection message
     const userMessage: ChatMessage = {
       id: uuidv4(),
-      type: "user",
+      type: "role-selection",
       content: `J'ai choisi le rôle de ${role.name}`,
       timestamp: Date.now()
     };
     
     setMessages(prev => [...prev, userMessage]);
     
-    // Simulate bot response
+    // Simuler la réponse du bot avec un descriptif détaillé du rôle
     setTimeout(() => {
       // Obtenir le prénom extrait
       const firstName = extractFirstName(userName);
       
+      // Obtenir le descriptif détaillé du rôle
+      const roleDetailedDescription = getRoleDescription(roleId);
+      
       const botResponse: ChatMessage = {
         id: uuidv4(),
         type: "bot",
-        content: `Excellent choix, ${firstName} ! Vous allez incarner le rôle de ${role.name} (${role.description}).\n\nNous allons explorer ensemble différents aspects de la cybersécurité. Veuillez choisir un domaine qui vous intéresse parmi les options suivantes :`,
+        content: `Excellent choix, ${firstName} ! Vous allez incarner le rôle de **${role.name}**.\n\n${roleDetailedDescription}\n\nCe rôle est désormais verrouillé pour votre session de formation. Nous allons explorer ensemble différents aspects de la cybersécurité adaptés à votre expertise. Veuillez choisir un domaine qui vous intéresse parmi les options suivantes :`,
         timestamp: Date.now()
       };
       
@@ -574,6 +600,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: JSON.stringify({
           scenarioId,
           userName,
+          userRole, // Transmettre le rôle de l'utilisateur
           config,
           currentStage
         })
@@ -685,6 +712,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: JSON.stringify({
           message: messageText,
           userName,
+          userRole, // Transmettre le rôle de l'utilisateur
           scenarioId: scenario.activeScenario?.id,
           config,
           chatHistory: relevantMessages,
