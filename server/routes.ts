@@ -622,9 +622,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         concern: "Préoccupations liées aux enjeux cyber dans son domaine d'expertise"
       };
 
-      // Définir une attente spécifique en fonction du rôle de l'utilisateur
-      const getRoleExpectation = (userRole: string) => {
-        switch (userRole) {
+      // Convertir le rôle de l'utilisateur pour le passage à getRoleExpectation
+      const getNormalizedRole = (userRole: string) => {
+        const role = userRole?.toLowerCase() || '';
+        if (role.includes('rssi')) return 'rssi';
+        if (role.includes('hacker') || role.includes('éthique')) return 'hacker';
+        if (role.includes('développeur') || role.includes('dev')) return 'developpeur';
+        if (role.includes('admin') || role.includes('système')) return 'admin';
+        if (role.includes('consult')) return 'consultant';
+        return '';
+      };
+      
+      // Définir une attente spécifique en fonction du rôle normalisé de l'utilisateur
+      const getRoleExpectation = (normalizedRole: string) => {
+        switch (normalizedRole) {
           case 'rssi':
             return "une vision globale intégrant les aspects techniques, organisationnels et stratégiques";
           case 'hacker':
@@ -655,7 +666,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           - L'email est adressé à ${userName} qui a le rôle de ${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"}
           - Le niveau d'urgence est ${getUrgencyLevel(scenario.domain, scenario.difficulty, currentStage || 0)}
           - On se trouve dans une phase ${getScenarioSituation(scenario.domain, currentStage || 0)}
-          - On attend de ${userName}, en tant que ${userRole ? getUserRoleDescription(userRole) : "expert cyber"}, ${getRoleExpectation(userRole || "")}
+          - On attend de ${userName}, en tant que ${userRole ? getUserRoleDescription(userRole) : "expert cyber"}, ${getRoleExpectation(getNormalizedRole(userRole || ""))}
           
           FORMAT DE L'EMAIL:
           - OBJET: Court et captivant, évoquant clairement la problématique cyber et le niveau d'urgence actuel
