@@ -4,8 +4,17 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
-import { ChatCompletionRequestMessage } from 'openai';
-import { openAIService } from '../routes';
+import { openAIService } from './openai';
+import { fileURLToPath } from 'url';
+
+type ChatCompletionRequestMessage = {
+  role: "system" | "user" | "assistant";
+  content: string;
+};
+
+// Récupérer le chemin du répertoire actuel en module ES
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Dossier où les pièces jointes seront stockées
 const ATTACHMENTS_DIR = path.join(__dirname, '../public/attachments');
@@ -209,8 +218,18 @@ async function generateAttachmentContent(
     }
   ];
   
-  // Obtenir le contenu généré par l'IA
-  return await openAIService.getChatCompletionWithCache(messages, 0.8, 2500);
+  try {
+    // Utiliser le service Azure OpenAI
+    const response = await openAIService.getChatCompletion(
+      messages,
+      0.8, // temperature
+      2500  // maxTokens
+    );
+    return response || "Document non disponible.";
+  } catch (error) {
+    console.error("Erreur lors de la génération du contenu:", error);
+    return "Document temporairement indisponible suite à une erreur technique.";
+  }
 }
 
 /**
@@ -281,6 +300,63 @@ function getTypeFromFilename(filename: string): string {
   if (filename.includes('security_patch')) return AttachmentType.SOFTWARE_PATCH;
   
   return 'unknown';
+}
+
+/**
+ * Sélectionner le type de pièce jointe approprié en fonction du contexte du scénario
+ */
+export function selectAppropriateAttachmentType(domain: string, stage: number): AttachmentType {
+  // Au début d'un scénario, on commence par des documents plus généraux
+  if (stage <= 1) {
+    if (domain.toLowerCase().includes('phishing') || domain.toLowerCase().includes('ingénierie sociale')) {
+      return AttachmentType.SECURITY_ANALYSIS;
+    } else if (domain.toLowerCase().includes('crise')) {
+      return AttachmentType.CONFIDENTIAL_MEMO;
+    } else if (domain.toLowerCase().includes('incident')) {
+      return AttachmentType.INCIDENT_REPORT;
+    } else if (domain.toLowerCase().includes('rgpd') || domain.toLowerCase().includes('données personnelles')) {
+      return AttachmentType.REGULATORY_FILING;
+    } else if (domain.toLowerCase().includes('chaîne') || domain.toLowerCase().includes('supply chain')) {
+      return AttachmentType.TECHNICAL_SPECS;
+    } else {
+      // Pour les autres domaines ou par défaut
+      return AttachmentType.SECURITY_ANALYSIS;
+    }
+  }
+  
+  // Au fur et à mesure que le scénario progresse, les pièces jointes deviennent plus techniques
+  else if (stage === 2) {
+    if (domain.toLowerCase().includes('phishing') || domain.toLowerCase().includes('ingénierie sociale')) {
+      return AttachmentType.LOG_FILE;
+    } else if (domain.toLowerCase().includes('crise')) {
+      return AttachmentType.FORENSIC_EVIDENCE;
+    } else if (domain.toLowerCase().includes('incident')) {
+      return AttachmentType.LOG_FILE;
+    } else if (domain.toLowerCase().includes('rgpd') || domain.toLowerCase().includes('données personnelles')) {
+      return AttachmentType.DATA_BREACH_NOTIFICATION;
+    } else if (domain.toLowerCase().includes('chaîne') || domain.toLowerCase().includes('supply chain')) {
+      return AttachmentType.VULNERABILITY_SCAN;
+    } else {
+      return AttachmentType.VULNERABILITY_SCAN;
+    }
+  }
+  
+  // Dans les phases avancées, les pièces jointes reflètent l'urgence et les actions en cours
+  else {
+    if (domain.toLowerCase().includes('phishing') || domain.toLowerCase().includes('ingénierie sociale')) {
+      return AttachmentType.FORENSIC_EVIDENCE;
+    } else if (domain.toLowerCase().includes('crise')) {
+      return AttachmentType.DATA_BREACH_NOTIFICATION;
+    } else if (domain.toLowerCase().includes('incident')) {
+      return AttachmentType.CUSTOMER_COMMUNICATION;
+    } else if (domain.toLowerCase().includes('rgpd') || domain.toLowerCase().includes('données personnelles')) {
+      return AttachmentType.CUSTOMER_COMMUNICATION;
+    } else if (domain.toLowerCase().includes('chaîne') || domain.toLowerCase().includes('supply chain')) {
+      return AttachmentType.SOFTWARE_PATCH;
+    } else {
+      return AttachmentType.CONFIDENTIAL_MEMO;
+    }
+  }
 }
 
 /**
@@ -681,43 +757,4 @@ PRÉCAUTIONS ET RISQUES:
 
 SUPPORT:
 ...`;
-}
-
-/**
- * Sélectionner le type de pièce jointe approprié en fonction du contexte du scénario
- */
-export function selectAppropriateAttachmentType(domain: string, stage: number): AttachmentType {
-  // Sélection basée sur le domaine et le stade du scénario
-  if (domain.toLowerCase().includes('incident') || domain.toLowerCase().includes('crise')) {
-    if (stage === 0) return AttachmentType.SECURITY_ANALYSIS;
-    if (stage === 1) return AttachmentType.INCIDENT_REPORT;
-    if (stage === 2) return AttachmentType.LOG_FILE;
-    return AttachmentType.FORENSIC_EVIDENCE;
-  }
-  
-  if (domain.toLowerCase().includes('vuln') || domain.toLowerCase().includes('pen') || domain.toLowerCase().includes('test')) {
-    if (stage <= 1) return AttachmentType.VULNERABILITY_SCAN;
-    return AttachmentType.TECHNICAL_SPECS;
-  }
-  
-  if (domain.toLowerCase().includes('conformité') || domain.toLowerCase().includes('rgpd') || domain.toLowerCase().includes('légal')) {
-    if (stage <= 1) return AttachmentType.CONFIDENTIAL_MEMO;
-    return AttachmentType.REGULATORY_FILING;
-  }
-  
-  if (domain.toLowerCase().includes('développement') || domain.toLowerCase().includes('code') || domain.toLowerCase().includes('application')) {
-    return AttachmentType.SOFTWARE_PATCH;
-  }
-  
-  // Par défaut, choix basé sur le stade
-  switch (stage) {
-    case 0:
-      return AttachmentType.SECURITY_ANALYSIS;
-    case 1:
-      return AttachmentType.LOG_FILE;
-    case 2:
-      return AttachmentType.INCIDENT_REPORT;
-    default:
-      return AttachmentType.DATA_BREACH_NOTIFICATION;
-  }
 }

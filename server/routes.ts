@@ -1,11 +1,17 @@
-import type { Express, Request, Response, NextFunction } from "express";
+import express, { type Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
 import OpenAI from 'openai';
 import { openAIService } from "./services/openai";
+import attachmentRoutes from './routes/attachmentRoutes';
+
+// Récupérer le chemin du répertoire actuel en module ES
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 // Import de document-generator supprimé car nous n'utilisons plus de pièces jointes
 import { ChatCompletionRequestMessage } from "@shared/schema";
 import { evaluateDecision } from "./cyberDefenseEvaluator";
@@ -373,9 +379,48 @@ function generateSynthesisHtml(
 </html>`;
 }
 
+// attachmentRoutes déjà importé en haut du fichier
+import { 
+  generateAttachment, 
+  selectAppropriateAttachmentType,
+  AttachmentType
+} from "./services/attachmentService";
+
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Nous n'avons plus besoin des répertoires de documents et HTML
-  // car nous n'utilisons plus de pièces jointes
+  // Servir les pièces jointes depuis le dossier public/attachments
+  app.use('/attachments', express.static(path.join(__dirname, 'public/attachments')));
+  
+  // Enregistrer les routes pour les pièces jointes
+  app.use('/api/attachments', attachmentRoutes);
+
+  // Route de test pour les pièces jointes
+  app.get('/api/attachments/test', async (req, res) => {
+    try {
+      const attachmentType = req.query.type as string || 'log_file';
+      const testContext = "Test de génération d'une pièce jointe pour vérifier le bon fonctionnement du système.";
+      
+      const attachment = await generateAttachment(
+        'test-scenario-id',
+        'Scénario de test',
+        'Gestion de crise cyber',
+        attachmentType as AttachmentType,
+        testContext,
+        1, // currentStage
+        'rssi' // userRole
+      );
+      
+      res.status(201).json({
+        message: 'Pièce jointe générée avec succès',
+        attachment
+      });
+    } catch (error) {
+      console.error('Erreur lors du test de pièce jointe:', error);
+      res.status(500).json({ 
+        message: 'Erreur lors du test de pièce jointe', 
+        error: (error as Error).message 
+      });
+    }
+  });
 
   // API route for starting a scenario
   app.post('/api/cyber/start-scenario', async (req, res) => {
