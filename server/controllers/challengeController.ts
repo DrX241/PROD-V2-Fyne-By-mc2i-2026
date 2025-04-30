@@ -12,7 +12,8 @@ import {
   ScenarioType,
   UrgencyLevel
 } from '@shared/types/challenge';
-import openAIService from '../services/openAiService';
+// Import du service OpenAI correctement configuré avec les secrets d'environnement
+import { openAIService } from '../services/openAiService';
 
 // Stockage temporaire en mémoire pour les jeux
 const games: GameState[] = [];

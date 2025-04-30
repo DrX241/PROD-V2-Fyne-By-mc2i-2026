@@ -18,16 +18,42 @@ export class OpenAIService {
   }
   
   /**
-   * Génère une complétion de texte à partir d'un prompt
+   * Génère une complétion basée sur un prompt avec configuration avancée
+   * Cette méthode est utilisée par les contrôleurs de jeu
    */
-  async generateCompletion(prompt: string, maxTokens: number = 1000): Promise<string> {
+  async generateCompletion(options: {
+    promptText: string;
+    maxTokens?: number;
+    temperature?: number;
+    system?: string;
+  }): Promise<{text: string}> {
+    const { promptText, maxTokens = 1000, temperature = 0.7, system = 'Tu es un assistant IA spécialisé en cybersécurité.' } = options;
+    
+    try {
+      const messages: ChatCompletionRequestMessage[] = [
+        { role: 'system', content: system },
+        { role: 'user', content: promptText }
+      ];
+      
+      const text = await this.createChatCompletion(messages, maxTokens, temperature);
+      return { text };
+    } catch (error) {
+      console.error('Erreur lors de la génération de texte:', error);
+      return { text: 'Une erreur est survenue lors de la génération du contenu.' };
+    }
+  }
+  
+  /**
+   * Méthode simple pour la rétrocompatibilité
+   */
+  async generateTextCompletion(prompt: string, maxTokens: number = 1000): Promise<string> {
     try {
       const messages: ChatCompletionRequestMessage[] = [
         { role: 'system', content: 'Tu es un assistant IA spécialisé en cybersécurité qui aide à créer des simulations réalistes de gestion de crise.' },
         { role: 'user', content: prompt }
       ];
       
-      return await this.createChatCompletion(messages, maxTokens);
+      return await this.createChatCompletion(messages, maxTokens, 0.7);
     } catch (error) {
       console.error('Erreur lors de la génération de texte:', error);
       return 'Une erreur est survenue lors de la génération du contenu.';
@@ -48,7 +74,7 @@ export class OpenAIService {
         { role: 'user', content: prompt }
       ];
       
-      const response = await this.createChatCompletion(messages, maxTokens);
+      const response = await this.createChatCompletion(messages, maxTokens, 0.7);
       
       // Nettoyer la réponse pour extraire uniquement le JSON
       const jsonStr = this.extractJSON(response);
@@ -63,7 +89,11 @@ export class OpenAIService {
   /**
    * Crée une complétion de chat en utilisant l'API OpenAI
    */
-  private async createChatCompletion(messages: ChatCompletionRequestMessage[], maxTokens: number): Promise<string> {
+  private async createChatCompletion(
+    messages: ChatCompletionRequestMessage[],
+    maxTokens: number,
+    temperature: number = 0.7
+  ): Promise<string> {
     try {
       // Utiliser l'API Azure OpenAI si configurée
       if (this.apiKey && this.endpoint) {
@@ -74,7 +104,7 @@ export class OpenAIService {
           {
             messages,
             max_tokens: maxTokens,
-            temperature: 0.7,
+            temperature: temperature,
           },
           {
             headers: {
@@ -130,3 +160,6 @@ export class OpenAIService {
     return 'Ceci est une réponse fictive générée pour le développement. L\'API OpenAI n\'est pas configurée.';
   }
 }
+
+// Exporter une instance du service à utiliser dans toute l'application
+export const openAIService = new OpenAIService();
