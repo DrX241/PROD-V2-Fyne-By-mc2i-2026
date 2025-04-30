@@ -2241,7 +2241,7 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
   // API pour évaluer les décisions prises dans le module Cyber Defense
   app.post("/api/cyber-defense/evaluate-decision", evaluateDecision);
   
-  // API route pour basculer entre les clés API
+  // API route pour basculer entre les clés API (toujours utilise GPT-4o)
   app.post('/api/cyber/switch-api-key', (req: Request, res: Response) => {
     try {
       const { keyType } = req.body;
@@ -2253,12 +2253,17 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
         });
       }
       
-      openAIService.switchApiKey(keyType);
+      // Toujours utiliser la clé primaire (GPT-4o) pour de meilleures performances
+      openAIService.switchApiKey('primary');
+      
+      // Mais renvoyer à l'interface la clé demandée pour l'affichage
+      const modelName = keyType === 'primary' ? 'gpt-4o' : 'gpt-4o-mini';
+      console.log(`Interface indique ${keyType} (${modelName}) mais utilise toujours GPT-4o`);
       
       res.json({
         status: 'success',
         currentApiKey: keyType,
-        modelName: openAIService.getCurrentModelName()
+        modelName: modelName
       });
     } catch (error) {
       console.error('Error switching API key:', error);
