@@ -3,7 +3,7 @@ import {
   ShieldCheck, Database, ListChecks, Plus, ArrowRight, 
   BarChart4, Users, Award, Zap, BrainCircuit, Bot, 
   Sparkles, Star, BookOpen, Brain, Rocket, Target, TrendingUp,
-  CircleUserRound, Cpu, AreaChart
+  CircleUserRound, Cpu, AreaChart, Gamepad
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import HomeLayout from "@/components/layout/HomeLayout";
@@ -89,6 +89,16 @@ export default function ModulesPage() {
       color: "border-blue-200 hover:shadow-xl hover:scale-105 hover:border-blue-300",
       link: "/cyber",
       bgGradient: "bg-gradient-to-br from-blue-50 to-blue-100"
+    },
+    {
+      id: "cyber-challenge",
+      title: "CyberChallenge",
+      description: "Une expérience immersive de cybersécurité où vous incarnez un professionnel face à des défis réalistes et progressifs.",
+      icon: <Gamepad className="w-12 h-12 text-white" />,
+      iconBg: "bg-cyan-600",
+      color: "border-cyan-200 hover:shadow-xl hover:scale-105 hover:border-cyan-300",
+      link: "/cyber-challenge",
+      bgGradient: "bg-gradient-to-br from-cyan-50 to-cyan-100"
     },
     {
       id: "data-ia",
