@@ -206,31 +206,38 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
       {/* Zone de saisie */}
       <div className="py-3 sm:py-4 px-2 sm:px-4 bg-gradient-to-r from-blue-900/90 to-indigo-900/90 backdrop-blur-lg border-t border-blue-700/30 sticky bottom-0 shadow-lg">
         <div className="max-w-5xl mx-auto px-2 sm:px-6">
-          <form className="flex items-start gap-2 sm:gap-3" onSubmit={handleSubmit}>
-            <div className="relative flex-1 group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
-              <textarea 
-                ref={textareaRef}
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyDown={handleKeyDown}
-                rows={1}
-                className="relative w-full py-2.5 sm:py-3.5 px-3 sm:px-4 pr-10 sm:pr-12 rounded-lg bg-white border border-blue-700/50 outline-none text-black focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all placeholder:text-gray-500/80 text-sm sm:text-base resize-none overflow-auto"
-                placeholder="Tapez votre réponse... (Shift+Entrée pour aller à la ligne)"
-                style={{ minHeight: "2.5rem", maxHeight: "8rem" }}
-              />
-              <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
-                <span className="text-xs text-blue-400/60 hidden sm:inline">Shift+Entrée = nouvelle ligne</span>
-              </div>
+          {/* Désactiver la saisie si l'utilisateur est toujours en train de configurer ou si aucun rôle n'est sélectionné */}
+          {!userRole || !userName || messages.some(msg => msg.type === 'domain-selection' || msg.type === 'scenario-selection' || msg.type === 'role-selection') ? (
+            <div className="bg-blue-800/50 rounded-lg p-3 text-center text-white text-sm border border-blue-700/40">
+              <p>Veuillez d'abord compléter toutes les étapes de configuration...</p>
             </div>
-            <button 
-              type="submit" 
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white p-3 sm:p-4 rounded-full flex items-center justify-center transition-all duration-300 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg disabled:shadow-none disabled:bg-blue-900/50 group"
-              disabled={!inputMessage.trim()}
-            >
-              <Send className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            </button>
-          </form>
+          ) : (
+            <form className="flex items-start gap-2 sm:gap-3" onSubmit={handleSubmit}>
+              <div className="relative flex-1 group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                <textarea 
+                  ref={textareaRef}
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  rows={1}
+                  className="relative w-full py-2.5 sm:py-3.5 px-3 sm:px-4 pr-10 sm:pr-12 rounded-lg bg-white border border-blue-700/50 outline-none text-black focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all placeholder:text-gray-500/80 text-sm sm:text-base resize-none overflow-auto"
+                  placeholder="Tapez votre réponse... (Shift+Entrée pour aller à la ligne)"
+                  style={{ minHeight: "2.5rem", maxHeight: "8rem" }}
+                />
+                <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
+                  <span className="text-xs text-blue-400/60 hidden sm:inline">Shift+Entrée = nouvelle ligne</span>
+                </div>
+              </div>
+              <button 
+                type="submit" 
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white p-3 sm:p-4 rounded-full flex items-center justify-center transition-all duration-300 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg disabled:shadow-none disabled:bg-blue-900/50 group"
+                disabled={!inputMessage.trim()}
+              >
+                <Send className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </div>
