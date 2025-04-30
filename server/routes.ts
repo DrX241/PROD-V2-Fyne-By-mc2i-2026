@@ -652,22 +652,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Définir une personnalité pour l'interlocuteur principal en fonction de son rôle
-      const getPersonalityTrait = (role: string, name: string) => {
-        if (role.toLowerCase().includes("président") || role.toLowerCase().includes("directeur général")) {
-          return "pragmatique, orienté résultats, s'intéresse à l'impact business";
-        } else if (role.toLowerCase().includes("marketing") || role.toLowerCase().includes("communication")) {
-          return "dynamique, soucieux de l'image de l'entreprise, s'intéresse à la communication de crise";
-        } else if (role.toLowerCase().includes("rh") || role.toLowerCase().includes("ressources humaines")) {
-          return "attentif au facteur humain, préoccupé par l'impact sur les collaborateurs";
-        } else if (role.toLowerCase().includes("financier")) {
-          return "analytique, préoccupé par les coûts et les risques financiers";
-        } else if (role.toLowerCase().includes("technique") || role.toLowerCase().includes("cto") || role.toLowerCase().includes("informatique")) {
-          return "technique, précis, s'intéresse aux détails d'implémentation";
-        } else if (name === "Eddy MISSONI IDEMBI") {
-          return "créatif, innovant, passionné par les solutions technologiques";
-        } else {
-          return "professionnel, direct, cherchant une expertise pointue";
+      const getPersonalityTrait = (role: string, name: string, stage: number = 0) => {
+        // Base de personnalité qui varie selon le rôle professionnel
+        let basePersonality = "";
+        
+        // Personnalités de base par rôle
+        if (role.toLowerCase().includes("président") || role.toLowerCase().includes("directeur général") || role.toLowerCase().includes("dg")) {
+          basePersonality = stage <= 1 
+            ? "pragmatique, orienté résultats, s'intéresse à l'impact business et à l'image de l'entreprise" 
+            : "autoritaire, impatient, focalisé sur les conséquences pour la réputation et les finances, interrompt souvent avec des questions directes sur les délais et les impacts business. Peut contredire les experts techniques s'ils sont trop lents à agir.";
+        } 
+        else if (role.toLowerCase().includes("marketing") || role.toLowerCase().includes("communication")) {
+          basePersonality = stage <= 1
+            ? "dynamique, soucieux de l'image de l'entreprise, s'intéresse à la communication de crise"
+            : "anxieux concernant l'image de l'entreprise, insiste constamment pour communiquer rapidement vers l'extérieur même sans toutes les informations, en conflit avec les recommandations techniques qui demandent plus de temps.";
+        } 
+        else if (role.toLowerCase().includes("rh") || role.toLowerCase().includes("ressources humaines")) {
+          basePersonality = stage <= 1
+            ? "attentif au facteur humain, préoccupé par l'impact sur les collaborateurs"
+            : "inquiet des conséquences internes, s'oppose aux mesures techniques trop strictes qui impactent les employés, rappelle constamment les aspects légaux et sociaux en conflit avec l'urgence technique.";
+        } 
+        else if (role.toLowerCase().includes("financier") || role.toLowerCase().includes("cfo") || role.toLowerCase().includes("daf")) {
+          basePersonality = stage <= 1
+            ? "analytique, préoccupé par les coûts et les risques financiers"
+            : "extrêmement réticent à approuver des dépenses d'urgence, exige systématiquement des justifications chiffrées avant toute action coûteuse, s'oppose aux solutions onéreuses même si elles sont techniquement optimales. En situation de crise, il peut bloquer des décisions urgentes pour des raisons budgétaires.";
+        } 
+        else if (role.toLowerCase().includes("technique") || role.toLowerCase().includes("cto") || role.toLowerCase().includes("informatique") || role.toLowerCase().includes("dsi")) {
+          basePersonality = stage <= 1
+            ? "technique, précis, s'intéresse aux détails d'implémentation"
+            : "très technique dans son langage, frustré par l'incompréhension des autres dirigeants, insiste pour des solutions parfaites techniquement même si elles prennent plus de temps ou coûtent plus cher. Peut s'opposer directement au DG et au CFO s'ils privilégient des solutions rapides mais imparfaites.";
+        } 
+        else if (role.toLowerCase().includes("juridique") || role.toLowerCase().includes("légal") || role.toLowerCase().includes("conformité")) {
+          basePersonality = stage <= 1
+            ? "prudent, méthodique, attentif aux aspects réglementaires et contractuels"
+            : "extrêmement prudent, refuse catégoriquement certaines actions même urgentes pour des raisons légales, exige des validations écrites et des procédures complètes même en situation critique, en conflit direct avec les besoins d'action rapide.";
         }
+        else if (role.toLowerCase().includes("sécurité") || role.toLowerCase().includes("rssi")) {
+          basePersonality = stage <= 1
+            ? "vigilant, méthodique, focalise sur les procédures de sécurité et l'analyse des menaces"
+            : "très technique et alarmiste, insiste sur des mesures de sécurité maximales qui peuvent paralyser l'entreprise, en désaccord avec les compromis business, utilise un jargon technique parfois incompréhensible pour les autres.";
+        }
+        else if (role.toLowerCase().includes("opérations") || role.toLowerCase().includes("production")) {
+          basePersonality = stage <= 1
+            ? "pragmatique, orienté continuité de service, préoccupé par l'impact opérationnel"
+            : "obsédé par le maintien de l'activité à tout prix, peut s'opposer aux mesures de sécurité qui ralentissent la production, impatient face aux analyses techniques détaillées, pousse pour des solutions de contournement rapides.";
+        }  
+        else if (name === "Eddy MISSONI IDEMBI") {
+          basePersonality = "créatif, innovant, passionné par les solutions technologiques, mais peut devenir impatient face à des approches trop conventionnelles";
+        } 
+        else {
+          basePersonality = stage <= 1
+            ? "professionnel, direct, cherchant une expertise pointue"
+            : "stressé par la situation, communique de façon plus directe et parfois abrupte, peut remettre en question les décisions précédentes si la situation se dégrade.";
+        }
+        
+        // Ajout de traits de personnalité spécifiques au stade de crise
+        let stageModifier = "";
+        if (stage >= 3) {
+          stageModifier = "\n\nEn situation de crise extrême, cette personne devient tendue, interrompt fréquemment les autres, peut couper la parole, utilise des phrases courtes et directes, et exprime ouvertement son désaccord avec les autres membres de l'équipe. Les messages doivent inclure ces interactions conflictuelles et ces interruptions.";
+        } else if (stage >= 2) {
+          stageModifier = "\n\nSous pression, cette personne devient plus directive, moins patiente, et exprime plus clairement ses désaccords et ses priorités contradictoires avec celles des autres personnes impliquées.";
+        }
+        
+        return basePersonality + stageModifier;
       };
       
       // Définir le niveau d'urgence du problème en fonction du domaine, de la difficulté et de l'étape actuelle
@@ -689,28 +736,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Calculer l'urgence finale (entre 0 et 1)
         const urgencyScore = Math.min(baseUrgency + stageMultiplier, 1);
         
-        // Transformer en texte
-        if (urgencyScore >= 0.75) {
-          return "élevé, nécessitant une réponse rapide";
+        // Transformer en texte avec plus de variété selon le niveau d'urgence exact
+        if (urgencyScore >= 0.9) {
+          return "critique, exigeant une intervention immédiate en cellule de crise, avec des impacts déjà visibles et significatifs pour l'organisation";
+        } else if (urgencyScore >= 0.75) {
+          return "très élevé, nécessitant une réponse coordonnée dans les heures qui suivent, avec mobilisation des équipes clés et priorisation maximale";
+        } else if (urgencyScore >= 0.6) {
+          return "élevé, nécessitant une réponse rapide sous 24h, avec des impacts potentiels importants à court terme si rien n'est fait";
         } else if (urgencyScore >= 0.5) {
-          return "modéré, avec un certain sentiment d'urgence";
+          return "modéré à élevé, avec un certain sentiment d'urgence qui requiert une action dans les prochains jours";
+        } else if (urgencyScore >= 0.35) {
+          return "modéré, avec un délai raisonnable mais limité pour analyser et répondre à la situation";
         } else if (urgencyScore >= 0.25) {
-          return "modéré, avec un délai raisonnable pour répondre";
+          return "standard, permettant une approche méthodique sans pression excessive, tout en restant vigilant";
         } else {
-          return "normal, permettant une réflexion approfondie";
+          return "normal, permettant une réflexion approfondie et une évaluation complète avant toute action";
         }
       };
       
       // Définir la situation du scénario en fonction de l'étape actuelle
-      const getScenarioSituation = (domain: string, stage: number = 0) => {
+      const getScenarioSituation = (stage: number = 0) => {
         if (stage === 0) {
-          return "initiale, où un problème vient d'être détecté et nécessite une première analyse";
+          return "initiale de détection, où un problème potentiel vient d'être identifié et nécessite une première analyse pour comprendre sa nature, son étendue et sa gravité. Cette phase est caractérisée par la collecte d'informations, l'analyse des signaux d'alerte et l'évaluation préliminaire des risques";
         } else if (stage === 1) {
-          return "en développement, où le problème commence à révéler sa complexité et ses implications";
+          return "de réponse immédiate, où le problème est confirmé et commence à révéler sa complexité. Dans cette étape, des impacts initiaux sont visibles, les premières mesures de confinement sont mises en place, et une analyse plus approfondie est nécessaire pour déterminer les prochaines actions";
         } else if (stage === 2) {
-          return "critique, où des décisions importantes doivent être prises rapidement avec des enjeux significatifs";
+          return "critique de gestion active de crise, où des décisions importantes doivent être prises rapidement avec des enjeux significatifs. La situation impacte déjà plusieurs départements ou systèmes, des équipes dédiées sont mobilisées, et des tensions commencent à apparaître entre les différentes priorités (sécurité vs continuité business)";
         } else {
-          return "d'escalade, où la situation devient de plus en plus complexe avec des pressions internes et externes";
+          return "d'escalade et de gestion stratégique, où la situation atteint son point culminant avec un impact maximum et des pressions multiples. Une cellule de crise complète est activée, les dirigeants sont directement impliqués, des arbitrages complexes doivent être faits entre les intérêts contradictoires, et la communication interne/externe devient critique";
         }
       };
       
@@ -779,10 +832,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           CONTEXTE PROFESSIONNEL:
           - L'email provient de ${contactPrincipal.name} (${contactPrincipal.role}) chez ${companyName} (secteur ${secteurActivite})
-          - Ce contact est ${getPersonalityTrait(contactPrincipal.role, contactPrincipal.name)}
+          - Ce contact est ${getPersonalityTrait(contactPrincipal.role, contactPrincipal.name, currentStage || 0)}
           - L'email est adressé à ${userName} qui a le rôle de ${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"}
           - Le niveau d'urgence est ${getUrgencyLevel(scenario.domain, scenario.difficulty, currentStage || 0)}
-          - On se trouve dans une phase ${getScenarioSituation(scenario.domain, currentStage || 0)}
+          - On se trouve dans une phase ${getScenarioSituation(currentStage || 0)}
           - On attend de ${userName}, en tant que ${userRole ? getUserRoleDescription(userRole) : "expert cyber"}, ${getRoleExpectation(getNormalizedRole(userRole || ""))}
           
           FORMAT DE L'EMAIL (TRÈS DÉTAILLÉ):
@@ -1845,7 +1898,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const contactPersonality = getPersonalityTrait(respondingContact.role, respondingContact.name, stage);
       
       // Définir la situation du scénario en fonction de l'étape actuelle
-      const scenarioSituation = getScenarioSituation(scenario?.domain || "", stage);
+      const scenarioSituation = getScenarioSituation(stage);
       
       // Définir le niveau d'urgence en fonction du domaine, de la difficulté et de l'étape
       const urgencyLevel = getUrgencyLevel(scenario?.domain || "", scenario?.difficulty || "moyen", stage);
