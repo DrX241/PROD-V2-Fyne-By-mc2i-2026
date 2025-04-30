@@ -18,6 +18,32 @@ import { generateDebriefing, getContextualDocumentation } from "./cyberLearningC
 // Import des fonctions d'urgence cyber supprimé
 
 /**
+ * Fonction utilitaire pour obtenir la description détaillée d'un rôle utilisateur
+ * Cette fonction est utilisée pour adapter les messages au rôle choisi par l'utilisateur
+ */
+function getUserRoleDescription(roleId: string): string {
+  switch (roleId) {
+    case 'rssi':
+      return "Responsable de la Sécurité des Systèmes d'Information (RSSI)";
+    
+    case 'hacker':
+      return "Hacker éthique, expert en tests d'intrusion et sécurité";
+    
+    case 'developpeur':
+      return "Développeur sensibilisé aux vulnérabilités logicielles";
+    
+    case 'admin':
+      return "Administrateur Système, gestionnaire de l'infrastructure sécurisée";
+    
+    case 'consultant':
+      return "Consultant en cybersécurité, spécialiste des audits de sécurité";
+    
+    default:
+      return "expert en cybersécurité";
+  }
+}
+
+/**
  * Génère un document HTML formaté pour la synthèse d'audition
  */
 function generateSynthesisHtml(
@@ -903,7 +929,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API route for chat messages
   app.post('/api/cyber/chat', async (req, res) => {
     try {
-      const { message, userName, scenarioId, config, chatHistory, scenarioContacts } = req.body;
+      const { message, userName, userRole, scenarioId, config, chatHistory, scenarioContacts } = req.body;
       
       if (!message || !userName) {
         return res.status(400).json({ message: 'Missing required parameters' });
@@ -1659,6 +1685,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Ajouter des métadonnées structurées pour aider l'IA à suivre le flux de conversation
       const contextMetadata = {
         userName: userName,
+        userRole: userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité",
         message: message,
         scenarioId: scenarioId,
         scenarioTitle: scenario.title,
@@ -1678,7 +1705,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Créer un message unique qui contient toutes les informations nécessaires
       messages.push({
         role: "user",
-        content: `Je suis ${userName} et voici mon message : "${message}"
+        content: `Je suis ${userName}, ${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"}, et voici mon message : "${message}"
 
 MÉTADONNÉES DE CONTEXTE:
 ${JSON.stringify(contextMetadata, null, 2)}
@@ -1689,8 +1716,9 @@ IMPORTANT:
 - SI c'est une réponse initiale (REPONSE_INITIALE), réponds directement à ce que l'utilisateur dit concernant le problème que tu as exposé. NE DEMANDE PAS à l'utilisateur de se présenter.
 - SI c'est une intervention système (INTERVENTION_SYSTEM), ta réponse DOIT commencer par: "Je me permets de faire une pause dans cette simulation pour résumer des concepts importants que vous abordez." Puis, en tant que système "I AM CYBER", présente un résumé éducatif de 2 notions importantes abordées dans la conversation. Pour chaque notion, explique: 1) son historique, 2) son impact business et 3) les bonnes pratiques associées. Après ce résumé, termine par "Je laisse maintenant [nom du contact] reprendre la conversation." puis continue avec la réponse normale de ce contact.
 - SI c'est une conversation standard (CONVERSATION_STANDARD), reste dans le contexte et réponds à la question en tant que le contact désigné.
+- IMPORTANT: Prends en compte que l'utilisateur est un ${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"} et adapte ta réponse à son rôle et à ses connaissances spécifiques.
 
-Adapte toujours ton style de communication à ton rôle (${respondingContact.role}) et au secteur d'activité (${secteurActivite}).`
+Adapte toujours ton style de communication à ton rôle (${respondingContact.role}) et au secteur d'activité (${secteurActivite}), tout en tenant compte du rôle de l'utilisateur (${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"}).`
       });
       
       const responseContent = await openAIService.getChatCompletionWithCache(
