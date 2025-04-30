@@ -727,9 +727,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         {
           role: "user",
-          content: `Générez un email IMMERSIF et CONCRET (maximum 200 mots) pour le scénario "${scenario.title}" dans le domaine "${scenario.domain}" avec les détails suivants:
+          content: `Générez un email IMMERSIF et CONCRET (maximum 250 mots) pour le scénario "${scenario.title}" dans le domaine "${scenario.domain}" avec les détails suivants:
           
-          CONTEXTE:
+          CONTEXTE PROFESSIONNEL:
           - L'email provient de ${contactPrincipal.name} (${contactPrincipal.role}) chez ${companyName} (secteur ${secteurActivite})
           - Ce contact est ${getPersonalityTrait(contactPrincipal.role, contactPrincipal.name)}
           - L'email est adressé à ${userName} qui a le rôle de ${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"}
@@ -737,41 +737,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
           - On se trouve dans une phase ${getScenarioSituation(scenario.domain, currentStage || 0)}
           - On attend de ${userName}, en tant que ${userRole ? getUserRoleDescription(userRole) : "expert cyber"}, ${getRoleExpectation(getNormalizedRole(userRole || ""))}
           
-          FORMAT DE L'EMAIL:
+          FORMAT DE L'EMAIL (TRÈS DÉTAILLÉ):
           - OBJET: Court et captivant, évoquant clairement la problématique cyber et le niveau d'urgence actuel
-          - INTRODUCTION: 
-            > Brève présentation personnelle de ${contactPrincipal.name} et de l'entreprise ${companyName}
-            > Le ton doit refléter la personnalité du contact et le niveau d'urgence
-          - SITUATION: Description VIVANTE et CONCRÈTE d'un problème de cybersécurité spécifique au domaine "${scenario.domain}"
-            > Inclure des détails tangibles (mais sans pièces jointes)
-            > Décrire l'impact potentiel sur l'entreprise
-            > Montrer que le problème est RÉEL, avec des conséquences BUSINESS
-            > Adapter la gravité en fonction du stade ${currentStage || 0} (plus le stade est élevé, plus la situation est alarmante)
-          - CONTEXTE ACTUEL:
-            > Faire référence à la phase actuelle ${getScenarioSituation(scenario.domain, currentStage || 0)}
-            > Si stade 0: mentionner qu'on en est aux premiers indices d'un problème potentiel
-            > Si stade 1-2: indiquer que certaines conséquences commencent à se manifester
-            > Si stade 3+: souligner que la situation s'aggrave avec des impacts concrets
-          - DEMANDE: Question explicite demandant l'avis et l'expertise de ${userName}
-            > Préciser les attentes en fonction du rôle de ${userRole ? getUserRoleDescription(userRole) : "expert"}
-            > Mentionner l'urgence adaptée à la situation
-            > Plus le stade est élevé, plus la demande doit être précise et orientée vers l'action
-          - STYLE: Utiliser le tutoiement ("tu")
-            > Ton professionnel mais chaleureux, adapté au niveau d'urgence
-            > La personnalité du contact doit transparaître clairement
-            > La pression ressentie doit être proportionnelle au stade
           
-          IMPORTANT:
-          - Ne pas mentionner de pièces jointes ou fichiers à consulter
-          - Rédiger uniquement l'email, pas de commentaires ou d'explications
-          - L'email doit être immersif et réaliste, plongeant directement dans une situation crédible`
+          - INTRODUCTION PERSONNALISÉE: 
+            > Présentation personnelle détaillée de ${contactPrincipal.name} et de l'entreprise ${companyName}
+            > Le ton doit refléter la personnalité du contact et le niveau d'urgence
+            > Préciser l'historique de la relation professionnelle (première collaboration ou contact existant)
+          
+          - SITUATION PRÉCISE: Description DÉTAILLÉE et CONCRÈTE d'un problème de cybersécurité spécifique au domaine "${scenario.domain}"
+            > Inclure des DÉTAILS TECHNIQUES précis et tangibles adaptés au rôle du joueur
+            > Décrire avec PRÉCISION l'impact business actuel et potentiel sur l'entreprise
+            > Expliquer clairement les ENJEUX SECTORIELS spécifiques (${secteurActivite})
+            > Présenter au moins 3 ÉLÉMENTS FACTUELS concrets (dates, incidents, anomalies)
+          
+          - CONTEXTE COMPLET:
+            > Expliquer la situation actuelle dans le contexte global de l'entreprise
+            > Décrire les actions déjà entreprises ou les tentatives réalisées
+            > Mentionner les contraintes spécifiques (réglementaires, business, techniques)
+            > Situer clairement les CONSÉQUENCES POSSIBLES si le problème n'est pas résolu
+          
+          - ATTENTES CLAIRES: Demande EXPLICITE et STRUCTURÉE à ${userName}
+            > Formuler AU MOINS 2 QUESTIONS PRÉCISES liées aux responsabilités du rôle ${userRole ? getUserRoleDescription(userRole) : "expert"}
+            > Expliquer clairement CE QUE VOUS ATTENDEZ concrètement (diagnostic, solution, accompagnement)
+            > Préciser les CONTRAINTES DE TEMPS OU DE RESSOURCES existantes
+            > Mentionner les PROCHAINES ÉTAPES envisagées après cette première réponse
+          
+          - STYLE: Utiliser le tutoiement ("tu")
+            > Ton professionnel mais direct, adapté au niveau d'urgence
+            > La personnalité du contact doit transparaître clairement
+            > Équilibrer technicité et accessibilité selon le contexte
+          
+          EXIGENCES ADDITIONNELLES:
+          - L'email doit être EXTRÊMEMENT IMMERSIF, comme si le problème était réel
+          - Tous les détails doivent être COHÉRENTS avec le domaine et le secteur d'activité
+          - Les enjeux doivent être ALIGNÉS avec les responsabilités du rôle de ${userName}
+          - L'urgence et la gravité doivent transparaître naturellement dans le ton
+          - Les attentes doivent être EXPLICITES et adaptées au niveau d'expertise attendu`
         }
       ];
       
       const emailContent = await openAIService.getChatCompletionWithCache(
         messages, 
         config?.temperature || 0.7, 
-        config?.maxTokens || 2000
+        config?.maxTokens || 3000 // Augmenté pour permettre des emails plus détaillés
       );
       
       // Parse email content to extract subject and body
@@ -1887,13 +1896,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      // Vérifier si c'est le moment d'intervenir avec le système I AM CYBER
-      // Après 3 échanges complets, l'historique contient: email + 3*(user+bot) + user = 8 messages
-      // Et le message actuel est le 9ème (pour un total de 9 messages dans l'historique après cette requête)
-      const isIamCyberIntervention = exchangeCount === 3;
+      // Nous supprimons l'intervention du système I AM CYBER
+      // L'application ne fera plus de pause pour expliquer des concepts
+      const isIamCyberIntervention = false;
       
       console.log(`DEBUG - Final exchange count: ${exchangeCount}`);
-      console.log(`DEBUG - Is I AM CYBER intervention: ${isIamCyberIntervention}`);
       
       // Ajouter des métadonnées structurées pour aider l'IA à suivre le flux de conversation
       const contextMetadata = {
@@ -1926,10 +1933,9 @@ ${JSON.stringify(contextMetadata, null, 2)}
 Utilise les métadonnées ci-dessus et le master prompt pour déterminer comment répondre selon le flux de conversation défini.
 
 IMPORTANT:
-- SI c'est une réponse initiale (REPONSE_INITIALE), réponds directement à ce que l'utilisateur dit concernant le problème que tu as exposé. NE DEMANDE PAS à l'utilisateur de se présenter.
-- SI c'est une intervention système (INTERVENTION_SYSTEM), ta réponse DOIT commencer par: "Je me permets de faire une pause dans cette simulation pour résumer des concepts importants que vous abordez." Puis, en tant que système "I AM CYBER", présente un résumé éducatif de 2 notions importantes abordées dans la conversation. Pour chaque notion, explique: 1) son historique, 2) son impact business et 3) les bonnes pratiques associées. Après ce résumé, termine par "Je laisse maintenant [nom du contact] reprendre la conversation." puis continue avec la réponse normale de ce contact.
-- SI c'est une conversation standard (CONVERSATION_STANDARD), reste dans le contexte et réponds à la question en tant que le contact désigné.
-- IMPORTANT: Prends en compte que l'utilisateur est un ${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"} et adapte ta réponse à son rôle et à ses connaissances spécifiques.
+- SI c'est une réponse initiale (REPONSE_INITIALE), réponds directement à ce que l'utilisateur dit concernant le problème que tu as exposé. EXPOSE CLAIREMENT le contexte, les enjeux et les attentes face au joueur. NE DEMANDE PAS à l'utilisateur de se présenter.
+- Pour toutes les réponses, reste dans le contexte et réponds à la question en tant que le contact désigné. ADAPTE SYSTÉMATIQUEMENT ta réponse aux choix précédents du joueur et aux conséquences logiques de ces choix.
+- IMPORTANT: Prends en compte que l'utilisateur est un ${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"} et adapte rigoureusement ta réponse à son rôle spécifique, à ses responsabilités habituelles et à ses connaissances techniques.
 
 Adapte toujours ton style de communication à ton rôle (${respondingContact.role}) et au secteur d'activité (${secteurActivite}), tout en tenant compte du rôle de l'utilisateur (${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"}).`
       });
