@@ -17,6 +17,11 @@ export default function ScenarioPhase({ onComplete }: ScenarioPhaseProps) {
   const [scenarioType, setScenarioType] = useState<string>(ScenarioType.RANSOMWARE);
   const [gameMode, setGameMode] = useState<GameMode>(GameMode.CLASSIC);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  
+  // Debug - afficher les modes disponibles dans la console
+  console.log("GameMode values:", Object.values(GameMode));
+  console.log("Current selected mode:", gameMode);
+  console.log("State gameMode:", state.gameMode);
 
   const handleConfigureScenario = async () => {
     setErrorMessage(null);
@@ -163,33 +168,100 @@ export default function ScenarioPhase({ onComplete }: ScenarioPhaseProps) {
             Choisissez le mode de jeu qui correspond à vos objectifs de simulation
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {Object.values(GameMode).map((mode) => (
-              <Card 
-                key={mode}
-                className={`cursor-pointer transition-all ${gameMode === mode ? 'border-primary' : ''}`}
-                onClick={() => setGameMode(mode)}
-              >
-                <CardHeader className="p-4">
-                  <div className="flex items-center space-x-2">
-                    <div className="text-primary">
-                      {gameModeIcons[mode]}
-                    </div>
-                    <CardTitle className="text-lg">
-                      {mode === GameMode.CLASSIC ? 'Défi Classique' : 
-                       mode === GameMode.TUNNEL ? 'Effet Tunnel' : 
-                       mode === GameMode.HACKATHON ? 'Hackathon' : 
-                       'Scénario PCA'}
-                    </CardTitle>
+          <div className="grid grid-cols-1 gap-4">
+            <div className="font-bold text-lg mb-2">Sélectionnez votre mode de jeu :</div>
+            
+            {/* Mode Classique */}
+            <Card 
+              className={`cursor-pointer transition-all bg-blue-50 dark:bg-blue-900/20 ${gameMode === GameMode.CLASSIC ? 'border-blue-500 border-2' : ''}`}
+              onClick={() => {
+                console.log("Setting mode to CLASSIC");
+                setGameMode(GameMode.CLASSIC);
+              }}
+            >
+              <CardHeader className="p-4">
+                <div className="flex items-center space-x-2">
+                  <div className="text-blue-500">
+                    <Shield className="h-6 w-6" />
                   </div>
-                </CardHeader>
-                <CardContent className="p-4 pt-0">
-                  <p className="text-sm text-muted-foreground">
-                    {gameModeDescriptions[mode]}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
+                  <CardTitle className="text-lg">Défi Classique</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                <p className="text-sm">
+                  {gameModeDescriptions[GameMode.CLASSIC]}
+                </p>
+              </CardContent>
+            </Card>
+            
+            {/* Mode Tunnel */}
+            <Card 
+              className={`cursor-pointer transition-all bg-purple-50 dark:bg-purple-900/20 ${gameMode === GameMode.TUNNEL ? 'border-purple-500 border-2' : ''}`}
+              onClick={() => {
+                console.log("Setting mode to TUNNEL");
+                setGameMode(GameMode.TUNNEL);
+              }}
+            >
+              <CardHeader className="p-4">
+                <div className="flex items-center space-x-2">
+                  <div className="text-purple-500">
+                    <Route className="h-6 w-6" />
+                  </div>
+                  <CardTitle className="text-lg">Effet Tunnel</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                <p className="text-sm">
+                  {gameModeDescriptions[GameMode.TUNNEL]}
+                </p>
+              </CardContent>
+            </Card>
+            
+            {/* Mode Hackathon */}
+            <Card 
+              className={`cursor-pointer transition-all bg-green-50 dark:bg-green-900/20 ${gameMode === GameMode.HACKATHON ? 'border-green-500 border-2' : ''}`}
+              onClick={() => {
+                console.log("Setting mode to HACKATHON");
+                setGameMode(GameMode.HACKATHON);
+              }}
+            >
+              <CardHeader className="p-4">
+                <div className="flex items-center space-x-2">
+                  <div className="text-green-500">
+                    <Zap className="h-6 w-6" />
+                  </div>
+                  <CardTitle className="text-lg">Hackathon</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                <p className="text-sm">
+                  {gameModeDescriptions[GameMode.HACKATHON]}
+                </p>
+              </CardContent>
+            </Card>
+            
+            {/* Mode PCA */}
+            <Card 
+              className={`cursor-pointer transition-all bg-orange-50 dark:bg-orange-900/20 ${gameMode === GameMode.PCA ? 'border-orange-500 border-2' : ''}`}
+              onClick={() => {
+                console.log("Setting mode to PCA");
+                setGameMode(GameMode.PCA);
+              }}
+            >
+              <CardHeader className="p-4">
+                <div className="flex items-center space-x-2">
+                  <div className="text-orange-500">
+                    <Timer className="h-6 w-6" />
+                  </div>
+                  <CardTitle className="text-lg">Scénario PCA</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                <p className="text-sm">
+                  {gameModeDescriptions[GameMode.PCA]}
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
       </Tabs>
