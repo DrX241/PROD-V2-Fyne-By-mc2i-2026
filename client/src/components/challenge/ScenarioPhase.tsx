@@ -77,7 +77,7 @@ export default function ScenarioPhase({ onComplete }: ScenarioPhaseProps) {
         </p>
       </div>
       
-      <Tabs defaultValue="scenario" className="w-full">
+      <Tabs defaultValue="mode" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="scenario">Type de scénario</TabsTrigger>
           <TabsTrigger value="difficulty">Niveau de difficulté</TabsTrigger>
@@ -225,7 +225,11 @@ export default function ScenarioPhase({ onComplete }: ScenarioPhaseProps) {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Mode de jeu:</span>
                 <span className="font-medium">
-                  {gameMode === GameMode.CLASSIC ? 'Défi Classique' : 
+                  {state.gameMode === GameMode.CLASSIC ? 'Défi Classique' : 
+                   state.gameMode === GameMode.TUNNEL ? 'Effet Tunnel' : 
+                   state.gameMode === GameMode.HACKATHON ? 'Hackathon' : 
+                   state.gameMode === GameMode.PCA ? 'Scénario PCA' :
+                   gameMode === GameMode.CLASSIC ? 'Défi Classique' : 
                    gameMode === GameMode.TUNNEL ? 'Effet Tunnel' : 
                    gameMode === GameMode.HACKATHON ? 'Hackathon' : 
                    'Scénario PCA'}

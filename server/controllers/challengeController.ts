@@ -612,7 +612,26 @@ export async function getGameState(req: Request, res: Response) {
       return res.status(404).json({ error: "Jeu non trouvé" });
     }
     
-    res.json({ game });
+    // Extraction explicite des propriétés du jeu pour que toutes soient correctement retournées
+    const gameResponse = {
+      gameId: game.id,
+      players: game.players,
+      currentPlayerIndex: game.currentPlayerIndex,
+      npcs: game.npcs,
+      scenarioData: game.scenario,
+      isGameOver: game.isGameOver,
+      startedAt: game.startedAt,
+      endedAt: game.endedAt,
+      gameMode: game.gameMode || 'classic' // S'assurer que gameMode est toujours défini
+    };
+    
+    // Retourne le jeu, les joueurs, les NPCs et les événements de façon explicite
+    res.json({ 
+      game: gameResponse,
+      players: game.players,
+      npcs: game.npcs,
+      events: game.gameEvents
+    });
   } catch (error) {
     console.error('Erreur lors de la récupération des détails du jeu:', error);
     res.status(500).json({ error: "Erreur lors de la récupération des détails du jeu", details: error.message });
