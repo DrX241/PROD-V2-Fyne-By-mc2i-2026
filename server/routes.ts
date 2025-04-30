@@ -44,6 +44,75 @@ function getUserRoleDescription(roleId: string): string {
 }
 
 /**
+ * Définir une personnalité pour l'interlocuteur principal en fonction de son rôle
+ */
+function getPersonalityTrait(role: string, name: string) {
+  if (role.toLowerCase().includes("président") || role.toLowerCase().includes("directeur général")) {
+    return "pragmatique, orienté résultats, s'intéresse à l'impact business";
+  } else if (role.toLowerCase().includes("marketing") || role.toLowerCase().includes("communication")) {
+    return "dynamique, soucieux de l'image de l'entreprise, s'intéresse à la communication de crise";
+  } else if (role.toLowerCase().includes("rh") || role.toLowerCase().includes("ressources humaines")) {
+    return "attentif au facteur humain, préoccupé par l'impact sur les collaborateurs";
+  } else if (role.toLowerCase().includes("financier")) {
+    return "analytique, préoccupé par les coûts et les risques financiers";
+  } else if (role.toLowerCase().includes("technique") || role.toLowerCase().includes("cto") || role.toLowerCase().includes("informatique")) {
+    return "technique, précis, s'intéresse aux détails d'implémentation";
+  } else if (name === "Eddy MISSONI IDEMBI") {
+    return "créatif, innovant, passionné par les solutions technologiques";
+  } else {
+    return "professionnel, direct, cherchant une expertise pointue";
+  }
+}
+
+/**
+ * Définir le niveau d'urgence du problème en fonction du domaine, de la difficulté et de l'étape actuelle
+ */
+function getUrgencyLevel(domain: string, difficulty: string, stage: number = 0) {
+  // Plus l'étape avance, plus l'urgence augmente
+  const stageMultiplier = Math.min(stage, 3) * 0.25; // 0, 0.25, 0.5, 0.75
+  
+  let baseUrgency = 0;
+  if (domain.toLowerCase().includes("crise") || domain.toLowerCase().includes("incident")) {
+    baseUrgency = 0.75; // Déjà élevé
+  } else if (difficulty === "Expert") {
+    baseUrgency = 0.5;  // Modéré à élevé
+  } else if (difficulty === "Intermédiaire") {
+    baseUrgency = 0.25; // Normal à modéré
+  } else {
+    baseUrgency = 0;    // Normal
+  }
+  
+  // Calculer l'urgence totale et la limiter entre 0 et 1
+  const urgencyScore = Math.min(Math.max(baseUrgency + stageMultiplier, 0), 1);
+  
+  // Transformer en texte
+  if (urgencyScore >= 0.75) {
+    return "élevé, nécessitant une réponse rapide";
+  } else if (urgencyScore >= 0.5) {
+    return "modéré, avec un certain sentiment d'urgence";
+  } else if (urgencyScore >= 0.25) {
+    return "modéré, avec un délai raisonnable pour répondre";
+  } else {
+    return "normal, permettant une réflexion approfondie";
+  }
+}
+
+/**
+ * Définir la situation du scénario en fonction de l'étape actuelle
+ */
+function getScenarioSituation(stage: number = 0) {
+  if (stage === 0) {
+    return "initiale, où un problème vient d'être détecté et nécessite une première analyse";
+  } else if (stage === 1) {
+    return "en développement, où le problème commence à révéler sa complexité et ses implications";
+  } else if (stage === 2) {
+    return "critique, où des décisions importantes doivent être prises rapidement avec des enjeux significatifs";
+  } else {
+    return "d'escalade, où la situation devient de plus en plus complexe avec des pressions internes et externes";
+  }
+}
+
+/**
  * Génère un document HTML formaté pour la synthèse d'audition
  */
 function generateSynthesisHtml(
