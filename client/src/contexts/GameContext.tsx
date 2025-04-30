@@ -61,7 +61,8 @@ const initialGameState: GameState = {
   currentPlayerIndex: 0,
   isGameOver: false,
   startedAt: Date.now(),
-  endedAt: undefined
+  endedAt: undefined,
+  gameMode: GameMode.CLASSIC // Mode par défaut
 };
 
 // Create context
@@ -181,7 +182,8 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
           gameEvents: [],
           currentPlayerIndex: 0,
           isGameOver: false,
-          startedAt: new Date(game.startedAt).getTime()
+          startedAt: new Date(game.startedAt).getTime(),
+          gameMode: GameMode.CLASSIC // Mode par défaut
         };
         
         dispatch({ type: 'SET_GAME_STATE', payload: newGameState });
