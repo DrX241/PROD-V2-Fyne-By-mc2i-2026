@@ -499,6 +499,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Handler to select a domain
   const handleSelectDomain = async (domainId: string) => {
+    // Empêcher la sélection de plusieurs domaines
+    if (scenario.activeDomain !== null) return;
+    
     const selectedDomain = initialDomains.find(d => d.id === domainId);
     if (!selectedDomain) return;
     
@@ -571,6 +574,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Handler to select a scenario
   const handleSelectScenario = async (scenarioId: string) => {
+    // Empêcher la sélection de plusieurs scénarios
+    if (scenario.activeScenario !== null) return;
+    
     const selectedScenario = initialScenarios.find(s => s.id === scenarioId);
     if (!selectedScenario) return;
     

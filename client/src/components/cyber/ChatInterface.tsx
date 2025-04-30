@@ -20,7 +20,8 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
     userName,
     resetChat,
     setUserRole,
-    userRole
+    userRole,
+    scenario
   } = useChatContext();
   
   const [inputMessage, setInputMessage] = useState("");
@@ -110,9 +111,9 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
   const renderMessageContent = (message: any) => {
     switch (message.type) {
       case 'domain-selection':
-        return <DomainSelection />;
+        return scenario.activeDomain ? null : <DomainSelection />;
       case 'scenario-selection':
-        return <ScenarioSelection />;
+        return scenario.activeScenario ? null : <ScenarioSelection />;
       case 'role-selection':
         return userRole ? null : <RoleSelection onSelectRole={setUserRole} />;
       case 'email':
