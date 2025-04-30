@@ -15,9 +15,9 @@ import { generateAttachment, selectAppropriateAttachmentType, AttachmentType } f
 import { 
   createGame, 
   addPlayer, 
-  generateScenario,
-  processPlayerAction,
-  getGameDetails,
+  configureScenario,
+  submitPlayerAction,
+  getGameState,
   endGame 
 } from './controllers/challengeController';
 
@@ -408,16 +408,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/challenge/games/:gameId/players', addPlayer);
   
   // Générer un scénario pour un jeu
-  app.post('/api/challenge/games/:gameId/scenario', generateScenario);
+  app.post('/api/challenge/games/:gameId/scenario', configureScenario);
   
   // Traiter une action d'un joueur
-  app.post('/api/challenge/games/:gameId/actions', processPlayerAction);
+  app.post('/api/challenge/games/:gameId/actions', submitPlayerAction);
   
   // Récupérer les détails d'un jeu
-  app.get('/api/challenge/games/:gameId', getGameDetails);
+  app.get('/api/challenge/games/:gameId', getGameState);
   
   // Terminer un jeu
-  app.post('/api/challenge/games/:gameId/end', endGame);
+  app.post('/api/challenge/games/:gameId/end', (req, res) => {
+    const { gameId } = req.params;
+    const { reason } = req.body;
+    
+    endGame(gameId, reason)
+      .then(game => {
+        res.status(200).json({ success: true, game });
+      })
+      .catch(error => {
+        res.status(500).json({ error: "Erreur lors de la fin du jeu", details: error.message });
+      });
+  });
 
   // Route de test pour les pièces jointes
   app.get('/api/attachments/test', async (req, res) => {
@@ -3170,6 +3181,37 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
       });
     }
   });
+
+  // Routes pour CyberChallenge
+  app.post('/api/challenge/games', createGame);
+  app.post('/api/challenge/games/:gameId/players', addPlayer);
+  app.post('/api/challenge/games/:gameId/scenario', configureScenario);
+  
+  // Importer et utiliser directement le contrôleur
+  import('./controllers/challengeController')
+    .then(controller => {
+      app.post('/api/challenge/games/:gameId/start', controller.startGame);
+      app.post('/api/challenge/games/:gameId/actions', controller.submitPlayerAction);
+      app.get('/api/challenge/games/:gameId', controller.getGameState);
+      app.post('/api/challenge/games/:gameId/end', (req, res) => {
+        const { gameId } = req.params;
+        const { reason } = req.body;
+        
+        controller.endGame(gameId, reason)
+          .then(game => {
+            res.status(200).json({ success: true, game });
+          })
+          .catch(error => {
+            res.status(500).json({ 
+              error: "Erreur lors de la fin du jeu", 
+              details: error instanceof Error ? error.message : "Erreur inconnue" 
+            });
+          });
+      });
+    })
+    .catch(error => {
+      console.error("Erreur lors de l'importation du contrôleur de challenge:", error);
+    });
 
   // Fin des routes API
 

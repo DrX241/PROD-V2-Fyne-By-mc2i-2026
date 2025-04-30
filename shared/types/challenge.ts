@@ -1,90 +1,130 @@
-// Types pour l'application CyberChallenge
+// Définitions de types pour le module CyberChallenge
 
-// Rôles des joueurs
+// Énumérations
 export enum PlayerRole {
-  RSSI = "RSSI",
-  HACKER = "Hacker éthique",
-  DEVELOPER = "Développeur",
-  SYSADMIN = "Administrateur Système",
-  CONSULTANT = "Consultant en cybersécurité",
-  LEGAL = "Juriste cybersécurité"
+  RSSI = 'RSSI',
+  ETHICAL_HACKER = 'Ethical Hacker',
+  DEVELOPER = 'Developer',
+  CONSULTANT = 'Cybersecurity Consultant',
+  LEGAL_EXPERT = 'Legal Expert'
 }
 
-// Joueur
+export enum NpcRole {
+  CEO = 'CEO',
+  CTO = 'CTO',
+  CFO = 'CFO',
+  HR_DIRECTOR = 'HR Director',
+  SOC_ANALYST = 'SOC Analyst',
+  COMMS_DIRECTOR = 'Communications Director'
+}
+
+export enum EventType {
+  PLAYER_ACTION = 'PLAYER_ACTION',
+  NPC_RESPONSE = 'NPC_RESPONSE',
+  SYSTEM_EVENT = 'SYSTEM_EVENT',
+  DECISION_POINT = 'DECISION_POINT',
+  BUDGET_UPDATE = 'BUDGET_UPDATE',
+  EMAIL = 'EMAIL'
+}
+
+export enum ScenarioType {
+  RANSOMWARE = 'RANSOMWARE',
+  DATA_BREACH = 'DATA_BREACH',
+  PHISHING = 'PHISHING',
+  MALWARE = 'MALWARE',
+  INSIDER_THREAT = 'INSIDER_THREAT',
+  SUPPLY_CHAIN = 'SUPPLY_CHAIN'
+}
+
+export enum GameStatus {
+  CONFIGURING = 'configuring',
+  READY = 'ready',
+  IN_PROGRESS = 'in_progress',
+  COMPLETED = 'completed'
+}
+
+export enum UrgencyLevel {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+  CRITICAL = 'critical'
+}
+
+// Interfaces
 export interface Player {
   id: string;
   name: string;
   role: PlayerRole;
   score: number;
-  active: boolean; // Indique si c'est le tour du joueur
+  avatarUrl?: string;
+  isActive: boolean;
 }
 
-// Personnalités des PNJ (Personnages Non-Joueurs)
-export enum NPCAttitude {
-  SUPPORTIVE = "supportive",
-  NEUTRAL = "neutral",
-  OBSTRUCTIVE = "obstructive"
-}
-
-// PNJ (Personnage Non-Joueur)
 export interface NPC {
   id: string;
   name: string;
-  role: string;
+  role: NpcRole;
   personality: string;
-  attitude: NPCAttitude;
+  description: string;
+  attitude: 'positive' | 'neutral' | 'negative';
   avatarUrl?: string;
 }
 
-// Niveaux d'urgence
-export enum UrgencyLevel {
-  LOW = "low",
-  MEDIUM = "medium",
-  HIGH = "high",
-  CRITICAL = "critical"
+export interface TimelineItem {
+  time: string;
+  event: string;
 }
 
-// Scénarios de crise
-export interface Scenario {
+export interface Stakeholder {
+  name: string;
+  interest: string;
+}
+
+export interface Decision {
   id: string;
   title: string;
-  companyName: string;
+  description: string;
+  options: Array<{
+    id: string;
+    text: string;
+    cost?: number;
+    points?: number;
+  }>;
+}
+
+export interface Scenario {
+  title: string;
+  description: string;
+  type: ScenarioType;
+  difficultyLevel: string;
   initialBudget: number;
   remainingBudget: number;
-  simulatedDate: string;
-  urgencyLevel: UrgencyLevel;
-  description: string;
-  initialEmail: EmailMessage;
-  currentStage: number;
-  maxStages: number;
+  maxTurns: number;
+  timeLimit?: number;
+  objectives: string[];
+  assets: string[];
+  timeline?: TimelineItem[];
+  stakeholders?: Stakeholder[];
+  decisions?: Decision[];
+  summary?: string;
+  // Propriétés supplémentaires pour le fonctionnement du jeu
+  companyName?: string;
+  currentStage?: number;
+  maxStages?: number;
+  urgencyLevel?: string;
+  simulatedDate?: string;
 }
 
-// Types d'événements de jeu
-export enum EventType {
-  PLAYER_ACTION = "player_action",
-  NPC_RESPONSE = "npc_response",
-  SYSTEM_EVENT = "system_event",
-  EMAIL = "email",
-  BUDGET_UPDATE = "budget_update"
-}
-
-// Message email
-export interface EmailMessage {
+export interface ChatMessage {
   id: string;
-  sender: {
-    name: string;
-    email: string;
-    role?: string;
-  };
-  recipient: string;
-  subject: string;
+  senderId: string;
+  receiverId?: string;
   content: string;
   timestamp: number;
-  isUrgent: boolean;
+  isSystemMessage: boolean;
   attachments?: string[];
 }
 
-// Événement de jeu
 export interface GameEvent {
   id: string;
   timestamp: number;
@@ -101,7 +141,6 @@ export interface GameEvent {
   };
 }
 
-// État du jeu
 export interface GameState {
   id: string;
   players: Player[];
@@ -114,7 +153,6 @@ export interface GameState {
   endedAt?: number;
 }
 
-// Évaluation d'une action de joueur
 export interface ActionEvaluation {
   points: number;
   cost: number;
@@ -126,19 +164,27 @@ export interface ActionEvaluation {
   }[];
 }
 
-// Configuration d'un nouveau jeu
+// Types pour les requêtes d'API
 export interface NewGameConfig {
   playerCount: number;
 }
 
-// Paramètres d'un joueur
 export interface PlayerParams {
   name: string;
   role: PlayerRole;
 }
 
-// Options de génération de scénarios
-export interface ScenarioGenerationOptions {
-  difficultyLevel?: "easy" | "medium" | "hard";
-  scenarioType?: "ransomware" | "data_breach" | "phishing" | "malware" | "insider_threat" | "random";
+export interface ScenarioParams {
+  difficultyLevel: "easy" | "medium" | "hard";
+  scenarioType: "ransomware" | "data_breach" | "phishing" | "malware" | "insider_threat" | "supply_chain";
+}
+
+export interface ActionParams {
+  playerId: string;
+  action: string;
+  targetNpcId?: string;
+}
+
+export interface EndGameParams {
+  reason?: string;
 }
