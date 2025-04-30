@@ -164,25 +164,26 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
         const { gameId, game } = response.data;
         
         // Convert the API response to our GameState format
+        // À cette étape, scenarioData n'existe pas encore, on initialise avec des valeurs par défaut
         const newGameState: GameState = {
           id: gameId,
           players: [],
           scenario: {
-            title: game.scenarioData.title || 'Nouvelle crise',
-            description: game.scenarioData.description || 'Simulation de gestion de crise',
-            type: game.scenarioData.type || ScenarioType.RANSOMWARE,
-            difficultyLevel: game.scenarioData.difficultyLevel || 'medium',
-            initialBudget: game.scenarioData.initialBudget || 400000,
-            remainingBudget: game.scenarioData.remainingBudget || 400000,
-            maxTurns: game.scenarioData.maxTurns || 10,
-            objectives: game.scenarioData.objectives || [],
-            assets: game.scenarioData.assets || []
+            title: 'Nouvelle crise',
+            description: 'Simulation de gestion de crise',
+            type: ScenarioType.RANSOMWARE,
+            difficultyLevel: 'medium',
+            initialBudget: 400000,
+            remainingBudget: 400000,
+            maxTurns: 10,
+            objectives: [],
+            assets: []
           },
           npcs: [],
           gameEvents: [],
           currentPlayerIndex: 0,
           isGameOver: false,
-          startedAt: new Date(game.startedAt).getTime(),
+          startedAt: Date.now(),  // On utilise l'heure courante
           gameMode: GameMode.CLASSIC // Mode par défaut
         };
         
@@ -254,6 +255,8 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     
     setIsLoading(true);
     setError(null);
+    
+    console.log("Configuring scenario with mode:", gameMode);
     
     try {
       const response = await axios.post(`/api/challenge/games/${state.id}/scenario`, { 

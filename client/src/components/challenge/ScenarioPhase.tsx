@@ -18,10 +18,15 @@ export default function ScenarioPhase({ onComplete }: ScenarioPhaseProps) {
   const [gameMode, setGameMode] = useState<GameMode>(GameMode.CLASSIC);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
+  // Définir l'onglet par défaut sur "mode" pour mettre en évidence la sélection des modes de jeu
+  // L'onglet actif est maintenant contrôlé via la propriété defaultValue de Tabs
+  
   // Debug - afficher les modes disponibles dans la console
-  console.log("GameMode values:", Object.values(GameMode));
-  console.log("Current selected mode:", gameMode);
-  console.log("State gameMode:", state.gameMode);
+  useEffect(() => {
+    console.log("GameMode values:", Object.values(GameMode));
+    console.log("Current selected mode:", gameMode);
+    console.log("State gameMode:", state.gameMode || GameMode.CLASSIC);
+  }, [gameMode, state.gameMode]);
 
   const handleConfigureScenario = async () => {
     setErrorMessage(null);
