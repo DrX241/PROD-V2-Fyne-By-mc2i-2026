@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import OpenAI from 'openai';
 import { openAIService } from "./services/openai";
 import attachmentRoutes from './routes/attachmentRoutes';
+// Import du service de pièces jointes
 import { generateAttachment, selectAppropriateAttachmentType, AttachmentType } from './services/attachmentService';
 
 // Récupérer le chemin du répertoire actuel en module ES
@@ -380,12 +381,7 @@ function generateSynthesisHtml(
 </html>`;
 }
 
-// attachmentRoutes déjà importé en haut du fichier
-import { 
-  generateAttachment, 
-  selectAppropriateAttachmentType,
-  AttachmentType
-} from "./services/attachmentService";
+// Les fonctions pour les pièces jointes sont déjà importées en haut du fichier
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Servir les pièces jointes depuis le dossier public/attachments
@@ -1255,17 +1251,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let attachments = [];
       try {
         // Sélectionner un type d'attachement approprié pour le domaine et l'étape du scénario
-        const attachmentType = selectAppropriateAttachmentType(domain, 0); // Étape 0 pour le premier message
+        const attachmentType = selectAppropriateAttachmentType(scenario.domain, 0); // Étape 0 pour le premier message
         
         // Générer la pièce jointe avec un contexte approprié
         const attachment = await generateAttachment(
           uuidv4(), // ID unique pour ce scénario
-          title,
-          domain,
+          scenario.title,
+          scenario.domain,
           attachmentType,
-          `Scénario initial de cybersécurité "${title}" dans le domaine "${domain}". ${body.substring(0, 200)}...`, // Utiliser le début du corps de l'email comme contexte
+          `Scénario initial de cybersécurité "${scenario.title}" dans le domaine "${scenario.domain}". ${body.substring(0, 200)}...`, // Utiliser le début du corps de l'email comme contexte
           0, // étape initiale
-          role || 'expert' // rôle de l'utilisateur ou expert par défaut
+          userRole || 'expert' // rôle de l'utilisateur ou expert par défaut
         );
         
         attachments.push(attachment);
