@@ -556,6 +556,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
         concern: "Préoccupations liées aux enjeux cyber dans son domaine d'expertise"
       };
 
+      // Définir une personnalité pour l'interlocuteur principal en fonction de son rôle
+      const getPersonalityTrait = (role: string, name: string) => {
+        if (role.toLowerCase().includes("président") || role.toLowerCase().includes("directeur général")) {
+          return "pragmatique, orienté résultats, s'intéresse à l'impact business";
+        } else if (role.toLowerCase().includes("marketing") || role.toLowerCase().includes("communication")) {
+          return "dynamique, soucieux de l'image de l'entreprise, s'intéresse à la communication de crise";
+        } else if (role.toLowerCase().includes("rh") || role.toLowerCase().includes("ressources humaines")) {
+          return "attentif au facteur humain, préoccupé par l'impact sur les collaborateurs";
+        } else if (role.toLowerCase().includes("financier")) {
+          return "analytique, préoccupé par les coûts et les risques financiers";
+        } else if (role.toLowerCase().includes("technique") || role.toLowerCase().includes("cto") || role.toLowerCase().includes("informatique")) {
+          return "technique, précis, s'intéresse aux détails d'implémentation";
+        } else if (name === "Eddy MISSONI IDEMBI") {
+          return "créatif, innovant, passionné par les solutions technologiques";
+        } else {
+          return "professionnel, direct, cherchant une expertise pointue";
+        }
+      };
+
+      // Définir le niveau d'urgence du problème en fonction du domaine, de la difficulté et de l'étape actuelle
+      const getUrgencyLevel = (domain: string, difficulty: string, stage: number = 0) => {
+        // Plus l'étape avance, plus l'urgence augmente
+        const stageMultiplier = Math.min(stage, 3) * 0.25; // 0, 0.25, 0.5, 0.75
+        
+        let baseUrgency = 0;
+        if (domain.toLowerCase().includes("crise") || domain.toLowerCase().includes("incident")) {
+          baseUrgency = 0.75; // Déjà élevé
+        } else if (difficulty === "Expert") {
+          baseUrgency = 0.5;  // Modéré à élevé
+        } else if (difficulty === "Intermédiaire") {
+          baseUrgency = 0.25; // Normal à modéré
+        } else {
+          baseUrgency = 0;    // Normal
+        }
+        
+        // Calculer l'urgence finale (entre 0 et 1)
+        const urgencyScore = Math.min(baseUrgency + stageMultiplier, 1);
+        
+        // Transformer en texte
+        if (urgencyScore >= 0.75) {
+          return "élevé, nécessitant une réponse rapide";
+        } else if (urgencyScore >= 0.5) {
+          return "modéré, avec un certain sentiment d'urgence";
+        } else if (urgencyScore >= 0.25) {
+          return "modéré, avec un délai raisonnable pour répondre";
+        } else {
+          return "normal, permettant une réflexion approfondie";
+        }
+      };
+
+      // Définir la situation du scénario en fonction de l'étape actuelle
+      const getScenarioSituation = (domain: string, stage: number = 0) => {
+        if (stage === 0) {
+          return "initiale, où un problème vient d'être détecté et nécessite une première analyse";
+        } else if (stage === 1) {
+          return "en développement, où le problème commence à révéler sa complexité et ses implications";
+        } else if (stage === 2) {
+          return "critique, où des décisions importantes doivent être prises rapidement avec des enjeux significatifs";
+        } else {
+          return "d'escalade, où la situation devient de plus en plus complexe avec des pressions internes et externes";
+        }
+      };
+
+      // Définir une attente spécifique en fonction du rôle de l'utilisateur
+      const getRoleExpectation = (userRole: string) => {
+        switch (userRole) {
+          case 'rssi':
+            return "une vision globale intégrant les aspects techniques, organisationnels et stratégiques";
+          case 'hacker':
+            return "une analyse technique approfondie des vulnérabilités potentielles";
+          case 'developpeur':
+            return "une perspective sur la sécurité du code et les bonnes pratiques de développement";
+          case 'admin':
+            return "des insights sur la configuration sécurisée des systèmes et l'architecture technique";
+          case 'consultant':
+            return "une approche méthodologique et des recommandations basées sur les standards du marché";
+          default:
+            return "une expertise en cybersécurité";
+        }
+      };
+
       const messages: ChatCompletionRequestMessage[] = [
         {
           role: "system",
@@ -563,20 +644,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         {
           role: "user",
-          content: `Générez un email COURT et ACCUEILLANT (maximum 150 mots) pour le scénario "${scenario.title}" dans le domaine "${scenario.domain}" avec les détails suivants:
-          - L'email doit provenir de ${contactPrincipal.name} (${contactPrincipal.role})
-          - L'email doit être adressé à ${userName} qui a le rôle de ${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"} en utilisant le tutoiement ("tu") 
-          - Le secteur d'activité pour ce scénario est: ${secteurActivite}
-          - Le nom d'entreprise pour ce scénario est: ${companyName}
-          - L'email doit être un message d'accueil chaleureux où le PNJ se présente brièvement et présente l'entreprise ${companyName} succinctement
-          - IMPORTANT: Expose directement un problème ou une question de cybersécurité spécifique au domaine "${scenario.domain}" et demande explicitement l'avis de ${userName} sur cette question
-          - Le problème doit être concret, spécifique et adapté au secteur d'activité
-          - Demande à ${userName} d'expliquer son point de vue ou de proposer une approche pour résoudre ce problème en tenant compte de sa perspective de ${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"}
-          - IMPORTANT: NE PAS mentionner ou faire référence à des pièces jointes, documents ou fichiers
-          - Le ton doit être chaleureux, accueillant et professionnel, en utilisant le tutoiement
-          - Le style d'écriture doit correspondre au rôle de ${contactPrincipal.role}: professionnel et adapté
-          - Le PNJ doit s'adresser à ${userName} en tenant compte de son rôle de ${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"}
-          - Rédigez uniquement l'email, pas de commentaires ou d'explications`
+          content: `Générez un email IMMERSIF et CONCRET (maximum 200 mots) pour le scénario "${scenario.title}" dans le domaine "${scenario.domain}" avec les détails suivants:
+          
+          CONTEXTE:
+          - L'email provient de ${contactPrincipal.name} (${contactPrincipal.role}) chez ${companyName} (secteur ${secteurActivite})
+          - Ce contact est ${getPersonalityTrait(contactPrincipal.role, contactPrincipal.name)}
+          - L'email est adressé à ${userName} qui a le rôle de ${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"}
+          - Le niveau d'urgence est ${getUrgencyLevel(scenario.domain, scenario.difficulty, currentStage || 0)}
+          - On se trouve dans une phase ${getScenarioSituation(scenario.domain, currentStage || 0)}
+          - On attend de ${userName}, en tant que ${userRole ? getUserRoleDescription(userRole) : "expert cyber"}, ${getRoleExpectation(userRole || "")}
+          
+          FORMAT DE L'EMAIL:
+          - OBJET: Court et captivant, évoquant clairement la problématique cyber et le niveau d'urgence actuel
+          - INTRODUCTION: 
+            > Brève présentation personnelle de ${contactPrincipal.name} et de l'entreprise ${companyName}
+            > Le ton doit refléter la personnalité du contact et le niveau d'urgence
+          - SITUATION: Description VIVANTE et CONCRÈTE d'un problème de cybersécurité spécifique au domaine "${scenario.domain}"
+            > Inclure des détails tangibles (mais sans pièces jointes)
+            > Décrire l'impact potentiel sur l'entreprise
+            > Montrer que le problème est RÉEL, avec des conséquences BUSINESS
+            > Adapter la gravité en fonction du stade ${currentStage || 0} (plus le stade est élevé, plus la situation est alarmante)
+          - CONTEXTE ACTUEL:
+            > Faire référence à la phase actuelle ${getScenarioSituation(scenario.domain, currentStage || 0)}
+            > Si stade 0: mentionner qu'on en est aux premiers indices d'un problème potentiel
+            > Si stade 1-2: indiquer que certaines conséquences commencent à se manifester
+            > Si stade 3+: souligner que la situation s'aggrave avec des impacts concrets
+          - DEMANDE: Question explicite demandant l'avis et l'expertise de ${userName}
+            > Préciser les attentes en fonction du rôle de ${userRole ? getUserRoleDescription(userRole) : "expert"}
+            > Mentionner l'urgence adaptée à la situation
+            > Plus le stade est élevé, plus la demande doit être précise et orientée vers l'action
+          - STYLE: Utiliser le tutoiement ("tu")
+            > Ton professionnel mais chaleureux, adapté au niveau d'urgence
+            > La personnalité du contact doit transparaître clairement
+            > La pression ressentie doit être proportionnelle au stade
+          
+          IMPORTANT:
+          - Ne pas mentionner de pièces jointes ou fichiers à consulter
+          - Rédiger uniquement l'email, pas de commentaires ou d'explications
+          - L'email doit être immersif et réaliste, plongeant directement dans une situation crédible`
         }
       ];
       
@@ -929,7 +1034,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API route for chat messages
   app.post('/api/cyber/chat', async (req, res) => {
     try {
-      const { message, userName, userRole, scenarioId, config, chatHistory, scenarioContacts } = req.body;
+      const { message, userName, userRole, scenarioId, config, chatHistory, scenarioContacts, currentStage } = req.body;
       
       if (!message || !userName) {
         return res.status(400).json({ message: 'Missing required parameters' });
