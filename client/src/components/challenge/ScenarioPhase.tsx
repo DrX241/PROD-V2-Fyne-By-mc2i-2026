@@ -3,8 +3,8 @@ import { useGame } from '@/contexts/GameContext';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ScenarioType, UrgencyLevel } from '@shared/types/challenge';
-import { AlertCircle, Clock, Briefcase, Building, Shield, AlertTriangle } from 'lucide-react';
+import { ScenarioType, UrgencyLevel, GameMode } from '@shared/types/challenge';
+import { AlertCircle, Clock, Briefcase, Building, Shield, AlertTriangle, Zap, Route, Timer, Scroll } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ScenarioPhaseProps {
@@ -15,12 +15,13 @@ export default function ScenarioPhase({ onComplete }: ScenarioPhaseProps) {
   const { configureScenario, state, startGame, isLoading, error } = useGame();
   const [difficultyLevel, setDifficultyLevel] = useState('medium');
   const [scenarioType, setScenarioType] = useState<string>(ScenarioType.RANSOMWARE);
+  const [gameMode, setGameMode] = useState<GameMode>(GameMode.CLASSIC);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleConfigureScenario = async () => {
     setErrorMessage(null);
     try {
-      await configureScenario(difficultyLevel as 'easy' | 'medium' | 'hard', scenarioType as ScenarioType);
+      await configureScenario(difficultyLevel as 'easy' | 'medium' | 'hard', scenarioType as ScenarioType, gameMode);
       await startGame();
       onComplete();
     } catch (error) {
@@ -52,6 +53,20 @@ export default function ScenarioPhase({ onComplete }: ScenarioPhaseProps) {
     medium: 'Pour intermédiaires : incidents réalistes avec contraintes modérées',
     hard: 'Pour experts : incidents complexes avec fortes pressions et contraintes serrées'
   };
+  
+  const gameModeDescriptions = {
+    [GameMode.CLASSIC]: 'Défi classique avec une progression équilibrée et des décisions réversibles',
+    [GameMode.TUNNEL]: 'Effet Tunnel : décisions irréversibles avec des conséquences en cascade',
+    [GameMode.HACKATHON]: 'Hackathon : analyse de documents et recherche d\'indices',
+    [GameMode.PCA]: 'Scénario PCA : gestion du Plan de Continuité d\'Activité sous pression temporelle'
+  };
+  
+  const gameModeIcons = {
+    [GameMode.CLASSIC]: <Shield className="h-6 w-6" />,
+    [GameMode.TUNNEL]: <Route className="h-6 w-6" />,
+    [GameMode.HACKATHON]: <Zap className="h-6 w-6" />,
+    [GameMode.PCA]: <Timer className="h-6 w-6" />
+  };
 
   return (
     <div className="space-y-6">
@@ -63,9 +78,10 @@ export default function ScenarioPhase({ onComplete }: ScenarioPhaseProps) {
       </div>
       
       <Tabs defaultValue="scenario" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="scenario">Type de scénario</TabsTrigger>
           <TabsTrigger value="difficulty">Niveau de difficulté</TabsTrigger>
+          <TabsTrigger value="mode">Mode de jeu</TabsTrigger>
         </TabsList>
         
         <TabsContent value="scenario" className="space-y-4">
@@ -141,6 +157,41 @@ export default function ScenarioPhase({ onComplete }: ScenarioPhaseProps) {
             </Card>
           </div>
         </TabsContent>
+
+        <TabsContent value="mode" className="space-y-4">
+          <p className="text-sm text-muted-foreground mb-4">
+            Choisissez le mode de jeu qui correspond à vos objectifs de simulation
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {Object.values(GameMode).map((mode) => (
+              <Card 
+                key={mode}
+                className={`cursor-pointer transition-all ${gameMode === mode ? 'border-primary' : ''}`}
+                onClick={() => setGameMode(mode)}
+              >
+                <CardHeader className="p-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="text-primary">
+                      {gameModeIcons[mode]}
+                    </div>
+                    <CardTitle className="text-lg">
+                      {mode === GameMode.CLASSIC ? 'Défi Classique' : 
+                       mode === GameMode.TUNNEL ? 'Effet Tunnel' : 
+                       mode === GameMode.HACKATHON ? 'Hackathon' : 
+                       'Scénario PCA'}
+                    </CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                  <p className="text-sm text-muted-foreground">
+                    {gameModeDescriptions[mode]}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
       </Tabs>
       
       {state.scenario && state.scenario.title && (
@@ -170,6 +221,15 @@ export default function ScenarioPhase({ onComplete }: ScenarioPhaseProps) {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Urgence:</span>
                 <span className="font-medium">{state.scenario.urgencyLevel || UrgencyLevel.MEDIUM}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Mode de jeu:</span>
+                <span className="font-medium">
+                  {gameMode === GameMode.CLASSIC ? 'Défi Classique' : 
+                   gameMode === GameMode.TUNNEL ? 'Effet Tunnel' : 
+                   gameMode === GameMode.HACKATHON ? 'Hackathon' : 
+                   'Scénario PCA'}
+                </span>
               </div>
             </div>
           </CardContent>

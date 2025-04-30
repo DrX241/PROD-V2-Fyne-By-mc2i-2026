@@ -10,7 +10,8 @@ import {
   PlayerRole, 
   NpcRole,
   EventType,
-  ScenarioType
+  ScenarioType,
+  GameMode
 } from '@shared/types/challenge';
 
 // Action types
@@ -33,7 +34,7 @@ interface GameContextState {
   createGame: (playerCount: number) => Promise<void>;
   addPlayer: (name: string, role: PlayerRole) => Promise<void>;
   submitAction: (action: string, targetNpcId?: string) => Promise<void>;
-  configureScenario: (difficultyLevel: string, scenarioType: string) => Promise<void>;
+  configureScenario: (difficultyLevel: string, scenarioType: string, gameMode: GameMode) => Promise<void>;
   startGame: () => Promise<void>;
   endGame: (reason?: string) => Promise<void>;
   isLoading: boolean;
@@ -243,7 +244,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   };
   
   // Configure the scenario
-  const configureScenario = async (difficultyLevel: string, scenarioType: string) => {
+  const configureScenario = async (difficultyLevel: string, scenarioType: string, gameMode: GameMode) => {
     if (!state.id) {
       setError('Aucun jeu n\'a été créé');
       return;
@@ -255,7 +256,8 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await axios.post(`/api/challenge/games/${state.id}/scenario`, { 
         difficultyLevel, 
-        scenarioType 
+        scenarioType,
+        gameMode
       });
       
       if (response.data && response.data.success) {
