@@ -1839,6 +1839,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         "\n\nCONTEXTUALISATION CYBER: La problématique centrale du scénario est TOUJOURS un enjeu de cybersécurité contextualisé dans un environnement métier ou sectoriel spécifique. Garde cette problématique cyber au centre de tes réponses, tout en l'abordant selon ton angle d'expertise et le contexte sectoriel." +
         
+        `\n\nADAPTATION AU RÔLE DE L'UTILISATEUR: Tu communiques avec ${userName} qui a le rôle de ${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"}. Ajuste IMPÉRATIVEMENT ton discours pour parler à ce profil spécifique :
+- Si l'utilisateur est RSSI: Parle-lui des aspects gouvernance, conformité et stratégie globale. Évoque les politiques de sécurité et la gestion des risques.
+- Si l'utilisateur est Hacker Éthique: Utilise des termes techniques précis liés aux vulnérabilités, tests d'intrusion, et méthodologies d'attaque/défense.
+- Si l'utilisateur est Développeur: Concentre-toi sur les aspects code, sécurité applicative, DevSecOps et pratiques de développement sécurisé.
+- Si l'utilisateur est Administrateur Système: Discute infrastructure, durcissement des systèmes, gestion des identités et contrôles d'accès.
+- Si l'utilisateur est Consultant: Aborde les méthodologies d'évaluation, les standards du secteur et les benchmarks entre organisations.
+
+Formule tes explications et tes demandes en fonction de ce que ce type de professionnel peut concrètement faire dans son rôle quotidien.` +
+        
         "\n\nRÈGLE DU JEU DE RÔLE AVANCÉ: Tu dois absolument adapter ton style de communication, ton vocabulaire et tes préoccupations à ton profil et au secteur. Un expert cybersécurité dans le secteur bancaire ne parle pas comme un directeur financier dans le secteur industriel. Modifie complètement ton approche en fonction de ton rôle, du contexte sectoriel et de tes préoccupations principales." +
         
         "\n\nÉVALUATION DES RÉPONSES: Guide l'utilisateur avec bienveillance. Valorise ses réponses et complète-les si nécessaire. Même si la réponse est imparfaite, trouve-y des éléments positifs pour encourager l'apprentissage. Si besoin, suggère des améliorations de façon constructive et pédagogique." +
@@ -2001,11 +2010,25 @@ Sur la base de cet échange, crée une fiche d'évaluation structurée avec les 
 Format: Utilise des titres clairs et une présentation structurée qui facilite la lecture. Le texte doit être concis, instructif et directement applicable, avec des références spécifiques au secteur ${secteurActivite}.
 `;
 
-          // Obtenir l'évaluation via l'API OpenAI
+          // Obtenir l'évaluation via l'API OpenAI, adaptée au rôle du joueur
           const evaluationMessages: ChatCompletionRequestMessage[] = [
             {
               role: "system",
-              content: "Tu es un expert en cybersécurité chargé d'évaluer la performance des apprenants dans des scénarios de simulation. Tu dois fournir des évaluations objectives, précises et constructives."
+              content: `Tu es un expert en cybersécurité chargé d'évaluer la performance des apprenants dans des scénarios de simulation. 
+Tu dois fournir des évaluations objectives, précises et constructives.
+
+IMPORTANT - ADAPTATION AU RÔLE: L'apprenant a joué avec le rôle de ${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"}. 
+Tu dois IMPÉRATIVEMENT adapter ton évaluation pour tenir compte de ce rôle spécifique:
+
+- Si l'apprenant était RSSI: Évalue sa capacité à comprendre les enjeux stratégiques, à prendre des décisions de gouvernance et à communiquer avec les parties prenantes. Les compétences attendues concernent la gestion des risques, la conformité et la vision globale.
+
+- Si l'apprenant était Hacker Éthique: Évalue sa capacité à identifier les vulnérabilités techniques, à comprendre les vecteurs d'attaque et à proposer des contre-mesures spécifiques. Les compétences attendues sont liées à l'analyse technique des failles.
+
+- Si l'apprenant était Développeur: Évalue sa capacité à comprendre les enjeux de sécurité du code, à identifier les risques dans le développement d'applications et à proposer des pratiques de codage sécurisées. Les compétences attendues concernent le DevSecOps et la sécurité logicielle.
+
+- Si l'apprenant était Administrateur Système: Évalue sa capacité à identifier les risques d'infrastructure, à proposer des mesures de durcissement et à gérer les contrôles d'accès. Les compétences attendues concernent la sécurité opérationnelle des systèmes.
+
+- Si l'apprenant était Consultant: Évalue sa capacité à diagnostiquer les problèmes, à communiquer clairement et à proposer des solutions adaptées au contexte. Les compétences attendues concernent l'analyse, la pédagogie et la capacité à formuler des recommandations.`
             },
             {
               role: "user",
