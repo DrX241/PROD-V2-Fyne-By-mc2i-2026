@@ -9,6 +9,13 @@ export enum PlayerRole {
   LEGAL_EXPERT = 'Legal Expert'
 }
 
+export enum GameMode {
+  CLASSIC = 'classic',          // Défi Classique
+  TUNNEL = 'tunnel',            // Effet Tunnel
+  HACKATHON = 'hackathon',      // Hackathon
+  PCA = 'pca'                   // Scénario PCA
+}
+
 export enum NpcRole {
   CEO = 'CEO',
   CTO = 'CTO',
@@ -151,6 +158,12 @@ export interface GameState {
   isGameOver: boolean;
   startedAt: number;
   endedAt?: number;
+  gameMode?: GameMode;
+  interactions?: {
+    npcId: string;
+    attitude: 'positive' | 'neutral' | 'negative';
+    lastInteractionTimestamp: number;
+  }[];
 }
 
 export interface ActionEvaluation {
@@ -177,6 +190,7 @@ export interface PlayerParams {
 export interface ScenarioParams {
   difficultyLevel: "easy" | "medium" | "hard";
   scenarioType: "ransomware" | "data_breach" | "phishing" | "malware" | "insider_threat" | "supply_chain";
+  gameMode: GameMode;
 }
 
 export interface ActionParams {

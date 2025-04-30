@@ -156,7 +156,7 @@ export async function addPlayer(req: Request, res: Response) {
 export async function configureScenario(req: Request, res: Response) {
   try {
     const { gameId } = req.params;
-    const { difficultyLevel, scenarioType } = req.body;
+    const { difficultyLevel, scenarioType, gameMode } = req.body;
     
     const game = games.find(g => g.id === gameId);
     
@@ -164,11 +164,33 @@ export async function configureScenario(req: Request, res: Response) {
       return res.status(404).json({ error: "Jeu non trouvé" });
     }
     
+    // Enregistrer le mode de jeu
+    game.gameMode = gameMode;
+    
     // Générer un scénario avec GPT-4o
     try {
+      // Adapter le prompt en fonction du mode de jeu
+      let promptAdditional = "";
+      
+      switch(gameMode) {
+        case "classic":
+          promptAdditional = "Ce scénario est un défi classique avec une progression de difficulté adaptée au rôle du joueur.";
+          break;
+        case "tunnel":
+          promptAdditional = "Ce scénario est un 'Effet Tunnel' où chaque décision est irréversible et mène à des conséquences en cascade.";
+          break;
+        case "hackathon":
+          promptAdditional = "Ce scénario est un Hackathon où le joueur doit analyser des documents, emails et supports multimédias pour découvrir des indices.";
+          break;
+        case "pca":
+          promptAdditional = "Ce scénario est une simulation de Plan de Continuité d'Activité (PCA) avec gestion d'une crise cyber sous pression temporelle.";
+          break;
+      }
+      
       const prompt = `Génère un scénario de crise cybersécurité réaliste avec les caractéristiques suivantes :
       - Type d'incident : ${scenarioType}
       - Niveau de difficulté : ${difficultyLevel}
+      - Mode de jeu : ${gameMode} - ${promptAdditional}
       - Entreprise fictive : TechSecure, une entreprise technologique de taille moyenne
       
       Le scénario doit inclure:
@@ -392,6 +414,41 @@ export async function submitPlayerAction(req: Request, res: Response) {
     game.gameEvents.push(playerActionEvent);
     
     try {
+      // Adapter l'évaluation en fonction du mode de jeu
+      let gameModeContext = "";
+      
+      switch(game.gameMode) {
+        case "classic":
+          gameModeContext = "Mode Défi Classique: L'évaluation est équilibrée entre qualité technique et impact des décisions.";
+          break;
+        case "tunnel":
+          gameModeContext = "Mode Effet Tunnel: Cette décision est irréversible et aura des conséquences permanentes sur la suite du scénario. Ne propose pas d'alternatives ou de retour en arrière.";
+          break;
+        case "hackathon":
+          gameModeContext = "Mode Hackathon: L'analyse de documents et la recherche d'indices sont essentielles. Les actions de recherche et d'analyse devraient être valorisées.";
+          break;
+        case "pca":
+          gameModeContext = "Mode Scénario PCA: La gestion du temps et la priorisation des actifs critiques sont essentielles. L'évaluation prend en compte la rapidité de réaction et la pertinence de la décision dans le cadre du PCA.";
+          break;
+        default:
+          gameModeContext = "Mode standard: Évaluation équilibrée des décisions techniques et stratégiques.";
+      }
+      
+      // Reconstituer l'historique des interactions pour contextualiser la réponse
+      const lastEvents = game.gameEvents
+        .filter(event => event.type === EventType.PLAYER_ACTION || event.type === EventType.NPC_RESPONSE)
+        .slice(-5)  // Prendre les 5 dernières interactions
+        .map(event => {
+          if (event.type === EventType.PLAYER_ACTION) {
+            const player = game.players.find(p => p.id === event.playerId);
+            return `${player?.name} (${player?.role}): ${event.content}`;
+          } else {
+            const npc = game.npcs.find(n => n.id === event.npcId);
+            return `${npc?.name} (${npc?.role}): ${event.content}`;
+          }
+        })
+        .join("\n");
+      
       // Utiliser l'API OpenAI pour évaluer l'action et générer une réponse
       const prompt = `Contexte : Simulation de crise cybersécurité
       - Type d'incident : ${game.scenario.type}
@@ -399,7 +456,12 @@ export async function submitPlayerAction(req: Request, res: Response) {
       - Étape actuelle : ${game.scenario.currentStage}/${game.scenario.maxStages}
       - Budget restant : ${game.scenario.remainingBudget} €
       - Joueur : ${activePlayer.name}, rôle : ${activePlayer.role}
+      - Mode de jeu: ${game.gameMode} 
+      - ${gameModeContext}
       - Scénario : ${game.scenario.description}
+      
+      Interactions récentes:
+      ${lastEvents}
       
       Action du joueur : "${action}"
       
