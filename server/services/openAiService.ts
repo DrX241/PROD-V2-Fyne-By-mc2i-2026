@@ -45,7 +45,7 @@ export async function generateText(prompt: string, temperature: number = 0.7, ma
     );
 
     return response.data.choices[0].message.content;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error calling Azure OpenAI:', error);
     
     if (axios.isAxiosError(error) && error.response) {
@@ -63,7 +63,7 @@ export async function checkOpenAiConnection(): Promise<boolean> {
   try {
     await generateText('Test de connexion', 0.1, 10);
     return true;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Connection test failed:', error);
     return false;
   }

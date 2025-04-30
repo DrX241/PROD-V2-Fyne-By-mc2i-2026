@@ -11,6 +11,16 @@ import attachmentRoutes from './routes/attachmentRoutes';
 // Import du service de pièces jointes
 import { generateAttachment, selectAppropriateAttachmentType, AttachmentType } from './services/attachmentService';
 
+// Import des contrôleurs pour CyberChallenge
+import { 
+  createGame, 
+  addPlayer, 
+  generateScenario,
+  processPlayerAction,
+  getGameDetails,
+  endGame 
+} from './controllers/challengeController';
+
 // Récupérer le chemin du répertoire actuel en module ES
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -389,6 +399,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Enregistrer les routes pour les pièces jointes
   app.use('/api/attachments', attachmentRoutes);
+  
+  // Routes pour CyberChallenge
+  // Créer un nouveau jeu
+  app.post('/api/challenge/games', createGame);
+  
+  // Ajouter un joueur à un jeu
+  app.post('/api/challenge/games/:gameId/players', addPlayer);
+  
+  // Générer un scénario pour un jeu
+  app.post('/api/challenge/games/:gameId/scenario', generateScenario);
+  
+  // Traiter une action d'un joueur
+  app.post('/api/challenge/games/:gameId/actions', processPlayerAction);
+  
+  // Récupérer les détails d'un jeu
+  app.get('/api/challenge/games/:gameId', getGameDetails);
+  
+  // Terminer un jeu
+  app.post('/api/challenge/games/:gameId/end', endGame);
 
   // Route de test pour les pièces jointes
   app.get('/api/attachments/test', async (req, res) => {
