@@ -713,20 +713,36 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .filter(msg => msg.type === 'user' || msg.type === 'bot')
         .slice(-10); // Get last 10 messages for context
       
-      // Send message to server for processing
-      const data = await apiRequest<any>('/api/cyber/chat', {
-        method: 'POST',
-        body: JSON.stringify({
-          message: messageText,
-          userName,
-          userRole, // Transmettre le rôle de l'utilisateur
-          scenarioId: scenario.activeScenario?.id,
-          config,
-          chatHistory: relevantMessages,
-          scenarioContacts: scenario.scenarioContacts, // Transmettre la liste des interlocuteurs
-          currentStage: currentStage // Ajouter l'information de progression
-        })
-      });
+      // Vérifier si nous avons un scénario actif
+      let data;
+      if (scenario.activeScenario?.id) {
+        // Si un scénario est actif, utiliser l'API de chat contextuel
+        data = await apiRequest<any>('/api/cyber/chat', {
+          method: 'POST',
+          body: JSON.stringify({
+            message: messageText,
+            userName,
+            userRole, // Transmettre le rôle de l'utilisateur
+            scenarioId: scenario.activeScenario.id,
+            config,
+            chatHistory: relevantMessages,
+            scenarioContacts: scenario.scenarioContacts, // Transmettre la liste des interlocuteurs
+            currentStage: currentStage // Ajouter l'information de progression
+          })
+        });
+      } else {
+        // Si aucun scénario n'est actif, utiliser l'API de chat simple
+        console.log("Aucun scénario actif, utilisation du chat simple");
+        data = await apiRequest<any>('/api/cyber/simple-chat', {
+          method: 'POST',
+          body: JSON.stringify({
+            message: messageText,
+            config,
+            userName,
+            userRole,
+          })
+        });
+      }
       
       // Si nous recevons les contacts du scénario, mettons à jour notre état
       if (data.scenarioContacts && Array.isArray(data.scenarioContacts)) {
