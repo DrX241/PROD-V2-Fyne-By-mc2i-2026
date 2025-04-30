@@ -1688,7 +1688,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Generate response with Azure OpenAI
-      const systemPrompt = await openAIService.generateSystemPrompt({
+      const basePrompt = await openAIService.generateSystemPrompt({
         difficultyLevel: config?.difficultyLevel || "Intermédiaire",
         responseStyle: config?.responseStyle || "Professionnel"
       });
@@ -1780,6 +1780,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
+      // Récupérer l'étape actuelle de la conversation depuis la requête
+      const stage = currentStage || 0;
+      console.log(`DEBUG - Stage actuel: ${stage}`);
+      
       // Définir une personnalité pour l'interlocuteur principal en fonction de son rôle
       const contactPersonality = getPersonalityTrait(respondingContact.role, respondingContact.name);
       
@@ -1789,7 +1793,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Définir le niveau d'urgence en fonction du domaine, de la difficulté et de l'étape
       const urgencyLevel = getUrgencyLevel(scenario?.domain || "", scenario?.difficulty || "moyen", stage);
       
-      const customSystemPrompt =
+      // Obtenir le prompt système de l'API (contient les instructions générales)
+      const baseSystemPrompt = await openAIService.generateSystemPrompt({
+        difficultyLevel: config?.difficultyLevel || "Intermédiaire",
+        responseStyle: config?.responseStyle || "Professionnel"
+      });
+      
+      // Créer un prompt système personnalisé pour ce scénario précis
+      const customSystemPrompt = baseSystemPrompt + 
         `\n\nPERSONNALITÉ ET EXPERTISE: Tu es ${contactPersonality} et tu possèdes l'expertise suivante : ${respondingContact.expertise || 'Non spécifiée'}. Cette personnalité et expertise doivent transparaître dans tes réponses.` +
         
         `\n\nPRÉOCCUPATION PRINCIPALE: ${respondingContact.concern || 'Non spécifiée'}. Chaque interlocuteur a des préoccupations différentes face à la même problématique cyber.` +
@@ -1829,7 +1840,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const messages: ChatCompletionRequestMessage[] = [
         {
           role: "system",
-          content: systemContent
+          content: customSystemPrompt
         }
       ];
       
