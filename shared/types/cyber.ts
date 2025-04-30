@@ -1,12 +1,18 @@
 export type ChatMessageType = 'user' | 'bot' | 'system' | 'email' | 'domain-selection' | 'scenario-selection' | 'scenario-context' | 'role-selection';
 
-export const USER_ROLES = [
-  { id: 'rssi', name: 'RSSI', description: 'Responsable de la Sécurité des Systèmes d\'Information' },
-  { id: 'dsi', name: 'DSI', description: 'Directeur des Systèmes d\'Information' },
-  { id: 'developpeur', name: 'Développeur', description: 'Développeur d\'applications sécurisées' },
-  { id: 'admin', name: 'Administrateur Système', description: 'Administrateur des systèmes et réseaux' },
-  { id: 'consultant', name: 'Consultant Cybersécurité', description: 'Consultant en sécurité informatique' },
-  { id: 'manager', name: 'Manager', description: 'Manager d\'équipe technique' }
+export interface UserRole {
+  id: string;
+  name: string;
+  description: string;
+  available?: boolean;
+}
+
+export const USER_ROLES: UserRole[] = [
+  { id: 'rssi', name: 'RSSI', description: 'Responsable de la Sécurité des Systèmes d\'Information', available: true },
+  { id: 'hacker', name: 'Hacker éthique', description: 'Expert en tests d\'intrusion et sécurité', available: true },
+  { id: 'developpeur', name: 'Développeur', description: 'Développeur sensibilisé aux vulnérabilités logicielles', available: true },
+  { id: 'admin', name: 'Administrateur Système', description: 'Gestionnaire de l\'infrastructure sécurisée', available: true },
+  { id: 'consultant', name: 'Consultant en cybersécurité', description: 'Spécialiste des audits de sécurité', available: true }
 ];
 
 export interface ScenarioContact {
