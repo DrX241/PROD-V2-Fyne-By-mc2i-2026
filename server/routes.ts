@@ -45,23 +45,71 @@ function getUserRoleDescription(roleId: string): string {
 
 /**
  * Définir une personnalité pour l'interlocuteur principal en fonction de son rôle
+ * et du stade de la conversation pour simuler l'évolution des tensions
  */
-function getPersonalityTrait(role: string, name: string) {
-  if (role.toLowerCase().includes("président") || role.toLowerCase().includes("directeur général")) {
-    return "pragmatique, orienté résultats, s'intéresse à l'impact business";
-  } else if (role.toLowerCase().includes("marketing") || role.toLowerCase().includes("communication")) {
-    return "dynamique, soucieux de l'image de l'entreprise, s'intéresse à la communication de crise";
-  } else if (role.toLowerCase().includes("rh") || role.toLowerCase().includes("ressources humaines")) {
-    return "attentif au facteur humain, préoccupé par l'impact sur les collaborateurs";
-  } else if (role.toLowerCase().includes("financier")) {
-    return "analytique, préoccupé par les coûts et les risques financiers";
-  } else if (role.toLowerCase().includes("technique") || role.toLowerCase().includes("cto") || role.toLowerCase().includes("informatique")) {
-    return "technique, précis, s'intéresse aux détails d'implémentation";
-  } else if (name === "Eddy MISSONI IDEMBI") {
-    return "créatif, innovant, passionné par les solutions technologiques";
-  } else {
-    return "professionnel, direct, cherchant une expertise pointue";
+function getPersonalityTrait(role: string, name: string, stage: number = 0) {
+  // Base de personnalité qui varie selon le rôle professionnel
+  let basePersonality = "";
+  
+  // Personnalités de base par rôle
+  if (role.toLowerCase().includes("président") || role.toLowerCase().includes("directeur général") || role.toLowerCase().includes("dg")) {
+    basePersonality = stage <= 1 
+      ? "pragmatique, orienté résultats, s'intéresse à l'impact business et à l'image de l'entreprise" 
+      : "autoritaire, impatient, focalisé sur les conséquences pour la réputation et les finances, interrompt souvent avec des questions directes sur les délais et les impacts business. Peut contredire les experts techniques s'ils sont trop lents à agir.";
+  } 
+  else if (role.toLowerCase().includes("marketing") || role.toLowerCase().includes("communication")) {
+    basePersonality = stage <= 1
+      ? "dynamique, soucieux de l'image de l'entreprise, s'intéresse à la communication de crise"
+      : "anxieux concernant l'image de l'entreprise, insiste constamment pour communiquer rapidement vers l'extérieur même sans toutes les informations, en conflit avec les recommandations techniques qui demandent plus de temps.";
+  } 
+  else if (role.toLowerCase().includes("rh") || role.toLowerCase().includes("ressources humaines")) {
+    basePersonality = stage <= 1
+      ? "attentif au facteur humain, préoccupé par l'impact sur les collaborateurs"
+      : "inquiet des conséquences internes, s'oppose aux mesures techniques trop strictes qui impactent les employés, rappelle constamment les aspects légaux et sociaux en conflit avec l'urgence technique.";
+  } 
+  else if (role.toLowerCase().includes("financier") || role.toLowerCase().includes("cfo") || role.toLowerCase().includes("daf")) {
+    basePersonality = stage <= 1
+      ? "analytique, préoccupé par les coûts et les risques financiers"
+      : "extrêmement réticent à approuver des dépenses d'urgence, exige systématiquement des justifications chiffrées avant toute action coûteuse, s'oppose aux solutions onéreuses même si elles sont techniquement optimales. En situation de crise, il peut bloquer des décisions urgentes pour des raisons budgétaires.";
+  } 
+  else if (role.toLowerCase().includes("technique") || role.toLowerCase().includes("cto") || role.toLowerCase().includes("informatique") || role.toLowerCase().includes("dsi")) {
+    basePersonality = stage <= 1
+      ? "technique, précis, s'intéresse aux détails d'implémentation"
+      : "très technique dans son langage, frustré par l'incompréhension des autres dirigeants, insiste pour des solutions parfaites techniquement même si elles prennent plus de temps ou coûtent plus cher. Peut s'opposer directement au DG et au CFO s'ils privilégient des solutions rapides mais imparfaites.";
+  } 
+  else if (role.toLowerCase().includes("juridique") || role.toLowerCase().includes("légal") || role.toLowerCase().includes("conformité")) {
+    basePersonality = stage <= 1
+      ? "prudent, méthodique, attentif aux aspects réglementaires et contractuels"
+      : "extrêmement prudent, refuse catégoriquement certaines actions même urgentes pour des raisons légales, exige des validations écrites et des procédures complètes même en situation critique, en conflit direct avec les besoins d'action rapide.";
   }
+  else if (role.toLowerCase().includes("sécurité") || role.toLowerCase().includes("rssi")) {
+    basePersonality = stage <= 1
+      ? "vigilant, méthodique, focalise sur les procédures de sécurité et l'analyse des menaces"
+      : "très technique et alarmiste, insiste sur des mesures de sécurité maximales qui peuvent paralyser l'entreprise, en désaccord avec les compromis business, utilise un jargon technique parfois incompréhensible pour les autres.";
+  }
+  else if (role.toLowerCase().includes("opérations") || role.toLowerCase().includes("production")) {
+    basePersonality = stage <= 1
+      ? "pragmatique, orienté continuité de service, préoccupé par l'impact opérationnel"
+      : "obsédé par le maintien de l'activité à tout prix, peut s'opposer aux mesures de sécurité qui ralentissent la production, impatient face aux analyses techniques détaillées, pousse pour des solutions de contournement rapides.";
+  }  
+  else if (name === "Eddy MISSONI IDEMBI") {
+    basePersonality = "créatif, innovant, passionné par les solutions technologiques, mais peut devenir impatient face à des approches trop conventionnelles";
+  } 
+  else {
+    basePersonality = stage <= 1
+      ? "professionnel, direct, cherchant une expertise pointue"
+      : "stressé par la situation, communique de façon plus directe et parfois abrupte, peut remettre en question les décisions précédentes si la situation se dégrade.";
+  }
+  
+  // Ajout de traits de personnalité spécifiques au stade de crise
+  let stageModifier = "";
+  if (stage >= 3) {
+    stageModifier = "\n\nEn situation de crise extrême, cette personne devient tendue, interrompt fréquemment les autres, peut couper la parole, utilise des phrases courtes et directes, et exprime ouvertement son désaccord avec les autres membres de l'équipe. Les messages doivent inclure ces interactions conflictuelles et ces interruptions.";
+  } else if (stage >= 2) {
+    stageModifier = "\n\nSous pression, cette personne devient plus directive, moins patiente, et exprime plus clairement ses désaccords et ses priorités contradictoires avec celles des autres personnes impliquées.";
+  }
+  
+  return basePersonality + stageModifier;
 }
 
 /**
@@ -1794,7 +1842,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`DEBUG - Stage actuel: ${stage}`);
       
       // Définir une personnalité pour l'interlocuteur principal en fonction de son rôle
-      const contactPersonality = getPersonalityTrait(respondingContact.role, respondingContact.name);
+      const contactPersonality = getPersonalityTrait(respondingContact.role, respondingContact.name, stage);
       
       // Définir la situation du scénario en fonction de l'étape actuelle
       const scenarioSituation = getScenarioSituation(scenario?.domain || "", stage);
@@ -1819,10 +1867,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         `\n\nPHASE DE LA SITUATION: La situation se trouve actuellement dans une phase ${scenarioSituation}. Le niveau d'urgence est ${urgencyLevel}.` +
 
         `\n\nPROGRESSION SCÉNARIO (STADE ${stage}): ` +
-        (stage === 0 ? "Tu commences à peine à découvrir un problème potentiel. Ton ton doit être calme et analytique." : 
-        stage === 1 ? "Le problème est confirmé et commence à prendre de l'ampleur. Ton ton doit montrer une préoccupation croissante." :
-        stage === 2 ? "La situation devient sérieuse avec des impacts potentiels importants. Ton ton doit refléter un sentiment d'urgence modérée." :
-        "La situation est critique et pourrait avoir de graves conséquences. Ton ton doit exprimer l'urgence mais rester professionnel.") +
+        (stage === 0 ? 
+          "PHASE DE DÉTECTION INITIALE. Tu viens de repérer un problème potentiel et cherches à l'analyser. ADAPTE TON COMPORTEMENT : Ton ton doit être calme, analytique et orienté vers la collecte d'informations. Les questions doivent être précises et ciblées. Tu cherches surtout à comprendre et qualifier la situation, pas encore à résoudre. ATTENTES : L'utilisateur doit pouvoir comprendre l'origine du problème et sa nature." : 
+        
+        stage === 1 ? 
+          "PHASE DE RÉPONSE IMMÉDIATE. Le problème est confirmé et commence à prendre de l'ampleur. Des impacts sont visibles. ADAPTE TON COMPORTEMENT : Ton ton doit montrer une préoccupation croissante, mais rester constructif. Tu dois créer un sentiment d'urgence modérée, évoquant des conséquences si rien n'est fait rapidement. ATTENTES : L'utilisateur doit prendre des premières décisions pour contenir le problème. Tu dois évaluer leur pertinence." :
+        
+        stage === 2 ? 
+          "PHASE DE CRISE ACTIVE. La situation est sérieuse avec des impacts importants sur l'entreprise. Des pressions hiérarchiques et externes commencent à s'exercer. ADAPTE TON COMPORTEMENT : Ton ton doit refléter l'urgence, avec des phrases plus courtes et directes. Tu dois introduire des CONTRAINTES CONTRADICTOIRES (urgence vs précision, coût vs efficacité). Des interruptions et désaccords avec d'autres interlocuteurs peuvent survenir. ATTENTES : L'utilisateur doit gérer une situation complexe et prendre des décisions sous pression, avec des compromis difficiles." :
+        
+        "PHASE CRITIQUE ET STRATÉGIQUE. La situation a atteint un point culminant avec des conséquences graves potentielles ou actuelles. Une cellule de crise est pleinement active. ADAPTE TON COMPORTEMENT : Ton langage doit être direct, précis et orienté action. INTRODUIS PLUSIEURS VOIX/OPINIONS CONTRADICTOIRES dans tes messages, comme dans une vraie cellule de crise. Tu peux faire parler différents profils (DG préoccupé par l'image, DSI technique, juridique prudent, etc.) qui ne sont pas d'accord entre eux. ATTENTES : L'utilisateur doit démontrer sa capacité à arbitrer, prioriser et communiquer efficacement sous haute pression, tout en gérant des personnalités et priorités divergentes.") +
         
         "\n\nRÈGLES D'ADAPTATION SECTORIELLE:" +
         "\n1. Utilise des termes spécifiques au secteur dans tes réponses" +
