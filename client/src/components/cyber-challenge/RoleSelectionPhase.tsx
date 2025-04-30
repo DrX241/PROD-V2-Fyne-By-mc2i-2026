@@ -1,262 +1,182 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, User, Database, Code, Briefcase, Server, Scale, DollarSign, ArrowRight } from 'lucide-react';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useGame, type GameRole } from '@/contexts/cyber-challenge/GameContext';
+import { Shield, User, Code, Database, PieChart } from 'lucide-react';
+import { useGameContext } from '@/contexts/cyber-challenge/GameContext';
+import type { GameRole } from '@/contexts/cyber-challenge/GameContext';
 
 interface RoleSelectionPhaseProps {
   onComplete: () => void;
 }
 
-interface Role {
-  id: GameRole;
-  title: string;
-  icon: React.ReactNode;
-  description: string;
-  level: string;
-  responsibilities: string[];
-}
+const RoleSelectionPhase: React.FC<RoleSelectionPhaseProps> = ({ onComplete }) => {
+  const { selectedRole, setSelectedRole } = useGameContext();
+  const [showDetails, setShowDetails] = useState<GameRole | null>(null);
 
-export default function RoleSelectionPhase({ onComplete }: RoleSelectionPhaseProps) {
-  const { selectRole } = useGame();
-  const [selectedRoleId, setSelectedRoleId] = useState<GameRole | null>(null);
-  const [isFlipped, setIsFlipped] = useState<Record<string, boolean>>({});
-
-  // Définition des rôles disponibles
-  const roles: Role[] = [
-    {
-      id: 'rssi',
-      title: 'RSSI',
-      icon: <Shield className="h-12 w-12 text-blue-400" />,
-      description: 'Responsable Sécurité des Systèmes d\'Information - Le gardien de la stratégie de sécurité',
-      level: 'Direction',
-      responsibilities: [
-        'Définir la stratégie de cybersécurité',
-        'Gérer le budget sécurité',
-        'Évaluer et atténuer les risques',
-        'Coordonner la réponse aux incidents'
-      ]
-    },
-    {
-      id: 'ethical-hacker',
-      title: 'Hacker Éthique',
-      icon: <User className="h-12 w-12 text-red-400" />,
-      description: 'Expert en tests d\'intrusion - Trouve les failles avant les malveillants',
-      level: 'Expert technique',
-      responsibilities: [
-        'Effectuer des tests d\'intrusion',
-        'Détecter les vulnérabilités',
-        'Proposer des correctifs',
-        'Réaliser des audits de sécurité'
-      ]
-    },
-    {
-      id: 'soc-analyst',
-      title: 'Analyste SOC',
-      icon: <Database className="h-12 w-12 text-yellow-400" />,
-      description: 'Security Operations Center - La sentinelle qui surveille les menaces en temps réel',
-      level: 'Opérationnel',
-      responsibilities: [
-        'Surveiller les alertes de sécurité',
-        'Analyser les journaux d\'événements',
-        'Détecter les comportements anormaux',
-        'Répondre aux incidents de niveau 1'
-      ]
-    },
-    {
-      id: 'secure-developer',
-      title: 'Développeur Sécurisé',
-      icon: <Code className="h-12 w-12 text-green-400" />,
-      description: 'Expert en développement sécurisé - Conçoit des applications résistantes aux attaques',
-      level: 'Expert technique',
-      responsibilities: [
-        'Programmer de façon sécurisée',
-        'Réaliser des tests de code',
-        'Corriger les vulnérabilités',
-        'Concevoir des architectures robustes'
-      ]
-    },
-    {
-      id: 'cybersecurity-consultant',
-      title: 'Consultant Cybersécurité',
-      icon: <Briefcase className="h-12 w-12 text-purple-400" />,
-      description: 'Conseiller expert - Accompagne les organisations dans leur transformation sécurité',
-      level: 'Expert & Stratégique',
-      responsibilities: [
-        'Auditer les infrastructures',
-        'Conseiller sur les meilleures pratiques',
-        'Accompagner la mise en conformité',
-        'Former les équipes'
-      ]
-    },
-    {
-      id: 'system-administrator',
-      title: 'Administrateur Système',
-      icon: <Server className="h-12 w-12 text-cyan-400" />,
-      description: 'Le gardien de l\'infrastructure - Assure la sécurité opérationnelle des systèmes',
-      level: 'Opérationnel',
-      responsibilities: [
-        'Sécuriser les serveurs et réseaux',
-        'Gérer les mises à jour de sécurité',
-        'Configurer les pare-feu',
-        'Gérer les droits d\'accès'
-      ]
-    },
-    {
-      id: 'cyber-legal',
-      title: 'Juriste Cybersécurité',
-      icon: <Scale className="h-12 w-12 text-orange-400" />,
-      description: 'Expert juridique - Maîtrise le cadre légal de la sécurité numérique',
-      level: 'Stratégique',
-      responsibilities: [
-        'Assurer la conformité réglementaire',
-        'Gérer les notifications de violation',
-        'Rédiger les politiques de sécurité',
-        'Conseiller sur les aspects légaux des incidents'
-      ]
-    },
-    {
-      id: 'financial-director',
-      title: 'Directeur Financier',
-      icon: <DollarSign className="h-12 w-12 text-emerald-400" />,
-      description: 'Responsable des risques cyber financiers - Évalue l\'impact économique des menaces',
-      level: 'Direction',
-      responsibilities: [
-        'Évaluer le coût des risques cyber',
-        'Gérer les assurances cyber',
-        'Budgétiser les investissements sécurité',
-        'Analyser le ROI des solutions'
-      ]
-    }
-  ];
-
-  // Basculer l'état de la carte (flip)
-  const toggleCardFlip = (roleId: string) => {
-    setIsFlipped(prev => ({
-      ...prev,
-      [roleId]: !prev[roleId]
-    }));
+  const handleRoleSelect = (role: GameRole) => {
+    setSelectedRole(role);
   };
 
-  // Sélectionner un rôle
-  const handleRoleSelection = (role: GameRole) => {
-    setSelectedRoleId(role);
-    selectRole(role);
-  };
-
-  // Confirmer la sélection et passer à l'étape suivante
-  const confirmSelection = () => {
-    if (selectedRoleId) {
+  const handleContinue = () => {
+    if (selectedRole) {
       onComplete();
     }
   };
 
+  // Variants pour les animations
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const cardVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 }
+  };
+
+  // Détails des rôles disponibles
+  const roles = [
+    {
+      id: 'rssi' as GameRole,
+      title: 'RSSI',
+      fullTitle: 'Responsable de la Sécurité des Systèmes d\'Information',
+      icon: <Shield className="h-8 w-8" />,
+      color: 'bg-red-500',
+      description: 'Expert stratégique chargé de définir et mettre en œuvre la politique de cybersécurité de l\'organisation.',
+      skills: ['Gestion des risques', 'Leadership', 'Prise de décision stratégique', 'Gestion de crise'],
+      challenges: ['Prioriser les incidents', 'Coordonner les équipes', 'Communication avec la direction'],
+    },
+    {
+      id: 'ethical-hacker' as GameRole,
+      title: 'Hacker Éthique',
+      fullTitle: 'Spécialiste en Tests d\'Intrusion',
+      icon: <User className="h-8 w-8" />,
+      color: 'bg-purple-500',
+      description: 'Expert technique qui teste la sécurité des systèmes en simulant des attaques pour identifier les vulnérabilités.',
+      skills: ['Analyse de vulnérabilités', 'Tests d\'intrusion', 'Social engineering', 'Reverse engineering'],
+      challenges: ['Exploiter les failles de sécurité', 'Contourner les protections', 'Documenter les vulnérabilités'],
+    },
+    {
+      id: 'developer' as GameRole,
+      title: 'Développeur Sécurité',
+      fullTitle: 'Développeur Spécialisé en Sécurité Applicative',
+      icon: <Code className="h-8 w-8" />,
+      color: 'bg-blue-500',
+      description: 'Spécialiste qui intègre les bonnes pratiques de sécurité dès la conception des applications et corrige les vulnérabilités.',
+      skills: ['Secure coding', 'Analyse de code', 'SAST/DAST', 'DevSecOps'],
+      challenges: ['Identifier les vulnérabilités dans le code', 'Appliquer les correctifs', 'Intégrer la sécurité dans le SDLC'],
+    },
+    {
+      id: 'sysadmin' as GameRole,
+      title: 'Administrateur Système',
+      fullTitle: 'Administrateur Système & Réseau',
+      icon: <Database className="h-8 w-8" />,
+      color: 'bg-green-500',
+      description: 'Responsable de la maintenance et de la sécurisation de l\'infrastructure IT de l\'organisation.',
+      skills: ['Gestion des accès', 'Hardening', 'Supervision', 'Gestion des patchs'],
+      challenges: ['Maintenir la disponibilité', 'Déployer les correctifs de sécurité', 'Gérer les incidents au niveau infrastructure'],
+    },
+    {
+      id: 'consultant' as GameRole,
+      title: 'Consultant Cybersécurité',
+      fullTitle: 'Consultant en Sécurité de l\'Information',
+      icon: <PieChart className="h-8 w-8" />,
+      color: 'bg-amber-500',
+      description: 'Expert qui conseille les organisations sur leurs stratégies de sécurité et les aide à améliorer leur posture de sécurité.',
+      skills: ['Analyse de risques', 'Conformité', 'Audit', 'Recommandations stratégiques'],
+      challenges: ['Évaluer la maturité de sécurité', 'Proposer des améliorations', 'Accompagner la transformation'],
+    }
+  ];
+
   return (
-    <div className="flex flex-col items-center">
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
+    <div className="bg-gray-900 rounded-xl p-6 shadow-lg">
+      <motion.div 
+        className="text-center mb-6"
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="text-center mb-8"
       >
-        <h2 className="text-3xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
-          Choisissez votre rôle
-        </h2>
-        <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-          Votre expérience sera personnalisée en fonction du rôle professionnel que vous choisirez.
-          Chaque rôle offre une perspective unique sur les enjeux de cybersécurité.
+        <h2 className="text-2xl font-bold text-white mb-2">Choisissez votre rôle</h2>
+        <p className="text-blue-100">
+          Chaque rôle offre une perspective unique sur les défis de cybersécurité.
         </p>
       </motion.div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full mb-8">
+      <motion.div 
+        className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
         {roles.map((role) => (
-          <div
+          <motion.div
             key={role.id}
-            className="relative perspective"
-            onClick={() => toggleCardFlip(role.id)}
+            variants={cardVariants}
+            className={`cursor-pointer rounded-lg p-4 ${selectedRole === role.id ? 'bg-gradient-to-br from-gray-700 to-gray-800 border-2 border-cyan-400' : 'bg-gray-800 border border-gray-700 hover:border-gray-500'}`}
+            onClick={() => handleRoleSelect(role.id)}
+            onMouseEnter={() => setShowDetails(role.id)}
+            onMouseLeave={() => setShowDetails(null)}
+            whileHover={{ scale: 1.02 }}
           >
-            <motion.div
-              className={`
-                relative w-full h-64 transform-style-3d transition-transform duration-500
-                ${isFlipped[role.id] ? 'rotate-y-180' : ''}
-                ${selectedRoleId === role.id ? 'ring-2 ring-cyan-400 ring-offset-2 ring-offset-blue-900' : ''}
-              `}
-            >
-              {/* Face avant */}
-              <div className={`absolute inset-0 backface-hidden ${isFlipped[role.id] ? 'hidden' : 'block'}`}>
-                <Card className="h-full flex flex-col items-center justify-center p-6 bg-gradient-to-br from-gray-900 to-blue-900 border border-blue-500/30 hover:border-blue-400/60 cursor-pointer transition-all duration-300">
-                  <div className="rounded-full bg-blue-900/50 p-4 mb-4">
-                    {role.icon}
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-2">{role.title}</h3>
-                  <p className="text-sm text-blue-200 text-center">Cliquez pour plus d'informations</p>
-                </Card>
+            <div className="flex items-center space-x-3 mb-2">
+              <div className={`p-2 rounded-lg ${role.color} bg-opacity-20`}>
+                {role.icon}
               </div>
-              
-              {/* Face arrière */}
-              <div className={`absolute inset-0 backface-hidden rotate-y-180 ${isFlipped[role.id] ? 'block' : 'hidden'}`}>
-                <Card className="h-full flex flex-col p-4 bg-gradient-to-br from-blue-900 to-indigo-900 border border-blue-500/30 cursor-pointer">
-                  <h3 className="text-lg font-bold text-white mb-1">{role.title}</h3>
-                  <p className="text-xs text-blue-200 mb-2">{role.description}</p>
-                  <div className="mb-2">
-                    <span className="text-xs font-semibold bg-blue-800 text-blue-100 rounded-full px-2 py-0.5">
-                      Niveau: {role.level}
-                    </span>
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="text-xs font-semibold text-cyan-300 mb-1">Responsabilités:</h4>
-                    <ul className="text-xs text-blue-100">
-                      {role.responsibilities.map((resp, index) => (
-                        <li key={index} className="mb-1">• {resp}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRoleSelection(role.id);
-                    }}
-                    className="mt-2 w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-                    size="sm"
-                  >
-                    Choisir ce rôle
-                  </Button>
-                </Card>
+              <div>
+                <h3 className="font-bold text-white">{role.title}</h3>
+                <p className="text-xs text-gray-400">{role.fullTitle}</p>
               </div>
-            </motion.div>
-          </div>
+            </div>
+            
+            <p className="text-sm text-gray-300 mb-2">
+              {role.description}
+            </p>
+            
+            {(showDetails === role.id || selectedRole === role.id) && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="mt-3 pt-3 border-t border-gray-700"
+              >
+                <h4 className="text-sm font-medium text-gray-200 mb-1">Compétences clés :</h4>
+                <ul className="text-xs text-gray-400 list-disc list-inside mb-2">
+                  {role.skills.map((skill, idx) => (
+                    <li key={idx}>{skill}</li>
+                  ))}
+                </ul>
+                
+                <h4 className="text-sm font-medium text-gray-200 mb-1">Défis principaux :</h4>
+                <ul className="text-xs text-gray-400 list-disc list-inside">
+                  {role.challenges.map((challenge, idx) => (
+                    <li key={idx}>{challenge}</li>
+                  ))}
+                </ul>
+              </motion.div>
+            )}
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
-      {selectedRoleId && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-lg mx-auto bg-gradient-to-r from-blue-800/50 to-purple-900/50 rounded-lg p-6 border border-blue-500/30"
+      <motion.div 
+        className="flex justify-end"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+      >
+        <Button
+          className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white border-0"
+          onClick={handleContinue}
+          disabled={!selectedRole}
         >
-          <div className="flex items-center mb-4">
-            {roles.find(role => role.id === selectedRoleId)?.icon}
-            <h3 className="text-xl font-bold ml-4 text-white">
-              Vous avez choisi: {roles.find(role => role.id === selectedRoleId)?.title}
-            </h3>
-          </div>
-          <p className="text-blue-100 mb-4">
-            {roles.find(role => role.id === selectedRoleId)?.description}
-          </p>
-          <div className="flex justify-center">
-            <Button
-              onClick={confirmSelection}
-              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-              size="lg"
-            >
-              Confirmer et continuer
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </div>
-        </motion.div>
-      )}
+          Continuer
+        </Button>
+      </motion.div>
     </div>
   );
-}
+};
+
+export default RoleSelectionPhase;

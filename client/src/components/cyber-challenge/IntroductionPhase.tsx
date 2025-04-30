@@ -1,195 +1,170 @@
-import { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Rocket, Clock, History, Shield } from 'lucide-react';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-
-interface HistoricalEvent {
-  id: number;
-  year: number;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-}
+import { Input } from '@/components/ui/input';
+import { useGameContext } from '@/contexts/cyber-challenge/GameContext';
+import { Shield, Cpu, Terminal, Lock, ThumbsUp } from 'lucide-react';
 
 interface IntroductionPhaseProps {
   onComplete: () => void;
 }
 
-export default function IntroductionPhase({ onComplete }: IntroductionPhaseProps) {
-  const [currentEventIndex, setCurrentEventIndex] = useState(-1);
-  const [showIntro, setShowIntro] = useState(true);
-  const [shipPosition, setShipPosition] = useState(0);
+const IntroductionPhase: React.FC<IntroductionPhaseProps> = ({ onComplete }) => {
+  const { username, setUsername } = useGameContext();
+  const [formComplete, setFormComplete] = useState(false);
 
-  // Événements historiques de la cybersécurité
-  const historicalEvents: HistoricalEvent[] = [
+  const handleContinue = () => {
+    if (username.trim().length > 0) {
+      setFormComplete(true);
+    }
+  };
+
+  const handleStart = () => {
+    onComplete();
+  };
+
+  // Animation variants pour les éléments
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        staggerChildren: 0.3
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+
+  const features = [
     {
-      id: 1,
-      year: 1988,
-      title: "Ver Morris",
-      description: "Premier ver informatique à se propager massivement sur Internet, affectant environ 10% des ordinateurs connectés à l'époque.",
-      icon: <Clock className="h-8 w-8 text-red-400" />
+      icon: <Shield className="h-6 w-6 text-cyan-500" />,
+      title: "Défis réalistes",
+      description: "Affrontez des scénarios inspirés de véritables incidents de cybersécurité"
     },
     {
-      id: 2,
-      year: 2000,
-      title: "ILOVEYOU",
-      description: "Ce ver informatique a infecté plus de 45 millions d'ordinateurs en se propageant via des pièces jointes par e-mail.",
-      icon: <Shield className="h-8 w-8 text-pink-400" />
+      icon: <Cpu className="h-6 w-6 text-cyan-500" />,
+      title: "Progression adaptative",
+      description: "La difficulté s'adapte à votre niveau et à vos choix"
     },
     {
-      id: 3,
-      year: 2013,
-      title: "Révélations Snowden",
-      description: "Edward Snowden révèle l'existence du programme de surveillance PRISM, bouleversant notre compréhension de la vie privée en ligne.",
-      icon: <History className="h-8 w-8 text-blue-400" />
+      icon: <Terminal className="h-6 w-6 text-cyan-500" />,
+      title: "Compétences techniques",
+      description: "Analysez du code, détectez des vulnérabilités et recommandez des solutions"
     },
     {
-      id: 4,
-      year: 2021,
-      title: "Ransomware Colonial Pipeline",
-      description: "Une attaque de ransomware paralyse Colonial Pipeline, provoquant une crise énergétique majeure et démontrant l'impact des cyberattaques sur les infrastructures critiques.",
-      icon: <Shield className="h-8 w-8 text-yellow-400" />
+      icon: <Lock className="h-6 w-6 text-cyan-500" />,
+      title: "Décisions stratégiques",
+      description: "Prenez des décisions critiques sous pression avec des conséquences réalistes"
     }
   ];
 
-  // Passer à l'événement suivant
-  const goToNextEvent = () => {
-    if (currentEventIndex < historicalEvents.length - 1) {
-      setCurrentEventIndex(currentEventIndex + 1);
-      setShipPosition((currentEventIndex + 2) * 25); // Position en pourcentage (0%, 25%, 50%, 75%, 100%)
-    } else {
-      // Tous les événements ont été explorés
-      setTimeout(() => {
-        onComplete();
-      }, 1000);
-    }
-  };
-
-  // Commencer l'exploration
-  const startExploration = () => {
-    setShowIntro(false);
-    setCurrentEventIndex(0);
-    setShipPosition(25); // Première position (25%)
-  };
-
   return (
-    <div className="flex flex-col items-center">
-      {showIntro ? (
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          className="text-center max-w-3xl mx-auto"
-        >
-          <h1 className="text-4xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
-            Bienvenue dans CyberChallenge
-          </h1>
-          <p className="text-xl mb-10 text-blue-100">
-            Une expérience immersive de cybersécurité qui vous plongera dans des scénarios réalistes
-            et vous mettra au défi de protéger des systèmes contre diverses menaces.
-          </p>
-          <div className="p-8 bg-gradient-to-br from-blue-800/40 to-purple-900/40 rounded-xl border border-blue-500/30 mb-8">
-            <h2 className="text-2xl font-semibold mb-4 text-cyan-300">Avant de commencer...</h2>
-            <p className="mb-6 text-blue-100">
-              Embarquez pour un voyage à travers l'histoire de la cybersécurité pour comprendre
-              comment nous en sommes arrivés aux défis actuels.
+    <motion.div 
+      className="bg-gray-900 rounded-xl p-6 shadow-lg"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      {!formComplete ? (
+        // Écran d'introduction et formulaire de nom
+        <div className="space-y-6">
+          <motion.div variants={itemVariants} className="text-center mb-4">
+            <h2 className="text-2xl font-bold text-cyan-400 mb-2">Bienvenue dans CyberChallenge</h2>
+            <p className="text-blue-100">
+              L'expérience immersive qui vous met dans la peau d'un professionnel de la cybersécurité
             </p>
-            <Button
-              onClick={startExploration}
-              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-300"
-              size="lg"
-            >
-              <Rocket className="mr-2 h-5 w-5" />
-              Commencer l'exploration
-            </Button>
-          </div>
-        </motion.div>
-      ) : (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-4xl"
-        >
-          {/* Ligne du temps avec vaisseau */}
-          <div className="relative h-24 mb-10">
-            <div className="absolute left-0 right-0 top-1/2 h-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full"></div>
-            
-            {/* Points de la timeline */}
-            {historicalEvents.map((event, index) => (
-              <div
-                key={event.id}
-                className={`absolute top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full ${
-                  index <= currentEventIndex 
-                    ? 'bg-gradient-to-r from-cyan-400 to-blue-500 shadow-lg shadow-cyan-500/50' 
-                    : 'bg-gray-700'
-                }`}
-                style={{ left: `${(index + 1) * 25 - 3}%` }}
-              >
-                <div className="absolute -top-10 text-sm font-medium text-cyan-300">
-                  {event.year}
+          </motion.div>
+
+          <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            {features.map((feature, index) => (
+              <div key={index} className="bg-gray-800 p-4 rounded-lg">
+                <div className="flex items-start space-x-3">
+                  <div className="mt-1">{feature.icon}</div>
+                  <div>
+                    <h3 className="font-medium text-white">{feature.title}</h3>
+                    <p className="text-sm text-gray-300">{feature.description}</p>
+                  </div>
                 </div>
               </div>
             ))}
-            
-            {/* Vaisseau */}
-            <motion.div
-              className="absolute top-1/2 transform -translate-y-1/2 w-10 h-10 flex items-center justify-center"
-              initial={{ left: "0%" }}
-              animate={{ left: `${shipPosition}%` }}
-              transition={{ duration: 0.7, ease: "easeInOut" }}
-            >
-              <Rocket className="h-10 w-10 text-cyan-400 rotate-90" />
-            </motion.div>
+          </motion.div>
+
+          <motion.div variants={itemVariants} className="bg-gray-800 p-4 rounded-lg">
+            <h3 className="text-white font-medium mb-2">Pour commencer, comment souhaitez-vous être appelé ?</h3>
+            <div className="flex space-x-3">
+              <Input
+                placeholder="Votre nom ou pseudonyme"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="bg-gray-700 border-gray-600 text-white"
+              />
+              <Button onClick={handleContinue} disabled={username.trim().length === 0}>
+                Continuer
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      ) : (
+        // Écran de bienvenue personnalisé
+        <motion.div 
+          className="space-y-6 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="flex justify-center mb-4">
+            <div className="bg-cyan-500/20 p-4 rounded-full">
+              <ThumbsUp className="h-12 w-12 text-cyan-400" />
+            </div>
           </div>
           
-          {/* Carte d'événement actuel */}
-          {currentEventIndex >= 0 && currentEventIndex < historicalEvents.length && (
-            <motion.div
-              key={historicalEvents[currentEventIndex].id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-            >
-              <Card className="bg-gradient-to-br from-gray-900 to-blue-900 border border-blue-500/30 p-6 mb-8">
-                <div className="flex items-start gap-6">
-                  <div className="rounded-full bg-blue-900/50 p-4 flex-shrink-0">
-                    {historicalEvents[currentEventIndex].icon}
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-bold text-cyan-300 mb-2">
-                      {historicalEvents[currentEventIndex].year} : {historicalEvents[currentEventIndex].title}
-                    </h3>
-                    <p className="text-lg text-blue-100 mb-4">
-                      {historicalEvents[currentEventIndex].description}
-                    </p>
-                  </div>
-                </div>
-              </Card>
-              
-              <div className="flex justify-end">
-                <Button 
-                  onClick={goToNextEvent}
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-                >
-                  {currentEventIndex < historicalEvents.length - 1 ? (
-                    <>
-                      Événement suivant
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </>
-                  ) : (
-                    <>
-                      Terminer l'introduction
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </>
-                  )}
-                </Button>
-              </div>
-            </motion.div>
-          )}
+          <h2 className="text-2xl font-bold text-white">
+            Bienvenue, <span className="text-cyan-400">{username}</span> !
+          </h2>
+          
+          <p className="text-blue-100 max-w-2xl mx-auto">
+            Vous êtes sur le point d'entrer dans un monde où vos compétences en cybersécurité 
+            seront mises à l'épreuve. Choisissez votre rôle, votre mode de jeu et préparez-vous 
+            à affronter des défis inspirés de véritables incidents.
+          </p>
+          
+          <div className="bg-gray-800 p-5 rounded-lg max-w-xl mx-auto">
+            <h3 className="text-white font-medium mb-2">Ce qui vous attend :</h3>
+            <ul className="text-left text-gray-300 space-y-2">
+              <li className="flex items-start space-x-2">
+                <span className="text-cyan-400">➤</span>
+                <span>Des scénarios réalistes avec des enjeux concrets</span>
+              </li>
+              <li className="flex items-start space-x-2">
+                <span className="text-cyan-400">➤</span>
+                <span>Des décisions à prendre sous contrainte de temps</span>
+              </li>
+              <li className="flex items-start space-x-2">
+                <span className="text-cyan-400">➤</span>
+                <span>Des outils interactifs pour résoudre les problèmes</span>
+              </li>
+              <li className="flex items-start space-x-2">
+                <span className="text-cyan-400">➤</span>
+                <span>Une évaluation détaillée de vos performances</span>
+              </li>
+            </ul>
+          </div>
+          
+          <Button 
+            className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white border-0"
+            size="lg"
+            onClick={handleStart}
+          >
+            Commencer l'expérience
+          </Button>
         </motion.div>
       )}
-    </div>
+    </motion.div>
   );
-}
+};
+
+export default IntroductionPhase;
