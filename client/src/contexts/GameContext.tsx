@@ -522,7 +522,8 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
           currentPlayerIndex: game.currentPlayerIndex,
           isGameOver: game.isGameOver,
           startedAt: new Date(game.startedAt).getTime(),
-          endedAt: game.endedAt ? new Date(game.endedAt).getTime() : undefined
+          endedAt: game.endedAt ? new Date(game.endedAt).getTime() : undefined,
+          gameMode: game.gameMode || state.gameMode || GameMode.CLASSIC // Préserver le mode de jeu
         };
         
         dispatch({ type: 'SET_GAME_STATE', payload: updatedGameState });
