@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import OpenAI from 'openai';
 import { openAIService } from "./services/openai";
 import attachmentRoutes from './routes/attachmentRoutes';
+import { generateAttachment, selectAppropriateAttachmentType, AttachmentType } from './services/attachmentService';
 
 // Récupérer le chemin du répertoire actuel en module ES
 const __filename = fileURLToPath(import.meta.url);
@@ -1250,6 +1251,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
+      // Generate an attachment based on the scenario context
+      let attachments = [];
+      try {
+        // Sélectionner un type d'attachement approprié pour le domaine et l'étape du scénario
+        const attachmentType = selectAppropriateAttachmentType(domain, 0); // Étape 0 pour le premier message
+        
+        // Générer la pièce jointe avec un contexte approprié
+        const attachment = await generateAttachment(
+          uuidv4(), // ID unique pour ce scénario
+          title,
+          domain,
+          attachmentType,
+          `Scénario initial de cybersécurité "${title}" dans le domaine "${domain}". ${body.substring(0, 200)}...`, // Utiliser le début du corps de l'email comme contexte
+          0, // étape initiale
+          role || 'expert' // rôle de l'utilisateur ou expert par défaut
+        );
+        
+        attachments.push(attachment);
+      } catch (error) {
+        console.error("Erreur lors de la génération de la pièce jointe:", error);
+        // Continuer même si la génération de pièce jointe échoue
+      }
+
       // Create email response - le premier message vient toujours du contact principal du scénario
       const email = {
         id: uuidv4(),
@@ -1259,7 +1283,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         date: new Date().toISOString(),
         body,
         // Ajouter les contacts qui interviendront dans ce scénario (maximum 3 au total)
-        scenarioContacts: scenarioContacts
+        scenarioContacts: scenarioContacts,
+        // Ajouter les pièces jointes générées
+        attachments: attachments.length > 0 ? attachments : undefined
       };
       
       res.json({ email });
