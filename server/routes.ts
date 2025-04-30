@@ -237,7 +237,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API route for starting a scenario
   app.post('/api/cyber/start-scenario', async (req, res) => {
     try {
-      const { scenarioId, userName, config } = req.body;
+      const { scenarioId, userName, userRole, config } = req.body;
       
       if (!scenarioId || !userName) {
         return res.status(400).json({ message: 'Missing required parameters' });
@@ -539,16 +539,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           role: "user",
           content: `Générez un email COURT et ACCUEILLANT (maximum 150 mots) pour le scénario "${scenario.title}" dans le domaine "${scenario.domain}" avec les détails suivants:
           - L'email doit provenir de ${contactPrincipal.name} (${contactPrincipal.role})
-          - L'email doit être adressé à ${userName} en utilisant le tutoiement ("tu") 
+          - L'email doit être adressé à ${userName} qui a le rôle de ${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"} en utilisant le tutoiement ("tu") 
           - Le secteur d'activité pour ce scénario est: ${secteurActivite}
           - Le nom d'entreprise pour ce scénario est: ${companyName}
           - L'email doit être un message d'accueil chaleureux où le PNJ se présente brièvement et présente l'entreprise ${companyName} succinctement
           - IMPORTANT: Expose directement un problème ou une question de cybersécurité spécifique au domaine "${scenario.domain}" et demande explicitement l'avis de ${userName} sur cette question
           - Le problème doit être concret, spécifique et adapté au secteur d'activité
-          - Demande à ${userName} d'expliquer son point de vue ou de proposer une approche pour résoudre ce problème
+          - Demande à ${userName} d'expliquer son point de vue ou de proposer une approche pour résoudre ce problème en tenant compte de sa perspective de ${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"}
           - IMPORTANT: NE PAS mentionner ou faire référence à des pièces jointes, documents ou fichiers
           - Le ton doit être chaleureux, accueillant et professionnel, en utilisant le tutoiement
           - Le style d'écriture doit correspondre au rôle de ${contactPrincipal.role}: professionnel et adapté
+          - Le PNJ doit s'adresser à ${userName} en tenant compte de son rôle de ${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"}
           - Rédigez uniquement l'email, pas de commentaires ou d'explications`
         }
       ];
