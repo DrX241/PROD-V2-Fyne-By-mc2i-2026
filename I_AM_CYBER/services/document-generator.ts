@@ -525,6 +525,59 @@ export class DocumentGenerator {
     }
     return fs.readFileSync(filePath, 'utf8');
   }
+
+  generateProjectInfo(role: string, domain: string, username: string): {
+    responsibilities: string[];
+    budget: string;
+    hierarchy: { position: string; reportsTo: string; };
+    team: { role: string; name: string; expertise: string; }[];
+  } {
+    const budgets = {
+      'RETAIL & LUXE': '500 000 €',
+      'BANCAIRE/FINANCE (BFA)': '1 200 000 €',
+      'INDUSTRIEL/SANTÉ/PUBLIC (IMPULSE)': '800 000 €',
+      'ÉNERGIE & UTILITIES': '750 000 €'
+    };
+
+    const responsibilities = {
+      'RSSI': [
+        'Définir et mettre en œuvre la stratégie de sécurité',
+        'Gérer les incidents de sécurité',
+        'Superviser les audits et la conformité',
+        'Coordonner la réponse aux cyberattaques'
+      ],
+      'CrisisManager': [
+        'Coordonner la réponse aux incidents',
+        'Gérer la communication de crise',
+        'Maintenir le plan de continuité',
+        'Diriger les exercices de simulation'
+      ]
+    };
+
+    const hierarchy = {
+      'RSSI': { position: 'RSSI', reportsTo: 'Directeur Général' },
+      'CrisisManager': { position: 'Responsable Gestion de Crise', reportsTo: 'RSSI' }
+    };
+
+    const teams = {
+      'RSSI': [
+        { role: 'Analyste SOC', name: 'Sophie Lambert', expertise: 'Détection et réponse aux incidents' },
+        { role: 'Ingénieur Sécurité', name: 'Thomas Mercier', expertise: 'Architecture sécurité' },
+        { role: 'Responsable Conformité', name: 'Marie Dupont', expertise: 'Normes et réglementations' }
+      ],
+      'CrisisManager': [
+        { role: 'Coordinateur d\'urgence', name: 'Jean Michel', expertise: 'Gestion de crise' },
+        { role: 'Analyste Risques', name: 'Sarah Cohen', expertise: 'Évaluation des menaces' }
+      ]
+    };
+
+    return {
+      responsibilities: responsibilities[role] || ['Responsabilités à définir'],
+      budget: budgets[domain] || '500 000 €',
+      hierarchy: hierarchy[role] || { position: role, reportsTo: 'À définir' },
+      team: teams[role] || []
+    };
+  }
 }
 
 export const documentGenerator = new DocumentGenerator();
