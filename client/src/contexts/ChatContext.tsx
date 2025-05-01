@@ -362,6 +362,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isInitialized, setIsInitialized] = useState(false);
   const [currentStage, setCurrentStage] = useState<number>(0);
   const [passwordValidated, setPasswordValidated] = useState<boolean>(false);
+  const [missionBriefConfirmed, setMissionBriefConfirmed] = useState<boolean>(false);
+  const [missionBriefReceived, setMissionBriefReceived] = useState<boolean>(false);
 
   // Initialize the chat with a welcome message
   useEffect(() => {
@@ -378,6 +380,62 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsInitialized(true);
     }
   }, [isInitialized]);
+  
+  // Effet pour gérer la réception du brief de mission après validation du mot de passe
+  useEffect(() => {
+    const handleMissionBrief = async () => {
+      if (passwordValidated && missionBriefConfirmed && !missionBriefReceived && scenario.activeDomain) {
+        setIsTyping(true);
+        
+        try {
+          // Récupérer le brief de mission
+          const response = await apiRequest('/api/cyber/send-mission-brief', {
+            method: 'POST',
+            body: JSON.stringify({
+              userRole,
+              domain: scenario.activeDomain.id,
+              userName,
+              companyName: 'mc2i'
+            })
+          });
+          
+          if (response.success && response.email) {
+            // Attendez un court délai pour simuler le temps de traitement
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // Ajouter l'email au chat
+            const newMessage: ChatMessage = {
+              id: uuidv4(),
+              type: 'email',
+              content: response.email,
+              timestamp: Date.now()
+            };
+            
+            setMessages(prev => [...prev, newMessage]);
+            setMissionBriefReceived(true);
+            
+            // Masquer l'indicateur de saisie
+            setIsTyping(false);
+          }
+        } catch (error) {
+          console.error('Erreur lors de la récupération du brief de mission:', error);
+          setIsTyping(false);
+          
+          // Message d'erreur
+          const errorMessage: ChatMessage = {
+            id: uuidv4(),
+            type: "bot",
+            content: "Je suis désolé, une erreur s'est produite lors de la génération du brief de mission. Veuillez réessayer ultérieurement.",
+            timestamp: Date.now()
+          };
+          
+          setMessages(prev => [...prev, errorMessage]);
+        }
+      }
+    };
+    
+    handleMissionBrief();
+  }, [passwordValidated, missionBriefConfirmed, missionBriefReceived, scenario.activeDomain, userRole, userName]);
 
   // Handler to set the user's name
   const handleSetUserName = (name: string) => {
@@ -859,6 +917,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsInitialized(false);
   };
 
+  // Fonction pour confirmer le brief de mission
+  const handleConfirmMissionBrief = () => {
+    setMissionBriefConfirmed(true);
+  };
+
   return (
     <ChatContext.Provider
       value={{
@@ -872,6 +935,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         scenarios: initialScenarios,
         currentStage,
         passwordValidated,
+        missionBriefConfirmed,
+        missionBriefReceived,
         setUserName: handleSetUserName,
         setUserRole: handleSetUserRole,
         selectDomain: handleSelectDomain,
@@ -879,7 +944,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         sendMessage: handleSendMessage,
         updateConfig: handleUpdateConfig,
         resetChat: handleResetChat,
-        setPasswordValidated: (validated: boolean) => setPasswordValidated(validated)
+        setPasswordValidated: (validated: boolean) => setPasswordValidated(validated),
+        confirmMissionBrief: handleConfirmMissionBrief
       }}
     >
       {children}

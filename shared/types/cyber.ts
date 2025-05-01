@@ -349,6 +349,8 @@ export interface ChatContextType {
   scenarios: CyberScenario[];
   currentStage: number;
   passwordValidated: boolean;
+  missionBriefConfirmed: boolean;
+  missionBriefReceived: boolean;
   setUserName: (name: string) => void;
   setUserRole: (role: string) => void;
   selectDomain: (domain: CyberDomain) => void;
@@ -357,4 +359,5 @@ export interface ChatContextType {
   updateConfig: (config: Partial<AIConfig>) => void;
   resetChat: () => void;
   setPasswordValidated: (validated: boolean) => void;
+  confirmMissionBrief: () => void;
 }
