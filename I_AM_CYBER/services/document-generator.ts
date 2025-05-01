@@ -48,17 +48,14 @@ export class DocumentGenerator {
       const messages: ChatCompletionRequestMessage[] = [
         {
           role: "system",
-          content: `Vous êtes un générateur de documents techniques en cybersécurité. Créez un document ${documentType} réaliste et concis pour un scénario de formation.
-          Le document doit être TRÈS court (UNE SEULE PAGE MAXIMUM) et contenir des informations techniques précises et pertinentes.
-          Format: Utilisez un format structuré avec des en-têtes, des sections et des données techniques appropriées au type de document.
-          
-          RÈGLES IMPORTANTES :
-          1. Ne fournissez PAS de solutions ou de réponses directes aux problèmes
-          2. Ne créez JAMAIS de personnages ou contacts fictifs - utilisez UNIQUEMENT le contact spécifié (${context.contactName})
-          3. N'incluez PAS de section "Compétences et objectifs d'apprentissage"
-          4. Restez bref et factuel - ce document sera utilisé comme pièce jointe d'un email
-          5. N'utilisez PAS de nom "Claire Dufour" ou tout autre nom non fourni spécifiquement
-          6. LE DOCUMENT NE DOIT PAS DÉPASSER UNE PAGE MAXIMUM - soyez concis`
+          content: `Vous êtes un expert en cybersécurité travaillant pour ${context.contactName}. Créez un document ${documentType} engageant et immersif qui :
+          1. Établit un contexte réaliste avec des enjeux business clairs
+          2. Intègre des éléments techniques précis et pertinents
+          3. Crée une tension narrative pour motiver l'apprenant
+          4. Inclut des indices subtils liés aux objectifs d'apprentissage
+          5. Reflète la personnalité et l'expertise du contact qui l'envoie
+
+          Le document doit être professionnel mais captivant, comme dans une simulation réelle.`
         },
         {
           role: "user",
@@ -68,7 +65,7 @@ export class DocumentGenerator {
           - Niveau de difficulté: ${context.difficultyLevel}
           - Contact: ${context.contactName} (IMPORTANT: n'inventez PAS d'autres contacts)
           - Destinataire: ${context.userName}
-          
+
           Le document doit être réaliste, comme s'il avait été produit dans un environnement professionnel d'entreprise.
           Il doit tenir en UNE SEULE PAGE maximum et ne doit pas dépasser 150-200 mots. Incluez juste assez de détails pour comprendre le contexte.
           Soyez extrêmement concis et allez directement à l'essentiel. 
@@ -102,14 +99,14 @@ export class DocumentGenerator {
         const contentLines = content.split('\n');
         let limitedContent = '';
         const maxLines = 45; // Nombre maximum de lignes pour que le contenu tienne sur une page
-        
+
         // Si le contenu est trop long, le réduire et ajouter une note
         if (contentLines.length > maxLines) {
           const reducedContent = contentLines.slice(0, maxLines);
           limitedContent = reducedContent.join('\n') + '\n\n(Suite du contenu non affichée pour respecter la limite d\'une page)';
           content = limitedContent;
         }
-        
+
         const doc = new PDFDocument({ 
           margins: { top: 50, bottom: 50, left: 50, right: 50 },
           info: {
@@ -119,7 +116,7 @@ export class DocumentGenerator {
             Creator: 'I AM CYBER Platform'
           }
         });
-        
+
         // Définir la police par défaut
         doc.font('Helvetica');
 
@@ -129,7 +126,7 @@ export class DocumentGenerator {
 
         // Chargement du logo mc2i
         const logoPath = path.join(process.cwd(), 'I_AM_CYBER', 'assets', 'mc2i.png');
-        
+
         if (fs.existsSync(logoPath)) {
           // Positionnement du logo en haut du document, centré
           const logoWidth = 150; // Largeur du logo en points
@@ -138,11 +135,11 @@ export class DocumentGenerator {
           doc.image(logoPath, logoX, doc.y, { width: logoWidth });
           doc.moveDown(2); // Espace après le logo
         }
-        
+
         // Entête avec logo d'entreprise
         doc.fontSize(24).fillColor('#003366').text(this.companyName, {align: 'center'});
         doc.moveDown(0.5);
-        
+
         // Ligne horizontale sous le nom de l'entreprise
         doc.moveTo(50, doc.y)
            .lineTo(doc.page.width - 50, doc.y)
@@ -152,21 +149,21 @@ export class DocumentGenerator {
         // Titre du document
         doc.fontSize(16).fillColor('#000').text(context.scenario, {align: 'center'});
         doc.moveDown(0.5);
-        
+
         // Type de document
         doc.fontSize(14).fillColor('#555').text(`Type: ${documentType}`, {align: 'center'});
         doc.moveDown(0.5);
-        
+
         // Information de base
         doc.fontSize(10).fillColor('#333');
         doc.text(`Date: ${new Date().toLocaleDateString()}`, {align: 'right'});
         doc.text(`Référence: ${context.domain}`, {align: 'right'});
         doc.text(`Destinataire: ${context.userName}`, {align: 'right'});
         doc.moveDown(1);
-        
+
         // Texte principal
         doc.fontSize(11).fillColor('#000');
-        
+
         // Traiter le contenu ligne par ligne pour une mise en forme améliorée
         const lines = content.split('\n');
         lines.forEach(line => {
@@ -206,7 +203,7 @@ export class DocumentGenerator {
             doc.moveDown(0.2);
           }
         });
-        
+
         // Pied de page - on se positionne en bas de page
         const pageHeight = doc.page.height;
         const footerY = pageHeight - 30;
@@ -215,14 +212,14 @@ export class DocumentGenerator {
           align: 'center',
           width: doc.page.width - 100
         });
-        
+
         // Finaliser le document
         doc.end();
-        
+
         stream.on('finish', () => {
           resolve();
         });
-        
+
         stream.on('error', (err) => {
           reject(err);
         });
@@ -250,14 +247,14 @@ export class DocumentGenerator {
         const contentLines = content.split('\n');
         let limitedContent = '';
         const maxLines = 60; // Nombre maximum de lignes pour que le contenu de l'évaluation tienne sur une page
-        
+
         // Si le contenu est trop long, le réduire et ajouter une note
         if (contentLines.length > maxLines) {
           const reducedContent = contentLines.slice(0, maxLines);
           limitedContent = reducedContent.join('\n') + '\n\n(Suite du contenu non affichée pour respecter la limite d\'une page)';
           content = limitedContent;
         }
-        
+
         // Créer un nouveau document PDF
         const doc = new PDFDocument({
           margin: 50,
@@ -273,7 +270,7 @@ export class DocumentGenerator {
 
         // Chargement du logo mc2i
         const logoPath = path.join(process.cwd(), 'I_AM_CYBER', 'assets', 'mc2i.png');
-        
+
         if (fs.existsSync(logoPath)) {
           // Positionnement du logo en haut du document, centré
           const logoWidth = 150; // Largeur du logo en points
@@ -282,11 +279,11 @@ export class DocumentGenerator {
           doc.image(logoPath, logoX, doc.y, { width: logoWidth });
           doc.moveDown(2); // Espace après le logo
         }
-        
+
         // Entête
         doc.fontSize(24).fillColor('#003366').text("FICHE D'ÉVALUATION", {align: 'center'});
         doc.moveDown(0.5);
-        
+
         // Ligne horizontale sous le titre
         doc.moveTo(50, doc.y)
            .lineTo(doc.page.width - 50, doc.y)
@@ -297,20 +294,20 @@ export class DocumentGenerator {
         doc.fontSize(14).fillColor('#003366').text(`Scénario: ${context.scenarioTitle}`, {align: 'center'});
         doc.fontSize(12).fillColor('#555555').text(`Domaine: ${context.scenarioDomain}`, {align: 'center'});
         doc.moveDown(1);
-        
+
         // Information sur l'utilisateur et la date
         doc.fontSize(11).fillColor('#333333');
         doc.text(`Apprenant: ${context.userName}`, {align: 'left'});
         doc.text(`Date de l'évaluation: ${new Date(context.date).toLocaleDateString()}`, {align: 'left'});
         doc.moveDown(1.5);
-        
+
         // Texte principal - Évaluation structurée
         doc.fontSize(11).fillColor('#000');
-        
+
         // Traiter le contenu ligne par ligne pour une mise en forme améliorée
         const lines = content.split('\n');
         let inList = false;
-        
+
         lines.forEach(line => {
           // Traiter les titres principaux (sections numérotées)
           if (line.match(/^\d+\.\s[A-Z\s]+$/)) {
@@ -368,7 +365,7 @@ export class DocumentGenerator {
             doc.moveDown(0.2);
           }
         });
-        
+
         // Pied de page avec information de confidentialité et copyright
         const pageHeight = doc.page.height;
         const footerY = pageHeight - 30;
@@ -377,14 +374,14 @@ export class DocumentGenerator {
           align: 'center',
           width: doc.page.width - 100
         });
-        
+
         // Finaliser le document
         doc.end();
-        
+
         stream.on('finish', () => {
           resolve();
         });
-        
+
         stream.on('error', (err) => {
           reject(err);
         });
@@ -488,12 +485,12 @@ export class DocumentGenerator {
   <div class="container">
     <!-- Logo mc2i -->
     <img src="data:image/png;base64,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" alt="Logo mc2i" class="logo">
-    
+
     <h1>${companyName}</h1>
     <p class="tagline">Excellence et innovation dans le domaine de la cybersécurité</p>
-    
+
     <div class="border-bottom"></div>
-    
+
     <div class="footer">
       <p>${companyName} &copy; ${new Date().getFullYear()} - Document confidentiel</p>
       <p>Généré par la plateforme I AM CYBER de mc2i</p>

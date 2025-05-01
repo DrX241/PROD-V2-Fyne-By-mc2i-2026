@@ -18,8 +18,23 @@ const ciso: NPCCharacter = {
   role: "Directeur de la Cybersécurité",
   avatar: "/assets/characters/nosing-doeuk.jpg",
   expertise: ["Cybersécurité", "Gestion des risques", "Conformité"],
-  personality: "Rigoureux, méthodique et stratégique. Privilégie l'anticipation et la planification. Excellent pédagogue mais peut sembler inflexible sur les questions de sécurité.",
-  backstory: "Ancien consultant senior en cybersécurité pour des grands comptes, Nosing a rejoint l'entreprise il y a 3 ans et a transformé la gouvernance sécurité.",
+  personality: "Rigoureux, méthodique et stratégique",
+  traits: {
+    leadership: 8,
+    technical: 9,
+    communication: 7,
+    riskAversion: 8
+  },
+  behaviorPatterns: {
+    underPressure: "Devient plus directif et exige des mises à jour fréquentes",
+    whenTeaching: "Utilise des analogies concrètes et pose des questions guidées",
+    duringCrisis: "Reste calme et décompose les problèmes en étapes gérables"
+  },
+  interactionStyle: (context) => {
+    if (context.urgency === "high") return "direct et factuel";
+    if (context.userExpertise === "beginner") return "pédagogique et patient";
+    return "collaboratif et stratégique";
+  },
   communicationStyle: "Direct et factuel avec un vocabulaire technique précis. Sait vulgariser quand nécessaire. N'hésite pas à souligner les risques de non-conformité.",
   knowledgeAreas: ["Framework NIST", "ISO 27001", "Analyse de risques", "Forensic", "Threat Intelligence"],
   memoryOfInteractions: []
