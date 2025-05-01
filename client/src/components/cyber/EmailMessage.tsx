@@ -279,25 +279,6 @@ export default function EmailMessage({ email }: EmailMessageProps) {
         message: "Erreur lors de la validation du mot de passe"
       });
     }
-        if (response.valid) {
-        setPasswordValidated(true);
-        setValidationResult({
-          valid: true,
-          message: "Mot de passe validé avec succès",
-        });
-      } else {
-        setValidationResult({
-          valid: false,
-          message: "Mot de passe incorrect"
-        });
-      }
-    } catch (error) {
-      console.error('Erreur lors de la validation:', error);
-      setValidationResult({
-        valid: false,
-        message: "Erreur lors de la validation du mot de passe"
-      });
-    }
 
     const projectCard = document.createElement('div');
       projectCard.className = 'bg-blue-900/30 p-6 rounded-lg border border-blue-700/50 mt-4';
