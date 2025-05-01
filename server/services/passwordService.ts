@@ -108,36 +108,52 @@ export function generateAttachmentWithPassword(role: string, domain: string, sce
   const { password, location } = roleInfo;
   
   // Génération de contenus de pièces jointes spécifiques à chaque rôle
-  // Limités à 150 caractères maximum
+  // Augmentés à 200+ caractères pour plus de contexte
   switch (normalizedRole) {
     case 'rssi':
       return `CONFIDENTIEL - Politique de sécurité ISO27001 ref:${password} (version draft)
-Priorité: Actions de mise en conformité requises immédiatement sur les systèmes critiques.`;
+Priorité: Actions de mise en conformité requises immédiatement sur les systèmes critiques.
+Mesures à prendre: Audit complet des accès privilégiés, revue des contrôles cryptographiques et mise à jour du PRA.
+Validation CISO requise pour toute dérogation à cette politique. Classification: RESTREINT-ENTREPRISE.`;
       
     case 'hacker':
-      return `Rapport de scan de vulnérabilités
+      return `Rapport de scan de vulnérabilités - CONFIDENTIEL
 <!-- Code secret: ${password} -->
-3 vulnérabilités critiques détectées, accès non-autorisé possible via injection SQL.`;
+3 vulnérabilités critiques détectées, accès non-autorisé possible via injection SQL.
+Vecteurs d'attaque identifiés: Authentification contournée via tokens JWT expirés, XSS stocké dans le backoffice, et vulnérabilité zero-day (CVE non attribué).
+Contacter l'équipe Red Team pour détails. Criticité: ÉLEVÉE.`;
       
     case 'dev':
-      return `// Code review pour déploiement urgent
+      return `// Code review pour déploiement urgent - CRITIQUE
 // TODO: supprimer avant prod - token:${password}
-function checkSecurityPolicy() { ... }`;
+function checkSecurityPolicy() { 
+  // Cette fonction implémente la vérification des autorisations
+  // Attention: Ne pas modifier sans revue de sécurité complète
+  // Potentiel bypass détecté dans la validation des jetons
+  // Version correcte disponible dans la branche 'fix-auth-bypass'
+}`;
       
     case 'admin':
-      return `Config serveur prod - À appliquer immédiatement
+      return `Config serveur prod - À appliquer immédiatement - URGENT
 # Clé d'authentification temporaire: ${password}
-systemctl restart firewall; chmod 600 /etc/secrets/`;
+systemctl restart firewall; chmod 600 /etc/secrets/
+# Les services critiques nécessitent un redémarrage après ces changements
+# Vérifier les journaux syslog après application pour confirmer l'absence d'erreurs
+# Validé par: Équipe Infrastructure & RSSI - Ne pas modifier ces paramètres sans autorisation`;
       
     case 'consultant':
-      return `Matrice d'analyse risques/impacts - Projet ${scenarioTitle}
+      return `Matrice d'analyse risques/impacts - Projet ${scenarioTitle} - CONFIDENTIEL
 Criticité: ÉLEVÉE | Confidentialité: C3 | ClefAccès=${password}
-Actions recommandées: voir débrief complet.`;
+Actions recommandées: voir débrief complet.
+Vulnérabilités identifiées dans la chaîne d'approvisionnement et les services tiers. Impact potentiel sur la continuité d'activité.
+Préparer un plan de remédiation sous 5 jours ouvrés. Référence mission: ${scenarioTitle}/SEC-AUDIT-2025.`;
       
     default:
-      return `Document confidentiel - Projet ${scenarioTitle}
+      return `Document confidentiel - Projet ${scenarioTitle} - URGENT
 Information critique: ${password}
-À discuter lors de notre prochaine réunion. Contactez-moi dès réception.`;
+À discuter lors de notre prochaine réunion. Contactez-moi dès réception.
+Ce document contient des informations privilégiées concernant le projet en cours. Toute divulgation non autorisée exposerait l'organisation à des risques significatifs.
+Classification: RESTREINT - Diffusion limitée aux membres autorisés de l'équipe projet uniquement.`;
   }
 }
 
