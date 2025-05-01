@@ -1223,36 +1223,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      // Generate an attachment based on the scenario context
+      // Générer une pièce jointe avec un mot de passe caché pour chaque scénario
       let attachments = [];
       try {
-        // Pour le premier message, uniquement générer une pièce jointe pour les scénarios critiques 
-        // ou pour les rôles qui en ont absolument besoin (RSSI, admin système)
-        const needsAttachment = 
-          scenario.domain.toLowerCase().includes('crise') || 
-          scenario.domain.toLowerCase().includes('incident') ||
-          scenario.title.toLowerCase().includes('critique') ||
-          (userRole && (userRole.toLowerCase().includes('rssi') || 
-                        userRole.toLowerCase().includes('admin') || 
-                        userRole.toLowerCase().includes('système')));
+        // Toujours créer une pièce jointe contenant un mot de passe caché adapté au rôle de l'utilisateur
+        const attachment = createAttachmentWithHiddenPassword(
+          scenarioId,  // Utiliser l'ID du scénario comme ID de session
+          userRole || 'expert',
+          scenario.domain,
+          scenario.title
+        );
         
-        if (needsAttachment) {
-          // Sélectionner un type d'attachement approprié pour le domaine, l'étape du scénario et le rôle de l'utilisateur
-          const attachmentType = selectAppropriateAttachmentType(scenario.domain, 0, userRole || 'expert'); // Étape 0 pour le premier message
-          
-          // Générer la pièce jointe avec un contexte approprié
-          const attachment = await generateAttachment(
-            uuidv4(), // ID unique pour ce scénario
-            scenario.title,
-            scenario.domain,
-            attachmentType,
-            `Scénario initial de cybersécurité "${scenario.title}" dans le domaine "${scenario.domain}". ${body.substring(0, 200)}...`, // Utiliser le début du corps de l'email comme contexte
-            0, // étape initiale
-            userRole || 'expert' // rôle de l'utilisateur ou expert par défaut
-          );
-          
-          attachments.push(attachment);
-        }
+        // Ajouter la pièce jointe au tableau d'attachements
+        attachments.push({
+          id: attachment.id,
+          name: attachment.name,
+          type: attachment.type,
+          size: attachment.size,
+          date: attachment.createdAt
+        });
+        
+        // Ajouter à l'email un message indiquant qu'une pièce jointe importante est à consulter
+        body += "\n\nNOTE: Une pièce jointe importante contenant des informations spécifiques à votre rôle a été incluse. Veuillez la consulter attentivement.";
       } catch (error) {
         console.error("Erreur lors de la génération de la pièce jointe:", error);
         // Continuer même si la génération de pièce jointe échoue
