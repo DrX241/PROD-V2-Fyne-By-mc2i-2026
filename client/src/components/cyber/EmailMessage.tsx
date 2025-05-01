@@ -35,13 +35,13 @@ export default function EmailMessage({ email }: EmailMessageProps) {
       
       const response = await apiRequest('/api/attachments/validate-password', {
         method: 'POST',
-        data: {
+        body: JSON.stringify({
           password: password.trim(),
           userRole,
           domain,
           userName,
           companyName
-        }
+        })
       });
       
       setValidationResult(response);
@@ -306,9 +306,114 @@ export default function EmailMessage({ email }: EmailMessageProps) {
               ))}
             </div>
             
-            <p className="text-xs sm:text-sm text-white mt-3 sm:mt-4">
+            <p className="text-xs sm:text-sm text-white mt-3 mb-4">
               Ces documents contiennent des informations importantes pour l'analyse de la situation.
             </p>
+            
+            {/* Zone de validation de mot de passe */}
+            <div className="mt-4 p-3 sm:p-4 bg-blue-950/50 border border-blue-800/40 rounded-lg">
+              <div className="flex items-center mb-2 text-white">
+                <Lock className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-amber-400" />
+                <h5 className="font-medium text-sm sm:text-base">
+                  {passwordSubmitted 
+                    ? (validationResult?.valid 
+                      ? "Mot de passe validé avec succès!" 
+                      : "Mot de passe incorrect")
+                    : "Mot de passe requis"
+                  }
+                </h5>
+              </div>
+              
+              {!passwordSubmitted || !validationResult?.valid ? (
+                <>
+                  <p className="text-xs sm:text-sm text-white mb-3">
+                    Un mot de passe se trouve dans la pièce jointe ci-dessus. Trouvez-le et entrez-le ci-dessous pour continuer.
+                  </p>
+                  
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Input
+                      type="text"
+                      placeholder="Entrez le mot de passe trouvé"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="flex-1 bg-blue-900/30 border-blue-700/50 text-white"
+                    />
+                    <Button 
+                      onClick={validatePassword} 
+                      disabled={isValidating || !password.trim()}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      {isValidating ? "Validation..." : "Valider"}
+                    </Button>
+                  </div>
+                  
+                  {validationResult && !validationResult.valid && (
+                    <p className="mt-2 text-xs sm:text-sm text-red-400 flex items-center">
+                      <XCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                      {validationResult.message}
+                    </p>
+                  )}
+                </>
+              ) : validationResult?.valid && (
+                <div className="space-y-3">
+                  <p className="text-sm sm:text-base text-green-400 flex items-center">
+                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
+                    {validationResult.message}
+                  </p>
+                  
+                  {validationResult.postValidationInfo && (
+                    <div className="mt-4 p-3 sm:p-4 bg-blue-900/40 border border-blue-700/40 rounded-lg space-y-3">
+                      <h6 className="font-bold text-sm sm:text-base text-white">
+                        {validationResult.postValidationInfo.title}
+                      </h6>
+                      
+                      {validationResult.postValidationInfo.responsabilites && (
+                        <div>
+                          <h6 className="font-medium text-xs sm:text-sm text-white mb-1">Responsabilités:</h6>
+                          <ul className="list-disc pl-5 text-xs sm:text-sm text-white space-y-1">
+                            {validationResult.postValidationInfo.responsabilites.map((resp: string, i: number) => (
+                              <li key={i}>{resp}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {validationResult.postValidationInfo.budget && (
+                        <div>
+                          <h6 className="font-medium text-xs sm:text-sm text-white mb-1">Budget:</h6>
+                          <p className="text-xs sm:text-sm text-white">
+                            {validationResult.postValidationInfo.budget}
+                          </p>
+                        </div>
+                      )}
+                      
+                      {validationResult.postValidationInfo.hierarchie && (
+                        <div>
+                          <h6 className="font-medium text-xs sm:text-sm text-white mb-1">Hiérarchie:</h6>
+                          <p className="text-xs sm:text-sm text-white">
+                            {validationResult.postValidationInfo.hierarchie}
+                          </p>
+                        </div>
+                      )}
+                      
+                      {validationResult.postValidationInfo.equipe && (
+                        <div>
+                          <h6 className="font-medium text-xs sm:text-sm text-white mb-1">Équipe:</h6>
+                          <ul className="list-disc pl-5 text-xs sm:text-sm text-white space-y-1">
+                            {validationResult.postValidationInfo.equipe.map((member: any, i: number) => (
+                              <li key={i}>
+                                <span className="font-medium">{member.name}</span> - {member.role} 
+                                {member.skills && <span className="text-blue-300"> ({member.skills})</span>}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         )}
         

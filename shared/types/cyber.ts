@@ -20,6 +20,7 @@ export interface ScenarioContact {
   role: string;
   expertise?: string;
   concern?: string;
+  company?: string;
 }
 
 // Type pour les missions de défense cyber
