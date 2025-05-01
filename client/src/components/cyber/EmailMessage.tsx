@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { Users, Paperclip, FileText, FileCode, FileWarning, FileQuestion, Download } from "lucide-react";
+import { Users, Paperclip, FileText, FileCode, FileWarning, FileQuestion, Download, Lock, CheckCircle, XCircle } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { ScenarioContact, EmailMessageContent, AttachmentMetadata } from "@shared/types/cyber";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 // Types aliases pour simplifier la transition
 type EmailContact = ScenarioContact;
@@ -12,6 +14,49 @@ interface EmailMessageProps {
 }
 
 export default function EmailMessage({ email }: EmailMessageProps) {
+  // État pour gérer la validation du mot de passe
+  const [password, setPassword] = useState("");
+  const [passwordSubmitted, setPasswordSubmitted] = useState(false);
+  const [validationResult, setValidationResult] = useState<{ valid: boolean; message: string; postValidationInfo?: any } | null>(null);
+  const [isValidating, setIsValidating] = useState(false);
+
+  // Fonction pour valider le mot de passe
+  const validatePassword = async () => {
+    if (!password.trim()) return;
+    
+    setIsValidating(true);
+    try {
+      // Extraire les informations nécessaires
+      const userRole = localStorage.getItem('userRole') || 'expert';
+      const userName = localStorage.getItem('userName') || 'Utilisateur';
+      // Extraire le domaine du scénario à partir du sujet ou du corps de l'email
+      const domain = email.subject || 'Cybersécurité';
+      const companyName = email.from.company || 'mc2i';
+      
+      const response = await apiRequest('/api/attachments/validate-password', {
+        method: 'POST',
+        data: {
+          password: password.trim(),
+          userRole,
+          domain,
+          userName,
+          companyName
+        }
+      });
+      
+      setValidationResult(response);
+      setPasswordSubmitted(true);
+    } catch (error) {
+      console.error('Erreur lors de la validation du mot de passe:', error);
+      setValidationResult({
+        valid: false,
+        message: 'Une erreur est survenue lors de la validation du mot de passe.'
+      });
+    } finally {
+      setIsValidating(false);
+    }
+  };
+  
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('fr-FR', {
