@@ -9,7 +9,7 @@ import OpenAI from 'openai';
 import { openAIService } from "./services/openai";
 import attachmentRoutes from './routes/attachmentRoutes';
 import { createAttachmentWithHiddenPassword } from './services/attachmentService';
-import { CyberScenario, CrisisDecisionContent } from '../shared/types/cyber';
+import { CyberScenario, CrisisDecisionContent, CrisisDecisionOption } from '../shared/types/cyber';
 
 // Récupérer le chemin du répertoire actuel en module ES
 const __filename = fileURLToPath(import.meta.url);
@@ -3430,6 +3430,118 @@ ${companyName || "mc2i"}`,
       });
     }
   });
+
+  /**
+   * Génère des options de décision initiales pour un scénario de crise
+   * Ces options auront des impacts réels sur la suite du scénario
+   */
+  async function generateInitialCrisisOptions(
+    domain: string,
+    userName: string,
+    userRole: string,
+    currentStage: number
+  ): Promise<CrisisDecisionContent> {
+    // Identifier le type de crise en fonction du domaine
+    let crisisType = "incident de sécurité";
+    let situationPrefix = "Un incident de sécurité";
+    
+    if (domain.includes("ransomware") || domain.includes("malware")) {
+      crisisType = "attaque par ransomware";
+      situationPrefix = "Une attaque par ransomware";
+    } else if (domain.includes("phishing") || domain.includes("ingénierie sociale")) {
+      crisisType = "campagne de phishing ciblée";
+      situationPrefix = "Une campagne de phishing sophistiquée";
+    } else if (domain.includes("fuite") || domain.includes("données")) {
+      crisisType = "fuite de données sensibles";
+      situationPrefix = "Une fuite de données client";
+    } else if (domain.includes("ddos") || domain.includes("déni")) {
+      crisisType = "attaque par déni de service";
+      situationPrefix = "Une attaque DDoS massive";
+    } else if (domain.includes("chaîne") || domain.includes("supply")) {
+      crisisType = "compromission de la chaîne d'approvisionnement";
+      situationPrefix = "Une compromission chez un fournisseur critique";
+    }
+    
+    // Génération de la situation centrale spécifique au type de crise
+    const situation = `${situationPrefix} vient d'être détectée dans notre infrastructure critique. Nous avons des preuves d'activité suspecte depuis les dernières 24 heures et plusieurs systèmes semblent affectés.`;
+    
+    // Contexte enrichi de la décision
+    const context = `Cette ${crisisType} présente des caractéristiques inhabituelles indiquant qu'il pourrait s'agir d'une attaque ciblée et non opportuniste. Nos équipes opérationnelles ont mis en place les premières mesures de confinement, mais nous devons rapidement définir une stratégie de réponse plus complète.`;
+    
+    // Faits historiques pertinents
+    const historicalFacts = `Les ${crisisType}s ont augmenté de 47% dans notre secteur d'activité ces douze derniers mois. Trois entreprises concurrentes ont récemment fait face à des incidents similaires, avec des impacts financiers allant de 2 à 8 millions d'euros et des interruptions de service de plusieurs jours.`;
+    
+    // Conséquences potentielles 
+    const consequences = `Si nous ne réagissons pas de manière appropriée, cet incident pourrait entraîner des perturbations opérationnelles majeures, des pertes financières importantes, des fuites de données clients et une atteinte à notre réputation. Les premières estimations suggèrent un impact potentiel sur plus de 30% de nos systèmes critiques.`;
+    
+    // Génération des 4 options avec des impacts différents et réalistes
+    const options: CrisisDecisionOption[] = [
+      {
+        id: "option1",
+        text: "Confinement prioritaire et investigation approfondie",
+        description: "Isoler immédiatement tous les systèmes potentiellement compromis, même ceux critiques pour l'activité, et lancer une investigation approfondie avec nos ressources internes avant de planifier la remédiation.",
+        impact: {
+          budget: -5, // Impact légèrement négatif sur le budget
+          timeline: 3, // Délai supplémentaire 
+          security: 8, // Très bon impact sur la sécurité
+          reputation: 2, // Impact modéré sur la réputation (réaction sérieuse)
+          employment: false // Pas d'impact sur l'emploi
+        }
+      },
+      {
+        id: "option2",
+        text: "Faire appel à un prestataire externe spécialisé",
+        description: "Contacter immédiatement un cabinet de réponse à incident externe, leur donner accès complet à nos systèmes et suivre leurs recommandations pour la gestion de cette crise.",
+        impact: {
+          budget: -20, // Impact négatif significatif sur le budget
+          timeline: -2, // Gain de temps grâce à l'expertise externe
+          security: 9, // Excellent impact sur la sécurité
+          reputation: 5, // Bon impact sur la réputation (solution professionnelle)
+          employment: false // Pas d'impact direct sur l'emploi
+        }
+      },
+      {
+        id: "option3",
+        text: "Remédiation rapide et retour à la normale",
+        description: "Prioriser le nettoyage et la restauration rapide des systèmes affectés pour minimiser l'impact sur l'activité, en utilisant les sauvegardes disponibles et en déployant des correctifs accélérés.",
+        impact: {
+          budget: -8, // Impact négatif modéré sur le budget
+          timeline: -1, // Léger gain de temps (retour rapide)
+          security: -3, // Impact négatif sur la sécurité (risque de ne pas traiter la cause profonde)
+          reputation: -2, // Impact légèrement négatif sur la réputation (solution potentiellement incomplète)
+          employment: false, // Pas d'impact direct sur l'emploi
+          missionCritical: true // Pourrait conduire à l'échec de la mission si l'attaque persiste
+        }
+      },
+      {
+        id: "option4",
+        text: "Restructuration radicale de l'équipe et des process",
+        description: "Considérer cet incident comme une défaillance majeure de notre approche sécurité. Réorganiser l'équipe cybersécurité avec de nouveaux talents, revoir complètement nos processus et investir massivement dans de nouvelles technologies de défense.",
+        impact: {
+          budget: -35, // Impact très négatif sur le budget (investissement massif)
+          timeline: 7, // Délai important
+          security: 10, // Impact maximal sur la sécurité à long terme
+          reputation: 4, // Bon impact sur la réputation (démarche sérieuse)
+          employment: true, // Impact sur l'emploi (changements d'équipe)
+          missionCritical: false 
+        }
+      }
+    ];
+    
+    // Création de l'objet de décision complet
+    const decision: CrisisDecisionContent = {
+      id: uuidv4(),
+      situation,
+      context,
+      historicalFacts,
+      consequences,
+      options,
+      deadline: "12 heures",
+      urgencyLevel: "élevée"
+    };
+    
+    return decision;
+  }
 
   // API route pour traiter les choix de décision de crise
   app.post('/api/cyber/decision', async (req: Request, res: Response) => {
