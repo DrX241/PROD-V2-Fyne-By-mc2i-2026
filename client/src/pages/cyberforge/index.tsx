@@ -1,7 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'wouter';
-import { ArrowLeft, BookOpen, Shield, Terminal, Lightbulb, Settings, MessageCircle, ChevronRight, Star, LockIcon, CheckCircle, ExternalLink, User } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { 
+  ArrowLeft, BookOpen, Shield, Terminal, Lightbulb, Settings, MessageCircle, 
+  ChevronRight, Star, LockIcon, CheckCircle, ExternalLink, User, AlertTriangle,
+  Server, Database, Globe, Wifi, Lock, UserX, Zap, FileCode, Fingerprint, BrainCircuit,
+  Eye, Monitor, Cpu, Cable, FileWarning, ShieldAlert, Key, PlayCircle, Clock8,
+  Circle, InfoIcon, X
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +16,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/contexts/ThemeContext';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import axios from 'axios';
 
 // Types pour les modules et leur contenu
@@ -33,67 +43,189 @@ interface AIRecommendation {
   type: 'continue' | 'revisit' | 'new';
 }
 
+interface SimulationScenario {
+  id: string;
+  title: string;
+  description: string;
+  difficulty: 'débutant' | 'intermédiaire' | 'avancé' | 'expert';
+  duration: string;
+  objectives: string[];
+  completionReward: number; // Points de compétence
+  icon: React.ReactNode;
+}
+
 // Données factices pour les modules
 const modules = [
   {
     id: 'fundamentals',
     title: 'Fondamentaux',
-    icon: '🔐',
+    icon: <Shield className="h-5 w-5" />,
+    iconEmoji: '🔐',
     color: 'bg-blue-500',
     description: 'Les principes de base de la cybersécurité et les concepts essentiels',
     level: 1,
     unlocked: true,
-    requiredModules: []
+    requiredModules: [],
+    hasLiveSimulation: false
   },
   {
     id: 'network-security',
     title: 'Sécurité Réseau',
-    icon: '🌐',
+    icon: <Globe className="h-5 w-5" />,
+    iconEmoji: '🌐',
     color: 'bg-purple-500',
     description: 'Protection des infrastructures réseau et détection des intrusions',
     level: 2,
     unlocked: false,
-    requiredModules: ['fundamentals']
+    requiredModules: ['fundamentals'],
+    hasLiveSimulation: true
   },
   {
     id: 'web-security',
     title: 'Sécurité Web',
-    icon: '🕸️',
+    icon: <FileCode className="h-5 w-5" />,
+    iconEmoji: '🕸️',
     color: 'bg-orange-500',
     description: 'Sécurisation des applications web et API',
     level: 3,
     unlocked: false,
-    requiredModules: ['fundamentals', 'network-security']
+    requiredModules: ['fundamentals', 'network-security'],
+    hasLiveSimulation: true
   },
   {
     id: 'cryptography',
     title: 'Cryptographie',
-    icon: '🔒',
+    icon: <Key className="h-5 w-5" />,
+    iconEmoji: '🔒',
     color: 'bg-green-500',
     description: 'Chiffrement, hachage et gestion des clés',
     level: 3,
     unlocked: false,
-    requiredModules: ['fundamentals']
+    requiredModules: ['fundamentals'],
+    hasLiveSimulation: true
   },
   {
     id: 'social-engineering',
     title: 'Ingénierie Sociale',
-    icon: '🎭',
+    icon: <UserX className="h-5 w-5" />,
+    iconEmoji: '🎭',
     color: 'bg-red-500',
     description: 'Techniques de manipulation et défenses psychologiques',
     level: 2,
     unlocked: false,
-    requiredModules: ['fundamentals']
+    requiredModules: ['fundamentals'],
+    hasLiveSimulation: true
   },
   {
     id: 'attack-scenarios',
     title: 'Scénarios d\'Attaque',
-    icon: '⚔️',
+    icon: <AlertTriangle className="h-5 w-5" />,
+    iconEmoji: '⚔️',
     color: 'bg-amber-500',
     description: 'Simulations d\'attaques réelles et analyses de cas',
     level: 4,
     unlocked: false,
-    requiredModules: ['fundamentals', 'network-security', 'web-security']
+    requiredModules: ['fundamentals', 'network-security', 'web-security'],
+    hasLiveSimulation: true
+  },
+  {
+    id: 'malware-analysis',
+    title: 'Analyse de Malware',
+    icon: <FileWarning className="h-5 w-5" />,
+    iconEmoji: '🔍',
+    color: 'bg-violet-500',
+    description: 'Techniques avancées d\'analyse de logiciels malveillants et de rétro-ingénierie',
+    level: 4,
+    unlocked: false,
+    requiredModules: ['fundamentals', 'network-security'],
+    hasLiveSimulation: true
+  },
+  {
+    id: 'incident-response',
+    title: 'Réponse aux Incidents',
+    icon: <ShieldAlert className="h-5 w-5" />,
+    iconEmoji: '🚨',
+    color: 'bg-emerald-500',
+    description: 'Stratégies et procédures pour réagir efficacement aux incidents de sécurité',
+    level: 3,
+    unlocked: false,
+    requiredModules: ['fundamentals', 'network-security'],
+    hasLiveSimulation: true
+  },
+  {
+    id: 'adversary-emulation',
+    title: 'Émulation d\'Adversaires',
+    icon: <Zap className="h-5 w-5" />,
+    iconEmoji: '⚡',
+    color: 'bg-rose-500',
+    description: 'Simulation avancée des tactiques, techniques et procédures (TTP) d\'attaquants réels',
+    level: 5,
+    unlocked: false, 
+    requiredModules: ['fundamentals', 'network-security', 'web-security', 'attack-scenarios'],
+    hasLiveSimulation: true
+  }
+];
+
+// Scénarios de simulation pour les différents modules
+const networkSecuritySimulations: SimulationScenario[] = [
+  {
+    id: 'network-1',
+    title: 'Détection d\'intrusion réseau',
+    description: 'Analysez le trafic réseau pour identifier une tentative d\'intrusion en cours',
+    difficulty: 'intermédiaire',
+    duration: '45-60 min',
+    objectives: [
+      'Configurer un système de détection d\'intrusion',
+      'Identifier les signatures d\'attaques dans le trafic réseau',
+      'Mettre en place des règles de blocage efficaces'
+    ],
+    completionReward: 150,
+    icon: <Wifi />
+  },
+  {
+    id: 'network-2',
+    title: 'Attaque MITM',
+    description: 'Simulation d\'une attaque Man-in-the-Middle dans un environnement contrôlé',
+    difficulty: 'avancé',
+    duration: '60-90 min',
+    objectives: [
+      'Comprendre les mécanismes de l\'attaque MITM',
+      'Identifier les vulnérabilités exploitables',
+      'Mettre en place des contre-mesures efficaces'
+    ],
+    completionReward: 200,
+    icon: <Cable />
+  }
+];
+
+const webSecuritySimulations: SimulationScenario[] = [
+  {
+    id: 'web-1',
+    title: 'Audit d\'application web',
+    description: 'Identifiez et corrigez les vulnérabilités OWASP Top 10 dans une application web',
+    difficulty: 'intermédiaire',
+    duration: '60-90 min',
+    objectives: [
+      'Scanner l\'application avec des outils automatisés',
+      'Vérifier manuellement les vulnérabilités découvertes',
+      'Proposer des correctifs pour chaque problème identifié'
+    ],
+    completionReward: 180,
+    icon: <Globe />
+  },
+  {
+    id: 'web-2',
+    title: 'Test d\'intrusion web',
+    description: 'Conduisez un test d\'intrusion complet sur une application web vulnérable',
+    difficulty: 'expert',
+    duration: '90-120 min',
+    objectives: [
+      'Établir un périmètre de test clair',
+      'Exécuter un test d\'intrusion méthodique',
+      'Documenter les vulnérabilités et leurs impacts'
+    ],
+    completionReward: 250,
+    icon: <FileCode />
   }
 ];
 
@@ -246,9 +378,19 @@ const fundamentalsQuiz = [
 ];
 
 // Composant principal CyberForge
+// Calculer la progression totale
+function calculateTotalProgress(moduleProgress: Record<string, ModuleProgress>): number {
+  const modules = Object.values(moduleProgress);
+  if (modules.length === 0) return 0;
+  
+  const totalProgress = modules.reduce((sum, module) => sum + module.progress, 0);
+  return Math.round(totalProgress / modules.length);
+}
+
 export default function CyberForge() {
   const { themeMode } = useTheme();
-  const isDark = themeMode === 'dark' || themeMode === 'futuristic';
+  // Corrigé pour utiliser le type comme une string
+  const isDark = themeMode === 'dark' || themeMode === 'futuristic' || false;
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   
@@ -348,7 +490,7 @@ export default function CyberForge() {
     
     // Recommandation pour un nouveau module
     const unlockedModules = modules.filter(m => {
-      if (m.unlocked) return true;
+      if (m.id === 'fundamentals') return true;
       return m.requiredModules.every(reqId => 
         userData.moduleProgress[reqId]?.completed
       );
@@ -395,15 +537,9 @@ export default function CyberForge() {
     if (score >= 80) {
       updatedUserData.moduleProgress.fundamentals.completed = true;
       
-      // Débloquer les modules qui dépendent de celui-ci
-      modules.forEach(module => {
-        if (module.requiredModules.includes('fundamentals')) {
-          updatedUserData.moduleProgress[module.id] = {
-            ...updatedUserData.moduleProgress[module.id],
-            unlocked: true
-          };
-        }
-      });
+      // Les modules avec les fondamentaux comme prérequis seront maintenant accessibles
+      // Pas besoin de marquer explicitement les modules comme débloqués car
+      // ils sont automatiquement débloqués lorsque leurs prérequis sont complétés
       
       toast({
         title: "Félicitations!",
@@ -439,11 +575,7 @@ export default function CyberForge() {
   
   // Sélectionner un module
   const selectModule = (moduleId: string) => {
-    const isUnlocked = isAdmin || moduleId === 'fundamentals' || 
-      modules.find(m => m.id === moduleId)?.unlocked ||
-      modules.find(m => m.id === moduleId)?.requiredModules.every(
-        reqId => userData.moduleProgress[reqId]?.completed
-      );
+    const isUnlocked = isModuleUnlocked(moduleId);
     
     if (!isUnlocked) {
       toast({
@@ -554,6 +686,27 @@ export default function CyberForge() {
   // Le module actuellement sélectionné
   const currentModule = modules.find(m => m.id === currentModuleId);
   
+  // États pour les simulations immersives
+  const [showSimulation, setShowSimulation] = useState(false);
+  const [activeSimulation, setActiveSimulation] = useState<SimulationScenario | null>(null);
+  const [simulationProgress, setSimulationProgress] = useState(0);
+  const [simulationStep, setSimulationStep] = useState(0);
+  const [simulationLog, setSimulationLog] = useState<string[]>([]);
+  const [currentScenarios, setCurrentScenarios] = useState<SimulationScenario[]>([]);
+  const [terminalOutput, setTerminalOutput] = useState<string>('');
+  const [userInput, setUserInput] = useState<string>('');
+  const [showAiExplainer, setShowAiExplainer] = useState(false);
+  const [aiExplanation, setAiExplanation] = useState('');
+  const [isAiResponding, setIsAiResponding] = useState(false);
+  const terminalRef = useRef<HTMLDivElement>(null);
+  
+  // Effet pour défiler automatiquement le terminal vers le bas
+  useEffect(() => {
+    if (terminalRef.current) {
+      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+    }
+  }, [terminalOutput]);
+  
   // Vérifier si un module est débloqué
   const isModuleUnlocked = (moduleId: string) => {
     if (isAdmin || moduleId === 'fundamentals') return true;
@@ -564,100 +717,476 @@ export default function CyberForge() {
     return module.requiredModules.every(reqId => userData.moduleProgress[reqId]?.completed);
   };
   
+  // Démarrer une simulation pour un module
+  const startSimulation = (moduleId: string) => {
+    // Obtenir les scénarios correspondants au module
+    let scenarios: SimulationScenario[] = [];
+    
+    switch(moduleId) {
+      case 'network-security':
+        scenarios = networkSecuritySimulations;
+        break;
+      case 'web-security':
+        scenarios = webSecuritySimulations;
+        break;
+      default:
+        toast({
+          title: "Simulation non disponible",
+          description: "Les simulations pour ce module ne sont pas encore disponibles.",
+          variant: "destructive"
+        });
+        return;
+    }
+    
+    setCurrentScenarios(scenarios);
+    setShowSimulation(true);
+    setActiveSimulation(null);
+    setSimulationStep(0);
+    setSimulationLog([]);
+    setTerminalOutput('');
+  };
+  
+  // Lancer une simulation spécifique
+  const launchSimulation = (scenario: SimulationScenario) => {
+    setActiveSimulation(scenario);
+    setSimulationStep(1);
+    setSimulationProgress(0);
+    setSimulationLog([
+      "Initialisation de l'environnement de simulation...",
+      "Préparation des assets...",
+      "Chargement des outils virtuels...",
+      "Environnement prêt pour la simulation."
+    ]);
+    
+    // Simulation d'un terminal avec output
+    setTerminalOutput(`
+$ cyberforge-sim --init --scenario="${scenario.id}" --difficulty=${scenario.difficulty}
+[+] Initializing CyberForge simulation environment...
+[+] Loading scenario: ${scenario.title}
+[+] Setting up virtual network and systems...
+[+] Installing required tools and dependencies...
+[+] Environment ready. Type 'help' for available commands.
+
+cyberforge@simulation:~$ _
+    `);
+  };
+  
+  // Simuler une entrée dans le terminal
+  const processTerminalInput = () => {
+    if (!userInput.trim()) return;
+    
+    const input = userInput;
+    setUserInput('');
+    
+    const newTerminalOutput = terminalOutput + `\ncyberforge@simulation:~$ ${input}\n`;
+    
+    // Simuler différentes commandes
+    let response = '';
+    
+    if (input === 'help') {
+      response = `
+Available commands:
+  scan <target>     - Scan a target for vulnerabilities
+  exploit <id>      - Attempt to exploit a vulnerability
+  analyze <file>    - Analyze a suspicious file
+  monitor           - Monitor network traffic
+  status            - Check mission objectives status
+  explain <topic>   - Get AI explanation on a cybersecurity topic
+  help              - Show this help message
+`;
+    } else if (input.startsWith('scan')) {
+      response = `
+[*] Starting scan on target system...
+[*] Scanning ports...
+[+] Open ports found: 22 (SSH), 80 (HTTP), 443 (HTTPS), 3306 (MySQL)
+[*] Enumerating services...
+[+] SSH service: OpenSSH 7.6p1
+[+] Web server: nginx 1.18.0
+[+] Found potential vulnerabilities:
+    - CVE-2021-3156 (Sudo vulnerability)
+    - CVE-2021-44228 (Log4j vulnerability)
+[*] Scan complete. Use 'exploit' command to attempt exploitation.
+`;
+      // Avancer la simulation
+      setSimulationProgress(25);
+      setSimulationLog(prev => [...prev, "Scan réseau effectué avec succès."]);
+    } else if (input.startsWith('exploit')) {
+      response = `
+[*] Attempting to exploit vulnerability...
+[*] Preparing payload...
+[*] Executing exploit...
+[+] Exploitation successful!
+[+] Gained access to target system with limited privileges.
+[*] Enumerating system...
+[+] Found sensitive files in /var/www/html/backup/
+[*] Next steps: Try to escalate privileges or extract sensitive data.
+`;
+      // Avancer la simulation
+      setSimulationProgress(50);
+      setSimulationLog(prev => [...prev, "Exploitation réussie avec privilèges limités."]);
+    } else if (input.startsWith('analyze')) {
+      response = `
+[*] Analyzing file...
+[*] Running static analysis...
+[*] Checking signatures...
+[+] File identified as potential ransomware
+[+] MD5: 8f7dd78e9bc2529eb9ad6aa43cbe60c1
+[+] SHA1: 4b34c93a8c30a9a3b9ac7f3fb3c3d745f23c9c67
+[+] Identified as part of "BlackCat" ransomware family
+[*] Analysis complete. Take appropriate countermeasures.
+`;
+      // Avancer la simulation
+      setSimulationProgress(75);
+      setSimulationLog(prev => [...prev, "Analyse de fichier complétée. Ransomware identifié."]);
+    } else if (input === 'monitor') {
+      response = `
+[*] Starting network traffic monitoring...
+[*] Capturing packets...
+[+] Unusual traffic detected:
+    - Large data transfer to external IP: 187.45.23.67
+    - Encrypted communication on non-standard port 8443
+    - Multiple failed authentication attempts from 203.87.123.5
+[*] Potential data exfiltration in progress!
+[*] Recommended action: Block suspicious IPs and investigate affected systems.
+`;
+      // Avancer la simulation
+      setSimulationProgress(90);
+      setSimulationLog(prev => [...prev, "Trafic suspect détecté. Exfiltration de données probable."]);
+    } else if (input === 'status') {
+      response = `
+[*] Mission objectives status:
+    - Identify vulnerabilities: COMPLETED
+    - Gain initial access: COMPLETED
+    - Analyze malware sample: ${simulationProgress >= 75 ? 'COMPLETED' : 'PENDING'}
+    - Detect data exfiltration: ${simulationProgress >= 90 ? 'COMPLETED' : 'PENDING'}
+    - Secure compromised system: PENDING
+    
+[*] Overall progress: ${simulationProgress}%
+`;
+    } else if (input.startsWith('explain')) {
+      setShowAiExplainer(true);
+      setIsAiResponding(true);
+      const topic = input.replace('explain', '').trim();
+      
+      // Simuler une réponse GPT-4o (dans une implémentation réelle, ça serait une requête API)
+      setTimeout(() => {
+        setIsAiResponding(false);
+        
+        if (topic === 'ransomware') {
+          setAiExplanation(`
+# Ransomware Expliqué
+
+Les ransomwares sont des logiciels malveillants qui chiffrent les fichiers des victimes, rendant leurs systèmes ou données inaccessibles, puis exigent une rançon pour les déchiffrer.
+
+## Comment fonctionnent les ransomwares
+
+1. **Infection** - Se propage souvent via des pièces jointes de phishing, des téléchargements malveillants ou des vulnérabilités logicielles.
+
+2. **Chiffrement** - Une fois à l'intérieur du système, le ransomware identifie et chiffre les fichiers précieux avec un algorithme de chiffrement puissant.
+
+3. **Extorsion** - Après le chiffrement, une note de rançon s'affiche exigeant un paiement (généralement en cryptomonnaie) en échange de la clé de déchiffrement.
+
+## Mesures de protection
+
+- Sauvegardes régulières et hors ligne
+- Filtrage des emails et formation à la sensibilisation
+- Application des correctifs et mises à jour
+- Principe du moindre privilège
+- Solutions de sécurité avancées
+
+## Tendances récentes
+
+Les attaques modernes de "double extorsion" volent d'abord les données, puis les chiffrent - menaçant de publier les informations sensibles si la rançon n'est pas payée.
+          `);
+        } else if (topic === 'mitm') {
+          setAiExplanation(`
+# Attaques Man-in-the-Middle (MITM)
+
+Une attaque Man-in-the-Middle se produit lorsqu'un attaquant s'insère secrètement dans une communication entre deux parties.
+
+## Fonctionnement
+
+1. **Interception** - L'attaquant intercepte le trafic réseau entre la victime et sa destination.
+
+2. **Déchiffrement** - Si la communication est chiffrée, l'attaquant tente de la déchiffrer.
+
+3. **Modification/Surveillance** - L'attaquant peut lire ou modifier les données en transit.
+
+4. **Retransmission** - Les données sont retransmises (potentiellement modifiées) à la destination originale.
+
+## Techniques courantes
+
+- **ARP Spoofing** - Associe l'adresse MAC de l'attaquant à l'adresse IP d'un hôte légitime
+- **DNS Spoofing** - Redirige le trafic en falsifiant les réponses DNS
+- **SSL Stripping** - Dégrade les connexions HTTPS en HTTP non sécurisé
+- **Wi-Fi Frauduleux** - Création de points d'accès malveillants
+
+## Mesures de protection
+
+- Utilisation de HTTPS avec HSTS
+- Vérification des certificats
+- VPN sécurisés
+- Authentification à deux facteurs
+          `);
+        } else {
+          setAiExplanation(`
+# ${topic.charAt(0).toUpperCase() + topic.slice(1)}
+
+Je n'ai pas d'information spécifique sur ce sujet dans ma base de connaissances actuelle. Voici quelques ressources générales sur la cybersécurité que vous pourriez consulter:
+
+- OWASP (Open Web Application Security Project)
+- NIST Cybersecurity Framework
+- MITRE ATT&CK Framework
+- SANS Institute Resources
+
+Pour des informations précises sur ce sujet, je vous recommande de consulter ces sources ou de reformuler votre demande avec plus de détails.
+          `);
+        }
+      }, 1500);
+      
+      response = `[*] Demande d'explication IA envoyée. Génération de contenu en cours...`;
+    } else {
+      response = `Command not found: ${input}. Type 'help' for available commands.`;
+    }
+    
+    // Ajoute la réponse au terminal avec un délai pour simuler le traitement
+    setTimeout(() => {
+      setTerminalOutput(newTerminalOutput + response + '\ncyberforge@simulation:~$ _');
+    }, 300);
+  };
+  
+  // Compléter une simulation
+  const completeSimulation = () => {
+    if (!activeSimulation) return;
+    
+    // Mise à jour du score et progression
+    const updatedUserData = {...userData};
+    const currentModuleProgress = updatedUserData.moduleProgress[currentModuleId] || { 
+      completed: false, progress: 0 
+    };
+    
+    // Ajouter des points pour compléter la simulation
+    const newProgress = Math.min(100, currentModuleProgress.progress + 20);
+    updatedUserData.moduleProgress[currentModuleId] = {
+      ...currentModuleProgress,
+      progress: newProgress,
+      completed: newProgress >= 100
+    };
+    
+    // Calculer la progression totale
+    const totalProgress = calculateTotalProgress(updatedUserData.moduleProgress);
+    updatedUserData.totalProgress = totalProgress;
+    
+    setUserData(updatedUserData);
+    localStorage.setItem('cyberforge_user', JSON.stringify(updatedUserData));
+    
+    toast({
+      title: "Simulation terminée",
+      description: `Vous avez gagné ${activeSimulation.completionReward} points de compétence!`,
+    });
+    
+    // Retour à la liste des simulations
+    setShowSimulation(true);
+    setActiveSimulation(null);
+    setSimulationStep(0);
+    
+    // Marquer le module comme complété si 100% atteint
+    if (newProgress >= 100) {
+      updatedUserData.moduleProgress[currentModuleId].completed = true;
+      // Les autres modules seront automatiquement accessibles
+      // car nous vérifions les prérequis complétés via isModuleUnlocked
+      
+      setUserData(updatedUserData);
+      localStorage.setItem('cyberforge_user', JSON.stringify(updatedUserData));
+    }
+  };
+  
   return (
     <div className={`min-h-screen flex ${isDark ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
-      {/* Sidebar navigation */}
-      <div className={`w-64 flex-shrink-0 ${isDark ? 'bg-gray-800' : 'bg-white'} border-r ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
-        <div className="p-4">
+      {/* Sidebar navigation - Version améliorée avec effets futuristes */}
+      <div className={`w-72 flex-shrink-0 relative ${isDark ? 'bg-gray-800' : 'bg-white'} border-r ${isDark ? 'border-blue-900/50' : 'border-gray-200'}`}>
+        {/* Background effect for dark theme */}
+        {isDark && (
+          <div className="absolute inset-0 overflow-hidden opacity-20">
+            <div className="absolute -top-20 -right-20 w-40 h-40 bg-blue-500/20 rounded-full filter blur-3xl"></div>
+            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-indigo-500/20 rounded-full filter blur-3xl"></div>
+            {/* Grid pattern */}
+            <div className="absolute inset-0 opacity-30">
+              <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <pattern id="smallGrid" width="8" height="8" patternUnits="userSpaceOnUse">
+                    <path d="M 8 0 L 0 0 0 8" fill="none" stroke="rgba(59, 130, 246, 0.2)" strokeWidth="0.5" />
+                  </pattern>
+                  <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
+                    <rect width="80" height="80" fill="url(#smallGrid)" />
+                    <path d="M 80 0 L 0 0 0 80" fill="none" stroke="rgba(59, 130, 246, 0.3)" strokeWidth="1" />
+                  </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grid)" />
+              </svg>
+            </div>
+          </div>
+        )}
+        
+        <div className="p-5 relative z-10">
           <div className="flex justify-between items-center mb-4">
             <Link href="/">
-              <Button variant="ghost" size="icon">
-                <ArrowLeft className="h-5 w-5" />
+              <Button variant="ghost" size="icon" className={isDark ? 'hover:bg-blue-900/20' : ''}>
+                <ArrowLeft className={`h-5 w-5 ${isDark ? 'text-blue-400' : ''}`} />
               </Button>
             </Link>
-            <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-600">
-              CyberForge
+            <h1 className={isDark 
+              ? "text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-400 tracking-wide" 
+              : "text-xl font-bold text-blue-600"
+            }>
+              CyberForge Academy
             </h1>
           </div>
           
           {isNameSet ? (
-            <div className={`p-3 mb-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
+            <div className={`p-4 mb-4 rounded-lg ${isDark ? 'bg-gray-900/80 border border-blue-900/50' : 'bg-blue-50 border border-blue-100'}`}>
               <div className="flex items-center mb-2">
-                <User className="h-5 w-5 mr-2" />
+                <User className={`h-5 w-5 mr-2 ${isDark ? 'text-blue-400' : 'text-blue-500'}`} />
                 <span className="font-medium">{userName}</span>
               </div>
               <div className="flex flex-col space-y-1">
                 <div className="flex justify-between text-xs">
-                  <span>Progression totale</span>
-                  <span>{userData.totalProgress}%</span>
+                  <span className={isDark ? 'text-gray-300' : 'text-gray-600'}>Progression totale</span>
+                  <span className={isDark ? 'text-blue-300' : 'text-blue-600'}>{userData.totalProgress}%</span>
                 </div>
-                <Progress value={userData.totalProgress} className={`h-1.5 ${isDark ? 'bg-gray-600' : 'bg-gray-200'}`} />
+                <div className="relative">
+                  <Progress 
+                    value={userData.totalProgress} 
+                    className={`h-2 ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`} 
+                  />
+                  {isDark && (
+                    <div className="absolute inset-0 overflow-hidden">
+                      <div className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-indigo-500" style={{ width: `${userData.totalProgress}%` }}></div>
+                      <div className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400/30 to-indigo-400/30 animate-pulse" style={{ width: `${userData.totalProgress}%` }}></div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           ) : (
-            <div className={`p-3 mb-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
-              <label className="text-sm font-medium mb-1 block">Votre nom</label>
+            <div className={`p-4 mb-4 rounded-lg ${isDark ? 'bg-gray-900/80 border border-blue-900/50' : 'bg-blue-50 border border-blue-100'}`}>
+              <label className={`text-sm font-medium mb-1 block ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Votre nom d'agent cyber</label>
               <div className="flex space-x-2">
                 <Input 
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
                   placeholder="Entrez votre nom"
-                  className={isDark ? 'bg-gray-800 border-gray-600' : ''}
+                  className={isDark ? 'bg-gray-800 border-gray-700 placeholder:text-gray-500' : ''}
                 />
-                <Button size="sm" onClick={setName}>OK</Button>
+                <Button size="sm" className={isDark ? 'bg-blue-600 hover:bg-blue-700' : ''} onClick={setName}>OK</Button>
               </div>
             </div>
           )}
           
-          <div className="space-y-1.5">
+          {/* Module list with enhanced visuals */}
+          <div className="space-y-2">
             {modules.map((module) => {
               const isUnlocked = isModuleUnlocked(module.id);
               const progress = userData.moduleProgress[module.id]?.progress || 0;
               const isCompleted = userData.moduleProgress[module.id]?.completed || false;
               
               return (
-                <button
+                <div
                   key={module.id}
-                  className={`w-full flex items-center p-2.5 rounded-md ${
-                    currentModuleId === module.id 
-                      ? isDark ? 'bg-blue-900/50 text-blue-100' : 'bg-blue-100 text-blue-900'
-                      : isUnlocked
-                        ? isDark ? 'hover:bg-gray-700 text-gray-200' : 'hover:bg-gray-100 text-gray-800'
-                        : isDark ? 'text-gray-500' : 'text-gray-400'
+                  className={`relative overflow-hidden ${
+                    !isUnlocked && !isAdmin ? 'opacity-70 grayscale' : ''
                   }`}
-                  onClick={() => selectModule(module.id)}
-                  disabled={!isUnlocked && !isAdmin}
                 >
-                  <div className={`mr-2.5 flex items-center justify-center w-8 h-8 rounded-md ${module.color} bg-opacity-15`}>
-                    <span className="text-lg">{module.icon}</span>
-                  </div>
-                  <div className="flex-1 text-left">
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium">{module.title}</span>
-                      {!isUnlocked && !isAdmin && (
-                        <LockIcon className="h-3.5 w-3.5 ml-1" />
+                  <button
+                    className={`w-full flex items-center p-3 rounded-lg ${
+                      currentModuleId === module.id 
+                        ? isDark ? 'bg-blue-900/40 text-blue-100 border border-blue-800/80' : 'bg-blue-100 text-blue-900 border border-blue-200'
+                        : isUnlocked || isAdmin
+                          ? isDark ? 'bg-gray-900/60 hover:bg-gray-800/60 text-gray-100 border border-gray-700/50' : 'bg-white hover:bg-gray-50 text-gray-800 border border-gray-200'
+                          : isDark ? 'bg-gray-900/40 text-gray-400 border border-gray-800/30' : 'bg-gray-50 text-gray-400 border border-gray-200'
+                    }`}
+                    onClick={() => selectModule(module.id)}
+                    disabled={!isUnlocked && !isAdmin}
+                  >
+                    {/* Module icon with glow effect on dark theme */}
+                    <div className={`relative flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-md ${module.color} ${isDark ? 'bg-opacity-20' : 'bg-opacity-10'} mr-3 ${isDark && currentModuleId === module.id ? 'shadow-glow' : ''}`}>
+                      {isDark && (
+                        <div className="absolute inset-0 rounded-md bg-opacity-40 bg-gradient-to-br from-white/5 to-white/0"></div>
                       )}
-                      {isCompleted && (
-                        <CheckCircle className="h-3.5 w-3.5 ml-1 text-green-500" />
-                      )}
+                      {isDark ? module.icon : <span className="text-lg">{module.iconEmoji}</span>}
                     </div>
-                    {isUnlocked && !isCompleted && (
-                      <div className="w-full mt-1">
-                        <Progress value={progress} className={`h-1 ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`} />
+                    
+                    <div className="flex-1 text-left overflow-hidden">
+                      <div className="flex items-center justify-between">
+                        <span className={`font-medium truncate ${isDark && currentModuleId === module.id ? 'text-blue-300' : ''}`}>
+                          {module.title}
+                        </span>
+                        <div className="flex items-center ml-1">
+                          {!isUnlocked && !isAdmin && (
+                            <LockIcon className="h-3.5 w-3.5 ml-1 text-gray-400" />
+                          )}
+                          {isCompleted && (
+                            <CheckCircle className="h-3.5 w-3.5 ml-1 text-green-500" />
+                          )}
+                          {module.hasLiveSimulation && isUnlocked && (
+                            <span className={`ml-1 flex items-center rounded-full px-1.5 text-[10px] font-medium ${
+                              isDark ? 'bg-indigo-950 text-indigo-400 border border-indigo-800/50' : 'bg-indigo-50 text-indigo-600 border border-indigo-200'
+                            }`}>
+                              SIM
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    )}
-                  </div>
-                </button>
+                      
+                      <div className="flex items-center mt-1">
+                        <div className="flex-1 mr-2">
+                          <div className={`relative w-full h-1.5 ${isDark ? 'bg-gray-800' : 'bg-gray-200'} rounded-full overflow-hidden`}>
+                            <div 
+                              className={`absolute top-0 left-0 h-full rounded-full ${isDark ? 'bg-gradient-to-r from-blue-600 to-indigo-600' : 'bg-blue-600'}`} 
+                              style={{ width: `${progress}%` }} 
+                            />
+                            {isDark && isUnlocked && (
+                              <div 
+                                className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400/30 to-indigo-400/30 rounded-full animate-pulse" 
+                                style={{ width: `${progress}%` }} 
+                              />
+                            )}
+                          </div>
+                        </div>
+                        <span className={`text-xs flex-shrink-0 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                          {progress}%
+                        </span>
+                      </div>
+                    </div>
+                  </button>
+                  
+                  {module.hasLiveSimulation && isUnlocked && (
+                    <button
+                      className={`absolute right-3 bottom-3 p-1 rounded-full ${
+                        isDark 
+                          ? 'bg-indigo-900/50 text-indigo-400 hover:bg-indigo-800/50' 
+                          : 'bg-indigo-100 text-indigo-600 hover:bg-indigo-200'
+                      }`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        startSimulation(module.id);
+                      }}
+                      title="Lancer une simulation"
+                    >
+                      <PlayCircle className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
               );
             })}
           </div>
           
-          <div className="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="mt-8 pt-4 border-t border-gray-700/50">
             <button
               className={`w-full text-left px-3 py-2 rounded-md text-sm ${
                 isAdmin 
-                  ? isDark ? 'bg-green-900/20 text-green-300' : 'bg-green-100 text-green-800'
-                  : isDark ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-100 text-gray-700'
+                  ? isDark ? 'bg-green-900/20 text-green-300 border border-green-800/50' : 'bg-green-100 text-green-800 border border-green-200'
+                  : isDark ? 'hover:bg-gray-800 text-gray-300' : 'hover:bg-gray-100 text-gray-700'
               }`}
               onClick={toggleAdminMode}
             >
@@ -669,263 +1198,687 @@ export default function CyberForge() {
       </div>
       
       {/* Main content area */}
-      <div className="flex-1 flex flex-col">
-        {/* Module header */}
-        <header className={`py-4 px-6 ${isDark ? 'bg-gray-800' : 'bg-white'} border-b ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <div className={`flex items-center justify-center w-10 h-10 rounded-md ${currentModule?.color} bg-opacity-15 mr-3`}>
-                <span className="text-2xl">{currentModule?.icon}</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold">{currentModule?.title}</h1>
-                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                  {currentModule?.description}
-                </p>
+      {showSimulation ? (
+        // Mode Simulation
+        <div className="flex-1 flex flex-col">
+          {/* Simulation header */}
+          <header className={`py-4 px-6 ${isDark ? 'bg-gray-800/80 backdrop-blur-sm border-b border-gray-700' : 'bg-white border-b border-gray-200'}`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setShowSimulation(false)}
+                  className={isDark ? 'hover:bg-gray-700' : ''}
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+                <div className="ml-3">
+                  <h1 className="text-xl font-bold">Simulations {currentModule?.title}</h1>
+                  <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                    Mettez vos compétences à l'épreuve dans des environnements réalistes
+                  </p>
+                </div>
               </div>
             </div>
-            
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => setIsChatOpen(!isChatOpen)}
-              className={isChatOpen ? (isDark ? 'bg-blue-900/20' : 'bg-blue-100') : ''}
-            >
-              <MessageCircle className={isChatOpen ? 'text-blue-500' : ''} />
-            </Button>
-          </div>
-        </header>
-        
-        {/* Main content with tabs */}
-        <div className="flex-1 p-6 overflow-auto flex">
-          <div className="flex-1">
-            {currentModuleId === 'fundamentals' ? (
-              <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="mb-4">
-                  {moduleSections.map((section) => (
-                    <TabsTrigger key={section.id} value={section.id}>
-                      {section.title}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-                
-                {moduleSections.map((section) => (
-                  <TabsContent key={section.id} value={section.id} className="outline-none">
-                    {section.id === 'quiz' ? (
-                      <div className={`p-6 rounded-lg ${isDark ? 'bg-gray-800' : 'bg-white'} border ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
-                        <h2 className="text-xl font-bold mb-4">Quiz sur les fondamentaux</h2>
-                        <p className="mb-6 text-sm">Testez vos connaissances sur les concepts fondamentaux de la cybersécurité.</p>
-                        
-                        <div className="space-y-6">
-                          {fundamentalsQuiz.map((question, qIndex) => (
-                            <div 
-                              key={qIndex} 
-                              className={`p-4 rounded-lg border ${
-                                quizSubmitted 
-                                  ? quizAnswers[qIndex] === question.correctAnswer
-                                    ? isDark ? 'border-green-500 bg-green-900/20' : 'border-green-500 bg-green-50'
-                                    : isDark ? 'border-red-500 bg-red-900/20' : 'border-red-500 bg-red-50'
-                                  : isDark ? 'border-gray-700' : 'border-gray-200'
-                              }`}
-                            >
-                              <h3 className="font-medium mb-3">Question {qIndex + 1}: {question.question}</h3>
-                              <div className="space-y-2">
-                                {question.options.map((option, oIndex) => (
-                                  <label 
-                                    key={oIndex}
-                                    className={`flex items-center p-3 rounded-md cursor-pointer ${
-                                      quizAnswers[qIndex] === oIndex
-                                        ? isDark ? 'bg-blue-900/30 border border-blue-500' : 'bg-blue-100 border border-blue-300'
-                                        : isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'
-                                    } ${
-                                      quizSubmitted && oIndex === question.correctAnswer
-                                        ? isDark ? 'border border-green-500 !bg-green-900/30' : 'border border-green-500 !bg-green-50'
-                                        : ''
-                                    }`}
-                                  >
-                                    <input
-                                      type="radio"
-                                      name={`question-${qIndex}`}
-                                      value={oIndex}
-                                      checked={quizAnswers[qIndex] === oIndex}
-                                      onChange={() => {
-                                        const newAnswers = [...quizAnswers];
-                                        newAnswers[qIndex] = oIndex;
-                                        setQuizAnswers(newAnswers);
-                                      }}
-                                      className="mr-3"
-                                      disabled={quizSubmitted}
-                                    />
-                                    {option}
-                                  </label>
-                                ))}
-                              </div>
-                              
-                              {quizSubmitted && (
-                                <div className={`mt-3 p-3 rounded-md ${
-                                  isDark ? 'bg-gray-700' : 'bg-gray-100'
-                                }`}>
-                                  <p className="text-sm">
-                                    <span className="font-medium">Explication: </span>
-                                    {question.explanation}
-                                  </p>
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                        
-                        {!quizSubmitted ? (
-                          <Button 
-                            className="mt-6"
-                            onClick={submitQuiz}
-                            disabled={quizAnswers.length < fundamentalsQuiz.length}
-                          >
-                            Soumettre mes réponses
-                          </Button>
-                        ) : (
-                          <div className="mt-6 text-center">
-                            <h3 className="font-bold text-lg mb-2">
-                              {
-                                quizAnswers.filter((answer, i) => answer === fundamentalsQuiz[i].correctAnswer).length === fundamentalsQuiz.length
-                                  ? "Félicitations! Score parfait!"
-                                  : "Quiz terminé!"
-                              }
-                            </h3>
-                            <p className="mb-4">
-                              Vous avez obtenu {quizAnswers.filter((answer, i) => answer === fundamentalsQuiz[i].correctAnswer).length} réponses correctes sur {fundamentalsQuiz.length}.
-                            </p>
-                            <Button onClick={() => setQuizSubmitted(false)}>
-                              Recommencer le quiz
-                            </Button>
-                          </div>
-                        )}
+          </header>
+          
+          {/* Simulation content */}
+          <div className="flex-1 p-6 overflow-auto">
+            {!activeSimulation ? (
+              // Liste des simulations disponibles
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {currentScenarios.map((scenario) => (
+                  <div 
+                    key={scenario.id}
+                    className={`rounded-lg overflow-hidden ${
+                      isDark 
+                        ? 'bg-gray-800/80 border border-gray-700 hover:border-blue-700/50' 
+                        : 'bg-white border border-gray-200 hover:border-blue-300'
+                    } transition-all duration-300 hover:shadow-lg cursor-pointer group`}
+                    onClick={() => launchSimulation(scenario)}
+                  >
+                    <div className={`p-4 border-b ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+                      <div className="flex justify-between items-start mb-3">
+                        <h3 className={`text-lg font-semibold ${isDark ? 'text-blue-400 group-hover:text-blue-300' : 'text-blue-600'}`}>
+                          {scenario.title}
+                        </h3>
+                        <Badge className={`${
+                          scenario.difficulty === 'débutant' 
+                            ? isDark ? 'bg-green-900/50 text-green-400 border-green-800' : 'bg-green-100 text-green-800'
+                            : scenario.difficulty === 'intermédiaire'
+                              ? isDark ? 'bg-blue-900/50 text-blue-400 border-blue-800' : 'bg-blue-100 text-blue-800'
+                              : scenario.difficulty === 'avancé'
+                                ? isDark ? 'bg-amber-900/50 text-amber-400 border-amber-800' : 'bg-amber-100 text-amber-800'
+                                : isDark ? 'bg-red-900/50 text-red-400 border-red-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {scenario.difficulty}
+                        </Badge>
                       </div>
-                    ) : (
-                      <div className={`prose max-w-none ${isDark ? 'prose-invert' : ''} bg-transparent`}>
-                        <div
-                          dangerouslySetInnerHTML={{ 
-                            __html: section.content
-                              .replace(/^# (.+)$/gm, (_, title) => `<h2 class="text-xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-800'}">${title}</h2>`)
-                              .replace(/^## (.+)$/gm, (_, title) => `<h3 class="text-lg font-semibold mb-3 ${isDark ? 'text-gray-200' : 'text-gray-700'}">${title}</h3>`)
-                              .replace(/\*\*([^*]+)\*\*/g, `<strong class="${isDark ? 'text-blue-300' : 'text-blue-700'}">$1</strong>`)
-                              .replace(/\n\n/g, '<br/><br/>')
-                          }}
+                      
+                      <p className={`text-sm mb-3 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {scenario.description}
+                      </p>
+                      
+                      <div className="flex items-center text-xs">
+                        <Clock8 className="h-3.5 w-3.5 mr-1.5" />
+                        <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>
+                          {scenario.duration}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className={`p-4 ${isDark ? 'bg-gray-900/50' : 'bg-gray-50'}`}>
+                      <h4 className={`text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                        Objectifs:
+                      </h4>
+                      <ul className="space-y-1.5">
+                        {scenario.objectives.map((objective, index) => (
+                          <li key={index} className="flex items-start">
+                            <CheckCircle className={`h-4 w-4 mt-0.5 mr-2 flex-shrink-0 ${isDark ? 'text-blue-500' : 'text-blue-600'}`} />
+                            <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                              {objective}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                      
+                      <div className={`mt-4 p-3 rounded-md ${isDark ? 'bg-blue-900/20 border border-blue-900/50' : 'bg-blue-50 border border-blue-100'}`}>
+                        <div className="flex items-center">
+                          <Star className={`h-4 w-4 mr-2 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                          <span className={`text-xs font-medium ${isDark ? 'text-blue-400' : 'text-blue-700'}`}>
+                            Récompense: {scenario.completionReward} points de compétence
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              // Simulation active
+              <div className="flex flex-col h-full">
+                {/* Progress bar and info */}
+                <div className="mb-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <h2 className={`text-xl font-bold ${isDark ? 'text-blue-400' : 'text-blue-700'}`}>
+                      {activeSimulation.title}
+                    </h2>
+                    <Badge className={`${
+                      activeSimulation.difficulty === 'débutant' 
+                        ? isDark ? 'bg-green-900/50 text-green-400 border-green-800' : 'bg-green-100 text-green-800'
+                        : activeSimulation.difficulty === 'intermédiaire'
+                          ? isDark ? 'bg-blue-900/50 text-blue-400 border-blue-800' : 'bg-blue-100 text-blue-800'
+                          : activeSimulation.difficulty === 'avancé'
+                            ? isDark ? 'bg-amber-900/50 text-amber-400 border-amber-800' : 'bg-amber-100 text-amber-800'
+                            : isDark ? 'bg-red-900/50 text-red-400 border-red-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {activeSimulation.difficulty}
+                    </Badge>
+                  </div>
+                  
+                  <div className="flex justify-between items-center text-xs mb-2">
+                    <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>
+                      Progression: {simulationProgress}%
+                    </span>
+                    <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>
+                      {activeSimulation.objectives.length} objectifs
+                    </span>
+                  </div>
+                  
+                  <div className="relative h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div 
+                      className={`absolute top-0 left-0 h-full ${
+                        isDark 
+                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600' 
+                          : 'bg-blue-600'
+                      }`}
+                      style={{ width: `${simulationProgress}%` }}
+                    ></div>
+                    {isDark && (
+                      <div 
+                        className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400/30 to-indigo-400/30 animate-pulse" 
+                        style={{ width: `${simulationProgress}%` }}
+                      ></div>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Simulation interface */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
+                  {/* Simulation terminal - 2/3 width on larger screens */}
+                  <div className={`md:col-span-2 rounded-lg overflow-hidden border ${
+                    isDark ? 'bg-gray-950 border-gray-800' : 'bg-black border-gray-300'
+                  }`}>
+                    <div className={`px-4 py-2 ${isDark ? 'bg-gray-900' : 'bg-gray-800'} flex items-center justify-between`}>
+                      <div className="flex items-center">
+                        <div className="flex space-x-2 mr-3">
+                          <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                          <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                        </div>
+                        <span className="text-xs text-gray-300">Terminal - CyberForge Simulation</span>
+                      </div>
+                    </div>
+                    
+                    <div className="p-4 h-[400px] overflow-auto font-mono text-sm text-green-400" ref={terminalRef}>
+                      <pre className="whitespace-pre-wrap">{terminalOutput}</pre>
+                    </div>
+                    
+                    <div className={`p-3 border-t ${isDark ? 'border-gray-800' : 'border-gray-700'}`}>
+                      <div className="flex items-center">
+                        <span className="text-green-400 mr-2">$</span>
+                        <input
+                          type="text"
+                          value={userInput}
+                          onChange={(e) => setUserInput(e.target.value)}
+                          onKeyPress={(e) => e.key === 'Enter' && processTerminalInput()}
+                          className="flex-1 bg-transparent outline-none text-green-400 font-mono"
+                          placeholder="Entrez une commande..."
                         />
                       </div>
-                    )}
-                  </TabsContent>
-                ))}
-              </Tabs>
-            ) : (
-              <div className="flex-1 flex items-center justify-center">
-                <div className="text-center max-w-lg">
-                  <h2 className={`text-xl font-bold mb-3 ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
-                    Contenu en développement
-                  </h2>
-                  <p className={`mb-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Le contenu de ce module sera généré par IA à la demande dans la version complète de CyberForge Academy.
-                  </p>
-                  <div className={`p-4 rounded-lg ${isDark ? 'bg-blue-900/20 border border-blue-800' : 'bg-blue-50 border border-blue-200'}`}>
-                    <p className="text-sm text-center">
-                      <ExternalLink className="h-4 w-4 inline-block mr-1.5" />
-                      La version complète utilisera Azure OpenAI pour générer du contenu personnalisé basé sur votre niveau et vos intérêts.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-          
-          {/* AI Recommendations and Chat Panel */}
-          <div className={`transition-all duration-300 ${
-            isChatOpen ? 'w-80 opacity-100 ml-6' : 'w-0 opacity-0 overflow-hidden'
-          }`}>
-            {isChatOpen && (
-              <div className={`h-full rounded-lg border overflow-hidden flex flex-col ${
-                isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-              }`}>
-                <div className={`p-3 border-b ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
-                  <h3 className="font-medium">Assistant CyberForge</h3>
-                </div>
-                
-                <div className="flex-1 p-3 overflow-y-auto">
-                  {aiRecommendations.length > 0 && (
-                    <div className="mb-4">
-                      <h4 className={`text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                        <Lightbulb className="h-3.5 w-3.5 inline-block mr-1" />
-                        Recommandations
-                      </h4>
-                      <div className="space-y-2">
-                        {aiRecommendations.map((rec, index) => (
-                          <button
-                            key={index}
-                            className={`w-full p-3 text-left text-sm rounded-md ${
-                              isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'
-                            }`}
-                            onClick={() => selectModule(rec.moduleId)}
-                          >
-                            <div className="font-medium">{rec.title}</div>
-                            <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                              {rec.message}
-                            </p>
-                          </button>
-                        ))}
-                      </div>
                     </div>
-                  )}
-                  
-                  <div className={`${chatHistory.length > 0 ? 'mb-4' : ''}`}>
-                    {chatHistory.map((msg, index) => (
-                      <div
-                        key={index}
-                        className={`mb-3 ${
-                          msg.role === 'user' ? 'text-right' : 'text-left'
-                        }`}
-                      >
-                        <div
-                          className={`inline-block max-w-[80%] rounded-lg p-3 ${
-                            msg.role === 'user'
-                              ? isDark ? 'bg-blue-700 text-white' : 'bg-blue-600 text-white'
-                              : isDark ? 'bg-gray-700' : 'bg-gray-100'
-                          }`}
-                        >
-                          <p className="text-sm">{msg.content}</p>
-                        </div>
-                      </div>
-                    ))}
                   </div>
                   
-                  {chatHistory.length === 0 && (
-                    <div className="text-center py-8">
-                      <MessageCircle className={`h-12 w-12 mx-auto mb-3 ${isDark ? 'text-gray-600' : 'text-gray-300'}`} />
-                      <h3 className="font-medium mb-1">Assistant IA</h3>
-                      <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                        Posez des questions sur la cybersécurité ou demandez de l'aide avec le contenu du cours.
-                      </p>
+                  {/* Simulation info panel - 1/3 width on larger screens */}
+                  <div className="flex flex-col space-y-4">
+                    {/* Mission objectives */}
+                    <div className={`rounded-lg ${
+                      isDark 
+                        ? 'bg-gray-800/80 border border-gray-700' 
+                        : 'bg-white border border-gray-200'
+                    }`}>
+                      <div className={`p-3 border-b ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+                        <h3 className="font-medium">Objectifs de la mission</h3>
+                      </div>
+                      <div className="p-3">
+                        <ul className="space-y-2">
+                          {activeSimulation.objectives.map((objective, index) => (
+                            <li key={index} className="flex items-start">
+                              {simulationProgress >= (index + 1) * (100 / activeSimulation.objectives.length) ? (
+                                <CheckCircle className={`h-4 w-4 mt-0.5 mr-2 ${isDark ? 'text-green-500' : 'text-green-600'}`} />
+                              ) : (
+                                <Circle className={`h-4 w-4 mt-0.5 mr-2 ${isDark ? 'text-gray-600' : 'text-gray-400'}`} />
+                              )}
+                              <span className={`text-sm ${
+                                simulationProgress >= (index + 1) * (100 / activeSimulation.objectives.length)
+                                  ? isDark ? 'text-gray-300' : 'text-gray-700'
+                                  : isDark ? 'text-gray-500' : 'text-gray-500'
+                              }`}>
+                                {objective}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
-                  )}
-                </div>
-                
-                <div className={`p-3 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
-                  <div className="flex space-x-2">
-                    <Input
-                      value={chatMessage}
-                      onChange={(e) => setChatMessage(e.target.value)}
-                      placeholder="Posez votre question..."
-                      className={isDark ? 'bg-gray-700 border-gray-600' : ''}
-                      onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                    />
-                    <Button size="icon" onClick={sendMessage}>
-                      <ChevronRight className="h-4 w-4" />
+                    
+                    {/* Simulation activity log */}
+                    <div className={`rounded-lg flex-1 ${
+                      isDark 
+                        ? 'bg-gray-800/80 border border-gray-700' 
+                        : 'bg-white border border-gray-200'
+                    }`}>
+                      <div className={`p-3 border-b ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+                        <h3 className="font-medium">Journal d'activité</h3>
+                      </div>
+                      <div className="p-3 overflow-auto max-h-[200px]">
+                        {simulationLog.length > 0 ? (
+                          <ul className="space-y-2">
+                            {simulationLog.map((log, index) => (
+                              <li key={index} className="flex items-start text-sm">
+                                <span className={`font-mono mr-2 ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
+                                  [{index + 1}]
+                                </span>
+                                <span className={isDark ? 'text-gray-300' : 'text-gray-700'}>
+                                  {log}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className={`text-sm ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                            Aucune activité enregistrée
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Complete simulation button */}
+                    <Button 
+                      className={isDark ? 'bg-blue-600 hover:bg-blue-700' : ''}
+                      disabled={simulationProgress < 90}
+                      onClick={completeSimulation}
+                    >
+                      Terminer la simulation
                     </Button>
+                    
+                    <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                      <InfoIcon className="h-3.5 w-3.5 inline-block mr-1" />
+                      Complétez au moins 90% des objectifs pour terminer la simulation
+                    </div>
                   </div>
                 </div>
               </div>
             )}
           </div>
         </div>
-      </div>
+      ) : (
+        // Mode normal - affichage du contenu du module
+        <div className="flex-1 flex flex-col">
+          {/* Module header with enhanced visuals */}
+          <header className={`py-4 px-6 relative ${isDark ? 'bg-gray-800/80 backdrop-blur-sm border-b border-gray-700' : 'bg-white border-b border-gray-200'}`}>
+            {/* Header background effect - only in dark mode */}
+            {isDark && (
+              <div className="absolute inset-0 overflow-hidden">
+                <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-500/50 to-transparent"></div>
+                <div className="absolute -top-40 -right-20 w-60 h-60 bg-blue-500/5 rounded-full filter blur-3xl"></div>
+              </div>
+            )}
+            
+            <div className="flex items-center justify-between relative z-10">
+              <div className="flex items-center">
+                <div className={`flex items-center justify-center w-10 h-10 rounded-md ${currentModule?.color} ${isDark ? 'bg-opacity-20' : 'bg-opacity-10'} mr-3 ${isDark ? 'shadow-glow' : ''}`}>
+                  {isDark ? currentModule?.icon : <span className="text-2xl">{currentModule?.iconEmoji}</span>}
+                </div>
+                <div>
+                  <h1 className={`text-xl font-bold ${isDark ? 'text-blue-300' : 'text-blue-700'}`}>
+                    {currentModule?.title}
+                  </h1>
+                  <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {currentModule?.description}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                {currentModule?.hasLiveSimulation && (
+                  <Button 
+                    variant={isDark ? "outline" : "secondary"}
+                    size="sm"
+                    className={isDark ? 'border-blue-800 bg-blue-900/20 text-blue-400 hover:bg-blue-900/40 hover:text-blue-300' : ''}
+                    onClick={() => startSimulation(currentModuleId)}
+                  >
+                    <PlayCircle className="h-4 w-4 mr-1.5" />
+                    Simulation
+                  </Button>
+                )}
+                
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => setIsChatOpen(!isChatOpen)}
+                  className={isChatOpen ? (isDark ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-100 text-blue-600') : ''}
+                >
+                  <MessageCircle className="h-5 w-5" />
+                </Button>
+              </div>
+            </div>
+          </header>
+          
+          {/* Main content area with enhanced styling */}
+          <div className="flex-1 p-6 overflow-auto flex">
+            <div className="flex-1">
+              {currentModuleId === 'fundamentals' ? (
+                <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
+                  <TabsList className={`mb-4 ${isDark ? 'bg-gray-800/70' : ''}`}>
+                    {moduleSections.map((section) => (
+                      <TabsTrigger key={section.id} value={section.id} className={isDark ? 'data-[state=active]:bg-gray-700' : ''}>
+                        {section.title}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                  
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activeTab}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {moduleSections.map((section) => (
+                        <TabsContent key={section.id} value={section.id} className="outline-none">
+                          {section.id === 'quiz' ? (
+                            <div className={`p-6 rounded-lg ${isDark ? 'bg-gray-800/70 border border-gray-700' : 'bg-white border border-gray-200'}`}>
+                              <h2 className="text-xl font-bold mb-4">Quiz sur les fondamentaux</h2>
+                              <p className="mb-6 text-sm">Testez vos connaissances sur les concepts fondamentaux de la cybersécurité.</p>
+                              
+                              <div className="space-y-6">
+                                {fundamentalsQuiz.map((question, qIndex) => (
+                                  <div 
+                                    key={qIndex} 
+                                    className={`p-4 rounded-lg border ${
+                                      quizSubmitted 
+                                        ? quizAnswers[qIndex] === question.correctAnswer
+                                          ? isDark ? 'border-green-600 bg-green-900/20' : 'border-green-500 bg-green-50'
+                                          : isDark ? 'border-red-600 bg-red-900/20' : 'border-red-500 bg-red-50'
+                                        : isDark ? 'border-gray-700 bg-gray-800/50' : 'border-gray-200'
+                                    }`}
+                                  >
+                                    <h3 className="font-medium mb-3">Question {qIndex + 1}: {question.question}</h3>
+                                    <div className="space-y-2">
+                                      {question.options.map((option, oIndex) => (
+                                        <label 
+                                          key={oIndex}
+                                          className={`flex items-center p-3 rounded-md cursor-pointer ${
+                                            quizAnswers[qIndex] === oIndex
+                                              ? isDark ? 'bg-blue-900/40 border border-blue-700' : 'bg-blue-100 border border-blue-300'
+                                              : isDark ? 'bg-gray-900/80 hover:bg-gray-700/80 border border-gray-700' : 'bg-gray-100 hover:bg-gray-200 border border-gray-200'
+                                          } ${
+                                            quizSubmitted && oIndex === question.correctAnswer
+                                              ? isDark ? 'border border-green-600 !bg-green-900/30' : 'border border-green-500 !bg-green-50'
+                                              : ''
+                                          }`}
+                                        >
+                                          <input
+                                            type="radio"
+                                            name={`question-${qIndex}`}
+                                            value={oIndex}
+                                            checked={quizAnswers[qIndex] === oIndex}
+                                            onChange={() => {
+                                              const newAnswers = [...quizAnswers];
+                                              newAnswers[qIndex] = oIndex;
+                                              setQuizAnswers(newAnswers);
+                                            }}
+                                            className="mr-3"
+                                            disabled={quizSubmitted}
+                                          />
+                                          {option}
+                                        </label>
+                                      ))}
+                                    </div>
+                                    
+                                    {quizSubmitted && (
+                                      <div className={`mt-3 p-3 rounded-md ${
+                                        isDark ? 'bg-gray-700' : 'bg-gray-100'
+                                      }`}>
+                                        <p className="text-sm">
+                                          <span className="font-medium">Explication: </span>
+                                          {question.explanation}
+                                        </p>
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                              
+                              {!quizSubmitted ? (
+                                <Button 
+                                  className={`mt-6 ${isDark ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+                                  onClick={submitQuiz}
+                                  disabled={quizAnswers.length < fundamentalsQuiz.length}
+                                >
+                                  Soumettre mes réponses
+                                </Button>
+                              ) : (
+                                <div className="mt-6 text-center">
+                                  <h3 className="font-bold text-lg mb-2">
+                                    {
+                                      quizAnswers.filter((answer, i) => answer === fundamentalsQuiz[i].correctAnswer).length === fundamentalsQuiz.length
+                                        ? "Félicitations! Score parfait!"
+                                        : "Quiz terminé!"
+                                    }
+                                  </h3>
+                                  <p className="mb-4">
+                                    Vous avez obtenu {quizAnswers.filter((answer, i) => answer === fundamentalsQuiz[i].correctAnswer).length} réponses correctes sur {fundamentalsQuiz.length}.
+                                  </p>
+                                  <Button onClick={() => setQuizSubmitted(false)}>
+                                    Recommencer le quiz
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className={`prose max-w-none ${isDark ? 'prose-invert' : ''} bg-transparent`}>
+                              <div
+                                dangerouslySetInnerHTML={{ 
+                                  __html: section.content
+                                    .replace(/^# (.+)$/gm, (_, title) => `<h2 class="text-xl font-bold mb-4 ${isDark ? 'text-blue-300' : 'text-blue-700'}">${title}</h2>`)
+                                    .replace(/^## (.+)$/gm, (_, title) => `<h3 class="text-lg font-semibold mb-3 ${isDark ? 'text-gray-200' : 'text-gray-700'}">${title}</h3>`)
+                                    .replace(/\*\*([^*]+)\*\*/g, `<strong class="${isDark ? 'text-blue-300' : 'text-blue-700'}">$1</strong>`)
+                                    .replace(/\n\n/g, '<br/><br/>')
+                                }}
+                              />
+                            </div>
+                          )}
+                        </TabsContent>
+                      ))}
+                    </motion.div>
+                  </AnimatePresence>
+                </Tabs>
+              ) : (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex-1 h-full"
+                >
+                  {currentModule?.hasLiveSimulation ? (
+                    <div className="h-full flex flex-col items-center justify-center">
+                      <div className={`w-full max-w-2xl p-6 rounded-xl ${
+                        isDark ? 'bg-gray-800/70 border border-gray-700' : 'bg-white border border-gray-200'
+                      }`}>
+                        <div className="text-center mb-6">
+                          <div className={`inline-flex items-center justify-center w-20 h-20 rounded-xl ${
+                            currentModule.color
+                          } ${isDark ? 'bg-opacity-20' : 'bg-opacity-10'} mb-4`}>
+                            {isDark ? currentModule.icon : <span className="text-4xl">{currentModule.iconEmoji}</span>}
+                          </div>
+                          <h2 className={`text-2xl font-bold mb-2 ${isDark ? 'text-blue-300' : 'text-blue-700'}`}>
+                            {currentModule.title}
+                          </h2>
+                          <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                            {currentModule.description}
+                          </p>
+                        </div>
+                        
+                        <Alert className={`mb-6 ${
+                          isDark ? 'bg-blue-900/30 border-blue-800 text-blue-300' : 'bg-blue-50 border-blue-200'
+                        }`}>
+                          <Terminal className="h-4 w-4" />
+                          <AlertTitle className="ml-2">Environnement d'apprentissage immersif</AlertTitle>
+                          <AlertDescription className={isDark ? 'text-gray-300' : ''}>
+                            Ce module propose des simulations interactives générées par IA. Lancez une simulation pour tester vos compétences dans un environnement réaliste.
+                          </AlertDescription>
+                        </Alert>
+                        
+                        <Button 
+                          size="lg" 
+                          className={`w-full ${isDark ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+                          onClick={() => startSimulation(currentModuleId)}
+                        >
+                          <PlayCircle className="h-5 w-5 mr-2" />
+                          Lancer une simulation
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex-1 flex items-center justify-center">
+                      <div className="text-center max-w-lg">
+                        <h2 className={`text-xl font-bold mb-3 ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
+                          Contenu en développement
+                        </h2>
+                        <p className={`mb-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                          Le contenu de ce module sera généré par IA à la demande dans la version complète de CyberForge Academy.
+                        </p>
+                        <div className={`p-4 rounded-lg ${isDark ? 'bg-blue-900/20 border border-blue-800' : 'bg-blue-50 border border-blue-200'}`}>
+                          <p className="text-sm text-center">
+                            <ExternalLink className="h-4 w-4 inline-block mr-1.5" />
+                            La version complète utilisera Azure OpenAI pour générer du contenu personnalisé basé sur votre niveau et vos intérêts.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </div>
+            
+            {/* AI Recommender and Chat Panel with enhanced styling */}
+            <div className={`transition-all duration-300 ${
+              isChatOpen ? 'w-80 opacity-100 ml-6' : 'w-0 opacity-0 overflow-hidden'
+            }`}>
+              {isChatOpen && (
+                <div className={`h-full rounded-lg border overflow-hidden flex flex-col ${
+                  isDark ? 'bg-gray-800/90 border-gray-700' : 'bg-white border-gray-200'
+                }`}>
+                  <div className={`p-3 border-b ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+                    <h3 className={`font-medium ${isDark ? 'text-blue-300' : ''}`}>Assistant CyberForge</h3>
+                  </div>
+                  
+                  <div className="flex-1 p-3 overflow-y-auto">
+                    {aiRecommendations.length > 0 && (
+                      <div className="mb-4">
+                        <h4 className={`text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                          <Lightbulb className="h-3.5 w-3.5 inline-block mr-1" />
+                          Recommandations
+                        </h4>
+                        <div className="space-y-2">
+                          {aiRecommendations.map((rec, index) => (
+                            <button
+                              key={index}
+                              className={`w-full p-3 text-left text-sm rounded-md ${
+                                isDark ? 'bg-gray-900/80 hover:bg-gray-700/80 border border-gray-700/50' : 'bg-gray-100 hover:bg-gray-200'
+                              }`}
+                              onClick={() => selectModule(rec.moduleId)}
+                            >
+                              <div className="font-medium">{rec.title}</div>
+                              <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                {rec.message}
+                              </p>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className={`${chatHistory.length > 0 ? 'mb-4' : ''}`}>
+                      {chatHistory.map((msg, index) => (
+                        <div
+                          key={index}
+                          className={`mb-3 ${
+                            msg.role === 'user' ? 'text-right' : 'text-left'
+                          }`}
+                        >
+                          <div
+                            className={`inline-block max-w-[80%] rounded-lg p-3 ${
+                              msg.role === 'user'
+                                ? isDark ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'
+                                : isDark ? 'bg-gray-900/80 border border-gray-700' : 'bg-gray-100'
+                            }`}
+                          >
+                            <p className="text-sm">{msg.content}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {chatHistory.length === 0 && (
+                      <div className="text-center py-8">
+                        <MessageCircle className={`h-12 w-12 mx-auto mb-3 ${isDark ? 'text-gray-700' : 'text-gray-300'}`} />
+                        <h3 className="font-medium mb-1">Assistant IA</h3>
+                        <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                          Posez des questions sur la cybersécurité ou demandez de l'aide avec le contenu du cours.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className={`p-3 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+                    <div className="flex space-x-2">
+                      <Input
+                        value={chatMessage}
+                        onChange={(e) => setChatMessage(e.target.value)}
+                        placeholder="Posez votre question..."
+                        className={isDark ? 'bg-gray-900/80 border-gray-700 placeholder:text-gray-500' : ''}
+                        onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                      />
+                      <Button 
+                        size="icon" 
+                        className={isDark ? 'bg-blue-600 hover:bg-blue-700' : ''}
+                        onClick={sendMessage}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* AI Explainer modal */}
+      {showAiExplainer && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+          <div className={`w-full max-w-3xl max-h-[80vh] overflow-auto rounded-lg ${
+            isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white'
+          }`}>
+            <div className={`flex justify-between items-center p-4 border-b ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+              <h3 className="text-lg font-medium flex items-center">
+                <BrainCircuit className="h-5 w-5 mr-2 text-blue-500" />
+                <span className={isDark ? 'text-blue-300' : ''}>Explication IA</span>
+                {isAiResponding && (
+                  <div className="ml-3 flex space-x-1">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse delay-150"></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse delay-300"></div>
+                  </div>
+                )}
+              </h3>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => {
+                  setShowAiExplainer(false);
+                  setAiExplanation('');
+                  setIsAiResponding(false);
+                }}
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            <div className="p-6">
+              {isAiResponding ? (
+                <div className="flex items-center justify-center h-40">
+                  <div className="text-center">
+                    <div className="mb-4">
+                      <div className="inline-block w-12 h-12 border-2 border-t-transparent border-blue-500 rounded-full animate-spin"></div>
+                    </div>
+                    <p className={isDark ? 'text-gray-300' : 'text-gray-600'}>Génération de l'explication en cours...</p>
+                  </div>
+                </div>
+              ) : (
+                <div className={`prose max-w-none ${isDark ? 'prose-invert' : ''}`}>
+                  <div
+                    dangerouslySetInnerHTML={{ 
+                      __html: aiExplanation
+                        .replace(/^# (.+)$/gm, (_, title) => `<h2 class="text-xl font-bold mb-4 ${isDark ? 'text-blue-300' : 'text-blue-700'}">${title}</h2>`)
+                        .replace(/^## (.+)$/gm, (_, title) => `<h3 class="text-lg font-semibold mb-3 ${isDark ? 'text-gray-200' : 'text-gray-700'}">${title}</h3>`)
+                        .replace(/\*\*([^*]+)\*\*/g, `<strong class="${isDark ? 'text-blue-300' : 'text-blue-700'}">$1</strong>`)
+                        .replace(/\n\n/g, '<br/><br/>')
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+            <div className={`p-4 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'} flex justify-end`}>
+              <Button 
+                variant="outline" 
+                className={isDark ? 'border-gray-700 text-gray-300 hover:bg-gray-700' : ''}
+                onClick={() => {
+                  setShowAiExplainer(false);
+                  setAiExplanation('');
+                  setIsAiResponding(false);
+                }}
+              >
+                Fermer
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
