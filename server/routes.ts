@@ -392,22 +392,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Route de test pour les pièces jointes
   app.get('/api/attachments/test', async (req, res) => {
     try {
-      const attachmentType = req.query.type as string || 'log_file';
-      const testContext = "Test de génération d'une pièce jointe pour vérifier le bon fonctionnement du système.";
+      const userRole = req.query.role as string || 'rssi';
+      const sessionId = 'test-session-' + uuidv4();
+      const domain = 'Cybersécurité';
+      const scenarioTitle = 'Gestion de crise cyber';
       
-      const attachment = await generateAttachment(
-        'test-scenario-id',
-        'Scénario de test',
-        'Gestion de crise cyber',
-        attachmentType as AttachmentType,
-        testContext,
-        1, // currentStage
-        'rssi' // userRole
+      const attachment = createAttachmentWithHiddenPassword(
+        sessionId,
+        userRole,
+        domain,
+        scenarioTitle
       );
       
       res.status(201).json({
         message: 'Pièce jointe générée avec succès',
-        attachment
+        attachment: {
+          id: attachment.id,
+          name: attachment.name,
+          type: attachment.type,
+          createdAt: attachment.createdAt,
+          size: attachment.size,
+          url: `/api/attachments/download/${sessionId}/${attachment.id}`
+        }
       });
     } catch (error) {
       console.error('Erreur lors du test de pièce jointe:', error);
