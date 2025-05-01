@@ -1,145 +1,144 @@
 /**
- * Routes pour la gestion des pièces jointes
+ * Routes pour la gestion des pièces jointes et la validation des mots de passe
  */
-import express, { Request, Response } from 'express';
-import { generateAttachment, getAttachment, deleteAttachment, AttachmentType, selectAppropriateAttachmentType } from '../services/attachmentService';
 
-const router = express.Router();
+import { Router, Request, Response } from 'express';
+import { createAttachmentWithHiddenPassword, getAttachmentById, getAttachmentsForSession, generateInstructionsHtml } from '../services/attachmentService';
+import { validatePassword, generatePostValidationInfo } from '../services/passwordService';
 
-/**
- * Route de test pour la génération rapide d'une pièce jointe
- */
-router.get('/test', async (req: Request, res: Response) => {
-  try {
-    const attachmentType = req.query.type as string || 'log_file';
-    const testContext = "Test de génération d'une pièce jointe pour vérifier le bon fonctionnement du système.";
-    
-    const attachment = await generateAttachment(
-      'test-scenario-id',
-      'Scénario de test',
-      'Gestion de crise cyber',
-      attachmentType as AttachmentType,
-      testContext,
-      1, // currentStage
-      'rssi' // userRole
-    );
-    
-    res.status(201).json({
-      message: 'Pièce jointe générée avec succès',
-      attachment
-    });
-  } catch (error) {
-    console.error('Erreur lors du test de pièce jointe:', error);
-    res.status(500).json({ 
-      message: 'Erreur lors du test de pièce jointe', 
-      error: (error as Error).message 
-    });
-  }
-});
+const router = Router();
 
 /**
- * Générer une pièce jointe en fonction du contexte du scénario
+ * Route pour générer une pièce jointe avec un mot de passe caché
  */
-router.post('/generate', async (req: Request, res: Response) => {
+router.post('/generate', (req: Request, res: Response) => {
   try {
-    const { 
-      scenarioId, 
-      scenarioTitle, 
-      scenarioDomain, 
-      attachmentType, 
-      context, 
-      currentStage = 0,
-      userRole = 'expert'
-    } = req.body;
+    const { sessionId, userRole, domain, scenarioTitle } = req.body;
     
-    if (!scenarioId || !scenarioTitle || !scenarioDomain) {
-      return res.status(400).json({ 
-        message: 'Paramètres manquants: scenarioId, scenarioTitle, et scenarioDomain sont requis' 
-      });
+    if (!sessionId || !userRole || !domain || !scenarioTitle) {
+      return res.status(400).json({ message: 'Paramètres manquants' });
     }
     
-    const selectedType = attachmentType || 
-      selectAppropriateAttachmentType(scenarioDomain, currentStage);
+    const attachment = createAttachmentWithHiddenPassword(sessionId, userRole, domain, scenarioTitle);
     
-    const attachment = await generateAttachment(
-      scenarioId,
-      scenarioTitle,
-      scenarioDomain,
-      selectedType as AttachmentType,
-      context || `Scénario de cybersécurité "${scenarioTitle}" dans le domaine "${scenarioDomain}"`,
-      currentStage,
-      userRole
-    );
-    
-    res.status(201).json(attachment);
+    res.json({
+      id: attachment.id,
+      name: attachment.name,
+      type: attachment.type,
+      size: attachment.size,
+      createdAt: attachment.createdAt
+    });
   } catch (error) {
     console.error('Erreur lors de la génération de la pièce jointe:', error);
-    res.status(500).json({ 
-      message: 'Erreur lors de la génération de la pièce jointe', 
-      error: (error as Error).message 
-    });
+    res.status(500).json({ message: 'Erreur lors de la génération de la pièce jointe' });
   }
 });
 
 /**
- * Récupérer les informations d'une pièce jointe par son ID
+ * Route pour récupérer les pièces jointes d'une session
  */
-router.get('/:attachmentId', (req: Request, res: Response) => {
+router.get('/list/:sessionId', (req: Request, res: Response) => {
   try {
-    const { attachmentId } = req.params;
+    const { sessionId } = req.params;
     
-    const attachment = getAttachment(attachmentId);
+    if (!sessionId) {
+      return res.status(400).json({ message: 'ID de session requis' });
+    }
+    
+    const attachments = getAttachmentsForSession(sessionId);
+    
+    res.json(attachments.map(attachment => ({
+      id: attachment.id,
+      name: attachment.name,
+      type: attachment.type,
+      size: attachment.size,
+      createdAt: attachment.createdAt
+    })));
+  } catch (error) {
+    console.error('Erreur lors de la récupération des pièces jointes:', error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des pièces jointes' });
+  }
+});
+
+/**
+ * Route pour télécharger une pièce jointe spécifique
+ */
+router.get('/download/:sessionId/:attachmentId', (req: Request, res: Response) => {
+  try {
+    const { sessionId, attachmentId } = req.params;
+    
+    if (!sessionId || !attachmentId) {
+      return res.status(400).json({ message: 'Paramètres manquants' });
+    }
+    
+    const attachment = getAttachmentById(sessionId, attachmentId);
     
     if (!attachment) {
       return res.status(404).json({ message: 'Pièce jointe non trouvée' });
     }
     
-    res.json(attachment);
+    // Renvoyer le contenu comme un fichier texte
+    res.setHeader('Content-Type', 'text/plain');
+    res.setHeader('Content-Disposition', `attachment; filename="${attachment.name}"`);
+    res.send(attachment.content);
   } catch (error) {
-    console.error('Erreur lors de la récupération de la pièce jointe:', error);
-    res.status(500).json({ 
-      message: 'Erreur lors de la récupération de la pièce jointe',
-      error: (error as Error).message 
-    });
+    console.error('Erreur lors du téléchargement de la pièce jointe:', error);
+    res.status(500).json({ message: 'Erreur lors du téléchargement de la pièce jointe' });
   }
 });
 
 /**
- * Supprimer une pièce jointe par son ID
+ * Route pour valider un mot de passe
  */
-router.delete('/:attachmentId', (req: Request, res: Response) => {
+router.post('/validate-password', (req: Request, res: Response) => {
   try {
-    const { attachmentId } = req.params;
+    const { password, userRole, domain, userName, companyName } = req.body;
     
-    const success = deleteAttachment(attachmentId);
-    
-    if (!success) {
-      return res.status(404).json({ message: 'Pièce jointe non trouvée' });
+    if (!password || !userRole || !domain) {
+      return res.status(400).json({ message: 'Paramètres manquants' });
     }
     
-    res.json({ message: 'Pièce jointe supprimée avec succès' });
+    const isValid = validatePassword(password, userRole, domain);
+    
+    if (isValid) {
+      // Générer les informations post-validation
+      const postValidationInfo = generatePostValidationInfo(userName, userRole, domain, companyName);
+      
+      res.json({
+        valid: true,
+        message: 'Félicitations ! Vous avez trouvé le bon mot de passe.',
+        postValidationInfo
+      });
+    } else {
+      res.json({
+        valid: false,
+        message: 'Le mot de passe est incorrect. Veuillez réessayer.'
+      });
+    }
   } catch (error) {
-    console.error('Erreur lors de la suppression de la pièce jointe:', error);
-    res.status(500).json({ 
-      message: 'Erreur lors de la suppression de la pièce jointe',
-      error: (error as Error).message 
-    });
+    console.error('Erreur lors de la validation du mot de passe:', error);
+    res.status(500).json({ message: 'Erreur lors de la validation du mot de passe' });
   }
 });
 
 /**
- * Liste des types de pièces jointes disponibles
+ * Route pour générer des instructions HTML
  */
-router.get('/types/list', (_req: Request, res: Response) => {
+router.get('/instructions/:userRole/:domain', (req: Request, res: Response) => {
   try {
-    const types = Object.values(AttachmentType);
-    res.json({ types });
+    const { userRole, domain } = req.params;
+    
+    if (!userRole || !domain) {
+      return res.status(400).json({ message: 'Paramètres manquants' });
+    }
+    
+    const instructionsHtml = generateInstructionsHtml(userRole, domain);
+    
+    res.setHeader('Content-Type', 'text/html');
+    res.send(instructionsHtml);
   } catch (error) {
-    console.error('Erreur lors de la récupération des types de pièces jointes:', error);
-    res.status(500).json({ 
-      message: 'Erreur lors de la récupération des types de pièces jointes',
-      error: (error as Error).message 
-    });
+    console.error('Erreur lors de la génération des instructions:', error);
+    res.status(500).json({ message: 'Erreur lors de la génération des instructions' });
   }
 });
 

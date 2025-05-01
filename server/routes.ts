@@ -8,8 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import OpenAI from 'openai';
 import { openAIService } from "./services/openai";
 import attachmentRoutes from './routes/attachmentRoutes';
-// Import du service de pièces jointes
-import { generateAttachment, selectAppropriateAttachmentType, AttachmentType } from './services/attachmentService';
+import { createAttachmentWithHiddenPassword } from './services/attachmentService';
 
 // Récupérer le chemin du répertoire actuel en module ES
 const __filename = fileURLToPath(import.meta.url);
@@ -868,27 +867,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
           role: "system",
           content: emailSystemPrompt + 
           `\n\nRÈGLES DE FORMATAGE STRICTES À RESPECTER ABSOLUMENT:
-          1. L'email ENTIER ne doit pas dépasser 300 caractères maximum (environ 50 mots).
+          1. L'email ENTIER ne doit pas dépasser 150 caractères maximum (environ 25 mots).
           2. L'email doit poser UNE QUESTION DIRECTE et précise qui nécessite une réponse spécifique.
-          3. Toujours inclure un message indiquant que nous sommes en période très délicate et n'avons pas le temps pour des sujets hors-contexte.
-          4. Si l'utilisateur répond de façon hors-sujet, tu dois immédiatement le recadrer en rappelant l'urgence et que seules les réponses directes à la question posée sont acceptables.`
+          3. ÉLÉMENT CRUCIAL: Inclure une référence à une pièce jointe IMPORTANTE contenant des INFORMATIONS CACHÉES adaptées au rôle de l'utilisateur.
+          4. Mentionner spécifiquement que l'utilisateur doit trouver un MOT DE PASSE caché dans la pièce jointe pour prouver qu'il l'a examinée attentivement.`
         },
         {
           role: "user",
-          content: `Générez un email EXTRÊMEMENT COURT (maximum 300 caractères) pour le scénario "${scenario.title}" dans le domaine "${scenario.domain}" avec:
+          content: `Générez un email ULTRA-COURT (maximum 150 caractères) pour le scénario "${scenario.title}" dans le domaine "${scenario.domain}" avec:
           
           CONTEXTE MINIMAL:
           - Email de ${contactPrincipal.name} (${contactPrincipal.role})
           - Adressé à ${userName} (${userRole ? getUserRoleDescription(userRole) : "expert cyber"})
           - Urgence: ${getUrgencyLevel(scenario.domain, scenario.difficulty, currentStage || 0)}
           
-          STRUCTURE SIMPLE:
-          - OBJET: Court et urgent (max 50 caractères)
-          - CORPS: Problème critique expliqué en 1-2 phrases maximum
-          - UNE SEULE QUESTION DIRECTE: Formulée clairement et nécessitant expertise
-          - RAPPEL D'URGENCE: Indiquer "En cette période critique, merci de répondre directement à cette question."
+          STRUCTURE OBLIGATOIRE:
+          - OBJET: Très court et urgent (max 30 caractères)
+          - CORPS: Une seule phrase explicative + une question directe
+          - MENTION PIÈCE JOINTE: "Voir PJ avec infos essentielles. Mot de passe caché à trouver selon votre rôle de ${userRole || "expert"}."
           
-          RAPPEL IMPORTANT: L'email entier ne doit pas dépasser 300 caractères au total, espaces compris.`
+          RAPPEL IMPORTANT: L'email entier ne doit PAS dépasser 150 caractères au total, espaces compris.`
         }
       ];
       
