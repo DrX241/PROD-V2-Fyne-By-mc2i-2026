@@ -850,35 +850,62 @@ function CyberForge() {
           </div>
           
           {selectedAvatar && (
-            <div className={`p-5 rounded-xl ${isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'} flex items-center gap-4 shadow-lg`}>
-              <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                isDark ? 'bg-blue-600' : 'bg-blue-500'
-              }`}>
-                <span className="text-2xl">{
-                  selectedAvatar.id === 'shadow' ? '👤' : 
-                  selectedAvatar.id === 'sentinel' ? '🔍' :
-                  selectedAvatar.id === 'guardian' ? '🛡️' : 
-                  '📡'
-                }</span>
+            <div className={`p-5 rounded-xl ${isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'} flex flex-col md:flex-row items-center gap-4 shadow-lg`}>
+              <div className="flex items-center gap-4">
+                <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+                  isDark ? 'bg-blue-600' : 'bg-blue-500'
+                }`}>
+                  <span className="text-2xl">{
+                    selectedAvatar.id === 'shadow' ? '👤' : 
+                    selectedAvatar.id === 'sentinel' ? '🔍' :
+                    selectedAvatar.id === 'guardian' ? '🛡️' : 
+                    '📡'
+                  }</span>
+                </div>
+                
+                <div>
+                  <h3 className="font-bold text-lg flex items-center gap-2">
+                    {selectedAvatar.name}
+                    <Badge className={isDark ? 'bg-green-700 text-white border-0' : 'bg-green-100 text-green-800 border-0'}>
+                      Niveau 1
+                    </Badge>
+                  </h3>
+                  <p className={isDark ? 'text-gray-300' : 'text-gray-600'}>
+                    {selectedAvatar.type === 'hacker' ? 'Hacker Éthique' : 
+                     selectedAvatar.type === 'analyst' ? 'Analyste Sécurité' :
+                     selectedAvatar.type === 'security_manager' ? 'Gestionnaire Sécurité' :
+                     'Spécialiste Réseau'}
+                  </p>
+                  <p className="text-sm mt-1 flex items-center gap-1">
+                    <Star className={`h-4 w-4 ${isDark ? 'text-yellow-400' : 'text-yellow-500'}`} />
+                    <span>Points: <span className="font-medium">50</span></span>
+                  </p>
+                </div>
               </div>
               
-              <div className="flex-1">
-                <h3 className="font-bold text-lg flex items-center gap-2">
-                  {selectedAvatar.name}
-                  <Badge className={isDark ? 'bg-green-700 text-white border-0' : 'bg-green-100 text-green-800 border-0'}>
-                    Niveau 1
-                  </Badge>
-                </h3>
-                <p className={isDark ? 'text-gray-300' : 'text-gray-600'}>
-                  {selectedAvatar.type === 'hacker' ? 'Hacker Éthique' : 
-                   selectedAvatar.type === 'analyst' ? 'Analyste Sécurité' :
-                   selectedAvatar.type === 'security_manager' ? 'Gestionnaire Sécurité' :
-                   'Spécialiste Réseau'}
-                </p>
-                <p className="text-sm mt-1 flex items-center gap-1">
-                  <Star className={`h-4 w-4 ${isDark ? 'text-yellow-400' : 'text-yellow-500'}`} />
-                  <span>{isDark ? 'Points: ' : 'Points: '}<span className="font-medium">50</span></span>
-                </p>
+              <div className="flex-1 flex justify-end mt-4 md:mt-0">
+                <div className="flex flex-col gap-2">
+                  <Button 
+                    className={`${isDark ? 'bg-blue-700 hover:bg-blue-600' : 'bg-blue-600 hover:bg-blue-700'} text-white`}
+                    onClick={() => setLocation('/cyberforge/modules')}
+                  >
+                    <Layers className="mr-2 h-4 w-4" />
+                    Accéder aux modules
+                  </Button>
+                  
+                  <Button 
+                    variant="outline"
+                    className={`${
+                      isDark 
+                        ? 'border-blue-800 bg-transparent text-blue-300 hover:bg-blue-900/50' 
+                        : 'border-blue-300 text-blue-700 hover:bg-blue-50'
+                    }`}
+                    onClick={() => setEntryStep('welcome')}
+                  >
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Changer de profil
+                  </Button>
+                </div>
               </div>
             </div>
           )}
