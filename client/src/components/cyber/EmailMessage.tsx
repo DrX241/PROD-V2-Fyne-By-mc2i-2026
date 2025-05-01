@@ -239,10 +239,21 @@ export default function EmailMessage({ email }: EmailMessageProps) {
 
 
   const handlePasswordSubmit = async (password: string) => {
-    const response = await validatePassword(password);
-    if (response.valid) {
-      setPasswordValidated(true);
-      //onPasswordValidated();
+    try {
+      const response = await apiRequest('/api/attachments/validate-password', {
+        method: 'POST',
+        body: JSON.stringify({
+          password,
+          userRole,
+          domain,
+          userName: email.to,
+          companyName: email.from.company
+        })
+      });
+      
+      if (response.valid) {
+        setPasswordValidated(true);
+        // onPasswordValidated();
 
       // Affichage des informations du projet
       const projectInfo = await fetch('/api/cyber/project-info', {
