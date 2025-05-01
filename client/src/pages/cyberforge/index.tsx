@@ -1361,8 +1361,22 @@ Pour des informations précises sur ce sujet, je vous recommande de consulter ce
                       </div>
                     </div>
                     
-                    <div className="p-4 h-[400px] overflow-auto font-mono text-sm text-green-400" ref={terminalRef}>
-                      <pre className="whitespace-pre-wrap">{terminalOutput}</pre>
+                    <div className="cyber-terminal p-4 h-[400px] overflow-auto font-mono text-sm relative" ref={terminalRef}>
+                      <div className="absolute top-0 left-0 right-0 flex justify-between px-3 py-1 bg-black/50 text-xs text-cyan-400 border-b border-cyan-800">
+                        <div className="flex items-center">
+                          <span className="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>
+                          <span className="inline-block w-3 h-3 rounded-full bg-yellow-500 mr-2"></span>
+                          <span className="inline-block w-3 h-3 rounded-full bg-green-500 mr-2"></span>
+                          <span className="ml-2 tracking-wide">CyberForge v3.7 :: Simulation Terminal</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="text-xs tracking-wider mr-3">[SECURE CONNECTION]</span>
+                          <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        </div>
+                      </div>
+                      <div className="mt-6">
+                        <pre className="whitespace-pre-wrap">{terminalOutput}</pre>
+                      </div>
                     </div>
                     
                     <div className={`p-3 border-t ${isDark ? 'border-gray-800' : 'border-gray-700'}`}>
