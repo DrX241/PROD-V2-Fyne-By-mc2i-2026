@@ -2,7 +2,7 @@ import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
-import { Suspense, lazy, startTransition } from "react";
+import { Suspense, lazy } from "react";
 import { ChatProvider } from "./contexts/ChatContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
@@ -118,30 +118,6 @@ function App() {
             
             {/* Module CyberForge Academy */}
             <Route path="/cyberforge" component={CyberForgeAcademy} />
-            <Route path="/cyberforge/modules" component={(props) => {
-              const CyberforgeModules = lazy(() => import('./pages/cyberforge/modules'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <CyberforgeModules {...props} />
-                </Suspense>
-              );
-            }} />
-            <Route path="/cyberforge/modules/:moduleId" component={(props) => {
-              const CyberforgeModules = lazy(() => import('./pages/cyberforge/modules'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <CyberforgeModules {...props} />
-                </Suspense>
-              );
-            }} />
-            <Route path="/cyberforge/modules/lesson/:moduleId/:chapterId/:lessonId" component={(props) => {
-              const CyberforgeLesson = lazy(() => import('./pages/cyberforge/modules/lesson'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <CyberforgeLesson {...props} />
-                </Suspense>
-              );
-            }} />
             
             {/* Module Centre de Crise */}
             <Route path="/cyber-defense-new" component={CentreDeCriseEvolutifPage} />

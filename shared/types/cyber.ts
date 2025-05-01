@@ -342,18 +342,13 @@ export interface CyberDomain {
   id: string;
   name: string;
   description: string;
-  icon?: string; // Icône associée au domaine
-  iconBgColor?: string; // Couleur de fond de l'icône
-  iconColor?: string; // Couleur de l'icône elle-même
 }
 
 export interface CyberScenario {
   id: string;
-  domain: string; // ID du domaine parent
-  domainId?: string; // Alias pour domain (compatibilité)
+  domain: string;
   title: string;
   difficulty: string;
-  difficultyColor?: string; // Couleur associée au niveau de difficulté
   description?: string;
   contact: {
     name: string;

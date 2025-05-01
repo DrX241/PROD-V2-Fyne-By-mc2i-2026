@@ -5,7 +5,7 @@ import {
   ChevronRight, Star, LockIcon, CheckCircle, ExternalLink, User, AlertTriangle,
   Server, Database, Globe, Wifi, Lock, UserX, Zap, FileCode, Fingerprint, BrainCircuit,
   Eye, Monitor, Cpu, Cable, FileWarning, ShieldAlert, Key, PlayCircle, Clock8,
-  Circle, Info, X, Layers, RefreshCw
+  Circle, Info, X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -232,7 +232,8 @@ function calculateTotalProgress(moduleProgress: Record<string, ModuleProgress>):
 }
 
 function CyberForge() {
-  const { isDark } = useTheme();
+  const { themeMode } = useTheme();
+  const isDark = themeMode === 'dark' || themeMode === 'futuristic' || false;
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   
@@ -333,30 +334,30 @@ function CyberForge() {
                   transition={{ duration: 0.3 }}
                   className="w-full max-w-3xl"
                 >
-                  <Card className={`p-6 ${isDark ? 'bg-gray-800 border-blue-700' : 'bg-white border-blue-300'} backdrop-blur-sm border-2 rounded-lg shadow-xl`}>
+                  <Card className={`p-6 ${isDark ? 'bg-gray-800/80 border-blue-900' : 'bg-white/90 border-blue-200'} backdrop-blur-sm border-2 rounded-lg shadow-xl`}>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-3 text-2xl">
-                        <div className={`p-2 rounded-lg ${isDark ? 'bg-blue-600' : 'bg-blue-100'}`}>
-                          <Shield className={`h-7 w-7 ${isDark ? 'text-white' : 'text-blue-800'}`} />
+                        <div className={`p-2 rounded-lg ${isDark ? 'bg-blue-500/20' : 'bg-blue-100'}`}>
+                          <Shield className={`h-7 w-7 ${isDark ? 'text-blue-300' : 'text-blue-700'}`} />
                         </div>
-                        <span className={isDark ? 'text-white' : 'text-blue-950'}>
+                        <span className={isDark ? 'text-blue-100' : 'text-blue-900'}>
                           Bienvenue à CyberForge Academy
                         </span>
                       </CardTitle>
-                      <CardDescription className={`text-base ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
+                      <CardDescription className={`text-base ${isDark ? 'text-blue-200' : 'text-blue-800'}`}>
                         Votre parcours dans l'élite de la cybersécurité commence ici
                       </CardDescription>
                     </CardHeader>
                     
                     <CardContent className="space-y-4">
-                      <p className={isDark ? 'text-white' : 'text-gray-800'}>
+                      <p className={isDark ? 'text-gray-200' : 'text-gray-800'}>
                         L'Académie CyberForge est un centre d'entraînement de haute technologie conçu pour former 
                         les experts en cybersécurité de demain. Ici, vous développerez vos compétences à travers 
                         des modules interactifs, des simulations tactiques et des défis de hacking éthique.
                       </p>
                       
-                      <div className={`p-4 rounded-md ${isDark ? 'bg-blue-900 text-white' : 'bg-blue-100 text-blue-950'} flex items-start gap-3`}>
-                        <Info className={`h-5 w-5 mt-0.5 flex-shrink-0 ${isDark ? 'text-blue-200' : 'text-blue-700'}`} />
+                      <div className={`p-4 rounded-md ${isDark ? 'bg-gray-700/50 text-blue-300' : 'bg-blue-50 text-blue-700'} flex items-start gap-3`}>
+                        <Info className="h-5 w-5 mt-0.5 flex-shrink-0" />
                         <div>
                           <p className="font-medium">Votre progression est enregistrée</p>
                           <p className="text-sm opacity-90">Tous vos accomplissements, badges et niveaux sont sauvegardés automatiquement.</p>
@@ -364,28 +365,22 @@ function CyberForge() {
                       </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-                        <div className={`p-4 rounded-md ${isDark ? 'bg-gray-900' : 'bg-gray-100'} text-center`}>
-                          <div className={`mx-auto mb-2 w-12 h-12 rounded-full ${isDark ? 'bg-yellow-600' : 'bg-yellow-500'} flex items-center justify-center`}>
-                            <Lightbulb className={`h-6 w-6 ${isDark ? 'text-white' : 'text-white'}`} />
-                          </div>
-                          <h3 className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>9 Modules d'apprentissage</h3>
-                          <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Des fondamentaux à l'expertise avancée</p>
+                        <div className={`p-4 rounded-md ${isDark ? 'bg-gray-700/40' : 'bg-gray-100'} text-center`}>
+                          <Lightbulb className={`h-8 w-8 mx-auto mb-2 ${isDark ? 'text-yellow-300' : 'text-yellow-600'}`} />
+                          <h3 className="font-medium">9 Modules d'apprentissage</h3>
+                          <p className="text-sm opacity-80">Des fondamentaux à l'expertise avancée</p>
                         </div>
                         
-                        <div className={`p-4 rounded-md ${isDark ? 'bg-gray-900' : 'bg-gray-100'} text-center`}>
-                          <div className={`mx-auto mb-2 w-12 h-12 rounded-full ${isDark ? 'bg-green-600' : 'bg-green-600'} flex items-center justify-center`}>
-                            <Terminal className="h-6 w-6 text-white" />
-                          </div>
-                          <h3 className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>Laboratoires pratiques</h3>
-                          <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Environnements sécurisés pour pratiquer</p>
+                        <div className={`p-4 rounded-md ${isDark ? 'bg-gray-700/40' : 'bg-gray-100'} text-center`}>
+                          <Terminal className={`h-8 w-8 mx-auto mb-2 ${isDark ? 'text-green-400' : 'text-green-500'}`} />
+                          <h3 className="font-medium">Laboratoires pratiques</h3>
+                          <p className="text-sm opacity-80">Environnements sécurisés pour pratiquer</p>
                         </div>
                         
-                        <div className={`p-4 rounded-md ${isDark ? 'bg-gray-900' : 'bg-gray-100'} text-center`}>
-                          <div className={`mx-auto mb-2 w-12 h-12 rounded-full ${isDark ? 'bg-red-600' : 'bg-red-600'} flex items-center justify-center`}>
-                            <ShieldAlert className="h-6 w-6 text-white" />
-                          </div>
-                          <h3 className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>Simulations d'attaques</h3>
-                          <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Scénarios réalistes et adaptatifs</p>
+                        <div className={`p-4 rounded-md ${isDark ? 'bg-gray-700/40' : 'bg-gray-100'} text-center`}>
+                          <ShieldAlert className={`h-8 w-8 mx-auto mb-2 ${isDark ? 'text-red-400' : 'text-red-500'}`} />
+                          <h3 className="font-medium">Simulations d'attaques</h3>
+                          <p className="text-sm opacity-80">Scénarios réalistes et adaptatifs</p>
                         </div>
                       </div>
                     </CardContent>
@@ -394,7 +389,7 @@ function CyberForge() {
                       <Button 
   variant="outline" 
   onClick={() => setLocation('/')}
-  className={isDark ? 'border-gray-600 bg-transparent text-white hover:bg-gray-700' : 'border-gray-300 text-gray-800 hover:bg-gray-100'}
+  className={isDark ? 'border-blue-400 text-blue-100 hover:bg-blue-900/20' : 'border-blue-600 text-blue-800 hover:bg-blue-50'}
 >
   <ArrowLeft className="h-4 w-4 mr-2" />
   Retour
@@ -403,8 +398,8 @@ function CyberForge() {
 <Button 
   onClick={proceedToNextStep} 
   className={isDark 
-    ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-    : 'bg-blue-700 hover:bg-blue-800 text-white'
+    ? 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white' 
+    : 'bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white'
   }
 >
   Commencer l'expérience
@@ -424,17 +419,13 @@ function CyberForge() {
                   transition={{ duration: 0.3 }}
                   className="w-full max-w-4xl"
                 >
-                  <Card className={`p-6 ${isDark ? 'bg-gray-800 border-blue-700' : 'bg-white border-blue-300'} backdrop-blur-sm border-2 rounded-lg shadow-xl`}>
+                  <Card className={`p-6 ${isDark ? 'bg-gray-800/50 border-gray-700' : 'bg-white border-gray-200'} backdrop-blur-sm border rounded-lg shadow-lg`}>
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-3 text-2xl">
-                        <div className={`p-2 rounded-lg ${isDark ? 'bg-purple-600' : 'bg-purple-100'}`}>
-                          <User className={`h-7 w-7 ${isDark ? 'text-white' : 'text-purple-800'}`} />
-                        </div>
-                        <span className={isDark ? 'text-white' : 'text-blue-950'}>
-                          Sélectionnez votre personnage
-                        </span>
+                      <CardTitle className="flex items-center gap-2 text-2xl">
+                        <User className={`h-6 w-6 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                        Sélectionnez votre personnage
                       </CardTitle>
-                      <CardDescription className={`text-base ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
+                      <CardDescription className={isDark ? 'text-gray-400' : 'text-gray-600'}>
                         Chaque profil possède des compétences et spécialités uniques
                       </CardDescription>
                     </CardHeader>
@@ -447,19 +438,17 @@ function CyberForge() {
                               className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
                                 selectedAvatar?.id === avatar.id 
                                   ? isDark 
-                                    ? 'border-blue-500 bg-blue-900/30' 
-                                    : 'border-blue-600 bg-blue-50' 
+                                    ? 'border-blue-500 bg-blue-900/20' 
+                                    : 'border-blue-500 bg-blue-50' 
                                   : isDark 
-                                    ? 'border-gray-600 hover:border-blue-500 bg-gray-900' 
-                                    : 'border-gray-300 hover:border-blue-400 bg-gray-50'
+                                    ? 'border-gray-700 hover:border-gray-600 bg-gray-800/50' 
+                                    : 'border-gray-200 hover:border-gray-300 bg-gray-50'
                               }`}
                               onClick={() => selectAvatarProfile(avatar)}
                             >
                               <div className="flex items-center gap-4">
-                                <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                                  selectedAvatar?.id === avatar.id
-                                    ? isDark ? 'bg-blue-600' : 'bg-blue-500'
-                                    : isDark ? 'bg-gray-700' : 'bg-gray-200'
+                                <div className={`w-16 h-16 rounded-lg flex items-center justify-center ${
+                                  isDark ? 'bg-gray-700' : 'bg-gray-200'
                                 }`}>
                                   <span className="text-2xl">{
                                     avatar.id === 'shadow' ? '👤' : 
@@ -470,8 +459,8 @@ function CyberForge() {
                                 </div>
                                 
                                 <div className="flex-1">
-                                  <h3 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>{avatar.name}</h3>
-                                  <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                                  <h3 className="font-bold text-lg">{avatar.name}</h3>
+                                  <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                                     {avatar.type === 'hacker' ? 'Hacker Éthique' : 
                                      avatar.type === 'analyst' ? 'Analyste Sécurité' :
                                      avatar.type === 'security_manager' ? 'Gestionnaire Sécurité' :
@@ -479,9 +468,7 @@ function CyberForge() {
                                   </p>
                                   <div className="flex flex-wrap gap-1 mt-1">
                                     {avatar.abilities.map((ability, index) => (
-                                      <Badge key={index} className={`text-xs ${
-                                        isDark ? 'bg-gray-700 text-white border-0' : 'bg-gray-200 text-gray-800 border-0'
-                                      }`}>
+                                      <Badge key={index} variant="outline" className="text-xs">
                                         {ability}
                                       </Badge>
                                     ))}
@@ -491,7 +478,7 @@ function CyberForge() {
                                 <Button 
                                   size="sm" 
                                   variant="ghost" 
-                                  className={`p-0 h-8 w-8 rounded-full ${isDark ? 'text-white hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                                  className="p-0 h-8 w-8 rounded-full"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setAvatarCardOpen(avatar.id === avatarCardOpen ? null : avatar.id);
@@ -511,25 +498,25 @@ function CyberForge() {
                                     transition={{ duration: 0.2 }}
                                     className="mt-3 overflow-hidden"
                                   >
-                                    <Separator className={`my-2 ${isDark ? 'bg-gray-600' : 'bg-gray-300'}`} />
-                                    <p className={`text-sm mb-2 ${isDark ? 'text-white' : 'text-gray-800'}`}>{avatar.description}</p>
+                                    <Separator className="my-2" />
+                                    <p className="text-sm mb-2">{avatar.description}</p>
                                     
-                                    <h4 className={`text-sm font-medium mb-1 ${isDark ? 'text-blue-300' : 'text-blue-700'}`}>
+                                    <h4 className={`text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                       Forces et faiblesses
                                     </h4>
-                                    <ul className={`text-sm space-y-1 list-disc pl-5 mb-2 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
+                                    <ul className="text-sm space-y-1 list-disc pl-5 mb-2">
                                       {avatar.strengthsAndWeaknesses.map((item, index) => (
                                         <li key={index}>{item}</li>
                                       ))}
                                     </ul>
                                     
-                                    <h4 className={`text-sm font-medium mb-1 ${isDark ? 'text-blue-300' : 'text-blue-700'}`}>
+                                    <h4 className={`text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                                       Compétences principales
                                     </h4>
                                     <div className="flex flex-wrap gap-1">
                                       {avatar.primarySkills.map((skill, index) => (
                                         <Badge key={index} className={`${
-                                          isDark ? 'bg-blue-700 text-white border-0' : 'bg-blue-600 text-white border-0'
+                                          isDark ? 'bg-blue-900 text-blue-100' : 'bg-blue-100 text-blue-800'
                                         }`}>
                                           {skill}
                                         </Badge>
@@ -545,21 +532,14 @@ function CyberForge() {
                     </CardContent>
                     
                     <CardFooter className="flex justify-between pt-2">
-                      <Button 
-                        variant="outline" 
-                        onClick={() => setEntryStep('welcome')}
-                        className={isDark ? 'border-gray-600 bg-transparent text-white hover:bg-gray-700' : 'border-gray-300 text-gray-800 hover:bg-gray-100'}
-                      >
+                      <Button variant="outline" onClick={() => setEntryStep('welcome')}>
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Retour
                       </Button>
                       
                       <Button 
                         onClick={proceedToNextStep} 
-                        className={isDark 
-                          ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-                          : 'bg-blue-700 hover:bg-blue-800 text-white'
-                        }
+                        className={isDark ? 'bg-blue-600 hover:bg-blue-700' : ''}
                         disabled={!selectedAvatar}
                       >
                         Continuer
@@ -579,29 +559,22 @@ function CyberForge() {
                   transition={{ duration: 0.3 }}
                   className="w-full max-w-4xl"
                 >
-                  <Card className={`p-6 ${isDark ? 'bg-gray-800 border-blue-700' : 'bg-white border-blue-300'} backdrop-blur-sm border-2 rounded-lg shadow-xl`}>
+                  <Card className={`p-6 ${isDark ? 'bg-gray-800/50 border-gray-700' : 'bg-white border-gray-200'} backdrop-blur-sm border rounded-lg shadow-lg`}>
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-3 text-2xl">
-                        <div className={`p-2 rounded-lg ${isDark ? 'bg-cyan-600' : 'bg-cyan-100'}`}>
-                          <FileCode className={`h-7 w-7 ${isDark ? 'text-white' : 'text-cyan-800'}`} />
-                        </div>
-                        <span className={isDark ? 'text-white' : 'text-blue-950'}>
-                          Briefing de mission
-                        </span>
+                      <CardTitle className="flex items-center gap-2 text-2xl">
+                        <FileCode className={`h-6 w-6 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                        Briefing de mission
                       </CardTitle>
-                      <CardDescription className={`text-base ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
+                      <CardDescription className={isDark ? 'text-gray-400' : 'text-gray-600'}>
                         Votre objectif au sein de CyberForge Academy
                       </CardDescription>
                     </CardHeader>
                     
                     <CardContent className="space-y-4">
                       {selectedAvatar && (
-                        <div className={`flex items-center gap-4 p-4 rounded-lg mb-4 ${
-                          isDark ? 'bg-gradient-to-r from-blue-900/40 to-purple-900/40 border border-blue-700' 
-                               : 'bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200'
-                        }`}>
-                          <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                            isDark ? 'bg-blue-600' : 'bg-blue-500'
+                        <div className="flex items-center gap-4 p-4 rounded-lg mb-4 bg-gradient-to-r from-blue-900/20 to-purple-900/20 border border-blue-800/30">
+                          <div className={`w-16 h-16 rounded-lg flex items-center justify-center ${
+                            isDark ? 'bg-gray-700' : 'bg-gray-200'
                           }`}>
                             <span className="text-2xl">{
                               selectedAvatar.id === 'shadow' ? '👤' : 
@@ -612,13 +585,13 @@ function CyberForge() {
                           </div>
                           
                           <div>
-                            <h3 className={`font-bold text-lg flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                            <h3 className="font-bold text-lg flex items-center gap-2">
                               {selectedAvatar.name}
-                              <Badge className={`ml-2 ${isDark ? 'bg-green-600 text-white' : 'bg-green-600 text-white'} border-0`}>
+                              <Badge className={`ml-2 ${isDark ? 'bg-blue-800 text-blue-100' : 'bg-blue-100 text-blue-800'}`}>
                                 Niveau 1
                               </Badge>
                             </h3>
-                            <p className={`${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                            <p className={`${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                               {selectedAvatar.type === 'hacker' ? 'Hacker Éthique' : 
                                selectedAvatar.type === 'analyst' ? 'Analyste Sécurité' :
                                selectedAvatar.type === 'security_manager' ? 'Gestionnaire Sécurité' :
@@ -628,53 +601,25 @@ function CyberForge() {
                         </div>
                       )}
                       
-                      <div className={`p-5 rounded-md ${isDark ? 'bg-gray-900 border border-gray-700' : 'bg-gray-50 border border-gray-200'}`}>
-                        <h3 className={`font-bold text-lg mb-3 ${isDark ? 'text-blue-300' : 'text-blue-700'} flex items-center gap-2`}>
-                          <Shield className="h-5 w-5" /> Mission principale
+                      <div className={`p-4 rounded-md ${isDark ? 'bg-gray-700/50' : 'bg-gray-100'}`}>
+                        <h3 className={`font-bold text-lg mb-2 ${isDark ? 'text-blue-300' : 'text-blue-700'}`}>
+                          Mission principale
                         </h3>
-                        <p className={`mb-3 ${isDark ? 'text-white' : 'text-gray-800'}`}>
+                        <p className="mb-3">
                           En tant que {selectedAvatar?.name || 'recrue'} au sein de CyberForge Academy, votre mission est de développer vos compétences en cybersécurité en complétant des modules d'apprentissage, des laboratoires pratiques et des simulations de crise.
                         </p>
                         
-                        <h4 className={`font-medium mb-2 ${isDark ? 'text-gray-200' : 'text-gray-700'} flex items-center gap-2`}>
-                          <CheckCircle className={`h-4 w-4 ${isDark ? 'text-green-400' : 'text-green-600'}`} /> 
-                          Objectifs :
-                        </h4>
-                        <ul className={`list-none space-y-2 mb-4 ${isDark ? 'text-white' : 'text-gray-800'}`}>
-                          <li className="flex items-start gap-2">
-                            <div className="mt-1 text-xs">
-                              <Circle className={`h-2 w-2 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
-                            </div>
-                            Compléter les 9 modules d'apprentissage pour maîtriser les différents aspects de la cybersécurité
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <div className="mt-1 text-xs">
-                              <Circle className={`h-2 w-2 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
-                            </div>
-                            Participer à des exercices pratiques dans l'environnement de laboratoire virtuel
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <div className="mt-1 text-xs">
-                              <Circle className={`h-2 w-2 ${isDark ? 'text-red-400' : 'text-red-600'}`} />
-                            </div>
-                            Relever les défis de cyber-défense en conditions réalistes
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <div className="mt-1 text-xs">
-                              <Circle className={`h-2 w-2 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} />
-                            </div>
-                            Constituer une équipe virtuelle d'agents pour les missions avancées
-                          </li>
+                        <h4 className="font-medium mb-1">Objectifs :</h4>
+                        <ul className="list-disc pl-5 space-y-1 mb-3">
+                          <li>Compléter les 9 modules d'apprentissage pour maîtriser les différents aspects de la cybersécurité</li>
+                          <li>Participer à des exercices pratiques dans l'environnement de laboratoire virtuel</li>
+                          <li>Relever les défis de cyber-défense en conditions réalistes</li>
+                          <li>Constituer une équipe virtuelle d'agents pour les missions avancées</li>
                         </ul>
                         
-                        <div className={`p-4 rounded ${
-                          isDark ? 'bg-gradient-to-r from-blue-900/50 to-indigo-900/50 text-white border border-blue-800' 
-                                : 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-900 border border-blue-200'
-                        }`}>
-                          <p className={`font-medium mb-1 ${isDark ? 'text-blue-200' : 'text-blue-800'} flex items-center gap-2`}>
-                            <Lightbulb className="h-4 w-4" /> Recommandation pour votre profil ({selectedAvatar?.name || 'recrue'}) :
-                          </p>
-                          <p className={isDark ? 'text-gray-200' : 'text-gray-700'}>
+                        <div className={`p-3 rounded ${isDark ? 'bg-blue-900/30 text-blue-200' : 'bg-blue-50 text-blue-800'} text-sm`}>
+                          <p className="font-medium">Recommandation pour votre profil ({selectedAvatar?.name || 'recrue'}) :</p>
+                          <p>
                             {selectedAvatar?.id === 'shadow' && "Commencez par les modules de fondamentaux et de sécurité web pour exploiter vos compétences en hacking éthique."}
                             {selectedAvatar?.id === 'sentinel' && "Concentrez-vous d'abord sur les fondamentaux et la gestion des incidents pour renforcer vos capacités stratégiques."}
                             {selectedAvatar?.id === 'guardian' && "Explorez les modules d'analyse de malware et de réponse aux incidents pour améliorer vos compétences d'analyste."}
@@ -685,39 +630,32 @@ function CyberForge() {
                       </div>
                       
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div className={`p-4 rounded-md text-center ${isDark ? 'bg-blue-900/30 border border-blue-800' : 'bg-blue-50 border border-blue-200'}`}>
-                          <h3 className={`font-medium mb-1 ${isDark ? 'text-blue-200' : 'text-blue-700'}`}>Modules à compléter</h3>
-                          <div className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-blue-700'}`}>9</div>
+                        <div className={`p-3 rounded-md text-center ${isDark ? 'bg-gray-700/40' : 'bg-gray-100'}`}>
+                          <h3 className="font-medium mb-1">Modules à compléter</h3>
+                          <div className="text-2xl font-bold text-blue-500">9</div>
                         </div>
                         
-                        <div className={`p-4 rounded-md text-center ${isDark ? 'bg-green-900/30 border border-green-800' : 'bg-green-50 border border-green-200'}`}>
-                          <h3 className={`font-medium mb-1 ${isDark ? 'text-green-200' : 'text-green-700'}`}>Niveau actuel</h3>
-                          <div className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-green-700'}`}>1</div>
+                        <div className={`p-3 rounded-md text-center ${isDark ? 'bg-gray-700/40' : 'bg-gray-100'}`}>
+                          <h3 className="font-medium mb-1">Niveau actuel</h3>
+                          <div className="text-2xl font-bold text-green-500">1</div>
                         </div>
                         
-                        <div className={`p-4 rounded-md text-center ${isDark ? 'bg-purple-900/30 border border-purple-800' : 'bg-purple-50 border border-purple-200'}`}>
-                          <h3 className={`font-medium mb-1 ${isDark ? 'text-purple-200' : 'text-purple-700'}`}>Points disponibles</h3>
-                          <div className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-purple-700'}`}>50</div>
+                        <div className={`p-3 rounded-md text-center ${isDark ? 'bg-gray-700/40' : 'bg-gray-100'}`}>
+                          <h3 className="font-medium mb-1">Points disponibles</h3>
+                          <div className="text-2xl font-bold text-purple-500">50</div>
                         </div>
                       </div>
                     </CardContent>
                     
                     <CardFooter className="flex justify-between pt-2">
-                      <Button 
-                        variant="outline" 
-                        onClick={() => setEntryStep('avatar')}
-                        className={isDark ? 'border-gray-600 bg-transparent text-white hover:bg-gray-700' : 'border-gray-300 text-gray-800 hover:bg-gray-100'}
-                      >
+                      <Button variant="outline" onClick={() => setEntryStep('avatar')}>
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Retour
                       </Button>
                       
                       <Button 
                         onClick={proceedToNextStep} 
-                        className={isDark 
-                          ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-                          : 'bg-blue-700 hover:bg-blue-800 text-white'
-                        }
+                        className={isDark ? 'bg-blue-600 hover:bg-blue-700' : ''}
                       >
                         Accepter la mission
                         <ChevronRight className="h-4 w-4 ml-2" />
@@ -736,50 +674,25 @@ function CyberForge() {
                   transition={{ duration: 0.3 }}
                   className="w-full max-w-3xl text-center"
                 >
-                  <Card className={`p-6 ${isDark ? 'bg-gray-800 border-blue-700' : 'bg-white border-blue-300'} backdrop-blur-sm border-2 rounded-lg shadow-xl`}>
+                  <Card className={`p-6 ${isDark ? 'bg-gray-800/50 border-gray-700' : 'bg-white border-gray-200'} backdrop-blur-sm border rounded-lg shadow-lg`}>
                     <CardContent className="pt-6 flex flex-col items-center">
-                      <div className={`w-24 h-24 rounded-full mb-5 flex items-center justify-center bg-gradient-to-br ${
-                        isDark ? 'from-green-600 to-blue-700' : 'from-green-500 to-blue-600'
+                      <div className={`w-20 h-20 rounded-lg mb-4 flex items-center justify-center ${
+                        isDark ? 'bg-blue-900/30' : 'bg-blue-100'
                       }`}>
-                        <CheckCircle className="h-12 w-12 text-white" />
+                        <CheckCircle className={`h-10 w-10 ${isDark ? 'text-blue-300' : 'text-blue-600'}`} />
                       </div>
                       
-                      <h2 className={`text-2xl md:text-3xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>Vous êtes prêt !</h2>
-                      
-                      <div className={`p-4 mb-5 rounded-md max-w-lg text-center ${
-                        isDark ? 'bg-blue-900/30 border border-blue-800' : 'bg-blue-50 border border-blue-200'
-                      }`}>
-                        <p className={`${isDark ? 'text-white' : 'text-gray-800'}`}>
-                          Votre profil <span className="font-bold">{selectedAvatar?.name || 'agent'}</span> est configuré. L'académie CyberForge vous attend pour commencer votre parcours dans l'élite de la cybersécurité.
-                        </p>
-                      </div>
-                      
-                      <div className="flex gap-2 items-center mb-6">
-                        {['Modules', 'Laboratoires', 'Défis', 'Simulations'].map((item, index) => (
-                          <Badge 
-                            key={index}
-                            className={`px-3 py-1 ${
-                              isDark 
-                                ? 'bg-gray-700 text-white border-0' 
-                                : 'bg-gray-200 text-gray-800 border-0'
-                            }`}
-                          >
-                            {item}
-                          </Badge>
-                        ))}
-                      </div>
+                      <h2 className="text-2xl font-bold mb-2">Vous êtes prêt !</h2>
+                      <p className="mb-6 max-w-lg">
+                        Votre profil {selectedAvatar?.name || 'agent'} est configuré. L'académie CyberForge vous attend pour commencer votre parcours dans l'élite de la cybersécurité.
+                      </p>
                       
                       <Button 
                         onClick={proceedToNextStep} 
                         size="lg"
-                        className={`px-8 ${
-                          isDark 
-                            ? 'bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white border-0' 
-                            : 'bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white border-0'
-                        }`}
+                        className={`px-8 ${isDark ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
                       >
                         Entrer dans l'Académie
-                        <ChevronRight className="h-5 w-5 ml-2" />
                       </Button>
                     </CardContent>
                   </Card>
@@ -790,124 +703,11 @@ function CyberForge() {
         </div>
       ) : (
         // Interface principale (mode normal)
-        <div className={`container mx-auto px-4 py-8 ${isDark ? 'text-white' : 'text-gray-800'}`}>
-          <div className="flex justify-between items-center mb-4">
-            <h1 className={`text-4xl font-bold font-mono tracking-tight ${
-              isDark 
-                ? 'bg-gradient-to-r from-blue-400 to-indigo-400 text-transparent bg-clip-text' 
-                : 'bg-gradient-to-r from-blue-700 to-indigo-800 text-transparent bg-clip-text'
-            }`}>
-              CyberForge<span className={isDark ? 'text-blue-300' : 'text-blue-700'}>_</span>Academy
-            </h1>
-            
-            <div className="flex gap-3">
-              <Button 
-                variant="outline" 
-                onClick={() => setLocation('/')}
-                className={`flex items-center gap-1 ${
-                  isDark 
-                    ? 'border-gray-600 bg-transparent text-white hover:bg-gray-700' 
-                    : 'border-gray-300 text-gray-800 hover:bg-gray-100'
-                }`}
-              >
-                <ArrowLeft className="h-4 w-4" />
-                <span>Accueil</span>
-              </Button>
-            </div>
-          </div>
-          
-          <div className={`p-6 mb-8 rounded-xl ${isDark ? 'bg-gray-800 border border-blue-900' : 'bg-white border border-blue-200'} shadow-lg`}>
-            <h2 className={`text-xl font-bold mb-3 flex items-center gap-2 ${isDark ? 'text-blue-300' : 'text-blue-700'}`}>
-              <Shield className="h-5 w-5" /> Bienvenue dans votre espace d'entraînement
-            </h2>
-            <p className="mb-4">
-              L'interface principale de CyberForge Academy est en cours de construction. Bientôt, vous pourrez accéder aux modules d'apprentissage, laboratoires pratiques et simulations d'attaques.
-            </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className={`p-4 rounded-md ${isDark ? 'bg-gray-900 border border-gray-700' : 'bg-gray-50 border border-gray-200'}`}>
-                <h3 className="font-medium mb-2 flex items-center gap-2">
-                  <BookOpen className={`h-4 w-4 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} /> Modules d'apprentissage
-                </h3>
-                <p className="text-sm opacity-90">9 modules progressifs pour maîtriser les compétences essentielles en cybersécurité.</p>
-              </div>
-              
-              <div className={`p-4 rounded-md ${isDark ? 'bg-gray-900 border border-gray-700' : 'bg-gray-50 border border-gray-200'}`}>
-                <h3 className="font-medium mb-2 flex items-center gap-2">
-                  <Terminal className={`h-4 w-4 ${isDark ? 'text-green-400' : 'text-green-600'}`} /> Laboratoire virtuel
-                </h3>
-                <p className="text-sm opacity-90">Environnement sécurisé pour pratiquer les techniques de hacking éthique.</p>
-              </div>
-              
-              <div className={`p-4 rounded-md ${isDark ? 'bg-gray-900 border border-gray-700' : 'bg-gray-50 border border-gray-200'}`}>
-                <h3 className="font-medium mb-2 flex items-center gap-2">
-                  <AlertTriangle className={`h-4 w-4 ${isDark ? 'text-red-400' : 'text-red-600'}`} /> Simulations d'attaques
-                </h3>
-                <p className="text-sm opacity-90">Scénarios réalistes pour améliorer vos compétences en défense cyber.</p>
-              </div>
-            </div>
-          </div>
-          
-          {selectedAvatar && (
-            <div className={`p-5 rounded-xl ${isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'} flex flex-col md:flex-row items-center gap-4 shadow-lg`}>
-              <div className="flex items-center gap-4">
-                <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                  isDark ? 'bg-blue-600' : 'bg-blue-500'
-                }`}>
-                  <span className="text-2xl">{
-                    selectedAvatar.id === 'shadow' ? '👤' : 
-                    selectedAvatar.id === 'sentinel' ? '🔍' :
-                    selectedAvatar.id === 'guardian' ? '🛡️' : 
-                    '📡'
-                  }</span>
-                </div>
-                
-                <div>
-                  <h3 className="font-bold text-lg flex items-center gap-2">
-                    {selectedAvatar.name}
-                    <Badge className={isDark ? 'bg-green-700 text-white border-0' : 'bg-green-100 text-green-800 border-0'}>
-                      Niveau 1
-                    </Badge>
-                  </h3>
-                  <p className={isDark ? 'text-gray-300' : 'text-gray-600'}>
-                    {selectedAvatar.type === 'hacker' ? 'Hacker Éthique' : 
-                     selectedAvatar.type === 'analyst' ? 'Analyste Sécurité' :
-                     selectedAvatar.type === 'security_manager' ? 'Gestionnaire Sécurité' :
-                     'Spécialiste Réseau'}
-                  </p>
-                  <p className="text-sm mt-1 flex items-center gap-1">
-                    <Star className={`h-4 w-4 ${isDark ? 'text-yellow-400' : 'text-yellow-500'}`} />
-                    <span>Points: <span className="font-medium">50</span></span>
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex-1 flex justify-end mt-4 md:mt-0">
-                <div className="flex flex-col gap-2">
-                  <Button 
-                    className={`${isDark ? 'bg-blue-700 hover:bg-blue-600' : 'bg-blue-600 hover:bg-blue-700'} text-white`}
-                    onClick={() => setLocation('/cyberforge/modules')}
-                  >
-                    <BookOpen className="mr-2 h-4 w-4" />
-                    Accéder aux modules
-                  </Button>
-                  
-                  <Button 
-                    variant="outline"
-                    className={`${
-                      isDark 
-                        ? 'border-blue-800 bg-transparent text-blue-300 hover:bg-blue-900/50' 
-                        : 'border-blue-300 text-blue-700 hover:bg-blue-50'
-                    }`}
-                    onClick={() => setEntryStep('welcome')}
-                  >
-                    <User className="mr-2 h-4 w-4" />
-                    Changer de profil
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
+        <div className="container mx-auto px-4 py-8">
+          <h1 className={`text-4xl font-bold mb-2 ${isDark ? 'text-blue-400' : 'text-blue-600'} font-mono tracking-tight`}>
+            CyberForge<span className="text-white">_</span>Academy
+          </h1>
+          <p>Interface principale de CyberForge Academy. Contenu en cours de développement...</p>
         </div>
       )}
     </div>
