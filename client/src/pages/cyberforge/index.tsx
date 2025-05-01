@@ -334,19 +334,23 @@ function CyberForge() {
                   transition={{ duration: 0.3 }}
                   className="w-full max-w-3xl"
                 >
-                  <Card className={`p-6 ${isDark ? 'bg-gray-800/50 border-gray-700' : 'bg-white border-gray-200'} backdrop-blur-sm border rounded-lg shadow-lg`}>
+                  <Card className={`p-6 ${isDark ? 'bg-gray-800/80 border-blue-900' : 'bg-white/90 border-blue-200'} backdrop-blur-sm border-2 rounded-lg shadow-xl`}>
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-2xl">
-                        <Shield className={`h-6 w-6 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
-                        Bienvenue à CyberForge Academy
+                      <CardTitle className="flex items-center gap-3 text-2xl">
+                        <div className={`p-2 rounded-lg ${isDark ? 'bg-blue-500/20' : 'bg-blue-100'}`}>
+                          <Shield className={`h-7 w-7 ${isDark ? 'text-blue-300' : 'text-blue-700'}`} />
+                        </div>
+                        <span className={isDark ? 'text-blue-100' : 'text-blue-900'}>
+                          Bienvenue à CyberForge Academy
+                        </span>
                       </CardTitle>
-                      <CardDescription className={isDark ? 'text-gray-400' : 'text-gray-600'}>
+                      <CardDescription className={`text-base ${isDark ? 'text-blue-200' : 'text-blue-800'}`}>
                         Votre parcours dans l'élite de la cybersécurité commence ici
                       </CardDescription>
                     </CardHeader>
                     
                     <CardContent className="space-y-4">
-                      <p>
+                      <p className={isDark ? 'text-gray-200' : 'text-gray-800'}>
                         L'Académie CyberForge est un centre d'entraînement de haute technologie conçu pour former 
                         les experts en cybersécurité de demain. Ici, vous développerez vos compétences à travers 
                         des modules interactifs, des simulations tactiques et des défis de hacking éthique.
