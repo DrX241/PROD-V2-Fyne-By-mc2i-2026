@@ -1,494 +1,451 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Clock, Send, ShieldAlert, Clipboard, ArrowRight, ThumbsUp, ThumbsDown } from 'lucide-react';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
-import { useGame } from '@/contexts/cyber-challenge/GameContext';
-import axios from 'axios';
+import { 
+  Clock, 
+  AlertCircle, 
+  CheckCircle2,
+  FileText,
+  MessageSquare,
+  Terminal,
+  Lock
+} from 'lucide-react';
+import { useGameContext } from '@/contexts/cyber-challenge/GameContext';
+import type { Scenario } from '@/contexts/cyber-challenge/GameContext';
 
 interface ScenarioPhaseProps {
   onComplete: () => void;
 }
 
-interface Message {
-  id: string;
-  role: 'system' | 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-}
-
-export default function ScenarioPhase({ onComplete }: ScenarioPhaseProps) {
+const ScenarioPhase: React.FC<ScenarioPhaseProps> = ({ onComplete }) => {
   const { 
     selectedRole, 
     selectedMode, 
-    currentStage, 
-    maxStages, 
-    incrementScore, 
-    advanceStage,
-    completeGame
-  } = useGame();
+    difficultyLevel,
+    currentScenario,
+    setCurrentScenario,
+    timeRemaining,
+    setTimeRemaining,
+    startGame,
+    completeObjective,
+    endGame,
+    score
+  } = useGameContext();
 
-  const [userInput, setUserInput] = useState('');
-  const [chatMessages, setChatMessages] = useState<Message[]>([]);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [countdown, setCountdown] = useState<number | null>(null);
-  const [scenarioTitle, setScenarioTitle] = useState('');
-  const [scenarioContext, setScenarioContext] = useState('');
-  const [feedbackMode, setFeedbackMode] = useState(false);
-  const [feedbackMessage, setFeedbackMessage] = useState('');
-  
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  
-  // Fonction pour générer un ID unique
-  const generateId = () => Math.random().toString(36).substring(2, 9);
-  
-  // Système de décompte pour le mode Tunnel Effect
-  useEffect(() => {
-    if (selectedMode === 'tunnel-effect' && !feedbackMode) {
-      setCountdown(30); // 30 secondes par question
-      
-      const timer = setInterval(() => {
-        setCountdown(prev => {
-          if (prev === null) return null;
-          if (prev <= 1) {
-            clearInterval(timer);
-            handleTimeExpired();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-      
-      return () => clearInterval(timer);
-    }
-  }, [currentStage, selectedMode, feedbackMode]);
-  
-  // Scroll automatique vers le bas du chat
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [chatMessages]);
-  
-  // Initialiser le scénario au démarrage ou au changement d'étape
-  useEffect(() => {
-    if (currentStage > 0) {
-      initializeScenario();
-    }
-  }, [currentStage, selectedRole, selectedMode]);
-  
+  const [activeTab, setActiveTab] = useState<'briefing' | 'communication' | 'analysis' | 'action'>('briefing');
+  const [timeElapsed, setTimeElapsed] = useState<number>(0);
+  const [progress, setProgress] = useState<number>(0);
+  const [isTimerActive, setIsTimerActive] = useState<boolean>(false);
+  const [completedSteps, setCompletedSteps] = useState<string[]>([]);
+  const [userDecisions, setUserDecisions] = useState<Record<string, string>>({});
+
+  // Données de démonstration pour un scénario
+  const demoScenario: Scenario = {
+    id: 'ransomware-attack',
+    title: 'Attaque par Ransomware',
+    description: 'Une attaque de ransomware a été détectée dans l\'infrastructure de l\'entreprise.',
+    briefing: 'En tant que ' + (selectedRole === 'rssi' ? 'RSSI' : 
+                selectedRole === 'ethical-hacker' ? 'Hacker Éthique' : 
+                selectedRole === 'developer' ? 'Développeur Sécurité' : 
+                selectedRole === 'sysadmin' ? 'Administrateur Système' : 'Consultant Cybersécurité') + 
+            ', vous êtes alerté d\'une possible attaque par ransomware en cours. Les utilisateurs signalent que leurs fichiers deviennent inaccessibles et des demandes de rançon apparaissent sur les écrans. Vous devez évaluer la situation et prendre les mesures appropriées pour contenir l\'attaque et restaurer les systèmes.',
+    difficulty: difficultyLevel,
+    objectives: [
+      'Isoler les systèmes infectés',
+      'Identifier le vecteur d\'infection',
+      'Évaluer l\'étendue des dommages',
+      'Préparer un plan de restauration',
+      'Communiquer avec les parties prenantes'
+    ],
+    backgroundContext: 'L\'entreprise est une société financière de taille moyenne avec environ 500 employés. Elle stocke des données sensibles de clients et est soumise à des réglementations strictes en matière de protection des données.'
+  };
+
   // Initialisation du scénario
-  const initializeScenario = async () => {
-    setFeedbackMode(false);
-    setFeedbackMessage('');
+  useEffect(() => {
+    if (!currentScenario) {
+      setCurrentScenario(demoScenario);
+      startGame();
+      setIsTimerActive(true);
+    }
+  }, [currentScenario]);
+
+  // Gestion du timer
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
     
-    // Simuler une requête au backend (à implémenter plus tard)
-    // Pour le moment, générons un scénario statique
-    
-    let title = '';
-    let context = '';
-    
-    // Titre basé sur le mode et le rôle
-    switch (selectedMode) {
-      case 'classic-challenge':
-        title = `Défi #${currentStage}: ${getClassicChallengeTitle()}`;
-        break;
-      case 'tunnel-effect':
-        title = `Alerte #${currentStage}: ${getTunnelEventTitle()}`;
-        break;
-      case 'pca-scenario':
-        title = `Jour ${currentStage}: ${getPCAScenarioTitle()}`;
-        break;
-      case 'hackathon':
-        title = `Indice #${currentStage}/10: ${getHackathonTitle()}`;
-        break;
+    if (isTimerActive && timeRemaining > 0) {
+      interval = setInterval(() => {
+        setTimeRemaining(prev => prev - 1);
+        setTimeElapsed(prev => prev + 1);
+        setProgress(prev => timeElapsed / 600 * 100); // 600 secondes = 10 minutes
+      }, 1000);
+    } else if (timeRemaining === 0) {
+      handleScenarioEnd();
     }
     
-    // Contexte basé sur le mode et le rôle
-    context = generateScenarioContext();
-    
-    setScenarioTitle(title);
-    setScenarioContext(context);
-    
-    // Ajouter le message initial du système
-    setChatMessages([
-      {
-        id: generateId(),
-        role: 'system',
-        content: context,
-        timestamp: new Date()
-      }
-    ]);
-  };
-  
-  // Fonctions pour générer des titres aléatoires selon le mode
-  const getClassicChallengeTitle = () => {
-    const titles = [
-      "Alerte de sécurité inattendue",
-      "Vulnérabilité critique détectée",
-      "Analyse de risque requise",
-      "Audit de conformité",
-      "Incident en cours"
-    ];
-    return titles[Math.floor(Math.random() * titles.length)];
-  };
-  
-  const getTunnelEventTitle = () => {
-    const titles = [
-      "Décision immédiate requise",
-      "Brèche en progression",
-      "Escalade de l'incident",
-      "Réaction d'urgence",
-      "Crise qui s'intensifie"
-    ];
-    return titles[Math.floor(Math.random() * titles.length)];
-  };
-  
-  const getPCAScenarioTitle = () => {
-    const titles = [
-      "Réunion de crise",
-      "Communication aux parties prenantes",
-      "Allocation des ressources",
-      "Évaluation des dommages",
-      "Stratégie de remédiation"
-    ];
-    return titles[Math.floor(Math.random() * titles.length)];
-  };
-  
-  const getHackathonTitle = () => {
-    const titles = [
-      "Extraction de données",
-      "Analyse des logs système",
-      "Messages cryptés",
-      "Fragments de code malveillant",
-      "Trace numérique"
-    ];
-    return titles[Math.floor(Math.random() * titles.length)];
-  };
-  
-  // Génère un contexte de scénario basé sur le mode et le rôle
-  const generateScenarioContext = () => {
-    let baseContext = '';
-    
-    switch (selectedMode) {
-      case 'classic-challenge':
-        baseContext = `En tant que ${getRoleName()}, vous faites face à un défi de cybersécurité qui requiert votre expertise. ${currentStage === 1 ? 'Commençons par un cas simple.' : currentStage > maxStages / 2 ? 'Ce défi est particulièrement complexe.' : 'Voici la situation actuelle.'}\n\n`;
-        break;
-      case 'tunnel-effect':
-        baseContext = `ALERTE CRITIQUE - Temps limité! En tant que ${getRoleName()}, vous avez 30 secondes pour prendre une décision. Chaque choix aura un impact direct sur l'évolution de la crise.\n\n`;
-        break;
-      case 'pca-scenario':
-        baseContext = `Jour ${currentStage} de la crise - En tant que ${getRoleName()}, vous participez à la gestion d'un incident majeur. Différentes parties prenantes attendent vos recommandations.\n\n`;
-        break;
-      case 'hackathon':
-        baseContext = `Enquête en cours - En tant que ${getRoleName()}, vous recherchez des indices cachés dans divers contenus numériques. Ceci est l'indice ${currentStage} sur 10.\n\n`;
-        break;
-    }
-    
-    // Ajouter un contexte spécifique en fonction du rôle et du mode
-    baseContext += getSpecificContext();
-    
-    return baseContext;
-  };
-  
-  // Obtenir le nom du rôle sélectionné
-  const getRoleName = () => {
-    switch (selectedRole) {
-      case 'rssi': return 'RSSI';
-      case 'ethical-hacker': return 'Hacker Éthique';
-      case 'soc-analyst': return 'Analyste SOC';
-      case 'secure-developer': return 'Développeur Sécurisé';
-      case 'cybersecurity-consultant': return 'Consultant Cybersécurité';
-      case 'system-administrator': return 'Administrateur Système';
-      case 'cyber-legal': return 'Juriste Cybersécurité';
-      case 'financial-director': return 'Directeur Financier';
-      default: return 'professionnel de cybersécurité';
+    return () => clearInterval(interval);
+  }, [isTimerActive, timeRemaining]);
+
+  const handleCompleteObjective = (objective: string) => {
+    if (!completedSteps.includes(objective)) {
+      completeObjective(objective);
+      setCompletedSteps([...completedSteps, objective]);
     }
   };
-  
-  // Générer un contexte spécifique selon le rôle et le mode
-  const getSpecificContext = () => {
-    // Ceci est une démonstration - normalement, nous ferions appel à l'API GPT-4o
-    // pour générer un contexte dynamique et pertinent
+
+  const handleDecision = (questionId: string, answer: string) => {
+    setUserDecisions({ ...userDecisions, [questionId]: answer });
     
-    const contexts = [
-      "Une alerte de sécurité a été détectée sur le réseau de l'entreprise. Des activités suspectes provenant de l'adresse IP 192.168.1.45 montrent des tentatives répétées d'accès à des ports sensibles. Les logs indiquent une augmentation de 500% du trafic vers les serveurs de base de données. Comment procéderiez-vous pour analyser et répondre à cette menace potentielle?",
-      
-      "Suite à la détection d'une vulnérabilité zero-day dans votre framework principal, vous devez évaluer l'impact et proposer une stratégie de mitigation immédiate. L'exploitation pourrait compromettre les données clients. Quel serait votre plan d'action?",
-      
-      "Un employé a signalé avoir reçu un email suspect demandant ses identifiants avec un lien qui semble provenir du service IT. Après vérification, plusieurs autres employés ont reçu des messages similaires. Comment géreriez-vous cette situation?",
-      
-      "Une analyse de routine a révélé que plusieurs postes de travail communiquent avec un serveur C2 (Command & Control) externe. L'infection semble avoir persisté pendant plusieurs semaines. Quelle serait votre stratégie pour contenir et remédier à cette menace?"
-    ];
-    
-    // Sélectionner un contexte aléatoire
-    return contexts[Math.floor(Math.random() * contexts.length)];
-  };
-  
-  // Gérer l'envoi du message par l'utilisateur
-  const handleSubmit = async () => {
-    if (!userInput.trim() || isProcessing) return;
-    
-    setIsProcessing(true);
-    
-    // Ajouter le message de l'utilisateur
-    const userMessage: Message = {
-      id: generateId(),
-      role: 'user',
-      content: userInput,
-      timestamp: new Date()
-    };
-    
-    setChatMessages(prev => [...prev, userMessage]);
-    setUserInput('');
-    
-    // Simuler une réponse de l'API (à remplacer par un vrai appel API)
-    setTimeout(() => {
-      // Gérer la réponse de l'IA
-      const aiResponse: Message = {
-        id: generateId(),
-        role: 'assistant',
-        content: generateAIResponse(userInput),
-        timestamp: new Date()
-      };
-      
-      setChatMessages(prev => [...prev, aiResponse]);
-      setIsProcessing(false);
-      
-      // Activer le mode feedback
-      setFeedbackMode(true);
-      
-      // Si c'est le dernier stade, préparer pour terminer
-      if (currentStage >= maxStages) {
-        setFeedbackMessage("C'était la dernière étape du défi! Évaluez votre performance avant de voir les résultats finaux.");
-      }
-    }, 1500);
-  };
-  
-  // Générer une réponse de l'IA (à remplacer par l'appel à GPT-4o)
-  const generateAIResponse = (input: string) => {
-    // Simuler une réponse - dans le produit final, cette fonction appellerait l'API GPT-4o
-    const aiResponses = [
-      "Votre analyse est pertinente. Effectivement, cette situation requiert une analyse plus approfondie des logs système et une isolation immédiate de l'adresse IP suspecte. Pour renforcer votre approche, je vous suggérerais également de vérifier si d'autres systèmes ont été touchés et d'établir une chronologie précise des événements.",
-      
-      "Bonne réponse, mais il manque quelques éléments critiques. Si nous suivons les bonnes pratiques de gestion d'incident, il serait également important d'impliquer l'équipe juridique dès le début du processus et de préparer une communication de crise au cas où des données sensibles auraient été compromises.",
-      
-      "Votre approche technique est solide, mais n'oubliez pas l'aspect humain du problème. La formation des utilisateurs et la communication interne sont essentielles pour éviter que ce type d'incident ne se reproduise."
-    ];
-    
-    return aiResponses[Math.floor(Math.random() * aiResponses.length)];
-  };
-  
-  // Gérer l'expiration du temps (pour le mode Tunnel Effect)
-  const handleTimeExpired = () => {
-    // Ajouter un message système indiquant l'expiration du temps
-    const timeExpiredMessage: Message = {
-      id: generateId(),
-      role: 'system',
-      content: "⏱️ TEMPS ÉCOULÉ! Votre hésitation a des conséquences. La menace a progressé.",
-      timestamp: new Date()
-    };
-    
-    setChatMessages(prev => [...prev, timeExpiredMessage]);
-    
-    // Pénalité de score
-    incrementScore(-5);
-    
-    // Activer le feedback négatif
-    setFeedbackMode(true);
-    setFeedbackMessage("Le temps est écoulé! Dans une situation de crise, chaque seconde compte.");
-  };
-  
-  // Gérer le feedback de l'utilisateur (positif ou négatif)
-  const handleFeedback = (isPositive: boolean) => {
-    // Ajuster le score en fonction du feedback
-    if (isPositive) {
-      incrementScore(10);
-    } else {
-      incrementScore(-5);
-    }
-    
-    // Si c'est le dernier stade, terminer le jeu
-    if (currentStage >= maxStages) {
-      completeGame();
-      onComplete();
-    } else {
-      // Passer à l'étape suivante
-      advanceStage();
+    // Si c'est la dernière décision ou si toutes les décisions sont prises, passer à l'action suivante
+    if (Object.keys(userDecisions).length >= 3) {
+      handleCompleteObjective('Prendre les décisions critiques');
     }
   };
-  
+
+  const handleScenarioEnd = () => {
+    endGame();
+    setIsTimerActive(false);
+    onComplete();
+  };
+
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
+  // Structure d'un questionnaire de décision
+  const decisions = [
+    {
+      id: 'isolation',
+      question: 'Quelle approche privilégiez-vous pour isoler les systèmes infectés ?',
+      options: [
+        { id: 'a', text: 'Déconnecter immédiatement tous les systèmes du réseau' },
+        { id: 'b', text: 'Isoler uniquement les systèmes présentant des signes d\'infection' },
+        { id: 'c', text: 'Mettre en place une segmentation réseau pour contenir l\'infection' }
+      ]
+    },
+    {
+      id: 'communication',
+      question: 'Comment allez-vous communiquer sur cet incident ?',
+      options: [
+        { id: 'a', text: 'Informer uniquement la direction et l\'équipe technique' },
+        { id: 'b', text: 'Communiquer avec tous les employés et leur fournir des instructions' },
+        { id: 'c', text: 'Préparer des communications internes et externes structurées' }
+      ]
+    },
+    {
+      id: 'payment',
+      question: 'Concernant la demande de rançon, quelle est votre recommandation ?',
+      options: [
+        { id: 'a', text: 'Payer la rançon pour récupérer rapidement l\'accès aux données' },
+        { id: 'b', text: 'Ne jamais payer et restaurer à partir des sauvegardes' },
+        { id: 'c', text: 'Évaluer l\'impact financier des deux options avant de décider' }
+      ]
+    }
+  ];
+
   return (
-    <div className="flex flex-col h-full">
-      {/* En-tête du scénario */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mb-4"
-      >
-        <div className="flex justify-between items-center mb-2">
-          <h2 className="text-2xl font-bold text-cyan-300">{scenarioTitle}</h2>
-          <div className="flex items-center gap-2">
-            <ShieldAlert className="h-5 w-5 text-cyan-400" />
-            <span className="text-sm text-cyan-400">
-              Niveau {currentStage}/{maxStages}
-            </span>
+    <div className="bg-gray-900 rounded-xl shadow-xl overflow-hidden">
+      {/* Header du scénario avec timer et progression */}
+      <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-4 border-b border-gray-700">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-xl font-bold text-white">{currentScenario?.title}</h2>
+            <p className="text-cyan-400 text-sm">
+              Mode: {selectedMode === 'classic' ? 'Classique' : 'Tunnel'} | 
+              Niveau: {difficultyLevel === 'beginner' ? 'Débutant' : 
+                      difficultyLevel === 'intermediate' ? 'Intermédiaire' : 'Avancé'}
+            </p>
+          </div>
+          
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center bg-gray-800 px-3 py-1 rounded-full">
+              <Clock className="h-4 w-4 text-yellow-400 mr-2" />
+              <span className="text-white font-mono">{formatTime(timeRemaining)}</span>
+            </div>
+            
+            <div className="flex items-center bg-gray-800 px-3 py-1 rounded-full">
+              <CheckCircle2 className="h-4 w-4 text-green-400 mr-2" />
+              <span className="text-white">{score} pts</span>
+            </div>
           </div>
         </div>
-        <Progress value={(currentStage / maxStages) * 100} className="h-2 bg-blue-900" />
-      </motion.div>
-      
-      {/* Zone de chat */}
-      <div className="flex-1 overflow-y-auto bg-gradient-to-b from-gray-900/50 to-blue-900/30 rounded-lg border border-blue-500/20 p-4 mb-4 max-h-96">
-        {chatMessages.map((message) => (
-          <div
-            key={message.id}
-            className={`mb-4 ${
-              message.role === 'user' 
-                ? 'ml-auto max-w-3/4' 
-                : message.role === 'system' 
-                  ? 'mx-auto max-w-full text-center' 
-                  : 'mr-auto max-w-3/4'
-            }`}
-          >
-            {message.role === 'system' ? (
-              <div className="bg-blue-950/70 text-blue-100 p-4 rounded-lg border border-blue-500/30">
-                {message.content}
-              </div>
-            ) : message.role === 'user' ? (
-              <div className="bg-blue-600/20 text-white p-3 rounded-lg border border-blue-500/30">
-                <div className="flex items-start gap-2">
-                  <div className="bg-blue-700 rounded-full p-1 flex-shrink-0">
-                    <User className="h-4 w-4 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-blue-300 mb-1">Vous ({getRoleName()})</p>
-                    <p>{message.content}</p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="bg-indigo-900/30 text-white p-3 rounded-lg border border-indigo-500/30">
-                <div className="flex items-start gap-2">
-                  <div className="bg-indigo-700 rounded-full p-1 flex-shrink-0">
-                    <Bot className="h-4 w-4 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-indigo-300 mb-1">CyberChallenge IA</p>
-                    <p>{message.content}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
+        
+        <div className="mt-3">
+          <Progress value={progress} className="h-2 bg-gray-700" indicatorClassName="bg-cyan-500" />
+        </div>
       </div>
       
-      {/* Zone de saisie ou de feedback */}
-      {feedbackMode ? (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="bg-blue-900/30 p-4 rounded-lg border border-blue-500/30"
+      {/* Onglets de navigation */}
+      <div className="flex border-b border-gray-700">
+        <button 
+          className={`px-4 py-3 flex items-center space-x-2 ${activeTab === 'briefing' ? 'bg-gray-800 text-cyan-400 border-b-2 border-cyan-400' : 'text-gray-400 hover:bg-gray-800'}`}
+          onClick={() => setActiveTab('briefing')}
         >
-          <h3 className="text-lg font-semibold text-cyan-300 mb-2">Évaluez votre réponse</h3>
-          {feedbackMessage && (
-            <p className="text-blue-100 mb-4">{feedbackMessage}</p>
-          )}
-          <div className="flex justify-center gap-4">
-            <Button
-              onClick={() => handleFeedback(true)}
-              className="bg-green-600 hover:bg-green-700 gap-2"
-            >
-              <ThumbsUp className="h-5 w-5" />
-              Réponse satisfaisante
-            </Button>
-            <Button
-              onClick={() => handleFeedback(false)}
-              className="bg-red-600 hover:bg-red-700 gap-2"
-            >
-              <ThumbsDown className="h-5 w-5" />
-              Besoin d'amélioration
-            </Button>
-          </div>
-        </motion.div>
-      ) : (
-        <div className="flex gap-2 items-end">
-          {selectedMode === 'tunnel-effect' && countdown !== null && (
-            <div className={`flex items-center mr-2 ${
-              countdown <= 10 ? 'text-red-400' : 'text-blue-300'
-            }`}>
-              <Clock className="h-5 w-5 mr-1" />
-              <span className="text-sm font-mono">{countdown}s</span>
-            </div>
-          )}
-          
-          <Textarea
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
-            placeholder="Tapez votre réponse ou décision..."
-            className="flex-1 bg-blue-950/50 border border-blue-500/30 focus:border-blue-400/60 resize-none"
-            disabled={isProcessing}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSubmit();
-              }
-            }}
-          />
-          
-          <Button
-            onClick={handleSubmit}
-            disabled={isProcessing || !userInput.trim()}
-            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+          <FileText className="h-4 w-4" />
+          <span>Briefing</span>
+        </button>
+        
+        <button 
+          className={`px-4 py-3 flex items-center space-x-2 ${activeTab === 'communication' ? 'bg-gray-800 text-cyan-400 border-b-2 border-cyan-400' : 'text-gray-400 hover:bg-gray-800'}`}
+          onClick={() => setActiveTab('communication')}
+        >
+          <MessageSquare className="h-4 w-4" />
+          <span>Communication</span>
+        </button>
+        
+        <button 
+          className={`px-4 py-3 flex items-center space-x-2 ${activeTab === 'analysis' ? 'bg-gray-800 text-cyan-400 border-b-2 border-cyan-400' : 'text-gray-400 hover:bg-gray-800'}`}
+          onClick={() => setActiveTab('analysis')}
+        >
+          <Terminal className="h-4 w-4" />
+          <span>Analyse</span>
+        </button>
+        
+        <button 
+          className={`px-4 py-3 flex items-center space-x-2 ${activeTab === 'action' ? 'bg-gray-800 text-cyan-400 border-b-2 border-cyan-400' : 'text-gray-400 hover:bg-gray-800'}`}
+          onClick={() => setActiveTab('action')}
+        >
+          <Lock className="h-4 w-4" />
+          <span>Action</span>
+        </button>
+      </div>
+      
+      {/* Contenu principal selon l'onglet actif */}
+      <div className="p-6">
+        {activeTab === 'briefing' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="space-y-6"
           >
-            {isProcessing ? (
-              <span className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Envoi...
-              </span>
-            ) : (
-              <Send className="h-5 w-5" />
-            )}
-          </Button>
-        </div>
-      )}
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-white mb-2">Description de la situation</h3>
+              <p className="text-gray-300">{currentScenario?.briefing}</p>
+            </div>
+            
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-white mb-2">Contexte</h3>
+              <p className="text-gray-300">{currentScenario?.backgroundContext}</p>
+            </div>
+            
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-white mb-2">Objectifs</h3>
+              <ul className="space-y-2">
+                {currentScenario?.objectives.map((objective, index) => (
+                  <li key={index} className="flex items-start">
+                    <div className="mt-0.5 mr-2">
+                      {completedSteps.includes(objective) ? (
+                        <CheckCircle2 className="h-5 w-5 text-green-500" />
+                      ) : (
+                        <div className="h-5 w-5 rounded-full border-2 border-gray-500" />
+                      )}
+                    </div>
+                    <span className={completedSteps.includes(objective) ? 'text-green-500' : 'text-gray-300'}>
+                      {objective}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            <div className="flex justify-end">
+              <Button
+                onClick={() => setActiveTab('communication')}
+                className="bg-cyan-600 hover:bg-cyan-700 text-white"
+              >
+                Passer à la communication
+              </Button>
+            </div>
+          </motion.div>
+        )}
+        
+        {activeTab === 'communication' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="space-y-6"
+          >
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-white mb-2">Rapports d'incident</h3>
+              <div className="space-y-4">
+                <div className="border border-gray-700 rounded p-3">
+                  <p className="text-gray-300">
+                    <span className="text-yellow-500 font-semibold">Département IT :</span> Plusieurs utilisateurs des départements Comptabilité et RH signalent que leurs fichiers sont inaccessibles et qu'un message de demande de rançon est apparu.
+                  </p>
+                </div>
+                
+                <div className="border border-gray-700 rounded p-3">
+                  <p className="text-gray-300">
+                    <span className="text-red-500 font-semibold">Alerte système :</span> Trafic réseau anormal détecté entre plusieurs postes de travail et des serveurs externes non identifiés. Activité de chiffrement massive en cours.
+                  </p>
+                </div>
+                
+                <div className="border border-gray-700 rounded p-3">
+                  <p className="text-gray-300">
+                    <span className="text-blue-500 font-semibold">Direction :</span> Urgence. Le serveur de base de données clients ne répond plus. Impossible d'accéder aux données de transactions. Quelles sont les actions immédiates à prendre?
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-white mb-2">Réponse de crise</h3>
+              <p className="text-gray-300 mb-4">En tant que {selectedRole === 'rssi' ? 'RSSI' : selectedRole === 'ethical-hacker' ? 'Hacker Éthique' : selectedRole === 'developer' ? 'Développeur Sécurité' : selectedRole === 'sysadmin' ? 'Administrateur Système' : 'Consultant Cybersécurité'}, votre réponse initiale est cruciale.</p>
+              
+              <div className="space-y-3">
+                <Button 
+                  className="w-full bg-gray-700 hover:bg-gray-600 justify-start text-left"
+                  onClick={() => handleCompleteObjective('Communiquer avec les parties prenantes')}
+                >
+                  Informer immédiatement la direction de la situation et des actions en cours
+                </Button>
+                
+                <Button 
+                  className="w-full bg-gray-700 hover:bg-gray-600 justify-start text-left"
+                  onClick={() => handleCompleteObjective('Isoler les systèmes infectés')}
+                >
+                  Demander aux équipes IT d'isoler les systèmes affectés du réseau
+                </Button>
+                
+                <Button 
+                  className="w-full bg-gray-700 hover:bg-gray-600 justify-start text-left"
+                  onClick={() => handleCompleteObjective('Évaluer l\'étendue des dommages')}
+                >
+                  Lancer un scan de sécurité sur tous les systèmes pour évaluer l'étendue de l'attaque
+                </Button>
+              </div>
+            </div>
+            
+            <div className="flex justify-end">
+              <Button
+                onClick={() => setActiveTab('analysis')}
+                className="bg-cyan-600 hover:bg-cyan-700 text-white"
+              >
+                Passer à l'analyse
+              </Button>
+            </div>
+          </motion.div>
+        )}
+        
+        {activeTab === 'analysis' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="space-y-6"
+          >
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-white mb-2">Analyse des logs</h3>
+              <div className="bg-gray-900 p-3 rounded font-mono text-sm text-gray-300 overflow-x-auto">
+                <pre>
+{`2023-05-01 08:23:45 WARNING User.login: Multiple failed login attempts from IP 192.168.1.45
+2023-05-01 08:25:12 ERROR System.access: Unusual file access pattern detected in /var/data/financial
+2023-05-01 08:31:29 CRITICAL Security.alert: Malware signature detected (HASH:a8f5e7d2c3b1) in email attachment
+2023-05-01 08:42:18 ERROR Database.connection: Unusual query pattern detected, multiple DELETE operations
+2023-05-01 08:45:39 CRITICAL System.encryption: Suspicious encryption activity on multiple user directories
+2023-05-01 08:47:02 ALERT Network.traffic: Unusual outbound traffic to IP 185.234.85.12 on port 445`}
+                </pre>
+              </div>
+            </div>
+            
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-white mb-2">Identification du vecteur d'infection</h3>
+              <p className="text-gray-300 mb-4">D'après l'analyse des logs et des rapports, identifiez le vecteur d'infection le plus probable :</p>
+              
+              <div className="space-y-3">
+                <Button 
+                  className={`w-full justify-start text-left ${userDecisions['vector'] === 'email' ? 'bg-cyan-700 hover:bg-cyan-800 text-white' : 'bg-gray-700 hover:bg-gray-600'}`}
+                  onClick={() => {
+                    handleDecision('vector', 'email');
+                    handleCompleteObjective('Identifier le vecteur d\'infection');
+                  }}
+                >
+                  Email de phishing avec pièce jointe malveillante
+                </Button>
+                
+                <Button 
+                  className={`w-full justify-start text-left ${userDecisions['vector'] === 'rdp' ? 'bg-cyan-700 hover:bg-cyan-800 text-white' : 'bg-gray-700 hover:bg-gray-600'}`}
+                  onClick={() => {
+                    handleDecision('vector', 'rdp');
+                    handleCompleteObjective('Identifier le vecteur d\'infection');
+                  }}
+                >
+                  Connexion RDP compromise via attaque par force brute
+                </Button>
+                
+                <Button 
+                  className={`w-full justify-start text-left ${userDecisions['vector'] === 'usb' ? 'bg-cyan-700 hover:bg-cyan-800 text-white' : 'bg-gray-700 hover:bg-gray-600'}`}
+                  onClick={() => {
+                    handleDecision('vector', 'usb');
+                    handleCompleteObjective('Identifier le vecteur d\'infection');
+                  }}
+                >
+                  Clé USB infectée branchée sur un poste de travail
+                </Button>
+              </div>
+            </div>
+            
+            <div className="flex justify-end">
+              <Button
+                onClick={() => setActiveTab('action')}
+                className="bg-cyan-600 hover:bg-cyan-700 text-white"
+              >
+                Passer à l'action
+              </Button>
+            </div>
+          </motion.div>
+        )}
+        
+        {activeTab === 'action' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="space-y-6"
+          >
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-white mb-2">Plan de réponse à l'incident</h3>
+              <p className="text-gray-300 mb-4">Définissez les actions prioritaires à mettre en œuvre :</p>
+              
+              <div className="space-y-4">
+                {decisions.map(decision => (
+                  <div key={decision.id} className="space-y-2">
+                    <p className="text-white font-medium">{decision.question}</p>
+                    <div className="space-y-2">
+                      {decision.options.map(option => (
+                        <button
+                          key={option.id}
+                          className={`w-full text-left p-3 rounded-lg ${
+                            userDecisions[decision.id] === option.id
+                              ? 'bg-cyan-700 hover:bg-cyan-800 text-white'
+                              : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                          }`}
+                          onClick={() => handleDecision(decision.id, option.id)}
+                        >
+                          {option.text}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="flex justify-end">
+              <Button
+                onClick={handleScenarioEnd}
+                className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white"
+                disabled={completedSteps.length < 3}
+              >
+                Terminer le scénario
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </div>
     </div>
   );
-}
+};
 
-// Composants supplémentaires pour l'interface
-const User = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="12" cy="8" r="4" fill="currentColor" />
-    <path d="M5 20C5 16.134 8.13401 13 12 13C15.866 13 19 16.134 19 20H5Z" fill="currentColor" />
-  </svg>
-);
-
-const Bot = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="5" y="7" width="14" height="12" rx="2" fill="currentColor" />
-    <rect x="9" y="3" width="6" height="4" rx="1" fill="currentColor" />
-    <circle cx="9" cy="11" r="1" fill="white" />
-    <circle cx="15" cy="11" r="1" fill="white" />
-    <path d="M8 15H16" stroke="white" strokeWidth="2" strokeLinecap="round" />
-  </svg>
-);
-
-const Loader2 = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 2V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M12 18V22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M4.93 4.93L7.76 7.76" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M16.24 16.24L19.07 19.07" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M2 12H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M18 12H22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M4.93 19.07L7.76 16.24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
+export default ScenarioPhase;
