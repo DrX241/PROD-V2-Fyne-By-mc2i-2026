@@ -250,10 +250,10 @@ export default function EmailMessage({ email }: EmailMessageProps) {
           companyName: email.from.company
         })
       });
-      
+
       if (response.valid) {
         setPasswordValidated(true);
-        
+
         // Affichage des informations du projet
         const projectInfo = await fetch('/api/cyber/project-info', {
           method: 'POST',
@@ -279,51 +279,51 @@ export default function EmailMessage({ email }: EmailMessageProps) {
         message: "Erreur lors de la validation du mot de passe"
       });
     }
-
-    const projectCard = document.createElement('div');
-      projectCard.className = 'bg-blue-900/30 p-6 rounded-lg border border-blue-700/50 mt-4';
-      projectCard.innerHTML = `
-        <h3 class="text-xl font-semibold mb-4">Bienvenue ${userName} dans ce projet !</h3>
-
-        <div class="space-y-4">
-          <div>
-            <h4 class="font-medium text-blue-200 mb-2">Vos responsabilités:</h4>
-            <ul class="list-disc pl-5 space-y-1">
-              ${projectInfo.responsibilities.map(r => `<li>${r}</li>`).join('')}
-            </ul>
-          </div>
-
-          <div>
-            <h4 class="font-medium text-blue-200 mb-2">Budget:</h4>
-            <p>${projectInfo.budget}</p>
-          </div>
-
-          <div>
-            <h4 class="font-medium text-blue-200 mb-2">Hiérarchie:</h4>
-            <p>Position: ${projectInfo.hierarchy.position}</p>
-            <p>Rapporte à: ${projectInfo.hierarchy.reportsTo}</p>
-          </div>
-
-          <div>
-            <h4 class="font-medium text-blue-200 mb-2">Équipe:</h4>
-            <ul class="space-y-2">
-              ${projectInfo.team.map(member => `
-                <li class="border-l-2 border-blue-500/30 pl-3">
-                  <strong>${member.role}:</strong> ${member.name}
-                  <br><span class="text-sm text-blue-300">${member.expertise}</span>
-                </li>
-              `).join('')}
-            </ul>
-          </div>
-        </div>
-      `;
-
-      const container = document.querySelector('.email-content');
-      if (container) container.appendChild(projectCard);
-    } else {
-      setValidationResult({valid:false, message:"Mot de passe incorrect"})
-    }
   };
+
+  const projectCard = (projectInfo) => {
+    const projectCard = document.createElement('div');
+    projectCard.className = 'bg-blue-900/30 p-6 rounded-lg border border-blue-700/50 mt-4';
+    projectCard.innerHTML = `
+      <h3 class="text-xl font-semibold mb-4">Bienvenue ${email.to} dans ce projet !</h3>
+
+      <div class="space-y-4">
+        <div>
+          <h4 class="font-medium text-blue-200 mb-2">Vos responsabilités:</h4>
+          <ul class="list-disc pl-5 space-y-1">
+            ${projectInfo.responsibilities.map(r => `<li>${r}</li>`).join('')}
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="font-medium text-blue-200 mb-2">Budget:</h4>
+          <p>${projectInfo.budget}</p>
+        </div>
+
+        <div>
+          <h4 class="font-medium text-blue-200 mb-2">Hiérarchie:</h4>
+          <p>Position: ${projectInfo.hierarchy.position}</p>
+          <p>Rapporte à: ${projectInfo.hierarchy.reportsTo}</p>
+        </div>
+
+        <div>
+          <h4 class="font-medium text-blue-200 mb-2">Équipe:</h4>
+          <ul class="space-y-2">
+            ${projectInfo.team.map(member => `
+              <li class="border-l-2 border-blue-500/30 pl-3">
+                <strong>${member.role}:</strong> ${member.name}
+                <br><span class="text-sm text-blue-300">${member.expertise}</span>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+      </div>
+    `;
+
+    const container = document.querySelector('.email-content');
+    if (container) container.appendChild(projectCard);
+  }
+
 
   return (
     <div className="my-6 sm:my-8 max-w-4xl mx-auto">
