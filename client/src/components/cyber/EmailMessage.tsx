@@ -288,10 +288,14 @@ export default function EmailMessage({ email }: EmailMessageProps) {
             <div className="space-y-2">
               {/* Anciennes pièces jointes (format chaîne de caractères) */}
               {email.attachment && email.attachment.length > 0 && (
-                <div className="flex items-center p-2 sm:p-3 backdrop-blur-sm bg-gradient-to-br from-gray-900/70 to-blue-900/40 rounded-lg border border-blue-800/40 text-white">
+                <button 
+                  onClick={() => window.open(`data:text/plain;charset=utf-8,${encodeURIComponent(email.attachment || "")}`, "_blank")}
+                  className="flex items-center w-full p-2 sm:p-3 backdrop-blur-sm bg-gradient-to-br from-gray-900/70 to-blue-900/40 rounded-lg border border-blue-800/40 text-white hover:bg-blue-800/30 transition-colors cursor-pointer"
+                >
                   <FileText className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-white flex-shrink-0" />
                   <span className="flex-1 text-sm sm:text-base truncate">{email.attachment}</span>
-                </div>
+                  <Download className="ml-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-400 flex-shrink-0" />
+                </button>
               )}
               
               {/* Nouvelles pièces jointes (format métadonnées) */}
@@ -301,7 +305,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
                   href={attachment.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between p-2 sm:p-3 backdrop-blur-sm bg-gradient-to-br from-gray-900/70 to-blue-900/40 rounded-lg border border-blue-800/40 text-white hover:bg-blue-800/30 transition-colors"
+                  className="flex items-center justify-between p-2 sm:p-3 backdrop-blur-sm bg-gradient-to-br from-gray-900/70 to-blue-900/40 rounded-lg border border-blue-800/40 text-white hover:bg-blue-800/30 transition-colors cursor-pointer"
                 >
                   <div className="flex items-center flex-1 min-w-0">
                     {getAttachmentIcon(attachment.type)}
@@ -336,7 +340,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
               {!passwordSubmitted || !validationResult?.valid ? (
                 <>
                   <p className="text-xs sm:text-sm text-white mb-3">
-                    Un mot de passe se trouve dans la pièce jointe ci-dessus. Trouvez-le et entrez-le ci-dessous pour continuer.
+                    <span className="font-bold text-amber-400">Vous devez cliquer sur la pièce jointe ci-dessus</span> pour l'ouvrir et trouver le mot de passe caché. Entrez-le ci-dessous pour accéder au contenu du projet.
                   </p>
                   
                   <div className="flex flex-col sm:flex-row gap-2">
