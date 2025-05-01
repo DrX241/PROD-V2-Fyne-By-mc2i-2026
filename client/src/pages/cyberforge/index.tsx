@@ -398,6 +398,12 @@ export default function CyberForge() {
   const [activeTab, setActiveTab] = useState('intro');
   const [userName, setUserName] = useState('');
   const [isNameSet, setIsNameSet] = useState(false);
+  const [showEntrySAS, setShowEntrySAS] = useState(true);
+  const [authenticationStep, setAuthenticationStep] = useState(0);
+  const [avatarSelection, setAvatarSelection] = useState(0);
+  const [securityClearance, setSecurityClearance] = useState('');
+  const [accessCode, setAccessCode] = useState('');
+  const [sasAnimationComplete, setSasAnimationComplete] = useState(false);
   const [currentModuleId, setCurrentModuleId] = useState('fundamentals');
   const [moduleSections, setModuleSections] = useState(fundamentalsSections);
   const [aiRecommendations, setAiRecommendations] = useState<AIRecommendation[]>([]);
@@ -681,6 +687,55 @@ export default function CyberForge() {
       title: "Bienvenue!",
       description: `Bonjour ${userName}, bienvenue dans CyberForge Academy!`,
     });
+  };
+  
+  // Fonctions pour le SAS d'entrée
+  const advanceAuthStep = () => {
+    if (authenticationStep < 3) {
+      setAuthenticationStep(prev => prev + 1);
+    } else {
+      // Animation finale avant d'accéder à la plateforme
+      setSasAnimationComplete(true);
+      
+      // Délai pour l'animation de transition
+      setTimeout(() => {
+        setShowEntrySAS(false);
+      }, 2000);
+    }
+  };
+  
+  const validateAccessCode = () => {
+    // Simulation de vérification - dans une vraie implémentation, cela serait validé côté serveur
+    if (accessCode === '1337' || accessCode === 'CYBER' || isAdmin) {
+      toast({
+        title: "Authentification réussie",
+        description: "Code d'accès validé. Accès au niveau suivant autorisé.",
+      });
+      advanceAuthStep();
+    } else {
+      toast({
+        title: "Authentification échouée",
+        description: "Code d'accès invalide. Veuillez réessayer.",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  const selectAvatar = (index: number) => {
+    setAvatarSelection(index);
+    toast({
+      title: "Avatar sélectionné",
+      description: "Votre profil visuel a été mis à jour.",
+    });
+  };
+  
+  const selectClearanceLevel = (level: string) => {
+    setSecurityClearance(level);
+    toast({
+      title: "Niveau d'habilitation défini",
+      description: `Votre niveau d'habilitation a été défini à: ${level}`,
+    });
+    advanceAuthStep();
   };
   
   // Le module actuellement sélectionné
