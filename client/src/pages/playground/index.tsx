@@ -162,9 +162,18 @@ const ModuleCard = ({ module }: { module: LearningModule }) => {
   const { themeMode } = useTheme();
   const isFuturistic = themeMode === 'futuristic';
   const [isHover, setIsHover] = useState(false);
+  const [, setLocation] = useLocation();
+  
+  const handleModuleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (module.unlocked) {
+      // Naviguer vers la page du module
+      setLocation(`/playground/module?id=${module.id}`);
+    }
+  };
   
   return (
-    <Link href={`/playground/module/${module.id}`}>
+    <div onClick={handleModuleClick}>
       <motion.div 
         className={`${isFuturistic ? 
           'bg-gradient-to-br from-gray-900 to-blue-950 border border-blue-500/30' :
@@ -236,7 +245,7 @@ const ModuleCard = ({ module }: { module: LearningModule }) => {
           </Button>
         </div>
       </motion.div>
-    </Link>
+    </div>
   );
 };
 

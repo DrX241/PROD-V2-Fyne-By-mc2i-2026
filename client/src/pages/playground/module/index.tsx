@@ -232,7 +232,8 @@ Les logiciels malveillants comprennent:
 
 // Composant principal pour afficher un module
 export default function ModuleDetailPage() {
-  const { moduleId } = useParams();
+  const params = useParams();
+  const moduleId = params.id || new URLSearchParams(window.location.search).get('id');
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { themeMode } = useTheme();
