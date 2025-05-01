@@ -288,14 +288,16 @@ export default function EmailMessage({ email }: EmailMessageProps) {
             <div className="space-y-2">
               {/* Anciennes pièces jointes (format chaîne de caractères) */}
               {email.attachment && email.attachment.length > 0 && (
-                <button 
-                  onClick={() => window.open(`data:text/plain;charset=utf-8,${encodeURIComponent(email.attachment || "")}`, "_blank")}
+                <a 
+                  href={`/api/attachments/content/${userRole || 'default'}/Cybersécurité?scenario=${encodeURIComponent(email.subject || 'Cyber Sécurité')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex items-center w-full p-2 sm:p-3 backdrop-blur-sm bg-gradient-to-br from-gray-900/70 to-blue-900/40 rounded-lg border border-blue-800/40 text-white hover:bg-blue-800/30 transition-colors cursor-pointer"
                 >
                   <FileText className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-white flex-shrink-0" />
                   <span className="flex-1 text-sm sm:text-base truncate">{email.attachment}</span>
                   <Download className="ml-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-400 flex-shrink-0" />
-                </button>
+                </a>
               )}
               
               {/* Nouvelles pièces jointes (format métadonnées) */}

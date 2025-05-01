@@ -4,7 +4,7 @@
 
 import { Router, Request, Response } from 'express';
 import { createAttachmentWithHiddenPassword, getAttachmentById, getAttachmentsForSession, generateInstructionsHtml } from '../services/attachmentService';
-import { validatePassword, generatePostValidationInfo } from '../services/passwordService';
+import { validatePassword, generatePostValidationInfo, generateAttachmentWithPassword } from '../services/passwordService';
 
 const router = Router();
 
@@ -139,6 +139,39 @@ router.get('/instructions/:userRole/:domain', (req: Request, res: Response) => {
   } catch (error) {
     console.error('Erreur lors de la génération des instructions:', error);
     res.status(500).json({ message: 'Erreur lors de la génération des instructions' });
+  }
+});
+
+/**
+ * Route pour servir une pièce jointe générée dynamiquement
+ * Cette route est utilisée pour les emails avec pièces jointes simples
+ */
+router.get('/content/:userRole/:domain', (req: Request, res: Response) => {
+  try {
+    const { userRole, domain } = req.params;
+    const { scenario } = req.query;
+    
+    if (!userRole || !domain) {
+      return res.status(400).json({ message: 'Paramètres manquants' });
+    }
+    
+    const scenarioTitle = typeof scenario === 'string' ? scenario : 'Cyber Sécurité';
+    
+    // Générer le contenu de la pièce jointe avec le mot de passe
+    const content = generateAttachmentWithPassword(userRole, domain, scenarioTitle);
+    
+    // Déterminer le type et le nom du fichier
+    const date = new Date();
+    const dateStr = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+    const filename = `document-securite-${dateStr}.txt`;
+    
+    // Renvoyer le contenu comme un fichier texte
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(content);
+  } catch (error) {
+    console.error('Erreur lors de la génération de la pièce jointe:', error);
+    res.status(500).json({ message: 'Erreur lors de la génération de la pièce jointe' });
   }
 });
 
