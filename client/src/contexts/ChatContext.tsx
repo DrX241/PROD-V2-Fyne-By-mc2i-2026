@@ -361,6 +361,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [config, setConfig] = useState<AIConfig>(initialConfig);
   const [isInitialized, setIsInitialized] = useState(false);
   const [currentStage, setCurrentStage] = useState<number>(0);
+  const [passwordValidated, setPasswordValidated] = useState<boolean>(false);
 
   // Initialize the chat with a welcome message
   useEffect(() => {
