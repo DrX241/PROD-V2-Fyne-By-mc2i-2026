@@ -2121,7 +2121,9 @@ Formule tes explications et tes demandes en fonction de ce que ce type de profes
         exchangeCount: exchangeCount,
         isIamCyberIntervention: isIamCyberIntervention,
         conversationState: isFirstResponse ? "REPONSE_INITIALE" : 
-                           isIamCyberIntervention ? "INTERVENTION_SYSTEM" : "CONVERSATION_STANDARD",
+                           isIamCyberIntervention ? "INTERVENTION_SYSTEM" : 
+                           currentStage >= 3 && !isIamCyberIntervention && scenario.domain.includes("crise") ? "DECISION_CRISE" : 
+                           "CONVERSATION_STANDARD",
         messageHistoryLength: chatHistory ? chatHistory.length : 0
       };
       
@@ -2137,7 +2139,71 @@ Utilise les métadonnées ci-dessus et le master prompt pour déterminer comment
 
 IMPORTANT:
 - SI c'est une réponse initiale (REPONSE_INITIALE), réponds directement à ce que l'utilisateur dit concernant le problème que tu as exposé. EXPOSE CLAIREMENT le contexte, les enjeux et les attentes face au joueur. NE DEMANDE PAS à l'utilisateur de se présenter.
-- Pour toutes les réponses, reste dans le contexte et réponds à la question en tant que le contact désigné. ADAPTE SYSTÉMATIQUEMENT ta réponse aux choix précédents du joueur et aux conséquences logiques de ces choix.
+- SI nous sommes dans un scénario de gestion de crise (contexte DECISION_CRISE), je vais générer un point de décision. RÉPONDS EXCLUSIVEMENT AVEC UN FORMAT JSON comme celui-ci:
+{
+  "type": "decision",
+  "situation": "Description concise de la situation actuelle qui nécessite une décision",
+  "context": "Contexte détaillé expliquant pourquoi cette décision est nécessaire maintenant",
+  "historicalFacts": "Faits pertinents à considérer pour prendre une décision éclairée",
+  "consequences": "Conséquences potentielles de cette décision sur l'ensemble de la crise",
+  "options": [
+    {
+      "id": "option1",
+      "text": "Titre concis de l'option 1",
+      "description": "Description détaillée de cette option",
+      "impact": {
+        "budget": -50000,
+        "timeline": 2,
+        "reputation": -3,
+        "security": 8,
+        "employment": false,
+        "missionCritical": false
+      }
+    },
+    {
+      "id": "option2",
+      "text": "Titre concis de l'option 2",
+      "description": "Description détaillée de cette option",
+      "impact": {
+        "budget": -10000,
+        "timeline": -1,
+        "reputation": 2,
+        "security": 4,
+        "employment": false,
+        "missionCritical": false
+      }
+    },
+    {
+      "id": "option3",
+      "text": "Titre concis de l'option 3",
+      "description": "Description détaillée de cette option",
+      "impact": {
+        "budget": -5000,
+        "timeline": 5,
+        "reputation": 5,
+        "security": 3,
+        "employment": false,
+        "missionCritical": false
+      }
+    },
+    {
+      "id": "option4",
+      "text": "Titre concis de l'option 4",
+      "description": "Description détaillée de cette option",
+      "impact": {
+        "budget": -200000,
+        "timeline": -3,
+        "reputation": 7,
+        "security": 9,
+        "employment": true,
+        "missionCritical": true
+      }
+    }
+  ],
+  "deadline": "Délai pour prendre cette décision",
+  "urgencyLevel": "critique"
+}
+- Pour toutes les autres réponses, reste dans le contexte et réponds à la question en tant que le contact désigné. ADAPTE SYSTÉMATIQUEMENT ta réponse aux choix précédents du joueur et aux conséquences logiques de ces choix.
 - IMPORTANT: Prends en compte que l'utilisateur est un ${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"} et adapte rigoureusement ta réponse à son rôle spécifique, à ses responsabilités habituelles et à ses connaissances techniques.
 
 Adapte toujours ton style de communication à ton rôle (${respondingContact.role}) et au secteur d'activité (${secteurActivite}), tout en tenant compte du rôle de l'utilisateur (${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"}).`
@@ -2149,10 +2215,42 @@ Adapte toujours ton style de communication à ton rôle (${respondingContact.rol
         config?.maxTokens || 2000
       );
       
+      // Vérifier si la réponse est une décision de crise (au format JSON)
+      let isCrisisDecision = false;
+      let decisionContent;
+      
+      // Si c'est un scénario de crise à l'étape appropriée, vérifions si la réponse est au format JSON
+      if (contextMetadata.conversationState === "DECISION_CRISE") {
+        try {
+          // Essayons de parser la réponse comme du JSON
+          let jsonResponse = JSON.parse(responseContent);
+          
+          // Vérifions si c'est bien une décision
+          if (jsonResponse && jsonResponse.type === "decision" && jsonResponse.options && Array.isArray(jsonResponse.options)) {
+            isCrisisDecision = true;
+            decisionContent = {
+              id: uuidv4(),
+              situation: jsonResponse.situation,
+              context: jsonResponse.context,
+              historicalFacts: jsonResponse.historicalFacts,
+              consequences: jsonResponse.consequences,
+              options: jsonResponse.options,
+              deadline: jsonResponse.deadline,
+              urgencyLevel: jsonResponse.urgencyLevel
+            };
+            console.log("DEBUG - Crisis decision detected", decisionContent.id);
+          }
+        } catch (e) {
+          console.log("DEBUG - Response is not valid JSON, treating as regular response");
+        }
+      }
+      
       // Check if response indicates scenario termination
-      const isScenarioTerminated = responseContent.toLowerCase().includes("fin du scénario") || 
-                                   responseContent.toLowerCase().includes("recommencer à zéro") ||
-                                   responseContent.toLowerCase().includes("recommencer le scénario");
+      const isScenarioTerminated = !isCrisisDecision && (
+        responseContent.toLowerCase().includes("fin du scénario") || 
+        responseContent.toLowerCase().includes("recommencer à zéro") ||
+        responseContent.toLowerCase().includes("recommencer le scénario")
+      );
       
       // Si le scénario est terminé, générer une fiche d'évaluation
       if (isScenarioTerminated) {
@@ -2330,16 +2428,28 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
           }
         }
         
-        // Réponse standard
-        res.json({ 
-          type: 'bot',
-          content: responseContent,
-          resetScenario: isScenarioTerminated,
-          contactName: respondingContact.name,
-          contactRole: respondingContact.role,
-          // Inclure la liste complète des contacts pour le prochain appel
-          scenarioContacts: availableContacts
-        });
+        // Si c'est une décision de crise, renvoyer le format spécial
+        if (isCrisisDecision && decisionContent) {
+          console.log("DEBUG - Sending crisis decision response");
+          res.json({
+            type: 'decision-choices',
+            content: decisionContent,
+            contactName: respondingContact.name,
+            contactRole: respondingContact.role,
+            scenarioContacts: availableContacts
+          });
+        } else {
+          // Réponse standard
+          res.json({ 
+            type: 'bot',
+            content: responseContent,
+            resetScenario: isScenarioTerminated,
+            contactName: respondingContact.name,
+            contactRole: respondingContact.role,
+            // Inclure la liste complète des contacts pour le prochain appel
+            scenarioContacts: availableContacts
+          });
+        }
       }
     } catch (error) {
       console.error('Error processing chat message:', error);
