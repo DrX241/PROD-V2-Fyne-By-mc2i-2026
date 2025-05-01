@@ -796,7 +796,35 @@ export const phishingCampaignAdvanced: ImmersiveScenario = {
   availableRoles: ["RSSI", "CrisisManager", "CommunicationManager", "TechnicalLead", "HumanResourcesManager", "LegalAdvisor", "BusinessContinuityManager"],
   narrativeArcs: [mainArc],
   characters: [ciso, cto, commsManager, hrManager, securityAnalyst, legalAdvisor, ceo],
-  initialSituation: "Une campagne de phishing sophistiquée vient d'être détectée ciblant les employés d'ELITE RETAIL SECURITY. Plusieurs collaborateurs ont déjà cliqué sur des liens malveillants et certains ont fourni leurs identifiants d'entreprise. Le Centre Opérationnel de Sécurité (SOC) a lancé une alerte de niveau élevé et attend vos instructions pour la suite des opérations. Les premiers emails semblent imiter les communications du service RH concernant des mises à jour de politiques internes.",
+  initialSituation: `
+OBJET: [URGENT] Alerte de sécurité - Incident d'ingénierie sociale en cours
+
+${new Date().toLocaleDateString('fr-FR')} - 09:47
+
+Bonjour,
+
+Je vous contacte en urgence suite à la détection d'une campagne d'ingénierie sociale sophistiquée ciblant actuellement ELITE RETAIL SECURITY. Notre SOC a identifié plusieurs tentatives d'accès non autorisés aux systèmes critiques dans les dernières heures.
+
+SITUATION ACTUELLE:
+- 17 employés ont déjà interagi avec des emails malveillants
+- 3 tentatives d'accès suspectes aux systèmes de gestion des stocks
+- Potentielle compromission des identifiants VPN
+- Les attaquants semblent avoir une connaissance approfondie de notre structure interne
+
+Une pièce jointe cruciale contenant l'analyse préliminaire de l'incident et les recommandations initiales a été incluse. Vous devez impérativement l'examiner et identifier le mot de passe de sécurité qui y est dissimulé pour accéder aux systèmes de réponse à incident.
+
+ACTIONS REQUISES IMMÉDIATEMENT:
+1. Analyser la pièce jointe en priorité
+2. Identifier et communiquer le mot de passe de sécurité
+3. Préparer le plan de réponse initial
+
+Nous comptons sur votre expertise pour gérer cette situation avec la plus grande attention.
+
+Cordialement,
+Sophie Lambert
+Analyste SOC Senior
+ELITE RETAIL SECURITY
+`,
   timeframe: "Le scénario se déroule sur 3 heures simulées, avec des décisions critiques à prendre dans les premières 30 minutes.",
   assets: {
     documents: [
