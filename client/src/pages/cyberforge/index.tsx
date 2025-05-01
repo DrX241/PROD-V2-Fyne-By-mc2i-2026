@@ -5,7 +5,7 @@ import {
   ChevronRight, Star, LockIcon, CheckCircle, ExternalLink, User, AlertTriangle,
   Server, Database, Globe, Wifi, Lock, UserX, Zap, FileCode, Fingerprint, BrainCircuit,
   Eye, Monitor, Cpu, Cable, FileWarning, ShieldAlert, Key, PlayCircle, Clock8,
-  Circle, Info, X
+  Circle, Info, X, Layers, RefreshCw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -232,8 +232,7 @@ function calculateTotalProgress(moduleProgress: Record<string, ModuleProgress>):
 }
 
 function CyberForge() {
-  const { themeMode } = useTheme();
-  const isDark = themeMode === 'dark' || themeMode === 'futuristic' || false;
+  const { isDark } = useTheme();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   

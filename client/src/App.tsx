@@ -118,6 +118,9 @@ function App() {
             
             {/* Module CyberForge Academy */}
             <Route path="/cyberforge" component={CyberForgeAcademy} />
+            <Route path="/cyberforge/modules" component={lazy(() => import('./pages/cyberforge/modules'))} />
+            <Route path="/cyberforge/modules/:moduleId" component={lazy(() => import('./pages/cyberforge/modules'))} />
+            <Route path="/cyberforge/modules/:moduleId/:chapterId/:lessonId" component={lazy(() => import('./pages/cyberforge/modules/lesson'))} />
             
             {/* Module Centre de Crise */}
             <Route path="/cyber-defense-new" component={CentreDeCriseEvolutifPage} />
