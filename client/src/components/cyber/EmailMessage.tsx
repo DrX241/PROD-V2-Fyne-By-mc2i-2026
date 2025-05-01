@@ -253,10 +253,32 @@ export default function EmailMessage({ email }: EmailMessageProps) {
       
       if (response.valid) {
         setPasswordValidated(true);
-        // onPasswordValidated();
+        
+        // Affichage des informations du projet
+        const projectInfo = await fetch('/api/cyber/project-info', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role: userRole, domain })
+        }).then(res => res.json());
 
-      // Affichage des informations du projet
-      const projectInfo = await fetch('/api/cyber/project-info', {
+        setValidationResult({
+          valid: true,
+          message: "Mot de passe validé avec succès",
+          postValidationInfo: projectInfo
+        });
+      } else {
+        setValidationResult({
+          valid: false,
+          message: "Mot de passe incorrect"
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la validation:', error);
+      setValidationResult({
+        valid: false,
+        message: "Erreur lors de la validation du mot de passe"
+      });
+    }
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ role: userRole, domain: email.subject }) // Assuming email.subject holds the domain
