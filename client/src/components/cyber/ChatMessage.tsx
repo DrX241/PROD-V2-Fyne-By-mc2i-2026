@@ -393,6 +393,21 @@ export default function ChatMessage({
     );
   }
   
+  // Style spécial pour les choix de décision
+  if (type === "decision-choices") {
+    // Vérifier que le contenu est bien un objet (CrisisDecisionContent)
+    if (typeof content !== 'string') {
+      return (
+        <div className="w-full mb-4 animate-fadeIn">
+          <DecisionChoices 
+            decision={content as CrisisDecisionContent} 
+            onSelectOption={handleDecisionChoice} 
+          />
+        </div>
+      );
+    }
+  }
+  
   // Cas spécial : intervention du système I AM CYBER
   if (type === "bot" && isIAMCYBERIntervention && iamCyberContent && contactContent) {
     return (
