@@ -3585,19 +3585,58 @@ ${companyName || "mc2i"}`,
           contactRole = "Directeur du pôle DIXIT";
         }
         
+        // Adapter le message de bienvenue en fonction du rôle
+        let roleSpecificInfo = '';
+        
+        // Déterminer les informations spécifiques au rôle
+        if (userRole === 'rssi') {
+          roleSpecificInfo = `
+- Une équipe de ${teamSize} experts en sécurité a été mise sous votre direction
+- Vous disposez d'une autorité décisionnelle sur le plan de sécurité`;
+        } else if (userRole === 'consultant') {
+          roleSpecificInfo = `
+- Une équipe de ${teamSize - 1} consultants juniors collaborera avec vous
+- Vous interviendrez en tant que lead consultant sur cette mission`;
+        } else if (userRole === 'admin') {
+          roleSpecificInfo = `
+- Une équipe de ${teamSize - 2} administrateurs systèmes travaillera avec vous
+- Vous avez les accès privilégiés sur tous les systèmes concernés`;
+        } else if (userRole === 'developpeur') {
+          roleSpecificInfo = `
+- Vous intégrez l'équipe de développement sécurité de ${teamSize} personnes
+- Vous reporterez au Lead Developer, Mathieu Pesin`;
+        } else if (userRole === 'hacker') {
+          roleSpecificInfo = `
+- Vous dirigerez une équipe Red Team de ${teamSize - 1} personnes
+- Vous avez carte blanche pour les tests d'intrusion éthiques`;
+        } else {
+          roleSpecificInfo = `
+- Une équipe de ${teamSize} personnes a été mise sous votre direction
+- Vous disposez d'une autorité technique complète pour cette mission`;
+        }
+        
+        // Déterminer la structure hiérarchique en fonction du rôle
+        let hierarchyInfo = '';
+        if (userRole === 'developpeur') {
+          hierarchyInfo = `Je serai votre point de contact principal, et vous reporterez directement à Mathieu Pesin, notre Lead Developer.`;
+        } else if (userRole === 'admin') {
+          hierarchyInfo = `Je serai votre point de contact principal, et vous reporterez à Nosing Doeuk, Directeur du pôle DIXIT.`;
+        } else {
+          hierarchyInfo = `Je serai votre point de contact principal, et vous rendrez compte directement à Olivier Hervo, notre Directeur Général.`;
+        }
+        
         // Message de bienvenue à la situation de crise
         const welcomeMessage = `Bonjour ${userName}, je suis ${contactName}, ${contactRole} chez ${companyName || 'mc2i'}.
         
-Suite à votre accord, nous entrons officiellement en phase de gestion de crise. Votre rôle de ${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"} vous confère une autorité déléguée sur cette mission critique.
+Suite à la validation du brief, nous lançons officiellement ce projet critique. Votre rôle de ${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"} sera déterminant pour sa réussite.
 
 Je vous confirme les éléments suivants :
-- Un budget de ${budget.toLocaleString('fr-FR')} € a été alloué à cette mission
-- L'équipe est composée de ${teamSize} personnes sous votre direction
+- Un budget de ${budget.toLocaleString('fr-FR')} € a été alloué à cette mission${roleSpecificInfo}
 - Nous devons résoudre cette situation dans un délai de ${deadlineInDays} jours
 
-Je serai votre point de contact principal, et vous rendrez compte directement à Olivier Hervo, notre Directeur Général.
+${hierarchyInfo}
 
-La situation nécessite maintenant des décisions rapides et stratégiques de votre part. Voici les premiers éléments à traiter.`;
+La situation nécessite maintenant des décisions stratégiques de votre part. Voici les premiers éléments à traiter.`;
         
         // Génération des options de décision dynamiques basées sur le domaine
         const decision = await generateInitialCrisisOptions(domain, userName, userRole, currentStage);
