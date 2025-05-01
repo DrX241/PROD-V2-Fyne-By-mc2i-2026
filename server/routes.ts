@@ -3150,6 +3150,176 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
     }
   });
 
+  // Route pour envoyer le brief de mission après confirmation de l'utilisateur
+  app.post('/api/cyber/send-mission-brief', async (req, res) => {
+    try {
+      const { userRole, domain, userName, companyName } = req.body;
+      
+      if (!userRole || !domain || !userName) {
+        return res.status(400).json({ error: 'Paramètres manquants (rôle, domaine ou nom d\'utilisateur)' });
+      }
+
+      // Générer un ID unique pour ce brief
+      const briefId = uuidv4();
+      
+      // Obtenir la date actuelle
+      const today = new Date();
+      const formattedDate = today.toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+      
+      // Déterminer les problèmes et tâches en fonction du domaine
+      let problems = [];
+      let resources = [];
+      let budget = 0;
+      let deadlineInDays = 7;
+      
+      // Personnaliser le contenu selon le domaine et le rôle
+      if (domain.toLowerCase().includes('ransomware') || domain.toLowerCase().includes('rançon')) {
+        problems = [
+          "Un ransomware a chiffré plusieurs serveurs critiques",
+          "Les sauvegardes les plus récentes pourraient être compromises",
+          "La communication avec la Direction est tendue suite à une récente perte de données"
+        ];
+        resources = [
+          "Équipe technique de 3 administrateurs systèmes",
+          "Service juridique disponible pour consultation",
+          "Possibilité de faire appel à une entreprise spécialisée (coût supplémentaire)"
+        ];
+        budget = userRole.toLowerCase().includes('directeur') || userRole.toLowerCase().includes('rssi') ? 25000 : 15000;
+        deadlineInDays = 3;
+      } else if (domain.toLowerCase().includes('audit') || domain.toLowerCase().includes('conformité')) {
+        problems = [
+          "L'audit de conformité RGPD doit être complété en urgence",
+          "Plusieurs non-conformités ont été identifiées lors d'un pré-audit",
+          "Documentation des procédures de sécurité incomplète"
+        ];
+        resources = [
+          "Un juriste spécialisé en droit numérique",
+          "Un analyste en conformité réglementaire",
+          "Accès aux précédents rapports d'audit"
+        ];
+        budget = userRole.toLowerCase().includes('directeur') || userRole.toLowerCase().includes('dpo') ? 18000 : 12000;
+        deadlineInDays = 14;
+      } else {
+        // Cas par défaut - incident de sécurité général
+        problems = [
+          "Une intrusion a été détectée sur le réseau de l'entreprise",
+          "Plusieurs comptes utilisateurs semblent compromis",
+          "Un serveur critique présente un comportement anormal"
+        ];
+        resources = [
+          "Équipe de 2 analystes en sécurité",
+          "Outils d'analyse forensique disponibles",
+          "Assistance du fournisseur d'infrastructure cloud possible"
+        ];
+        budget = userRole.toLowerCase().includes('directeur') || userRole.toLowerCase().includes('rssi') ? 20000 : 10000;
+        deadlineInDays = 5;
+      }
+      
+      // Calculer la date limite
+      const deadline = new Date(today);
+      deadline.setDate(deadline.getDate() + deadlineInDays);
+      const formattedDeadline = deadline.toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+      
+      // Créer l'email de brief de mission
+      const email = {
+        id: briefId,
+        from: {
+          name: "Thomas Bernard",
+          role: `Directeur des Opérations, ${companyName}`,
+          company: companyName || "mc2i"
+        },
+        to: userName,
+        subject: `URGENT: Brief de mission - ${domain}`,
+        date: today.toISOString(),
+        body: `Bonjour ${userName},
+
+Suite à notre discussion initiale et à votre confirmation, je vous envoie comme convenu le brief détaillé de votre mission.
+
+**CONTEXTE ET PROBLÉMATIQUES IDENTIFIÉES**
+
+Nous faisons face aux problèmes suivants qui requièrent votre expertise immédiate:
+
+1. ${problems[0]}
+2. ${problems[1]}
+3. ${problems[2]}
+
+**RESSOURCES À VOTRE DISPOSITION**
+
+Pour mener à bien cette mission, vous aurez accès aux ressources suivantes:
+* ${resources[0]}
+* ${resources[1]}
+* ${resources[2]}
+
+**BUDGET ET CONTRAINTES**
+
+Budget alloué: ${budget.toLocaleString('fr-FR')} € 
+Ce budget devra être géré avec rigueur. Chaque décision prise impactera les ressources disponibles.
+
+Date limite de résolution: ${formattedDeadline}
+Le non-respect de cette échéance ou une mauvaise gestion du budget pourra entraîner une révision de votre mission.
+
+**RÈGLES D'ENGAGEMENT**
+
+1. Vous devez strictement répondre aux problématiques identifiées ci-dessus.
+2. Chaque action entreprise sera évaluée sur sa pertinence et son impact sur le budget.
+3. Vous pouvez déléguer certaines tâches à votre équipe, mais vous restez responsable des résultats.
+4. Des décisions inappropriées entraineront une réduction de votre budget disponible.
+5. Une série d'erreurs graves pourra conduire à l'arrêt immédiat de la mission.
+
+Merci de confirmer la bonne réception de ce brief et de me tenir informé de vos premières analyses.
+
+Cordialement,
+
+Thomas Bernard
+Directeur des Opérations
+${companyName || "mc2i"}`,
+        scenarioContacts: [
+          {
+            name: "Thomas Bernard",
+            role: "Directeur des Opérations",
+            expertise: "Gestion de projets et allocation des ressources",
+            concern: "Respect du budget et des délais"
+          },
+          {
+            name: "Sophie Moreau",
+            role: "Directrice Juridique",
+            expertise: "Aspects réglementaires et conformité",
+            concern: "Risques légaux et impact réputationnel"
+          },
+          {
+            name: "Marc Dubois",
+            role: "Responsable Technique",
+            expertise: "Infrastructure IT et résolution d'incidents",
+            concern: "Impact technique et continuité de service"
+          }
+        ],
+        attachments: [
+          {
+            filename: `Brief_Mission_${briefId.substring(0, 8)}.pdf`,
+            type: "confidential_memo",
+            size: 2458621
+          }
+        ]
+      };
+      
+      res.json({ email, success: true });
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi du brief de mission:', error);
+      res.status(500).json({
+        error: 'Erreur lors de l\'envoi du brief de mission',
+        details: error instanceof Error ? error.message : 'Erreur inconnue'
+      });
+    }
+  });
+
   // Fin des routes API
 
   return createServer(app);
