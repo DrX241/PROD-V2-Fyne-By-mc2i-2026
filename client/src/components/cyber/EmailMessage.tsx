@@ -17,7 +17,7 @@ interface EmailMessageProps {
 export default function EmailMessage({ email }: EmailMessageProps) {
   // Accès au contexte de chat
   const { passwordValidated, setPasswordValidated } = useChatContext();
-  
+
   // État pour gérer la validation du mot de passe
   const [password, setPassword] = useState("");
   const [passwordSubmitted, setPasswordSubmitted] = useState(false);
@@ -27,7 +27,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
   // Fonction pour valider le mot de passe
   const validatePassword = async () => {
     if (!password.trim()) return;
-    
+
     setIsValidating(true);
     try {
       // Extraire les informations nécessaires
@@ -36,7 +36,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
       // Extraire le domaine du scénario à partir du sujet ou du corps de l'email
       const domain = email.subject || 'Cybersécurité';
       const companyName = email.from.company || 'mc2i';
-      
+
       const response = await apiRequest('/api/attachments/validate-password', {
         method: 'POST',
         body: JSON.stringify({
@@ -47,10 +47,10 @@ export default function EmailMessage({ email }: EmailMessageProps) {
           companyName
         })
       });
-      
+
       setValidationResult(response);
       setPasswordSubmitted(true);
-      
+
       // Si le mot de passe est valide, mettre à jour l'état global
       if (response.valid) {
         setPasswordValidated(true);
@@ -65,7 +65,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
       setIsValidating(false);
     }
   };
-  
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('fr-FR', {
@@ -82,13 +82,13 @@ export default function EmailMessage({ email }: EmailMessageProps) {
     if (!text || !userName || typeof text !== 'string' || typeof userName !== 'string') {
       return text;
     }
-    
+
     // Obtenir le prénom formaté correctement (première lettre majuscule, reste minuscule)
     const formattedName = userName.split(' ')[0];
     if (!formattedName) return text;
-    
+
     const properName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1).toLowerCase();
-    
+
     // Remplacer toutes les variations du prénom (tout min, tout maj, etc.) par la version formatée
     const variations = [
       userName.toLowerCase(),
@@ -96,22 +96,22 @@ export default function EmailMessage({ email }: EmailMessageProps) {
       userName.charAt(0).toUpperCase() + userName.slice(1).toLowerCase(),
       userName
     ];
-    
+
     let result = text;
     variations.forEach(variant => {
       result = result.replace(new RegExp(variant, 'g'), properName);
     });
-    
+
     return result;
   };
 
   // Convert email body text to paragraphs
   const formattedBody = email.body.split('\n').map((line: string, i: number) => {
     if (line.trim() === '') return <div key={i} className="h-4"></div>;
-    
+
     // Formater le prénom dans la ligne
     const formattedLine = formatFirstName(line, email.to);
-    
+
     // Handle bullet points or numbered lists
     if (formattedLine.trim().match(/^[•\-*]\s/)) {
       const bulletText = formattedLine.replace(/^[•\-*]\s/, '');
@@ -119,7 +119,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
       const formattedBulletText = formatFirstName(bulletText, email.to);
       return <li key={i} className="ml-6 mb-1 text-white">{formattedBulletText}</li>;
     }
-    
+
     // Check for numbered list items
     const numberedListMatch = formattedLine.trim().match(/^(\d+\.)\s(.+)/);
     if (numberedListMatch) {
@@ -127,29 +127,29 @@ export default function EmailMessage({ email }: EmailMessageProps) {
       const formattedListItem = formatFirstName(numberedListMatch[2], email.to);
       return <li key={i} className="ml-6 mb-1 text-white">{formattedListItem}</li>;
     }
-    
+
     // Traitement amélioré pour les titres et sous-titres (qui étaient en markdown)
     if (formattedLine.trim().match(/^\*\*.*\*\*$/) || formattedLine.trim().match(/^__.*__$/)) {
       const boldText = formattedLine.replace(/^\*\*|\*\*$|^__|__$/g, '');
       return <p key={i} className="mb-3 font-medium text-white">{boldText}</p>;
     }
-    
+
     // Convertir tout le markdown en HTML correct
     if (formattedLine.includes('**') || formattedLine.includes('__')) {
       // Convertir le markdown en HTML propre
       let processedLine = formattedLine;
-      
+
       // Remplacer **text** par du texte en gras
       processedLine = processedLine.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>');
       processedLine = processedLine.replace(/__(.*?)__/g, '<strong class="text-white">$1</strong>');
-      
+
       // Ajouter d'autres conversions markdown au besoin (italique, etc.)
       processedLine = processedLine.replace(/\*(.*?)\*/g, '<em class="text-white">$1</em>');
       processedLine = processedLine.replace(/_(.*?)_/g, '<em class="text-white">$1</em>');
-      
+
       return <p key={i} className="mb-3 text-white" dangerouslySetInnerHTML={{ __html: processedLine }} />;
     }
-    
+
     return <p key={i} className="mb-3 text-white">{formattedLine}</p>;
   });
 
@@ -159,13 +159,13 @@ export default function EmailMessage({ email }: EmailMessageProps) {
     let currentList: JSX.Element[] = [];
     let isOrderedList = false;
     let listKey = 0;
-    
+
     formattedBody.forEach((element: React.ReactNode, index: number) => {
       if (React.isValidElement(element) && element.type === 'li') {
         // Check if this is a numbered list item
         const originalLine = email.body.split('\n')[index];
         const isNumbered = originalLine.trim().match(/^\d+\.\s/);
-        
+
         // If switching list types, close current list and start new one
         if ((isNumbered === null) !== isOrderedList && currentList.length > 0) {
           result.push(
@@ -175,7 +175,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
           );
           currentList = [];
         }
-        
+
         isOrderedList = Boolean(isNumbered);
         currentList.push(element);
       } else {
@@ -191,7 +191,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
         result.push(element);
       }
     });
-    
+
     // Add any remaining list items
     if (currentList.length > 0) {
       result.push(
@@ -200,7 +200,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
           <ul key={`list-${listKey++}`} className="list-disc mb-3 text-white">{currentList}</ul>
       );
     }
-    
+
     return result;
   };
 
@@ -234,6 +234,10 @@ export default function EmailMessage({ email }: EmailMessageProps) {
   const hasAttachments = (email.attachment && email.attachment.length > 0) || 
                         (email.attachments && email.attachments.length > 0);
 
+  const userRole = localStorage.getItem('userRole') || 'default';
+  const domain = email.subject || 'default';
+
+
   return (
     <div className="my-6 sm:my-8 max-w-4xl mx-auto">
       <div className="backdrop-blur-md bg-gray-900/60 rounded-xl border border-blue-800/40 overflow-hidden shadow-glow-md">
@@ -255,7 +259,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
               {formatDate(email.date)}
             </div>
           </div>
-          
+
           <div className="space-y-2 sm:space-y-3 pt-3 border-t border-blue-700/30">
             <div className="flex flex-wrap sm:flex-nowrap">
               <p className="font-medium text-white w-12 sm:w-16 text-sm sm:text-base">À :</p>
@@ -271,12 +275,12 @@ export default function EmailMessage({ email }: EmailMessageProps) {
             </div>
           </div>
         </div>
-        
+
         {/* Email Body */}
         <div className="p-4 sm:p-6 text-white prose prose-invert max-w-none prose-blue text-sm sm:text-base">
           {renderBody()}
         </div>
-        
+
         {/* Pièces jointes */}
         {hasAttachments && (
           <div className="mx-3 sm:mx-6 my-3 sm:my-4 p-3 sm:p-5 bg-blue-900/40 rounded-lg border border-blue-700/30 backdrop-blur-sm">
@@ -284,7 +288,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
               <Paperclip className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-white" />
               <span>Pièces jointes</span>
             </h4>
-            
+
             <div className="space-y-2">
               {/* Anciennes pièces jointes (format chaîne de caractères) */}
               {email.attachment && email.attachment.length > 0 && (
@@ -312,15 +316,19 @@ export default function EmailMessage({ email }: EmailMessageProps) {
                   </div>
                 </div>
               )}
-              
+
               {/* Nouvelles pièces jointes (format métadonnées) */}
               {email.attachments && email.attachments.map((attachment: AttachmentMetadata, index: number) => (
                 <a 
                   key={index}
-                  href={attachment.url}
+                  href={`/api/attachments/content/${userRole}/${encodeURIComponent(domain)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-between p-2 sm:p-3 backdrop-blur-sm bg-gradient-to-br from-gray-900/70 to-blue-900/40 rounded-lg border border-blue-800/40 text-white hover:bg-blue-800/30 transition-colors cursor-pointer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.open(`/api/attachments/content/${userRole}/${encodeURIComponent(domain)}`, '_blank');
+                  }}
                 >
                   <div className="flex items-center flex-1 min-w-0">
                     {getAttachmentIcon(attachment.type)}
@@ -333,11 +341,11 @@ export default function EmailMessage({ email }: EmailMessageProps) {
                 </a>
               ))}
             </div>
-            
+
             <p className="text-xs sm:text-sm text-white mt-3 mb-4">
               Ces documents contiennent des informations importantes pour l'analyse de la situation.
             </p>
-            
+
             {/* Zone de validation de mot de passe */}
             <div className="mt-4 p-3 sm:p-4 bg-blue-950/50 border border-blue-800/40 rounded-lg">
               <div className="flex items-center mb-2 text-white">
@@ -351,13 +359,13 @@ export default function EmailMessage({ email }: EmailMessageProps) {
                   }
                 </h5>
               </div>
-              
+
               {!passwordSubmitted || !validationResult?.valid ? (
                 <>
                   <p className="text-xs sm:text-sm text-white mb-3">
                     <span className="font-bold text-amber-400">Vous devez cliquer sur la pièce jointe ci-dessus</span> pour l'ouvrir et trouver le mot de passe caché. Entrez-le ci-dessous pour accéder au contenu du projet.
                   </p>
-                  
+
                   <div className="flex flex-col sm:flex-row gap-2">
                     <Input
                       type="text"
@@ -374,7 +382,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
                       {isValidating ? "Validation..." : "Valider"}
                     </Button>
                   </div>
-                  
+
                   {validationResult && !validationResult.valid && (
                     <p className="mt-2 text-xs sm:text-sm text-red-400 flex items-center">
                       <XCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
@@ -388,13 +396,13 @@ export default function EmailMessage({ email }: EmailMessageProps) {
                     <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
                     {validationResult.message}
                   </p>
-                  
+
                   {validationResult.postValidationInfo && (
                     <div className="mt-4 p-3 sm:p-4 bg-blue-900/40 border border-blue-700/40 rounded-lg space-y-3">
                       <h6 className="font-bold text-sm sm:text-base text-white">
                         {validationResult.postValidationInfo.title}
                       </h6>
-                      
+
                       {validationResult.postValidationInfo.responsabilites && (
                         <div>
                           <h6 className="font-medium text-xs sm:text-sm text-white mb-1">Responsabilités:</h6>
@@ -405,7 +413,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
                           </ul>
                         </div>
                       )}
-                      
+
                       {validationResult.postValidationInfo.budget && (
                         <div>
                           <h6 className="font-medium text-xs sm:text-sm text-white mb-1">Budget:</h6>
@@ -414,7 +422,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
                           </p>
                         </div>
                       )}
-                      
+
                       {validationResult.postValidationInfo.hierarchie && (
                         <div>
                           <h6 className="font-medium text-xs sm:text-sm text-white mb-1">Hiérarchie:</h6>
@@ -423,7 +431,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
                           </p>
                         </div>
                       )}
-                      
+
                       {validationResult.postValidationInfo.equipe && (
                         <div>
                           <h6 className="font-medium text-xs sm:text-sm text-white mb-1">Équipe:</h6>
@@ -444,7 +452,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
             </div>
           </div>
         )}
-        
+
         {/* Interlocuteurs */}
         {email.scenarioContacts && email.scenarioContacts.length > 0 && (
           <div className="mx-3 sm:mx-6 my-3 sm:my-4 p-3 sm:p-5 bg-blue-900/40 rounded-lg border border-blue-700/30 backdrop-blur-sm">
@@ -452,7 +460,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
               <Users className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-white" />
               <span>Interlocuteurs du scénario</span>
             </h4>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {email.scenarioContacts.map((contact: EmailContact, index: number) => (
                 <div 
@@ -485,7 +493,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
                 </div>
               ))}
             </div>
-            
+
             <p className="text-xs sm:text-sm text-white mt-3 sm:mt-4">
               Ces interlocuteurs interviendront dans ce scénario pour vous offrir différentes perspectives sur la problématique cyber centrale.
             </p>
