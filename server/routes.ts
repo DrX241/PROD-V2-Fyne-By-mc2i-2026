@@ -873,14 +873,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           role: "system",
           content: emailSystemPrompt + 
           `\n\nRÈGLES DE FORMATAGE STRICTES À RESPECTER ABSOLUMENT:
-          1. L'email ENTIER ne doit pas dépasser 150 caractères maximum (environ 25 mots).
+          1. L'email ENTIER ne doit pas dépasser 200 caractères maximum (environ 35 mots).
           2. L'email doit poser UNE QUESTION DIRECTE et précise qui nécessite une réponse spécifique.
-          3. ÉLÉMENT CRUCIAL: Inclure une référence à une pièce jointe IMPORTANTE contenant des INFORMATIONS CACHÉES adaptées au rôle de l'utilisateur.
-          4. Mentionner spécifiquement que l'utilisateur doit trouver un MOT DE PASSE caché dans la pièce jointe pour prouver qu'il l'a examinée attentivement.`
+          3. ÉLÉMENT CRUCIAL: Insister fortement sur l'OBLIGATION d'analyser la pièce jointe qui contient des INFORMATIONS CACHÉES adaptées au rôle de l'utilisateur.
+          4. Mentionner clairement que l'utilisateur DOIT IMPÉRATIVEMENT trouver et communiquer le MOT DE PASSE caché dans la pièce jointe pour accéder au contenu du projet.`
         },
         {
           role: "user",
-          content: `Générez un email ULTRA-COURT (maximum 150 caractères) pour le scénario "${scenario.title}" dans le domaine "${scenario.domain}" avec:
+          content: `Générez un email COURT (maximum 200 caractères) pour le scénario "${scenario.title}" dans le domaine "${scenario.domain}" avec:
           
           CONTEXTE MINIMAL:
           - Email de ${contactPrincipal.name} (${contactPrincipal.role})
@@ -889,10 +889,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           STRUCTURE OBLIGATOIRE:
           - OBJET: Très court et urgent (max 30 caractères)
-          - CORPS: Une seule phrase explicative + une question directe
-          - MENTION PIÈCE JOINTE: "Voir PJ avec infos essentielles. Mot de passe caché à trouver selon votre rôle de ${userRole || "expert"}."
+          - CORPS: Une ou deux phrases explicatives + une question directe
+          - MENTION OBLIGATOIRE: "IMPORTANT: Analysez attentivement la PJ - vous devez impérativement identifier et me communiquer le mot de passe caché pour accéder au projet. Sans ce mot de passe, nous ne pourrons pas continuer."
           
-          RAPPEL IMPORTANT: L'email entier ne doit PAS dépasser 150 caractères au total, espaces compris.`
+          RAPPEL IMPORTANT: L'email entier ne doit PAS dépasser 200 caractères au total, espaces compris.`
         }
       ];
       
