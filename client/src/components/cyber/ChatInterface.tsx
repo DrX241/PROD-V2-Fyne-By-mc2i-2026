@@ -131,6 +131,16 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
             userName={userName}
           />
         );
+      case 'decision-choices':
+        return (
+          <ChatMessage 
+            type={message.type} 
+            content={message.content} 
+            contactName={message.contactName} 
+            contactRole={message.contactRole}
+            userName={userName}
+          />
+        );
       case 'user':
       case 'bot':
         return (

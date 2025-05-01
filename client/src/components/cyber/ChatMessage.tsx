@@ -72,9 +72,14 @@ export default function ChatMessage({
 
   // Fonction pour formater le contenu de manière plus professionnelle et concise
   const formatContent = () => {
+    // Si c'est un contenu de décision, retourner le composant DecisionChoices
+    if (type === 'decision-choices' && typeof content !== 'string') {
+      return <DecisionChoices decision={content as CrisisDecisionContent} onSelectOption={handleDecisionChoice} />;
+    }
+    
     // Formater d'abord le contenu pour corriger les noms
-    let formattedContent = content;
-    if (userName) {
+    let formattedContent = content as string;
+    if (userName && typeof content === 'string') {
       formattedContent = formatFirstName(content, userName);
     }
     

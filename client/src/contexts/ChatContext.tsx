@@ -9,7 +9,9 @@ import type {
   AIConfig,
   ScenarioState,
   EmailMessageContent,
-  ScenarioContact
+  ScenarioContact,
+  CrisisDecisionContent,
+  CrisisDecisionOption
 } from "@shared/types/cyber";
 import { USER_ROLES } from "@shared/types/cyber";
 
@@ -811,8 +813,24 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }));
       }
       
+      // Si la réponse contient une décision
+      if (data.type === 'decision-choices') {
+        const decisionContent = data.content as CrisisDecisionContent;
+        
+        const decisionMessage: ChatMessage = {
+          id: uuidv4(),
+          type: "decision-choices",
+          content: decisionContent,
+          timestamp: Date.now(),
+          contactName: data.contactName || "Système",
+          contactRole: data.contactRole || "Situation de crise"
+        };
+        
+        setMessages(prev => [...prev, decisionMessage]);
+        setCurrentStage(currentStage + 1);
+      }
       // If response contains an email, add it as an email message
-      if (data.type === 'email') {
+      else if (data.type === 'email') {
         const emailContent = data.content as EmailMessageContent;
         
         // Si l'email contient une évaluation, vérifions qu'elle est valide
@@ -846,7 +864,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           content: data.content as string,
           timestamp: Date.now(),
           contactName: data.contactName,
-          contactRole: data.contactRole
+          contactRole: data.contactRole,
+          isIAMCYBERIntervention: data.isIAMCYBERIntervention,
+          iamCyberContent: data.iamCyberContent,
+          contactContent: data.contactContent
         };
         
         setMessages(prev => [...prev, botResponse]);
