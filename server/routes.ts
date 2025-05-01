@@ -388,6 +388,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Enregistrer les routes pour les pièces jointes
   app.use('/api/attachments', attachmentRoutes);
+  
+  // Route directe pour servir le document texte avec le mot de passe
+  app.get('/download-attachment/:role/:domain', (req, res) => {
+    try {
+      const { role, domain } = req.params;
+      const { scenario } = req.query;
+      
+      const scenarioTitle = typeof scenario === 'string' ? scenario : 'Cyber Sécurité';
+      
+      // Importer directement les fonctions nécessaires
+      const { generateAttachmentWithPassword } = require('./services/passwordService');
+      
+      // Générer le contenu
+      const content = generateAttachmentWithPassword(role, domain, scenarioTitle);
+      
+      // Déterminer le nom du fichier
+      const date = new Date();
+      const dateStr = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+      const filename = `document-securite-${dateStr}.txt`;
+      
+      // Configuration explicite des en-têtes
+      res.set({
+        'Content-Type': 'text/plain',
+        'Content-Disposition': `attachment; filename="${filename}"`,
+        'X-Content-Type-Options': 'nosniff'
+      });
+      
+      // Envoyer la réponse
+      res.send(content);
+    } catch (error) {
+      console.error('Erreur lors de la génération de la pièce jointe:', error);
+      res.status(500).send('Erreur lors de la génération de la pièce jointe');
+    }
+  });
 
   // Route de test pour les pièces jointes
   app.get('/api/attachments/test', async (req, res) => {

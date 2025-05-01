@@ -165,8 +165,8 @@ router.get('/content/:userRole/:domain', (req: Request, res: Response) => {
     const dateStr = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
     const filename = `document-securite-${dateStr}.txt`;
     
-    // Renvoyer le contenu comme un fichier texte
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    // Renvoyer le contenu comme un fichier texte brut
+    res.contentType('text/plain');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.send(content);
   } catch (error) {
