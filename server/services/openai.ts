@@ -442,4 +442,4 @@ Tu es I AM CYBER, un assistant spécialisé en cybersécurité conçu pour forme
   }
 }
 
-export const openAIService = new OpenAIService();
+export const openAIService = new OpenAIService('gpt-4o');

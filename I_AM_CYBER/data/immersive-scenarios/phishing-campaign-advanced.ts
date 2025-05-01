@@ -815,7 +815,7 @@ Une pièce jointe cruciale contenant l'analyse préliminaire de l'incident et le
 
 ACTIONS REQUISES IMMÉDIATEMENT:
 1. Analyser la pièce jointe en priorité
-2. Identifier et communiquer le mot de passe de sécurité
+2. Identifier et communiquer le mot de passe desécurité
 3. Préparer le plan de réponse initial
 
 Nous comptons sur votre expertise pour gérer cette situation avec la plus grande attention.
