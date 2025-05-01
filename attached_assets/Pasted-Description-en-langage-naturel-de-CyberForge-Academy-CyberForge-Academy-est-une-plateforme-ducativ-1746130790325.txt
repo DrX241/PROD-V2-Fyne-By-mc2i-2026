@@ -1,0 +1,24 @@
+Description en langage naturel de CyberForge Academy
+CyberForge Academy est une plateforme éducative immersive pour l'apprentissage de la cybersécurité. C'est une application web interactive qui s'adresse à tous les niveaux, du débutant à l'expert.
+
+Lorsque vous arrivez sur l'application, vous êtes accueilli par une page d'introduction élégante avec un dégradé bleu-violet et une interface moderne. Vous devez d'abord configurer votre accès à Azure OpenAI (ou OpenAI standard) pour activer les fonctionnalités d'intelligence artificielle qui enrichissent l'expérience d'apprentissage.
+
+Sur la gauche se trouve une barre de navigation colorée qui présente les différents modules d'apprentissage: Accueil, Fondamentaux, Sécurité Réseau, Sécurité Web, Cryptographie, Ingénierie Sociale, et Scénarios d'Attaque. Un système de progression gamifié débloque progressivement ces modules - seuls ceux que vous avez "mérités" sont accessibles, sauf si vous utilisez le mode administrateur.
+
+Au début, vous pouvez saisir votre nom, et l'application vous accueille personnellement. Votre progression est affichée visuellement avec des pourcentages et des barres de progression colorées.
+
+Le module "Fondamentaux" est toujours débloqué pour commencer. Il est organisé en onglets: Introduction, Types de Menaces, Principes de Sécurité, et Quiz. Le contenu est présenté de manière attrayante avec des icônes emoji, des encadrés colorés et des explications claires. Des quiz interactifs vous permettent de tester vos connaissances et d'augmenter votre score de progression.
+
+Un coach IA analyse votre comportement d'apprentissage et vous fait des suggestions personnalisées. Par exemple, il peut vous recommander de compléter un module commencé ou d'en revisiter un que vous n'avez pas consulté depuis longtemps.
+
+Un chatbot est également disponible pour répondre à vos questions sur la cybersécurité. Ses réponses sont adaptées à votre niveau de connaissances et au module que vous consultez.
+
+Les modules avancés proposent des défis pratiques générés par IA: analyse de code vulnérable, simulations d'attaques réseau, exercices de cryptographie, et scénarios d'ingénierie sociale. Ces défis sont personnalisés en fonction de votre niveau et de vos intérêts.
+
+Pour les administrateurs, un mode spécial offre un accès complet à tous les modules, aux solutions des défis, et à un tableau de bord avec des statistiques d'utilisation. On y accède en cliquant sur "Mode administrateur" dans la barre latérale et en utilisant les identifiants par défaut.
+
+L'interface est fluide et réactive, avec des animations subtiles qui rendent l'apprentissage plus engageant sans être distrayantes. Tous les éléments visuels sont conçus pour faciliter la compréhension des concepts complexes de cybersécurité.
+
+L'application est également conçue pour être multilingue, bien que le français soit la langue principale actuellement implémentée.
+
+En résumé, CyberForge Academy est une plateforme éducative dynamique qui combine des contenus pédagogiques structurés, des défis pratiques générés par IA, et un système de progression gamifié pour rendre l'apprentissage de la cybersécurité accessible et motivant.

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useLocation } from 'wouter';
 import HomeLayout from "@/components/layout/HomeLayout";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useChatContext } from "@/contexts/ChatContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -404,6 +404,17 @@ export default function Home() {
   
   // Modules avec animations interactives
   const modules = [
+      // Module CyberForge Academy
+      {
+        title: "CYBERFORGE ACADEMY",
+        description: "Plateforme éducative immersive avec parcours d'apprentissage gamifié et IA personnalisée.",
+        icon: <Layers size={36} />,
+        color: "bg-indigo-600",
+        bgColor: "bg-gradient-to-br from-indigo-50 to-indigo-100",
+        accentColor: "bg-indigo-500",
+        linkTo: "/cyberforge",
+        isNew: true
+      },
     {
       title: "I AM CYBER",
       description: "Immergez-vous dans des simulations de cybersécurité interactives et choisissez entre le mode agent IA conversationnel ou les scénarios tactiques de défense.",

@@ -21,6 +21,7 @@ import CyberAgentNewPage from "./pages/cyber/cyber-agent-new";
 // Import de la nouvelle page Playground
 import PlaygroundPage from "./pages/playground";
 import ModuleDetailPage from "./pages/playground/module";
+import CyberForgeAcademy from "./pages/cyberforge";
 
 // Import des pages CENTRE DE CRISE (anciennes et nouvelles pour permettre une transition)
 import CyberDefensePage from "@/pages/cyber-defense"; // Ancienne implémentation 
@@ -114,6 +115,9 @@ function App() {
             <Route path="/playground/module" component={ModuleDetailPage} />
             <Route path="/playground/module/:moduleId" component={ModuleDetailPage} />
             <Route path="/playground/path/:pathId" component={PlaygroundPage} />
+            
+            {/* Module CyberForge Academy */}
+            <Route path="/cyberforge" component={CyberForgeAcademy} />
             
             {/* Module Centre de Crise */}
             <Route path="/cyber-defense-new" component={CentreDeCriseEvolutifPage} />
