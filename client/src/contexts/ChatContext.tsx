@@ -119,6 +119,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Débutant",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
+    domain: "ingenierie-sociale",
     domainId: "ingenierie-sociale"
   },
   {
@@ -131,6 +132,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-[#006a9e]/10 text-[#006a9e]",
+    domain: "ingenierie-sociale",
     domainId: "ingenierie-sociale"
   },
   {
