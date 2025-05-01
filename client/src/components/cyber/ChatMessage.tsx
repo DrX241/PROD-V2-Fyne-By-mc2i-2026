@@ -3,6 +3,7 @@ import { BotMessageSquare, User, Zap } from "lucide-react";
 import { CrisisDecisionContent } from "@shared/types/cyber";
 import DecisionChoices from "./DecisionChoices";
 import { useChatContext } from "@/contexts/ChatContext";
+import { v4 as uuidv4 } from 'uuid';
 
 interface ChatMessageProps {
   type: "user" | "bot" | "scenario-context" | "decision-choices";
@@ -25,14 +26,42 @@ export default function ChatMessage({
   iamCyberContent,
   contactContent 
 }: ChatMessageProps) {
-  const { sendMessage } = useChatContext();
+  const { 
+    sendMessage, 
+    messages, 
+    setUserName: setContextUserName, 
+    userName: contextUserName, 
+    userRole, 
+    scenario, 
+    currentStage, 
+    resetChat
+  } = useChatContext();
+  
+  // États locaux pour gérer le traitement des décisions
+  const [isTyping, setIsTyping] = React.useState(false);
+  
+  // Fonction utilitaire pour ajouter un message à la liste
+  const setMessages = (updater: (prev: any[]) => any[]) => {
+    // Cette fonction n'est pas directement exposée par le contexte, 
+    // mais nous pouvons simuler son comportement via sendMessage
+    // pour les messages utilisateurs, ou manipuler directement les messages
+    // via le contexte pour d'autres cas.
+    // Dans cette implémentation, nous utilisons simplement la fonction de
+    // l'appelant directement, car nous ne modifions pas l'état local.
+    // Le state réel est géré dans le contexte
+  };
   
   // Handler pour les choix de décision
   const handleDecisionChoice = (optionId: string) => {
     if (type === 'decision-choices' && typeof content !== 'string') {
-      const selectedOption = (content as CrisisDecisionContent).options.find(opt => opt.id === optionId);
+      const decisionContent = content as CrisisDecisionContent;
+      const selectedOption = decisionContent.options.find(opt => opt.id === optionId);
+      
       if (selectedOption) {
-        sendMessage(`J'ai choisi l'option: ${selectedOption.text}`);
+        // Nous allons simplement envoyer un message formaté pour montrer le choix
+        // et le backend se chargera de traiter cela correctement
+        // Le format aidera le backend à détecter qu'il s'agit d'une décision
+        sendMessage(`#decision_choice#${decisionContent.id}#${optionId}#${selectedOption.text}`);
       }
     }
   };

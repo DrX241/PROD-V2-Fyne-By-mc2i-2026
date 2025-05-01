@@ -9,6 +9,7 @@ import OpenAI from 'openai';
 import { openAIService } from "./services/openai";
 import attachmentRoutes from './routes/attachmentRoutes';
 import { createAttachmentWithHiddenPassword } from './services/attachmentService';
+import { CyberScenario, CrisisDecisionContent } from '../shared/types/cyber';
 
 // Récupérer le chemin du répertoire actuel en module ES
 const __filename = fileURLToPath(import.meta.url);
@@ -3427,6 +3428,315 @@ ${companyName || "mc2i"}`,
         error: 'Erreur lors de l\'envoi du brief de mission',
         details: error instanceof Error ? error.message : 'Erreur inconnue'
       });
+    }
+  });
+
+  // API route pour traiter les choix de décision de crise
+  app.post('/api/cyber/decision', async (req: Request, res: Response) => {
+    try {
+      const { userName, userRole, scenarioId, decisionId, optionId, chatHistory, currentStage } = req.body;
+      
+      if (!userName || !decisionId || !optionId || !scenarioId) {
+        return res.status(400).json({ message: 'Paramètres manquants pour traiter la décision' });
+      }
+      
+      // Rechercher les détails du scénario
+      const scenarios = [
+        // Ingénierie sociale et phishing
+        {
+          id: "phishing-awareness",
+          title: "Sensibilisation aux attaques de phishing",
+          domain: "Ingénierie sociale et phishing",
+          contact: {
+            name: "Marion Lopez",
+            role: "Senior Partner et Directrice Marketing, Communication et RSE"
+          },
+          difficulty: "Débutant"
+        },
+        {
+          id: "social-engineering-incident",
+          title: "Gestion d'un incident d'ingénierie sociale",
+          domain: "Ingénierie sociale et phishing",
+          contact: {
+            name: "Isabelle Dubacq",
+            role: "Senior Partner, Directrice des Ressources Humaines"
+          },
+          difficulty: "Intermédiaire"
+        },
+        {
+          id: "advanced-social-attacks",
+          title: "Prévention des attaques sophistiquées",
+          domain: "Ingénierie sociale et phishing",
+          contact: {
+            name: "Arnaud Gauthier",
+            role: "Président"
+          },
+          difficulty: "Expert"
+        },
+        
+        // Stratégie cyber
+        {
+          id: "security-awareness",
+          title: "Sensibilisation aux enjeux de la stratégie cyber",
+          domain: "Stratégie et gouvernance cybersécurité",
+          contact: {
+            name: "Julien Grimault",
+            role: "Senior Partner - Directeur d'unité, Sponsor du centre d'expertise Cybersécurité"
+          },
+          difficulty: "Débutant"
+        },
+        {
+          id: "security-roadmap",
+          title: "Feuille de route de sécurité",
+          domain: "Stratégie et gouvernance cybersécurité",
+          contact: {
+            name: "Olivier Hervo",
+            role: "Directeur Général"
+          },
+          difficulty: "Intermédiaire"
+        },
+        {
+          id: "cyber-strategy",
+          title: "Élaboration de la stratégie cybersécurité avancée",
+          domain: "Stratégie et gouvernance cybersécurité",
+          contact: {
+            name: "Arnaud Gauthier",
+            role: "Président"
+          },
+          difficulty: "Expert"
+        },
+        
+        // Gestion de crise
+        {
+          id: "crisis-basics",
+          title: "Introduction à la gestion de crise cyber",
+          domain: "Gestion de crise cyber",
+          contact: {
+            name: "Nosing Doeuk",
+            role: "Senior Partner - Directeur du pôle DIXIT"
+          },
+          difficulty: "Débutant"
+        },
+        {
+          id: "crisis-plan",
+          title: "Plan de gestion de crise cyber",
+          domain: "Gestion de crise cyber",
+          contact: {
+            name: "Guillaume Lechevallier",
+            role: "Directeur Général Adjoint et Directeur du pôle IMPULSE"
+          },
+          difficulty: "Intermédiaire"
+        },
+        {
+          id: "ransomware-crisis",
+          title: "Gestion d'une attaque avancée par ransomware",
+          domain: "Gestion de crise cyber",
+          contact: {
+            name: "Lorenzo Bertola",
+            role: "Directeur Général Adjoint et Directeur du pôle BFA"
+          },
+          difficulty: "Expert"
+        },
+        
+        // Supply Chain
+        {
+          id: "supply-chain-basics",
+          title: "Introduction aux risques de la chaîne d'approvisionnement",
+          domain: "Sécurité de la chaîne d'approvisionnement",
+          contact: {
+            name: "Marie Bernard",
+            role: "Responsable Achats"
+          },
+          difficulty: "Débutant"
+        },
+        {
+          id: "vendor-assessment",
+          title: "Évaluation de la sécurité des fournisseurs",
+          domain: "Sécurité de la chaîne d'approvisionnement",
+          contact: {
+            name: "Nicolas Paolantonacci",
+            role: "Senior Partner et Directeur du pôle RETAIL & LUXE"
+          },
+          difficulty: "Intermédiaire"
+        },
+        {
+          id: "supply-chain-incident",
+          title: "Incident de sécurité dans la chaîne d'approvisionnement",
+          domain: "Sécurité de la chaîne d'approvisionnement",
+          contact: {
+            name: "Anthony Frescal",
+            role: "Directeur Général Adjoint et Directeur du pôle ENERGIES & UTILITIES"
+          },
+          difficulty: "Expert"
+        },
+        
+        // Données personnelles / RGPD
+        {
+          id: "data-compliance-intro",
+          title: "Initiation aux fondamentaux du RGPD",
+          domain: "Protection des données personnelles et conformité",
+          contact: {
+            name: "Marjorie Durand",
+            role: "Délégué à la Protection des Données"
+          },
+          difficulty: "Débutant"
+        },
+        {
+          id: "dpia-workshop",
+          title: "Conduire une analyse d'impact (DPIA)",
+          domain: "Protection des données personnelles et conformité",
+          contact: {
+            name: "Jean-Marc Guyot",
+            role: "Senior Partner et Directeur du pôle FSI"
+          },
+          difficulty: "Intermédiaire"
+        },
+        {
+          id: "data-breach-response",
+          title: "Réponse à une violation de données",
+          domain: "Protection des données personnelles et conformité",
+          contact: {
+            name: "Laëtitia Bénard",
+            role: "Senior Partner - Directrice d'unité"
+          },
+          difficulty: "Expert"
+        },
+        
+        // Cybersécurité opérationnelle
+        {
+          id: "soc-basics",
+          title: "Fondamentaux des opérations de sécurité",
+          domain: "Cybersécurité opérationnelle",
+          contact: {
+            name: "Thomas Legrand",
+            role: "Responsable SOC"
+          },
+          difficulty: "Débutant"
+        },
+        {
+          id: "incident-handling",
+          title: "Gestion des incidents de sécurité",
+          domain: "Cybersécurité opérationnelle",
+          contact: {
+            name: "Cyril Delannoy",
+            role: "Senior Partner et Directeur Technique"
+          },
+          difficulty: "Intermédiaire"
+        },
+        {
+          id: "threat-hunting",
+          title: "Détection avancée de menaces",
+          domain: "Cybersécurité opérationnelle",
+          contact: {
+            name: "Olivier Colas",
+            role: "Expert en analyse des menaces"
+          },
+          difficulty: "Expert"
+        }
+      ];
+      
+      const scenario = scenarios.find(s => s.id === scenarioId);
+      if (!scenario) {
+        return res.status(404).json({ message: 'Scénario non trouvé' });
+      }
+      
+      // Récupérer la décision spécifique à partir de l'historique du chat
+      let decisionDetails: CrisisDecisionContent | undefined;
+      if (chatHistory && Array.isArray(chatHistory)) {
+        // Rechercher le message contenant la décision avec l'ID spécifié
+        const decisionMessage = chatHistory.find(msg => 
+          msg.type === 'decision-choices' && 
+          typeof msg.content === 'object' && 
+          msg.content && 
+          (msg.content as any).id === decisionId
+        );
+        
+        if (decisionMessage && typeof decisionMessage.content === 'object') {
+          decisionDetails = decisionMessage.content as CrisisDecisionContent;
+        }
+      }
+      
+      if (!decisionDetails) {
+        return res.status(404).json({ message: 'Détails de la décision non trouvés dans l\'historique' });
+      }
+      
+      // Trouver l'option choisie
+      const selectedOption = decisionDetails.options.find((opt: { id: string }) => opt.id === optionId);
+      if (!selectedOption) {
+        return res.status(404).json({ message: 'Option sélectionnée non trouvée' });
+      }
+      
+      // Générer le prompt système pour expliquer les conséquences de la décision
+      const systemPrompt = `Tu es un expert en cybersécurité dans le cadre d'un scénario de ${scenario.domain}. 
+L'utilisateur vient de prendre une décision importante pour la suite du scénario.
+
+CONTEXTE DE LA DÉCISION:
+- Scénario: ${scenario.title} (${scenario.domain})
+- Difficulté: ${scenario.difficulty}
+- Utilisateur: ${userName}, jouant le rôle de ${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"}
+- Étape actuelle: ${currentStage}
+
+DÉCISION PRISE:
+- Situation: ${decisionDetails.situation}
+- Option choisie: ${selectedOption.text}
+- Description de l'option: ${selectedOption.description}
+
+IMPACTS DE LA DÉCISION:
+- Impact budgétaire: ${selectedOption.impact.budget ? selectedOption.impact.budget + '€' : 'Aucun'}
+- Impact sur le calendrier: ${selectedOption.impact.timeline ? (selectedOption.impact.timeline > 0 ? '+' + selectedOption.impact.timeline + ' jours' : selectedOption.impact.timeline + ' jours') : 'Aucun'}
+- Impact sur la réputation: ${selectedOption.impact.reputation ? (selectedOption.impact.reputation > 0 ? 'Positif (' + selectedOption.impact.reputation + '/10)' : 'Négatif (' + selectedOption.impact.reputation + '/10)') : 'Aucun'}
+- Impact sur la sécurité: ${selectedOption.impact.security ? (selectedOption.impact.security > 0 ? 'Amélioration (' + selectedOption.impact.security + '/10)' : 'Dégradation (' + selectedOption.impact.security + '/10)') : 'Aucun'}
+- Impact sur les employés: ${selectedOption.impact.employment ? 'Possible licenciement ou réorganisation' : 'Aucun'}
+- Impact critique sur la mission: ${selectedOption.impact.missionCritical ? 'Décision pouvant mettre fin à la mission ou la compromettre gravement' : 'Impact modéré sur la mission'}
+
+INSTRUCTIONS:
+En tant que responsable à ${scenario.contact.role}, explique de manière réaliste:
+1. Les CONSÉQUENCES IMMÉDIATES de cette décision 
+2. Comment cette décision va INFLUENCER LA SUITE du scénario
+3. Les NOUVELLES PRÉOCCUPATIONS générées par cette décision
+4. Une brève réaction personnelle alignée avec ton rôle de ${scenario.contact.role}
+
+Ton ton doit être professionnel, informatif et adapté au niveau de responsabilité de ton poste dans l'organisation.
+Ta réponse doit refléter la complexité des choix en cybersécurité sans être trop technique.`;
+
+      // Générer la réponse via OpenAI
+      const messages: ChatCompletionRequestMessage[] = [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: `Je suis ${userName}, ${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"}, et j'ai choisi l'option: "${selectedOption.text}" pour résoudre la situation de crise "${decisionDetails.situation}". Quelles sont les conséquences de ma décision et comment cela va-t-il influencer la suite du scénario?` }
+      ];
+      
+      const responseContent = await openAIService.getChatCompletionWithCache(
+        messages,
+        0.7,
+        1500
+      );
+      
+      // Déterminer si cette décision met fin au scénario
+      const isScenarioTerminated = selectedOption.impact.missionCritical || 
+                                  responseContent.toLowerCase().includes("fin du scénario") || 
+                                  responseContent.toLowerCase().includes("mission terminée") ||
+                                  responseContent.toLowerCase().includes("échec de la mission");
+      
+      // Envoyer la réponse
+      res.json({
+        type: 'bot',
+        content: responseContent,
+        resetScenario: isScenarioTerminated,
+        contactName: scenario.contact.name,
+        contactRole: scenario.contact.role,
+        decisionImpact: {
+          budget: selectedOption.impact.budget,
+          timeline: selectedOption.impact.timeline,
+          reputation: selectedOption.impact.reputation,
+          security: selectedOption.impact.security,
+          employment: selectedOption.impact.employment,
+          missionCritical: selectedOption.impact.missionCritical
+        }
+      });
+      
+    } catch (error) {
+      console.error('Error processing decision choice:', error);
+      res.status(500).json({ message: 'Failed to process decision choice' });
     }
   });
 
