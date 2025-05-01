@@ -938,9 +938,73 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsInitialized(false);
   };
 
-  // Fonction pour confirmer le brief de mission
-  const handleConfirmMissionBrief = () => {
+  // Fonction pour confirmer le brief de mission et déclencher le scénario de crise
+  const handleConfirmMissionBrief = async () => {
     setMissionBriefConfirmed(true);
+    setIsTyping(true);
+    
+    try {
+      // Envoyer une requête pour obtenir le message de bienvenue et les choix initiaux
+      const response = await apiRequest('/api/cyber/decision', {
+        method: 'POST',
+        body: JSON.stringify({
+          userRole,
+          domain: scenario.activeDomain?.id,
+          userName,
+          action: 'START_CRISIS',
+          currentStage,
+          companyName: 'mc2i'
+        })
+      });
+      
+      if (response.success) {
+        // Attendre un peu pour simuler le temps de réponse
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Ajouter le message de bienvenue du PNJ
+        if (response.welcomeMessage) {
+          const welcomeMessage: ChatMessage = {
+            id: uuidv4(),
+            type: 'bot',
+            content: response.welcomeMessage,
+            timestamp: Date.now(),
+            contactName: response.contactName || scenario.contact?.name,
+            contactRole: response.contactRole || scenario.contact?.role
+          };
+          
+          setMessages(prev => [...prev, welcomeMessage]);
+        }
+        
+        // Si des choix sont fournis, les afficher
+        if (response.decision) {
+          // Attendre un peu pour simuler la réflexion
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          
+          const decisionMessage: ChatMessage = {
+            id: uuidv4(),
+            type: 'decision-choices',
+            content: response.decision,
+            timestamp: Date.now()
+          };
+          
+          setMessages(prev => [...prev, decisionMessage]);
+        }
+      }
+    } catch (error) {
+      console.error('Erreur lors du démarrage du scénario de crise:', error);
+      
+      // Message d'erreur
+      const errorMessage: ChatMessage = {
+        id: uuidv4(),
+        type: 'bot',
+        content: "Je suis désolé, une erreur s'est produite lors du démarrage de la simulation de crise. Veuillez réessayer ultérieurement.",
+        timestamp: Date.now()
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+    }
+    
+    setIsTyping(false);
   };
 
   return (

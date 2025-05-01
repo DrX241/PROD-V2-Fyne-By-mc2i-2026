@@ -3434,9 +3434,79 @@ ${companyName || "mc2i"}`,
   // API route pour traiter les choix de décision de crise
   app.post('/api/cyber/decision', async (req: Request, res: Response) => {
     try {
-      const { userName, userRole, scenarioId, decisionId, optionId, chatHistory, currentStage } = req.body;
+      const { 
+        userName, 
+        userRole, 
+        domain,
+        scenarioId, 
+        decisionId, 
+        optionId, 
+        chatHistory, 
+        currentStage,
+        action,
+        companyName
+      } = req.body;
       
-      if (!userName || !decisionId || !optionId || !scenarioId) {
+      // Cas spécial : démarrage de la situation de crise après briefing
+      if (action === 'START_CRISIS') {
+        if (!userName || !domain) {
+          return res.status(400).json({ message: 'Paramètres manquants pour démarrer la simulation de crise' });
+        }
+        
+        // Informations pour le scénario
+        const budget = Math.floor(Math.random() * 50000) + 150000; // Budget entre 150k et 200k euros
+        const deadlineInDays = Math.floor(Math.random() * 30) + 30; // Entre 30 et 60 jours
+        const teamSize = Math.floor(Math.random() * 5) + 3; // Entre 3 et 7 personnes
+        
+        // Déterminer qui va être le contact principal basé sur le domaine
+        let contactName = "Thomas Mercier";
+        let contactRole = "RSSI";
+        
+        if (domain.includes("finance") || domain.includes("banque")) {
+          contactName = "Lorenzo Bertola";
+          contactRole = "Directeur du pôle BFA";
+        } else if (domain.includes("energie") || domain.includes("utilities")) {
+          contactName = "Anthony Frescal";
+          contactRole = "Directeur du pôle ENERGIES & UTILITIES";
+        } else if (domain.includes("technique") || domain.includes("digital")) {
+          contactName = "Nosing Doeuk";
+          contactRole = "Directeur du pôle DIXIT";
+        }
+        
+        // Message de bienvenue à la situation de crise
+        const welcomeMessage = `Bonjour ${userName}, je suis ${contactName}, ${contactRole} chez ${companyName || 'mc2i'}.
+        
+Suite à votre accord, nous entrons officiellement en phase de gestion de crise. Votre rôle de ${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"} vous confère une autorité déléguée sur cette mission critique.
+
+Je vous confirme les éléments suivants :
+- Un budget de ${budget.toLocaleString('fr-FR')} € a été alloué à cette mission
+- L'équipe est composée de ${teamSize} personnes sous votre direction
+- Nous devons résoudre cette situation dans un délai de ${deadlineInDays} jours
+
+Je serai votre point de contact principal, et vous rendrez compte directement à Olivier Hervo, notre Directeur Général.
+
+La situation nécessite maintenant des décisions rapides et stratégiques de votre part. Voici les premiers éléments à traiter.`;
+        
+        // Génération des options de décision dynamiques basées sur le domaine
+        const decision = await generateInitialCrisisOptions(domain, userName, userRole, currentStage);
+        
+        return res.json({
+          success: true,
+          welcomeMessage,
+          contactName,
+          contactRole,
+          decision,
+          metadata: {
+            budget,
+            deadlineInDays,
+            teamSize,
+            domain
+          }
+        });
+      }
+      
+      // Cas standard : traitement d'une décision
+      if (!userName || !decisionId || !optionId || (!scenarioId && !domain)) {
         return res.status(400).json({ message: 'Paramètres manquants pour traiter la décision' });
       }
       
