@@ -941,6 +941,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Fonction pour confirmer le brief de mission et déclencher le scénario de crise
   const handleConfirmMissionBrief = async () => {
     setMissionBriefConfirmed(true);
+    setMissionBriefReceived(true);  // Débloquer la zone de saisie après confirmation
     setIsTyping(true);
     
     try {
@@ -958,33 +959,18 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       
       if (response.success) {
-        // Attendre un peu pour simuler le temps de réponse
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Pas besoin d'attendre - on veut une réponse immédiate
         
-        // Ajouter le message de bienvenue du PNJ
-        if (response.welcomeMessage) {
-          const welcomeMessage: ChatMessage = {
-            id: uuidv4(),
-            type: 'bot',
-            content: response.welcomeMessage,
-            timestamp: Date.now(),
-            contactName: response.contactName || scenario.contact?.name,
-            contactRole: response.contactRole || scenario.contact?.role
-          };
-          
-          setMessages(prev => [...prev, welcomeMessage]);
-        }
-        
-        // Si des choix sont fournis, les afficher
+        // Ajouter directement les 4 choix (plus rapide, sans message intermédiaire)
         if (response.decision) {
-          // Attendre un peu pour simuler la réflexion
-          await new Promise(resolve => setTimeout(resolve, 1500));
-          
           const decisionMessage: ChatMessage = {
             id: uuidv4(),
             type: 'decision-choices',
             content: response.decision,
-            timestamp: Date.now()
+            timestamp: Date.now(),
+            // Ajouter un en-tête avec le message de bienvenue dans la carte des choix
+            contactName: response.contactName || scenario.contact?.name,
+            contactRole: response.contactRole || scenario.contact?.role 
           };
           
           setMessages(prev => [...prev, decisionMessage]);
