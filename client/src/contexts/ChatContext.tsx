@@ -871,13 +871,15 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         domains: initialDomains,
         scenarios: initialScenarios,
         currentStage,
+        passwordValidated,
         setUserName: handleSetUserName,
         setUserRole: handleSetUserRole,
         selectDomain: handleSelectDomain,
         selectScenario: handleSelectScenario,
         sendMessage: handleSendMessage,
         updateConfig: handleUpdateConfig,
-        resetChat: handleResetChat
+        resetChat: handleResetChat,
+        setPasswordValidated: (validated: boolean) => setPasswordValidated(validated)
       }}
     >
       {children}

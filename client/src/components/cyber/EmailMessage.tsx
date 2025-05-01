@@ -4,6 +4,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { ScenarioContact, EmailMessageContent, AttachmentMetadata } from "@shared/types/cyber";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useChatContext } from "@/contexts/ChatContext";
 
 // Types aliases pour simplifier la transition
 type EmailContact = ScenarioContact;
@@ -14,6 +15,9 @@ interface EmailMessageProps {
 }
 
 export default function EmailMessage({ email }: EmailMessageProps) {
+  // Accès au contexte de chat
+  const { passwordValidated, setPasswordValidated } = useChatContext();
+  
   // État pour gérer la validation du mot de passe
   const [password, setPassword] = useState("");
   const [passwordSubmitted, setPasswordSubmitted] = useState(false);
@@ -46,6 +50,11 @@ export default function EmailMessage({ email }: EmailMessageProps) {
       
       setValidationResult(response);
       setPasswordSubmitted(true);
+      
+      // Si le mot de passe est valide, mettre à jour l'état global
+      if (response.valid) {
+        setPasswordValidated(true);
+      }
     } catch (error) {
       console.error('Erreur lors de la validation du mot de passe:', error);
       setValidationResult({

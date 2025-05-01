@@ -21,7 +21,9 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
     resetChat,
     setUserRole,
     userRole,
-    scenario
+    scenario,
+    passwordValidated,
+    currentStage
   } = useChatContext();
   
   const [inputMessage, setInputMessage] = useState("");
@@ -209,9 +211,10 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
           {/* Gestion dynamique de l'affichage du champ de saisie:
               - Étape 1: Afficher pour la saisie du prénom (quand userName est vide)
               - Étape 2: Masquer pendant la configuration (après saisie prénom, avant réception email)
-              - Étape 3: Réactiver après réception du mail (when messages contient un type 'email')
+              - Étape 3: Vérifier si l'email a été reçu et si le mot de passe a été validé
+              - Étape 4: Réactiver uniquement si le mot de passe est validé
           */}
-          {(!userName || (userRole && messages.some(msg => msg.type === 'email'))) ? (
+          {(!userName || (userRole && messages.some(msg => msg.type === 'email') && passwordValidated)) ? (
             <form className="flex items-start gap-2 sm:gap-3" onSubmit={handleSubmit}>
               <div className="relative flex-1 group">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
@@ -240,11 +243,23 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
           ) : (
             <div className="bg-blue-800/50 rounded-lg p-3 text-center text-white text-sm border border-blue-700/40">
               <p>
-                <span className="font-semibold">Veuillez sélectionner vos choix ci-dessus</span>
-                <br />
-                <span className="text-blue-200">Choisissez votre rôle et domaine pour continuer la conversation</span>
-                <br />
-                <span className="text-xs text-blue-300 mt-1 italic">La zone de saisie sera disponible après l'étape de configuration</span>
+                {messages.some(msg => msg.type === 'email') && !passwordValidated ? (
+                  <>
+                    <span className="font-semibold">Zone de saisie verrouillée</span>
+                    <br />
+                    <span className="text-blue-200">Vous devez trouver et valider le mot de passe dans la pièce jointe pour continuer</span>
+                    <br />
+                    <span className="text-xs text-blue-300 mt-1 italic">La zone de saisie sera disponible après validation du mot de passe</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="font-semibold">Veuillez sélectionner vos choix ci-dessus</span>
+                    <br />
+                    <span className="text-blue-200">Choisissez votre rôle et domaine pour continuer la conversation</span>
+                    <br />
+                    <span className="text-xs text-blue-300 mt-1 italic">La zone de saisie sera disponible après l'étape de configuration</span>
+                  </>
+                )}
               </p>
             </div>
           )}
