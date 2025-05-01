@@ -57,10 +57,12 @@ export default function EmailMessage({ email }: EmailMessageProps) {
       }
     } catch (error) {
       console.error('Erreur lors de la validation du mot de passe:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Une erreur est survenue lors de la validation du mot de passe.';
       setValidationResult({
         valid: false,
-        message: 'Une erreur est survenue lors de la validation du mot de passe.'
+        message: errorMessage
       });
+      setIsValidating(false);
     } finally {
       setIsValidating(false);
     }
@@ -274,9 +276,10 @@ export default function EmailMessage({ email }: EmailMessageProps) {
       }
     } catch (error) {
       console.error('Erreur lors de la validation:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erreur lors de la validation du mot de passe.';
       setValidationResult({
         valid: false,
-        message: "Erreur lors de la validation du mot de passe"
+        message: errorMessage
       });
     }
   };
