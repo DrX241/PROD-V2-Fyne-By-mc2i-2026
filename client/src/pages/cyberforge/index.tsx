@@ -888,7 +888,7 @@ function CyberForge() {
                     className={`${isDark ? 'bg-blue-700 hover:bg-blue-600' : 'bg-blue-600 hover:bg-blue-700'} text-white`}
                     onClick={() => setLocation('/cyberforge/modules')}
                   >
-                    <Layers className="mr-2 h-4 w-4" />
+                    <BookOpen className="mr-2 h-4 w-4" />
                     Accéder aux modules
                   </Button>
                   
@@ -901,7 +901,7 @@ function CyberForge() {
                     }`}
                     onClick={() => setEntryStep('welcome')}
                   >
-                    <RefreshCw className="mr-2 h-4 w-4" />
+                    <User className="mr-2 h-4 w-4" />
                     Changer de profil
                   </Button>
                 </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useRoute } from 'wouter';
 import { Shield, Lock, BookOpen, Terminal, File, Network, Code, Bot, Database, Server, Star, ArrowLeft, ArrowRight, ChevronRight, ChevronDown, Layers, GraduationCap, Compass, HelpCircle, Info, Link, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
