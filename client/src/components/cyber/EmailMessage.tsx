@@ -10,6 +10,8 @@ import { useChatContext } from "@/contexts/ChatContext";
 type EmailContact = ScenarioContact;
 type EmailContent = EmailMessageContent;
 
+// Remove unused imports and context
+
 interface EmailMessageProps {
   email: EmailContent;
 }
