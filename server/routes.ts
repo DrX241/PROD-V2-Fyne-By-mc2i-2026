@@ -866,57 +866,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const messages: ChatCompletionRequestMessage[] = [
         {
           role: "system",
-          content: emailSystemPrompt
+          content: emailSystemPrompt + 
+          `\n\nRÈGLES DE FORMATAGE STRICTES À RESPECTER ABSOLUMENT:
+          1. L'email ENTIER ne doit pas dépasser 300 caractères maximum (environ 50 mots).
+          2. L'email doit poser UNE QUESTION DIRECTE et précise qui nécessite une réponse spécifique.
+          3. Toujours inclure un message indiquant que nous sommes en période très délicate et n'avons pas le temps pour des sujets hors-contexte.
+          4. Si l'utilisateur répond de façon hors-sujet, tu dois immédiatement le recadrer en rappelant l'urgence et que seules les réponses directes à la question posée sont acceptables.`
         },
         {
           role: "user",
-          content: `Générez un email IMMERSIF et CONCRET (maximum 250 mots) pour le scénario "${scenario.title}" dans le domaine "${scenario.domain}" avec les détails suivants:
+          content: `Générez un email EXTRÊMEMENT COURT (maximum 300 caractères) pour le scénario "${scenario.title}" dans le domaine "${scenario.domain}" avec:
           
-          CONTEXTE PROFESSIONNEL:
-          - L'email provient de ${contactPrincipal.name} (${contactPrincipal.role}) chez ${companyName} (secteur ${secteurActivite})
-          - Ce contact est ${getPersonalityTrait(contactPrincipal.role, contactPrincipal.name, currentStage || 0)}
-          - L'email est adressé à ${userName} qui a le rôle de ${userRole ? getUserRoleDescription(userRole) : "expert en cybersécurité"}
-          - Le niveau d'urgence est ${getUrgencyLevel(scenario.domain, scenario.difficulty, currentStage || 0)}
-          - On se trouve dans une phase ${getScenarioSituation(currentStage || 0)}
-          - On attend de ${userName}, en tant que ${userRole ? getUserRoleDescription(userRole) : "expert cyber"}, ${getRoleExpectation(getNormalizedRole(userRole || ""))}
+          CONTEXTE MINIMAL:
+          - Email de ${contactPrincipal.name} (${contactPrincipal.role})
+          - Adressé à ${userName} (${userRole ? getUserRoleDescription(userRole) : "expert cyber"})
+          - Urgence: ${getUrgencyLevel(scenario.domain, scenario.difficulty, currentStage || 0)}
           
-          FORMAT DE L'EMAIL (TRÈS DÉTAILLÉ):
-          - OBJET: Court et captivant, évoquant clairement la problématique cyber et le niveau d'urgence actuel
+          STRUCTURE SIMPLE:
+          - OBJET: Court et urgent (max 50 caractères)
+          - CORPS: Problème critique expliqué en 1-2 phrases maximum
+          - UNE SEULE QUESTION DIRECTE: Formulée clairement et nécessitant expertise
+          - RAPPEL D'URGENCE: Indiquer "En cette période critique, merci de répondre directement à cette question."
           
-          - INTRODUCTION PERSONNALISÉE: 
-            > Présentation personnelle détaillée de ${contactPrincipal.name} et de l'entreprise ${companyName}
-            > Le ton doit refléter la personnalité du contact et le niveau d'urgence
-            > Préciser l'historique de la relation professionnelle (première collaboration ou contact existant)
-          
-          - SITUATION PRÉCISE: Description DÉTAILLÉE et CONCRÈTE d'un problème de cybersécurité spécifique au domaine "${scenario.domain}"
-            > Inclure des DÉTAILS TECHNIQUES précis et tangibles adaptés au rôle du joueur
-            > Décrire avec PRÉCISION l'impact business actuel et potentiel sur l'entreprise
-            > Expliquer clairement les ENJEUX SECTORIELS spécifiques (${secteurActivite})
-            > Présenter au moins 3 ÉLÉMENTS FACTUELS concrets (dates, incidents, anomalies)
-          
-          - CONTEXTE COMPLET:
-            > Expliquer la situation actuelle dans le contexte global de l'entreprise
-            > Décrire les actions déjà entreprises ou les tentatives réalisées
-            > Mentionner les contraintes spécifiques (réglementaires, business, techniques)
-            > Situer clairement les CONSÉQUENCES POSSIBLES si le problème n'est pas résolu
-          
-          - ATTENTES CLAIRES: Demande EXPLICITE et STRUCTURÉE à ${userName}
-            > Formuler AU MOINS 2 QUESTIONS PRÉCISES liées aux responsabilités du rôle ${userRole ? getUserRoleDescription(userRole) : "expert"}
-            > Expliquer clairement CE QUE VOUS ATTENDEZ concrètement (diagnostic, solution, accompagnement)
-            > Préciser les CONTRAINTES DE TEMPS OU DE RESSOURCES existantes
-            > Mentionner les PROCHAINES ÉTAPES envisagées après cette première réponse
-          
-          - STYLE: Utiliser le tutoiement ("tu")
-            > Ton professionnel mais direct, adapté au niveau d'urgence
-            > La personnalité du contact doit transparaître clairement
-            > Équilibrer technicité et accessibilité selon le contexte
-          
-          EXIGENCES ADDITIONNELLES:
-          - L'email doit être EXTRÊMEMENT IMMERSIF, comme si le problème était réel
-          - Tous les détails doivent être COHÉRENTS avec le domaine et le secteur d'activité
-          - Les enjeux doivent être ALIGNÉS avec les responsabilités du rôle de ${userName}
-          - L'urgence et la gravité doivent transparaître naturellement dans le ton
-          - Les attentes doivent être EXPLICITES et adaptées au niveau d'expertise attendu`
+          RAPPEL IMPORTANT: L'email entier ne doit pas dépasser 300 caractères au total, espaces compris.`
         }
       ];
       
@@ -2038,7 +2010,9 @@ Formule tes explications et tes demandes en fonction de ce que ce type de profes
         
         "\n\nÉVALUATION DES RÉPONSES: Guide l'utilisateur avec bienveillance. Valorise ses réponses et complète-les si nécessaire. Même si la réponse est imparfaite, trouve-y des éléments positifs pour encourager l'apprentissage. Si besoin, suggère des améliorations de façon constructive et pédagogique." +
         
-        `\n\nINTERDICTION ABSOLUE: Ne jamais dire "En tant que [nom], je..." ou "Dans mon rôle de [fonction], je...". Incarne directement le personnage, parle naturellement comme le ferait cette personne dans son contexte professionnel.`;
+        `\n\nINTERDICTION ABSOLUE: Ne jamais dire "En tant que [nom], je..." ou "Dans mon rôle de [fonction], je...". Incarne directement le personnage, parle naturellement comme le ferait cette personne dans son contexte professionnel.` +
+        
+        `\n\nRECADRAGE DES RÉPONSES HORS-SUJET: Si l'utilisateur répond de manière hors-sujet ou ne répond pas directement à la question posée dans l'email initial, tu dois immédiatement le recadrer avec un message du type: "Nous sommes en période très délicate et n'avons pas le temps de parler d'éléments hors sujet. Peux-tu répondre directement à ma question concernant [rappel du sujet]?". Ceci est OBLIGATOIRE et doit être appliqué dès la première réponse hors-sujet.`;
       
       // Create the base messages array
       const messages: ChatCompletionRequestMessage[] = [
