@@ -1,9 +1,12 @@
 import React from "react";
 import { BotMessageSquare, User, Zap } from "lucide-react";
+import { CrisisDecisionContent } from "@shared/types/cyber";
+import DecisionChoices from "./DecisionChoices";
+import { useChatContext } from "@/contexts/ChatContext";
 
 interface ChatMessageProps {
-  type: "user" | "bot" | "scenario-context";
-  content: string;
+  type: "user" | "bot" | "scenario-context" | "decision-choices";
+  content: string | CrisisDecisionContent;
   contactName?: string;
   contactRole?: string;
   userName?: string; // Ajouter le nom de l'utilisateur pour le formatage du prénom
@@ -22,6 +25,17 @@ export default function ChatMessage({
   iamCyberContent,
   contactContent 
 }: ChatMessageProps) {
+  const { sendMessage } = useChatContext();
+  
+  // Handler pour les choix de décision
+  const handleDecisionChoice = (optionId: string) => {
+    if (type === 'decision-choices' && typeof content !== 'string') {
+      const selectedOption = (content as CrisisDecisionContent).options.find(opt => opt.id === optionId);
+      if (selectedOption) {
+        sendMessage(`J'ai choisi l'option: ${selectedOption.text}`);
+      }
+    }
+  };
   // Fonction pour formater correctement le prénom (première lettre en majuscule, reste en minuscules)
   const formatFirstName = (text: string, name?: string) => {
     if (!text || !name || typeof text !== 'string' || typeof name !== 'string') {

@@ -1,4 +1,4 @@
-export type ChatMessageType = 'user' | 'bot' | 'system' | 'email' | 'domain-selection' | 'scenario-selection' | 'scenario-context' | 'role-selection';
+export type ChatMessageType = 'user' | 'bot' | 'system' | 'email' | 'domain-selection' | 'scenario-selection' | 'scenario-context' | 'role-selection' | 'decision-choices';
 
 export interface UserRole {
   id: string;
@@ -274,13 +274,41 @@ export interface EmailMessageContent {
   scenarioContacts?: ScenarioContact[];
 }
 
+export interface CrisisDecisionOption {
+  id: string;
+  text: string;
+  description: string;
+  impact: {
+    budget?: number;             // Impact sur le budget (valeur négative = réduction)
+    timeline?: number;           // Impact sur le délai en jours (valeur négative = gain de temps)
+    reputation?: number;         // Impact sur la réputation (échelle -10 à 10)
+    security?: number;           // Impact sur le niveau de sécurité (échelle -10 à 10)
+    employment?: boolean;        // Potentiel impact sur l'emploi (licenciements)
+    missionCritical?: boolean;   // Pourrait mettre fin à la mission si échoue
+  };
+}
+
+export interface CrisisDecisionContent {
+  id: string;
+  situation: string;
+  context: string;
+  historicalFacts: string;
+  consequences: string;
+  options: CrisisDecisionOption[];
+  deadline?: string;
+  urgencyLevel?: 'faible' | 'modérée' | 'élevée' | 'critique';
+}
+
 export interface ChatMessage {
   id: string;
   type: ChatMessageType;
-  content: string | EmailMessageContent;
+  content: string | EmailMessageContent | CrisisDecisionContent;
   timestamp: number;
   contactName?: string;
   contactRole?: string;
+  isIAMCYBERIntervention?: boolean;
+  iamCyberContent?: string;
+  contactContent?: string;
 }
 
 export interface Message {
