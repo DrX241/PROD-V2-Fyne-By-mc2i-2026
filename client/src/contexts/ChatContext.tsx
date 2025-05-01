@@ -959,18 +959,30 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       
       if (response.success) {
-        // Pas besoin d'attendre - on veut une réponse immédiate
+        // Ajouter d'abord le message de bienvenue contextuel
+        if (response.welcomeMessage) {
+          const welcomeMessage: ChatMessage = {
+            id: uuidv4(),
+            type: 'bot',
+            content: response.welcomeMessage,
+            timestamp: Date.now(),
+            contactName: response.contactName || scenario.contact?.name,
+            contactRole: response.contactRole || scenario.contact?.role
+          };
+          
+          setMessages(prev => [...prev, welcomeMessage]);
+        }
         
-        // Ajouter directement les 4 choix (plus rapide, sans message intermédiaire)
+        // Attendre un peu pour simuler le temps de réflexion (0.8s)
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Puis ajouter les choix de décision
         if (response.decision) {
           const decisionMessage: ChatMessage = {
             id: uuidv4(),
             type: 'decision-choices',
             content: response.decision,
-            timestamp: Date.now(),
-            // Ajouter un en-tête avec le message de bienvenue dans la carte des choix
-            contactName: response.contactName || scenario.contact?.name,
-            contactRole: response.contactRole || scenario.contact?.role 
+            timestamp: Date.now()
           };
           
           setMessages(prev => [...prev, decisionMessage]);
