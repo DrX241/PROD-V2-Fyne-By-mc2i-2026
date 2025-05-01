@@ -792,13 +792,30 @@ function CyberForge() {
       ) : (
         // Interface principale (mode normal)
         <div className={`container mx-auto px-4 py-8 ${isDark ? 'text-white' : 'text-gray-800'}`}>
-          <h1 className={`text-4xl font-bold mb-4 font-mono tracking-tight ${
-            isDark 
-              ? 'bg-gradient-to-r from-blue-400 to-indigo-400 text-transparent bg-clip-text' 
-              : 'bg-gradient-to-r from-blue-700 to-indigo-800 text-transparent bg-clip-text'
-          }`}>
-            CyberForge<span className={isDark ? 'text-blue-300' : 'text-blue-700'}>_</span>Academy
-          </h1>
+          <div className="flex justify-between items-center mb-4">
+            <h1 className={`text-4xl font-bold font-mono tracking-tight ${
+              isDark 
+                ? 'bg-gradient-to-r from-blue-400 to-indigo-400 text-transparent bg-clip-text' 
+                : 'bg-gradient-to-r from-blue-700 to-indigo-800 text-transparent bg-clip-text'
+            }`}>
+              CyberForge<span className={isDark ? 'text-blue-300' : 'text-blue-700'}>_</span>Academy
+            </h1>
+            
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                onClick={() => setLocation('/')}
+                className={`flex items-center gap-1 ${
+                  isDark 
+                    ? 'border-gray-600 bg-transparent text-white hover:bg-gray-700' 
+                    : 'border-gray-300 text-gray-800 hover:bg-gray-100'
+                }`}
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span>Accueil</span>
+              </Button>
+            </div>
+          </div>
           
           <div className={`p-6 mb-8 rounded-xl ${isDark ? 'bg-gray-800 border border-blue-900' : 'bg-white border border-blue-200'} shadow-lg`}>
             <h2 className={`text-xl font-bold mb-3 flex items-center gap-2 ${isDark ? 'text-blue-300' : 'text-blue-700'}`}>
