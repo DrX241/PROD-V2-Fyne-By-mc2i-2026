@@ -327,9 +327,9 @@ function CyberForgeModules() {
   };
   
   const handleLessonClick = (moduleId: string, chapterId: string, lessonId: string) => {
-    // Implémenter la navigation vers la leçon spécifique
+    // Navigation vers la leçon spécifique
     console.log(`Accessing lesson: ${moduleId}/${chapterId}/${lessonId}`);
-    // setLocation(`/cyberforge/modules/${moduleId}/${chapterId}/${lessonId}`);
+    setLocation(`/cyberforge/modules/lesson/${moduleId}/${chapterId}/${lessonId}`);
   };
   
   const backToModuleList = () => {
