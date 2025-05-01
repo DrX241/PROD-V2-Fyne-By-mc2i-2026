@@ -18,6 +18,9 @@ import CyberAgentRedirectPage from "./pages/cyber/cyber-agent-redirect";
 import CyberAgentNewPage from "./pages/cyber/cyber-agent-new";
 // EmergencyResponsePage a été supprimé
 
+// Import de la nouvelle page Playground
+import PlaygroundPage from "./pages/playground";
+
 // Import des pages CENTRE DE CRISE (anciennes et nouvelles pour permettre une transition)
 import CyberDefensePage from "@/pages/cyber-defense"; // Ancienne implémentation 
 import CentreDeCriseEvolutifPage from "@/pages/cyber-defense-new"; // Nouvelle implémentation
@@ -104,6 +107,11 @@ function App() {
             <Route path="/cyber/arcade/cyber-investigator/insider-threat" component={InsiderThreat} />
             <Route path="/cyber/arcade/digital-forensics" component={DigitalForensics} />
             <Route path="/cyber/arcade/threat-intelligence" component={ThreatIntelligence} />
+            
+            {/* Module Playground pour l'apprentissage de la cybersécurité */}
+            <Route path="/playground" component={PlaygroundPage} />
+            <Route path="/playground/module/:moduleId" component={PlaygroundPage} />
+            <Route path="/playground/path/:pathId" component={PlaygroundPage} />
             
             {/* Module Centre de Crise */}
             <Route path="/cyber-defense-new" component={CentreDeCriseEvolutifPage} />
