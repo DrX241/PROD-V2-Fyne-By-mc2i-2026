@@ -29,11 +29,26 @@ interface ModuleProgress {
   lastAccessed?: Date;
 }
 
+interface Avatar {
+  id: string;
+  name: string;
+  imagePath: string;
+  type: 'hacker' | 'analyst' | 'security_manager' | 'network_specialist';
+  abilities: string[];
+  description: string;
+  strengthsAndWeaknesses: string[];
+  primarySkills: string[];
+}
+
 interface UserData {
   name: string;
   totalProgress: number;
   moduleProgress: Record<string, ModuleProgress>;
   isAdmin: boolean;
+  rank?: string;
+  level?: number;
+  points?: number;
+  avatar?: Avatar;
 }
 
 interface AIRecommendation {
@@ -340,6 +355,66 @@ La sécurité efficace repose sur plusieurs principes clés:
   }
 ];
 
+// Données des avatars disponibles
+const availableAvatars: Avatar[] = [
+  {
+    id: 'hacker-1',
+    name: 'Shadow',
+    imagePath: '/avatars/hacker-1.png',
+    type: 'hacker',
+    description: 'Expert en intrusion et test de pénétration, spécialisé dans la découverte de vulnérabilités.',
+    abilities: ['Scan de vulnérabilités avancé', 'Développement d\'exploits', 'Ingénierie inverse'],
+    strengthsAndWeaknesses: [
+      'Excellent en découverte de failles de sécurité',
+      'Connaissance approfondie des systèmes d\'exploitation',
+      'Moins performant dans la défense et la prévention'
+    ],
+    primarySkills: ['Python', 'Assembleur', 'Kali Linux', 'Exploitation']
+  },
+  {
+    id: 'analyst-1',
+    name: 'Sentinel',
+    imagePath: '/avatars/analyst-1.png',
+    type: 'analyst',
+    description: 'Analyste de sécurité méthodique, spécialisé dans la détection et l\'analyse des menaces.',
+    abilities: ['Analyse de logs avancée', 'Détection d\'anomalies', 'Forensique numérique'],
+    strengthsAndWeaknesses: [
+      'Excellente capacité d\'analyse',
+      'Méthodique et rigoureux',
+      'Moins performant dans les actions offensives'
+    ],
+    primarySkills: ['SIEM', 'Analyse de malware', 'Threat Intelligence', 'Documentation']
+  },
+  {
+    id: 'security_manager-1',
+    name: 'Guardian',
+    imagePath: '/avatars/manager-1.png',
+    type: 'security_manager',
+    description: 'Responsable de la stratégie globale de sécurité, avec une approche équilibrée entre défense et conformité.',
+    abilities: ['Gestion de crise', 'Communication stratégique', 'Analyse de risques'],
+    strengthsAndWeaknesses: [
+      'Vision stratégique globale',
+      'Excellente communication',
+      'Connaissances techniques moins spécialisées'
+    ],
+    primarySkills: ['Gestion de projet', 'Normes ISO', 'Communication de crise', 'Budgétisation']
+  },
+  {
+    id: 'network_specialist-1',
+    name: 'Nexus',
+    imagePath: '/avatars/network-1.png',
+    type: 'network_specialist',
+    description: 'Expert en sécurité réseau, spécialisé dans la conception et la protection d\'infrastructures.',
+    abilities: ['Configuration sécurisée', 'Détection d\'intrusion', 'Architecture réseau'],
+    strengthsAndWeaknesses: [
+      'Excellente connaissance des protocoles',
+      'Expert en segmentation réseau',
+      'Moins performant en sécurité applicative'
+    ],
+    primarySkills: ['Pare-feu', 'IDS/IPS', 'VPN', 'Routage sécurisé']
+  }
+];
+
 // Questions du quiz
 const fundamentalsQuiz = [
   {
@@ -395,6 +470,11 @@ export default function CyberForge() {
   const { toast } = useToast();
   
   // États
+  const [showEntryPortal, setShowEntryPortal] = useState(true); // SAS d'entrée
+  const [selectedAvatar, setSelectedAvatar] = useState<Avatar | null>(null);
+  const [avatarCardOpen, setAvatarCardOpen] = useState<string | null>(null);
+  const [entryStep, setEntryStep] = useState<'welcome' | 'avatar' | 'mission' | 'ready'>('welcome');
+  
   const [activeTab, setActiveTab] = useState('intro');
   const [userName, setUserName] = useState('');
   const [isNameSet, setIsNameSet] = useState(false);
@@ -681,6 +761,46 @@ export default function CyberForge() {
       title: "Bienvenue!",
       description: `Bonjour ${userName}, bienvenue dans CyberForge Academy!`,
     });
+
+    // Avancer à l'étape suivante du SAS
+    setEntryStep('avatar');
+  };
+  
+  // Méthodes pour le SAS d'entrée
+  const selectAvatarProfile = (avatar: Avatar) => {
+    setSelectedAvatar(avatar);
+    // Mettre à jour les données utilisateur
+    const updatedUserData = {...userData, avatar};
+    setUserData(updatedUserData);
+    localStorage.setItem('cyberforge_user', JSON.stringify(updatedUserData));
+  };
+  
+  const toggleAvatarCard = (avatarId: string) => {
+    if (avatarCardOpen === avatarId) {
+      setAvatarCardOpen(null);
+    } else {
+      setAvatarCardOpen(avatarId);
+    }
+  };
+  
+  const advanceToMissionBrief = () => {
+    if (!selectedAvatar) {
+      toast({
+        title: "Sélection requise",
+        description: "Veuillez sélectionner un profil de spécialiste pour continuer.",
+        variant: "destructive"
+      });
+      return;
+    }
+    setEntryStep('mission');
+  };
+  
+  const completeOnboarding = () => {
+    setEntryStep('ready');
+    // Délai pour l'animation de transition
+    setTimeout(() => {
+      setShowEntryPortal(false);
+    }, 1000);
   };
   
   // Le module actuellement sélectionné
