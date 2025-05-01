@@ -20,6 +20,7 @@ import CyberAgentNewPage from "./pages/cyber/cyber-agent-new";
 
 // Import de la nouvelle page Playground
 import PlaygroundPage from "./pages/playground";
+import ModuleDetailPage from "./pages/playground/module";
 
 // Import des pages CENTRE DE CRISE (anciennes et nouvelles pour permettre une transition)
 import CyberDefensePage from "@/pages/cyber-defense"; // Ancienne implémentation 
@@ -110,7 +111,8 @@ function App() {
             
             {/* Module Playground pour l'apprentissage de la cybersécurité */}
             <Route path="/playground" component={PlaygroundPage} />
-            <Route path="/playground/module/:moduleId" component={PlaygroundPage} />
+            <Route path="/playground/module" component={ModuleDetailPage} />
+            <Route path="/playground/module/:moduleId" component={ModuleDetailPage} />
             <Route path="/playground/path/:pathId" component={PlaygroundPage} />
             
             {/* Module Centre de Crise */}

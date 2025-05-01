@@ -169,6 +169,7 @@ const ModuleCard = ({ module }: { module: LearningModule }) => {
     if (module.unlocked) {
       // Naviguer vers la page du module
       setLocation(`/playground/module?id=${module.id}`);
+      console.log(`Navigation vers /playground/module?id=${module.id}`);
     }
   };
   
