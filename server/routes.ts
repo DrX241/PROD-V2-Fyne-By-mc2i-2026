@@ -3435,12 +3435,12 @@ ${companyName || "mc2i"}`,
    * Génère des options de décision initiales pour un scénario de crise
    * Ces options auront des impacts réels sur la suite du scénario
    */
-  async function generateInitialCrisisOptions(
+  const generateInitialCrisisOptions = async (
     domain: string,
     userName: string,
     userRole: string,
     currentStage: number
-  ): Promise<CrisisDecisionContent> {
+  ): Promise<CrisisDecisionContent> => {
     // Identifier le type de crise en fonction du domaine
     let crisisType = "incident de sécurité";
     let situationPrefix = "Un incident de sécurité";
