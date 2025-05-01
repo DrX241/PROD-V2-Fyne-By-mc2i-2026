@@ -242,12 +242,15 @@ export default function EmailMessage({ email }: EmailMessageProps) {
   const domain = email.subject || 'default';
 
 
-  const handlePasswordSubmit = async (password: string) => {
+  const handlePasswordSubmit = async () => {
+    if (!password.trim()) return;
+    
+    setIsValidating(true);
     try {
       const response = await apiRequest('/api/attachments/validate-password', {
         method: 'POST',
         body: JSON.stringify({
-          password,
+          password: password.trim(),
           userRole,
           domain,
           userName: email.to,
@@ -255,20 +258,14 @@ export default function EmailMessage({ email }: EmailMessageProps) {
         })
       });
 
+      setPasswordSubmitted(true);
+      
       if (response.valid) {
         setPasswordValidated(true);
-
-        // Affichage des informations du projet
-        const projectInfo = await fetch('/api/cyber/project-info', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ role: userRole, domain })
-        }).then(res => res.json());
-
         setValidationResult({
           valid: true,
           message: "Mot de passe validé avec succès",
-          postValidationInfo: projectInfo
+          postValidationInfo: response.postValidationInfo
         });
       } else {
         setValidationResult({
@@ -278,11 +275,12 @@ export default function EmailMessage({ email }: EmailMessageProps) {
       }
     } catch (error) {
       console.error('Erreur lors de la validation:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Erreur lors de la validation du mot de passe.';
       setValidationResult({
         valid: false,
-        message: errorMessage
+        message: "Erreur lors de la validation du mot de passe"
       });
+    } finally {
+      setIsValidating(false);
     }
   };
 
