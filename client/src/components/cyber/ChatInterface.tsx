@@ -23,7 +23,8 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
     userRole,
     scenario,
     passwordValidated,
-    currentStage
+    currentStage,
+    missionBriefReceived
   } = useChatContext();
   
   const [inputMessage, setInputMessage] = useState("");
@@ -212,9 +213,10 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
               - Étape 1: Afficher pour la saisie du prénom (quand userName est vide)
               - Étape 2: Masquer pendant la configuration (après saisie prénom, avant réception email)
               - Étape 3: Vérifier si l'email a été reçu et si le mot de passe a été validé
-              - Étape 4: Réactiver uniquement si le mot de passe est validé
+              - Étape 4: Vérifier si le brief de mission a été reçu après confirmation
+              - Étape 5: Réactiver uniquement si toutes les conditions sont remplies
           */}
-          {(!userName || (userRole && messages.some(msg => msg.type === 'email') && passwordValidated)) ? (
+          {(!userName || (userRole && messages.some(msg => msg.type === 'email') && passwordValidated && missionBriefReceived)) ? (
             <form className="flex items-start gap-2 sm:gap-3" onSubmit={handleSubmit}>
               <div className="relative flex-1 group">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
@@ -250,6 +252,14 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
                     <span className="text-blue-200">Vous devez trouver et valider le mot de passe dans la pièce jointe pour continuer</span>
                     <br />
                     <span className="text-xs text-blue-300 mt-1 italic">La zone de saisie sera disponible après validation du mot de passe</span>
+                  </>
+                ) : passwordValidated && !missionBriefReceived ? (
+                  <>
+                    <span className="font-semibold">Zone de saisie verrouillée</span>
+                    <br />
+                    <span className="text-blue-200">Vous devez confirmer le briefing de mission pour accéder à la situation de crise</span>
+                    <br />
+                    <span className="text-xs text-blue-300 mt-1 italic">Cliquez sur "J'ai compris - Commencer la mission" pour débloquer la zone de saisie</span>
                   </>
                 ) : (
                   <>
