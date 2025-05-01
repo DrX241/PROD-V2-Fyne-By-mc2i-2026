@@ -398,12 +398,6 @@ export default function CyberForge() {
   const [activeTab, setActiveTab] = useState('intro');
   const [userName, setUserName] = useState('');
   const [isNameSet, setIsNameSet] = useState(false);
-  const [showEntrySAS, setShowEntrySAS] = useState(true);
-  const [authenticationStep, setAuthenticationStep] = useState(0);
-  const [avatarSelection, setAvatarSelection] = useState(0);
-  const [securityClearance, setSecurityClearance] = useState('');
-  const [accessCode, setAccessCode] = useState('');
-  const [sasAnimationComplete, setSasAnimationComplete] = useState(false);
   const [currentModuleId, setCurrentModuleId] = useState('fundamentals');
   const [moduleSections, setModuleSections] = useState(fundamentalsSections);
   const [aiRecommendations, setAiRecommendations] = useState<AIRecommendation[]>([]);
@@ -689,55 +683,6 @@ export default function CyberForge() {
     });
   };
   
-  // Fonctions pour le SAS d'entrée
-  const advanceAuthStep = () => {
-    if (authenticationStep < 3) {
-      setAuthenticationStep(prev => prev + 1);
-    } else {
-      // Animation finale avant d'accéder à la plateforme
-      setSasAnimationComplete(true);
-      
-      // Délai pour l'animation de transition
-      setTimeout(() => {
-        setShowEntrySAS(false);
-      }, 2000);
-    }
-  };
-  
-  const validateAccessCode = () => {
-    // Simulation de vérification - dans une vraie implémentation, cela serait validé côté serveur
-    if (accessCode === '1337' || accessCode === 'CYBER' || isAdmin) {
-      toast({
-        title: "Authentification réussie",
-        description: "Code d'accès validé. Accès au niveau suivant autorisé.",
-      });
-      advanceAuthStep();
-    } else {
-      toast({
-        title: "Authentification échouée",
-        description: "Code d'accès invalide. Veuillez réessayer.",
-        variant: "destructive"
-      });
-    }
-  };
-  
-  const selectAvatar = (index: number) => {
-    setAvatarSelection(index);
-    toast({
-      title: "Avatar sélectionné",
-      description: "Votre profil visuel a été mis à jour.",
-    });
-  };
-  
-  const selectClearanceLevel = (level: string) => {
-    setSecurityClearance(level);
-    toast({
-      title: "Niveau d'habilitation défini",
-      description: `Votre niveau d'habilitation a été défini à: ${level}`,
-    });
-    advanceAuthStep();
-  };
-  
   // Le module actuellement sélectionné
   const currentModule = modules.find(m => m.id === currentModuleId);
   
@@ -755,89 +700,6 @@ export default function CyberForge() {
   const [isAiResponding, setIsAiResponding] = useState(false);
   const terminalRef = useRef<HTMLDivElement>(null);
   
-  // Effet de matrice pour le fond
-  useEffect(() => {
-    if (!isDark) return;
-    
-    const canvas = document.getElementById('matrix-canvas') as HTMLCanvasElement;
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    
-    // Ajustement du canvas à la taille de la fenêtre
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-    
-    // Symboles pour l'effet matrice (caractères 0 et 1, et caractères spéciaux)
-    const symbols = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン><+-*/|[]{}=:;,.?!@#$%^&*()_';
-    const fontSize = 14;
-    const columns = Math.floor(canvas.width / fontSize);
-    
-    // Position Y de chaque colonne
-    const drops: number[] = [];
-    for (let i = 0; i < columns; i++) {
-      drops[i] = Math.random() * -100;
-    }
-    
-    // Fonction pour dessiner l'effet
-    const drawMatrix = () => {
-      // Fond semi-transparent pour créer l'effet de traînée
-      ctx.fillStyle = 'rgba(0, 10, 20, 0.05)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
-      // Définition de la police et couleur pour les symboles
-      ctx.font = `${fontSize}px monospace`;
-      
-      // Dessin des symboles pour chaque colonne
-      for (let i = 0; i < drops.length; i++) {
-        // Récupération d'un symbole aléatoire
-        const text = symbols[Math.floor(Math.random() * symbols.length)];
-        
-        // Variation aléatoire de couleur pour un effet plus cyberpunk
-        if (Math.random() > 0.98) {
-          ctx.fillStyle = 'rgba(0, 255, 255, 0.8)'; // Cyan brillant (rare)
-        } else if (Math.random() > 0.95) {
-          ctx.fillStyle = 'rgba(0, 255, 170, 0.6)'; // Vert-cyan (occasionnel)
-        } else {
-          // Dégradé de vert à bleu pour la majorité des caractères
-          ctx.fillStyle = `rgba(0, ${Math.floor(150 + Math.random() * 105)}, ${Math.floor(100 + Math.random() * 50)}, 0.6)`;
-        }
-        
-        // Dessin du symbole à sa position
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-        
-        // Réinitialisation de la position si elle atteint le bas ou aléatoirement
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.98) {
-          drops[i] = 0;
-        }
-        
-        // Déplacement vers le bas
-        drops[i]++;
-      }
-    };
-    
-    // Animation avec requestAnimationFrame
-    let animationId: number;
-    const animate = () => {
-      drawMatrix();
-      animationId = requestAnimationFrame(animate);
-    };
-    
-    animate();
-    
-    // Nettoyage
-    return () => {
-      cancelAnimationFrame(animationId);
-      window.removeEventListener('resize', resizeCanvas);
-    };
-  }, [isDark]);
-
   // Effet pour défiler automatiquement le terminal vers le bas
   useEffect(() => {
     if (terminalRef.current) {
@@ -1140,9 +1002,7 @@ Pour des informations précises sur ce sujet, je vous recommande de consulter ce
   };
   
   return (
-    <div className={`min-h-screen flex ${isDark ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'} relative`}>
-      {/* Canvas pour effet matrice cybernétique */}
-      {isDark && <canvas id="matrix-canvas" className="fixed inset-0 z-0 opacity-25 pointer-events-none" />}
+    <div className={`min-h-screen flex ${isDark ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
       {/* Sidebar navigation - Version améliorée avec effets futuristes */}
       <div className={`w-72 flex-shrink-0 relative ${isDark ? 'bg-gray-800' : 'bg-white'} border-r ${isDark ? 'border-blue-900/50' : 'border-gray-200'}`}>
         {/* Background effect for dark theme */}
@@ -1240,16 +1100,10 @@ Pour des informations précises sur ce sujet, je vous recommande de consulter ce
                   <button
                     className={`w-full flex items-center p-3 rounded-lg ${
                       currentModuleId === module.id 
-                        ? isDark 
-                          ? 'bg-blue-900/40 text-blue-100 border border-blue-800/80 holo-element holo-card' 
-                          : 'bg-blue-100 text-blue-900 border border-blue-200'
+                        ? isDark ? 'bg-blue-900/40 text-blue-100 border border-blue-800/80' : 'bg-blue-100 text-blue-900 border border-blue-200'
                         : isUnlocked || isAdmin
-                          ? isDark 
-                            ? 'bg-gray-900/60 hover:bg-gray-800/60 text-gray-100 border border-gray-700/50 hover:holo-element transition-all duration-300' 
-                            : 'bg-white hover:bg-gray-50 text-gray-800 border border-gray-200'
-                          : isDark 
-                            ? 'bg-gray-900/40 text-gray-400 border border-gray-800/30' 
-                            : 'bg-gray-50 text-gray-400 border border-gray-200'
+                          ? isDark ? 'bg-gray-900/60 hover:bg-gray-800/60 text-gray-100 border border-gray-700/50' : 'bg-white hover:bg-gray-50 text-gray-800 border border-gray-200'
+                          : isDark ? 'bg-gray-900/40 text-gray-400 border border-gray-800/30' : 'bg-gray-50 text-gray-400 border border-gray-200'
                     }`}
                     onClick={() => selectModule(module.id)}
                     disabled={!isUnlocked && !isAdmin}
@@ -1507,45 +1361,8 @@ Pour des informations précises sur ce sujet, je vous recommande de consulter ce
                       </div>
                     </div>
                     
-                    <div className="cyber-terminal p-4 h-[400px] overflow-auto font-mono text-sm relative" ref={terminalRef}>
-                      <div className="absolute top-0 left-0 right-0 flex justify-between px-3 py-1 bg-black/80 text-xs text-cyan-400 border-b border-cyan-800 backdrop-blur-sm z-10">
-                        <div className="flex items-center">
-                          <span className="inline-block w-3 h-3 rounded-full bg-red-500 mr-2 hover:animate-pulse"></span>
-                          <span className="inline-block w-3 h-3 rounded-full bg-yellow-500 mr-2 hover:animate-pulse"></span>
-                          <span className="inline-block w-3 h-3 rounded-full bg-green-500 mr-2 hover:animate-pulse"></span>
-                          <span className="ml-2 tracking-wide text-glitch" data-text="CyberForge v3.7 :: Simulation Terminal">CyberForge v3.7 :: Simulation Terminal</span>
-                        </div>
-                        <div className="flex items-center">
-                          <span className="text-xs tracking-wider mr-3 holo-element px-2 py-0.5 rounded text-green-300">[SECURE CONNECTION]</span>
-                          <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                        </div>
-                      </div>
-                      
-                      {/* Scanner line effect */}
-                      <div className="absolute top-7 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-75 z-20" style={{
-                        animation: 'terminal-scan 3s linear infinite',
-                      }}></div>
-                      
-                      {/* Scattered glitch elements that appear randomly */}
-                      {Array.from({ length: 3 }).map((_, i) => (
-                        <div 
-                          key={i}
-                          className="terminal-glitch absolute z-10"
-                          style={{
-                            width: `${Math.random() * 100 + 50}px`,
-                            height: `${Math.random() * 5 + 2}px`,
-                            top: `${Math.random() * 380}px`,
-                            left: `${Math.random() * 100}%`,
-                            opacity: Math.random() * 0.5 + 0.2,
-                            animationDelay: `${i * 2 + Math.random() * 5}s`,
-                            animationDuration: '0.2s',
-                          }}
-                        ></div>
-                      ))}
-                      
-                      <div className="mt-6">
-                        <pre className="whitespace-pre-wrap terminal-text">{terminalOutput}</pre>
-                      </div>
+                    <div className="p-4 h-[400px] overflow-auto font-mono text-sm text-green-400" ref={terminalRef}>
+                      <pre className="whitespace-pre-wrap">{terminalOutput}</pre>
                     </div>
                     
                     <div className={`p-3 border-t ${isDark ? 'border-gray-800' : 'border-gray-700'}`}>
