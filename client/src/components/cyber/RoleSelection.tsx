@@ -8,7 +8,12 @@ interface RoleSelectionProps {
 
 export default function RoleSelection({ onSelectRole }: RoleSelectionProps) {
   const [hoveredRole, setHoveredRole] = useState<string | null>(null);
-  const [availableRoles, setAvailableRoles] = useState<UserRole[]>(USER_ROLES);
+  const [availableRoles, setAvailableRoles] = useState<UserRole[]>([...USER_ROLES, {
+    id: "architecte",
+    name: "Architecte Sécurité",
+    description: "Expert en conception de solutions de sécurité robustes et évolutives",
+    available: true
+  }]);
   
   // Fonction pour marquer un rôle comme indisponible après sélection
   const handleRoleSelection = (roleId: string) => {
@@ -83,7 +88,7 @@ export default function RoleSelection({ onSelectRole }: RoleSelectionProps) {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-2 sm:mt-3 overflow-visible">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 mt-2 sm:mt-3 overflow-visible">
         {availableRoles.map((role) => {
           const config = roleConfig[role.id] || {
             icon: <Lock className="w-6 h-6 sm:w-10 sm:h-10 text-blue-300" />,
@@ -104,7 +109,7 @@ export default function RoleSelection({ onSelectRole }: RoleSelectionProps) {
               onMouseLeave={() => setHoveredRole(null)}
               className={`group relative bg-gradient-to-br ${config.bgGradient} backdrop-blur-sm border ${config.borderColor} 
                 rounded-xl overflow-hidden shadow-lg ${config.shadowColor} 
-                transition-all duration-500 flex flex-col items-center text-center p-3 sm:p-4 min-h-[130px] sm:min-h-[180px] justify-between
+                transition-all duration-500 flex flex-col items-center text-center p-2 sm:p-3 min-h-[100px] sm:min-h-[140px] justify-between
                 ${!isAvailable ? 
                   'opacity-40 cursor-not-allowed' : 
                   'hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98]'
