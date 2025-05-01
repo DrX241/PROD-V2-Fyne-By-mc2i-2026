@@ -10,8 +10,6 @@ import { useChatContext } from "@/contexts/ChatContext";
 type EmailContact = ScenarioContact;
 type EmailContent = EmailMessageContent;
 
-// Remove unused imports and context
-
 interface EmailMessageProps {
   email: EmailContent;
 }
@@ -26,19 +24,18 @@ export default function EmailMessage({ email }: EmailMessageProps) {
   const [validationResult, setValidationResult] = useState<{ valid: boolean; message: string; postValidationInfo?: any } | null>(null);
   const [isValidating, setIsValidating] = useState(false);
 
+  // Extraire les informations nécessaires pour l'authentification
+  const userRole = localStorage.getItem('userRole') || 'expert';
+  const userName = localStorage.getItem('userName') || 'Utilisateur';
+  const domain = email.subject || 'Cybersécurité';
+  const companyName = email.from.company || 'mc2i';
+
   // Fonction pour valider le mot de passe
-  const validatePassword = async () => {
+  const handlePasswordValidation = async () => {
     if (!password.trim()) return;
 
     setIsValidating(true);
     try {
-      // Extraire les informations nécessaires
-      const userRole = localStorage.getItem('userRole') || 'expert';
-      const userName = localStorage.getItem('userName') || 'Utilisateur';
-      // Extraire le domaine du scénario à partir du sujet ou du corps de l'email
-      const domain = email.subject || 'Cybersécurité';
-      const companyName = email.from.company || 'mc2i';
-
       const response = await apiRequest('/api/attachments/validate-password', {
         method: 'POST',
         body: JSON.stringify({
@@ -64,7 +61,6 @@ export default function EmailMessage({ email }: EmailMessageProps) {
         valid: false,
         message: errorMessage
       });
-      setIsValidating(false);
     } finally {
       setIsValidating(false);
     }
@@ -238,96 +234,6 @@ export default function EmailMessage({ email }: EmailMessageProps) {
   const hasAttachments = (email.attachment && email.attachment.length > 0) || 
                         (email.attachments && email.attachments.length > 0);
 
-  const userRole = localStorage.getItem('userRole') || 'default';
-  const domain = email.subject || 'default';
-
-
-  const handlePasswordSubmit = async () => {
-    if (!password.trim()) return;
-    
-    setIsValidating(true);
-    try {
-      const response = await apiRequest('/api/attachments/validate-password', {
-        method: 'POST',
-        body: JSON.stringify({
-          password: password.trim(),
-          userRole,
-          domain,
-          userName: email.to,
-          companyName: email.from.company
-        })
-      });
-
-      setPasswordSubmitted(true);
-      
-      if (response.valid) {
-        setPasswordValidated(true);
-        setValidationResult({
-          valid: true,
-          message: "Mot de passe validé avec succès",
-          postValidationInfo: response.postValidationInfo
-        });
-      } else {
-        setValidationResult({
-          valid: false,
-          message: "Mot de passe incorrect"
-        });
-      }
-    } catch (error) {
-      console.error('Erreur lors de la validation:', error);
-      setValidationResult({
-        valid: false,
-        message: "Erreur lors de la validation du mot de passe"
-      });
-    } finally {
-      setIsValidating(false);
-    }
-  };
-
-  const projectCard = (projectInfo) => {
-    const projectCard = document.createElement('div');
-    projectCard.className = 'bg-blue-900/30 p-6 rounded-lg border border-blue-700/50 mt-4';
-    projectCard.innerHTML = `
-      <h3 class="text-xl font-semibold mb-4">Bienvenue ${email.to} dans ce projet !</h3>
-
-      <div class="space-y-4">
-        <div>
-          <h4 class="font-medium text-blue-200 mb-2">Vos responsabilités:</h4>
-          <ul class="list-disc pl-5 space-y-1">
-            ${projectInfo.responsibilities.map(r => `<li>${r}</li>`).join('')}
-          </ul>
-        </div>
-
-        <div>
-          <h4 class="font-medium text-blue-200 mb-2">Budget:</h4>
-          <p>${projectInfo.budget}</p>
-        </div>
-
-        <div>
-          <h4 class="font-medium text-blue-200 mb-2">Hiérarchie:</h4>
-          <p>Position: ${projectInfo.hierarchy.position}</p>
-          <p>Rapporte à: ${projectInfo.hierarchy.reportsTo}</p>
-        </div>
-
-        <div>
-          <h4 class="font-medium text-blue-200 mb-2">Équipe:</h4>
-          <ul class="space-y-2">
-            ${projectInfo.team.map(member => `
-              <li class="border-l-2 border-blue-500/30 pl-3">
-                <strong>${member.role}:</strong> ${member.name}
-                <br><span class="text-sm text-blue-300">${member.expertise}</span>
-              </li>
-            `).join('')}
-          </ul>
-        </div>
-      </div>
-    `;
-
-    const container = document.querySelector('.email-content');
-    if (container) container.appendChild(projectCard);
-  }
-
-
   return (
     <div className="my-6 sm:my-8 max-w-4xl mx-auto">
       <div className="backdrop-blur-md bg-gray-900/60 rounded-xl border border-blue-800/40 overflow-hidden shadow-glow-md">
@@ -465,7 +371,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
                       className="flex-1 bg-blue-900/30 border-blue-700/50 text-white"
                     />
                     <Button 
-                      onClick={() => handlePasswordSubmit(password)} 
+                      onClick={handlePasswordValidation} 
                       disabled={isValidating || !password.trim()}
                       className="bg-blue-600 hover:bg-blue-700 text-white"
                     >
