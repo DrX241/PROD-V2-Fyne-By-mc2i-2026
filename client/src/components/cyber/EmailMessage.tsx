@@ -482,54 +482,63 @@ export default function EmailMessage({ email }: EmailMessageProps) {
                 </>
               ) : validationResult?.valid && (
                 <div className="space-y-3">
-                  <p className="text-sm sm:text-base text-green-400 flex items-center">
+                  <p className="text-sm sm:text-base text-green-400 flex items-center mb-4">
                     <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
                     {validationResult.message}
                   </p>
-
+                  
                   {validationResult.postValidationInfo && (
-                    <div className="mt-4 p-3 sm:p-4 bg-blue-900/40 border border-blue-700/40 rounded-lg space-y-3">
-                      <h6 className="font-bold text-sm sm:text-base text-white">
-                        {validationResult.postValidationInfo.title}
-                      </h6>
-
+                    <div className="mt-4 p-5 sm:p-6 bg-gradient-to-br from-blue-950/80 to-indigo-900/70 border border-blue-700/40 rounded-lg">
+                      {/* En-tête avec nom du joueur */}
+                      <h2 className="text-lg sm:text-xl text-white font-bold mb-4 pb-2 border-b border-blue-500/30">
+                        Bienvenue <span className="text-blue-300">{localStorage.getItem('userName') || 'Utilisateur'}</span> dans ce projet !
+                      </h2>
+                      
                       {validationResult.postValidationInfo.responsabilites && (
-                        <div>
-                          <h6 className="font-medium text-xs sm:text-sm text-white mb-1">Responsabilités:</h6>
-                          <ul className="list-disc pl-5 text-xs sm:text-sm text-white space-y-1">
+                        <div className="mb-4">
+                          <h3 className="font-semibold text-sm sm:text-base text-blue-200 mb-2">Voici vos responsabilités:</h3>
+                          <ul className="list-disc pl-5 text-xs sm:text-sm text-white space-y-1.5">
                             {validationResult.postValidationInfo.responsabilites.map((resp: string, i: number) => (
                               <li key={i}>{resp}</li>
                             ))}
                           </ul>
                         </div>
                       )}
-
+                      
                       {validationResult.postValidationInfo.budget && (
-                        <div>
-                          <h6 className="font-medium text-xs sm:text-sm text-white mb-1">Budget:</h6>
-                          <p className="text-xs sm:text-sm text-white">
+                        <div className="mb-4 p-3 bg-blue-900/30 rounded-md border border-blue-700/40">
+                          <h3 className="font-semibold text-sm sm:text-base text-blue-200 mb-1">Budget:</h3>
+                          <p className="text-sm sm:text-base text-white">
                             {validationResult.postValidationInfo.budget}
                           </p>
                         </div>
                       )}
-
+                      
                       {validationResult.postValidationInfo.hierarchie && (
-                        <div>
-                          <h6 className="font-medium text-xs sm:text-sm text-white mb-1">Hiérarchie:</h6>
-                          <p className="text-xs sm:text-sm text-white">
+                        <div className="mb-4 p-3 bg-blue-900/30 rounded-md border border-blue-700/40">
+                          <h3 className="font-semibold text-sm sm:text-base text-blue-200 mb-1">Hiérarchie:</h3>
+                          <p className="text-sm sm:text-base text-white whitespace-pre-line">
                             {validationResult.postValidationInfo.hierarchie}
                           </p>
                         </div>
                       )}
-
+                      
                       {validationResult.postValidationInfo.equipe && (
-                        <div>
-                          <h6 className="font-medium text-xs sm:text-sm text-white mb-1">Équipe:</h6>
-                          <ul className="list-disc pl-5 text-xs sm:text-sm text-white space-y-1">
+                        <div className="mb-2 p-3 bg-blue-900/30 rounded-md border border-blue-700/40">
+                          <h3 className="font-semibold text-sm sm:text-base text-blue-200 mb-2">Équipe:</h3>
+                          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-white">
                             {validationResult.postValidationInfo.equipe.map((member: any, i: number) => (
-                              <li key={i}>
-                                <span className="font-medium">{member.name}</span> - {member.role} 
-                                {member.skills && <span className="text-blue-300"> ({member.skills})</span>}
+                              <li key={i} className="flex items-start p-2 rounded-md hover:bg-blue-800/20 transition-colors">
+                                <div className="w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-br from-blue-700/60 to-indigo-700/60 rounded-full flex items-center justify-center text-white mr-2 flex-shrink-0 border border-blue-500/30">
+                                  <span className="font-semibold text-[10px] sm:text-xs">
+                                    {member.name.split(' ').map((n: string) => n[0]).join('')}
+                                  </span>
+                                </div>
+                                <div>
+                                  <div className="font-medium">{member.name}</div>
+                                  <div className="text-xs text-gray-300">{member.role}</div>
+                                  {member.skills && <div className="text-xs text-blue-300 mt-0.5">{member.skills}</div>}
+                                </div>
                               </li>
                             ))}
                           </ul>
