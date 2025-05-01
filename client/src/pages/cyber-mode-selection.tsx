@@ -58,12 +58,6 @@ export default function CyberModeSelection() {
           title: 'CYBER ARCADE',
           icon: null,
           destination: '/cyber/arcade'
-        },
-        {
-          id: 'cyber-challenge',
-          title: 'CYBER CHALLENGE',
-          icon: null,
-          destination: '/cyber-challenge'
         }
       ]
     },
