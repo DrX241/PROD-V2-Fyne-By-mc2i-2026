@@ -1130,7 +1130,7 @@ Pour des informations précises sur ce sujet, je vous recommande de consulter ce
                           )}
                           {module.hasLiveSimulation && isUnlocked && (
                             <span className={`ml-1 flex items-center rounded-full px-1.5 text-[10px] font-medium ${
-                              isDark ? 'bg-indigo-950 text-indigo-400 border border-indigo-800/50' : 'bg-indigo-50 text-indigo-600 border border-indigo-200'
+                              isDark ? 'bg-indigo-950 text-white border border-indigo-800/50' : 'bg-indigo-50 text-indigo-900 border border-indigo-200'
                             }`}>
                               SIM
                             </span>
@@ -1164,8 +1164,8 @@ Pour des informations précises sur ce sujet, je vous recommande de consulter ce
                     <button
                       className={`absolute right-3 bottom-3 p-1 rounded-full ${
                         isDark 
-                          ? 'bg-indigo-900/50 text-indigo-400 hover:bg-indigo-800/50' 
-                          : 'bg-indigo-100 text-indigo-600 hover:bg-indigo-200'
+                          ? 'bg-indigo-900/50 text-white hover:bg-indigo-800/50' 
+                          : 'bg-indigo-100 text-indigo-900 hover:bg-indigo-200'
                       }`}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -1245,12 +1245,12 @@ Pour des informations précises sur ce sujet, je vous recommande de consulter ce
                         </h3>
                         <Badge className={`${
                           scenario.difficulty === 'débutant' 
-                            ? isDark ? 'bg-green-900/50 text-green-400 border-green-800' : 'bg-green-100 text-green-800'
+                            ? isDark ? 'bg-green-900/50 text-white border-green-800' : 'bg-green-100 text-green-900 border-green-200'
                             : scenario.difficulty === 'intermédiaire'
-                              ? isDark ? 'bg-blue-900/50 text-blue-400 border-blue-800' : 'bg-blue-100 text-blue-800'
+                              ? isDark ? 'bg-blue-900/50 text-white border-blue-800' : 'bg-blue-100 text-blue-900 border-blue-200'
                               : scenario.difficulty === 'avancé'
-                                ? isDark ? 'bg-amber-900/50 text-amber-400 border-amber-800' : 'bg-amber-100 text-amber-800'
-                                : isDark ? 'bg-red-900/50 text-red-400 border-red-800' : 'bg-red-100 text-red-800'
+                                ? isDark ? 'bg-amber-900/50 text-white border-amber-800' : 'bg-amber-100 text-amber-900 border-amber-200'
+                                : isDark ? 'bg-red-900/50 text-white border-red-800' : 'bg-red-100 text-red-900 border-red-200'
                         }`}>
                           {scenario.difficulty}
                         </Badge>
@@ -1285,8 +1285,8 @@ Pour des informations précises sur ce sujet, je vous recommande de consulter ce
                       
                       <div className={`mt-4 p-3 rounded-md ${isDark ? 'bg-blue-900/20 border border-blue-900/50' : 'bg-blue-50 border border-blue-100'}`}>
                         <div className="flex items-center">
-                          <Star className={`h-4 w-4 mr-2 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
-                          <span className={`text-xs font-medium ${isDark ? 'text-blue-400' : 'text-blue-700'}`}>
+                          <Star className={`h-4 w-4 mr-2 ${isDark ? 'text-white' : 'text-blue-800'}`} />
+                          <span className={`text-xs font-medium ${isDark ? 'text-white' : 'text-blue-900'}`}>
                             Récompense: {scenario.completionReward} points de compétence
                           </span>
                         </div>
@@ -1306,12 +1306,12 @@ Pour des informations précises sur ce sujet, je vous recommande de consulter ce
                     </h2>
                     <Badge className={`${
                       activeSimulation.difficulty === 'débutant' 
-                        ? isDark ? 'bg-green-900/50 text-green-400 border-green-800' : 'bg-green-100 text-green-800'
+                        ? isDark ? 'bg-green-900/50 text-white border-green-800' : 'bg-green-100 text-green-900 border-green-200'
                         : activeSimulation.difficulty === 'intermédiaire'
-                          ? isDark ? 'bg-blue-900/50 text-blue-400 border-blue-800' : 'bg-blue-100 text-blue-800'
+                          ? isDark ? 'bg-blue-900/50 text-white border-blue-800' : 'bg-blue-100 text-blue-900 border-blue-200'
                           : activeSimulation.difficulty === 'avancé'
-                            ? isDark ? 'bg-amber-900/50 text-amber-400 border-amber-800' : 'bg-amber-100 text-amber-800'
-                            : isDark ? 'bg-red-900/50 text-red-400 border-red-800' : 'bg-red-100 text-red-800'
+                            ? isDark ? 'bg-amber-900/50 text-white border-amber-800' : 'bg-amber-100 text-amber-900 border-amber-200'
+                            : isDark ? 'bg-red-900/50 text-white border-red-800' : 'bg-red-100 text-red-900 border-red-200'
                     }`}>
                       {activeSimulation.difficulty}
                     </Badge>
@@ -1496,7 +1496,7 @@ Pour des informations précises sur ce sujet, je vous recommande de consulter ce
                   <Button 
                     variant={isDark ? "outline" : "secondary"}
                     size="sm"
-                    className={isDark ? 'border-blue-800 bg-blue-900/20 text-blue-400 hover:bg-blue-900/40 hover:text-blue-300' : ''}
+                    className={isDark ? 'border-blue-800 bg-blue-900/20 text-white hover:bg-blue-900/40 hover:text-white' : ''}
                     onClick={() => startSimulation(currentModuleId)}
                   >
                     <PlayCircle className="h-4 w-4 mr-1.5" />
@@ -1508,7 +1508,7 @@ Pour des informations précises sur ce sujet, je vous recommande de consulter ce
                   variant="ghost" 
                   size="icon"
                   onClick={() => setIsChatOpen(!isChatOpen)}
-                  className={isChatOpen ? (isDark ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-100 text-blue-600') : ''}
+                  className={isChatOpen ? (isDark ? 'bg-blue-900/30 text-white' : 'bg-blue-100 text-blue-900') : ''}
                 >
                   <MessageCircle className="h-5 w-5" />
                 </Button>
@@ -1673,11 +1673,11 @@ Pour des informations précises sur ce sujet, je vous recommande de consulter ce
                         </div>
                         
                         <Alert className={`mb-6 ${
-                          isDark ? 'bg-blue-900/30 border-blue-800 text-blue-300' : 'bg-blue-50 border-blue-200'
+                          isDark ? 'bg-blue-900/30 border-blue-800 text-white' : 'bg-blue-50 border-blue-200 text-blue-900'
                         }`}>
                           <Terminal className="h-4 w-4" />
                           <AlertTitle className="ml-2">Environnement d'apprentissage immersif</AlertTitle>
-                          <AlertDescription className={isDark ? 'text-gray-300' : ''}>
+                          <AlertDescription className={isDark ? 'text-white' : 'text-gray-900'}>
                             Ce module propose des simulations interactives générées par IA. Lancez une simulation pour tester vos compétences dans un environnement réaliste.
                           </AlertDescription>
                         </Alert>
