@@ -307,11 +307,17 @@ function CyberForge() {
           <div className="container mx-auto px-4 py-8 min-h-screen flex flex-col items-center justify-center relative z-10">
             {/* Logo CyberForge Academy */}
             <div className={`mb-10 text-center ${entryStep !== 'welcome' ? 'absolute top-4 left-1/2 transform -translate-x-1/2' : ''}`}>
-              <h1 className={`text-4xl sm:text-5xl font-bold mb-2 ${isDark ? 'text-blue-400' : 'text-blue-600'} font-mono tracking-tight transition-all duration-500 ${entryStep !== 'welcome' ? 'text-2xl' : ''}`}>
-                CyberForge<span className="text-white">_</span>Academy
+              <h1 className={`text-4xl sm:text-5xl font-bold mb-2 font-mono tracking-tight transition-all duration-500 ${
+  isDark 
+    ? 'bg-gradient-to-r from-blue-400 to-indigo-400 text-transparent bg-clip-text' 
+    : 'bg-gradient-to-r from-blue-700 to-indigo-800 text-transparent bg-clip-text'
+} ${entryStep !== 'welcome' ? 'text-2xl' : ''}`}>
+                CyberForge<span className={isDark ? 'text-blue-100' : 'text-blue-900'}>_</span>Academy
               </h1>
               {entryStep === 'welcome' && (
-              <p className="text-lg md:text-xl opacity-80 max-w-2xl mx-auto">
+              <p className={`text-lg md:text-xl max-w-2xl mx-auto ${
+                isDark ? 'text-blue-100' : 'text-blue-900'
+              }`}>
                 Centre d'entraînement virtuel pour l'élite des défenseurs cyber
               </p>
               )}
@@ -356,7 +362,7 @@ function CyberForge() {
                       
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
                         <div className={`p-4 rounded-md ${isDark ? 'bg-gray-700/40' : 'bg-gray-100'} text-center`}>
-                          <Lightbulb className={`h-8 w-8 mx-auto mb-2 ${isDark ? 'text-yellow-400' : 'text-yellow-500'}`} />
+                          <Lightbulb className={`h-8 w-8 mx-auto mb-2 ${isDark ? 'text-yellow-300' : 'text-yellow-600'}`} />
                           <h3 className="font-medium">9 Modules d'apprentissage</h3>
                           <p className="text-sm opacity-80">Des fondamentaux à l'expertise avancée</p>
                         </div>
@@ -376,15 +382,25 @@ function CyberForge() {
                     </CardContent>
                     
                     <CardFooter className="flex justify-between pt-2">
-                      <Button variant="outline" onClick={() => setLocation('/')}>
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        Retour
-                      </Button>
-                      
-                      <Button onClick={proceedToNextStep} className={isDark ? 'bg-blue-600 hover:bg-blue-700' : ''}>
-                        Commencer l'expérience
-                        <ChevronRight className="h-4 w-4 ml-2" />
-                      </Button>
+                      <Button 
+  variant="outline" 
+  onClick={() => setLocation('/')}
+  className={isDark ? 'border-blue-400 text-blue-100 hover:bg-blue-900/20' : 'border-blue-600 text-blue-800 hover:bg-blue-50'}
+>
+  <ArrowLeft className="h-4 w-4 mr-2" />
+  Retour
+</Button>
+
+<Button 
+  onClick={proceedToNextStep} 
+  className={isDark 
+    ? 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white' 
+    : 'bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white'
+  }
+>
+  Commencer l'expérience
+  <ChevronRight className="h-4 w-4 ml-2" />
+</Button>
                     </CardFooter>
                   </Card>
                 </motion.div>
