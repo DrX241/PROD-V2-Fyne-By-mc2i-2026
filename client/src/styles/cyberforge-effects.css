@@ -28,11 +28,40 @@
   border: 1px solid rgba(50, 180, 255, 0.5);
   box-shadow: 0 0 10px rgba(0, 170, 255, 0.5), inset 0 0 15px rgba(0, 150, 255, 0.3);
   animation: holo-pulse 4s infinite;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.holo-element::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid transparent;
+  border-radius: inherit;
+  background: linear-gradient(45deg, 
+    rgba(0, 255, 255, 0) 25%, 
+    rgba(0, 255, 255, 0.3) 50%, 
+    rgba(0, 255, 255, 0) 75%
+  ) border-box;
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) padding-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.5;
+  animation: holo-border-pulse 3s infinite;
+}
+
+@keyframes holo-border-pulse {
+  0% { opacity: 0.2; }
+  50% { opacity: 0.7; }
+  100% { opacity: 0.2; }
 }
 
 .holo-card {
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(2px);
 }
 
 .holo-card::before {
@@ -42,9 +71,36 @@
   left: -10%;
   width: 120%;
   height: 120%;
-  background: linear-gradient(90deg, transparent, rgba(0, 195, 255, 0.1), transparent);
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(32, 197, 255, 0.1) 45%, 
+    rgba(12, 255, 149, 0.2) 50%,
+    rgba(32, 197, 255, 0.1) 55%,
+    transparent 100%
+  );
   transform: rotate(45deg);
   animation: holo-shine 6s linear infinite;
+}
+
+.holo-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 20%,
+    rgba(0, 255, 255, 0.05) 40%,
+    rgba(0, 255, 255, 0.1) 50%,
+    rgba(0, 255, 255, 0.05) 60%,
+    transparent 80%
+  );
+  animation: holo-shimmer 10s infinite;
+}
+
+@keyframes holo-shimmer {
+  0% { transform: translateX(-100%) translateY(-100%); }
+  50% { transform: translateX(100%) translateY(100%); }
+  100% { transform: translateX(-100%) translateY(-100%); }
 }
 
 @keyframes holo-shine {
