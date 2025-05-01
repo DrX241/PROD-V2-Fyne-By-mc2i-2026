@@ -289,32 +289,26 @@ export default function EmailMessage({ email }: EmailMessageProps) {
               {/* Anciennes pièces jointes (format chaîne de caractères) */}
               {email.attachment && email.attachment.length > 0 && (
                 <div className="flex flex-col gap-2">
-                  <button 
-                    onClick={() => {
-                      const role = localStorage.getItem('userRole') || 'default';
-                      const scenario = encodeURIComponent(email.subject || 'Cyber Sécurité');
-                      window.open(`/download-attachment/${role}/Cybersécurité?scenario=${scenario}`, '_blank');
-                    }}
+                  <a
+                    href={`/download-attachment/${localStorage.getItem('userRole') || 'default'}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="flex items-center w-full p-2 sm:p-3 backdrop-blur-sm bg-gradient-to-br from-gray-900/70 to-blue-900/40 rounded-lg border border-blue-800/40 text-white hover:bg-blue-800/30 transition-colors cursor-pointer"
                   >
                     <FileText className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-white flex-shrink-0" />
                     <span className="flex-1 text-sm sm:text-base truncate">{email.attachment}</span>
                     <Download className="ml-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-400 flex-shrink-0" />
-                  </button>
+                  </a>
                   <div className="text-center">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        const role = localStorage.getItem('userRole') || 'default';
-                        const scenario = encodeURIComponent(email.subject || 'Cyber Sécurité');
-                        window.open(`/download-attachment/${role}/Cybersécurité?scenario=${scenario}`, '_blank');
-                      }}
-                      className="bg-blue-800/30 border-blue-800/60 text-white hover:bg-blue-700/40"
+                    <a 
+                      href={`/download-attachment/${localStorage.getItem('userRole') || 'default'}`}
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-3 py-2 mt-2 text-sm font-medium bg-blue-800/30 border-blue-800/60 text-white hover:bg-blue-700/40 rounded-md border transition-colors"
                     >
                       <Download className="mr-2 h-4 w-4" /> 
                       Télécharger la pièce jointe
-                    </Button>
+                    </a>
                   </div>
                 </div>
               )}
