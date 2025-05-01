@@ -162,21 +162,7 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
 
   return (
     <div className="h-full w-full flex flex-col text-blue-50">
-      {/* Bannière contextuelle et bouton réinitialisation */}
-      <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-900/80 to-indigo-900/80 backdrop-blur-md border-b border-blue-700/30 w-full shadow-md">
-        <div className="flex justify-end p-2">
-          {userName && (
-            <button 
-              onClick={resetChat}
-              className="flex items-center gap-2 text-sm bg-blue-900/50 hover:bg-blue-800/70 text-blue-100 py-2 px-4 rounded-lg transition-all duration-300 font-medium border border-blue-700/50 shadow-inner"
-            >
-              <RefreshCw className="h-4 w-4" />
-              <span>Nouvelle session</span>
-            </button>
-          )}
-        </div>
-        <ContextBanner />
-      </div>
+      {/* Suppression de la barre de navigation */}
 
       {/* Messages */}
       <div 
