@@ -430,7 +430,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
                       )}
                       
                       {validationResult.postValidationInfo.equipe && (
-                        <div className="mb-2 p-3 bg-blue-900/30 rounded-md border border-blue-700/40">
+                        <div className="mb-5 p-3 bg-blue-900/30 rounded-md border border-blue-700/40">
                           <h3 className="font-semibold text-sm sm:text-base text-blue-200 mb-2">Équipe:</h3>
                           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-white">
                             {validationResult.postValidationInfo.equipe.map((member: any, i: number) => (
@@ -450,6 +450,44 @@ export default function EmailMessage({ email }: EmailMessageProps) {
                           </ul>
                         </div>
                       )}
+                      
+                      {/* Règles et consignes importantes */}
+                      <div className="mb-5 p-3 bg-amber-900/30 rounded-md border border-amber-700/40">
+                        <h3 className="font-semibold text-sm sm:text-base text-amber-200 mb-2">Règles importantes:</h3>
+                        <ul className="list-disc pl-5 text-xs sm:text-sm text-white space-y-1.5">
+                          <li>Vous devez strictement répondre au besoin exprimé dans les emails à venir.</li>
+                          <li>Vous pouvez solliciter votre équipe pour effectuer certaines tâches en leur déléguant.</li>
+                          <li>Les mauvaises décisions ou réponses inadaptées impacteront votre budget.</li>
+                          <li>Une succession d'erreurs peut entraîner une fin de mission immédiate sans préavis.</li>
+                          <li>Votre performance sera évaluée sur la pertinence des actions et l'utilisation efficace du budget.</li>
+                        </ul>
+                      </div>
+                      
+                      {/* Bouton de confirmation */}
+                      <div className="mt-5 pt-4 border-t border-blue-500/30 text-center">
+                        <p className="text-sm text-white mb-3">
+                          Veuillez confirmer que vous avez bien pris connaissance de ces informations pour continuer la mission.
+                        </p>
+                        <Button 
+                          onClick={() => {
+                            // Informer le contexte que l'utilisateur a confirmé la prise de connaissance
+                            setPasswordValidated(true);
+                            // Envoyer un email de confirmation avec les problèmes à résoudre
+                            apiRequest('/api/cyber/send-mission-brief', {
+                              method: 'POST',
+                              body: JSON.stringify({
+                                userRole,
+                                domain,
+                                userName,
+                                companyName
+                              })
+                            }).catch(err => console.error("Erreur lors de l'envoi du brief de mission:", err));
+                          }}
+                          className="bg-green-600 hover:bg-green-700 text-white font-medium transition-colors"
+                        >
+                          J'ai compris - Commencer la mission
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </div>
