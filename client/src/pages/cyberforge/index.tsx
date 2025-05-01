@@ -1453,20 +1453,43 @@ Pour des informations précises sur ce sujet, je vous recommande de consulter ce
                     </div>
                     
                     <div className="cyber-terminal p-4 h-[400px] overflow-auto font-mono text-sm relative" ref={terminalRef}>
-                      <div className="absolute top-0 left-0 right-0 flex justify-between px-3 py-1 bg-black/50 text-xs text-cyan-400 border-b border-cyan-800">
+                      <div className="absolute top-0 left-0 right-0 flex justify-between px-3 py-1 bg-black/80 text-xs text-cyan-400 border-b border-cyan-800 backdrop-blur-sm z-10">
                         <div className="flex items-center">
-                          <span className="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>
-                          <span className="inline-block w-3 h-3 rounded-full bg-yellow-500 mr-2"></span>
-                          <span className="inline-block w-3 h-3 rounded-full bg-green-500 mr-2"></span>
-                          <span className="ml-2 tracking-wide">CyberForge v3.7 :: Simulation Terminal</span>
+                          <span className="inline-block w-3 h-3 rounded-full bg-red-500 mr-2 hover:animate-pulse"></span>
+                          <span className="inline-block w-3 h-3 rounded-full bg-yellow-500 mr-2 hover:animate-pulse"></span>
+                          <span className="inline-block w-3 h-3 rounded-full bg-green-500 mr-2 hover:animate-pulse"></span>
+                          <span className="ml-2 tracking-wide text-glitch" data-text="CyberForge v3.7 :: Simulation Terminal">CyberForge v3.7 :: Simulation Terminal</span>
                         </div>
                         <div className="flex items-center">
-                          <span className="text-xs tracking-wider mr-3">[SECURE CONNECTION]</span>
+                          <span className="text-xs tracking-wider mr-3 holo-element px-2 py-0.5 rounded text-green-300">[SECURE CONNECTION]</span>
                           <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                         </div>
                       </div>
+                      
+                      {/* Scanner line effect */}
+                      <div className="absolute top-7 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-75 z-20" style={{
+                        animation: 'terminal-scan 3s linear infinite',
+                      }}></div>
+                      
+                      {/* Scattered glitch elements that appear randomly */}
+                      {Array.from({ length: 3 }).map((_, i) => (
+                        <div 
+                          key={i}
+                          className="terminal-glitch absolute z-10"
+                          style={{
+                            width: `${Math.random() * 100 + 50}px`,
+                            height: `${Math.random() * 5 + 2}px`,
+                            top: `${Math.random() * 380}px`,
+                            left: `${Math.random() * 100}%`,
+                            opacity: Math.random() * 0.5 + 0.2,
+                            animationDelay: `${i * 2 + Math.random() * 5}s`,
+                            animationDuration: '0.2s',
+                          }}
+                        ></div>
+                      ))}
+                      
                       <div className="mt-6">
-                        <pre className="whitespace-pre-wrap">{terminalOutput}</pre>
+                        <pre className="whitespace-pre-wrap terminal-text">{terminalOutput}</pre>
                       </div>
                     </div>
                     
