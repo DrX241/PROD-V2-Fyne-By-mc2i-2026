@@ -926,7 +926,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         body = lines.join('\n');
       }
       
-      // Les informations sont maintenant intégrées directement dans le message
+      // Créer une pièce jointe contenant un mot de passe caché adapté au rôle de l'utilisateur
+      const attachment = createAttachmentWithHiddenPassword(
+        scenarioId,  // Utiliser l'ID du scénario comme ID de session
+        userRole || 'expert',
+        scenario.domain,
+        scenario.title
+      );
       
       // Définir les interlocuteurs supplémentaires pour le scénario avec des expertises métier, technologiques et sectorielles diverses
       const getAdditionalContacts = (domain: string, primaryContact: { name: string, role: string }) => {
