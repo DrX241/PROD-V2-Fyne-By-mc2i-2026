@@ -3978,9 +3978,7 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
     }
   });
 
-  // Routes pour le chatbot mc2i AI Learning
-  app.post('/api/mcai-learning/init', initMcaiLearningSession);
-  app.post('/api/mcai-learning/message', processMcaiLearningMessage);
+  // Les routes pour le chatbot mc2i AI Learning sont déjà définies plus haut
 
   // Fin des routes API
 
