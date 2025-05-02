@@ -451,35 +451,48 @@ export async function terminateCyberExpertSession(req: Request, res: Response) {
       return res.status(404).json({ error: "Session non trouvée" });
     }
     
-    // Générer un résumé de la session
+    // Récupérer la session
     const session = expertSessions.get(userId);
     let summary = "";
     
     if (session) {
-      try {
-        const prompt = `
-          Génère un résumé élégant et sophistiqué de la conversation sur le sujet: "${session.topic || 'cybersécurité'}"
+      // Vérifier s'il y a eu des échanges réels dans la conversation (au moins 2 messages de l'utilisateur)
+      // Compter uniquement les messages de l'utilisateur (role: "user")
+      const userMessageCount = session.messages.filter(msg => msg.role === "user").length;
+      
+      // Exclure le message système initial et le message d'accueil
+      const hasRealConversation = userMessageCount > 1 && session.topic;
+      
+      if (hasRealConversation) {
+        // Si une vraie conversation a eu lieu, générer un résumé
+        try {
+          const prompt = `
+            Génère un résumé élégant et sophistiqué de la conversation sur le sujet: "${session.topic || 'cybersécurité'}"
+            
+            Dans ton résumé, intègre harmonieusement:
+            1. Les principaux concepts abordés durant notre échange
+            2. Les recommandations pratiques et stratégiques que vous pouvez appliquer
+            3. Les perspectives d'approfondissement pour continuer votre montée en compétence
+            
+            Format: paragraphes soignés sans markdown, listes à puces ou formatage technique.
+            Utilise un langage professionnel mais chaleureux, structure par thèmes.
+            Intègre si pertinent les références officielles mentionnées.
+          `;
           
-          Dans ton résumé, intègre harmonieusement:
-          1. Les principaux concepts abordés durant notre échange
-          2. Les recommandations pratiques et stratégiques que vous pouvez appliquer
-          3. Les perspectives d'approfondissement pour continuer votre montée en compétence
+          const messages: ChatCompletionRequestMessage[] = [
+            { role: "system", content: getCyberExpertSystemPrompt() },
+            ...session.messages.slice(0, -1),
+            { role: "user", content: prompt }
+          ];
           
-          Format: paragraphes soignés sans markdown, listes à puces ou formatage technique.
-          Utilise un langage professionnel mais chaleureux, structure par thèmes.
-          Intègre si pertinent les références officielles mentionnées.
-        `;
-        
-        const messages: ChatCompletionRequestMessage[] = [
-          { role: "system", content: getCyberExpertSystemPrompt() },
-          ...session.messages.slice(0, -1),
-          { role: "user", content: prompt }
-        ];
-        
-        summary = await openAIService.getChatCompletion(messages, 0.7);
-      } catch (error) {
-        console.error("Erreur lors de la génération du résumé de session:", error);
-        summary = "Résumé non disponible en raison d'une erreur technique.";
+          summary = await openAIService.getChatCompletion(messages, 0.7);
+        } catch (error) {
+          console.error("Erreur lors de la génération du résumé de session:", error);
+          summary = "Résumé non disponible en raison d'une erreur technique.";
+        }
+      } else {
+        // Si aucune conversation réelle n'a eu lieu, retourner un message clair
+        summary = "Aucun échange significatif n'a eu lieu durant cette session. N'hésitez pas à démarrer une nouvelle session pour échanger avec notre expert en cybersécurité.";
       }
       
       // Nettoyer la session
