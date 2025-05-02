@@ -180,18 +180,12 @@ export async function generateMissionStep(
       Assure-toi que les choix soient variés, réalistes et pertinents, avec des approches différentes.
     `;
     
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: `Génère une étape interactive pour la mission sur la base de cette situation: ${situationToUse}` }
-      ],
-      temperature: 0.7,
-      response_format: { type: "json_object" }
-    });
+    const messages: ChatCompletionRequestMessage[] = [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: `Génère une étape interactive pour la mission sur la base de cette situation: ${situationToUse}` }
+    ];
     
-    // Extraire et parser la réponse JSON
-    const content = response.choices[0].message.content;
+    const content = await openAIService.getChatCompletionWithCache(messages, 0.7, 2000);
     const stepData = JSON.parse(content || "{}");
     
     // S'assurer que chaque choix a un ID
@@ -286,18 +280,12 @@ export async function generateChoiceConsequence(
       avec une petite probabilité (${Math.round(terminationProbability * 100)}%) que le choix mène à une termination.
     `;
     
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: `Génère les conséquences pour le choix: "${choice.text}" dans le contexte de la mission "${missionBrief.title}".` }
-      ],
-      temperature: 0.7,
-      response_format: { type: "json_object" }
-    });
+    const messages: ChatCompletionRequestMessage[] = [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: `Génère les conséquences pour le choix: "${choice.text}" dans le contexte de la mission "${missionBrief.title}".` }
+    ];
     
-    // Extraire et parser la réponse JSON
-    const content = response.choices[0].message.content;
+    const content = await openAIService.getChatCompletionWithCache(messages, 0.7, 2000);
     const consequenceData = JSON.parse(content || "{}");
     
     // Construire l'objet ChoiceConsequence
