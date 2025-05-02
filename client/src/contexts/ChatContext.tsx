@@ -21,10 +21,10 @@ import { USER_ROLES } from "@shared/types/cyber";
  */
 const extractFirstName = (input: string): string => {
   if (!input) return "";
-  
+
   // Étape 1: Nettoyer l'entrée
   let cleanedInput = input.trim().toLowerCase();
-  
+
   // Étape 2: Liste étendue des patterns d'introduction à supprimer
   const introPatterns = [
     /(je\s+suis)/gi,
@@ -37,18 +37,18 @@ const extractFirstName = (input: string): string => {
     /(c'est)/gi,
     /(moi\s+c'est)/gi
   ];
-  
+
   // Étape 3: Supprimer toutes les formules d'introduction
   for (const pattern of introPatterns) {
     cleanedInput = cleanedInput.replace(pattern, '');
   }
-  
+
   // Étape 4: Supprimer les caractères de ponctuation et espaces excessifs
   cleanedInput = cleanedInput.replace(/[,.;:!?]/g, '').trim();
-  
+
   // Étape 5: Extraire le premier mot (prénom)
   const firstWord = cleanedInput.split(/\s+/)[0];
-  
+
   // Étape 6: Mettre la première lettre en majuscule et le reste en minuscules 
   // pour assurer que peu importe comment l'utilisateur a écrit son prénom
   return firstWord.charAt(0).toUpperCase() + firstWord.slice(1).toLowerCase();
@@ -145,7 +145,7 @@ const initialScenarios: CyberScenario[] = [
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
     domainId: "ingenierie-sociale", domain: "ingenierie-sociale"
   },
-  
+
   // Stratégie cyber
   {
     id: "security-awareness",
@@ -184,7 +184,7 @@ const initialScenarios: CyberScenario[] = [
     domainId: "strategie-cyber",
     domain: "strategie-cyber"
   },
-  
+
   // Gestion de crise
   {
     id: "crisis-basics",
@@ -225,7 +225,7 @@ const initialScenarios: CyberScenario[] = [
     domainId: "gestion-crise",
     domain: "gestion-crise"
   },
-  
+
   // Supply Chain
   {
     id: "supply-chain-basics",
@@ -266,7 +266,7 @@ const initialScenarios: CyberScenario[] = [
     domainId: "supply-chain",
     domain: "supply-chain"
   },
-  
+
   // Données personnelles / RGPD
   {
     id: "data-classification",
@@ -307,7 +307,7 @@ const initialScenarios: CyberScenario[] = [
     domainId: "donnees-personnelles",
     domain: "donnees-personnelles"
   },
-  
+
   // Gestion des incidents
   {
     id: "incident-basics",
@@ -390,18 +390,18 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         content: "Bonjour !\nJe suis I AM CYBER, votre assistant virtuel dans le cadre de cette mise en situation. Je suis là pour vous accompagner dans une expérience d'apprentissage immersive et interactive.\nPour commencer, Quel est votre prénom ?",
         timestamp: Date.now()
       };
-      
+
       setMessages([initialMessage]);
       setIsInitialized(true);
     }
   }, [isInitialized]);
-  
+
   // Effet pour gérer la réception du brief de mission après validation du mot de passe
   useEffect(() => {
     const handleMissionBrief = async () => {
       if (passwordValidated && missionBriefConfirmed && !missionBriefReceived && scenario.activeDomain) {
         setIsTyping(true);
-        
+
         try {
           // Récupérer le brief de mission
           const response = await apiRequest('/api/cyber/send-mission-brief', {
@@ -413,11 +413,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
               companyName: 'mc2i'
             })
           });
-          
+
           if (response.success && response.email) {
             // Attendez un court délai pour simuler le temps de traitement
             await new Promise(resolve => setTimeout(resolve, 1500));
-            
+
             // Ajouter l'email au chat
             const newMessage: ChatMessage = {
               id: uuidv4(),
@@ -425,17 +425,17 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
               content: response.email,
               timestamp: Date.now()
             };
-            
+
             setMessages(prev => [...prev, newMessage]);
             setMissionBriefReceived(true);
-            
+
             // Masquer l'indicateur de saisie
             setIsTyping(false);
           }
         } catch (error) {
           console.error('Erreur lors de la récupération du brief de mission:', error);
           setIsTyping(false);
-          
+
           // Message d'erreur
           const errorMessage: ChatMessage = {
             id: uuidv4(),
@@ -443,22 +443,22 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             content: "Je suis désolé, une erreur s'est produite lors de la génération du brief de mission. Veuillez réessayer ultérieurement.",
             timestamp: Date.now()
           };
-          
+
           setMessages(prev => [...prev, errorMessage]);
         }
       }
     };
-    
+
     handleMissionBrief();
   }, [passwordValidated, missionBriefConfirmed, missionBriefReceived, scenario.activeDomain, userRole, userName]);
 
   // Handler to set the user's name
   const handleSetUserName = (name: string) => {
     if (!name) return;
-    
+
     setIsTyping(true);
     setUserName(name);
-    
+
     // Add user's name message - Utiliser le texte tel qu'il a été saisi
     // sans ajouter automatiquement "Je m'appelle"
     const userMessage: ChatMessage = {
@@ -467,52 +467,68 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       content: name, // Utiliser le nom tel quel, sans préfixe
       timestamp: Date.now()
     };
-    
+
     setMessages(prev => [...prev, userMessage]);
-    
+
     // Simulate bot response
     setTimeout(() => {
       // Obtenir le prénom extrait
       const firstName = extractFirstName(name);
-      
+
       const botResponse: ChatMessage = {
         id: uuidv4(),
         type: "bot",
         content: `Merci ${firstName} ! Ravi de vous rencontrer. J'espère que vous allez bien aujourd'hui.\n\nPour personnaliser votre expérience d'apprentissage, veuillez choisir le rôle que vous souhaitez incarner :`,
         timestamp: Date.now()
       };
-      
+
       const roleSelection: ChatMessage = {
         id: uuidv4(),
         type: "role-selection",
         content: "",
         timestamp: Date.now()
       };
-      
+
       setMessages(prev => [...prev, botResponse, roleSelection]);
-      setCurrentStage(currentStage + 1);
+      // Mise à jour du stage avec validation
+      const nextStage = currentStage + 1;
+      console.log(`Progression du stage: ${currentStage} -> ${nextStage}`);
+
+      // Vérifier si toutes les conditions sont remplies pour passer à l'étape suivante
+      if (
+        (nextStage === 1 && userName) || // Après saisie du nom
+        (nextStage === 2 && userRole) || // Après sélection du rôle
+        (nextStage === 3 && scenario.activeDomain) || // Après sélection du domaine
+        (nextStage === 4 && passwordValidated) || // Après validation du mot de passe
+        (nextStage >= 5) // Progression normale ensuite
+      ) {
+        setCurrentStage(nextStage);
+        console.log(`Stage mis à jour: ${nextStage}`);
+      } else {
+        console.log(`Conditions non remplies pour passer au stage ${nextStage}`);
+      }
       setIsTyping(false);
     }, 1000);
   };
-  
+
   // Fonction pour générer le descriptif détaillé du rôle
   const getRoleDescription = (roleId: string): string => {
     switch (roleId) {
       case 'rssi':
         return "En tant que Responsable de la Sécurité des Systèmes d'Information (RSSI), vous êtes chargé(e) d'élaborer et de mettre en œuvre la politique de sécurité informatique de l'entreprise. Vos missions principales incluent l'analyse des risques, la définition des procédures de sécurité, la sensibilisation des collaborateurs, et la gestion des incidents de sécurité. Vous êtes également responsable de la conformité règlementaire (RGPD, NIS2, etc.) et devez régulièrement rendre compte à la direction générale de l'état de la sécurité.";
-      
+
       case 'hacker':
         return "En tant que Hacker éthique, vous êtes spécialisé(e) dans les tests d'intrusion et d'audit de sécurité. Votre mission est d'identifier les vulnérabilités des systèmes avant que des acteurs malveillants ne les exploitent. Vous utilisez des techniques avancées comme le pentesting, le social engineering et l'analyse de code pour détecter les failles de sécurité. Vous devez ensuite produire des rapports détaillés et proposer des solutions concrètes pour renforcer la sécurité des infrastructures testées.";
-      
+
       case 'developpeur':
         return "En tant que Développeur sensibilisé aux vulnérabilités logicielles, vous intégrez la sécurité à chaque étape du cycle de développement (Security by Design). Vos responsabilités incluent la mise en œuvre de bonnes pratiques de codage sécurisé, la réalisation de tests de sécurité (SAST, DAST), et la correction des vulnérabilités identifiées. Vous devez rester constamment informé(e) des nouvelles menaces et développer des applications résilientes face aux attaques comme les injections SQL, XSS, ou les problèmes d'authentification.";
-      
+
       case 'admin':
         return "En tant qu'Administrateur Système spécialisé en sécurité, vous êtes responsable de la protection de l'infrastructure informatique. Vos missions comprennent la configuration sécurisée des serveurs et réseaux, la gestion des mises à jour et correctifs, l'implémentation de solutions de détection d'intrusion, et la surveillance active des systèmes. Vous devez également gérer les droits d'accès, maintenir les sauvegardes, et être capable de réagir rapidement en cas d'incident pour assurer la continuité de service.";
-      
+
       case 'consultant':
         return "En tant que Consultant en cybersécurité, vous accompagnez les organisations dans l'amélioration de leur posture de sécurité. Vos missions incluent la réalisation d'audits de sécurité, l'analyse des risques, et la formulation de recommandations adaptées aux enjeux métiers. Vous devez avoir une vision globale de la cybersécurité (technique, organisationnelle et humaine) et être capable de traduire des concepts complexes en termes compréhensibles pour les décideurs. Vous intervenez souvent lors des phases de transformation numérique pour garantir que la sécurité est bien intégrée.";
-      
+
       default:
         return "Vous avez choisi un rôle spécialisé en cybersécurité. Dans ce contexte, vous allez pouvoir explorer différentes problématiques liées à la protection des systèmes d'information.";
     }
@@ -522,17 +538,17 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const handleSetUserRole = (roleId: string) => {
     // Empêcher la sélection de plusieurs rôles
     if (!roleId || userRole) return;
-    
+
     setIsTyping(true);
     setUserRole(roleId);
-    
+
     // Get role name
     const role = USER_ROLES.find(r => r.id === roleId);
     if (!role) {
       setIsTyping(false);
       return;
     }
-    
+
     // Add user's role selection message
     const userMessage: ChatMessage = {
       id: uuidv4(),
@@ -540,33 +556,49 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       content: `J'ai choisi le rôle de ${role.name}`,
       timestamp: Date.now()
     };
-    
+
     setMessages(prev => [...prev, userMessage]);
-    
+
     // Simuler la réponse du bot avec un descriptif détaillé du rôle
     setTimeout(() => {
       // Obtenir le prénom extrait
       const firstName = extractFirstName(userName);
-      
+
       // Obtenir le descriptif détaillé du rôle
       const roleDetailedDescription = getRoleDescription(roleId);
-      
+
       const botResponse: ChatMessage = {
         id: uuidv4(),
         type: "bot",
         content: `Excellent choix, ${firstName} ! Vous allez incarner le rôle de **${role.name}**.\n\n${roleDetailedDescription}\n\nCe rôle est désormais verrouillé pour votre session de formation. Nous allons explorer ensemble différents aspects de la cybersécurité adaptés à votre expertise. Veuillez choisir un domaine qui vous intéresse parmi les options suivantes :`,
         timestamp: Date.now()
       };
-      
+
       const domainSelection: ChatMessage = {
         id: uuidv4(),
         type: "domain-selection",
         content: "",
         timestamp: Date.now()
       };
-      
+
       setMessages(prev => [...prev, botResponse, domainSelection]);
-      setCurrentStage(currentStage + 1);
+      // Mise à jour du stage avec validation
+      const nextStage = currentStage + 1;
+      console.log(`Progression du stage: ${currentStage} -> ${nextStage}`);
+
+      // Vérifier si toutes les conditions sont remplies pour passer à l'étape suivante
+      if (
+        (nextStage === 1 && userName) || // Après saisie du nom
+        (nextStage === 2 && userRole) || // Après sélection du rôle
+        (nextStage === 3 && scenario.activeDomain) || // Après sélection du domaine
+        (nextStage === 4 && passwordValidated) || // Après validation du mot de passe
+        (nextStage >= 5) // Progression normale ensuite
+      ) {
+        setCurrentStage(nextStage);
+        console.log(`Stage mis à jour: ${nextStage}`);
+      } else {
+        console.log(`Conditions non remplies pour passer au stage ${nextStage}`);
+      }
       setIsTyping(false);
     }, 1000);
   };
@@ -575,20 +607,20 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const handleSelectDomain = async (domainId: string) => {
     // Empêcher la sélection de plusieurs domaines
     if (scenario.activeDomain !== null) return;
-    
+
     const selectedDomain = initialDomains.find(d => d.id === domainId);
     if (!selectedDomain) return;
-    
+
     setIsTyping(true);
     setScenario(prev => ({ ...prev, activeDomain: selectedDomain }));
-    
+
     // Bot confirmation message
     // Obtenir le prénom extrait
     const firstName = extractFirstName(userName);
-    
+
     // Créer un message avec des explications et anecdotes sur le domaine sélectionné
     let explanationContent = `**Excellent choix, ${firstName} !** Vous avez sélectionné la **${selectedDomain.name}**.\n\n`;
-    
+
     // Ajouter des explications spécifiques au domaine avec des anecdotes
     switch (domainId) {
       case "gestion-crise":
@@ -612,31 +644,47 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       default:
         explanationContent += `Ce domaine de la cybersécurité représente un enjeu majeur pour les organisations modernes. À travers des cas concrets et des mises en situation, nous allons explorer ensemble les meilleures pratiques et développer votre expertise.`;
     }
-    
+
     // Ajouter l'annonce d'un email à venir
     explanationContent += `\n\nJe vais maintenant vous envoyer un premier email avec un problème concret à résoudre dans ce domaine. Cet exercice vous permettra de mettre en pratique vos connaissances.`;
-    
+
     const botConfirmation: ChatMessage = {
       id: uuidv4(),
       type: "bot",
       content: explanationContent,
       timestamp: Date.now()
     };
-    
+
     // Nous n'affichons plus le sélecteur de scénario, car nous allons directement
     // envoyer un email après l'explication
     setMessages(prev => [...prev, botConfirmation]);
-    setCurrentStage(currentStage + 1);
-    
+    // Mise à jour du stage avec validation
+    const nextStage = currentStage + 1;
+    console.log(`Progression du stage: ${currentStage} -> ${nextStage}`);
+
+    // Vérifier si toutes les conditions sont remplies pour passer à l'étape suivante
+    if (
+      (nextStage === 1 && userName) || // Après saisie du nom
+      (nextStage === 2 && userRole) || // Après sélection du rôle
+      (nextStage === 3 && scenario.activeDomain) || // Après sélection du domaine
+      (nextStage === 4 && passwordValidated) || // Après validation du mot de passe
+      (nextStage >= 5) // Progression normale ensuite
+    ) {
+      setCurrentStage(nextStage);
+      console.log(`Stage mis à jour: ${nextStage}`);
+    } else {
+      console.log(`Conditions non remplies pour passer au stage ${nextStage}`);
+    }
+
     // Sélectionner automatiquement un scénario de difficulté intermédiaire pour ce domaine
     const scenariosForDomain = initialScenarios.filter(s => s.domainId === domainId);
     let selectedScenario = scenariosForDomain.find(s => s.difficulty === "Intermédiaire");
-    
+
     // Si pas de scénario intermédiaire, prendre le premier disponible
     if (!selectedScenario && scenariosForDomain.length > 0) {
       selectedScenario = scenariosForDomain[0];
     }
-    
+
     // Si un scénario est trouvé, le sélectionner automatiquement
     if (selectedScenario) {
       setTimeout(() => {
@@ -650,30 +698,30 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const handleSelectScenario = async (scenarioId: string) => {
     // Empêcher la sélection de plusieurs scénarios
     if (scenario.activeScenario !== null) return;
-    
+
     const selectedScenario = initialScenarios.find(s => s.id === scenarioId);
     if (!selectedScenario) return;
-    
+
     setIsTyping(true);
     setScenario(prev => ({ 
       ...prev, 
       activeScenario: selectedScenario,
       contact: selectedScenario.contact
     }));
-    
+
     // Bot confirmation message
     // Obtenir le prénom extrait
     const firstName = extractFirstName(userName);
-    
+
     const botMessage: ChatMessage = {
       id: uuidv4(),
       type: "bot",
       content: `Je vous prépare maintenant un email avec un problème concret à résoudre dans le domaine que vous avez choisi. Cet exercice vous permettra de mettre en pratique vos connaissance.`,
       timestamp: Date.now()
     };
-    
+
     setMessages(prev => [...prev, botMessage]);
-    
+
     // Send the scenario selection to the server to generate initial email
     try {
       const data = await apiRequest<any>('/api/cyber/start-scenario', {
@@ -686,7 +734,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           currentStage
         })
       });
-      
+
       // Vérifier que l'email existe bien dans la réponse
       if (!data.email) {
         throw new Error("Erreur: Le serveur n'a pas retourné de contenu d'email valide");
@@ -699,12 +747,28 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         content: data.email as EmailMessageContent,
         timestamp: Date.now()
       };
-      
+
       setMessages(prev => [...prev, emailMessage]);
-      setCurrentStage(currentStage + 1);
+      // Mise à jour du stage avec validation
+      const nextStage = currentStage + 1;
+      console.log(`Progression du stage: ${currentStage} -> ${nextStage}`);
+
+      // Vérifier si toutes les conditions sont remplies pour passer à l'étape suivante
+      if (
+        (nextStage === 1 && userName) || // Après saisie du nom
+        (nextStage === 2 && userRole) || // Après sélection du rôle
+        (nextStage === 3 && scenario.activeDomain) || // Après sélection du domaine
+        (nextStage === 4 && passwordValidated) || // Après validation du mot de passe
+        (nextStage >= 5) // Progression normale ensuite
+      ) {
+        setCurrentStage(nextStage);
+        console.log(`Stage mis à jour: ${nextStage}`);
+      } else {
+        console.log(`Conditions non remplies pour passer au stage ${nextStage}`);
+      }
     } catch (error) {
       console.error('Error starting scenario:', error);
-      
+
       // Détermine le message d'erreur détaillé
       let errorDetail = "";
       if (error instanceof Error) {
@@ -718,11 +782,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         errorDetail = String(error);
         console.log("String Error:", errorDetail);
       }
-      
+
       // Tenter de récupérer des informations supplémentaires si disponibles
       let serverErrorMsg = "Erreur inconnue";
       let modelUsed = "inconnu";
-      
+
       // Extraire les détails additionnels de la réponse si disponible
       try {
         if (error instanceof Response || (error && typeof error === 'object' && 'json' in error)) {
@@ -742,7 +806,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (parseError) {
         console.error("Erreur lors de l'analyse des détails supplémentaires:", parseError);
       }
-      
+
       // Message d'erreur plus informatif
       const errorMessage: ChatMessage = {
         id: uuidv4(),
@@ -750,25 +814,41 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         content: `Je suis désolé, une erreur s'est produite lors de la génération du scénario avec le modèle ${modelUsed}. Cela peut être dû à une interruption de la connexion à l'API Azure OpenAI.\n\nDétail de l'erreur: ${serverErrorMsg}\n\nVeuillez vérifier que l'indicateur FYNE est vert (connecté) et réessayer. Si le problème persiste, veuillez contacter l'administrateur système.`,
         timestamp: Date.now()
       };
-      
+
       setMessages(prev => [...prev, errorMessage]);
       // Même en cas d'erreur, nous incrémentons le stage pour éviter que l'utilisateur ne soit bloqué
-      setCurrentStage(currentStage + 1);
+      // Mise à jour du stage avec validation
+      const nextStage = currentStage + 1;
+      console.log(`Progression du stage: ${currentStage} -> ${nextStage}`);
+
+      // Vérifier si toutes les conditions sont remplies pour passer à l'étape suivante
+      if (
+        (nextStage === 1 && userName) || // Après saisie du nom
+        (nextStage === 2 && userRole) || // Après sélection du rôle
+        (nextStage === 3 && scenario.activeDomain) || // Après sélection du domaine
+        (nextStage === 4 && passwordValidated) || // Après validation du mot de passe
+        (nextStage >= 5) // Progression normale ensuite
+      ) {
+        setCurrentStage(nextStage);
+        console.log(`Stage mis à jour: ${nextStage}`);
+      } else {
+        console.log(`Conditions non remplies pour passer au stage ${nextStage}`);
+      }
     }
-    
+
     setIsTyping(false);
   };
 
   // Handler to send a message
   const handleSendMessage = async (messageText: string) => {
     if (!messageText.trim()) return;
-    
+
     // If no username set yet, treat this as the username
     if (!userName) {
       handleSetUserName(messageText);
       return;
     }
-    
+
     // Otherwise, process as a regular message
     const userMessage: ChatMessage = {
       id: uuidv4(),
@@ -776,17 +856,17 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       content: messageText,
       timestamp: Date.now()
     };
-    
+
     setMessages(prev => [...prev, userMessage]);
     setIsTyping(true);
-    
+
     try {
       // Get recent chat history to provide context
       // We filter to only include relevant messages (user and bot) and limit to recent messages
       const relevantMessages = messages
         .filter(msg => msg.type === 'user' || msg.type === 'bot')
         .slice(-10); // Get last 10 messages for context
-      
+
       // Vérifier si nous avons un scénario actif
       let data;
       if (scenario.activeScenario?.id) {
@@ -817,7 +897,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           })
         });
       }
-      
+
       // Si nous recevons les contacts du scénario, mettons à jour notre état
       if (data.scenarioContacts && Array.isArray(data.scenarioContacts)) {
         setScenario(prev => ({
@@ -825,11 +905,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           scenarioContacts: data.scenarioContacts
         }));
       }
-      
+
       // Si la réponse contient une décision
       if (data.type === 'decision-choices') {
         const decisionContent = data.content as CrisisDecisionContent;
-        
+
         const decisionMessage: ChatMessage = {
           id: uuidv4(),
           type: "decision-choices",
@@ -838,27 +918,43 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           contactName: data.contactName || "Système",
           contactRole: data.contactRole || "Situation de crise"
         };
-        
+
         setMessages(prev => [...prev, decisionMessage]);
-        setCurrentStage(currentStage + 1);
+        // Mise à jour du stage avec validation
+        const nextStage = currentStage + 1;
+        console.log(`Progression du stage: ${currentStage} -> ${nextStage}`);
+
+        // Vérifier si toutes les conditions sont remplies pour passer à l'étape suivante
+        if (
+          (nextStage === 1 && userName) || // Après saisie du nom
+          (nextStage === 2 && userRole) || // Après sélection du rôle
+          (nextStage === 3 && scenario.activeDomain) || // Après sélection du domaine
+          (nextStage === 4 && passwordValidated) || // Après validation du mot de passe
+          (nextStage >= 5) // Progression normale ensuite
+        ) {
+          setCurrentStage(nextStage);
+          console.log(`Stage mis à jour: ${nextStage}`);
+        } else {
+          console.log(`Conditions non remplies pour passer au stage ${nextStage}`);
+        }
       }
       // If response contains an email, add it as an email message
       else if (data.type === 'email') {
         const emailContent = data.content as EmailMessageContent;
-        
+
         // Si l'email contient une évaluation, vérifions qu'elle est valide
         if (emailContent.evaluation && !emailContent.evaluation.id) {
           console.warn("Evaluation is missing ID", emailContent.evaluation);
           delete emailContent.evaluation;
         }
-        
+
         const emailMessage: ChatMessage = {
           id: uuidv4(),
           type: "email",
           content: emailContent,
           timestamp: Date.now()
         };
-        
+
         // Si l'email contient des interlocuteurs, mettons à jour l'état
         if (emailContent.scenarioContacts && Array.isArray(emailContent.scenarioContacts)) {
           setScenario(prev => ({
@@ -866,9 +962,25 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             scenarioContacts: emailContent.scenarioContacts
           }));
         }
-        
+
         setMessages(prev => [...prev, emailMessage]);
-        setCurrentStage(currentStage + 1);
+        // Mise à jour du stage avec validation
+        const nextStage = currentStage + 1;
+        console.log(`Progression du stage: ${currentStage} -> ${nextStage}`);
+
+        // Vérifier si toutes les conditions sont remplies pour passer à l'étape suivante
+        if (
+          (nextStage === 1 && userName) || // Après saisie du nom
+          (nextStage === 2 && userRole) || // Après sélection du rôle
+          (nextStage === 3 && scenario.activeDomain) || // Après sélection du domaine
+          (nextStage === 4 && passwordValidated) || // Après validation du mot de passe
+          (nextStage >= 5) // Progression normale ensuite
+        ) {
+          setCurrentStage(nextStage);
+          console.log(`Stage mis à jour: ${nextStage}`);
+        } else {
+          console.log(`Conditions non remplies pour passer au stage ${nextStage}`);
+        }
       } else {
         // Otherwise add as a regular bot message with contact info
         const botResponse: ChatMessage = {
@@ -882,10 +994,26 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           iamCyberContent: data.iamCyberContent,
           contactContent: data.contactContent
         };
-        
+
         setMessages(prev => [...prev, botResponse]);
-        setCurrentStage(currentStage + 1);
-        
+        // Mise à jour du stage avec validation
+        const nextStage = currentStage + 1;
+        console.log(`Progression du stage: ${currentStage} -> ${nextStage}`);
+
+        // Vérifier si toutes les conditions sont remplies pour passer à l'étape suivante
+        if (
+          (nextStage === 1 && userName) || // Après saisie du nom
+          (nextStage === 2 && userRole) || // Après sélection du rôle
+          (nextStage === 3 && scenario.activeDomain) || // Après sélection du domaine
+          (nextStage === 4 && passwordValidated) || // Après validation du mot de passe
+          (nextStage >= 5) // Progression normale ensuite
+        ) {
+          setCurrentStage(nextStage);
+          console.log(`Stage mis à jour: ${nextStage}`);
+        } else {
+          console.log(`Conditions non remplies pour passer au stage ${nextStage}`);
+        }
+
         // Check if the scenario should be reset based on the API response
         if (data.resetScenario) {
           // Wait a moment before resetting so the user can read the final message
@@ -896,9 +1024,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
               content: "Le scénario va être réinitialisé. Préparation d'un nouveau scénario...",
               timestamp: Date.now()
             };
-            
+
             setMessages(prev => [...prev, resetMessage]);
-            
+
             // Wait another moment before actual reset
             setTimeout(() => {
               handleResetChat();
@@ -908,7 +1036,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      
+
       // Détermine le message d'erreur détaillé
       let errorDetail = "";
       if (error instanceof Error) {
@@ -918,7 +1046,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         errorDetail = String(error);
       }
-      
+
       // Message d'erreur plus informatif
       const errorMessage: ChatMessage = {
         id: uuidv4(),
@@ -926,12 +1054,28 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         content: "Je suis désolé, une erreur s'est produite lors du traitement de votre message. Cela peut être dû à une interruption de la connexion à l'API Azure OpenAI.\n\nVeuillez vérifier que l'indicateur FYNE est vert (connecté) et réessayer. Si le problème persiste, veuillez contacter l'administrateur système.",
         timestamp: Date.now()
       };
-      
+
       setMessages(prev => [...prev, errorMessage]);
       // Même en cas d'erreur, nous incrémentons le stage pour éviter que l'utilisateur ne soit bloqué
-      setCurrentStage(currentStage + 1);
+      // Mise à jour du stage avec validation
+      const nextStage = currentStage + 1;
+      console.log(`Progression du stage: ${currentStage} -> ${nextStage}`);
+
+      // Vérifier si toutes les conditions sont remplies pour passer à l'étape suivante
+      if (
+        (nextStage === 1 && userName) || // Après saisie du nom
+        (nextStage === 2 && userRole) || // Après sélection du rôle
+        (nextStage === 3 && scenario.activeDomain) || // Après sélection du domaine
+        (nextStage === 4 && passwordValidated) || // Après validation du mot de passe
+        (nextStage >= 5) // Progression normale ensuite
+      ) {
+        setCurrentStage(nextStage);
+        console.log(`Stage mis à jour: ${nextStage}`);
+      } else {
+        console.log(`Conditions non remplies pour passer au stage ${nextStage}`);
+      }
     }
-    
+
     setIsTyping(false);
   };
 
@@ -956,7 +1100,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setMissionBriefConfirmed(true);
     setMissionBriefReceived(true);  // Débloquer la zone de saisie après confirmation
     setIsTyping(true);
-    
+
     try {
       // Envoyer une requête pour obtenir le message de bienvenue et les choix initiaux
       const response = await apiRequest('/api/cyber/decision', {
@@ -970,7 +1114,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           companyName: 'mc2i'
         })
       });
-      
+
       if (response.success) {
         // Ajouter d'abord le message de bienvenue contextuel
         if (response.welcomeMessage) {
@@ -982,13 +1126,13 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             contactName: response.contactName || scenario.contact?.name,
             contactRole: response.contactRole || scenario.contact?.role
           };
-          
+
           setMessages(prev => [...prev, welcomeMessage]);
         }
-        
+
         // Attendre un peu pour simuler le temps de réflexion (0.8s)
         await new Promise(resolve => setTimeout(resolve, 800));
-        
+
         // Puis ajouter les choix de décision
         if (response.decision) {
           const decisionMessage: ChatMessage = {
@@ -997,13 +1141,30 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             content: response.decision,
             timestamp: Date.now()
           };
-          
+
           setMessages(prev => [...prev, decisionMessage]);
+          // Mise à jour du stage avec validation
+          const nextStage = currentStage + 1;
+          console.log(`Progression du stage: ${currentStage} -> ${nextStage}`);
+
+          // Vérifier si toutes les conditions sont remplies pour passer à l'étape suivante
+          if (
+            (nextStage === 1 && userName) || // Après saisie du nom
+            (nextStage === 2 && userRole) || // Après sélection du rôle
+            (nextStage === 3 && scenario.activeDomain) || // Après sélection du domaine
+            (nextStage === 4 && passwordValidated) || // Après validation du mot de passe
+            (nextStage >= 5) // Progression normale ensuite
+          ) {
+            setCurrentStage(nextStage);
+            console.log(`Stage mis à jour: ${nextStage}`);
+          } else {
+            console.log(`Conditions non remplies pour passer au stage ${nextStage}`);
+          }
         }
       }
     } catch (error) {
       console.error('Erreur lors du démarrage du scénario de crise:', error);
-      
+
       // Message d'erreur
       const errorMessage: ChatMessage = {
         id: uuidv4(),
@@ -1011,10 +1172,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         content: "Je suis désolé, une erreur s'est produite lors du démarrage de la simulation de crise. Veuillez réessayer ultérieurement.",
         timestamp: Date.now()
       };
-      
+
       setMessages(prev => [...prev, errorMessage]);
     }
-    
+
     setIsTyping(false);
   };
 

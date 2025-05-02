@@ -905,11 +905,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         {
           role: "system",
           content: emailSystemPrompt + 
-          `\n\nRÈGLES DE FORMATAGE STRICTES À RESPECTER ABSOLUMENT:
-          1. L'email ENTIER ne doit pas dépasser 200 caractères maximum (environ 35 mots).
-          2. L'email doit poser UNE QUESTION DIRECTE et précise qui nécessite une réponse spécifique.
-          3. ÉLÉMENT CRUCIAL: Insister fortement sur l'OBLIGATION d'analyser la pièce jointe qui contient des INFORMATIONS CACHÉES adaptées au rôle de l'utilisateur.
-          4. Mentionner clairement que l'utilisateur DOIT IMPÉRATIVEMENT trouver et communiquer le MOT DE PASSE caché dans la pièce jointe pour accéder au contenu du projet.`
+          `\n\nRÈGLES DE FORMATAGE À RESPECTER:
+          1. L'email doit faire entre 400-500 caractères pour être professionnel et engageant.
+          2. Structure obligatoire:
+             - Introduction formelle et mise en contexte (2-3 phrases)
+             - Exposition claire de la situation critique
+             - Définition précise de l'action attendue
+             - Mention de la pièce jointe et du mot de passe requis
+             - Signature professionnelle
+          3. Adapter le ton selon:
+             - Le rôle de l'utilisateur (${userRole})
+             - Le niveau de criticité du scénario
+             - Le domaine d'expertise concerné
+          4. Éléments clés:
+             - Créer un sentiment d'urgence réaliste
+             - Maintenir un ton professionnel
+             - Insister sur l'importance de la pièce jointe
+             - Mentionner clairement la nécessité du mot de passe`
         },
         {
           role: "user",
