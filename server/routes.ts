@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import OpenAI from 'openai';
 import { openAIService } from "./services/openai";
 import attachmentRoutes from './routes/attachmentRoutes';
+import cyberAgentAdvancedRoutes from './routes/cyberAgentAdvancedRoutes';
 import { createAttachmentWithHiddenPassword } from './services/attachmentService';
 import { CyberScenario, CrisisDecisionContent, CrisisDecisionOption } from '../shared/types/cyber';
 
@@ -389,6 +390,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Enregistrer les routes pour les pièces jointes
   app.use('/api/attachments', attachmentRoutes);
+  
+  // Enregistrer les routes pour l'agent CyberForge amélioré
+  app.use('/api/cyber-agent-advanced', cyberAgentAdvancedRoutes);
   
   // Route directe pour servir le document texte avec le mot de passe
   app.get('/download-attachment/:role', (req, res) => {

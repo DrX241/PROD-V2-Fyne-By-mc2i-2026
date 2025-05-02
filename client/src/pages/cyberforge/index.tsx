@@ -77,7 +77,7 @@ const availableAvatars: Avatar[] = [
     imagePath: '/assets/avatars/shadow.png',
     type: 'hacker',
     abilities: ['Intrusion', 'Cryptanalyse', 'Rétro-ingénierie'],
-    description: 'Spécialiste de l'intrusion et de la sécurité offensive.',
+    description: 'Spécialiste de l\'intrusion et de la sécurité offensive.',
     strengthsAndWeaknesses: ['Expertise en pentesting', 'Connaissance limitée en défense'],
     primarySkills: ['Exploitation', 'Social Engineering', 'OSINT']
   },
@@ -86,7 +86,7 @@ const availableAvatars: Avatar[] = [
     name: 'Sentinel',
     imagePath: '/assets/avatars/sentinel.png',
     type: 'analyst',
-    abilities: ['Analyse forensique', 'Détection d'anomalies', 'Traque de menaces'],
+    abilities: ['Analyse forensique', 'Détection d\'anomalies', 'Traque de menaces'],
     description: 'Expert en analyse de sécurité et investigation numérique.',
     strengthsAndWeaknesses: ['Excellence analytique', 'Temps de réaction parfois lent'],
     primarySkills: ['Forensique', 'Détection', 'Analyse malware']
@@ -96,7 +96,7 @@ const availableAvatars: Avatar[] = [
     name: 'Guardian',
     imagePath: '/assets/avatars/guardian.png',
     type: 'security_manager',
-    abilities: ['Gestion de crise', 'Coordination d'équipe', 'Stratégie de sécurité'],
+    abilities: ['Gestion de crise', 'Coordination d\'équipe', 'Stratégie de sécurité'],
     description: 'Leader en gestion de la sécurité et réponse aux incidents.',
     strengthsAndWeaknesses: ['Vision stratégique', 'Moins de compétences techniques'],
     primarySkills: ['Gestion incidents', 'Planification', 'Communication']
@@ -106,9 +106,9 @@ const availableAvatars: Avatar[] = [
     name: 'Nexus',
     imagePath: '/assets/avatars/nexus.png',
     type: 'network_specialist',
-    abilities: ['Architecture réseau', 'Détection d'intrusion', 'Sécurité périmétrique'],
+    abilities: ['Architecture réseau', 'Détection d\'intrusion', 'Sécurité périmétrique'],
     description: 'Spécialiste des infrastructures réseau sécurisées.',
-    strengthsAndWeaknesses: ['Expertise réseau', 'Moins d'expérience en applications'],
+    strengthsAndWeaknesses: ['Expertise réseau', 'Moins d\'expérience en applications'],
     primarySkills: ['Firewall', 'IDS/IPS', 'Segmentation']
   }
 ];
