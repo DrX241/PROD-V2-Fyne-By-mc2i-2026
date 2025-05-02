@@ -12,6 +12,7 @@ import { Avatar } from '@/components/ui/avatar';
 import mcLogoPath from "../assets/mc2i.png";
 import mc2iLogoPath from "../assets/mc2i-logo-sans-baseline.png";
 import userProfessionalPath from "../assets/user-professional.svg";
+import robotWithLightbulbPath from "../assets/robot-with-lightbulb.jpg";
 
 // Interface pour les messages du chat
 interface ChatMessage {
@@ -330,7 +331,7 @@ export default function McaiLearning() {
                   <div className={`flex-shrink-0 ${msg.role === 'user' ? 'ml-3' : 'mr-3'}`}>
                     <Avatar className="w-10 h-10">
                       {msg.role === 'assistant' ? (
-                        <img src={mc2iLogoPath} alt="mc2i" className="object-cover p-1" />
+                        <img src={robotWithLightbulbPath} alt="AI Robot" className="object-cover" />
                       ) : (
                         <img src={userProfessionalPath} alt="User" className="object-cover" />
                       )}
@@ -368,7 +369,7 @@ export default function McaiLearning() {
                 <div className="flex max-w-[80%]">
                   <div className="flex-shrink-0 mr-3">
                     <Avatar className="w-10 h-10">
-                      <img src={mc2iLogoPath} alt="mc2i" className="object-cover p-1" />
+                      <img src={robotWithLightbulbPath} alt="AI Robot" className="object-cover" />
                     </Avatar>
                   </div>
                   <div 
