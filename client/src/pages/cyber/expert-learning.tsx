@@ -372,28 +372,31 @@ export default function ExpertLearningPage() {
             </Button>
           </div>
           
-          <div className="flex flex-col items-center mb-10 mt-10">
-            <div className="flex items-center bg-[#091525]/80 px-4 py-3 rounded-md border border-[#00b4d8]/30 shadow-[0_0_15px_rgba(0,180,216,0.15)] mb-3">
-              <div className="mr-4 p-2 rounded-full bg-[#00b4d8]/10 border border-[#00b4d8]/20">
-                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12,3 L21,7 L21,13 C21,17.5 17,21.5 12,23 C7,21.5 3,17.5 3,13 L3,7 L12,3 Z" stroke="#00b4d8" strokeWidth="1.5" fill="none"/>
-                  <circle cx="12" cy="9" r="3" stroke="#00b4d8" strokeWidth="1.5" fill="none"/>
-                  <path d="M8,17 C8,14.7909 9.79086,13 12,13 C14.2091,13 16,14.7909 16,17" stroke="#00b4d8" strokeWidth="1.5" fill="none"/>
-                </svg>
+          {/* Affichage de l'en-tête uniquement lorsque la session n'est pas active */}
+          {!isSessionActive && (
+            <div className="flex flex-col items-center mb-10 mt-10">
+              <div className="flex items-center bg-[#091525]/80 px-4 py-3 rounded-md border border-[#00b4d8]/30 shadow-[0_0_15px_rgba(0,180,216,0.15)] mb-3">
+                <div className="mr-4 p-2 rounded-full bg-[#00b4d8]/10 border border-[#00b4d8]/20">
+                  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12,3 L21,7 L21,13 C21,17.5 17,21.5 12,23 C7,21.5 3,17.5 3,13 L3,7 L12,3 Z" stroke="#00b4d8" strokeWidth="1.5" fill="none"/>
+                    <circle cx="12" cy="9" r="3" stroke="#00b4d8" strokeWidth="1.5" fill="none"/>
+                    <path d="M8,17 C8,14.7909 9.79086,13 12,13 C14.2091,13 16,14.7909 16,17" stroke="#00b4d8" strokeWidth="1.5" fill="none"/>
+                  </svg>
+                </div>
+                <div>
+                  <h1 className="text-3xl sm:text-4xl font-mono font-bold text-[#e5f0fc]">
+                    CYBER<span className="text-[#00b4d8]">TRAINING</span><span className="text-[#e63946]">_</span>
+                  </h1>
+                  <h2 className="text-[#8abee0] text-sm font-mono">MODE: ÉCHANGE INTERACTIF | NIVEAU: ADAPTATIF</h2>
+                </div>
               </div>
-              <div>
-                <h1 className="text-3xl sm:text-4xl font-mono font-bold text-[#e5f0fc]">
-                  CYBER<span className="text-[#00b4d8]">TRAINING</span><span className="text-[#e63946]">_</span>
-                </h1>
-                <h2 className="text-[#8abee0] text-sm font-mono">MODE: ÉCHANGE INTERACTIF | NIVEAU: ADAPTATIF</h2>
+              <div className="bg-[#091525]/60 px-5 py-3 rounded-md border border-[#00b4d8]/20 max-w-2xl">
+                <p className="text-[#c3d9ee] text-center text-sm">
+                  Dialoguez avec un expert en cybersécurité pour approfondir vos connaissances, résoudre des problèmes techniques ou explorer des concepts avancés dans un environnement interactif et personnalisé.
+                </p>
               </div>
             </div>
-            <div className="bg-[#091525]/60 px-5 py-3 rounded-md border border-[#00b4d8]/20 max-w-2xl">
-              <p className="text-[#c3d9ee] text-center text-sm">
-                Dialoguez avec un expert en cybersécurité pour approfondir vos connaissances, résoudre des problèmes techniques ou explorer des concepts avancés dans un environnement interactif et personnalisé.
-              </p>
-            </div>
-          </div>
+          )}
           
           {/* Affichage du résumé de session */}
           {sessionSummary && !isSessionActive && (
@@ -535,151 +538,148 @@ export default function ExpertLearningPage() {
               </div>
             </div>
           ) : isSessionActive && (
-            <div className="bg-[#0c1e2e] border border-[#00b4d8]/30 rounded-xl overflow-hidden shadow-[0_0_20px_rgba(0,180,216,0.15)] max-w-5xl mx-auto">
-              {/* En-tête de la conversation - Style console de sécurité */}
-              <div className="p-4 bg-[#091525] border-b border-[#00b4d8]/20 flex justify-between items-center">
+            <div className="mt-0">
+              {/* En-tête intégrée dans le style du fond - plus discrète */}
+              <div className="flex justify-between items-center py-2 px-4 bg-[#091525]/80 backdrop-blur-sm rounded-t-xl border-x border-t border-[#00b4d8]/30 max-w-5xl mx-auto">
                 <div className="flex items-center">
-                  <div className="mr-3 p-1 rounded-full bg-[#00b4d8]/20 border border-[#00b4d8]/40">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <div className="h-8 w-8 flex items-center justify-center mr-3 rounded-full bg-[#00b4d8]/10 border border-[#00b4d8]/30">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <circle cx="12" cy="12" r="11" stroke="#00b4d8" strokeWidth="1.5" fill="none"/>
                       <circle cx="12" cy="8" r="2" fill="#00b4d8"/>
                       <rect x="10" y="11" width="4" height="7" rx="1" fill="#00b4d8"/>
                     </svg>
                   </div>
                   <div>
-                    <h2 className="text-xl font-mono font-bold text-[#00b4d8]">SOC ANALYST <span className="text-[#e63946]">:</span><span className="text-xs text-[#8abee0] ml-2">[SESSION ACTIVE]</span></h2>
-                    <div className="text-xs text-[#8abee0] opacity-60">Terminal ID: CYBER-{Math.floor(Math.random() * 9000) + 1000}-SEC</div>
+                    <span className="text-sm font-mono font-bold text-[#00b4d8]">INTERFACE: <span className="text-[#e63946]">EXPERT CYBER</span></span>
+                    <div className="text-xs text-[#8abee0]/70 flex items-center">
+                      <span className="inline-flex h-1.5 w-1.5 rounded-full bg-green-500 mr-1"></span>
+                      Terminal ID: CYBER-{Math.floor(Math.random() * 9000) + 1000}
+                    </div>
                   </div>
                 </div>
-                <div className="flex">
+                
+                <div className="flex items-center">
+                  <div className="text-xs text-[#8abee0] mr-4">
+                    <span className="inline-block px-2 py-0.5 rounded bg-[#0c1e2e]/70 border border-[#00b4d8]/20">
+                      SESSION: {userId?.substring(0, 6) || 'INIT-01'}
+                    </span>
+                  </div>
                   <Button 
-                    variant="outline" 
+                    variant="ghost" 
                     onClick={endSession} 
-                    className="border-[#00b4d8]/30 bg-[#0c1e2e] hover:bg-[#112641] text-[#00b4d8] hover:text-[#e63946]"
+                    className="h-8 px-2 text-[#00b4d8] hover:text-[#e63946] hover:bg-[#091525]"
                     disabled={isLoading}
                   >
                     {isLoading ? (
-                      <RefreshCw className="h-5 w-5 animate-spin" />
+                      <RefreshCw className="h-4 w-4 animate-spin" />
                     ) : (
-                      <span className="flex items-center">
-                        <X className="h-5 w-5 mr-1" />
-                        <span className="font-mono text-sm">TERMINER</span>
-                      </span>
+                      <X className="h-4 w-4" />
                     )}
                   </Button>
                 </div>
               </div>
               
-              {/* Status Bar - Pour reproduire l'esprit de l'image */}
-              <div className="bg-[#112641] py-1 px-4 flex justify-between text-xs text-[#8abee0] border-b border-[#00b4d8]/20">
-                <div className="flex items-center">
-                  <span className="mr-3">STATUS: <span className="text-green-400">SÉCURISÉ</span></span>
-                  <span>CHIFFREMENT: <span className="text-green-400">ACTIF</span></span>
-                </div>
-                <div>
-                  SESSION ID: {userId?.substring(0, 8) || 'INITIALISATION...'}
-                </div>
-              </div>
-              
-              {/* Conteneur des messages - Style console */}
-              <div 
-                ref={chatContainerRef}
-                className="h-[calc(100vh-320px)] overflow-y-auto p-4 space-y-5 bg-[#0c1e2e]"
-                style={{backgroundImage: 'radial-gradient(circle at 50% 80%, rgba(0,180,216,0.03) 0%, transparent 60%)'}}
-              >
-                {messages.map((message, index) => (
-                  <div 
-                    key={message.id} 
-                    className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
-                    {message.type === 'user' ? (
-                      <div className="max-w-[80%] p-3 rounded-md bg-[#112641] text-[#e5f0fc] border border-[#00b4d8]/30 shadow-[0_0_10px_rgba(0,180,216,0.05)]">
-                        <div className="mb-1 text-xs font-mono text-[#8abee0]">
-                          <span className="font-bold">VOUS</span>
-                          <span className="text-[#8abee0]/50 ml-2">{new Date(message.timestamp).toLocaleTimeString()}</span>
-                        </div>
-                        <div className="whitespace-pre-wrap">{message.content}</div>
-                      </div>
-                    ) : (
-                      <div className="max-w-[80%] p-3 rounded-md bg-[#0c1e2e] text-[#e5f0fc] border border-[#00b4d8]/30 shadow-[0_0_10px_rgba(0,180,216,0.05)]">
-                        <div className="mb-1 text-xs font-mono text-[#00b4d8] flex items-center">
-                          <div className="h-2 w-2 rounded-full bg-[#00b4d8] mr-2"></div>
-                          <span className="font-bold">EXPERT CYBER</span>
-                          <span className="text-[#8abee0]/50 ml-2">{new Date(message.timestamp).toLocaleTimeString()}</span>
-                        </div>
-                        <div 
-                          className="prose prose-invert prose-sm max-w-none text-[#c3d9ee]" 
-                          dangerouslySetInnerHTML={{ 
-                            __html: DOMPurify.sanitize(formatTextWithStructure(message.content))
-                          }}
-                        />
-                      </div>
-                    )}
-                  </div>
-                ))}
-                
-                {isLoading && messages.length > 0 && (
-                  <div className="flex justify-start">
-                    <div className="bg-[#0c1e2e] text-[#8abee0] p-3 rounded-md flex items-center space-x-2 border border-[#00b4d8]/30">
-                      <div className="flex items-center">
-                        <div className="font-mono text-xs mr-2">ANALYSE EN COURS</div>
-                        <div className="flex space-x-1">
-                          <div className="w-1.5 h-1.5 bg-[#00b4d8] rounded-full animate-pulse"></div>
-                          <div className="w-1.5 h-1.5 bg-[#00b4d8] rounded-full animate-pulse" style={{animationDelay: '300ms'}}></div>
-                          <div className="w-1.5 h-1.5 bg-[#00b4d8] rounded-full animate-pulse" style={{animationDelay: '600ms'}}></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              {/* Bouton de défilement vers le bas */}
-              {showScrollButton && (
-                <button 
-                  onClick={scrollToBottom}
-                  className="fixed right-6 bottom-24 bg-[#00b4d8] p-3 rounded-full shadow-[0_0_15px_rgba(0,180,216,0.5)] z-20 text-[#0c1e2e] hover:bg-[#00a0c2]"
-                  title="Défiler vers le bas"
-                  aria-label="Défiler vers le bas de la conversation"
+              {/* Zone de chat intégrée directement dans l'interface (sans conteneur supplémentaire) */}
+              <div className="max-w-5xl mx-auto flex flex-col">
+                <div 
+                  ref={chatContainerRef}
+                  className="h-[calc(100vh-220px)] overflow-y-auto px-4 py-6 space-y-5 bg-gradient-to-b from-[#091525]/90 to-[#0c1e2e]/90 backdrop-blur-sm border-x border-[#00b4d8]/30"
+                  style={{backgroundImage: 'radial-gradient(circle at 50% 20%, rgba(0,180,216,0.08) 0%, rgba(0,180,216,0.01) 70%)'}}
                 >
-                  <ChevronDown className="h-5 w-5" />
-                </button>
-              )}
-              
-              {/* Zone de saisie */}
-              <div className="p-4 border-t border-[#00b4d8]/20 bg-[#091525]">
-                <form onSubmit={handleSubmit} className="flex space-x-2">
-                  <div className="relative flex-1">
-                    <div className="absolute left-0 top-0 pl-3 h-full flex items-center text-[#00b4d8] opacity-70 pointer-events-none">
-                      <span className="font-mono text-sm">{'>'}</span>
+                  {messages.map((message, index) => (
+                    <div 
+                      key={message.id} 
+                      className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                    >
+                      {message.type === 'user' ? (
+                        <div className="max-w-[80%] p-3 rounded-md bg-[#112641]/80 text-[#e5f0fc] border border-[#00b4d8]/30 shadow-[0_0_10px_rgba(0,180,216,0.05)] backdrop-blur-sm">
+                          <div className="mb-1 text-xs font-mono text-[#8abee0]">
+                            <span className="font-bold">VOUS</span>
+                            <span className="text-[#8abee0]/50 ml-2">{new Date(message.timestamp).toLocaleTimeString()}</span>
+                          </div>
+                          <div className="whitespace-pre-wrap">{message.content}</div>
+                        </div>
+                      ) : (
+                        <div className="max-w-[80%] p-3 rounded-md bg-[#0c1e2e]/90 text-[#e5f0fc] border border-[#00b4d8]/30 shadow-[0_0_10px_rgba(0,180,216,0.05)]">
+                          <div className="mb-1 text-xs font-mono text-[#00b4d8] flex items-center">
+                            <div className="h-2 w-2 rounded-full bg-[#00b4d8] mr-2"></div>
+                            <span className="font-bold">EXPERT CYBER</span>
+                            <span className="text-[#8abee0]/50 ml-2">{new Date(message.timestamp).toLocaleTimeString()}</span>
+                          </div>
+                          <div 
+                            className="prose prose-invert prose-sm max-w-none text-[#c3d9ee]" 
+                            dangerouslySetInnerHTML={{ 
+                              __html: DOMPurify.sanitize(formatTextWithStructure(message.content))
+                            }}
+                          />
+                        </div>
+                      )}
                     </div>
-                    <textarea 
-                      ref={textareaRef}
-                      value={inputMessage}
-                      onChange={(e) => setInputMessage(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      placeholder="Entrez votre requête..."
-                      className="w-full pl-8 pr-4 py-3 bg-[#0c1e2e] border border-[#00b4d8]/30 rounded-md text-[#e5f0fc] placeholder-[#8abee0]/50 resize-none focus:ring-1 focus:ring-[#00b4d8] focus:border-[#00b4d8]/50 font-mono"
-                      rows={1}
-                      disabled={isLoading}
-                      style={{ minHeight: "2.5rem", maxHeight: "8rem" }}
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="bg-[#00b4d8] hover:bg-[#00a0c2] text-[#0c1e2e] px-4 font-mono text-sm rounded-md flex-shrink-0 h-auto"
-                    disabled={!inputMessage.trim() || isLoading}
+                  ))}
+                  
+                  {isLoading && messages.length > 0 && (
+                    <div className="flex justify-start">
+                      <div className="bg-[#0c1e2e]/80 text-[#8abee0] py-2 px-3 rounded-md flex items-center space-x-2 border border-[#00b4d8]/30 shadow-[0_0_10px_rgba(0,180,216,0.05)]">
+                        <div className="flex items-center">
+                          <div className="font-mono text-xs mr-2">ANALYSE EN COURS</div>
+                          <div className="flex space-x-1">
+                            <div className="w-1.5 h-1.5 bg-[#00b4d8] rounded-full animate-pulse"></div>
+                            <div className="w-1.5 h-1.5 bg-[#00b4d8] rounded-full animate-pulse" style={{animationDelay: '300ms'}}></div>
+                            <div className="w-1.5 h-1.5 bg-[#00b4d8] rounded-full animate-pulse" style={{animationDelay: '600ms'}}></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Bouton de défilement vers le bas */}
+                {showScrollButton && (
+                  <button 
+                    onClick={scrollToBottom}
+                    className="fixed right-6 bottom-24 bg-[#00b4d8] p-2 rounded-full shadow-[0_0_15px_rgba(0,180,216,0.3)] z-20 text-[#0c1e2e] hover:bg-[#00a0c2] transition-all"
+                    title="Défiler vers le bas"
+                    aria-label="Défiler vers le bas de la conversation"
                   >
-                    {isLoading ? (
-                      <RefreshCw className="h-5 w-5 animate-spin" />
-                    ) : (
-                      <span className="flex items-center">
-                        ENVOYER
-                        <Send className="h-4 w-4 ml-2" />
-                      </span>
-                    )}
-                  </Button>
-                </form>
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
+                )}
+                
+                {/* Zone de saisie intégrée dans l'interface */}
+                <div className="py-3 px-4 bg-[#091525]/90 backdrop-blur-sm border-x border-b border-[#00b4d8]/30 rounded-b-xl">
+                  <form onSubmit={handleSubmit} className="flex space-x-2">
+                    <div className="relative flex-1">
+                      <div className="absolute left-0 top-0 pl-3 h-full flex items-center text-[#00b4d8] opacity-70 pointer-events-none">
+                        <span className="font-mono text-sm">{'>'}</span>
+                      </div>
+                      <textarea 
+                        ref={textareaRef}
+                        value={inputMessage}
+                        onChange={(e) => setInputMessage(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Posez votre question sur la cybersécurité..."
+                        className="w-full pl-8 pr-4 py-2 bg-[#0c1e2e]/60 border border-[#00b4d8]/30 rounded-md text-[#e5f0fc] placeholder-[#8abee0]/50 resize-none focus:ring-1 focus:ring-[#00b4d8] focus:border-[#00b4d8]/50 font-mono"
+                        rows={1}
+                        disabled={isLoading}
+                        style={{ minHeight: "2.5rem", maxHeight: "6rem" }}
+                      />
+                    </div>
+                    <Button 
+                      type="submit" 
+                      className="bg-[#00b4d8] hover:bg-[#00a0c2] text-[#0c1e2e] px-3 py-1 font-mono text-sm rounded-md flex-shrink-0 h-auto transition-all"
+                      disabled={!inputMessage.trim() || isLoading}
+                    >
+                      {isLoading ? (
+                        <RefreshCw className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <span className="flex items-center">
+                          ENVOYER
+                          <Send className="h-3 w-3 ml-2" />
+                        </span>
+                      )}
+                    </Button>
+                  </form>
+                </div>
               </div>
             </div>
           )}
