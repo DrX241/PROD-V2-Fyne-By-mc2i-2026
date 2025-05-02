@@ -42,6 +42,12 @@ export default function CyberModeSelection() {
           title: 'AGENT CONVERSATIONNEL',
           icon: null,
           destination: '/cyber/agent'
+        },
+        {
+          id: 'expert-learning',
+          title: 'APPRENDRE EN ÉCHANGEANT',
+          icon: null,
+          destination: '/cyber/expert-learning'
         }
       ]
     },

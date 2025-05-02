@@ -24,6 +24,7 @@ import { getRandomScenarios, getScenarioById, getScenariosByDifficulty } from ".
 import { startAgentSession, completeAgentSession } from "./cyberAgentController";
 import { generateDebriefing, getContextualDocumentation } from "./cyberLearningController";
 import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearningController";
+import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
 // Import des fonctions d'urgence cyber supprimé
 
 /**
@@ -394,6 +395,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Routes pour mc2i AI Learning
   app.post('/api/mcai-learning/init', initMcaiLearningSession);
   app.post('/api/mcai-learning/message', processMcaiLearningMessage);
+  
+  // Routes pour le chatbot expert en cybersécurité (carte "Apprendre en échangeant")
+  app.post('/api/cyber-expert/init', initCyberExpertSession);
+  app.post('/api/cyber-expert/message', processCyberExpertMessage);
+  app.post('/api/cyber-expert/terminate', terminateCyberExpertSession);
   
   // Route directe pour servir le document texte avec le mot de passe
   app.get('/download-attachment/:role', (req, res) => {
