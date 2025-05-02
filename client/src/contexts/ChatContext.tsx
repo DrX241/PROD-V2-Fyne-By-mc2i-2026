@@ -119,8 +119,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Débutant",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domain: "ingenierie-sociale",
-    domainId: "ingenierie-sociale"
+    domain: "ingenierie-sociale", domainId: "ingenierie-sociale"
   },
   {
     id: "social-engineering-incident",
@@ -132,8 +131,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-[#006a9e]/10 text-[#006a9e]",
-    domain: "ingenierie-sociale",
-    domainId: "ingenierie-sociale"
+    domain: "ingenierie-sociale", domainId: "ingenierie-sociale"
   },
   {
     id: "advanced-social-attacks",
@@ -145,8 +143,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Expert",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "ingenierie-sociale",
-    domain: "ingenierie-sociale"
+    domainId: "ingenierie-sociale", domain: "ingenierie-sociale"
   },
   
   // Stratégie cyber
@@ -160,7 +157,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Débutant",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "strategie-cyber"
+    domainId: "strategie-cyber", domain: "strategie-cyber"
   },
   {
     id: "security-roadmap",
@@ -172,7 +169,7 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-[#006a9e]/10 text-[#006a9e]",
-    domainId: "strategie-cyber"
+    domainId: "strategie-cyber", domain: "strategie-cyber"
   },
   {
     id: "cyber-strategy",
@@ -184,7 +181,8 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Expert",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "strategie-cyber"
+    domainId: "strategie-cyber",
+    domain: "strategie-cyber"
   },
   
   // Gestion de crise
@@ -198,7 +196,8 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Débutant",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "gestion-crise"
+    domainId: "gestion-crise",
+    domain: "gestion-crise"
   },
   {
     id: "crisis-plan",
@@ -210,7 +209,8 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "gestion-crise"
+    domainId: "gestion-crise",
+    domain: "gestion-crise"
   },
   {
     id: "ransomware-crisis",
@@ -222,7 +222,8 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Expert",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "gestion-crise"
+    domainId: "gestion-crise",
+    domain: "gestion-crise"
   },
   
   // Supply Chain
@@ -236,7 +237,8 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Débutant",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "supply-chain"
+    domainId: "supply-chain",
+    domain: "supply-chain"
   },
   {
     id: "vendor-assessment",
@@ -248,7 +250,8 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "supply-chain"
+    domainId: "supply-chain",
+    domain: "supply-chain"
   },
   {
     id: "supply-chain-incident",
@@ -260,7 +263,8 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Expert",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "supply-chain"
+    domainId: "supply-chain",
+    domain: "supply-chain"
   },
   
   // Données personnelles / RGPD
@@ -274,7 +278,8 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Débutant",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "donnees-personnelles"
+    domainId: "donnees-personnelles",
+    domain: "donnees-personnelles"
   },
   {
     id: "data-breach-response",
@@ -286,7 +291,8 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "donnees-personnelles"
+    domainId: "donnees-personnelles",
+    domain: "donnees-personnelles"
   },
   {
     id: "rgpd-compliance-program",
@@ -298,7 +304,8 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Expert",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "donnees-personnelles"
+    domainId: "donnees-personnelles",
+    domain: "donnees-personnelles"
   },
   
   // Gestion des incidents
@@ -312,7 +319,8 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Débutant",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "gestion-incidents"
+    domainId: "gestion-incidents",
+    domain: "gestion-incidents"
   },
   {
     id: "incident-response",
@@ -324,7 +332,8 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Intermédiaire",
     difficultyColor: "bg-orange-100 text-orange-700",
-    domainId: "gestion-incidents"
+    domainId: "gestion-incidents",
+    domain: "gestion-incidents"
   },
   {
     id: "security-monitoring",
@@ -336,7 +345,8 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Expert",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "gestion-incidents"
+    domainId: "gestion-incidents",
+    domain: "gestion-incidents"
   }
 ];
 
