@@ -493,29 +493,29 @@ export default function ChatMessage({
     );
   }
 
-  // Rendu standard pour les messages utilisateur/bot
+  // Rendu standard pour les messages utilisateur/bot - optimisé pour mobile
   return (
-    <div className={`flex items-start gap-2 sm:gap-3 mb-4 ${type === 'user' ? 'flex-row-reverse justify-start' : 'flex-row justify-start'} w-full`}>
-      {/* Avatar */}
-      <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full ${avatarColor} flex items-center justify-center flex-shrink-0 shadow-sm border border-[#006a9e]/20`}>
+    <div className={`flex items-start gap-1 sm:gap-3 mb-3 ${type === 'user' ? 'flex-row-reverse justify-start' : 'flex-row justify-start'} w-full`}>
+      {/* Avatar - plus petit sur mobile */}
+      <div className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full ${avatarColor} flex items-center justify-center flex-shrink-0 shadow-sm border border-[#006a9e]/20`}>
         {type === "user" ? (
-          <User className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+          <User className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-white" />
         ) : (
-          <BotMessageSquare className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+          <BotMessageSquare className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-white" />
         )}
       </div>
       
-      {/* Message content */}
-      <div className={`${type === 'user' ? 'text-right' : 'text-left'} max-w-[85%] sm:max-w-[80%] rounded-lg ${messageBgColor} p-3 sm:p-4 border shadow-sm`}>
+      {/* Message content - optimisé pour mobile */}
+      <div className={`${type === 'user' ? 'text-right' : 'text-left'} max-w-[88%] sm:max-w-[80%] rounded-lg ${messageBgColor} p-2.5 sm:p-4 border shadow-sm`}>
         {/* Afficher les informations du contact pour les messages bot si disponibles */}
         {type === "bot" && contactName && contactRole && (
-          <div className="mb-2 pb-2 border-b border-[#006a9e]/10">
-            <div className="font-bold text-[#006a9e] text-sm sm:text-base">{contactName}</div>
-            <div className="text-[10px] sm:text-xs text-gray-600">{contactRole}</div>
+          <div className="mb-1.5 sm:mb-2 pb-1.5 sm:pb-2 border-b border-[#006a9e]/10">
+            <div className="font-bold text-[#006a9e] text-xs sm:text-base">{contactName}</div>
+            <div className="text-[9px] sm:text-xs text-gray-600">{contactRole}</div>
           </div>
         )}
         
-        <div className="text-sm sm:text-base leading-relaxed">
+        <div className="text-sm sm:text-base leading-relaxed text-pretty">
           {formatContent()}
         </div>
       </div>

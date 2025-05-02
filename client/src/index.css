@@ -6,6 +6,35 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Optimisations responsive pour les appareils mobiles */
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    -webkit-text-size-adjust: 100%;
+  }
+  
+  @media (max-width: 640px) {
+    /* Optimisations pour les écrans mobiles */
+    .text-pretty {
+      text-wrap: pretty;
+      word-break: break-word;
+      hyphens: auto;
+    }
+    
+    /* Ajustement de la taille des polices pour une meilleure lisibilité sur mobile */
+    body {
+      font-size: 14px;
+    }
+    
+    /* Améliore la zone interactive pour les boutons sur mobile */
+    button, [role="button"] {
+      min-height: 36px;
+      min-width: 36px;
+    }
+  }
+}
+
 /* Formes de cartes futuristes pour Cyber Mode Selection */
 .card-clip-path-1 {
   clip-path: polygon(0 0, 100% 0, 95% 100%, 0% 100%, 5% 50%);

@@ -180,20 +180,20 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
 
       {/* Messages */}
       <div 
-        className="flex-1 overflow-y-auto py-4 sm:py-6 px-2 sm:px-4 relative scrollbar-cyber"
+        className="flex-1 overflow-y-auto py-3 sm:py-6 px-1 sm:px-4 relative scrollbar-cyber"
         ref={chatContainerRef}
-        style={{ scrollBehavior: 'smooth', height: 'calc(100vh - 200px)' }}
+        style={{ scrollBehavior: 'smooth', height: 'calc(100vh - 180px)', maxHeight: 'calc(100vh - 180px)' }}
       >
-        <div className="w-full max-w-5xl mx-auto px-2 sm:px-6">
+        <div className="w-full max-w-5xl mx-auto px-1 sm:px-6">
           {messages.map((message: any) => (
-            <div key={message.id} className="mb-6 sm:mb-8 animate-fadeIn">
+            <div key={message.id} className="mb-4 sm:mb-8 animate-fadeIn">
               {renderMessageContent(message)}
             </div>
           ))}
           
           {/* Indicateur de saisie */}
           {isTyping && (
-            <div className="typing-indicator-container mt-3 sm:mt-4 ml-8 sm:ml-12 animate-pulse">
+            <div className="typing-indicator-container mt-2 sm:mt-4 ml-6 sm:ml-12 animate-pulse">
               <div className="typing-indicator-cyber">
                 <div className="typing-dot-cyber" style={{"--dot-index": "0"} as React.CSSProperties}></div>
                 <div className="typing-dot-cyber" style={{"--dot-index": "1"} as React.CSSProperties}></div>
@@ -203,31 +203,25 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
           )}
         </div>
         
-        {/* Bouton de défilement vers le bas */}
+        {/* Bouton de défilement vers le bas - position ajustée pour mobile */}
         {showScrollButton && (
           <button 
             onClick={scrollToBottom}
-            className="fixed right-6 bottom-24 bg-gradient-to-r from-blue-600 to-indigo-600 p-3 rounded-full shadow-lg z-20 text-white hover:from-blue-700 hover:to-indigo-700 animate-fadeIn transition-all"
+            className="fixed right-3 sm:right-6 bottom-20 sm:bottom-24 bg-gradient-to-r from-blue-600 to-indigo-600 p-2 sm:p-3 rounded-full shadow-lg z-20 text-white hover:from-blue-700 hover:to-indigo-700 animate-fadeIn transition-all"
             title="Défiler vers le bas"
             aria-label="Défiler vers le bas de la conversation"
           >
-            <ChevronDown className="h-5 w-5" />
+            <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
         )}
       </div>
 
-      {/* Zone de saisie */}
-      <div className="py-3 sm:py-4 px-2 sm:px-4 bg-gradient-to-r from-blue-900/90 to-indigo-900/90 backdrop-blur-lg border-t border-blue-700/30 sticky bottom-0 shadow-lg">
-        <div className="max-w-5xl mx-auto px-2 sm:px-6">
-          {/* Gestion dynamique de l'affichage du champ de saisie:
-              - Étape 1: Afficher pour la saisie du prénom (quand userName est vide)
-              - Étape 2: Masquer pendant la configuration (après saisie prénom, avant réception email)
-              - Étape 3: Vérifier si l'email a été reçu et si le mot de passe a été validé
-              - Étape 4: Vérifier si le brief de mission a été reçu après confirmation
-              - Étape 5: Réactiver uniquement si toutes les conditions sont remplies
-          */}
+      {/* Zone de saisie - optimisée pour mobile */}
+      <div className="py-2 sm:py-4 px-1 sm:px-4 bg-gradient-to-r from-blue-900/90 to-indigo-900/90 backdrop-blur-lg border-t border-blue-700/30 sticky bottom-0 shadow-lg">
+        <div className="max-w-5xl mx-auto px-1 sm:px-6">
+          {/* Gestion dynamique de l'affichage du champ de saisie */}
           {(!userName || (userRole && messages.some(msg => msg.type === 'email') && passwordValidated && missionBriefReceived)) ? (
-            <form className="flex items-start gap-2 sm:gap-3" onSubmit={handleSubmit}>
+            <form className="flex items-start gap-1 sm:gap-3" onSubmit={handleSubmit}>
               <div className="relative flex-1 group">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
                 <textarea 
@@ -236,17 +230,17 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyDown={handleKeyDown}
                   rows={1}
-                  className="relative w-full py-2.5 sm:py-3.5 px-3 sm:px-4 pr-10 sm:pr-12 rounded-lg bg-white border border-blue-700/50 outline-none text-black focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all placeholder:text-gray-500/80 text-sm sm:text-base resize-none overflow-auto"
-                  placeholder={!userName ? "Entrez votre prénom..." : "Tapez votre réponse... (Shift+Entrée pour aller à la ligne)"}
-                  style={{ minHeight: "2.5rem", maxHeight: "8rem" }}
+                  className="relative w-full py-2 sm:py-3.5 px-2 sm:px-4 pr-6 sm:pr-12 rounded-lg bg-white border border-blue-700/50 outline-none text-black focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all placeholder:text-gray-500/80 text-sm sm:text-base resize-none overflow-auto"
+                  placeholder={!userName ? "Entrez votre prénom..." : "Tapez votre réponse..."}
+                  style={{ minHeight: "2.5rem", maxHeight: "6rem" }}
                 />
-                <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
+                <div className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2">
                   <span className="text-xs text-blue-400/60 hidden sm:inline">Shift+Entrée = nouvelle ligne</span>
                 </div>
               </div>
               <button 
                 type="submit" 
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white p-3 sm:p-4 rounded-full flex items-center justify-center transition-all duration-300 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg disabled:shadow-none disabled:bg-blue-900/50 group"
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white p-2 sm:p-4 rounded-full flex items-center justify-center transition-all duration-300 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg disabled:shadow-none disabled:bg-blue-900/50 group"
                 disabled={!inputMessage.trim()}
               >
                 <Send className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
