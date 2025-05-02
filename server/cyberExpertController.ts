@@ -42,10 +42,10 @@ export async function initCyberExpertSession(req: Request, res: Response) {
       content: getCyberExpertSystemPrompt()
     };
     
-    // Message d'accueil élégant et sophistiqué pour l'utilisateur
+    // Message d'accueil ludique sous forme de jeu
     const welcomeMessage: ChatCompletionRequestMessage = {
       role: "assistant",
-      content: "Bonjour et bienvenue dans notre espace d'apprentissage personnalisé. Je suis votre expert en cybersécurité, représentant mc2i, cabinet de conseil de premier plan dans ce domaine. Je suis à votre disposition pour vous accompagner dans une expérience d'apprentissage sur mesure.\n\nPouvez-vous me préciser la nature de votre intérêt aujourd'hui? Souhaitez-vous approfondir un sujet spécifique de cybersécurité, résoudre une problématique particulière, ou explorer un concept avec une approche différente? Je suis impatient d'adapter mon expertise à vos besoins précis."
+      content: "🎮 Bienvenue dans CYBER CHALLENGE ! 🎮\n\nJe suis votre guide dans cette aventure cybersécurité. Prêt à relever le défi ?\n\nChoisissez votre mission :\n1️⃣ Résoudre un problème cyber spécifique\n2️⃣ Explorer une menace dans votre secteur\n3️⃣ Découvrir un concept cyber de façon différente\n\nQuelle sera votre mission aujourd'hui ? (Répondez avec le numéro ou décrivez votre besoin)"
     };
     
     // Ajouter les messages à la session
@@ -196,11 +196,11 @@ async function handleInitialStage(session: CyberExpertSession, message: string):
     session.currentStage = 'questioning';
     
     if (message.trim() === "1") {
-      return "Vous souhaitez résoudre un problème précis. Pouvez-vous me décrire le problème que vous rencontrez? Quel est votre rôle ou domaine d'activité?";
+      return "🔍 Mission acceptée : RÉSOUDRE UN PROBLÈME !\n\nDécrivez rapidement votre problème et votre secteur. Plus vous donnez de détails, plus je peux vous aider efficacement !";
     } else if (message.trim() === "2") {
-      return "Vous souhaitez explorer une problématique métier. Dans quel secteur d'activité travaillez-vous? Et quelle est la problématique qui vous intéresse?";
+      return "🔍 Mission acceptée : EXPLORER UNE MENACE !\n\nDans quel secteur travaillez-vous ? Quelle menace cyber vous préoccupe ? Votre expérience compte pour personnaliser notre aventure !";
     } else if (message.trim() === "3") {
-      return "Vous souhaitez apprendre un concept cyber différemment. Quel est votre niveau en cybersécurité (Débutant / Intermédiaire / Avancé)? Quel concept souhaitez-vous explorer?";
+      return "🔍 Mission acceptée : DÉCOUVRIR UN CONCEPT !\n\nQuel est votre niveau (débutant/intermédiaire/avancé) ? Quel concept cyber voulez-vous explorer ? Je vais le rendre simple et intéressant !";
     }
   }
   
@@ -315,30 +315,35 @@ async function handleConfirmationStage(session: CyberExpertSession, message: str
  * Gère l'étape d'apprentissage et d'échange sur le sujet
  */
 async function handleLearningStage(session: CyberExpertSession, message: string): Promise<string> {
+  // On compte les échanges pour pouvoir conclure après 2-3 messages
+  const userMessageCount = session.messages.filter(msg => msg.role === "user").length;
+  const shouldConclude = userMessageCount >= 4; // Conclure après ~3 échanges
+  
   // Traiter la question/réponse dans le contexte du sujet identifié
   const prompt = `
     L'utilisateur poursuit son apprentissage sur le sujet: "${session.topic}"
     
     Son message: "${message}"
     
-    Crée une réponse sophistiquée et élégante qui:
+    ${shouldConclude ? "C'est le moment de conclure notre échange après avoir fourni des informations utiles." : ""}
     
-    - Apporte des connaissances précises, récentes et vérifiables
-    - S'adapte parfaitement au niveau d'expertise perçu de l'utilisateur (${session.userLevel || 'intermédiaire'})
-    - Intègre des références aux organismes officiels français et internationaux pertinents
-    - Mentionne le cadre réglementaire applicable (français et européen)
-    - Utilise des analogies ou métaphores pour simplifier les concepts complexes
-    - Apporte une valeur ajoutée unique, dépassant les informations généralement disponibles
-    - Se termine par une question ouverte soigneusement formulée qui encourage la poursuite de l'échange
+    Crée une réponse ${shouldConclude ? "de conclusion" : ""} qui:
+    
+    - Est très concise (3-4 phrases maximum)
+    - Utilise un langage simple et direct comme dans un jeu
+    - ${shouldConclude ? "Résume les points clés et donne 1-2 conseils pratiques à retenir" : "Répond précisément à la question avec des exemples concrets"}
+    - Fait référence à une source officielle (ANSSI, CNIL) si pertinent, mais de façon très brève
+    - Utilise une analogie simple si cela aide à clarifier
+    - ${shouldConclude ? "Termine par une phrase de félicitation pour compléter la mission" : "Pose une question interactive qui invite l'utilisateur à participer"}
 
-    Directives essentielles:
-    - Évite complètement le markdown, les listes à puces ou tout formatage technique
-    - Utilise des paragraphes élégants, des transitions fluides et un langage sophistiqué mais clair
-    - Sois chaleureux et engageant tout en restant professionnel et expert
-    - Si la question révèle une confusion, corrige-la avec tact et élégance
-    - Si la question montre une bonne compréhension, valorise subtilement ce point
-    - Anticipe les questions suivantes et oriente subtilement vers des pistes d'approfondissement
-    - Reste concis tout en étant complet, privilégie la qualité à la quantité
+    Style et format:
+    - Ton enthousiaste et dynamique, comme un coach de jeu
+    - Utilise des emojis pertinents pour dynamiser (maximum 2-3)
+    - Langage clair, phrases courtes, évite le jargon technique
+    - Sois direct et va droit au but
+    - N'utilise jamais de markdown ou listes à puces
+    - Évite les longs paragraphes théoriques - sois pratique
+    ${shouldConclude ? "- Termine par une phrase qui indique clairement la fin de la mission, comme 'Mission accomplie! Vous avez maintenant les clés pour...''" : ""}
   `;
   
   try {
@@ -362,22 +367,22 @@ async function generateLearningSequence(session: CyberExpertSession): Promise<st
   const prompt = `
     Le besoin suivant de l'utilisateur a été confirmé: "${session.topic}"
     
-    Créez une expérience d'apprentissage exceptionnelle et élégante qui intègre harmonieusement:
+    Crée une première réponse dans un style de jeu éducatif avec:
     
-    - Une mise en situation immersive qui reflète une situation professionnelle réaliste rencontrée par les entreprises françaises
-    - Un exemple concret et documenté, idéalement récent et vérifiable, qui illustre le concept
-    - Une explication sophistiquée mais accessible, adaptée précisément au niveau ${session.userLevel || 'intermédiaire'} de l'utilisateur
-    - Un éclairage sur les aspects réglementaires français et européens pertinents
-    - Des recommandations stratégiques immédiatement applicables dans un contexte professionnel
-    - Une question engageante qui encourage la réflexion et prolonge naturellement l'échange
+    - Un scénario court et engageant lié au sujet (2 phrases max)
+    - Une explication simple et directe avec une analogie concrète
+    - Une référence brève à une recommandation officielle (ANSSI/CNIL)
+    - 1-2 conseils pratiques que l'utilisateur peut appliquer immédiatement
+    - Une question interactive qui pousse l'utilisateur à réfléchir et participer
     
-    Directives de style et de format:
-    - Évitez absolument le markdown, les listes à puces, ou toute forme de formatage technique
-    - Utilisez des paragraphes soignés, des transitions fluides, un vocabulaire recherché mais précis
-    - Intégrez des références aux autorités et organismes pertinents (ANSSI, CNIL, ENISA, etc.)
-    - Anticipez les questions suivantes et proposez subtilement des pistes d'approfondissement
-    - Maintenez un ton à la fois expert, chaleureux et engageant
-    - Privilégiez la qualité et la pertinence à la longueur
+    Style et ton:
+    - Très concis (maximum 5 phrases au total)
+    - Langage clair, vulgarisé mais précis, adapté au niveau ${session.userLevel || 'intermédiaire'}
+    - Ton enthousiaste comme un coach ou guide de jeu
+    - Utilise 1-2 emojis pertinents pour dynamiser
+    - Structure: scénario → explication → conseil → question
+    - Évite complètement le jargon technique sauf si indispensable (avec explication)
+    - N'utilise ni markdown ni listes à puces
   `;
   
   try {
@@ -467,16 +472,17 @@ export async function terminateCyberExpertSession(req: Request, res: Response) {
         // Si une vraie conversation a eu lieu, générer un résumé
         try {
           const prompt = `
-            Génère un résumé élégant et sophistiqué de la conversation sur le sujet: "${session.topic || 'cybersécurité'}"
+            Résume notre échange sur: "${session.topic || 'cybersécurité'}" dans un format CARTE DE MISSION ACCOMPLIE.
             
-            Dans ton résumé, intègre harmonieusement:
-            1. Les principaux concepts abordés durant notre échange
-            2. Les recommandations pratiques et stratégiques que vous pouvez appliquer
-            3. Les perspectives d'approfondissement pour continuer votre montée en compétence
+            Ton résumé doit être:
+            - Ultra concis (4-5 lignes maximum)
+            - Ludique avec 1-2 emojis pertinents
+            - Structuré comme un débriefing de jeu avec "MISSION ACCOMPLIE" en début
+            - Contenant 2-3 points clés à retenir
+            - Se terminant par une phrase encourageante
             
-            Format: paragraphes soignés sans markdown, listes à puces ou formatage technique.
-            Utilise un langage professionnel mais chaleureux, structure par thèmes.
-            Intègre si pertinent les références officielles mentionnées.
+            Format: paragraphes courts sans markdown, listes à puces ou formatage technique.
+            Ton: enthousiaste, comme un coach de jeu qui félicite un joueur pour sa progression.
           `;
           
           const messages: ChatCompletionRequestMessage[] = [
