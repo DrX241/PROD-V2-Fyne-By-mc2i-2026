@@ -93,7 +93,7 @@ export async function initMcaiLearningSession(req: Request, res: Response) {
     let welcomeMessage = '';
     
     if (sessionStatus.stageActuel === 'introduction') {
-      welcomeMessage = 'Bonjour et bienvenue dans mc2i AI Learning ! Je suis votre assistant virtuel dédié à la formation et à l\'évaluation. Pour commencer, pourriez-vous me donner votre trigramme ?';
+      welcomeMessage = 'Bonjour et bienvenue dans mc2i AI Learning ! Je suis votre assistant virtuel dédié à la formation et à l\'évaluation de vos compétences. Pour commencer, pourriez-vous me donner votre trigramme ?';
       
       // Ajouter le message au historique
       await db.insert(mcaiMessages)
