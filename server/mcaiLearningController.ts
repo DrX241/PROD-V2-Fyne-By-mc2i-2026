@@ -447,7 +447,22 @@ Consignes Spécifiques pour Chaque Mode d'Apprentissage :
  */
 async function generateScenario(session: LearningBotSession, lastResponse: string = ""): Promise<string> {
   try {
-    const promptScenario = `
+    // Obtenir la date et l'heure actuelles au format français
+const currentDate = new Date();
+const dateOptions: Intl.DateTimeFormatOptions = { 
+  weekday: 'long', 
+  year: 'numeric', 
+  month: 'long', 
+  day: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  timeZone: 'Europe/Paris'
+};
+const formattedDate = currentDate.toLocaleDateString('fr-FR', dateOptions);
+// Première lettre en majuscule
+const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+
+const promptScenario = `
 En tant que mc2i AI Learning, tu dois générer un scénario pour évaluer les compétences de l'apprenant.
 
 Détails de l'apprenant:
@@ -457,6 +472,7 @@ Détails de l'apprenant:
 - Formation choisie: ${session.formationChoisie}
 - Numéro du scénario actuel: ${session.scenarioActuel + 1}${session.mode === 'immersion' && session.scenarioActuel > 0 ? `
 - Dernière réponse de l'apprenant pour le scénario précédent: "${lastResponse}"` : ''}
+- Date et heure actuelles: ${capitalizedDate}
 
 ${session.mode === 'classique' 
   ? `Génère un scénario professionnel réaliste ${session.scenarioActuel + 1}/4 sans lien avec les précédents. Ce scénario doit évaluer les compétences liées à la formation "${session.formationChoisie}".` 
@@ -471,7 +487,7 @@ INSTRUCTIONS TRÈS IMPORTANTES POUR LE FORMAT :
    À : [Destinataire] <destinataire@mc2i.fr>
    Cc : [Autres personnes] <autre.personne@mc2i.fr>
    Objet : [Objet spécifique et personnalisé du message]
-   Date : [Date et heure actuelles]
+   Date : ${capitalizedDate}
 
    [Corps du message bien formaté]
 
@@ -503,6 +519,21 @@ Assure-toi que la situation exige une réponse d'au moins 30 caractères de la p
  */
 async function generateFeedbackGlobal(session: LearningBotSession): Promise<string> {
   try {
+    // Obtenir la date et l'heure actuelles au format français
+    const currentDate = new Date();
+    const dateOptions: Intl.DateTimeFormatOptions = { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'Europe/Paris'
+    };
+    const formattedDate = currentDate.toLocaleDateString('fr-FR', dateOptions);
+    // Première lettre en majuscule
+    const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+    
     // Construire le prompt pour le feedback global
     const promptFeedback = `
 En tant que mc2i AI Learning, tu dois générer un feedback global pour l'apprenant qui a terminé tous les scénarios.
@@ -525,7 +556,7 @@ INSTRUCTIONS TRÈS IMPORTANTES POUR LE FORMAT :
    À : ${session.trigramme}@mc2i.fr
    Cc : manager-formation@mc2i.fr
    Objet : Évaluation de formation : ${session.formationChoisie} - Résultats
-   Date : [Date et heure actuelles]
+   Date : ${capitalizedDate}
 
    [Corps du message bien formaté qui comprend en toute objectivité:]
    - Les points forts de l'apprenant
@@ -569,13 +600,28 @@ Sois assez strict dans ton approche tout en restant encourageant.
  */
 async function generateGenericResponse(session: LearningBotSession, message: string): Promise<string> {
   try {
+    // Obtenir la date et l'heure actuelles au format français
+    const currentDate = new Date();
+    const dateOptions: Intl.DateTimeFormatOptions = { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'Europe/Paris'
+    };
+    const formattedDate = currentDate.toLocaleDateString('fr-FR', dateOptions);
+    // Première lettre en majuscule
+    const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+    
     // Créer un contexte avec l'historique des messages pour l'API GPT-4o
     const contextMessages = session.messages.slice(-10); // Limiter à 10 derniers messages pour le contexte
     
     // Ajouter une instruction système spécifique
     const systemMessage: ChatCompletionRequestMessage = {
       role: "system",
-      content: getMcaiLearningSystemPrompt() + "\nRéponds à l'utilisateur en fonction du contexte de la conversation et de son stade actuel dans le processus d'apprentissage. Utilise toujours un format d'email professionnel et réaliste lorsqu'approprié avec des adresses se terminant par @mc2i.fr."
+      content: getMcaiLearningSystemPrompt() + `\nRéponds à l'utilisateur en fonction du contexte de la conversation et de son stade actuel dans le processus d'apprentissage. Utilise toujours un format d'email professionnel et réaliste lorsqu'approprié avec des adresses se terminant par @mc2i.fr. La date et l'heure actuelles sont : ${capitalizedDate}`
     };
     
     const apiMessages: ChatCompletionRequestMessage[] = [systemMessage, ...contextMessages];
