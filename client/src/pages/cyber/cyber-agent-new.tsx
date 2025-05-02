@@ -15,11 +15,56 @@ interface Role {
   description: string;
 }
 
+// Types pour les modules
+interface Module {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+}
+
+// Type pour le test de compétence
+interface SkillTest {
+  id: string;
+  question: string;
+  options: {
+    id: string;
+    text: string;
+    isCorrect: boolean;
+  }[];
+  explanation: string;
+}
+
+// Type pour la mission
+interface Mission {
+  id: string;
+  title: string;
+  description: string;
+  context: string;
+  superiorName: string;
+  superiorRole: string;
+  teammates: {
+    name: string;
+    role: string;
+  }[];
+  firstChoice: {
+    id: string;
+    text: string;
+    consequences: string;
+  }[];
+}
+
 export default function CyberAgentNewPage() {
   // État pour suivre l'étape actuelle
-  const [currentStep, setCurrentStep] = useState<'intro' | 'role-selection' | 'level-assessment' | 'session'>('intro');
+  const [currentStep, setCurrentStep] = useState<'intro' | 'role-selection' | 'module-selection' | 'skill-test' | 'mission-briefing' | 'mission-active'>('intro');
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
-  const [expertiseLevel, setExpertiseLevel] = useState<'Débutant' | 'Intermédiaire' | 'Expert' | null>(null);
+  const [expertiseLevel, setExpertiseLevel] = useState<'Debutant' | 'Intermediaire' | 'Expert' | null>(null);
+  const [selectedModule, setSelectedModule] = useState<string | null>(null);
+  const [currentTest, setCurrentTest] = useState<SkillTest | null>(null);
+  const [testCompleted, setTestCompleted] = useState<boolean>(false);
+  const [mission, setMission] = useState<Mission | null>(null);
+  const [missionProgress, setMissionProgress] = useState<number>(0);
+  const [gameOver, setGameOver] = useState<boolean>(false);
   
   // Récupération des rôles disponibles
   const { data: roles, isLoading: rolesLoading } = useQuery({
@@ -31,6 +76,21 @@ export default function CyberAgentNewPage() {
       }
       return response.json();
     },
+  });
+  
+  // Récupération des modules disponibles pour le rôle sélectionné
+  const { data: modules, isLoading: modulesLoading } = useQuery({
+    queryKey: ['/api/cyber/cyber-agent/modules', selectedRole],
+    queryFn: async () => {
+      if (!selectedRole) return { modules: [] };
+      
+      const response = await fetch(`/api/cyber/cyber-agent/modules?role=${selectedRole}`);
+      if (!response.ok) {
+        throw new Error('Erreur lors de la récupération des modules');
+      }
+      return response.json();
+    },
+    enabled: !!selectedRole,
   });
 
   // Animation de transition
@@ -47,11 +107,79 @@ export default function CyberAgentNewPage() {
   };
 
   // Gestionnaire pour la sélection du niveau d'expertise
-  const handleLevelSelect = (level: 'Débutant' | 'Intermédiaire' | 'Expert') => {
-    setExpertiseLevel(level);
-    // Ici nous passerions normalement à l'étape de session, mais comme c'est une implémentation temporaire,
-    // nous restons sur la page d'évaluation
-    // setCurrentStep('session');
+  const handleLevelSelect = (level: 'Debutant' | 'Intermediaire' | 'Expert') => {
+    const normalizedLevel = level === 'Débutant' ? 'Debutant' : level === 'Intermédiaire' ? 'Intermediaire' : 'Expert';
+    setExpertiseLevel(normalizedLevel);
+    setCurrentStep('module-selection');
+  };
+  
+  // Gestionnaire pour la sélection du module
+  const handleModuleSelect = (moduleId: string) => {
+    setSelectedModule(moduleId);
+    
+    // Récupération du test de compétence associé au module
+    fetch(`/api/cyber/cyber-agent/skill-test?role=${selectedRole}&module=${moduleId}&level=${expertiseLevel}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Erreur lors de la récupération du test');
+        }
+        return response.json();
+      })
+      .then(data => {
+        setCurrentTest(data.test);
+        setCurrentStep('skill-test');
+      })
+      .catch(error => {
+        console.error('Erreur:', error);
+      });
+  };
+  
+  // Gestionnaire pour la réponse au test
+  const handleTestAnswer = (optionId: string) => {
+    // Vérifier si la réponse est correcte
+    const correctAnswer = currentTest?.options.find(option => option.isCorrect);
+    const isCorrect = optionId === correctAnswer?.id;
+    
+    if (isCorrect) {
+      setTestCompleted(true);
+      // Récupération de la mission
+      fetch(`/api/cyber/cyber-agent/mission?role=${selectedRole}&module=${selectedModule}&level=${expertiseLevel}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Erreur lors de la récupération de la mission');
+          }
+          return response.json();
+        })
+        .then(data => {
+          setMission(data.mission);
+          setCurrentStep('mission-briefing');
+        })
+        .catch(error => {
+          console.error('Erreur:', error);
+        });
+    } else {
+      // Donner une autre chance
+      alert("Cette réponse n'est pas correcte. Essayez à nouveau!");
+    }
+  };
+  
+  // Gestionnaire pour le démarrage de la mission
+  const handleStartMission = () => {
+    setCurrentStep('mission-active');
+  };
+  
+  // Gestionnaire pour les choix de la mission
+  const handleMissionChoice = (choiceId: string) => {
+    // Vérifier la conséquence du choix
+    const choice = mission?.firstChoice.find(c => c.id === choiceId);
+    
+    if (choice?.consequences === 'termination') {
+      // Le joueur est licencié
+      setGameOver(true);
+    } else {
+      // Continuer la mission
+      setMissionProgress(prev => prev + 1);
+    }
   };
 
   return (
