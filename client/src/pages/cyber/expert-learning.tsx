@@ -288,11 +288,11 @@ export default function ExpertLearningPage() {
             body: JSON.stringify({ userId })
           }).catch(err => console.error("Erreur lors de la fin de la session:", err));
         }
-        setLocation('/cyber-mode-selection');
+        setLocation('/cyber');
       }
     } else {
       // Si aucune session n'est active, naviguer directement
-      setLocation('/cyber-mode-selection');
+      setLocation('/cyber');
     }
   };
 
