@@ -9,6 +9,31 @@ import PageTitle from "@/components/utils/PageTitle";
 import { apiRequest } from "@/lib/queryClient";
 import DOMPurify from 'dompurify';
 
+// Fonction pour formater le texte avec une structure visuelle
+const formatTextWithStructure = (text: string): string => {
+  if (!text) return '';
+  
+  // Convertir les sauts de ligne en balises <br>
+  let formattedText = text.replace(/\n/g, '<br>');
+  
+  // Remplacer les listes numérotées (1., 2., etc.)
+  formattedText = formattedText.replace(/^(\d+\.\s+)(.+)$/gm, '<div class="flex mb-2"><div class="w-6 flex-shrink-0 font-bold">$1</div><div>$2</div></div>');
+  
+  // Remplacer les listes à puces (-, *, •)
+  formattedText = formattedText.replace(/^([-*•]\s+)(.+)$/gm, '<div class="flex mb-2"><div class="w-6 flex-shrink-0">$1</div><div>$2</div></div>');
+  
+  // Mettre en surbrillance les sections importantes (entre ** ou entourées de MAJUSCULES)
+  formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<span class="font-bold text-blue-300">$1</span>');
+  
+  // Ajouter une classe pour les sections en majuscules (comme "PHASE INITIALE")
+  formattedText = formattedText.replace(/([A-Z]{3,}[\s-][A-Z\s-]+)(\s*-\s*)/g, '<div class="font-bold text-blue-300 mt-3 mb-1">$1</div>');
+  
+  // Gérer les titres de sections
+  formattedText = formattedText.replace(/(.*?):/g, '<span class="font-semibold">$1:</span>');
+
+  return formattedText;
+};
+
 interface Message {
   id: string;
   type: "user" | "bot";
@@ -288,7 +313,7 @@ export default function ExpertLearningPage() {
                   <X className="h-5 w-5" />
                 </Button>
               </div>
-              <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: sessionSummary.replace(/\n/g, '<br>') }} />
+              <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formatTextWithStructure(sessionSummary)) }} />
               <div className="mt-6 flex justify-center">
                 <Button onClick={startSession} className="bg-blue-600 hover:bg-blue-700">
                   Démarrer une nouvelle session
@@ -394,7 +419,16 @@ export default function ExpertLearningPage() {
                           : 'bg-blue-800/60 border border-blue-700/50 text-blue-50'
                       }`}
                     >
-                      <div className="whitespace-pre-wrap">{message.content}</div>
+                      {message.type === 'user' ? (
+                        <div className="whitespace-pre-wrap">{message.content}</div>
+                      ) : (
+                        <div 
+                          className="prose prose-invert prose-sm max-w-none" 
+                          dangerouslySetInnerHTML={{ 
+                            __html: DOMPurify.sanitize(formatTextWithStructure(message.content))
+                          }}
+                        />
+                      )}
                     </div>
                   </div>
                 ))}
