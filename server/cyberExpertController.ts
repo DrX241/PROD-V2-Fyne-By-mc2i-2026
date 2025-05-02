@@ -191,27 +191,55 @@ function isNonCyberQuestion(message: string): boolean {
  * Gère la première étape de l'interaction (identification du type de besoin)
  */
 async function handleInitialStage(session: CyberExpertSession, message: string): Promise<string> {
+  // Liste des termes de cybersécurité courants
+  const commonCyberTerms = ["pentest", "ransomware", "phishing", "malware", "ddos", "firewall", "hacker", "hacking",
+                           "virus", "trojan", "spyware", "backdoor", "exploit", "zero-day", "vuln", "vpn", "cryptography",
+                           "encryption", "hash", "password", "authentification", "mfa", "2fa", "identity", "cybersecurity",
+                           "sécurité", "social engineering", "ingénierie sociale", "antivirus", "soc", "cert", "incident", 
+                           "rgpd", "gdpr", "nist", "iso27001", "cyber", "sécurité informatique"];
+  
+  const lowercaseMessage = message.toLowerCase().trim();
+  const containsCyberTerm = commonCyberTerms.some(term => lowercaseMessage.includes(term));
+  
+  // Si l'utilisateur a directement saisi un sujet cyber au départ (sans choisir 1,2,3)
+  if (containsCyberTerm && message.length < 50 && !/^[123]$/.test(message.trim())) {
+    // C'est probablement un sujet cyber direct, on l'utilise directement et on passe à l'apprentissage
+    session.topic = message.trim();
+    session.currentStage = 'learning';
+    session.needIdentified = true;
+    session.needConfirmed = true;
+    session.userLevel = "Débutant"; // Par défaut
+    
+    // Générer une séquence d'apprentissage personnalisée
+    return await generateLearningSequence(session);
+  }
+  
   // Si le message est court et contient simplement un chiffre (1, 2 ou 3)
   if (/^[123]$/.test(message.trim())) {
     session.currentStage = 'questioning';
     
     if (message.trim() === "1") {
-      return "🔍 Mission acceptée : RÉSOUDRE UN PROBLÈME !\n\nDécrivez rapidement votre problème et votre secteur. Plus vous donnez de détails, plus je peux vous aider efficacement !";
+      return "🔍 Mission acceptée : RÉSOUDRE UN PROBLÈME !\n\nDécrivez rapidement votre problème:";
     } else if (message.trim() === "2") {
-      return "🔍 Mission acceptée : EXPLORER UNE MENACE !\n\nDans quel secteur travaillez-vous ? Quelle menace cyber vous préoccupe ? Votre expérience compte pour personnaliser notre aventure !";
+      return "🔍 Mission acceptée : EXPLORER UNE MENACE !\n\nDans quel secteur travaillez-vous ?";
     } else if (message.trim() === "3") {
-      return "🔍 Mission acceptée : DÉCOUVRIR UN CONCEPT !\n\nQuel est votre niveau (débutant/intermédiaire/avancé) ? Quel concept cyber voulez-vous explorer ? Je vais le rendre simple et intéressant !";
+      return "🔍 Mission acceptée : DÉCOUVRIR UN CONCEPT !\n\nQuel concept cyber voulez-vous explorer ?";
     }
   }
   
-  // Si l'utilisateur a répondu avec du texte au lieu d'un chiffre
+  // Si l'utilisateur a répondu avec autre chose
   const prompt = `
-    L'utilisateur a répondu "${message}" à ma question initiale où je lui proposais:
-    1. Résoudre un problème précis
-    2. Explorer une problématique métier
-    3. Apprendre un concept cyber différemment
+    L'utilisateur a répondu "${message}" à ma question initiale.
     
-    Identifie lequel des trois choix correspond le mieux à sa réponse. Si ce n'est pas clair, pose 1-2 questions pour mieux comprendre son besoin. Ta réponse doit être directe, claire et sans introduction.
+    IMPORTANT: S'il a mentionné directement un sujet de cybersécurité (comme pentest, ransomware, etc.),
+    fournit IMMÉDIATEMENT une explication ultra-concise (3-4 phrases max) sur ce sujet sans poser de questions supplémentaires.
+    
+    Sinon, identifie quel type de besoin il a parmi:
+    1. Résoudre un problème précis 
+    2. Explorer une problématique sectorielle
+    3. Apprendre un concept cyber
+    
+    Pose UNE question courte et directe pour préciser son besoin.
   `;
   
   session.currentStage = 'questioning';
@@ -225,7 +253,7 @@ async function handleInitialStage(session: CyberExpertSession, message: string):
     return await openAIService.getChatCompletion(messages, 0.7);
   } catch (error) {
     console.error("Erreur lors de l'analyse du message initial:", error);
-    return "Je n'ai pas bien compris votre demande. Pourriez-vous préciser si vous souhaitez:\n\n1️⃣ Résoudre un problème précis\n2️⃣ Explorer une problématique métier\n3️⃣ Apprendre un concept cyber différemment";
+    return "Je n'ai pas bien compris. Parlez-moi simplement du sujet cyber qui vous intéresse:";
   }
 }
 
@@ -233,18 +261,65 @@ async function handleInitialStage(session: CyberExpertSession, message: string):
  * Gère l'étape de questionnement pour préciser le besoin
  */
 async function handleQuestioningStage(session: CyberExpertSession, message: string): Promise<string> {
-  // Collecter plus d'informations pour identifier le besoin précis
+  // Pour des mots-clés cyber clairs comme "pentest", "ransomware", etc., aller directement à l'apprentissage
+  const commonCyberTerms = ["pentest", "ransomware", "phishing", "malware", "ddos", "firewall", "hacker", "hacking",
+                           "virus", "trojan", "spyware", "backdoor", "exploit", "zero-day", "vuln", "vpn", "cryptography",
+                           "encryption", "hash", "password", "authentification", "mfa", "2fa", "identity", "cybersecurity",
+                           "sécurité", "social engineering", "ingénierie sociale", "antivirus", "soc", "cert", "incident", 
+                           "rgpd", "gdpr", "nist", "iso27001", "cyber", "sécurité informatique"];
+  
+  const lowercaseMessage = message.toLowerCase().trim();
+  const containsCyberTerm = commonCyberTerms.some(term => lowercaseMessage.includes(term));
+  const isProbablyUserLevel = lowercaseMessage.includes("débutant") || 
+                             lowercaseMessage.includes("intermédiaire") || 
+                             lowercaseMessage.includes("avancé") || 
+                             lowercaseMessage.includes("expert") ||
+                             lowercaseMessage.includes("beginner") ||
+                             lowercaseMessage.includes("intermediate") ||
+                             lowercaseMessage.includes("advanced");
+  
+  // Si c'est juste un niveau sans sujet, demander le sujet sans reformulation
+  if (isProbablyUserLevel && lowercaseMessage.length < 20 && !containsCyberTerm) {
+    return "Super! Sur quel sujet cyber voulez-vous en apprendre plus?";
+  }
+  
+  // Si c'est un mot-clé cyber court et clair, passer directement à l'apprentissage
+  if (lowercaseMessage.length < 20 && containsCyberTerm) {
+    // Stocker le sujet
+    session.topic = message.trim();
+    
+    // Identifier le niveau si possible
+    if (message.toLowerCase().includes("débutant") || message.toLowerCase().includes("beginner")) {
+      session.userLevel = "Débutant";
+    } else if (message.toLowerCase().includes("intermédiaire") || message.toLowerCase().includes("intermediate")) {
+      session.userLevel = "Intermédiaire";
+    } else if (message.toLowerCase().includes("avancé") || message.toLowerCase().includes("expert") || message.toLowerCase().includes("advanced")) {
+      session.userLevel = "Avancé";
+    } else {
+      // Par défaut, supposer débutant/intermédiaire selon la longueur du message
+      session.userLevel = "Débutant";
+    }
+    
+    // Passer directement à l'apprentissage
+    session.currentStage = 'learning';
+    session.needIdentified = true;
+    session.needConfirmed = true;
+    
+    // Générer une séquence d'apprentissage
+    return await generateLearningSequence(session);
+  }
+  
+  // Si c'est une réponse plus complexe, analyser normalement
   const prompt = `
     L'utilisateur a écrit: "${message}"
     
-    Basé sur cette réponse et nos échanges précédents:
-    1. Identifie précisément le besoin/sujet/concept cyber de l'utilisateur
-    2. Détermine son niveau d'expertise approximatif (débutant/intermédiaire/avancé)
-    3. Identifie son contexte professionnel si possible
+    Identifie directement:
+    1. Le sujet/concept cyber principal (sois précis)
+    2. Son niveau d'expertise approximatif (débutant/intermédiaire/avancé)
     
-    Ensuite, reformule clairement ce que tu as compris de son besoin sous la forme: "Si je comprends bien, vous cherchez à [besoin précis]. Est-ce exact?" 
-    
-    Ta réponse doit être concise, centrée sur la reformulation du besoin et se terminer par une demande de confirmation.
+    IMPORTANT: Ne reformule PAS le besoin et ne demande PAS de confirmation!
+    Commence immédiatement à répondre comme si tu connaissais déjà le besoin exact.
+    Donne une réponse courte et dynamique sur ce sujet, adaptée au niveau perçu.
   `;
   
   try {
@@ -256,20 +331,20 @@ async function handleQuestioningStage(session: CyberExpertSession, message: stri
     
     const response = await openAIService.getChatCompletion(messages, 0.7);
     
-    // Passer à l'étape de confirmation
-    session.currentStage = 'confirmation';
+    // Passer directement à l'apprentissage
+    session.currentStage = 'learning';
     session.needIdentified = true;
+    session.needConfirmed = true;
     
-    // Extraire le sujet/besoin identifié pour le stocker dans la session
-    const needMatch = response.match(/vous cherchez à (.+?)\./i);
-    if (needMatch && needMatch[1]) {
-      session.topic = needMatch[1].trim();
+    // Stocker le sujet même s'il n'est pas explicitement identifié
+    if (!session.topic) {
+      session.topic = message.trim();
     }
     
     return response;
   } catch (error) {
     console.error("Erreur lors de l'analyse du besoin:", error);
-    return "Je n'ai pas bien compris votre besoin. Pourriez-vous le reformuler de manière plus précise?";
+    return "Je n'ai pas bien compris. Dites-moi simplement quel sujet cyber vous intéresse?";
   }
 }
 
@@ -292,8 +367,28 @@ async function handleConfirmationStage(session: CyberExpertSession, message: str
                    lowercaseMessage.includes("pas exactement") ||
                    lowercaseMessage.includes("incorrect");
   
-  if (isConfirming) {
-    // L'utilisateur confirme, passer à l'étape d'apprentissage
+  // Liste des termes de cybersécurité courants
+  const commonCyberTerms = ["pentest", "ransomware", "phishing", "malware", "ddos", "firewall", "hacker", "hacking",
+                           "virus", "trojan", "spyware", "backdoor", "exploit", "zero-day", "vuln", "vpn", "cryptography",
+                           "encryption", "hash", "password", "authentification", "mfa", "2fa", "identity", "cybersecurity",
+                           "sécurité", "social engineering", "ingénierie sociale", "antivirus", "soc", "cert", "incident", 
+                           "rgpd", "gdpr", "nist", "iso27001", "cyber", "sécurité informatique"];
+  
+  const containsCyberTerm = commonCyberTerms.some(term => lowercaseMessage.includes(term));
+  const isShortMessage = message.length < 30;
+  
+  // Si l'utilisateur donne un nouveau sujet direct au lieu de confirmer/nier
+  if (containsCyberTerm && !isConfirming && !isDenying) {
+    // C'est probablement un nouveau sujet, on l'utilise directement
+    session.topic = message.trim();
+    session.currentStage = 'learning';
+    session.needConfirmed = true;
+    
+    // Générer une séquence d'apprentissage personnalisée
+    return await generateLearningSequence(session);
+  } else if (isConfirming || (isShortMessage && !isDenying)) {
+    // L'utilisateur confirme OU donne une réponse courte qui n'est pas un refus clair
+    // On considère que c'est une confirmation implicite
     session.currentStage = 'learning';
     session.needConfirmed = true;
     
@@ -304,10 +399,16 @@ async function handleConfirmationStage(session: CyberExpertSession, message: str
     session.currentStage = 'questioning';
     session.needIdentified = false;
     
-    return "Je vous prie de m'excuser pour cette incompréhension. Pouvez-vous reformuler votre besoin pour que je puisse mieux vous aider?";
+    return "Compris! Dites-moi simplement quel sujet de cybersécurité vous voulez explorer:";
   } else {
-    // Message ambigu, demander une confirmation claire
-    return "Je n'ai pas bien compris votre réponse. Pouvez-vous me confirmer si j'ai bien cerné votre besoin par un simple 'oui' ou 'non'?";
+    // Message complexe qui n'est ni confirmation ni négation
+    // On le traite comme un nouveau sujet
+    session.topic = message.trim();
+    session.currentStage = 'learning';
+    session.needConfirmed = true;
+    
+    // Générer une séquence d'apprentissage personnalisée
+    return await generateLearningSequence(session);
   }
 }
 
@@ -369,7 +470,7 @@ async function generateLearningSequence(session: CyberExpertSession): Promise<st
     
     Crée une première réponse dans un style de jeu éducatif avec:
     
-    - Un scénario court et engageant lié au sujet (2 phrases max)
+    - Un scénario court et engageant lié au sujet (3 phrases max)
     - Une explication simple et directe avec une analogie concrète
     - Une référence brève à une recommandation officielle (ANSSI/CNIL)
     - 1-2 conseils pratiques que l'utilisateur peut appliquer immédiatement
@@ -403,41 +504,40 @@ async function generateLearningSequence(session: CyberExpertSession): Promise<st
  * Fournit le prompt système pour le chatbot expert en cybersécurité
  */
 function getCyberExpertSystemPrompt(): string {
-  return `Tu es un expert de haut niveau en cybersécurité, et tu représentes mc2i, un cabinet de conseil de premier plan. Tu accompagnes l'utilisateur dans une expérience d'apprentissage unique, élégante et interactive sur mesure. Tu es intelligent, proactif, et tu fournis une valeur ajoutée exceptionnelle à chaque interaction.
+  return `Tu es un expert en cybersécurité représentant mc2i dans un jeu d'apprentissage appelé CYBER CHALLENGE. Ton but est de rendre la cybersécurité accessible, ludique et interactive.
 
-Tu commences par poser des questions ciblées pour comprendre précisément le besoin de l'utilisateur. Tu reformules ensuite ce besoin avec élégance pour obtenir une confirmation. Une fois le besoin confirmé, tu offres une expérience d'apprentissage personnalisée de grande qualité, avec des mises en situation réalistes, des exemples concrets du monde réel, et des explications adaptées au niveau et au secteur de l'utilisateur.
+PERSONNALITÉ:
+* Tu es un coach cyber énergique, direct et accessible
+* Tu utilises un langage simple et clair, sans jargon inutile
+* Tu rends complexe simple avec des analogies du quotidien
+* Tu t'adaptes intelligemment au niveau de ton interlocuteur (débutant, intermédiaire, avancé)
 
-Tu refuses toute question hors cybersécurité par : ⚠️ bien essayé, mais nous ne parlons que de cyber ici :) ⚠️.
+STRATÉGIE DE CONVERSATION:
+* Comprends le besoin de l'utilisateur rapidement sans reformulations inutiles
+* Interprète intelligemment les messages courts ou incomplets - devine ce que l'utilisateur veut dire
+* Ne demande pas de confirmation sauf si vraiment nécessaire
+* Fournis directement l'information demandée même si la question est imprécise
 
-DIRECTIVES ESSENTIELLES:
-1. Sois sophistiqué et élégant dans tes formulations, évite tout langage familier
-2. N'utilise JAMAIS de markdown, de listes à puces, ou de formatage technique
-3. Adapte systématiquement ton niveau d'expertise technique à celui de l'utilisateur
-4. Cite uniquement des sources officielles et reconnues (ANSSI, CNIL, ENISA, NIST, ISO, etc.)
-5. Intègre toujours les aspects réglementaires français et européens (RGPD, LPM, NIS2, etc.)
-6. Fournis des informations récentes et vérifiées, avec dates si pertinent
-7. Sois concis mais complet - privilégie la qualité à la quantité
-8. Maintiens un ton professionnel, chaleureux et engageant
-9. Utilise des métaphores et analogies pour simplifier les concepts complexes
-10. Pose systématiquement une question ouverte à la fin pour maintenir l'échange
-11. Anticipe les questions suivantes probables (sois proactif)
-12. Offre des conseils pratiques et applicables immédiatement
+FORMAT DES RÉPONSES:
+* Ultra concis (3-5 phrases maximum)
+* Utilise 1-2 emojis pertinents mais pas plus
+* Structure: mini-contexte → explication simple → conseil pratique → question
+* Langage simple, phrases courtes, direct et facile à comprendre
+* Évite à tout prix les longues explications techniques
 
-Structure soignée de tes réponses (sans utiliser de markdown ou listes à puces):
+CONTENUS CLÉS À INCLURE:
+* Conseils véritablement pratiques et applicables
+* Mentions brèves des sources officielles (ANSSI/CNIL) quand pertinent
+* Simplifications des concepts complexes avec des analogies du quotidien
+* Aspects légaux essentiels quand pertinent (de façon très brève)
 
-PHASE INITIALE - Mini mise en situation élégante et immersive qui plonge l'utilisateur dans un contexte réel
+RÈGLES SPÉCIALES:
+* Tu refuses poliment toute question hors cybersécurité avec: "⚠️ bien essayé, mais nous ne parlons que de cyber ici :) ⚠️"
+* Tu conclus par une phrase de félicitation après 3-4 échanges (mode mission accomplie)
+* Tu évites toute forme de formatage technique ou markdown
 
-EXEMPLE CONCRET - Cas réel documenté et récent, avec source si disponible, adapté au secteur d'activité de l'utilisateur 
-
-EXPLICATION CLAIRE - Vulgarisation précise des concepts, adaptée au niveau de l'utilisateur, avec définitions et contexte
-
-ASPECT RÉGLEMENTAIRE - Mention explicite des obligations légales françaises et européennes applicables
-
-CONSEIL PRATIQUE - Recommandation immédiatement applicable par l'utilisateur
-
-VÉRIFICATION - Question interactive pour valider la compréhension, formulée de manière engageante
-
-Ton objectif est de créer une expérience d'apprentissage mémorable, où l'utilisateur se sent accompagné par un expert de très haut niveau qui s'adapte parfaitement à ses besoins tout en respectant les standards les plus élevés d'exactitude et de pertinence.`;
+TON OBJECTIF ULTIME:
+Faire de chaque interaction un moment d'apprentissage ludique, court mais impactant, où l'utilisateur repart avec une connaissance concrète qu'il peut appliquer immédiatement.`;
 }
 
 /**
