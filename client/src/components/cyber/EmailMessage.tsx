@@ -198,22 +198,25 @@ export default function EmailMessage({ email }: EmailMessageProps) {
         }
         
         // Mettre en évidence les titres de section
-        if (React.isValidElement(element) && typeof element.props.children === 'string') {
-          const content = element.props.children;
-          
-          // Détecter et formater les titres de section
-          if (/^(CONTEXTE|OBJECTIFS|RESSOURCES|DÉLAI|BUDGET|MISSION|IMPACT|INSTRUCTIONS)[\s:]/i.test(content)) {
-            const sectionTitle = content.split(':')[0].trim();
-            const sectionContent = content.split(':').slice(1).join(':').trim();
+        if (React.isValidElement(element)) {
+          const elementProps = element.props as { children?: string };
+          if (elementProps && typeof elementProps.children === 'string') {
+            const content = elementProps.children;
             
-            // Créer un élément de titre de section avec style amélioré
-            result.push(
-              <div key={`section-${index}`} className="mb-4 p-3 bg-blue-900/30 rounded-md border border-blue-700/30">
-                <h3 className="font-bold text-blue-300 mb-2 text-base">{sectionTitle}:</h3>
-                {sectionContent && <p className="text-white">{sectionContent}</p>}
-              </div>
-            );
-            return;
+            // Détecter et formater les titres de section
+            if (/^(CONTEXTE|OBJECTIFS|RESSOURCES|DÉLAI|BUDGET|MISSION|IMPACT|INSTRUCTIONS)[\s:]/i.test(content)) {
+              const sectionTitle = content.split(':')[0].trim();
+              const sectionContent = content.split(':').slice(1).join(':').trim();
+            
+              // Créer un élément de titre de section avec style amélioré
+              result.push(
+                <div key={`section-${index}`} className="mb-4 p-3 bg-blue-900/30 rounded-md border border-blue-700/30">
+                  <h3 className="font-bold text-blue-300 mb-2 text-base">{sectionTitle}:</h3>
+                  {sectionContent && <p className="text-white">{sectionContent}</p>}
+                </div>
+              );
+              return;
+            }
           }
         }
         
@@ -230,56 +233,82 @@ export default function EmailMessage({ email }: EmailMessageProps) {
       );
     }
     
-    // Fonction pour mettre en forme les montants budgétaires
-    function formatBudgetAmounts(elements) {
-      return elements.map((element, idx) => {
-        if (React.isValidElement(element)) {
-          // Si l'élément a des enfants qui sont des tableaux ou des objets
-          if (element.props.children && 
-             (Array.isArray(element.props.children) || typeof element.props.children === 'object')) {
-            return React.cloneElement(element, {
-              ...element.props,
-              children: formatBudgetAmounts(Array.isArray(element.props.children) ? 
-                                           element.props.children : [element.props.children]),
-              key: `${element.key || idx}-formatted`
-            });
-          } 
-          // Si l'élément a une chaîne de caractères en enfant
-          else if (typeof element.props.children === 'string') {
-            const formattedText = formatBudgetText(element.props.children);
-            if (formattedText !== element.props.children) {
-              return React.cloneElement(element, {
-                ...element.props, 
-                children: formattedText,
-                key: `${element.key || idx}-formatted`
-              });
+    // Approche simplifiée pour la mise en forme des montants budgétaires
+    // Puisque nous savons que chaque élément div/p peut contenir du text
+    function formatBudgetElements(elements: React.ReactNode[]): React.ReactNode[] {
+      // Pour chaque élément de type paragraphe ou div, on remplace directement son contenu textuel
+      return elements.map((element) => {
+        // Si ce n'est pas un élément React valide (ex: string, number), on le retourne tel quel
+        if (!React.isValidElement(element)) {
+          return element;
+        }
+        
+        // Récupérer les propriétés
+        const elementType = element.type as string;
+        
+        // Si c'est un paragraphe, une div ou un span qui pourrait contenir du texte
+        if (elementType === 'p' || elementType === 'div' || elementType === 'span' || 
+            elementType === 'h3' || elementType === 'h4' || elementType === 'li') {
+          
+          // Format simplifié pour les éléments avec enfants
+          if (element.props.children) {
+            if (typeof element.props.children === 'string') {
+              // Pour les éléments contenant uniquement du texte
+              const regex = /(\d+(\s*[kK])?€)/g;
+              if (regex.test(element.props.children)) {
+                return (
+                  <element.type {...element.props}>
+                    {element.props.children.split(regex).map((part: string, i: number) => {
+                      if (regex.test(part)) {
+                        return <span key={i} className="text-green-400 font-semibold">{part}</span>;
+                      }
+                      return part;
+                    })}
+                  </element.type>
+                );
+              }
+            } else if (Array.isArray(element.props.children)) {
+              // Pour les éléments avec des enfants multiples (tableau)
+              return (
+                <element.type {...element.props}>
+                  {formatBudgetElements(element.props.children)}
+                </element.type>
+              );
             }
-          } 
-          // Si l'élément a un contenu HTML dangereux
-          else if (element.props.dangerouslySetInnerHTML) {
-            const originalHtml = element.props.dangerouslySetInnerHTML.__html;
-            const formattedHtml = formatBudgetText(originalHtml);
+          }
+          
+          // Traitement spécial pour le contenu HTML dangereux
+          if (element.props.dangerouslySetInnerHTML) {
+            const html = element.props.dangerouslySetInnerHTML.__html;
+            const regex = /(\d+(\s*[kK])?€)/g;
             
-            if (formattedHtml !== originalHtml) {
-              return React.cloneElement(element, {
-                ...element.props,
-                dangerouslySetInnerHTML: { __html: formattedHtml },
-                key: `${element.key || idx}-formatted`
+            if (regex.test(html)) {
+              const formattedHtml = html.replace(regex, (match) => {
+                return `<span class="text-green-400 font-semibold">${match}</span>`;
               });
+              
+              return React.cloneElement(
+                element,
+                {
+                  ...element.props,
+                  dangerouslySetInnerHTML: { __html: formattedHtml }
+                }
+              );
             }
           }
         }
+        
+        // Si c'est un élément qui contient potentiellement d'autres éléments (comme ul, ol)
+        if (element.props.children && Array.isArray(element.props.children)) {
+          return React.cloneElement(
+            element,
+            { ...element.props },
+            formatBudgetElements(element.props.children)
+          );
+        }
+        
+        // Si aucune condition n'est remplie, retourner l'élément tel quel
         return element;
-      });
-    }
-
-    // Fonction pour mettre en forme les montants dans le texte
-    function formatBudgetText(text) {
-      if (typeof text !== 'string') return text;
-      
-      // Formatter les montants du budget avec la syntaxe spécifique
-      return text.replace(/(\d+(\s*[kK])?€)/g, (match) => {
-        return `<span class="text-green-400 font-semibold">${match}</span>`;
       });
     }
     
@@ -294,11 +323,11 @@ export default function EmailMessage({ email }: EmailMessageProps) {
         </div>
       ];
       
-      return formatBudgetAmounts(enhancedResult);
+      return formatBudgetElements(enhancedResult);
     }
     
     // Sinon retourner le résultat avec mise en forme des montants
-    return formatBudgetAmounts(result);
+    return formatBudgetElements(result);
   };
 
   // Fonction pour obtenir l'icône appropriée selon le type de pièce jointe
