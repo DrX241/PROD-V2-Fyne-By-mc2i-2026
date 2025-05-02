@@ -23,6 +23,7 @@ import { startInterviewSimulation, processInterviewMessage, completeInterviewSim
 import { getRandomScenarios, getScenarioById, getScenariosByDifficulty } from "./impostorService";
 import { startAgentSession, completeAgentSession } from "./cyberAgentController";
 import { generateDebriefing, getContextualDocumentation } from "./cyberLearningController";
+import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearningController";
 // Import des fonctions d'urgence cyber supprimé
 
 /**
@@ -389,6 +390,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Enregistrer les routes pour les pièces jointes
   app.use('/api/attachments', attachmentRoutes);
+  
+  // Routes pour mc2i AI Learning
+  app.post('/api/mcai-learning/init', initMcaiLearningSession);
+  app.post('/api/mcai-learning/message', processMcaiLearningMessage);
   
   // Route directe pour servir le document texte avec le mot de passe
   app.get('/download-attachment/:role', (req, res) => {
