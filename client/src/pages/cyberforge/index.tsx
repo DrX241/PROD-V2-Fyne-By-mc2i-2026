@@ -87,44 +87,44 @@ function calculateTotalProgress(moduleProgress: Record<string, ModuleProgress>):
 // Avatars disponibles
 const availableAvatars: Avatar[] = [
   {
-    id: 'shadow',
-    name: 'Shadow',
-    imagePath: '/assets/avatars/shadow.png',
-    type: 'hacker',
-    abilities: ['Intrusion', 'Cryptanalyse', 'Rétro-ingénierie'],
-    description: 'Spécialiste de la sécurité offensive.',
-    strengthsAndWeaknesses: ['Expertise en pentesting', 'Connaissance limitée en défense'],
-    primarySkills: ['Exploitation', 'Social Engineering', 'OSINT']
+    id: "shadow",
+    name: "Shadow",
+    imagePath: "/assets/avatars/shadow.png",
+    type: "hacker",
+    abilities: ["Intrusion", "Cryptanalyse", "Retro-ingenierie"],
+    description: "Specialiste de la securite offensive.",
+    strengthsAndWeaknesses: ["Expertise en pentesting", "Connaissance limitee en defense"],
+    primarySkills: ["Exploitation", "Social Engineering", "OSINT"]
   },
   {
-    id: 'sentinel',
-    name: 'Sentinel',
-    imagePath: '/assets/avatars/sentinel.png',
-    type: 'analyst',
-    abilities: ['Analyse forensique', 'Détection des anomalies', 'Traque de menaces'],
-    description: 'Expert en analyse de sécurité et investigation numérique.',
-    strengthsAndWeaknesses: ['Excellence analytique', 'Temps de réaction parfois lent'],
-    primarySkills: ['Forensique', 'Détection', 'Analyse malware']
+    id: "sentinel",
+    name: "Sentinel",
+    imagePath: "/assets/avatars/sentinel.png",
+    type: "analyst",
+    abilities: ["Analyse forensique", "Detection des anomalies", "Traque de menaces"],
+    description: "Expert en analyse de securite et investigation numerique.",
+    strengthsAndWeaknesses: ["Excellence analytique", "Temps de reaction parfois lent"],
+    primarySkills: ["Forensique", "Detection", "Analyse malware"]
   },
   {
-    id: 'guardian',
-    name: 'Guardian',
-    imagePath: '/assets/avatars/guardian.png',
-    type: 'security_manager',
-    abilities: ['Gestion de crise', 'Coordination des équipes', 'Stratégie de sécurité'],
-    description: 'Leader en gestion de la sécurité et réponse aux incidents.',
-    strengthsAndWeaknesses: ['Vision stratégique', 'Moins de compétences techniques'],
-    primarySkills: ['Gestion incidents', 'Planification', 'Communication']
+    id: "guardian",
+    name: "Guardian",
+    imagePath: "/assets/avatars/guardian.png",
+    type: "security_manager",
+    abilities: ["Gestion de crise", "Coordination des equipes", "Strategie de securite"],
+    description: "Leader en gestion de la securite et reponse aux incidents.",
+    strengthsAndWeaknesses: ["Vision strategique", "Moins de competences techniques"],
+    primarySkills: ["Gestion incidents", "Planification", "Communication"]
   },
   {
-    id: 'nexus',
-    name: 'Nexus',
-    imagePath: '/assets/avatars/nexus.png',
-    type: 'network_specialist',
-    abilities: ['Architecture réseau', 'Détection des intrusions', 'Sécurité périmétrique'],
-    description: 'Spécialiste des infrastructures réseau sécurisées.',
-    strengthsAndWeaknesses: ['Expertise réseau', 'Moins de connaissances en applications'],
-    primarySkills: ['Firewall', 'IDS/IPS', 'Segmentation']
+    id: "nexus",
+    name: "Nexus",
+    imagePath: "/assets/avatars/nexus.png",
+    type: "network_specialist",
+    abilities: ["Architecture reseau", "Detection des intrusions", "Securite perimetrique"],
+    description: "Specialiste des infrastructures reseau securisees.",
+    strengthsAndWeaknesses: ["Expertise reseau", "Moins de connaissances en applications"],
+    primarySkills: ["Firewall", "IDS/IPS", "Segmentation"]
   }
 ];
 
@@ -233,9 +233,9 @@ function CyberForge() {
                 >
                   <Card className="bg-black/40 backdrop-blur-md border-t border-l border-blue-500/20 shadow-[0_0_25px_rgba(59,130,246,0.15)]">
                     <CardHeader>
-                      <CardTitle className="text-xl text-blue-100">Accès sécurisé</CardTitle>
+                      <CardTitle className="text-xl text-blue-100">Acces securise</CardTitle>
                       <CardDescription className="text-blue-300">
-                        Veuillez vous authentifier pour accéder à la plateforme.
+                        Veuillez vous authentifier pour acceder a la plateforme.
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -243,7 +243,7 @@ function CyberForge() {
                         <form onSubmit={handlePasswordSubmit} className="space-y-4">
                           <div>
                             <label htmlFor="password" className="block text-sm font-medium text-blue-300 mb-1">
-                              Code d'accès
+                              Code d'acces
                             </label>
                             <Input
                               type="password"
@@ -251,7 +251,7 @@ function CyberForge() {
                               value={passwordAttempt}
                               onChange={(e) => setPasswordAttempt(e.target.value)}
                               className="w-full bg-black/70 border border-blue-800/60 text-white focus:ring-blue-500"
-                              placeholder="Entrez le code d'accès"
+                              placeholder="Entrez le code d'acces"
                               required
                             />
                           </div>
@@ -259,7 +259,7 @@ function CyberForge() {
                             type="submit" 
                             className="w-full bg-blue-700 hover:bg-blue-600 text-white"
                           >
-                            Accéder
+                            Acceder
                           </Button>
                         </form>
                       ) : (
@@ -267,7 +267,7 @@ function CyberForge() {
                           <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-green-100/10 mb-4">
                             <Shield className="h-8 w-8 text-green-500" />
                           </div>
-                          <h3 className="text-lg font-medium text-green-400 mb-2">Authentification réussie</h3>
+                          <h3 className="text-lg font-medium text-green-400 mb-2">Authentification reussie</h3>
                           <p className="text-sm text-blue-300">Bienvenue dans CyberForge Academy.</p>
                         </div>
                       )}
@@ -314,10 +314,10 @@ function CyberForge() {
                               </div>
                               <h3 className="font-medium text-blue-100">{avatar.name}</h3>
                               <p className="text-xs text-blue-300 text-center mt-1">
-                                {avatar.type === 'hacker' ? 'Hacker Éthique' : 
-                                 avatar.type === 'analyst' ? 'Analyste Sécurité' :
-                                 avatar.type === 'security_manager' ? 'Gestionnaire Sécurité' :
-                                 'Spécialiste Réseau'}
+                                {avatar.type === "hacker" ? "Hacker Ethique" : 
+                                 avatar.type === "analyst" ? "Analyste Securite" :
+                                 avatar.type === "security_manager" ? "Gestionnaire Securite" :
+                                 "Specialiste Reseau"}
                               </p>
                               
                               {selectedAvatar?.id === avatar.id && (
@@ -430,10 +430,10 @@ function CyberForge() {
                       <div>
                         <h3 className="text-lg font-medium">{selectedAvatar.name}</h3>
                         <p className="text-sm text-muted-foreground">
-                          {selectedAvatar.type === 'hacker' ? 'Hacker Éthique' : 
-                           selectedAvatar.type === 'analyst' ? 'Analyste Sécurité' :
-                           selectedAvatar.type === 'security_manager' ? 'Gestionnaire Sécurité' :
-                           'Spécialiste Réseau'}
+                          {selectedAvatar.type === "hacker" ? "Hacker Ethique" : 
+                           selectedAvatar.type === "analyst" ? "Analyste Securite" :
+                           selectedAvatar.type === "security_manager" ? "Gestionnaire Securite" :
+                           "Specialiste Reseau"}
                         </p>
                       </div>
                     </div>
