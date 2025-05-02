@@ -27,7 +27,7 @@ export default function CyberModeSelection() {
   const [hoveredMode, setHoveredMode] = useState<string | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
-  // Réorganisation des modules en 4 catégories
+  // Réorganisation des modules en 5 catégories
   const cyberModes: ModeOption[] = [
     {
       id: 'scenarios-formation',
@@ -42,14 +42,22 @@ export default function CyberModeSelection() {
           title: 'AGENT CONVERSATIONNEL',
           icon: null,
           destination: '/cyber/agent'
-        },
-        {
-          id: 'expert-learning',
-          title: 'APPRENDRE EN ÉCHANGEANT',
-          icon: null,
-          destination: '/cyber/expert-learning'
         }
       ]
+    },
+    {
+      id: 'expert-learning',
+      title: 'APPRENDRE EN ÉCHANGEANT',
+      description: "Échangez avec un expert en cybersécurité pour approfondir vos connaissances de manière personnalisée.",
+      icon: null,
+      gradient: 'from-cyan-700 to-cyan-900',
+      destination: '/cyber/expert-learning',
+      items: [{
+        id: 'expert-interactive',
+        title: 'EXPERT INTERACTIF',
+        icon: null,
+        destination: '/cyber/expert-learning'
+      }]
     },
     {
       id: 'gamification',
@@ -132,7 +140,7 @@ export default function CyberModeSelection() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 px-3 sm:px-6 max-w-full mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-8 px-3 sm:px-6 max-w-full mx-auto">
             {cyberModes.map((category, index) => (
               <motion.div
                 key={category.id}
