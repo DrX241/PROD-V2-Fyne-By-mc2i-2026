@@ -42,10 +42,10 @@ export async function initCyberExpertSession(req: Request, res: Response) {
       content: getCyberExpertSystemPrompt()
     };
     
-    // Message d'accueil élégant et sophistiqué pour l'utilisateur
+    // Message d'accueil simple et direct pour l'utilisateur
     const welcomeMessage: ChatCompletionRequestMessage = {
       role: "assistant",
-      content: "Bonjour et bienvenue dans notre espace d'apprentissage personnalisé. Je suis votre expert en cybersécurité, représentant mc2i, cabinet de conseil de premier plan dans ce domaine. Je suis à votre disposition pour vous accompagner dans une expérience d'apprentissage sur mesure.\n\nPouvez-vous me préciser la nature de votre intérêt aujourd'hui? Souhaitez-vous approfondir un sujet spécifique de cybersécurité, résoudre une problématique particulière, ou explorer un concept avec une approche différente? Je suis impatient d'adapter mon expertise à vos besoins précis."
+      content: "Bonjour ! Je suis votre expert en cybersécurité de mc2i. Comment puis-je vous aider aujourd'hui ?"
     };
     
     // Ajouter les messages à la session
@@ -92,9 +92,9 @@ export async function processCyberExpertMessage(req: Request, res: Response) {
     // Traiter le message en fonction de l'étape actuelle
     let response: string;
     
-    // Si le message contient une question hors sujet (non cyber), la refuser
+    // Si le message contient une question hors sujet (non cyber), la rediriger poliment vers le domaine cyber
     if (isNonCyberQuestion(message)) {
-      response = "⚠️ Bien essayé, mais nous ne parlons que de cyber ici :) ⚠️";
+      response = "Je comprends votre question, mais en tant qu'expert en cybersécurité, je peux mieux vous aider sur des sujets liés à ce domaine. Y a-t-il un aspect de la sécurité informatique ou de la protection des données qui vous intéresse ?";
     } else {
       switch (session.currentStage) {
         case 'initial':
@@ -153,12 +153,29 @@ export async function processCyberExpertMessage(req: Request, res: Response) {
  * Vérifie si une question est hors sujet (non liée à la cybersécurité)
  */
 function isNonCyberQuestion(message: string): boolean {
+  // Mots-clés pour des salutations simples ou conversations polies
+  const commonPhrases = [
+    "bonjour", "salut", "hello", "coucou", "bonsoir", "comment ça va", 
+    "ça va", "merci", "s'il vous plaît", "comment allez-vous", "au revoir",
+    "bonne journée"
+  ];
+  
+  // Si le message est court et contient seulement une phrase simple, la permettre
+  const trimmedMessage = message.trim().toLowerCase();
+  if (trimmedMessage.length < 20) {
+    for (const phrase of commonPhrases) {
+      if (trimmedMessage.includes(phrase)) {
+        return false; // Autoriser les salutations et phrases de politesse courantes
+      }
+    }
+  }
+  
   // Liste étendue de sujets clairement non liés à la cybersécurité
   const nonCyberKeywords = [
     // Loisirs et divertissements
     "recette de cuisine", "météo", "horoscope", "sport", "film", "cinéma", 
-    "musique", "concert", "chanson", "télévision", "série", "jeu vidéo", "gaming", "livres",
-    "roman", "vacances", "voyage", "tourisme", "restaurant", "gastronomie",
+    "musique", "concert", "chanson", "télévision", "série", "roman", 
+    "vacances", "voyage", "tourisme", "restaurant", "gastronomie",
     
     // Relations personnelles
     "régime", "amour", "rencontre", "date", "relation", "mariage", "divorce",
@@ -175,12 +192,30 @@ function isNonCyberQuestion(message: string): boolean {
     "décoration", "jardinage", "bricolage", "recette", "cuisine"
   ];
   
+  // Exclure les sujets qui peuvent être liés à la cybersécurité
+  const potentiallyCyberRelated = [
+    "jeu vidéo", "gaming", "livres", // Peuvent être liés à la cybersécurité
+    "technologie", "informatique", "ordinateur", "logiciel", "internet", "digital",
+    "données", "information", "système", "réseau", "application", "web", "mobile"
+  ];
+  
   const lowercaseMessage = message.toLowerCase();
   
   // Vérifier si le message contient un sujet non-cyber
   for (const keyword of nonCyberKeywords) {
     if (lowercaseMessage.includes(keyword)) {
-      return true;
+      // Double vérification - s'assurer que ce n'est pas un sujet qui pourrait être lié à la cybersécurité
+      let isCyberRelated = false;
+      for (const cyberTerm of potentiallyCyberRelated) {
+        if (lowercaseMessage.includes(cyberTerm)) {
+          isCyberRelated = true;
+          break;
+        }
+      }
+      
+      if (!isCyberRelated) {
+        return true;
+      }
     }
   }
   
