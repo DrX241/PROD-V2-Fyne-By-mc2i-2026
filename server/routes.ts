@@ -3195,33 +3195,382 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
     const roles = [
       {
         id: 'rssi',
-        title: 'Responsable Sécurité des Systèmes d\'Information (RSSI)',
-        description: 'Vous êtes responsable de la stratégie de sécurité et de la conformité de l\'entreprise.',
+        title: 'Responsable Securite des Systemes d\'Information (RSSI)',
+        description: 'Vous etes responsable de la strategie de securite et de la conformite de l\'entreprise.',
       },
       {
         id: 'ethical-hacker',
         title: 'Ethical Hacker',
-        description: 'Vous êtes spécialisé(e) dans l\'identification des vulnérabilités via des tests d\'intrusion.',
+        description: 'Vous etes specialise(e) dans l\'identification des vulnerabilites via des tests d\'intrusion.',
       },
       {
         id: 'developer',
-        title: 'Développeur Sécurité',
-        description: 'Vous intégrez les principes de sécurité dès la conception des applications (Security by Design).',
+        title: 'Developpeur Securite',
+        description: 'Vous integrez les principes de securite des la conception des applications (Security by Design).',
       },
       {
         id: 'sysadmin',
-        title: 'Administrateur Systèmes',
-        description: 'Vous gérez l\'infrastructure IT et assurez sa sécurisation au quotidien.',
+        title: 'Administrateur Systemes',
+        description: 'Vous gerez l\'infrastructure IT et assurez sa securisation au quotidien.',
       },
       {
         id: 'consultant',
-        title: 'Consultant Cybersécurité',
-        description: 'Vous conseillez différentes organisations sur leurs problématiques de sécurité.',
+        title: 'Consultant Cybersecurite',
+        description: 'Vous conseillez differentes organisations sur leurs problematiques de securite.',
       }
     ];
 
     res.json({ roles });
   });
+
+  // Route pour récupérer les modules en fonction du rôle sélectionné
+  app.get('/api/cyber/cyber-agent/modules', (req, res) => {
+    try {
+      const { role } = req.query;
+      
+      if (!role) {
+        return res.status(400).json({ 
+          error: 'Paramètre role manquant' 
+        });
+      }
+      
+      // Définition des modules disponibles pour chaque rôle
+      const modulesByRole = {
+        'rssi': [
+          {
+            id: 'risk-management',
+            title: 'Gestion des Risques',
+            description: 'Évaluation et mitigation des risques de securite de l\'information',
+            icon: 'shield'
+          },
+          {
+            id: 'compliance',
+            title: 'Conformite Reglementaire',
+            description: 'Gestion des exigences legales et normatives (RGPD, ISO 27001, etc.)',
+            icon: 'users'
+          },
+          {
+            id: 'incident-response',
+            title: 'Reponse aux Incidents',
+            description: 'Coordination de la reponse aux incidents de securite',
+            icon: 'alertTriangle'
+          },
+          {
+            id: 'security-governance',
+            title: 'Gouvernance de la Securite',
+            description: 'Definition des politiques et procedures de securite',
+            icon: 'server'
+          }
+        ],
+        'ethical-hacker': [
+          {
+            id: 'penetration-testing',
+            title: 'Tests d\'Intrusion',
+            description: 'Methodologies et techniques de penetration testing',
+            icon: 'lock'
+          },
+          {
+            id: 'vulnerability-assessment',
+            title: 'Analyse de Vulnerabilites',
+            description: 'Identification et evaluation des failles de securite',
+            icon: 'shield'
+          },
+          {
+            id: 'social-engineering',
+            title: 'Ingenierie Sociale',
+            description: 'Techniques de manipulation psychologique pour obtenir des informations',
+            icon: 'users'
+          },
+          {
+            id: 'security-tools',
+            title: 'Outils de Hacking Ethique',
+            description: 'Maitrise des outils professionnels de securite offensive',
+            icon: 'network'
+          }
+        ],
+        'developer': [
+          {
+            id: 'secure-coding',
+            title: 'Developpement Securise',
+            description: 'Techniques de programmation pour prevenir les vulnerabilites',
+            icon: 'code'
+          },
+          {
+            id: 'code-review',
+            title: 'Revue de Code Securisee',
+            description: 'Identification des failles de securite dans le code',
+            icon: 'shield'
+          },
+          {
+            id: 'appsec',
+            title: 'Securite Applicative',
+            description: 'Protection des applications web et mobiles',
+            icon: 'lock'
+          },
+          {
+            id: 'devsecops',
+            title: 'DevSecOps',
+            description: 'Integration de la securite dans les pipelines CI/CD',
+            icon: 'server'
+          }
+        ],
+        'sysadmin': [
+          {
+            id: 'network-security',
+            title: 'Securite Reseau',
+            description: 'Protection des infrastructures et communications reseau',
+            icon: 'network'
+          },
+          {
+            id: 'system-hardening',
+            title: 'Durcissement des Systemes',
+            description: 'Configuration securisee des systemes d\'exploitation',
+            icon: 'server'
+          },
+          {
+            id: 'access-management',
+            title: 'Gestion des Acces',
+            description: 'Controle et securisation des identites et des privileges',
+            icon: 'lock'
+          },
+          {
+            id: 'monitoring',
+            title: 'Surveillance et Detection',
+            description: 'Mise en place de systemes de monitoring de securite',
+            icon: 'shield'
+          }
+        ],
+        'consultant': [
+          {
+            id: 'security-audit',
+            title: 'Audit de Securite',
+            description: 'Evaluation de la maturite securite d\'une organisation',
+            icon: 'shield'
+          },
+          {
+            id: 'security-awareness',
+            title: 'Sensibilisation a la Securite',
+            description: 'Formation et accompagnement des utilisateurs',
+            icon: 'users'
+          },
+          {
+            id: 'crisis-management',
+            title: 'Gestion de Crise',
+            description: 'Preparation et animation d\'exercices de simulation',
+            icon: 'alertTriangle'
+          },
+          {
+            id: 'security-architecture',
+            title: 'Architecture Securisee',
+            description: 'Conception de solutions de securite adaptees',
+            icon: 'network'
+          }
+        ]
+      };
+      
+      // Retourner les modules correspondant au rôle (avec vérification de type)
+      const roleKey = role as string;
+      const modules = (modulesByRole as any)[roleKey] || [];
+      
+      res.json({ modules });
+    } catch (error) {
+      console.error('Erreur lors de la récupération des modules:', error);
+      res.status(500).json({
+        error: 'Erreur serveur lors de la récupération des modules',
+        details: error instanceof Error ? error.message : 'Erreur inconnue'
+      });
+    }
+  });
+  
+  // Route pour récupérer un test de compétence en fonction du rôle, du module et du niveau
+  app.get('/api/cyber/cyber-agent/skill-test', async (req, res) => {
+    try {
+      const { role, module: moduleId, level } = req.query;
+      
+      if (!role || !moduleId || !level) {
+        return res.status(400).json({ 
+          error: 'Paramètres manquants (rôle, module ou niveau)' 
+        });
+      }
+      
+      // Utiliser l'IA pour générer un test adapté au contexte
+      const systemPrompt = `Tu es un expert en cybersecurite qui concoit des tests de competence.
+      Genere un test a choix multiple pour un utilisateur dans le role de ${role}, 
+      pour le module ${moduleId}, avec un niveau de difficulte ${level}.
+      
+      La question doit être pertinente, technique mais accessible pour le niveau demande.
+      
+      Renvoie UNIQUEMENT un objet JSON avec les proprietes suivantes:
+      - id: identifiant unique (utilise uuid v4)
+      - question: l'énoncé du test
+      - options: tableau de 4 options avec pour chacune { id: (uuid), text: (texte de l'option), isCorrect: (boolean) }
+      - explanation: explication de la bonne réponse
+      
+      Une seule option doit avoir isCorrect=true.`;
+      
+      // Appel à OpenAI pour générer le test
+      const testJSON = await openAIService.getChatCompletion(
+        [{ role: 'system', content: systemPrompt }],
+        0.7,
+        1000
+      );
+      
+      // Tenter de parser la réponse JSON
+      let test;
+      try {
+        test = JSON.parse(testJSON);
+      } catch (parseError) {
+        console.error('Erreur de parsing JSON:', parseError);
+        // Générer un test de secours
+        test = generateFallbackTest(role as string, moduleId as string, level as string);
+      }
+      
+      res.json({ test });
+    } catch (error) {
+      console.error('Erreur lors de la génération du test de compétence:', error);
+      const fallbackTest = generateFallbackTest(
+        req.query.role as string, 
+        req.query.module as string, 
+        req.query.level as string
+      );
+      res.json({ test: fallbackTest });
+    }
+  });
+  
+  // Route pour récupérer une mission en fonction du rôle, du module et du niveau
+  app.get('/api/cyber/cyber-agent/mission', async (req, res) => {
+    try {
+      const { role, module: moduleId, level } = req.query;
+      
+      if (!role || !moduleId || !level) {
+        return res.status(400).json({ 
+          error: 'Paramètres manquants (rôle, module ou niveau)' 
+        });
+      }
+      
+      // Utiliser l'IA pour générer une mission adaptée au contexte
+      const systemPrompt = `Tu es un concepteur de scenarios de formation en cybersecurite.
+      Genere une mission realiste pour un utilisateur dans le role de ${role}, 
+      pour le module ${moduleId}, avec un niveau de difficulte ${level}.
+      
+      La mission doit placer l'utilisateur dans un contexte professionnel realiste 
+      avec un superieur hierarchique et des collegues.
+      
+      Renvoie UNIQUEMENT un objet JSON avec les proprietes suivantes:
+      - id: identifiant unique (utilise uuid v4)
+      - title: titre accrocheur pour la mission
+      - description: breve description de la situation initiale (message du superieur)
+      - context: contexte detaille de la mission
+      - superiorName: nom du superieur hierarchique
+      - superiorRole: intitule du poste du superieur
+      - teammates: tableau de 2-3 collegues avec pour chacun { name, role }
+      - firstChoice: tableau de 4 choix possibles avec pour chacun { id: (uuid), text: (description du choix), consequences: ("success", "partial" ou "termination") }
+      
+      Un et un seul des choix doit avoir consequences="termination", signifiant que ce choix mene au licenciement.`;
+      
+      // Appel à OpenAI pour générer la mission
+      const missionJSON = await openAIService.getChatCompletion(
+        [{ role: 'system', content: systemPrompt }],
+        0.7,
+        1200
+      );
+      
+      // Tenter de parser la réponse JSON
+      let mission;
+      try {
+        mission = JSON.parse(missionJSON);
+      } catch (parseError) {
+        console.error('Erreur de parsing JSON:', parseError);
+        // Générer une mission de secours
+        mission = generateFallbackMission(role as string, moduleId as string, level as string);
+      }
+      
+      res.json({ mission });
+    } catch (error) {
+      console.error('Erreur lors de la génération de la mission:', error);
+      const fallbackMission = generateFallbackMission(
+        req.query.role as string, 
+        req.query.module as string, 
+        req.query.level as string
+      );
+      res.json({ mission: fallbackMission });
+    }
+  });
+  
+  // Fonction utilitaire pour générer un test de secours en cas d'erreur
+  function generateFallbackTest(role: string, moduleId: string, level: string) {
+    return {
+      id: uuidv4(),
+      question: `En tant que ${role} travaillant sur ${moduleId}, quelle est la meilleure pratique à adopter?`,
+      options: [
+        {
+          id: uuidv4(),
+          text: "Mettre en place une solution de sécurité complète et documentée",
+          isCorrect: true
+        },
+        {
+          id: uuidv4(),
+          text: "Ignorer les recommandations de sécurité pour gagner du temps",
+          isCorrect: false
+        },
+        {
+          id: uuidv4(),
+          text: "Utiliser uniquement des outils gratuits pour réduire les coûts",
+          isCorrect: false
+        },
+        {
+          id: uuidv4(),
+          text: "Déléguer toute la responsabilité à un prestataire externe",
+          isCorrect: false
+        }
+      ],
+      explanation: "La mise en place d'une solution de sécurité complète et documentée est essentielle pour garantir la protection des systèmes d'information."
+    };
+  }
+  
+  // Fonction utilitaire pour générer une mission de secours en cas d'erreur
+  function generateFallbackMission(role: string, moduleId: string, level: string) {
+    return {
+      id: uuidv4(),
+      title: `Mission de ${role}: Sécurisation d'urgence`,
+      description: "Nous venons de détecter une vulnérabilité critique qui nécessite votre intervention immédiate.",
+      context: `En tant que ${role} spécialisé(e) en ${moduleId}, vous devez gérer une situation de crise liée à une faille de sécurité potentiellement exploitable. Votre supérieur vous a confié la responsabilité de résoudre ce problème rapidement tout en minimisant l'impact sur les opérations de l'entreprise.`,
+      superiorName: "Alexandre Martin",
+      superiorRole: "Directeur des Systèmes d'Information",
+      teammates: [
+        {
+          name: "Sophie Dubois",
+          role: "Analyste Sécurité"
+        },
+        {
+          name: "Thomas Leroy",
+          role: "Ingénieur Système"
+        }
+      ],
+      firstChoice: [
+        {
+          id: uuidv4(),
+          text: "Analyser la situation en détail avant de proposer une solution",
+          consequences: "success"
+        },
+        {
+          id: uuidv4(),
+          text: "Appliquer immédiatement un correctif temporaire",
+          consequences: "partial"
+        },
+        {
+          id: uuidv4(),
+          text: "Mettre hors ligne tous les systèmes potentiellement affectés",
+          consequences: "partial"
+        },
+        {
+          id: uuidv4(),
+          text: "Minimiser l'importance de la vulnérabilité pour éviter la panique",
+          consequences: "termination"
+        }
+      ]
+    };
+  }
 
   app.post('/api/cyber/cyber-agent/start-session', (req, res) => {
     try {
