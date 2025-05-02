@@ -847,7 +847,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, 1000);
   };
 
-  // Handler to select a domain
+  // Fonction wrapper pour adapter l'interface
+  const selectDomainWrapper = (domain: CyberDomain) => {
+    handleSelectDomain(domain.id);
+  };
+  
+  // Handler interne pour sélectionner un domaine par son ID
   const handleSelectDomain = async (domainId: string) => {
     // Empêcher la sélection de plusieurs domaines
     if (scenario.activeDomain !== null) return;
@@ -922,7 +927,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsTyping(false);
   };
 
-  // Handler to select a scenario
+  // Fonction wrapper pour adapter l'interface
+  const selectScenarioWrapper = (scenario: CyberScenario) => {
+    handleSelectScenario(scenario.id);
+  };
+
+  // Handler interne pour sélectionner un scénario par son ID
   const handleSelectScenario = async (scenarioId: string) => {
     // Empêcher la sélection de plusieurs scénarios
     if (scenario.activeScenario !== null) return;
@@ -1311,8 +1321,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         missionBriefReceived,
         setUserName: handleSetUserName,
         setUserRole: handleSetUserRole,
-        selectDomain: handleSelectDomain,
-        selectScenario: handleSelectScenario,
+        selectDomain: selectDomainWrapper,
+        selectScenario: selectScenarioWrapper,
         sendMessage: handleSendMessage,
         updateConfig: handleUpdateConfig,
         resetChat: handleResetChat,

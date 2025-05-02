@@ -29,7 +29,11 @@ export default function DomainSelection() {
       return;
     }
     
-    selectDomain(domainId);
+    // Trouver le domaine complet pour le passer à la fonction selectDomain
+    const domain = domains.find(d => d.id === domainId);
+    if (domain) {
+      selectDomain(domain);
+    }
   };
 
   // Map des icônes et styles pour chaque domaine spécifique
