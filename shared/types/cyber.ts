@@ -346,7 +346,6 @@ export interface CyberDomain {
   icon?: string; // Icône associée au domaine
   iconBgColor?: string; // Couleur de fond de l'icône
   iconColor?: string; // Couleur de l'icône elle-même
-  applicableRoles?: string[]; // Rôles pour lesquels ce domaine est applicable
 }
 
 export interface CyberScenario {

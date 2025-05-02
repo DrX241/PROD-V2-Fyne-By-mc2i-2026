@@ -56,98 +56,21 @@ const extractFirstName = (input: string): string => {
 
 // Initial domains data
 const initialDomains: CyberDomain[] = [
-  // Domaines pour le rôle RSSI
   {
     id: "gestion-crise",
     name: "Gestion de crise cyber",
     description: "Préparation et réponse aux incidents de sécurité majeurs",
     icon: "ri-alarm-warning-line",
     iconBgColor: "bg-[#006a9e]/10",
-    iconColor: "text-[#006a9e]",
-    applicableRoles: ["rssi", "consultant"]
+    iconColor: "text-[#006a9e]"
   },
   {
-    id: "supply-chain",
-    name: "Sécurité de la chaîne d'approvisionnement",
-    description: "Protection contre les risques liés aux fournisseurs et partenaires",
-    icon: "ri-link-m",
-    iconBgColor: "bg-orange-100",
-    iconColor: "text-orange-600",
-    applicableRoles: ["rssi", "consultant"]
-  },
-  {
-    id: "strategie-cyber",
-    name: "Stratégie et gouvernance cybersécurité",
-    description: "Élaboration et mise en œuvre d'une stratégie de défense numérique",
-    icon: "ri-road-map-line",
-    iconBgColor: "bg-pink-100",
-    iconColor: "text-pink-600",
-    applicableRoles: ["rssi", "consultant"]
-  },
-  {
-    id: "gouvernance-risques",
-    name: "Gouvernance et gestion des risques",
-    description: "Évaluation et priorisation des risques de sécurité",
-    icon: "ri-scales-3-line",
-    iconBgColor: "bg-indigo-100",
-    iconColor: "text-indigo-600",
-    applicableRoles: ["rssi"]
-  },
-  {
-    id: "conformite-reglementaire",
-    name: "Conformité réglementaire",
-    description: "Respect des normes et réglementations en cybersécurité",
-    icon: "ri-file-list-3-line",
-    iconBgColor: "bg-blue-100",
-    iconColor: "text-blue-600",
-    applicableRoles: ["rssi"]
-  },
-  {
-    id: "securite-cloud",
-    name: "Sécurité du cloud",
-    description: "Protection des environnements et données dans le cloud",
-    icon: "ri-cloud-line",
-    iconBgColor: "bg-cyan-100",
-    iconColor: "text-cyan-600",
-    applicableRoles: ["rssi"]
-  },
-  
-  // Domaines pour le rôle Hacker éthique
-  {
-    id: "pentest-externe",
-    name: "Tests d'intrusion externe",
-    description: "Évaluation de la sécurité périmétrique et des accès externes",
-    icon: "ri-door-lock-line",
-    iconBgColor: "bg-red-100",
-    iconColor: "text-red-600",
-    applicableRoles: ["hacker"]
-  },
-  {
-    id: "pentest-applicatif",
-    name: "Tests d'intrusion applicatif",
-    description: "Identification des vulnérabilités dans les applications web",
-    icon: "ri-bug-line",
-    iconBgColor: "bg-yellow-100",
-    iconColor: "text-yellow-600",
-    applicableRoles: ["hacker", "developpeur"]
-  },
-  {
-    id: "red-team",
-    name: "Red Team",
-    description: "Simulation d'attaques avancées et persistantes",
-    icon: "ri-sword-line",
-    iconBgColor: "bg-red-100",
-    iconColor: "text-red-600",
-    applicableRoles: ["hacker"]
-  },
-  {
-    id: "reverse-engineering",
-    name: "Rétro-ingénierie et analyse de malware",
-    description: "Analyse de code malveillant et de binaires",
-    icon: "ri-file-code-line",
-    iconBgColor: "bg-purple-100",
-    iconColor: "text-purple-600",
-    applicableRoles: ["hacker"]
+    id: "donnees-personnelles",
+    name: "Protection des données personnelles / RGPD",
+    description: "Mise en conformité RGPD et gestion des violations de données",
+    icon: "ri-profile-line",
+    iconBgColor: "bg-lime-100",
+    iconColor: "text-lime-600"
   },
   {
     id: "ingenierie-sociale",
@@ -155,93 +78,7 @@ const initialDomains: CyberDomain[] = [
     description: "Détection et prévention des tentatives de manipulation humaine",
     icon: "ri-user-voice-line",
     iconBgColor: "bg-amber-100",
-    iconColor: "text-amber-600",
-    applicableRoles: ["hacker", "analyste"]
-  },
-  {
-    id: "securite-iot",
-    name: "Sécurité des objets connectés",
-    description: "Évaluation des risques liés à l'Internet des Objets",
-    icon: "ri-device-line",
-    iconBgColor: "bg-green-100",
-    iconColor: "text-green-600",
-    applicableRoles: ["hacker"]
-  },
-  
-  // Domaines pour le rôle Développeur
-  {
-    id: "devops-securise",
-    name: "DevSecOps",
-    description: "Intégration de la sécurité dans le développement continu",
-    icon: "ri-recycle-line",
-    iconBgColor: "bg-teal-100",
-    iconColor: "text-teal-600",
-    applicableRoles: ["developpeur"]
-  },
-  {
-    id: "securite-code",
-    name: "Sécurité du code",
-    description: "Pratiques de développement sécurisé et analyse statique",
-    icon: "ri-code-s-slash-line",
-    iconBgColor: "bg-indigo-100",
-    iconColor: "text-indigo-600",
-    applicableRoles: ["developpeur"]
-  },
-  {
-    id: "securite-api",
-    name: "Sécurité des API",
-    description: "Protection des interfaces de programmation",
-    icon: "ri-brackets-line",
-    iconBgColor: "bg-violet-100",
-    iconColor: "text-violet-600",
-    applicableRoles: ["developpeur"]
-  },
-  {
-    id: "donnees-personnelles",
-    name: "Protection des données personnelles",
-    description: "Mise en œuvre de la protection des données dans le code",
-    icon: "ri-profile-line",
-    iconBgColor: "bg-lime-100",
-    iconColor: "text-lime-600",
-    applicableRoles: ["developpeur", "admin"]
-  },
-  {
-    id: "crypto-securite",
-    name: "Cryptographie appliquée",
-    description: "Mise en œuvre de solutions cryptographiques",
-    icon: "ri-lock-line",
-    iconBgColor: "bg-emerald-100",
-    iconColor: "text-emerald-600",
-    applicableRoles: ["developpeur"]
-  },
-  {
-    id: "auth-securisee",
-    name: "Authentification et autorisation",
-    description: "Mise en place de systèmes d'identification robustes",
-    icon: "ri-shield-keyhole-line",
-    iconBgColor: "bg-blue-100",
-    iconColor: "text-blue-600",
-    applicableRoles: ["developpeur", "admin"]
-  },
-  
-  // Domaines pour le rôle Administrateur Système
-  {
-    id: "securite-infra",
-    name: "Sécurité de l'infrastructure",
-    description: "Sécurisation des serveurs, réseaux et environnements techniques",
-    icon: "ri-server-line",
-    iconBgColor: "bg-gray-100",
-    iconColor: "text-gray-600",
-    applicableRoles: ["admin"]
-  },
-  {
-    id: "gestion-vulnerabilites",
-    name: "Gestion des vulnérabilités",
-    description: "Identification et correction des failles de sécurité",
-    icon: "ri-error-warning-line",
-    iconBgColor: "bg-orange-100",
-    iconColor: "text-orange-600",
-    applicableRoles: ["admin", "analyste"]
+    iconColor: "text-amber-600"
   },
   {
     id: "gestion-incidents",
@@ -249,147 +86,23 @@ const initialDomains: CyberDomain[] = [
     description: "Détection, analyse et résolution des incidents de sécurité",
     icon: "ri-service-line",
     iconBgColor: "bg-emerald-100",
-    iconColor: "text-emerald-600",
-    applicableRoles: ["admin", "analyste"]
+    iconColor: "text-emerald-600"
   },
   {
-    id: "securite-endpoints",
-    name: "Sécurité des postes de travail",
-    description: "Protection des terminaux utilisateurs contre les menaces",
-    icon: "ri-computer-line",
-    iconBgColor: "bg-indigo-100",
-    iconColor: "text-indigo-600",
-    applicableRoles: ["admin"]
-  },
-  {
-    id: "securite-reseau",
-    name: "Sécurité réseau",
-    description: "Protection des flux de données et segmentation de sécurité",
-    icon: "ri-wifi-line",
-    iconBgColor: "bg-blue-100",
-    iconColor: "text-blue-600",
-    applicableRoles: ["admin"]
-  },
-  {
-    id: "gestion-identites",
-    name: "Gestion des identités et des accès",
-    description: "Contrôle des droits d'accès et authentification",
-    icon: "ri-user-settings-line",
-    iconBgColor: "bg-purple-100",
-    iconColor: "text-purple-600",
-    applicableRoles: ["admin"]
-  },
-  
-  // Domaines pour le rôle Consultant cybersécurité
-  {
-    id: "audit-securite",
-    name: "Audit de sécurité",
-    description: "Évaluation globale de la posture de sécurité",
-    icon: "ri-search-line",
-    iconBgColor: "bg-blue-100",
-    iconColor: "text-blue-600",
-    applicableRoles: ["consultant"]
-  },
-  {
-    id: "conseil-strategie",
-    name: "Conseil en stratégie cybersécurité",
-    description: "Accompagnement dans l'élaboration de la stratégie de sécurité",
-    icon: "ri-compass-3-line",
-    iconBgColor: "bg-indigo-100",
-    iconColor: "text-indigo-600",
-    applicableRoles: ["consultant"]
-  },
-  {
-    id: "conformite-rgpd",
-    name: "Conformité RGPD",
-    description: "Mise en conformité aux exigences de protection des données",
-    icon: "ri-shield-check-line",
-    iconBgColor: "bg-green-100",
-    iconColor: "text-green-600",
-    applicableRoles: ["consultant"]
-  },
-  {
-    id: "gestion-tiers",
-    name: "Gestion des risques liés aux tiers",
-    description: "Évaluation et gestion de la sécurité des prestataires",
-    icon: "ri-team-line",
-    iconBgColor: "bg-amber-100",
-    iconColor: "text-amber-600",
-    applicableRoles: ["consultant"]
-  },
-  {
-    id: "mise-en-conformite",
-    name: "Mise en conformité sectorielles",
-    description: "Adaptation aux normes spécifiques (finance, santé, industrie)",
-    icon: "ri-bookmark-line",
-    iconBgColor: "bg-purple-100",
-    iconColor: "text-purple-600",
-    applicableRoles: ["consultant"]
-  },
-  {
-    id: "analyse-risques",
-    name: "Analyse des risques cyber",
-    description: "Évaluation méthodique des risques de sécurité",
-    icon: "ri-bubble-chart-line",
-    iconBgColor: "bg-red-100",
-    iconColor: "text-red-600",
-    applicableRoles: ["consultant"]
-  },
-  
-  // Domaines pour le rôle Analyste SOC
-  {
-    id: "detection-menaces",
-    name: "Détection des menaces avancées",
-    description: "Identification des comportements suspects et anomalies",
-    icon: "ri-radar-line",
-    iconBgColor: "bg-red-100",
-    iconColor: "text-red-600",
-    applicableRoles: ["analyste"]
-  },
-  {
-    id: "cyber-threat-intelligence",
-    name: "Cyber Threat Intelligence",
-    description: "Analyse des acteurs malveillants et de leurs techniques",
-    icon: "ri-spy-line",
+    id: "supply-chain",
+    name: "Sécurité de la chaîne d'approvisionnement",
+    description: "Protection contre les risques liés aux fournisseurs et partenaires",
+    icon: "ri-link-m",
     iconBgColor: "bg-orange-100",
-    iconColor: "text-orange-600",
-    applicableRoles: ["analyste"]
+    iconColor: "text-orange-600"
   },
   {
-    id: "analyse-forensique",
-    name: "Analyse forensique",
-    description: "Investigation numérique post-incident",
-    icon: "ri-criminal-line",
-    iconBgColor: "bg-violet-100",
-    iconColor: "text-violet-600",
-    applicableRoles: ["analyste"]
-  },
-  {
-    id: "monitoring-securite",
-    name: "Monitoring de sécurité",
-    description: "Surveillance continue des systèmes d'information",
-    icon: "ri-sensor-line",
-    iconBgColor: "bg-cyan-100",
-    iconColor: "text-cyan-600",
-    applicableRoles: ["analyste"]
-  },
-  {
-    id: "hunting-menaces",
-    name: "Hunting de menaces",
-    description: "Recherche proactive des menaces non détectées",
-    icon: "ri-crosshair-line",
-    iconBgColor: "bg-yellow-100",
-    iconColor: "text-yellow-600",
-    applicableRoles: ["analyste"]
-  },
-  {
-    id: "analyse-malware",
-    name: "Analyse de malware",
-    description: "Étude des logiciels malveillants et de leur fonctionnement",
-    icon: "ri-virus-line",
-    iconBgColor: "bg-red-100",
-    iconColor: "text-red-600",
-    applicableRoles: ["analyste", "hacker"]
+    id: "strategie-cyber",
+    name: "Stratégie et gouvernance cybersécurité",
+    description: "Élaboration et mise en œuvre d'une stratégie de défense numérique",
+    icon: "ri-road-map-line",
+    iconBgColor: "bg-pink-100",
+    iconColor: "text-pink-600"
   }
 ];
 
@@ -847,30 +560,14 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, 1000);
   };
 
-  // Fonction wrapper pour adapter l'interface
-  const selectDomainWrapper = (domain: CyberDomain) => {
-    console.log("selectDomainWrapper appelé avec:", domain);
-    handleSelectDomain(domain.id);
-  };
-  
-  // Handler interne pour sélectionner un domaine par son ID
+  // Handler to select a domain
   const handleSelectDomain = async (domainId: string) => {
-    console.log("handleSelectDomain appelé avec ID:", domainId);
-    
     // Empêcher la sélection de plusieurs domaines
-    if (scenario.activeDomain !== null) {
-      console.log("Un domaine est déjà actif, sélection ignorée");
-      return;
-    }
+    if (scenario.activeDomain !== null) return;
     
     const selectedDomain = initialDomains.find(d => d.id === domainId);
-    if (!selectedDomain) {
-      console.error("Domaine non trouvé dans initialDomains:", domainId);
-      console.log("Domaines disponibles:", initialDomains);
-      return;
-    }
+    if (!selectedDomain) return;
     
-    console.log("Domaine trouvé:", selectedDomain);
     setIsTyping(true);
     setScenario(prev => ({ ...prev, activeDomain: selectedDomain }));
     
@@ -938,12 +635,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsTyping(false);
   };
 
-  // Fonction wrapper pour adapter l'interface
-  const selectScenarioWrapper = (scenario: CyberScenario) => {
-    handleSelectScenario(scenario.id);
-  };
-
-  // Handler interne pour sélectionner un scénario par son ID
+  // Handler to select a scenario
   const handleSelectScenario = async (scenarioId: string) => {
     // Empêcher la sélection de plusieurs scénarios
     if (scenario.activeScenario !== null) return;
@@ -1022,36 +714,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Extraire les détails additionnels de la réponse si disponible
       try {
-        // Vérifier si l'erreur est une instance de Response
-        if (error instanceof Response) {
-          // Capture la promesse pour éviter les erreurs non interceptées
-          const jsonPromise = error.json();
-          jsonPromise
-            .then((responseData: Record<string, string>) => {
-              console.log("Réponse serveur complète:", responseData);
-              if (responseData.message) serverErrorMsg = responseData.message;
-              if (responseData.model) modelUsed = responseData.model;
-            })
-            .catch((parseError: Error) => {
-              console.error("Impossible de traiter la réponse JSON:", parseError);
-            });
-        } 
-        // Vérifier si l'erreur est un objet qui a une méthode json
-        else if (error && typeof error === 'object' && 'json' in error && typeof (error as { json: Function }).json === 'function') {
-          try {
-            const jsonFn = (error as { json: () => Promise<Record<string, string>> }).json;
-            jsonFn()
-              .then((responseData: Record<string, string>) => {
-                console.log("Réponse serveur complète:", responseData);
-                if (responseData.message) serverErrorMsg = responseData.message;
-                if (responseData.model) modelUsed = responseData.model;
-              })
-              .catch((parseError: Error) => {
-                console.error("Impossible de traiter la réponse JSON:", parseError);
-              });
-          } catch (jsonMethodError) {
-            console.error("Erreur lors de l'appel de la méthode json:", jsonMethodError);
-          }
+        if (error instanceof Response || (error && typeof error === 'object' && 'json' in error)) {
+          error.json().then(data => {
+            console.log("Réponse serveur complète:", data);
+            if (data.message) serverErrorMsg = data.message;
+            if (data.model) modelUsed = data.model;
+          }).catch(jsonError => console.error("Impossible de traiter la réponse JSON:", jsonError));
         } else if (error instanceof Error && error.cause && typeof error.cause === 'object') {
           const cause = error.cause as any;
           if (cause.data) {
@@ -1356,8 +1024,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         missionBriefReceived,
         setUserName: handleSetUserName,
         setUserRole: handleSetUserRole,
-        selectDomain: selectDomainWrapper,
-        selectScenario: selectScenarioWrapper,
+        selectDomain: handleSelectDomain,
+        selectScenario: handleSelectScenario,
         sendMessage: handleSendMessage,
         updateConfig: handleUpdateConfig,
         resetChat: handleResetChat,

@@ -20,11 +20,8 @@ export default function ScenarioSelection() {
   const scenarioActive = scenario.activeScenario !== null;
 
   const handleScenarioClick = (scenarioId: string) => {
-    console.log("Clic sur le scénario ID:", scenarioId);
-    
     // Si un scénario est déjà actif, on bloque la sélection d'un nouveau scénario
     if (scenarioActive) {
-      console.log("Session en cours, impossible de sélectionner un nouveau scénario");
       toast({
         title: "Session déjà en cours",
         description: "Veuillez d'abord cliquer sur 'Nouvelle session' pour démarrer un nouveau scénario.",
@@ -36,15 +33,9 @@ export default function ScenarioSelection() {
     
     // Si aucune session n'est en cours, on démarre le scénario sélectionné
     const selectedScenario = filteredScenarios.find(s => s.id === scenarioId);
-    if (!selectedScenario) {
-      console.error("Scénario non trouvé:", scenarioId);
-      console.log("Scénarios disponibles:", filteredScenarios);
-      return;
-    }
+    if (!selectedScenario) return;
     
-    console.log("Scénario trouvé, lancement:", selectedScenario);
-    // Passer l'objet scénario complet à la fonction selectScenario
-    selectScenario(selectedScenario);
+    selectScenario(scenarioId);
   };
 
   // Fonction pour obtenir les couleurs basées sur la difficulté

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { useChatContext } from "@/contexts/ChatContext";
 import { 
   AlertTriangle, FileText, Users, 
@@ -8,20 +8,11 @@ import {
 } from "lucide-react";
 
 export default function DomainSelection() {
-  const { domains, scenario, selectDomain, userRole } = useChatContext();
+  const { domains, scenario, selectDomain } = useChatContext();
   const [hoveredDomain, setHoveredDomain] = useState<string | null>(null);
   
   // Vérifier si une session (avec un scénario actif) est déjà en cours
   const sessionInProgress = scenario.activeScenario !== null;
-
-  // Filtrer les domaines en fonction du rôle sélectionné
-  const filteredDomains = useMemo(() => {
-    if (!userRole) return domains; // Si aucun rôle n'est sélectionné, montrer tous les domaines
-    
-    return domains.filter(domain => 
-      domain.applicableRoles?.includes(userRole)
-    );
-  }, [domains, userRole]);
 
   const handleDomainClick = (domainId: string) => {
     // Si une session est en cours, ne pas permettre de changer de domaine
@@ -29,14 +20,7 @@ export default function DomainSelection() {
       return;
     }
     
-    // Trouver le domaine complet pour le passer à la fonction selectDomain
-    const domain = domains.find(d => d.id === domainId);
-    if (domain) {
-      console.log("Sélection du domaine:", domain);
-      selectDomain(domain);
-    } else {
-      console.error("Domaine non trouvé:", domainId);
-    }
+    selectDomain(domainId);
   };
 
   // Map des icônes et styles pour chaque domaine spécifique
@@ -103,7 +87,7 @@ export default function DomainSelection() {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 mt-2 sm:mt-3 overflow-visible">
-        {filteredDomains.map((domain: any) => {
+        {domains.map((domain: any) => {
           const config = domainConfig[domain.id] || {
             icon: <Lock className="w-5 h-5 sm:w-7 sm:h-7 text-blue-300" />,
             bgGradient: "from-blue-900/50 via-blue-800/30 to-blue-900/50",

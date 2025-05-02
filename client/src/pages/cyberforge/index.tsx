@@ -31,17 +31,6 @@ interface ModuleProgress {
   lastAccessed?: Date;
 }
 
-interface UserData {
-  name: string;
-  totalProgress: number;
-  moduleProgress: Record<string, ModuleProgress>;
-  isAdmin: boolean;
-  rank?: string;
-  level?: number;
-  points?: number;
-  avatar?: Avatar;
-}
-
 interface Avatar {
   id: string;
   name: string;
@@ -51,6 +40,17 @@ interface Avatar {
   description: string;
   strengthsAndWeaknesses: string[];
   primarySkills: string[];
+}
+
+interface UserData {
+  name: string;
+  totalProgress: number;
+  moduleProgress: Record<string, ModuleProgress>;
+  isAdmin: boolean;
+  rank?: string;
+  level?: number;
+  points?: number;
+  avatar?: Avatar;
 }
 
 interface AIRecommendation {
@@ -67,320 +67,719 @@ interface SimulationScenario {
   difficulty: 'débutant' | 'intermédiaire' | 'avancé' | 'expert';
   duration: string;
   objectives: string[];
-  completionReward: number;
+  completionReward: number; // Points de compétence
   icon: React.ReactNode;
 }
 
-// Fonction utilitaire pour calculer la progression totale
-function calculateTotalProgress(moduleProgress: Record<string, ModuleProgress>): number {
-  if (!moduleProgress || Object.keys(moduleProgress).length === 0) return 0;
-  
-  const totalModules = Object.keys(moduleProgress).length;
-  const completedModules = Object.values(moduleProgress).filter(m => m.completed).length;
-  const inProgressModulesValue = Object.values(moduleProgress)
-    .filter(m => !m.completed && m.progress > 0)
-    .reduce((acc, curr) => acc + curr.progress, 0) / 100;
-  
-  return Math.round(((completedModules + inProgressModulesValue) / totalModules) * 100);
-}
-
-// Avatars disponibles
-const availableAvatars: Avatar[] = [
+// Données des avatars
+const avatars: Avatar[] = [
   {
-    id: "shadow",
-    name: "Shadow",
-    imagePath: "/assets/avatars/shadow.png",
-    type: "hacker",
-    abilities: ["Intrusion", "Cryptanalyse", "Retro-ingenierie"],
-    description: "Specialiste de la securite offensive.",
-    strengthsAndWeaknesses: ["Expertise en pentesting", "Connaissance limitee en defense"],
-    primarySkills: ["Exploitation", "Social Engineering", "OSINT"]
+    id: 'shadow',
+    name: 'Shadow',
+    imagePath: '/assets/avatars/shadow.png',
+    type: 'hacker',
+    abilities: ['Infiltration', 'Exploitation', 'Anonymat'],
+    description: 'Expert en tests d\'intrusion et hacking éthique. Spécialisé dans la découverte de vulnérabilités et l\'exploitation de failles de sécurité pour améliorer les défenses.',
+    strengthsAndWeaknesses: [
+      'Excellent en découverte de vulnérabilités', 
+      'Maîtrise des techniques d\'anonymisation',
+      'Connaissances avancées en exploitation de systèmes',
+      'Points faibles : analyse forensique, documentation'
+    ],
+    primarySkills: ['Exploitation', 'Rétro-ingénierie', 'Reconnaissance']
   },
   {
-    id: "sentinel",
-    name: "Sentinel",
-    imagePath: "/assets/avatars/sentinel.png",
-    type: "analyst",
-    abilities: ["Analyse forensique", "Detection des anomalies", "Traque de menaces"],
-    description: "Expert en analyse de securite et investigation numerique.",
-    strengthsAndWeaknesses: ["Excellence analytique", "Temps de reaction parfois lent"],
-    primarySkills: ["Forensique", "Detection", "Analyse malware"]
+    id: 'sentinel',
+    name: 'Sentinel',
+    imagePath: '/assets/avatars/sentinel.png',
+    type: 'security_manager',
+    abilities: ['Supervision', 'Organisation', 'Stratégie'],
+    description: 'Responsable de la stratégie de cybersécurité. Excellentes compétences en gestion d\'équipe, communication et planification des opérations de sécurité.',
+    strengthsAndWeaknesses: [
+      'Vision stratégique globale', 
+      'Excellente communication',
+      'Gestion efficace des crises',
+      'Points faibles : aspects techniques avancés, programmation'
+    ],
+    primarySkills: ['Gestion des risques', 'Conformité', 'Communication']
   },
   {
-    id: "guardian",
-    name: "Guardian",
-    imagePath: "/assets/avatars/guardian.png",
-    type: "security_manager",
-    abilities: ["Gestion de crise", "Coordination des equipes", "Strategie de securite"],
-    description: "Leader en gestion de la securite et reponse aux incidents.",
-    strengthsAndWeaknesses: ["Vision strategique", "Moins de competences techniques"],
-    primarySkills: ["Gestion incidents", "Planification", "Communication"]
+    id: 'guardian',
+    name: 'Guardian',
+    imagePath: '/assets/avatars/guardian.png',
+    type: 'analyst',
+    abilities: ['Analyse', 'Protection', 'Détection'],
+    description: 'Analyste de sécurité spécialisé dans la détection et la réponse aux incidents. Expert en investigation, analyse des malwares et protection des systèmes.',
+    strengthsAndWeaknesses: [
+      'Détection avancée des menaces', 
+      'Analyse approfondie des incidents',
+      'Excellentes compétences forensiques',
+      'Points faibles : développement, tests d\'intrusions'
+    ],
+    primarySkills: ['Analyse d\'incidents', 'Forensique', 'Monitoring']
   },
   {
-    id: "nexus",
-    name: "Nexus",
-    imagePath: "/assets/avatars/nexus.png",
-    type: "network_specialist",
-    abilities: ["Architecture reseau", "Detection des intrusions", "Securite perimetrique"],
-    description: "Specialiste des infrastructures reseau securisees.",
-    strengthsAndWeaknesses: ["Expertise reseau", "Moins de connaissances en applications"],
-    primarySkills: ["Firewall", "IDS/IPS", "Segmentation"]
+    id: 'nexus',
+    name: 'Nexus',
+    imagePath: '/assets/avatars/nexus.png',
+    type: 'network_specialist',
+    abilities: ['Connectivité', 'Topologie', 'Défense périmétrique'],
+    description: 'Spécialiste en sécurité des réseaux et infrastructures. Expert en architecture sécurisée, segmentation et défense des communications.',
+    strengthsAndWeaknesses: [
+      'Maîtrise de la sécurité réseau', 
+      'Expertise en conception d\'architecture',
+      'Connaissance approfondie des protocoles',
+      'Points faibles : applications web, social engineering'
+    ],
+    primarySkills: ['Architecture réseau', 'Défense périmétrique', 'Surveillance']
   }
 ];
 
+// Modules disponibles dans CyberForge Academy
+const modules = [
+  {
+    id: 'fundamentals',
+    title: 'Fondamentaux de la Cybersécurité',
+    description: 'Concepts de base, terminologie et principes essentiels.',
+    progress: 0,
+    level: 1,
+    requiredModules: [],
+    icon: <Shield className="h-5 w-5" />
+  },
+  {
+    id: 'network-security',
+    title: 'Sécurité des Réseaux',
+    description: 'Protection des infrastructures réseau et détection d\'intrusion.',
+    progress: 0,
+    level: 2,
+    requiredModules: ['fundamentals'],
+    icon: <Wifi className="h-5 w-5" />
+  },
+  {
+    id: 'web-security',
+    title: 'Sécurité des Applications Web',
+    description: 'Vulnérabilités web et méthodes de protection.',
+    progress: 0,
+    level: 2,
+    requiredModules: ['fundamentals'],
+    icon: <Globe className="h-5 w-5" />
+  },
+  {
+    id: 'cryptography',
+    title: 'Cryptographie & Authentification',
+    description: 'Chiffrement, hachage et mécanismes d\'authentification.',
+    progress: 0,
+    level: 3,
+    requiredModules: ['fundamentals', 'network-security'],
+    icon: <Lock className="h-5 w-5" />
+  },
+  {
+    id: 'social-engineering',
+    title: 'Social Engineering',
+    description: 'Techniques de manipulation et mesures préventives.',
+    progress: 0,
+    level: 2,
+    requiredModules: ['fundamentals'],
+    icon: <UserX className="h-5 w-5" />
+  },
+  {
+    id: 'malware-analysis',
+    title: 'Analyse de Malwares',
+    description: 'Identification et analyse des logiciels malveillants.',
+    progress: 0,
+    level: 4,
+    requiredModules: ['fundamentals', 'cryptography'],
+    icon: <FileWarning className="h-5 w-5" />
+  },
+  {
+    id: 'incident-response',
+    title: 'Réponse aux Incidents',
+    description: 'Processus de gestion et résolution des incidents de sécurité.',
+    progress: 0,
+    level: 3,
+    requiredModules: ['fundamentals', 'network-security'],
+    icon: <AlertTriangle className="h-5 w-5" />
+  },
+  {
+    id: 'secure-coding',
+    title: 'Développement Sécurisé',
+    description: 'Pratiques de codage sécurisé et tests de pénétration.',
+    progress: 0,
+    level: 4,
+    requiredModules: ['fundamentals', 'web-security'],
+    icon: <FileCode className="h-5 w-5" />
+  },
+  {
+    id: 'threat-intelligence',
+    title: 'Cyber Threat Intelligence',
+    description: 'Collecte et analyse des informations sur les menaces.',
+    progress: 0,
+    level: 3,
+    requiredModules: ['fundamentals', 'incident-response'],
+    icon: <BrainCircuit className="h-5 w-5" />
+  }
+];
+
+function calculateTotalProgress(moduleProgress: Record<string, ModuleProgress>): number {
+  const moduleCount = modules.length;
+  let totalProgress = 0;
+  
+  for (const module of modules) {
+    totalProgress += (moduleProgress[module.id]?.progress || 0);
+  }
+  
+  return Math.round(totalProgress / moduleCount);
+}
+
 function CyberForge() {
-  const [, setLocation] = useLocation();
   const { isDark } = useTheme();
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   
-  // États de l'utilisateur et de l'interface
+  // États du SAS d'entrée
+  const [showEntryPortal, setShowEntryPortal] = useState(true);
+  const [selectedAvatar, setSelectedAvatar] = useState<Avatar | null>(null);
+  const [avatarCardOpen, setAvatarCardOpen] = useState<string | null>(null);
+  const [entryStep, setEntryStep] = useState<'welcome' | 'avatar' | 'mission' | 'ready'>('welcome');
+  
+  // États pour le reste de l'interface
+  const [userName, setUserName] = useState('');
   const [userData, setUserData] = useState<UserData>({
-    name: 'Utilisateur',
+    name: '',
     totalProgress: 0,
     moduleProgress: {},
-    isAdmin: false,
-    rank: 'Novice',
-    level: 1,
-    points: 0
+    isAdmin: false
   });
-  
-  const [selectedAvatar, setSelectedAvatar] = useState<Avatar | null>(null);
-  const [showEntryPortal, setShowEntryPortal] = useState(true);
-  const [entryStep, setEntryStep] = useState<'welcome' | 'avatar' | 'purpose'>('welcome');
-  const [passwordAttempt, setPasswordAttempt] = useState('');
-  const [isPasswordCorrect, setIsPasswordCorrect] = useState(false);
-  const [showPasswordForm, setShowPasswordForm] = useState(true);
-  
-  // Sélection d'un avatar
+
+  // Effet pour simuler le chargement des données utilisateur
+  useEffect(() => {
+    const savedUser = localStorage.getItem('cyberforge_user');
+    if (savedUser) {
+      const parsedUser = JSON.parse(savedUser);
+      setUserData(parsedUser);
+      setUserName(parsedUser.name);
+    }
+  }, []);
+
+  // Sélectionner un avatar
   const selectAvatarProfile = (avatar: Avatar) => {
     setSelectedAvatar(avatar);
-    setUserData(prev => ({ ...prev, avatar }));
-    setEntryStep('purpose');
-  };
-
-  // Validation de mot de passe
-  const handlePasswordSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Mot de passe pour l'accès à CyberForge
-    const correctPassword = 'cyber2023';
-    if (passwordAttempt.toLowerCase() === correctPassword) {
-      setIsPasswordCorrect(true);
-      setShowPasswordForm(false);
+    // Simuler la progression
+    if (entryStep === 'avatar') {
       setTimeout(() => {
-        setEntryStep('avatar');
-      }, 2000);
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Accès refusé",
-        description: "Mot de passe incorrect. Veuillez réessayer."
-      });
+        setEntryStep('mission');
+      }, 500);
     }
   };
 
-  // Continuer après la sélection de l'avatar
-  const handleContinue = () => {
-    setShowEntryPortal(false);
+  // Passer à l'étape suivante dans le SAS d'entrée
+  const proceedToNextStep = () => {
+    if (entryStep === 'welcome') {
+      setEntryStep('avatar');
+    } else if (entryStep === 'mission') {
+      setEntryStep('ready');
+    } else if (entryStep === 'ready') {
+      // Sauvegarder l'avatar sélectionné dans les données utilisateur
+      if (selectedAvatar) {
+        const updatedUserData = { 
+          ...userData,
+          avatar: selectedAvatar 
+        };
+        setUserData(updatedUserData);
+        localStorage.setItem('cyberforge_user', JSON.stringify(updatedUserData));
+      }
+      // Passer à l'interface principale
+      setShowEntryPortal(false);
+    }
   };
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-[#0a0e17] text-white' : 'bg-[#f0f4f8] text-gray-900'}`}>
+    <div className={`min-h-screen ${isDark ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
       {showEntryPortal ? (
-        // SAS d'entrée immersif modernisé avec effet futuriste
-        <div className="min-h-screen relative overflow-hidden bg-[#050a14]">
-          {/* Arrière-plan dynamique et moderne */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0f1d3c]/80 via-[#0b1328]/90 to-[#071428]/80 z-0"></div>
+        // SAS d'entrée immersif
+        <div className={`min-h-screen relative ${isDark ? 'bg-gray-950' : 'bg-gray-100'} overflow-hidden`}>
+          {/* Effet de grille cyber */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-purple-900/30 z-0"></div>
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA4MCAwIEwgMCAwIDAgODAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSg2MCwgOTAsIDIzMCwgMC4xKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIiAvPjwvc3ZnPg==')]  bg-center z-0 opacity-20"></div>
           
-          {/* Grille hexagonale cyber - effet plus technologique et immersif */}
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImhleGFncmlkIiB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSgzMCkiPjxwYXRoIGQ9Ik0gMCAtMTAgTCAtOC42NiA1IEwgMCAyMCBMIDguNjYgNSBaIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMzAsIDg1LCAyMDAsIDAuMTUpIiBzdHJva2Utd2lkdGg9IjAuNSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMzAsIDMwKSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNoZXhhZ3JpZCkiIC8+PC9zdmc+')]  bg-center z-0 opacity-25"></div>
-          
-          {/* Particules flottantes - effet dynamique et technologique */}
-          <div className="absolute inset-0 overflow-hidden">
-            {Array.from({ length: 15 }).map((_, i) => (
-              <div 
-                key={i}
-                className={`absolute w-1 h-1 rounded-full bg-blue-400 animate-pulse opacity-80`}
-                style={{
-                  top: `${Math.random() * 100}%`,
-                  left: `${Math.random() * 100}%`,
-                  animationDuration: `${Math.random() * 8 + 4}s`,
-                  animationDelay: `${Math.random() * 5}s`,
-                  boxShadow: '0 0 12px 2px rgba(59, 130, 246, 0.5)',
-                  transform: `scale(${Math.random() * 1.5 + 0.5})`,
-                }}
-              />
-            ))}
-          </div>
-
-          {/* Terminal central - conteneur principal */}
-          <div className="container mx-auto h-screen flex flex-col justify-center items-center relative z-10 px-4">
-            <div className="text-center mb-2">
-              <h1 className="text-4xl md:text-5xl font-bold mb-2 font-mono tracking-tight bg-gradient-to-r from-blue-300 via-cyan-200 to-blue-300 text-transparent bg-clip-text">
-                CyberForge<span className="text-blue-300 animate-pulse">_</span>Academy
+          {/* Conteneur principal centré */}
+          <div className="container mx-auto px-4 py-8 min-h-screen flex flex-col items-center justify-center relative z-10">
+            {/* Logo CyberForge Academy */}
+            <div className={`mb-10 text-center ${entryStep !== 'welcome' ? 'absolute top-4 left-1/2 transform -translate-x-1/2' : ''}`}>
+              <h1 className={`text-4xl sm:text-5xl font-bold mb-2 font-mono tracking-tight transition-all duration-500 ${
+  isDark 
+    ? 'bg-gradient-to-r from-blue-400 to-indigo-400 text-transparent bg-clip-text' 
+    : 'bg-gradient-to-r from-blue-700 to-indigo-800 text-transparent bg-clip-text'
+} ${entryStep !== 'welcome' ? 'text-2xl' : ''}`}>
+                CyberForge<span className={isDark ? 'text-blue-100' : 'text-blue-900'}>_</span>Academy
               </h1>
-              <p className="text-blue-300 max-w-2xl mx-auto">Plateforme d'entraînement immersive à la cybersécurité</p>
+              {entryStep === 'welcome' && (
+              <p className={`text-lg md:text-xl max-w-2xl mx-auto ${
+                isDark ? 'text-blue-100' : 'text-blue-900'
+              }`}>
+                Centre d'entraînement virtuel pour l'élite des défenseurs cyber
+              </p>
+              )}
             </div>
             
+            {/* Contenu par étape */}
             <AnimatePresence mode="wait">
               {entryStep === 'welcome' && (
-                <motion.div
+                <motion.div 
                   key="welcome"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.5 }}
-                  className="w-full max-w-md"
+                  transition={{ duration: 0.3 }}
+                  className="w-full max-w-3xl"
                 >
-                  <Card className="bg-black/40 backdrop-blur-md border-t border-l border-blue-500/20 shadow-[0_0_25px_rgba(59,130,246,0.15)]">
+                  <Card className={`p-6 ${isDark ? 'bg-gray-800 border-blue-700' : 'bg-white border-blue-300'} backdrop-blur-sm border-2 rounded-lg shadow-xl`}>
                     <CardHeader>
-                      <CardTitle className="text-xl text-blue-100">Acces securise</CardTitle>
-                      <CardDescription className="text-blue-300">
-                        Veuillez vous authentifier pour acceder a la plateforme.
+                      <CardTitle className="flex items-center gap-3 text-2xl">
+                        <div className={`p-2 rounded-lg ${isDark ? 'bg-blue-600' : 'bg-blue-100'}`}>
+                          <Shield className={`h-7 w-7 ${isDark ? 'text-white' : 'text-blue-800'}`} />
+                        </div>
+                        <span className={isDark ? 'text-white' : 'text-blue-950'}>
+                          Bienvenue à CyberForge Academy
+                        </span>
+                      </CardTitle>
+                      <CardDescription className={`text-base ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
+                        Votre parcours dans l'élite de la cybersécurité commence ici
                       </CardDescription>
                     </CardHeader>
-                    <CardContent>
-                      {showPasswordForm ? (
-                        <form onSubmit={handlePasswordSubmit} className="space-y-4">
-                          <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-blue-300 mb-1">
-                              Code d'acces
-                            </label>
-                            <Input
-                              type="password"
-                              id="password"
-                              value={passwordAttempt}
-                              onChange={(e) => setPasswordAttempt(e.target.value)}
-                              className="w-full bg-black/70 border border-blue-800/60 text-white focus:ring-blue-500"
-                              placeholder="Entrez le code d'acces"
-                              required
-                            />
-                          </div>
-                          <Button
-                            type="submit" 
-                            className="w-full bg-blue-700 hover:bg-blue-600 text-white"
-                          >
-                            Acceder
-                          </Button>
-                        </form>
-                      ) : (
-                        <div className="p-4 text-center">
-                          <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-green-100/10 mb-4">
-                            <Shield className="h-8 w-8 text-green-500" />
-                          </div>
-                          <h3 className="text-lg font-medium text-green-400 mb-2">Authentification reussie</h3>
-                          <p className="text-sm text-blue-300">Bienvenue dans CyberForge Academy.</p>
+                    
+                    <CardContent className="space-y-4">
+                      <p className={isDark ? 'text-white' : 'text-gray-800'}>
+                        L'Académie CyberForge est un centre d'entraînement de haute technologie conçu pour former 
+                        les experts en cybersécurité de demain. Ici, vous développerez vos compétences à travers 
+                        des modules interactifs, des simulations tactiques et des défis de hacking éthique.
+                      </p>
+                      
+                      <div className={`p-4 rounded-md ${isDark ? 'bg-blue-900 text-white' : 'bg-blue-100 text-blue-950'} flex items-start gap-3`}>
+                        <Info className={`h-5 w-5 mt-0.5 flex-shrink-0 ${isDark ? 'text-blue-200' : 'text-blue-700'}`} />
+                        <div>
+                          <p className="font-medium">Votre progression est enregistrée</p>
+                          <p className="text-sm opacity-90">Tous vos accomplissements, badges et niveaux sont sauvegardés automatiquement.</p>
                         </div>
-                      )}
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                        <div className={`p-4 rounded-md ${isDark ? 'bg-gray-900' : 'bg-gray-100'} text-center`}>
+                          <div className={`mx-auto mb-2 w-12 h-12 rounded-full ${isDark ? 'bg-yellow-600' : 'bg-yellow-500'} flex items-center justify-center`}>
+                            <Lightbulb className={`h-6 w-6 ${isDark ? 'text-white' : 'text-white'}`} />
+                          </div>
+                          <h3 className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>9 Modules d'apprentissage</h3>
+                          <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Des fondamentaux à l'expertise avancée</p>
+                        </div>
+                        
+                        <div className={`p-4 rounded-md ${isDark ? 'bg-gray-900' : 'bg-gray-100'} text-center`}>
+                          <div className={`mx-auto mb-2 w-12 h-12 rounded-full ${isDark ? 'bg-green-600' : 'bg-green-600'} flex items-center justify-center`}>
+                            <Terminal className="h-6 w-6 text-white" />
+                          </div>
+                          <h3 className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>Laboratoires pratiques</h3>
+                          <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Environnements sécurisés pour pratiquer</p>
+                        </div>
+                        
+                        <div className={`p-4 rounded-md ${isDark ? 'bg-gray-900' : 'bg-gray-100'} text-center`}>
+                          <div className={`mx-auto mb-2 w-12 h-12 rounded-full ${isDark ? 'bg-red-600' : 'bg-red-600'} flex items-center justify-center`}>
+                            <ShieldAlert className="h-6 w-6 text-white" />
+                          </div>
+                          <h3 className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>Simulations d'attaques</h3>
+                          <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Scénarios réalistes et adaptatifs</p>
+                        </div>
+                      </div>
                     </CardContent>
+                    
+                    <CardFooter className="flex justify-between pt-2">
+                      <Button 
+  variant="outline" 
+  onClick={() => setLocation('/')}
+  className={isDark ? 'border-gray-600 bg-transparent text-white hover:bg-gray-700' : 'border-gray-300 text-gray-800 hover:bg-gray-100'}
+>
+  <ArrowLeft className="h-4 w-4 mr-2" />
+  Retour
+</Button>
+
+<Button 
+  onClick={proceedToNextStep} 
+  className={isDark 
+    ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+    : 'bg-blue-700 hover:bg-blue-800 text-white'
+  }
+>
+  Commencer l'expérience
+  <ChevronRight className="h-4 w-4 ml-2" />
+</Button>
+                    </CardFooter>
                   </Card>
                 </motion.div>
               )}
 
               {entryStep === 'avatar' && (
-                <motion.div
+                <motion.div 
                   key="avatar"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.5 }}
+                  transition={{ duration: 0.3 }}
                   className="w-full max-w-4xl"
                 >
-                  <Card className="bg-black/40 backdrop-blur-md border-t border-l border-blue-500/20 shadow-[0_0_25px_rgba(59,130,246,0.15)]">
+                  <Card className={`p-6 ${isDark ? 'bg-gray-800 border-blue-700' : 'bg-white border-blue-300'} backdrop-blur-sm border-2 rounded-lg shadow-xl`}>
                     <CardHeader>
-                      <CardTitle className="text-xl text-blue-100">Choisissez votre specialisation</CardTitle>
-                      <CardDescription className="text-blue-300">
-                        Selectionnez un profil pour personnaliser votre parcours d'apprentissage.
+                      <CardTitle className="flex items-center gap-3 text-2xl">
+                        <div className={`p-2 rounded-lg ${isDark ? 'bg-purple-600' : 'bg-purple-100'}`}>
+                          <User className={`h-7 w-7 ${isDark ? 'text-white' : 'text-purple-800'}`} />
+                        </div>
+                        <span className={isDark ? 'text-white' : 'text-blue-950'}>
+                          Sélectionnez votre personnage
+                        </span>
+                      </CardTitle>
+                      <CardDescription className={`text-base ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
+                        Chaque profil possède des compétences et spécialités uniques
                       </CardDescription>
                     </CardHeader>
+                    
                     <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        {availableAvatars.map((avatar) => (
-                          <div 
-                            key={avatar.id}
-                            onClick={() => selectAvatarProfile(avatar)}
-                            className={`relative p-4 rounded-lg border transition-all cursor-pointer
-                              ${selectedAvatar?.id === avatar.id 
-                                ? 'bg-blue-900/40 border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.25)]' 
-                                : 'bg-black/40 border-blue-800/30 hover:bg-blue-900/20 hover:border-blue-700/40'
-                              }
-                            `}
-                          >
-                            <div className="flex flex-col items-center">
-                              <div className="w-16 h-16 rounded-full bg-blue-950 flex items-center justify-center text-3xl mb-3">
-                                {avatar.id === 'shadow' ? '👤' : 
-                                 avatar.id === 'sentinel' ? '🔍' :
-                                 avatar.id === 'guardian' ? '🛡️' : 
-                                 '📡'}
-                              </div>
-                              <h3 className="font-medium text-blue-100">{avatar.name}</h3>
-                              <p className="text-xs text-blue-300 text-center mt-1">
-                                {avatar.type === "hacker" ? "Hacker Ethique" : 
-                                 avatar.type === "analyst" ? "Analyste Securite" :
-                                 avatar.type === "security_manager" ? "Gestionnaire Securite" :
-                                 "Specialiste Reseau"}
-                              </p>
-                              
-                              {selectedAvatar?.id === avatar.id && (
-                                <div className="absolute inset-0 border-2 border-blue-500 rounded-lg overflow-hidden">
-                                  <div className="absolute bottom-0 left-0 h-1 bg-blue-500 animate-pulse-slow w-full"></div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {avatars.map((avatar) => (
+                          <div key={avatar.id} className="relative">
+                            <div 
+                              className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                                selectedAvatar?.id === avatar.id 
+                                  ? isDark 
+                                    ? 'border-blue-500 bg-blue-900/30' 
+                                    : 'border-blue-600 bg-blue-50' 
+                                  : isDark 
+                                    ? 'border-gray-600 hover:border-blue-500 bg-gray-900' 
+                                    : 'border-gray-300 hover:border-blue-400 bg-gray-50'
+                              }`}
+                              onClick={() => selectAvatarProfile(avatar)}
+                            >
+                              <div className="flex items-center gap-4">
+                                <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+                                  selectedAvatar?.id === avatar.id
+                                    ? isDark ? 'bg-blue-600' : 'bg-blue-500'
+                                    : isDark ? 'bg-gray-700' : 'bg-gray-200'
+                                }`}>
+                                  <span className="text-2xl">{
+                                    avatar.id === 'shadow' ? '👤' : 
+                                    avatar.id === 'sentinel' ? '🔍' :
+                                    avatar.id === 'guardian' ? '🛡️' : 
+                                    '📡'
+                                  }</span>
                                 </div>
-                              )}
+                                
+                                <div className="flex-1">
+                                  <h3 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>{avatar.name}</h3>
+                                  <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                                    {avatar.type === 'hacker' ? 'Hacker Éthique' : 
+                                     avatar.type === 'analyst' ? 'Analyste Sécurité' :
+                                     avatar.type === 'security_manager' ? 'Gestionnaire Sécurité' :
+                                     'Spécialiste Réseau'}
+                                  </p>
+                                  <div className="flex flex-wrap gap-1 mt-1">
+                                    {avatar.abilities.map((ability, index) => (
+                                      <Badge key={index} className={`text-xs ${
+                                        isDark ? 'bg-gray-700 text-white border-0' : 'bg-gray-200 text-gray-800 border-0'
+                                      }`}>
+                                        {ability}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                </div>
+                                
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  className={`p-0 h-8 w-8 rounded-full ${isDark ? 'text-white hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setAvatarCardOpen(avatar.id === avatarCardOpen ? null : avatar.id);
+                                  }}
+                                >
+                                  <Info className="h-4 w-4" />
+                                </Button>
+                              </div>
+                              
+                              {/* Info détaillée */}
+                              <AnimatePresence>
+                                {avatarCardOpen === avatar.id && (
+                                  <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    transition={{ duration: 0.2 }}
+                                    className="mt-3 overflow-hidden"
+                                  >
+                                    <Separator className={`my-2 ${isDark ? 'bg-gray-600' : 'bg-gray-300'}`} />
+                                    <p className={`text-sm mb-2 ${isDark ? 'text-white' : 'text-gray-800'}`}>{avatar.description}</p>
+                                    
+                                    <h4 className={`text-sm font-medium mb-1 ${isDark ? 'text-blue-300' : 'text-blue-700'}`}>
+                                      Forces et faiblesses
+                                    </h4>
+                                    <ul className={`text-sm space-y-1 list-disc pl-5 mb-2 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
+                                      {avatar.strengthsAndWeaknesses.map((item, index) => (
+                                        <li key={index}>{item}</li>
+                                      ))}
+                                    </ul>
+                                    
+                                    <h4 className={`text-sm font-medium mb-1 ${isDark ? 'text-blue-300' : 'text-blue-700'}`}>
+                                      Compétences principales
+                                    </h4>
+                                    <div className="flex flex-wrap gap-1">
+                                      {avatar.primarySkills.map((skill, index) => (
+                                        <Badge key={index} className={`${
+                                          isDark ? 'bg-blue-700 text-white border-0' : 'bg-blue-600 text-white border-0'
+                                        }`}>
+                                          {skill}
+                                        </Badge>
+                                      ))}
+                                    </div>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
                             </div>
                           </div>
                         ))}
                       </div>
                     </CardContent>
+                    
+                    <CardFooter className="flex justify-between pt-2">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setEntryStep('welcome')}
+                        className={isDark ? 'border-gray-600 bg-transparent text-white hover:bg-gray-700' : 'border-gray-300 text-gray-800 hover:bg-gray-100'}
+                      >
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Retour
+                      </Button>
+                      
+                      <Button 
+                        onClick={proceedToNextStep} 
+                        className={isDark 
+                          ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                          : 'bg-blue-700 hover:bg-blue-800 text-white'
+                        }
+                        disabled={!selectedAvatar}
+                      >
+                        Continuer
+                        <ChevronRight className="h-4 w-4 ml-2" />
+                      </Button>
+                    </CardFooter>
                   </Card>
                 </motion.div>
               )}
-
-              {entryStep === 'purpose' && selectedAvatar && (
-                <motion.div
-                  key="purpose"
+              
+              {entryStep === 'mission' && (
+                <motion.div 
+                  key="mission"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.5 }}
-                  className="w-full max-w-xl"
+                  transition={{ duration: 0.3 }}
+                  className="w-full max-w-4xl"
                 >
-                  <Card className="bg-black/40 backdrop-blur-md border-t border-l border-blue-500/20 shadow-[0_0_25px_rgba(59,130,246,0.15)]">
+                  <Card className={`p-6 ${isDark ? 'bg-gray-800 border-blue-700' : 'bg-white border-blue-300'} backdrop-blur-sm border-2 rounded-lg shadow-xl`}>
                     <CardHeader>
-                      <CardTitle className="text-xl text-blue-100">
-                        Specialisation: {selectedAvatar.name}
+                      <CardTitle className="flex items-center gap-3 text-2xl">
+                        <div className={`p-2 rounded-lg ${isDark ? 'bg-cyan-600' : 'bg-cyan-100'}`}>
+                          <FileCode className={`h-7 w-7 ${isDark ? 'text-white' : 'text-cyan-800'}`} />
+                        </div>
+                        <span className={isDark ? 'text-white' : 'text-blue-950'}>
+                          Briefing de mission
+                        </span>
                       </CardTitle>
-                      <CardDescription className="text-blue-300">
-                        {selectedAvatar.description}
+                      <CardDescription className={`text-base ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
+                        Votre objectif au sein de CyberForge Academy
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-6">
-                      <div>
-                        <h3 className="text-sm font-medium text-blue-200 mb-2">Competences principales</h3>
-                        <div className="flex flex-wrap gap-2">
-                          {selectedAvatar.primarySkills.map((skill, i) => (
-                            <Badge key={i} className="bg-blue-900/60 text-blue-200 border border-blue-700/60">
-                              {skill}
-                            </Badge>
-                          ))}
+                    
+                    <CardContent className="space-y-4">
+                      {selectedAvatar && (
+                        <div className={`flex items-center gap-4 p-4 rounded-lg mb-4 ${
+                          isDark ? 'bg-gradient-to-r from-blue-900/40 to-purple-900/40 border border-blue-700' 
+                               : 'bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200'
+                        }`}>
+                          <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+                            isDark ? 'bg-blue-600' : 'bg-blue-500'
+                          }`}>
+                            <span className="text-2xl">{
+                              selectedAvatar.id === 'shadow' ? '👤' : 
+                              selectedAvatar.id === 'sentinel' ? '🔍' :
+                              selectedAvatar.id === 'guardian' ? '🛡️' : 
+                              '📡'
+                            }</span>
+                          </div>
+                          
+                          <div>
+                            <h3 className={`font-bold text-lg flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                              {selectedAvatar.name}
+                              <Badge className={`ml-2 ${isDark ? 'bg-green-600 text-white' : 'bg-green-600 text-white'} border-0`}>
+                                Niveau 1
+                              </Badge>
+                            </h3>
+                            <p className={`${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                              {selectedAvatar.type === 'hacker' ? 'Hacker Éthique' : 
+                               selectedAvatar.type === 'analyst' ? 'Analyste Sécurité' :
+                               selectedAvatar.type === 'security_manager' ? 'Gestionnaire Sécurité' :
+                               'Spécialiste Réseau'}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className={`p-5 rounded-md ${isDark ? 'bg-gray-900 border border-gray-700' : 'bg-gray-50 border border-gray-200'}`}>
+                        <h3 className={`font-bold text-lg mb-3 ${isDark ? 'text-blue-300' : 'text-blue-700'} flex items-center gap-2`}>
+                          <Shield className="h-5 w-5" /> Mission principale
+                        </h3>
+                        <p className={`mb-3 ${isDark ? 'text-white' : 'text-gray-800'}`}>
+                          En tant que {selectedAvatar?.name || 'recrue'} au sein de CyberForge Academy, votre mission est de développer vos compétences en cybersécurité en complétant des modules d'apprentissage, des laboratoires pratiques et des simulations de crise.
+                        </p>
+                        
+                        <h4 className={`font-medium mb-2 ${isDark ? 'text-gray-200' : 'text-gray-700'} flex items-center gap-2`}>
+                          <CheckCircle className={`h-4 w-4 ${isDark ? 'text-green-400' : 'text-green-600'}`} /> 
+                          Objectifs :
+                        </h4>
+                        <ul className={`list-none space-y-2 mb-4 ${isDark ? 'text-white' : 'text-gray-800'}`}>
+                          <li className="flex items-start gap-2">
+                            <div className="mt-1 text-xs">
+                              <Circle className={`h-2 w-2 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                            </div>
+                            Compléter les 9 modules d'apprentissage pour maîtriser les différents aspects de la cybersécurité
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <div className="mt-1 text-xs">
+                              <Circle className={`h-2 w-2 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
+                            </div>
+                            Participer à des exercices pratiques dans l'environnement de laboratoire virtuel
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <div className="mt-1 text-xs">
+                              <Circle className={`h-2 w-2 ${isDark ? 'text-red-400' : 'text-red-600'}`} />
+                            </div>
+                            Relever les défis de cyber-défense en conditions réalistes
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <div className="mt-1 text-xs">
+                              <Circle className={`h-2 w-2 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} />
+                            </div>
+                            Constituer une équipe virtuelle d'agents pour les missions avancées
+                          </li>
+                        </ul>
+                        
+                        <div className={`p-4 rounded ${
+                          isDark ? 'bg-gradient-to-r from-blue-900/50 to-indigo-900/50 text-white border border-blue-800' 
+                                : 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-900 border border-blue-200'
+                        }`}>
+                          <p className={`font-medium mb-1 ${isDark ? 'text-blue-200' : 'text-blue-800'} flex items-center gap-2`}>
+                            <Lightbulb className="h-4 w-4" /> Recommandation pour votre profil ({selectedAvatar?.name || 'recrue'}) :
+                          </p>
+                          <p className={isDark ? 'text-gray-200' : 'text-gray-700'}>
+                            {selectedAvatar?.id === 'shadow' && "Commencez par les modules de fondamentaux et de sécurité web pour exploiter vos compétences en hacking éthique."}
+                            {selectedAvatar?.id === 'sentinel' && "Concentrez-vous d'abord sur les fondamentaux et la gestion des incidents pour renforcer vos capacités stratégiques."}
+                            {selectedAvatar?.id === 'guardian' && "Explorez les modules d'analyse de malware et de réponse aux incidents pour améliorer vos compétences d'analyste."}
+                            {selectedAvatar?.id === 'nexus' && "Approfondissez les modules de sécurité réseau et d'architecture pour optimiser vos compétences de spécialiste."}
+                            {!selectedAvatar?.id && "Commencez par les fondamentaux pour établir une base solide de connaissances."}
+                          </p>
                         </div>
                       </div>
-
-                      <div>
-                        <h3 className="text-sm font-medium text-blue-200 mb-2">Capacites speciales</h3>
-                        <ul className="text-sm text-blue-300 space-y-1">
-                          {selectedAvatar.abilities.map((ability, i) => (
-                            <li key={i} className="flex items-center">
-                              <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mr-2"></div>
-                              {ability}
-                            </li>
-                          ))}
-                        </ul>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className={`p-4 rounded-md text-center ${isDark ? 'bg-blue-900/30 border border-blue-800' : 'bg-blue-50 border border-blue-200'}`}>
+                          <h3 className={`font-medium mb-1 ${isDark ? 'text-blue-200' : 'text-blue-700'}`}>Modules à compléter</h3>
+                          <div className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-blue-700'}`}>9</div>
+                        </div>
+                        
+                        <div className={`p-4 rounded-md text-center ${isDark ? 'bg-green-900/30 border border-green-800' : 'bg-green-50 border border-green-200'}`}>
+                          <h3 className={`font-medium mb-1 ${isDark ? 'text-green-200' : 'text-green-700'}`}>Niveau actuel</h3>
+                          <div className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-green-700'}`}>1</div>
+                        </div>
+                        
+                        <div className={`p-4 rounded-md text-center ${isDark ? 'bg-purple-900/30 border border-purple-800' : 'bg-purple-50 border border-purple-200'}`}>
+                          <h3 className={`font-medium mb-1 ${isDark ? 'text-purple-200' : 'text-purple-700'}`}>Points disponibles</h3>
+                          <div className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-purple-700'}`}>50</div>
+                        </div>
                       </div>
-
-                      <Button
-                        onClick={handleContinue}
-                        className="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white"
+                    </CardContent>
+                    
+                    <CardFooter className="flex justify-between pt-2">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setEntryStep('avatar')}
+                        className={isDark ? 'border-gray-600 bg-transparent text-white hover:bg-gray-700' : 'border-gray-300 text-gray-800 hover:bg-gray-100'}
                       >
-                        Commencer l'entrainement
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Retour
+                      </Button>
+                      
+                      <Button 
+                        onClick={proceedToNextStep} 
+                        className={isDark 
+                          ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                          : 'bg-blue-700 hover:bg-blue-800 text-white'
+                        }
+                      >
+                        Accepter la mission
+                        <ChevronRight className="h-4 w-4 ml-2" />
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                </motion.div>
+              )}
+              
+              {entryStep === 'ready' && (
+                <motion.div 
+                  key="ready"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full max-w-3xl text-center"
+                >
+                  <Card className={`p-6 ${isDark ? 'bg-gray-800 border-blue-700' : 'bg-white border-blue-300'} backdrop-blur-sm border-2 rounded-lg shadow-xl`}>
+                    <CardContent className="pt-6 flex flex-col items-center">
+                      <div className={`w-24 h-24 rounded-full mb-5 flex items-center justify-center bg-gradient-to-br ${
+                        isDark ? 'from-green-600 to-blue-700' : 'from-green-500 to-blue-600'
+                      }`}>
+                        <CheckCircle className="h-12 w-12 text-white" />
+                      </div>
+                      
+                      <h2 className={`text-2xl md:text-3xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>Vous êtes prêt !</h2>
+                      
+                      <div className={`p-4 mb-5 rounded-md max-w-lg text-center ${
+                        isDark ? 'bg-blue-900/30 border border-blue-800' : 'bg-blue-50 border border-blue-200'
+                      }`}>
+                        <p className={`${isDark ? 'text-white' : 'text-gray-800'}`}>
+                          Votre profil <span className="font-bold">{selectedAvatar?.name || 'agent'}</span> est configuré. L'académie CyberForge vous attend pour commencer votre parcours dans l'élite de la cybersécurité.
+                        </p>
+                      </div>
+                      
+                      <div className="flex gap-2 items-center mb-6">
+                        {['Modules', 'Laboratoires', 'Défis', 'Simulations'].map((item, index) => (
+                          <Badge 
+                            key={index}
+                            className={`px-3 py-1 ${
+                              isDark 
+                                ? 'bg-gray-700 text-white border-0' 
+                                : 'bg-gray-200 text-gray-800 border-0'
+                            }`}
+                          >
+                            {item}
+                          </Badge>
+                        ))}
+                      </div>
+                      
+                      <Button 
+                        onClick={proceedToNextStep} 
+                        size="lg"
+                        className={`px-8 ${
+                          isDark 
+                            ? 'bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white border-0' 
+                            : 'bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white border-0'
+                        }`}
+                      >
+                        Entrer dans l'Académie
+                        <ChevronRight className="h-5 w-5 ml-2" />
                       </Button>
                     </CardContent>
                   </Card>
@@ -390,218 +789,125 @@ function CyberForge() {
           </div>
         </div>
       ) : (
-        // Interface principale modernisée
-        <div className="container mx-auto px-4 py-8">
-          {/* Titre et navigation */}
-          <div className="mb-6 flex items-center justify-between">
-            <h1 className="text-3xl font-bold font-mono tracking-tight bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-transparent bg-clip-text">
-              CyberForge Academy
+        // Interface principale (mode normal)
+        <div className={`container mx-auto px-4 py-8 ${isDark ? 'text-white' : 'text-gray-800'}`}>
+          <div className="flex justify-between items-center mb-4">
+            <h1 className={`text-4xl font-bold font-mono tracking-tight ${
+              isDark 
+                ? 'bg-gradient-to-r from-blue-400 to-indigo-400 text-transparent bg-clip-text' 
+                : 'bg-gradient-to-r from-blue-700 to-indigo-800 text-transparent bg-clip-text'
+            }`}>
+              CyberForge<span className={isDark ? 'text-blue-300' : 'text-blue-700'}>_</span>Academy
             </h1>
-            <Button 
-              variant="outline" 
-              onClick={() => setLocation('/')}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Retour
-            </Button>
-          </div>
-
-          {/* Profil et modules disponibles */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            {/* Colonne gauche: Profil et statistiques */}
-            <div className="lg:col-span-1">
-              {selectedAvatar && (
-                <Card className="mb-6">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <User className="h-5 w-5 text-blue-500" />
-                      Profil d'agent
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-3xl">
-                        {selectedAvatar.id === 'shadow' ? '👤' : 
-                         selectedAvatar.id === 'sentinel' ? '🔍' :
-                         selectedAvatar.id === 'guardian' ? '🛡️' : 
-                         '📡'}
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-medium">{selectedAvatar.name}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {selectedAvatar.type === "hacker" ? "Hacker Ethique" : 
-                           selectedAvatar.type === "analyst" ? "Analyste Securite" :
-                           selectedAvatar.type === "security_manager" ? "Gestionnaire Securite" :
-                           "Specialiste Reseau"}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <div>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span>Niveau</span>
-                          <span className="font-medium">{userData.level || 1}</span>
-                        </div>
-                        <Progress 
-                          value={userData.points ? (userData.points % 100) : 0} 
-                          className="h-2" 
-                        />
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div className="p-2 rounded-md bg-slate-100 dark:bg-slate-800">
-                          <div className="text-xs text-muted-foreground">Rang</div>
-                          <div className="font-medium">{userData.rank || 'Novice'}</div>
-                        </div>
-                        <div className="p-2 rounded-md bg-slate-100 dark:bg-slate-800">
-                          <div className="text-xs text-muted-foreground">Points</div>
-                          <div className="font-medium">{userData.points || 0}</div>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Shield className="h-5 w-5 text-blue-500" />
-                    Intelligence de securite
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Progression globale</span>
-                        <span className="font-medium">{userData.totalProgress}%</span>
-                      </div>
-                      <Progress value={userData.totalProgress} className="h-2" />
-                    </div>
-                    
-                    <Button 
-                      onClick={() => setLocation('/cyberforge/modules')}
-                      className="w-full"
-                    >
-                      <BookOpen className="mr-2 h-4 w-4" />
-                      Acceder aux modules
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
             
-            {/* Colonne droite: Modules et simulations */}
-            <div className="lg:col-span-2">
-              <Card className="mb-6">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BookOpen className="h-5 w-5 text-blue-500" />
-                    Modules de formation
-                  </CardTitle>
-                  <CardDescription>
-                    Parcours personnalisé basé sur votre profil
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 rounded-md border relative group transition-all hover:shadow-md">
-                      <h3 className="font-medium mb-2 flex items-center gap-2">
-                        <Shield className="h-4 w-4 text-blue-500" /> Fondamentaux
-                      </h3>
-                      <p className="text-sm text-muted-foreground">Principes de base et concepts essentiels.</p>
-                      <div className="mt-3 flex justify-between items-center">
-                        <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
-                          Débloqué
-                        </Badge>
-                        <Button 
-                          size="sm" 
-                          onClick={() => setLocation('/cyberforge/modules')}
-                          className="text-xs h-7"
-                        >
-                          Démarrer
-                        </Button>
-                      </div>
-                    </div>
-                    
-                    <div className="p-4 rounded-md border relative group opacity-75 transition-all hover:shadow-md">
-                      <h3 className="font-medium mb-2 flex items-center gap-2">
-                        <Terminal className="h-4 w-4 text-green-500" /> Securite reseau
-                      </h3>
-                      <p className="text-sm text-muted-foreground">Protection des infrastructures.</p>
-                      <div className="mt-3 flex justify-between items-center">
-                        <Badge variant="outline" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">
-                          Niveau 2
-                        </Badge>
-                        <LockIcon className="h-4 w-4 text-muted-foreground" />
-                      </div>
-                    </div>
-                    
-                    <div className="p-4 rounded-md border relative group opacity-75 transition-all hover:shadow-md">
-                      <h3 className="font-medium mb-2 flex items-center gap-2">
-                        <AlertTriangle className="h-4 w-4 text-red-500" /> Analyse d'attaques
-                      </h3>
-                      <p className="text-sm text-muted-foreground">Investigation et analyse des incidents.</p>
-                      <div className="mt-3 flex justify-between items-center">
-                        <Badge variant="outline" className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100">
-                          Niveau 3
-                        </Badge>
-                        <LockIcon className="h-4 w-4 text-muted-foreground" />
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-4 flex justify-center">
-                    <Button
-                      onClick={() => setLocation('/cyberforge/modules')}
-                      className="flex items-center"
-                    >
-                      <BookOpen className="mr-2 h-4 w-4" />
-                      Voir tous les modules
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <AlertTriangle className="h-5 w-5 text-orange-500" />
-                    Simulation de crise
-                  </CardTitle>
-                  <CardDescription>
-                    Mettez vos compétences à l'épreuve dans des scénarios réalistes
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="p-4 rounded-md border bg-orange-50 dark:bg-orange-950 border-orange-200 dark:border-orange-800">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-full bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-300">
-                        <ShieldAlert className="h-6 w-6" />
-                      </div>
-                      <div>
-                        <h3 className="text-base font-medium">Simulation d'attaque disponible</h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Une nouvelle simulation d'attaque avancée est prête pour tester vos compétences
-                        </p>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="mt-2 border-orange-200 bg-orange-100 text-orange-800 hover:bg-orange-200 dark:border-orange-800 dark:bg-orange-900 dark:text-orange-100 dark:hover:bg-orange-800"
-                        >
-                          <PlayCircle className="mr-1 h-3 w-3" />
-                          Démarrer la simulation
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                onClick={() => setLocation('/')}
+                className={`flex items-center gap-1 ${
+                  isDark 
+                    ? 'border-gray-600 bg-transparent text-white hover:bg-gray-700' 
+                    : 'border-gray-300 text-gray-800 hover:bg-gray-100'
+                }`}
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span>Accueil</span>
+              </Button>
             </div>
           </div>
+          
+          <div className={`p-6 mb-8 rounded-xl ${isDark ? 'bg-gray-800 border border-blue-900' : 'bg-white border border-blue-200'} shadow-lg`}>
+            <h2 className={`text-xl font-bold mb-3 flex items-center gap-2 ${isDark ? 'text-blue-300' : 'text-blue-700'}`}>
+              <Shield className="h-5 w-5" /> Bienvenue dans votre espace d'entraînement
+            </h2>
+            <p className="mb-4">
+              L'interface principale de CyberForge Academy est en cours de construction. Bientôt, vous pourrez accéder aux modules d'apprentissage, laboratoires pratiques et simulations d'attaques.
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className={`p-4 rounded-md ${isDark ? 'bg-gray-900 border border-gray-700' : 'bg-gray-50 border border-gray-200'}`}>
+                <h3 className="font-medium mb-2 flex items-center gap-2">
+                  <BookOpen className={`h-4 w-4 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} /> Modules d'apprentissage
+                </h3>
+                <p className="text-sm opacity-90">9 modules progressifs pour maîtriser les compétences essentielles en cybersécurité.</p>
+              </div>
+              
+              <div className={`p-4 rounded-md ${isDark ? 'bg-gray-900 border border-gray-700' : 'bg-gray-50 border border-gray-200'}`}>
+                <h3 className="font-medium mb-2 flex items-center gap-2">
+                  <Terminal className={`h-4 w-4 ${isDark ? 'text-green-400' : 'text-green-600'}`} /> Laboratoire virtuel
+                </h3>
+                <p className="text-sm opacity-90">Environnement sécurisé pour pratiquer les techniques de hacking éthique.</p>
+              </div>
+              
+              <div className={`p-4 rounded-md ${isDark ? 'bg-gray-900 border border-gray-700' : 'bg-gray-50 border border-gray-200'}`}>
+                <h3 className="font-medium mb-2 flex items-center gap-2">
+                  <AlertTriangle className={`h-4 w-4 ${isDark ? 'text-red-400' : 'text-red-600'}`} /> Simulations d'attaques
+                </h3>
+                <p className="text-sm opacity-90">Scénarios réalistes pour améliorer vos compétences en défense cyber.</p>
+              </div>
+            </div>
+          </div>
+          
+          {selectedAvatar && (
+            <div className={`p-5 rounded-xl ${isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'} flex flex-col md:flex-row items-center gap-4 shadow-lg`}>
+              <div className="flex items-center gap-4">
+                <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+                  isDark ? 'bg-blue-600' : 'bg-blue-500'
+                }`}>
+                  <span className="text-2xl">{
+                    selectedAvatar.id === 'shadow' ? '👤' : 
+                    selectedAvatar.id === 'sentinel' ? '🔍' :
+                    selectedAvatar.id === 'guardian' ? '🛡️' : 
+                    '📡'
+                  }</span>
+                </div>
+                
+                <div>
+                  <h3 className="font-bold text-lg flex items-center gap-2">
+                    {selectedAvatar.name}
+                    <Badge className={isDark ? 'bg-green-700 text-white border-0' : 'bg-green-100 text-green-800 border-0'}>
+                      Niveau 1
+                    </Badge>
+                  </h3>
+                  <p className={isDark ? 'text-gray-300' : 'text-gray-600'}>
+                    {selectedAvatar.type === 'hacker' ? 'Hacker Éthique' : 
+                     selectedAvatar.type === 'analyst' ? 'Analyste Sécurité' :
+                     selectedAvatar.type === 'security_manager' ? 'Gestionnaire Sécurité' :
+                     'Spécialiste Réseau'}
+                  </p>
+                  <p className="text-sm mt-1 flex items-center gap-1">
+                    <Star className={`h-4 w-4 ${isDark ? 'text-yellow-400' : 'text-yellow-500'}`} />
+                    <span>Points: <span className="font-medium">50</span></span>
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex-1 flex justify-end mt-4 md:mt-0">
+                <div className="flex flex-col gap-2">
+                  <Button 
+                    className={`${isDark ? 'bg-blue-700 hover:bg-blue-600' : 'bg-blue-600 hover:bg-blue-700'} text-white`}
+                    onClick={() => setLocation('/cyberforge/modules')}
+                  >
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    Accéder aux modules
+                  </Button>
+                  
+                  <Button 
+                    variant="outline"
+                    className={`${
+                      isDark 
+                        ? 'border-blue-800 bg-transparent text-blue-300 hover:bg-blue-900/50' 
+                        : 'border-blue-300 text-blue-700 hover:bg-blue-50'
+                    }`}
+                    onClick={() => setEntryStep('welcome')}
+                  >
+                    <User className="mr-2 h-4 w-4" />
+                    Changer de profil
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

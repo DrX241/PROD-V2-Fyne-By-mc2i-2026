@@ -74,12 +74,5 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port} at http://0.0.0.0:${port}`);
-  }).on('error', (err: any) => {
-    if (err.code === 'EADDRINUSE') {
-      console.error(`Port ${port} is already in use. Please kill the existing process or choose a different port.`);
-      process.exit(1);
-    } else {
-      console.error('Server error:', err);
-    }
   });
 })();
