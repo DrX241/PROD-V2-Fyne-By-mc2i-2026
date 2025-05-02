@@ -2,12 +2,13 @@ import React, { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Send, ChevronDown, RefreshCw, Bot, X } from "lucide-react";
+import { Send, ChevronDown, RefreshCw, Bot, X, ArrowLeft } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import HomeLayout from "@/components/layout/HomeLayout";
 import PageTitle from "@/components/utils/PageTitle";
 import { apiRequest } from "@/lib/queryClient";
 import DOMPurify from 'dompurify';
+import { useLocation } from 'wouter';
 
 // Fonction pour formater le texte avec une structure visuelle
 const formatTextWithStructure = (text: string): string => {
@@ -61,6 +62,7 @@ export default function ExpertLearningPage() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   // Fonction pour démarrer une nouvelle session
   const startSession = async () => {
@@ -272,6 +274,27 @@ export default function ExpertLearningPage() {
     setMessages([]);
     setSessionStatus(null);
   };
+  
+  // Fonction pour retourner à la page précédente
+  const handleReturnToPrevious = () => {
+    // Si une session est active, demander confirmation avant de quitter
+    if (isSessionActive) {
+      if (window.confirm("Êtes-vous sûr de vouloir quitter la session ? Votre conversation sera perdue.")) {
+        // Terminer la session côté serveur et naviguer à la page précédente
+        if (userId) {
+          // Faire une requête pour terminer la session sans attendre la réponse
+          apiRequest('/api/cyber-expert/terminate', {
+            method: 'POST',
+            body: JSON.stringify({ userId })
+          }).catch(err => console.error("Erreur lors de la fin de la session:", err));
+        }
+        setLocation('/cyber-mode-selection');
+      }
+    } else {
+      // Si aucune session n'est active, naviguer directement
+      setLocation('/cyber-mode-selection');
+    }
+  };
 
   return (
     <HomeLayout>
@@ -289,8 +312,20 @@ export default function ExpertLearningPage() {
           </svg>
         </div>
         
-        <div className="relative z-10 max-w-6xl w-full mx-auto px-4 py-12 sm:px-6 sm:py-16">
-          <div className="flex flex-col items-center mb-8">
+        <div className="relative z-10 max-w-6xl w-full mx-auto px-4 py-8 sm:px-6 sm:py-12">
+          {/* Bouton de retour */}
+          <div className="absolute top-0 left-4 mt-4">
+            <Button 
+              variant="outline" 
+              onClick={handleReturnToPrevious}
+              className="bg-blue-900/50 border-blue-700/50 text-white hover:bg-blue-800 hover:text-white flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span>Retour</span>
+            </Button>
+          </div>
+          
+          <div className="flex flex-col items-center mb-8 mt-6">
             <h1 className="text-3xl sm:text-4xl font-bold text-white flex items-center">
               <Bot className="mr-3 h-8 w-8" /> 
               Apprendre en échangeant
