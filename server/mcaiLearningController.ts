@@ -4,12 +4,10 @@ import { ChatCompletionRequestMessage } from "@shared/schema";
 
 // Interface pour les sessions de chatbot
 interface LearningBotSession {
-  trigramme: string | null;
-  metier: string | null;
-  mode: 'classique' | 'immersion' | null;
-  formation: 'interne' | 'externe' | null;
-  formationChoisie: string | null;
-  stageActuel: 'introduction' | 'choix_mode' | 'choix_formation' | 'formation' | 'scenario' | null;
+  prenom: string | null;
+  domaineExpertise: string | null;
+  sousTheme: string | null;
+  stageActuel: 'introduction' | 'choix_domaine' | 'choix_sous_theme' | 'scenario' | null;
   scenarioActuel: number;
   reponses: Array<{question: string, reponse: string}>;
   messages: Array<ChatCompletionRequestMessage>;
@@ -31,11 +29,9 @@ export async function initMcaiLearningSession(req: Request, res: Response) {
 
     // Créer une nouvelle session ou réinitialiser une existante
     const session: LearningBotSession = {
-      trigramme: null,
-      metier: null,
-      mode: null,
-      formation: null,
-      formationChoisie: null,
+      prenom: null,
+      domaineExpertise: null,
+      sousTheme: null,
       stageActuel: 'introduction',
       scenarioActuel: 0,
       reponses: [],
@@ -54,7 +50,7 @@ export async function initMcaiLearningSession(req: Request, res: Response) {
     // Générer le message d'accueil
     const welcomeMessage: ChatCompletionRequestMessage = {
       role: "assistant",
-      content: "Bonjour et bienvenue sur mc2i AI Learning, votre Chatbot spécialisé dans l'évaluation en temps réel. Veuillez me communiquer votre Trigramme (3 lettres maximum) et votre métier chez mc2i (consultant, consultant confirmé, sénior, Manager, Sénior Manager, Chef de projet, Directeur)."
+      content: "Bonjour et bienvenue sur mc2i AI Learning 👋\nJe suis votre assistant dédié pour évaluer vos compétences à travers des scénarios immersifs et personnalisés.\n\nAvant de commencer, pouvez-vous me donner votre prénom ? :)"
     };
 
     session.messages.push(welcomeMessage);
