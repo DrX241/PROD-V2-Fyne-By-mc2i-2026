@@ -91,7 +91,7 @@ export async function processMcaiLearningMessage(req: Request, res: Response) {
     session.messages.push({
       role: "user",
       content: message
-    });
+    } as ChatCompletionRequestMessage);
 
     // Traiter le message en fonction de l'état actuel de la session
     const processedResponse = await processMessageBasedOnStage(session, message);
@@ -100,7 +100,7 @@ export async function processMcaiLearningMessage(req: Request, res: Response) {
     session.messages.push({
       role: "assistant",
       content: processedResponse
-    });
+    } as ChatCompletionRequestMessage);
 
     return res.status(200).json({ 
       success: true,
@@ -375,7 +375,7 @@ Sois assez strict dans ton approche tout en restant encourageant. Le retour doit
 `;
 
     // Utiliser l'API GPT-4o pour générer le feedback
-    const messages = [
+    const messages: ChatCompletionRequestMessage[] = [
       { role: "system", content: getMcaiLearningSystemPrompt() },
       { role: "user", content: promptFeedback }
     ];

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useLocation } from 'wouter';
 import HomeLayout from "@/components/layout/HomeLayout";
-import { ArrowRight, Layers } from "lucide-react";
+import { ArrowRight, Layers, BookOpen, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useChatContext } from "@/contexts/ChatContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -404,6 +404,17 @@ export default function Home() {
   
   // Modules avec animations interactives
   const modules = [
+      // Module mc2i AI Learning
+      {
+        title: "MC2I AI LEARNING",
+        description: "Chatbot spécialisé dans l'évaluation en temps réel des compétences avec scénarios professionnels adaptés et feedback personnalisé.",
+        icon: <GraduationCap size={36} />,
+        color: "bg-emerald-600",
+        bgColor: "bg-gradient-to-br from-emerald-50 to-emerald-100",
+        accentColor: "bg-emerald-500",
+        linkTo: "/mcai-learning",
+        isNew: true
+      },
       // Module CyberForge Academy
       {
         title: "CYBERFORGE ACADEMY",
@@ -413,7 +424,6 @@ export default function Home() {
         bgColor: "bg-gradient-to-br from-indigo-50 to-indigo-100",
         accentColor: "bg-indigo-500",
         linkTo: "/cyberforge",
-        isNew: true
       },
     {
       title: "I AM CYBER",
