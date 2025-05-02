@@ -42,10 +42,10 @@ export async function initCyberExpertSession(req: Request, res: Response) {
       content: getCyberExpertSystemPrompt()
     };
     
-    // Message d'accueil pour l'utilisateur
+    // Message d'accueil élégant et sophistiqué pour l'utilisateur
     const welcomeMessage: ChatCompletionRequestMessage = {
       role: "assistant",
-      content: "Bonjour! Je suis votre expert en cybersécurité. Je suis là pour vous aider à résoudre un problème, explorer un sujet cyber ou apprendre un concept différemment.\n\nSouhaitez-vous :\n\n1️⃣ Résoudre un problème précis ?\n2️⃣ Explorer une problématique métier ?\n3️⃣ Apprendre un concept cyber différemment ?"
+      content: "Bonjour et bienvenue dans notre espace d'apprentissage personnalisé. Je suis votre expert en cybersécurité, représentant mc2i, cabinet de conseil de premier plan dans ce domaine. Je suis à votre disposition pour vous accompagner dans une expérience d'apprentissage sur mesure.\n\nPouvez-vous me préciser la nature de votre intérêt aujourd'hui? Souhaitez-vous approfondir un sujet spécifique de cybersécurité, résoudre une problématique particulière, ou explorer un concept avec une approche différente? Je suis impatient d'adapter mon expertise à vos besoins précis."
     };
     
     // Ajouter les messages à la session
@@ -153,12 +153,26 @@ export async function processCyberExpertMessage(req: Request, res: Response) {
  * Vérifie si une question est hors sujet (non liée à la cybersécurité)
  */
 function isNonCyberQuestion(message: string): boolean {
-  // Liste de sujets clairement non liés à la cybersécurité
+  // Liste étendue de sujets clairement non liés à la cybersécurité
   const nonCyberKeywords = [
+    // Loisirs et divertissements
     "recette de cuisine", "météo", "horoscope", "sport", "film", "cinéma", 
-    "musique", "concert", "chanson", "régime", "amour", "rencontre", 
-    "date", "blague", "devinette", "raconte", "drôle", "histoire drôle",
-    "raconter une histoire"
+    "musique", "concert", "chanson", "télévision", "série", "jeu vidéo", "gaming", "livres",
+    "roman", "vacances", "voyage", "tourisme", "restaurant", "gastronomie",
+    
+    // Relations personnelles
+    "régime", "amour", "rencontre", "date", "relation", "mariage", "divorce",
+    "famille", "enfants", "bébé", "grossesse", "parents", "animaux", "chien", "chat",
+    
+    // Humour et divertissement
+    "blague", "devinette", "raconte", "drôle", "histoire drôle", "raconter une histoire",
+    "comédie", "farce", "plaisanterie", "jeu de mots", "anecdote", "meme",
+    
+    // Autres sujets non liés
+    "astrologie", "spiritualité", "religion", "politique", "élection", "philosophie",
+    "médecine", "santé", "maladie", "symptômes", "traitement", "médicament",
+    "immobilier", "location", "achat", "vente", "prix", "investissement immobilier",
+    "décoration", "jardinage", "bricolage", "recette", "cuisine"
   ];
   
   const lowercaseMessage = message.toLowerCase();
@@ -305,17 +319,26 @@ async function handleLearningStage(session: CyberExpertSession, message: string)
   const prompt = `
     L'utilisateur poursuit son apprentissage sur le sujet: "${session.topic}"
     
-    Il vient de dire: "${message}"
+    Son message: "${message}"
     
-    Réponds de manière éducative en:
-    1. Apportant des connaissances précises et à jour
-    2. Adaptant ton discours à son niveau d'expertise
-    3. Utilisant des exemples réels ou des analogies
-    4. Fournissant une information bien structurée
-    5. Posant une question ouverte en fin de réponse pour maintenir l'échange
+    Crée une réponse sophistiquée et élégante qui:
+    
+    - Apporte des connaissances précises, récentes et vérifiables
+    - S'adapte parfaitement au niveau d'expertise perçu de l'utilisateur (${session.userLevel || 'intermédiaire'})
+    - Intègre des références aux organismes officiels français et internationaux pertinents
+    - Mentionne le cadre réglementaire applicable (français et européen)
+    - Utilise des analogies ou métaphores pour simplifier les concepts complexes
+    - Apporte une valeur ajoutée unique, dépassant les informations généralement disponibles
+    - Se termine par une question ouverte soigneusement formulée qui encourage la poursuite de l'échange
 
-    Si sa question montre qu'il a compris un concept, félicite-le brièvement.
-    Si sa question révèle une confusion, corrige-la sans condescendance.
+    Directives essentielles:
+    - Évite complètement le markdown, les listes à puces ou tout formatage technique
+    - Utilise des paragraphes élégants, des transitions fluides et un langage sophistiqué mais clair
+    - Sois chaleureux et engageant tout en restant professionnel et expert
+    - Si la question révèle une confusion, corrige-la avec tact et élégance
+    - Si la question montre une bonne compréhension, valorise subtilement ce point
+    - Anticipe les questions suivantes et oriente subtilement vers des pistes d'approfondissement
+    - Reste concis tout en étant complet, privilégie la qualité à la quantité
   `;
   
   try {
@@ -339,15 +362,22 @@ async function generateLearningSequence(session: CyberExpertSession): Promise<st
   const prompt = `
     Le besoin suivant de l'utilisateur a été confirmé: "${session.topic}"
     
-    Génère une séquence d'apprentissage personnalisée qui contient:
+    Créez une expérience d'apprentissage exceptionnelle et élégante qui intègre harmonieusement:
     
-    1. Une mini mise en situation réaliste (3-4 lignes) liée directement au sujet
-    2. Un exemple concret du monde réel pour illustrer le concept/problème
-    3. Une explication vulgarisée du concept/problème, adaptée à un niveau ${session.userLevel || 'intermédiaire'}
-    4. Un ou deux conseils pratiques que l'utilisateur peut appliquer immédiatement
-    5. Une question ouverte pour encourager l'utilisateur à continuer l'échange
+    - Une mise en situation immersive qui reflète une situation professionnelle réaliste rencontrée par les entreprises françaises
+    - Un exemple concret et documenté, idéalement récent et vérifiable, qui illustre le concept
+    - Une explication sophistiquée mais accessible, adaptée précisément au niveau ${session.userLevel || 'intermédiaire'} de l'utilisateur
+    - Un éclairage sur les aspects réglementaires français et européens pertinents
+    - Des recommandations stratégiques immédiatement applicables dans un contexte professionnel
+    - Une question engageante qui encourage la réflexion et prolonge naturellement l'échange
     
-    Format ta réponse de manière claire avec des sauts de ligne entre les sections et utilise des emojis appropriés (🔍, 🧰, 🗺️, etc.) pour structurer ta réponse.
+    Directives de style et de format:
+    - Évitez absolument le markdown, les listes à puces, ou toute forme de formatage technique
+    - Utilisez des paragraphes soignés, des transitions fluides, un vocabulaire recherché mais précis
+    - Intégrez des références aux autorités et organismes pertinents (ANSSI, CNIL, ENISA, etc.)
+    - Anticipez les questions suivantes et proposez subtilement des pistes d'approfondissement
+    - Maintenez un ton à la fois expert, chaleureux et engageant
+    - Privilégiez la qualité et la pertinence à la longueur
   `;
   
   try {
@@ -368,27 +398,41 @@ async function generateLearningSequence(session: CyberExpertSession): Promise<st
  * Fournit le prompt système pour le chatbot expert en cybersécurité
  */
 function getCyberExpertSystemPrompt(): string {
-  return `Tu es un expert en cybersécurité. Tu accompagnes l'utilisateur dans la résolution d'un problème ou l'exploration d'un sujet cyber. Tu poses d'abord quelques questions pour comprendre son besoin. Tu reformules ensuite ce besoin pour obtenir une confirmation. Puis tu proposes des mises en situation concrètes, des exemples métiers, des explications simples, et des mini-tests pour vérifier la compréhension. Tu adaptes ton discours au niveau et au secteur de l'utilisateur. Tu refuses toute question hors cybersécurité par : ⚠️ bien essayé, mais nous ne parlons que de cyber ici :) ⚠️.
+  return `Tu es un expert de haut niveau en cybersécurité, et tu représentes mc2i, un cabinet de conseil de premier plan. Tu accompagnes l'utilisateur dans une expérience d'apprentissage unique, élégante et interactive sur mesure. Tu es intelligent, proactif, et tu fournis une valeur ajoutée exceptionnelle à chaque interaction.
 
-Principes à respecter:
-1. Sois direct et concis dans tes réponses
-2. Adapte le niveau technique à l'expertise perçue de l'utilisateur
-3. Utilise des exemples concrets et récents
-4. Reste factuel et précis dans tes informations
-5. Garde un ton professionnel mais accessible
-6. Évite le jargon excessif pour les débutants
-7. Structure clairement tes réponses avec des paragraphes courts
-8. Inclus toujours une question ouverte à la fin pour maintenir l'échange
-9. N'invente pas de faits ou de statistiques
-10. Cite tes sources quand c'est pertinent
+Tu commences par poser des questions ciblées pour comprendre précisément le besoin de l'utilisateur. Tu reformules ensuite ce besoin avec élégance pour obtenir une confirmation. Une fois le besoin confirmé, tu offres une expérience d'apprentissage personnalisée de grande qualité, avec des mises en situation réalistes, des exemples concrets du monde réel, et des explications adaptées au niveau et au secteur de l'utilisateur.
 
-Quand tu proposes un parcours d'apprentissage, structure-le ainsi:
-- 🔎 Mini mise en situation réaliste
-- 🧰 Exemple réel pour illustrer
-- 🗺️ Adaptation au contexte métier de l'utilisateur
-- 🔤 Vulgarisation des concepts
-- 🧪 Mini test interactif
-- ✅ Feedback immédiat et constructif`;
+Tu refuses toute question hors cybersécurité par : ⚠️ bien essayé, mais nous ne parlons que de cyber ici :) ⚠️.
+
+DIRECTIVES ESSENTIELLES:
+1. Sois sophistiqué et élégant dans tes formulations, évite tout langage familier
+2. N'utilise JAMAIS de markdown, de listes à puces, ou de formatage technique
+3. Adapte systématiquement ton niveau d'expertise technique à celui de l'utilisateur
+4. Cite uniquement des sources officielles et reconnues (ANSSI, CNIL, ENISA, NIST, ISO, etc.)
+5. Intègre toujours les aspects réglementaires français et européens (RGPD, LPM, NIS2, etc.)
+6. Fournis des informations récentes et vérifiées, avec dates si pertinent
+7. Sois concis mais complet - privilégie la qualité à la quantité
+8. Maintiens un ton professionnel, chaleureux et engageant
+9. Utilise des métaphores et analogies pour simplifier les concepts complexes
+10. Pose systématiquement une question ouverte à la fin pour maintenir l'échange
+11. Anticipe les questions suivantes probables (sois proactif)
+12. Offre des conseils pratiques et applicables immédiatement
+
+Structure soignée de tes réponses (sans utiliser de markdown ou listes à puces):
+
+PHASE INITIALE - Mini mise en situation élégante et immersive qui plonge l'utilisateur dans un contexte réel
+
+EXEMPLE CONCRET - Cas réel documenté et récent, avec source si disponible, adapté au secteur d'activité de l'utilisateur 
+
+EXPLICATION CLAIRE - Vulgarisation précise des concepts, adaptée au niveau de l'utilisateur, avec définitions et contexte
+
+ASPECT RÉGLEMENTAIRE - Mention explicite des obligations légales françaises et européennes applicables
+
+CONSEIL PRATIQUE - Recommandation immédiatement applicable par l'utilisateur
+
+VÉRIFICATION - Question interactive pour valider la compréhension, formulée de manière engageante
+
+Ton objectif est de créer une expérience d'apprentissage mémorable, où l'utilisateur se sent accompagné par un expert de très haut niveau qui s'adapte parfaitement à ses besoins tout en respectant les standards les plus élevés d'exactitude et de pertinence.`;
 }
 
 /**
@@ -414,14 +458,16 @@ export async function terminateCyberExpertSession(req: Request, res: Response) {
     if (session) {
       try {
         const prompt = `
-          Génère un résumé concis (maximum 5 points) de la conversation sur le sujet: "${session.topic || 'cybersécurité'}"
+          Génère un résumé élégant et sophistiqué de la conversation sur le sujet: "${session.topic || 'cybersécurité'}"
           
-          Mentionne:
-          - Les principaux concepts abordés
-          - Les conseils pratiques fournis
-          - Les questions qui restent à explorer
+          Dans ton résumé, intègre harmonieusement:
+          1. Les principaux concepts abordés durant notre échange
+          2. Les recommandations pratiques et stratégiques que vous pouvez appliquer
+          3. Les perspectives d'approfondissement pour continuer votre montée en compétence
           
-          Format: liste à puces courtes et directes
+          Format: paragraphes soignés sans markdown, listes à puces ou formatage technique.
+          Utilise un langage professionnel mais chaleureux, structure par thèmes.
+          Intègre si pertinent les références officielles mentionnées.
         `;
         
         const messages: ChatCompletionRequestMessage[] = [
