@@ -191,38 +191,48 @@ function isNonCyberQuestion(message: string): boolean {
  * Gère la première étape de l'interaction (identification du type de besoin)
  */
 async function handleInitialStage(session: CyberExpertSession, message: string): Promise<string> {
+  // Si c'est juste une salutation simple
+  const simpleGreetings = ["bonjour", "salut", "hello", "coucou", "hey", "hi", "bonsoir", "yo"];
+  if (simpleGreetings.includes(message.trim().toLowerCase())) {
+    // On passe tout de suite au stade de questionnement sans long discours
+    session.currentStage = 'questioning';
+    return "Bonjour ! Je suis votre expert en cybersécurité. Que puis-je faire pour vous aujourd'hui ?";
+  }
+  
   // Si le message est court et contient simplement un chiffre (1, 2 ou 3)
   if (/^[123]$/.test(message.trim())) {
     session.currentStage = 'questioning';
     
     if (message.trim() === "1") {
-      return "Vous souhaitez résoudre un problème précis, une approche pragmatique que j'apprécie. Pour vous accompagner efficacement, j'aurais besoin de quelques précisions. Pourriez-vous me détailler la nature exacte du problème rencontré, son contexte d'apparition, et votre rôle dans l'organisation? Ces informations me permettront d'élaborer une réponse parfaitement adaptée à votre situation professionnelle.";
+      return "Vous souhaitez résoudre un problème précis. Pourriez-vous me décrire ce problème et votre contexte professionnel ?";
     } else if (message.trim() === "2") {
-      return "Explorer une problématique métier révèle une vision stratégique de la cybersécurité. Pour personnaliser notre échange, pourriez-vous me préciser votre secteur d'activité et ses spécificités? J'aimerais également comprendre les enjeux cyber particuliers qui vous préoccupent dans ce contexte, ainsi que les objectifs que vous souhaitez atteindre à travers notre échange.";
+      return "Vous souhaitez explorer une problématique métier. Dans quel secteur d'activité travaillez-vous et quel est l'enjeu cyber qui vous intéresse ?";
     } else if (message.trim() === "3") {
-      return "L'apprentissage par une approche différente démontre votre ouverture d'esprit. Pour calibrer parfaitement mon niveau d'expertise, pourriez-vous m'indiquer votre niveau actuel en cybersécurité (Débutant / Intermédiaire / Avancé)? Quel concept spécifique souhaitez-vous explorer, et avez-vous déjà tenté de l'appréhender par d'autres moyens? Votre expérience professionnelle pourrait également enrichir notre approche pédagogique.";
+      return "Vous souhaitez apprendre un concept différemment. Quel est votre niveau en cybersécurité (Débutant / Intermédiaire / Avancé) et quel concept vous intéresse ?";
     }
   }
   
-  // Si l'utilisateur a répondu avec du texte au lieu d'un chiffre
+  // Si le message est très court (moins de 10 caractères) mais pas une salutation ni un chiffre
+  if (message.trim().length < 10 && !/\?/.test(message)) {
+    session.currentStage = 'questioning';
+    return "Pourriez-vous m'en dire un peu plus sur ce qui vous amène ? Je suis spécialisé en cybersécurité et prêt à vous aider sur tout sujet relatif à ce domaine.";
+  }
+  
+  // Si l'utilisateur a formulé une demande plus élaborée
   const prompt = `
-    L'utilisateur a répondu: "${message}"
+    L'utilisateur a écrit: "${message}"
     
-    ANALYSE COGNITIVE:
-    Analyse en profondeur sa réponse pour déterminer:
-    1. La nature exacte de son besoin (résolution de problème, exploration conceptuelle, apprentissage)
-    2. Son niveau probable en cybersécurité (indices linguistiques, terminologie utilisée, complexité des concepts)
-    3. Son contexte professionnel et secteur d'activité si mentionné
-    4. Les motivations implicites derrière sa demande (conformité, crise, montée en compétence, curiosité)
+    DIRECTIVES:
+    1. Si c'est une question simple ou une salutation, réponds de façon directe et naturelle en 1-2 phrases maximum.
+    2. Si c'est une demande spécifique liée à la cybersécurité, identifie son besoin précis et pose 1-2 questions pertinentes.
+    3. Si le message est ambigu, demande des clarifications de manière simple et directe.
     
-    INTELLIGENCE ADAPTATIVE:
-    En fonction de ton analyse, formule une réponse qui:
-    - Manifeste une compréhension sophistiquée de son besoin réel, même s'il est implicite
-    - Pose 2-3 questions stratégiques pour préciser exactement ses attentes et son contexte
-    - Démontre subtilement ton expertise en reformulant certains éléments avec une terminologie plus précise
-    - Établit un rapport de confiance par une approche professionnelle et empathique
+    PRINCIPES CLÉS:
+    - CONCISION : Ta réponse ne doit pas dépasser 3-4 phrases.
+    - NATUREL : Utilise un ton convivial mais professionnel, sans excès de formalisme.
+    - PERTINENCE : Reste concentré sur le sujet cyber mentionné ou pose des questions pour l'identifier.
     
-    Ta réponse doit être élégante, directe, et démontrer une intelligence supérieure dans la compréhension des besoins en cybersécurité.
+    IMPORTANT: Ne fais pas de long monologue d'introduction. Va droit au but de façon humaine et conversationnelle.
   `;
   
   session.currentStage = 'questioning';
@@ -236,7 +246,7 @@ async function handleInitialStage(session: CyberExpertSession, message: string):
     return await openAIService.getChatCompletion(messages, 0.7);
   } catch (error) {
     console.error("Erreur lors de l'analyse du message initial:", error);
-    return "Je n'ai pas bien cerné avec précision la nature de votre besoin. Pour vous offrir une expertise parfaitement adaptée, pourriez-vous préciser si vous souhaitez plutôt:\n\n1️⃣ Résoudre un problème précis de cybersécurité\n2️⃣ Explorer une problématique cyber dans votre contexte professionnel\n3️⃣ Approfondir un concept cyber avec une approche pédagogique personnalisée";
+    return "Pourriez-vous préciser ce que vous recherchez ? Je peux vous aider sur des problèmes concrets de cybersécurité, explorer des sujets liés à votre métier, ou vous expliquer des concepts cyber.";
   }
 }
 
@@ -244,33 +254,33 @@ async function handleInitialStage(session: CyberExpertSession, message: string):
  * Gère l'étape de questionnement pour préciser le besoin
  */
 async function handleQuestioningStage(session: CyberExpertSession, message: string): Promise<string> {
-  // Collecter plus d'informations pour identifier le besoin précis avec une analyse cognitive avancée
+  // Détecter les salutations simples ou messages très courts
+  const simpleGreetings = ["bonjour", "salut", "hello", "coucou", "hey", "hi", "bonsoir", "yo"];
+  if (simpleGreetings.includes(message.trim().toLowerCase())) {
+    return "Bonjour ! Comment puis-je vous aider dans le domaine de la cybersécurité ?";
+  }
+  
+  // Si le message est très court (moins de 10 caractères)
+  if (message.trim().length < 10 && !/\?/.test(message)) {
+    return "Pourriez-vous préciser votre question ou le sujet cyber qui vous intéresse ?";
+  }
+  
+  // Collecter plus d'informations pour identifier le besoin de façon plus concise
   const prompt = `
     L'utilisateur a écrit: "${message}"
     
-    ANALYSE COGNITIVE APPROFONDIE:
-    En utilisant une intelligence supérieure d'analyse du discours:
-    1. Identifie avec précision le besoin fondamental exprimé et les besoins implicites sous-jacents
-    2. Analyse les indicateurs linguistiques de niveau d'expertise (terminologie, complexité syntaxique, références techniques)
-    3. Détecte les marqueurs sectoriels et contextuels pour identifier l'environnement professionnel
-    4. Évalue les enjeux stratégiques, opérationnels et réglementaires implicites dans sa demande
-    5. Identifie les préoccupations et motivations sous-jacentes (conformité, sécurité, optimisation, innovation)
+    DIRECTIVES:
+    1. Identifie clairement le besoin ou la question cyber de l'utilisateur
+    2. Reformule ce besoin de manière concise (1-2 phrases maximum)
+    3. Vérifie si c'est bien ce que l'utilisateur cherche à savoir
     
-    SYNTHÈSE INTELLIGENTE:
-    À partir de cette analyse multi-dimensionnelle et en intégrant nos échanges précédents:
-    - Détermine avec précision le besoin réel, au-delà de la demande exprimée
-    - Calibre le niveau d'expertise à adopter (débutant/intermédiaire/avancé)
-    - Identifie le cadre réglementaire pertinent à intégrer dans ta réponse
-    - Prépare une reformulation sophistiquée qui montre une compréhension profonde
+    CONSIGNES IMPORTANTES:
+    - Utilise une formulation directe et naturelle: "Si je comprends bien, vous souhaitez..."
+    - Limite ta réponse à 3-4 phrases au total
+    - Évite les longs monologues ou paragraphes
+    - Adapte le niveau de technicité au langage utilisé par l'utilisateur
     
-    FORMULATION ÉLÉGANTE:
-    Compose une reformulation qui:
-    - Débute par une phrase d'appréciation personnalisée (valorisant la pertinence de sa demande)
-    - Enchaîne avec: "Si je synthétise avec précision votre besoin, vous cherchez à [besoin précis et reformulé avec expertise]."
-    - Ajoute éventuellement une courte phrase qui enrichit sa perspective
-    - Termine par: "Est-ce bien là l'essence de votre demande?" ou formulation équivalente
-    
-    Ta réponse doit démontrer une intelligence remarquable dans l'analyse et la reformulation, tout en restant concise et élégante.
+    IMPORTANT: Ta réponse doit être courte et vérifier simplement si tu as bien compris le besoin. Ne fais pas une réponse longue ou académique.
   `;
   
   try {
@@ -370,48 +380,37 @@ async function handleConfirmationStage(session: CyberExpertSession, message: str
  * Gère l'étape d'apprentissage et d'échange sur le sujet
  */
 async function handleLearningStage(session: CyberExpertSession, message: string): Promise<string> {
-  // Analyse cognitive profonde et réponse adaptée dans le contexte du sujet identifié
+  // Détecter si le message est une salutation ou très court
+  const simpleGreetings = ["bonjour", "salut", "hello", "coucou", "hey", "hi", "bonsoir", "yo", "merci"];
+  if (simpleGreetings.includes(message.trim().toLowerCase())) {
+    return "Bonjour ! Avez-vous d'autres questions sur le sujet que nous explorons ?";
+  }
+  
+  // Si le message est très court (moins de 5 caractères)
+  if (message.trim().length < 5) {
+    return "Avez-vous une question spécifique sur ce sujet ? Je suis là pour vous aider.";
+  }
+  
+  // Analyse et réponse adaptée dans le contexte du sujet identifié
   const prompt = `
-    L'utilisateur poursuit son exploration sur: "${session.topic}"
-    Dans un contexte professionnel: ${session.userDomain || 'entreprise'}
-    Avec un niveau d'expertise: ${session.userLevel || 'intermédiaire'}
+    CONTEXTE:
+    - Sujet: "${session.topic}"
+    - Secteur professionnel: ${session.userDomain || 'entreprise'}
+    - Niveau d'expertise: ${session.userLevel || 'intermédiaire'}
+    - Question: "${message}"
     
-    Son message actuel: "${message}"
+    DIRECTIVES:
+    1. Identifie précisément la question et réponds-y directement
+    2. Donne une information à valeur ajoutée (référence ANSSI/CNIL, cas pratique récent, ou conseil actionnable)
+    3. Sois concis et précis: maximum 2-3 paragraphes
+    4. Termine par une question simple pour poursuivre l'échange
     
-    ANALYSE COGNITIVE MULTIDIMENSIONNELLE:
-    1. Identifie précisément la question ou le point d'intérêt spécifique dans le message
-    2. Analyse le niveau de compréhension démontré et ajuste ton niveau d'expertise en conséquence
-    3. Détecte toute confusion conceptuelle potentielle à clarifier avec tact
-    4. Identifie les concepts adjacents pertinents à introduire pour enrichir l'apprentissage
-    5. Repère les implications pratiques, stratégiques et réglementaires de la question
+    FORMAT:
+    - Paragraphes courts et structurés (sans formatage technique)
+    - Langage adapté au niveau ${session.userLevel || 'intermédiaire'} de l'utilisateur
+    - Ton expert mais conversationnel
     
-    ARCHITECTURE DE RÉPONSE INTELLIGENTE:
-    Élabore une réponse structurée qui intègre harmonieusement:
-    
-    MISE EN CONTEXTE STRATÉGIQUE - Une brève mise en perspective qui relie la question aux enjeux cyber actuels (2024-2025)
-    
-    CONNAISSANCE EXPERTE - Un développement substantiel qui apporte des connaissances précises, récentes (moins d'un an) et vérifiables, avec références spécifiques aux publications des autorités reconnues (ANSSI, CNIL, ENISA) quand pertinent
-    
-    ÉCLAIRAGE RÉGLEMENTAIRE - Une explication claire des aspects légaux et normatifs français et européens applicables (RGPD, NIS2, LPM, certifications pertinentes)
-    
-    ILLUSTRATION CONCRÈTE - Un exemple ou cas d'étude réel et documenté, idéalement adapté au secteur d'activité de l'utilisateur (${session.userDomain || 'entreprise'})
-    
-    ANALOGIE PÉDAGOGIQUE - Une métaphore ou analogie sophistiquée qui simplifie un concept complexe sans le dénaturer
-    
-    CONSEIL ACTIONNABLE - Des recommandations stratégiques et opérationnelles immédiatement applicables, avec gradation (court, moyen, long terme)
-    
-    OUVERTURE COGNITIVE - Une question finale perspicace qui encourage l'approfondissement ou l'exploration d'un aspect complémentaire important
-    
-    EXIGENCES STYLISTIQUES:
-    - Format élégant avec paragraphes structurés (aucun markdown ou formatage technique)
-    - Langage professionnel de haut niveau adapté dynamiquement au niveau perçu de l'utilisateur
-    - Ton à la fois expert, pédagogue et engageant qui crée une relation de confiance
-    - Valorisation subtile des bonnes intuitions de l'utilisateur quand pertinent
-    - Correction tactile et constructive des potentielles confusions
-    - Transitions fluides entre les concepts pour une lecture organique
-    - Concision maîtrisée: dense en information mais accessible
-    
-    Ta réponse doit démontrer une intelligence supérieure dans l'analyse de la question et la structuration d'une réponse qui combine expertise technique, profondeur pédagogique et élégance communicationnelle.
+    IMPORTANT: Évite absolument les longs exposés. La réponse idéale ne dépasse pas 5-6 phrases au total.
   `;
   
   try {
@@ -437,46 +436,31 @@ async function generateLearningSequence(session: CyberExpertSession): Promise<st
     NIVEAU UTILISATEUR: ${session.userLevel || 'intermédiaire'}
     CONTEXTE PROFESSIONNEL: ${session.userDomain || 'entreprise'}
     
-    MISSION: Créer une expérience d'apprentissage transformative de niveau expert sur ce sujet cybersécurité.
+    DIRECTIVES CLAIRES:
+    - La première réponse doit être concise et directe (maximum 3-4 paragraphes courts)
+    - Évite absolument les longs monologues académiques
+    - Commence par une phrase d'introduction directe et accessible
+    - Termine par une question ouverte simple
     
-    INTELLIGENCE PÉDAGOGIQUE SUPÉRIEURE:
-    1. Analyse profondément le besoin confirmé pour en extraire les dimensions explicites et implicites
-    2. Identifie le cadre conceptuel optimal pour présenter ce sujet (historique, technique, stratégique, réglementaire)
-    3. Détermine les connaissances préalables nécessaires et les points potentiels de confusion
-    4. Cartographie les connexions avec d'autres domaines de la cybersécurité pertinents
-    5. Intègre les développements les plus récents (2024-2025) dans ce domaine spécifique
+    STRUCTURE DE RÉPONSE:
+    1. INTRODUCTION (1-2 phrases) - Présentation claire et concise du sujet
     
-    ARCHITECTURE COGNITIVE SOPHISTIQUÉE:
-    Développe une réponse expertement structurée qui intègre:
+    2. EXPLICATION PRINCIPALE (1-2 paragraphes courts) - Présentation des concepts clés avec:
+       - Une référence pertinente à une source officielle (ANSSI, CNIL, ENISA)
+       - Un exemple concret ou une analogie simple
+       - Si pertinent, mention brève du cadre réglementaire applicable
     
-    INTRODUCTION IMMERSIVE - Mise en situation narrative d'une problématique cyber française réelle (entreprise, organisation publique) qui contextualise parfaitement le sujet dans un cadre professionnel authentique
+    3. RECOMMANDATION PRATIQUE (1 paragraphe court) - Un ou deux conseils concrets et applicables
     
-    CADRE CONCEPTUEL - Définition précise et nuancée des termes clés, avec une perspective historique brève si pertinente, et positionnement du sujet dans l'écosystème cyber contemporain
+    4. QUESTION D'INTERACTION (1 phrase) - Une question simple pour encourager l'échange
     
-    DIMENSIONS TECHNIQUES - Exploration sophistiquée des aspects techniques avec une profondeur calibrée au niveau ${session.userLevel || 'intermédiaire'} de l'utilisateur, illustrée par des exemples concrets
+    IMPÉRATIFS STYLISTIQUES:
+    - TON : Professionnel mais conversationnel, pas académique
+    - LANGAGE : Clair et adapté au niveau de l'utilisateur (${session.userLevel || 'intermédiaire'})
+    - FORMAT : Paragraphes courts et aérés, sans formatage technique
+    - LONGUEUR : Réponse concise qui tient en une demi-page maximum
     
-    PARADIGME RÉGLEMENTAIRE - Analyse approfondie du cadre législatif et normatif français et européen (RGPD, NIS2, LPM, DORA, Cyber Resilience Act) avec précision des obligations spécifiques et dates d'application
-    
-    CAS D'ÉTUDE DOCUMENTÉ - Exemple réel et détaillé d'incident ou d'implémentation pertinent, idéalement de 2024, avec référence précise et vérifiable à des sources officielles (ANSSI, CNIL, CERT-FR)
-    
-    MÉTAPHORE CONCEPTUELLE - Analogie sophistiquée qui rend accessible un concept complexe sans le simplifier excessivement, adaptée au contexte professionnel de l'utilisateur
-    
-    STRATÉGIE D'IMPLÉMENTATION - Recommandations actionnables à trois niveaux: tactique (immédiat), opérationnel (3-6 mois) et stratégique (long terme), avec considérations budgétaires et organisationnelles
-    
-    PERSPECTIVES CRITIQUES - Analyse des limitations, controverses ou défis émergents liés au sujet, démontrant une pensée nuancée et prospective
-    
-    OUVERTURE COGNITIVE - Question finale soigneusement formulée qui oriente vers un approfondissement spécifique et stimule la réflexion critique
-    
-    EXIGENCES RHÉTORIQUES ET STYLISTIQUES:
-    - Structure organique avec transitions élégantes entre les concepts, sans aucun formatage technique
-    - Langage sophistiqué mais accessible, adapté dynamiquement à l'interlocuteur sans condescendance
-    - Ton à la fois expert, pédagogue et conversationnel, établissant une relation intellectuelle de confiance
-    - Précision lexicale et terminologique irréprochable, avec définitions contextualisées des termes spécialisés
-    - Densité informative optimale: substantiel mais digestible intellectuellement
-    - Références précises aux autorités et organisations pertinentes (ANSSI, CNIL, ENISA, etc.)
-    - Présentation équilibrée entre théorie et applications pratiques
-    
-    Ta réponse doit incarner le summum de l'expertise cybersécurité, combinant profondeur intellectuelle, précision technique, perspective stratégique et clarté pédagogique, le tout dans un format conversationnel élégant qui valorise l'intelligence de l'utilisateur.
+    IMPORTANT: Pour cette première réponse, réduis considérablement la complexité et la longueur du message. L'utilisateur doit pouvoir lire ta réponse en moins de 30 secondes.
   `;
   
   try {
