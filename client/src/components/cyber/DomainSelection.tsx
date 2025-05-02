@@ -32,7 +32,10 @@ export default function DomainSelection() {
     // Trouver le domaine complet pour le passer à la fonction selectDomain
     const domain = domains.find(d => d.id === domainId);
     if (domain) {
+      console.log("Sélection du domaine:", domain);
       selectDomain(domain);
+    } else {
+      console.error("Domaine non trouvé:", domainId);
     }
   };
 

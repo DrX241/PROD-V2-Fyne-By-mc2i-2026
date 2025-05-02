@@ -849,17 +849,28 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Fonction wrapper pour adapter l'interface
   const selectDomainWrapper = (domain: CyberDomain) => {
+    console.log("selectDomainWrapper appelé avec:", domain);
     handleSelectDomain(domain.id);
   };
   
   // Handler interne pour sélectionner un domaine par son ID
   const handleSelectDomain = async (domainId: string) => {
+    console.log("handleSelectDomain appelé avec ID:", domainId);
+    
     // Empêcher la sélection de plusieurs domaines
-    if (scenario.activeDomain !== null) return;
+    if (scenario.activeDomain !== null) {
+      console.log("Un domaine est déjà actif, sélection ignorée");
+      return;
+    }
     
     const selectedDomain = initialDomains.find(d => d.id === domainId);
-    if (!selectedDomain) return;
+    if (!selectedDomain) {
+      console.error("Domaine non trouvé dans initialDomains:", domainId);
+      console.log("Domaines disponibles:", initialDomains);
+      return;
+    }
     
+    console.log("Domaine trouvé:", selectedDomain);
     setIsTyping(true);
     setScenario(prev => ({ ...prev, activeDomain: selectedDomain }));
     
