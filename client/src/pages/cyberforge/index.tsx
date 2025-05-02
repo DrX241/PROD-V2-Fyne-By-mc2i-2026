@@ -77,7 +77,7 @@ const availableAvatars: Avatar[] = [
     imagePath: '/assets/avatars/shadow.png',
     type: 'hacker',
     abilities: ['Intrusion', 'Cryptanalyse', 'Rétro-ingénierie'],
-    description: 'Spécialiste de l'intrusion et de la sécurité offensive.',
+    description: "Spécialiste de l'intrusion et de la sécurité offensive.",
     strengthsAndWeaknesses: ['Expertise en pentesting', 'Connaissance limitée en défense'],
     primarySkills: ['Exploitation', 'Social Engineering', 'OSINT']
   },
