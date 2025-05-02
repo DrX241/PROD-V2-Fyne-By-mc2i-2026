@@ -437,84 +437,101 @@ export default function ExpertLearningPage() {
           )}
           
           {!isSessionActive && !sessionSummary ? (
-            <div className="max-w-3xl mx-auto flex">
-              {/* Terminal-like interface */}
-              <div className="w-full">
-                <Card className="bg-gradient-to-br from-[#0c1e2e] to-[#112641] text-[#e5f0fc] border border-[#00b4d8]/30 shadow-[0_0_20px_rgba(0,180,216,0.2)]">
-                  <CardHeader className="border-b border-[#00b4d8]/20">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                      <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+            <div className="w-full mx-auto px-4">
+              {/* En-tête du module de formation */}
+              <div className="text-center mb-6">
+                <div className="inline-flex items-center justify-center mb-2 bg-[#091525]/70 px-4 py-2 rounded-md border border-[#00b4d8]/30">
+                  <span className="font-mono text-[#00b4d8] text-sm mr-2">[CYBER-TRAINING]</span>
+                  <span className="text-[#e5f0fc] font-mono text-xs">SÉLECTIONNEZ UNE MÉTHODE D'APPRENTISSAGE</span>
+                </div>
+              </div>
+              
+              {/* Cartes alignées horizontalement */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
+                {/* Carte 1 */}
+                <div className="bg-gradient-to-br from-[#0c1e2e] to-[#112641] rounded-lg border border-[#00b4d8]/30 shadow-[0_0_15px_rgba(0,180,216,0.15)] overflow-hidden group hover:shadow-[0_0_20px_rgba(0,180,216,0.3)] transition-all duration-300 transform hover:-translate-y-1">
+                  <div className="h-1 bg-[#e63946]"></div>
+                  <div className="p-5">
+                    <div className="w-14 h-14 rounded-full bg-[#091525]/80 border border-[#00b4d8]/20 flex items-center justify-center text-white mb-3 mx-auto">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12,1 L21,5 L21,11 C21,16.5 17,21 12,23 C7,21 3,16.5 3,11 L3,5 L12,1 Z" stroke="#00b4d8" strokeWidth="2" fill="none"/>
+                        <path d="M9,12 L11,15 L15,9" stroke="#e63946" strokeWidth="2" fill="none"/>
+                      </svg>
                     </div>
-                    <CardTitle className="text-xl text-[#00b4d8]">
-                      <span className="font-mono">{'>'}</span> Analyste de cybersécurité virtuel
-                    </CardTitle>
-                    <CardDescription className="text-[#8abee0]">
-                      Discutez avec notre expert pour améliorer vos connaissances et compétences en cybersécurité
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6 pt-6">
-                    <div className="flex space-x-4">
-                      <div className="w-12 h-12 flex-shrink-0 rounded-full bg-[#e63946] flex items-center justify-center text-white font-bold">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M12,1 L21,5 L21,11 C21,16.5 17,21 12,23 C7,21 3,16.5 3,11 L3,5 L12,1 Z" stroke="white" strokeWidth="2" fill="none"/>
-                          <path d="M9,12 L11,15 L15,9" stroke="white" strokeWidth="2" fill="none"/>
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="font-mono text-lg font-medium text-[#00b4d8] mb-1">01. Analyse des besoins</h3>
-                        <p className="text-[#8abee0] text-sm">L'expert identifie vos objectifs d'apprentissage ou les problèmes que vous cherchez à résoudre</p>
-                      </div>
+                    <h3 className="font-mono text-center text-lg font-medium text-[#00b4d8] mb-2">ANALYSE DES BESOINS</h3>
+                    <div className="bg-[#091525]/50 p-3 rounded border border-[#00b4d8]/10 mb-3">
+                      <p className="text-[#8abee0] text-sm text-center">L'expert identifie vos objectifs d'apprentissage et adapte son approche à votre niveau</p>
                     </div>
-                    
-                    <div className="flex space-x-4">
-                      <div className="w-12 h-12 flex-shrink-0 rounded-full bg-[#00b4d8] flex items-center justify-center text-white font-bold">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M21,7 L3,7" stroke="white" strokeWidth="2"/>
-                          <path d="M21,12 L3,12" stroke="white" strokeWidth="2"/>
-                          <path d="M21,17 L3,17" stroke="white" strokeWidth="2"/>
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="font-mono text-lg font-medium text-[#00b4d8] mb-1">02. Échange personnalisé</h3>
-                        <p className="text-[#8abee0] text-sm">Recevez des explications sur mesure avec des exemples concrets adaptés à votre niveau</p>
-                      </div>
+                    <div className="text-center">
+                      <span className="inline-block px-3 py-1 bg-[#e63946]/20 text-[#e63946] rounded-full text-xs font-mono">NIVEAU 01</span>
                     </div>
-                    
-                    <div className="flex space-x-4">
-                      <div className="w-12 h-12 flex-shrink-0 rounded-full bg-[#00b4d8] flex items-center justify-center text-white font-bold">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M9,3 L5,7 L9,11" stroke="white" strokeWidth="2" fill="none"/>
-                          <path d="M5,7 H15 C18,7 21,10 21,13 C21,16 18,19 15,19 H5" stroke="white" strokeWidth="2" fill="none"/>
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="font-mono text-lg font-medium text-[#00b4d8] mb-1">03. Application pratique</h3>
-                        <p className="text-[#8abee0] text-sm">Validez votre compréhension avec des mises en situation et des défis adaptés à votre progression</p>
-                      </div>
+                  </div>
+                </div>
+                
+                {/* Carte 2 */}
+                <div className="bg-gradient-to-br from-[#0c1e2e] to-[#112641] rounded-lg border border-[#00b4d8]/30 shadow-[0_0_15px_rgba(0,180,216,0.15)] overflow-hidden group hover:shadow-[0_0_20px_rgba(0,180,216,0.3)] transition-all duration-300 transform hover:-translate-y-1">
+                  <div className="h-1 bg-[#00b4d8]"></div>
+                  <div className="p-5">
+                    <div className="w-14 h-14 rounded-full bg-[#091525]/80 border border-[#00b4d8]/20 flex items-center justify-center text-white mb-3 mx-auto">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21,7 L3,7" stroke="#00b4d8" strokeWidth="2"/>
+                        <path d="M21,12 L3,12" stroke="#00b4d8" strokeWidth="2"/>
+                        <path d="M21,17 L3,17" stroke="#00b4d8" strokeWidth="2"/>
+                      </svg>
                     </div>
-                  </CardContent>
-                  <CardFooter className="border-t border-[#00b4d8]/20 pt-4">
-                    <Button 
-                      onClick={startSession} 
-                      className="w-full bg-[#00b4d8] hover:bg-[#00a0c2] text-white px-6 py-4 text-lg font-mono"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <span className="flex items-center">
-                          <RefreshCw className="mr-2 h-5 w-5 animate-spin" />
-                          INITIALISATION...
-                        </span>
-                      ) : (
-                        <span className="flex items-center justify-center">
-                          <span className="mr-2 font-mono">{'>'}</span>
-                          LANCER LA SESSION D'ÉCHANGE
-                        </span>
-                      )}
-                    </Button>
-                  </CardFooter>
-                </Card>
+                    <h3 className="font-mono text-center text-lg font-medium text-[#00b4d8] mb-2">ÉCHANGE PERSONNALISÉ</h3>
+                    <div className="bg-[#091525]/50 p-3 rounded border border-[#00b4d8]/10 mb-3">
+                      <p className="text-[#8abee0] text-sm text-center">Recevez des explications sur mesure avec des exemples concrets et des références fiables</p>
+                    </div>
+                    <div className="text-center">
+                      <span className="inline-block px-3 py-1 bg-[#00b4d8]/20 text-[#00b4d8] rounded-full text-xs font-mono">NIVEAU 02</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Carte 3 */}
+                <div className="bg-gradient-to-br from-[#0c1e2e] to-[#112641] rounded-lg border border-[#00b4d8]/30 shadow-[0_0_15px_rgba(0,180,216,0.15)] overflow-hidden group hover:shadow-[0_0_20px_rgba(0,180,216,0.3)] transition-all duration-300 transform hover:-translate-y-1">
+                  <div className="h-1 bg-[#00b4d8]"></div>
+                  <div className="p-5">
+                    <div className="w-14 h-14 rounded-full bg-[#091525]/80 border border-[#00b4d8]/20 flex items-center justify-center text-white mb-3 mx-auto">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9,3 L5,7 L9,11" stroke="#00b4d8" strokeWidth="2" fill="none"/>
+                        <path d="M5,7 H15 C18,7 21,10 21,13 C21,16 18,19 15,19 H5" stroke="#00b4d8" strokeWidth="2" fill="none"/>
+                      </svg>
+                    </div>
+                    <h3 className="font-mono text-center text-lg font-medium text-[#00b4d8] mb-2">APPLICATION PRATIQUE</h3>
+                    <div className="bg-[#091525]/50 p-3 rounded border border-[#00b4d8]/10 mb-3">
+                      <p className="text-[#8abee0] text-sm text-center">Validez votre compréhension avec des mises en situation et des défis adaptés à votre progression</p>
+                    </div>
+                    <div className="text-center">
+                      <span className="inline-block px-3 py-1 bg-[#00b4d8]/20 text-[#00b4d8] rounded-full text-xs font-mono">NIVEAU 03</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Bouton de démarrage */}
+              <div className="max-w-md mx-auto mt-8 text-center">
+                <Button 
+                  onClick={startSession} 
+                  className="bg-[#00b4d8] hover:bg-[#00a0c2] text-white px-8 py-4 text-lg font-mono rounded-md shadow-[0_0_15px_rgba(0,180,216,0.3)] hover:shadow-[0_0_20px_rgba(0,180,216,0.5)] transition-all duration-300 transform hover:-translate-y-1"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <span className="flex items-center">
+                      <RefreshCw className="mr-2 h-5 w-5 animate-spin" />
+                      INITIALISATION...
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center">
+                      <span className="mr-2 font-mono">{'>'}</span>
+                      DÉMARRER LA SESSION
+                    </span>
+                  )}
+                </Button>
+                <div className="mt-3 text-[#8abee0] text-xs">
+                  Connexion sécurisée <span className="text-green-400">●</span> Niveau d'accès: <span className="text-[#00b4d8]">AUTORISÉ</span>
+                </div>
               </div>
             </div>
           ) : isSessionActive && (
