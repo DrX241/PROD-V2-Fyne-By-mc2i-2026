@@ -329,9 +329,9 @@ export default function McaiLearning() {
                 >
                   {/* Avatar */}
                   <div className={`flex-shrink-0 ${msg.role === 'user' ? 'ml-3' : 'mr-3'}`}>
-                    <Avatar className="w-10 h-10">
+                    <Avatar className="w-12 h-12 border-2 border-[#1e75a3]/20">
                       {msg.role === 'assistant' ? (
-                        <img src={robotWithLightbulbPath} alt="AI Robot" className="object-cover" />
+                        <img src={robotWithLightbulbPath} alt="AI Robot" className="object-cover scale-110" />
                       ) : (
                         <img src={userProfessionalPath} alt="User" className="object-cover" />
                       )}
@@ -368,8 +368,8 @@ export default function McaiLearning() {
               >
                 <div className="flex max-w-[80%]">
                   <div className="flex-shrink-0 mr-3">
-                    <Avatar className="w-10 h-10">
-                      <img src={robotWithLightbulbPath} alt="AI Robot" className="object-cover" />
+                    <Avatar className="w-12 h-12 border-2 border-[#1e75a3]/20">
+                      <img src={robotWithLightbulbPath} alt="AI Robot" className="object-cover scale-110" />
                     </Avatar>
                   </div>
                   <div 
