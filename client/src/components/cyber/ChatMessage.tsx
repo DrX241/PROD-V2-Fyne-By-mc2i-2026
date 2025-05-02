@@ -361,10 +361,10 @@ export default function ChatMessage({
             inList = true;
           }
           
-          // Ajouter l'élément à la liste courante
+          // Ajouter l'élément à la liste courante avec formatage cohérent des montants de budget
           currentList.push(
             <li key={i} className="ml-1 my-1 text-gray-800">
-              {processStrongText(content)}
+              {formatBudgetAmounts(processStrongText(content))}
             </li>
           );
         } else {
@@ -380,10 +380,10 @@ export default function ChatMessage({
             inList = false;
           }
           
-          // Ajouter le paragraphe normal
+          // Ajouter le paragraphe normal avec formatage cohérent des montants de budget
           items.push(
             <p key={i} className="text-gray-800">
-              {processStrongText(line)}
+              {formatBudgetAmounts(processStrongText(line))}
             </p>
           );
         }
@@ -400,8 +400,8 @@ export default function ChatMessage({
       
       return <div className="space-y-2">{items}</div>;
     } else {
-      // Texte normal sans liste
-      return <p className="text-gray-800">{processStrongText(text)}</p>;
+      // Texte normal sans liste, avec formatage cohérent des montants de budget
+      return <p className="text-gray-800">{formatBudgetAmounts(processStrongText(text))}</p>;
     }
   };
   

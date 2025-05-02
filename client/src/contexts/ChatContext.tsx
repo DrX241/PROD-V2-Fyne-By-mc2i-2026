@@ -145,7 +145,8 @@ const initialScenarios: CyberScenario[] = [
     },
     difficulty: "Expert",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
-    domainId: "ingenierie-sociale"
+    domainId: "ingenierie-sociale",
+    domain: "ingenierie-sociale"
   },
   
   // Stratégie cyber
