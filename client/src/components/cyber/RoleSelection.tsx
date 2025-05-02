@@ -1,71 +1,152 @@
-import React from 'react';
-import { Shield, Activity, Crosshair, Microscope, Network, Search } from 'lucide-react';
-import { CyberRoleInfo } from '@shared/types/roles';
+import React, { useState } from 'react';
+import { USER_ROLES, UserRole } from '@shared/types/cyber';
+import { Shield, Code, Server, Users, Terminal, Lock } from 'lucide-react';
 
 interface RoleSelectionProps {
-  roles: CyberRoleInfo[];
-  selectedRoleId: string | null;
   onSelectRole: (roleId: string) => void;
 }
 
-const RoleSelection: React.FC<RoleSelectionProps> = ({ roles, selectedRoleId, onSelectRole }) => {
-  // Fonction pour obtenir l'icône appropriée pour chaque rôle
-  const getRoleIcon = (iconName: string) => {
-    switch (iconName) {
-      case 'Shield':
-        return <Shield className="h-6 w-6 text-blue-500" />;
-      case 'Activity':
-        return <Activity className="h-6 w-6 text-green-500" />;
-      case 'Crosshair':
-        return <Crosshair className="h-6 w-6 text-red-500" />;
-      case 'Microscope':
-        return <Microscope className="h-6 w-6 text-purple-500" />;
-      case 'Network':
-        return <Network className="h-6 w-6 text-cyan-500" />;
-      case 'Search':
-        return <Search className="h-6 w-6 text-yellow-500" />;
-      default:
-        return <Shield className="h-6 w-6 text-gray-500" />;
-    }
+export default function RoleSelection({ onSelectRole }: RoleSelectionProps) {
+  const [hoveredRole, setHoveredRole] = useState<string | null>(null);
+  const [availableRoles, setAvailableRoles] = useState<UserRole[]>(USER_ROLES);
+  
+  // Fonction pour marquer un rôle comme indisponible après sélection
+  const handleRoleSelection = (roleId: string) => {
+    // Vérifier que le rôle est disponible
+    const role = availableRoles.find(r => r.id === roleId);
+    if (!role || role.available === false) return;
+    
+    // Marquer le rôle comme indisponible
+    setAvailableRoles(prev => 
+      prev.map(r => 
+        r.id === roleId ? { ...r, available: false } : r
+      )
+    );
+    
+    // Appeler la fonction de sélection de rôle
+    onSelectRole(roleId);
+  };
+
+  // Map des icônes et styles pour chaque rôle spécifique
+  const roleConfig: Record<string, {
+    icon: React.ReactNode,
+    bgGradient: string,
+    borderColor: string,
+    glowColor: string,
+    shadowColor: string
+  }> = {
+    "rssi": {
+      icon: <Shield className="w-10 h-10 text-[#8bbdd0]" />,
+      bgGradient: "from-[#006a9e]/50 via-[#006a9e]/30 to-[#006a9e]/50",
+      borderColor: "border-[#006a9e]/30",
+      glowColor: "text-[#8bbdd0]",
+      shadowColor: "shadow-[#006a9e]/10"
+    },
+    "hacker": {
+      icon: <Terminal className="w-10 h-10 text-amber-300" />,
+      bgGradient: "from-amber-900/50 via-amber-800/30 to-amber-900/50",
+      borderColor: "border-amber-700/30",
+      glowColor: "text-amber-200",
+      shadowColor: "shadow-amber-500/10"
+    },
+    "developpeur": {
+      icon: <Code className="w-10 h-10 text-sky-300" />,
+      bgGradient: "from-sky-900/50 via-sky-800/30 to-sky-900/50",
+      borderColor: "border-sky-700/30",
+      glowColor: "text-sky-200",
+      shadowColor: "shadow-sky-500/10"
+    },
+    "admin": {
+      icon: <Server className="w-10 h-10 text-orange-300" />,
+      bgGradient: "from-orange-900/50 via-orange-800/30 to-orange-900/50",
+      borderColor: "border-orange-700/30",
+      glowColor: "text-orange-200",
+      shadowColor: "shadow-orange-500/10"
+    },
+    "consultant": {
+      icon: <Users className="w-10 h-10 text-violet-300" />,
+      bgGradient: "from-violet-900/50 via-violet-800/30 to-violet-900/50",
+      borderColor: "border-violet-700/30",
+      glowColor: "text-violet-200",
+      shadowColor: "shadow-violet-500/10"
+    },
   };
 
   return (
-    <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Choisissez votre rôle</h2>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {roles.map((role) => (
-          <div
-            key={role.id}
-            className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-              selectedRoleId === role.id
-                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md'
-                : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700'
-            }`}
-            onClick={() => onSelectRole(role.id)}
-          >
-            <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-full bg-gray-100 dark:bg-gray-700">
-                {getRoleIcon(role.icon)}
+    <div className="w-full max-w-6xl mx-auto px-3 sm:px-6 py-3 sm:py-5 flex flex-col">
+      <div className="text-center mb-4 sm:mb-6">
+        <h2 className="text-lg sm:text-2xl font-bold text-blue-50 mb-1 sm:mb-2">
+          Sélection de Rôle Cyber
+        </h2>
+        <p className="text-blue-300 max-w-3xl mx-auto text-xs sm:text-sm">
+          Choisissez votre rôle professionnel pour personnaliser votre expérience d'apprentissage
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 mt-2 sm:mt-3 overflow-visible">
+        {availableRoles.map((role) => {
+          const config = roleConfig[role.id] || {
+            icon: <Lock className="w-5 h-5 sm:w-7 sm:h-7 text-blue-300" />,
+            bgGradient: "from-blue-900/50 via-blue-800/30 to-blue-900/50",
+            borderColor: "border-blue-700/30",
+            glowColor: "text-blue-200",
+            shadowColor: "shadow-blue-500/10"
+          };
+          
+          const isHovered = hoveredRole === role.id;
+          const isAvailable = role.available !== false;
+          
+          return (
+            <button
+              key={role.id}
+              onClick={() => isAvailable && handleRoleSelection(role.id)}
+              onMouseEnter={() => setHoveredRole(role.id)}
+              onMouseLeave={() => setHoveredRole(null)}
+              className={`group relative bg-gradient-to-br ${config.bgGradient} backdrop-blur-sm border ${config.borderColor} 
+                rounded-lg overflow-hidden shadow-md ${config.shadowColor} 
+                transition-all duration-500 flex flex-col items-center text-center p-2 min-h-[100px] sm:min-h-[120px] justify-between
+                ${!isAvailable ? 
+                  'opacity-40 cursor-not-allowed' : 
+                  'hover:shadow-lg hover:-translate-y-0.5 hover:scale-[1.01] active:scale-[0.98]'
+                }`}
+            >
+              {/* Background glow effect */}
+              {isAvailable && (
+                <div className={`absolute inset-0 bg-gradient-to-br ${config.bgGradient} opacity-0 group-hover:opacity-30 transition-opacity duration-500`}></div>
+              )}
+              
+              {/* Icon */}
+              <div className={`relative z-10 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-900/50 border ${config.borderColor} 
+                flex items-center justify-center mb-1 sm:mb-2 group-hover:scale-110 transition-transform duration-500
+                shadow-glow-sm`}>
+                {React.cloneElement(config.icon as React.ReactElement, { 
+                  className: `w-4 h-4 sm:w-5 sm:h-5 ${(config.icon as React.ReactElement).props.className.split(' ').filter((c: string) => c.includes('text-')).join(' ')}` 
+                })}
+                
+                {/* Pulsing ring effect on hover */}
+                {isHovered && isAvailable && (
+                  <div className="absolute inset-0 rounded-full border border-blue-400/20 animate-ping"></div>
+                )}
               </div>
-              <div>
-                <h3 className="font-medium">{role.name}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
-                  {role.description}
+              
+              {/* Role name */}
+              <div className="relative z-10 w-full">
+                <h3 className={`font-bold text-xs sm:text-sm ${config.glowColor} h-auto flex items-center justify-center leading-snug px-1`}>
+                  {role.name}
+                </h3>
+                
+                {/* Description on hover - visible by default on mobile */}
+                <p className="mt-0.5 sm:mt-1 text-[9px] sm:text-xs text-blue-200/80 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-500 sm:h-0 sm:group-hover:h-auto overflow-hidden">
+                  {!isAvailable ? 
+                    'Ce rôle a déjà été sélectionné et n\'est plus disponible' : 
+                    role.description
+                  }
                 </p>
               </div>
-            </div>
-            
-            {selectedRoleId === role.id && (
-              <div className="mt-3 text-sm text-blue-600 dark:text-blue-400 flex items-center justify-end">
-                <span>✓ Sélectionné</span>
-              </div>
-            )}
-          </div>
-        ))}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
-};
-
-export default RoleSelection;
+}

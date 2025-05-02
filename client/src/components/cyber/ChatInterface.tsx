@@ -6,7 +6,6 @@ import ScenarioSelection from "./ScenarioSelection";
 import RoleSelection from "./RoleSelection";
 import EmailMessage from "./EmailMessage";
 import ContextBanner from "./ContextBanner";
-import { cyberRoles } from "@/data/cyberRoles";
 import { Send, RefreshCw, ChevronDown } from "lucide-react";
 
 interface ChatInterfaceProps {
@@ -119,7 +118,7 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
       case 'scenario-selection':
         return scenario.activeScenario ? null : <ScenarioSelection />;
       case 'role-selection':
-        return userRole ? null : <RoleSelection roles={cyberRoles} selectedRoleId={userRole} onSelectRole={setUserRole} />;
+        return userRole ? null : <RoleSelection onSelectRole={setUserRole} />;
       case 'email':
         return <EmailMessage email={message.content} />;
       case 'scenario-context':
