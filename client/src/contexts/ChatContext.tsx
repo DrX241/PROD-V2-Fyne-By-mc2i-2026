@@ -120,7 +120,7 @@ const initialScenarios: CyberScenario[] = [
     difficulty: "Débutant",
     difficultyColor: "bg-[#006a9e]/20 text-[#006a9e]",
     domain: "ingenierie-sociale",
-    domainId: "ingenierie-sociale"
+    domain: "ingenierie-sociale", domainId: "ingenierie-sociale"
   },
   {
     id: "social-engineering-incident",
@@ -133,7 +133,7 @@ const initialScenarios: CyberScenario[] = [
     difficulty: "Intermédiaire",
     difficultyColor: "bg-[#006a9e]/10 text-[#006a9e]",
     domain: "ingenierie-sociale",
-    domainId: "ingenierie-sociale"
+    domain: "ingenierie-sociale", domainId: "ingenierie-sociale"
   },
   {
     id: "advanced-social-attacks",
@@ -561,12 +561,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Handler to select a domain
-  const handleSelectDomain = async (domain: CyberDomain) => {
+  const handleSelectDomain = async (domainId: string) => {
     // Empêcher la sélection de plusieurs domaines
     if (scenario.activeDomain !== null) return;
     
-    const domainId = domain.id;
-    const selectedDomain = domain;
+    const selectedDomain = initialDomains.find(d => d.id === domainId);
+    if (!selectedDomain) return;
     
     setIsTyping(true);
     setScenario(prev => ({ ...prev, activeDomain: selectedDomain }));
@@ -629,18 +629,19 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Si un scénario est trouvé, le sélectionner automatiquement
     if (selectedScenario) {
       setTimeout(() => {
-        handleSelectScenario(selectedScenario!);
+        handleSelectScenario(selectedScenario!.id);
       }, 3000); // Attendre 3 secondes pour que l'utilisateur puisse lire les explications
     }
     setIsTyping(false);
   };
 
   // Handler to select a scenario
-  const handleSelectScenario = async (selectedScenario: CyberScenario) => {
+  const handleSelectScenario = async (scenarioId: string) => {
     // Empêcher la sélection de plusieurs scénarios
     if (scenario.activeScenario !== null) return;
     
-    const scenarioId = selectedScenario.id;
+    const selectedScenario = initialScenarios.find(s => s.id === scenarioId);
+    if (!selectedScenario) return;
     
     setIsTyping(true);
     setScenario(prev => ({ 

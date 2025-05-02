@@ -483,7 +483,52 @@ export default function EmailMessage({ email }: EmailMessageProps) {
           </div>
         )}
 
-        {/* La section des interlocuteurs a été supprimée comme demandé */}
+        {/* Interlocuteurs */}
+        {email.scenarioContacts && email.scenarioContacts.length > 0 && (
+          <div className="mx-3 sm:mx-6 my-3 sm:my-4 p-3 sm:p-5 bg-blue-900/40 rounded-lg border border-blue-700/30 backdrop-blur-sm">
+            <h4 className="font-bold text-white mb-3 sm:mb-4 flex items-center text-sm sm:text-base">
+              <Users className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-white" />
+              <span>Interlocuteurs du scénario</span>
+            </h4>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              {email.scenarioContacts.map((contact: EmailContact, index: number) => (
+                <div 
+                  key={index} 
+                  className="flex p-3 sm:p-4 backdrop-blur-sm bg-gradient-to-br from-gray-900/70 to-blue-900/40 rounded-lg border border-blue-800/40 shadow-md hover:shadow-glow-sm transition-all duration-300"
+                >
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-700/60 to-indigo-700/60 rounded-full flex items-center justify-center text-white mr-2 sm:mr-3 flex-shrink-0 border border-blue-500/30 shadow-glow-sm">
+                    <span className="font-semibold text-xs sm:text-sm">
+                      {contact.name.split(' ').map((n: string) => n[0]).join('')}
+                    </span>
+                  </div>
+                  <div className="w-full">
+                    <h5 className="font-bold text-white text-sm sm:text-base">{contact.name}</h5>
+                    <p className="text-white text-xs sm:text-sm mb-1 sm:mb-2">{contact.role}</p>
+                    {(contact.expertise || contact.concern) && (
+                      <div className="mt-1 sm:mt-2 p-1.5 sm:p-2 rounded-md bg-blue-950/50 border border-blue-800/40 space-y-1 sm:space-y-2">
+                        {contact.expertise && (
+                          <p className="text-[10px] sm:text-xs text-white">
+                            <span className="font-medium text-white">Expertise:</span> {contact.expertise}
+                          </p>
+                        )}
+                        {contact.concern && (
+                          <p className="text-[10px] sm:text-xs text-white">
+                            <span className="font-medium text-white">Préoccupation:</span> {contact.concern}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <p className="text-xs sm:text-sm text-white mt-3 sm:mt-4">
+              Ces interlocuteurs interviendront dans ce scénario pour vous offrir différentes perspectives sur la problématique cyber centrale.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
