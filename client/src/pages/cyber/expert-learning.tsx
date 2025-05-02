@@ -560,9 +560,9 @@ export default function ExpertLearningPage() {
               </div>
               
               {/* Zone de chat intégrée directement sans conteneur */}
-              <div className="max-w-5xl mx-auto px-4 mt-2">
+              <div className="max-w-5xl mx-auto px-4 mt-2 flex flex-col h-[calc(100vh-100px)]">
                 {/* En-tête minimaliste */}
-                <div className="flex items-center mb-4">
+                <div className="flex items-center mb-2">
                   <div className="h-6 w-6 flex items-center justify-center mr-2 rounded-full bg-[#00b4d8]/10">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <circle cx="12" cy="12" r="11" stroke="#00b4d8" strokeWidth="1.5" fill="none"/>
@@ -573,10 +573,10 @@ export default function ExpertLearningPage() {
                   <span className="text-xs font-mono font-bold text-[#00b4d8]">CYBER<span className="text-[#e63946]">EXPERT</span> <span className="text-[#8abee0] font-normal opacity-70 text-[10px]">v2.5</span></span>
                 </div>
                 
-                {/* Contenu du chat */}
+                {/* Contenu scrollable du chat */}
                 <div 
                   ref={chatContainerRef}
-                  className="h-[calc(100vh-180px)] overflow-y-auto py-4 space-y-5"
+                  className="flex-grow overflow-y-auto py-4 space-y-5 mb-2"
                   style={{backgroundImage: 'radial-gradient(circle at 50% 20%, rgba(0,180,216,0.05) 0%, transparent 70%)'}}
                 >
                   {messages.map((message, index) => (
@@ -630,7 +630,7 @@ export default function ExpertLearningPage() {
                 {showScrollButton && (
                   <button 
                     onClick={scrollToBottom}
-                    className="fixed right-6 bottom-20 bg-[#00b4d8]/80 p-2 rounded-full shadow-[0_0_10px_rgba(0,180,216,0.2)] z-20 text-[#0c1e2e] hover:bg-[#00b4d8] transition-all"
+                    className="fixed right-6 bottom-24 bg-[#00b4d8]/80 p-2 rounded-full shadow-[0_0_10px_rgba(0,180,216,0.2)] z-20 text-[#0c1e2e] hover:bg-[#00b4d8] transition-all"
                     title="Défiler vers le bas"
                     aria-label="Défiler vers le bas de la conversation"
                   >
@@ -638,8 +638,8 @@ export default function ExpertLearningPage() {
                   </button>
                 )}
                 
-                {/* Zone de saisie sans bordures */}
-                <div className="mt-4 py-3 bg-[#091525]/40 backdrop-blur-sm rounded-lg">
+                {/* Zone de saisie fixée en bas (sticky) */}
+                <div className="sticky bottom-0 py-3 bg-[#091525]/80 backdrop-blur-sm rounded-lg">
                   <form onSubmit={handleSubmit} className="flex px-4 space-x-2">
                     <div className="relative flex-1">
                       <div className="absolute left-0 top-0 pl-3 h-full flex items-center text-[#00b4d8] opacity-70 pointer-events-none">
@@ -651,7 +651,7 @@ export default function ExpertLearningPage() {
                         onChange={(e) => setInputMessage(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder="Posez votre question sur la cybersécurité..."
-                        className="w-full pl-8 pr-4 py-2 bg-[#0c1e2e]/30 rounded-md text-[#e5f0fc] placeholder-[#8abee0]/50 resize-none focus:ring-1 focus:ring-[#00b4d8]/30 focus:outline-none font-mono"
+                        className="w-full pl-8 pr-4 py-2 bg-[#0c1e2e]/50 rounded-md text-[#e5f0fc] placeholder-[#8abee0]/50 resize-none focus:ring-1 focus:ring-[#00b4d8]/30 focus:outline-none font-mono"
                         rows={1}
                         disabled={isLoading}
                         style={{ minHeight: "2.5rem", maxHeight: "6rem" }}
