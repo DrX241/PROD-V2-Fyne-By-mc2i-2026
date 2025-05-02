@@ -4,12 +4,10 @@ import { ChatCompletionRequestMessage } from "@shared/schema";
 
 // Interface pour les sessions de chatbot
 interface LearningBotSession {
-  trigramme: string | null;
-  metier: string | null;
   mode: 'classique' | 'immersion' | null;
   formation: 'interne' | 'externe' | null;
   formationChoisie: string | null;
-  stageActuel: 'introduction' | 'choix_mode' | 'choix_formation' | 'formation' | 'scenario' | null;
+  stageActuel: 'choix_mode' | 'choix_formation' | 'formation' | 'scenario' | null;
   scenarioActuel: number;
   reponses: Array<{question: string, reponse: string}>;
   messages: Array<ChatCompletionRequestMessage>;
@@ -31,12 +29,10 @@ export async function initMcaiLearningSession(req: Request, res: Response) {
 
     // Créer une nouvelle session ou réinitialiser une existante
     const session: LearningBotSession = {
-      trigramme: null,
-      metier: null,
       mode: null,
       formation: null,
       formationChoisie: null,
-      stageActuel: 'introduction',
+      stageActuel: 'choix_mode',
       scenarioActuel: 0,
       reponses: [],
       messages: []
@@ -54,7 +50,7 @@ export async function initMcaiLearningSession(req: Request, res: Response) {
     // Générer le message d'accueil
     const welcomeMessage: ChatCompletionRequestMessage = {
       role: "assistant",
-      content: "Bonjour et bienvenue sur mc2i AI Learning, votre Chatbot spécialisé dans l'évaluation en temps réel. Veuillez me communiquer votre Trigramme (3 lettres maximum) et votre métier chez mc2i (consultant, consultant confirmé, sénior, Manager, Sénior Manager, Chef de projet, Directeur)."
+      content: "Bonjour et bienvenue sur AI Learning, votre Chatbot spécialisé dans l'évaluation en temps réel. Veuillez choisir entre deux modes d'apprentissage :\n1. Un apprentissage classique avec 4 scénarios différents sans lien direct entre eux\n2. Un effet immersion avec 6 scénarios reliés entre eux où chaque décision a un impact immédiat sur la suite"
     };
 
     session.messages.push(welcomeMessage);
