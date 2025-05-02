@@ -166,8 +166,7 @@ export async function processMcaiLearningMessage(req: Request, res: Response) {
     // Récupérer l'historique des messages
     const messageHistory = await db.select()
       .from(mcaiMessages)
-      .where(eq(mcaiMessages.sessionId, sessionId))
-      .orderBy(({ timestamp }) => timestamp);
+      .where(eq(mcaiMessages.sessionId, sessionId));
 
     // Ajouter le message utilisateur à la base de données
     await db.insert(mcaiMessages)
