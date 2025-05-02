@@ -1011,12 +1011,36 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Extraire les détails additionnels de la réponse si disponible
       try {
-        if (error instanceof Response || (error && typeof error === 'object' && 'json' in error)) {
-          error.json().then(data => {
-            console.log("Réponse serveur complète:", data);
-            if (data.message) serverErrorMsg = data.message;
-            if (data.model) modelUsed = data.model;
-          }).catch(jsonError => console.error("Impossible de traiter la réponse JSON:", jsonError));
+        // Vérifier si l'erreur est une instance de Response
+        if (error instanceof Response) {
+          // Capture la promesse pour éviter les erreurs non interceptées
+          const jsonPromise = error.json();
+          jsonPromise
+            .then((responseData: Record<string, string>) => {
+              console.log("Réponse serveur complète:", responseData);
+              if (responseData.message) serverErrorMsg = responseData.message;
+              if (responseData.model) modelUsed = responseData.model;
+            })
+            .catch((parseError: Error) => {
+              console.error("Impossible de traiter la réponse JSON:", parseError);
+            });
+        } 
+        // Vérifier si l'erreur est un objet qui a une méthode json
+        else if (error && typeof error === 'object' && 'json' in error && typeof (error as { json: Function }).json === 'function') {
+          try {
+            const jsonFn = (error as { json: () => Promise<Record<string, string>> }).json;
+            jsonFn()
+              .then((responseData: Record<string, string>) => {
+                console.log("Réponse serveur complète:", responseData);
+                if (responseData.message) serverErrorMsg = responseData.message;
+                if (responseData.model) modelUsed = responseData.model;
+              })
+              .catch((parseError: Error) => {
+                console.error("Impossible de traiter la réponse JSON:", parseError);
+              });
+          } catch (jsonMethodError) {
+            console.error("Erreur lors de l'appel de la méthode json:", jsonMethodError);
+          }
         } else if (error instanceof Error && error.cause && typeof error.cause === 'object') {
           const cause = error.cause as any;
           if (cause.data) {
