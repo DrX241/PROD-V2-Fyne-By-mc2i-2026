@@ -1,0 +1,315 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useLocation } from 'wouter';
+import { 
+  ArrowLeft, BookOpen, Shield, Terminal, Lightbulb, Settings, MessageCircle, 
+  ChevronRight, Star, LockIcon, CheckCircle, ExternalLink, User, AlertTriangle,
+  Server, Database, Globe, Wifi, Lock, UserX, Zap, FileCode, Fingerprint, BrainCircuit,
+  Eye, Monitor, Cpu, Cable, FileWarning, ShieldAlert, Key, PlayCircle, Clock8,
+  Circle, Info, X, Layers, RefreshCw
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme } from '../../contexts/ThemeContext';
+import { Button } from '../../components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
+import { Input } from '../../components/ui/input';
+import { useToast } from '../../hooks/use-toast';
+import { Textarea } from '../../components/ui/textarea';
+import { Badge } from '../../components/ui/badge';
+import { Progress } from '../../components/ui/progress';
+import { Separator } from '../../components/ui/separator';
+import { ScrollArea } from '../../components/ui/scroll-area';
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogHeader } from '../../components/ui/dialog';
+import { Avatar as UIAvatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar';
+import { RadioGroup, RadioGroupItem } from '../../components/ui/radio-group';
+import { Label } from '../../components/ui/label';
+
+// Interfaces nécessaires pour le SAS d'entrée
+interface ModuleProgress {
+  completed: boolean;
+  progress: number;
+  lastAccessed?: Date;
+}
+
+interface Avatar {
+  id: string;
+  name: string;
+  imagePath: string;
+  type: 'hacker' | 'analyst' | 'security_manager' | 'network_specialist';
+  abilities: string[];
+  description: string;
+  strengthsAndWeaknesses: string[];
+  primarySkills: string[];
+}
+
+interface UserData {
+  name: string;
+  totalProgress: number;
+  moduleProgress: Record<string, ModuleProgress>;
+  isAdmin: boolean;
+  rank?: string;
+  level?: number;
+  points?: number;
+  avatar?: Avatar;
+}
+
+interface AIRecommendation {
+  title: string;
+  message: string;
+  moduleId: string;
+  type: 'continue' | 'revisit' | 'new';
+}
+
+interface SimulationScenario {
+  id: string;
+  title: string;
+  description: string;
+  difficulty: 'débutant' | 'intermédiaire' | 'avancé' | 'expert';
+  duration: string;
+  objectives: string[];
+  completionReward: number; // Points de compétence
+  icon: React.ReactNode;
+}
+
+// Données des avatars
+const avatars: Avatar[] = [
+  {
+    id: 'shadow',
+    name: 'Shadow',
+    imagePath: '/assets/avatars/shadow.png',
+    type: 'hacker',
+    abilities: ['Infiltration', 'Exploitation', 'Anonymat'],
+    description: 'Expert en tests d\'intrusion et hacking éthique. Spécialisé dans la découverte de vulnérabilités et l\'exploitation de failles de sécurité pour améliorer les défenses.',
+    strengthsAndWeaknesses: [
+      'Excellent en découverte de vulnérabilités', 
+      'Maîtrise des techniques d\'anonymisation',
+      'Connaissances avancées en exploitation de systèmes',
+      'Points faibles : analyse forensique, documentation'
+    ],
+    primarySkills: ['Exploitation', 'Rétro-ingénierie', 'Reconnaissance']
+  },
+  {
+    id: 'sentinel',
+    name: 'Sentinel',
+    imagePath: '/assets/avatars/sentinel.png',
+    type: 'security_manager',
+    abilities: ['Supervision', 'Organisation', 'Stratégie'],
+    description: 'Responsable de la stratégie de cybersécurité. Excellentes compétences en gestion d\'équipe, communication et planification des opérations de sécurité.',
+    strengthsAndWeaknesses: [
+      'Vision stratégique globale', 
+      'Excellente communication',
+      'Gestion efficace des crises',
+      'Points faibles : aspects techniques avancés, programmation'
+    ],
+    primarySkills: ['Gestion des risques', 'Conformité', 'Communication']
+  },
+  {
+    id: 'guardian',
+    name: 'Guardian',
+    imagePath: '/assets/avatars/guardian.png',
+    type: 'analyst',
+    abilities: ['Analyse', 'Protection', 'Détection'],
+    description: 'Analyste de sécurité spécialisé dans la détection et la réponse aux incidents. Expert en investigation, analyse des malwares et protection des systèmes.',
+    strengthsAndWeaknesses: [
+      'Détection avancée des menaces', 
+      'Analyse approfondie des incidents',
+      'Excellentes compétences forensiques',
+      'Points faibles : développement, tests d\'intrusions'
+    ],
+    primarySkills: ['Analyse d\'incidents', 'Forensique', 'Monitoring']
+  },
+  {
+    id: 'nexus',
+    name: 'Nexus',
+    imagePath: '/assets/avatars/nexus.png',
+    type: 'network_specialist',
+    abilities: ['Connectivité', 'Topologie', 'Défense périmétrique'],
+    description: 'Spécialiste en sécurité des réseaux et infrastructures. Expert en architecture sécurisée, segmentation et défense des communications.',
+    strengthsAndWeaknesses: [
+      'Maîtrise de la sécurité réseau', 
+      'Expertise en conception d\'architecture',
+      'Connaissance approfondie des protocoles',
+      'Points faibles : applications web, social engineering'
+    ],
+    primarySkills: ['Architecture réseau', 'Défense périmétrique', 'Surveillance']
+  }
+];
+
+// Modules disponibles dans CyberForge Academy
+const modules = [
+  {
+    id: 'fundamentals',
+    title: 'Fondamentaux de la Cybersécurité',
+    description: 'Concepts de base, terminologie et principes essentiels.',
+    progress: 0,
+    level: 1,
+    requiredModules: [],
+    icon: <Shield className="h-5 w-5" />
+  },
+  {
+    id: 'network-security',
+    title: 'Sécurité des Réseaux',
+    description: 'Protection des infrastructures réseau et détection d\'intrusion.',
+    progress: 0,
+    level: 2,
+    requiredModules: ['fundamentals'],
+    icon: <Wifi className="h-5 w-5" />
+  },
+  {
+    id: 'web-security',
+    title: 'Sécurité des Applications Web',
+    description: 'Vulnérabilités web et méthodes de protection.',
+    progress: 0,
+    level: 2,
+    requiredModules: ['fundamentals'],
+    icon: <Globe className="h-5 w-5" />
+  },
+  {
+    id: 'cryptography',
+    title: 'Cryptographie & Authentification',
+    description: 'Chiffrement, hachage et mécanismes d\'authentification.',
+    progress: 0,
+    level: 3,
+    requiredModules: ['fundamentals', 'network-security'],
+    icon: <Lock className="h-5 w-5" />
+  },
+  {
+    id: 'social-engineering',
+    title: 'Social Engineering',
+    description: 'Techniques de manipulation et mesures préventives.',
+    progress: 0,
+    level: 2,
+    requiredModules: ['fundamentals'],
+    icon: <UserX className="h-5 w-5" />
+  },
+  {
+    id: 'malware-analysis',
+    title: 'Analyse de Malwares',
+    description: 'Identification et analyse des logiciels malveillants.',
+    progress: 0,
+    level: 4,
+    requiredModules: ['fundamentals', 'cryptography'],
+    icon: <FileWarning className="h-5 w-5" />
+  },
+  {
+    id: 'incident-response',
+    title: 'Réponse aux Incidents',
+    description: 'Processus de gestion et résolution des incidents de sécurité.',
+    progress: 0,
+    level: 3,
+    requiredModules: ['fundamentals', 'network-security'],
+    icon: <AlertTriangle className="h-5 w-5" />
+  },
+  {
+    id: 'secure-coding',
+    title: 'Développement Sécurisé',
+    description: 'Pratiques de codage sécurisé et tests de pénétration.',
+    progress: 0,
+    level: 4,
+    requiredModules: ['fundamentals', 'web-security'],
+    icon: <FileCode className="h-5 w-5" />
+  },
+  {
+    id: 'threat-intelligence',
+    title: 'Cyber Threat Intelligence',
+    description: 'Collecte et analyse des informations sur les menaces.',
+    progress: 0,
+    level: 3,
+    requiredModules: ['fundamentals', 'incident-response'],
+    icon: <BrainCircuit className="h-5 w-5" />
+  }
+];
+
+function calculateTotalProgress(moduleProgress: Record<string, ModuleProgress>): number {
+  const moduleCount = modules.length;
+  let totalProgress = 0;
+  
+  for (const module of modules) {
+    totalProgress += (moduleProgress[module.id]?.progress || 0);
+  }
+  
+  return Math.round(totalProgress / moduleCount);
+}
+
+function CyberForge() {
+  const { isDark } = useTheme();
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  
+  // États du SAS d'entrée
+  const [showEntryPortal, setShowEntryPortal] = useState(true);
+  const [selectedAvatar, setSelectedAvatar] = useState<Avatar | null>(null);
+  const [avatarCardOpen, setAvatarCardOpen] = useState<string | null>(null);
+  const [entryStep, setEntryStep] = useState<'welcome' | 'avatar' | 'mission' | 'ready'>('welcome');
+  
+  // États pour le reste de l'interface
+  const [userName, setUserName] = useState('');
+  const [userData, setUserData] = useState<UserData>({
+    name: '',
+    totalProgress: 0,
+    moduleProgress: {},
+    isAdmin: false
+  });
+
+  // Effet pour simuler le chargement des données utilisateur
+  useEffect(() => {
+    const savedUser = localStorage.getItem('cyberforge_user');
+    if (savedUser) {
+      const parsedUser = JSON.parse(savedUser);
+      setUserData(parsedUser);
+      setUserName(parsedUser.name);
+    }
+  }, []);
+
+  // Sélectionner un avatar
+  const selectAvatarProfile = (avatar: Avatar) => {
+    setSelectedAvatar(avatar);
+    // Simuler la progression
+    if (entryStep === 'avatar') {
+      setTimeout(() => {
+        setEntryStep('mission');
+      }, 500);
+    }
+  };
+
+  // Passer à l'étape suivante dans le SAS d'entrée
+  const proceedToNextStep = () => {
+    if (entryStep === 'welcome') {
+      setEntryStep('avatar');
+    } else if (entryStep === 'mission') {
+      setEntryStep('ready');
+    } else if (entryStep === 'ready') {
+      // Sauvegarder l'avatar sélectionné dans les données utilisateur
+      if (selectedAvatar) {
+        const updatedUserData = { 
+          ...userData,
+          avatar: selectedAvatar 
+        };
+        setUserData(updatedUserData);
+        localStorage.setItem('cyberforge_user', JSON.stringify(updatedUserData));
+      }
+      // Passer à l'interface principale
+      setShowEntryPortal(false);
+    }
+  };
+
+  return (
+    <div className={`min-h-screen ${isDark ? 'bg-[#0a0e17] text-white' : 'bg-[#f0f4f8] text-gray-900'}`}>
+      {showEntryPortal ? (
+        // SAS d'entrée immersif modernisé avec effet futuriste
+        <div className="min-h-screen relative overflow-hidden bg-[#050a14]">
+                      <BookOpen className="mr-2 h-4 w-4" />
+                      Voir tous les modules
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default CyberForge;

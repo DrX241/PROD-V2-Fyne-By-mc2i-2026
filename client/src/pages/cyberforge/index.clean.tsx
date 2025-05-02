@@ -812,8 +812,12 @@ function CyberForge() {
           </div>
         </div>
       ) : (
-        // Interface principale (mode normal)
-        <div className={`container mx-auto px-4 py-8 ${isDark ? 'text-white' : 'text-gray-800'}`}>
+        // Interface principale modernisée - Immersive, gamifiée et professionnelle
+        <div className="min-h-screen bg-[#040b18] relative overflow-hidden">
+          {/* Effet de fond cybernétique dynamique */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0a1a3c]/90 via-[#071328]/80 to-[#051020]/90 z-0"></div>
+          
+          {/* Grille cyber futuriste */}
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImhleGFncmlkIiB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSgzMCkiPjxwYXRoIGQ9Ik0gMCAtMTAgTCAtOC42NiA1IEwgMCAyMCBMIDguNjYgNSBaIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMzAsIDgwLCAyMDAsIDAuMDgpIiBzdHJva2Utd2lkdGg9IjAuNSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMzAsIDMwKSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNoZXhhZ3JpZCkiIC8+PC9zdmc+')]  bg-center z-0 opacity-30"></div>
           
           {/* Particules dynamiques et HUD elements */}
