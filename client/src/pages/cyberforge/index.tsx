@@ -1,15 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation } from 'wouter';
-import { AnimatePresence } from 'framer-motion';
-import { useTheme } from '@/contexts/ThemeContext';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useLocation } from 'wouter';
+import { 
+  ArrowLeft, BookOpen, Shield, Terminal, Lightbulb, Settings, MessageCircle, 
+  ChevronRight, Star, LockIcon, CheckCircle, ExternalLink, User, AlertTriangle,
+  Server, Database, Globe, Wifi, Lock, UserX, Zap, FileCode, Fingerprint, BrainCircuit,
+  Eye, Monitor, Cpu, Cable, FileWarning, ShieldAlert, Key, PlayCircle, Clock8,
+  Circle, Info, X, Layers, RefreshCw
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme } from '../../contexts/ThemeContext';
+import { Button } from '../../components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
+import { Input } from '../../components/ui/input';
+import { useToast } from '../../hooks/use-toast';
+import { Textarea } from '../../components/ui/textarea';
+import { Badge } from '../../components/ui/badge';
+import { Progress } from '../../components/ui/progress';
+import { Separator } from '../../components/ui/separator';
+import { ScrollArea } from '../../components/ui/scroll-area';
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogHeader } from '../../components/ui/dialog';
+import { Avatar as UIAvatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar';
+import { RadioGroup, RadioGroupItem } from '../../components/ui/radio-group';
+import { Label } from '../../components/ui/label';
 
-// Composants modernisés modulaires
-import ModernDashboard from './ModernDashboard';
-import AvatarSelection from './AvatarSelection';
-import AvatarProfile from './AvatarProfile';
-import AccessAuthentication from './AccessAuthentication';
-
-// Types d'interfaces
+// Interfaces nécessaires pour le SAS d'entrée
 interface ModuleProgress {
   completed: boolean;
   progress: number;
@@ -77,7 +92,7 @@ const availableAvatars: Avatar[] = [
     imagePath: '/assets/avatars/shadow.png',
     type: 'hacker',
     abilities: ['Intrusion', 'Cryptanalyse', 'Rétro-ingénierie'],
-    description: "Spécialiste de l'intrusion et de la sécurité offensive.",
+    description: 'Spécialiste de la sécurité offensive.',
     strengthsAndWeaknesses: ['Expertise en pentesting', 'Connaissance limitée en défense'],
     primarySkills: ['Exploitation', 'Social Engineering', 'OSINT']
   },
@@ -86,7 +101,7 @@ const availableAvatars: Avatar[] = [
     name: 'Sentinel',
     imagePath: '/assets/avatars/sentinel.png',
     type: 'analyst',
-    abilities: ['Analyse forensique', 'Détection d'anomalies', 'Traque de menaces'],
+    abilities: ['Analyse forensique', 'Détection des anomalies', 'Traque de menaces'],
     description: 'Expert en analyse de sécurité et investigation numérique.',
     strengthsAndWeaknesses: ['Excellence analytique', 'Temps de réaction parfois lent'],
     primarySkills: ['Forensique', 'Détection', 'Analyse malware']
@@ -96,7 +111,7 @@ const availableAvatars: Avatar[] = [
     name: 'Guardian',
     imagePath: '/assets/avatars/guardian.png',
     type: 'security_manager',
-    abilities: ['Gestion de crise', 'Coordination d'équipe', 'Stratégie de sécurité'],
+    abilities: ['Gestion de crise', 'Coordination des équipes', 'Stratégie de sécurité'],
     description: 'Leader en gestion de la sécurité et réponse aux incidents.',
     strengthsAndWeaknesses: ['Vision stratégique', 'Moins de compétences techniques'],
     primarySkills: ['Gestion incidents', 'Planification', 'Communication']
@@ -106,9 +121,9 @@ const availableAvatars: Avatar[] = [
     name: 'Nexus',
     imagePath: '/assets/avatars/nexus.png',
     type: 'network_specialist',
-    abilities: ['Architecture réseau', 'Détection d'intrusion', 'Sécurité périmétrique'],
+    abilities: ['Architecture réseau', 'Détection des intrusions', 'Sécurité périmétrique'],
     description: 'Spécialiste des infrastructures réseau sécurisées.',
-    strengthsAndWeaknesses: ['Expertise réseau', 'Moins d'expérience en applications'],
+    strengthsAndWeaknesses: ['Expertise réseau', 'Moins de connaissances en applications'],
     primarySkills: ['Firewall', 'IDS/IPS', 'Segmentation']
   }
 ];
@@ -116,6 +131,7 @@ const availableAvatars: Avatar[] = [
 function CyberForge() {
   const [, setLocation] = useLocation();
   const { isDark } = useTheme();
+  const { toast } = useToast();
   
   // États de l'utilisateur et de l'interface
   const [userData, setUserData] = useState<UserData>({
@@ -154,7 +170,11 @@ function CyberForge() {
         setEntryStep('avatar');
       }, 2000);
     } else {
-      alert('Mot de passe incorrect. Veuillez réessayer.');
+      toast({
+        variant: "destructive",
+        title: "Accès refusé",
+        description: "Mot de passe incorrect. Veuillez réessayer."
+      });
     }
   };
 
@@ -225,19 +245,19 @@ function CyberForge() {
                             <label htmlFor="password" className="block text-sm font-medium text-blue-300 mb-1">
                               Code d'accès
                             </label>
-                            <input
+                            <Input
                               type="password"
                               id="password"
                               value={passwordAttempt}
                               onChange={(e) => setPasswordAttempt(e.target.value)}
-                              className="w-full px-3 py-2 bg-black/70 border border-blue-800/60 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                              className="w-full bg-black/70 border border-blue-800/60 text-white focus:ring-blue-500"
                               placeholder="Entrez le code d'accès"
                               required
                             />
                           </div>
                           <Button
                             type="submit" 
-                            className="w-full bg-blue-700 hover:bg-blue-600 text-white transition-all"
+                            className="w-full bg-blue-700 hover:bg-blue-600 text-white"
                           >
                             Accéder
                           </Button>
@@ -358,7 +378,7 @@ function CyberForge() {
 
                       <Button
                         onClick={handleContinue}
-                        className="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white transition-all"
+                        className="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white"
                       >
                         Commencer l'entraînement
                       </Button>
@@ -370,11 +390,13 @@ function CyberForge() {
           </div>
         </div>
       ) : (
-        // Interface principale 
+        // Interface principale modernisée
         <div className="container mx-auto px-4 py-8">
           {/* Titre et navigation */}
           <div className="mb-6 flex items-center justify-between">
-            <h1 className="text-3xl font-bold">CyberForge Academy</h1>
+            <h1 className="text-3xl font-bold font-mono tracking-tight bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-transparent bg-clip-text">
+              CyberForge Academy
+            </h1>
             <Button 
               variant="outline" 
               onClick={() => setLocation('/')}
@@ -392,7 +414,10 @@ function CyberForge() {
               {selectedAvatar && (
                 <Card className="mb-6">
                   <CardHeader>
-                    <CardTitle>Profil d'agent</CardTitle>
+                    <CardTitle className="flex items-center gap-2">
+                      <User className="h-5 w-5 text-blue-500" />
+                      Profil d'agent
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center gap-4 mb-4">
@@ -419,12 +444,10 @@ function CyberForge() {
                           <span>Niveau</span>
                           <span className="font-medium">{userData.level || 1}</span>
                         </div>
-                        <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-blue-500 rounded-full" 
-                            style={{ width: `${userData.points ? (userData.points % 100) : 0}%` }}
-                          ></div>
-                        </div>
+                        <Progress 
+                          value={userData.points ? (userData.points % 100) : 0} 
+                          className="h-2" 
+                        />
                       </div>
                       
                       <div className="grid grid-cols-2 gap-2 text-sm">
@@ -445,7 +468,7 @@ function CyberForge() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Shield className="h-5 w-5" />
+                    <Shield className="h-5 w-5 text-blue-500" />
                     Intelligence de sécurité
                   </CardTitle>
                 </CardHeader>
@@ -456,12 +479,7 @@ function CyberForge() {
                         <span>Progression globale</span>
                         <span className="font-medium">{userData.totalProgress}%</span>
                       </div>
-                      <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-green-500 rounded-full" 
-                          style={{ width: `${userData.totalProgress}%` }}
-                        ></div>
-                      </div>
+                      <Progress value={userData.totalProgress} className="h-2" />
                     </div>
                     
                     <Button 
@@ -481,7 +499,7 @@ function CyberForge() {
               <Card className="mb-6">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <BookOpen className="h-5 w-5" />
+                    <BookOpen className="h-5 w-5 text-blue-500" />
                     Modules de formation
                   </CardTitle>
                   <CardDescription>
@@ -490,7 +508,7 @@ function CyberForge() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 rounded-md border relative group">
+                    <div className="p-4 rounded-md border relative group transition-all hover:shadow-md">
                       <h3 className="font-medium mb-2 flex items-center gap-2">
                         <Shield className="h-4 w-4 text-blue-500" /> Fondamentaux
                       </h3>
@@ -509,7 +527,7 @@ function CyberForge() {
                       </div>
                     </div>
                     
-                    <div className="p-4 rounded-md border relative group opacity-75">
+                    <div className="p-4 rounded-md border relative group opacity-75 transition-all hover:shadow-md">
                       <h3 className="font-medium mb-2 flex items-center gap-2">
                         <Terminal className="h-4 w-4 text-green-500" /> Sécurité réseau
                       </h3>
@@ -522,7 +540,7 @@ function CyberForge() {
                       </div>
                     </div>
                     
-                    <div className="p-4 rounded-md border relative group opacity-75">
+                    <div className="p-4 rounded-md border relative group opacity-75 transition-all hover:shadow-md">
                       <h3 className="font-medium mb-2 flex items-center gap-2">
                         <AlertTriangle className="h-4 w-4 text-red-500" /> Analyse d'attaques
                       </h3>
