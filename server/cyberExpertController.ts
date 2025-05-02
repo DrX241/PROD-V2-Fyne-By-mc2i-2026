@@ -416,48 +416,81 @@ async function handleConfirmationStage(session: CyberExpertSession, message: str
  * Gère l'étape d'apprentissage et d'échange sur le sujet
  */
 async function handleLearningStage(session: CyberExpertSession, message: string): Promise<string> {
-  // On compte les échanges pour pouvoir conclure après 2-3 messages
+  // On compte les échanges pour déterminer quelle étape du parcours d'apprentissage nous sommes
   const userMessageCount = session.messages.filter(msg => msg.role === "user").length;
-  const shouldConclude = userMessageCount >= 4; // Conclure après ~3 échanges
   
-  // Traiter la question/réponse dans le contexte du sujet identifié
-  const prompt = `
-    L'utilisateur poursuit son apprentissage sur le sujet: "${session.topic}"
-    
-    Son message: "${message}"
-    
-    ${shouldConclude ? "C'est le moment de conclure notre échange après avoir fourni des informations utiles." : ""}
-    
-    Crée une réponse ${shouldConclude ? "de conclusion" : ""} qui:
-    
-    - Est très concise (3-4 phrases maximum)
-    - Utilise un langage simple et direct comme dans un jeu
-    - ${shouldConclude ? "Résume les points clés et donne 1-2 conseils pratiques à retenir" : "Répond précisément à la question avec des exemples concrets"}
-    - Fait référence à une source officielle (ANSSI, CNIL) si pertinent, mais de façon très brève
-    - Utilise une analogie simple si cela aide à clarifier
-    - ${shouldConclude ? "Termine par une phrase de félicitation pour compléter la mission" : "Pose une question interactive qui invite l'utilisateur à participer"}
+  // Déterminer l'étape du parcours (basé sur le nombre de messages échangés)
+  // 1er message: Déjà traité par generateLearningSequence (scénario + mini-jeu de décision)
+  // 2ème message: Analyse la décision + méthodo/technique
+  // 3ème message: Test de validation
+  // 4ème message ou plus: Conclusion & résumé
+  
+  let stagePrompt = "";
+  const shouldConclude = userMessageCount >= 5; // Conclure après 4 échanges
 
-    Style et format:
-    - Ton enthousiaste et dynamique, comme un coach de jeu
-    - Utilise des emojis pertinents pour dynamiser (maximum 2-3)
-    - Langage clair, phrases courtes, évite le jargon technique
-    - Sois direct et va droit au but
-    - N'utilise jamais de markdown ou listes à puces
-    - Évite les longs paragraphes théoriques - sois pratique
-    ${shouldConclude ? "- Termine par une phrase qui indique clairement la fin de la mission, comme 'Mission accomplie! Vous avez maintenant les clés pour...''" : ""}
-  `;
+  if (shouldConclude) {
+    // Conclusion et résumé
+    stagePrompt = `
+      Il est temps de conclure l'échange sur "${session.topic}". 
+      
+      Crée un RÉSUMÉ DE MISSION TERMINÉE qui:
+      - Commence par "MISSION ACCOMPLIE! 🏆"
+      - Liste exactement 4 points clés appris (ultra concis, une ligne chacun)
+      - Propose 3 options pour continuer (approfondir, autre sujet, module plus technique)
+      
+      Format: très concis, ton célébrant la réussite de la mission, pas plus de 8 lignes au total.
+    `;
+  } else if (userMessageCount === 4) {
+    // Étape 3: Test de validation
+    stagePrompt = `
+      L'utilisateur a répondu: "${message}"
+      
+      Pour le sujet "${session.topic}", formule maintenant un MINI-TEST DE VALIDATION:
+      
+      1. Présente un scénario réaliste très court (1-2 lignes)
+      2. Pose une question ouverte qui demande une analyse ou application des connaissances
+      3. Précise qu'il n'y a pas de bonne/mauvaise réponse mais une réflexion à faire
+      
+      Format: ultra-concis (5-6 lignes max), style jeu de rôle, direct, utilise 1-2 emojis max.
+    `;
+  } else {
+    // Étape 2: Analyse de la décision + méthodo/technique
+    stagePrompt = `
+      L'utilisateur a répondu à ton scénario et choix stratégique: "${message}"
+      
+      Réponds en deux parties distinctes:
+      
+      1. ANALYSE DE LA DÉCISION (2-3 lignes)
+      - Valide positivement sa réponse quelle qu'elle soit
+      - Ajoute une perspective ou nuance intéressante
+      
+      2. TECHNIQUE/MÉTHODO (3-4 lignes)
+      - Présente une technique ou méthodologie essentielle liée à "${session.topic}"
+      - Format simple: nom + principe de base + pourquoi c'est utile
+      - Mentionne un outil ou framework standard si pertinent (ex: MITRE ATT&CK, EBIOS, etc.)
+      
+      3. ILLUSTRATION (1-3 lignes)
+      - Inclus un mini-exemple concret très simple d'application
+      
+      Format: 
+      - Direct et vulgarisé, adapté au niveau ${session.userLevel || 'intermédiaire'}
+      - Maximum 8 lignes au total
+      - Structure claire séparant les 3 parties
+      - Ton: coach qui guide progressivement
+    `;
+  }
   
   try {
     const messages: ChatCompletionRequestMessage[] = [
       { role: "system", content: getCyberExpertSystemPrompt() },
       ...session.messages.slice(0, -1), // Exclure le dernier message (la demande actuelle)
-      { role: "user", content: prompt }
+      { role: "user", content: stagePrompt }
     ];
     
     return await openAIService.getChatCompletion(messages, 0.7);
   } catch (error) {
     console.error("Erreur lors de la génération de la réponse d'apprentissage:", error);
-    return "Je rencontre des difficultés à traiter votre question. Pourriez-vous la reformuler différemment?";
+    return "Je rencontre des difficultés à traiter votre réponse. Pourriez-vous reformuler ou me donner plus de détails?";
   }
 }
 
@@ -466,24 +499,30 @@ async function handleLearningStage(session: CyberExpertSession, message: string)
  */
 async function generateLearningSequence(session: CyberExpertSession): Promise<string> {
   const prompt = `
-    Le besoin suivant de l'utilisateur a été confirmé: "${session.topic}"
+    Le sujet cyber suivant de l'utilisateur a été identifié: "${session.topic}"
     
-    Crée une première réponse dans un style de jeu éducatif avec:
+    Crée une première réponse dans un format de CYBER CHALLENGE incluant:
     
-    - Un scénario court et engageant lié au sujet (3 phrases max)
-    - Une explication simple et directe avec une analogie concrète
-    - Une référence brève à une recommandation officielle (ANSSI/CNIL)
-    - 1-2 conseils pratiques que l'utilisateur peut appliquer immédiatement
-    - Une question interactive qui pousse l'utilisateur à réfléchir et participer
+    1. INTRODUCTION SITUATIONNELLE (très brève, 1-2 phrases max)
+    - Présente un mini-scénario réaliste lié au sujet
+    - Ton: coach de cybersécurité qui invite à relever un défi
     
-    Style et ton:
-    - Très concis (maximum 5 phrases au total)
-    - Langage clair, vulgarisé mais précis, adapté au niveau ${session.userLevel || 'intermédiaire'}
-    - Ton enthousiaste comme un coach ou guide de jeu
-    - Utilise 1-2 emojis pertinents pour dynamiser
-    - Structure: scénario → explication → conseil → question
-    - Évite complètement le jargon technique sauf si indispensable (avec explication)
-    - N'utilise ni markdown ni listes à puces
+    2. OUTIL/TABLEAU VISUEL (à décrire textuellement)
+    - Décris un élément visuel pertinent pour le sujet (ex: matrice de risque, schéma simplifié, extrait de logs)
+    - Format texte "ASCII art" simple ou description très claire
+    - Maximum 4-5 lignes au total
+    
+    3. MINI-JEU DE DÉCISION
+    - Pose un choix stratégique lié au scénario (pas de QCM mais options ouvertes)
+    - Formule comme: "Quelle stratégie adopteriez-vous? Option A (avantages/risques) ou Option B (avantages/risques)?"
+    
+    FORMAT:
+    - Super concis (maximum 10 lignes au total)
+    - 1-2 emojis pertinents maximum
+    - Structure claire: intro → outil/tableau → choix stratégique
+    - Langage: direct, simple, phrases courtes
+    - Adapter au niveau ${session.userLevel || 'intermédiaire'} (vulgariser si débutant)
+    - Éviter tout jargon non essentiel
   `;
   
   try {
@@ -504,40 +543,48 @@ async function generateLearningSequence(session: CyberExpertSession): Promise<st
  * Fournit le prompt système pour le chatbot expert en cybersécurité
  */
 function getCyberExpertSystemPrompt(): string {
-  return `Tu es un expert en cybersécurité représentant mc2i dans un jeu d'apprentissage appelé CYBER CHALLENGE. Ton but est de rendre la cybersécurité accessible, ludique et interactive.
+  return `Tu es un expert en cybersécurité représentant mc2i dans un jeu d'apprentissage appelé CYBER CHALLENGE. Ton but est de créer une expérience d'apprentissage gamifiée, interactive et enrichissante.
 
-PERSONNALITÉ:
-* Tu es un coach cyber énergique, direct et accessible
-* Tu utilises un langage simple et clair, sans jargon inutile
-* Tu rends complexe simple avec des analogies du quotidien
-* Tu t'adaptes intelligemment au niveau de ton interlocuteur (débutant, intermédiaire, avancé)
+PERSONNALITÉ ET TON:
+* Coach cyber énergique, direct et accessible
+* Ton enthousiaste et dynamique, comme un guide dans un jeu vidéo
+* Langage simple et clair, sans jargon technique inutile
+* Phrases courtes et impactantes
+* 1-2 emojis bien choisis pour dynamiser
 
-STRATÉGIE DE CONVERSATION:
-* Comprends le besoin de l'utilisateur rapidement sans reformulations inutiles
-* Interprète intelligemment les messages courts ou incomplets - devine ce que l'utilisateur veut dire
-* Ne demande pas de confirmation sauf si vraiment nécessaire
-* Fournis directement l'information demandée même si la question est imprécise
+STRUCTURE PÉDAGOGIQUE:
+* Chaque interaction s'inscrit dans un parcours progressif et gamifié:
+  1) Présentation d'un scénario + outil visuel + choix stratégique
+  2) Analyse de décision + méthodo/technique + illustration concrète
+  3) Test de validation adapté (mini-challenge)
+  4) Conclusion avec points clés et nouvelles options
 
-FORMAT DES RÉPONSES:
-* Ultra concis (3-5 phrases maximum)
-* Utilise 1-2 emojis pertinents mais pas plus
-* Structure: mini-contexte → explication simple → conseil pratique → question
-* Langage simple, phrases courtes, direct et facile à comprendre
-* Évite à tout prix les longues explications techniques
+ÉLÉMENTS VISUELS & INTERACTIFS:
+* Présente des outils, tableaux ou schémas sous forme textuelle claire
+* Pose des choix stratégiques qui engagent la réflexion (pas de QCM)
+* Utilise des exemples concrets ancrés dans le quotidien professionnel
+* Inclut une dimension de "challenge" qui valorise l'utilisateur
 
-CONTENUS CLÉS À INCLURE:
-* Conseils véritablement pratiques et applicables
-* Mentions brèves des sources officielles (ANSSI/CNIL) quand pertinent
-* Simplifications des concepts complexes avec des analogies du quotidien
-* Aspects légaux essentiels quand pertinent (de façon très brève)
+ADAPTATION INTELLIGENTE:
+* Comprends le besoin rapidement sans reformulations superflues
+* Interprète intelligemment les messages courts ou vagues
+* Adapte le niveau technique (débutant/intermédiaire/avancé)
+* Valorise positivement toute réponse de l'utilisateur
 
-RÈGLES SPÉCIALES:
-* Tu refuses poliment toute question hors cybersécurité avec: "⚠️ bien essayé, mais nous ne parlons que de cyber ici :) ⚠️"
-* Tu conclus par une phrase de félicitation après 3-4 échanges (mode mission accomplie)
-* Tu évites toute forme de formatage technique ou markdown
+CONNAISSANCES À INCLURE:
+* Références brèves à des standards et sources fiables (ANSSI/CNIL)
+* Aspects réglementaires essentiels quand pertinent (très brefs)
+* Conseils pratiques et directement applicables
+* Contextualisation par métier quand possible
 
-TON OBJECTIF ULTIME:
-Faire de chaque interaction un moment d'apprentissage ludique, court mais impactant, où l'utilisateur repart avec une connaissance concrète qu'il peut appliquer immédiatement.`;
+RÈGLES ESSENTIELLES:
+* Refuse poliment les sujets hors cybersécurité: "⚠️ bien essayé, mais nous ne parlons que de cyber ici :) ⚠️"
+* Évite tout formatage technique ou markdown
+* Limite strictement chaque réponse à 10 lignes maximum
+* Jamais de réponses théoriques ou académiques - préfère toujours l'engagement et l'interaction
+
+OBJECTIF GLOBAL:
+Transformer l'apprentissage cyber en expérience ludique et mémorable où l'utilisateur est acteur de son parcours, avec des défis progressifs et des connaissances immédiatement utilisables.`;
 }
 
 /**
