@@ -56,37 +56,15 @@ const extractFirstName = (input: string): string => {
 
 // Initial domains data
 const initialDomains: CyberDomain[] = [
+  // Domaines pour le rôle RSSI
   {
     id: "gestion-crise",
     name: "Gestion de crise cyber",
     description: "Préparation et réponse aux incidents de sécurité majeurs",
     icon: "ri-alarm-warning-line",
     iconBgColor: "bg-[#006a9e]/10",
-    iconColor: "text-[#006a9e]"
-  },
-  {
-    id: "donnees-personnelles",
-    name: "Protection des données personnelles / RGPD",
-    description: "Mise en conformité RGPD et gestion des violations de données",
-    icon: "ri-profile-line",
-    iconBgColor: "bg-lime-100",
-    iconColor: "text-lime-600"
-  },
-  {
-    id: "ingenierie-sociale",
-    name: "Ingénierie sociale et phishing",
-    description: "Détection et prévention des tentatives de manipulation humaine",
-    icon: "ri-user-voice-line",
-    iconBgColor: "bg-amber-100",
-    iconColor: "text-amber-600"
-  },
-  {
-    id: "gestion-incidents",
-    name: "Gestion des incidents de sécurité",
-    description: "Détection, analyse et résolution des incidents de sécurité",
-    icon: "ri-service-line",
-    iconBgColor: "bg-emerald-100",
-    iconColor: "text-emerald-600"
+    iconColor: "text-[#006a9e]",
+    applicableRoles: ["rssi", "consultant"]
   },
   {
     id: "supply-chain",
@@ -94,7 +72,8 @@ const initialDomains: CyberDomain[] = [
     description: "Protection contre les risques liés aux fournisseurs et partenaires",
     icon: "ri-link-m",
     iconBgColor: "bg-orange-100",
-    iconColor: "text-orange-600"
+    iconColor: "text-orange-600",
+    applicableRoles: ["rssi", "consultant"]
   },
   {
     id: "strategie-cyber",
@@ -102,7 +81,315 @@ const initialDomains: CyberDomain[] = [
     description: "Élaboration et mise en œuvre d'une stratégie de défense numérique",
     icon: "ri-road-map-line",
     iconBgColor: "bg-pink-100",
-    iconColor: "text-pink-600"
+    iconColor: "text-pink-600",
+    applicableRoles: ["rssi", "consultant"]
+  },
+  {
+    id: "gouvernance-risques",
+    name: "Gouvernance et gestion des risques",
+    description: "Évaluation et priorisation des risques de sécurité",
+    icon: "ri-scales-3-line",
+    iconBgColor: "bg-indigo-100",
+    iconColor: "text-indigo-600",
+    applicableRoles: ["rssi"]
+  },
+  {
+    id: "conformite-reglementaire",
+    name: "Conformité réglementaire",
+    description: "Respect des normes et réglementations en cybersécurité",
+    icon: "ri-file-list-3-line",
+    iconBgColor: "bg-blue-100",
+    iconColor: "text-blue-600",
+    applicableRoles: ["rssi"]
+  },
+  {
+    id: "securite-cloud",
+    name: "Sécurité du cloud",
+    description: "Protection des environnements et données dans le cloud",
+    icon: "ri-cloud-line",
+    iconBgColor: "bg-cyan-100",
+    iconColor: "text-cyan-600",
+    applicableRoles: ["rssi"]
+  },
+  
+  // Domaines pour le rôle Hacker éthique
+  {
+    id: "pentest-externe",
+    name: "Tests d'intrusion externe",
+    description: "Évaluation de la sécurité périmétrique et des accès externes",
+    icon: "ri-door-lock-line",
+    iconBgColor: "bg-red-100",
+    iconColor: "text-red-600",
+    applicableRoles: ["hacker"]
+  },
+  {
+    id: "pentest-applicatif",
+    name: "Tests d'intrusion applicatif",
+    description: "Identification des vulnérabilités dans les applications web",
+    icon: "ri-bug-line",
+    iconBgColor: "bg-yellow-100",
+    iconColor: "text-yellow-600",
+    applicableRoles: ["hacker", "developpeur"]
+  },
+  {
+    id: "red-team",
+    name: "Red Team",
+    description: "Simulation d'attaques avancées et persistantes",
+    icon: "ri-sword-line",
+    iconBgColor: "bg-red-100",
+    iconColor: "text-red-600",
+    applicableRoles: ["hacker"]
+  },
+  {
+    id: "reverse-engineering",
+    name: "Rétro-ingénierie et analyse de malware",
+    description: "Analyse de code malveillant et de binaires",
+    icon: "ri-file-code-line",
+    iconBgColor: "bg-purple-100",
+    iconColor: "text-purple-600",
+    applicableRoles: ["hacker"]
+  },
+  {
+    id: "ingenierie-sociale",
+    name: "Ingénierie sociale et phishing",
+    description: "Détection et prévention des tentatives de manipulation humaine",
+    icon: "ri-user-voice-line",
+    iconBgColor: "bg-amber-100",
+    iconColor: "text-amber-600",
+    applicableRoles: ["hacker", "analyste"]
+  },
+  {
+    id: "securite-iot",
+    name: "Sécurité des objets connectés",
+    description: "Évaluation des risques liés à l'Internet des Objets",
+    icon: "ri-device-line",
+    iconBgColor: "bg-green-100",
+    iconColor: "text-green-600",
+    applicableRoles: ["hacker"]
+  },
+  
+  // Domaines pour le rôle Développeur
+  {
+    id: "devops-securise",
+    name: "DevSecOps",
+    description: "Intégration de la sécurité dans le développement continu",
+    icon: "ri-recycle-line",
+    iconBgColor: "bg-teal-100",
+    iconColor: "text-teal-600",
+    applicableRoles: ["developpeur"]
+  },
+  {
+    id: "securite-code",
+    name: "Sécurité du code",
+    description: "Pratiques de développement sécurisé et analyse statique",
+    icon: "ri-code-s-slash-line",
+    iconBgColor: "bg-indigo-100",
+    iconColor: "text-indigo-600",
+    applicableRoles: ["developpeur"]
+  },
+  {
+    id: "securite-api",
+    name: "Sécurité des API",
+    description: "Protection des interfaces de programmation",
+    icon: "ri-brackets-line",
+    iconBgColor: "bg-violet-100",
+    iconColor: "text-violet-600",
+    applicableRoles: ["developpeur"]
+  },
+  {
+    id: "donnees-personnelles",
+    name: "Protection des données personnelles",
+    description: "Mise en œuvre de la protection des données dans le code",
+    icon: "ri-profile-line",
+    iconBgColor: "bg-lime-100",
+    iconColor: "text-lime-600",
+    applicableRoles: ["developpeur", "admin"]
+  },
+  {
+    id: "crypto-securite",
+    name: "Cryptographie appliquée",
+    description: "Mise en œuvre de solutions cryptographiques",
+    icon: "ri-lock-line",
+    iconBgColor: "bg-emerald-100",
+    iconColor: "text-emerald-600",
+    applicableRoles: ["developpeur"]
+  },
+  {
+    id: "auth-securisee",
+    name: "Authentification et autorisation",
+    description: "Mise en place de systèmes d'identification robustes",
+    icon: "ri-shield-keyhole-line",
+    iconBgColor: "bg-blue-100",
+    iconColor: "text-blue-600",
+    applicableRoles: ["developpeur", "admin"]
+  },
+  
+  // Domaines pour le rôle Administrateur Système
+  {
+    id: "securite-infra",
+    name: "Sécurité de l'infrastructure",
+    description: "Sécurisation des serveurs, réseaux et environnements techniques",
+    icon: "ri-server-line",
+    iconBgColor: "bg-gray-100",
+    iconColor: "text-gray-600",
+    applicableRoles: ["admin"]
+  },
+  {
+    id: "gestion-vulnerabilites",
+    name: "Gestion des vulnérabilités",
+    description: "Identification et correction des failles de sécurité",
+    icon: "ri-error-warning-line",
+    iconBgColor: "bg-orange-100",
+    iconColor: "text-orange-600",
+    applicableRoles: ["admin", "analyste"]
+  },
+  {
+    id: "gestion-incidents",
+    name: "Gestion des incidents de sécurité",
+    description: "Détection, analyse et résolution des incidents de sécurité",
+    icon: "ri-service-line",
+    iconBgColor: "bg-emerald-100",
+    iconColor: "text-emerald-600",
+    applicableRoles: ["admin", "analyste"]
+  },
+  {
+    id: "securite-endpoints",
+    name: "Sécurité des postes de travail",
+    description: "Protection des terminaux utilisateurs contre les menaces",
+    icon: "ri-computer-line",
+    iconBgColor: "bg-indigo-100",
+    iconColor: "text-indigo-600",
+    applicableRoles: ["admin"]
+  },
+  {
+    id: "securite-reseau",
+    name: "Sécurité réseau",
+    description: "Protection des flux de données et segmentation de sécurité",
+    icon: "ri-wifi-line",
+    iconBgColor: "bg-blue-100",
+    iconColor: "text-blue-600",
+    applicableRoles: ["admin"]
+  },
+  {
+    id: "gestion-identites",
+    name: "Gestion des identités et des accès",
+    description: "Contrôle des droits d'accès et authentification",
+    icon: "ri-user-settings-line",
+    iconBgColor: "bg-purple-100",
+    iconColor: "text-purple-600",
+    applicableRoles: ["admin"]
+  },
+  
+  // Domaines pour le rôle Consultant cybersécurité
+  {
+    id: "audit-securite",
+    name: "Audit de sécurité",
+    description: "Évaluation globale de la posture de sécurité",
+    icon: "ri-search-line",
+    iconBgColor: "bg-blue-100",
+    iconColor: "text-blue-600",
+    applicableRoles: ["consultant"]
+  },
+  {
+    id: "conseil-strategie",
+    name: "Conseil en stratégie cybersécurité",
+    description: "Accompagnement dans l'élaboration de la stratégie de sécurité",
+    icon: "ri-compass-3-line",
+    iconBgColor: "bg-indigo-100",
+    iconColor: "text-indigo-600",
+    applicableRoles: ["consultant"]
+  },
+  {
+    id: "conformite-rgpd",
+    name: "Conformité RGPD",
+    description: "Mise en conformité aux exigences de protection des données",
+    icon: "ri-shield-check-line",
+    iconBgColor: "bg-green-100",
+    iconColor: "text-green-600",
+    applicableRoles: ["consultant"]
+  },
+  {
+    id: "gestion-tiers",
+    name: "Gestion des risques liés aux tiers",
+    description: "Évaluation et gestion de la sécurité des prestataires",
+    icon: "ri-team-line",
+    iconBgColor: "bg-amber-100",
+    iconColor: "text-amber-600",
+    applicableRoles: ["consultant"]
+  },
+  {
+    id: "mise-en-conformite",
+    name: "Mise en conformité sectorielles",
+    description: "Adaptation aux normes spécifiques (finance, santé, industrie)",
+    icon: "ri-bookmark-line",
+    iconBgColor: "bg-purple-100",
+    iconColor: "text-purple-600",
+    applicableRoles: ["consultant"]
+  },
+  {
+    id: "analyse-risques",
+    name: "Analyse des risques cyber",
+    description: "Évaluation méthodique des risques de sécurité",
+    icon: "ri-bubble-chart-line",
+    iconBgColor: "bg-red-100",
+    iconColor: "text-red-600",
+    applicableRoles: ["consultant"]
+  },
+  
+  // Domaines pour le rôle Analyste SOC
+  {
+    id: "detection-menaces",
+    name: "Détection des menaces avancées",
+    description: "Identification des comportements suspects et anomalies",
+    icon: "ri-radar-line",
+    iconBgColor: "bg-red-100",
+    iconColor: "text-red-600",
+    applicableRoles: ["analyste"]
+  },
+  {
+    id: "cyber-threat-intelligence",
+    name: "Cyber Threat Intelligence",
+    description: "Analyse des acteurs malveillants et de leurs techniques",
+    icon: "ri-spy-line",
+    iconBgColor: "bg-orange-100",
+    iconColor: "text-orange-600",
+    applicableRoles: ["analyste"]
+  },
+  {
+    id: "analyse-forensique",
+    name: "Analyse forensique",
+    description: "Investigation numérique post-incident",
+    icon: "ri-criminal-line",
+    iconBgColor: "bg-violet-100",
+    iconColor: "text-violet-600",
+    applicableRoles: ["analyste"]
+  },
+  {
+    id: "monitoring-securite",
+    name: "Monitoring de sécurité",
+    description: "Surveillance continue des systèmes d'information",
+    icon: "ri-sensor-line",
+    iconBgColor: "bg-cyan-100",
+    iconColor: "text-cyan-600",
+    applicableRoles: ["analyste"]
+  },
+  {
+    id: "hunting-menaces",
+    name: "Hunting de menaces",
+    description: "Recherche proactive des menaces non détectées",
+    icon: "ri-crosshair-line",
+    iconBgColor: "bg-yellow-100",
+    iconColor: "text-yellow-600",
+    applicableRoles: ["analyste"]
+  },
+  {
+    id: "analyse-malware",
+    name: "Analyse de malware",
+    description: "Étude des logiciels malveillants et de leur fonctionnement",
+    icon: "ri-virus-line",
+    iconBgColor: "bg-red-100",
+    iconColor: "text-red-600",
+    applicableRoles: ["analyste", "hacker"]
   }
 ];
 
