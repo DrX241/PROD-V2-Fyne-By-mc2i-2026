@@ -283,7 +283,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
             const regex = /(\d+(\s*[kK])?€)/g;
             
             if (regex.test(html)) {
-              const formattedHtml = html.replace(regex, (match) => {
+              const formattedHtml = html.replace(regex, (match: string) => {
                 return `<span class="text-green-400 font-semibold">${match}</span>`;
               });
               
