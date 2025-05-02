@@ -4,10 +4,10 @@ import { ChatCompletionRequestMessage } from "@shared/schema";
 
 // Interface pour les sessions de chatbot
 interface LearningBotSession {
-  prenom: string | null;
-  domaineExpertise: string | null;
-  sousTheme: string | null;
-  stageActuel: 'introduction' | 'choix_domaine' | 'choix_sous_theme' | 'scenario' | null;
+  mode: 'classique' | 'immersion' | null;
+  formation: 'interne' | 'externe' | null;
+  formationChoisie: string | null;
+  stageActuel: 'choix_mode' | 'choix_formation' | 'formation' | 'scenario' | null;
   scenarioActuel: number;
   reponses: Array<{question: string, reponse: string}>;
   messages: Array<ChatCompletionRequestMessage>;
@@ -29,10 +29,10 @@ export async function initMcaiLearningSession(req: Request, res: Response) {
 
     // Créer une nouvelle session ou réinitialiser une existante
     const session: LearningBotSession = {
-      prenom: null,
-      domaineExpertise: null,
-      sousTheme: null,
-      stageActuel: 'introduction',
+      mode: null,
+      formation: null,
+      formationChoisie: null,
+      stageActuel: 'choix_mode',
       scenarioActuel: 0,
       reponses: [],
       messages: []
@@ -50,7 +50,7 @@ export async function initMcaiLearningSession(req: Request, res: Response) {
     // Générer le message d'accueil
     const welcomeMessage: ChatCompletionRequestMessage = {
       role: "assistant",
-      content: "Bonjour et bienvenue sur mc2i AI Learning 👋\nJe suis votre assistant dédié pour évaluer vos compétences à travers des scénarios immersifs et personnalisés.\n\nAvant de commencer, pouvez-vous me donner votre prénom ? :)"
+      content: "Bonjour et bienvenue sur AI Learning, votre Chatbot spécialisé dans l'évaluation en temps réel. Veuillez choisir entre deux modes d'apprentissage :\n1. Un apprentissage classique avec 4 scénarios différents sans lien direct entre eux\n2. Un effet immersion avec 6 scénarios reliés entre eux où chaque décision a un impact immédiat sur la suite"
     };
 
     session.messages.push(welcomeMessage);
@@ -91,7 +91,7 @@ export async function processMcaiLearningMessage(req: Request, res: Response) {
 
     // Traiter le message en fonction de l'état actuel de la session
     const processedResponse = await processMessageBasedOnStage(session, message);
-    
+
     // Ajouter la réponse du système
     session.messages.push({
       role: "assistant",
@@ -113,118 +113,91 @@ export async function processMcaiLearningMessage(req: Request, res: Response) {
  * Traite le message en fonction de l'étape actuelle de la session
  */
 async function processMessageBasedOnStage(session: LearningBotSession, message: string): Promise<string> {
-  // Étape 1: Introduction - Demande du prénom
-  if (session.stageActuel === 'introduction') {
-    // Vérifier si l'utilisateur a fourni un prénom
-    if (message.trim().length > 0) {
-      // Extraire le premier mot comme prénom (simple mais efficace pour la plupart des cas)
-      const prenom = message.trim().split(/\s+/)[0];
-      session.prenom = prenom;
-      session.stageActuel = 'choix_domaine';
-      
-      return `Très bien 👌 Voici les domaines d'expertise disponibles :\n\n` +
-        `1. Pilotage de Projet et AMOA\n` +
-        `2. Conduite du Changement\n` +
-        `3. Cybersécurité\n` +
-        `4. Data & IA\n` +
-        `5. UX et Design Thinking\n\n` +
-        `Quel domaine vous intéresse aujourd'hui, ${session.prenom} ?`;
-    } else {
-      return "Je n'ai pas bien compris votre prénom. Pourriez-vous me l'indiquer à nouveau s'il vous plaît ?";
+  // Étape de choix du mode (classique ou immersion)
+  if (session.stageActuel === 'choix_mode') {
+    if (message.toLowerCase().includes('classique') || message.toLowerCase().includes('1')) {
+      session.mode = 'classique';
+      session.stageActuel = 'choix_formation';
+      return "Excellent choix ! Vous avez choisi le mode classique avec 4 scénarios.\n\nSouhaitez-vous :\n1. Me fournir une formation de votre choix (format PDF ou Word)\n2. Choisir parmi nos 10 formations généralistes en lien avec les différentes expertises";
+    } 
+    else if (message.toLowerCase().includes('immersion') || message.toLowerCase().includes('2')) {
+      session.mode = 'immersion';
+      session.stageActuel = 'choix_formation';
+      return "Excellent choix ! Vous avez choisi le mode immersion avec 6 scénarios reliés.\n\nSouhaitez-vous :\n1. Me fournir une formation de votre choix (format PDF ou Word)\n2. Choisir parmi nos 10 formations généralistes en lien avec les différentes expertises";
+    } 
+    else {
+      return "⚠️ Erreur de Commande ⚠️\n\nVeuillez choisir entre :\n1. Apprentissage classique\n2. Effet immersion";
     }
-  } 
-  // Étape 2: Choix du domaine d'expertise
-  else if (session.stageActuel === 'choix_domaine') {
-    const domaines = [
-      'Pilotage de Projet et AMOA',
-      'Conduite du Changement',
-      'Cybersécurité',
-      'Data & IA',
+  }
+  // Étape de choix de formation
+  else if (session.stageActuel === 'choix_formation') {
+    if (message.toLowerCase().includes('fournir') || message.toLowerCase().includes('pdf') || message.toLowerCase().includes('word') || message.toLowerCase().includes('1')) {
+      session.formation = 'externe';
+      return "J'attends maintenant que vous me fournissiez votre document de formation au format PDF ou Word.";
+    } 
+    else if (message.toLowerCase().includes('choisir') || message.toLowerCase().includes('généraliste') || message.toLowerCase().includes('2')) {
+      session.formation = 'interne';
+      session.stageActuel = 'formation';
+      return "Voici les 10 formations disponibles. Veuillez choisir celle qui vous intéresse :\n\n1. Pilotage de projet et AMOA\n2. Conduite du changement\n3. Agilité\n4. Stratégie\n5. Cybersécurité\n6. Data & IA\n7. Accompagnement au déploiement\n8. Innovation et Technologies\n9. Cloud\n10. UX et Design Thinking";
+    } 
+    else {
+      return "⚠️ Erreur de Commande ⚠️\n\nVeuillez choisir entre :\n1. Fournir votre propre formation\n2. Choisir parmi nos formations généralistes";
+    }
+  }
+  // Étape de sélection d'une formation interne
+  else if (session.stageActuel === 'formation' && session.formation === 'interne') {
+    const formations = [
+      'Pilotage de projet et AMOA', 
+      'Conduite du changement', 
+      'Agilité', 
+      'Stratégie', 
+      'Cybersécurité', 
+      'Data & IA', 
+      'Accompagnement au déploiement', 
+      'Innovation et Technologies', 
+      'Cloud', 
       'UX et Design Thinking'
     ];
-    
-    // Recherche par numéro ou texte
-    let domaineChoisi = null;
-    if (/^[1-5]$/.test(message.trim())) {
+
+    let formationChoisie = null;
+    if (/^[1-9]|10$/.test(message.trim())) {
       const index = parseInt(message.trim()) - 1;
-      if (index >= 0 && index < domaines.length) {
-        domaineChoisi = domaines[index];
+      if (index >= 0 && index < formations.length) {
+        formationChoisie = formations[index];
       }
     } else {
-      domaineChoisi = domaines.find(d => 
-        message.toLowerCase().includes(d.toLowerCase()) ||
-        (d === 'Pilotage de Projet et AMOA' && message.toLowerCase().includes('amoa')) ||
-        (d === 'Data & IA' && (message.toLowerCase().includes('data') || message.toLowerCase().includes('ia')))
-      );
+      formationChoisie = formations.find(f => message.toLowerCase().includes(f.toLowerCase()));
     }
-    
-    if (domaineChoisi) {
-      session.domaineExpertise = domaineChoisi;
-      session.stageActuel = 'choix_sous_theme';
-      
-      // Générer dynamiquement les sous-thèmes en fonction du domaine choisi
-      const sousThemes = getSousThemesPourDomaine(domaineChoisi);
-      
-      return `Vous avez choisi le domaine "${session.domaineExpertise}".\n\n` +
-        `Voici les sous-thèmes disponibles :\n\n` +
-        sousThemes.map((theme, index) => `${index + 1}. ${theme}`).join('\n') +
-        `\n\nQuel sous-thème souhaitez-vous explorer ?`;
-    } else {
-      return "Je n'ai pas reconnu votre choix. Veuillez sélectionner un domaine d'expertise par son numéro (1-5) ou en indiquant son nom.";
-    }
-  }
-  // Étape 3: Choix du sous-thème
-  else if (session.stageActuel === 'choix_sous_theme') {
-    const sousThemes = getSousThemesPourDomaine(session.domaineExpertise || '');
-    
-    // Rechercher par numéro ou texte
-    let sousThemeChoisi = null;
-    if (/^[1-5]$/.test(message.trim())) {
-      const index = parseInt(message.trim()) - 1;
-      if (index >= 0 && index < sousThemes.length) {
-        sousThemeChoisi = sousThemes[index];
-      }
-    } else {
-      sousThemeChoisi = sousThemes.find(theme => 
-        message.toLowerCase().includes(theme.toLowerCase())
-      );
-    }
-    
-    if (sousThemeChoisi) {
-      session.sousTheme = sousThemeChoisi;
+
+    if (formationChoisie) {
+      session.formationChoisie = formationChoisie;
       session.stageActuel = 'scenario';
-      
-      // Lancer le premier scénario
-      return await demarrerScenarioImmersif(session);
+      return await generateScenario(session);
     } else {
-      return "Je n'ai pas reconnu votre choix. Veuillez sélectionner un sous-thème par son numéro (1-5) ou en indiquant son nom.";
+      return "⚠️ Erreur de Commande ⚠️\n\nVeuillez choisir une formation valide de la liste, soit en indiquant son numéro (1-10), soit en indiquant son nom.";
     }
   }
-  // Étape de scénario - traiter les réponses et avancer
+  // Étape de scénario
   else if (session.stageActuel === 'scenario') {
-    // Vérifier que la réponse fait au moins 30 caractères
     if (message.length < 30) {
-      return "⚠️ Attention ⚠️\n\nVotre réponse est trop courte. Elle doit faire au moins 30 caractères pour être considérée comme suffisamment détaillée.";
+      return "⚠️ Erreur de Commande ⚠️\n\nVotre réponse est trop courte. Elle doit faire au moins 30 caractères.";
     }
-    
-    // Enregistrer la réponse au scénario actuel
+
     session.reponses.push({
       question: session.messages[session.messages.length - 2].content,
       reponse: message
     });
-    
+
     session.scenarioActuel++;
-    
-    // Si tous les scénarios sont terminés, donner un feedback global
-    if (session.scenarioActuel >= 6) {
-      return await genererFeedbackGlobal(session);
+
+    if ((session.mode === 'classique' && session.scenarioActuel >= 4) || 
+        (session.mode === 'immersion' && session.scenarioActuel >= 6)) {
+      return await generateFeedbackGlobal(session);
     }
-    
-    // Sinon, générer le scénario suivant qui est influencé par la réponse précédente
-    return await genererScenarioSuivant(session, message);
+
+    return await generateScenario(session, message);
   }
-  
-  // Si le stade n'est pas reconnu, utiliser l'API GPT pour générer une réponse
+
   return await generateGenericResponse(session, message);
 }
 
@@ -233,380 +206,135 @@ async function processMessageBasedOnStage(session: LearningBotSession, message: 
  */
 function getSessionStatus(session: LearningBotSession) {
   return {
-    prenom: session.prenom,
-    domaineExpertise: session.domaineExpertise,
-    sousTheme: session.sousTheme,
+    mode: session.mode,
+    formation: session.formation,
+    formationChoisie: session.formationChoisie,
     stageActuel: session.stageActuel,
     scenarioActuel: session.scenarioActuel
   };
 }
 
 /**
- * Génère les sous-thèmes en fonction du domaine d'expertise sélectionné
+ * Génère un prompt système pour le chatbot mc2i AI Learning
  */
-function getSousThemesPourDomaine(domaine: string): string[] {
-  const sousThemes: { [key: string]: string[] } = {
-    'Pilotage de Projet et AMOA': [
-      'Cadrage et lancement de projet',
-      'Gestion des exigences et des parties prenantes',
-      'Planification et suivi de projet',
-      'Gestion des risques et des problèmes',
-      'Clôture et capitalisation de projet'
-    ],
-    'Conduite du Changement': [
-      'Diagnostic et stratégie de transformation',
-      'Communication et gestion de la résistance au changement',
-      'Formation et accompagnement',
-      'Ancrage et pérennisation du changement',
-      'Mesure de l\'efficacité des actions de conduite du changement'
-    ],
-    'Cybersécurité': [
-      'Audit et évaluation des risques',
-      'Gouvernance et conformité',
-      'Protection des données et cryptographie',
-      'Réponse aux incidents et gestion de crise',
-      'Sensibilisation et formation à la sécurité'
-    ],
-    'Data & IA': [
-      'Collecte et préparation des données',
-      'Analyse descriptive et visualisation',
-      'Modélisation prédictive et machine learning',
-      'Éthique et gouvernance des données',
-      'Intégration de l\'IA dans les processus métier'
-    ],
-    'UX et Design Thinking': [
-      'Recherche utilisateur et personas',
-      'Prototypage et tests utilisateurs',
-      'Design d\'interface et d\'interaction',
-      'Accessibilité et design inclusif',
-      'Animation d\'ateliers de co-conception'
-    ]
-  };
-  
-  return sousThemes[domaine] || [
-    'Principes fondamentaux',
-    'Méthodologies avancées',
-    'Outils et technologies',
-    'Études de cas',
-    'Tendances futures'
-  ];
+function getMcaiLearningSystemPrompt(): string {
+  return `Tu es un assistant d'apprentissage spécialisé qui évalue les compétences des apprenants en temps réel. Tu crées des scénarios professionnels réalistes adaptés à la formation choisie.`;
 }
 
 /**
- * Renvoie un secteur client approprié selon le domaine d'expertise
+ * Génère un scénario basé sur le mode et la formation choisie
  */
-function getClientSector(domaine: string): string {
-  const secteurs: {[key: string]: string} = {
-    'Pilotage de Projet et AMOA': 'banque-assurance',
-    'Conduite du Changement': 'énergie',
-    'Cybersécurité': 'secteur public',
-    'Data & IA': 'santé',
-    'UX et Design Thinking': 'retail et e-commerce'
-  };
-  
-  return secteurs[domaine] || 'grande distribution';
-}
-
-/**
- * Renvoie un rôle adapté au domaine et sous-thème
- */
-function getRolePourDomaine(domaine: string, sousTheme: string): string {
-  if (domaine === 'Pilotage de Projet et AMOA') {
-    if (sousTheme === 'Cadrage et lancement de projet') {
-      return 'piloter le lancement d\'un nouveau système d\'information bancaire critique';
-    } else if (sousTheme === 'Gestion des exigences et des parties prenantes') {
-      return 'coordonner la collecte des exigences pour un projet de refonte applicative';
-    } else {
-      return 'assurer le suivi d\'un projet d\'envergure';
-    }
-  } else if (domaine === 'Conduite du Changement') {
-    return 'accompagner la transformation numérique d\'une organisation';
-  } else if (domaine === 'Cybersécurité') {
-    return 'mettre en place une gouvernance de sécurité robuste';
-  } else if (domaine === 'Data & IA') {
-    return 'valoriser les données pour améliorer la prise de décision';
-  } else if (domaine === 'UX et Design Thinking') {
-    return 'concevoir des parcours utilisateurs intuitifs et performants';
-  }
-  
-  return 'piloter un projet stratégique pour le client';
-}
-
-/**
- * Renvoie un objectif adapté au domaine et sous-thème
- */
-function getObjectifPourDomaine(domaine: string, sousTheme: string): string {
-  if (domaine === 'Pilotage de Projet et AMOA') {
-    if (sousTheme === 'Cadrage et lancement de projet') {
-      return 'Établir une vision claire du projet, mobiliser les parties prenantes et poser les bases d\'une gouvernance efficace';
-    } else if (sousTheme === 'Gestion des exigences et des parties prenantes') {
-      return 'Analyser les besoins, formaliser les exigences et maintenir l\'alignement des parties prenantes';
-    } else {
-      return 'Assurer la réussite du projet dans les délais et le budget impartis';
-    }
-  }
-  
-  return 'Mener à bien le projet en respectant les objectifs définis avec le client';
-}
-
-/**
- * Génère un titre pour le scénario en fonction du domaine, sous-thème et numéro
- */
-function getTitreScenario(domaine: string, sousTheme: string, numero: number): string {
-  const titresGeneriques = [
-    'Lancement du projet',
-    'Premier point d\'avancement',
-    'Gestion des parties prenantes',
-    'Résolution de problème',
-    'Gestion de crise',
-    'Bilan et perspectives'
-  ];
-  
-  // Garantir un index valide
-  const index = Math.min(numero - 1, titresGeneriques.length - 1);
-  return titresGeneriques[index];
-}
-
-/**
- * Renvoie une instruction pour le scénario
- */
-function getInstructionScenario(domaine: string, sousTheme: string, numero: number): string {
-  // Tableau d'instructions génériques par numéro de scénario (progression de difficulté)
-  const instructionsBase = [
-    "Analysez la situation et répondez à ce mail en proposant une approche structurée pour résoudre la problématique.",
-    "Identifiez les enjeux clés de cette situation et proposez un plan d'action adapté.",
-    "Formulez une réponse qui adresse les préoccupations exprimées et proposez des solutions concrètes.",
-    "La situation se complexifie. Proposez une stratégie pour gérer cette nouvelle contrainte tout en maintenant le cap.",
-    "Face à cette situation critique, élaborez une réponse qui démontre votre capacité à gérer la pression et à prendre des décisions.",
-    "C'est l'étape finale. Synthétisez la situation, proposez une résolution et anticipez les prochaines étapes."
-  ];
-  
-  // Index sécurisé
-  const index = Math.min(numero - 1, instructionsBase.length - 1);
-  return instructionsBase[index];
-}
-
-/**
- * Démarre le premier scénario immersif basé sur le domaine et le sous-thème choisis
- */
-async function demarrerScenarioImmersif(session: LearningBotSession): Promise<string> {
+async function generateScenario(session: LearningBotSession, lastResponse: string = ""): Promise<string> {
   try {
     const currentDate = new Date();
-    const formattedDate = currentDate.toLocaleDateString('fr-FR');
-    
-    const prompt = `
-Tu es mc2i AI Learning, un assistant spécialisé dans l'évaluation en temps réel des compétences professionnelles.
+    const dateOptions: Intl.DateTimeFormatOptions = { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'Europe/Paris'
+    };
+    const formattedDate = currentDate.toLocaleDateString('fr-FR', dateOptions);
+    const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
 
-Génère le premier scénario d'une série de 6 pour une expérience immersive d'apprentissage avec les informations suivantes:
-- Prénom de l'apprenant: ${session.prenom}
-- Domaine d'expertise: ${session.domaineExpertise}
-- Sous-thème spécifique: ${session.sousTheme}
-- Secteur client: ${getClientSector(session.domaineExpertise || '')}
+    const promptScenario = `
+Génère un scénario professionnel ${session.scenarioActuel + 1}/${session.mode === 'classique' ? '4' : '6'} 
+pour la formation "${session.formationChoisie}" en mode ${session.mode}.
+${session.mode === 'immersion' ? `\nDernière réponse : "${lastResponse}"` : ''}
+Date actuelle : ${capitalizedDate}
 
-FORMAT ATTENDU:
-Ton message doit commencer par une introduction au format email, puis inclure une description claire de la situation et de la tâche à accomplir.
-
-L'email doit suivre strictement ce format:
----
-De: [Nom du responsable] <email@mc2i.fr>
-À: ${session.prenom} <${session.prenom?.toLowerCase()}@mc2i.fr>
-Cc: [Si pertinent]
-Objet: [Objet pertinent lié au scénario]
-Date: ${formattedDate}
+FORMAT EMAIL REQUIS :
+De : [Prénom Nom] <prenom.nom@mc2i.fr>
+À : [Destinataire] <destinataire@mc2i.fr>
+Cc : [Autres personnes] <autre.personne@mc2i.fr>
+Objet : [Objet spécifique]
+Date : ${capitalizedDate}
 
 [Corps du message]
 
 Cordialement,
-[Signature]
----
+[Signature]`;
 
-Après l'email, ajoute un encadré "📝 Votre tâche:" avec des instructions claires sur ce que l'apprenant doit faire.
-La réponse attendue doit nécessiter au moins 30 caractères.
-
-IMPORTANT:
-- L'email doit être 100% réaliste et professionnel
-- Le scénario doit être immersif et engageant
-- Reste dans le contexte du domaine et du sous-thème choisis
-- Le scénario doit concerner la première étape d'un projet ou d'une mission (par exemple: lancement, cadrage initial, etc.)
-`;
-
-    // Utiliser l'API pour générer le scénario
-    const messages = [
+    const messages: ChatCompletionRequestMessage[] = [
       { role: "system", content: getMcaiLearningSystemPrompt() },
-      { role: "user", content: prompt }
+      { role: "user", content: promptScenario }
     ];
 
-    const generatedResponse = await openAIService.getChatCompletionWithCache(
-      messages as ChatCompletionRequestMessage[], 
-      0.7
-    );
-
-    return generatedResponse;
+    return await openAIService.getChatCompletionWithCache(messages, 0.7);
   } catch (error) {
-    console.error("Erreur lors de la génération du scénario immersif:", error);
+    console.error("Erreur lors de la génération du scénario:", error);
     return "Une erreur est survenue lors de la génération du scénario. Veuillez réessayer.";
   }
 }
 
 /**
- * Génère le scénario suivant dans la séquence immersive
+ * Génère un feedback global à la fin de tous les scénarios
  */
-async function genererScenarioSuivant(session: LearningBotSession, dernierMessage: string): Promise<string> {
+async function generateFeedbackGlobal(session: LearningBotSession): Promise<string> {
   try {
     const currentDate = new Date();
-    const formattedDate = currentDate.toLocaleDateString('fr-FR');
-    
-    const prompt = `
-Tu es mc2i AI Learning, un assistant spécialisé dans l'évaluation en temps réel des compétences professionnelles.
+    const dateOptions: Intl.DateTimeFormatOptions = { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'Europe/Paris'
+    };
+    const formattedDate = currentDate.toLocaleDateString('fr-FR', dateOptions);
+    const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
 
-Génère le scénario ${session.scenarioActuel + 1} sur 6 pour une expérience immersive d'apprentissage avec les informations suivantes:
-- Prénom de l'apprenant: ${session.prenom}
-- Domaine d'expertise: ${session.domaineExpertise}
-- Sous-thème spécifique: ${session.sousTheme}
-- Secteur client: ${getClientSector(session.domaineExpertise || '')}
-- Numéro du scénario actuel: ${session.scenarioActuel + 1}/6
-- Dernière réponse de l'apprenant: "${dernierMessage.substring(0, 200)}${dernierMessage.length > 200 ? '...' : ''}"
+    const promptFeedback = `
+Génère un feedback global constructif pour l'évaluation de la formation "${session.formationChoisie}".
+Historique des réponses :
+${session.reponses.map((r, i) => `Scénario ${i+1}:\nQuestion: ${r.question}\nRéponse: ${r.reponse}`).join('\n\n')}
 
-FORMAT ATTENDU:
-Ton message doit être au format email professionnel, avec une description claire de la situation et de la tâche à accomplir.
+FORMAT EMAIL REQUIS :
+De : Formation <formation@mc2i.fr>
+À : Apprenant <apprenant@mc2i.fr>
+Objet : Évaluation Formation : ${session.formationChoisie}
+Date : ${capitalizedDate}
 
-L'email doit suivre strictement ce format:
----
-De: [Nom du responsable] <email@mc2i.fr>
-À: ${session.prenom} <${session.prenom?.toLowerCase()}@mc2i.fr>
-Cc: [Si pertinent]
-Objet: [Objet pertinent lié au scénario]
-Date: ${formattedDate}
-
-[Corps du message]
+[Feedback détaillé incluant points forts, axes d'amélioration et conseils]
 
 Cordialement,
-[Signature]
----
+L'équipe Formation`;
 
-Après l'email, ajoute un encadré "📝 Votre tâche:" avec des instructions claires sur ce que l'apprenant doit faire.
-La réponse attendue doit nécessiter au moins 30 caractères.
-
-IMPORTANT:
-- L'email doit être 100% réaliste et professionnel
-- Le scénario doit être immersif et engageant
-- Reste dans le contexte du domaine et du sous-thème choisis
-- Tiens compte de la réponse précédente de l'apprenant pour créer une continuité logique
-- La difficulté doit augmenter progressivement (scénario ${session.scenarioActuel + 1}/6)
-- Assure-toi que chaque nouveau scénario découle naturellement des actions précédentes
-`;
-
-    // Utiliser l'API pour générer le scénario
-    const messages = [
+    const messages: ChatCompletionRequestMessage[] = [
       { role: "system", content: getMcaiLearningSystemPrompt() },
-      { role: "user", content: prompt }
+      { role: "user", content: promptFeedback }
     ];
 
-    const generatedResponse = await openAIService.getChatCompletionWithCache(
-      messages as ChatCompletionRequestMessage[], 
-      0.7
-    );
+    const response = await openAIService.getChatCompletionWithCache(messages, 0.7);
 
-    return generatedResponse;
-  } catch (error) {
-    console.error("Erreur lors de la génération du scénario suivant:", error);
-    return "Une erreur est survenue lors de la génération du scénario suivant. Veuillez réessayer.";
-  }
-}
+    session.stageActuel = 'choix_mode';
+    session.scenarioActuel = 0;
+    session.reponses = [];
 
-/**
- * Génère un feedback global à la fin des scénarios
- */
-async function genererFeedbackGlobal(session: LearningBotSession): Promise<string> {
-  try {
-    // Générer un message de félicitations
-    return `🎉 Félicitations ${session.prenom} ! Vous avez complété l'ensemble des 6 scénarios du parcours immersif.
-
-🔍 Voici une synthèse de votre parcours dans le domaine "${session.domaineExpertise}" sur le thème "${session.sousTheme}" :
-
-✅ Forces démontrées :
-- Excellente compréhension des enjeux professionnels liés à ${session.sousTheme}
-- Bonne capacité d'analyse et de prise de décision
-- Approche structurée et méthodique des problèmes rencontrés
-
-🔄 Axes d'amélioration potentiels :
-- Continuer à développer la vision stratégique à long terme
-- Approfondir certains aspects techniques spécifiques au domaine
-- Renforcer la dimension collaborative dans la gestion de projet
-
-📈 Recommandations pour continuer votre progression :
-1. Explorer les ressources complémentaires disponibles sur l'intranet mc2i
-2. Participer aux communautés de pratique internes sur ce domaine
-3. Envisager une certification professionnelle pour valider vos compétences
-
-Merci d'avoir participé à cette expérience d'apprentissage immersive !
-Souhaitez-vous explorer un autre domaine d'expertise ou sous-thème ?`;
+    return response;
   } catch (error) {
     console.error("Erreur lors de la génération du feedback global:", error);
-    return "Une erreur est survenue lors de la génération du feedback. Votre parcours est néanmoins terminé avec succès. Merci pour votre participation !";
+    return "Une erreur est survenue lors de la génération du feedback. Veuillez réessayer.";
   }
 }
 
 /**
- * Génère une réponse générique pour les messages qui ne correspondent à aucun stade spécifique
+ * Génère une réponse générique
  */
 async function generateGenericResponse(session: LearningBotSession, message: string): Promise<string> {
   try {
-    // Créer un contexte avec l'historique des messages pour l'API GPT-4o
-    const contextMessages = session.messages.slice(-10); // Limiter à 10 derniers messages pour le contexte
-    
-    // Ajouter une instruction système spécifique
-    const systemMessage: ChatCompletionRequestMessage = {
-      role: "system",
-      content: getMcaiLearningSystemPrompt() + `\nRéponds à l'utilisateur en fonction du contexte de la conversation et de son stade actuel dans le processus d'apprentissage.`
-    };
-    
-    // Utiliser l'API GPT-4o pour générer une réponse contextuelle
-    const messages = [
-      systemMessage,
+    const contextMessages = session.messages.slice(-10);
+    const messages: ChatCompletionRequestMessage[] = [
+      { role: "system", content: getMcaiLearningSystemPrompt() },
       ...contextMessages
     ];
-    
-    const generatedResponse = await openAIService.getChatCompletionWithCache(messages, 0.7);
-    return generatedResponse;
+
+    return await openAIService.getChatCompletionWithCache(messages, 0.7);
   } catch (error) {
-    console.error("Erreur lors de la génération de la réponse:", error);
-    return "Désolé, je n'ai pas pu traiter votre message. Pourriez-vous reformuler ou choisir l'une des options proposées ?";
+    console.error("Erreur lors de la génération d'une réponse générique:", error);
+    return "Je n'ai pas compris votre demande. Pouvez-vous reformuler ?";
   }
-}
-
-/**
- * Génère un prompt système pour le chatbot mc2i AI Learning
- */
-function getMcaiLearningSystemPrompt(): string {
-  return `
-Tu es mc2i AI Learning, un chatbot avancé spécialisé dans l'évaluation en temps réel des compétences professionnelles. 
-Tu interagis avec les utilisateurs via une interface structurée, épurée et immersive.
-
-Ton objectif est de créer des scénarios de travail réalistes adaptés au domaine d'expertise choisi par l'apprenant, 
-afin d'évaluer sa capacité à appliquer ses connaissances dans des situations professionnelles concrètes.
-
-COMPORTEMENT ET TON :
-- Utilise un ton professionnel mais chaleureux
-- Sois précis dans tes instructions
-- Présente clairement les options à chaque étape
-- Fournis des feedbacks constructifs
-
-STRUCTURE DES SCÉNARIOS :
-- Présente chaque scénario sous forme d'un email professionnel réaliste
-- Inclus tous les éléments d'un vrai email (expéditeur, destinataire, objet, date, signature)
-- Toutes les adresses email doivent se terminer par @mc2i.fr
-- Le contenu doit être spécifique au domaine et sous-thème choisis
-- Les scénarios doivent progresser en difficulté et être interconnectés
-- Les réponses de l'apprenant doivent influencer les scénarios suivants
-
-EXPERTISE ATTENDUE :
-- Pour le domaine "Pilotage de Projet et AMOA" : méthodologies de gestion de projet, cadrage, planification, suivi
-- Pour "Conduite du Changement" : stratégies de transformation, communication, formation, gestion de la résistance
-- Pour "Cybersécurité" : gouvernance, audit, protection des données, gestion des incidents
-- Pour "Data & IA" : collecte et préparation des données, analyse, modélisation, éthique
-- Pour "UX et Design Thinking" : recherche utilisateur, prototypage, tests, accessibilité, co-conception
-
-Concentre-toi sur la création d'une expérience d'apprentissage immersive et réaliste qui aide l'apprenant à développer ses compétences professionnelles.
-`;
 }
