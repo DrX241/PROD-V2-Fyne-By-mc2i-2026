@@ -462,7 +462,24 @@ ${session.mode === 'classique'
   ? `Génère un scénario professionnel réaliste ${session.scenarioActuel + 1}/4 sans lien avec les précédents. Ce scénario doit évaluer les compétences liées à la formation "${session.formationChoisie}".` 
   : `Génère le scénario professionnel réaliste ${session.scenarioActuel + 1}/6 en tenant compte des réponses précédentes de l'apprenant. Ce scénario fait partie d'une immersion progressive où les décisions de l'apprenant ont un impact. La situation doit devenir de plus en plus complexe et tendue.`}
 
-Le scénario doit être présenté sous forme de mail, SMS, message interne, ou autre moyen de communication réaliste avec une mise en forme soignée. Utilise des icônes, des bordures, et une présentation visuelle structurée. N'hésite pas à mettre des éléments en gras pour l'emphase.
+INSTRUCTIONS TRÈS IMPORTANTES POUR LE FORMAT :
+1. Présente le scénario principalement sous forme d'email ULTRA RÉALISTE, avec tous les éléments d'un vrai email.
+2. L'email DOIT contenir : De, À, Cc (optionnel), Objet, Date et un corps de message bien structuré. NE PAS UTILISER DE FORMAT MARKDOWN.
+3. TOUTES les adresses email DOIVENT se terminer par @mc2i.fr - C'est OBLIGATOIRE.
+4. Le format doit être structuré exactement comme suit :
+   De : [Prénom Nom] <prenom.nom@mc2i.fr>
+   À : [Destinataire] <destinataire@mc2i.fr>
+   Cc : [Autres personnes] <autre.personne@mc2i.fr>
+   Objet : [Objet spécifique et personnalisé du message]
+   Date : [Date et heure actuelles]
+
+   [Corps du message bien formaté]
+
+   Cordialement,
+   [Signature avec nom, titre et coordonnées]
+
+5. Chaque email doit être personnalisé et spécifique à la situation, avec des noms réalistes et des contextes professionnels mc2i.
+6. PAS DE BALISES MARKDOWN NI DE FORMATAGE SPÉCIAL - uniquement du texte brut structuré comme un vrai email.
 
 Assure-toi que la situation exige une réponse d'au moins 30 caractères de la part de l'apprenant.
 `;
@@ -499,13 +516,32 @@ Détails de l'apprenant:
 Historique des réponses:
 ${session.reponses.map((r, i) => `Scénario ${i+1}:\nQuestion/Situation: ${r.question}\nRéponse: ${r.reponse}`).join('\n\n')}
 
-Génère un feedback global constructif au format mail qui comprend en toute objectivité:
-- Les points forts de l'apprenant
-- Les limites, insuffisances et points à améliorer
-- Des conseils pratiques pour progresser
-- Une évaluation globale de sa performance
+INSTRUCTIONS TRÈS IMPORTANTES POUR LE FORMAT :
+1. Génère un feedback global constructif au format email ULTRA RÉALISTE, avec tous les éléments d'un vrai email.
+2. L'email DOIT contenir : De, À, Cc (optionnel), Objet, Date et un corps de message bien structuré. NE PAS UTILISER DE FORMAT MARKDOWN.
+3. TOUTES les adresses email DOIVENT se terminer par @mc2i.fr - C'est OBLIGATOIRE.
+4. Le format doit être structuré exactement comme suit :
+   De : Équipe Formation mc2i <formation@mc2i.fr>
+   À : ${session.trigramme}@mc2i.fr
+   Cc : manager-formation@mc2i.fr
+   Objet : Évaluation de formation : ${session.formationChoisie} - Résultats
+   Date : [Date et heure actuelles]
 
-Sois assez strict dans ton approche tout en restant encourageant. Le retour doit être formaté comme un mail professionnel et tu dois signer de ton nom à la fin.
+   [Corps du message bien formaté qui comprend en toute objectivité:]
+   - Les points forts de l'apprenant
+   - Les limites, insuffisances et points à améliorer
+   - Des conseils pratiques pour progresser
+   - Une évaluation globale de sa performance
+
+   Cordialement,
+   L'équipe Formation mc2i
+   www.mc2i.fr
+   51 rue François 1er, 75008 Paris
+
+5. L'email doit être personnalisé et spécifique à la situation.
+6. PAS DE BALISES MARKDOWN NI DE FORMATAGE SPÉCIAL - uniquement du texte brut structuré comme un vrai email.
+
+Sois assez strict dans ton approche tout en restant encourageant.
 `;
 
     // Utiliser l'API GPT-4o pour générer le feedback
@@ -539,7 +575,7 @@ async function generateGenericResponse(session: LearningBotSession, message: str
     // Ajouter une instruction système spécifique
     const systemMessage: ChatCompletionRequestMessage = {
       role: "system",
-      content: getMcaiLearningSystemPrompt() + "\nRéponds à l'utilisateur en fonction du contexte de la conversation et de son stade actuel dans le processus d'apprentissage."
+      content: getMcaiLearningSystemPrompt() + "\nRéponds à l'utilisateur en fonction du contexte de la conversation et de son stade actuel dans le processus d'apprentissage. Utilise toujours un format d'email professionnel et réaliste lorsqu'approprié avec des adresses se terminant par @mc2i.fr."
     };
     
     const apiMessages: ChatCompletionRequestMessage[] = [systemMessage, ...contextMessages];

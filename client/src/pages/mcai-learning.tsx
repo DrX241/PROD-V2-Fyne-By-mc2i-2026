@@ -30,6 +30,87 @@ interface SessionStatus {
   scenarioActuel: number;
 }
 
+/**
+ * Formate un message en HTML enrichi, en détectant et en formatant les structures de type email
+ */
+function formatMessage(content: string): string {
+  // Ajouter des sauts de ligne de base
+  let formattedContent = content.replace(/\n/g, '<br/>');
+  
+  // Détection des formats d'email
+  const emailHeaderRegex = /De\s*:\s*([^\n<]+)[\n<]/i;
+  const emailHeaderMatch = content.match(emailHeaderRegex);
+
+  if (emailHeaderMatch) {
+    // C'est un format email, appliquons un formatage spécial
+    
+    // Créer un div pour l'en-tête de l'email
+    formattedContent = formattedContent.replace(
+      /(De\s*:\s*([^\n<]+)(<br\/>|$))/i,
+      '<div style="border-bottom: 1px solid #e0e0e0; margin-bottom: 10px; padding-bottom: 5px;"><table style="width: 100%"><tr><td style="width: 30px; vertical-align: top;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e75a3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg></td><td><strong>De :</strong> $2</td></tr>'
+    );
+
+    // Traitement de l'adresse email
+    formattedContent = formattedContent.replace(
+      /([a-zA-Z0-9._-]+@)(?!mc2i\.fr)([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g, 
+      '$1mc2i.fr'
+    );
+    
+    // Traitement du champ "À"
+    formattedContent = formattedContent.replace(
+      /(&lt;br\/&gt;|<br\/>|\n)(À|A|To)\s*:\s*([^<\n]+)(<br\/>|$)/i,
+      '<tr><td style="width: 30px; vertical-align: top;"></td><td><strong>À :</strong> $3</td></tr>'
+    );
+    
+    // Traitement du champ "Cc"
+    formattedContent = formattedContent.replace(
+      /(&lt;br\/&gt;|<br\/>|\n)(Cc)\s*:\s*([^<\n]+)(<br\/>|$)/i,
+      '<tr><td style="width: 30px; vertical-align: top;"></td><td><strong>Cc :</strong> $3</td></tr>'
+    );
+    
+    // Traitement du champ "Objet"
+    formattedContent = formattedContent.replace(
+      /(&lt;br\/&gt;|<br\/>|\n)(Objet|Subject)\s*:\s*([^<\n]+)(<br\/>|$)/i,
+      '<tr><td style="width: 30px; vertical-align: top;"></td><td><strong>Objet :</strong> <span style="color: #e6007e;">$3</span></td></tr>'
+    );
+    
+    // Traitement du champ "Date"
+    formattedContent = formattedContent.replace(
+      /(&lt;br\/&gt;|<br\/>|\n)(Date|Envoyé le|Sent)\s*:\s*([^<\n]+)(<br\/>|$)/i,
+      '<tr><td style="width: 30px; vertical-align: top;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e75a3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg></td><td><strong>Date :</strong> $3</td></tr></table></div>'
+    );
+    
+    // Corps du mail avec marge
+    formattedContent = formattedContent.replace(
+      /(<\/div>)(.*)/s,
+      '$1<div style="padding: 15px 0;">\n$2\n</div>'
+    );
+    
+    // Ajout d'une signature mc2i
+    if (!formattedContent.includes('Cordialement') && !formattedContent.includes('cordialement')) {
+      formattedContent += '<div style="margin-top: 15px; border-top: 1px solid #e0e0e0; padding-top: 10px; font-size: 0.9em; color: #666;">' +
+                          '<strong style="color: #1e75a3;">Cordialement,</strong><br/>' +
+                          'L\'équipe <span style="color: #1e75a3;">m</span><span style="color: #e6007e;">c2</span><span style="color: #1e75a3;">i</span><br/>' +
+                          '<span style="color: #1e75a3;">www.mc2i.fr</span><br/>' +
+                          '<span style="font-size: 0.8em;">51 rue François 1er, 75008 Paris</span>' +
+                          '</div>';
+    } else {
+      // Remplacer la signature existante par une plus stylisée
+      formattedContent = formattedContent.replace(
+        /(Cordialement,?|cordialement,?)(<br\/>|$)/,
+        '<div style="margin-top: 15px; border-top: 1px solid #e0e0e0; padding-top: 10px; font-size: 0.9em; color: #666;">' +
+        '<strong style="color: #1e75a3;">Cordialement,</strong><br/>' +
+        'L\'équipe <span style="color: #1e75a3;">m</span><span style="color: #e6007e;">c2</span><span style="color: #1e75a3;">i</span><br/>' +
+        '<span style="color: #1e75a3;">www.mc2i.fr</span><br/>' +
+        '<span style="font-size: 0.8em;">51 rue François 1er, 75008 Paris</span>' +
+        '</div>'
+      );
+    }
+  }
+  
+  return formattedContent;
+}
+
 export default function McaiLearning() {
   const { themeMode } = useTheme();
   const isFuturistic = themeMode === 'futuristic';
@@ -268,7 +349,12 @@ export default function McaiLearning() {
                           : 'bg-white border border-[#e6007e]/10 text-gray-800'
                     }`}
                   >
-                    <div className="whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: msg.content.replace(/\n/g, '<br/>') }} />
+                    <div 
+                      className="whitespace-pre-wrap email-content" 
+                      dangerouslySetInnerHTML={{ 
+                        __html: msg.content.replace(/\n/g, '<br/>') 
+                      }} 
+                    />
                   </div>
                 </div>
               </motion.div>
