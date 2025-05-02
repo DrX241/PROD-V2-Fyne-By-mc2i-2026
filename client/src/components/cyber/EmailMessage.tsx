@@ -153,21 +153,13 @@ export default function EmailMessage({ email }: EmailMessageProps) {
     return <p key={i} className="mb-3 text-white">{formattedLine}</p>;
   });
 
-  // Group list items into proper lists and enhance content presentation
+  // Group list items into proper lists
   const renderBody = () => {
     let result = [];
     let currentList: JSX.Element[] = [];
     let isOrderedList = false;
     let listKey = 0;
-    
-    // Identifier les sections potentielles dans le contenu
-    const hasSections = email.body.includes('CONTEXTE:') || 
-                        email.body.includes('OBJECTIFS:') ||
-                        email.body.includes('RESSOURCES:') ||
-                        email.body.includes('DÉLAI:') ||
-                        email.body.includes('BUDGET:');
 
-    // Grouper les éléments de liste ensemble
     formattedBody.forEach((element: React.ReactNode, index: number) => {
       if (React.isValidElement(element) && element.type === 'li') {
         // Check if this is a numbered list item
@@ -178,8 +170,8 @@ export default function EmailMessage({ email }: EmailMessageProps) {
         if ((isNumbered === null) !== isOrderedList && currentList.length > 0) {
           result.push(
             isOrderedList ? 
-              <ol key={`list-${listKey++}`} className="list-decimal mb-4 text-white pl-5 space-y-1">{currentList}</ol> : 
-              <ul key={`list-${listKey++}`} className="list-disc mb-4 text-white pl-5 space-y-1">{currentList}</ul>
+              <ol key={`list-${listKey++}`} className="list-decimal mb-3 text-white">{currentList}</ol> : 
+              <ul key={`list-${listKey++}`} className="list-disc mb-3 text-white">{currentList}</ul>
           );
           currentList = [];
         }
@@ -191,35 +183,11 @@ export default function EmailMessage({ email }: EmailMessageProps) {
         if (currentList.length > 0) {
           result.push(
             isOrderedList ? 
-              <ol key={`list-${listKey++}`} className="list-decimal mb-4 text-white pl-5 space-y-1">{currentList}</ol> : 
-              <ul key={`list-${listKey++}`} className="list-disc mb-4 text-white pl-5 space-y-1">{currentList}</ul>
+              <ol key={`list-${listKey++}`} className="list-decimal mb-3 text-white">{currentList}</ol> : 
+              <ul key={`list-${listKey++}`} className="list-disc mb-3 text-white">{currentList}</ul>
           );
           currentList = [];
         }
-        
-        // Mettre en évidence les titres de section
-        if (React.isValidElement(element)) {
-          const elementProps = element.props as { children?: string };
-          if (elementProps && typeof elementProps.children === 'string') {
-            const content = elementProps.children;
-            
-            // Détecter et formater les titres de section
-            if (/^(CONTEXTE|OBJECTIFS|RESSOURCES|DÉLAI|BUDGET|MISSION|IMPACT|INSTRUCTIONS)[\s:]/i.test(content)) {
-              const sectionTitle = content.split(':')[0].trim();
-              const sectionContent = content.split(':').slice(1).join(':').trim();
-            
-              // Créer un élément de titre de section avec style amélioré
-              result.push(
-                <div key={`section-${index}`} className="mb-4 p-3 bg-blue-900/30 rounded-md border border-blue-700/30">
-                  <h3 className="font-bold text-blue-300 mb-2 text-base">{sectionTitle}:</h3>
-                  {sectionContent && <p className="text-white">{sectionContent}</p>}
-                </div>
-              );
-              return;
-            }
-          }
-        }
-        
         result.push(element);
       }
     });
@@ -228,106 +196,12 @@ export default function EmailMessage({ email }: EmailMessageProps) {
     if (currentList.length > 0) {
       result.push(
         isOrderedList ? 
-          <ol key={`list-${listKey++}`} className="list-decimal mb-4 text-white pl-5 space-y-1">{currentList}</ol> : 
-          <ul key={`list-${listKey++}`} className="list-disc mb-4 text-white pl-5 space-y-1">{currentList}</ul>
+          <ol key={`list-${listKey++}`} className="list-decimal mb-3 text-white">{currentList}</ol> : 
+          <ul key={`list-${listKey++}`} className="list-disc mb-3 text-white">{currentList}</ul>
       );
     }
-    
-    // Approche simplifiée pour la mise en forme des montants budgétaires
-    // Puisque nous savons que chaque élément div/p peut contenir du text
-    function formatBudgetElements(elements: React.ReactNode[]): React.ReactNode[] {
-      // Pour chaque élément de type paragraphe ou div, on remplace directement son contenu textuel
-      return elements.map((element) => {
-        // Si ce n'est pas un élément React valide (ex: string, number), on le retourne tel quel
-        if (!React.isValidElement(element)) {
-          return element;
-        }
-        
-        // Récupérer les propriétés
-        const elementType = element.type as string;
-        
-        // Si c'est un paragraphe, une div ou un span qui pourrait contenir du texte
-        if (elementType === 'p' || elementType === 'div' || elementType === 'span' || 
-            elementType === 'h3' || elementType === 'h4' || elementType === 'li') {
-          
-          // Format simplifié pour les éléments avec enfants
-          if (element.props.children) {
-            if (typeof element.props.children === 'string') {
-              // Pour les éléments contenant uniquement du texte
-              const regex = /(\d+(\s*[kK])?€)/g;
-              if (regex.test(element.props.children)) {
-                return (
-                  <element.type {...element.props}>
-                    {element.props.children.split(regex).map((part: string, i: number) => {
-                      if (regex.test(part)) {
-                        return <span key={i} className="text-green-400 font-semibold">{part}</span>;
-                      }
-                      return part;
-                    })}
-                  </element.type>
-                );
-              }
-            } else if (Array.isArray(element.props.children)) {
-              // Pour les éléments avec des enfants multiples (tableau)
-              return (
-                <element.type {...element.props}>
-                  {formatBudgetElements(element.props.children)}
-                </element.type>
-              );
-            }
-          }
-          
-          // Traitement spécial pour le contenu HTML dangereux
-          if (element.props.dangerouslySetInnerHTML) {
-            const html = element.props.dangerouslySetInnerHTML.__html;
-            const regex = /(\d+(\s*[kK])?€)/g;
-            
-            if (regex.test(html)) {
-              const formattedHtml = html.replace(regex, (match: string) => {
-                return `<span class="text-green-400 font-semibold">${match}</span>`;
-              });
-              
-              return React.cloneElement(
-                element,
-                {
-                  ...element.props,
-                  dangerouslySetInnerHTML: { __html: formattedHtml }
-                }
-              );
-            }
-          }
-        }
-        
-        // Si c'est un élément qui contient potentiellement d'autres éléments (comme ul, ol)
-        if (element.props.children && Array.isArray(element.props.children)) {
-          return React.cloneElement(
-            element,
-            { ...element.props },
-            formatBudgetElements(element.props.children)
-          );
-        }
-        
-        // Si aucune condition n'est remplie, retourner l'élément tel quel
-        return element;
-      });
-    }
-    
-    // Si le contenu n'a pas de sections mais est court, ajouter une présentation améliorée
-    if (!hasSections && result.length <= 3) {
-      const enhancedResult = [
-        <div key="email-intro" className="mb-5 p-4 bg-blue-900/20 rounded-lg border border-blue-700/20">
-          <p className="text-blue-200 text-sm italic mb-2">Message important concernant votre mission :</p>
-          <div className="space-y-3">
-            {result}
-          </div>
-        </div>
-      ];
-      
-      return formatBudgetElements(enhancedResult);
-    }
-    
-    // Sinon retourner le résultat avec mise en forme des montants
-    return formatBudgetElements(result);
+
+    return result;
   };
 
   // Fonction pour obtenir l'icône appropriée selon le type de pièce jointe
@@ -399,11 +273,7 @@ export default function EmailMessage({ email }: EmailMessageProps) {
         </div>
 
         {/* Email Body */}
-        <div className="p-4 sm:p-6 text-white prose prose-invert max-w-none prose-blue text-sm sm:text-base email-content bg-blue-950/40 border border-blue-800/30 rounded-lg mx-3 sm:mx-6 my-3 backdrop-blur-sm">
-          <div className="email-header mb-4 pb-3 border-b border-blue-700/30">
-            <h3 className="text-lg sm:text-xl font-bold text-blue-200">Briefing de mission - Informations confidentielles</h3>
-            <p className="text-sm text-blue-300">Ce message contient les détails essentiels pour votre mission de sécurité</p>
-          </div>
+        <div className="p-4 sm:p-6 text-white prose prose-invert max-w-none prose-blue text-sm sm:text-base email-content">
           {renderBody()}
         </div>
 
