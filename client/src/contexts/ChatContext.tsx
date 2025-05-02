@@ -561,12 +561,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Handler to select a domain
-  const handleSelectDomain = async (domainId: string) => {
+  const handleSelectDomain = async (domain: CyberDomain) => {
     // Empêcher la sélection de plusieurs domaines
     if (scenario.activeDomain !== null) return;
     
-    const selectedDomain = initialDomains.find(d => d.id === domainId);
-    if (!selectedDomain) return;
+    const domainId = domain.id;
+    const selectedDomain = domain;
     
     setIsTyping(true);
     setScenario(prev => ({ ...prev, activeDomain: selectedDomain }));
@@ -629,19 +629,18 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Si un scénario est trouvé, le sélectionner automatiquement
     if (selectedScenario) {
       setTimeout(() => {
-        handleSelectScenario(selectedScenario!.id);
+        handleSelectScenario(selectedScenario!);
       }, 3000); // Attendre 3 secondes pour que l'utilisateur puisse lire les explications
     }
     setIsTyping(false);
   };
 
   // Handler to select a scenario
-  const handleSelectScenario = async (scenarioId: string) => {
+  const handleSelectScenario = async (selectedScenario: CyberScenario) => {
     // Empêcher la sélection de plusieurs scénarios
     if (scenario.activeScenario !== null) return;
     
-    const selectedScenario = initialScenarios.find(s => s.id === scenarioId);
-    if (!selectedScenario) return;
+    const scenarioId = selectedScenario.id;
     
     setIsTyping(true);
     setScenario(prev => ({ 
