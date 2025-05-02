@@ -507,22 +507,29 @@ async function generateLearningSequence(session: CyberExpertSession): Promise<st
     - Présente un mini-scénario réaliste lié au sujet
     - Ton: coach de cybersécurité qui invite à relever un défi
     
-    2. OUTIL/TABLEAU VISUEL (à décrire textuellement)
+    2. EXPLICATION GAMIFIÉE DU CONCEPT (3-4 lignes)
+    - Explique le concept clé de façon ludique et interactive
+    - Utilise une analogie concrète tirée de la vie quotidienne 
+    - Vulgarise sans sacrifier la précision
+    - Mentionne très brièvement une source officielle (ANSSI/CNIL) si pertinent
+    
+    3. OUTIL/TABLEAU VISUEL INTERACTIF (3-4 lignes)
     - Décris un élément visuel pertinent pour le sujet (ex: matrice de risque, schéma simplifié, extrait de logs)
     - Format texte "ASCII art" simple ou description très claire
-    - Maximum 4-5 lignes au total
+    - Inclus un élément interactif (ex: "Repérez l'anomalie dans ce log" ou "Identifiez la vulnérabilité dans ce schéma")
     
-    3. MINI-JEU DE DÉCISION
+    4. MINI-JEU DE DÉCISION
     - Pose un choix stratégique lié au scénario (pas de QCM mais options ouvertes)
     - Formule comme: "Quelle stratégie adopteriez-vous? Option A (avantages/risques) ou Option B (avantages/risques)?"
     
     FORMAT:
-    - Super concis (maximum 10 lignes au total)
+    - Concis mais complet (maximum 12-15 lignes au total)
     - 1-2 emojis pertinents maximum
-    - Structure claire: intro → outil/tableau → choix stratégique
+    - Structure claire: intro → explication gamifiée → outil/tableau interactif → choix stratégique
     - Langage: direct, simple, phrases courtes
     - Adapter au niveau ${session.userLevel || 'intermédiaire'} (vulgariser si débutant)
     - Éviter tout jargon non essentiel
+    - Ton enthousiaste et ludique tout du long
   `;
   
   try {
@@ -580,7 +587,7 @@ CONNAISSANCES À INCLURE:
 RÈGLES ESSENTIELLES:
 * Refuse poliment les sujets hors cybersécurité: "⚠️ bien essayé, mais nous ne parlons que de cyber ici :) ⚠️"
 * Évite tout formatage technique ou markdown
-* Limite strictement chaque réponse à 10 lignes maximum
+* Limite chaque réponse à 12-15 lignes maximum
 * Jamais de réponses théoriques ou académiques - préfère toujours l'engagement et l'interaction
 
 OBJECTIF GLOBAL:
