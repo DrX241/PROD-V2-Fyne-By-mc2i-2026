@@ -42,10 +42,10 @@ export async function initCyberExpertSession(req: Request, res: Response) {
       content: getCyberExpertSystemPrompt()
     };
     
-    // Message d'accueil simple et direct pour l'utilisateur
+    // Message d'accueil élégant et sophistiqué pour l'utilisateur
     const welcomeMessage: ChatCompletionRequestMessage = {
       role: "assistant",
-      content: "Bonjour ! Je suis votre expert en cybersécurité de mc2i. Comment puis-je vous aider aujourd'hui ?"
+      content: "Bonjour et bienvenue dans notre espace d'apprentissage personnalisé. Je suis votre expert en cybersécurité, représentant mc2i, cabinet de conseil de premier plan dans ce domaine. Je suis à votre disposition pour vous accompagner dans une expérience d'apprentissage sur mesure.\n\nPouvez-vous me préciser la nature de votre intérêt aujourd'hui? Souhaitez-vous approfondir un sujet spécifique de cybersécurité, résoudre une problématique particulière, ou explorer un concept avec une approche différente? Je suis impatient d'adapter mon expertise à vos besoins précis."
     };
     
     // Ajouter les messages à la session
@@ -92,9 +92,9 @@ export async function processCyberExpertMessage(req: Request, res: Response) {
     // Traiter le message en fonction de l'étape actuelle
     let response: string;
     
-    // Si le message contient une question hors sujet (non cyber), la rediriger poliment vers le domaine cyber
+    // Si le message contient une question hors sujet (non cyber), la refuser
     if (isNonCyberQuestion(message)) {
-      response = "Je comprends votre question, mais en tant qu'expert en cybersécurité, je peux mieux vous aider sur des sujets liés à ce domaine. Y a-t-il un aspect de la sécurité informatique ou de la protection des données qui vous intéresse ?";
+      response = "⚠️ Bien essayé, mais nous ne parlons que de cyber ici :) ⚠️";
     } else {
       switch (session.currentStage) {
         case 'initial':
@@ -153,29 +153,12 @@ export async function processCyberExpertMessage(req: Request, res: Response) {
  * Vérifie si une question est hors sujet (non liée à la cybersécurité)
  */
 function isNonCyberQuestion(message: string): boolean {
-  // Mots-clés pour des salutations simples ou conversations polies
-  const commonPhrases = [
-    "bonjour", "salut", "hello", "coucou", "bonsoir", "comment ça va", 
-    "ça va", "merci", "s'il vous plaît", "comment allez-vous", "au revoir",
-    "bonne journée"
-  ];
-  
-  // Si le message est court et contient seulement une phrase simple, la permettre
-  const trimmedMessage = message.trim().toLowerCase();
-  if (trimmedMessage.length < 20) {
-    for (const phrase of commonPhrases) {
-      if (trimmedMessage.includes(phrase)) {
-        return false; // Autoriser les salutations et phrases de politesse courantes
-      }
-    }
-  }
-  
   // Liste étendue de sujets clairement non liés à la cybersécurité
   const nonCyberKeywords = [
     // Loisirs et divertissements
     "recette de cuisine", "météo", "horoscope", "sport", "film", "cinéma", 
-    "musique", "concert", "chanson", "télévision", "série", "roman", 
-    "vacances", "voyage", "tourisme", "restaurant", "gastronomie",
+    "musique", "concert", "chanson", "télévision", "série", "jeu vidéo", "gaming", "livres",
+    "roman", "vacances", "voyage", "tourisme", "restaurant", "gastronomie",
     
     // Relations personnelles
     "régime", "amour", "rencontre", "date", "relation", "mariage", "divorce",
@@ -192,30 +175,12 @@ function isNonCyberQuestion(message: string): boolean {
     "décoration", "jardinage", "bricolage", "recette", "cuisine"
   ];
   
-  // Exclure les sujets qui peuvent être liés à la cybersécurité
-  const potentiallyCyberRelated = [
-    "jeu vidéo", "gaming", "livres", // Peuvent être liés à la cybersécurité
-    "technologie", "informatique", "ordinateur", "logiciel", "internet", "digital",
-    "données", "information", "système", "réseau", "application", "web", "mobile"
-  ];
-  
   const lowercaseMessage = message.toLowerCase();
   
   // Vérifier si le message contient un sujet non-cyber
   for (const keyword of nonCyberKeywords) {
     if (lowercaseMessage.includes(keyword)) {
-      // Double vérification - s'assurer que ce n'est pas un sujet qui pourrait être lié à la cybersécurité
-      let isCyberRelated = false;
-      for (const cyberTerm of potentiallyCyberRelated) {
-        if (lowercaseMessage.includes(cyberTerm)) {
-          isCyberRelated = true;
-          break;
-        }
-      }
-      
-      if (!isCyberRelated) {
-        return true;
-      }
+      return true;
     }
   }
   
@@ -226,48 +191,27 @@ function isNonCyberQuestion(message: string): boolean {
  * Gère la première étape de l'interaction (identification du type de besoin)
  */
 async function handleInitialStage(session: CyberExpertSession, message: string): Promise<string> {
-  // Si c'est juste une salutation simple
-  const simpleGreetings = ["bonjour", "salut", "hello", "coucou", "hey", "hi", "bonsoir", "yo"];
-  if (simpleGreetings.includes(message.trim().toLowerCase())) {
-    // On passe tout de suite au stade de questionnement sans long discours
-    session.currentStage = 'questioning';
-    return "Bonjour ! Je suis votre expert en cybersécurité. Que puis-je faire pour vous aujourd'hui ?";
-  }
-  
   // Si le message est court et contient simplement un chiffre (1, 2 ou 3)
   if (/^[123]$/.test(message.trim())) {
     session.currentStage = 'questioning';
     
     if (message.trim() === "1") {
-      return "Vous souhaitez résoudre un problème précis. Pourriez-vous me décrire ce problème et votre contexte professionnel ?";
+      return "Vous souhaitez résoudre un problème précis. Pouvez-vous me décrire le problème que vous rencontrez? Quel est votre rôle ou domaine d'activité?";
     } else if (message.trim() === "2") {
-      return "Vous souhaitez explorer une problématique métier. Dans quel secteur d'activité travaillez-vous et quel est l'enjeu cyber qui vous intéresse ?";
+      return "Vous souhaitez explorer une problématique métier. Dans quel secteur d'activité travaillez-vous? Et quelle est la problématique qui vous intéresse?";
     } else if (message.trim() === "3") {
-      return "Vous souhaitez apprendre un concept différemment. Quel est votre niveau en cybersécurité (Débutant / Intermédiaire / Avancé) et quel concept vous intéresse ?";
+      return "Vous souhaitez apprendre un concept cyber différemment. Quel est votre niveau en cybersécurité (Débutant / Intermédiaire / Avancé)? Quel concept souhaitez-vous explorer?";
     }
   }
   
-  // Si le message est très court (moins de 10 caractères) mais pas une salutation ni un chiffre
-  if (message.trim().length < 10 && !/\?/.test(message)) {
-    session.currentStage = 'questioning';
-    return "Pourriez-vous m'en dire un peu plus sur ce qui vous amène ? Je suis spécialisé en cybersécurité et prêt à vous aider sur tout sujet relatif à ce domaine.";
-  }
-  
-  // Si l'utilisateur a formulé une demande plus élaborée
+  // Si l'utilisateur a répondu avec du texte au lieu d'un chiffre
   const prompt = `
-    L'utilisateur a écrit: "${message}"
+    L'utilisateur a répondu "${message}" à ma question initiale où je lui proposais:
+    1. Résoudre un problème précis
+    2. Explorer une problématique métier
+    3. Apprendre un concept cyber différemment
     
-    DIRECTIVES:
-    1. Si c'est une question simple ou une salutation, réponds de façon directe et naturelle en 1-2 phrases maximum.
-    2. Si c'est une demande spécifique liée à la cybersécurité, identifie son besoin précis et pose 1-2 questions pertinentes.
-    3. Si le message est ambigu, demande des clarifications de manière simple et directe.
-    
-    PRINCIPES CLÉS:
-    - CONCISION : Ta réponse ne doit pas dépasser 3-4 phrases.
-    - NATUREL : Utilise un ton convivial mais professionnel, sans excès de formalisme.
-    - PERTINENCE : Reste concentré sur le sujet cyber mentionné ou pose des questions pour l'identifier.
-    
-    IMPORTANT: Ne fais pas de long monologue d'introduction. Va droit au but de façon humaine et conversationnelle.
+    Identifie lequel des trois choix correspond le mieux à sa réponse. Si ce n'est pas clair, pose 1-2 questions pour mieux comprendre son besoin. Ta réponse doit être directe, claire et sans introduction.
   `;
   
   session.currentStage = 'questioning';
@@ -281,7 +225,7 @@ async function handleInitialStage(session: CyberExpertSession, message: string):
     return await openAIService.getChatCompletion(messages, 0.7);
   } catch (error) {
     console.error("Erreur lors de l'analyse du message initial:", error);
-    return "Pourriez-vous préciser ce que vous recherchez ? Je peux vous aider sur des problèmes concrets de cybersécurité, explorer des sujets liés à votre métier, ou vous expliquer des concepts cyber.";
+    return "Je n'ai pas bien compris votre demande. Pourriez-vous préciser si vous souhaitez:\n\n1️⃣ Résoudre un problème précis\n2️⃣ Explorer une problématique métier\n3️⃣ Apprendre un concept cyber différemment";
   }
 }
 
@@ -289,33 +233,18 @@ async function handleInitialStage(session: CyberExpertSession, message: string):
  * Gère l'étape de questionnement pour préciser le besoin
  */
 async function handleQuestioningStage(session: CyberExpertSession, message: string): Promise<string> {
-  // Détecter les salutations simples ou messages très courts
-  const simpleGreetings = ["bonjour", "salut", "hello", "coucou", "hey", "hi", "bonsoir", "yo"];
-  if (simpleGreetings.includes(message.trim().toLowerCase())) {
-    return "Bonjour ! Comment puis-je vous aider dans le domaine de la cybersécurité ?";
-  }
-  
-  // Si le message est très court (moins de 10 caractères)
-  if (message.trim().length < 10 && !/\?/.test(message)) {
-    return "Pourriez-vous préciser votre question ou le sujet cyber qui vous intéresse ?";
-  }
-  
-  // Collecter plus d'informations pour identifier le besoin de façon plus concise
+  // Collecter plus d'informations pour identifier le besoin précis
   const prompt = `
     L'utilisateur a écrit: "${message}"
     
-    DIRECTIVES:
-    1. Identifie clairement le besoin ou la question cyber de l'utilisateur
-    2. Reformule ce besoin de manière concise (1-2 phrases maximum)
-    3. Vérifie si c'est bien ce que l'utilisateur cherche à savoir
+    Basé sur cette réponse et nos échanges précédents:
+    1. Identifie précisément le besoin/sujet/concept cyber de l'utilisateur
+    2. Détermine son niveau d'expertise approximatif (débutant/intermédiaire/avancé)
+    3. Identifie son contexte professionnel si possible
     
-    CONSIGNES IMPORTANTES:
-    - Utilise une formulation directe et naturelle: "Si je comprends bien, vous souhaitez..."
-    - Limite ta réponse à 3-4 phrases au total
-    - Évite les longs monologues ou paragraphes
-    - Adapte le niveau de technicité au langage utilisé par l'utilisateur
+    Ensuite, reformule clairement ce que tu as compris de son besoin sous la forme: "Si je comprends bien, vous cherchez à [besoin précis]. Est-ce exact?" 
     
-    IMPORTANT: Ta réponse doit être courte et vérifier simplement si tu as bien compris le besoin. Ne fais pas une réponse longue ou académique.
+    Ta réponse doit être concise, centrée sur la reformulation du besoin et se terminer par une demande de confirmation.
   `;
   
   try {
@@ -332,44 +261,15 @@ async function handleQuestioningStage(session: CyberExpertSession, message: stri
     session.needIdentified = true;
     
     // Extraire le sujet/besoin identifié pour le stocker dans la session
-    const needMatch = response.match(/vous cherchez à (.+?)\./i) || 
-                     response.match(/votre besoin(.+?)\./i) ||
-                     response.match(/consiste à (.+?)\./i) ||
-                     response.match(/souhaitez (.+?)\./i);
-                     
+    const needMatch = response.match(/vous cherchez à (.+?)\./i);
     if (needMatch && needMatch[1]) {
       session.topic = needMatch[1].trim();
-    } else {
-      // Recherche de fallback plus large si les patterns précis échouent
-      const fallbackMatch = response.match(/(?:besoin|cherchez|souhaitez|voulez).*?([^.]{10,100})\./i);
-      if (fallbackMatch && fallbackMatch[1]) {
-        session.topic = fallbackMatch[1].trim();
-      }
-    }
-    
-    // Tenter d'identifier le niveau de l'utilisateur
-    const levelMatch = response.match(/niveau.*?(débutant|intermédiaire|avancé)/i);
-    if (levelMatch && levelMatch[1]) {
-      const level = levelMatch[1].toLowerCase();
-      if (level.includes('débutant')) {
-        session.userLevel = 'Débutant';
-      } else if (level.includes('intermédiaire')) {
-        session.userLevel = 'Intermédiaire';
-      } else if (level.includes('avancé')) {
-        session.userLevel = 'Avancé';
-      }
-    }
-    
-    // Tenter d'identifier le domaine/secteur d'activité
-    const domainMatch = response.match(/(?:secteur|domaine|industrie).*?([^.]{5,50})\./i);
-    if (domainMatch && domainMatch[1]) {
-      session.userDomain = domainMatch[1].trim();
     }
     
     return response;
   } catch (error) {
     console.error("Erreur lors de l'analyse du besoin:", error);
-    return "Je n'ai pas saisi avec toute la précision nécessaire la nature de votre besoin. Pourriez-vous le reformuler, idéalement en précisant votre contexte professionnel et l'objectif exact que vous souhaitez atteindre?";
+    return "Je n'ai pas bien compris votre besoin. Pourriez-vous le reformuler de manière plus précise?";
   }
 }
 
@@ -415,37 +315,30 @@ async function handleConfirmationStage(session: CyberExpertSession, message: str
  * Gère l'étape d'apprentissage et d'échange sur le sujet
  */
 async function handleLearningStage(session: CyberExpertSession, message: string): Promise<string> {
-  // Détecter si le message est une salutation ou très court
-  const simpleGreetings = ["bonjour", "salut", "hello", "coucou", "hey", "hi", "bonsoir", "yo", "merci"];
-  if (simpleGreetings.includes(message.trim().toLowerCase())) {
-    return "Bonjour ! Avez-vous d'autres questions sur le sujet que nous explorons ?";
-  }
-  
-  // Si le message est très court (moins de 5 caractères)
-  if (message.trim().length < 5) {
-    return "Avez-vous une question spécifique sur ce sujet ? Je suis là pour vous aider.";
-  }
-  
-  // Analyse et réponse adaptée dans le contexte du sujet identifié
+  // Traiter la question/réponse dans le contexte du sujet identifié
   const prompt = `
-    CONTEXTE:
-    - Sujet: "${session.topic}"
-    - Secteur professionnel: ${session.userDomain || 'entreprise'}
-    - Niveau d'expertise: ${session.userLevel || 'intermédiaire'}
-    - Question: "${message}"
+    L'utilisateur poursuit son apprentissage sur le sujet: "${session.topic}"
     
-    DIRECTIVES:
-    1. Identifie précisément la question et réponds-y directement
-    2. Donne une information à valeur ajoutée (référence ANSSI/CNIL, cas pratique récent, ou conseil actionnable)
-    3. Sois concis et précis: maximum 2-3 paragraphes
-    4. Termine par une question simple pour poursuivre l'échange
+    Son message: "${message}"
     
-    FORMAT:
-    - Paragraphes courts et structurés (sans formatage technique)
-    - Langage adapté au niveau ${session.userLevel || 'intermédiaire'} de l'utilisateur
-    - Ton expert mais conversationnel
+    Crée une réponse sophistiquée et élégante qui:
     
-    IMPORTANT: Évite absolument les longs exposés. La réponse idéale ne dépasse pas 5-6 phrases au total.
+    - Apporte des connaissances précises, récentes et vérifiables
+    - S'adapte parfaitement au niveau d'expertise perçu de l'utilisateur (${session.userLevel || 'intermédiaire'})
+    - Intègre des références aux organismes officiels français et internationaux pertinents
+    - Mentionne le cadre réglementaire applicable (français et européen)
+    - Utilise des analogies ou métaphores pour simplifier les concepts complexes
+    - Apporte une valeur ajoutée unique, dépassant les informations généralement disponibles
+    - Se termine par une question ouverte soigneusement formulée qui encourage la poursuite de l'échange
+
+    Directives essentielles:
+    - Évite complètement le markdown, les listes à puces ou tout formatage technique
+    - Utilise des paragraphes élégants, des transitions fluides et un langage sophistiqué mais clair
+    - Sois chaleureux et engageant tout en restant professionnel et expert
+    - Si la question révèle une confusion, corrige-la avec tact et élégance
+    - Si la question montre une bonne compréhension, valorise subtilement ce point
+    - Anticipe les questions suivantes et oriente subtilement vers des pistes d'approfondissement
+    - Reste concis tout en étant complet, privilégie la qualité à la quantité
   `;
   
   try {
@@ -458,7 +351,7 @@ async function handleLearningStage(session: CyberExpertSession, message: string)
     return await openAIService.getChatCompletion(messages, 0.7);
   } catch (error) {
     console.error("Erreur lors de la génération de la réponse d'apprentissage:", error);
-    return "Je rencontre actuellement une difficulté technique dans l'élaboration de ma réponse. Pourriez-vous reformuler votre question sous un angle légèrement différent afin que je puisse vous apporter l'éclairage expert que vous recherchez?";
+    return "Je rencontre des difficultés à traiter votre question. Pourriez-vous la reformuler différemment?";
   }
 }
 
@@ -467,35 +360,24 @@ async function handleLearningStage(session: CyberExpertSession, message: string)
  */
 async function generateLearningSequence(session: CyberExpertSession): Promise<string> {
   const prompt = `
-    BESOIN CONFIRMÉ: "${session.topic}"
-    NIVEAU UTILISATEUR: ${session.userLevel || 'intermédiaire'}
-    CONTEXTE PROFESSIONNEL: ${session.userDomain || 'entreprise'}
+    Le besoin suivant de l'utilisateur a été confirmé: "${session.topic}"
     
-    DIRECTIVES CLAIRES:
-    - La première réponse doit être concise et directe (maximum 3-4 paragraphes courts)
-    - Évite absolument les longs monologues académiques
-    - Commence par une phrase d'introduction directe et accessible
-    - Termine par une question ouverte simple
+    Créez une expérience d'apprentissage exceptionnelle et élégante qui intègre harmonieusement:
     
-    STRUCTURE DE RÉPONSE:
-    1. INTRODUCTION (1-2 phrases) - Présentation claire et concise du sujet
+    - Une mise en situation immersive qui reflète une situation professionnelle réaliste rencontrée par les entreprises françaises
+    - Un exemple concret et documenté, idéalement récent et vérifiable, qui illustre le concept
+    - Une explication sophistiquée mais accessible, adaptée précisément au niveau ${session.userLevel || 'intermédiaire'} de l'utilisateur
+    - Un éclairage sur les aspects réglementaires français et européens pertinents
+    - Des recommandations stratégiques immédiatement applicables dans un contexte professionnel
+    - Une question engageante qui encourage la réflexion et prolonge naturellement l'échange
     
-    2. EXPLICATION PRINCIPALE (1-2 paragraphes courts) - Présentation des concepts clés avec:
-       - Une référence pertinente à une source officielle (ANSSI, CNIL, ENISA)
-       - Un exemple concret ou une analogie simple
-       - Si pertinent, mention brève du cadre réglementaire applicable
-    
-    3. RECOMMANDATION PRATIQUE (1 paragraphe court) - Un ou deux conseils concrets et applicables
-    
-    4. QUESTION D'INTERACTION (1 phrase) - Une question simple pour encourager l'échange
-    
-    IMPÉRATIFS STYLISTIQUES:
-    - TON : Professionnel mais conversationnel, pas académique
-    - LANGAGE : Clair et adapté au niveau de l'utilisateur (${session.userLevel || 'intermédiaire'})
-    - FORMAT : Paragraphes courts et aérés, sans formatage technique
-    - LONGUEUR : Réponse concise qui tient en une demi-page maximum
-    
-    IMPORTANT: Pour cette première réponse, réduis considérablement la complexité et la longueur du message. L'utilisateur doit pouvoir lire ta réponse en moins de 30 secondes.
+    Directives de style et de format:
+    - Évitez absolument le markdown, les listes à puces, ou toute forme de formatage technique
+    - Utilisez des paragraphes soignés, des transitions fluides, un vocabulaire recherché mais précis
+    - Intégrez des références aux autorités et organismes pertinents (ANSSI, CNIL, ENISA, etc.)
+    - Anticipez les questions suivantes et proposez subtilement des pistes d'approfondissement
+    - Maintenez un ton à la fois expert, chaleureux et engageant
+    - Privilégiez la qualité et la pertinence à la longueur
   `;
   
   try {
@@ -508,7 +390,7 @@ async function generateLearningSequence(session: CyberExpertSession): Promise<st
     return await openAIService.getChatCompletion(messages, 0.7);
   } catch (error) {
     console.error("Erreur lors de la génération de la séquence d'apprentissage:", error);
-    return "Je rencontre actuellement un défi technique dans l'élaboration de votre parcours d'apprentissage personnalisé. Pourriez-vous préciser un aspect particulier de ce sujet qui vous intéresse davantage, afin que je puisse recentrer mon analyse et vous offrir une réponse parfaitement adaptée?";
+    return "Je rencontre des difficultés à générer votre parcours d'apprentissage. Pouvons-nous reformuler votre besoin?";
   }
 }
 
@@ -516,59 +398,41 @@ async function generateLearningSequence(session: CyberExpertSession): Promise<st
  * Fournit le prompt système pour le chatbot expert en cybersécurité
  */
 function getCyberExpertSystemPrompt(): string {
-  return `Tu es un expert de haut niveau en cybersécurité de mc2i, un cabinet de conseil de premier plan. Tu offres une expérience d'apprentissage interactive sophistiquée, personnalisée et de grande valeur. Tu es extrêmement intelligent, proactif et analytique, capable d'extraire l'essence des besoins même implicites de l'utilisateur.
+  return `Tu es un expert de haut niveau en cybersécurité, et tu représentes mc2i, un cabinet de conseil de premier plan. Tu accompagnes l'utilisateur dans une expérience d'apprentissage unique, élégante et interactive sur mesure. Tu es intelligent, proactif, et tu fournis une valeur ajoutée exceptionnelle à chaque interaction.
 
-CAPACITÉS COGNITIVES AVANCÉES:
-Tu possèdes une intelligence artificielle supérieure te permettant d'adapter ton approche en temps réel. Tu appliques une compréhension profonde des nuances psychologiques pour mieux cerner les besoins réels derrière les questions. Tu utilises des techniques de questionnement socratique pour guider l'utilisateur vers une meilleure compréhension de ses propres besoins en cybersécurité.
+Tu commences par poser des questions ciblées pour comprendre précisément le besoin de l'utilisateur. Tu reformules ensuite ce besoin avec élégance pour obtenir une confirmation. Une fois le besoin confirmé, tu offres une expérience d'apprentissage personnalisée de grande qualité, avec des mises en situation réalistes, des exemples concrets du monde réel, et des explications adaptées au niveau et au secteur de l'utilisateur.
 
-MÉTHODOLOGIE D'ÉCHANGE EN 3 PHASES:
-1. PHASE DÉCOUVERTE - Tu analyses finement le besoin avec des questions précises et perspicaces, en identifiant la véritable problématique sous-jacente. Tu adaptes ton approche selon que l'utilisateur cherche à résoudre un problème concret, à explorer un sujet, ou à acquérir des compétences spécifiques.
-2. PHASE CONFIRMATION - Tu reformules avec élégance et précision le besoin identifié pour validation, en clarifiant les objectifs d'apprentissage exacts et le niveau de détail technique approprié.
-3. PHASE EXPERTISE - Tu déploies un enseignement personnalisé de haute qualité, incluant des scénarios réalistes, des exemples concrets adaptés au secteur spécifique de l'utilisateur, et des explications calibrées à son niveau technique.
+Tu refuses toute question hors cybersécurité par : ⚠️ bien essayé, mais nous ne parlons que de cyber ici :) ⚠️.
 
-Tu refuses fermement toute question hors cybersécurité par : ⚠️ bien essayé, mais nous ne parlons que de cyber ici :) ⚠️.
+DIRECTIVES ESSENTIELLES:
+1. Sois sophistiqué et élégant dans tes formulations, évite tout langage familier
+2. N'utilise JAMAIS de markdown, de listes à puces, ou de formatage technique
+3. Adapte systématiquement ton niveau d'expertise technique à celui de l'utilisateur
+4. Cite uniquement des sources officielles et reconnues (ANSSI, CNIL, ENISA, NIST, ISO, etc.)
+5. Intègre toujours les aspects réglementaires français et européens (RGPD, LPM, NIS2, etc.)
+6. Fournis des informations récentes et vérifiées, avec dates si pertinent
+7. Sois concis mais complet - privilégie la qualité à la quantité
+8. Maintiens un ton professionnel, chaleureux et engageant
+9. Utilise des métaphores et analogies pour simplifier les concepts complexes
+10. Pose systématiquement une question ouverte à la fin pour maintenir l'échange
+11. Anticipe les questions suivantes probables (sois proactif)
+12. Offre des conseils pratiques et applicables immédiatement
 
-DIRECTIVES D'INTELLIGENCE AUGMENTÉE:
-1. Utilise la méthode des analogies sophistiquées pour expliquer les concepts complexes
-2. Anticipe intelligemment les questions suivantes et prépare le terrain pour un apprentissage progressif
-3. Analyse constamment le niveau technique de l'utilisateur et adapte ta communication en conséquence
-4. Perçois les signaux implicites dans les questions et réoriente avec tact si nécessaire
-5. Déploie une pédagogie adaptative basée sur la réceptivité de l'utilisateur
-6. Applique une intelligence contextuelle pour relier les concepts à l'environnement professionnel spécifique
-7. Développe progressivement la complexité des explications selon la compréhension démontrée
-8. Utilise des techniques de récapitulation intelligente pour renforcer l'apprentissage
-9. Maintiens une surveillance cognitive des potentielles confusions et clarifie proactivement
-10. Offre des perspectives multidimensionnelles sur les problématiques (technique, juridique, organisationnelle)
+Structure soignée de tes réponses (sans utiliser de markdown ou listes à puces):
 
-EXCELLENCE DANS LE CONTENU:
-1. Maintiens une sophistication linguistique tout en restant parfaitement clair
-2. Utilise uniquement des sources officielles et reconnues (ANSSI, CNIL, ENISA, NIST, ISO, etc.)
-3. Intègre systématiquement les aspects réglementaires français et européens actualisés
-4. Fournis des informations récentes et vérifiées, avec dates précises si pertinent
-5. Déploie un style concis mais exhaustif - privilégie la densité informative à la verbosité
-6. Structure tes réponses avec élégance sans markdown ou formatage technique
-7. Personnalise systématiquement les exemples au secteur d'activité de l'utilisateur
-8. Élabore des mini-scénarios immersifs pour contextualiser l'apprentissage
-9. Offre des conseils actionnables immédiatement avec gradation de mise en œuvre
-10. Tisse subtilement des liens entre différents concepts cybersécurité pour une vision holistique
+PHASE INITIALE - Mini mise en situation élégante et immersive qui plonge l'utilisateur dans un contexte réel
 
-STRUCTURE EXEMPLAIRE (sans formatage technique):
+EXEMPLE CONCRET - Cas réel documenté et récent, avec source si disponible, adapté au secteur d'activité de l'utilisateur 
 
-PHASE INITIALE - Mise en situation élégante et immersive contextualisée au secteur de l'utilisateur
+EXPLICATION CLAIRE - Vulgarisation précise des concepts, adaptée au niveau de l'utilisateur, avec définitions et contexte
 
-EXEMPLE CONCRET - Cas réel récent et documenté, avec source officielle, illustrant précisément le concept
+ASPECT RÉGLEMENTAIRE - Mention explicite des obligations légales françaises et européennes applicables
 
-EXPLICATION APPROFONDIE - Vulgarisation sophistiquée adaptée au niveau précis de l'utilisateur, avec définitions contextualisées
+CONSEIL PRATIQUE - Recommandation immédiatement applicable par l'utilisateur
 
-DIMENSION RÉGLEMENTAIRE - Exposition précise des obligations légales françaises et européennes avec implications pratiques
+VÉRIFICATION - Question interactive pour valider la compréhension, formulée de manière engageante
 
-RECOMMANDATION STRATÉGIQUE - Conseil actionnable à plusieurs niveaux (immédiat, court terme, perspective)
-
-SYNTHÈSE COGNITIVE - Récapitulation concise des points essentiels pour faciliter la mémorisation
-
-TRANSITION INTERACTIVE - Question perspicace encourageant la réflexion critique et l'approfondissement
-
-Ton objectif final est de créer une expérience d'apprentissage transformative, où l'utilisateur acquiert non seulement des connaissances techniques précises mais développe également une compréhension stratégique plus profonde des enjeux cybersécurité adaptés à son contexte professionnel spécifique.`;
+Ton objectif est de créer une expérience d'apprentissage mémorable, où l'utilisateur se sent accompagné par un expert de très haut niveau qui s'adapte parfaitement à ses besoins tout en respectant les standards les plus élevés d'exactitude et de pertinence.`;
 }
 
 /**
