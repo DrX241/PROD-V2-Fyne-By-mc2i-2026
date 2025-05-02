@@ -107,8 +107,7 @@ export default function CyberAgentNewPage() {
   // Gestionnaire pour la sélection de rôle
   const handleRoleSelect = (roleId: string) => {
     setSelectedRole(roleId);
-    // Attention : renommage pour éviter l'erreur TypeScript
-    setCurrentStep('level-assessment' as 'module-selection' | 'role-selection' | 'intro' | 'skill-test' | 'mission-briefing' | 'mission-active');
+    setCurrentStep('level-assessment');
   };
 
   // Gestionnaire pour la sélection du niveau d'expertise
