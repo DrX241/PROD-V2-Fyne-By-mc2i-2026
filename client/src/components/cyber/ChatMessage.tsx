@@ -5,6 +5,25 @@ import DecisionChoices from "./DecisionChoices";
 import { useChatContext } from "@/contexts/ChatContext";
 import { v4 as uuidv4 } from 'uuid';
 
+// Formate les montants de budget pour une cohérence visuelle
+const formatBudgetAmounts = (content: React.ReactNode): React.ReactNode => {
+  if (typeof content !== 'string') return content;
+  
+  // Recherche les motifs de budget (nombres suivis de €, k€, K€, etc.)
+  const budgetRegex = /(\d[\d\s]*[\d.,]*\s*(?:€|k€|K€|euros|EUR|M€))/g;
+  
+  if (!budgetRegex.test(content)) return content;
+  
+  const parts = content.split(budgetRegex);
+  return parts.map((part, i) => {
+    if (budgetRegex.test(part)) {
+      // Formatage cohérent du montant de budget
+      return <span key={i} className="font-semibold text-[#006a9e]">{part}</span>;
+    }
+    return part;
+  });
+};
+
 interface ChatMessageProps {
   type: "user" | "bot" | "scenario-context" | "decision-choices";
   content: string | CrisisDecisionContent;
@@ -167,7 +186,7 @@ export default function ChatMessage({
               inList = true;
             }
             
-            // Ajouter l'élément à la liste courante
+            // Ajouter l'élément à la liste courante avec vérification pour les montants de budget
             currentList.push(
               <li key={i} className="ml-1 my-1 text-gray-800">
                 {processStrongText(content)}
@@ -232,6 +251,25 @@ export default function ChatMessage({
     return parts.map((part, i) => {
       if (part.startsWith('**') && part.endsWith('**')) {
         return <strong key={i} className="text-[#006a9e] font-semibold">{part.slice(2, -2)}</strong>;
+      }
+      return part;
+    });
+  };
+  
+  // Formate les montants de budget pour une cohérence visuelle
+  const formatBudgetAmounts = (content: React.ReactNode): React.ReactNode => {
+    if (typeof content !== 'string') return content;
+    
+    // Recherche les motifs de budget (nombres suivis de €, k€, K€, etc.)
+    const budgetRegex = /(\d[\d\s]*[\d.,]*\s*(?:€|k€|K€|euros|EUR|M€))/g;
+    
+    if (!budgetRegex.test(content)) return content;
+    
+    const parts = content.split(budgetRegex);
+    return parts.map((part, i) => {
+      if (budgetRegex.test(part)) {
+        // Formatage cohérent du montant de budget
+        return <span key={i} className="font-semibold text-[#006a9e]">{part}</span>;
       }
       return part;
     });
