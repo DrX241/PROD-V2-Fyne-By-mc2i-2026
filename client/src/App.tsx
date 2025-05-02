@@ -23,6 +23,9 @@ import PlaygroundPage from "./pages/playground";
 import ModuleDetailPage from "./pages/playground/module";
 import CyberForgeAcademy from "./pages/cyberforge";
 
+// Import de la page mc2i AI Learning
+import McaiLearning from "@/pages/mcai-learning";
+
 // Import des pages CENTRE DE CRISE (anciennes et nouvelles pour permettre une transition)
 import CyberDefensePage from "@/pages/cyber-defense"; // Ancienne implémentation 
 import CentreDeCriseEvolutifPage from "@/pages/cyber-defense-new"; // Nouvelle implémentation
@@ -117,6 +120,9 @@ function App() {
             <Route path="/playground/path/:pathId" component={PlaygroundPage} />
             
             {/* Module CyberForge Academy */}
+            {/* Module mc2i AI Learning */}
+            <Route path="/mcai-learning" component={McaiLearning} />
+            
             <Route path="/cyberforge" component={CyberForgeAcademy} />
             <Route path="/cyberforge/modules" component={(props) => {
               const CyberforgeModules = lazy(() => import('./pages/cyberforge/modules'));

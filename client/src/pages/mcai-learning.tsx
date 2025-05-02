@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageTitle from '@/components/utils/PageTitle';
-import MainLayout from '@/components/layout/MainLayout';
+import Layout from '@/components/layout/Layout';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar } from '@/components/ui/avatar';
 import mcLogoPath from "@assets/mc2i.png";
@@ -187,7 +187,7 @@ export default function McaiLearning() {
   };
 
   return (
-    <MainLayout>
+    <Layout>
       <PageTitle title="mc2i AI Learning" />
       
       <div className="container mx-auto py-8 h-full flex flex-col">
@@ -332,6 +332,6 @@ export default function McaiLearning() {
           </Button>
         </form>
       </div>
-    </MainLayout>
+    </Layout>
   );
 }
