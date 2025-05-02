@@ -359,18 +359,19 @@ export default function ExpertLearningPage() {
           </div>
         </div>
         
+        {/* Bouton de retour placé en haut de la page, sans empiéter sur le contenu */}
+        <div className="fixed top-0 left-0 p-4 z-50">
+          <Button 
+            variant="outline" 
+            onClick={handleReturnToPrevious}
+            className="bg-[#091525]/90 text-[#00b4d8] hover:bg-[#112641] flex items-center gap-2 font-mono text-xs backdrop-blur-sm"
+          >
+            <span className="text-[#e63946]">←</span>
+            <span>RETOUR</span>
+          </Button>
+        </div>
+        
         <div className="relative z-10 max-w-6xl w-full mx-auto px-4 py-8 sm:px-6 sm:py-12">
-          {/* Bouton de retour - style console cybersécurité */}
-          <div className="absolute top-0 left-4 mt-4">
-            <Button 
-              variant="outline" 
-              onClick={handleReturnToPrevious}
-              className="bg-[#091525] border-[#00b4d8]/30 text-[#00b4d8] hover:bg-[#112641] hover:border-[#00b4d8]/50 flex items-center gap-2 font-mono text-xs shadow-[0_0_10px_rgba(0,180,216,0.1)]"
-            >
-              <span className="text-[#e63946]">←</span>
-              <span>RETOUR CONSOLE PRINCIPALE</span>
-            </Button>
-          </div>
           
           {/* Affichage de l'en-tête uniquement lorsque la session n'est pas active */}
           {!isSessionActive && (
@@ -538,53 +539,45 @@ export default function ExpertLearningPage() {
               </div>
             </div>
           ) : isSessionActive && (
-            <div className="mt-0">
-              {/* En-tête intégrée dans le style du fond - plus discrète */}
-              <div className="flex justify-between items-center py-2 px-4 bg-[#091525]/80 backdrop-blur-sm rounded-t-xl border-x border-t border-[#00b4d8]/30 max-w-5xl mx-auto">
-                <div className="flex items-center">
-                  <div className="h-8 w-8 flex items-center justify-center mr-3 rounded-full bg-[#00b4d8]/10 border border-[#00b4d8]/30">
+            <div className="w-full mt-4">
+              {/* Mini-statut flottant en haut du chat */}
+              <div className="fixed top-4 right-4 z-40 flex items-center bg-[#091525]/70 backdrop-blur px-3 py-1.5 rounded-full text-[#8abee0]">
+                <span className="inline-flex h-1.5 w-1.5 rounded-full bg-green-500 mr-2"></span>
+                <span className="text-xs font-mono">SESSION ACTIVE</span>
+                <span className="mx-2 opacity-50">|</span>
+                <Button 
+                  variant="ghost" 
+                  onClick={endSession} 
+                  className="h-6 w-6 p-0 text-[#00b4d8] hover:text-[#e63946] hover:bg-transparent"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <RefreshCw className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <X className="h-3 w-3" />
+                  )}
+                </Button>
+              </div>
+              
+              {/* Zone de chat intégrée directement sans conteneur */}
+              <div className="max-w-5xl mx-auto px-4 mt-2">
+                {/* En-tête minimaliste */}
+                <div className="flex items-center mb-4">
+                  <div className="h-6 w-6 flex items-center justify-center mr-2 rounded-full bg-[#00b4d8]/10">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <circle cx="12" cy="12" r="11" stroke="#00b4d8" strokeWidth="1.5" fill="none"/>
                       <circle cx="12" cy="8" r="2" fill="#00b4d8"/>
                       <rect x="10" y="11" width="4" height="7" rx="1" fill="#00b4d8"/>
                     </svg>
                   </div>
-                  <div>
-                    <span className="text-sm font-mono font-bold text-[#00b4d8]">INTERFACE: <span className="text-[#e63946]">EXPERT CYBER</span></span>
-                    <div className="text-xs text-[#8abee0]/70 flex items-center">
-                      <span className="inline-flex h-1.5 w-1.5 rounded-full bg-green-500 mr-1"></span>
-                      Terminal ID: CYBER-{Math.floor(Math.random() * 9000) + 1000}
-                    </div>
-                  </div>
+                  <span className="text-xs font-mono font-bold text-[#00b4d8]">CYBER<span className="text-[#e63946]">EXPERT</span> <span className="text-[#8abee0] font-normal opacity-70 text-[10px]">v2.5</span></span>
                 </div>
                 
-                <div className="flex items-center">
-                  <div className="text-xs text-[#8abee0] mr-4">
-                    <span className="inline-block px-2 py-0.5 rounded bg-[#0c1e2e]/70 border border-[#00b4d8]/20">
-                      SESSION: {userId?.substring(0, 6) || 'INIT-01'}
-                    </span>
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    onClick={endSession} 
-                    className="h-8 px-2 text-[#00b4d8] hover:text-[#e63946] hover:bg-[#091525]"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <RefreshCw className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <X className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-              
-              {/* Zone de chat intégrée directement dans l'interface (sans conteneur supplémentaire) */}
-              <div className="max-w-5xl mx-auto flex flex-col">
+                {/* Contenu du chat */}
                 <div 
                   ref={chatContainerRef}
-                  className="h-[calc(100vh-220px)] overflow-y-auto px-4 py-6 space-y-5 bg-gradient-to-b from-[#091525]/90 to-[#0c1e2e]/90 backdrop-blur-sm border-x border-[#00b4d8]/30"
-                  style={{backgroundImage: 'radial-gradient(circle at 50% 20%, rgba(0,180,216,0.08) 0%, rgba(0,180,216,0.01) 70%)'}}
+                  className="h-[calc(100vh-180px)] overflow-y-auto py-4 space-y-5"
+                  style={{backgroundImage: 'radial-gradient(circle at 50% 20%, rgba(0,180,216,0.05) 0%, transparent 70%)'}}
                 >
                   {messages.map((message, index) => (
                     <div 
@@ -592,7 +585,7 @@ export default function ExpertLearningPage() {
                       className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                       {message.type === 'user' ? (
-                        <div className="max-w-[80%] p-3 rounded-md bg-[#112641]/80 text-[#e5f0fc] border border-[#00b4d8]/30 shadow-[0_0_10px_rgba(0,180,216,0.05)] backdrop-blur-sm">
+                        <div className="max-w-[80%] p-3 rounded-md bg-[#112641]/70 text-[#e5f0fc] shadow-[0_0_10px_rgba(0,180,216,0.05)] backdrop-blur-sm">
                           <div className="mb-1 text-xs font-mono text-[#8abee0]">
                             <span className="font-bold">VOUS</span>
                             <span className="text-[#8abee0]/50 ml-2">{new Date(message.timestamp).toLocaleTimeString()}</span>
@@ -600,7 +593,7 @@ export default function ExpertLearningPage() {
                           <div className="whitespace-pre-wrap">{message.content}</div>
                         </div>
                       ) : (
-                        <div className="max-w-[80%] p-3 rounded-md bg-[#0c1e2e]/90 text-[#e5f0fc] border border-[#00b4d8]/30 shadow-[0_0_10px_rgba(0,180,216,0.05)]">
+                        <div className="max-w-[80%] p-3 rounded-md bg-[#0c1e2e]/70 text-[#e5f0fc] shadow-[0_0_10px_rgba(0,180,216,0.05)]">
                           <div className="mb-1 text-xs font-mono text-[#00b4d8] flex items-center">
                             <div className="h-2 w-2 rounded-full bg-[#00b4d8] mr-2"></div>
                             <span className="font-bold">EXPERT CYBER</span>
@@ -619,7 +612,7 @@ export default function ExpertLearningPage() {
                   
                   {isLoading && messages.length > 0 && (
                     <div className="flex justify-start">
-                      <div className="bg-[#0c1e2e]/80 text-[#8abee0] py-2 px-3 rounded-md flex items-center space-x-2 border border-[#00b4d8]/30 shadow-[0_0_10px_rgba(0,180,216,0.05)]">
+                      <div className="bg-[#0c1e2e]/60 text-[#8abee0] py-2 px-3 rounded-md flex items-center space-x-2 shadow-[0_0_10px_rgba(0,180,216,0.05)]">
                         <div className="flex items-center">
                           <div className="font-mono text-xs mr-2">ANALYSE EN COURS</div>
                           <div className="flex space-x-1">
@@ -637,7 +630,7 @@ export default function ExpertLearningPage() {
                 {showScrollButton && (
                   <button 
                     onClick={scrollToBottom}
-                    className="fixed right-6 bottom-24 bg-[#00b4d8] p-2 rounded-full shadow-[0_0_15px_rgba(0,180,216,0.3)] z-20 text-[#0c1e2e] hover:bg-[#00a0c2] transition-all"
+                    className="fixed right-6 bottom-20 bg-[#00b4d8]/80 p-2 rounded-full shadow-[0_0_10px_rgba(0,180,216,0.2)] z-20 text-[#0c1e2e] hover:bg-[#00b4d8] transition-all"
                     title="Défiler vers le bas"
                     aria-label="Défiler vers le bas de la conversation"
                   >
@@ -645,9 +638,9 @@ export default function ExpertLearningPage() {
                   </button>
                 )}
                 
-                {/* Zone de saisie intégrée dans l'interface */}
-                <div className="py-3 px-4 bg-[#091525]/90 backdrop-blur-sm border-x border-b border-[#00b4d8]/30 rounded-b-xl">
-                  <form onSubmit={handleSubmit} className="flex space-x-2">
+                {/* Zone de saisie sans bordures */}
+                <div className="mt-4 py-3 bg-[#091525]/40 backdrop-blur-sm rounded-lg">
+                  <form onSubmit={handleSubmit} className="flex px-4 space-x-2">
                     <div className="relative flex-1">
                       <div className="absolute left-0 top-0 pl-3 h-full flex items-center text-[#00b4d8] opacity-70 pointer-events-none">
                         <span className="font-mono text-sm">{'>'}</span>
@@ -658,7 +651,7 @@ export default function ExpertLearningPage() {
                         onChange={(e) => setInputMessage(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder="Posez votre question sur la cybersécurité..."
-                        className="w-full pl-8 pr-4 py-2 bg-[#0c1e2e]/60 border border-[#00b4d8]/30 rounded-md text-[#e5f0fc] placeholder-[#8abee0]/50 resize-none focus:ring-1 focus:ring-[#00b4d8] focus:border-[#00b4d8]/50 font-mono"
+                        className="w-full pl-8 pr-4 py-2 bg-[#0c1e2e]/30 rounded-md text-[#e5f0fc] placeholder-[#8abee0]/50 resize-none focus:ring-1 focus:ring-[#00b4d8]/30 focus:outline-none font-mono"
                         rows={1}
                         disabled={isLoading}
                         style={{ minHeight: "2.5rem", maxHeight: "6rem" }}
@@ -666,7 +659,7 @@ export default function ExpertLearningPage() {
                     </div>
                     <Button 
                       type="submit" 
-                      className="bg-[#00b4d8] hover:bg-[#00a0c2] text-[#0c1e2e] px-3 py-1 font-mono text-sm rounded-md flex-shrink-0 h-auto transition-all"
+                      className="bg-[#00b4d8]/80 hover:bg-[#00b4d8] text-[#0c1e2e] px-3 py-1 font-mono text-xs rounded-md flex-shrink-0 h-auto transition-all"
                       disabled={!inputMessage.trim() || isLoading}
                     >
                       {isLoading ? (
