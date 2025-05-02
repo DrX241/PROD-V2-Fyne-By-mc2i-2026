@@ -50,6 +50,8 @@ import AmoaQuestPage from "@/pages/amoa/quest";
 import CyberInterviewSimulation from "@/pages/cyber/interview-simulation";
 import AmoaInterviewSimulation from "@/pages/amoa/interview-simulation";
 import ProjetImposteur from "@/pages/amoa/projet-imposteur";
+// Module Apprendre en échangeant
+import ExpertLearningPage from "@/pages/cyber/expert-learning";
 // Autres pages
 import ImmersiveSimulation from "@/pages/immersive-simulation";
 import ImmersiveScenarioDetail from "@/pages/immersive-scenario-detail";
@@ -104,6 +106,7 @@ function App() {
             <Route path="/cyber/cyber-agent" component={CyberAgentRedirectPage} /> {/* Redirection vers la nouvelle version */}
             <Route path="/cyber/cyber-agent-old" component={CyberAgentRedirectPage} /> {/* Ancienne version (redirection) */}
             <Route path="/cyber/cyber-agent-new" component={CyberAgentNewPage} /> {/* Nouvelle version du module Cyber Agent */}
+            <Route path="/cyber/expert-learning" component={ExpertLearningPage} /> {/* Module Apprendre en échangeant */}
             {/* Module d'arcade cyber et jeux d'enquête */}
             <Route path="/cyber/arcade" component={CyberArcade} />
             <Route path="/cyber/arcade/cyber-investigator" component={CyberInvestigator} />

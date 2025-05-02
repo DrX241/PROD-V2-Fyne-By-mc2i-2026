@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Send, ChevronDown, RefreshCw, Bot, X } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import HomeLayout from "@/components/layout/HomeLayout";
-import PageTitle from "@/components/shared/PageTitle";
+import PageTitle from "@/components/utils/PageTitle";
 import { apiRequest } from "@/lib/queryClient";
 
 interface Message {
