@@ -192,13 +192,15 @@ export default function McaiLearning() {
       
       <div className="container mx-auto py-8 h-full flex flex-col">
         {/* Entête */}
-        <div className={`flex items-center justify-between mb-6 ${isFuturistic ? 'border-b border-blue-800/50 pb-4' : 'border-b border-gray-200 pb-4'}`}>
+        <div className={`flex items-center justify-between mb-6 ${isFuturistic ? 'border-b border-[#1e75a3]/50 pb-4' : 'border-b border-[#1e75a3]/20 pb-4'}`}>
           <div className="flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isFuturistic ? 'bg-gradient-to-br from-emerald-900 to-blue-900 border border-emerald-500/30' : 'bg-emerald-100'}`}>
-              <GraduationCap className={`${isFuturistic ? 'text-emerald-300' : 'text-emerald-600'}`} size={24} />
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isFuturistic ? 'bg-gradient-to-br from-[#1e75a3] to-[#0d3b5a] border border-[#1e75a3]/30' : 'bg-[#1e75a3]/10'}`}>
+              <GraduationCap className={`${isFuturistic ? 'text-white' : 'text-[#1e75a3]'}`} size={24} />
             </div>
             <div>
-              <h1 className={`text-2xl font-bold ${isFuturistic ? 'text-white' : 'text-gray-800'}`}>mc2i AI Learning</h1>
+              <h1 className={`text-2xl font-bold ${isFuturistic ? 'text-white' : 'text-[#1e75a3]'}`}>
+                m<span className="text-[#e6007e]">c2</span>i AI Learning
+              </h1>
               <p className={`text-sm ${isFuturistic ? 'text-blue-200' : 'text-gray-600'}`}>
                 Votre assistant virtuel d'évaluation et de formation
               </p>
@@ -208,10 +210,10 @@ export default function McaiLearning() {
           <div className="flex items-center gap-2">
             {isInitialized && (
               <Button 
-                variant={isFuturistic ? "outline" : "secondary"} 
+                variant={isFuturistic ? "outline" : "ghost"} 
                 size="sm"
                 onClick={handleResetSession}
-                className={isFuturistic ? 'border-blue-700 hover:bg-blue-900/50 text-blue-300' : ''}
+                className={isFuturistic ? 'border-[#1e75a3] hover:bg-[#1e75a3]/20 text-white' : 'text-[#1e75a3] hover:bg-[#1e75a3]/10 hover:text-[#1e75a3]'}
               >
                 <RefreshCw size={16} className="mr-2" />
                 Réinitialiser
@@ -225,8 +227,8 @@ export default function McaiLearning() {
         <div 
           className={`flex-grow overflow-y-auto mb-4 p-4 rounded-lg ${
             isFuturistic 
-              ? 'bg-gradient-to-b from-blue-950/50 to-emerald-950/50 border border-blue-800/30' 
-              : 'bg-gray-50 border border-gray-200'
+              ? 'bg-gradient-to-b from-[#1e75a3]/10 to-[#0d3b5a]/30 border border-[#1e75a3]/20' 
+              : 'bg-gray-50/80 border border-[#1e75a3]/10'
           }`}
         >
           <AnimatePresence initial={false}>
@@ -247,7 +249,7 @@ export default function McaiLearning() {
                       {msg.role === 'assistant' ? (
                         <img src={mcLogoPath} alt="mc2i" className="object-cover" />
                       ) : (
-                        <div className={`w-full h-full flex items-center justify-center ${isFuturistic ? 'bg-blue-800' : 'bg-blue-600'}`}>
+                        <div className={`w-full h-full flex items-center justify-center ${isFuturistic ? 'bg-[#1e75a3]' : 'bg-[#1e75a3]'}`}>
                           <Users size={20} className="text-white" />
                         </div>
                       )}
@@ -259,11 +261,11 @@ export default function McaiLearning() {
                     className={`px-4 py-3 rounded-lg ${
                       msg.role === 'user' 
                         ? isFuturistic 
-                          ? 'bg-blue-800/70 text-white' 
-                          : 'bg-blue-600 text-white' 
+                          ? 'bg-[#1e75a3]/90 text-white border border-[#1e75a3]/40' 
+                          : 'bg-[#1e75a3] text-white' 
                         : isFuturistic 
-                          ? 'bg-blue-950/70 border border-emerald-800/30 text-blue-100' 
-                          : 'bg-white border border-gray-200 text-gray-800'
+                          ? 'bg-white/90 border border-[#e6007e]/20 text-gray-800' 
+                          : 'bg-white border border-[#e6007e]/10 text-gray-800'
                     }`}
                   >
                     <div className="whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: msg.content.replace(/\n/g, '<br/>') }} />
@@ -286,14 +288,14 @@ export default function McaiLearning() {
                   <div 
                     className={`px-4 py-3 rounded-lg ${
                       isFuturistic 
-                        ? 'bg-blue-950/70 border border-emerald-800/30 text-blue-100' 
-                        : 'bg-white border border-gray-200 text-gray-800'
+                        ? 'bg-white/90 border border-[#e6007e]/20 text-gray-800' 
+                        : 'bg-white border border-[#e6007e]/10 text-gray-800'
                     }`}
                   >
                     <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></div>
-                      <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse delay-100"></div>
-                      <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse delay-200"></div>
+                      <div className="w-2 h-2 rounded-full bg-[#e6007e] animate-pulse"></div>
+                      <div className="w-2 h-2 rounded-full bg-[#e6007e] animate-pulse delay-100"></div>
+                      <div className="w-2 h-2 rounded-full bg-[#e6007e] animate-pulse delay-200"></div>
                     </div>
                   </div>
                 </div>
@@ -312,8 +314,8 @@ export default function McaiLearning() {
             placeholder="Tapez votre message ici..."
             className={`w-full p-3 pr-12 resize-none ${
               isFuturistic 
-                ? 'bg-blue-950/50 border-blue-800/50 text-blue-100 focus:border-emerald-600/70 focus:ring-emerald-600/30' 
-                : 'bg-white border-gray-300 text-gray-800 focus:border-blue-500'
+                ? 'bg-[#1e75a3]/10 border-[#1e75a3]/30 text-gray-800 focus:border-[#1e75a3]/70 focus:ring-[#1e75a3]/30' 
+                : 'bg-white border-[#1e75a3]/20 text-gray-800 focus:border-[#1e75a3] focus:ring-[#1e75a3]/20'
             }`}
             disabled={isLoading}
             rows={3}
@@ -323,8 +325,8 @@ export default function McaiLearning() {
             disabled={!newMessage.trim() || isLoading}
             className={`absolute right-3 bottom-3 ${
               isFuturistic
-                ? 'bg-gradient-to-r from-emerald-700 to-blue-700 hover:from-emerald-600 hover:to-blue-600 border border-emerald-500/30' 
-                : 'bg-blue-600 hover:bg-blue-700'
+                ? 'bg-gradient-to-r from-[#1e75a3] to-[#0d3b5a] hover:from-[#1e75a3]/90 hover:to-[#0d3b5a]/90 border border-[#1e75a3]/30' 
+                : 'bg-[#e6007e] hover:bg-[#e6007e]/90'
             }`}
             size="icon"
           >
