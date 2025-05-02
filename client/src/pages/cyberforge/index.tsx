@@ -287,9 +287,9 @@ function CyberForge() {
                 >
                   <Card className="bg-black/40 backdrop-blur-md border-t border-l border-blue-500/20 shadow-[0_0_25px_rgba(59,130,246,0.15)]">
                     <CardHeader>
-                      <CardTitle className="text-xl text-blue-100">Choisissez votre spécialisation</CardTitle>
+                      <CardTitle className="text-xl text-blue-100">Choisissez votre specialisation</CardTitle>
                       <CardDescription className="text-blue-300">
-                        Sélectionnez un profil pour personnaliser votre parcours d'apprentissage.
+                        Selectionnez un profil pour personnaliser votre parcours d'apprentissage.
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -346,7 +346,7 @@ function CyberForge() {
                   <Card className="bg-black/40 backdrop-blur-md border-t border-l border-blue-500/20 shadow-[0_0_25px_rgba(59,130,246,0.15)]">
                     <CardHeader>
                       <CardTitle className="text-xl text-blue-100">
-                        Spécialisation: {selectedAvatar.name}
+                        Specialisation: {selectedAvatar.name}
                       </CardTitle>
                       <CardDescription className="text-blue-300">
                         {selectedAvatar.description}
@@ -354,7 +354,7 @@ function CyberForge() {
                     </CardHeader>
                     <CardContent className="space-y-6">
                       <div>
-                        <h3 className="text-sm font-medium text-blue-200 mb-2">Compétences principales</h3>
+                        <h3 className="text-sm font-medium text-blue-200 mb-2">Competences principales</h3>
                         <div className="flex flex-wrap gap-2">
                           {selectedAvatar.primarySkills.map((skill, i) => (
                             <Badge key={i} className="bg-blue-900/60 text-blue-200 border border-blue-700/60">
@@ -365,7 +365,7 @@ function CyberForge() {
                       </div>
 
                       <div>
-                        <h3 className="text-sm font-medium text-blue-200 mb-2">Capacités spéciales</h3>
+                        <h3 className="text-sm font-medium text-blue-200 mb-2">Capacites speciales</h3>
                         <ul className="text-sm text-blue-300 space-y-1">
                           {selectedAvatar.abilities.map((ability, i) => (
                             <li key={i} className="flex items-center">
@@ -380,7 +380,7 @@ function CyberForge() {
                         onClick={handleContinue}
                         className="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white"
                       >
-                        Commencer l'entraînement
+                        Commencer l'entrainement
                       </Button>
                     </CardContent>
                   </Card>
@@ -469,7 +469,7 @@ function CyberForge() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Shield className="h-5 w-5 text-blue-500" />
-                    Intelligence de sécurité
+                    Intelligence de securite
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -487,7 +487,7 @@ function CyberForge() {
                       className="w-full"
                     >
                       <BookOpen className="mr-2 h-4 w-4" />
-                      Accéder aux modules
+                      Acceder aux modules
                     </Button>
                   </div>
                 </CardContent>
@@ -529,7 +529,7 @@ function CyberForge() {
                     
                     <div className="p-4 rounded-md border relative group opacity-75 transition-all hover:shadow-md">
                       <h3 className="font-medium mb-2 flex items-center gap-2">
-                        <Terminal className="h-4 w-4 text-green-500" /> Sécurité réseau
+                        <Terminal className="h-4 w-4 text-green-500" /> Securite reseau
                       </h3>
                       <p className="text-sm text-muted-foreground">Protection des infrastructures.</p>
                       <div className="mt-3 flex justify-between items-center">
