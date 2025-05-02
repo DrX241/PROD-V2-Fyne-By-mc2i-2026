@@ -294,13 +294,36 @@ function CyberForge() {
   };
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+    <div className={`min-h-screen ${isDark ? 'bg-[#0a0e17] text-white' : 'bg-[#f0f4f8] text-gray-900'}`}>
       {showEntryPortal ? (
-        // SAS d'entrée immersif
-        <div className={`min-h-screen relative ${isDark ? 'bg-gray-950' : 'bg-gray-100'} overflow-hidden`}>
-          {/* Effet de grille cyber */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-purple-900/30 z-0"></div>
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA4MCAwIEwgMCAwIDAgODAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSg2MCwgOTAsIDIzMCwgMC4xKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIiAvPjwvc3ZnPg==')]  bg-center z-0 opacity-20"></div>
+        // SAS d'entrée immersif modernisé avec effet futuriste
+        <div className="min-h-screen relative overflow-hidden bg-[#050a14]">
+          {/* Arrière-plan dynamique et moderne */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0f1d3c]/80 via-[#0b1328]/90 to-[#071428]/80 z-0"></div>
+          
+          {/* Grille hexagonale cyber - effet plus technologique et immersif */}
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImhleGFncmlkIiB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSgzMCkiPjxwYXRoIGQ9Ik0gMCAtMTAgTCAtOC42NiA1IEwgMCAyMCBMIDguNjYgNSBaIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMzAsIDg1LCAyMDAsIDAuMTUpIiBzdHJva2Utd2lkdGg9IjAuNSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMzAsIDMwKSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNoZXhhZ3JpZCkiIC8+PC9zdmc+')]  bg-center z-0 opacity-25"></div>
+          
+          {/* Particules flottantes - effet dynamique et technologique */}
+          <div className="absolute inset-0 overflow-hidden">
+            {Array.from({ length: 15 }).map((_, i) => (
+              <div 
+                key={i}
+                className={`absolute w-1 h-1 rounded-full bg-blue-400 animate-pulse opacity-80`}
+                style={{
+                  top: `${Math.random() * 100}%`,
+                  left: `${Math.random() * 100}%`,
+                  animationDuration: `${Math.random() * 8 + 4}s`,
+                  animationDelay: `${Math.random() * 5}s`,
+                  boxShadow: '0 0 12px 2px rgba(59, 130, 246, 0.5)',
+                  transform: `scale(${Math.random() * 1.5 + 0.5})`,
+                }}
+              />
+            ))}
+          </div>
+          
+          {/* Effet néon lumineux sur les bords de l'écran */}
+          <div className="absolute inset-0 border-l-2 border-t-2 border-r-2 border-blue-500/10 rounded-xl pointer-events-none"></div>
           
           {/* Conteneur principal centré */}
           <div className="container mx-auto px-4 py-8 min-h-screen flex flex-col items-center justify-center relative z-10">
