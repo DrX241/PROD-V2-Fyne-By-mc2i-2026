@@ -12,8 +12,7 @@ export const USER_ROLES: UserRole[] = [
   { id: 'hacker', name: 'Hacker éthique', description: 'Expert en tests d\'intrusion et sécurité', available: true },
   { id: 'developpeur', name: 'Développeur', description: 'Développeur sensibilisé aux vulnérabilités logicielles', available: true },
   { id: 'admin', name: 'Administrateur Système', description: 'Gestionnaire de l\'infrastructure sécurisée', available: true },
-  { id: 'consultant', name: 'Consultant en cybersécurité', description: 'Spécialiste des audits de sécurité', available: true },
-  { id: 'analyste', name: 'Analyste SOC', description: 'Expert en détection et analyse des menaces cyber', available: true }
+  { id: 'consultant', name: 'Consultant en cybersécurité', description: 'Spécialiste des audits de sécurité', available: true }
 ];
 
 export interface ScenarioContact {

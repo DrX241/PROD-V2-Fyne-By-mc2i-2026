@@ -138,7 +138,7 @@ export default function ScenarioSelection() {
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
+      <div className="space-y-3 sm:space-y-4">
         {filteredScenarios.map((s: any) => {
           const diffConfig = getDifficultyConfig(s.difficulty);
           const isHovered = hoveredScenario === s.id;
@@ -151,14 +151,14 @@ export default function ScenarioSelection() {
               onMouseEnter={() => setHoveredScenario(s.id)}
               onMouseLeave={() => setHoveredScenario(null)}
             >
-              <div className={`relative flex flex-col justify-between p-2 sm:p-3 rounded-lg ${scenarioActive ? 'bg-gray-900/20 opacity-50 cursor-not-allowed' : 'bg-gray-900/40 hover:border-blue-600/40 group-hover:-translate-y-0.5'} backdrop-blur-sm border border-blue-800/30 transition-all duration-300 shadow-md hover:shadow-lg h-full`}>
+              <div className={`relative flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-5 rounded-xl ${scenarioActive ? 'bg-gray-900/20 opacity-50 cursor-not-allowed' : 'bg-gray-900/40 hover:border-blue-600/40 group-hover:-translate-y-0.5'} backdrop-blur-sm border border-blue-800/30 transition-all duration-300 shadow-md hover:shadow-xl`}>
                 {!scenarioActive && (
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-transparent to-blue-600/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-transparent to-blue-600/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 )}
                 
                 <div className="flex-1 relative z-10">
-                  <h3 className="font-bold text-sm sm:text-base text-blue-100 group-hover:text-blue-50 transition-colors">{s.title}</h3>
-                  <p className="mt-0.5 sm:mt-1 text-blue-300/90 text-[9px] sm:text-xs">
+                  <h3 className="font-bold text-base sm:text-xl text-blue-100 group-hover:text-blue-50 transition-colors">{s.title}</h3>
+                  <p className="mt-1 sm:mt-2 text-blue-300/90 text-xs sm:text-sm">
                     {scenarioActive ? 
                       'Indisponible - Cliquez sur "Nouvelle session" pour réinitialiser' : 
                       'Cliquez pour commencer ce scénario'
@@ -166,15 +166,15 @@ export default function ScenarioSelection() {
                   </p>
                 </div>
                 
-                <div className="flex items-center gap-1 sm:gap-2 relative z-10 mt-2 justify-between">
-                  <span className={`flex items-center px-1.5 sm:px-2 py-0.5 rounded ${diffConfig.bgColor} ${diffConfig.textColor} border ${diffConfig.borderColor} text-[8px] sm:text-[10px] font-medium shadow-glow-sm`}>
+                <div className="flex items-center gap-2 sm:gap-4 relative z-10 mt-3 sm:mt-0 self-end sm:self-auto">
+                  <span className={`flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-md ${diffConfig.bgColor} ${diffConfig.textColor} border ${diffConfig.borderColor} text-[10px] sm:text-xs font-medium shadow-glow-sm`}>
                     {React.cloneElement(diffConfig.icon as React.ReactElement, { 
-                      className: `w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 ${(diffConfig.icon as React.ReactElement).props.className.split(' ').filter((c: string) => c.includes('w-') || c.includes('h-') || c.includes('mr-')).length ? '' : 'mr-0.5'}` 
+                      className: `w-3 h-3 sm:w-4 sm:h-4 mr-1 ${(diffConfig.icon as React.ReactElement).props.className.split(' ').filter((c: string) => c.includes('w-') || c.includes('h-') || c.includes('mr-')).length ? '' : 'mr-1'}` 
                     })}
                     {diffConfig.label}
                   </span>
-                  <div className="text-blue-400 group-hover:text-blue-300 transition-all duration-300 transform group-hover:translate-x-0.5">
-                    <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <div className="text-blue-400 group-hover:text-blue-300 transition-all duration-300 transform group-hover:translate-x-1">
+                    <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
                 </div>
               </div>

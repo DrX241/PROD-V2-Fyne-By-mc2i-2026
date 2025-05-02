@@ -83,10 +83,10 @@ export default function RoleSelection({ onSelectRole }: RoleSelectionProps) {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 mt-2 sm:mt-3 overflow-visible">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-2 sm:mt-3 overflow-visible">
         {availableRoles.map((role) => {
           const config = roleConfig[role.id] || {
-            icon: <Lock className="w-5 h-5 sm:w-7 sm:h-7 text-blue-300" />,
+            icon: <Lock className="w-6 h-6 sm:w-10 sm:h-10 text-blue-300" />,
             bgGradient: "from-blue-900/50 via-blue-800/30 to-blue-900/50",
             borderColor: "border-blue-700/30",
             glowColor: "text-blue-200",
@@ -103,11 +103,11 @@ export default function RoleSelection({ onSelectRole }: RoleSelectionProps) {
               onMouseEnter={() => setHoveredRole(role.id)}
               onMouseLeave={() => setHoveredRole(null)}
               className={`group relative bg-gradient-to-br ${config.bgGradient} backdrop-blur-sm border ${config.borderColor} 
-                rounded-lg overflow-hidden shadow-md ${config.shadowColor} 
-                transition-all duration-500 flex flex-col items-center text-center p-2 min-h-[100px] sm:min-h-[120px] justify-between
+                rounded-xl overflow-hidden shadow-lg ${config.shadowColor} 
+                transition-all duration-500 flex flex-col items-center text-center p-3 sm:p-4 min-h-[130px] sm:min-h-[180px] justify-between
                 ${!isAvailable ? 
                   'opacity-40 cursor-not-allowed' : 
-                  'hover:shadow-lg hover:-translate-y-0.5 hover:scale-[1.01] active:scale-[0.98]'
+                  'hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98]'
                 }`}
             >
               {/* Background glow effect */}
@@ -116,27 +116,27 @@ export default function RoleSelection({ onSelectRole }: RoleSelectionProps) {
               )}
               
               {/* Icon */}
-              <div className={`relative z-10 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-900/50 border ${config.borderColor} 
-                flex items-center justify-center mb-1 sm:mb-2 group-hover:scale-110 transition-transform duration-500
-                shadow-glow-sm`}>
+              <div className={`relative z-10 w-10 h-10 sm:w-16 sm:h-16 rounded-full bg-gray-900/50 border ${config.borderColor} 
+                flex items-center justify-center mb-2 sm:mb-3 group-hover:scale-110 transition-transform duration-500
+                shadow-glow-md`}>
                 {React.cloneElement(config.icon as React.ReactElement, { 
-                  className: `w-4 h-4 sm:w-5 sm:h-5 ${(config.icon as React.ReactElement).props.className.split(' ').filter((c: string) => c.includes('text-')).join(' ')}` 
+                  className: `w-5 h-5 sm:w-8 sm:h-8 ${(config.icon as React.ReactElement).props.className.split(' ').filter((c: string) => c.includes('text-')).join(' ')}` 
                 })}
                 
                 {/* Pulsing ring effect on hover */}
                 {isHovered && isAvailable && (
-                  <div className="absolute inset-0 rounded-full border border-blue-400/20 animate-ping"></div>
+                  <div className="absolute inset-0 rounded-full border-2 border-blue-400/20 animate-ping"></div>
                 )}
               </div>
               
               {/* Role name */}
               <div className="relative z-10 w-full">
-                <h3 className={`font-bold text-xs sm:text-sm ${config.glowColor} h-auto flex items-center justify-center leading-snug px-1`}>
+                <h3 className={`font-bold text-sm sm:text-lg ${config.glowColor} h-auto flex items-center justify-center leading-snug px-1`}>
                   {role.name}
                 </h3>
                 
                 {/* Description on hover - visible by default on mobile */}
-                <p className="mt-0.5 sm:mt-1 text-[9px] sm:text-xs text-blue-200/80 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-500 sm:h-0 sm:group-hover:h-auto overflow-hidden">
+                <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-blue-200/80 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-500 sm:h-0 sm:group-hover:h-auto overflow-hidden">
                   {!isAvailable ? 
                     'Ce rôle a déjà été sélectionné et n\'est plus disponible' : 
                     role.description
