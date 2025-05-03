@@ -632,7 +632,7 @@ export default function ExpertLearningPage() {
                           <span className="font-bold">EXPERT CYBER</span>
                           <span className="text-[#8abee0]/50 ml-1.5 sm:ml-2 text-[9px] sm:text-xs">{new Date(message.timestamp).toLocaleTimeString()}</span>
                         </div>
-                        {message.content.includes("Que souhaitez-vous explorer") || message.content.includes("résoudre un problème") || message.content.includes("apprendre un concept") ? (
+                        {message.content.includes("Que souhaitez-vous explorer") || message.content.includes("résoudre un problème") || message.content.includes("apprendre un concept") || message.content.includes("démarrons une nouvelle session") ? (
                           <div className="max-w-none">
                             <div className="text-[#c3d9ee] text-xs sm:text-sm mb-3">
                               {message.content.split("?")[0]}?
