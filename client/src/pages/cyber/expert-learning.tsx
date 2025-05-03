@@ -633,47 +633,37 @@ export default function ExpertLearningPage() {
                           <span className="text-[#8abee0]/50 ml-1.5 sm:ml-2 text-[9px] sm:text-xs">{new Date(message.timestamp).toLocaleTimeString()}</span>
                         </div>
                         {message.content.includes("Que souhaitez-vous explorer") || message.content.includes("résoudre un problème") || message.content.includes("apprendre un concept") ? (
-                          <div className="prose prose-invert prose-sm max-w-none">
+                          <div className="max-w-none">
                             <div className="text-[#c3d9ee] text-xs sm:text-sm mb-3">
                               {message.content.split("?")[0]}?
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mt-3">
                               <button 
                                 onClick={() => {
-                                  setInputMessage("Je cherche à résoudre un problème précis");
+                                  setInputMessage("1");
                                   setTimeout(() => handleSubmit(new Event('click') as any), 100);
                                 }}
                                 className="bg-[#112641] hover:bg-[#153254] border border-[#00b4d8]/40 p-2 rounded-md text-center text-xs sm:text-sm text-[#00b4d8] transition-colors"
                               >
-                                <span className="block mb-1 text-[#e5f0fc]">Résoudre un problème</span>
+                                <span className="block mb-1 text-[#e5f0fc]">1. Résoudre un problème</span>
                                 <span className="text-[10px] sm:text-xs text-[#8abee0] block">Un défi technique précis à surmonter</span>
                               </button>
                               <button 
                                 onClick={() => {
-                                  setInputMessage("Je veux explorer une problématique sectorielle");
+                                  setInputMessage("2");
                                   setTimeout(() => handleSubmit(new Event('click') as any), 100);
                                 }}
                                 className="bg-[#112641] hover:bg-[#153254] border border-[#00b4d8]/40 p-2 rounded-md text-center text-xs sm:text-sm text-[#00b4d8] transition-colors"
                               >
-                                <span className="block mb-1 text-[#e5f0fc]">Explorer une problématique</span>
-                                <span className="text-[10px] sm:text-xs text-[#8abee0] block">Un sujet lié à mon secteur d'activité</span>
-                              </button>
-                              <button 
-                                onClick={() => {
-                                  setInputMessage("Je souhaite apprendre un concept cyber");
-                                  setTimeout(() => handleSubmit(new Event('click') as any), 100);
-                                }}
-                                className="bg-[#112641] hover:bg-[#153254] border border-[#00b4d8]/40 p-2 rounded-md text-center text-xs sm:text-sm text-[#00b4d8] transition-colors"
-                              >
-                                <span className="block mb-1 text-[#e5f0fc]">Apprendre un concept</span>
-                                <span className="text-[10px] sm:text-xs text-[#8abee0] block">Une notion de cybersécurité à comprendre</span>
+                                <span className="block mb-1 text-[#e5f0fc]">2. Comprendre un concept</span>
+                                <span className="text-[10px] sm:text-xs text-[#8abee0] block">Une notion cyber à maîtriser</span>
                               </button>
                             </div>
-                            <div className="text-[10px] text-[#8abee0]/60 mt-2 text-center">Vous pouvez aussi décrire votre besoin directement dans la zone de texte</div>
+                            <div className="text-[10px] text-[#8abee0]/60 mt-2 text-center">Vous pouvez aussi répondre directement dans la zone de texte</div>
                           </div>
                         ) : (
                           <div 
-                            className="prose prose-invert prose-sm sm:prose-sm max-w-none text-[#c3d9ee] text-xs sm:text-sm text-pretty" 
+                            className="prose prose-invert max-w-none text-[#c3d9ee] text-xs sm:text-sm text-pretty" 
                             dangerouslySetInnerHTML={{ 
                               __html: DOMPurify.sanitize(formatTextWithStructure(message.content))
                             }}
