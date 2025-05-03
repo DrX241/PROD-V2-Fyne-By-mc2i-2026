@@ -42,10 +42,10 @@ export async function initCyberExpertSession(req: Request, res: Response) {
       content: getCyberExpertSystemPrompt()
     };
     
-    // Message d'accueil ludique sous forme de jeu
+    // Message d'accueil avec question spécifique pour l'interface interactive
     const welcomeMessage: ChatCompletionRequestMessage = {
       role: "assistant",
-      content: "🎮 Bienvenue dans CYBER CHALLENGE ! 🎮\n\nJe suis votre guide dans cette aventure cybersécurité. Prêt à relever le défi ?\n\nChoisissez votre mission :\n1️⃣ Résoudre un problème cyber spécifique\n2️⃣ Explorer une menace dans votre secteur\n3️⃣ Découvrir un concept cyber de façon différente\n\nQuelle sera votre mission aujourd'hui ? (Répondez avec le numéro ou décrivez votre besoin)"
+      content: "Bonjour ! Je suis l'expert cyber de I AM CYBER, prêt à vous aider dans votre parcours d'apprentissage. Que souhaitez-vous explorer aujourd'hui ?\n\nVoulez-vous résoudre un problème précis, explorer une problématique sectorielle ou apprendre un concept cyber ?"
     };
     
     // Ajouter les messages à la session
