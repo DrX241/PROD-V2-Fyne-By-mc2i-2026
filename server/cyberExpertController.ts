@@ -435,30 +435,68 @@ async function handleLearningStage(session: CyberExpertSession, message: string)
      msg.content.toLowerCase().includes("aléatoire"))
   );
   
-  let stagePrompt = "";
-  const shouldConclude = userMessageCount >= 5; // Conclure après 4 échanges
+  // Déterminer l'étape en fonction du nombre de messages
+  const shouldQuiz = userMessageCount >= 5 && userMessageCount < 7; // QCM après 5 échanges
+  const shouldConclude = userMessageCount >= 7; // Conclure après 7 échanges
+  const isNewSession = message.toLowerCase() === 'nouvelle session';
 
+  // Si l'utilisateur demande une nouvelle session, on réinitialise
+  if (isNewSession) {
+    // On vide la session sauf l'ID utilisateur et les informations de niveau
+    session.messages = [];
+    session.needIdentified = false;
+    session.needConfirmed = false;
+    session.currentStage = 'initial';
+    session.topic = undefined;
+    
+    return "Très bien, démarrons une nouvelle session ! Que souhaitez-vous explorer aujourd'hui ?\n\n1. Résoudre un problème cyber\n2. Comprendre un concept en cybersécurité\n3. Découvrir un sujet cyber intéressant";
+  }
+
+  // Déterminer le prompt en fonction de l'étape
+  let stagePrompt = "";
+  
   if (shouldConclude) {
-    // 5. Conclusion - Même pour tous les types de demandes
+    // 6. Conclusion finale
     stagePrompt = `
       Nous arrivons à la fin de notre échange sur "${session.topic}".
       
       Suivez exactement ce format pour conclure:
       
-      1. RÉSUMÉ DES POINTS CLÉS
+      1. RÉCAPITULATIF FINAL
       - Résumez en exactement 3 à 5 points ce qui a été abordé
-      - Chaque point doit être très concis (une ligne maximum)
+      - Chaque point doit être très concis et instructif
       
-      2. OPTIONS POUR CONTINUER
-      Proposez explicitement à l'utilisateur s'il souhaite:
-      - Approfondir un aspect spécifique (suggérez lequel)
-      - Passer à un autre sujet lié
-      - Terminer la session (en cliquant en haut à droite)
-      
-      Terminez par: "Souhaitez-vous approfondir certains éléments ou lancer une nouvelle session ?"
+      2. DERNIÈRES ACTIONS POSSIBLES
+      - Formulez clairement les deux options suivantes:
+        > "Avez-vous une dernière question avant de terminer notre session ?"
+        > "Pour démarrer un tout nouveau sujet, tapez 'nouvelle session'"
       
       Format: présentez les points de façon structurée, utilisez des puces, soyez concis,
       intégrez 1-2 emojis pertinents, référencez des sources fiables si nécessaire.
+      Ton: chaleureux et encourageant pour valoriser le parcours d'apprentissage effectué.
+    `;
+  } else if (shouldQuiz) {
+    // 5. Quiz d'évaluation
+    stagePrompt = `
+      L'utilisateur a suffisamment progressé sur le sujet "${session.topic}" pour évaluer ses connaissances.
+      
+      Créez un QUIZ CYBERSÉCURITÉ qui suit exactement ce format:
+      
+      1. INTRODUCTION
+      - Annoncez un mini-quiz de 5 questions pour tester les connaissances acquises sur ${session.topic}
+      - Encouragez l'utilisateur à y participer de façon ludique
+      
+      2. QUIZ (5 QUESTIONS)
+      - Rédigez exactement 5 questions à choix multiples, numérotées de 1 à 5
+      - Chaque question doit avoir 3 ou 4 options de réponse (a, b, c, d)
+      - Les questions doivent couvrir les principaux aspects discutés
+      - Variez la difficulté: 2 faciles, 2 moyennes, 1 difficile
+      
+      3. INSTRUCTIONS
+      - Demandez à l'utilisateur de répondre en donnant simplement les numéros et lettres (ex: "1a, 2c, 3b, 4d, 5a")
+      
+      Format: présentez clairement chaque question et ses options, utilisez une mise en forme soignée,
+      gardez un ton ludique et encourageant. La présentation doit être impeccable.
     `;
   } else if (isDiscoveryMode) {
     // Réponse pour le mode découverte
@@ -774,15 +812,22 @@ Reformule le besoin exprimé et demande à l'utilisateur de confirmer :
 
 ---
 
-🧩 5. Conclusion :
+🧮 5. Quiz et évaluation:
 
-- Résume en 3 à 5 points ce qui a été abordé.
-- Demande si l'utilisateur souhaite :
-  - Approfondir un aspect
-  - Passer à un autre sujet
-  - Ou terminer la session (en cliquant en haut à droite)
+- Propose un QCM de 5 questions rapides sur le sujet discuté
+- Chaque question doit avoir 3 à 4 options de réponse
+- Après les réponses de l'utilisateur, fournis un score et une brève explication
+- Structure: "QUIZ CYBERSÉCURITÉ" suivi des questions numérotées et options lettrées
 
-> "Souhaitez-vous approfondir certains éléments ou lancer une nouvelle session ?"
+🧩 6. Conclusion :
+
+- Résume en 3 à 5 points ce qui a été abordé
+- Demande explicitement si l'utilisateur souhaite :
+  - Poser une dernière question précise sur le sujet
+  - Terminer complètement la session
+  
+> "Avez-vous une dernière question avant de terminer notre session ?"
+> Si non, propose: "Tapez 'nouvelle session' pour démarrer un nouveau sujet"
 
 FORMAT DES MESSAGES:
 * Présentation soignée: titres en MAJUSCULES, points clés en puces
