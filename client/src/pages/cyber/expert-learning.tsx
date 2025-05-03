@@ -17,6 +17,11 @@ const formatTextWithStructure = (text: string): string => {
   // Convertir les sauts de ligne en balises <br>
   let formattedText = text.replace(/\n/g, '<br>');
   
+  // Détecter et mettre en évidence les styles d'apprentissage entre parenthèses 
+  // comme (ACADÉMIQUE), (SIMULATION), (DÉFI), etc.
+  formattedText = formattedText.replace(/\((ACADÉMIQUE|ACADEMIC|SIMULATION|DÉFI|CHALLENGE|VISUEL|VISUAL)\)/gi, 
+    '<span class="inline-block bg-[#00b4d8]/20 text-[#00b4d8] text-xs px-2 py-0.5 rounded mr-1 uppercase font-mono">$1</span>');
+  
   // Remplacer les listes numérotées (1., 2., etc.)
   formattedText = formattedText.replace(/^(\d+\.\s+)(.+)$/gm, '<div class="flex mb-2"><div class="w-6 flex-shrink-0 font-bold">$1</div><div>$2</div></div>');
   
@@ -29,8 +34,8 @@ const formatTextWithStructure = (text: string): string => {
   // Ajouter une classe pour les sections en majuscules (comme "PHASE INITIALE")
   formattedText = formattedText.replace(/([A-Z]{3,}[\s-][A-Z\s-]+)(\s*-\s*)/g, '<div class="font-bold text-blue-300 mt-3 mb-1">$1</div>');
   
-  // Gérer les titres de sections
-  formattedText = formattedText.replace(/(.*?):/g, '<span class="font-semibold">$1:</span>');
+  // Gérer les titres de sections (mais pas ceux déjà traités comme styles d'apprentissage)
+  formattedText = formattedText.replace(/(?<!span class="[^"]*">)(.*?):/g, '<span class="font-semibold">$1:</span>');
 
   return formattedText;
 };
