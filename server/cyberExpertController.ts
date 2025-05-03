@@ -45,7 +45,7 @@ export async function initCyberExpertSession(req: Request, res: Response) {
     // Message d'accueil avec question spécifique conformément au prompt CyberSensei
     const welcomeMessage: ChatCompletionRequestMessage = {
       role: "assistant",
-      content: "Bonjour ! Je suis CyberSensei, votre expert en cybersécurité. 🧭\n\nSouhaitez-vous :\n1. Résoudre un problème cyber que vous rencontrez ? \n   Ex : comment améliorer la gestion des accès dans mon entreprise ?\n\n2. Comprendre un concept en cybersécurité ? \n   Ex : qu'est-ce que l'authentification multifacteur (MFA) ?\n\nQue puis-je faire pour vous aujourd'hui ?"
+      content: "Bonjour ! Je suis CyberSensei, votre expert en cybersécurité. 🧭\n\nQue souhaitez-vous explorer aujourd'hui ?\n\n1. Résoudre un problème cyber que vous rencontrez ? \n   Ex : comment améliorer la gestion des accès dans mon entreprise ?\n\n2. Comprendre un concept en cybersécurité ? \n   Ex : qu'est-ce que l'authentification multifacteur (MFA) ?\n\n3. Découvrir un sujet cyber intéressant ? \n   Idéal si vous débutez et souhaitez explorer un domaine de la cybersécurité."
     };
     
     // Ajouter les messages à la session
@@ -214,14 +214,23 @@ async function handleInitialStage(session: CyberExpertSession, message: string):
     return await generateLearningSequence(session);
   }
   
-  // Si le message est court et contient simplement un chiffre (1 ou 2) conformément au prompt CyberSensei
-  if (/^[12]$/.test(message.trim())) {
+  // Si le message est court et contient simplement un chiffre (1, 2 ou 3) conformément au prompt CyberSensei
+  if (/^[123]$/.test(message.trim())) {
     session.currentStage = 'questioning';
     
     if (message.trim() === "1") {
       return "🔧 Très bien, vous souhaitez résoudre un problème cyber.\n\nPouvez-vous me décrire ce problème précisément ? Je vais vous aider à trouver une solution adaptée.";
     } else if (message.trim() === "2") {
       return "📘 Parfait, vous souhaitez comprendre un concept en cybersécurité.\n\nQuel concept spécifique vous intéresse ? Je vais vous l'expliquer de manière claire et accessible.";
+    } else if (message.trim() === "3") {
+      session.currentStage = 'learning';
+      session.needIdentified = true;
+      session.needConfirmed = true;
+      session.userLevel = "Débutant";
+      session.topic = "cybersécurité";
+      
+      // Générer une séquence d'apprentissage pour découvrir un sujet cyber intéressant
+      return await generateLearningSequence(session);
     }
   }
   
