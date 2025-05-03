@@ -9,6 +9,8 @@ import PageTitle from "@/components/utils/PageTitle";
 import { apiRequest } from "@/lib/queryClient";
 import DOMPurify from 'dompurify';
 import { useLocation } from 'wouter';
+import { DecisionProvider, useDecision } from "@/contexts/DecisionContext";
+import CyberDecisionFlow from "@/components/cyber/CyberDecisionFlow";
 
 // Fonction pour formater le texte avec une structure visuelle
 const formatTextWithStructure = (text: string): string => {
@@ -54,7 +56,24 @@ interface SessionStatus {
   topic?: string;
 }
 
-export default function ExpertLearningPage() {
+// Composant principal avec l'interface d'apprentissage et la prise de décision
+function ExpertLearningPageContent() {
+  // Accès au contexte de décision
+  const decision = useDecision();
+  
+  // Effet pour vérifier le statut de décision à l'initialisation et après l'envoi de messages
+  useEffect(() => {
+    if (userId) {
+      decision.checkDecisionStatus(userId);
+    }
+  }, [userId]);
+  
+  // Fonction pour gérer une décision
+  const handleDecisionMade = async (optionId: string) => {
+    if (userId && decision.currentScenario) {
+      await decision.submitDecision(userId, optionId);
+    }
+  };
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -691,5 +710,14 @@ export default function ExpertLearningPage() {
         </div>
       </div>
     </HomeLayout>
+  );
+}
+
+// Wrapper avec le contexte de décision
+export default function ExpertLearningPage() {
+  return (
+    <DecisionProvider>
+      <ExpertLearningPageContent />
+    </DecisionProvider>
   );
 }

@@ -87,7 +87,7 @@ export default function CyberDecisionFlow({
   };
 
   const renderImpactBadges = (option: DecisionOption) => {
-    const badges = [];
+    const badges: JSX.Element[] = [];
 
     const impactConfig = {
       security: {
