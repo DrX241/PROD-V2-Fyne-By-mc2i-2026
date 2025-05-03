@@ -14,14 +14,20 @@ import { useLocation } from 'wouter';
 const formatTextWithStructure = (text: string): string => {
   if (!text) return '';
   
+  // Supprimer les caractères spéciaux Markdown (###, ##, etc.)
+  let formattedText = text
+    .replace(/#{1,6}\s+/g, '') // Supprime les symboles de titre markdown
+    .replace(/```[^`]*```/g, '') // Supprime les blocs de code
+    .replace(/-text-sm/g, ''); // Supprime les classes markdown spécifiques
+  
   // Convertir les sauts de ligne en balises <br>
-  let formattedText = text.replace(/\n/g, '<br>');
+  formattedText = formattedText.replace(/\n/g, '<br>');
   
   // Remplacer les listes numérotées (1., 2., etc.) - optimisé pour mobile
   formattedText = formattedText.replace(
     /^(\d+\.\s+)(.+)$/gm, 
     '<div class="flex mb-1.5 sm:mb-2 text-xs sm:text-sm">' +
-    '<div class="w-5 sm:w-6 flex-shrink-0 font-bold text-[10px] sm:text-xs">$1</div>' +
+    '<div class="w-5 sm:w-6 flex-shrink-0 font-bold text-[10px] sm:text-xs text-[#00b4d8]">$1</div>' +
     '<div class="flex-1 min-w-0">$2</div>' +
     '</div>'
   );
@@ -30,7 +36,7 @@ const formatTextWithStructure = (text: string): string => {
   formattedText = formattedText.replace(
     /^([-*•]\s+)(.+)$/gm, 
     '<div class="flex mb-1.5 sm:mb-2 text-xs sm:text-sm">' +
-    '<div class="w-4 sm:w-6 flex-shrink-0 text-[10px] sm:text-xs">$1</div>' +
+    '<div class="w-4 sm:w-6 flex-shrink-0 text-[10px] sm:text-xs text-[#00b4d8]">$1</div>' +
     '<div class="flex-1 min-w-0">$2</div>' +
     '</div>'
   );
@@ -38,19 +44,19 @@ const formatTextWithStructure = (text: string): string => {
   // Mettre en surbrillance les sections importantes (entre ** ou entourées de MAJUSCULES)
   formattedText = formattedText.replace(
     /\*\*(.*?)\*\*/g, 
-    '<span class="font-bold text-blue-300 text-xs sm:text-sm">$1</span>'
+    '<span class="font-bold text-[#00b4d8] text-xs sm:text-sm">$1</span>'
   );
   
-  // Ajouter une classe pour les sections en majuscules (comme "PHASE INITIALE")
+  // Traiter les titres ou sections en majuscules
   formattedText = formattedText.replace(
-    /([A-Z]{3,}[\s-][A-Z\s-]+)(\s*-\s*)/g, 
-    '<div class="font-bold text-blue-300 mt-2 sm:mt-3 mb-1 text-xs sm:text-sm">$1</div>'
+    /([A-Z]{3,}[\s-][A-Z\s-]+)(\s*:?\s*)/g, 
+    '<div class="font-bold text-[#00b4d8] mt-2 sm:mt-3 mb-1 text-xs sm:text-sm">$1$2</div>'
   );
   
   // Gérer les titres de sections
   formattedText = formattedText.replace(
-    /(.*?):/g, 
-    '<span class="font-semibold text-xs sm:text-sm">$1:</span>'
+    /([^<>\n:]{3,}):/g, 
+    '<span class="font-semibold text-xs sm:text-sm text-[#8abee0]">$1:</span>'
   );
   
   // Ajouter une classe de responsive à tous les paragraphes
