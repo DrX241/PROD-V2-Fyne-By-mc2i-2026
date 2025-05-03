@@ -18,7 +18,9 @@ const formatTextWithStructure = (text: string): string => {
   let formattedText = text
     .replace(/#{1,6}\s+/g, '') // Supprime les symboles de titre markdown
     .replace(/```[^`]*```/g, '') // Supprime les blocs de code
-    .replace(/-text-sm/g, ''); // Supprime les classes markdown spécifiques
+    .replace(/-text-sm/g, '') // Supprime les classes markdown spécifiques
+    .replace(/<span class="[^"]*">/g, '') // Supprime les balises span ouvrantes
+    .replace(/<\/span>/g, ''); // Supprime les balises span fermantes
   
   // Convertir les sauts de ligne en balises <br>
   formattedText = formattedText.replace(/\n/g, '<br>');
@@ -44,7 +46,7 @@ const formatTextWithStructure = (text: string): string => {
   // Mettre en surbrillance les sections importantes (entre ** ou entourées de MAJUSCULES)
   formattedText = formattedText.replace(
     /\*\*(.*?)\*\*/g, 
-    '<span class="font-bold text-[#00b4d8] text-xs sm:text-sm">$1</span>'
+    '<strong class="font-bold text-[#00b4d8] text-xs sm:text-sm">$1</strong>'
   );
   
   // Traiter les titres ou sections en majuscules
