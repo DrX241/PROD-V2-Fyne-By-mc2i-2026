@@ -658,6 +658,16 @@ export default function ExpertLearningPage() {
                                 <span className="block mb-1 text-[#e5f0fc]">2. Comprendre un concept</span>
                                 <span className="text-[10px] sm:text-xs text-[#8abee0] block">Une notion cyber à maîtriser</span>
                               </button>
+                              <button 
+                                onClick={() => {
+                                  setInputMessage("3");
+                                  setTimeout(() => handleSubmit(new Event('click') as any), 100);
+                                }}
+                                className="bg-[#112641] hover:bg-[#153254] border border-[#00b4d8]/40 p-2 rounded-md text-center text-xs sm:text-sm text-[#00b4d8] transition-colors"
+                              >
+                                <span className="block mb-1 text-[#e5f0fc]">3. Découvrir la cyber</span>
+                                <span className="text-[10px] sm:text-xs text-[#8abee0] block">Un sujet aléatoire pour débutants</span>
+                              </button>
                             </div>
                             <div className="text-[10px] text-[#8abee0]/60 mt-2 text-center">Vous pouvez aussi répondre directement dans la zone de texte</div>
                           </div>

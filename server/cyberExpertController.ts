@@ -417,7 +417,7 @@ async function handleLearningStage(session: CyberExpertSession, message: string)
   // On compte les échanges pour déterminer quelle étape du parcours d'apprentissage nous sommes
   const userMessageCount = session.messages.filter(msg => msg.role === "user").length;
   
-  // Déterminer si nous sommes dans un contexte d'explication de concept ou de résolution de problème
+  // Déterminer si nous sommes dans un contexte d'explication de concept, de résolution de problème ou de découverte
   const isConceptExplanation = session.messages.some(msg => 
     msg.role === "user" && 
     (msg.content === "2" || 
@@ -426,11 +426,20 @@ async function handleLearningStage(session: CyberExpertSession, message: string)
      msg.content.toLowerCase().includes("apprendre"))
   );
   
+  const isDiscoveryMode = session.messages.some(msg => 
+    msg.role === "user" && 
+    (msg.content === "3" || 
+     msg.content.toLowerCase().includes("découvrir") || 
+     msg.content.toLowerCase().includes("débutant") ||
+     msg.content.toLowerCase().includes("intéressant") ||
+     msg.content.toLowerCase().includes("aléatoire"))
+  );
+  
   let stagePrompt = "";
   const shouldConclude = userMessageCount >= 5; // Conclure après 4 échanges
 
   if (shouldConclude) {
-    // 5. Conclusion - Même pour les deux types de demandes
+    // 5. Conclusion - Même pour tous les types de demandes
     stagePrompt = `
       Nous arrivons à la fin de notre échange sur "${session.topic}".
       
@@ -450,6 +459,36 @@ async function handleLearningStage(session: CyberExpertSession, message: string)
       
       Format: présentez les points de façon structurée, utilisez des puces, soyez concis,
       intégrez 1-2 emojis pertinents, référencez des sources fiables si nécessaire.
+    `;
+  } else if (isDiscoveryMode) {
+    // Réponse pour le mode découverte
+    stagePrompt = `
+      L'utilisateur a répondu: "${message}" après votre présentation sur "${session.topic}".
+      
+      Poursuivez la découverte en vous basant sur sa réponse:
+      
+      1. APPROFONDISSEMENT CIBLÉ
+      - Répondez directement aux questions ou intérêts spécifiques mentionnés
+      - Si aucun intérêt spécifique n'est mentionné, choisissez un aspect fascinant à approfondir
+      - Mentionnez une tendance émergente ou une évolution future de ce domaine
+      
+      2. ACTEURS ET OUTILS IMPORTANTS
+      - Présentez 1-2 acteurs clés de ce domaine (entreprises, chercheurs, organismes)
+      - Mentionnez 1-2 outils ou technologies essentiels liés à ce sujet
+      - Expliquez pourquoi ces acteurs/outils sont incontournables pour les débutants
+      
+      3. RESSOURCES D'APPRENTISSAGE
+      - Suggérez une ressource officielle gratuite pour approfondir (guide ANSSI, MOOC, etc.)
+      - Proposez un moyen simple pour pratiquer ou s'initier à ce domaine
+      
+      4. MISE EN PERSPECTIVE
+      - Reliez ce sujet à un autre domaine de la cybersécurité
+      - Posez une nouvelle question ouverte qui permet d'explorer une autre dimension du sujet
+      
+      Terminez par: "Qu'est-ce qui vous surprend le plus dans ce domaine ? Y a-t-il un autre aspect que vous aimeriez découvrir ?"
+      
+      Format: concis (max 15 lignes), ton enthousiaste et accessible pour débutant,
+      structurez clairement chaque partie, utilisez 1-2 emojis pertinents.
     `;
   } else if (isConceptExplanation) {
     // Réponse pour un concept en cours d'explication
@@ -527,7 +566,7 @@ async function generateLearningSequence(session: CyberExpertSession): Promise<st
     return "Pour proposer un parcours adapté, j'ai besoin de connaître le sujet qui vous intéresse. Pourriez-vous me préciser quel aspect de la cybersécurité vous voulez explorer?";
   }
   
-  // Déterminer si nous traitons un concept ou un problème à résoudre
+  // Déterminer si nous traitons un concept, un problème à résoudre ou une découverte
   const isConceptExplanation = session.messages.some(msg => 
     msg.role === "user" && 
     (msg.content === "2" || 
@@ -536,9 +575,52 @@ async function generateLearningSequence(session: CyberExpertSession): Promise<st
      msg.content.toLowerCase().includes("apprendre"))
   );
   
+  const isDiscoveryMode = session.messages.some(msg => 
+    msg.role === "user" && 
+    (msg.content === "3" || 
+     msg.content.toLowerCase().includes("découvrir") || 
+     msg.content.toLowerCase().includes("débutant") ||
+     msg.content.toLowerCase().includes("intéressant") ||
+     msg.content.toLowerCase().includes("aléatoire"))
+  );
+  
   let prompt = "";
   
-  if (isConceptExplanation) {
+  if (isDiscoveryMode) {
+    // Prompt pour découvrir un sujet cyber (option 3 du prompt CyberSensei)
+    // Si un sujet précis est mentionné, on l'utilise, sinon on propose un sujet aléatoire
+    const topicString = session.topic !== "cybersécurité" ? session.topic : "un sujet de cybersécurité intéressant pour débutant"; 
+    
+    prompt = `
+      L'utilisateur souhaite découvrir "${topicString}".
+      
+      Suivez exactement cette structure pour créer une découverte captivante:
+      
+      1. Présentez brièvement ce sujet cyber:
+         - Pourquoi ce sujet est important
+         - Son évolution dans le temps
+         - Son impact actuel sur la sécurité informatique
+      
+      2. Donnez 3 faits fascinants ou anecdotes historiques sur ce sujet:
+         - Un fait marquant ou étonnant
+         - Une statistique impressionnante
+         - Une évolution récente importante
+      
+      3. Vulgarisez le concept pour un débutant:
+         - Utilisez une analogie avec la vie quotidienne
+         - Expliquez les principes de base sans jargon technique
+         - Montrez pourquoi c'est pertinent même pour les non-experts
+      
+      4. Proposez un petit "test de connaissances":
+         - Posez une question simple mais stimulante sur le sujet
+         - Formulez-la comme une invitation à réfléchir, pas comme un examen
+      
+      Terminez par: "Qu'est-ce qui vous intéresse le plus dans ce sujet ? Souhaitez-vous explorer un aspect particulier ?"
+      
+      Format: respectez la structure en 4 points, utilisez des titres clairs, soyez concis (max 15 lignes),
+      intégrez 1-2 emojis maximum, avec un ton enthousiaste et accessible.
+    `;
+  } else if (isConceptExplanation) {
     // Prompt pour expliquer un concept (option 2 du prompt CyberSensei)
     prompt = `
       L'utilisateur souhaite comprendre le concept de "${session.topic}".
@@ -629,11 +711,13 @@ Déroulé de l'échange :
 Commence toujours par cette question :
 > "Souhaitez-vous :  
 > 1. Résoudre un problème cyber que vous rencontrez ?  
-> 2. Comprendre un concept en cybersécurité ?"
+> 2. Comprendre un concept en cybersécurité ?  
+> 3. Découvrir un sujet cyber intéressant ?"
 
 - Donne un exemple pour chaque option, généré dynamiquement :
   - Problème : Ex : comment améliorer la gestion des accès dans mon entreprise ?
   - Concept : Ex : qu'est-ce que l'authentification multifacteur (MFA) ?
+  - Découverte : Ex : je débute en cybersécurité et je cherche des sujets passionnants
 
 - Si le besoin est flou, pose 2 ou 3 questions ciblées, en expliquant pourquoi :
   - "Je vous pose ces questions pour mieux contextualiser votre demande et vous fournir une réponse précise."
