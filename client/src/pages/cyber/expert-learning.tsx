@@ -10,116 +10,51 @@ import { apiRequest } from "@/lib/queryClient";
 import DOMPurify from 'dompurify';
 import { useLocation } from 'wouter';
 
-// Fonction pour formater le texte avec une structure visuelle attractive (sans markdown)
+// Fonction pour formater le texte avec une structure visuelle
 const formatTextWithStructure = (text: string): string => {
   if (!text) return '';
   
-  // Nettoyer le markdown avant formatage
-  let cleanText = text
-    .replace(/#+\s/g, '') // Supprimer les marqueurs de titre (#, ##, ###)
-    .replace(/\*\*/g, '') // Supprimer les astérisques doubles (gras)
-    .replace(/\*/g, '')   // Supprimer les astérisques simples (italique)
-    .replace(/`/g, '')    // Supprimer les caractères de code
-    .replace(/>/g, '')    // Supprimer les marqueurs de citation
-    .replace(/^---+$/gm, '') // Supprimer les séparateurs horizontaux
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1'); // Convertir les liens [texte](url) en texte
+  // Convertir les sauts de ligne en balises <br>
+  let formattedText = text.replace(/\n/g, '<br>');
   
-  // Convertir les sauts de ligne en balises <br> ou nouvelle div selon le contexte
-  let formattedText = cleanText.replace(/\n\n+/g, '</div><div class="mb-3">'); // Double saut = nouveau paragraphe
-  formattedText = formattedText.replace(/\n/g, '<br>'); // Simple saut = retour à la ligne
-  formattedText = '<div class="mb-3">' + formattedText + '</div>'; // Envelopper dans un div
-  
-  // Formater les listes numérotées (1., 2., etc.) avec design moderne
+  // Remplacer les listes numérotées (1., 2., etc.) - optimisé pour mobile
   formattedText = formattedText.replace(
     /^(\d+\.\s+)(.+)$/gm, 
-    '<div class="flex items-start mb-3 sm:mb-3.5 group">' +
-    '<div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#112641] border border-[#00b4d8]/40 flex items-center justify-center mr-3 flex-shrink-0 text-[#00b4d8] font-bold group-hover:bg-[#153254] transition-colors">$1</div>' +
-    '<div class="flex-1 pt-1 min-w-0 text-[#e5f0fc]">$2</div>' +
+    '<div class="flex mb-1.5 sm:mb-2 text-xs sm:text-sm">' +
+    '<div class="w-5 sm:w-6 flex-shrink-0 font-bold text-[10px] sm:text-xs">$1</div>' +
+    '<div class="flex-1 min-w-0">$2</div>' +
     '</div>'
   );
   
-  // Formater les listes à puces (-, *, •) avec design moderne
+  // Remplacer les listes à puces (-, *, •) - optimisé pour mobile
   formattedText = formattedText.replace(
     /^([-*•]\s+)(.+)$/gm, 
-    '<div class="flex items-start mb-2.5 sm:mb-3 group">' +
-    '<div class="w-2 h-2 rounded-full bg-[#00b4d8] mt-2 mr-3 flex-shrink-0 group-hover:bg-[#00a0c2] transition-colors"></div>' +
-    '<div class="flex-1 min-w-0 text-[#e5f0fc]">$2</div>' +
+    '<div class="flex mb-1.5 sm:mb-2 text-xs sm:text-sm">' +
+    '<div class="w-4 sm:w-6 flex-shrink-0 text-[10px] sm:text-xs">$1</div>' +
+    '<div class="flex-1 min-w-0">$2</div>' +
     '</div>'
   );
   
-  // ÉTAPE 1: Prétraitement - Correction des titres sur plusieurs lignes
-  
-  // DÉCOUVERTE DES MOTS DE PASSE ET DE L'AUTHENTIFICATION - fixation spécifique
+  // Mettre en surbrillance les sections importantes (entre ** ou entourées de MAJUSCULES)
   formattedText = formattedText.replace(
-    /DÉ[\s\n]*COUVERTE[\s\n]*DES[\s\n]*MOTS[\s\n]*DE[\s\n]*PASSE[\s\n]*ET[\s\n]*DE[\s\n]*L[\s\n]*[''][\s\n]*AUTHENTIFICATION[\s\n]*🔒?/g,
-    'DÉCOUVERTE DES MOTS DE PASSE ET AUTHENTIFICATION 🔒'
+    /\*\*(.*?)\*\*/g, 
+    '<span class="font-bold text-blue-300 text-xs sm:text-sm">$1</span>'
   );
   
-  // Cas spécifique pour NAVIGATION WEB SÉCURISÉE
+  // Ajouter une classe pour les sections en majuscules (comme "PHASE INITIALE")
   formattedText = formattedText.replace(
-    /NAVIGATION[\s\n]+WEB[\s\n]+S[\s\n]*ÉCURISÉE/g,
-    'NAVIGATION WEB SÉCURISÉE'
+    /([A-Z]{3,}[\s-][A-Z\s-]+)(\s*-\s*)/g, 
+    '<div class="font-bold text-blue-300 mt-2 sm:mt-3 mb-1 text-xs sm:text-sm">$1</div>'
   );
   
-  // Cas spécifique pour SÉCURITÉ DES RÉSEAUX SOCIAUX
+  // Gérer les titres de sections
   formattedText = formattedText.replace(
-    /SÉCURITÉ[\s\n]+DES[\s\n]+RÉSEAUX[\s\n]+SOCIAUX/g,
-    'SÉCURITÉ DES RÉSEAUX SOCIAUX'
+    /(.*?):/g, 
+    '<span class="font-semibold text-xs sm:text-sm">$1:</span>'
   );
   
-  // ÉTAPE 2: Application du style aux titres complets
-  // Style commun pour les titres de sections avec fond dégradé
-  function styleTitleWithGradient(fullTitle: string, part1: string, part2: string): string {
-    return formattedText.replace(
-      new RegExp(fullTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
-      `<div class="font-bold text-center my-4 py-2 px-4 bg-gradient-to-r from-[#0c1e2e] to-[#112641] border border-[#00b4d8]/40 rounded-md shadow-[0_0_15px_rgba(0,180,216,0.1)] max-w-full overflow-hidden text-sm sm:text-base">${part1}<span class="text-[#00b4d8]">${part2}</span></div>`
-    );
-  }
-  
-  // Titres spécifiques avec style amélioré
-  formattedText = styleTitleWithGradient(
-    'NAVIGATION WEB SÉCURISÉE',
-    '<span class="text-[#e5f0fc]">NAVIGATION WEB </span>',
-    'SÉCURISÉE'
-  );
-  
-  formattedText = styleTitleWithGradient(
-    'SÉCURITÉ DES RÉSEAUX SOCIAUX',
-    '<span class="text-[#e5f0fc]">SÉCURITÉ DES </span>',
-    'RÉSEAUX SOCIAUX'
-  );
-  
-  // Titre long à traiter spécifiquement - version raccourcie pour tenir sur une ligne
-  formattedText = styleTitleWithGradient(
-    'DÉCOUVERTE DES MOTS DE PASSE ET AUTHENTIFICATION 🔒',
-    '<span class="text-[#e5f0fc]">DÉCOUVERTE DES </span>',
-    'MOTS DE PASSE ET AUTHENTIFICATION 🔒'
-  );
-  
-  // ÉTAPE 3: Formatage général pour les autres titres en capitales
-  // Utiliser un conteneur flex qui adapte automatiquement la taille du texte si nécessaire
-  formattedText = formattedText.replace(
-    /([A-Z]{3,}[\s-][A-Z\s-]+)(\s*:?\s*)/g, 
-    '<div class="font-bold text-[#00b4d8] mt-5 mb-4 pb-2 border-b border-[#00b4d8]/30 text-lg overflow-hidden break-normal text-base sm:text-lg">$1$2</div>'
-  );
-  
-  // Mise en évidence des questions
-  formattedText = formattedText.replace(
-    /([^>]+\?\s*)/g,
-    '<div class="font-semibold text-[#00b4d8] my-2.5">$1</div>'
-  );
-  
-  // Mise en forme des éléments de type "Titre: contenu"
-  formattedText = formattedText.replace(
-    /^([^<][^:]+):\s/gm, 
-    '<span class="font-semibold text-[#8abee0]">$1: </span>'
-  );
-  
-  // Ajouter des marges entre paragraphes pour améliorer la lisibilité
-  formattedText = formattedText.replace(/<\/div><div/g, '</div><div class="py-1"');
-  
-  // Ajouter des styles pour rendre le tout plus attractif
-  formattedText = '<div class="text-pretty leading-relaxed space-y-2">' + formattedText + '</div>';
+  // Ajouter une classe de responsive à tous les paragraphes
+  formattedText = '<div class="text-xs sm:text-sm text-pretty">' + formattedText + '</div>';
 
   return formattedText;
 };
@@ -691,178 +626,54 @@ export default function ExpertLearningPage() {
                         <div className="whitespace-pre-wrap text-xs sm:text-sm text-pretty">{message.content}</div>
                       </div>
                     ) : (
-                      <div className="max-w-[90%] sm:max-w-[80%] py-3 px-4 sm:p-4 rounded-md bg-gradient-to-b from-[#0c1e2e] to-[#0a1525] text-[#e5f0fc] border border-[#00b4d8]/40 shadow-[0_0_20px_rgba(0,150,216,0.1)]">
-                        {/* Entête du message amélioré */}
-                        <div className="mb-2 sm:mb-3 flex justify-between items-center border-b border-[#00b4d8]/20 pb-2">
-                          <div className="flex items-center">
-                            <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#00b4d8] mr-2 sm:mr-3 animate-pulse"></div>
-                            <span className="font-bold tracking-wide text-xs sm:text-sm text-[#00b4d8]">CYBER<span className="text-[#e5f0fc]">SENSEI</span></span>
-                          </div>
-                          <span className="text-[#8abee0]/60 text-[9px] sm:text-xs font-mono">{new Date(message.timestamp).toLocaleTimeString()}</span>
+                      <div className="max-w-[90%] sm:max-w-[80%] p-2.5 sm:p-3 rounded-md bg-[#0c1e2e] text-[#e5f0fc] border border-[#00b4d8]/30 shadow-[0_0_10px_rgba(0,180,216,0.05)]">
+                        <div className="mb-1 text-[10px] sm:text-xs font-mono text-[#00b4d8] flex flex-wrap items-center">
+                          <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-[#00b4d8] mr-1.5 sm:mr-2"></div>
+                          <span className="font-bold">EXPERT CYBER</span>
+                          <span className="text-[#8abee0]/50 ml-1.5 sm:ml-2 text-[9px] sm:text-xs">{new Date(message.timestamp).toLocaleTimeString()}</span>
                         </div>
-                        
-                        {/* Contenu du message avec styles améliorés */}
-                        {message.content.includes("Que souhaitez-vous explorer") || message.content.includes("résoudre un problème") || message.content.includes("apprendre un concept") || message.content.includes("comprendre un concept") || message.content.includes("découvrir") ? (
+                        {message.content.includes("Que souhaitez-vous explorer") || message.content.includes("résoudre un problème") || message.content.includes("apprendre un concept") ? (
                           <div className="max-w-none">
-                            {/* Question initiale - stylisée et mise en valeur */}
-                            <div className="text-[#e5f0fc] text-sm sm:text-base font-semibold mb-4 leading-relaxed">
+                            <div className="text-[#c3d9ee] text-xs sm:text-sm mb-3">
                               {message.content.split("?")[0]}?
                             </div>
-                            
-                            {/* Boutons d'option avec design amélioré */}
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mt-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mt-3">
                               <button 
                                 onClick={() => {
-                                  // Envoyer directement la valeur "1" au backend
-                                  const userMsg: Message = {
-                                    id: uuidv4(),
-                                    type: "user",
-                                    content: "1",
-                                    timestamp: Date.now()
-                                  };
-                                  setMessages(prev => [...prev, userMsg]);
-                                  
-                                  // Envoyer au backend sans délai
-                                  if (userId) {
-                                    setIsLoading(true);
-                                    apiRequest<{success: boolean, message: string, sessionStatus: SessionStatus}>('/api/cyber-expert/message', {
-                                      method: 'POST',
-                                      body: JSON.stringify({
-                                        userId,
-                                        message: "1"
-                                      })
-                                    }).then(response => {
-                                      if (response.success) {
-                                        const botResponse: Message = {
-                                          id: uuidv4(),
-                                          type: "bot",
-                                          content: response.message,
-                                          timestamp: Date.now()
-                                        };
-                                        setMessages(prev => [...prev, botResponse]);
-                                        if (response.sessionStatus) {
-                                          setSessionStatus(response.sessionStatus);
-                                        }
-                                      }
-                                      setIsLoading(false);
-                                    }).catch(error => {
-                                      console.error("Erreur lors de l'envoi du message:", error);
-                                      setIsLoading(false);
-                                    });
-                                  }
+                                  setInputMessage("1");
+                                  setTimeout(() => handleSubmit(new Event('click') as any), 100);
                                 }}
-                                className="relative bg-gradient-to-br from-[#0c2540] to-[#0a1420] hover:from-[#0d2d4f] hover:to-[#0c1930] border-2 border-[#00b4d8]/40 p-3 sm:p-4 rounded-md text-center text-sm transition-all transform hover:scale-[1.02] duration-200 flex flex-col items-center justify-center"
-                                disabled={isLoading}
+                                className="bg-[#112641] hover:bg-[#153254] border border-[#00b4d8]/40 p-2 rounded-md text-center text-xs sm:text-sm text-[#00b4d8] transition-colors"
                               >
-                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#00b4d8]/0 via-[#00b4d8]/60 to-[#00b4d8]/0"></div>
-                                <span className="block mb-2 text-[#e5f0fc] font-bold text-base">1. Résoudre un problème</span>
-                                <span className="text-[11px] sm:text-xs text-[#8abee0] leading-relaxed">Un défi technique précis à surmonter</span>
+                                <span className="block mb-1 text-[#e5f0fc]">1. Résoudre un problème</span>
+                                <span className="text-[10px] sm:text-xs text-[#8abee0] block">Un défi technique précis à surmonter</span>
                               </button>
-                              
                               <button 
                                 onClick={() => {
-                                  // Envoyer directement la valeur "2" au backend
-                                  const userMsg: Message = {
-                                    id: uuidv4(),
-                                    type: "user",
-                                    content: "2",
-                                    timestamp: Date.now()
-                                  };
-                                  setMessages(prev => [...prev, userMsg]);
-                                  
-                                  // Envoyer au backend sans délai
-                                  if (userId) {
-                                    setIsLoading(true);
-                                    apiRequest<{success: boolean, message: string, sessionStatus: SessionStatus}>('/api/cyber-expert/message', {
-                                      method: 'POST',
-                                      body: JSON.stringify({
-                                        userId,
-                                        message: "2"
-                                      })
-                                    }).then(response => {
-                                      if (response.success) {
-                                        const botResponse: Message = {
-                                          id: uuidv4(),
-                                          type: "bot",
-                                          content: response.message,
-                                          timestamp: Date.now()
-                                        };
-                                        setMessages(prev => [...prev, botResponse]);
-                                        if (response.sessionStatus) {
-                                          setSessionStatus(response.sessionStatus);
-                                        }
-                                      }
-                                      setIsLoading(false);
-                                    }).catch(error => {
-                                      console.error("Erreur lors de l'envoi du message:", error);
-                                      setIsLoading(false);
-                                    });
-                                  }
+                                  setInputMessage("2");
+                                  setTimeout(() => handleSubmit(new Event('click') as any), 100);
                                 }}
-                                className="relative bg-gradient-to-br from-[#0c2540] to-[#0a1420] hover:from-[#0d2d4f] hover:to-[#0c1930] border-2 border-[#00b4d8]/40 p-3 sm:p-4 rounded-md text-center text-sm transition-all transform hover:scale-[1.02] duration-200 flex flex-col items-center justify-center"
-                                disabled={isLoading}
+                                className="bg-[#112641] hover:bg-[#153254] border border-[#00b4d8]/40 p-2 rounded-md text-center text-xs sm:text-sm text-[#00b4d8] transition-colors"
                               >
-                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#00b4d8]/0 via-[#00b4d8]/60 to-[#00b4d8]/0"></div>
-                                <span className="block mb-2 text-[#e5f0fc] font-bold text-base">2. Comprendre un concept</span>
-                                <span className="text-[11px] sm:text-xs text-[#8abee0] leading-relaxed">Une notion cyber à maîtriser</span>
+                                <span className="block mb-1 text-[#e5f0fc]">2. Comprendre un concept</span>
+                                <span className="text-[10px] sm:text-xs text-[#8abee0] block">Une notion cyber à maîtriser</span>
                               </button>
-                              
                               <button 
                                 onClick={() => {
-                                  // Envoyer directement la valeur "3" au backend
-                                  const userMsg: Message = {
-                                    id: uuidv4(),
-                                    type: "user",
-                                    content: "3",
-                                    timestamp: Date.now()
-                                  };
-                                  setMessages(prev => [...prev, userMsg]);
-                                  
-                                  // Envoyer au backend sans délai
-                                  if (userId) {
-                                    setIsLoading(true);
-                                    apiRequest<{success: boolean, message: string, sessionStatus: SessionStatus}>('/api/cyber-expert/message', {
-                                      method: 'POST',
-                                      body: JSON.stringify({
-                                        userId,
-                                        message: "3"
-                                      })
-                                    }).then(response => {
-                                      if (response.success) {
-                                        const botResponse: Message = {
-                                          id: uuidv4(),
-                                          type: "bot",
-                                          content: response.message,
-                                          timestamp: Date.now()
-                                        };
-                                        setMessages(prev => [...prev, botResponse]);
-                                        if (response.sessionStatus) {
-                                          setSessionStatus(response.sessionStatus);
-                                        }
-                                      }
-                                      setIsLoading(false);
-                                    }).catch(error => {
-                                      console.error("Erreur lors de l'envoi du message:", error);
-                                      setIsLoading(false);
-                                    });
-                                  }
+                                  setInputMessage("3");
+                                  setTimeout(() => handleSubmit(new Event('click') as any), 100);
                                 }}
-                                className="relative bg-gradient-to-br from-[#0c2540] to-[#0a1420] hover:from-[#0d2d4f] hover:to-[#0c1930] border-2 border-[#00b4d8]/40 p-3 sm:p-4 rounded-md text-center text-sm transition-all transform hover:scale-[1.02] duration-200 flex flex-col items-center justify-center"
-                                disabled={isLoading}
+                                className="bg-[#112641] hover:bg-[#153254] border border-[#00b4d8]/40 p-2 rounded-md text-center text-xs sm:text-sm text-[#00b4d8] transition-colors"
                               >
-                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#00b4d8]/0 via-[#00b4d8]/60 to-[#00b4d8]/0"></div>
-                                <span className="block mb-2 text-[#e5f0fc] font-bold text-base">3. Découvrir la cyber</span>
-                                <span className="text-[11px] sm:text-xs text-[#8abee0] leading-relaxed">Un sujet intéressant pour débutant</span>
+                                <span className="block mb-1 text-[#e5f0fc]">3. Découvrir la cyber</span>
+                                <span className="text-[10px] sm:text-xs text-[#8abee0] block">Un sujet intéressant pour débutant</span>
                               </button>
                             </div>
-                            
-                            <div className="text-[10px] sm:text-xs text-[#8abee0]/60 mt-3 text-center italic font-light">
-                              Vous pouvez aussi répondre directement dans la zone de texte
-                            </div>
+                            <div className="text-[10px] text-[#8abee0]/60 mt-2 text-center">Vous pouvez aussi répondre directement dans la zone de texte</div>
                           </div>
                         ) : (
                           <div 
-                            className="prose prose-invert max-w-none text-[#e5f0fc] leading-relaxed text-pretty" 
+                            className="prose prose-invert max-w-none text-[#c3d9ee] text-xs sm:text-sm text-pretty" 
                             dangerouslySetInnerHTML={{ 
                               __html: DOMPurify.sanitize(formatTextWithStructure(message.content))
                             }}
