@@ -417,64 +417,91 @@ async function handleLearningStage(session: CyberExpertSession, message: string)
   // On compte les échanges pour déterminer quelle étape du parcours d'apprentissage nous sommes
   const userMessageCount = session.messages.filter(msg => msg.role === "user").length;
   
-  // Déterminer l'étape du parcours (basé sur le nombre de messages échangés)
-  // 1er message: Déjà traité par generateLearningSequence (scénario + mini-jeu de décision)
-  // 2ème message: Analyse la décision + méthodo/technique
-  // 3ème message: Test de validation
-  // 4ème message ou plus: Conclusion & résumé
+  // Déterminer si nous sommes dans un contexte d'explication de concept ou de résolution de problème
+  const isConceptExplanation = session.messages.some(msg => 
+    msg.role === "user" && 
+    (msg.content === "2" || 
+     msg.content.toLowerCase().includes("concept") || 
+     msg.content.toLowerCase().includes("comprendre") ||
+     msg.content.toLowerCase().includes("apprendre"))
+  );
   
   let stagePrompt = "";
   const shouldConclude = userMessageCount >= 5; // Conclure après 4 échanges
 
   if (shouldConclude) {
-    // Conclusion et résumé
+    // 5. Conclusion - Même pour les deux types de demandes
     stagePrompt = `
-      Il est temps de conclure l'échange sur "${session.topic}". 
+      Nous arrivons à la fin de notre échange sur "${session.topic}".
       
-      Crée un RÉSUMÉ DE MISSION TERMINÉE qui:
-      - Commence par "MISSION ACCOMPLIE! 🏆"
-      - Liste exactement 4 points clés appris (ultra concis, une ligne chacun)
-      - Propose 3 options pour continuer (approfondir, autre sujet, module plus technique)
+      Suivez exactement ce format pour conclure:
       
-      Format: très concis, ton célébrant la réussite de la mission, pas plus de 8 lignes au total.
+      1. RÉSUMÉ DES POINTS CLÉS
+      - Résumez en exactement 3 à 5 points ce qui a été abordé
+      - Chaque point doit être très concis (une ligne maximum)
+      
+      2. OPTIONS POUR CONTINUER
+      Proposez explicitement à l'utilisateur s'il souhaite:
+      - Approfondir un aspect spécifique (suggérez lequel)
+      - Passer à un autre sujet lié
+      - Terminer la session (en cliquant en haut à droite)
+      
+      Terminez par: "Souhaitez-vous approfondir certains éléments ou lancer une nouvelle session ?"
+      
+      Format: présentez les points de façon structurée, utilisez des puces, soyez concis,
+      intégrez 1-2 emojis pertinents, référencez des sources fiables si nécessaire.
     `;
-  } else if (userMessageCount === 4) {
-    // Étape 3: Test de validation
+  } else if (isConceptExplanation) {
+    // Réponse pour un concept en cours d'explication
     stagePrompt = `
-      L'utilisateur a répondu: "${message}"
+      L'utilisateur a répondu: "${message}" à propos du concept de "${session.topic}".
       
-      Pour le sujet "${session.topic}", formule maintenant un MINI-TEST DE VALIDATION:
+      Continuez l'explication du concept en vous basant sur sa réponse:
       
-      1. Présente un scénario réaliste très court (1-2 lignes)
-      2. Pose une question ouverte qui demande une analyse ou application des connaissances
-      3. Précise qu'il n'y a pas de bonne/mauvaise réponse mais une réflexion à faire
+      1. APPROFONDISSEMENT
+      - Validez d'abord sa compréhension et répondez à ses questions spécifiques
+      - Ajoutez une dimension ou un angle qu'il n'a peut-être pas encore considéré
+      - Mentionnez une tendance récente ou évolution pertinente liée à ce concept
       
-      Format: ultra-concis (5-6 lignes max), style jeu de rôle, direct, utilise 1-2 emojis max.
+      2. ASPECT PRATIQUE
+      - Partagez un conseil pratique ou une bonne pratique directement applicable
+      - Indiquez comment ce concept s'intègre dans un cadre plus large
+      - Référencez une source officielle (ANSSI, CNIL, ENISA) pour approfondir
+      
+      3. NOUVELLE SITUATION
+      - Proposez une nouvelle situation légèrement plus complexe pour tester sa compréhension
+      - Formulez une question ouverte qui demande une application du concept
+      
+      Terminez par: "Est-ce clair ? Souhaitez-vous que je précise un point avant qu'on continue ?"
+      
+      Format: concis (max 15 lignes), adapté au niveau ${session.userLevel || "Débutant"},
+      utilisez titres clairs, points clés bien structurés, 1-2 emojis maximum.
     `;
   } else {
-    // Étape 2: Analyse de la décision + méthodo/technique
+    // Réponse pour un problème à résoudre
     stagePrompt = `
-      L'utilisateur a répondu à ton scénario et choix stratégique: "${message}"
+      L'utilisateur a répondu: "${message}" concernant le problème de "${session.topic}".
       
-      Réponds en deux parties distinctes:
+      Continuez la résolution du problème en vous basant sur sa réponse:
       
-      1. ANALYSE DE LA DÉCISION (2-3 lignes)
-      - Valide positivement sa réponse quelle qu'elle soit
-      - Ajoute une perspective ou nuance intéressante
+      1. ANALYSE DE SA RÉPONSE
+      - Validez les éléments pertinents de sa proposition
+      - Suggérez des améliorations ou alternatives si approprié
+      - Identifiez les risques ou points d'attention qu'il pourrait avoir manqués
       
-      2. TECHNIQUE/MÉTHODO (3-4 lignes)
-      - Présente une technique ou méthodologie essentielle liée à "${session.topic}"
-      - Format simple: nom + principe de base + pourquoi c'est utile
-      - Mentionne un outil ou framework standard si pertinent (ex: MITRE ATT&CK, EBIOS, etc.)
+      2. COMPLÉMENT D'INFORMATION
+      - Ajoutez une technique ou outil complémentaire très concret 
+      - Expliquez comment cette technique s'intègre dans la méthodologie globale
+      - Mentionnez si nécessaire un aspect réglementaire ou normatif important (RGPD, NIS2, etc.)
       
-      3. ILLUSTRATION (1-3 lignes)
-      - Inclus un mini-exemple concret très simple d'application
+      3. NOUVELLE MISE EN SITUATION
+      - Proposez un scénario de suivi qui permet d'approfondir un aspect du problème
+      - Posez une question précise qui demande une réflexion ou décision
       
-      Format: 
-      - Direct et vulgarisé, adapté au niveau ${session.userLevel || 'intermédiaire'}
-      - Maximum 8 lignes au total
-      - Structure claire séparant les 3 parties
-      - Ton: coach qui guide progressivement
+      Terminez par: "Souhaitez-vous que je clarifie un point avant qu'on poursuive ?"
+      
+      Format: concis (max 15 lignes), tone professionnel mais accessible,
+      utilisez titres clairs, points clés bien structurés, 1-2 emojis maximum.
     `;
   }
   
@@ -496,39 +523,79 @@ async function handleLearningStage(session: CyberExpertSession, message: string)
  * Génère une séquence d'apprentissage personnalisée basée sur le besoin confirmé
  */
 async function generateLearningSequence(session: CyberExpertSession): Promise<string> {
-  const prompt = `
-    Le sujet cyber suivant de l'utilisateur a été identifié: "${session.topic}"
-    
-    Crée une première réponse dans un format de CYBER CHALLENGE incluant:
-    
-    1. INTRODUCTION SITUATIONNELLE (très brève, 1-2 phrases max)
-    - Présente un mini-scénario réaliste lié au sujet
-    - Ton: coach de cybersécurité qui invite à relever un défi
-    
-    2. EXPLICATION GAMIFIÉE DU CONCEPT (3-4 lignes)
-    - Explique le concept clé de façon ludique et interactive
-    - Utilise une analogie concrète tirée de la vie quotidienne 
-    - Vulgarise sans sacrifier la précision
-    - Mentionne très brièvement une source officielle (ANSSI/CNIL) si pertinent
-    
-    3. OUTIL/TABLEAU VISUEL INTERACTIF (3-4 lignes)
-    - Décris un élément visuel pertinent pour le sujet (ex: matrice de risque, schéma simplifié, extrait de logs)
-    - Format texte "ASCII art" simple ou description très claire
-    - Inclus un élément interactif (ex: "Repérez l'anomalie dans ce log" ou "Identifiez la vulnérabilité dans ce schéma")
-    
-    4. MINI-JEU DE DÉCISION
-    - Pose un choix stratégique lié au scénario (pas de QCM mais options ouvertes)
-    - Formule comme: "Quelle stratégie adopteriez-vous? Option A (avantages/risques) ou Option B (avantages/risques)?"
-    
-    FORMAT:
-    - Concis mais complet (maximum 12-15 lignes au total)
-    - 1-2 emojis pertinents maximum
-    - Structure claire: intro → explication gamifiée → outil/tableau interactif → choix stratégique
-    - Langage: direct, simple, phrases courtes
-    - Adapter au niveau ${session.userLevel || 'intermédiaire'} (vulgariser si débutant)
-    - Éviter tout jargon non essentiel
-    - Ton enthousiaste et ludique tout du long
-  `;
+  if (!session.topic) {
+    return "Pour proposer un parcours adapté, j'ai besoin de connaître le sujet qui vous intéresse. Pourriez-vous me préciser quel aspect de la cybersécurité vous voulez explorer?";
+  }
+  
+  // Déterminer si nous traitons un concept ou un problème à résoudre
+  const isConceptExplanation = session.messages.some(msg => 
+    msg.role === "user" && 
+    (msg.content === "2" || 
+     msg.content.toLowerCase().includes("concept") || 
+     msg.content.toLowerCase().includes("comprendre") ||
+     msg.content.toLowerCase().includes("apprendre"))
+  );
+  
+  let prompt = "";
+  
+  if (isConceptExplanation) {
+    // Prompt pour expliquer un concept (option 2 du prompt CyberSensei)
+    prompt = `
+      L'utilisateur souhaite comprendre le concept de "${session.topic}".
+      
+      Suivez exactement cette structure pour expliquer ce concept:
+      
+      1. Reformulez et validez le concept à expliquer avec une brève introduction.
+      
+      2. Donnez 2 exemples concrets tirés de cas connus ou réalistes qui illustrent ce concept:
+         - Un exemple récent ou marquant
+         - Un exemple plus courant ou quotidien
+      
+      3. Fournissez:
+         - Une définition officielle (citez une source reconnue comme ANSSI, CNIL ou ENISA)
+         - Une explication simplifiée accessible à tous
+         - Un exemple du quotidien qui rend le concept accessible
+      
+      4. Proposez une petite mise en situation appliquée pour tester la compréhension:
+         - Contexte fictif mais réaliste
+         - Question ouverte qui permet d'appliquer le concept
+      
+      Terminez par: "Est-ce clair ? Souhaitez-vous que je précise un point avant qu'on continue ?"
+      
+      Format: respectez la structure en 4 points, utilisez des titres clairs, soyez concis (max 15 lignes),
+      intégrez 1-2 emojis maximum, adaptez au niveau ${session.userLevel || "Débutant"}.
+    `;
+  } else {
+    // Prompt pour résoudre un problème (option 1 du prompt CyberSensei)
+    prompt = `
+      L'utilisateur souhaite résoudre un problème concernant "${session.topic}".
+      
+      Suivez exactement cette structure pour l'aider:
+      
+      1. Donnez 2 faits historiques ou cas d'école en lien avec ce sujet:
+         - Ce qui s'est passé (incident/situation)
+         - Durée approximative de résolution
+         - Coût estimé (financier ou autre)
+         - Impacts sur l'organisation
+      
+      2. Analysez le besoin avec:
+         - Une méthodologie recommandée
+         - Des outils pertinents
+         - Des techniques essentielles
+         - Une explication vulgarisée adaptée au niveau ${session.userLevel || "Débutant"}
+      
+      3. Créez une mini mise en situation:
+         - Un contexte fictif mais crédible lié au problème
+         - Des personnes fictives impliquées (rôles professionnels)
+         - 2-3 données clés à prendre en compte
+         - Une décision à prendre par l'utilisateur
+      
+      Terminez par: "Quelle décision prendriez-vous dans cette situation ?"
+      
+      Format: respectez la structure en points, utilisez des titres clairs, soyez concis (max 15 lignes),
+      intégrez 1-2 emojis pertinents, référencez des sources fiables (ANSSI, CNIL, etc.).
+    `;
+  }
   
   try {
     const messages: ChatCompletionRequestMessage[] = [
