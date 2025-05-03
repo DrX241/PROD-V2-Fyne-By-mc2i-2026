@@ -448,29 +448,32 @@ async function handleLearningStage(session: CyberExpertSession, message: string)
       Format: ultra-concis (5-6 lignes max), style jeu de rôle, direct, utilise 1-2 emojis max.
     `;
   } else {
-    // Étape 2: Analyse de la décision + méthodo/technique
+    // Étape 2: Continuation de la conversation de manière flexible
     stagePrompt = `
-      L'utilisateur a répondu à ton scénario et choix stratégique: "${message}"
+      L'utilisateur a répondu: "${message}"
       
-      Réponds en deux parties distinctes:
+      Continue la conversation sur "${session.topic}" en choisissant l'approche la plus appropriée:
       
-      1. ANALYSE DE LA DÉCISION (2-3 lignes)
-      - Valide positivement sa réponse quelle qu'elle soit
-      - Ajoute une perspective ou nuance intéressante
+      OPTION 1 - APPROFONDIR UN ASPECT:
+      - Développe un aspect particulier mentionné par l'utilisateur
+      - Ajoute une information nouvelle et pertinente
+      - Inclus éventuellement un exemple concret
       
-      2. TECHNIQUE/MÉTHODO (3-4 lignes)
-      - Présente une technique ou méthodologie essentielle liée à "${session.topic}"
-      - Format simple: nom + principe de base + pourquoi c'est utile
-      - Mentionne un outil ou framework standard si pertinent (ex: MITRE ATT&CK, EBIOS, etc.)
+      OPTION 2 - APPORTER UN ÉCLAIRAGE TECHNIQUE:
+      - Présente une technique, méthodologie ou outil pertinent lié au sujet
+      - Explique pourquoi c'est important dans ce contexte
+      - Relie cela à une situation pratique
       
-      3. ILLUSTRATION (1-3 lignes)
-      - Inclus un mini-exemple concret très simple d'application
+      OPTION 3 - EXPLORER UNE PERSPECTIVE DIFFÉRENTE:
+      - Propose un angle nouveau ou complémentaire
+      - Introduis un concept connexe intéressant
+      - Établis un lien avec les bonnes pratiques du domaine
       
-      Format: 
-      - Direct et vulgarisé, adapté au niveau ${session.userLevel || 'intermédiaire'}
-      - Maximum 8 lignes au total
-      - Structure claire séparant les 3 parties
-      - Ton: coach qui guide progressivement
+      CONSIGNES:
+      - Adapte ton niveau technique à l'utilisateur (${session.userLevel || 'intermédiaire'})
+      - Maximum 10-12 lignes pour une lecture facile
+      - Structure claire avec éventuellement des puces ou listes
+      - Termine par une question ouverte qui encourage l'approfondissement
     `;
   }
   
@@ -493,37 +496,35 @@ async function handleLearningStage(session: CyberExpertSession, message: string)
  */
 async function generateLearningSequence(session: CyberExpertSession): Promise<string> {
   const prompt = `
-    Le sujet cyber suivant de l'utilisateur a été identifié: "${session.topic}"
+    Sujet demandé: "${session.topic}"
+    Niveau perçu de l'utilisateur: ${session.userLevel || 'Débutant'}
     
-    Crée une première réponse dans un format de CYBER CHALLENGE incluant:
+    Génère une première interaction d'apprentissage sur ce sujet. Choisis le format qui te semble le plus adapté au sujet parmi:
     
-    1. INTRODUCTION SITUATIONNELLE (très brève, 1-2 phrases max)
-    - Présente un mini-scénario réaliste lié au sujet
-    - Ton: coach de cybersécurité qui invite à relever un défi
+    FORMAT ACADÉMIQUE:
+    - Explication structurée du concept avec définition claire
+    - Références à des standards ou organismes officiels (ANSSI, CNIL, ENISA)
+    - Points clés à retenir
+    - Question ou invitation finale pour approfondir
     
-    2. EXPLICATION GAMIFIÉE DU CONCEPT (3-4 lignes)
-    - Explique le concept clé de façon ludique et interactive
-    - Utilise une analogie concrète tirée de la vie quotidienne 
-    - Vulgarise sans sacrifier la précision
-    - Mentionne très brièvement une source officielle (ANSSI/CNIL) si pertinent
+    FORMAT SIMULATION:
+    - Scénario réaliste et concret où ce concept est appliqué
+    - Représentation visuelle (tableau, schéma ou log) décrite textuellement
+    - Choix stratégique ou question de réflexion qui engage l'utilisateur
     
-    3. OUTIL/TABLEAU VISUEL INTERACTIF (3-4 lignes)
-    - Décris un élément visuel pertinent pour le sujet (ex: matrice de risque, schéma simplifié, extrait de logs)
-    - Format texte "ASCII art" simple ou description très claire
-    - Inclus un élément interactif (ex: "Repérez l'anomalie dans ce log" ou "Identifiez la vulnérabilité dans ce schéma")
+    FORMAT DÉFI:
+    - Mini-challenge technique ou cas pratique à résoudre
+    - Indices et éléments pour guider la réflexion
+    - Options ou pistes de réflexion pour aborder le problème
     
-    4. MINI-JEU DE DÉCISION
-    - Pose un choix stratégique lié au scénario (pas de QCM mais options ouvertes)
-    - Formule comme: "Quelle stratégie adopteriez-vous? Option A (avantages/risques) ou Option B (avantages/risques)?"
-    
-    FORMAT:
-    - Concis mais complet (maximum 12-15 lignes au total)
-    - 1-2 emojis pertinents maximum
-    - Structure claire: intro → explication gamifiée → outil/tableau interactif → choix stratégique
-    - Langage: direct, simple, phrases courtes
-    - Adapter au niveau ${session.userLevel || 'intermédiaire'} (vulgariser si débutant)
-    - Éviter tout jargon non essentiel
-    - Ton enthousiaste et ludique tout du long
+    CONSIGNES ESSENTIELLES:
+    - Adapte le niveau technique au profil perçu de l'utilisateur
+    - Utilise un ton conversationnel et accessible
+    - Maximum 12-15 lignes au total pour garantir la lisibilité
+    - Structure le contenu avec des listes ou points pour faciliter la lecture
+    - Inclus une question ou invitation finale qui encourage la poursuite de l'échange
+    - N'utilise que 1-2 emojis pertinents maximum
+    - Propose un contenu bien organisé et visuellement structuré
   `;
   
   try {
@@ -591,11 +592,11 @@ RÈGLES FONDAMENTALES:
 * Éviter le jargon technique excessif, sauf si l'utilisateur montre une expertise avancée
 
 INSTRUCTIONS CRITIQUES:
-* Observe attentivement le langage et les connaissances de l'utilisateur pour adapter le niveau technique
-* Passe naturellement d'un format à l'autre si nécessaire dans la même conversation
+* Observe attentivement le langage et les connaissances de l'utilisateur pour adapter ton niveau technique
+* Adapte naturellement ton format en fonction du sujet et du contexte de la conversation
 * Pose des questions ouvertes pour approfondir la compréhension des besoins
-* N'hésite pas à proposer un angle différent quand l'utilisateur semble perdre l'intérêt
-* Préfère une approche gamifiée pour les concepts complexes ou techniques`;
+* Propose des angles différents et complémentaires pour enrichir la compréhension
+* Choisis entre approche académique ou gamifiée selon ce qui est le plus adapté au sujet et à l'utilisateur`;
 }
 
 /**
@@ -630,17 +631,16 @@ export async function terminateCyberExpertSession(req: Request, res: Response) {
         // Si une vraie conversation a eu lieu, générer un résumé
         try {
           const prompt = `
-            Résume notre échange sur: "${session.topic || 'cybersécurité'}" dans un format CARTE DE MISSION ACCOMPLIE.
+            Résume notre conversation sur: "${session.topic || 'cybersécurité'}" de façon concise et pertinente.
             
-            Ton résumé doit être:
-            - Ultra concis (4-5 lignes maximum)
-            - Ludique avec 1-2 emojis pertinents
-            - Structuré comme un débriefing de jeu avec "MISSION ACCOMPLIE" en début
-            - Contenant 2-3 points clés à retenir
-            - Se terminant par une phrase encourageante
+            Ton résumé doit:
+            - Être concis (5-6 lignes maximum)
+            - Contenir 3-4 points clés essentiels abordés dans la conversation
+            - Suggérer une piste pour approfondir ce sujet
+            - Inclure un ton positif qui valorise l'apprentissage réalisé
             
-            Format: paragraphes courts sans markdown, listes à puces ou formatage technique.
-            Ton: enthousiaste, comme un coach de jeu qui félicite un joueur pour sa progression.
+            Format: structuré, clair, avec un emoji pertinent si approprié.
+            Ton: expert bienveillant qui souligne les éléments importants à retenir.
           `;
           
           const messages: ChatCompletionRequestMessage[] = [
