@@ -67,6 +67,11 @@ function ExpertLearningPageContent() {
   const [sessionStatus, setSessionStatus] = useState<SessionStatus | null>(null);
   const [sessionSummary, setSessionSummary] = useState<string | null>(null);
   
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { toast } = useToast();
+  const [, setLocation] = useLocation();
+  
   // Accès au contexte de décision
   const decision = useDecision();
   
@@ -83,11 +88,6 @@ function ExpertLearningPageContent() {
       await decision.submitDecision(userId, optionId);
     }
   };
-  
-  const chatContainerRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { toast } = useToast();
-  const [, setLocation] = useLocation();
 
   // Fonction pour démarrer une nouvelle session
   const startSession = async () => {
@@ -210,6 +210,11 @@ function ExpertLearningPageContent() {
         // Mettre à jour le statut de la session
         if (response.sessionStatus) {
           setSessionStatus(response.sessionStatus);
+        }
+        
+        // Vérifier si l'utilisateur est en mode décision après chaque message
+        if (userId) {
+          decision.checkDecisionStatus(userId);
         }
       } else {
         throw new Error("Échec de l'envoi du message");
@@ -400,312 +405,236 @@ function ExpertLearningPageContent() {
           <div className="flex flex-col items-center mb-10 mt-10">
             <div className="flex items-center bg-[#091525]/80 px-4 py-3 rounded-md border border-[#00b4d8]/30 shadow-[0_0_15px_rgba(0,180,216,0.15)] mb-3">
               <div className="mr-4 p-2 rounded-full bg-[#00b4d8]/10 border border-[#00b4d8]/20">
-                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12,3 L21,7 L21,13 C21,17.5 17,21.5 12,23 C7,21.5 3,17.5 3,13 L3,7 L12,3 Z" stroke="#00b4d8" strokeWidth="1.5" fill="none"/>
-                  <circle cx="12" cy="9" r="3" stroke="#00b4d8" strokeWidth="1.5" fill="none"/>
-                  <path d="M8,17 C8,14.7909 9.79086,13 12,13 C14.2091,13 16,14.7909 16,17" stroke="#00b4d8" strokeWidth="1.5" fill="none"/>
-                </svg>
+                <Bot className="h-6 w-6 text-[#00b4d8]" />
               </div>
               <div>
-                <h1 className="text-3xl sm:text-4xl font-mono font-bold text-[#e5f0fc]">
-                  CYBER<span className="text-[#00b4d8]">TRAINING</span><span className="text-[#e63946]">_</span>
-                </h1>
-                <h2 className="text-[#8abee0] text-sm font-mono">MODE: ÉCHANGE INTERACTIF | NIVEAU: ADAPTATIF</h2>
+                <h2 className="text-xl text-white font-bold tracking-tight">Expert Cyber Conversationnel</h2>
+                <p className="text-[#00b4d8] text-sm">Module d'apprentissage personnalisé par IA</p>
               </div>
             </div>
-            <div className="bg-[#091525]/60 px-5 py-3 rounded-md border border-[#00b4d8]/20 max-w-2xl">
-              <p className="text-[#c3d9ee] text-center text-sm">
-                Dialoguez avec un expert en cybersécurité pour approfondir vos connaissances, résoudre des problèmes techniques ou explorer des concepts avancés dans un environnement interactif et personnalisé.
-              </p>
-            </div>
+            <p className="text-[#c3d9ee] text-sm text-center max-w-2xl">
+              Posez vos questions sur la cybersécurité et adaptez votre apprentissage à votre domaine et votre niveau. 
+              L'IA analysera vos besoins et vous guidera avec des explications personnalisées.
+            </p>
           </div>
           
-          {/* Affichage du résumé de session */}
-          {sessionSummary && !isSessionActive && (
-            <div className="max-w-4xl mx-auto bg-[#091525] rounded-lg p-6 border border-[#00b4d8]/30 shadow-[0_0_20px_rgba(0,180,216,0.2)]">
-              <div className="flex justify-between items-center mb-4 border-b border-[#00b4d8]/20 pb-3">
-                <div className="flex items-center">
-                  <div className="h-6 w-2 bg-[#e63946] mr-3"></div>
-                  <h2 className="text-xl font-mono font-bold text-[#00b4d8]">RAPPORT D'ANALYSE</h2>
-                </div>
-                <Button 
-                  variant="outline" 
-                  onClick={closeSessionSummary}
-                  className="p-2 rounded-md h-auto bg-transparent border-[#00b4d8]/30 hover:bg-[#112641] text-[#00b4d8]"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-              
-              <div className="mb-2 flex justify-between text-xs text-[#8abee0] font-mono">
-                <div>DATE: {new Date().toLocaleDateString()}</div>
-                <div>TIMESTAMP: {new Date().toLocaleTimeString()}</div>
-              </div>
-              
-              <div className="bg-[#0c1e2e] p-4 rounded border border-[#00b4d8]/20 mb-6">
-                <div className="prose prose-invert max-w-none text-[#c3d9ee]" 
-                  dangerouslySetInnerHTML={{ 
-                    __html: DOMPurify.sanitize(formatTextWithStructure(sessionSummary))
-                  }} 
+          {/* Interface principale conditionnelle */}
+          {!isSessionActive && !sessionSummary ? (
+            <div className="flex flex-col items-center justify-center py-10">
+              <Card className="w-full max-w-xl bg-[#091525]/80 border-[#00b4d8]/30 text-white shadow-[0_0_20px_rgba(0,180,216,0.1)]">
+                <CardHeader>
+                  <CardTitle className="text-center text-[#00b4d8]">Démarrer une nouvelle session</CardTitle>
+                  <CardDescription className="text-center text-[#c3d9ee]">
+                    Commencez votre parcours d'apprentissage avec l'expert en cybersécurité
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="p-4 bg-[#121e2e] rounded-md border border-[#00b4d8]/20">
+                    <h3 className="text-[#00b4d8] font-medium mb-2">Comment ça fonctionne ?</h3>
+                    <ul className="space-y-2 text-sm text-[#c3d9ee]">
+                      <li className="flex items-start">
+                        <span className="text-[#e63946] mr-2">1.</span>
+                        <span>Exprimez votre besoin ou votre question en cybersécurité.</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-[#e63946] mr-2">2.</span>
+                        <span>L'expert analyse votre demande et identifie le sujet précis.</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-[#e63946] mr-2">3.</span>
+                        <span>Vous recevez un contenu personnalisé adapté à votre niveau.</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-[#e63946] mr-2">4.</span>
+                        <span>Interagissez pour approfondir ou réorienter la discussion.</span>
+                      </li>
+                    </ul>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button 
+                    onClick={startSession} 
+                    disabled={isLoading}
+                    className="w-full bg-[#00b4d8] hover:bg-[#00b4d8]/80 text-[#091525] font-mono"
+                  >
+                    {isLoading ? (
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <span className="text-[#091525] mr-1">_</span>
+                    )}
+                    NOUVELLE SESSION <span className="text-[#091525] ml-1">_</span>
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
+          ) : (
+            <div className="flex flex-col w-full max-w-4xl mx-auto">
+              {/* Mode décision/apprentissage */}
+              {decision.isInDecisionMode && decision.currentScenario ? (
+                <CyberDecisionFlow 
+                  scenario={decision.currentScenario}
+                  onDecisionMade={handleDecisionMade}
+                  isLoading={decision.isLoading}
+                  currentNumber={decision.currentScenarioNumber}
+                  totalScenarios={decision.totalScenarios}
+                  summary={decision.summary}
                 />
-              </div>
-              
-              <div className="flex justify-center">
-                <Button 
-                  onClick={startSession} 
-                  className="bg-[#00b4d8] hover:bg-[#00a0c2] text-white px-6 py-3 font-mono text-sm"
-                >
-                  NOUVELLE SESSION <span className="text-[#091525] ml-1">_</span>
-                </Button>
-              </div>
+              ) : (
+                /* Interface de chat et entrée de messages */
+                <>
+                  {/* Zone de chat avec messages */}
+                  <div 
+                    ref={chatContainerRef}
+                    className="flex-1 overflow-y-auto bg-[#091525]/80 border border-[#00b4d8]/30 rounded-t-md shadow-[0_0_15px_rgba(0,180,216,0.1)] h-[calc(100vh-350px)] min-h-[400px]"
+                  >
+                    <div className="p-4 space-y-4">
+                      {messages.map((message) => (
+                        <div
+                          key={message.id}
+                          className={`flex ${
+                            message.type === "user" ? "justify-end" : "justify-start"
+                          }`}
+                        >
+                          <div
+                            className={`max-w-[85%] p-3 rounded-md ${
+                              message.type === "user"
+                                ? "bg-[#00b4d8]/30 text-white ml-auto"
+                                : "bg-[#121e2e] border border-[#00b4d8]/20 text-white"
+                            }`}
+                          >
+                            {message.type === "bot" ? (
+                              <div 
+                                className="prose prose-invert max-w-none text-[#c3d9ee]" 
+                                dangerouslySetInnerHTML={{ 
+                                  __html: DOMPurify.sanitize(formatTextWithStructure(message.content)) 
+                                }}
+                              />
+                            ) : (
+                              <p className="text-[#c3d9ee]">{message.content}</p>
+                            )}
+                            <div className="text-xs text-[#00b4d8]/60 mt-1 text-right">
+                              {new Date(message.timestamp).toLocaleTimeString([], { 
+                                hour: '2-digit', 
+                                minute: '2-digit' 
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      {isLoading && (
+                        <div className="flex justify-start">
+                          <div className="max-w-[85%] p-3 rounded-md bg-[#121e2e] border border-[#00b4d8]/20 text-white">
+                            <div className="flex space-x-2">
+                              <div className="w-2 h-2 rounded-full bg-[#00b4d8]/30 animate-pulse"></div>
+                              <div className="w-2 h-2 rounded-full bg-[#00b4d8]/30 animate-pulse delay-150"></div>
+                              <div className="w-2 h-2 rounded-full bg-[#00b4d8]/30 animate-pulse delay-300"></div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+            
+                  {/* Bouton de défilement vers le bas */}
+                  {showScrollButton && (
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="absolute bottom-32 right-8 rounded-full bg-[#091525] border-[#00b4d8]/30 text-[#00b4d8] hover:bg-[#112641] hover:border-[#00b4d8]/50 shadow-[0_0_10px_rgba(0,180,216,0.2)]"
+                      onClick={scrollToBottom}
+                    >
+                      <ChevronDown className="h-4 w-4" />
+                    </Button>
+                  )}
+            
+                  {/* Zone de saisie de message */}
+                  <div className="bg-[#121e2e] p-4 rounded-b-md border-x border-b border-[#00b4d8]/30 shadow-[0_0_15px_rgba(0,180,216,0.1)]">
+                    <form onSubmit={handleSubmit} className="flex space-x-2">
+                      <div className="flex-1 relative">
+                        <textarea
+                          ref={textareaRef}
+                          value={inputMessage}
+                          onChange={(e) => setInputMessage(e.target.value)}
+                          onKeyDown={handleKeyDown}
+                          placeholder="Posez votre question sur la cybersécurité..."
+                          className="w-full p-3 bg-[#091525] text-[#c3d9ee] border border-[#00b4d8]/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/50 resize-none min-h-[60px] max-h-[120px] overflow-y-auto"
+                          disabled={isLoading}
+                          rows={2}
+                        />
+                        <div className="absolute right-3 bottom-2 text-xs text-[#00b4d8]/60">
+                          {inputMessage.length > 0 ? `${inputMessage.length} car.` : 'Entrée: envoyer · Maj+Entrée: nouvelle ligne'}
+                        </div>
+                      </div>
+                      <Button 
+                        type="submit" 
+                        disabled={isLoading || !inputMessage.trim()} 
+                        className="bg-[#00b4d8] hover:bg-[#00b4d8]/80 text-[#091525] self-end h-[60px] w-[60px]"
+                      >
+                        {isLoading ? (
+                          <RefreshCw className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <Send className="h-5 w-5" />
+                        )}
+                      </Button>
+                    </form>
+                    
+                    {/* Bouton de fin de session */}
+                    <div className="mt-3 flex justify-center">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={endSession}
+                        disabled={isLoading}
+                        className="bg-[#091525] border-[#e63946]/30 text-[#e63946] hover:bg-[#112641] hover:border-[#e63946]/50 text-xs"
+                      >
+                        Terminer la session
+                      </Button>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           )}
           
-          {!isSessionActive && !sessionSummary ? (
-            <div className="w-full mx-auto px-4">
-              {/* En-tête du module de formation */}
-              <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center mb-2 bg-[#091525]/70 px-4 py-2 rounded-md border border-[#00b4d8]/30">
-                  <span className="font-mono text-[#00b4d8] text-sm mr-2">[CYBER-TRAINING]</span>
-                  <span className="text-[#e5f0fc] font-mono text-xs">SÉLECTIONNEZ UNE MÉTHODE D'APPRENTISSAGE</span>
-                </div>
-              </div>
-              
-              {/* Cartes alignées horizontalement */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
-                {/* Carte 1 */}
-                <div className="bg-gradient-to-br from-[#0c1e2e] to-[#112641] rounded-lg border border-[#00b4d8]/30 shadow-[0_0_15px_rgba(0,180,216,0.15)] overflow-hidden group hover:shadow-[0_0_20px_rgba(0,180,216,0.3)] transition-all duration-300 transform hover:-translate-y-1">
-                  <div className="h-1 bg-[#e63946]"></div>
-                  <div className="p-5">
-                    <div className="w-14 h-14 rounded-full bg-[#091525]/80 border border-[#00b4d8]/20 flex items-center justify-center text-white mb-3 mx-auto">
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12,1 L21,5 L21,11 C21,16.5 17,21 12,23 C7,21 3,16.5 3,11 L3,5 L12,1 Z" stroke="#00b4d8" strokeWidth="2" fill="none"/>
-                        <path d="M9,12 L11,15 L15,9" stroke="#e63946" strokeWidth="2" fill="none"/>
-                      </svg>
-                    </div>
-                    <h3 className="font-mono text-center text-lg font-medium text-[#00b4d8] mb-2">ANALYSE DES BESOINS</h3>
-                    <div className="bg-[#091525]/50 p-3 rounded border border-[#00b4d8]/10 mb-3">
-                      <p className="text-[#8abee0] text-sm text-center">L'expert identifie vos objectifs d'apprentissage et adapte son approche à votre niveau</p>
-                    </div>
-                    <div className="text-center">
-                      <span className="inline-block px-3 py-1 bg-[#e63946]/20 text-[#e63946] rounded-full text-xs font-mono">NIVEAU 01</span>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Carte 2 */}
-                <div className="bg-gradient-to-br from-[#0c1e2e] to-[#112641] rounded-lg border border-[#00b4d8]/30 shadow-[0_0_15px_rgba(0,180,216,0.15)] overflow-hidden group hover:shadow-[0_0_20px_rgba(0,180,216,0.3)] transition-all duration-300 transform hover:-translate-y-1">
-                  <div className="h-1 bg-[#00b4d8]"></div>
-                  <div className="p-5">
-                    <div className="w-14 h-14 rounded-full bg-[#091525]/80 border border-[#00b4d8]/20 flex items-center justify-center text-white mb-3 mx-auto">
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M21,7 L3,7" stroke="#00b4d8" strokeWidth="2"/>
-                        <path d="M21,12 L3,12" stroke="#00b4d8" strokeWidth="2"/>
-                        <path d="M21,17 L3,17" stroke="#00b4d8" strokeWidth="2"/>
-                      </svg>
-                    </div>
-                    <h3 className="font-mono text-center text-lg font-medium text-[#00b4d8] mb-2">ÉCHANGE PERSONNALISÉ</h3>
-                    <div className="bg-[#091525]/50 p-3 rounded border border-[#00b4d8]/10 mb-3">
-                      <p className="text-[#8abee0] text-sm text-center">Recevez des explications sur mesure avec des exemples concrets et des références fiables</p>
-                    </div>
-                    <div className="text-center">
-                      <span className="inline-block px-3 py-1 bg-[#00b4d8]/20 text-[#00b4d8] rounded-full text-xs font-mono">NIVEAU 02</span>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Carte 3 */}
-                <div className="bg-gradient-to-br from-[#0c1e2e] to-[#112641] rounded-lg border border-[#00b4d8]/30 shadow-[0_0_15px_rgba(0,180,216,0.15)] overflow-hidden group hover:shadow-[0_0_20px_rgba(0,180,216,0.3)] transition-all duration-300 transform hover:-translate-y-1">
-                  <div className="h-1 bg-[#00b4d8]"></div>
-                  <div className="p-5">
-                    <div className="w-14 h-14 rounded-full bg-[#091525]/80 border border-[#00b4d8]/20 flex items-center justify-center text-white mb-3 mx-auto">
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9,3 L5,7 L9,11" stroke="#00b4d8" strokeWidth="2" fill="none"/>
-                        <path d="M5,7 H15 C18,7 21,10 21,13 C21,16 18,19 15,19 H5" stroke="#00b4d8" strokeWidth="2" fill="none"/>
-                      </svg>
-                    </div>
-                    <h3 className="font-mono text-center text-lg font-medium text-[#00b4d8] mb-2">APPLICATION PRATIQUE</h3>
-                    <div className="bg-[#091525]/50 p-3 rounded border border-[#00b4d8]/10 mb-3">
-                      <p className="text-[#8abee0] text-sm text-center">Validez votre compréhension avec des mises en situation et des défis adaptés à votre progression</p>
-                    </div>
-                    <div className="text-center">
-                      <span className="inline-block px-3 py-1 bg-[#00b4d8]/20 text-[#00b4d8] rounded-full text-xs font-mono">NIVEAU 03</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Bouton de démarrage */}
-              <div className="max-w-md mx-auto mt-8 text-center">
-                <Button 
-                  onClick={startSession} 
-                  className="bg-[#00b4d8] hover:bg-[#00a0c2] text-white px-8 py-4 text-lg font-mono rounded-md shadow-[0_0_15px_rgba(0,180,216,0.3)] hover:shadow-[0_0_20px_rgba(0,180,216,0.5)] transition-all duration-300 transform hover:-translate-y-1"
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <span className="flex items-center">
-                      <RefreshCw className="mr-2 h-5 w-5 animate-spin" />
-                      INITIALISATION...
-                    </span>
-                  ) : (
-                    <span className="flex items-center justify-center">
-                      <span className="mr-2 font-mono">{'>'}</span>
-                      DÉMARRER LA SESSION
-                    </span>
-                  )}
-                </Button>
-                <div className="mt-3 text-[#8abee0] text-xs">
-                  Connexion sécurisée <span className="text-green-400">●</span> Niveau d'accès: <span className="text-[#00b4d8]">AUTORISÉ</span>
-                </div>
-              </div>
-            </div>
-          ) : isSessionActive && (
-            <div className="bg-[#0c1e2e] border border-[#00b4d8]/30 rounded-xl overflow-hidden shadow-[0_0_20px_rgba(0,180,216,0.15)] max-w-5xl mx-auto">
-              {/* En-tête de la conversation - Style console de sécurité */}
-              <div className="p-4 bg-[#091525] border-b border-[#00b4d8]/20 flex justify-between items-center">
-                <div className="flex items-center">
-                  <div className="mr-3 p-1 rounded-full bg-[#00b4d8]/20 border border-[#00b4d8]/40">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="12" cy="12" r="11" stroke="#00b4d8" strokeWidth="1.5" fill="none"/>
-                      <circle cx="12" cy="8" r="2" fill="#00b4d8"/>
-                      <rect x="10" y="11" width="4" height="7" rx="1" fill="#00b4d8"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-mono font-bold text-[#00b4d8]">SOC ANALYST <span className="text-[#e63946]">:</span><span className="text-xs text-[#8abee0] ml-2">[SESSION ACTIVE]</span></h2>
-                    <div className="text-xs text-[#8abee0] opacity-60">Terminal ID: CYBER-{Math.floor(Math.random() * 9000) + 1000}-SEC</div>
-                  </div>
-                </div>
-                <div className="flex">
-                  <Button 
-                    variant="outline" 
-                    onClick={endSession} 
-                    className="border-[#00b4d8]/30 bg-[#0c1e2e] hover:bg-[#112641] text-[#00b4d8] hover:text-[#e63946]"
-                    disabled={isLoading}
+          {/* Résumé de session (modal) */}
+          {sessionSummary && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
+              <Card className="w-full max-w-2xl bg-[#091525] border-[#00b4d8]/30 text-white shadow-[0_0_20px_rgba(0,180,216,0.2)]">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-[#00b4d8]">Résumé de votre session</CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={closeSessionSummary}
+                    className="text-[#00b4d8] hover:text-[#00b4d8]/80 hover:bg-[#121e2e]"
                   >
-                    {isLoading ? (
-                      <RefreshCw className="h-5 w-5 animate-spin" />
-                    ) : (
-                      <span className="flex items-center">
-                        <X className="h-5 w-5 mr-1" />
-                        <span className="font-mono text-sm">TERMINER</span>
-                      </span>
-                    )}
+                    <X className="h-5 w-5" />
                   </Button>
-                </div>
-              </div>
-              
-              {/* Status Bar - Pour reproduire l'esprit de l'image */}
-              <div className="bg-[#112641] py-1 px-4 flex justify-between text-xs text-[#8abee0] border-b border-[#00b4d8]/20">
-                <div className="flex items-center">
-                  <span className="mr-3">STATUS: <span className="text-green-400">SÉCURISÉ</span></span>
-                  <span>CHIFFREMENT: <span className="text-green-400">ACTIF</span></span>
-                </div>
-                <div>
-                  SESSION ID: {userId?.substring(0, 8) || 'INITIALISATION...'}
-                </div>
-              </div>
-              
-              {/* Conteneur des messages - Style console */}
-              <div 
-                ref={chatContainerRef}
-                className="h-[calc(100vh-320px)] overflow-y-auto p-4 space-y-5 bg-[#0c1e2e]"
-                style={{backgroundImage: 'radial-gradient(circle at 50% 80%, rgba(0,180,216,0.03) 0%, transparent 60%)'}}
-              >
-                {messages.map((message, index) => (
+                </CardHeader>
+                <CardContent>
                   <div 
-                    key={message.id} 
-                    className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                    className="prose prose-invert max-w-none text-[#c3d9ee]" 
+                    dangerouslySetInnerHTML={{ 
+                      __html: DOMPurify.sanitize(formatTextWithStructure(sessionSummary)) 
+                    }}
+                  />
+                </CardContent>
+                <CardFooter className="flex justify-center gap-4">
+                  <Button
+                    onClick={startSession}
+                    className="bg-[#00b4d8] hover:bg-[#00b4d8]/80 text-[#091525]"
                   >
-                    {message.type === 'user' ? (
-                      <div className="max-w-[80%] p-3 rounded-md bg-[#112641] text-[#e5f0fc] border border-[#00b4d8]/30 shadow-[0_0_10px_rgba(0,180,216,0.05)]">
-                        <div className="mb-1 text-xs font-mono text-[#8abee0]">
-                          <span className="font-bold">VOUS</span>
-                          <span className="text-[#8abee0]/50 ml-2">{new Date(message.timestamp).toLocaleTimeString()}</span>
-                        </div>
-                        <div className="whitespace-pre-wrap">{message.content}</div>
-                      </div>
-                    ) : (
-                      <div className="max-w-[80%] p-3 rounded-md bg-[#0c1e2e] text-[#e5f0fc] border border-[#00b4d8]/30 shadow-[0_0_10px_rgba(0,180,216,0.05)]">
-                        <div className="mb-1 text-xs font-mono text-[#00b4d8] flex items-center">
-                          <div className="h-2 w-2 rounded-full bg-[#00b4d8] mr-2"></div>
-                          <span className="font-bold">EXPERT CYBER</span>
-                          <span className="text-[#8abee0]/50 ml-2">{new Date(message.timestamp).toLocaleTimeString()}</span>
-                        </div>
-                        <div 
-                          className="prose prose-invert prose-sm max-w-none text-[#c3d9ee]" 
-                          dangerouslySetInnerHTML={{ 
-                            __html: DOMPurify.sanitize(formatTextWithStructure(message.content))
-                          }}
-                        />
-                      </div>
-                    )}
-                  </div>
-                ))}
-                
-                {isLoading && messages.length > 0 && (
-                  <div className="flex justify-start">
-                    <div className="bg-[#0c1e2e] text-[#8abee0] p-3 rounded-md flex items-center space-x-2 border border-[#00b4d8]/30">
-                      <div className="flex items-center">
-                        <div className="font-mono text-xs mr-2">ANALYSE EN COURS</div>
-                        <div className="flex space-x-1">
-                          <div className="w-1.5 h-1.5 bg-[#00b4d8] rounded-full animate-pulse"></div>
-                          <div className="w-1.5 h-1.5 bg-[#00b4d8] rounded-full animate-pulse" style={{animationDelay: '300ms'}}></div>
-                          <div className="w-1.5 h-1.5 bg-[#00b4d8] rounded-full animate-pulse" style={{animationDelay: '600ms'}}></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              {/* Bouton de défilement vers le bas */}
-              {showScrollButton && (
-                <button 
-                  onClick={scrollToBottom}
-                  className="fixed right-6 bottom-24 bg-[#00b4d8] p-3 rounded-full shadow-[0_0_15px_rgba(0,180,216,0.5)] z-20 text-[#0c1e2e] hover:bg-[#00a0c2]"
-                  title="Défiler vers le bas"
-                  aria-label="Défiler vers le bas de la conversation"
-                >
-                  <ChevronDown className="h-5 w-5" />
-                </button>
-              )}
-              
-              {/* Zone de saisie */}
-              <div className="p-4 border-t border-[#00b4d8]/20 bg-[#091525]">
-                <form onSubmit={handleSubmit} className="flex space-x-2">
-                  <div className="relative flex-1">
-                    <div className="absolute left-0 top-0 pl-3 h-full flex items-center text-[#00b4d8] opacity-70 pointer-events-none">
-                      <span className="font-mono text-sm">{'>'}</span>
-                    </div>
-                    <textarea 
-                      ref={textareaRef}
-                      value={inputMessage}
-                      onChange={(e) => setInputMessage(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      placeholder="Entrez votre requête..."
-                      className="w-full pl-8 pr-4 py-3 bg-[#0c1e2e] border border-[#00b4d8]/30 rounded-md text-[#e5f0fc] placeholder-[#8abee0]/50 resize-none focus:ring-1 focus:ring-[#00b4d8] focus:border-[#00b4d8]/50 font-mono"
-                      rows={1}
-                      disabled={isLoading}
-                      style={{ minHeight: "2.5rem", maxHeight: "8rem" }}
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="bg-[#00b4d8] hover:bg-[#00a0c2] text-[#0c1e2e] px-4 font-mono text-sm rounded-md flex-shrink-0 h-auto"
-                    disabled={!inputMessage.trim() || isLoading}
-                  >
-                    {isLoading ? (
-                      <RefreshCw className="h-5 w-5 animate-spin" />
-                    ) : (
-                      <span className="flex items-center">
-                        ENVOYER
-                        <Send className="h-4 w-4 ml-2" />
-                      </span>
-                    )}
+                    Nouvelle session
                   </Button>
-                </form>
-              </div>
+                  <Button
+                    variant="outline"
+                    onClick={handleReturnToPrevious}
+                    className="border-[#00b4d8]/30 text-[#00b4d8] hover:bg-[#112641] hover:border-[#00b4d8]/50"
+                  >
+                    Retour à l'accueil
+                  </Button>
+                </CardFooter>
+              </Card>
             </div>
           )}
         </div>

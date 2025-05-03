@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronUp, Clock } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChevronDown, ChevronUp, Clock, CheckCircle } from "lucide-react";
+import DOMPurify from 'dompurify';
 
 interface DecisionOption {
   id: string;
@@ -28,17 +30,21 @@ interface DecisionScenario {
 }
 
 interface CyberDecisionFlowProps {
-  decision: DecisionScenario;
+  scenario: DecisionScenario;
   onDecisionMade: (optionId: string) => void;
-  scenarioNumber: number;
+  isLoading?: boolean;
+  currentNumber: number;
   totalScenarios: number;
+  summary: string | null;
 }
 
 export default function CyberDecisionFlow({ 
-  decision, 
+  scenario, 
   onDecisionMade,
-  scenarioNumber,
-  totalScenarios
+  isLoading = false,
+  currentNumber,
+  totalScenarios,
+  summary
 }: CyberDecisionFlowProps) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [expandedOption, setExpandedOption] = useState<string | null>(null);
@@ -135,15 +141,77 @@ export default function CyberDecisionFlow({
     return badges;
   };
 
+  // Fonction pour formater le texte avec une structure visuelle
+  const formatTextWithStructure = (text: string): string => {
+    if (!text) return '';
+    
+    // Convertir les sauts de ligne en balises <br>
+    let formattedText = text.replace(/\n/g, '<br>');
+    
+    // Détecter et mettre en évidence les styles d'apprentissage
+    formattedText = formattedText.replace(/\((ACADÉMIQUE|ACADEMIC|SIMULATION|DÉFI|CHALLENGE|VISUEL|VISUAL)\)/gi, 
+      '<span class="inline-block bg-[#00b4d8]/20 text-[#00b4d8] text-xs px-2 py-0.5 rounded mr-1 uppercase font-mono">$1</span>');
+    
+    // Remplacer les listes numérotées (1., 2., etc.)
+    formattedText = formattedText.replace(/^(\d+\.\s+)(.+)$/gm, '<div class="flex mb-2"><div class="w-6 flex-shrink-0 font-bold">$1</div><div>$2</div></div>');
+    
+    // Remplacer les listes à puces (-, *, •)
+    formattedText = formattedText.replace(/^([-*•]\s+)(.+)$/gm, '<div class="flex mb-2"><div class="w-6 flex-shrink-0">$1</div><div>$2</div></div>');
+    
+    // Mettre en surbrillance les sections importantes (entre ** ou entourées de MAJUSCULES)
+    formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<span class="font-bold text-blue-300">$1</span>');
+    
+    // Ajouter une classe pour les sections en majuscules
+    formattedText = formattedText.replace(/([A-Z]{3,}[\s-][A-Z\s-]+)(\s*-\s*)/g, '<div class="font-bold text-blue-300 mt-3 mb-1">$1</div>');
+    
+    // Gérer les titres de sections
+    formattedText = formattedText.replace(/(?<!span class="[^"]*">)(.*?):/g, '<span class="font-semibold">$1:</span>');
+
+    return formattedText;
+  };
+  
+  // Si nous avons un résumé, afficher la page de résumé au lieu du scénario
+  if (summary) {
+    return (
+      <Card className="bg-gradient-to-br from-[#0c1e2e] to-[#091525] border border-[#00b4d8]/30 rounded-lg shadow-lg backdrop-blur-sm mb-6">
+        <CardHeader className="pb-2 border-b border-[#00b4d8]/30">
+          <div className="flex items-center gap-3">
+            <CheckCircle className="h-8 w-8 text-green-500" />
+            <CardTitle className="text-xl text-white">Résumé de vos décisions</CardTitle>
+          </div>
+          <Badge className="bg-[#00b4d8]/20 text-[#00b4d8] font-mono mt-2">
+            PARCOURS COMPLÉTÉ
+          </Badge>
+        </CardHeader>
+        <CardContent className="pt-4">
+          <div 
+            className="prose prose-invert max-w-none text-[#c3d9ee]" 
+            dangerouslySetInnerHTML={{ 
+              __html: DOMPurify.sanitize(formatTextWithStructure(summary)) 
+            }}
+          />
+          <div className="mt-6 text-center">
+            <Button 
+              className="bg-[#00b4d8] hover:bg-[#00a0c2] text-[#0c1e2e] font-mono"
+              onClick={() => window.location.reload()}
+            >
+              Commencer une nouvelle session
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="bg-gradient-to-br from-[#0c1e2e] to-[#091525] border border-[#00b4d8]/30 rounded-lg p-4 sm:p-6 shadow-lg backdrop-blur-sm mb-6">
       <div className="space-y-4">
         {/* En-tête avec progression du scénario */}
         <div className="flex justify-between items-center mb-3">
           <Badge className="bg-[#00b4d8]/20 text-[#00b4d8] font-mono">
-            DÉCISION {scenarioNumber}/{totalScenarios}
+            DÉCISION {currentNumber}/{totalScenarios}
           </Badge>
-          {renderUrgencyBadge(decision.urgencyLevel)}
+          {renderUrgencyBadge(scenario.urgencyLevel)}
         </div>
         
         {/* En-tête de la situation de crise */}
@@ -151,28 +219,28 @@ export default function CyberDecisionFlow({
           <div className="flex justify-between items-center mb-2">
             <h3 className="text-xl font-bold text-white">Situation de crise</h3>
             <div className="flex items-center gap-2">
-              {decision.deadline && (
+              {scenario.deadline && (
                 <Badge className="bg-[#00b4d8]/20 text-[#00b4d8] flex items-center gap-1.5 font-mono">
                   <Clock className="h-3.5 w-3.5" />
-                  <span>Échéance: {decision.deadline}</span>
+                  <span>Échéance: {scenario.deadline}</span>
                 </Badge>
               )}
             </div>
           </div>
-          <p className="text-lg font-semibold text-[#c3d9ee] mb-3">{decision.situation}</p>
+          <p className="text-lg font-semibold text-[#c3d9ee] mb-3">{scenario.situation}</p>
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-2">
             <div className="bg-[#0c1e2e] border border-[#00b4d8]/20 rounded-lg p-3">
               <h4 className="font-semibold text-white mb-2">Contexte</h4>
-              <p className="text-[#8abee0] text-sm">{decision.context}</p>
+              <p className="text-[#8abee0] text-sm">{scenario.context}</p>
             </div>
             <div className="bg-[#0c1e2e] border border-[#00b4d8]/20 rounded-lg p-3">
               <h4 className="font-semibold text-white mb-2">Faits historiques</h4>
-              <p className="text-[#8abee0] text-sm">{decision.historicalFacts}</p>
+              <p className="text-[#8abee0] text-sm">{scenario.historicalFacts}</p>
             </div>
             <div className="bg-[#0c1e2e] border border-[#00b4d8]/20 rounded-lg p-3">
               <h4 className="font-semibold text-white mb-2">Conséquences potentielles</h4>
-              <p className="text-[#8abee0] text-sm">{decision.consequences}</p>
+              <p className="text-[#8abee0] text-sm">{scenario.consequences}</p>
             </div>
           </div>
         </div>
@@ -181,7 +249,7 @@ export default function CyberDecisionFlow({
         <div>
           <h4 className="text-white font-semibold mb-4 font-mono">Vous devez prendre une décision. Choisissez parmi les options suivantes :</h4>
           <div className="space-y-3">
-            {decision.options.map((option) => (
+            {scenario.options.map((option) => (
               <div 
                 key={option.id}
                 className={`border rounded-lg transition-all ${
