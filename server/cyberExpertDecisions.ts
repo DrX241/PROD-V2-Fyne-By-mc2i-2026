@@ -186,68 +186,70 @@ async function generateDecisionScenarios(userId: string, topic: string): Promise
     const prompt = `
       Sujet: "${topic || 'cybersécurité'}"
       
-      Génère 3 scénarios de décision difficiles en cybersécurité liés à ce sujet. Ces scénarios placeront l'utilisateur dans des situations complexes où il devra faire des choix qui ont souvent des implications opposées entre l'entreprise, l'équipe, la conformité et la sécurité.
+      Génère exactement 3 scénarios de décision en cybersécurité qui se déroulent après un mail de Thomas Mercier pour le lancement du projet. Ces scénarios doivent créer un maximum de conflits entre l'utilisateur et:
+      1. La vision de l'entreprise (priorité au business vs sécurité)
+      2. Son équipe (membres qui peuvent désobéir ou avoir des avis contraires)
+      3. Son responsable (pressions hiérarchiques pour des compromis dangereux)
 
       Format attendu (JSON):
       [
         {
-          "id": "uuid-généré",
-          "situation": "Titre bref de la situation",
-          "context": "Contexte détaillé",
-          "historicalFacts": "Faits historiques pertinents",
-          "consequences": "Conséquences potentielles",
-          "urgencyLevel": "low/medium/high/critical", 
-          "deadline": "Délai si applicable",
+          "id": "scenario-1",
+          "situation": "Titre court et percutant",
+          "context": "Contexte détaillé incluant: (1) une interaction avec un PNJ spécifique, (2) une pression budgétaire et (3) un dilemme moral/éthique",
+          "historicalFacts": "",
+          "consequences": "",
+          "urgencyLevel": "high", 
+          "deadline": "Délai court et pressant",
           "options": [
             {
               "id": "option1",
-              "text": "Description brève de l'option 1",
-              "description": "Explication détaillée",
+              "text": "Option 1: Action qui plaît à la hiérarchie mais compromet la sécurité",
+              "description": "Description détaillée montrant clairement que cette option est favorable au business mais néfaste pour la sécurité",
               "impacts": {
-                "security": "positive/negative/neutral",
-                "business": "positive/negative/neutral",
-                "team": "positive/negative/neutral",
-                "legal": "positive/negative/neutral",
-                "career": "positive/negative/neutral"
+                "security": "negative",
+                "business": "positive",
+                "team": "negative",
+                "legal": "negative",
+                "career": "positive"
               }
             },
             {
               "id": "option2",
-              "text": "Description brève de l'option 2",
-              "description": "Explication détaillée",
+              "text": "Option 2: Action qui suit les bonnes pratiques de sécurité mais crée des tensions",
+              "description": "Description détaillée montrant que cette option est techniquement la meilleure mais créera des conflits",
               "impacts": {
-                "security": "positive/negative/neutral",
-                "business": "positive/negative/neutral",
-                "team": "positive/negative/neutral",
-                "legal": "positive/negative/neutral",
-                "career": "positive/negative/neutral"
+                "security": "positive",
+                "business": "negative",
+                "team": "neutral",
+                "legal": "positive",
+                "career": "negative"
               }
             },
             {
               "id": "option3",
-              "text": "Description brève de l'option 3",
-              "description": "Explication détaillée",
+              "text": "Option 3: Compromis créatif mais risqué",
+              "description": "Description d'une solution innovante mais non conventionnelle avec ses propres risques",
               "impacts": {
-                "security": "positive/negative/neutral",
-                "business": "positive/negative/neutral",
-                "team": "positive/negative/neutral",
-                "legal": "positive/negative/neutral",
-                "career": "positive/negative/neutral"
+                "security": "neutral",
+                "business": "neutral",
+                "team": "positive",
+                "legal": "neutral",
+                "career": "neutral"
               }
             }
           ]
-        },
-        // Répéter pour 2 autres scénarios
+        }
       ]
       
-      Caractéristiques des scénarios:
-      - Situations réalistes et complexes
-      - Options qui créent des tensions entre différentes valeurs (sécurité vs business, conformité vs facilité d'utilisation, etc.)
-      - Conséquences et impacts clairement définis
-      - Chaque scénario doit avoir exactement 3 options
-      - Les aspects de risque et les conséquences potentielles doivent être clairement indiqués
-      - Chaque option doit avoir des compromis évidents (pas de solution parfaite)
-      - Au moins une option doit impliquer de défier l'autorité ou les pratiques standard de l'entreprise
+      Caractéristiques essentielles:
+      - Chaque scénario doit mentionner un budget limité qui diminue au fil des décisions
+      - Inclure un PNJ nommé par scénario (collègue, manager, client) avec une personnalité forte
+      - Les options doivent créer un conflit évident entre sécurité et priorités business
+      - Aucune solution parfaite - chaque choix doit avoir des compromis difficiles
+      - Une option doit toujours défier l'autorité ou les pratiques de l'entreprise
+      - Situations qui s'améliorent ou se dégradent en fonction des choix (conséquences visibles)
+      - Chaque scénario doit mettre en évidence des tensions d'équipe ou hiérarchiques
       - Les options doivent créer une tension éthique ou professionnelle
     `;
     

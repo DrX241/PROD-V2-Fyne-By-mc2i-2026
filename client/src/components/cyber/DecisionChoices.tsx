@@ -150,18 +150,10 @@ export default function DecisionChoices({ decision, onSelectOption }: DecisionCh
           </div>
           <p className="text-lg font-semibold text-blue-100 mb-3">{decision.situation}</p>
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-2">
+          <div className="mb-2">
             <div className="bg-blue-900/30 border border-blue-800/40 rounded-lg p-3">
               <h4 className="font-semibold text-white mb-2">Contexte</h4>
               <p className="text-blue-100 text-sm">{decision.context}</p>
-            </div>
-            <div className="bg-blue-900/30 border border-blue-800/40 rounded-lg p-3">
-              <h4 className="font-semibold text-white mb-2">Faits historiques</h4>
-              <p className="text-blue-100 text-sm">{decision.historicalFacts}</p>
-            </div>
-            <div className="bg-blue-900/30 border border-blue-800/40 rounded-lg p-3">
-              <h4 className="font-semibold text-white mb-2">Conséquences potentielles</h4>
-              <p className="text-blue-100 text-sm">{decision.consequences}</p>
             </div>
           </div>
         </div>
