@@ -56,8 +56,36 @@ export async function startDecisionFlow(req: Request, res: Response) {
       return res.status(404).json({ error: "Session expert non trouvée" });
     }
     
-    // Générer les scénarios de décision
-    const scenarios = await generateDecisionScenarios(userId, topic);
+    // Générer les scénarios de décision initiaux
+    let scenarios = await generateDecisionScenarios(userId, topic);
+    
+    // On a besoin de 10 échanges au total
+    const totalExchangesNeeded = 10;
+    
+    // Si nous avons moins que le nombre requis, nous créons des variantes
+    if (scenarios.length < totalExchangesNeeded) {
+      const originalScenarios = [...scenarios];
+      
+      // Créer des variantes pour atteindre exactement 10 scénarios
+      for (let i = scenarios.length; i < totalExchangesNeeded; i++) {
+        // Base sur un scénario existant
+        const baseIndex = i % originalScenarios.length;
+        const baseScenario = originalScenarios[baseIndex];
+        
+        // Créer une variation
+        const newScenario = {
+          ...baseScenario,
+          id: `scenario-${i+1}`,
+          situation: `Phase ${i+1}: ${baseScenario.situation}`,
+          context: `Suite aux décisions précédentes, le budget a diminué. ${baseScenario.context}`,
+        };
+        
+        scenarios.push(newScenario);
+      }
+    }
+    
+    // Limiter à exactement 10 scénarios
+    scenarios = scenarios.slice(0, totalExchangesNeeded);
     
     // Initialiser l'état de décision
     const decisionState: ExpertDecisionState = {
@@ -66,7 +94,7 @@ export async function startDecisionFlow(req: Request, res: Response) {
       scenarios,
       decisions: [],
       isInDecisionMode: true,
-      remainingScenarios: scenarios.length
+      remainingScenarios: totalExchangesNeeded
     };
     
     decisionStates.set(userId, decisionState);
