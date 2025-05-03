@@ -25,6 +25,7 @@ import { startAgentSession, completeAgentSession } from "./cyberAgentController"
 import { generateDebriefing, getContextualDocumentation } from "./cyberLearningController";
 import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearningController";
 import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
+import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
 // Import des fonctions d'urgence cyber supprimé
 
 /**
@@ -400,6 +401,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/cyber-expert/init', initCyberExpertSession);
   app.post('/api/cyber-expert/message', processCyberExpertMessage);
   app.post('/api/cyber-expert/terminate', terminateCyberExpertSession);
+  
+  // Routes pour le flux de décision de l'expert cyber
+  app.post('/api/cyber-expert/decisions/start', startDecisionFlow);
+  app.post('/api/cyber-expert/decisions/submit', submitDecision);
+  app.post('/api/cyber-expert/decisions/status', checkDecisionStatus);
   
   // Route directe pour servir le document texte avec le mot de passe
   app.get('/download-attachment/:role', (req, res) => {

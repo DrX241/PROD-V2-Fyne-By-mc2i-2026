@@ -17,7 +17,8 @@ interface CyberExpertSession {
 }
 
 // Map pour stocker les sessions actives des utilisateurs
-const expertSessions = new Map<string, CyberExpertSession>();
+// Map pour stocker les sessions, exportée pour être accessible par le module de décisions
+export const expertSessions = new Map<string, CyberExpertSession>();
 
 /**
  * Initialise une session avec le chatbot expert en cybersécurité
