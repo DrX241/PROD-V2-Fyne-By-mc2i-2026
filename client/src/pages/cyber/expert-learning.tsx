@@ -47,7 +47,14 @@ const formatTextWithStructure = (text: string): string => {
     '</div>'
   );
   
-  // ÉTAPE 1: Correction des titres spécifiques coupés sur plusieurs lignes
+  // ÉTAPE 1: Prétraitement - Correction des titres sur plusieurs lignes
+  
+  // DÉCOUVERTE DES MOTS DE PASSE ET DE L'AUTHENTIFICATION - fixation spécifique
+  formattedText = formattedText.replace(
+    /DÉ[\s\n]*COUVERTE[\s\n]*DES[\s\n]*MOTS[\s\n]*DE[\s\n]*PASSE[\s\n]*ET[\s\n]*DE[\s\n]*L[\s\n]*[''][\s\n]*AUTHENTIFICATION[\s\n]*🔒?/g,
+    'DÉCOUVERTE DES MOTS DE PASSE ET AUTHENTIFICATION 🔒'
+  );
+  
   // Cas spécifique pour NAVIGATION WEB SÉCURISÉE
   formattedText = formattedText.replace(
     /NAVIGATION[\s\n]+WEB[\s\n]+S[\s\n]*ÉCURISÉE/g,
@@ -61,25 +68,39 @@ const formatTextWithStructure = (text: string): string => {
   );
   
   // ÉTAPE 2: Application du style aux titres complets
-  // Traitement spécial pour les titres de sections cybersécurité
-  formattedText = formattedText.replace(
-    /NAVIGATION WEB SÉCURISÉE/g,
-    '<div class="font-bold text-center my-4 py-2 px-4 bg-gradient-to-r from-[#0c1e2e] to-[#112641] border border-[#00b4d8]/40 rounded-md shadow-[0_0_15px_rgba(0,180,216,0.1)] whitespace-nowrap">' +
-    '<span class="text-[#e5f0fc]">NAVIGATION WEB </span><span class="text-[#00b4d8]">SÉCURISÉE</span>' +
-    '</div>'
+  // Style commun pour les titres de sections avec fond dégradé
+  function styleTitleWithGradient(fullTitle: string, part1: string, part2: string): string {
+    return formattedText.replace(
+      new RegExp(fullTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
+      `<div class="font-bold text-center my-4 py-2 px-4 bg-gradient-to-r from-[#0c1e2e] to-[#112641] border border-[#00b4d8]/40 rounded-md shadow-[0_0_15px_rgba(0,180,216,0.1)] max-w-full overflow-hidden text-sm sm:text-base">${part1}<span class="text-[#00b4d8]">${part2}</span></div>`
+    );
+  }
+  
+  // Titres spécifiques avec style amélioré
+  formattedText = styleTitleWithGradient(
+    'NAVIGATION WEB SÉCURISÉE',
+    '<span class="text-[#e5f0fc]">NAVIGATION WEB </span>',
+    'SÉCURISÉE'
   );
   
-  formattedText = formattedText.replace(
-    /SÉCURITÉ DES RÉSEAUX SOCIAUX/g,
-    '<div class="font-bold text-center my-4 py-2 px-4 bg-gradient-to-r from-[#0c1e2e] to-[#112641] border border-[#00b4d8]/40 rounded-md shadow-[0_0_15px_rgba(0,180,216,0.1)] whitespace-nowrap">' +
-    '<span class="text-[#e5f0fc]">SÉCURITÉ DES </span><span class="text-[#00b4d8]">RÉSEAUX SOCIAUX</span>' +
-    '</div>'
+  formattedText = styleTitleWithGradient(
+    'SÉCURITÉ DES RÉSEAUX SOCIAUX',
+    '<span class="text-[#e5f0fc]">SÉCURITÉ DES </span>',
+    'RÉSEAUX SOCIAUX'
+  );
+  
+  // Titre long à traiter spécifiquement - version raccourcie pour tenir sur une ligne
+  formattedText = styleTitleWithGradient(
+    'DÉCOUVERTE DES MOTS DE PASSE ET AUTHENTIFICATION 🔒',
+    '<span class="text-[#e5f0fc]">DÉCOUVERTE DES </span>',
+    'MOTS DE PASSE ET AUTHENTIFICATION 🔒'
   );
   
   // ÉTAPE 3: Formatage général pour les autres titres en capitales
+  // Utiliser un conteneur flex qui adapte automatiquement la taille du texte si nécessaire
   formattedText = formattedText.replace(
     /([A-Z]{3,}[\s-][A-Z\s-]+)(\s*:?\s*)/g, 
-    '<div class="font-bold text-[#00b4d8] mt-5 mb-4 pb-2 border-b border-[#00b4d8]/30 whitespace-nowrap text-lg overflow-visible">$1$2</div>'
+    '<div class="font-bold text-[#00b4d8] mt-5 mb-4 pb-2 border-b border-[#00b4d8]/30 text-lg overflow-hidden break-normal text-base sm:text-lg">$1$2</div>'
   );
   
   // Mise en évidence des questions
