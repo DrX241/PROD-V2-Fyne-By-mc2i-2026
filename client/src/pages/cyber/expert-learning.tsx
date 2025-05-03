@@ -383,37 +383,38 @@ export default function ExpertLearningPage() {
           </div>
         </div>
         
-        <div className="relative z-10 max-w-6xl w-full mx-auto px-4 py-8 sm:px-6 sm:py-12">
-          {/* Bouton de retour - style console cybersécurité */}
-          <div className="absolute top-0 left-4 mt-4">
+        <div className="relative z-10 max-w-6xl w-full mx-auto px-2 sm:px-4 py-4 sm:py-8 md:px-6 md:py-12">
+          {/* Bouton de retour - style console cybersécurité - Optimisé pour mobile */}
+          <div className="absolute top-0 left-2 sm:left-4 mt-2 sm:mt-4">
             <Button 
               variant="outline" 
               onClick={handleReturnToPrevious}
-              className="bg-[#091525] border-[#00b4d8]/30 text-[#00b4d8] hover:bg-[#112641] hover:border-[#00b4d8]/50 flex items-center gap-2 font-mono text-xs shadow-[0_0_10px_rgba(0,180,216,0.1)]"
+              className="bg-[#091525] border-[#00b4d8]/30 text-[#00b4d8] hover:bg-[#112641] hover:border-[#00b4d8]/50 flex items-center gap-1 sm:gap-2 p-1 sm:p-2 h-auto font-mono text-[9px] sm:text-xs shadow-[0_0_10px_rgba(0,180,216,0.1)]"
             >
               <span className="text-[#e63946]">←</span>
-              <span>RETOUR CONSOLE PRINCIPALE</span>
+              <span className="hidden sm:inline">RETOUR CONSOLE PRINCIPALE</span>
+              <span className="inline sm:hidden">RETOUR</span>
             </Button>
           </div>
           
-          <div className="flex flex-col items-center mb-10 mt-10">
-            <div className="flex items-center bg-[#091525]/80 px-4 py-3 rounded-md border border-[#00b4d8]/30 shadow-[0_0_15px_rgba(0,180,216,0.15)] mb-3">
-              <div className="mr-4 p-2 rounded-full bg-[#00b4d8]/10 border border-[#00b4d8]/20">
-                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <div className="flex flex-col items-center mb-6 sm:mb-10 mt-8 sm:mt-10">
+            <div className="flex flex-col sm:flex-row items-center bg-[#091525]/80 px-3 sm:px-4 py-2 sm:py-3 rounded-md border border-[#00b4d8]/30 shadow-[0_0_15px_rgba(0,180,216,0.15)] mb-2 sm:mb-3">
+              <div className="mb-2 sm:mb-0 sm:mr-4 p-1.5 sm:p-2 rounded-full bg-[#00b4d8]/10 border border-[#00b4d8]/20">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="sm:w-[30px] sm:h-[30px]">
                   <path d="M12,3 L21,7 L21,13 C21,17.5 17,21.5 12,23 C7,21.5 3,17.5 3,13 L3,7 L12,3 Z" stroke="#00b4d8" strokeWidth="1.5" fill="none"/>
                   <circle cx="12" cy="9" r="3" stroke="#00b4d8" strokeWidth="1.5" fill="none"/>
                   <path d="M8,17 C8,14.7909 9.79086,13 12,13 C14.2091,13 16,14.7909 16,17" stroke="#00b4d8" strokeWidth="1.5" fill="none"/>
                 </svg>
               </div>
-              <div>
-                <h1 className="text-3xl sm:text-4xl font-mono font-bold text-[#e5f0fc]">
+              <div className="text-center sm:text-left">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-mono font-bold text-[#e5f0fc]">
                   CYBER<span className="text-[#00b4d8]">TRAINING</span><span className="text-[#e63946]">_</span>
                 </h1>
-                <h2 className="text-[#8abee0] text-sm font-mono">MODE: ÉCHANGE INTERACTIF | NIVEAU: ADAPTATIF</h2>
+                <h2 className="text-[#8abee0] text-[10px] sm:text-xs md:text-sm font-mono">MODE: ÉCHANGE INTERACTIF | NIVEAU: ADAPTATIF</h2>
               </div>
             </div>
-            <div className="bg-[#091525]/60 px-5 py-3 rounded-md border border-[#00b4d8]/20 max-w-2xl">
-              <p className="text-[#c3d9ee] text-center text-sm">
+            <div className="bg-[#091525]/60 px-3 sm:px-5 py-2 sm:py-3 rounded-md border border-[#00b4d8]/20 max-w-2xl">
+              <p className="text-[#c3d9ee] text-center text-xs sm:text-sm">
                 Dialoguez avec un expert en cybersécurité pour approfondir vos connaissances, résoudre des problèmes techniques ou explorer des concepts avancés dans un environnement interactif et personnalisé.
               </p>
             </div>
