@@ -47,10 +47,26 @@ const formatTextWithStructure = (text: string): string => {
     '</div>'
   );
   
-  // Améliorer la mise en forme des TITRES EN CAPITALES
+  // Améliorer la mise en forme des TITRES EN CAPITALES (garantir qu'ils restent sur une ligne)
   formattedText = formattedText.replace(
     /([A-Z]{3,}[\s-][A-Z\s-]+)(\s*:?\s*)/g, 
-    '<div class="font-bold text-[#00b4d8] mt-4 mb-3 pb-1 border-b border-[#00b4d8]/30 text-base">$1$2</div>'
+    '<div class="font-bold text-[#00b4d8] mt-5 mb-4 pb-2 border-b border-[#00b4d8]/30 whitespace-normal text-lg overflow-visible">$1$2</div>'
+  );
+  
+  // Traitement spécifique pour les titres thématiques avec design spécial
+  formattedText = formattedText.replace(
+    /SÉCURITÉ DES RÉSEAUX SOCIAUX/g,
+    '<div class="font-bold text-center my-4 py-2 px-4 bg-gradient-to-r from-[#0c1e2e] to-[#112641] border border-[#00b4d8]/40 rounded-md shadow-[0_0_15px_rgba(0,180,216,0.1)]">' +
+    '<span class="text-[#e5f0fc]">SÉCURITÉ DES </span><span class="text-[#00b4d8]">RÉSEAUX SOCIAUX</span>' +
+    '</div>'
+  );
+  
+  // Correction des titres découpés par des sauts de ligne
+  formattedText = formattedText.replace(
+    /SÉCURITÉ[\s\n]+DES[\s\n]+RÉSEAUX[\s\n]+SOCIAUX/g,
+    '<div class="font-bold text-center my-4 py-2 px-4 bg-gradient-to-r from-[#0c1e2e] to-[#112641] border border-[#00b4d8]/40 rounded-md shadow-[0_0_15px_rgba(0,180,216,0.1)]">' +
+    '<span class="text-[#e5f0fc]">SÉCURITÉ DES </span><span class="text-[#00b4d8]">RÉSEAUX SOCIAUX</span>' +
+    '</div>'
   );
   
   // Mise en évidence des questions
