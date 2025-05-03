@@ -416,241 +416,225 @@ function ExpertLearningPageContent() {
             </Button>
           </div>
           
-          <div className="flex flex-col items-center mb-10 mt-10">
-            <div className="flex items-center bg-[#091525]/80 px-4 py-3 rounded-md border border-[#00b4d8]/30 shadow-[0_0_15px_rgba(0,180,216,0.15)] mb-3">
-              <div className="mr-4 p-2 rounded-full bg-[#00b4d8]/10 border border-[#00b4d8]/20">
-                <Bot className="h-6 w-6 text-[#00b4d8]" />
-              </div>
-              <div>
-                <h2 className="text-xl text-white font-bold tracking-tight">Expert Cyber Conversationnel</h2>
-                <p className="text-[#00b4d8] text-sm">Module d'apprentissage personnalisé par IA</p>
-              </div>
-            </div>
-            <p className="text-[#c3d9ee] text-sm text-center max-w-2xl">
-              Posez vos questions sur la cybersécurité et adaptez votre apprentissage à votre domaine et votre niveau. 
-              L'IA analysera vos besoins et vous guidera avec des explications personnalisées.
-            </p>
-          </div>
-          
-          {/* Interface principale conditionnelle */}
-          {!isSessionActive && !sessionSummary ? (
-            <div className="flex flex-col items-center justify-center py-10">
-              <Card className="w-full max-w-xl bg-[#091525]/80 border-[#00b4d8]/30 text-white shadow-[0_0_20px_rgba(0,180,216,0.1)]">
-                <CardHeader>
-                  <CardTitle className="text-center text-[#00b4d8]">Démarrer une nouvelle session</CardTitle>
-                  <CardDescription className="text-center text-[#c3d9ee]">
-                    Commencez votre parcours d'apprentissage avec l'expert en cybersécurité
+          <div className="flex flex-col items-center justify-center h-full pt-16">
+            {!isSessionActive && !sessionSummary ? (
+              // Page d'accueil - style terminal de cybersécurité
+              <Card className="w-full max-w-2xl bg-[#091525] border border-[#00b4d8]/30 text-white shadow-[0_0_15px_rgba(0,180,216,0.1)]">
+                <CardHeader className="border-b border-[#00b4d8]/20">
+                  <CardTitle className="font-mono text-[#00b4d8] flex items-center gap-2">
+                    <Bot className="h-5 w-5" />
+                    EXPERT CYBERSÉCURITÉ - INTERFACE DE DIALOGUE
+                  </CardTitle>
+                  <CardDescription className="text-[#c3d9ee]/70 font-mono">
+                    VERSION 2.5.3 | ÉTAT: <span className="text-[#4cc9f0]">PRÊT</span>
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="p-4 bg-[#121e2e] rounded-md border border-[#00b4d8]/20">
-                    <h3 className="text-[#00b4d8] font-medium mb-2">Comment ça fonctionne ?</h3>
-                    <ul className="space-y-2 text-sm text-[#c3d9ee]">
-                      <li className="flex items-start">
-                        <span className="text-[#e63946] mr-2">1.</span>
-                        <span>Exprimez votre besoin ou votre question en cybersécurité.</span>
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-[#e63946] mr-2">2.</span>
-                        <span>L'expert analyse votre demande et identifie le sujet précis.</span>
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-[#e63946] mr-2">3.</span>
-                        <span>Vous recevez un contenu personnalisé adapté à votre niveau.</span>
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-[#e63946] mr-2">4.</span>
-                        <span>Interagissez pour approfondir ou réorienter la discussion.</span>
-                      </li>
+                <CardContent className="py-6 space-y-4 text-[#c3d9ee]">
+                  <div className="font-mono text-sm border-l-2 border-[#00b4d8]/50 pl-4">
+                    <p>Bienvenue sur le module <span className="text-[#00b4d8]">APPRENDRE EN ÉCHANGEANT</span>.</p>
+                    <p className="mt-2">Cette interface vous permet d'interagir avec un expert en cybersécurité pour explorer des concepts adaptés à votre niveau et à vos besoins spécifiques.</p>
+                  </div>
+                  
+                  <div className="bg-[#121e2e] p-4 rounded-md border border-[#00b4d8]/30 font-mono text-sm space-y-3">
+                    <p className="text-[#e63946]">► FONCTIONNALITÉS:</p>
+                    <ul className="space-y-2 pl-6 list-disc text-[#c3d9ee]">
+                      <li>Dialogue avec un expert en cybersécurité pour identifier vos besoins d'apprentissage</li>
+                      <li>Contenu personnalisé adapté à votre niveau et votre domaine professionnel</li>
+                      <li>Formats d'apprentissage flexibles (académiques, simulations, défis)</li>
+                      <li>Références actualisées aux standards et bonnes pratiques de l'ANSSI et autres organismes</li>
+                      <li>Mode décision avec scénarios complexes et choix stratégiques</li>
                     </ul>
                   </div>
                 </CardContent>
-                <CardFooter>
+                <CardFooter className="border-t border-[#00b4d8]/20 pt-4 flex justify-center">
                   <Button 
-                    onClick={startSession} 
+                    onClick={startSession}
                     disabled={isLoading}
-                    className="w-full bg-[#00b4d8] hover:bg-[#00b4d8]/80 text-[#091525] font-mono"
+                    className="bg-[#00b4d8] hover:bg-[#00b4d8]/80 text-[#091525] font-mono"
                   >
                     {isLoading ? (
-                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                      <>
+                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                        INITIALISATION...
+                      </>
                     ) : (
-                      <span className="text-[#091525] mr-1">_</span>
+                      <>DÉMARRER UNE SESSION</>
                     )}
-                    NOUVELLE SESSION <span className="text-[#091525] ml-1">_</span>
                   </Button>
                 </CardFooter>
               </Card>
-            </div>
-          ) : (
-            <div className="flex flex-col w-full max-w-4xl mx-auto">
-              {/* Mode décision/apprentissage */}
-              {decision.isInDecisionMode && decision.currentScenario ? (
-                <CyberDecisionFlow 
-                  scenario={decision.currentScenario}
-                  onDecisionMade={handleDecisionMade}
-                  isLoading={decision.isLoading}
-                  currentNumber={decision.currentScenarioNumber}
-                  totalScenarios={decision.totalScenarios}
-                  summary={decision.summary}
-                />
-              ) : (
-                /* Interface de chat et entrée de messages */
-                <>
-                  {/* Zone de chat avec messages */}
-                  <div 
-                    ref={chatContainerRef}
-                    className="flex-1 overflow-y-auto bg-[#091525]/80 border border-[#00b4d8]/30 rounded-t-md shadow-[0_0_15px_rgba(0,180,216,0.1)] h-[calc(100vh-350px)] min-h-[400px]"
-                  >
-                    <div className="p-4 space-y-4">
-                      {messages.map((message) => (
-                        <div
-                          key={message.id}
-                          className={`flex ${
-                            message.type === "user" ? "justify-end" : "justify-start"
-                          }`}
-                        >
+            ) : (
+              <div className="flex flex-col w-full max-w-4xl mx-auto">
+                {/* Mode décision ou chat standard */}
+                {decision.isInDecisionMode && decision.currentScenario ? (
+                  <CyberDecisionFlow 
+                    scenario={decision.currentScenario}
+                    onDecisionMade={handleDecisionMade}
+                    isLoading={decision.isLoading}
+                    currentNumber={decision.currentScenarioNumber}
+                    totalScenarios={decision.totalScenarios}
+                    summary={decision.summary}
+                  />
+                ) : (
+                  <div className="flex flex-col w-full">
+                    {/* Zone de chat avec messages */}
+                    <div 
+                      ref={chatContainerRef}
+                      className="flex-1 overflow-y-auto bg-[#091525]/80 border border-[#00b4d8]/30 rounded-t-md shadow-[0_0_15px_rgba(0,180,216,0.1)] h-[calc(100vh-350px)] min-h-[400px]"
+                    >
+                      <div className="p-4 space-y-4">
+                        {messages.map((message) => (
                           <div
-                            className={`max-w-[85%] p-3 rounded-md ${
-                              message.type === "user"
-                                ? "bg-[#00b4d8]/30 text-white ml-auto"
-                                : "bg-[#121e2e] border border-[#00b4d8]/20 text-white"
+                            key={message.id}
+                            className={`flex ${
+                              message.type === "user" ? "justify-end" : "justify-start"
                             }`}
                           >
-                            {message.type === "bot" ? (
-                              <div 
-                                className="prose prose-invert max-w-none text-[#c3d9ee]" 
-                                dangerouslySetInnerHTML={{ 
-                                  __html: DOMPurify.sanitize(formatTextWithStructure(message.content)) 
-                                }}
-                              />
-                            ) : (
-                              <p className="text-[#c3d9ee]">{message.content}</p>
-                            )}
-                            <div className="text-xs text-[#00b4d8]/60 mt-1 text-right">
-                              {new Date(message.timestamp).toLocaleTimeString([], { 
-                                hour: '2-digit', 
-                                minute: '2-digit' 
-                              })}
+                            <div
+                              className={`max-w-[85%] p-3 rounded-md ${
+                                message.type === "user"
+                                  ? "bg-[#00b4d8]/30 text-white ml-auto"
+                                  : "bg-[#121e2e] border border-[#00b4d8]/20 text-white"
+                              }`}
+                            >
+                              {message.type === "bot" ? (
+                                <div 
+                                  className="prose prose-invert max-w-none text-[#c3d9ee]" 
+                                  dangerouslySetInnerHTML={{ 
+                                    __html: DOMPurify.sanitize(formatTextWithStructure(message.content)) 
+                                  }}
+                                />
+                              ) : (
+                                <p className="text-[#c3d9ee]">{message.content}</p>
+                              )}
+                              <div className="text-xs text-[#00b4d8]/60 mt-1 text-right">
+                                {new Date(message.timestamp).toLocaleTimeString([], { 
+                                  hour: '2-digit', 
+                                  minute: '2-digit' 
+                                })}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                      {isLoading && (
-                        <div className="flex justify-start">
-                          <div className="max-w-[85%] p-3 rounded-md bg-[#121e2e] border border-[#00b4d8]/20 text-white">
-                            <div className="flex space-x-2">
-                              <div className="w-2 h-2 rounded-full bg-[#00b4d8]/30 animate-pulse"></div>
-                              <div className="w-2 h-2 rounded-full bg-[#00b4d8]/30 animate-pulse delay-150"></div>
-                              <div className="w-2 h-2 rounded-full bg-[#00b4d8]/30 animate-pulse delay-300"></div>
+                        ))}
+                        {isLoading && (
+                          <div className="flex justify-start">
+                            <div className="max-w-[85%] p-3 rounded-md bg-[#121e2e] border border-[#00b4d8]/20 text-white">
+                              <div className="flex space-x-2">
+                                <div className="w-2 h-2 rounded-full bg-[#00b4d8]/30 animate-pulse"></div>
+                                <div className="w-2 h-2 rounded-full bg-[#00b4d8]/30 animate-pulse delay-150"></div>
+                                <div className="w-2 h-2 rounded-full bg-[#00b4d8]/30 animate-pulse delay-300"></div>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-            
-                  {/* Bouton de défilement vers le bas */}
-                  {showScrollButton && (
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="absolute bottom-32 right-8 rounded-full bg-[#091525] border-[#00b4d8]/30 text-[#00b4d8] hover:bg-[#112641] hover:border-[#00b4d8]/50 shadow-[0_0_10px_rgba(0,180,216,0.2)]"
-                      onClick={scrollToBottom}
-                    >
-                      <ChevronDown className="h-4 w-4" />
-                    </Button>
-                  )}
-            
-                  {/* Zone de saisie de message */}
-                  <div className="bg-[#121e2e] p-4 rounded-b-md border-x border-b border-[#00b4d8]/30 shadow-[0_0_15px_rgba(0,180,216,0.1)]">
-                    <form onSubmit={handleSubmit} className="flex space-x-2">
-                      <div className="flex-1 relative">
-                        <textarea
-                          ref={textareaRef}
-                          value={inputMessage}
-                          onChange={(e) => setInputMessage(e.target.value)}
-                          onKeyDown={handleKeyDown}
-                          placeholder="Posez votre question sur la cybersécurité..."
-                          className="w-full p-3 bg-[#091525] text-[#c3d9ee] border border-[#00b4d8]/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/50 resize-none min-h-[60px] max-h-[120px] overflow-y-auto"
-                          disabled={isLoading}
-                          rows={2}
-                        />
-                        <div className="absolute right-3 bottom-2 text-xs text-[#00b4d8]/60">
-                          {inputMessage.length > 0 ? `${inputMessage.length} car.` : 'Entrée: envoyer · Maj+Entrée: nouvelle ligne'}
-                        </div>
-                      </div>
-                      <Button 
-                        type="submit" 
-                        disabled={isLoading || !inputMessage.trim()} 
-                        className="bg-[#00b4d8] hover:bg-[#00b4d8]/80 text-[#091525] self-end h-[60px] w-[60px]"
-                      >
-                        {isLoading ? (
-                          <RefreshCw className="h-5 w-5 animate-spin" />
-                        ) : (
-                          <Send className="h-5 w-5" />
                         )}
-                      </Button>
-                    </form>
-                    
-                    {/* Bouton de fin de session */}
-                    <div className="mt-3 flex justify-center">
+                      </div>
+                    </div>
+              
+                    {/* Bouton de défilement vers le bas */}
+                    {showScrollButton && (
                       <Button
                         variant="outline"
-                        size="sm"
-                        onClick={endSession}
-                        disabled={isLoading}
-                        className="bg-[#091525] border-[#e63946]/30 text-[#e63946] hover:bg-[#112641] hover:border-[#e63946]/50 text-xs"
+                        size="icon"
+                        className="absolute bottom-32 right-8 rounded-full bg-[#091525] border-[#00b4d8]/30 text-[#00b4d8] hover:bg-[#112641] hover:border-[#00b4d8]/50 shadow-[0_0_10px_rgba(0,180,216,0.2)]"
+                        onClick={scrollToBottom}
                       >
-                        Terminer la session
+                        <ChevronDown className="h-4 w-4" />
                       </Button>
-                    </div>
+                    )}
+              
+                    {/* Zone de saisie de message - masquée en mode décision */}
+                    {!decision.isInDecisionMode && (
+                      <div className="bg-[#121e2e] p-4 rounded-b-md border-x border-b border-[#00b4d8]/30 shadow-[0_0_15px_rgba(0,180,216,0.1)]">
+                        <form onSubmit={handleSubmit} className="flex space-x-2">
+                          <div className="flex-1 relative">
+                            <textarea
+                              ref={textareaRef}
+                              value={inputMessage}
+                              onChange={(e) => setInputMessage(e.target.value)}
+                              onKeyDown={handleKeyDown}
+                              placeholder="Posez votre question sur la cybersécurité..."
+                              className="w-full p-3 bg-[#091525] text-[#c3d9ee] border border-[#00b4d8]/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/50 resize-none min-h-[60px] max-h-[120px] overflow-y-auto"
+                              disabled={isLoading}
+                              rows={2}
+                            />
+                            <div className="absolute right-3 bottom-2 text-xs text-[#00b4d8]/60">
+                              {inputMessage.length > 0 ? `${inputMessage.length} car.` : 'Entrée: envoyer · Maj+Entrée: nouvelle ligne'}
+                            </div>
+                          </div>
+                          <Button 
+                            type="submit" 
+                            disabled={isLoading || !inputMessage.trim()} 
+                            className="bg-[#00b4d8] hover:bg-[#00b4d8]/80 text-[#091525] self-end h-[60px] w-[60px]"
+                          >
+                            {isLoading ? (
+                              <RefreshCw className="h-5 w-5 animate-spin" />
+                            ) : (
+                              <Send className="h-5 w-5" />
+                            )}
+                          </Button>
+                        </form>
+                        
+                        {/* Bouton de fin de session */}
+                        <div className="mt-3 flex justify-center">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={endSession}
+                            disabled={isLoading}
+                            className="bg-[#091525] border-[#e63946]/30 text-[#e63946] hover:bg-[#112641] hover:border-[#e63946]/50 text-xs"
+                          >
+                            Terminer la session
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </>
-              )}
-            </div>
-          )}
-          
-          {/* Résumé de session (modal) */}
-          {sessionSummary && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
-              <Card className="w-full max-w-2xl bg-[#091525] border-[#00b4d8]/30 text-white shadow-[0_0_20px_rgba(0,180,216,0.2)]">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="text-[#00b4d8]">Résumé de votre session</CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={closeSessionSummary}
-                    className="text-[#00b4d8] hover:text-[#00b4d8]/80 hover:bg-[#121e2e]"
-                  >
-                    <X className="h-5 w-5" />
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <div 
-                    className="prose prose-invert max-w-none text-[#c3d9ee]" 
-                    dangerouslySetInnerHTML={{ 
-                      __html: DOMPurify.sanitize(formatTextWithStructure(sessionSummary)) 
-                    }}
-                  />
-                </CardContent>
-                <CardFooter className="flex justify-center gap-4">
-                  <Button
-                    onClick={startSession}
-                    className="bg-[#00b4d8] hover:bg-[#00b4d8]/80 text-[#091525]"
-                  >
-                    Nouvelle session
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={handleReturnToPrevious}
-                    className="border-[#00b4d8]/30 text-[#00b4d8] hover:bg-[#112641] hover:border-[#00b4d8]/50"
-                  >
-                    Retour à l'accueil
-                  </Button>
-                </CardFooter>
-              </Card>
-            </div>
-          )}
+                )}
+              </div>
+            )}
+            
+            {/* Résumé de session (modal) */}
+            {sessionSummary && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
+                <Card className="w-full max-w-2xl bg-[#091525] border-[#00b4d8]/30 text-white shadow-[0_0_20px_rgba(0,180,216,0.2)]">
+                  <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle className="text-[#00b4d8]">Résumé de votre session</CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={closeSessionSummary}
+                      className="text-[#00b4d8] hover:text-[#00b4d8]/80 hover:bg-[#121e2e]"
+                    >
+                      <X className="h-5 w-5" />
+                    </Button>
+                  </CardHeader>
+                  <CardContent>
+                    <div 
+                      className="prose prose-invert max-w-none text-[#c3d9ee]" 
+                      dangerouslySetInnerHTML={{ 
+                        __html: DOMPurify.sanitize(formatTextWithStructure(sessionSummary)) 
+                      }}
+                    />
+                  </CardContent>
+                  <CardFooter className="flex justify-center gap-4">
+                    <Button
+                      onClick={startSession}
+                      className="bg-[#00b4d8] hover:bg-[#00b4d8]/80 text-[#091525]"
+                    >
+                      Nouvelle session
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={handleReturnToPrevious}
+                      className="border-[#00b4d8]/30 text-[#00b4d8] hover:bg-[#112641] hover:border-[#00b4d8]/50"
+                    >
+                      Retour à l'accueil
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </HomeLayout>
