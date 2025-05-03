@@ -216,20 +216,43 @@ async function handleInitialStage(session: CyberExpertSession, message: string):
   
   // Si le message est court et contient simplement un chiffre (1, 2 ou 3) conformément au prompt CyberSensei
   if (/^[123]$/.test(message.trim())) {
-    session.currentStage = 'questioning';
-    
     if (message.trim() === "1") {
+      session.currentStage = 'questioning';
       return "🔧 Très bien, vous souhaitez résoudre un problème cyber.\n\nPouvez-vous me décrire ce problème précisément ? Je vais vous aider à trouver une solution adaptée.";
     } else if (message.trim() === "2") {
+      session.currentStage = 'questioning';
       return "📘 Parfait, vous souhaitez comprendre un concept en cybersécurité.\n\nQuel concept spécifique vous intéresse ? Je vais vous l'expliquer de manière claire et accessible.";
     } else if (message.trim() === "3") {
+      // Option 3: Générer un sujet cyber dynamique et aléatoire pour découverte
       session.currentStage = 'learning';
       session.needIdentified = true;
       session.needConfirmed = true;
       session.userLevel = "Débutant";
-      session.topic = "cybersécurité";
       
-      // Générer une séquence d'apprentissage pour découvrir un sujet cyber intéressant
+      // Liste des sujets cyber intéressants pour débutants
+      const cyberTopics = [
+        "phishing et arnaques en ligne",
+        "mots de passe et authentification",
+        "virus et malwares",
+        "dark web et deep web",
+        "social engineering",
+        "protection de la vie privée en ligne",
+        "sécurité des objets connectés (IoT)",
+        "cryptographie et chiffrement",
+        "ransomware et attaques par rançon",
+        "menaces cybercriminelles actuelles",
+        "sécurité des réseaux sociaux",
+        "cybersécurité des smartphones",
+        "navigation web sécurisée",
+        "principes de base des pare-feu",
+        "sensibilisation à la sécurité informatique"
+      ];
+      
+      // Sélectionner un sujet aléatoire
+      const randomIndex = Math.floor(Math.random() * cyberTopics.length);
+      session.topic = cyberTopics[randomIndex];
+      
+      // Générer une séquence d'apprentissage pour le sujet choisi
       return await generateLearningSequence(session);
     }
   }
@@ -491,21 +514,24 @@ async function handleLearningStage(session: CyberExpertSession, message: string)
       
       Créez un QUIZ CYBERSÉCURITÉ qui suit exactement ce format:
       
+      IMPORTANT: ÉVITEZ TOUT FORMATAGE MARKDOWN. PAS DE # OU ** OU AUTRES SYMBOLES.
+      
       1. INTRODUCTION
-      - Annoncez un mini-quiz de 5 questions pour tester les connaissances acquises sur ${session.topic}
+      - Annoncez un mini-quiz pour tester les connaissances acquises sur ${session.topic}
       - Encouragez l'utilisateur à y participer de façon ludique
       
-      2. QUIZ (5 QUESTIONS)
-      - Rédigez exactement 5 questions à choix multiples, numérotées de 1 à 5
+      2. QUIZ (MAX 5 QUESTIONS)
+      - Créez exactement 5 questions à choix multiples, numérotées de 1 à 5
       - Chaque question doit avoir 3 ou 4 options de réponse (a, b, c, d)
-      - Les questions doivent couvrir les principaux aspects discutés
-      - Variez la difficulté: 2 faciles, 2 moyennes, 1 difficile
+      - Les questions doivent être directement liées au sujet discuté
+      - Présentez chaque question et ses options sous forme de liste simple
       
-      3. INSTRUCTIONS
-      - Demandez à l'utilisateur de répondre en donnant simplement les numéros et lettres (ex: "1a, 2c, 3b, 4d, 5a")
+      3. INSTRUCTIONS FINALES
+      - Demandez à l'utilisateur de répondre en donnant les numéros et lettres (ex: "1a, 2c, 3b, 4d, 5a")
+      - Indiquez que vous fournirez les corrections et explications dans votre prochain message
       
-      Format: présentez clairement chaque question et ses options, utilisez une mise en forme soignée,
-      gardez un ton ludique et encourageant. La présentation doit être impeccable.
+      Format: présentation très propre, lignes courtes, énoncés clairs sans formatage spécial.
+      Ton: ludique et encourageant. La présentation doit être facile à lire sur mobile.
     `;
   } else if (isDiscoveryMode) {
     // Réponse pour le mode découverte

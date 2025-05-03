@@ -10,51 +10,55 @@ import { apiRequest } from "@/lib/queryClient";
 import DOMPurify from 'dompurify';
 import { useLocation } from 'wouter';
 
-// Fonction pour formater le texte avec une structure visuelle
+// Fonction pour formater le texte avec une structure visuelle propre (sans markdown)
 const formatTextWithStructure = (text: string): string => {
   if (!text) return '';
   
-  // Convertir les sauts de ligne en balises <br>
-  let formattedText = text.replace(/\n/g, '<br>');
+  // Nettoyer le markdown avant formatage
+  let cleanText = text
+    .replace(/#+\s/g, '') // Supprimer les marqueurs de titre (#, ##, ###)
+    .replace(/\*\*/g, '') // Supprimer les astérisques doubles (gras)
+    .replace(/\*/g, '')   // Supprimer les astérisques simples (italique)
+    .replace(/`/g, '')    // Supprimer les caractères de code
+    .replace(/>/g, '')    // Supprimer les marqueurs de citation
+    .replace(/^---+$/gm, '') // Supprimer les séparateurs horizontaux
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1'); // Convertir les liens [texte](url) en texte
   
-  // Remplacer les listes numérotées (1., 2., etc.) - optimisé pour mobile
+  // Convertir les sauts de ligne en balises <br>
+  let formattedText = cleanText.replace(/\n/g, '<br>');
+  
+  // Formater les listes numérotées (1., 2., etc.) - optimisé pour mobile
   formattedText = formattedText.replace(
     /^(\d+\.\s+)(.+)$/gm, 
-    '<div class="flex mb-1.5 sm:mb-2 text-xs sm:text-sm">' +
-    '<div class="w-5 sm:w-6 flex-shrink-0 font-bold text-[10px] sm:text-xs">$1</div>' +
+    '<div class="flex mb-1.5 sm:mb-2">' +
+    '<div class="w-5 sm:w-6 flex-shrink-0 font-bold">$1</div>' +
     '<div class="flex-1 min-w-0">$2</div>' +
     '</div>'
   );
   
-  // Remplacer les listes à puces (-, *, •) - optimisé pour mobile
+  // Formater les listes à puces (-, *, •) - optimisé pour mobile
   formattedText = formattedText.replace(
     /^([-*•]\s+)(.+)$/gm, 
-    '<div class="flex mb-1.5 sm:mb-2 text-xs sm:text-sm">' +
-    '<div class="w-4 sm:w-6 flex-shrink-0 text-[10px] sm:text-xs">$1</div>' +
+    '<div class="flex mb-1.5 sm:mb-2">' +
+    '<div class="w-4 sm:w-6 flex-shrink-0">$1</div>' +
     '<div class="flex-1 min-w-0">$2</div>' +
     '</div>'
   );
   
-  // Mettre en surbrillance les sections importantes (entre ** ou entourées de MAJUSCULES)
+  // Améliorer la mise en forme des sections
   formattedText = formattedText.replace(
-    /\*\*(.*?)\*\*/g, 
-    '<span class="font-bold text-blue-300 text-xs sm:text-sm">$1</span>'
+    /([A-Z]{3,}[\s-][A-Z\s-]+)(\s*:?\s*)/g, 
+    '<div class="font-bold text-blue-300 mt-2 sm:mt-3 mb-1">$1$2</div>'
   );
   
-  // Ajouter une classe pour les sections en majuscules (comme "PHASE INITIALE")
+  // Mise en forme des éléments de type "Titre: contenu"
   formattedText = formattedText.replace(
-    /([A-Z]{3,}[\s-][A-Z\s-]+)(\s*-\s*)/g, 
-    '<div class="font-bold text-blue-300 mt-2 sm:mt-3 mb-1 text-xs sm:text-sm">$1</div>'
+    /^([^<].*?):\s/gm, 
+    '<span class="font-semibold">$1: </span>'
   );
   
-  // Gérer les titres de sections
-  formattedText = formattedText.replace(
-    /(.*?):/g, 
-    '<span class="font-semibold text-xs sm:text-sm">$1:</span>'
-  );
-  
-  // Ajouter une classe de responsive à tous les paragraphes
-  formattedText = '<div class="text-xs sm:text-sm text-pretty">' + formattedText + '</div>';
+  // Ajouter une classe de responsive au contenu
+  formattedText = '<div class="text-pretty leading-relaxed">' + formattedText + '</div>';
 
   return formattedText;
 };
