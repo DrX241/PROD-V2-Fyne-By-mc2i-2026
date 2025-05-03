@@ -58,6 +58,15 @@ interface SessionStatus {
 
 // Composant principal avec l'interface d'apprentissage et la prise de décision
 function ExpertLearningPageContent() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputMessage, setInputMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [isSessionActive, setIsSessionActive] = useState(false);
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  const [sessionStatus, setSessionStatus] = useState<SessionStatus | null>(null);
+  const [sessionSummary, setSessionSummary] = useState<string | null>(null);
+  
   // Accès au contexte de décision
   const decision = useDecision();
   
@@ -74,14 +83,6 @@ function ExpertLearningPageContent() {
       await decision.submitDecision(userId, optionId);
     }
   };
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [inputMessage, setInputMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [isSessionActive, setIsSessionActive] = useState(false);
-  const [showScrollButton, setShowScrollButton] = useState(false);
-  const [sessionStatus, setSessionStatus] = useState<SessionStatus | null>(null);
-  const [sessionSummary, setSessionSummary] = useState<string | null>(null);
   
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
