@@ -47,26 +47,39 @@ const formatTextWithStructure = (text: string): string => {
     '</div>'
   );
   
-  // Améliorer la mise en forme des TITRES EN CAPITALES (garantir qu'ils restent sur une ligne)
+  // ÉTAPE 1: Correction des titres spécifiques coupés sur plusieurs lignes
+  // Cas spécifique pour NAVIGATION WEB SÉCURISÉE
   formattedText = formattedText.replace(
-    /([A-Z]{3,}[\s-][A-Z\s-]+)(\s*:?\s*)/g, 
-    '<div class="font-bold text-[#00b4d8] mt-5 mb-4 pb-2 border-b border-[#00b4d8]/30 whitespace-normal text-lg overflow-visible">$1$2</div>'
+    /NAVIGATION[\s\n]+WEB[\s\n]+S[\s\n]*ÉCURISÉE/g,
+    'NAVIGATION WEB SÉCURISÉE'
   );
   
-  // Traitement spécifique pour les titres thématiques avec design spécial
-  formattedText = formattedText.replace(
-    /SÉCURITÉ DES RÉSEAUX SOCIAUX/g,
-    '<div class="font-bold text-center my-4 py-2 px-4 bg-gradient-to-r from-[#0c1e2e] to-[#112641] border border-[#00b4d8]/40 rounded-md shadow-[0_0_15px_rgba(0,180,216,0.1)]">' +
-    '<span class="text-[#e5f0fc]">SÉCURITÉ DES </span><span class="text-[#00b4d8]">RÉSEAUX SOCIAUX</span>' +
-    '</div>'
-  );
-  
-  // Correction des titres découpés par des sauts de ligne
+  // Cas spécifique pour SÉCURITÉ DES RÉSEAUX SOCIAUX
   formattedText = formattedText.replace(
     /SÉCURITÉ[\s\n]+DES[\s\n]+RÉSEAUX[\s\n]+SOCIAUX/g,
-    '<div class="font-bold text-center my-4 py-2 px-4 bg-gradient-to-r from-[#0c1e2e] to-[#112641] border border-[#00b4d8]/40 rounded-md shadow-[0_0_15px_rgba(0,180,216,0.1)]">' +
+    'SÉCURITÉ DES RÉSEAUX SOCIAUX'
+  );
+  
+  // ÉTAPE 2: Application du style aux titres complets
+  // Traitement spécial pour les titres de sections cybersécurité
+  formattedText = formattedText.replace(
+    /NAVIGATION WEB SÉCURISÉE/g,
+    '<div class="font-bold text-center my-4 py-2 px-4 bg-gradient-to-r from-[#0c1e2e] to-[#112641] border border-[#00b4d8]/40 rounded-md shadow-[0_0_15px_rgba(0,180,216,0.1)] whitespace-nowrap">' +
+    '<span class="text-[#e5f0fc]">NAVIGATION WEB </span><span class="text-[#00b4d8]">SÉCURISÉE</span>' +
+    '</div>'
+  );
+  
+  formattedText = formattedText.replace(
+    /SÉCURITÉ DES RÉSEAUX SOCIAUX/g,
+    '<div class="font-bold text-center my-4 py-2 px-4 bg-gradient-to-r from-[#0c1e2e] to-[#112641] border border-[#00b4d8]/40 rounded-md shadow-[0_0_15px_rgba(0,180,216,0.1)] whitespace-nowrap">' +
     '<span class="text-[#e5f0fc]">SÉCURITÉ DES </span><span class="text-[#00b4d8]">RÉSEAUX SOCIAUX</span>' +
     '</div>'
+  );
+  
+  // ÉTAPE 3: Formatage général pour les autres titres en capitales
+  formattedText = formattedText.replace(
+    /([A-Z]{3,}[\s-][A-Z\s-]+)(\s*:?\s*)/g, 
+    '<div class="font-bold text-[#00b4d8] mt-5 mb-4 pb-2 border-b border-[#00b4d8]/30 whitespace-nowrap text-lg overflow-visible">$1$2</div>'
   );
   
   // Mise en évidence des questions
