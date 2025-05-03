@@ -54,6 +54,7 @@ interface SessionStatus {
   needIdentified: boolean;
   needConfirmed: boolean;
   topic?: string;
+  readyForDecisionMode?: boolean;
 }
 
 // Composant principal avec l'interface d'apprentissage et la prise de décision
@@ -210,6 +211,19 @@ function ExpertLearningPageContent() {
         // Mettre à jour le statut de la session
         if (response.sessionStatus) {
           setSessionStatus(response.sessionStatus);
+          
+          // Si le serveur indique que le mode décision est prêt
+          if (response.sessionStatus.readyForDecisionMode && userId && response.sessionStatus.topic) {
+            // Lancer automatiquement le mode décision après le débriefing
+            decision.startDecisionFlow(userId, response.sessionStatus.topic);
+            
+            // Afficher un toast pour informer l'utilisateur du changement de mode
+            toast({
+              title: "Mode décision activé",
+              description: "Vous allez maintenant être confronté à une série de décisions difficiles. Choisissez avec soin!",
+              variant: "default"
+            });
+          }
         }
         
         // Vérifier si l'utilisateur est en mode décision après chaque message

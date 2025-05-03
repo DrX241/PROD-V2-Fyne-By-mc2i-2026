@@ -14,6 +14,7 @@ interface CyberExpertSession {
   needConfirmed: boolean;
   currentStage: 'initial' | 'questioning' | 'confirmation' | 'learning';
   topic?: string;
+  readyForDecisionMode?: boolean;
 }
 
 // Map pour stocker les sessions actives des utilisateurs
@@ -140,7 +141,8 @@ export async function processCyberExpertMessage(req: Request, res: Response) {
         currentStage: session.currentStage,
         needIdentified: session.needIdentified,
         needConfirmed: session.needConfirmed,
-        topic: session.topic
+        topic: session.topic,
+        readyForDecisionMode: session.readyForDecisionMode || false
       }
     });
     
@@ -424,6 +426,10 @@ async function handleLearningStage(session: CyberExpertSession, message: string)
   const shouldConclude = userMessageCount >= 5; // Conclure après 4 échanges
 
   if (shouldConclude) {
+    // On marque la session comme prête pour le débriefing
+    // Cela sera utilisé par le front-end pour déclencher le mode décision
+    session.readyForDecisionMode = true;
+    
     // Conclusion et résumé
     stagePrompt = `
       Il est temps de conclure l'échange sur "${session.topic}". 
@@ -431,7 +437,7 @@ async function handleLearningStage(session: CyberExpertSession, message: string)
       Crée un RÉSUMÉ DE MISSION TERMINÉE qui:
       - Commence par "MISSION ACCOMPLIE! 🏆"
       - Liste exactement 4 points clés appris (ultra concis, une ligne chacun)
-      - Propose 3 options pour continuer (approfondir, autre sujet, module plus technique)
+      - Termine par cette phrase exacte: "Maintenant, vous allez être confronté à une série de décisions difficiles liées à ce sujet."
       
       Format: très concis, ton célébrant la réussite de la mission, pas plus de 8 lignes au total.
     `;
