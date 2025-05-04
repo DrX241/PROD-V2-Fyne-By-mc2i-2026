@@ -379,6 +379,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [passwordValidated, setPasswordValidated] = useState<boolean>(false);
   const [missionBriefConfirmed, setMissionBriefConfirmed] = useState<boolean>(false);
   const [missionBriefReceived, setMissionBriefReceived] = useState<boolean>(false);
+  const [decisionSequenceStep, setDecisionSequenceStep] = useState<number>(0);
+  const [decisionSequenceComplete, setDecisionSequenceComplete] = useState<boolean>(false);
 
   // Initialize the chat with a welcome message
   useEffect(() => {
@@ -1166,6 +1168,107 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsTyping(false);
   };
 
+  // Fonction pour gérer les décisions dans la séquence de 5 choix
+  const handleMakeDecision = async (optionId: string) => {
+    setIsTyping(true);
+    
+    try {
+      // Envoyer une requête pour traiter la décision
+      const response = await apiRequest('/api/cyber/sequence-decision', {
+        method: 'POST',
+        body: JSON.stringify({
+          userRole,
+          domain: scenario.activeDomain?.id,
+          userName,
+          decisionStep: decisionSequenceStep,
+          optionId,
+          contextData: {
+            companyName: 'mc2i'
+          }
+        })
+      });
+
+      if (response.success) {
+        // Ajouter la réponse de l'utilisateur
+        const selectedOption = response.selectedOption || { text: "Option sélectionnée" };
+        const userMessage: ChatMessage = {
+          id: uuidv4(),
+          type: 'user',
+          content: selectedOption.text,
+          timestamp: Date.now()
+        };
+        
+        setMessages(prev => [...prev, userMessage]);
+        
+        // Pause pour réalisme
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Ajouter la réaction de l'équipe
+        if (response.teamFeedback) {
+          const feedbackMessage: ChatMessage = {
+            id: uuidv4(),
+            type: 'bot',
+            content: response.teamFeedback.message,
+            timestamp: Date.now(),
+            contactName: response.teamFeedback.sender,
+            contactRole: response.teamFeedback.senderRole
+          };
+          
+          setMessages(prev => [...prev, feedbackMessage]);
+        }
+        
+        // Mettre à jour le compteur d'étapes
+        const nextStep = decisionSequenceStep + 1;
+        setDecisionSequenceStep(nextStep);
+        
+        // Si nous avons atteint 5 étapes, marquer la séquence comme terminée
+        if (nextStep >= 5) {
+          setDecisionSequenceComplete(true);
+          
+          // Ajouter un message de conclusion
+          const conclusionMessage: ChatMessage = {
+            id: uuidv4(),
+            type: 'bot',
+            content: "Vous avez terminé cette série de décisions critiques. L'équipe va maintenant analyser l'ensemble de votre approche pour déterminer les prochaines étapes.",
+            timestamp: Date.now(),
+            contactName: "Thomas Mercier",
+            contactRole: "RSSI"
+          };
+          
+          setMessages(prev => [...prev, conclusionMessage]);
+        } 
+        // Sinon, présenter la décision suivante
+        else if (response.nextDecision) {
+          // Attendre un peu pour simuler le temps de réflexion
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          const decisionMessage: ChatMessage = {
+            id: uuidv4(),
+            type: 'binary-decision',
+            content: response.nextDecision,
+            timestamp: Date.now()
+          };
+          
+          setMessages(prev => [...prev, decisionMessage]);
+        }
+      }
+    } catch (error) {
+      console.error('Erreur lors du traitement de la décision:', error);
+      
+      // Message d'erreur
+      const errorMessage: ChatMessage = {
+        id: uuidv4(),
+        type: 'bot',
+        content: "Je suis désolé, une erreur s'est produite lors du traitement de votre décision. Veuillez réessayer.",
+        timestamp: Date.now()
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+    }
+    
+    setIsTyping(false);
+  };
+
   return (
     <ChatContext.Provider
       value={{
@@ -1181,6 +1284,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         passwordValidated,
         missionBriefConfirmed,
         missionBriefReceived,
+        decisionSequenceStep,
+        decisionSequenceComplete,
         setUserName: handleSetUserName,
         setUserRole: handleSetUserRole,
         selectDomain: handleSelectDomain,
@@ -1189,7 +1294,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateConfig: handleUpdateConfig,
         resetChat: handleResetChat,
         setPasswordValidated: (validated: boolean) => setPasswordValidated(validated),
-        confirmMissionBrief: handleConfirmMissionBrief
+        confirmMissionBrief: handleConfirmMissionBrief,
+        makeDecision: handleMakeDecision
       }}
     >
       {children}
