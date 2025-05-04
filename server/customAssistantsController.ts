@@ -163,12 +163,42 @@ export async function createAssistant(req: Request, res: Response) {
       });
     }
     
-    // Insérer le nouvel assistant
+    // Générer le prompt système personnalisé basé sur les paramètres de l'assistant
+    try {
+      const systemPrompt = await openAIService.generateCustomAssistantPrompt({
+        name: assistantData.name,
+        description: assistantData.description,
+        domain: assistantData.domain,
+        personality: assistantData.personality,
+        expertise: assistantData.expertise,
+        gamificationLevel: assistantData.gamificationLevel as 'none' | 'low' | 'medium' | 'high',
+        responseStyle: assistantData.responseStyle,
+        additionalInfo: assistantData.additionalInstructions
+      });
+      
+      // Ajouter le prompt système à l'assistant
+      assistantData.systemPrompt = systemPrompt;
+      
+      // Vérifier la connectivité avec l'API OpenAI
+      const isConnected = await openAIService.checkConnection();
+      if (!isConnected) {
+        console.warn("Avertissement: Impossible de se connecter à l'API OpenAI pour vérifier la fonctionnalité de l'assistant");
+      }
+    } catch (promptError) {
+      console.error('Erreur lors de la génération du prompt système personnalisé:', promptError);
+      return res.status(500).json({
+        success: false,
+        error: 'Erreur lors de la génération du prompt système personnalisé'
+      });
+    }
+    
+    // Insérer le nouvel assistant avec le prompt système généré
     const [newAssistant] = await db.insert(customAssistants).values(assistantData).returning();
     
     return res.status(201).json({
       success: true,
-      assistant: newAssistant
+      assistant: newAssistant,
+      systemPromptGenerated: !!assistantData.systemPrompt
     });
   } catch (error) {
     console.error('Erreur lors de la création de l\'assistant:', error);
@@ -471,10 +501,9 @@ export async function sendMessage(req: Request, res: Response) {
         content: msg.content
       }));
       
-      const response = await openAIService.getChatCompletion(openaiMessages);
+      const assistantResponse = await openAIService.getChatCompletion(openaiMessages);
       
       // Ajouter la réponse de l'assistant aux messages
-      const assistantResponse = response.choices[0].message.content;
       messages.push({
         role: 'assistant',
         content: assistantResponse
