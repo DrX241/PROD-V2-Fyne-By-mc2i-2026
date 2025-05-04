@@ -3,6 +3,7 @@ import { openAIService } from './services/openai';
 import { ChatCompletionRequestMessage } from '@shared/schema';
 import { db } from './db';
 import { investigationProgress, InsertInvestigationProgress } from '@shared/schema';
+import { eq, and, sql } from 'drizzle-orm';
 
 // Types pour les preuves et suspects
 interface Evidence {
@@ -283,8 +284,298 @@ export async function evaluateInvestigationResult(req: Request, res: Response) {
 }
 
 /**
- * Génère dynamiquement un nouveau scénario d'enquête
+ * Évalue les notes d'enquête de l'utilisateur avec l'IA
+ * Cette fonction analyse les notes prises par l'utilisateur pendant l'enquête,
+ * évalue leur pertinence et détermine si l'utilisateur peut progresser au niveau suivant.
  */
+export async function evaluateUserNotes(req: Request, res: Response) {
+  try {
+    const { 
+      userId, 
+      userName, 
+      gameId, 
+      currentLevel, 
+      notes, 
+      evidencesAnalyzed, 
+      totalEvidences, 
+      accusedSuspect, 
+      correctSuspect, 
+      suspects,
+      sessionId 
+    } = req.body;
+
+    if (!userId || !gameId || !notes || !currentLevel) {
+      return res.status(400).json({
+        error: 'Paramètres manquants pour l\'évaluation des notes'
+      });
+    }
+
+    // Calculer le pourcentage de preuves analysées
+    const evidenceCompletionRate = totalEvidences ? (evidencesAnalyzed / totalEvidences) * 100 : 0;
+    
+    // Déterminer si l'accusation est correcte
+    const accusationCorrect = accusedSuspect === correctSuspect;
+    
+    // Construction du prompt pour l'évaluation des notes par l'IA
+    const messages: ChatCompletionRequestMessage[] = [
+      {
+        role: "system",
+        content: `Tu es un expert en cybersécurité et investigation numérique, évaluant les compétences d'un apprenti enquêteur.
+        
+        Ton rôle est d'analyser en détail les notes qu'il a prises pendant son enquête sur une fuite de données.
+        
+        Évalue la qualité de son travail investigatif selon ces critères:
+        1. Identification des indices clés liés à l'incident (accès aux serveurs, téléchargements suspects, etc.)
+        2. Connexions établies entre différents éléments de preuve
+        3. Rigueur méthodologique et démarche structurée
+        4. Pertinence des observations concernant les suspects
+        5. Justification de ses conclusions
+        
+        Évalue également s'il est prêt à progresser d'un niveau dans sa formation:
+        - Niveau actuel: "${currentLevel}" (peut être "Débutant", "Intermédiaire" ou "Expert")
+        - Progression possible: Débutant → Intermédiaire → Expert
+        
+        Réponds au format JSON avec cette structure précise:
+        {
+          "analysis": "Analyse détaillée des notes de l'enquêteur",
+          "strengths": ["Point fort 1", "Point fort 2", ...],
+          "weaknesses": ["Faiblesse 1", "Faiblesse 2", ...],
+          "progression": {
+            "canProgress": true/false,
+            "recommendedLevel": "Niveau recommandé (Débutant/Intermédiaire/Expert)",
+            "justification": "Explication de la recommandation"
+          },
+          "score": Valeur numérique entre 0 et 100
+        }`
+      },
+      {
+        role: "user",
+        content: `Je suis ${userName || "un utilisateur"}, de niveau ${currentLevel} dans le jeu d'investigation "${gameId}".
+        
+        Voici mes notes d'enquête:
+        """
+        ${notes}
+        """
+        
+        Informations sur mon enquête:
+        - J'ai analysé ${evidencesAnalyzed || 0} preuves sur ${totalEvidences || 0} (${Math.round(evidenceCompletionRate)}%)
+        - J'ai accusé le suspect: ${accusedSuspect || "Aucun"}
+        - Le véritable coupable était: ${correctSuspect}
+        
+        ${suspects ? `Informations sur les suspects:
+        ${JSON.stringify(suspects, null, 2)}` : ""}
+        
+        Merci d'évaluer la qualité de mon travail d'investigation et de déterminer si je suis prêt à progresser vers le niveau supérieur.`
+      }
+    ];
+
+    // Appel à l'API OpenAI
+    const evaluationContent = await openAIService.getChatCompletion(
+      messages,
+      0.7,
+      2000
+    );
+
+    // Extraire le JSON de la réponse
+    let parsedEvaluation;
+    try {
+      // Rechercher d'abord les délimiteurs de code JSON
+      const jsonMatch = evaluationContent.match(/```json\s*([\s\S]*?)\s*```|```\s*([\s\S]*?)\s*```|\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const jsonContent = jsonMatch[1] || jsonMatch[2] || jsonMatch[0];
+        parsedEvaluation = JSON.parse(jsonContent);
+      } else {
+        // Si pas de délimiteurs, essayer de parser directement
+        parsedEvaluation = JSON.parse(evaluationContent);
+      }
+    } catch (jsonError) {
+      console.error("Erreur lors du parsing du JSON d'évaluation des notes:", jsonError);
+      // Créer une évaluation par défaut si le parsing échoue
+      parsedEvaluation = {
+        analysis: "Analyse des notes d'investigation effectuée.",
+        strengths: ["Prise de notes pendant l'enquête"],
+        weaknesses: ["Les notes pourraient être plus structurées"],
+        progression: {
+          canProgress: false,
+          recommendedLevel: currentLevel,
+          justification: "Continue à développer tes compétences d'analyse"
+        },
+        score: 50
+      };
+    }
+
+    // Sauvegarder la progression dans la base de données
+    try {
+      // Détecter si c'est la première tentative ou une mise à jour
+      const bestScore = parsedEvaluation.score || 50;
+      
+      const progressData: InsertInvestigationProgress = {
+        userId,
+        userName: userName || 'Anonymous User',
+        gameId,
+        currentLevel,
+        score: bestScore,
+        bestScore,
+        attempts: 1,
+        lastPlayed: new Date(),
+        notes: notes,
+        evaluationData: parsedEvaluation,
+        sessionId: sessionId || `session_${Date.now()}`
+      };
+      
+      // Insérer ou mettre à jour la progression
+      await db.insert(investigationProgress).values(progressData)
+        .onConflictDoUpdate({
+          target: [investigationProgress.userId, investigationProgress.gameId],
+          set: {
+            currentLevel: progressData.currentLevel,
+            score: progressData.score,
+            bestScore: sql`GREATEST(${investigationProgress.bestScore}, ${progressData.score})`,
+            attempts: sql`${investigationProgress.attempts} + 1`,
+            lastPlayed: progressData.lastPlayed,
+            notes: progressData.notes,
+            evaluationData: progressData.evaluationData,
+            sessionId: progressData.sessionId
+          }
+        });
+      
+      return res.status(200).json({
+        success: true,
+        evaluation: parsedEvaluation
+      });
+    } catch (dbError) {
+      console.error("Erreur lors de la sauvegarde de la progression:", dbError);
+      
+      // Même si la sauvegarde échoue, on retourne l'évaluation à l'utilisateur
+      return res.status(200).json({
+        success: true,
+        evaluation: parsedEvaluation,
+        warning: "La progression n'a pas pu être sauvegardée dans la base de données"
+      });
+    }
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+    console.error('Erreur lors de l\'évaluation des notes d\'enquête:', error);
+    return res.status(500).json({
+      error: 'Erreur lors de l\'évaluation des notes',
+      details: errorMessage
+    });
+  }
+}
+
+/**
+ * Sauvegarde ou met à jour la progression d'un utilisateur dans un jeu d'investigation
+ */
+export async function saveInvestigationProgress(req: Request, res: Response) {
+  try {
+    const { 
+      userId, 
+      userName, 
+      gameId, 
+      currentLevel, 
+      score, 
+      bestScore, 
+      attempts,
+      sessionId 
+    } = req.body;
+
+    if (!userId || !gameId) {
+      return res.status(400).json({
+        error: 'Identifiants utilisateur et jeu requis'
+      });
+    }
+
+    // Préparer les données de progression à sauvegarder
+    const progressData: InsertInvestigationProgress = {
+      userId,
+      userName: userName || 'Anonymous User',
+      gameId,
+      currentLevel: currentLevel || 'Débutant',
+      score: score || 0,
+      bestScore: bestScore || score || 0,
+      attempts: attempts || 1,
+      lastPlayed: new Date(),
+      notes: req.body.notes || '',
+      evaluationData: req.body.evaluationData || null,
+      sessionId: sessionId || `session_${Date.now()}`
+    };
+    
+    // Insérer ou mettre à jour la progression
+    await db.insert(investigationProgress).values(progressData)
+      .onConflictDoUpdate({
+        target: [investigationProgress.userId, investigationProgress.gameId],
+        set: {
+          currentLevel: progressData.currentLevel,
+          score: progressData.score,
+          bestScore: db.sql`GREATEST(${investigationProgress.bestScore}, ${progressData.score})`,
+          attempts: db.sql`${investigationProgress.attempts} + 1`,
+          lastPlayed: progressData.lastPlayed,
+          notes: progressData.notes,
+          evaluationData: progressData.evaluationData,
+          sessionId: progressData.sessionId
+        }
+      });
+    
+    return res.status(200).json({
+      success: true,
+      message: 'Progression sauvegardée avec succès'
+    });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+    console.error('Erreur lors de la sauvegarde de la progression:', error);
+    return res.status(500).json({
+      error: 'Erreur lors de la sauvegarde de la progression',
+      details: errorMessage
+    });
+  }
+}
+
+/**
+ * Récupère la progression d'un utilisateur dans un jeu d'investigation spécifique
+ */
+export async function getInvestigationProgress(req: Request, res: Response) {
+  try {
+    const { userId, gameId } = req.query;
+
+    if (!userId || !gameId) {
+      return res.status(400).json({
+        error: 'Identifiants utilisateur et jeu requis'
+      });
+    }
+
+    // Requête à la base de données pour récupérer la progression
+    const progress = await db.select()
+      .from(investigationProgress)
+      .where(
+        and(
+          eq(investigationProgress.userId, userId.toString()),
+          eq(investigationProgress.gameId, gameId.toString())
+        )
+      );
+
+    // Si aucune progression n'existe, renvoyer une réponse vide mais valide
+    if (progress.length === 0) {
+      return res.status(200).json({
+        success: true,
+        progress: null,
+        message: 'Aucune progression trouvée pour cet utilisateur dans ce jeu'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      progress: progress[0]
+    });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+    console.error('Erreur lors de la récupération de la progression:', error);
+    return res.status(500).json({
+      error: 'Erreur lors de la récupération de la progression',
+      details: errorMessage
+    });
+  }
+}
+
 export async function generateInvestigationScenario(req: Request, res: Response) {
   try {
     const { difficulty = 'medium', theme = 'data_breach' } = req.body;

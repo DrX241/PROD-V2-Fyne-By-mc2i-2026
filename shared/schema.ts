@@ -30,7 +30,10 @@ export const investigationProgress = pgTable('investigation_progress', {
   attempts: integer('attempts').notNull().default(0),
   lastFeedback: jsonb('last_feedback').notNull().default({}),
   lastUpdated: timestamp('last_updated').notNull().defaultNow(),
-  sessionId: varchar('session_id', { length: 255 }).notNull() // Pour tracking par session
+  sessionId: varchar('session_id', { length: 255 }).notNull(), // Pour tracking par session
+  notes: text('notes').default(''), // Notes prises par l'utilisateur
+  evaluationData: jsonb('evaluation_data').default(null), // Données d'évaluation par l'IA
+  lastPlayed: timestamp('last_played').defaultNow() // Date de dernière partie
 });
 
 export const insertUserLearningProgressSchema = createInsertSchema(userLearningProgress).omit({ id: true });
