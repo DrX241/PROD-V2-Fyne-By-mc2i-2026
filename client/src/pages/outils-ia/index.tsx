@@ -164,7 +164,7 @@ export default function OutilsIAPage() {
       description: 'Transformez vos idées en code fonctionnel grâce à notre générateur basé sur l\'IA. Spécifiez vos besoins et obtenez du code dans plusieurs langages de programmation.',
       icon: <Code className="h-6 w-6" />,
       href: '/outils-ia/code-generator',
-      isComingSoon: true
+      isNew: true
     },
   ];
   
