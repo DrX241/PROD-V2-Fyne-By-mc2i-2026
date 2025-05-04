@@ -11,10 +11,7 @@ import type {
   EmailMessageContent,
   ScenarioContact,
   CrisisDecisionContent,
-  CrisisDecisionOption,
-  BinaryDecision,
-  BinaryDecisionOption,
-  TeamFeedback
+  CrisisDecisionOption
 } from "@shared/types/cyber";
 import { USER_ROLES } from "@shared/types/cyber";
 
@@ -367,9 +364,6 @@ const initialScenarioState: ScenarioState = {
   activeDomain: null
 };
 
-// ID utilisateur pour la séquence de décisions
-let decisionSequenceUserId = "";
-
 // Create context
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
@@ -385,8 +379,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [passwordValidated, setPasswordValidated] = useState<boolean>(false);
   const [missionBriefConfirmed, setMissionBriefConfirmed] = useState<boolean>(false);
   const [missionBriefReceived, setMissionBriefReceived] = useState<boolean>(false);
-  const [decisionSequenceStep, setDecisionSequenceStep] = useState<number>(0);
-  const [decisionSequenceComplete, setDecisionSequenceComplete] = useState<boolean>(false);
 
   // Initialize the chat with a welcome message
   useEffect(() => {
@@ -850,17 +842,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Handler to send a message
   const handleSendMessage = async (messageText: string) => {
     if (!messageText.trim()) return;
-    
-    // Vérifier si c'est une commande pour une décision binaire
-    if (messageText.startsWith('#binary_decision#')) {
-      const parts = messageText.split('#');
-      if (parts.length >= 4) {
-        const decisionId = parts[2];
-        const optionId = parts[3];
-        handleMakeDecision(optionId);
-        return;
-      }
-    }
 
     // If no username set yet, treat this as the username
     if (!userName) {
@@ -1121,7 +1102,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsTyping(true);
 
     try {
-      // Envoyer une requête pour obtenir le message de bienvenue
+      // Envoyer une requête pour obtenir le message de bienvenue et les choix initiaux
       const response = await apiRequest('/api/cyber/decision', {
         method: 'POST',
         body: JSON.stringify({
@@ -1166,10 +1147,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.log(`Conditions non remplies pour passer au stage ${nextStage}`);
         }
         
-        // Initialiser la séquence de décisions binaires après un court délai
-        setTimeout(() => {
-          handleInitDecisionSequence();
-        }, 1500);
+        // Note: On ne montre plus les options de décision après le message de Thomas Mercier
       }
     } catch (error) {
       console.error('Erreur lors du démarrage du scénario de crise:', error);
@@ -1185,173 +1163,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setMessages(prev => [...prev, errorMessage]);
     }
 
-    setIsTyping(false);
-  };
-  
-  // Fonction pour initialiser la séquence de décisions binaires
-  const handleInitDecisionSequence = async () => {
-    setIsTyping(true);
-    
-    // Générer un ID utilisateur unique pour cette session de décisions
-    decisionSequenceUserId = `${userName.replace(/\s+/g, "-").toLowerCase()}-${Date.now()}`;
-    
-    try {
-      // Envoyer une requête pour initialiser la séquence de décisions
-      const response = await apiRequest('/api/cyber/decisions/init', {
-        method: 'POST',
-        body: JSON.stringify({
-          userId: decisionSequenceUserId,
-          userRole,
-          domain: scenario.activeDomain?.id,
-          userName,
-          companyName: 'mc2i'
-        })
-      });
-      
-      if (response.success && response.nextDecision) {
-        // Ajouter un message de Thomas Mercier pour introduire la séquence
-        const introMessage: ChatMessage = {
-          id: uuidv4(),
-          type: 'bot',
-          content: "Nous devons maintenant prendre une série de décisions cruciales pour résoudre cette situation. Je vais vous présenter cinq cas qui nécessitent votre expertise. Pour chacun, vous aurez deux options. Voici la première situation :",
-          timestamp: Date.now(),
-          contactName: "Thomas Mercier",
-          contactRole: "RSSI"
-        };
-        
-        setMessages(prev => [...prev, introMessage]);
-        
-        // Petite pause pour améliorer l'expérience utilisateur
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Ajouter la première décision
-        const decisionMessage: ChatMessage = {
-          id: uuidv4(),
-          type: 'binary-decision',
-          content: response.nextDecision,
-          timestamp: Date.now()
-        };
-        
-        setMessages(prev => [...prev, decisionMessage]);
-        
-        // Mettre à jour l'étape de décision
-        setDecisionSequenceStep(1);
-      }
-    } catch (error) {
-      console.error('Erreur lors de l\'initialisation de la séquence de décisions:', error);
-      
-      // Message d'erreur
-      const errorMessage: ChatMessage = {
-        id: uuidv4(),
-        type: 'bot',
-        content: "Je suis désolé, une erreur s'est produite lors de l'initialisation de la séquence de décisions. Veuillez réessayer ultérieurement.",
-        timestamp: Date.now()
-      };
-      
-      setMessages(prev => [...prev, errorMessage]);
-    }
-    
-    setIsTyping(false);
-  };
-
-  // Fonction pour gérer les décisions dans la séquence de 5 choix
-  const handleMakeDecision = async (optionId: string) => {
-    setIsTyping(true);
-    
-    try {
-      // Envoyer une requête pour traiter la décision
-      const response = await apiRequest('/api/cyber/decisions/submit', {
-        method: 'POST',
-        body: JSON.stringify({
-          userId: decisionSequenceUserId,
-          userRole,
-          domain: scenario.activeDomain?.id,
-          userName,
-          optionId,
-          contextData: {
-            companyName: 'mc2i'
-          }
-        })
-      });
-
-      if (response.success) {
-        // Ajouter la réponse de l'utilisateur
-        const selectedOption = response.selectedOption || { text: "Option sélectionnée" };
-        const userMessage: ChatMessage = {
-          id: uuidv4(),
-          type: 'user',
-          content: selectedOption.text,
-          timestamp: Date.now()
-        };
-        
-        setMessages(prev => [...prev, userMessage]);
-        
-        // Pause pour réalisme
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
-        // Ajouter la réaction de l'équipe
-        if (response.teamFeedback) {
-          const feedbackMessage: ChatMessage = {
-            id: uuidv4(),
-            type: 'bot',
-            content: response.teamFeedback.message,
-            timestamp: Date.now(),
-            contactName: response.teamFeedback.sender,
-            contactRole: response.teamFeedback.senderRole
-          };
-          
-          setMessages(prev => [...prev, feedbackMessage]);
-        }
-        
-        // Mettre à jour le compteur d'étapes
-        const nextStep = decisionSequenceStep + 1;
-        setDecisionSequenceStep(nextStep);
-        
-        // Si nous avons atteint 5 étapes, marquer la séquence comme terminée
-        if (nextStep >= 5) {
-          setDecisionSequenceComplete(true);
-          
-          // Ajouter un message de conclusion
-          const conclusionMessage: ChatMessage = {
-            id: uuidv4(),
-            type: 'bot',
-            content: "Vous avez terminé cette série de décisions critiques. L'équipe va maintenant analyser l'ensemble de votre approche pour déterminer les prochaines étapes.",
-            timestamp: Date.now(),
-            contactName: "Thomas Mercier",
-            contactRole: "RSSI"
-          };
-          
-          setMessages(prev => [...prev, conclusionMessage]);
-        } 
-        // Sinon, présenter la décision suivante
-        else if (response.nextDecision) {
-          // Attendre un peu pour simuler le temps de réflexion
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          const decisionMessage: ChatMessage = {
-            id: uuidv4(),
-            type: 'binary-decision',
-            content: response.nextDecision,
-            timestamp: Date.now()
-          };
-          
-          setMessages(prev => [...prev, decisionMessage]);
-        }
-      }
-    } catch (error) {
-      console.error('Erreur lors du traitement de la décision:', error);
-      
-      // Message d'erreur
-      const errorMessage: ChatMessage = {
-        id: uuidv4(),
-        type: 'bot',
-        content: "Je suis désolé, une erreur s'est produite lors du traitement de votre décision. Veuillez réessayer.",
-        timestamp: Date.now()
-      };
-      
-      setMessages(prev => [...prev, errorMessage]);
-    }
-    
     setIsTyping(false);
   };
 
@@ -1370,8 +1181,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         passwordValidated,
         missionBriefConfirmed,
         missionBriefReceived,
-        decisionSequenceStep,
-        decisionSequenceComplete,
         setUserName: handleSetUserName,
         setUserRole: handleSetUserRole,
         selectDomain: handleSelectDomain,
@@ -1380,8 +1189,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateConfig: handleUpdateConfig,
         resetChat: handleResetChat,
         setPasswordValidated: (validated: boolean) => setPasswordValidated(validated),
-        confirmMissionBrief: handleConfirmMissionBrief,
-        makeDecision: handleMakeDecision
+        confirmMissionBrief: handleConfirmMissionBrief
       }}
     >
       {children}

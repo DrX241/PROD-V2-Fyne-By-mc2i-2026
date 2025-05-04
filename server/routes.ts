@@ -27,7 +27,6 @@ import { generateDebriefing, getContextualDocumentation } from "./cyberLearningC
 import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearningController";
 import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
 import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
-import { initDecisionSequence, handleSequenceDecision } from "./cyberDecisionSequenceController";
 // Import des fonctions d'urgence cyber supprimé
 
 /**
@@ -3996,10 +3995,6 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   });
 
   // Les routes pour le chatbot mc2i AI Learning sont déjà définies plus haut
-
-  // Routes pour le système de décisions binaires séquentielles
-  app.post('/api/cyber/decisions/init', initDecisionSequence);
-  app.post('/api/cyber/decisions/submit', handleSequenceDecision);
 
   // Fin des routes API
 

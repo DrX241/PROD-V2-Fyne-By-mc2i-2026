@@ -1,4 +1,4 @@
-export type ChatMessageType = 'user' | 'bot' | 'system' | 'email' | 'domain-selection' | 'scenario-selection' | 'scenario-context' | 'role-selection' | 'decision-choices' | 'binary-decision';
+export type ChatMessageType = 'user' | 'bot' | 'system' | 'email' | 'domain-selection' | 'scenario-selection' | 'scenario-context' | 'role-selection' | 'decision-choices';
 
 export interface UserRole {
   id: string;
@@ -299,32 +299,10 @@ export interface CrisisDecisionContent {
   urgencyLevel?: 'faible' | 'modérée' | 'élevée' | 'critique';
 }
 
-export interface BinaryDecisionOption {
-  id: string;
-  text: string;
-  description: string;
-  consequences: string;
-}
-
-export interface BinaryDecision {
-  id: string;
-  context: string;  // Contexte en 3 phrases maximum
-  optionA: BinaryDecisionOption;
-  optionB: BinaryDecisionOption;
-  step: number;     // Numéro de l'étape dans la séquence (1-5)
-}
-
-export interface TeamFeedback {
-  message: string;  // Message de retour de l'équipe
-  sender: string;   // Nom de l'émetteur
-  senderRole: string; // Rôle de l'émetteur
-  sentiment: 'positive' | 'negative' | 'neutral'; // Sentiment général
-}
-
 export interface ChatMessage {
   id: string;
   type: ChatMessageType;
-  content: string | EmailMessageContent | CrisisDecisionContent | BinaryDecision | TeamFeedback;
+  content: string | EmailMessageContent | CrisisDecisionContent;
   timestamp: number;
   contactName?: string;
   contactRole?: string;
@@ -406,8 +384,6 @@ export interface ChatContextType {
   passwordValidated: boolean;
   missionBriefConfirmed: boolean;
   missionBriefReceived: boolean;
-  decisionSequenceStep: number;
-  decisionSequenceComplete: boolean;
   setUserName: (name: string) => void;
   setUserRole: (role: string) => void;
   selectDomain: (domain: CyberDomain) => void;
@@ -417,5 +393,4 @@ export interface ChatContextType {
   resetChat: () => void;
   setPasswordValidated: (validated: boolean) => void;
   confirmMissionBrief: () => void;
-  makeDecision: (optionId: string) => void;
 }

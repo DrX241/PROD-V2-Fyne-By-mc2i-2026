@@ -1,9 +1,7 @@
 import React from "react";
 import { BotMessageSquare, User, Zap } from "lucide-react";
-import { CrisisDecisionContent, BinaryDecision, TeamFeedback } from "@shared/types/cyber";
+import { CrisisDecisionContent } from "@shared/types/cyber";
 import DecisionChoices from "./DecisionChoices";
-import BinaryDecisionMessage from "./BinaryDecisionMessage";
-import TeamFeedbackMessage from "./TeamFeedbackMessage";
 import { useChatContext } from "@/contexts/ChatContext";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -27,8 +25,8 @@ const formatBudgetAmounts = (content: React.ReactNode): React.ReactNode => {
 };
 
 interface ChatMessageProps {
-  type: "user" | "bot" | "scenario-context" | "decision-choices" | "binary-decision";
-  content: string | CrisisDecisionContent | BinaryDecision | TeamFeedback;
+  type: "user" | "bot" | "scenario-context" | "decision-choices";
+  content: string | CrisisDecisionContent;
   contactName?: string;
   contactRole?: string;
   userName?: string; // Ajouter le nom de l'utilisateur pour le formatage du prénom
@@ -122,65 +120,49 @@ export default function ChatMessage({
 
   // Fonction pour formater le contenu de manière plus professionnelle et concise
   const formatContent = () => {
-    // Si c'est un contenu de décision binaire, retourner le composant BinaryDecisionMessage
-    if (type === 'binary-decision' && typeof content !== 'string' && 'optionA' in content) {
-      return <BinaryDecisionMessage decision={content as BinaryDecision} />;
-    }
-    
-    // Si c'est un contenu de feedback d'équipe, retourner le composant TeamFeedbackMessage
-    if (type === 'bot' && typeof content !== 'string' && 'sentiment' in content) {
-      return <TeamFeedbackMessage feedback={content as TeamFeedback} />;
-    }
-    
     // Si c'est un contenu de décision, retourner le composant DecisionChoices
-    if (type === 'decision-choices' && typeof content !== 'string' && 'options' in content) {
+    if (type === 'decision-choices' && typeof content !== 'string') {
       return <DecisionChoices decision={content as CrisisDecisionContent} onSelectOption={handleDecisionChoice} />;
     }
     
-    // Pour les messages textuels standard
-    if (typeof content === 'string') {
-      // Formater d'abord le contenu pour corriger les noms
-      let formattedContent = content;
-      if (userName) {
-        formattedContent = formatFirstName(content, userName);
-      }
-      
-      // Nettoyer le contenu de tous les formatages markdown
-      formattedContent = formattedContent
-        .replace(/^\s*#{1,6}\s+/gm, '') // Enlever les # pour les titres
-        .replace(/^\s*[>]\s+/gm, '')    // Enlever les > pour les citations
-        .replace(/`{1,3}([\s\S]*?)`{1,3}/g, '$1') // Enlever les backticks
-        .replace(/!\[(.*?)\]\(.*?\)/g, '[Image: $1]') // Remplacer les images
-        .replace(/\[(.*?)\]\(.*?\)/g, '$1'); // Supprimer les liens markdown
-      
-      // Amélioration de la détection des listes - détecte aussi les listes avec numéros (1., 2., etc)
-      const paragraphs = formattedContent.split('\n\n');
-      
-      // Traiter chaque paragraphe avec un style plus compact et élégant
-      return (
-        <div className="space-y-2">
-          {paragraphs.map((paragraph, idx) => {
-            const trimmedParagraph = paragraph.trim();
-            if (!trimmedParagraph) return null;
-            
-            // Vérifier si c'est un titre séparé
-            const titleMatch = trimmedParagraph.match(/^([A-Z\s]{3,}):?\s*$/);
-            if (titleMatch) {
-              return (
-                <h3 key={idx} className="font-semibold text-[#006a9e] text-base leading-tight mt-1 mb-0.5">
-                  {titleMatch[1]}
-                </h3>
-              );
-            }
-            
-            return <div key={idx} className="text-pretty">{processText(trimmedParagraph)}</div>;
-          })}
-        </div>
-      );
+    // Formater d'abord le contenu pour corriger les noms
+    let formattedContent = content as string;
+    if (userName && typeof content === 'string') {
+      formattedContent = formatFirstName(content, userName);
     }
     
-    // Retour par défaut pour les types non gérés
-    return <div className="text-zinc-800">Contenu non pris en charge</div>;
+    // Nettoyer le contenu de tous les formatages markdown
+    formattedContent = formattedContent
+      .replace(/^\s*#{1,6}\s+/gm, '') // Enlever les # pour les titres
+      .replace(/^\s*[>]\s+/gm, '')    // Enlever les > pour les citations
+      .replace(/`{1,3}([\s\S]*?)`{1,3}/g, '$1') // Enlever les backticks
+      .replace(/!\[(.*?)\]\(.*?\)/g, '[Image: $1]') // Remplacer les images
+      .replace(/\[(.*?)\]\(.*?\)/g, '$1'); // Supprimer les liens markdown
+    
+    // Amélioration de la détection des listes - détecte aussi les listes avec numéros (1., 2., etc)
+    const paragraphs = formattedContent.split('\n\n');
+    
+    // Traiter chaque paragraphe avec un style plus compact et élégant
+    return (
+      <div className="space-y-2">
+        {paragraphs.map((paragraph, idx) => {
+          const trimmedParagraph = paragraph.trim();
+          if (!trimmedParagraph) return null;
+          
+          // Vérifier si c'est un titre séparé
+          const titleMatch = trimmedParagraph.match(/^([A-Z\s]{3,}):?\s*$/);
+          if (titleMatch) {
+            return (
+              <h3 key={idx} className="font-semibold text-[#006a9e] text-base leading-tight mt-1 mb-0.5">
+                {titleMatch[1]}
+              </h3>
+            );
+          }
+          
+          return <div key={idx} className="text-pretty">{processText(trimmedParagraph)}</div>;
+        })}
+      </div>
+    );
   };
   
   // Traitement du texte en gras (** **)
