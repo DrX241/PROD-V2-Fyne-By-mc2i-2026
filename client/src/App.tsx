@@ -144,6 +144,33 @@ function App() {
               );
             }} />
             
+            <Route path="/cyber/arcade/code-shield/levels/signatures" component={() => {
+              const SignaturesComponent = lazy(() => import('./pages/cyber/arcade/code-shield/levels/signatures'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <SignaturesComponent />
+                </Suspense>
+              );
+            }} />
+            
+            <Route path="/cyber/arcade/code-shield/levels/static-analysis" component={() => {
+              const StaticAnalysisComponent = lazy(() => import('./pages/cyber/arcade/code-shield/levels/static-analysis'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <StaticAnalysisComponent />
+                </Suspense>
+              );
+            }} />
+            
+            <Route path="/cyber/arcade/code-shield/lab" component={() => {
+              const LabComponent = lazy(() => import('./pages/cyber/arcade/code-shield/lab'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <LabComponent />
+                </Suspense>
+              );
+            }} />
+            
             {/* Module Playground pour l'apprentissage de la cybersécurité */}
             <Route path="/playground" component={PlaygroundPage} />
             <Route path="/playground/module" component={ModuleDetailPage} />
