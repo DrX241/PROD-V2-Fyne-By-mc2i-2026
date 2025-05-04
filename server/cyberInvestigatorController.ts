@@ -49,11 +49,11 @@ export async function analyzeEvidence(req: Request, res: Response) {
     ];
 
     // Appel à l'API OpenAI
-    const analysisContent = await openAIService.getChatCompletion({
-      messages: messages.map(m => ({ role: m.role, content: m.content })),
-      temperature: 0.7,
-      max_tokens: 1500
-    });
+    const analysisContent = await openAIService.getChatCompletion(
+      messages.map(m => ({ role: m.role, content: m.content })),
+      0.7,
+      1500
+    );
 
     return res.status(200).json({
       success: true,
@@ -116,11 +116,11 @@ export async function getInvestigationHints(req: Request, res: Response) {
     ];
 
     // Appel à l'API OpenAI
-    const hintsContent = await openAIService.getChatCompletion({
-      messages: messages.map(m => ({ role: m.role, content: m.content })),
-      temperature: 0.7,
-      max_tokens: 1500
-    });
+    const hintsContent = await openAIService.getChatCompletion(
+      messages.map(m => ({ role: m.role, content: m.content })),
+      0.7,
+      1500
+    );
 
     return res.status(200).json({
       success: true,
@@ -201,11 +201,11 @@ export async function evaluateInvestigationResult(req: Request, res: Response) {
     ];
 
     // Appel à l'API OpenAI
-    const evaluationContent = await openAIService.getChatCompletion({
-      messages: messages.map(m => ({ role: m.role, content: m.content })),
-      temperature: 0.7,
-      max_tokens: 2000
-    });
+    const evaluationContent = await openAIService.getChatCompletion(
+      messages.map(m => ({ role: m.role, content: m.content })),
+      0.7,
+      2000
+    );
 
     // Extraire le JSON de la réponse
     let parsedEvaluation;
@@ -339,11 +339,11 @@ export async function generateInvestigationScenario(req: Request, res: Response)
     ];
 
     // Appel à l'API OpenAI
-    const scenarioContent = await openAIService.getChatCompletion({
-      messages: messages.map(m => ({ role: m.role, content: m.content })),
-      temperature: 0.8,
-      max_tokens: 4000
-    });
+    const scenarioContent = await openAIService.getChatCompletion(
+      messages.map(m => ({ role: m.role, content: m.content })),
+      0.8,
+      4000
+    );
 
     // Extraire le JSON de la réponse
     let parsedScenario;

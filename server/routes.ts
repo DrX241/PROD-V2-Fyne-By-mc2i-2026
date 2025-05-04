@@ -28,6 +28,7 @@ import { generateDebriefing, getContextualDocumentation } from "./cyberLearningC
 import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearningController";
 import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
 import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
+import { analyzeEvidence, getInvestigationHints, evaluateInvestigationResult, generateInvestigationScenario } from "./cyberInvestigatorController";
 // Import des fonctions d'urgence cyber supprimé
 
 /**
