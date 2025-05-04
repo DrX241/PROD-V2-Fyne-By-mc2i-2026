@@ -42,10 +42,23 @@ interface Lesson {
   type: 'theory' | 'practice' | 'challenge' | 'quiz';
 }
 
-function CyberForgeModules() {
+interface ModulesPageProps {
+  params?: {
+    moduleId?: string;
+  };
+}
+
+function CyberForgeModules({ params: propParams }: ModulesPageProps = {}) {
   const [, setLocation] = useLocation();
+  const [_, routeParams] = useRoute('/cyberforge/modules/:moduleId');
+  
+  // Utiliser les paramètres de props ou de route selon la disponibilité
+  const params = propParams || routeParams;
   const { themeMode, isDark } = useTheme();
-  const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
+  
+  // Si un moduleId est spécifié dans les paramètres, l'utiliser comme module sélectionné
+  const initialModuleId = params?.moduleId || null;
+  const [selectedModuleId, setSelectedModuleId] = useState<string | null>(initialModuleId);
   const [isShowingDetailedInfo, setIsShowingDetailedInfo] = useState(false);
   
   const modules: Module[] = [

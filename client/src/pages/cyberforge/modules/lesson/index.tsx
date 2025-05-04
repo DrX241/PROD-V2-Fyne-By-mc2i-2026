@@ -59,9 +59,20 @@ interface AIResponse {
   error: string | null;
 }
 
-function CybergForgeLesson() {
+interface LessonPageProps {
+  params?: {
+    moduleId?: string;
+    chapterId?: string;
+    lessonId?: string;
+  };
+}
+
+function CyberForgeLesson({ params: propParams }: LessonPageProps) {
   const [, setLocation] = useLocation();
-  const [_, params] = useRoute('/cyberforge/modules/:moduleId/:chapterId/:lessonId');
+  const [_, routeParams] = useRoute('/cyberforge/modules/lesson/:moduleId/:chapterId/:lessonId');
+  
+  // Utiliser les paramètres de props ou de route selon la disponibilité
+  const params = propParams || routeParams;
   const { themeMode, isDark } = useTheme();
   
   const [currentSection, setCurrentSection] = useState(0);
@@ -929,4 +940,4 @@ Est-ce que cette réponse est utile ? Avez-vous d'autres questions sur ce sujet 
   );
 }
 
-export default CybergForgeLesson;
+export default CyberForgeLesson;

@@ -127,30 +127,36 @@ function App() {
             <Route path="/mcai-learning" component={McaiLearning} />
             
             <Route path="/cyberforge" component={CyberForge} />
-            <Route path="/cyberforge/modules" component={(props) => {
-              const CyberforgeModules = lazy(() => import('./pages/cyberforge/modules'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <CyberforgeModules {...props} />
-                </Suspense>
-              );
-            }} />
-            <Route path="/cyberforge/modules/:moduleId" component={(props) => {
-              const CyberforgeModules = lazy(() => import('./pages/cyberforge/modules'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <CyberforgeModules {...props} />
-                </Suspense>
-              );
-            }} />
-            <Route path="/cyberforge/modules/lesson/:moduleId/:chapterId/:lessonId" component={(props) => {
-              const CyberforgeLesson = lazy(() => import('./pages/cyberforge/modules/lesson'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <CyberforgeLesson {...props} />
-                </Suspense>
-              );
-            }} />
+            <Route path="/cyberforge/modules">
+              {(params) => {
+                const CyberforgeModules = lazy(() => import('./pages/cyberforge/modules'));
+                return (
+                  <Suspense fallback={<GlobalLoader />}>
+                    <CyberforgeModules />
+                  </Suspense>
+                );
+              }}
+            </Route>
+            <Route path="/cyberforge/modules/:moduleId">
+              {(params) => {
+                const CyberforgeModules = lazy(() => import('./pages/cyberforge/modules'));
+                return (
+                  <Suspense fallback={<GlobalLoader />}>
+                    <CyberforgeModules params={params} />
+                  </Suspense>
+                );
+              }}
+            </Route>
+            <Route path="/cyberforge/modules/lesson/:moduleId/:chapterId/:lessonId">
+              {(params) => {
+                const CyberforgeLesson = lazy(() => import('./pages/cyberforge/modules/lesson'));
+                return (
+                  <Suspense fallback={<GlobalLoader />}>
+                    <CyberforgeLesson params={params} />
+                  </Suspense>
+                );
+              }}
+            </Route>
             
             {/* Module Centre de Crise */}
             <Route path="/cyber-defense-new" component={CentreDeCriseEvolutifPage} />
