@@ -1343,16 +1343,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // API route for chat messages supprimée (fonctionnalité I AM CYBER)
+  // API route for chat messages
+  app.post('/api/cyber/chat', async (req, res) => {
+    try {
+      // Route commentée pour éliminer l'agent conversationnel
+      res.status(410).json({ message: 'Cette fonctionnalité a été supprimée' });
+    } catch (error) {
+      console.error('Error in chat:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
   
   // ====== CYBER DEFENSE ROUTES ====== //
-        {
-          id: "social-engineering-incident",
-          title: "Gestion d'un incident d'ingénierie sociale",
-          domain: "Ingénierie sociale et phishing",
-          contact: {
-            name: "Isabelle Dubacq",
-            role: "Senior Partner, Directrice des Ressources Humaines"
           },
           difficulty: "Intermédiaire"
         },
