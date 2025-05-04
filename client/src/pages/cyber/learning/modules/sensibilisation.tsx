@@ -90,15 +90,15 @@ const sensibilisationLevels: Level[] = [
             options: [
               {
                 id: 'signs-1',
-                text: 'Le sentiment d'urgence et la menace de bloquer le compte',
+                text: "Le sentiment d'urgence et la menace de bloquer le compte",
                 isCorrect: true,
-                explanation: 'Les emails de phishing utilisent souvent l'urgence et la peur pour pousser la victime à agir sans réfléchir.'
+                explanation: "Les emails de phishing utilisent souvent l'urgence et la peur pour pousser la victime à agir sans réfléchir."
               },
               {
                 id: 'signs-2',
-                text: 'La présence d'un lien direct vers une page de connexion',
+                text: "La présence d'un lien direct vers une page de connexion",
                 isCorrect: true,
-                explanation: 'Les emails légitimes des banques vous demandent généralement de vous connecter via leur site web officiel, pas via un lien direct.'
+                explanation: "Les emails légitimes des banques vous demandent généralement de vous connecter via leur site web officiel, pas via un lien direct."
               },
               {
                 id: 'signs-3',

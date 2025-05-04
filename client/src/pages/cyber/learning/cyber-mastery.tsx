@@ -176,13 +176,13 @@ const LearningThemeCard: React.FC<{ theme: LearningTheme, index: number }> = ({ 
         </CardContent>
         
         <CardFooter>
-          <Link href={`/cyber/learning/cyber-mastery/${theme.id}`} className="w-full">
+          <Link href={theme.id === 'sensibilisation' ? '/cyber/learning/cyber-mastery/sensibilisation' : `/cyber/learning/cyber-mastery/${theme.id}`} className="w-full">
             <Button 
-              disabled={theme.comingSoon}
+              disabled={theme.id !== 'sensibilisation' && theme.comingSoon !== undefined ? theme.comingSoon : false}
               variant={isDark ? "outline" : "default"} 
               className="w-full flex items-center justify-center gap-2"
             >
-              {theme.comingSoon ? (
+              {theme.id !== 'sensibilisation' && theme.comingSoon ? (
                 <>
                   <span>Bientôt disponible</span>
                 </>
