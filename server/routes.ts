@@ -18,6 +18,7 @@ const __dirname = path.dirname(__filename);
 // Import de document-generator supprimé car nous n'utilisons plus de pièces jointes
 import { ChatCompletionRequestMessage } from "@shared/schema";
 import { evaluateDecision } from "./cyberDefenseEvaluator";
+import { getUserProgress, saveUserProgress } from "./userLearningController";
 import { handleCyberDefenseChat, generateCyberDefenseMission } from "./cyberDefenseController";
 import { extractJsonFromOpenAiResponse, createFallbackJson } from "./openAiResponseHelper";
 import { startInterviewSimulation, processInterviewMessage, completeInterviewSimulation, analyzeInterviewNotes } from "./interviewSimulationController";
@@ -27,7 +28,6 @@ import { generateDebriefing, getContextualDocumentation } from "./cyberLearningC
 import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearningController";
 import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
 import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
-import { getUserProgress, saveUserProgress } from "./userLearningController";
 // Import des fonctions d'urgence cyber supprimé
 
 /**

@@ -1806,6 +1806,43 @@ export default function SensibilisationCyberGame() {
     <HomeLayout>
       <PageTitle title="Sensibilisation à la Cybersécurité" />
       
+      {/* Boîte de dialogue pour le nom d'utilisateur */}
+      <Dialog open={userDialogOpen} onOpenChange={setUserDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Bienvenue au module de Sensibilisation Cybersécurité</DialogTitle>
+            <DialogDescription>
+              Pour sauvegarder votre progression et vos points XP, veuillez entrer votre prénom.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 py-4">
+            <div className="grid flex-1 gap-2">
+              <Label htmlFor="userName" className="text-left">
+                Votre prénom
+              </Label>
+              <Input
+                id="userName"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                placeholder="Prénom"
+                className="col-span-3"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleUserSubmit();
+                  }
+                }}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="submit" onClick={handleUserSubmit}>
+              Commencer l'apprentissage
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
       <div className={`min-h-screen p-4 ${isDark ? 'bg-slate-900 text-white' : 'bg-slate-50'}`}>
         <div className="container mx-auto max-w-6xl">
           <div className="mb-4">
