@@ -72,7 +72,7 @@ export default function CyberArcade() {
             </Link>
             <h1 className="text-3xl sm:text-4xl font-bold text-white">Cyber Arcade</h1>
           </div>
-          
+
           <p className="text-lg text-blue-200 max-w-3xl mb-10">
             Bienvenue dans le Cyber Arcade ! Améliorez vos compétences en cybersécurité avec ces jeux interactifs 
             et ludiques conçus pour tous les niveaux. Choisissez un jeu pour commencer.
@@ -95,7 +95,7 @@ export default function CyberArcade() {
                     {hoveredGame === game.id && (
                       <div className="absolute inset-0 bg-white opacity-10 animate-pulse"></div>
                     )}
-                    
+
                     <div className="flex items-center mb-4">
                       <div className="bg-white/10 p-2 rounded-lg mr-3">
                         {game.icon}
@@ -104,14 +104,14 @@ export default function CyberArcade() {
                         {game.title}
                       </h2>
                     </div>
-                    
+
                     <p className="text-blue-100 text-sm mb-4 flex-grow">
                       {game.description}
                     </p>
-                    
+
                     <div className="flex justify-end mt-2">
                       <div className="bg-white/10 hover:bg-white/20 py-1.5 px-4 rounded-lg text-white text-sm font-medium">
-                        Jouer maintenant
+                        {game.comingSoon ? "Bientôt disponible" : "Jouer maintenant"}
                       </div>
                     </div>
                   </div>
