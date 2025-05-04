@@ -526,6 +526,128 @@ Tu es I AM CYBER, un assistant spécialisé en cybersécurité conçu pour forme
       throw new Error("Failed to generate system prompt");
     }
   }
+
+  /**
+   * Génère un prompt système personnalisé pour un assistant IA basé sur ses paramètres
+   * @param assistantParams Paramètres de configuration de l'assistant
+   * @returns Prompt système personnalisé
+   */
+  async generateCustomAssistantPrompt(assistantParams: {
+    name: string;
+    description?: string;
+    domain?: string;
+    personality?: string;
+    expertise?: string;
+    gamificationLevel?: 'none' | 'low' | 'medium' | 'high';
+    responseStyle?: string;
+    additionalInfo?: string;
+  }): Promise<string> {
+    try {
+      const {
+        name,
+        description = "un assistant IA personnalisé",
+        domain = "général",
+        personality = "professionnel",
+        expertise = "intermédiaire",
+        gamificationLevel = "none",
+        responseStyle = "conversationnel",
+        additionalInfo = ""
+      } = assistantParams;
+
+      // Construction du prompt système de base
+      let systemPrompt = `
+# ASSISTANT PERSONNALISÉ: ${name.toUpperCase()}
+
+## VOTRE IDENTITÉ ET MISSION
+Tu es ${name}, ${description}. Tu es spécialisé dans le domaine: ${domain}.
+
+## TON STYLE ET TON APPROCHE
+- Ton niveau d'expertise est: ${expertise}
+- Ta personnalité est: ${personality}
+- Ton style de réponse est: ${responseStyle}
+`;
+
+      // Ajouter des instructions spécifiques au domaine
+      if (domain && domain !== "général") {
+        systemPrompt += `\n## SPÉCIALISATION DANS LE DOMAINE: ${domain.toUpperCase()}`;
+        systemPrompt += `\nEn tant qu'expert en ${domain}, tu dois:`;
+        systemPrompt += `\n- Prioriser les connaissances et concepts de ce domaine`;
+        systemPrompt += `\n- Adapter ta terminologie au vocabulaire spécifique de ce domaine`;
+        systemPrompt += `\n- Faire référence aux bonnes pratiques et tendances actuelles du secteur`;
+        systemPrompt += `\n- Citer des exemples pertinents pour illustrer tes réponses`;
+      }
+
+      // Ajouter des instructions sur la personnalité
+      systemPrompt += `\n\n## PERSONNALITÉ: ${personality.toUpperCase()}`;
+      switch (personality.toLowerCase()) {
+        case "amical":
+          systemPrompt += `\nAdopte un ton chaleureux et conversationnel. Utilise un langage accessible et crée un lien avec l'utilisateur. Tu peux utiliser des émojis avec modération et adopter une approche empathique.`;
+          break;
+        case "formel":
+          systemPrompt += `\nAdopte un ton soutenu et professionnel. Évite les familiarités et les expressions trop informelles. Privilégie un vocabulaire précis et une structure claire.`;
+          break;
+        case "pédagogique":
+          systemPrompt += `\nAdopte une approche explicative et didactique. Structure tes réponses de manière progressive, en partant des concepts fondamentaux. Pose des questions pour vérifier la compréhension et propose des ressources complémentaires.`;
+          break;
+        case "inspirant":
+          systemPrompt += `\nAdopte un style motivant et énergique. Utilise des exemples inspirants et des métaphores marquantes. Encourage l'utilisateur à dépasser ses limites et à explorer de nouvelles perspectives.`;
+          break;
+        case "analytique":
+          systemPrompt += `\nAdopte une approche méthodique et factuelle. Organise tes réponses avec logique, en distinguant faits et opinions. Présente différents points de vue et nuance tes propos. Utilise des données chiffrées lorsque c'est pertinent.`;
+          break;
+        default:
+          systemPrompt += `\nAdopte un ton professionnel mais accessible. Sois clair, précis et pertinent dans tes réponses. Adapte-toi au contexte de la conversation.`;
+      }
+
+      // Configuration de la gamification
+      if (gamificationLevel && gamificationLevel !== "none") {
+        systemPrompt += `\n\n## NIVEAU DE GAMIFICATION: ${gamificationLevel.toUpperCase()}`;
+        
+        switch (gamificationLevel) {
+          case "low":
+            systemPrompt += `\nIntègre occasionnellement des éléments ludiques comme:`;
+            systemPrompt += `\n- De brèves anecdotes intéressantes liées au sujet`;
+            systemPrompt += `\n- Des faits surprenants ou méconnus`;
+            systemPrompt += `\n- De petits défis optionnels en fin de réponse`;
+            break;
+          case "medium":
+            systemPrompt += `\nIntègre régulièrement des éléments de gamification comme:`;
+            systemPrompt += `\n- Des défis adaptés au niveau de l'utilisateur`;
+            systemPrompt += `\n- Des quiz courts pour tester les connaissances`;
+            systemPrompt += `\n- Des analogies et métaphores ludiques`;
+            systemPrompt += `\n- Des scénarios hypothétiques pour appliquer les concepts`;
+            break;
+          case "high":
+            systemPrompt += `\nIntègre systématiquement une approche fortement gamifiée:`;
+            systemPrompt += `\n- Crée une structure de progression avec des niveaux`;
+            systemPrompt += `\n- Propose des défis de complexité croissante`;
+            systemPrompt += `\n- Utilise un système de points ou de badges virtuels`;
+            systemPrompt += `\n- Inclus des mini-jeux, énigmes ou problèmes à résoudre`;
+            systemPrompt += `\n- Crée des scénarios immersifs et interactifs`;
+            break;
+        }
+      }
+
+      // Informations additionnelles personnalisées
+      if (additionalInfo && additionalInfo.trim().length > 0) {
+        systemPrompt += `\n\n## INSTRUCTIONS SUPPLÉMENTAIRES`;
+        systemPrompt += `\n${additionalInfo.trim()}`;
+      }
+
+      // Instructions de format et de comportement
+      systemPrompt += `\n\n## FORMAT ET COMPORTEMENT GÉNÉRAL`;
+      systemPrompt += `\n- N'utilise pas de formatage markdown (pas d'astérisques, de dièses, etc.)`;
+      systemPrompt += `\n- Réponds toujours de manière directe et pertinente aux questions`;
+      systemPrompt += `\n- Adapte ton niveau de détail au contexte de la conversation`;
+      systemPrompt += `\n- Sois précis et factuel, évite les généralisations`;
+      systemPrompt += `\n- Si tu ne connais pas la réponse, admets-le clairement`;
+
+      return systemPrompt;
+    } catch (error) {
+      console.error("Error generating custom assistant prompt:", error);
+      throw new Error("Failed to generate custom assistant prompt");
+    }
+  }
 }
 
-export const openAIService = new OpenAIService('gpt-4o');
+export const openAIService = new OpenAIService();
