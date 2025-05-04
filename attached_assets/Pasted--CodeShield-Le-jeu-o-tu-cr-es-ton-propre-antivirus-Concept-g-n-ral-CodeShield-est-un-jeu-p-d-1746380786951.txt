@@ -1,0 +1,77 @@
+🎮 CodeShield – Le jeu où tu crées ton propre antivirus
+🧠 Concept général
+CodeShield est un jeu pédagogique et immersif dans lequel le joueur incarne un analyste cybersécurité chargé de construire un antivirus personnalisé. Au fil des niveaux, il apprend à détecter, bloquer et neutraliser des malwares de plus en plus sophistiqués, tout en étant guidé par une intelligence artificielle.
+
+🧩 Fonctionnement global
+Le joueur reçoit une liste de fichiers simulés : certains sont sains, d’autres infectés.
+
+Il doit créer des règles de détection (simplifiées et accessibles à tous).
+
+Il lance une analyse simulée, comme le ferait un vrai antivirus.
+
+Une IA experte lui donne un score, explique ses erreurs, et lui propose des pistes d'amélioration.
+
+À chaque nouveau niveau, les défis deviennent plus complexes : comportements masqués, virus évolutifs, situations ambigües.
+
+🧭 Parcours en 5 niveaux
+🔹 Niveau 1 – Signatures
+Apprendre à reconnaître les menaces les plus simples à l’aide de leur nom ou d’une empreinte numérique.
+
+Le joueur détecte les fichiers malveillants connus.
+
+L’IA explique pourquoi certaines menaces passent inaperçues ou pourquoi certaines détections sont trop larges.
+
+🔹 Niveau 2 – Analyse statique
+Identifier les logiciels malveillants en repérant des motifs suspects dans leur contenu.
+
+Le joueur repère des extraits de code ou des commandes douteuses.
+
+L’IA l’aide à affiner ses critères pour éviter de bloquer des fichiers légitimes.
+
+🔹 Niveau 3 – Comportement suspect
+Observer ce que fait un fichier plutôt que ce qu’il contient.
+
+Chaque fichier exécute une série d’actions simulées : installation silencieuse, collecte de données, ouverture de ports…
+
+Le joueur apprend à détecter les comportements typiques d’un virus.
+
+L’IA commente ses choix et met en lumière les subtilités.
+
+🔹 Niveau 4 – Sandbox
+Simuler l’exécution de fichiers dans un environnement protégé.
+
+Le joueur voit en direct les effets d’un fichier suspect dans une fausse machine : fichiers créés, processus lancés, connexions établies.
+
+Il apprend à formuler des règles de réaction face à ces actions.
+
+L’IA l’entraîne à interpréter les comportements indirects.
+
+🔹 Niveau 5 – Virus polymorphe
+Affronter un virus qui change de forme à chaque partie.
+
+Le joueur doit créer des règles intelligentes, capables de détecter des menaces malgré les modifications de leur apparence.
+
+L’IA le confronte à des situations ambigües et teste la solidité de ses stratégies.
+
+🧠 Fonctionnalités clés
+🔄 Scénarios rejouables et uniques : chaque partie est différente grâce à l’IA.
+
+📊 Score et évaluation après chaque niveau.
+
+🎓 Retour pédagogique personnalisé : l’IA explique chaque erreur et donne des pistes d'amélioration concrètes.
+
+🧠 Approche progressive : chaque niveau ajoute une nouvelle brique de compréhension.
+
+🧪 Expérimentation libre : en fin de jeu, le joueur peut créer son propre antivirus et le tester contre des vagues de fichiers générés.
+
+🎖️ Objectif final
+À la fin de la campagne, le joueur est capable de :
+
+Comprendre les mécanismes de base d’un antivirus.
+
+Identifier différentes formes de menaces numériques.
+
+Créer une stratégie de défense cohérente.
+
+Et surtout : agir en analyste, pas en simple utilisateur.
+
