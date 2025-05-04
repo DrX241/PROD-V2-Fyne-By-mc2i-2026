@@ -53,6 +53,8 @@ import AmoaInterviewSimulation from "@/pages/amoa/interview-simulation";
 import ProjetImposteur from "@/pages/amoa/projet-imposteur";
 // Module Apprendre en échangeant
 import ExpertLearningPage from "@/pages/cyber/expert-learning";
+// Import direct pour corriger le problème de chargement
+import CyberForgePage from "./pages/cyber/learning/cyberforge";
 // Autres pages
 import ImmersiveSimulation from "@/pages/immersive-simulation";
 import ImmersiveScenarioDetail from "@/pages/immersive-scenario-detail";
@@ -108,6 +110,7 @@ function App() {
             <Route path="/cyber/cyber-agent-old" component={CyberAgentRedirectPage} /> {/* Ancienne version (redirection) */}
             <Route path="/cyber/cyber-agent-new" component={CyberAgentNewPage} /> {/* Nouvelle version du module Cyber Agent */}
             <Route path="/cyber/expert-learning" component={ExpertLearningPage} /> {/* Module Apprendre en échangeant */}
+            <Route path="/cyber/learning/cyberforge" component={CyberForgePage} />
             {/* Module d'arcade cyber et jeux d'enquête */}
             <Route path="/cyber/arcade" component={CyberArcade} />
             <Route path="/cyber/arcade/cyber-investigator" component={CyberInvestigator} />

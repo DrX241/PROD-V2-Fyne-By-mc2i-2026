@@ -72,7 +72,7 @@ const ProgressTracker = ({ className, learningHistory, allPaths }: any) => {
         {allPaths.map((path: any) => {
           const pathModules = path.modules || [];
           const completedInPath = learningHistory
-            .filter(item => pathModules.includes(item.moduleId))
+            .filter((item: { moduleId: string }) => pathModules.includes(item.moduleId))
             .length;
           
           const progressPercent = pathModules.length > 0 
@@ -356,7 +356,7 @@ export function CyberForgeAcademy() {
             <LearningModule 
               moduleId={selectedModule}
               learningContent={data}
-              onComplete={(results) => handleCompleteModule(selectedModule, results)}
+              onComplete={(results: any) => handleCompleteModule(selectedModule, results)}
               onBack={() => setSelectedModule(null)}
             />
           )}
