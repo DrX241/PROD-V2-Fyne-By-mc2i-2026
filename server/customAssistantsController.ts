@@ -13,6 +13,17 @@ import { eq, desc, asc, and, sql, isNull } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { openAIService } from './services/openai';
+import { 
+  logAssistantOperation, 
+  AssistantOperation, 
+  LogStatus,
+  AssistantLog
+} from './services/assistantLogger';
+import { 
+  backupPrompt, 
+  getPromptHistory, 
+  restorePromptVersion 
+} from './services/promptBackupService';
 
 // Structure pour stocker les sessions de conversation temporaires (non-authentifiées)
 interface TempAssistantSession {
