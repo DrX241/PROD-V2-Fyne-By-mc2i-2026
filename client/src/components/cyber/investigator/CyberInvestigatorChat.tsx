@@ -256,7 +256,8 @@ export default function CyberInvestigatorChat({
                   onKeyDown={handleKeyDown}
                   placeholder="Posez votre question..."
                   className="min-h-[40px] w-full resize-none rounded-xl border-indigo-500/30 bg-indigo-800/20 placeholder:text-indigo-400/50 focus-visible:ring-indigo-500/40 text-indigo-100"
-                  maxRows={4}
+                  rows={2}
+                  style={{ maxHeight: '120px', minHeight: '40px' }}
                 />
                 <Button
                   onClick={sendMessage}

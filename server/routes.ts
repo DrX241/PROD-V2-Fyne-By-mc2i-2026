@@ -3227,6 +3227,11 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
   app.get('/api/learning/progress/:userId/:moduleId', getUserProgress);
   app.post('/api/learning/progress', saveUserProgress);
   app.get('/api/cyber/documentation', getContextualDocumentation);
+  
+  // Routes pour le Cyber Investigateur
+  app.post('/api/cyber-investigator/chat', processChatMessage);
+  app.get('/api/cyber-investigator/case/:caseId', getCaseInfo);
+  app.post('/api/cyber-investigator/educational', generateEducationalContent);
 
   // Routes pour le nouveau module Cyber Agent (version 2)
   app.get('/api/cyber/cyber-agent/roles', (req, res) => {

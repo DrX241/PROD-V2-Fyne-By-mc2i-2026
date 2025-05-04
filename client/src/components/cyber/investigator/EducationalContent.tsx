@@ -328,9 +328,9 @@ export default function EducationalContent({ className }: EducationalContentProp
                       <br />
                       # Avec vérification de hash
                       <br />
-                      sha256sum /dev/sda > original_hash.txt
+                      sha256sum /dev/sda &gt; original_hash.txt
                       <br />
-                      sha256sum evidence.dd > image_hash.txt
+                      sha256sum evidence.dd &gt; image_hash.txt
                     </div>
                   </div>
                 </div>
@@ -361,14 +361,13 @@ export default function EducationalContent({ className }: EducationalContentProp
                     <p className="text-sm text-indigo-200 mt-1">
                       Identification et isolation d'indicateurs de compromission (IOCs) à partir des logs: adresses IP, domaines, hashes de fichiers, noms d'utilisateurs suspects.
                     </p>
-                    <div className="mt-2 bg-indigo-800/20 p-2 rounded text-xs text-indigo-300 font-mono">
-                      # Exemple avec grep pour extraire des IP
-                      <br />
-                      grep -Eo '([0-9]{{1,3}}\.)[0-9]{{1,3}}\.)[0-9]{{1,3}}' access.log | sort | uniq -c
-                      <br />
-                      # Recherche de modèles spécifiques
-                      <br />
-                      grep -i "failed login\|unauthorized access" auth.log
+                    <div className="mt-2 bg-indigo-800/20 p-2 rounded text-xs text-indigo-300">
+                      <p>Exemples de commandes:</p>
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>Extraction d&apos;adresses IP des logs</li>
+                        <li>Recherche de tentatives d&apos;accès non autorisées</li>
+                        <li>Analyse de fréquence des requêtes par source</li>
+                      </ul>
                     </div>
                   </div>
                 </div>
