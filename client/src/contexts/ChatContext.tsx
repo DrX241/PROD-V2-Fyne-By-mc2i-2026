@@ -604,12 +604,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Handler to select a domain
-  const handleSelectDomain = async (domainId: string) => {
+  const handleSelectDomain = (domain: CyberDomain) => {
     // Empêcher la sélection de plusieurs domaines
     if (scenario.activeDomain !== null) return;
 
-    const selectedDomain = initialDomains.find(d => d.id === domainId);
-    if (!selectedDomain) return;
+    // On utilise directement l'objet domaine fourni
+    const selectedDomain = domain;
 
     setIsTyping(true);
     setScenario(prev => ({ ...prev, activeDomain: selectedDomain }));
@@ -622,7 +622,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let explanationContent = `**Excellent choix, ${firstName} !** Vous avez sélectionné la **${selectedDomain.name}**.\n\n`;
 
     // Ajouter des explications spécifiques au domaine avec des anecdotes
-    switch (domainId) {
+    switch (domain.id) {
       case "gestion-crise":
         explanationContent += `La gestion de crise cyber est un domaine crucial qui exige préparation et réactivité. Saviez-vous que selon une étude récente, les organisations avec un plan de gestion de crise formalisé réduisent en moyenne de 38% le coût d'une cyberattaque ? Une anecdote intéressante : lors de l'attaque NotPetya en 2017, la société maritime Maersk a dû reconstruire son infrastructure informatique complète en quelques semaines. Leur résilience est devenue un cas d'école en matière de gestion de crise.`;
         break;
@@ -677,7 +677,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     // Sélectionner automatiquement un scénario de difficulté intermédiaire pour ce domaine
-    const scenariosForDomain = initialScenarios.filter(s => s.domainId === domainId);
+    const scenariosForDomain = initialScenarios.filter(s => s.domainId === domain.id);
     let selectedScenario = scenariosForDomain.find(s => s.difficulty === "Intermédiaire");
 
     // Si pas de scénario intermédiaire, prendre le premier disponible
@@ -688,19 +688,19 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Si un scénario est trouvé, le sélectionner automatiquement
     if (selectedScenario) {
       setTimeout(() => {
-        handleSelectScenario(selectedScenario!.id);
+        handleSelectScenario(selectedScenario!);
       }, 3000); // Attendre 3 secondes pour que l'utilisateur puisse lire les explications
     }
     setIsTyping(false);
   };
 
   // Handler to select a scenario
-  const handleSelectScenario = async (scenarioId: string) => {
+  const handleSelectScenario = async (scenarioObj: CyberScenario) => {
     // Empêcher la sélection de plusieurs scénarios
     if (scenario.activeScenario !== null) return;
 
-    const selectedScenario = initialScenarios.find(s => s.id === scenarioId);
-    if (!selectedScenario) return;
+    // On utilise directement l'objet scénario fourni
+    const selectedScenario = scenarioObj;
 
     setIsTyping(true);
     setScenario(prev => ({ 
@@ -727,7 +727,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = await apiRequest<any>('/api/cyber/start-scenario', {
         method: 'POST',
         body: JSON.stringify({
-          scenarioId,
+          scenarioId: selectedScenario.id,
           userName,
           userRole, // Transmettre le rôle de l'utilisateur
           config,
@@ -1188,11 +1188,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Adaptateurs pour les fonctions dont les signatures ne correspondent pas au type attendu
   const selectDomainAdapter = (domain: CyberDomain) => {
-    handleSelectDomain(domain.id);
+    handleSelectDomain(domain);
   };
 
   const selectScenarioAdapter = (scenario: CyberScenario) => {
-    handleSelectScenario(scenario.id);
+    handleSelectScenario(scenario);
   };
 
   return (
