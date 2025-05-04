@@ -62,32 +62,40 @@ export function LearningModule({
     
     // Évaluer la réponse avec l'API
     setIsSubmitting(true);
+    
     try {
       const question = learningContent.questions.find((q: any) => q.id === questionId);
+      let evaluation;
       
-      // Simuler un appel à l'API qui serait normalement fait via evaluateUserResponse
-      // Dans une implémentation réelle, on utiliserait:
-      // const evaluation = await evaluateUserResponse(response, question.question, question.key_concepts);
-      
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const hasKeyConcepts = (question?.key_concepts || []).some((concept: string) => 
-        response.toLowerCase().includes(concept.toLowerCase())
-      );
-      
-      const evaluation = {
-        score: hasKeyConcepts ? 0.8 : 0.4,
-        feedback: hasKeyConcepts ? 
-          "Bonne compréhension des concepts clés!" : 
-          "Votre réponse pourrait être améliorée en abordant certains aspects importants.",
-        strengths: hasKeyConcepts ? 
-          ["Bonne identification des enjeux principaux", "Réponse structurée"] : 
-          ["Effort de réflexion"],
-        areas_to_improve: hasKeyConcepts ? 
-          ["Développer davantage les exemples concrets"] : 
-          ["Mentionner les concepts clés attendus", "Approfondir l'analyse"],
-        explanation: "L'évaluation est basée sur la présence des concepts clés dans votre réponse."
-      };
+      try {
+        // Appel à l'API réelle
+        evaluation = await evaluateUserResponse(
+          response, 
+          question.question, 
+          question.key_concepts || []
+        );
+      } catch (apiError) {
+        console.error("Erreur lors de l'appel API, utilisation de l'évaluation de secours", apiError);
+        
+        // Évaluation de secours en cas d'échec de l'appel API
+        const hasKeyConcepts = (question?.key_concepts || []).some((concept: string) => 
+          response.toLowerCase().includes(concept.toLowerCase())
+        );
+        
+        evaluation = {
+          score: hasKeyConcepts ? 0.8 : 0.4,
+          feedback: hasKeyConcepts ? 
+            "Bonne compréhension des concepts clés!" : 
+            "Votre réponse pourrait être améliorée en abordant certains aspects importants.",
+          strengths: hasKeyConcepts ? 
+            ["Bonne identification des enjeux principaux", "Réponse structurée"] : 
+            ["Effort de réflexion"],
+          areas_to_improve: hasKeyConcepts ? 
+            ["Développer davantage les exemples concrets"] : 
+            ["Mentionner les concepts clés attendus", "Approfondir l'analyse"],
+          explanation: "L'évaluation est basée sur la présence des concepts clés dans votre réponse."
+        };
+      }
       
       setEvaluations(prev => ({
         ...prev,
@@ -119,10 +127,10 @@ export function LearningModule({
     const areasToImprove: string[] = [];
     let totalScore = 0;
     
-    Object.values(evaluations).forEach(eval => {
-      totalScore += eval.score || 0;
-      if (eval.strengths) strengths.push(...eval.strengths);
-      if (eval.areas_to_improve) areasToImprove.push(...eval.areas_to_improve);
+    Object.values(evaluations).forEach(evaluation => {
+      totalScore += evaluation.score || 0;
+      if (evaluation.strengths) strengths.push(...evaluation.strengths);
+      if (evaluation.areas_to_improve) areasToImprove.push(...evaluation.areas_to_improve);
     });
     
     const averageScore = totalScore / answeredQuestions;

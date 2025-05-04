@@ -1,19 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// Imports locaux - correction des problèmes d'importation
 import { LearningPath } from './LearningPath';
 import { ProgressTracker } from './ProgressTracker';
 import { LearningModule } from './LearningModule';
+import { ScenarioSimulation } from './ScenarioSimulation';
+import { QuizSection } from './QuizSection';
+import { ResourceLibrary } from './ResourceLibrary';
 import { Badge } from '@/components/ui/badge';
 import { generateLearningContent } from '@/services/openaiService';
 import { Loader2, Award, ShieldAlert, BarChart2, Hammer, Crown } from 'lucide-react';
 
-// Définition des parcours d'apprentissage
+// Définition des parcours d'apprentissage avec les icônes convertis en chaînes de caractères
 const learningPaths = [
   {
     id: "sensibilisation",
     title: "Sensibilisation Cybersécurité",
-    icon: <ShieldAlert className="h-5 w-5" />,
+    icon: "shield-alert", // Nom de l'icône pour compatibilité avec le composant LearningPath
     difficulty: "Débutant",
     description: "Fondamentaux de la sécurité pour tous les collaborateurs",
     modules: ["phishing", "passwords", "socialEngineering", "dataProtection", "mobileSecrity"]
@@ -21,7 +25,7 @@ const learningPaths = [
   {
     id: "rgpd",
     title: "Formation RGPD & Cyber",
-    icon: <BarChart2 className="h-5 w-5" />,
+    icon: "bar-chart-2",
     difficulty: "Intermédiaire",
     description: "Conformité réglementaire et protection des données",
     modules: ["rgpdBasics", "dataBreaches", "subjectRights", "impactAnalysis", "complianceFrameworks"]
@@ -29,7 +33,7 @@ const learningPaths = [
   {
     id: "risques",
     title: "Analyse des risques",
-    icon: <ShieldAlert className="h-5 w-5" />,
+    icon: "shield-alert",
     difficulty: "Avancé",
     description: "Méthodologies d'identification et évaluation des menaces",
     modules: ["threatModeling", "riskAssessment", "vulnerabilityAnalysis", "impactEstimation", "riskMitigation"]
@@ -37,7 +41,7 @@ const learningPaths = [
   {
     id: "audit",
     title: "Audit Cyber",
-    icon: <Hammer className="h-5 w-5" />,
+    icon: "hammer",
     difficulty: "Expert",
     description: "Techniques et procédures d'audit de sécurité",
     modules: ["auditMethodology", "evidenceCollection", "complianceChecking", "reportWriting", "remediation"]
@@ -45,7 +49,7 @@ const learningPaths = [
   {
     id: "strategie",
     title: "Stratégie & Gouvernance",
-    icon: <Crown className="h-5 w-5" />,
+    icon: "crown",
     difficulty: "Maître",
     description: "Pilotage et organisation de la cybersécurité",
     modules: ["securityStrategy", "budgetOptimization", "teamManagement", "boardCommunication", "crisisManagement"]
@@ -186,7 +190,11 @@ export function CyberForgeAcademy() {
           <TabsList className="grid grid-cols-5 mb-4">
             {learningPaths.map(path => (
               <TabsTrigger key={path.id} value={path.id} className="flex items-center gap-2">
-                {path.icon}
+                {path.icon === "shield-alert" ? <ShieldAlert className="h-5 w-5" /> :
+                 path.icon === "bar-chart-2" ? <BarChart2 className="h-5 w-5" /> :
+                 path.icon === "hammer" ? <Hammer className="h-5 w-5" /> :
+                 path.icon === "crown" ? <Crown className="h-5 w-5" /> :
+                 <Award className="h-5 w-5" />}
                 <span className="hidden md:inline">{path.title}</span>
               </TabsTrigger>
             ))}
