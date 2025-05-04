@@ -276,6 +276,43 @@ export default function DataLeakInvestigation() {
   const [userActions, setUserActions] = useState<string[]>([]);
   const [performanceScore, setPerformanceScore] = useState<number>(0);
   const [showDebriefing, setShowDebriefing] = useState<boolean>(false);
+  
+  // États pour le système d'évaluation par IA et progression
+  const [currentLevel, setCurrentLevel] = useState<string>('Débutant');
+  const [sessionId, setSessionId] = useState<string>('');
+  const [isEvaluating, setIsEvaluating] = useState<boolean>(false);
+  const [noteEvaluation, setNoteEvaluation] = useState<any>(null);
+  const [progressSaved, setProgressSaved] = useState<boolean>(false);
+  
+  // Initialiser l'ID de session et récupérer le niveau actuel
+  useEffect(() => {
+    // Récupérer ou générer un ID de session
+    const storedSessionId = localStorage.getItem('dataLeakSessionId');
+    if (storedSessionId) {
+      setSessionId(storedSessionId);
+    } else {
+      const newSessionId = Math.random().toString(36).substring(2, 15) + 
+                          Math.random().toString(36).substring(2, 15);
+      localStorage.setItem('dataLeakSessionId', newSessionId);
+      setSessionId(newSessionId);
+    }
+    
+    // Récupérer le niveau actuel
+    const storedLevel = localStorage.getItem('dataLeakLevel');
+    if (storedLevel) {
+      setCurrentLevel(storedLevel);
+    }
+    
+    // S'assurer qu'un userId existe
+    if (!localStorage.getItem('userId')) {
+      localStorage.setItem('userId', 'user_' + Date.now().toString());
+    }
+    
+    // S'assurer qu'un userName existe
+    if (!localStorage.getItem('userName')) {
+      localStorage.setItem('userName', 'Utilisateur');
+    }
+  }, []);
 
   // Décompte du temps
   useEffect(() => {
@@ -313,9 +350,10 @@ export default function DataLeakInvestigation() {
   };
 
   // Accuser un suspect
-  const accuseSuspect = (id: string) => {
+  const accuseSuspect = async (id: string) => {
     setAccusation(id);
     setAccusationSubmitted(true);
+    setIsEvaluating(true);
     
     // Dans ce cas, Sophie Mercier est la coupable
     const isCorrect = id === 'sophie-mercier';
@@ -330,6 +368,76 @@ export default function DataLeakInvestigation() {
     // Enregistrer l'accusation dans les actions de l'utilisateur
     const suspectName = suspects.find(s => s.id === id)?.name || id;
     setUserActions(prev => [...prev, `Accusation portée contre: ${suspectName}`]);
+    
+    // Identifier le suspect accusé pour l'IA
+    const accusedSuspect = suspects.find(s => s.id === id);
+    
+    try {
+      // Évaluer les notes avec l'IA si l'utilisateur en a pris
+      if (notes.trim().length > 20) { // S'assurer qu'il y a suffisamment de contenu à évaluer
+        const response = await fetch('/api/cyber-investigator/evaluate-notes', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: localStorage.getItem('userId') || 'anonymous',
+            userName: localStorage.getItem('userName') || 'Anonymous User',
+            gameId: 'data-leak',
+            currentLevel,
+            notes,
+            evidencesAnalyzed,
+            totalEvidences: evidences.length,
+            accusedSuspect: accusedSuspect?.name,
+            correctSuspect: 'Sophie Mercier',
+            suspects: suspects.map(s => ({ id: s.id, name: s.name, role: s.role, suspicionLevel: s.suspicionLevel })),
+            sessionId
+          }),
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          
+          if (result.success && result.evaluation) {
+            // Mettre à jour l'évaluation des notes
+            setNoteEvaluation(result.evaluation);
+            
+            // Mettre à jour le niveau selon la recommandation de l'IA
+            if (result.evaluation.progression.recommendedLevel) {
+              const newLevel = result.evaluation.progression.recommendedLevel;
+              setCurrentLevel(newLevel);
+              localStorage.setItem('dataLeakLevel', newLevel);
+            }
+            
+            setProgressSaved(true);
+          }
+        }
+      } else {
+        // Si pas suffisamment de notes, sauvegarder simplement le score
+        await fetch('/api/cyber-investigator/progress', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: localStorage.getItem('userId') || 'anonymous',
+            userName: localStorage.getItem('userName') || 'Anonymous User',
+            gameId: 'data-leak',
+            currentLevel,
+            score: totalScore,
+            bestScore: totalScore,
+            attempts: 1,
+            sessionId
+          }),
+        });
+        
+        setProgressSaved(true);
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'évaluation des notes:', error);
+    } finally {
+      setIsEvaluating(false);
+    }
     
     // Afficher le débriefing
     setShowDebriefing(true);
@@ -375,6 +483,14 @@ export default function DataLeakInvestigation() {
     
     return (
       <div className="bg-gray-900/80 backdrop-blur-sm p-8 rounded-xl border border-indigo-500/30 max-w-4xl mx-auto">
+        {isEvaluating && (
+          <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center z-50 rounded-xl">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
+            <p className="text-white text-lg">Évaluation de vos notes en cours...</p>
+            <p className="text-indigo-300 text-sm mt-2">Notre IA analyse votre travail d'investigation</p>
+          </div>
+        )}
+      
         <div className="flex items-center mb-6">
           {conclusionCorrect ? (
             <CheckCircle className="h-12 w-12 text-green-500 mr-4" />
@@ -421,6 +537,89 @@ export default function DataLeakInvestigation() {
             </li>
           </ul>
         </div>
+        
+        {/* Évaluation des notes par l'IA */}
+        {noteEvaluation && (
+          <div className="bg-indigo-950/50 rounded-lg p-4 mb-6 border border-indigo-500/30">
+            <h3 className="text-lg font-medium text-white mb-2 flex items-center">
+              <div className="mr-2 p-1 bg-indigo-600 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+                  <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+                  <path d="m16 16-4-4"/>
+                  <path d="M22 12h-4"/>
+                  <path d="M12 6V2"/>
+                  <path d="m8 8-2-2"/>
+                  <path d="M6 12H2"/>
+                  <path d="m8 16-2 2"/>
+                  <path d="M12 22v-4"/>
+                  <path d="m16 20 2-2"/>
+                  <path d="M20 12h2"/>
+                  <path d="m14.5 9.5 3-3"/>
+                </svg>
+              </div>
+              Évaluation de votre travail d'investigation
+            </h3>
+            
+            <div className="space-y-4 mt-4">
+              <div>
+                <h4 className="text-md font-medium text-indigo-300 mb-1">Analyse des notes</h4>
+                <p className="text-gray-300">{noteEvaluation.analysis}</p>
+              </div>
+              
+              <div>
+                <h4 className="text-md font-medium text-indigo-300 mb-1">Points forts</h4>
+                <ul className="space-y-1">
+                  {noteEvaluation.strengths.map((strength: string, index: number) => (
+                    <li key={`strength-${index}`} className="flex text-green-300">
+                      <span className="mr-2">✓</span> {strength}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="text-md font-medium text-indigo-300 mb-1">Points à améliorer</h4>
+                <ul className="space-y-1">
+                  {noteEvaluation.weaknesses.map((weakness: string, index: number) => (
+                    <li key={`weakness-${index}`} className="flex text-amber-300">
+                      <span className="mr-2">→</span> {weakness}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div className="border-t border-indigo-500/30 pt-4 mt-4">
+                <h4 className="text-md font-medium text-white mb-2">Progression</h4>
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className="text-gray-300">Niveau actuel:</span>
+                  <span className="font-medium text-indigo-300">{currentLevel}</span>
+                </div>
+                
+                {noteEvaluation.progression.canProgress && noteEvaluation.progression.recommendedLevel !== currentLevel && (
+                  <div className="bg-indigo-900/40 p-3 rounded-md border border-indigo-600/40">
+                    <p className="text-green-300 font-medium flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+                        <polyline points="9 11 12 14 22 4"></polyline>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                      </svg>
+                      Progression débloquée !
+                    </p>
+                    <p className="text-white text-sm mt-1">
+                      Félicitations ! Vous êtes prêt(e) à passer au niveau{' '}
+                      <span className="font-medium text-indigo-300">{noteEvaluation.progression.recommendedLevel}</span>.
+                    </p>
+                  </div>
+                )}
+                
+                {!noteEvaluation.progression.canProgress && (
+                  <p className="text-amber-300 text-sm">
+                    Pour progresser vers le niveau supérieur, continuez à pratiquer et à améliorer vos compétences d'analyse.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
         
         {/* Débriefing pédagogique */}
         <div className="mt-6 mb-4">

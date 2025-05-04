@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { openAIService } from './services/openai';
 import { ChatCompletionRequestMessage } from '@shared/schema';
+import { db } from './db';
+import { investigationProgress, InsertInvestigationProgress } from '@shared/schema';
 
 // Types pour les preuves et suspects
 interface Evidence {
