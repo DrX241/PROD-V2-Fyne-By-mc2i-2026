@@ -1,12 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Cpu, User, Info, X, Maximize, Minimize, RotateCcw } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { Minimize2, Maximize2, Send, X, ArrowDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import axios from 'axios';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Spinner } from '@/components/ui/spinner';
 import { cn } from '@/lib/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { apiRequest } from '@/lib/queryClient';
 
 type MessageType = {
   id: string;
@@ -25,252 +27,277 @@ interface CyberInvestigatorChatProps {
 
 export default function CyberInvestigatorChat({
   className,
-  initialContext = '',
+  initialContext,
   caseId = 'general',
   minimizable = true,
   onClose
 }: CyberInvestigatorChatProps) {
   const [messages, setMessages] = useState<MessageType[]>([]);
-  const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [inputValue, setInputValue] = useState('');
   const [isMinimized, setIsMinimized] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasNewMessages, setHasNewMessages] = useState(false);
+  const messageEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  // Initialisation du chat
+  // Récupération des informations du cas si un ID est fourni
+  const { data: caseData } = useQuery({
+    queryKey: ['cyber-investigator', 'case-info', caseId],
+    queryFn: async () => {
+      if (caseId === 'general') return null;
+      return apiRequest<any>(`/api/cyber-investigator/case/${caseId}`, {
+        method: 'GET'
+      });
+    },
+    enabled: caseId !== 'general',
+  });
+
+  // Initialisation du chat avec un message de bienvenue
   useEffect(() => {
-    // Message initial de l'assistant
+    // Message de bienvenue initial
     const initialMessage: MessageType = {
-      id: Date.now().toString(),
+      id: 'welcome',
       role: 'assistant',
-      content: `Bonjour, je suis votre assistant virtuel pour l'enquête cyber. ${
-        initialContext 
-          ? `\n\nContexte actuel : ${initialContext}`
-          : "Je peux vous aider à comprendre les concepts de cybersécurité liés à l'investigation numérique, analyser des indices, et vous guider dans votre enquête."
-      }`,
+      content: caseId === 'general' 
+        ? 'Bonjour, je suis votre assistant en investigation numérique. Je peux vous aider à comprendre les techniques, méthodologies et bonnes pratiques d\'investigation. Comment puis-je vous aider aujourd\'hui?'
+        : `Bienvenue dans l'investigation "${caseData?.case?.title}". Je vous aiderai à analyser les preuves numériques et à résoudre ce cas. Que souhaitez-vous examiner en premier?`,
       timestamp: new Date()
     };
-    
-    setMessages([initialMessage]);
-  }, [initialContext]);
 
-  // Scroll automatique vers le bas lors de nouveaux messages
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isMinimized]);
+    setMessages([initialMessage]);
+  }, [caseId, caseData]);
 
   // Envoi d'un message
-  const sendMessage = async () => {
-    if (!input.trim() || isLoading) return;
-    
-    // Identifiant unique pour le message
-    const userMessageId = Date.now().toString();
-    
-    // Ajouter le message de l'utilisateur à la liste
+  const handleSendMessage = async () => {
+    if (!inputValue.trim()) return;
+
+    // Création du message utilisateur
     const userMessage: MessageType = {
-      id: userMessageId,
+      id: Date.now().toString(),
       role: 'user',
-      content: input,
+      content: inputValue,
       timestamp: new Date()
     };
-    
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
+
+    // Mise à jour de l'interface
+    setMessages(prevMessages => [...prevMessages, userMessage]);
+    setInputValue('');
     setIsLoading(true);
-    
+
     try {
-      // Appel à l'API pour obtenir une réponse
-      const response = await axios.post('/api/cyber-investigator/chat', {
-        message: input,
-        caseId,
-        history: messages.map(msg => ({
-          role: msg.role,
-          content: msg.content
-        }))
-      });
-      
-      // Ajouter la réponse de l'assistant à la liste
+      // Appel API
+      const response = await apiRequest<{ message: string, caseId: string }>(
+        '/api/cyber-investigator/chat',
+        {
+          method: 'POST',
+          body: {
+            message: userMessage.content,
+            caseId: caseId,
+            history: messages
+          }
+        }
+      );
+
+      // Création du message assistant
       const assistantMessage: MessageType = {
-        id: (Date.now() + 1).toString(),
+        id: `response-${Date.now()}`,
         role: 'assistant',
-        content: response.data.message || "Je n'ai pas pu traiter votre demande. Veuillez réessayer.",
+        content: response.message,
         timestamp: new Date()
       };
-      
-      setMessages(prev => [...prev, assistantMessage]);
+
+      // Mise à jour des messages
+      setMessages(prevMessages => [...prevMessages, assistantMessage]);
     } catch (error) {
       console.error('Erreur lors de l\'envoi du message:', error);
       
-      // Message d'erreur en cas d'échec
+      // Message d'erreur
       const errorMessage: MessageType = {
-        id: (Date.now() + 1).toString(),
+        id: `error-${Date.now()}`,
         role: 'assistant',
-        content: "Désolé, une erreur s'est produite lors de la communication avec le serveur. Veuillez réessayer plus tard.",
+        content: 'Je suis désolé, une erreur est survenue lors du traitement de votre message. Veuillez réessayer.',
         timestamp: new Date()
       };
       
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages(prevMessages => [...prevMessages, errorMessage]);
     } finally {
       setIsLoading(false);
-      // Focus sur le champ de saisie après l'envoi
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 100);
     }
   };
 
-  // Gestion de la touche Entrée pour envoyer un message
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  // Scroll automatique vers le dernier message
+  useEffect(() => {
+    if (messageEndRef.current) {
+      messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+    if (isMinimized) {
+      setHasNewMessages(true);
+    }
+  }, [messages, isMinimized]);
+
+  // Focus sur l'input quand le chat est maximisé
+  useEffect(() => {
+    if (!isMinimized && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isMinimized]);
+
+  // Handler pour l'envoi via touche Entrée
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      sendMessage();
+      handleSendMessage();
     }
   };
 
-  // Reset du chat
-  const resetChat = () => {
-    // Message initial de l'assistant
-    const initialMessage: MessageType = {
-      id: Date.now().toString(),
-      role: 'assistant',
-      content: `Bonjour, je suis votre assistant virtuel pour l'enquête cyber. ${
-        initialContext 
-          ? `\n\nContexte actuel : ${initialContext}`
-          : "Je peux vous aider à comprendre les concepts de cybersécurité liés à l'investigation numérique, analyser des indices, et vous guider dans votre enquête."
-      }`,
-      timestamp: new Date()
-    };
-    
-    setMessages([initialMessage]);
-  };
+  // Style conditionnel pour le chat minimisé/maximisé
+  const chatContainerClasses = cn(
+    "transition-all duration-300 ease-in-out",
+    className,
+    isMinimized 
+      ? "h-14 rounded-t-lg w-64" 
+      : "w-full md:w-[450px] h-[500px] rounded-t-lg"
+  );
 
   return (
-    <Card className={cn(
-      "border border-indigo-500/30 bg-indigo-950/40 backdrop-blur-sm shadow-lg w-full overflow-hidden transition-all duration-300",
-      isMinimized ? "h-14" : "h-[550px]",
-      className
-    )}>
-      {/* En-tête du chat */}
-      <CardHeader className="p-3 bg-indigo-900/60 border-b border-indigo-500/30 flex flex-row items-center justify-between">
-        <div className="flex items-center">
-          <Avatar className="h-8 w-8 mr-2 bg-indigo-700">
-            <AvatarFallback>CI</AvatarFallback>
-            <AvatarImage src="/assets/cyber-ai-avatar.png" alt="Cyber AI" />
-          </Avatar>
-          <div>
-            <h3 className="text-sm font-medium text-white">Assistant d'investigation</h3>
-            {!isMinimized && (
-              <p className="text-xs text-indigo-200">Propulsé par IA</p>
-            )}
-          </div>
-        </div>
-        <div className="flex space-x-1">
+    <Card className={chatContainerClasses}>
+      {/* Header du chat */}
+      <CardHeader className="flex flex-row items-center justify-between p-3 bg-blue-600 text-white rounded-t-lg">
+        <CardTitle 
+          className="text-md font-medium cursor-pointer"
+          onClick={() => setIsMinimized(!isMinimized)}
+        >
+          {caseId === 'general' ? 'Assistant Cyber Investigateur' : caseData?.case?.title || 'Investigation'}
+          {isMinimized && hasNewMessages && (
+            <span className="ml-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+              Nouveau
+            </span>
+          )}
+        </CardTitle>
+        <div className="flex items-center space-x-1">
           {minimizable && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 rounded-full bg-indigo-800/30 hover:bg-indigo-700/50 text-indigo-200"
-              onClick={() => setIsMinimized(!isMinimized)}
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              className="h-7 w-7 p-0 text-white hover:bg-blue-700"
+              onClick={() => {
+                setIsMinimized(!isMinimized);
+                setHasNewMessages(false);
+              }}
             >
-              {isMinimized ? <Maximize size={14} /> : <Minimize size={14} />}
+              {isMinimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
             </Button>
           )}
           {onClose && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 rounded-full bg-indigo-800/30 hover:bg-red-900/50 text-indigo-200"
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              className="h-7 w-7 p-0 text-white hover:bg-blue-700"
               onClick={onClose}
             >
-              <X size={14} />
+              <X className="h-4 w-4" />
             </Button>
           )}
         </div>
       </CardHeader>
 
-      {/* Corps du chat (messages) */}
-      <AnimatePresence>
-        {!isMinimized && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2 }}
+      {/* Contenu du chat (visible uniquement en mode maximisé) */}
+      {!isMinimized && (
+        <>
+          <ScrollArea 
+            className="flex-1 p-4 h-[400px] overflow-y-auto bg-gray-50 dark:bg-gray-900"
+            ref={scrollAreaRef}
           >
-            <CardContent className="p-0 overflow-y-auto h-[calc(100%-110px)]">
-              <div className="flex flex-col p-4 space-y-4">
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={cn(
-                      "flex w-full",
-                      message.role === "user" ? "justify-end" : "justify-start"
+            <div className="space-y-4">
+              {messages.map((message) => (
+                <div 
+                  key={message.id} 
+                  className={cn(
+                    "flex",
+                    message.role === 'user' ? 'justify-end' : 'justify-start'
+                  )}
+                >
+                  <div className="flex items-start max-w-[80%]">
+                    {message.role === 'assistant' && (
+                      <Avatar className="mr-2 mt-0.5">
+                        <AvatarFallback className="bg-blue-100 text-blue-600">AI</AvatarFallback>
+                        <AvatarImage src="/ai-avatar.png" />
+                      </Avatar>
                     )}
-                  >
                     <div
                       className={cn(
-                        "max-w-[80%] rounded-lg p-3",
-                        message.role === "user"
-                          ? "bg-indigo-700/50 text-white"
-                          : "bg-indigo-900/30 border border-indigo-600/30 text-indigo-100"
+                        "p-3 rounded-lg text-sm",
+                        message.role === 'user' 
+                          ? "bg-blue-600 text-white rounded-br-none" 
+                          : "bg-gray-200 dark:bg-gray-800 text-black dark:text-white rounded-bl-none"
                       )}
                     >
-                      <div className="flex items-center mb-1">
-                        {message.role === "assistant" ? (
-                          <Cpu size={14} className="mr-1 text-indigo-400" />
-                        ) : (
-                          <User size={14} className="mr-1 text-indigo-300" />
-                        )}
-                        <span className="text-xs font-medium">
-                          {message.role === "assistant" ? "Assistant IA" : "Vous"}
-                        </span>
-                        <span className="text-xs ml-2 opacity-50">
-                          {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                      </div>
-                      <div className="text-sm whitespace-pre-wrap">
-                        {message.content}
-                      </div>
+                      {message.content}
+                    </div>
+                    {message.role === 'user' && (
+                      <Avatar className="ml-2 mt-0.5">
+                        <AvatarFallback className="bg-green-100 text-green-600">U</AvatarFallback>
+                        <AvatarImage src="/user-avatar.png" />
+                      </Avatar>
+                    )}
+                  </div>
+                </div>
+              ))}
+              <div ref={messageEndRef} />
+
+              {/* Indicateur de chargement */}
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="flex items-center max-w-[80%]">
+                    <Avatar className="mr-2">
+                      <AvatarFallback className="bg-blue-100 text-blue-600">AI</AvatarFallback>
+                      <AvatarImage src="/ai-avatar.png" />
+                    </Avatar>
+                    <div className="p-3 rounded-lg text-sm bg-gray-200 dark:bg-gray-800 animate-pulse flex items-center space-x-2">
+                      <Spinner size="sm" />
+                      <span>Réflexion en cours...</span>
                     </div>
                   </div>
-                ))}
-                <div ref={messagesEndRef} />
-              </div>
-            </CardContent>
+                </div>
+              )}
+            </div>
+          </ScrollArea>
 
-            {/* Pied de page (zone de saisie) */}
-            <CardFooter className="p-3 border-t border-indigo-500/30 bg-indigo-900/20">
-              <div className="flex w-full items-end space-x-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="shrink-0 h-9 w-9 rounded-full border-indigo-500/30 bg-indigo-800/20 hover:bg-indigo-700/30 text-indigo-300"
-                  onClick={resetChat}
-                >
-                  <RotateCcw size={15} />
-                </Button>
-                <Textarea
-                  ref={inputRef}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Posez votre question..."
-                  className="min-h-[40px] w-full resize-none rounded-xl border-indigo-500/30 bg-indigo-800/20 placeholder:text-indigo-400/50 focus-visible:ring-indigo-500/40 text-indigo-100"
-                  rows={2}
-                  style={{ maxHeight: '120px', minHeight: '40px' }}
-                />
-                <Button
-                  onClick={sendMessage}
-                  disabled={isLoading || !input.trim()}
-                  className="shrink-0 h-9 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white"
-                >
-                  <Send size={15} className={isLoading ? "animate-pulse" : ""} />
-                </Button>
-              </div>
-            </CardFooter>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          <CardContent className="p-3 border-t bg-white dark:bg-gray-950">
+            <div className="flex space-x-2">
+              <Input
+                placeholder="Posez une question..."
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyPress}
+                ref={inputRef}
+                className="flex-grow"
+                disabled={isLoading}
+              />
+              <Button 
+                size="icon"
+                onClick={handleSendMessage}
+                disabled={isLoading || !inputValue.trim()}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardContent>
+        </>
+      )}
+
+      {/* Bouton de scroll vers le bas (uniquement affiché quand nécessaire) */}
+      {!isMinimized && messages.length > 3 && (
+        <Button
+          size="icon"
+          className="absolute right-3 bottom-16 h-8 w-8 rounded-full bg-blue-600 hover:bg-blue-700 shadow-md"
+          onClick={() => messageEndRef.current?.scrollIntoView({ behavior: 'smooth' })}
+        >
+          <ArrowDown className="h-4 w-4 text-white" />
+        </Button>
+      )}
     </Card>
   );
 }
