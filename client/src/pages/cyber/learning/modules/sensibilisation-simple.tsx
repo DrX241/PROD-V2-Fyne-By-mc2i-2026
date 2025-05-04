@@ -95,7 +95,7 @@ export default function SensibilisationSimplePage() {
               <div className="flex justify-center mb-4">
                 <div className={`w-16 h-16 rounded-full flex items-center justify-center ${isDark ? 'bg-green-800' : 'bg-green-100'}`}>
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isDark ? 'bg-green-700' : 'bg-green-500'}`}>
-                    <CheckCircle className={`h-8 w-8 ${isDark ? 'text-green-300' : 'text-white'}`} />
+                    <span className={`text-2xl font-bold ${isDark ? 'text-green-300' : 'text-white'}`}>✓</span>
                   </div>
                 </div>
               </div>
