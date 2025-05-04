@@ -88,7 +88,7 @@ ${learningHistory.length > 0
 }`;
 
   try {
-    const completion = await openaiService.getChatCompletion([
+    const completion = await openAIService.getChatCompletion([
       { role: 'system', content: systemMessage },
       { role: 'user', content: userMessage }
     ]);
@@ -189,7 +189,7 @@ Concepts clés attendus: ${expectedConcepts.join(', ')}
 Évaluez cette réponse selon les critères demandés. Répondez uniquement au format JSON spécifié.`;
 
   try {
-    const completion = await openaiService.getChatCompletion([
+    const completion = await openAIService.getChatCompletion([
       { role: 'system', content: systemMessage },
       { role: 'user', content: userMessage }
     ]);
