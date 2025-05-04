@@ -135,7 +135,14 @@ function App() {
             <Route path="/cyber/arcade/cyber-investigator/insider-threat" component={InsiderThreat} />
             <Route path="/cyber/arcade/digital-forensics" component={DigitalForensics} />
             <Route path="/cyber/arcade/threat-intelligence" component={ThreatIntelligence} />
-<Route path="/cyber/arcade/code-shield" component={lazy(() => import('./pages/cyber/arcade/code-shield'))} />
+<Route path="/cyber/arcade/code-shield" component={() => {
+              const CodeShieldComponent = lazy(() => import('./pages/cyber/arcade/code-shield'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <CodeShieldComponent />
+                </Suspense>
+              );
+            }} />
             
             {/* Module Playground pour l'apprentissage de la cybersécurité */}
             <Route path="/playground" component={PlaygroundPage} />
