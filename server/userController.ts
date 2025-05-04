@@ -75,9 +75,7 @@ export async function getUserById(req: Request, res: Response) {
     
     const user = await db.select({
       id: users.id,
-      username: users.username,
-      createdAt: users.createdAt,
-      updatedAt: users.updatedAt
+      username: users.username
     })
     .from(users)
     .where(eq(users.id, Number(userId)))
