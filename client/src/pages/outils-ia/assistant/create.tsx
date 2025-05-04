@@ -229,41 +229,42 @@ export default function CreateAssistantPage() {
     }
   };
   
+  // Fonctions utilitaires pour les avatars
+  const getAvatarColorClass = (color: string) => {
+    const colorMap: Record<string, string> = {
+      violet: isFuturistic ? 'bg-violet-700 text-white' : 'bg-violet-100 text-violet-800',
+      blue: isFuturistic ? 'bg-blue-700 text-white' : 'bg-blue-100 text-blue-800',
+      green: isFuturistic ? 'bg-green-700 text-white' : 'bg-green-100 text-green-800',
+      yellow: isFuturistic ? 'bg-yellow-700 text-white' : 'bg-yellow-100 text-yellow-800',
+      red: isFuturistic ? 'bg-red-700 text-white' : 'bg-red-100 text-red-800',
+      orange: isFuturistic ? 'bg-orange-700 text-white' : 'bg-orange-100 text-orange-800',
+      pink: isFuturistic ? 'bg-pink-700 text-white' : 'bg-pink-100 text-pink-800',
+      gray: isFuturistic ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-800',
+    };
+    
+    return colorMap[color] || colorMap.violet;
+  };
+  
+  const getAvatarIcon = (style: string) => {
+    switch (style) {
+      case 'robot':
+        return '🤖';
+      case 'cyborg':
+        return '🦾';
+      case 'scientist':
+        return '🧪';
+      case 'teacher':
+        return '👩‍🏫';
+      case 'professional':
+        return '👨‍💼';
+      default:
+        return '🧠';
+    }
+  };
+  
   // Prévisualisation de l'assistant
   const PreviewCard = () => {
     const values = form.getValues();
-    
-    const getAvatarColorClass = (color: string) => {
-      const colorMap: Record<string, string> = {
-        violet: isFuturistic ? 'bg-violet-700 text-white' : 'bg-violet-100 text-violet-800',
-        blue: isFuturistic ? 'bg-blue-700 text-white' : 'bg-blue-100 text-blue-800',
-        green: isFuturistic ? 'bg-green-700 text-white' : 'bg-green-100 text-green-800',
-        yellow: isFuturistic ? 'bg-yellow-700 text-white' : 'bg-yellow-100 text-yellow-800',
-        red: isFuturistic ? 'bg-red-700 text-white' : 'bg-red-100 text-red-800',
-        orange: isFuturistic ? 'bg-orange-700 text-white' : 'bg-orange-100 text-orange-800',
-        pink: isFuturistic ? 'bg-pink-700 text-white' : 'bg-pink-100 text-pink-800',
-        gray: isFuturistic ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-800',
-      };
-      
-      return colorMap[color] || colorMap.violet;
-    };
-    
-    const getAvatarIcon = (style: string) => {
-      switch (style) {
-        case 'robot':
-          return '🤖';
-        case 'cyborg':
-          return '🦾';
-        case 'scientist':
-          return '🧪';
-        case 'teacher':
-          return '👩‍🏫';
-        case 'professional':
-          return '👨‍💼';
-        default:
-          return '🧠';
-      }
-    };
     
     const getPersonalityLabel = (personality: string) => {
       const personalityMap: Record<string, string> = {
@@ -742,7 +743,7 @@ export default function CreateAssistantPage() {
                                         w-16 h-16 rounded-full flex items-center justify-center text-2xl
                                         ${field.value === style ? 'ring-2 ring-offset-2 ring-violet-500' : ''}
                                         ${isFuturistic ? 'ring-offset-gray-800' : ''}
-                                        ${getAvatarColorClass(form.getValues().avatarColor)}
+                                        ${getAvatarColorClass(form.getValues().avatarColor || 'violet')}
                                       `}
                                     >
                                       {getAvatarIcon(style)}
@@ -776,7 +777,7 @@ export default function CreateAssistantPage() {
                                       w-10 h-10 rounded-full
                                       ${field.value === color ? 'ring-2 ring-offset-2 ring-violet-500' : ''}
                                       ${isFuturistic ? 'ring-offset-gray-800' : ''}
-                                      ${getAvatarColorClass(color)}
+                                      ${getAvatarColorClass(color || 'violet')}
                                     `}
                                   >
                                     {field.value === color && <Check className="h-5 w-5" />}
