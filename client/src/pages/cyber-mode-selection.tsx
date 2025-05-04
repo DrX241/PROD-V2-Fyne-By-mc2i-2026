@@ -73,8 +73,7 @@ export default function CyberModeSelection() {
           id: 'cyber-mastery',
           title: 'CYBER MASTERY',
           icon: null,
-          destination: '/cyber/learning/cyber-mastery',
-          isNew: true
+          destination: '/cyber/learning/cyber-mastery'
         }
       ]
     },
