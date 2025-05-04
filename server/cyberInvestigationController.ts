@@ -286,7 +286,7 @@ Utilise ton style de ${session.narrativeStyle} et garde un niveau adapté à ${s
     
     // Construire l'historique des messages pour le contexte
     const messageHistory = session.messages.map(msg => ({
-      role: msg.role === "assistant" ? "assistant" : "user",
+      role: msg.role === "assistant" ? "assistant" as const : "user" as const,
       content: msg.content
     }));
     

@@ -27,6 +27,7 @@ import { generateDebriefing, getContextualDocumentation } from "./cyberLearningC
 import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearningController";
 import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
 import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
+import { startInvestigation, processInvestigationMessage, cleanupInvestigationSession } from "./cyberInvestigationController";
 // Import des fonctions d'urgence cyber supprimé
 
 /**
@@ -405,6 +406,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/cyber-expert/init', initCyberExpertSession);
   app.post('/api/cyber-expert/message', processCyberExpertMessage);
   app.post('/api/cyber-expert/terminate', terminateCyberExpertSession);
+  
+  // Routes pour le module Enquête Cyber Interactive (I AM CYBER)
+  app.post('/api/cyber-investigation/start', startInvestigation);
+  app.post('/api/cyber-investigation/message', processInvestigationMessage);
+  app.delete('/api/cyber-investigation/session/:sessionId', cleanupInvestigationSession);
   
   // Routes pour le flux de décision de l'expert cyber
   app.post('/api/cyber-expert/decisions/start', startDecisionFlow);
