@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import OpenAI from "openai";
 import { v4 as uuidv4 } from "uuid";
 import { BinaryDecision, BinaryDecisionOption, TeamFeedback } from "../shared/types/cyber";
 import { getContactByName, getEvaluatorsByDomain } from "../shared/types/cyber";
+import { openAIService } from "./services/openai";
 
 interface DecisionSequenceSession {
   userId: string;
@@ -238,13 +238,6 @@ async function generateBinaryDecision(
         break;
     }
     
-    // Construire un prompt pour Azure OpenAI
-    const openai = new OpenAI({
-      apiKey: process.env.AZURE_OPENAI_API_KEY as string,
-      baseURL: `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT_NAME_SECONDARY}`,
-      defaultQuery: { "api-version": process.env.AZURE_OPENAI_API_VERSION_SECONDARY },
-    });
-    
     // Prompt pour générer une décision binaire avec deux options contrastées
     const prompt = `
     En tant qu'expert en cybersécurité dans le domaine de la ${domainName}, générez une situation de décision binaire stratégique pour un ${userRole} chez ${companyName}.
@@ -284,8 +277,8 @@ async function generateBinaryDecision(
     }
     `;
     
-    const response = await openai.chat.completions.create({
-      model: process.env.AZURE_OPENAI_DEPLOYMENT_NAME_SECONDARY || "",
+    // Utiliser le service Azure OpenAI existant pour générer une réponse
+    const response = await openAIService.getChatCompletionSecondary({
       messages: [
         { 
           role: "system", 
@@ -294,7 +287,7 @@ async function generateBinaryDecision(
         { role: "user", content: prompt }
       ],
       temperature: 0.7,
-      response_format: { type: "json_object" }
+      max_tokens: 1000
     });
     
     // Extraire la réponse
@@ -360,13 +353,6 @@ async function generateTeamFeedback(
       );
     }
     
-    // Construire un prompt pour Azure OpenAI
-    const openai = new OpenAI({
-      apiKey: process.env.AZURE_OPENAI_API_KEY as string,
-      baseURL: `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT_NAME_SECONDARY}`,
-      defaultQuery: { "api-version": process.env.AZURE_OPENAI_API_VERSION_SECONDARY },
-    });
-    
     // Déterminer le sentiment en fonction de l'option et de l'étape
     // Nous alternons entre positif, neutre et négatif pour créer une expérience variée
     let sentiment: "positive" | "negative" | "neutral";
@@ -418,8 +404,8 @@ async function generateTeamFeedback(
     }
     `;
     
-    const response = await openai.chat.completions.create({
-      model: process.env.AZURE_OPENAI_DEPLOYMENT_NAME_SECONDARY || "",
+    // Utiliser le service Azure OpenAI existant pour générer une réponse
+    const response = await openAIService.getChatCompletionSecondary({
       messages: [
         { 
           role: "system", 
@@ -428,7 +414,7 @@ async function generateTeamFeedback(
         { role: "user", content: prompt }
       ],
       temperature: 0.7,
-      response_format: { type: "json_object" }
+      max_tokens: 800
     });
     
     // Extraire la réponse
