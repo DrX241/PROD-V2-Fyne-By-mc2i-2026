@@ -415,16 +415,7 @@ export default function Home() {
         linkTo: "/mcai-learning",
         isNew: true
       },
-      // Module CyberForge Academy
-      {
-        title: "CYBERFORGE ACADEMY",
-        description: "Plateforme éducative immersive avec parcours d'apprentissage gamifié et IA personnalisée.",
-        icon: <Layers size={36} />,
-        color: "bg-indigo-600",
-        bgColor: "bg-gradient-to-br from-indigo-50 to-indigo-100",
-        accentColor: "bg-indigo-500",
-        linkTo: "/cyberforge",
-      },
+      // Le module CyberForge Academy a été supprimé pour reconstruction
     {
       title: "I AM CYBER",
       description: "Immergez-vous dans des simulations de cybersécurité interactives et choisissez entre le mode agent IA conversationnel ou les scénarios tactiques de défense.",

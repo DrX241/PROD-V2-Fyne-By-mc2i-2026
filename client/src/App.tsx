@@ -21,8 +21,7 @@ import CyberAgentNewPage from "./pages/cyber/cyber-agent-new";
 // Import de la nouvelle page Playground
 import PlaygroundPage from "./pages/playground";
 import ModuleDetailPage from "./pages/playground/module";
-import CyberForge from "./pages/cyberforge";
-// Suppression de l'import de CyberForgeAcademyPage
+// Suppression de l'import CyberForge
 
 // Import de la page mc2i AI Learning
 import McaiLearning from "@/pages/mcai-learning";
@@ -131,37 +130,11 @@ function App() {
             {/* Module mc2i AI Learning */}
             <Route path="/mcai-learning" component={McaiLearning} />
             
-            <Route path="/cyberforge" component={CyberForge} />
-            <Route path="/cyberforge/modules">
-              {(params) => {
-                const CyberforgeModules = lazy(() => import('./pages/cyberforge/modules'));
-                return (
-                  <Suspense fallback={<GlobalLoader />}>
-                    <CyberforgeModules />
-                  </Suspense>
-                );
-              }}
-            </Route>
-            <Route path="/cyberforge/modules/:moduleId">
-              {(params) => {
-                const CyberforgeModules = lazy(() => import('./pages/cyberforge/modules'));
-                return (
-                  <Suspense fallback={<GlobalLoader />}>
-                    <CyberforgeModules params={params} />
-                  </Suspense>
-                );
-              }}
-            </Route>
-            <Route path="/cyberforge/modules/lesson/:moduleId/:chapterId/:lessonId">
-              {(params) => {
-                const CyberforgeLesson = lazy(() => import('./pages/cyberforge/modules/lesson'));
-                return (
-                  <Suspense fallback={<GlobalLoader />}>
-                    <CyberforgeLesson params={params} />
-                  </Suspense>
-                );
-              }}
-            </Route>
+            {/* Suppression des routes de CyberForge pour reconstruction complète */}
+            <Route path="/cyberforge" component={NotYetImplemented} />
+            <Route path="/cyberforge/modules" component={NotYetImplemented} />
+            <Route path="/cyberforge/modules/:moduleId" component={NotYetImplemented} />
+            <Route path="/cyberforge/modules/lesson/:moduleId/:chapterId/:lessonId" component={NotYetImplemented} />
             
             {/* Module Centre de Crise */}
             <Route path="/cyber-defense-new" component={CentreDeCriseEvolutifPage} />
