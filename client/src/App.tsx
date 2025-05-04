@@ -28,6 +28,11 @@ import McaiLearning from "@/pages/mcai-learning";
 import OutilsIAPage from "@/pages/outils-ia";
 import Mc2iLearningOutils from "@/pages/outils-ia/mc2i-learning";
 
+// Import des pages Assistants IA Personnalisés
+import CustomAssistantPage from "@/pages/outils-ia/assistant";
+import CreateAssistantPage from "@/pages/outils-ia/assistant/create";
+import AssistantChatPage from "@/pages/outils-ia/assistant/[id]";
+
 // Import des pages CENTRE DE CRISE (anciennes et nouvelles pour permettre une transition)
 import CyberDefensePage from "@/pages/cyber-defense"; // Ancienne implémentation 
 import CentreDeCriseEvolutifPage from "@/pages/cyber-defense-new"; // Nouvelle implémentation
@@ -191,6 +196,9 @@ function App() {
             {/* Nouvelle section Outils IA */}
             <Route path="/outils-ia" component={OutilsIAPage} />
             <Route path="/outils-ia/mc2i-learning" component={Mc2iLearningOutils} />
+            <Route path="/outils-ia/assistant" component={CustomAssistantPage} />
+            <Route path="/outils-ia/assistant/create" component={CreateAssistantPage} />
+            <Route path="/outils-ia/assistant/:id" component={AssistantChatPage} />
             
             {/* Toutes les routes CyberForge redirigent vers la page "non disponible" */}
             <Route path="/cyberforge" component={NotYetImplemented} />
