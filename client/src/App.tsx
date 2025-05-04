@@ -21,7 +21,7 @@ import CyberAgentNewPage from "./pages/cyber/cyber-agent-new";
 // Import de la nouvelle page Playground
 import PlaygroundPage from "./pages/playground";
 import ModuleDetailPage from "./pages/playground/module";
-import CyberForgeAcademy from "./pages/cyberforge";
+import CyberForge from "./pages/cyberforge";
 
 // Import de la page mc2i AI Learning
 import McaiLearning from "@/pages/mcai-learning";
@@ -126,7 +126,7 @@ function App() {
             {/* Module mc2i AI Learning */}
             <Route path="/mcai-learning" component={McaiLearning} />
             
-            <Route path="/cyberforge" component={CyberForgeAcademy} />
+            <Route path="/cyberforge" component={CyberForge} />
             <Route path="/cyberforge/modules" component={(props) => {
               const CyberforgeModules = lazy(() => import('./pages/cyberforge/modules'));
               return (
