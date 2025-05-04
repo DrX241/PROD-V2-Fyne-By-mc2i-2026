@@ -1,7 +1,14 @@
-const { Pool } = require('@neondatabase/serverless');
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import ws from 'ws';
 
-// Configuration
+// Configuration pour Neon PostgreSQL
+neonConfig.webSocketConstructor = ws;
 const dbUrl = process.env.DATABASE_URL;
+
+if (!dbUrl) {
+  console.error("DATABASE_URL environment variable is not set");
+  process.exit(1);
+}
 
 async function main() {
   console.log('Updating database schema...');

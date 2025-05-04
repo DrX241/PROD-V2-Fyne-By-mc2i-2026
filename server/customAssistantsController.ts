@@ -1016,6 +1016,119 @@ export async function getPopularAssistants(req: Request, res: Response) {
 }
 
 /**
+ * Détecte les doublons dans les modèles d'assistants
+ */
+export async function detectDuplicates(req: Request, res: Response) {
+  try {
+    // Importer dynamiquement le service de détection des doublons
+    const { detectDuplicateTemplates } = await import('./services/duplicateDetection');
+    
+    const threshold = req.query.threshold ? parseFloat(req.query.threshold as string) : 0.8;
+    
+    if (threshold < 0 || threshold > 1) {
+      return res.status(400).json({
+        success: false,
+        error: 'Le seuil de similarité doit être compris entre 0 et 1'
+      });
+    }
+    
+    // Détecter les doublons
+    const duplicateGroups = await detectDuplicateTemplates(threshold);
+    
+    return res.json({
+      success: true,
+      duplicateGroups,
+      totalDuplicates: duplicateGroups.reduce((sum, group) => sum + group.length, 0) - duplicateGroups.length
+    });
+  } catch (error) {
+    console.error('Erreur lors de la détection des doublons:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur lors de la détection des doublons'
+    });
+  }
+}
+
+/**
+ * Fusionne deux modèles d'assistants
+ */
+export async function mergeTemplates(req: Request, res: Response) {
+  try {
+    const { templateId1, templateId2 } = req.body;
+    
+    if (!templateId1 || !templateId2 || isNaN(Number(templateId1)) || isNaN(Number(templateId2))) {
+      return res.status(400).json({
+        success: false,
+        error: 'IDs de modèles invalides'
+      });
+    }
+    
+    // Vérifier si l'utilisateur a les permissions d'administrateur
+    const userRole = req.headers['x-user-role'] || 'utilisateur';
+    if (userRole !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        error: 'Vous n\'avez pas les permissions nécessaires pour fusionner des modèles'
+      });
+    }
+    
+    // Importer dynamiquement le service de fusion
+    const { mergeTemplates } = await import('./services/duplicateDetection');
+    
+    // Utiliser l'ID utilisateur 1 pour les opérations d'administration (à remplacer par l'ID réel)
+    const mergedTemplateId = await mergeTemplates(Number(templateId1), Number(templateId2), 1);
+    
+    return res.json({
+      success: true,
+      mergedTemplateId,
+      message: 'Modèles fusionnés avec succès'
+    });
+  } catch (error) {
+    console.error('Erreur lors de la fusion des modèles:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur lors de la fusion des modèles'
+    });
+  }
+}
+
+/**
+ * Recherche des assistants similaires
+ */
+export async function searchSimilarAssistants(req: Request, res: Response) {
+  try {
+    const { searchTerm, userId } = req.query;
+    
+    if (!searchTerm || typeof searchTerm !== 'string' || searchTerm.length < 3) {
+      return res.status(400).json({
+        success: false,
+        error: 'Terme de recherche trop court ou invalide'
+      });
+    }
+    
+    // Importer dynamiquement le service de recherche
+    const { searchSimilarAssistants } = await import('./services/duplicateDetection');
+    
+    // Rechercher des assistants similaires
+    const similarAssistants = await searchSimilarAssistants(
+      searchTerm,
+      userId && !isNaN(Number(userId)) ? Number(userId) : undefined
+    );
+    
+    return res.json({
+      success: true,
+      results: similarAssistants
+    });
+  } catch (error) {
+    console.error('Erreur lors de la recherche d\'assistants similaires:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur lors de la recherche d\'assistants similaires'
+    });
+  }
+}
+
+/**
  * Supprime un modèle d'assistant
  * Seuls les administrateurs peuvent effectuer cette opération
  */
