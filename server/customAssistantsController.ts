@@ -356,6 +356,42 @@ export async function createAssistant(req: Request, res: Response) {
       const [newAssistant] = await db.insert(customAssistants).values([assistantDataToInsert]).returning();
       console.log('Assistant créé avec succès, ID:', newAssistant.id);
       
+      // Journaliser la création de l'assistant
+      try {
+        await logAssistantOperation({
+          assistantId: newAssistant.id,
+          userId: assistantData.userId,
+          operation: AssistantOperation.CREATE,
+          status: LogStatus.SUCCESS,
+          details: {
+            name: assistantData.name,
+            domain: assistantData.domain,
+            personality: assistantData.personality,
+            promptLength: assistantData.systemPrompt.length,
+            ip: req.ip
+          }
+        });
+        
+        // Sauvegarder une copie du prompt système
+        await backupPrompt(
+          newAssistant.id,
+          assistantData.systemPrompt,
+          {
+            name: assistantData.name,
+            description: assistantData.description || undefined,
+            domain: assistantData.domain,
+            personality: assistantData.personality,
+            expertise: Array.isArray(assistantData.expertise) ? assistantData.expertise.join(', ') : 'général',
+            gamificationLevel: assistantData.gamificationLevel || 'leger',
+            responseStyle: assistantData.personality
+          },
+          'Version initiale'
+        );
+      } catch (logError) {
+        // Ne pas bloquer la création même si la journalisation échoue
+        console.warn('Erreur non bloquante lors de la journalisation:', logError);
+      }
+      
       // Créer une première conversation vide pour cet assistant (optionnel)
       const [conversation] = await db.insert(assistantConversations).values([{
         assistantId: newAssistant.id,
@@ -374,6 +410,25 @@ export async function createAssistant(req: Request, res: Response) {
       });
     } catch (dbError) {
       console.error('Erreur lors de l\'insertion en base de données:', dbError);
+      
+      // Journaliser l'échec
+      try {
+        await logAssistantOperation({
+          userId: assistantData.userId,
+          operation: AssistantOperation.CREATE,
+          status: LogStatus.FAILURE,
+          details: {
+            name: assistantData.name,
+            domain: assistantData.domain,
+            error: (dbError as Error).message,
+            ip: req.ip
+          },
+          errorMessage: (dbError as Error).message
+        });
+      } catch (logError) {
+        console.warn('Erreur lors de la journalisation d\'un échec de création:', logError);
+      }
+      
       return res.status(500).json({
         success: false,
         error: 'Erreur lors de l\'insertion en base de données',
@@ -487,6 +542,62 @@ export async function updateAssistant(req: Request, res: Response) {
       .where(eq(customAssistants.id, Number(assistantId)))
       .returning();
     
+    // Journaliser la mise à jour et sauvegarder le prompt si modifié
+    if (updateData.systemPrompt) {
+      try {
+        // Journaliser l'opération
+        await logAssistantOperation({
+          assistantId: Number(assistantId),
+          userId: updatedAssistant.userId,
+          operation: AssistantOperation.UPDATE,
+          status: LogStatus.SUCCESS,
+          details: {
+            name: updatedAssistant.name,
+            domain: updatedAssistant.domain,
+            personality: updatedAssistant.personality,
+            promptLength: updateData.systemPrompt.length,
+            ip: req.ip,
+            fieldsUpdated: Object.keys(updateData)
+          }
+        });
+        
+        // Sauvegarder le nouveau prompt
+        await backupPrompt(
+          Number(assistantId),
+          updateData.systemPrompt,
+          {
+            name: updatedAssistant.name,
+            description: updatedAssistant.description || undefined,
+            domain: updatedAssistant.domain,
+            personality: updatedAssistant.personality,
+            expertise: Array.isArray(updatedAssistant.expertise) ? updatedAssistant.expertise.join(', ') : 'général',
+            gamificationLevel: updatedAssistant.gamificationLevel || 'leger',
+            responseStyle: updatedAssistant.personality
+          },
+          'Mise à jour des paramètres : ' + Object.keys(updateData).join(', ')
+        );
+      } catch (logError) {
+        console.warn('Erreur non bloquante lors de la journalisation de mise à jour:', logError);
+      }
+    } else {
+      // Journaliser uniquement l'opération sans sauvegarde de prompt
+      try {
+        await logAssistantOperation({
+          assistantId: Number(assistantId),
+          userId: updatedAssistant.userId,
+          operation: AssistantOperation.UPDATE,
+          status: LogStatus.SUCCESS,
+          details: {
+            name: updatedAssistant.name,
+            fieldsUpdated: Object.keys(updateData),
+            ip: req.ip
+          }
+        });
+      } catch (logError) {
+        console.warn('Erreur non bloquante lors de la journalisation de mise à jour:', logError);
+      }
+    }
+    
     return res.json({
       success: true,
       assistant: updatedAssistant
@@ -533,6 +644,23 @@ export async function deleteAssistant(req: Request, res: Response) {
     // Puis supprimer l'assistant
     await db.delete(customAssistants)
       .where(eq(customAssistants.id, Number(assistantId)));
+    
+    // Journaliser la suppression
+    try {
+      await logAssistantOperation({
+        assistantId: Number(assistantId),
+        userId: existingAssistant[0].userId,
+        operation: AssistantOperation.DELETE,
+        status: LogStatus.SUCCESS,
+        details: {
+          name: existingAssistant[0].name,
+          domain: existingAssistant[0].domain,
+          ip: req.ip
+        }
+      });
+    } catch (logError) {
+      console.warn('Erreur non bloquante lors de la journalisation de suppression:', logError);
+    }
     
     return res.json({
       success: true,

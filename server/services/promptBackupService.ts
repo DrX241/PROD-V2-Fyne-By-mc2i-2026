@@ -99,7 +99,7 @@ export async function backupPrompt(
 export async function getPromptHistory(assistantId: number): Promise<any[]> {
   return db.select().from(promptBackups)
     .where(eq(promptBackups.assistantId, assistantId))
-    .orderBy({ version: 'desc' });
+    .orderBy(desc(promptBackups.version));
 }
 
 /**
@@ -107,8 +107,10 @@ export async function getPromptHistory(assistantId: number): Promise<any[]> {
  */
 export async function getPromptVersion(assistantId: number, version: number): Promise<any> {
   const [promptVersion] = await db.select().from(promptBackups)
-    .where(eq(promptBackups.assistantId, assistantId))
-    .where(eq(promptBackups.version, version))
+    .where(and(
+      eq(promptBackups.assistantId, assistantId),
+      eq(promptBackups.version, version)
+    ))
     .limit(1);
   
   return promptVersion;
@@ -121,8 +123,10 @@ export async function restorePromptVersion(assistantId: number, version: number)
   try {
     // Récupérer la version du prompt à restaurer
     const [promptToRestore] = await db.select().from(promptBackups)
-      .where(eq(promptBackups.assistantId, assistantId))
-      .where(eq(promptBackups.version, version))
+      .where(and(
+        eq(promptBackups.assistantId, assistantId),
+        eq(promptBackups.version, version)
+      ))
       .limit(1);
     
     if (!promptToRestore) {
@@ -138,10 +142,23 @@ export async function restorePromptVersion(assistantId: number, version: number)
       .where(eq(customAssistants.id, assistantId));
     
     // Créer une nouvelle version qui est une copie de l'ancienne
+    // Convertir les paramètres pour s'assurer qu'ils respectent l'interface PromptParameters
+    const params = promptToRestore.parameters as Record<string, any>;
+    const promptParams: PromptParameters = {
+      name: params.name || 'Sans nom',
+      description: params.description,
+      domain: params.domain || 'general',
+      personality: params.personality || 'professionnel',
+      expertise: params.expertise || 'général',
+      gamificationLevel: params.gamificationLevel || 'leger',
+      responseStyle: params.responseStyle,
+      additionalInfo: params.additionalInfo
+    };
+    
     await backupPrompt(
       assistantId, 
       promptToRestore.prompt, 
-      promptToRestore.parameters, 
+      promptParams, 
       `Restauration de la version ${version}`
     );
     
