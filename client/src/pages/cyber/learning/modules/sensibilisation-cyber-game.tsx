@@ -717,14 +717,14 @@ const phishingLevel: LearningLevel = {
   ],
   resources: [
     {
-      title: "Guide de l'ANSSI sur le phishing",
+      title: "Infographie sur le phishing",
       source: "ANSSI",
-      url: "https://www.ssi.gouv.fr/entreprise/principales-menaces/hameconnage/"
+      url: "https://cyber.gouv.fr/sites/default/files/document/phishing_hameconnage_infographie_anssi.pdf"
     },
     {
-      title: "Comment identifier et signaler le phishing",
+      title: "Comment détecter un message malveillant",
       source: "CNIL",
-      url: "https://www.cnil.fr/fr/detecter-le-phishing-ou-hameconnage"
+      url: "https://www.cnil.fr/fr/phishing-detecter-un-message-malveillant"
     }
   ],
   reward: {
