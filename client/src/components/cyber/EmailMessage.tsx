@@ -394,87 +394,13 @@ export default function EmailMessage({ email }: EmailMessageProps) {
                   </p>
                   
                   {validationResult.postValidationInfo && (
-                    <div className="mt-4 p-5 sm:p-6 bg-gradient-to-br from-blue-950/80 to-indigo-900/70 border border-blue-700/40 rounded-lg">
-                      {/* En-tête avec nom du joueur */}
-                      <h2 className="text-lg sm:text-xl text-white font-bold mb-4 pb-2 border-b border-blue-500/30">
-                        Bienvenue <span className="text-blue-300">{localStorage.getItem('userName') || 'Utilisateur'}</span> dans ce projet !
-                      </h2>
-                      
-                      {validationResult.postValidationInfo.responsabilites && (
-                        <div className="mb-4">
-                          <h3 className="font-semibold text-sm sm:text-base text-blue-200 mb-2">Voici vos responsabilités:</h3>
-                          <ul className="list-disc pl-5 text-xs sm:text-sm text-white space-y-1.5">
-                            {validationResult.postValidationInfo.responsabilites.map((resp: string, i: number) => (
-                              <li key={i}>{resp}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                      
-                      {validationResult.postValidationInfo.budget && (
-                        <div className="mb-4 p-3 bg-blue-900/30 rounded-md border border-blue-700/40">
-                          <h3 className="font-semibold text-sm sm:text-base text-blue-200 mb-1">Budget:</h3>
-                          <p className="text-sm sm:text-base text-white">
-                            {validationResult.postValidationInfo.budget}
-                          </p>
-                        </div>
-                      )}
-                      
-                      {validationResult.postValidationInfo.hierarchie && (
-                        <div className="mb-4 p-3 bg-blue-900/30 rounded-md border border-blue-700/40">
-                          <h3 className="font-semibold text-sm sm:text-base text-blue-200 mb-1">Hiérarchie:</h3>
-                          <p className="text-sm sm:text-base text-white whitespace-pre-line">
-                            {validationResult.postValidationInfo.hierarchie}
-                          </p>
-                        </div>
-                      )}
-                      
-                      {validationResult.postValidationInfo.equipe && (
-                        <div className="mb-5 p-3 bg-blue-900/30 rounded-md border border-blue-700/40">
-                          <h3 className="font-semibold text-sm sm:text-base text-blue-200 mb-2">Équipe:</h3>
-                          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-white">
-                            {validationResult.postValidationInfo.equipe.map((member: any, i: number) => (
-                              <li key={i} className="flex items-start p-2 rounded-md hover:bg-blue-800/20 transition-colors">
-                                <div className="w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-br from-blue-700/60 to-indigo-700/60 rounded-full flex items-center justify-center text-white mr-2 flex-shrink-0 border border-blue-500/30">
-                                  <span className="font-semibold text-[10px] sm:text-xs">
-                                    {member.name.split(' ').map((n: string) => n[0]).join('')}
-                                  </span>
-                                </div>
-                                <div>
-                                  <div className="font-medium">{member.name}</div>
-                                  <div className="text-xs text-gray-300">{member.role}</div>
-                                  {member.skills && <div className="text-xs text-blue-300 mt-0.5">{member.skills}</div>}
-                                </div>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                      
-                      {/* Règles et consignes importantes */}
-                      <div className="mb-5 p-3 bg-amber-900/30 rounded-md border border-amber-700/40">
-                        <h3 className="font-semibold text-sm sm:text-base text-amber-200 mb-2">Règles importantes:</h3>
-                        <ul className="list-disc pl-5 text-xs sm:text-sm text-white space-y-1.5">
-                          <li>Vous devez strictement répondre au besoin exprimé dans les emails à venir.</li>
-                          <li>Vous pouvez solliciter votre équipe pour effectuer certaines tâches en leur déléguant.</li>
-                          <li>Les mauvaises décisions ou réponses inadaptées impacteront votre budget.</li>
-                          <li>Une succession d'erreurs peut entraîner une fin de mission immédiate sans préavis.</li>
-                          <li>Votre performance sera évaluée sur la pertinence des actions et l'utilisation efficace du budget.</li>
-                        </ul>
-                      </div>
-                      
-                      {/* Bouton de confirmation */}
-                      <div className="mt-5 pt-4 border-t border-blue-500/30 text-center">
-                        <p className="text-sm text-white mb-3">
-                          Veuillez confirmer que vous avez bien pris connaissance de ces informations pour continuer la mission.
-                        </p>
-                        <Button 
-                          onClick={() => confirmMissionBrief()}
-                          className="bg-green-600 hover:bg-green-700 text-white font-medium transition-colors"
-                        >
-                          J'ai compris - Commencer la mission
-                        </Button>
-                      </div>
+                    <div className="mt-5 pt-4 text-center">
+                      <Button 
+                        onClick={() => confirmMissionBrief()}
+                        className="bg-green-600 hover:bg-green-700 text-white font-medium transition-colors"
+                      >
+                        Confirmer et commencer la mission
+                      </Button>
                     </div>
                   )}
                 </div>

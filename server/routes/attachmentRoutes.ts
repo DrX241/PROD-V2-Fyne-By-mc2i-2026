@@ -101,13 +101,11 @@ router.post('/validate-password', (req: Request, res: Response) => {
     const isValid = validatePassword(password, userRole, domain);
     
     if (isValid) {
-      // Générer les informations post-validation
-      const postValidationInfo = generatePostValidationInfo(userName, userRole, domain, companyName);
-      
+      // Envoyer uniquement un indicateur simple pour la validation, sans les informations détaillées
       res.json({
         valid: true,
         message: 'Félicitations ! Vous avez trouvé le bon mot de passe.',
-        postValidationInfo
+        postValidationInfo: { validated: true } // Garder cette structure pour la compatibilité
       });
     } else {
       res.json({
