@@ -596,7 +596,7 @@ export default function SignaturesLevel() {
                   </Button>
                   
                   {nextLevelUnlocked && (
-                    <Link href="/cyber/arcade/code-shield">
+                    <Link href="/cyber/arcade/code-shield/levels/static-analysis">
                       <Button className="bg-green-600 hover:bg-green-700 text-white">
                         Continuer
                         <ChevronRight className="ml-2 h-4 w-4" />
