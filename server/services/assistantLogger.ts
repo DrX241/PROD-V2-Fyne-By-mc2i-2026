@@ -20,12 +20,15 @@ export enum AssistantOperation {
   CREATE = 'CREATE',
   UPDATE = 'UPDATE',
   DELETE = 'DELETE',
+  DELETE_TEMPLATE = 'DELETE_TEMPLATE',
   PROMPT_GENERATION = 'PROMPT_GENERATION',
   CONVERSATION_START = 'CONVERSATION_START',
   CONVERSATION_END = 'CONVERSATION_END',
   MESSAGE_SENT = 'MESSAGE_SENT',
   VALIDATION_FAILURE = 'VALIDATION_FAILURE',
-  USER_AUTO_CREATION = 'USER_AUTO_CREATION'
+  USER_AUTO_CREATION = 'USER_AUTO_CREATION',
+  SHARE_ACCESS_CHANGE = 'SHARE_ACCESS_CHANGE',
+  DUPLICATE_DETECTION = 'DUPLICATE_DETECTION'
 }
 
 // Statuts possibles pour les entrées du journal
@@ -38,6 +41,7 @@ export enum LogStatus {
 // Interface pour l'objet de log
 export interface AssistantLog {
   assistantId?: number;
+  templateId?: number;
   userId: number;
   operation: AssistantOperation;
   status: LogStatus;
@@ -48,6 +52,7 @@ export interface AssistantLog {
 // Fonction pour ajouter une entrée au journal
 export async function logAssistantOperation(logData: AssistantLog): Promise<void> {
   try {
+    // Gérer les champs optionnels templateId/assistantId
     const insertData = {
       assistantId: logData.assistantId,
       userId: logData.userId,
@@ -56,6 +61,14 @@ export async function logAssistantOperation(logData: AssistantLog): Promise<void
       details: logData.details || {},
       errorMessage: logData.errorMessage
     };
+    
+    // Ajout du templateId dans les détails si présent
+    if (logData.templateId) {
+      insertData.details = {
+        ...insertData.details,
+        templateId: logData.templateId
+      };
+    }
     
     await db.insert(assistantOperationLogs).values([insertData]);
     

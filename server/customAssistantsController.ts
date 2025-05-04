@@ -1014,3 +1014,76 @@ export async function getPopularAssistants(req: Request, res: Response) {
     });
   }
 }
+
+/**
+ * Supprime un modèle d'assistant
+ * Seuls les administrateurs peuvent effectuer cette opération
+ */
+export async function deleteTemplate(req: Request, res: Response) {
+  try {
+    const { templateId } = req.params;
+    
+    if (!templateId || isNaN(Number(templateId))) {
+      return res.status(400).json({
+        success: false,
+        error: 'ID de modèle invalide'
+      });
+    }
+    
+    // Vérifier si le modèle existe
+    const existingTemplate = await db.select().from(assistantTemplates)
+      .where(eq(assistantTemplates.id, Number(templateId)))
+      .limit(1);
+    
+    if (!existingTemplate.length) {
+      return res.status(404).json({
+        success: false,
+        error: 'Modèle d\'assistant non trouvé'
+      });
+    }
+    
+    // Vérifier si l'utilisateur a les permissions d'administrateur
+    // TODO: Implémenter une vérification d'authentification réelle
+    const userRole = req.headers['x-user-role'] || 'utilisateur';
+    if (userRole !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        error: 'Vous n\'avez pas les permissions nécessaires pour supprimer un modèle'
+      });
+    }
+    
+    // Supprimer le modèle
+    await db.delete(assistantTemplates)
+      .where(eq(assistantTemplates.id, Number(templateId)));
+    
+    // Journaliser la suppression
+    try {
+      // Utiliser l'ID de l'utilisateur actuel comme userId pour la journalisation
+      // En pratique, cela devrait être l'ID de l'administrateur connecté
+      await logAssistantOperation({
+        templateId: Number(templateId),
+        userId: 1, // ID administrateur par défaut, à remplacer par l'ID réel
+        operation: AssistantOperation.DELETE_TEMPLATE,
+        status: LogStatus.SUCCESS,
+        details: {
+          name: existingTemplate[0].name,
+          domain: existingTemplate[0].domain,
+          ip: req.ip
+        }
+      });
+    } catch (logError) {
+      console.warn('Erreur non bloquante lors de la journalisation de suppression de modèle:', logError);
+    }
+    
+    return res.json({
+      success: true,
+      message: 'Modèle d\'assistant supprimé avec succès'
+    });
+  } catch (error) {
+    console.error('Erreur lors de la suppression du modèle d\'assistant:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur lors de la suppression du modèle d\'assistant'
+    });
+  }
+}
