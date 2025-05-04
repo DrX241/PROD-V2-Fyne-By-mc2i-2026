@@ -760,15 +760,15 @@ root.render(
                         className={`p-2 rounded-md cursor-pointer text-sm ${
                           selectedExample === index
                             ? isFuturistic 
-                              ? 'bg-blue-900/50 border border-blue-700/50' 
+                              ? 'bg-blue-500/30 border border-blue-400 text-white' 
                               : 'bg-blue-100 border border-blue-200'
                             : isFuturistic 
-                              ? 'hover:bg-gray-700 border border-gray-700' 
+                              ? 'bg-blue-900/20 hover:bg-blue-800/40 border border-blue-700/50 text-white' 
                               : 'hover:bg-gray-100 border border-gray-200'
                         } transition-colors`}
                         onClick={() => usePromptExample(index)}
                       >
-                        <p className={isFuturistic ? 'text-white' : 'text-gray-800'}>
+                        <p className="font-medium">
                           {example}
                         </p>
                       </div>
