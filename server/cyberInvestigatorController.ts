@@ -435,8 +435,11 @@ export async function evaluateUserNotes(req: Request, res: Response) {
       
       if (existingProgress.length > 0) {
         // Mettre à jour la progression existante
-        const bestScore = Math.max(existingProgress[0].bestScore, progressData.score);
-        const attempts = existingProgress[0].attempts + 1;
+        const existingBestScore = existingProgress[0].bestScore || 0;
+        const currentScore = progressData.score || 0;
+        const bestScore = Math.max(existingBestScore, currentScore);
+        const existingAttempts = existingProgress[0].attempts || 0;
+        const attempts = existingAttempts + 1;
         
         await db.update(investigationProgress)
           .set({
