@@ -17,6 +17,13 @@ export const gamificationLevelEnum = pgEnum('gamification_level', [
   'aucun', 'leger', 'modere', 'eleve', 'intense'
 ]);
 
+// Enumération pour les niveaux d'accès de partage
+export const shareAccessEnum = pgEnum('share_access', [
+  'private',    // Accès uniquement au propriétaire
+  'readOnly',   // Partageable sans modification
+  'editable'    // Collaboration complète
+]);
+
 // Définition des tables pour les progressions des utilisateurs dans les modules d'apprentissage
 export const userLearningProgress = pgTable('user_learning_progress', {
   id: serial('id').primaryKey(),
@@ -113,6 +120,19 @@ export const customAssistants = pgTable('custom_assistants', {
   isVerified: boolean('is_verified').default(false),
   usageCount: integer('usage_count').default(0),
   rating: integer('rating').default(0),
+  // Nouveaux champs pour le partage
+  shareAccess: shareAccessEnum('share_access').default('private'),
+  shareLink: text('share_link'),
+  shareLinkExpiration: timestamp('share_link_expiration'),
+  ownerDisplayName: text('owner_display_name'),
+  // Nouveaux champs pour la personnalisation et la marque blanche
+  isTemplate: boolean('is_template').default(false),
+  brandingSettings: jsonb('branding_settings').default({
+    primaryColor: '#3b82f6',
+    logoUrl: null,
+    fontFamily: null,
+    customCss: null
+  }),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow()
 });
@@ -156,6 +176,7 @@ export const VALID_PERSONALITIES = ['professionnel', 'amical', 'direct', 'expert
 export const VALID_GAMIFICATION_LEVELS = ['aucun', 'leger', 'modere', 'eleve', 'intense'] as const;
 export const VALID_AVATAR_STYLES = ['robot', 'human', 'abstract', 'animal', 'professional'] as const;
 export const VALID_AVATAR_COLORS = ['blue', 'green', 'red', 'purple', 'orange', 'teal', 'pink', 'violet', 'gray'] as const;
+export const VALID_SHARE_ACCESS = ['private', 'readOnly', 'editable'] as const;
 
 // Création des schémas d'insertion avec Zod et validation améliorée
 export const insertUserProfileSchema = createInsertSchema(userProfiles)
