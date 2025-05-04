@@ -413,6 +413,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/cyber-expert/decisions/submit', submitDecision);
   app.post('/api/cyber-expert/decisions/status', checkDecisionStatus);
   
+  // Routes pour le module Cyber Investigateur
+  app.post('/api/cyber-investigator/chat', processChatMessage);
+  app.get('/api/cyber-investigator/case/:caseId', getCaseInfo);
+  app.post('/api/cyber-investigator/educational-content', generateEducationalContent);
+  
   // Route directe pour servir le document texte avec le mot de passe
   app.get('/download-attachment/:role', (req, res) => {
     try {

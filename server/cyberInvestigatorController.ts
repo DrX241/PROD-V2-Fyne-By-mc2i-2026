@@ -138,7 +138,7 @@ export async function generateEducationalContent(req: Request, res: Response) {
       content: response,
       topic 
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erreur lors de la génération du contenu pédagogique:', error);
     return res.status(500).json({ 
       error: 'Une erreur est survenue lors de la génération du contenu pédagogique',
