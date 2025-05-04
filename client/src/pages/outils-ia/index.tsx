@@ -157,7 +157,7 @@ export default function OutilsIAPage() {
       description: 'Créez votre propre assistant IA adapté à vos besoins spécifiques grâce à nos modèles d\'IA avancés. Personnalisez-le pour répondre à vos questions professionnelles.',
       icon: <BrainCircuit className="h-6 w-6" />,
       href: '/outils-ia/assistant',
-      isComingSoon: true
+      isNew: true
     },
     {
       title: 'Générateur de Code',

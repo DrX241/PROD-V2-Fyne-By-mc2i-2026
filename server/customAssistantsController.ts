@@ -471,7 +471,7 @@ export async function sendMessage(req: Request, res: Response) {
         content: msg.content
       }));
       
-      const response = await openai.getChatCompletionAzure(openaiMessages);
+      const response = await openAIService.getChatCompletion(openaiMessages);
       
       // Ajouter la réponse de l'assistant aux messages
       const assistantResponse = response.choices[0].message.content;
