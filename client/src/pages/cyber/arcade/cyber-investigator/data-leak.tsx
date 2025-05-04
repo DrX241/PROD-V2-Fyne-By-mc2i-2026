@@ -283,6 +283,7 @@ export default function DataLeakInvestigation() {
   const [isEvaluating, setIsEvaluating] = useState<boolean>(false);
   const [noteEvaluation, setNoteEvaluation] = useState<any>(null);
   const [progressSaved, setProgressSaved] = useState<boolean>(false);
+  const [isGeneratingNotes, setIsGeneratingNotes] = useState<boolean>(false);
   
   // Initialiser l'ID de session et récupérer le niveau actuel
   useEffect(() => {
@@ -463,6 +464,57 @@ export default function DataLeakInvestigation() {
     
     // Enregistrer l'action pour le débriefing
     setUserActions(prev => [...prev, `Analyse du suspect: ${suspect.name}`]);
+  };
+  
+  // Générer des notes avec GPT-4o
+  const generateNotesWithAI = async (prompt?: string) => {
+    try {
+      setIsGeneratingNotes(true);
+      
+      // Filtrer les preuves analysées
+      const analyzedEvidences = evidences.filter(e => e.analyzed);
+      
+      // Construire le prompt par défaut si aucun n'est fourni
+      const defaultPrompt = "Aide-moi à analyser les informations de cette enquête et à organiser mes observations";
+      
+      // Préparer les données pour l'API
+      const requestData = {
+        prompt: prompt || defaultPrompt,
+        evidences: analyzedEvidences,
+        suspects,
+        currentLevel
+      };
+      
+      // Appel à l'API
+      const response = await fetch('/api/cyber-investigator/generate-notes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.success && data.content) {
+          // Ajouter le contenu généré aux notes existantes avec une séparation
+          const separator = notes.trim().length > 0 ? "\n\n" : "";
+          setNotes(currentNotes => currentNotes + separator + data.content);
+          
+          // Enregistrer l'action pour le débriefing
+          setUserActions(prev => [...prev, "Génération de notes avec GPT-4o"]);
+        } else {
+          console.error("Erreur dans la réponse de l'API:", data);
+        }
+      } else {
+        console.error("Erreur lors de l'appel à l'API:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la génération de notes:", error);
+    } finally {
+      setIsGeneratingNotes(false);
+    }
   };
 
   // Obtenir l'icône selon le type de preuve
@@ -951,12 +1003,73 @@ export default function DataLeakInvestigation() {
                           </CardDescription>
                         </CardHeader>
                         <CardContent>
-                          <textarea
-                            value={notes}
-                            onChange={(e) => setNotes(e.target.value)}
-                            placeholder="Saisissez vos notes ici..."
-                            className="w-full h-64 p-4 bg-gray-950/60 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                          />
+                          <div className="relative">
+                            {isGeneratingNotes && (
+                              <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center z-10 rounded-md">
+                                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-indigo-500 mb-2"></div>
+                                <p className="text-white text-sm">Génération en cours avec GPT-4o...</p>
+                              </div>
+                            )}
+                            <textarea
+                              value={notes}
+                              onChange={(e) => setNotes(e.target.value)}
+                              placeholder="Saisissez vos notes ici..."
+                              className="w-full h-64 p-4 bg-gray-950/60 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                              disabled={isGeneratingNotes}
+                            />
+                            <div className="mt-2 flex justify-between">
+                              <div className="flex space-x-2">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => generateNotesWithAI("Aide-moi à résumer les preuves analysées")}
+                                  disabled={isGeneratingNotes || evidencesAnalyzed === 0}
+                                  className="text-xs border-indigo-500/40 text-indigo-300 hover:bg-indigo-900/30"
+                                >
+                                  <div className="mr-1 p-0.5 bg-indigo-600 rounded-full">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+                                      <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+                                      <path d="m16 16-4-4"/>
+                                      <path d="M22 12h-4"/>
+                                    </svg>
+                                  </div>
+                                  Résumer
+                                </Button>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => generateNotesWithAI("Aide-moi à analyser les suspects et établir des connections")}
+                                  disabled={isGeneratingNotes || evidencesAnalyzed === 0}
+                                  className="text-xs border-indigo-500/40 text-indigo-300 hover:bg-indigo-900/30"
+                                >
+                                  <div className="mr-1 p-0.5 bg-indigo-600 rounded-full">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+                                      <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+                                      <path d="M12 6V2"/>
+                                      <path d="m8 8-2-2"/>
+                                    </svg>
+                                  </div>
+                                  Analyser
+                                </Button>
+                              </div>
+                              <Button 
+                                variant="default" 
+                                size="sm"
+                                onClick={() => generateNotesWithAI()}
+                                disabled={isGeneratingNotes || evidencesAnalyzed === 0}
+                                className="text-xs bg-indigo-700 hover:bg-indigo-800"
+                              >
+                                <div className="mr-1 p-0.5 bg-white rounded-full">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-700">
+                                    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+                                    <path d="M12 16v-4"/>
+                                    <path d="M12 8h.01"/>
+                                  </svg>
+                                </div>
+                                Générer avec GPT-4o
+                              </Button>
+                            </div>
+                          </div>
                         </CardContent>
                       </Card>
                     </TabsContent>
