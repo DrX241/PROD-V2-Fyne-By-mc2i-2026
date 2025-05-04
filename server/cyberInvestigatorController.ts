@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import * as openAiResponseHelper from './openAiResponseHelper';
+import { openAIService } from './services/openai';
+import { ChatCompletionRequestMessage } from '@shared/schema';
 import { db } from './db';
 
 interface ChatHistoryItem {
@@ -39,10 +40,22 @@ export async function processChatMessage(req: Request, res: Response) {
       content: message
     });
 
+    // Préparation des messages pour l'API OpenAI
+    const messages: ChatCompletionRequestMessage[] = [
+      { role: 'system', content: systemPrompt }
+    ];
+    
+    // Ajout des messages de l'historique
+    formattedHistory.forEach(msg => {
+      messages.push({ 
+        role: msg.role as 'user' | 'assistant' | 'system', 
+        content: msg.content 
+      });
+    });
+    
     // Envoi à OpenAI et récupération de la réponse
-    const response = await openAiResponseHelper.getCompletion(
-      systemPrompt,
-      formattedHistory,
+    const response = await openAIService.getChatCompletion(
+      messages,
       0.7, // temperature
       800  // max_tokens
     );
@@ -51,7 +64,7 @@ export async function processChatMessage(req: Request, res: Response) {
       message: response,
       caseId 
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erreur lors du traitement du message du Cyber Investigateur:', error);
     return res.status(500).json({ 
       error: 'Une erreur est survenue lors du traitement de votre message',
@@ -81,7 +94,7 @@ export async function getCaseInfo(req: Request, res: Response) {
     return res.status(200).json({ 
       case: caseInfo
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erreur lors de la récupération des informations du cas:', error);
     return res.status(500).json({ 
       error: 'Une erreur est survenue lors de la récupération des informations du cas',
@@ -108,10 +121,15 @@ export async function generateEducationalContent(req: Request, res: Response) {
     Structure ta réponse avec des sections claires, et si pertinent, ajoute des instructions techniques simplifiées.
     Ta réponse doit être informative et pédagogique, adaptée à des professionnels de niveau intermédiaire.`;
 
+    // Préparation des messages pour l'API OpenAI
+    const messages: ChatCompletionRequestMessage[] = [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: `Explique-moi "${topic}" dans le contexte de l'investigation en cybersécurité.` }
+    ];
+    
     // Envoi à OpenAI et récupération de la réponse
-    const response = await openAiResponseHelper.getCompletion(
-      systemPrompt,
-      [{ role: 'user', content: `Explique-moi "${topic}" dans le contexte de l'investigation en cybersécurité.` }],
+    const response = await openAIService.getChatCompletion(
+      messages,
       0.7, // temperature
       1200 // max_tokens
     );
