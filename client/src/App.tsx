@@ -130,8 +130,9 @@ function App() {
             {/* Module mc2i AI Learning */}
             <Route path="/mcai-learning" component={McaiLearning} />
             
-            {/* Suppression des routes de CyberForge pour reconstruction complète */}
+            {/* Toutes les routes CyberForge redirigent vers la page "non disponible" */}
             <Route path="/cyberforge" component={NotYetImplemented} />
+            <Route path="/cyberforge/academy" component={NotYetImplemented} />
             <Route path="/cyberforge/modules" component={NotYetImplemented} />
             <Route path="/cyberforge/modules/:moduleId" component={NotYetImplemented} />
             <Route path="/cyberforge/modules/lesson/:moduleId/:chapterId/:lessonId" component={NotYetImplemented} />
