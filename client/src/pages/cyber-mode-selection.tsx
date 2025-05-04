@@ -28,8 +28,24 @@ export default function CyberModeSelection() {
   const [hoveredMode, setHoveredMode] = useState<string | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
-  // Réorganisation des modules en 5 catégories
+  // Réorganisation des modules en 6 catégories
   const cyberModes: ModeOption[] = [
+    {
+      id: 'scenarios-formation',
+      title: 'SCÉNARIOS DE FORMATION',
+      description: "Développez vos compétences en cybersécurité grâce à des mises en situation guidées par l'IA.",
+      icon: null,
+      gradient: 'from-blue-700 to-blue-900',
+      destination: '#',
+      items: [
+        {
+          id: 'agent-ia',
+          title: 'AGENT CONVERSATIONNEL',
+          icon: null,
+          destination: '/cyber/agent'
+        }
+      ]
+    },
     {
       id: 'expert-learning',
       title: 'APPRENDRE EN ÉCHANGEANT',
@@ -107,7 +123,7 @@ export default function CyberModeSelection() {
 
   return (
     <HomeLayout>
-      <PageTitle title="CYBER LEARNING" />
+      <PageTitle title="I AM CYBER" />
       <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-gray-900 to-blue-900">
         {/* Arrière-plan cybersécurité simplifié */}
         <div className="absolute inset-0 w-full h-full opacity-20">
@@ -135,7 +151,7 @@ export default function CyberModeSelection() {
             className="text-center mb-10 sm:mb-16"
           >
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-              CYBER LEARNING
+              I AM CYBER
             </h1>
             <p className="text-lg sm:text-xl text-blue-200 max-w-3xl mx-auto">
               Choisissez votre expérience d'apprentissage en cybersécurité
