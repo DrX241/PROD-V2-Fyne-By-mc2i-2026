@@ -136,8 +136,8 @@ const LearningThemeCard: React.FC<{ theme: LearningTheme, index: number }> = ({ 
               {theme.difficulty}
             </Badge>
           </div>
-          <CardTitle className="mt-2 text-xl">{theme.title}</CardTitle>
-          <CardDescription className={`${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+          <CardTitle className="mt-2 text-xl text-blue-700">{theme.title}</CardTitle>
+          <CardDescription className={`${isDark ? 'text-slate-400' : 'text-slate-700'}`}>
             {theme.description}
           </CardDescription>
         </CardHeader>
@@ -147,7 +147,7 @@ const LearningThemeCard: React.FC<{ theme: LearningTheme, index: number }> = ({ 
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className={`font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Progression</span>
-                <span className={`${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{theme.progress || 0}%</span>
+                <span className={`${isDark ? 'text-slate-400' : 'text-slate-700'}`}>{theme.progress || 0}%</span>
               </div>
               <Progress value={theme.progress || 0} className={`h-2 ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`} />
             </div>
@@ -168,15 +168,15 @@ const LearningThemeCard: React.FC<{ theme: LearningTheme, index: number }> = ({ 
             </div>
             
             <div className="space-y-1">
-              <span className={`text-xs font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Compétences clés :</span>
+              <span className={`text-xs font-medium ${isDark ? 'text-slate-300' : 'text-blue-800'}`}>Compétences clés :</span>
               <div className="flex flex-wrap gap-1">
                 {theme.skills.slice(0, 3).map((skill, i) => (
-                  <Badge key={i} variant="outline" className="font-normal text-xs">
+                  <Badge key={i} variant="outline" className="font-normal text-xs text-blue-700 border-blue-300">
                     {skill}
                   </Badge>
                 ))}
                 {theme.skills.length > 3 && (
-                  <Badge variant="outline" className="font-normal text-xs">
+                  <Badge variant="outline" className="font-normal text-xs text-blue-700 border-blue-300">
                     +{theme.skills.length - 3}
                   </Badge>
                 )}
