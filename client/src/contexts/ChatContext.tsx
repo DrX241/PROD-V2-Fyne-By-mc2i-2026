@@ -1130,37 +1130,24 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setMessages(prev => [...prev, welcomeMessage]);
         }
 
-        // Attendre un peu pour simuler le temps de réflexion (0.8s)
-        await new Promise(resolve => setTimeout(resolve, 800));
-
-        // Puis ajouter les choix de décision
-        if (response.decision) {
-          const decisionMessage: ChatMessage = {
-            id: uuidv4(),
-            type: 'decision-choices',
-            content: response.decision,
-            timestamp: Date.now()
-          };
-
-          setMessages(prev => [...prev, decisionMessage]);
-          // Mise à jour du stage avec validation
-          const nextStage = currentStage + 1;
-          console.log(`Progression du stage: ${currentStage} -> ${nextStage}`);
-
-          // Vérifier si toutes les conditions sont remplies pour passer à l'étape suivante
-          if (
-            (nextStage === 1 && userName) || // Après saisie du nom
-            (nextStage === 2 && userRole) || // Après sélection du rôle
-            (nextStage === 3 && scenario.activeDomain) || // Après sélection du domaine
-            (nextStage === 4 && passwordValidated) || // Après validation du mot de passe
-            (nextStage >= 5) // Progression normale ensuite
-          ) {
-            setCurrentStage(nextStage);
-            console.log(`Stage mis à jour: ${nextStage}`);
-          } else {
-            console.log(`Conditions non remplies pour passer au stage ${nextStage}`);
-          }
+        // Mise à jour du stage
+        const nextStage = currentStage + 1;
+        
+        // Vérifier si toutes les conditions sont remplies pour passer à l'étape suivante
+        if (
+          (nextStage === 1 && userName) || // Après saisie du nom
+          (nextStage === 2 && userRole) || // Après sélection du rôle
+          (nextStage === 3 && scenario.activeDomain) || // Après sélection du domaine
+          (nextStage === 4 && passwordValidated) || // Après validation du mot de passe
+          (nextStage >= 5) // Progression normale ensuite
+        ) {
+          setCurrentStage(nextStage);
+          console.log(`Stage mis à jour: ${nextStage}`);
+        } else {
+          console.log(`Conditions non remplies pour passer au stage ${nextStage}`);
         }
+        
+        // Note: On ne montre plus les options de décision après le message de Thomas Mercier
       }
     } catch (error) {
       console.error('Erreur lors du démarrage du scénario de crise:', error);
