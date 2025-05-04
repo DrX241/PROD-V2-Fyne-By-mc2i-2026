@@ -30,7 +30,7 @@ export async function getUserProgress(req: Request, res: Response) {
           userId,
           moduleId,
           xp: 0,
-          level: 1,
+          currentLevel: 1,
           completedLevels: [],
           badges: [],
           stats: [],
@@ -39,7 +39,13 @@ export async function getUserProgress(req: Request, res: Response) {
       });
     }
 
-    return res.status(200).json({ progress: progress[0] });
+    // Formater le résultat pour correspondre au format attendu par le frontend
+    const formattedResult = {
+      ...progress[0],
+      currentLevel: progress[0].level
+    };
+    
+    return res.status(200).json({ progress: formattedResult });
   } catch (error) {
     console.error('Erreur lors de la récupération de la progression utilisateur:', error);
     return res.status(500).json({ error: 'Erreur serveur' });
@@ -106,7 +112,13 @@ export async function saveUserProgress(req: Request, res: Response) {
         .returning();
     }
 
-    return res.status(200).json({ progress: result[0] });
+    // Formater le résultat pour correspondre au format attendu par le frontend
+    const formattedResult = {
+      ...result[0],
+      currentLevel: result[0].level
+    };
+    
+    return res.status(200).json({ progress: formattedResult });
   } catch (error) {
     console.error('Erreur lors de la sauvegarde de la progression utilisateur:', error);
     return res.status(500).json({ error: 'Erreur serveur' });
