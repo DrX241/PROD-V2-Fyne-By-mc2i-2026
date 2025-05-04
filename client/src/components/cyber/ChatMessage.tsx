@@ -122,49 +122,65 @@ export default function ChatMessage({
 
   // Fonction pour formater le contenu de manière plus professionnelle et concise
   const formatContent = () => {
+    // Si c'est un contenu de décision binaire, retourner le composant BinaryDecisionMessage
+    if (type === 'binary-decision' && typeof content !== 'string' && 'optionA' in content) {
+      return <BinaryDecisionMessage decision={content as BinaryDecision} />;
+    }
+    
+    // Si c'est un contenu de feedback d'équipe, retourner le composant TeamFeedbackMessage
+    if (type === 'bot' && typeof content !== 'string' && 'sentiment' in content) {
+      return <TeamFeedbackMessage feedback={content as TeamFeedback} />;
+    }
+    
     // Si c'est un contenu de décision, retourner le composant DecisionChoices
-    if (type === 'decision-choices' && typeof content !== 'string') {
+    if (type === 'decision-choices' && typeof content !== 'string' && 'options' in content) {
       return <DecisionChoices decision={content as CrisisDecisionContent} onSelectOption={handleDecisionChoice} />;
     }
     
-    // Formater d'abord le contenu pour corriger les noms
-    let formattedContent = content as string;
-    if (userName && typeof content === 'string') {
-      formattedContent = formatFirstName(content, userName);
+    // Pour les messages textuels standard
+    if (typeof content === 'string') {
+      // Formater d'abord le contenu pour corriger les noms
+      let formattedContent = content;
+      if (userName) {
+        formattedContent = formatFirstName(content, userName);
+      }
+      
+      // Nettoyer le contenu de tous les formatages markdown
+      formattedContent = formattedContent
+        .replace(/^\s*#{1,6}\s+/gm, '') // Enlever les # pour les titres
+        .replace(/^\s*[>]\s+/gm, '')    // Enlever les > pour les citations
+        .replace(/`{1,3}([\s\S]*?)`{1,3}/g, '$1') // Enlever les backticks
+        .replace(/!\[(.*?)\]\(.*?\)/g, '[Image: $1]') // Remplacer les images
+        .replace(/\[(.*?)\]\(.*?\)/g, '$1'); // Supprimer les liens markdown
+      
+      // Amélioration de la détection des listes - détecte aussi les listes avec numéros (1., 2., etc)
+      const paragraphs = formattedContent.split('\n\n');
+      
+      // Traiter chaque paragraphe avec un style plus compact et élégant
+      return (
+        <div className="space-y-2">
+          {paragraphs.map((paragraph, idx) => {
+            const trimmedParagraph = paragraph.trim();
+            if (!trimmedParagraph) return null;
+            
+            // Vérifier si c'est un titre séparé
+            const titleMatch = trimmedParagraph.match(/^([A-Z\s]{3,}):?\s*$/);
+            if (titleMatch) {
+              return (
+                <h3 key={idx} className="font-semibold text-[#006a9e] text-base leading-tight mt-1 mb-0.5">
+                  {titleMatch[1]}
+                </h3>
+              );
+            }
+            
+            return <div key={idx} className="text-pretty">{processText(trimmedParagraph)}</div>;
+          })}
+        </div>
+      );
     }
     
-    // Nettoyer le contenu de tous les formatages markdown
-    formattedContent = formattedContent
-      .replace(/^\s*#{1,6}\s+/gm, '') // Enlever les # pour les titres
-      .replace(/^\s*[>]\s+/gm, '')    // Enlever les > pour les citations
-      .replace(/`{1,3}([\s\S]*?)`{1,3}/g, '$1') // Enlever les backticks
-      .replace(/!\[(.*?)\]\(.*?\)/g, '[Image: $1]') // Remplacer les images
-      .replace(/\[(.*?)\]\(.*?\)/g, '$1'); // Supprimer les liens markdown
-    
-    // Amélioration de la détection des listes - détecte aussi les listes avec numéros (1., 2., etc)
-    const paragraphs = formattedContent.split('\n\n');
-    
-    // Traiter chaque paragraphe avec un style plus compact et élégant
-    return (
-      <div className="space-y-2">
-        {paragraphs.map((paragraph, idx) => {
-          const trimmedParagraph = paragraph.trim();
-          if (!trimmedParagraph) return null;
-          
-          // Vérifier si c'est un titre séparé
-          const titleMatch = trimmedParagraph.match(/^([A-Z\s]{3,}):?\s*$/);
-          if (titleMatch) {
-            return (
-              <h3 key={idx} className="font-semibold text-[#006a9e] text-base leading-tight mt-1 mb-0.5">
-                {titleMatch[1]}
-              </h3>
-            );
-          }
-          
-          return <div key={idx} className="text-pretty">{processText(trimmedParagraph)}</div>;
-        })}
-      </div>
-    );
+    // Retour par défaut pour les types non gérés
+    return <div className="text-zinc-800">Contenu non pris en charge</div>;
   };
   
   // Traitement du texte en gras (** **)
