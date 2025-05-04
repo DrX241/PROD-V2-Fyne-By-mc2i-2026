@@ -42,6 +42,7 @@ import {
   getConversationHistory, 
   getPopularAssistants 
 } from "./customAssistantsController";
+import { getOrCreateUser, getUserById } from "./userController";
 // Import des fonctions d'urgence cyber supprimé
 
 /**
@@ -417,6 +418,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/mcai-learning/message', processMcaiLearningMessage);
   
   // Routes pour les assistants personnalisés
+  // Routes utilisateur
+  app.post('/api/user/get-or-create', getOrCreateUser);
+  app.get('/api/user/:userId', getUserById);
+  
+  // Routes assistants
   app.get('/api/assistants/templates', getAssistantTemplates);
   app.get('/api/assistants/templates/:templateId', getAssistantTemplate);
   app.get('/api/assistants/popular', getPopularAssistants);
