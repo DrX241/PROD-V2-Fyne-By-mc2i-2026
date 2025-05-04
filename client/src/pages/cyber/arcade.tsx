@@ -22,6 +22,15 @@ export default function CyberArcade() {
 
   const games: Game[] = [
     {
+      id: 'code-shield',
+      title: 'CODE SHIELD',
+      description: 'Créez votre propre antivirus et protégez le système contre les malwares',
+      icon: <Shield className="w-6 h-6" />,
+      gradient: 'from-blue-600 to-blue-900',
+      available: true,
+      route: '/cyber/arcade/code-shield'
+    },
+    {
       id: 'cyber-investigator',
       title: 'CYBER INVESTIGATEUR',
       description: 'Résolvez des enquêtes sur des incidents de cybersécurité et identifiez les responsables',
