@@ -14,7 +14,7 @@ export default function SensibilisationSimplePage() {
     <HomeLayout>
       <PageTitle title="Sensibilisation à la Cybersécurité" />
       
-      <div className={`min-h-screen p-4 ${isDark ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-900'}`}>
+      <div className={`min-h-screen p-4 ${isDark ? 'bg-slate-900 text-white' : 'bg-slate-50'}`}>
         <div className="container mx-auto">
           <div className="mb-4">
             <Link href="/cyber/learning/cyber-mastery">
@@ -27,9 +27,9 @@ export default function SensibilisationSimplePage() {
           
           <Card className={`${isDark ? 'bg-slate-800 text-white' : 'bg-white'} mb-8`}>
             <CardHeader>
-              <CardTitle className="text-2xl">Module de Sensibilisation Cybersécurité</CardTitle>
+              <CardTitle className={`text-2xl ${isDark ? 'text-white' : 'text-blue-800'}`}>Module de Sensibilisation Cybersécurité</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className={isDark ? 'text-white' : 'text-slate-800'}>
               <p className="mb-4">
                 Bienvenue dans le module de sensibilisation à la cybersécurité.
                 Ce module est conçu pour vous aider à reconnaître et à vous protéger contre les menaces cyber les plus courantes.
@@ -46,7 +46,7 @@ export default function SensibilisationSimplePage() {
             </CardContent>
           </Card>
           
-          <div className="text-center">
+          <div className={`text-center ${isDark ? 'text-white' : 'text-slate-800'}`}>
             <p className="mb-4">Le module complet est en cours de développement.</p>
             <Link href="/cyber/learning/cyber-mastery">
               <Button>Retourner à la page Cyber Mastery</Button>
