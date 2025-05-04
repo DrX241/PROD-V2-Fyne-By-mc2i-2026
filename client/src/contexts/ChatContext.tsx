@@ -862,10 +862,15 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     try {
       // Get recent chat history to provide context
-      // We filter to only include relevant messages (user and bot) and limit to recent messages
+      // We filter to include ALL types of messages to maintain conversation coherence
+      // This ensures we don't lose context when Thomas Mercier or other contacts respond
       const relevantMessages = messages
-        .filter(msg => msg.type === 'user' || msg.type === 'bot')
-        .slice(-10); // Get last 10 messages for context
+        .filter(msg => {
+          // Include all message types that contain actual conversation content
+          // Email messages have their own thread, so we may filter them out
+          return msg.type === 'user' || msg.type === 'bot' || msg.type === 'decision-choices';
+        })
+        .slice(-15); // Get more context (15 messages) to ensure proper conversation flow
 
       // Vérifier si nous avons un scénario actif
       let data;
@@ -996,9 +1001,22 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
 
         setMessages(prev => [...prev, botResponse]);
-        // Mise à jour du stage avec validation
-        const nextStage = currentStage + 1;
-        console.log(`Progression du stage: ${currentStage} -> ${nextStage}`);
+        
+        // Mise à jour du stage seulement dans certaines conditions
+        // Ne pas incrémenter systématiquement pour chaque réponse de Thomas Mercier ou d'autres contacts
+        // Si c'est une réponse spéciale ou un contact particulier (Thomas Mercier), on n'incrémente pas le stage
+        const isSpecialContact = data.contactName === "Thomas Mercier" || 
+                                data.isIAMCYBERIntervention === true;
+                                
+        let nextStage = currentStage;
+        
+        // Incrémenter le stage seulement si ce n'est pas un contact spécial
+        if (!isSpecialContact) {
+          nextStage = currentStage + 1;
+          console.log(`Progression du stage: ${currentStage} -> ${nextStage}`);
+        } else {
+          console.log(`Maintien du stage actuel: ${currentStage} (réponse spéciale ou contact particulier)`);
+        }
 
         // Vérifier si toutes les conditions sont remplies pour passer à l'étape suivante
         if (
