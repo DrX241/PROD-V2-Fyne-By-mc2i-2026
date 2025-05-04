@@ -4056,6 +4056,167 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
 
   // Les routes pour le chatbot mc2i AI Learning sont déjà définies plus haut
 
+  // Routes d'administration pour le cache et le rate limiter
+  app.get("/api/admin/stats", (req: Request, res: Response) => {
+    // Vérifier si l'utilisateur a les permissions d'administrateur
+    const userRole = req.headers['x-user-role'] || 'utilisateur';
+    if (userRole !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        error: 'Accès refusé. Permissions administrateur requises.'
+      });
+    }
+
+    // Importer dynamiquement le service OpenAI amélioré
+    import('./services/enhancedOpenAIService')
+      .then(({ enhancedOpenAIService }) => {
+        // Récupérer les statistiques
+        const stats = enhancedOpenAIService.getStats();
+        
+        // Calculer quelques métriques supplémentaires
+        const cacheHitRate = stats.cache.totalHits > 0 
+          ? (stats.cache.totalHits / (stats.cache.totalHits + stats.rateLimiter.topUsers.reduce((sum, user) => sum + user.count, 0))) * 100 
+          : 0;
+        
+        // Renvoyer les statistiques
+        res.json({
+          success: true,
+          stats: {
+            ...stats,
+            cacheHitRate: Math.round(cacheHitRate * 100) / 100, // Arrondir à 2 décimales
+            timestamp: new Date().toISOString()
+          }
+        });
+      })
+      .catch(error => {
+        console.error('Erreur lors de la récupération des statistiques:', error);
+        res.status(500).json({
+          success: false,
+          error: 'Erreur lors de la récupération des statistiques'
+        });
+      });
+  });
+
+  // Route pour vider le cache
+  app.post("/api/admin/cache/clear", (req: Request, res: Response) => {
+    // Vérifier si l'utilisateur a les permissions d'administrateur
+    const userRole = req.headers['x-user-role'] || 'utilisateur';
+    if (userRole !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        error: 'Accès refusé. Permissions administrateur requises.'
+      });
+    }
+
+    // Importer dynamiquement le service de cache
+    import('./services/cacheService')
+      .then(({ cacheService }) => {
+        // Vider le cache
+        cacheService.clear();
+        
+        // Renvoyer une confirmation
+        res.json({
+          success: true,
+          message: 'Cache vidé avec succès',
+          timestamp: new Date().toISOString()
+        });
+      })
+      .catch(error => {
+        console.error('Erreur lors du vidage du cache:', error);
+        res.status(500).json({
+          success: false,
+          error: 'Erreur lors du vidage du cache'
+        });
+      });
+  });
+
+  // Route pour invalider une partie du cache par domaine
+  app.post("/api/admin/cache/invalidate/:domain", (req: Request, res: Response) => {
+    // Vérifier si l'utilisateur a les permissions d'administrateur
+    const userRole = req.headers['x-user-role'] || 'utilisateur';
+    if (userRole !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        error: 'Accès refusé. Permissions administrateur requises.'
+      });
+    }
+
+    const { domain } = req.params;
+    
+    if (!domain) {
+      return res.status(400).json({
+        success: false,
+        error: 'Domaine requis'
+      });
+    }
+
+    // Importer dynamiquement le service OpenAI amélioré
+    import('./services/enhancedOpenAIService')
+      .then(({ enhancedOpenAIService }) => {
+        // Invalider le cache pour le domaine spécifié
+        const entriesRemoved = enhancedOpenAIService.invalidateCache(domain);
+        
+        // Renvoyer une confirmation
+        res.json({
+          success: true,
+          message: `${entriesRemoved} entrées de cache supprimées pour le domaine "${domain}"`,
+          entriesRemoved,
+          domain,
+          timestamp: new Date().toISOString()
+        });
+      })
+      .catch(error => {
+        console.error('Erreur lors de l\'invalidation du cache:', error);
+        res.status(500).json({
+          success: false,
+          error: 'Erreur lors de l\'invalidation du cache'
+        });
+      });
+  });
+
+  // Route pour réinitialiser les limites de débit pour un utilisateur
+  app.post("/api/admin/ratelimiter/reset/:userId", (req: Request, res: Response) => {
+    // Vérifier si l'utilisateur a les permissions d'administrateur
+    const userRole = req.headers['x-user-role'] || 'utilisateur';
+    if (userRole !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        error: 'Accès refusé. Permissions administrateur requises.'
+      });
+    }
+
+    const { userId } = req.params;
+    
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        error: 'ID utilisateur requis'
+      });
+    }
+
+    // Importer dynamiquement le service OpenAI amélioré
+    import('./services/enhancedOpenAIService')
+      .then(({ enhancedOpenAIService }) => {
+        // Réinitialiser les limites pour l'utilisateur spécifié
+        enhancedOpenAIService.resetRateLimits(`user:${userId}`);
+        
+        // Renvoyer une confirmation
+        res.json({
+          success: true,
+          message: `Limites de débit réinitialisées pour l'utilisateur "${userId}"`,
+          userId,
+          timestamp: new Date().toISOString()
+        });
+      })
+      .catch(error => {
+        console.error('Erreur lors de la réinitialisation des limites:', error);
+        res.status(500).json({
+          success: false,
+          error: 'Erreur lors de la réinitialisation des limites'
+        });
+      });
+  });
+
   // Fin des routes API
 
   return createServer(app);

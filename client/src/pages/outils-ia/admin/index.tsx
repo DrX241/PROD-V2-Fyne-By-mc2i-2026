@@ -10,7 +10,9 @@ import {
   ShieldIcon,
   ActivityIcon,
   Cog,
-  ArrowRightIcon
+  ArrowRightIcon,
+  BarChart2Icon,
+  DatabaseIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -73,6 +75,14 @@ export default function AdminDashboardPage() {
       icon: <ListIcon className="h-8 w-8 text-blue-500" />,
       path: "/outils-ia/admin/templates",
       stats: stats ? `${stats.templates} modèles` : "Chargement...",
+      status: "ok"
+    },
+    {
+      title: "Statistiques API",
+      description: "Analysez l'utilisation de l'API, gérez le cache et les limitations de débit",
+      icon: <BarChart2Icon className="h-8 w-8 text-emerald-500" />,
+      path: "/outils-ia/admin/cache-stats",
+      stats: "Nouveau",
       status: "ok"
     },
     {
