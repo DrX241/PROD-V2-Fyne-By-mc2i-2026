@@ -1,45 +1,17 @@
-import { Request, Response } from "express";
-import { v4 as uuidv4 } from "uuid";
-import { openAIService } from "./services/openai";
+/**
+ * Contrôleur d'investigation cybersécurité I AM CYBER
+ * Permet aux utilisateurs de découvrir des concepts de cybersécurité à travers
+ * une enquête interactive et immersive générée dynamiquement par l'IA.
+ */
 
-// Les concepts potentiels de cybersécurité (large éventail pour plus de variété)
-const CYBER_CONCEPTS = [
-  "ransomware", 
-  "phishing", 
-  "attaque DDoS", 
-  "ver informatique", 
-  "APT (Advanced Persistent Threat)", 
-  "social engineering",
-  "attaque par force brute",
-  "zero-day",
-  "man-in-the-middle",
-  "rootkit",
-  "backdoor",
-  "spyware",
-  "cryptojacking",
-  "attaque de la chaîne d'approvisionnement",
-  "rogue access point",
-  "attaque par rejeu",
-  "ingénierie sociale par téléphone (vishing)",
-  "whaling",
-  "watering hole attack",
-  "typosquatting"
-];
+import { Request, Response } from 'express';
+import { v4 as uuidv4 } from 'uuid';
+import { openAIService } from './services/openai';
 
-// Les styles narratifs possibles pour l'IA (plus de variété)
-const NARRATIVE_STYLES = [
-  "expert cybersécurité formel",
-  "détective privé noir",
-  "mentor pédagogue",
-  "enquêteur high-tech",
-  "agent secret",
-  "analyste forensique"
-];
+// Garder les sessions actives en mémoire
+const activeSessions = new Map<string, InvestigationSession>();
 
-// Niveaux de difficulté possibles
-const DIFFICULTY_LEVELS = ["débutant", "intermédiaire", "avancé"];
-
-// Interface pour la session d'enquête
+// Structure pour une session d'investigation
 interface InvestigationSession {
   id: string;
   userId: string;
@@ -55,58 +27,43 @@ interface InvestigationSession {
   conceptRevealed: boolean;
 }
 
-// Map pour stocker les sessions actives
-const activeSessions = new Map<string, InvestigationSession>();
+// Liste des concepts de cybersécurité principaux qui peuvent être explorés
+const CYBER_CONCEPTS = [
+  'phishing',
+  'ransomware',
+  'malware',
+  'ddos',
+  'social engineering',
+  'zero-day vulnerabilities',
+  'backdoor',
+  'botnet',
+  'man-in-the-middle attack',
+  'keylogger',
+  'trojan horse',
+  'worm',
+  'spoofing',
+  'cryptojacking',
+  'sql injection',
+  'credential stuffing',
+  'cross-site scripting',
+  'brute force attack'
+];
 
-// Prompt système de base
-const getBaseSystemPrompt = (style: string, concept: string, difficulty: string, userName: string) => {
-  return `Tu es I AM CYBER, un agent conversationnel spécialisé en cybersécurité qui anime un jeu d'enquête interactif. Tu adoptes le style d'un ${style}.
+// Styles narratifs disponibles pour l'enquête
+const NARRATIVE_STYLES = [
+  'détective noir', 
+  'science-fiction', 
+  'thriller technique', 
+  'enquête journalistique',
+  'simulation réaliste'
+];
 
-CONCEPT À EXPLORER: ${concept} (TRÈS IMPORTANT: Ne jamais mentionner explicitement ce concept avant la phase de révélation)
-
-NIVEAU DE DIFFICULTÉ: ${difficulty}
-
-MISSION:
-Guide ${userName} à travers une enquête ludique, interactive et éducative sur ce concept de cybersécurité, sans jamais le nommer avant la fin.
-
-PRINCIPES CLÉS:
-1. DYNAMISME: Chaque message doit être unique, personnalisé et adapté au contexte.
-2. CRÉATIVITÉ: Invente des scénarios originaux et réalistes liés au concept.
-3. ADAPTABILITÉ: Ajuste-toi aux réponses de l'utilisateur, corrige si nécessaire, valide quand c'est pertinent.
-4. RECADRAGE: Si l'utilisateur s'éloigne trop du sujet, ramène-le subtilement vers l'enquête sur le concept.
-5. PRÉCISION TECHNIQUE: Toutes les informations doivent être exactes et à jour.
-
-STRUCTURE DE L'INTERACTION:
-1. MESSAGE D'ACCUEIL:
-   - Accueille l'utilisateur dans un scénario d'enquête cybersécurité captivant
-   - Présente un incident réaliste lié au concept (sans le nommer)
-   - Propose un premier indice et une question à choix multiples pour lancer l'enquête
-
-2. SÉRIE DE QUESTIONS (6 minimum):
-   - Pose des questions progressives qui couvrent différents aspects du concept
-   - Varie les formats: choix multiples, questions ouvertes, mises en situation
-   - Les questions doivent couvrir: signaux d'alerte, mécanismes techniques, impacts, contre-mesures, vulnérabilités exploitées, cas réels
-
-3. RÉVÉLATION DU CONCEPT:
-   - Dévoile enfin le nom du concept cybersécurité étudié
-   - Explique sa définition, son fonctionnement et ses variantes
-   - Félicite l'utilisateur pour son enquête
-
-4. ENRICHISSEMENT:
-   - Partage une anecdote historique réelle et marquante liée à ce concept
-   - Présente 3-5 bonnes pratiques détaillées pour s'en protéger
-   - Cite 2-3 références sérieuses (ANSSI, CERT, NIST, etc.) pour approfondir
-
-IMPORTANT:
-- Reste toujours en français, avec un vocabulaire clair mais précis
-- Adapte-toi au niveau de difficulté indiqué
-- N'oublie jamais que tu dois rester dans ton rôle de ${style}
-- Maintiens un équilibre entre rigueur technique et accessibilité
-- Ne donne jamais toutes les réponses d'emblée, guide l'utilisateur vers la découverte
-
-DÉBUT DE SESSION:
-Lance directement le scénario d'enquête avec créativité et dynamisme.`;
-};
+// Niveaux de difficulté disponibles
+const DIFFICULTY_LEVELS = [
+  'débutant',
+  'intermédiaire',
+  'expert'
+];
 
 /**
  * Démarre une nouvelle session d'enquête sur un concept cyber
@@ -114,7 +71,7 @@ Lance directement le scénario d'enquête avec créativité et dynamisme.`;
  */
 export async function startInvestigation(req: Request, res: Response) {
   try {
-    const { userId, userName } = req.body;
+    const { userId, userName = 'Détective' } = req.body;
     
     if (!userId) {
       return res.status(400).json({
@@ -123,23 +80,23 @@ export async function startInvestigation(req: Request, res: Response) {
       });
     }
     
-    // Sélection aléatoire du concept, style narratif et niveau de difficulté
-    const randomConcept = CYBER_CONCEPTS[Math.floor(Math.random() * CYBER_CONCEPTS.length)];
-    const randomStyle = NARRATIVE_STYLES[Math.floor(Math.random() * NARRATIVE_STYLES.length)];
-    const randomDifficulty = DIFFICULTY_LEVELS[Math.floor(Math.random() * DIFFICULTY_LEVELS.length)];
+    // Sélection aléatoire d'un concept, d'un style narratif et d'un niveau de difficulté
+    const selectedConcept = CYBER_CONCEPTS[Math.floor(Math.random() * CYBER_CONCEPTS.length)];
+    const narrativeStyle = NARRATIVE_STYLES[Math.floor(Math.random() * NARRATIVE_STYLES.length)];
+    const difficultyLevel = DIFFICULTY_LEVELS[Math.floor(Math.random() * DIFFICULTY_LEVELS.length)];
     
-    console.log(`Démarrage d'une enquête sur: ${randomConcept} (Style: ${randomStyle}, Difficulté: ${randomDifficulty})`);
-    
-    // Créer une nouvelle session
+    // Génération d'un ID de session unique
     const sessionId = uuidv4();
+    
+    // Création de la nouvelle session
     const newSession: InvestigationSession = {
       id: sessionId,
       userId,
-      userName: userName || "Détective",
-      currentStage: 0,
-      selectedConcept: randomConcept,
-      narrativeStyle: randomStyle,
-      difficultyLevel: randomDifficulty,
+      userName,
+      currentStage: 0, // 0: Introduction, 1: Questions, 2: Révélation, 3: Enrichissement
+      selectedConcept,
+      narrativeStyle,
+      difficultyLevel,
       messages: [],
       startTime: Date.now(),
       lastUpdateTime: Date.now(),
@@ -147,61 +104,56 @@ export async function startInvestigation(req: Request, res: Response) {
       conceptRevealed: false
     };
     
-    // Générer le prompt système personnalisé
+    // Enregistrement de la session
+    activeSessions.set(sessionId, newSession);
+    
+    // Génération du message d'accueil pour démarrer l'enquête
     const systemPrompt = getBaseSystemPrompt(
-      randomStyle, 
-      randomConcept, 
-      randomDifficulty,
-      userName || "Détective"
+      narrativeStyle,
+      selectedConcept, 
+      difficultyLevel,
+      userName
     );
     
-    // Générer le message d'accueil via GPT-4o
-    const initialPrompt = `Crée un message d'accueil pour une enquête interactive sur le concept: ${randomConcept}. 
-N'identifie PAS le concept directement. 
-Présente un scénario réaliste impliquant ce concept, un premier indice et une question à choix multiples A à D.
-Formate ta réponse en Markdown pour une meilleure lisibilité.
-Adopte le style d'un ${randomStyle} et adapte la complexité au niveau ${randomDifficulty}.`;
+    const welcomePrompt = `Tu es I AM CYBER, un agent conversationnel de cybersécurité immersif. 
+Commence une nouvelle enquête cybersécurité interactive sur le concept de ${selectedConcept}.
+Adopte un style de ${narrativeStyle} et adapte-toi au niveau ${difficultyLevel}.
+N'indique pas directement quel est le concept que l'utilisateur doit découvrir.
+Présente un court message d'introduction avec quelques lignes sur l'investigation à venir.`;
     
-    try {
-      const welcomeMessage = await openAIService.getChatCompletionWithCache(
-        [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: initialPrompt }
-        ],
-        0.9, // Température élevée pour plus de créativité
-        1000  // Nombre maximum de tokens
-      );
-      
-      // Ajouter ce message à l'historique de la session
-      newSession.messages.push({
-        id: uuidv4(),
-        role: "assistant",
-        content: welcomeMessage,
-        timestamp: Date.now()
-      });
-      
-      // Stocker la session
-      activeSessions.set(sessionId, newSession);
-      
-      // Répondre avec les informations de la session
-      return res.json({
-        success: true,
-        message: 'Session d\'enquête cybersécurité initialisée',
-        sessionId,
-        welcomeMessage
-      });
-    } catch (error) {
-      console.error("Erreur lors de l'appel à l'API OpenAI:", error);
-      return res.status(500).json({
-        success: false,
-        error: "Erreur lors de la génération du message d'accueil"
-      });
-    }
+    // Utilisation du service OpenAI existant
+    const welcomeMessage = await openAIService.getChatCompletionWithCache(
+      [
+        { role: "system" as const, content: systemPrompt },
+        { role: "user" as const, content: welcomePrompt }
+      ],
+      0.8, // Température élevée pour favoriser la variété
+      1000 // Tokens suffisants pour une réponse riche
+    );
+    
+    // Stockage du message dans l'historique
+    newSession.messages.push({
+      id: uuidv4(),
+      role: "assistant",
+      content: welcomeMessage,
+      timestamp: Date.now()
+    });
+    
+    // Retour de la session et du message d'accueil
+    return res.json({
+      success: true,
+      sessionId,
+      welcomeMessage,
+      conceptRevealed: false,
+      questionCount: 0,
+      currentStage: 0
+    });
+    
   } catch (error) {
-    console.error('Erreur lors de l\'initialisation de la session d\'enquête:', error);
+    console.error('Erreur lors du démarrage de l\'investigation:', error);
     return res.status(500).json({
       success: false,
-      error: 'Erreur serveur lors de l\'initialisation de la session'
+      error: 'Erreur serveur lors du démarrage de l\'investigation'
     });
   }
 }
@@ -221,8 +173,9 @@ export async function processInvestigationMessage(req: Request, res: Response) {
       });
     }
     
-    // Récupérer la session
+    // Récupération de la session
     const session = activeSessions.get(sessionId);
+    
     if (!session) {
       return res.status(404).json({
         success: false,
@@ -230,10 +183,10 @@ export async function processInvestigationMessage(req: Request, res: Response) {
       });
     }
     
-    // Mettre à jour la session
+    // Mise à jour du timestamp de dernière activité
     session.lastUpdateTime = Date.now();
     
-    // Ajouter le message utilisateur à l'historique
+    // Enregistrement du message utilisateur
     session.messages.push({
       id: uuidv4(),
       role: "user",
@@ -241,47 +194,73 @@ export async function processInvestigationMessage(req: Request, res: Response) {
       timestamp: Date.now()
     });
     
-    // Déterminer où nous en sommes dans la progression
+    // Déterminer l'étape actuelle et générer un prompt approprié
     let promptContent = "";
     let shouldIncrementQuestionCount = false;
     
-    // Si le concept n'a pas encore été révélé
-    if (!session.conceptRevealed) {
-      // Si nous avons déjà posé au moins 6 questions, c'est le moment de révéler
-      if (session.questionCount >= 6) {
-        session.conceptRevealed = true;
-        promptContent = `L'utilisateur a répondu: "${message}". 
-C'était la dernière question de notre enquête. 
-Maintenant, il est temps de révéler que le concept étudié était "${session.selectedConcept}".
-Donne une définition claire et précise du concept, ses caractéristiques principales et son importance en cybersécurité.
+    // Vérifier si l'utilisateur a trouvé le concept
+    const userMessageLower = message.toLowerCase();
+    const conceptFound = userMessageLower.includes(session.selectedConcept.toLowerCase());
+    
+    if (conceptFound && !session.conceptRevealed) {
+      // L'utilisateur a trouvé le concept!
+      session.conceptRevealed = true;
+      session.currentStage = 2; // Passer à l'étape de révélation
+      
+      promptContent = `L'utilisateur vient de découvrir que le concept est "${session.selectedConcept}"!
+Félicite-le chaleureusement pour sa déduction. Explique alors en détail ce qu'est ${session.selectedConcept} 
+et pourquoi c'est un sujet important en cybersécurité. Donne quelques exemples concrets d'attaques ou 
+d'incidents célèbres impliquant ce concept. Maintiens ton style de ${session.narrativeStyle}.`;
+    }
+    else if (session.conceptRevealed && session.currentStage === 2) {
+      // Après la révélation, passer à l'enrichissement
+      session.currentStage = 3;
+      
+      promptContent = `L'utilisateur continue la conversation après la révélation du concept "${session.selectedConcept}".
+Fournis maintenant des informations pratiques sur la protection contre ${session.selectedConcept}:
+- Des mesures préventives que les entreprises et particuliers peuvent prendre
+- Des actions à entreprendre en cas d'attaque ${session.selectedConcept}
+- Des tendances actuelles concernant ce type de menace
+- Des formations ou ressources pour en apprendre plus sur ce sujet
 Utilise ton style de ${session.narrativeStyle} et garde un niveau adapté à ${session.difficultyLevel}.`;
-      } else {
-        // Sinon, poser la prochaine question
-        shouldIncrementQuestionCount = true;
-        promptContent = `L'utilisateur a répondu: "${message}". 
-Nous sommes à la question ${session.questionCount + 1}/6 de notre enquête sur le concept ${session.selectedConcept} (ne nomme PAS le concept). 
-Commente sa réponse de façon personnalisée, puis pose la prochaine question qui explore un nouvel aspect du concept.
-Si l'utilisateur s'éloigne du sujet, ramène-le subtilement à l'enquête.
-Varie le format des questions pour maintenir l'engagement.
-Utilise ton style de ${session.narrativeStyle} et garde un niveau adapté à ${session.difficultyLevel}.`;
-      }
-    } 
-    // Si le concept a été révélé mais nous n'avons pas encore donné l'anecdote
-    else if (session.currentStage === 0) {
-      session.currentStage = 1;
-      promptContent = `L'utilisateur a répondu: "${message}" après la révélation du concept ${session.selectedConcept}. 
-Partage maintenant une anecdote historique réelle et marquante sur ${session.selectedConcept}.
-Puis présente 3-5 bonnes pratiques détaillées pour s'en protéger.
-Termine par 2-3 références sérieuses (ANSSI, CERT, NIST, etc.) pour approfondir.
-Utilise ton style de ${session.narrativeStyle} et garde un niveau adapté à ${session.difficultyLevel}.`;
-    } 
-    // Phase de conclusion
-    else {
-      promptContent = `L'utilisateur a répondu: "${message}" après l'anecdote et les bonnes pratiques sur ${session.selectedConcept}.
-La session d'enquête est maintenant terminée.
-Fais un bref résumé des points clés à retenir sur ${session.selectedConcept}.
+    }
+    else if (session.conceptRevealed && session.currentStage === 3) {
+      // Phase finale - conclusion
+      promptContent = `L'utilisateur continue d'explorer le sujet de "${session.selectedConcept}" après les explications détaillées.
+Conclus cette enquête en résumant les principaux points abordés concernant ${session.selectedConcept}.
+Synthétise les enseignements clés, en rappelant l'importance de ce concept dans la cybersécurité moderne.
 Remercie l'utilisateur pour sa participation et suggère qu'il peut démarrer une nouvelle enquête sur un autre concept s'il le souhaite.
 Utilise ton style de ${session.narrativeStyle} et garde un niveau adapté à ${session.difficultyLevel}.`;
+    }
+    else if (session.questionCount >= 6 && !session.conceptRevealed) {
+      // Si l'utilisateur a posé 6 questions sans trouver, lui révéler le concept
+      session.conceptRevealed = true;
+      session.currentStage = 2;
+      
+      promptContent = `L'utilisateur a posé plusieurs questions mais n'a pas encore identifié que le concept est "${session.selectedConcept}".
+Révèle maintenant que le concept central de cette enquête est ${session.selectedConcept}.
+Explique ce qu'est ${session.selectedConcept} et pourquoi c'est un concept important en cybersécurité.
+Donne quelques exemples d'attaques ou d'incidents réels qui impliquent ce concept.
+Maintiens ton style de ${session.narrativeStyle} et ton niveau de ${session.difficultyLevel}.`;
+    }
+    else {
+      // Phase de questions normales
+      shouldIncrementQuestionCount = true;
+      
+      promptContent = `L'utilisateur a envoyé: "${message}".
+C'est sa question/réponse ${session.questionCount + 1} dans cette enquête sur "${session.selectedConcept}".
+
+Réponds de manière engageante et immersive, dans ton style de ${session.narrativeStyle}.
+Adapte ton explication au niveau ${session.difficultyLevel}.
+
+Conseils:
+- Maintiens le mystère, ne révèle pas explicitement que le concept est "${session.selectedConcept}"
+- Fournis des indices sur ${session.selectedConcept} à travers ta réponse
+- Si l'utilisateur s'approche du concept, encourage-le subtilement
+- Reste centré sur le sujet de la cybersécurité
+- Garde tes réponses intéressantes et informatives, mais pas trop longues
+
+Si l'utilisateur semble désintéressé ou bloqué, oriente-le vers la bonne direction avec un indice subtil.`;
     }
     
     // Construire l'historique des messages pour le contexte
@@ -302,9 +281,9 @@ Utilise ton style de ${session.narrativeStyle} et garde un niveau adapté à ${s
       // Appel à GPT-4o pour générer la réponse via le service existant
       const responseContent = await openAIService.getChatCompletionWithCache(
         [
-          { role: "system", content: systemPrompt },
+          { role: "system" as const, content: systemPrompt },
           ...messageHistory.slice(-10), // Les 10 derniers messages pour le contexte
-          { role: "user", content: promptContent }
+          { role: "user" as const, content: promptContent }
         ],
         0.8, // Température élevée pour favoriser la variété
         1200 // Plus de tokens pour des réponses plus riches
@@ -397,4 +376,58 @@ export function cleanupInactiveSessions() {
       console.log(`Session inactive supprimée: ${sessionId}`);
     }
   });
+}
+
+/**
+ * Génère le prompt système de base pour l'agent I AM CYBER
+ */
+function getBaseSystemPrompt(
+  narrativeStyle: string,
+  concept: string,
+  difficulty: string,
+  userName: string
+): string {
+  return `# I AM CYBER - AGENT CONVERSATIONNEL D'ENQUÊTE CYBERSÉCURITÉ
+
+## Ton rôle
+Tu es I AM CYBER, un agent conversationnel spécialisé dans les enquêtes immersives sur les concepts de cybersécurité.
+Ta mission est de créer une expérience d'apprentissage interactive où l'utilisateur découvre le concept de "${concept}" 
+à travers une enquête narrative et engageante.
+
+## Style narratif
+Tu dois adopter un style de "${narrativeStyle}" pour toute l'enquête.
+- Style détective noir: langage mystérieux, ambiance sombre, références au monde de la détection
+- Style science-fiction: références futuristes, technologies avancées, menaces cyber évoluées
+- Style thriller technique: précision technique, tension progressive, explications détaillées 
+- Style enquête journalistique: ton factuel, approche méthodique, références à des cas réels
+- Style simulation réaliste: scénario d'entreprise réaliste, langage professionnel, situations concrètes
+
+## Niveau de difficulté: ${difficulty}
+- Débutant: explications simples, concepts de base, analogies accessibles
+- Intermédiaire: terminologie spécifique, contexte plus approfondi, détails techniques modérés
+- Expert: discussions techniques détaillées, nuances avancées, exemples complexes
+
+## Personnalisation
+Adresse-toi à l'utilisateur par son nom: ${userName}
+
+## Structure de l'enquête
+1. Introduction: présentation mystérieuse sans révéler le concept
+2. Questions (6 max): réponses qui donnent progressivement des indices sur ${concept}
+3. Révélation: explication complète du concept une fois découvert (ou après 6 questions)
+4. Enrichissement: informations pratiques, conseils de protection, ressources d'apprentissage
+
+## Règles importantes
+- Reste toujours dans ton rôle d'agent d'enquête cyber
+- Ne révèle jamais directement que le concept est "${concept}" avant que l'utilisateur ne le devine
+- Sois toujours informatif et pédagogique, même dans ton style narratif spécifique
+- Adapte la complexité technique au niveau de difficulté défini
+- Fournis toujours des informations exactes sur la cybersécurité
+- Si l'utilisateur s'éloigne trop du sujet, ramène-le subtilement vers l'enquête
+- Ne dépasse jamais ton rôle: tu es un outil éducatif, pas un outil de piratage
+
+## Format d'interaction
+- Messages courts à moyens (pas plus de 2-3 paragraphes)
+- Informations précises et factuelles sur la cybersécurité
+- Ton adapté au style narratif choisi
+- Pédagogie progressive pour guider vers la découverte`;
 }

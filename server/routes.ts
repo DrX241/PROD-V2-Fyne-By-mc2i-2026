@@ -26,8 +26,8 @@ import { startAgentSession, completeAgentSession } from "./cyberAgentController"
 import { generateDebriefing, getContextualDocumentation } from "./cyberLearningController";
 import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearningController";
 import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
-import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
 import { startInvestigation, processInvestigationMessage, cleanupInvestigationSession } from "./cyberInvestigationController";
+import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
 // Import des fonctions d'urgence cyber supprimé
 
 /**
