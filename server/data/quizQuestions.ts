@@ -1,225 +1,231 @@
-import { QuizQuestion } from '@shared/types/quiz';
-import { v4 as uuidv4 } from "uuid";
+import { QuizQuestion } from '../../shared/types/quiz';
+import { v4 as uuidv4 } from 'uuid';
 
-// Base de données des questions du quiz
+/**
+ * Base de données de questions pour le quiz de cybersécurité
+ */
 export const quizQuestions: QuizQuestion[] = [
   // Questions faciles
   {
     id: uuidv4(),
-    question: "Qu'est-ce qu'un mot de passe fort ?",
+    question: "Quelle pratique représente la méthode la plus efficace pour protéger vos comptes en ligne ?",
     options: [
-      { id: uuidv4(), text: "Un mot du dictionnaire", isCorrect: false },
-      { id: uuidv4(), text: "Votre date de naissance", isCorrect: false },
-      { id: uuidv4(), text: "Une combinaison de lettres, chiffres et caractères spéciaux d'au moins 12 caractères", isCorrect: true },
-      { id: uuidv4(), text: "Le nom de votre animal de compagnie", isCorrect: false }
+      { id: "a", text: "Changer votre mot de passe une fois par an" },
+      { id: "b", text: "Utiliser l'authentification à deux facteurs (2FA)" },
+      { id: "c", text: "Utiliser le même mot de passe pour tous vos comptes" },
+      { id: "d", text: "Partager votre mot de passe uniquement avec des amis proches" }
     ],
-    explanation: "Un mot de passe fort doit être long (au moins 12 caractères), complexe (combinaison de majuscules, minuscules, chiffres et caractères spéciaux) et ne pas contenir d'informations personnelles faciles à deviner.",
+    category: "Sécurité des mots de passe",
     difficulty: "easy",
-    category: "Fondamentaux"
+    correctOptionId: "b",
+    explanation: "L'authentification à deux facteurs (2FA) ajoute une couche de sécurité supplémentaire en exigeant une deuxième forme de vérification au-delà du simple mot de passe. Même si votre mot de passe est compromis, un attaquant ne pourra pas accéder à votre compte sans avoir accès à votre deuxième facteur d'authentification (comme votre téléphone portable)."
   },
   {
     id: uuidv4(),
-    question: "Qu'est-ce que le phishing ?",
+    question: "Qu'est-ce qu'une attaque de phishing ?",
     options: [
-      { id: uuidv4(), text: "Une technique d'attaque où des e-mails frauduleux sont envoyés pour voler des informations", isCorrect: true },
-      { id: uuidv4(), text: "Un logiciel qui protège contre les virus", isCorrect: false },
-      { id: uuidv4(), text: "Une méthode pour sécuriser les réseaux Wi-Fi", isCorrect: false },
-      { id: uuidv4(), text: "Un type de pare-feu", isCorrect: false }
+      { id: "a", text: "Une tentative de surcharger un serveur avec des requêtes" },
+      { id: "b", text: "Un logiciel qui bloque l'accès à vos données jusqu'à paiement d'une rançon" },
+      { id: "c", text: "Une tentative de tromper les utilisateurs pour qu'ils révèlent leurs informations personnelles" },
+      { id: "d", text: "Un virus qui se propage via les réseaux Wi-Fi" }
     ],
-    explanation: "Le phishing est une technique d'ingénierie sociale où des attaquants se font passer pour des entités de confiance afin de tromper les victimes pour qu'elles révèlent des informations sensibles comme des mots de passe ou des données bancaires.",
+    category: "Ingénierie sociale",
     difficulty: "easy",
-    category: "Menaces"
+    correctOptionId: "c",
+    explanation: "Le phishing est une forme d'ingénierie sociale où les attaquants se font passer pour des entités légitimes (comme des banques, des réseaux sociaux, ou des collègues) pour inciter les utilisateurs à révéler des informations sensibles telles que leurs identifiants, mots de passe ou données bancaires."
   },
   {
     id: uuidv4(),
-    question: "Pourquoi est-il important de mettre à jour régulièrement vos logiciels ?",
+    question: "Quelle est la meilleure pratique à suivre lors de la réception d'un e-mail non sollicité contenant des pièces jointes ?",
     options: [
-      { id: uuidv4(), text: "Pour avoir les dernières fonctionnalités", isCorrect: false },
-      { id: uuidv4(), text: "Pour corriger les failles de sécurité connues", isCorrect: true },
-      { id: uuidv4(), text: "Pour économiser de l'espace de stockage", isCorrect: false },
-      { id: uuidv4(), text: "Pour accélérer votre ordinateur", isCorrect: false }
+      { id: "a", text: "Ouvrir la pièce jointe pour vérifier son contenu" },
+      { id: "b", text: "Transférer l'e-mail à vos collègues pour avoir leur avis" },
+      { id: "c", text: "Cliquer sur les liens dans l'e-mail pour vérifier leur légitimité" },
+      { id: "d", text: "Ne pas ouvrir les pièces jointes et supprimer l'e-mail si vous avez des doutes" }
     ],
-    explanation: "Les mises à jour de logiciels contiennent souvent des correctifs de sécurité qui réparent des vulnérabilités connues. Sans ces mises à jour, votre système reste exposé à des attaques exploitant ces failles.",
+    category: "Sécurité des e-mails",
     difficulty: "easy",
-    category: "Bonnes pratiques"
+    correctOptionId: "d",
+    explanation: "Les pièces jointes non sollicitées peuvent contenir des logiciels malveillants. Il est préférable de ne pas ouvrir ces pièces jointes et de supprimer les e-mails suspects. Si vous pensez que l'e-mail pourrait être légitime, contactez directement l'expéditeur par un autre moyen de communication pour vérifier avant d'ouvrir quoi que ce soit."
+  },
+  {
+    id: uuidv4(),
+    question: "Pourquoi est-il important de maintenir vos logiciels et systèmes d'exploitation à jour ?",
+    options: [
+      { id: "a", text: "Pour accéder aux nouvelles fonctionnalités uniquement" },
+      { id: "b", text: "Pour corriger les failles de sécurité connues" },
+      { id: "c", text: "Pour augmenter la vitesse de votre appareil" },
+      { id: "d", text: "Pour réduire l'espace de stockage utilisé" }
+    ],
+    category: "Maintenance des systèmes",
+    difficulty: "easy",
+    correctOptionId: "b",
+    explanation: "Les mises à jour de sécurité sont essentielles car elles corrigent les vulnérabilités découvertes qui pourraient être exploitées par des attaquants. Les cybercriminels ciblent souvent les systèmes non mis à jour en exploitant des failles connues pour lesquelles des correctifs existent déjà."
   },
   
-  // Questions de niveau intermédiaire
+  // Questions de difficulté moyenne
   {
     id: uuidv4(),
     question: "Qu'est-ce qu'une attaque par déni de service distribué (DDoS) ?",
     options: [
-      { id: uuidv4(), text: "Un virus qui efface les données de l'utilisateur", isCorrect: false },
-      { id: uuidv4(), text: "Une attaque où plusieurs systèmes compromis bombardent un système cible de trafic", isCorrect: true },
-      { id: uuidv4(), text: "Une faille dans un système d'exploitation", isCorrect: false },
-      { id: uuidv4(), text: "Un type de chiffrement faible", isCorrect: false }
+      { id: "a", text: "Une attaque où l'on divise les ressources d'un serveur entre plusieurs utilisateurs" },
+      { id: "b", text: "Une technique pour distribuer des données à travers plusieurs serveurs" },
+      { id: "c", text: "Une attaque qui inonde un système avec du trafic provenant de multiples sources" },
+      { id: "d", text: "Un système qui distribue automatiquement les correctifs de sécurité" }
     ],
-    explanation: "Une attaque DDoS utilise de nombreux appareils infectés (un botnet) pour inonder un système cible de requêtes, épuisant ses ressources et le rendant inaccessible aux utilisateurs légitimes.",
+    category: "Sécurité réseau",
     difficulty: "medium",
-    category: "Menaces"
+    correctOptionId: "c",
+    explanation: "Une attaque DDoS (Distributed Denial of Service) est une tentative malveillante de perturber le trafic normal d'un serveur, service ou réseau en le submergeant avec un flux massif de trafic internet provenant de multiples sources. Contrairement à une attaque DoS simple qui utilise une seule source, les attaques DDoS utilisent de nombreux appareils compromis (souvent des objets connectés), ce qui les rend plus difficiles à atténuer."
   },
   {
     id: uuidv4(),
-    question: "Quelle est la différence entre l'authentification et l'autorisation ?",
+    question: "Quelle méthode un attaquant pourrait-il utiliser pour contourner une authentification à deux facteurs basée sur SMS ?",
     options: [
-      { id: uuidv4(), text: "Ce sont deux termes désignant la même chose", isCorrect: false },
-      { id: uuidv4(), text: "L'authentification vérifie l'identité, l'autorisation définit les droits d'accès", isCorrect: true },
-      { id: uuidv4(), text: "L'authentification crée des comptes, l'autorisation les supprime", isCorrect: false },
-      { id: uuidv4(), text: "L'authentification est pour les administrateurs, l'autorisation pour les utilisateurs", isCorrect: false }
+      { id: "a", text: "Forcer la réinitialisation du mot de passe" },
+      { id: "b", text: "Effectuer une attaque par dictionnaire" },
+      { id: "c", text: "Réaliser une attaque SIM swapping" },
+      { id: "d", text: "Installer un antivirus sur l'appareil cible" }
     ],
-    explanation: "L'authentification est le processus de vérification de l'identité d'un utilisateur (qui êtes-vous ?), tandis que l'autorisation détermine ce qu'un utilisateur authentifié est autorisé à faire (quels sont vos droits ?).",
+    category: "Authentification",
     difficulty: "medium",
-    category: "Identité"
+    correctOptionId: "c",
+    explanation: "Le SIM swapping (échange de carte SIM) est une technique où l'attaquant contacte l'opérateur téléphonique de la victime et, en utilisant des informations personnelles obtenues par ingénierie sociale ou vol de données, convainc l'opérateur de transférer le numéro de téléphone sur une nouvelle carte SIM. Une fois le numéro de téléphone sous contrôle, l'attaquant peut recevoir les codes d'authentification par SMS, contournant ainsi la protection 2FA."
   },
   {
     id: uuidv4(),
-    question: "Qu'est-ce que le principe du moindre privilège ?",
+    question: "Qu'est-ce qu'une politique de gestion des accès basée sur le principe du moindre privilège ?",
     options: [
-      { id: uuidv4(), text: "Donner à tous les utilisateurs les mêmes privilèges", isCorrect: false },
-      { id: uuidv4(), text: "Donner à chaque utilisateur accès à toutes les ressources", isCorrect: false },
-      { id: uuidv4(), text: "Accorder uniquement les privilèges minimaux nécessaires pour effectuer une tâche", isCorrect: true },
-      { id: uuidv4(), text: "Restreindre l'accès à tous les utilisateurs", isCorrect: false }
+      { id: "a", text: "Donner à tous les utilisateurs les mêmes droits d'accès pour simplifier la gestion" },
+      { id: "b", text: "Accorder uniquement les accès minimums nécessaires pour effectuer les tâches requises" },
+      { id: "c", text: "Réserver les accès aux systèmes uniquement aux administrateurs" },
+      { id: "d", text: "Changer les droits d'accès chaque semaine pour améliorer la sécurité" }
     ],
-    explanation: "Le principe du moindre privilège consiste à accorder aux utilisateurs uniquement les permissions minimales nécessaires pour accomplir leurs tâches, limitant ainsi les dommages potentiels en cas de compromission d'un compte.",
+    category: "Contrôle d'accès",
     difficulty: "medium",
-    category: "Contrôle d'accès"
+    correctOptionId: "b",
+    explanation: "Le principe du moindre privilège est une stratégie de sécurité informatique fondamentale qui consiste à limiter les droits d'accès des utilisateurs au strict minimum requis pour accomplir leurs tâches. Cela réduit la surface d'attaque et limite les dommages potentiels en cas de compromission d'un compte. Par exemple, un employé du service comptabilité n'a pas besoin d'accéder aux données RH, et un développeur n'a pas nécessairement besoin d'accès à l'environnement de production."
+  },
+  {
+    id: uuidv4(),
+    question: "Quelle est la principale différence entre un pare-feu de nouvelle génération (NGFW) et un pare-feu traditionnel ?",
+    options: [
+      { id: "a", text: "Les NGFW sont physiques tandis que les pare-feu traditionnels sont virtuels" },
+      { id: "b", text: "Les pare-feu traditionnels sont plus chers que les NGFW" },
+      { id: "c", text: "Les NGFW intègrent des fonctionnalités avancées comme l'inspection approfondie des paquets et la prévention d'intrusion" },
+      { id: "d", text: "Les pare-feu traditionnels sont plus récents que les NGFW" }
+    ],
+    category: "Protection du réseau",
+    difficulty: "medium",
+    correctOptionId: "c",
+    explanation: "Les pare-feu de nouvelle génération (NGFW) vont au-delà des pare-feu traditionnels qui filtrent le trafic principalement sur la base des ports et des adresses IP. Les NGFW offrent des fonctionnalités avancées comme l'inspection approfondie des paquets, la prévention d'intrusion intégrée, l'analyse des applications, et parfois des capacités de protection contre les logiciels malveillants. Ils peuvent prendre des décisions basées sur le comportement des applications plutôt que simplement sur les ports et protocoles."
   },
   
   // Questions difficiles
   {
     id: uuidv4(),
-    question: "Qu'est-ce qu'une attaque de type 'zero-day' ?",
+    question: "Dans le contexte d'une attaque d'injection SQL, que signifie le terme 'SQLi blind' ?",
     options: [
-      { id: uuidv4(), text: "Une attaque exploitant une vulnérabilité inconnue du fabricant du logiciel", isCorrect: true },
-      { id: uuidv4(), text: "Une attaque qui se produit le premier jour du mois", isCorrect: false },
-      { id: uuidv4(), text: "Une attaque qui prend exactement zéro jour à exécuter", isCorrect: false },
-      { id: uuidv4(), text: "Une attaque qui cible uniquement les nouveaux systèmes", isCorrect: false }
+      { id: "a", text: "Une injection qui cible uniquement les bases de données invisibles" },
+      { id: "b", text: "Une variante où l'attaquant ne peut pas voir directement les résultats de l'injection" },
+      { id: "c", text: "Une attaque qui désactive temporairement l'interface utilisateur de la base de données" },
+      { id: "d", text: "Une injection qui fonctionne seulement quand l'administrateur n'est pas connecté" }
     ],
-    explanation: "Une vulnérabilité 'zero-day' est une faille de sécurité inconnue du fabricant et pour laquelle aucun correctif n'est disponible. Les attaquants exploitant ces vulnérabilités ont donc un avantage significatif car les défenses traditionnelles sont inefficaces.",
+    category: "Sécurité des applications",
     difficulty: "hard",
-    category: "Vulnérabilités"
+    correctOptionId: "b",
+    explanation: "Dans une injection SQL aveugle (Blind SQLi), l'attaquant ne peut pas voir directement les résultats de son injection dans la réponse du serveur. Au lieu de cela, il doit inférer les résultats en observant le comportement de l'application (par exemple, si une condition est vraie ou fausse) ou le temps de réponse (attaques temporelles). Cela rend l'attaque plus difficile mais pas impossible, ce qui souligne l'importance de la validation des entrées et de l'utilisation de requêtes paramétrées."
   },
   {
     id: uuidv4(),
-    question: "Quelle est la différence entre le chiffrement symétrique et asymétrique ?",
+    question: "Quelle est la méthode la plus efficace pour se protéger contre les attaques de canal latéral visant les implémentations cryptographiques ?",
     options: [
-      { id: uuidv4(), text: "Le chiffrement symétrique utilise une seule clé, l'asymétrique utilise une paire de clés", isCorrect: true },
-      { id: uuidv4(), text: "Le chiffrement symétrique est pour les fichiers, l'asymétrique pour les emails", isCorrect: false },
-      { id: uuidv4(), text: "Le chiffrement symétrique est plus récent que l'asymétrique", isCorrect: false },
-      { id: uuidv4(), text: "Le chiffrement symétrique est toujours plus sécurisé", isCorrect: false }
+      { id: "a", text: "Augmenter la taille des clés de chiffrement" },
+      { id: "b", text: "Utiliser exclusivement des algorithmes de chiffrement symétriques" },
+      { id: "c", text: "Implémenter des contre-mesures comme le masquage et la randomisation du timing" },
+      { id: "d", text: "Désactiver l'hyperthreading sur les serveurs" }
     ],
-    explanation: "Le chiffrement symétrique utilise la même clé pour chiffrer et déchiffrer, ce qui est rapide mais pose des problèmes d'échange sécurisé de clés. Le chiffrement asymétrique utilise une paire de clés (publique/privée), résolvant le problème d'échange de clés mais étant plus lent.",
+    category: "Cryptographie",
     difficulty: "hard",
-    category: "Cryptographie"
+    correctOptionId: "c",
+    explanation: "Les attaques de canal latéral exploitent les informations obtenues de l'implémentation physique d'un système cryptographique (comme le temps d'exécution, la consommation d'énergie, ou les émissions électromagnétiques) plutôt que les faiblesses de l'algorithme lui-même. Les contre-mesures efficaces incluent le masquage (qui dissocie les données traitées des données réelles), la randomisation du timing (pour éviter les fuites temporelles), et d'autres techniques visant à éliminer les corrélations entre les données sensibles et les caractéristiques observables du système."
   },
   {
     id: uuidv4(),
-    question: "Qu'est-ce que l'OWASP Top 10 ?",
+    question: "Dans un contexte Zero Trust, quelle affirmation est correcte ?",
     options: [
-      { id: uuidv4(), text: "Une liste des 10 meilleurs outils de piratage", isCorrect: false },
-      { id: uuidv4(), text: "Une liste des 10 vulnérabilités web les plus critiques", isCorrect: true },
-      { id: uuidv4(), text: "Les 10 entreprises les plus sécurisées", isCorrect: false },
-      { id: uuidv4(), text: "Les 10 meilleurs antivirus", isCorrect: false }
+      { id: "a", text: "Une fois qu'un utilisateur est authentifié, il peut accéder à l'ensemble du réseau" },
+      { id: "b", text: "Les appareils internes au réseau sont automatiquement considérés comme fiables" },
+      { id: "c", text: "La confiance n'est jamais présumée et doit être continuellement vérifiée" },
+      { id: "d", text: "L'utilisation d'un VPN garantit la conformité avec le modèle Zero Trust" }
     ],
-    explanation: "L'OWASP Top 10 est un document de sensibilisation standard qui identifie les vulnérabilités de sécurité web les plus critiques. Il est régulièrement mis à jour et utilisé comme référence par les développeurs et les professionnels de la sécurité pour améliorer la sécurité des applications web.",
+    category: "Architectures de sécurité",
     difficulty: "hard",
-    category: "Sécurité applicative"
-  },
-  
-  // Questions supplémentaires par catégories
-  {
-    id: uuidv4(),
-    question: "Qu'est-ce que le RGPD ?",
-    options: [
-      { id: uuidv4(), text: "Un logiciel antivirus européen", isCorrect: false },
-      { id: uuidv4(), text: "Un règlement européen sur la protection des données personnelles", isCorrect: true },
-      { id: uuidv4(), text: "Un protocole de sécurité réseau", isCorrect: false },
-      { id: uuidv4(), text: "Un organisme de certification en cybersécurité", isCorrect: false }
-    ],
-    explanation: "Le Règlement Général sur la Protection des Données (RGPD) est une réglementation européenne entrée en vigueur en mai 2018 qui renforce la protection des données personnelles des individus et harmonise les lois sur la protection des données dans l'UE.",
-    difficulty: "medium",
-    category: "Réglementation"
+    correctOptionId: "c",
+    explanation: "L'approche Zero Trust est basée sur le principe 'ne jamais faire confiance, toujours vérifier'. Contrairement aux modèles de sécurité traditionnels qui considèrent comme fiable tout ce qui se trouve à l'intérieur du périmètre réseau, Zero Trust n'accorde de confiance à aucun utilisateur ou appareil par défaut, qu'il soit à l'intérieur ou à l'extérieur du réseau. Chaque tentative d'accès est vérifiée, l'accès est limité au minimum nécessaire, et des contrôles continus sont effectués pour détecter et répondre aux anomalies."
   },
   {
     id: uuidv4(),
-    question: "Qu'est-ce qu'un réseau privé virtuel (VPN) ?",
+    question: "Quelle technique est la plus efficace pour se défendre contre les attaques de type 'heap spray' ?",
     options: [
-      { id: uuidv4(), text: "Un réseau physique isolé d'internet", isCorrect: false },
-      { id: uuidv4(), text: "Un logiciel qui détecte les virus", isCorrect: false },
-      { id: uuidv4(), text: "Une technologie qui crée une connexion sécurisée et chiffrée sur un réseau moins sécurisé", isCorrect: true },
-      { id: uuidv4(), text: "Un type de firewall avancé", isCorrect: false }
+      { id: "a", text: "Utilisation d'ASLR (Address Space Layout Randomization)" },
+      { id: "b", text: "Implémentation de pare-feu applicatifs" },
+      { id: "c", text: "Limitation de la taille des requêtes HTTP" },
+      { id: "d", text: "Augmentation de la mémoire RAM disponible" }
     ],
-    explanation: "Un VPN crée un tunnel chiffré pour vos données à travers un réseau public (comme Internet), protégeant ainsi vos activités en ligne des regards indiscrets et permettant un accès sécurisé à des réseaux distants.",
-    difficulty: "easy",
-    category: "Réseaux"
-  },
-  {
-    id: uuidv4(),
-    question: "Qu'est-ce que le 'hachage' (hashing) en cryptographie ?",
-    options: [
-      { id: uuidv4(), text: "Une méthode pour compresser des fichiers", isCorrect: false },
-      { id: uuidv4(), text: "Une fonction qui transforme des données en une empreinte de taille fixe", isCorrect: true },
-      { id: uuidv4(), text: "Un algorithme pour chiffrer les mots de passe avec une clé", isCorrect: false },
-      { id: uuidv4(), text: "Une technique pour cacher des informations dans des images", isCorrect: false }
-    ],
-    explanation: "Le hachage est un processus à sens unique qui convertit des données de taille variable en une chaîne de caractères de taille fixe. Contrairement au chiffrement, le hachage n'est pas réversible, ce qui le rend idéal pour stocker des mots de passe de manière sécurisée.",
+    category: "Exploitation et défense",
     difficulty: "hard",
-    category: "Cryptographie"
-  },
-  {
-    id: uuidv4(),
-    question: "Qu'est-ce que l'authentification multifacteur (MFA) ?",
-    options: [
-      { id: uuidv4(), text: "L'utilisation de plusieurs mots de passe pour un même compte", isCorrect: false },
-      { id: uuidv4(), text: "Une méthode d'authentification exigeant au moins deux types de preuves d'identité", isCorrect: true },
-      { id: uuidv4(), text: "Un système qui permet à plusieurs utilisateurs d'accéder au même compte", isCorrect: false },
-      { id: uuidv4(), text: "Une technique pour gérer plusieurs comptes avec un seul identifiant", isCorrect: false }
-    ],
-    explanation: "L'authentification multifacteur exige que l'utilisateur fournisse au moins deux types de preuves d'identité différentes parmi : quelque chose qu'il sait (mot de passe), quelque chose qu'il possède (téléphone) et quelque chose qu'il est (biométrie), augmentant considérablement la sécurité.",
-    difficulty: "easy",
-    category: "Identité"
+    correctOptionId: "a",
+    explanation: "L'ASLR (Address Space Layout Randomization) est une technique de sécurité qui randomise les emplacements mémoire utilisés par les composants d'un programme, ce qui complique considérablement les attaques de type 'heap spray'. Ces attaques consistent à remplir de grandes portions de la mémoire heap avec du code malveillant et des instructions NOP pour augmenter les chances d'exécution. En randomisant les adresses mémoire à chaque exécution, l'ASLR rend beaucoup plus difficile pour l'attaquant de prédire où son code malveillant sera chargé."
   }
 ];
 
-// Fonction pour obtenir un ensemble de questions aléatoires
-export function getRandomQuestions(count: number = 4): QuizQuestion[] {
-  // Mélanger les questions avec l'algorithme de Fisher-Yates
-  const shuffled = [...quizQuestions];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+/**
+ * Retourne un sous-ensemble équilibré de questions pour le quiz
+ * @param count Nombre de questions à retourner
+ * @param balanced Si vrai, retourne un mélange équilibré de questions par difficulté
+ */
+export function getQuizQuestions(count: number = 4, balanced: boolean = true): QuizQuestion[] {
+  if (balanced) {
+    // Diviser les questions par difficulté
+    const easyQuestions = quizQuestions.filter(q => q.difficulty === 'easy');
+    const mediumQuestions = quizQuestions.filter(q => q.difficulty === 'medium');
+    const hardQuestions = quizQuestions.filter(q => q.difficulty === 'hard');
+    
+    // Répartir le nombre de questions par niveau (1-2-1 pour un quiz de 4 questions)
+    const easyCount = Math.max(1, Math.floor(count * 0.25));
+    const hardCount = Math.max(1, Math.floor(count * 0.25));
+    const mediumCount = count - easyCount - hardCount;
+    
+    // Sélectionner aléatoirement des questions de chaque niveau
+    const selectedEasy = getRandomItems(easyQuestions, easyCount);
+    const selectedMedium = getRandomItems(mediumQuestions, mediumCount);
+    const selectedHard = getRandomItems(hardQuestions, hardCount);
+    
+    // Combiner et mélanger les questions
+    return shuffleArray([...selectedEasy, ...selectedMedium, ...selectedHard]);
+  } else {
+    // Retourner simplement un nombre aléatoire de questions
+    return getRandomItems(quizQuestions, count);
   }
-  
-  // Sélectionner un nombre spécifié de questions
-  return shuffled.slice(0, count);
 }
 
-// Fonction pour obtenir un ensemble équilibré de questions par difficulté
-export function getBalancedQuestions(count: number = 4): QuizQuestion[] {
-  // Déterminer combien de questions de chaque niveau nous voulons
-  const easyCount = Math.ceil(count * 0.25);  // 25% faciles
-  const mediumCount = Math.ceil(count * 0.5); // 50% moyennes
-  const hardCount = count - easyCount - mediumCount; // 25% difficiles
-  
-  // Filtrer et mélanger les questions par difficulté
-  const easyQuestions = quizQuestions.filter(q => q.difficulty === "easy");
-  const mediumQuestions = quizQuestions.filter(q => q.difficulty === "medium");
-  const hardQuestions = quizQuestions.filter(q => q.difficulty === "hard");
-  
-  // Fonction pour mélanger un tableau
-  const shuffle = (array: any[]) => {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  };
-  
-  // Sélectionner le nombre requis de questions de chaque niveau
-  const selectedEasy = shuffle(easyQuestions).slice(0, easyCount);
-  const selectedMedium = shuffle(mediumQuestions).slice(0, mediumCount);
-  const selectedHard = shuffle(hardQuestions).slice(0, hardCount);
-  
-  // Combiner et mélanger à nouveau pour un ordre aléatoire
-  return shuffle([...selectedEasy, ...selectedMedium, ...selectedHard]);
+/**
+ * Sélectionne aléatoirement des éléments d'un tableau
+ */
+function getRandomItems<T>(array: T[], count: number): T[] {
+  const shuffled = shuffleArray([...array]);
+  return shuffled.slice(0, Math.min(count, shuffled.length));
+}
+
+/**
+ * Mélange un tableau avec l'algorithme Fisher-Yates
+ */
+function shuffleArray<T>(array: T[]): T[] {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
 }

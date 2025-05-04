@@ -1,32 +1,41 @@
-// Types pour le nouveau concept de quiz cyber
+/**
+ * Types pour le système de quiz de cybersécurité
+ */
+
+/**
+ * Option d'une question de quiz
+ */
+export interface QuizOption {
+  id: string;
+  text: string;
+}
+
+/**
+ * Question de quiz
+ */
 export interface QuizQuestion {
   id: string;
   question: string;
   options: QuizOption[];
-  explanation: string;
-  difficulty: "easy" | "medium" | "hard";
   category: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  correctOptionId: string; // ID de l'option correcte (visible uniquement côté serveur)
+  explanation?: string; // Explication de la bonne réponse
 }
 
-export interface QuizOption {
-  id: string;
-  text: string;
-  isCorrect: boolean;
-}
-
+/**
+ * Réponse à une question de quiz
+ */
 export interface QuizResponse {
   questionId: string;
   selectedOptionId: string;
   isCorrect: boolean;
+  explanation: string;
 }
 
-export interface QuizResult {
-  score: number;
-  totalQuestions: number;
-  responses: QuizResponse[];
-  feedback: QuizFeedback;
-}
-
+/**
+ * Évaluation du quiz
+ */
 export interface QuizFeedback {
   overallAssessment: string;
   strengths: string[];
@@ -35,12 +44,12 @@ export interface QuizFeedback {
   skillLevel: "débutant" | "intermédiaire" | "avancé";
 }
 
-export interface QuizSession {
-  id: string;
-  userId: string;
-  startedAt: number;
-  completedAt?: number;
-  questions: QuizQuestion[];
+/**
+ * Résultat final du quiz
+ */
+export interface QuizResult {
+  score: number;
+  totalQuestions: number;
   responses: QuizResponse[];
-  result?: QuizResult;
+  feedback: QuizFeedback;
 }
