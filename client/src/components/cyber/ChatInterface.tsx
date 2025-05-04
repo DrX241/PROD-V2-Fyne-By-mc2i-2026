@@ -189,16 +189,23 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
 
       {/* Messages */}
       <div 
-        className="flex-1 overflow-y-auto py-3 sm:py-6 px-1 sm:px-4 relative scrollbar-cyber"
+        className="flex-1 overflow-y-auto py-3 sm:py-6 px-1 sm:px-4 relative scrollbar-cyber bg-gradient-to-b from-gray-900 to-blue-900 p-4"
         ref={chatContainerRef}
         style={{ scrollBehavior: 'smooth', height: 'calc(100vh - 180px)', maxHeight: 'calc(100vh - 180px)' }}
       >
         <div className="w-full max-w-5xl mx-auto px-1 sm:px-6">
-          {messages.map((message: any) => (
-            <div key={message.id} className="mb-4 sm:mb-8 animate-fadeIn">
-              {renderMessageContent(message)}
+          {messages.length === 0 ? (
+            <div className="text-center p-8">
+              <h2 className="text-2xl font-bold text-red-500 mb-4">ALERTE CYBERSÉCURITÉ CRITIQUE</h2>
+              <p className="text-white mb-4">{initialMessage}</p>
             </div>
-          ))}
+          ) : (
+            messages.map((message: any) => (
+              <div key={message.id} className="mb-4 sm:mb-8 animate-fadeIn">
+                {renderMessageContent(message)}
+              </div>
+            ))
+          )}
 
           {/* Indicateur de saisie */}
           {isTyping && (
