@@ -171,7 +171,7 @@ export default function AssistantDuplicatesPage() {
   return (
     <Layout>
       <div className="container py-6 space-y-6">
-        <PageTitle 
+        <AdminPageTitle 
           title="Gestion des doublons" 
           description="Détectez et éliminez les modèles d'assistants dupliqués"
           icon={<GitMergeIcon className="h-6 w-6 text-violet-500" />}

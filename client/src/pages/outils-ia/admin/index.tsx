@@ -129,7 +129,7 @@ export default function AdminDashboardPage() {
                   <Badge 
                     variant={
                       module.status === 'ok' ? 'default' : 
-                      module.status === 'attention' ? 'warning' : 
+                      module.status === 'attention' ? 'outline' : 
                       'secondary'
                     }
                     className={
