@@ -110,9 +110,13 @@ export default function CyberArcade() {
                     </p>
 
                     <div className="flex justify-end mt-2">
-                      <div className="bg-white/10 hover:bg-white/20 py-1.5 px-4 rounded-lg text-white text-sm font-medium">
+                      <Button
+                        variant="ghost"
+                        className="bg-white/10 hover:bg-white/20 py-1.5 px-4 rounded-lg text-white text-sm font-medium"
+                        disabled={game.comingSoon}
+                      >
                         {game.comingSoon ? "Bientôt disponible" : "Jouer maintenant"}
-                      </div>
+                      </Button>
                     </div>
                   </div>
                 </Link>
