@@ -27,7 +27,7 @@ export default function CyberModeSelection() {
   const [hoveredMode, setHoveredMode] = useState<string | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
-  // Réorganisation des modules en 5 catégories
+  // Réorganisation des modules en 6 catégories
   const cyberModes: ModeOption[] = [
     {
       id: 'scenarios-formation',
@@ -58,6 +58,22 @@ export default function CyberModeSelection() {
         icon: null,
         destination: '/cyber/expert-learning'
       }]
+    },
+    {
+      id: 'learning-by-playing',
+      title: 'APPRENDRE EN JOUANT',
+      description: "Acquérez des compétences cyber par une approche pédagogique interactive et ludique.",
+      icon: null,
+      gradient: 'from-indigo-700 to-indigo-900',
+      destination: '#',
+      items: [
+        {
+          id: 'cyberforge-academy',
+          title: 'CYBERFORGE ACADEMY',
+          icon: null,
+          destination: '/cyber/learning/cyberforge'
+        }
+      ]
     },
     {
       id: 'gamification',
@@ -140,7 +156,7 @@ export default function CyberModeSelection() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-8 px-3 sm:px-6 max-w-full mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-8 px-3 sm:px-6 max-w-full mx-auto">
             {cyberModes.map((category, index) => (
               <motion.div
                 key={category.id}

@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import OpenAI from 'openai';
 import { openAIService } from "./services/openai";
 import attachmentRoutes from './routes/attachmentRoutes';
+import cyberForgeRoutes from './routes/cyberForgeRoutes';
 import { createAttachmentWithHiddenPassword } from './services/attachmentService';
 import { CyberScenario, CrisisDecisionContent, CrisisDecisionOption } from '../shared/types/cyber';
 
@@ -392,6 +393,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Enregistrer les routes pour les pièces jointes
   app.use('/api/attachments', attachmentRoutes);
+  
+  // Enregistrer les routes pour CyberForge Academy
+  app.use('/api/ai', cyberForgeRoutes);
   
   // Routes pour mc2i AI Learning
   app.post('/api/mcai-learning/init', initMcaiLearningSession);
