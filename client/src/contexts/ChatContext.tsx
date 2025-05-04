@@ -11,7 +11,10 @@ import type {
   EmailMessageContent,
   ScenarioContact,
   CrisisDecisionContent,
-  CrisisDecisionOption
+  CrisisDecisionOption,
+  BinaryDecision,
+  BinaryDecisionOption,
+  TeamFeedback
 } from "@shared/types/cyber";
 import { USER_ROLES } from "@shared/types/cyber";
 
@@ -844,6 +847,17 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Handler to send a message
   const handleSendMessage = async (messageText: string) => {
     if (!messageText.trim()) return;
+    
+    // Vérifier si c'est une commande pour une décision binaire
+    if (messageText.startsWith('#binary_decision#')) {
+      const parts = messageText.split('#');
+      if (parts.length >= 4) {
+        const decisionId = parts[2];
+        const optionId = parts[3];
+        handleMakeDecision(optionId);
+        return;
+      }
+    }
 
     // If no username set yet, treat this as the username
     if (!userName) {
