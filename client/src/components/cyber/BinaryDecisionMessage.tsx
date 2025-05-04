@@ -1,82 +1,84 @@
-import React from 'react';
-import { BinaryDecision } from '@shared/types/cyber';
-import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
-import { useChatContext } from '@/contexts/ChatContext';
-import { AlertTriangle, Check } from 'lucide-react';
+import React from "react";
+import { BinaryDecision } from "@shared/types/cyber";
+import { useChatContext } from "@/contexts/ChatContext";
+import { CornerDownRight, Shield, ShieldAlert } from "lucide-react";
 
 interface BinaryDecisionMessageProps {
   decision: BinaryDecision;
 }
 
-const BinaryDecisionMessage: React.FC<BinaryDecisionMessageProps> = ({ decision }) => {
-  const { makeDecision } = useChatContext();
+export default function BinaryDecisionMessage({ decision }: BinaryDecisionMessageProps) {
+  const { sendMessage } = useChatContext();
+
+  const handleOptionClick = (optionId: string) => {
+    sendMessage(`#binary_decision#${decision.id}#${optionId}`);
+  };
 
   return (
-    <Card className="bg-black/5 dark:bg-zinc-900/50 border-zinc-300 dark:border-zinc-700 shadow-lg mb-6 max-w-3xl mx-auto">
-      <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-400">
-          <AlertTriangle className="h-5 w-5" />
-          Décision critique requise
-          {decision.step > 0 && (
-            <span className="ml-auto text-sm bg-blue-700 dark:bg-blue-600 text-white px-2 py-0.5 rounded-full">
-              Étape {decision.step}/5
-            </span>
-          )}
-        </CardTitle>
-        <CardDescription className="text-zinc-700 dark:text-zinc-300 mt-2 text-base">
-          {decision.context}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-4 pt-2">
-        <div className="grid gap-4 md:grid-cols-2">
-          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/40 dark:to-blue-900/30 border-blue-200 dark:border-blue-800/50 hover:shadow-md transition-all cursor-pointer">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg text-blue-700 dark:text-blue-400">
-                Option A
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="font-medium mb-2">{decision.optionA.text}</p>
-              <p className="text-zinc-700 dark:text-zinc-400 text-sm">{decision.optionA.description}</p>
-            </CardContent>
-            <CardFooter className="pt-0">
-              <Button 
-                variant="outline" 
-                className="w-full bg-blue-600/10 hover:bg-blue-600/20 border-blue-300 dark:border-blue-800 text-blue-700 dark:text-blue-300 hover:text-blue-800"
-                onClick={() => makeDecision(decision.optionA.id)}
-              >
-                <Check className="mr-2 h-4 w-4" />
-                Choisir cette option
-              </Button>
-            </CardFooter>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950/40 dark:to-amber-900/30 border-amber-200 dark:border-amber-800/50 hover:shadow-md transition-all cursor-pointer">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg text-amber-700 dark:text-amber-400">
-                Option B
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="font-medium mb-2">{decision.optionB.text}</p>
-              <p className="text-zinc-700 dark:text-zinc-400 text-sm">{decision.optionB.description}</p>
-            </CardContent>
-            <CardFooter className="pt-0">
-              <Button 
-                variant="outline" 
-                className="w-full bg-amber-600/10 hover:bg-amber-600/20 border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-300 hover:text-amber-800"
-                onClick={() => makeDecision(decision.optionB.id)}
-              >
-                <Check className="mr-2 h-4 w-4" />
-                Choisir cette option
-              </Button>
-            </CardFooter>
-          </Card>
+    <div className="flex flex-col gap-4 w-full">
+      {/* Contexte de la décision */}
+      <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-2">
+        <div className="flex items-start space-x-2">
+          <div className="flex-shrink-0 mt-0.5">
+            <ShieldAlert className="h-5 w-5 text-[#006a9e]" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-gray-800 mb-1">Situation critique</h3>
+            <p className="text-gray-700">{decision.context}</p>
+          </div>
         </div>
-      </CardContent>
-    </Card>
-  );
-};
+      </div>
 
-export default BinaryDecisionMessage;
+      {/* Options de décision */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Option A */}
+        <div 
+          className="border border-[#006a9e]/30 rounded-lg bg-white hover:bg-blue-50 transition-colors p-4 cursor-pointer"
+          onClick={() => handleOptionClick(decision.optionA.id)}
+        >
+          <div className="flex items-center space-x-2 mb-2">
+            <div className="w-8 h-8 rounded-full bg-[#006a9e] text-white flex items-center justify-center font-bold">
+              A
+            </div>
+            <h3 className="font-bold text-gray-800">{decision.optionA.text}</h3>
+          </div>
+          
+          <div className="pl-10 space-y-2">
+            <p className="text-gray-700 text-sm">{decision.optionA.description}</p>
+            
+            <div className="flex items-start space-x-2 mt-1">
+              <CornerDownRight className="h-4 w-4 flex-shrink-0 text-yellow-600 mt-0.5" />
+              <p className="text-sm text-gray-600 italic">{decision.optionA.consequences}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Option B */}
+        <div 
+          className="border border-[#006a9e]/30 rounded-lg bg-white hover:bg-blue-50 transition-colors p-4 cursor-pointer"
+          onClick={() => handleOptionClick(decision.optionB.id)}
+        >
+          <div className="flex items-center space-x-2 mb-2">
+            <div className="w-8 h-8 rounded-full bg-[#006a9e] text-white flex items-center justify-center font-bold">
+              B
+            </div>
+            <h3 className="font-bold text-gray-800">{decision.optionB.text}</h3>
+          </div>
+          
+          <div className="pl-10 space-y-2">
+            <p className="text-gray-700 text-sm">{decision.optionB.description}</p>
+            
+            <div className="flex items-start space-x-2 mt-1">
+              <CornerDownRight className="h-4 w-4 flex-shrink-0 text-yellow-600 mt-0.5" />
+              <p className="text-sm text-gray-600 italic">{decision.optionB.consequences}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="text-center text-xs text-gray-500 mt-1">
+        Étape {decision.step}/5
+      </div>
+    </div>
+  );
+}

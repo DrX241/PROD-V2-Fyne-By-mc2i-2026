@@ -1,77 +1,71 @@
-import React from 'react';
-import { TeamFeedback } from '@shared/types/cyber';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ThumbsUp, ThumbsDown, Lightbulb } from 'lucide-react';
+import React from "react";
+import { TeamFeedback } from "@shared/types/cyber";
+import { MessageCircle, ThumbsDown, ThumbsUp, Webhook } from "lucide-react";
 
 interface TeamFeedbackMessageProps {
   feedback: TeamFeedback;
 }
 
-const TeamFeedbackMessage: React.FC<TeamFeedbackMessageProps> = ({ feedback }) => {
-  // Configurer les styles et icônes en fonction du sentiment
-  const getSentimentConfig = () => {
+export default function TeamFeedbackMessage({ feedback }: TeamFeedbackMessageProps) {
+  // Déterminer l'icône et la couleur en fonction du sentiment
+  const getSentimentIcon = () => {
     switch (feedback.sentiment) {
-      case 'positive':
-        return {
-          icon: <ThumbsUp className="h-5 w-5 text-green-500" />,
-          bgColor: 'bg-green-50 dark:bg-green-950/30',
-          borderColor: 'border-green-200 dark:border-green-800/50',
-          textColor: 'text-green-700 dark:text-green-400'
-        };
-      case 'negative':
-        return {
-          icon: <ThumbsDown className="h-5 w-5 text-rose-500" />,
-          bgColor: 'bg-rose-50 dark:bg-rose-950/30',
-          borderColor: 'border-rose-200 dark:border-rose-800/50',
-          textColor: 'text-rose-700 dark:text-rose-400'
-        };
+      case "positive":
+        return <ThumbsUp className="h-4 w-4 text-green-600" />;
+      case "negative":
+        return <ThumbsDown className="h-4 w-4 text-red-600" />;
       default:
-        return {
-          icon: <Lightbulb className="h-5 w-5 text-amber-500" />,
-          bgColor: 'bg-amber-50 dark:bg-amber-950/30',
-          borderColor: 'border-amber-200 dark:border-amber-800/50',
-          textColor: 'text-amber-700 dark:text-amber-400'
-        };
+        return <Webhook className="h-4 w-4 text-amber-600" />;
     }
   };
 
-  const { icon, bgColor, borderColor, textColor } = getSentimentConfig();
-
-  // Générer les initiales pour l'avatar
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(part => part[0])
-      .join('')
-      .toUpperCase()
-      .substring(0, 2);
+  // Déterminer la couleur de fond en fonction du sentiment
+  const getBgColor = () => {
+    switch (feedback.sentiment) {
+      case "positive":
+        return "bg-green-50 border-green-200";
+      case "negative":
+        return "bg-red-50 border-red-200";
+      default:
+        return "bg-amber-50 border-amber-200";
+    }
   };
 
   return (
-    <Card className={`${bgColor} ${borderColor} shadow-sm mb-4 max-w-2xl ml-auto mr-4`}>
-      <CardHeader className="flex flex-row items-start space-y-0 pb-2 pt-4">
-        <div className="flex-1 flex gap-3 items-center">
-          <Avatar className="h-8 w-8 border border-zinc-200 dark:border-zinc-700">
-            <AvatarImage src={`/avatars/${feedback.sender.toLowerCase().replace(/\s+/g, '-')}.png`} alt={feedback.sender} />
-            <AvatarFallback className="bg-zinc-200 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs">
-              {getInitials(feedback.sender)}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <CardTitle className="text-sm font-medium">{feedback.sender}</CardTitle>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">{feedback.senderRole}</p>
-          </div>
-          <div className="ml-auto">
-            {icon}
+    <div className={`rounded-lg border p-4 ${getBgColor()} mb-2`}>
+      <div className="flex items-start">
+        <div className="flex-shrink-0 mr-4">
+          <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+            {/* Initiales du membre de l'équipe */}
+            <span className="font-semibold text-gray-700 text-sm">
+              {feedback.sender
+                .split(" ")
+                .map(name => name[0])
+                .join("")}
+            </span>
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="pb-4 pt-0">
-        <p className={`${textColor} text-sm`}>{feedback.message}</p>
-      </CardContent>
-    </Card>
+        
+        <div className="flex-1">
+          <div className="flex items-center mb-1">
+            <span className="font-semibold text-gray-800 mr-2">{feedback.sender}</span>
+            <span className="text-xs text-gray-500">{feedback.senderRole}</span>
+          </div>
+          
+          <p className="text-gray-700 mb-2">{feedback.message}</p>
+          
+          <div className="flex items-center mt-1">
+            {getSentimentIcon()}
+            <span className="text-xs text-gray-500 ml-1">
+              {feedback.sentiment === "positive" 
+                ? "Retour positif" 
+                : feedback.sentiment === "negative" 
+                  ? "Retour critique" 
+                  : "Avis nuancé"}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
   );
-};
-
-export default TeamFeedbackMessage;
+}

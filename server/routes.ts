@@ -3997,6 +3997,10 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
 
   // Les routes pour le chatbot mc2i AI Learning sont déjà définies plus haut
 
+  // Routes pour le système de décisions binaires séquentielles
+  app.post('/api/cyber/decisions/init', initDecisionSequence);
+  app.post('/api/cyber/decisions/submit', handleSequenceDecision);
+
   // Fin des routes API
 
   return createServer(app);
