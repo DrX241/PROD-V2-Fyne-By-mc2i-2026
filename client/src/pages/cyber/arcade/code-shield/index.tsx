@@ -109,10 +109,40 @@ export default function CodeShield() {
               </Card>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Implémentation du jeu à venir */}
-              <div>Niveau en cours de développement...</div>
-            </div>
+            <GameInterface
+              level={gameState.level}
+              score={gameState.score}
+              files={[
+                {
+                  id: '1',
+                  name: 'test.exe',
+                  content: 'MZ... [Contenu suspect détecté]',
+                  isMalicious: true,
+                  type: 'Exécutable'
+                },
+                {
+                  id: '2',
+                  name: 'document.pdf',
+                  content: '%PDF-1.7\n... [Contenu normal]',
+                  isMalicious: false,
+                  type: 'Document'
+                }
+              ]}
+              currentRules={gameState.currentRules}
+              onAddRule={(rule) => {
+                setGameState(prev => ({
+                  ...prev,
+                  currentRules: [...prev.currentRules, rule]
+                }));
+              }}
+              onAnalyze={() => {
+                // Logique d'analyse à implémenter
+                setGameState(prev => ({
+                  ...prev,
+                  score: prev.score + 10
+                }));
+              }}
+            />
           )}
         </div>
       </div>
