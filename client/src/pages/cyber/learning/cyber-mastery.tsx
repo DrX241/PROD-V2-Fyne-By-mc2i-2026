@@ -19,7 +19,6 @@ interface LearningTheme {
   color: string;
   levels: number;
   skills: string[];
-  duration: string;
   difficulty: 'Débutant' | 'Intermédiaire' | 'Avancé';
   progress?: number;
   comingSoon?: boolean;
@@ -35,7 +34,6 @@ const learningThemes: LearningTheme[] = [
     color: 'bg-blue-600',
     levels: 5,
     skills: ['Identification des menaces', 'Phishing & Social Engineering', 'Sécurité des mots de passe', 'Protection des données', 'Réaction aux incidents'],
-    duration: '3-5h',
     difficulty: 'Débutant',
     progress: 0,
   },
@@ -47,7 +45,6 @@ const learningThemes: LearningTheme[] = [
     color: 'bg-purple-700',
     levels: 5,
     skills: ['Principes du RGPD', 'Traitement des données personnelles', 'Droits des personnes', 'Gestion des violations', 'Mesures techniques'],
-    duration: '4-6h',
     difficulty: 'Intermédiaire',
     progress: 0,
   },
@@ -59,7 +56,6 @@ const learningThemes: LearningTheme[] = [
     color: 'bg-amber-600',
     levels: 6,
     skills: ['Méthodes d\'analyse de risques', 'Cartographie des actifs', 'Évaluation des menaces', 'Gestion des vulnérabilités', 'Plans de traitement'],
-    duration: '6-8h',
     difficulty: 'Intermédiaire',
     progress: 0,
   },
@@ -71,7 +67,6 @@ const learningThemes: LearningTheme[] = [
     color: 'bg-red-600',
     levels: 7,
     skills: ['Standards d\'audit (ISO27001, NIST)', 'Pentesting', 'Revue de code', 'Évaluation de l\'architecture', 'Rapports d\'audit'],
-    duration: '7-10h',
     difficulty: 'Avancé',
     progress: 0,
   },
@@ -83,7 +78,6 @@ const learningThemes: LearningTheme[] = [
     color: 'bg-emerald-700',
     levels: 5,
     skills: ['Cadres de gouvernance', 'Politiques de sécurité', 'Gestion des équipes cyber', 'Conformité réglementaire', 'KPI de sécurité'],
-    duration: '5-7h',
     difficulty: 'Avancé',
     progress: 0,
   },
@@ -152,16 +146,12 @@ const LearningThemeCard: React.FC<{ theme: LearningTheme, index: number }> = ({ 
               <Progress value={theme.progress || 0} className={`h-2 ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`} />
             </div>
             
-            <div className="grid grid-cols-2 gap-2 text-sm">
+            <div className="grid grid-cols-1 gap-2 text-sm">
               <div className="flex items-center gap-1">
                 <Award className="h-4 w-4 text-amber-500" />
                 <span className={`${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{theme.levels} niveaux</span>
               </div>
               <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4 text-blue-500" />
-                <span className={`${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{theme.duration}</span>
-              </div>
-              <div className="flex items-center gap-1 col-span-2">
                 <Zap className="h-4 w-4 text-purple-500" />
                 <span className={`${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{theme.skills.length} compétences</span>
               </div>
