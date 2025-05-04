@@ -122,20 +122,24 @@ export async function processMcaiLearningMessage(req: Request, res: Response) {
  * Traite le message en fonction de l'étape actuelle de la session
  */
 async function processMessageBasedOnStage(session: LearningBotSession, message: string): Promise<string> {
-  // Étape de choix du mode (classique ou immersion)
+  // Étape de choix du mode (classique ou tunnel)
   if (session.stageActuel === 'choix_mode') {
     if (message.toLowerCase().includes('classique') || message.toLowerCase().includes('1')) {
       session.mode = 'classique';
       session.stageActuel = 'choix_formation';
-      return "Excellent choix ! Vous avez choisi le mode classique avec 4 scénarios.\n\nSouhaitez-vous :\n1. Me fournir une formation de votre choix (format PDF ou Word)\n2. Choisir parmi nos 10 formations généralistes en lien avec les différentes expertises";
+      return "Excellent choix ! Vous avez choisi le mode classique avec 4 scénarios indépendants.\n\nSouhaitez-vous :\n1. Me fournir une formation de votre choix (format PDF ou Word)\n2. Choisir parmi nos 10 formations généralistes en lien avec les différentes expertises";
     } 
-    else if (message.toLowerCase().includes('immersion') || message.toLowerCase().includes('2')) {
-      session.mode = 'immersion';
+    else if (message.toLowerCase().includes('tunnel') || message.toLowerCase().includes('immersion') || message.toLowerCase().includes('2')) {
+      session.mode = 'tunnel';
       session.stageActuel = 'choix_formation';
-      return "Excellent choix ! Vous avez choisi le mode immersion avec 6 scénarios reliés.\n\nSouhaitez-vous :\n1. Me fournir une formation de votre choix (format PDF ou Word)\n2. Choisir parmi nos 10 formations généralistes en lien avec les différentes expertises";
+      session.contexteTunnel = {
+        situationActuelle: "",
+        decisionsPrecedentes: []
+      };
+      return "Excellent choix ! Vous avez choisi le mode tunnel avec 4 scénarios reliés où chaque décision impactera la suite.\n\nSouhaitez-vous :\n1. Me fournir une formation de votre choix (format PDF ou Word)\n2. Choisir parmi nos 10 formations généralistes en lien avec les différentes expertises";
     } 
     else {
-      return "⚠️ Erreur de Commande ⚠️\n\nVeuillez choisir entre :\n1. Apprentissage classique\n2. Effet immersion";
+      return "⚠️ Erreur de Commande ⚠️\n\nVeuillez choisir entre :\n1. Mode classique\n2. Mode tunnel";
     }
   }
   // Étape de choix de formation
@@ -192,15 +196,25 @@ async function processMessageBasedOnStage(session: LearningBotSession, message: 
       return "⚠️ Erreur de Commande ⚠️\n\nVotre réponse est trop courte. Elle doit faire au moins 30 caractères.";
     }
 
+    // Enregistrer la question et la réponse
+    const lastQuestion = session.messages[session.messages.length - 2].content;
     session.reponses.push({
-      question: session.messages[session.messages.length - 2].content,
+      question: lastQuestion,
       reponse: message
     });
+
+    // Pour le mode tunnel, stocker la décision pour influencer les scénarios suivants
+    if (session.mode === 'tunnel') {
+      session.contexteTunnel.situationActuelle = lastQuestion;
+      session.contexteTunnel.decisionsPrecedentes.push(
+        `Scénario ${session.scenarioActuel + 1}: ${message.substring(0, 100)}${message.length > 100 ? '...' : ''}`
+      );
+    }
 
     session.scenarioActuel++;
 
     if ((session.mode === 'classique' && session.scenarioActuel >= 4) || 
-        (session.mode === 'immersion' && session.scenarioActuel >= 6)) {
+        (session.mode === 'tunnel' && session.scenarioActuel >= 4)) {
       return await generateFeedbackGlobal(session);
     }
 
@@ -219,15 +233,25 @@ function getSessionStatus(session: LearningBotSession) {
     formation: session.formation,
     formationChoisie: session.formationChoisie,
     stageActuel: session.stageActuel,
-    scenarioActuel: session.scenarioActuel
+    scenarioActuel: session.scenarioActuel,
+    contexteTunnel: session.contexteTunnel
   };
 }
 
 /**
  * Génère un prompt système pour le chatbot mc2i AI Learning
+ * Le prompt est adapté selon le mode de formation (classique ou tunnel)
  */
 function getMcaiLearningSystemPrompt(): string {
-  return `Tu es un assistant d'apprentissage spécialisé qui évalue les compétences des apprenants en temps réel. Tu crées des scénarios professionnels réalistes adaptés à la formation choisie.`;
+  return `Tu es un assistant d'apprentissage spécialisé qui évalue les compétences des apprenants en temps réel.
+
+Tu crées des scénarios professionnels réalistes adaptés à la formation choisie, sous forme d'emails.
+Tu présentes des situations où l'apprenant doit prendre des décisions pertinentes et démontrer sa compréhension du sujet.
+
+Pour le mode "classique" : génère 4 scénarios indépendants qui couvrent différents aspects de la formation.
+Pour le mode "tunnel" : génère 4 scénarios reliés entre eux où chaque décision de l'apprenant influence la progression du scénario suivant.
+
+Adapte le niveau de difficulté progressivement, en commençant par des situations simples et en évoluant vers des scénarios plus complexes.`;
 }
 
 /**
@@ -249,9 +273,10 @@ async function generateScenario(session: LearningBotSession, lastResponse: strin
     const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
 
     const promptScenario = `
-Génère un scénario professionnel ${session.scenarioActuel + 1}/${session.mode === 'classique' ? '4' : '6'} 
+Génère un scénario professionnel ${session.scenarioActuel + 1}/4
 pour la formation "${session.formationChoisie}" en mode ${session.mode}.
-${session.mode === 'immersion' ? `\nDernière réponse : "${lastResponse}"` : ''}
+${session.mode === 'tunnel' ? `\nDernière réponse : "${lastResponse}"
+Historique des décisions : ${session.contexteTunnel.decisionsPrecedentes.join(", ")}` : ''}
 Date actuelle : ${capitalizedDate}
 
 FORMAT EMAIL REQUIS :
@@ -319,9 +344,14 @@ L'équipe Formation`;
 
     const response = await openAIService.getChatCompletionWithCache(messages, 0.7);
 
+    // Réinitialiser la session pour un nouveau parcours
     session.stageActuel = 'choix_mode';
     session.scenarioActuel = 0;
     session.reponses = [];
+    session.contexteTunnel = {
+      situationActuelle: "",
+      decisionsPrecedentes: []
+    };
 
     return response;
   } catch (error) {
