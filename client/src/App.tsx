@@ -200,6 +200,26 @@ function App() {
             <Route path="/outils-ia/assistant/create" component={CreateAssistantPage} />
             <Route path="/outils-ia/assistant/:id" component={AssistantChatPage} />
             
+            {/* Routes d'administration pour les assistants */}
+            <Route path="/outils-ia/admin" component={() => {
+              // Import dynamique de la page d'administration
+              const AdminDashboardPage = lazy(() => import('./pages/outils-ia/admin'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <AdminDashboardPage />
+                </Suspense>
+              );
+            }} />
+            <Route path="/outils-ia/admin/duplicates" component={() => {
+              // Import dynamique de la page de gestion des doublons
+              const DuplicatesPage = lazy(() => import('./pages/outils-ia/admin/duplicates'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <DuplicatesPage />
+                </Suspense>
+              );
+            }} />
+            
             {/* Toutes les routes CyberForge redirigent vers la page "non disponible" */}
             <Route path="/cyberforge" component={NotYetImplemented} />
             <Route path="/cyberforge/academy" component={NotYetImplemented} />
