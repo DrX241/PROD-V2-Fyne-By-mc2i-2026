@@ -199,6 +199,15 @@ function App() {
             <Route path="/outils-ia/assistant" component={CustomAssistantPage} />
             <Route path="/outils-ia/assistant/create" component={CreateAssistantPage} />
             <Route path="/outils-ia/assistant/:id" component={AssistantChatPage} />
+            <Route path="/outils-ia/code-generator" component={() => {
+              // Import dynamique du générateur de code
+              const CodeGeneratorPage = lazy(() => import('./pages/outils-ia/code-generator'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <CodeGeneratorPage />
+                </Suspense>
+              );
+            }} />
             
             {/* Routes d'administration pour les assistants */}
             <Route path="/outils-ia/admin" component={() => {
