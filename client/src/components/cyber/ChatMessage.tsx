@@ -131,113 +131,35 @@ export default function ChatMessage({
       formattedContent = formatFirstName(content, userName);
     }
     
+    // Nettoyer le contenu de tous les formatages markdown
+    formattedContent = formattedContent
+      .replace(/^\s*#{1,6}\s+/gm, '') // Enlever les # pour les titres
+      .replace(/^\s*[>]\s+/gm, '')    // Enlever les > pour les citations
+      .replace(/`{1,3}([\s\S]*?)`{1,3}/g, '$1') // Enlever les backticks
+      .replace(/!\[(.*?)\]\(.*?\)/g, '[Image: $1]') // Remplacer les images
+      .replace(/\[(.*?)\]\(.*?\)/g, '$1'); // Supprimer les liens markdown
+    
     // Amélioration de la détection des listes - détecte aussi les listes avec numéros (1., 2., etc)
     const paragraphs = formattedContent.split('\n\n');
     
-    // Traitement spécial pour les listes dans le texte (- ou • ou 1.)
-    const processText = (text: string) => {
-      // Détecte si le texte contient une liste
-      if (text.includes('\n- ') || text.includes('\n• ') || /\n\d+\.\s/.test(text)) {
-        // Diviser en lignes
-        const lines = text.split('\n');
-        const items: JSX.Element[] = [];
-        let currentList: JSX.Element[] = [];
-        let inList = false;
-        let listType: 'ul' | 'ol' = 'ul';
-        
-        lines.forEach((line, i) => {
-          // Ligne vide
-          if (!line.trim()) {
-            if (inList && currentList.length > 0) {
-              // Terminer la liste actuelle
-              items.push(
-                listType === 'ul' 
-                  ? <ul key={`ul-${i}`} className="list-disc pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ul>
-                  : <ol key={`ol-${i}`} className="list-decimal pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ol>
-              );
-              currentList = [];
-              inList = false;
-            }
-            return;
-          }
-          
-          // Détecte si c'est un élément de liste
-          const bulletMatch = line.trim().match(/^[•-]\s+(.+)$/);
-          const numberMatch = line.trim().match(/^(\d+)\.\s+(.+)$/);
-          
-          if (bulletMatch || numberMatch) {
-            // C'est un élément de liste
-            const content = bulletMatch ? bulletMatch[1] : (numberMatch ? numberMatch[2] : '');
-            
-            // Si on n'était pas déjà dans une liste, ou si on change de type de liste
-            const newListType = numberMatch ? 'ol' : 'ul';
-            if (!inList || (inList && listType !== newListType)) {
-              if (inList && currentList.length > 0) {
-                // Terminer la liste précédente
-                items.push(
-                  listType === 'ul' 
-                    ? <ul key={`ul-${i}`} className="list-disc pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ul>
-                    : <ol key={`ol-${i}`} className="list-decimal pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ol>
-                );
-                currentList = [];
-              }
-              
-              listType = newListType;
-              inList = true;
-            }
-            
-            // Ajouter l'élément à la liste courante avec vérification pour les montants de budget
-            currentList.push(
-              <li key={i} className="ml-1 my-1 text-gray-800">
-                {processStrongText(content)}
-              </li>
-            );
-          } else {
-            // Ce n'est pas un élément de liste
-            if (inList && currentList.length > 0) {
-              // Terminer la liste actuelle
-              items.push(
-                listType === 'ul' 
-                  ? <ul key={`ul-${i}`} className="list-disc pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ul>
-                  : <ol key={`ol-${i}`} className="list-decimal pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ol>
-              );
-              currentList = [];
-              inList = false;
-            }
-            
-            // Ajouter le paragraphe normal
-            items.push(
-              <p key={i} className="text-gray-800">
-                {processStrongText(line)}
-              </p>
-            );
-          }
-        });
-        
-        // Terminer la dernière liste si nécessaire
-        if (inList && currentList.length > 0) {
-          items.push(
-            listType === 'ul' 
-              ? <ul key="ul-last" className="list-disc pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ul>
-              : <ol key="ol-last" className="list-decimal pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ol>
-          );
-        }
-        
-        return <div className="space-y-2">{items}</div>;
-      } else {
-        // Texte normal sans liste
-        return <p className="text-gray-800">{processStrongText(text)}</p>;
-      }
-    };
-    
-    // Traiter chaque paragraphe
+    // Traiter chaque paragraphe avec un style plus compact et élégant
     return (
-      <div className="space-y-4">
+      <div className="space-y-2">
         {paragraphs.map((paragraph, idx) => {
           const trimmedParagraph = paragraph.trim();
           if (!trimmedParagraph) return null;
           
-          return <div key={idx}>{processText(trimmedParagraph)}</div>;
+          // Vérifier si c'est un titre séparé
+          const titleMatch = trimmedParagraph.match(/^([A-Z\s]{3,}):?\s*$/);
+          if (titleMatch) {
+            return (
+              <h3 key={idx} className="font-semibold text-[#006a9e] text-base leading-tight mt-1 mb-0.5">
+                {titleMatch[1]}
+              </h3>
+            );
+          }
+          
+          return <div key={idx} className="text-pretty">{processText(trimmedParagraph)}</div>;
         })}
       </div>
     );
@@ -284,7 +206,7 @@ export default function ChatMessage({
     messageBgColor = "bg-white border-gray-300"; // Fond blanc uniquement pour les messages du joueur
   }
 
-  // Fonction pour formater un contenu spécifique
+  // Fonction pour formater un contenu spécifique avec un design élégant et bien structuré
   const formatSpecificContent = (contentToFormat: string) => {
     // Formater d'abord le contenu pour corriger les noms
     let formattedContent = contentToFormat;
@@ -292,18 +214,36 @@ export default function ChatMessage({
       formattedContent = formatFirstName(contentToFormat, userName);
     }
     
+    // Nettoyer le contenu de tous les formatages markdown
+    formattedContent = formattedContent
+      .replace(/^\s*#{1,6}\s+/gm, '') // Enlever les # pour les titres
+      .replace(/^\s*[>]\s+/gm, '')    // Enlever les > pour les citations
+      .replace(/`{1,3}([\s\S]*?)`{1,3}/g, '$1') // Enlever les backticks
+      .replace(/!\[(.*?)\]\(.*?\)/g, '[Image: $1]') // Remplacer les images
+      .replace(/\[(.*?)\]\(.*?\)/g, '$1'); // Supprimer les liens markdown
+    
     // Amélioration de la détection des listes - détecte aussi les listes avec numéros (1., 2., etc)
     const paragraphs = formattedContent.split('\n\n');
     
-    // Traiter chaque paragraphe
+    // Traiter chaque paragraphe avec un espacement optimisé
     return (
-      <div className="space-y-4">
+      <div className="space-y-2">
         {paragraphs.map((paragraph, idx) => {
           const trimmedParagraph = paragraph.trim();
           if (!trimmedParagraph) return null;
           
-          // Utiliser la même fonction processText que dans formatContent
-          return <div key={idx}>{processText(trimmedParagraph)}</div>;
+          // Vérifier si c'est un titre séparé
+          const titleMatch = trimmedParagraph.match(/^([A-Z\s]{3,}):?\s*$/);
+          if (titleMatch) {
+            return (
+              <h3 key={idx} className="font-semibold text-[#006a9e] text-base leading-tight mt-1 mb-0.5">
+                {titleMatch[1]}
+              </h3>
+            );
+          }
+          
+          // Utiliser la même fonction processText améliorée
+          return <div key={idx} className="text-pretty">{processText(trimmedParagraph)}</div>;
         })}
       </div>
     );
@@ -311,10 +251,18 @@ export default function ChatMessage({
   
   // Fonction pour traiter un texte et détecter les listes
   const processText = (text: string) => {
+    // Nettoyer le texte de tous les formatages markdown restants
+    const cleanedText = text
+      .replace(/^\s*#{1,6}\s+/gm, '') // Enlever les # pour les titres
+      .replace(/^\s*[>]\s+/gm, '')    // Enlever les > pour les citations
+      .replace(/`{1,3}([\s\S]*?)`{1,3}/g, '$1') // Enlever les backticks
+      .replace(/!\[(.*?)\]\(.*?\)/g, '[Image: $1]') // Remplacer les images
+      .replace(/\[(.*?)\]\(.*?\)/g, '$1'); // Supprimer les liens markdown
+    
     // Détecte si le texte contient une liste
-    if (text.includes('\n- ') || text.includes('\n• ') || /\n\d+\.\s/.test(text)) {
+    if (cleanedText.includes('\n- ') || cleanedText.includes('\n• ') || /\n\d+\.\s/.test(cleanedText)) {
       // Diviser en lignes
-      const lines = text.split('\n');
+      const lines = cleanedText.split('\n');
       const items: JSX.Element[] = [];
       let currentList: JSX.Element[] = [];
       let inList = false;
@@ -324,11 +272,11 @@ export default function ChatMessage({
         // Ligne vide
         if (!line.trim()) {
           if (inList && currentList.length > 0) {
-            // Terminer la liste actuelle
+            // Terminer la liste actuelle avec un style amélioré pour la lisibilité
             items.push(
               listType === 'ul' 
-                ? <ul key={`ul-${i}`} className="list-disc pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ul>
-                : <ol key={`ol-${i}`} className="list-decimal pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ol>
+                ? <ul key={`ul-${i}`} className="list-disc pl-4 marker:text-[#006a9e] space-y-0.5">{currentList}</ul>
+                : <ol key={`ol-${i}`} className="list-decimal pl-4 marker:text-[#006a9e] space-y-0.5">{currentList}</ol>
             );
             currentList = [];
             inList = false;
@@ -348,11 +296,11 @@ export default function ChatMessage({
           const newListType = numberMatch ? 'ol' : 'ul';
           if (!inList || (inList && listType !== newListType)) {
             if (inList && currentList.length > 0) {
-              // Terminer la liste précédente
+              // Terminer la liste précédente avec un style amélioré
               items.push(
                 listType === 'ul' 
-                  ? <ul key={`ul-${i}`} className="list-disc pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ul>
-                  : <ol key={`ol-${i}`} className="list-decimal pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ol>
+                  ? <ul key={`ul-${i}`} className="list-disc pl-4 marker:text-[#006a9e] space-y-0.5">{currentList}</ul>
+                  : <ol key={`ol-${i}`} className="list-decimal pl-4 marker:text-[#006a9e] space-y-0.5">{currentList}</ol>
               );
               currentList = [];
             }
@@ -361,9 +309,9 @@ export default function ChatMessage({
             inList = true;
           }
           
-          // Ajouter l'élément à la liste courante avec formatage cohérent des montants de budget
+          // Ajouter l'élément à la liste courante avec un style optimisé
           currentList.push(
-            <li key={i} className="ml-1 my-1 text-gray-800">
+            <li key={i} className="text-gray-800 leading-tight text-sm sm:text-base">
               {formatBudgetAmounts(processStrongText(content))}
             </li>
           );
@@ -373,19 +321,30 @@ export default function ChatMessage({
             // Terminer la liste actuelle
             items.push(
               listType === 'ul' 
-                ? <ul key={`ul-${i}`} className="list-disc pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ul>
-                : <ol key={`ol-${i}`} className="list-decimal pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ol>
+                ? <ul key={`ul-${i}`} className="list-disc pl-4 marker:text-[#006a9e] space-y-0.5">{currentList}</ul>
+                : <ol key={`ol-${i}`} className="list-decimal pl-4 marker:text-[#006a9e] space-y-0.5">{currentList}</ol>
             );
             currentList = [];
             inList = false;
           }
           
-          // Ajouter le paragraphe normal avec formatage cohérent des montants de budget
-          items.push(
-            <p key={i} className="text-gray-800">
-              {formatBudgetAmounts(processStrongText(line))}
-            </p>
-          );
+          // Vérifier si c'est un titre (en majuscules ou avec :)
+          const titleMatch = line.match(/^([A-Z\s]{3,}(?:\s*:)?|[^:]+:)(.*)$/);
+          if (titleMatch) {
+            items.push(
+              <div key={i} className="text-gray-800">
+                <span className="font-semibold text-[#006a9e]">{titleMatch[1].trim().replace(/:$/, '')}:</span>{' '}
+                <span>{formatBudgetAmounts(processStrongText(titleMatch[2].trim()))}</span>
+              </div>
+            );
+          } else {
+            // Paragraphe normal plus compact
+            items.push(
+              <p key={i} className="text-gray-800 text-sm sm:text-base leading-snug">
+                {formatBudgetAmounts(processStrongText(line))}
+              </p>
+            );
+          }
         }
       });
       
@@ -393,15 +352,27 @@ export default function ChatMessage({
       if (inList && currentList.length > 0) {
         items.push(
           listType === 'ul' 
-            ? <ul key="ul-last" className="list-disc pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ul>
-            : <ol key="ol-last" className="list-decimal pl-5 marker:text-[#006a9e] space-y-1">{currentList}</ol>
+            ? <ul key="ul-last" className="list-disc pl-4 marker:text-[#006a9e] space-y-0.5">{currentList}</ul>
+            : <ol key="ol-last" className="list-decimal pl-4 marker:text-[#006a9e] space-y-0.5">{currentList}</ol>
         );
       }
       
-      return <div className="space-y-2">{items}</div>;
+      return <div className="space-y-1.5">{items}</div>;
     } else {
-      // Texte normal sans liste, avec formatage cohérent des montants de budget
-      return <p className="text-gray-800">{formatBudgetAmounts(processStrongText(text))}</p>;
+      // Texte normal sans liste - avec mise en forme améliorée
+      // Détecter si c'est un titre (en majuscules ou avec :)
+      const titleMatch = cleanedText.match(/^([A-Z\s]{3,}(?:\s*:)?|[^:]+:)(.*)$/);
+      if (titleMatch) {
+        return (
+          <p className="text-gray-800 text-sm sm:text-base leading-snug">
+            <span className="font-semibold text-[#006a9e]">{titleMatch[1].trim().replace(/:$/, '')}:</span>{' '}
+            <span>{formatBudgetAmounts(processStrongText(titleMatch[2].trim()))}</span>
+          </p>
+        );
+      }
+      
+      // Texte normal plus compact
+      return <p className="text-gray-800 text-sm sm:text-base leading-snug">{formatBudgetAmounts(processStrongText(cleanedText))}</p>;
     }
   };
   
