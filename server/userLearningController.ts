@@ -24,10 +24,22 @@ export async function getUserProgress(req: Request, res: Response) {
       );
 
     if (progress.length === 0) {
-      return res.status(404).json({ error: 'Progression non trouvée' });
+      // Pour un nouvel utilisateur, renvoyer un objet vide mais pas d'erreur
+      return res.status(200).json({ 
+        progress: {
+          userId,
+          moduleId,
+          xp: 0,
+          level: 1,
+          completedLevels: [],
+          badges: [],
+          stats: [],
+          rank: 'Novice'
+        } 
+      });
     }
 
-    return res.status(200).json(progress[0]);
+    return res.status(200).json({ progress: progress[0] });
   } catch (error) {
     console.error('Erreur lors de la récupération de la progression utilisateur:', error);
     return res.status(500).json({ error: 'Erreur serveur' });
@@ -94,7 +106,7 @@ export async function saveUserProgress(req: Request, res: Response) {
         .returning();
     }
 
-    return res.status(200).json(result[0]);
+    return res.status(200).json({ progress: result[0] });
   } catch (error) {
     console.error('Erreur lors de la sauvegarde de la progression utilisateur:', error);
     return res.status(500).json({ error: 'Erreur serveur' });
