@@ -154,13 +154,46 @@ export async function createAssistant(req: Request, res: Response) {
     const assistantData = validationResult.data;
     
     // Vérifier si l'utilisateur existe
-    const userExists = await db.select({ id: users.id }).from(users).where(eq(users.id, assistantData.userId)).limit(1);
+    // Si assistantData.userId est une chaîne de caractères (UUID), on cherche par username
+    // Si c'est un nombre, on cherche par id
+    let userExists;
+    
+    if (typeof assistantData.userId === 'string') {
+      userExists = await db.select({ id: users.id }).from(users).where(eq(users.username, assistantData.userId)).limit(1);
+    } else {
+      userExists = await db.select({ id: users.id }).from(users).where(eq(users.id, assistantData.userId)).limit(1);
+    }
     
     if (!userExists.length) {
-      return res.status(404).json({
-        success: false,
-        error: 'Utilisateur non trouvé'
-      });
+      console.error(`Utilisateur non trouvé: ${assistantData.userId} (type: ${typeof assistantData.userId})`);
+      
+      // On crée automatiquement l'utilisateur si c'est une chaîne de caractères (UUID)
+      if (typeof assistantData.userId === 'string') {
+        try {
+          const [newUser] = await db.insert(users).values({
+            username: assistantData.userId,
+            password: 'password123' // À remplacer par un mot de passe sécurisé en production
+          }).returning({ id: users.id });
+          
+          // On met à jour l'ID utilisateur dans les données de l'assistant
+          assistantData.userId = newUser.id;
+          console.log(`Utilisateur créé automatiquement avec ID: ${newUser.id}`);
+        } catch (createError) {
+          console.error('Erreur lors de la création automatique de l\'utilisateur:', createError);
+          return res.status(404).json({
+            success: false,
+            error: 'Utilisateur non trouvé et impossible d\'en créer un nouveau'
+          });
+        }
+      } else {
+        return res.status(404).json({
+          success: false,
+          error: 'Utilisateur non trouvé'
+        });
+      }
+    } else {
+      // On s'assure que l'ID utilisateur est bien un nombre
+      assistantData.userId = userExists[0].id;
     }
     
     // Générer le prompt système personnalisé basé sur les paramètres de l'assistant
