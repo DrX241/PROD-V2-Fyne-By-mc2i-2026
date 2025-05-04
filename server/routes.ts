@@ -47,6 +47,11 @@ import {
   deleteTemplate
 } from "./customAssistantsController";
 import { getOrCreateUser, getUserById } from "./userController";
+import {
+  generateCode,
+  getCodeGenerationHistory,
+  saveGeneratedCode
+} from "./codeGeneratorController";
 // Import des fonctions d'urgence cyber supprimé
 
 /**
@@ -408,6 +413,18 @@ function generateSynthesisHtml(
 // Les fonctions pour les pièces jointes sont déjà importées en haut du fichier
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Routes pour le générateur de code
+  app.post("/api/code-generator/generate", (req: Request, res: Response) => {
+    generateCode(req, res);
+  });
+  
+  app.get("/api/code-generator/history", (req: Request, res: Response) => {
+    getCodeGenerationHistory(req, res);
+  });
+  
+  app.post("/api/code-generator/save", (req: Request, res: Response) => {
+    saveGeneratedCode(req, res);
+  });
   // Servir les pièces jointes depuis le dossier public/attachments
   app.use('/attachments', express.static(path.join(__dirname, 'public/attachments')));
   
