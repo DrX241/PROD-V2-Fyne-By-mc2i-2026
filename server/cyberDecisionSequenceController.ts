@@ -55,6 +55,9 @@ export async function initDecisionSequence(req: Request, res: Response) {
       undefined
     );
     
+    // Ajouter la première décision au tableau des décisions de la session
+    session.decisions.push(firstDecision);
+    
     // Stocker la session
     decisionSessions[userId] = session;
     
