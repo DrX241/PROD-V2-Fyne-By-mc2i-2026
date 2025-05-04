@@ -118,11 +118,11 @@ function App() {
               );
             }} />
             <Route path="/cyber/learning/cyber-mastery/sensibilisation" component={() => {
-              // Import dynamique du module de sensibilisation cybersécurité (version simplifiée)
-              const SensibilisationSimplePage = lazy(() => import('./pages/cyber/learning/modules/sensibilisation-simple'));
+              // Import dynamique du module de sensibilisation cybersécurité (version gamifiée)
+              const SensibilisationCyberGame = lazy(() => import('./pages/cyber/learning/modules/sensibilisation-cyber-game'));
               return (
                 <Suspense fallback={<GlobalLoader />}>
-                  <SensibilisationSimplePage />
+                  <SensibilisationCyberGame />
                 </Suspense>
               );
             }} />
