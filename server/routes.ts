@@ -28,7 +28,6 @@ import { generateDebriefing, getContextualDocumentation } from "./cyberLearningC
 import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearningController";
 import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
 import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
-import { processChatMessage, getCaseInfo, generateEducationalContent } from "./cyberInvestigatorController";
 // Import des fonctions d'urgence cyber supprimé
 
 /**
@@ -412,11 +411,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/cyber-expert/decisions/start', startDecisionFlow);
   app.post('/api/cyber-expert/decisions/submit', submitDecision);
   app.post('/api/cyber-expert/decisions/status', checkDecisionStatus);
-  
-  // Routes pour le module Cyber Investigateur
-  app.post('/api/cyber-investigator/chat', processChatMessage);
-  app.get('/api/cyber-investigator/case/:caseId', getCaseInfo);
-  app.post('/api/cyber-investigator/educational-content', generateEducationalContent);
   
   // Route directe pour servir le document texte avec le mot de passe
   app.get('/download-attachment/:role', (req, res) => {
@@ -3232,11 +3226,6 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
   app.get('/api/learning/progress/:userId/:moduleId', getUserProgress);
   app.post('/api/learning/progress', saveUserProgress);
   app.get('/api/cyber/documentation', getContextualDocumentation);
-  
-  // Routes pour le Cyber Investigateur
-  app.post('/api/cyber-investigator/chat', processChatMessage);
-  app.get('/api/cyber-investigator/case/:caseId', getCaseInfo);
-  app.post('/api/cyber-investigator/educational', generateEducationalContent);
 
   // Routes pour le nouveau module Cyber Agent (version 2)
   app.get('/api/cyber/cyber-agent/roles', (req, res) => {
