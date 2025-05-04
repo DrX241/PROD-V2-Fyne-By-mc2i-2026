@@ -415,13 +415,13 @@ export default function CreateAssistantPage() {
                       <TabsList className={`grid grid-cols-3 w-full mb-6 ${
                         isFuturistic ? 'bg-gray-700/50 border border-violet-500/20' : 'bg-gray-100'
                       }`}>
-                        <TabsTrigger value="base" className={isFuturistic ? 'data-[state=active]:bg-violet-800/40 data-[state=active]:text-white text-gray-300' : ''}>
+                        <TabsTrigger value="base" className={isFuturistic ? 'data-[state=active]:bg-violet-800/40 data-[state=active]:text-white text-gray-300' : 'data-[state=active]:bg-gray-200 text-gray-800'}>
                           Informations de base
                         </TabsTrigger>
-                        <TabsTrigger value="capacites" className={isFuturistic ? 'data-[state=active]:bg-violet-800/40 data-[state=active]:text-white text-gray-300' : ''}>
+                        <TabsTrigger value="capacites" className={isFuturistic ? 'data-[state=active]:bg-violet-800/40 data-[state=active]:text-white text-gray-300' : 'data-[state=active]:bg-gray-200 text-gray-800'}>
                           Capacités
                         </TabsTrigger>
-                        <TabsTrigger value="personalisation" className={isFuturistic ? 'data-[state=active]:bg-violet-800/40 data-[state=active]:text-white text-gray-300' : ''}>
+                        <TabsTrigger value="personalisation" className={isFuturistic ? 'data-[state=active]:bg-violet-800/40 data-[state=active]:text-white text-gray-300' : 'data-[state=active]:bg-gray-200 text-gray-800'}>
                           Personnalisation
                         </TabsTrigger>
                       </TabsList>
@@ -499,7 +499,7 @@ export default function CreateAssistantPage() {
                                       <SelectValue placeholder="Sélectionnez un domaine" />
                                     </SelectTrigger>
                                   </FormControl>
-                                  <SelectContent className={isFuturistic ? 'bg-gray-800 border-gray-700 text-gray-200' : ''}>
+                                  <SelectContent className={isFuturistic ? 'bg-gray-800 border-gray-700 text-gray-200' : 'bg-white text-gray-800'}>
                                     <SelectItem value="cybersecurite">Cybersécurité</SelectItem>
                                     <SelectItem value="gestion_projet">Gestion de projet</SelectItem>
                                     <SelectItem value="amoa">AMOA</SelectItem>
@@ -541,7 +541,7 @@ export default function CreateAssistantPage() {
                                       <SelectValue placeholder="Sélectionnez une personnalité" />
                                     </SelectTrigger>
                                   </FormControl>
-                                  <SelectContent className={isFuturistic ? 'bg-gray-800 border-gray-700 text-gray-200' : ''}>
+                                  <SelectContent className={isFuturistic ? 'bg-gray-800 border-gray-700 text-gray-200' : 'bg-white text-gray-800'}>
                                     <SelectItem value="professionnel">Professionnel</SelectItem>
                                     <SelectItem value="amical">Amical</SelectItem>
                                     <SelectItem value="direct">Direct</SelectItem>
@@ -682,7 +682,7 @@ export default function CreateAssistantPage() {
                                     <SelectValue placeholder="Sélectionnez un niveau" />
                                   </SelectTrigger>
                                 </FormControl>
-                                <SelectContent className={isFuturistic ? 'bg-gray-800 border-gray-700 text-gray-200' : ''}>
+                                <SelectContent className={isFuturistic ? 'bg-gray-800 border-gray-700 text-gray-200' : 'bg-white text-gray-800'}>
                                   <SelectItem value="aucun">Aucun - Strictement professionnel</SelectItem>
                                   <SelectItem value="leger">Léger - Occasionnellement ludique</SelectItem>
                                   <SelectItem value="modere">Modéré - Régulièrement ludique</SelectItem>
