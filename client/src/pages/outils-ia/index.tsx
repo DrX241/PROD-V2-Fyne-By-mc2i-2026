@@ -149,7 +149,7 @@ export default function OutilsIAPage() {
       title: 'mc2i AI Learning',
       description: 'Chatbot spécialisé en gestion de projet et AMOA qui fournit des exemples concrets, recommande des outils et propose des mini-jeux interactifs pour un apprentissage ludique.',
       icon: <MessagesSquare className="h-6 w-6" />,
-      href: '/outils-ia/mcai-learning',
+      href: '/outils-ia/mc2i-learning',
       isNew: true
     },
     {

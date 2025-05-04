@@ -21,7 +21,7 @@ interface ChatMessage {
   timestamp: Date;
 }
 
-export default function McaiLearningOutils() {
+export default function Mc2iLearningOutils() {
   const { themeMode } = useTheme();
   const isFuturistic = themeMode === 'futuristic';
   

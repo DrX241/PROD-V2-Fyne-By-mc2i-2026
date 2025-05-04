@@ -26,7 +26,7 @@ import ModuleDetailPage from "./pages/playground/module";
 // Import de la page mc2i AI Learning
 import McaiLearning from "@/pages/mcai-learning";
 import OutilsIAPage from "@/pages/outils-ia";
-import McaiLearningOutils from "@/pages/outils-ia/mcai-learning";
+import Mc2iLearningOutils from "@/pages/outils-ia/mc2i-learning";
 
 // Import des pages CENTRE DE CRISE (anciennes et nouvelles pour permettre une transition)
 import CyberDefensePage from "@/pages/cyber-defense"; // Ancienne implémentation 
@@ -184,13 +184,13 @@ function App() {
             
             {/* Ancienne route mc2i AI Learning (redirigée vers nouvelle section pour compatibilité) */}
             <Route path="/mcai-learning" component={() => {
-              window.location.href = '/outils-ia/mcai-learning';
+              window.location.href = '/outils-ia/mc2i-learning';
               return null;
             }} />
             
             {/* Nouvelle section Outils IA */}
             <Route path="/outils-ia" component={OutilsIAPage} />
-            <Route path="/outils-ia/mcai-learning" component={McaiLearningOutils} />
+            <Route path="/outils-ia/mc2i-learning" component={Mc2iLearningOutils} />
             
             {/* Toutes les routes CyberForge redirigent vers la page "non disponible" */}
             <Route path="/cyberforge" component={NotYetImplemented} />
