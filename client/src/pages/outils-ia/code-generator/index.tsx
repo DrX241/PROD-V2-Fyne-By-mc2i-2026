@@ -506,13 +506,13 @@ root.render(
       <PageTitle title="Générateur de Code" />
       
       {/* Hero section */}
-      <div className={`w-full ${isFuturistic ? 'bg-gradient-to-b from-blue-950 to-indigo-950' : 'bg-blue-50'} py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden`}>
+      <div className={`w-full ${isFuturistic ? 'bg-gradient-to-b from-blue-950 to-indigo-950' : 'bg-blue-50'} py-8 px-4 sm:px-6 lg:px-8 relative overflow-hidden`}>
         {/* Effets visuels futuristes */}
         {isFuturistic && (
           <div className="absolute inset-0 overflow-hidden opacity-30">
             <div className="absolute top-0 right-0 w-full h-full mix-blend-screen">
-              <div className="absolute top-40 right-40 w-80 h-80 bg-blue-500/20 rounded-full filter blur-3xl"></div>
-              <div className="absolute bottom-20 left-20 w-96 h-96 bg-indigo-500/20 rounded-full filter blur-3xl"></div>
+              <div className="absolute top-20 right-20 w-60 h-60 bg-blue-500/20 rounded-full filter blur-3xl"></div>
+              <div className="absolute bottom-10 left-10 w-72 h-72 bg-indigo-500/20 rounded-full filter blur-3xl"></div>
             </div>
             
             {/* Grille numérique */}
@@ -532,7 +532,7 @@ root.render(
         <div className="max-w-5xl mx-auto relative z-10">
           <div className="text-center">
             <motion.h1 
-              className={`text-3xl sm:text-4xl font-bold mb-6 ${
+              className={`text-2xl sm:text-3xl font-bold mb-3 ${
                 isFuturistic 
                   ? 'text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-indigo-300 font-cyber-title tracking-wide' 
                   : 'text-blue-900'
@@ -545,7 +545,7 @@ root.render(
             </motion.h1>
             
             <motion.p 
-              className={`text-xl max-w-3xl mx-auto mb-8 ${
+              className={`text-lg max-w-3xl mx-auto mb-4 ${
                 isFuturistic ? 'text-indigo-100' : 'text-blue-700'
               }`}
               initial={{ opacity: 0 }}
@@ -560,9 +560,9 @@ root.render(
       </div>
       
       {/* Contenu principal */}
-      <div className={`w-full ${isFuturistic ? 'bg-gray-900' : 'bg-white'} py-12 px-4 sm:px-6 lg:px-8`}>
+      <div className={`w-full ${isFuturistic ? 'bg-gray-900' : 'bg-white'} py-6 px-4 sm:px-6 lg:px-8`}>
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* Formulaire de génération de code */}
             <div className="lg:col-span-1">
               <Card className={isFuturistic ? 'bg-gray-800 border-gray-700' : ''}>
@@ -743,7 +743,7 @@ root.render(
               </Card>
               
               {/* Exemples de prompts */}
-              <Card className={`mt-6 ${isFuturistic ? 'bg-gray-800 border-gray-700' : ''}`}>
+              <Card className={`mt-4 ${isFuturistic ? 'bg-gray-800 border-gray-700' : ''}`}>
                 <CardHeader className="pb-3">
                   <CardTitle className={isFuturistic ? 'text-white' : ''}>
                     <div className="flex items-center gap-2">
@@ -768,7 +768,7 @@ root.render(
                         } transition-colors`}
                         onClick={() => usePromptExample(index)}
                       >
-                        <p className={isFuturistic ? 'text-gray-300' : 'text-gray-800'}>
+                        <p className={isFuturistic ? 'text-white' : 'text-gray-800'}>
                           {example}
                         </p>
                       </div>
@@ -837,34 +837,34 @@ root.render(
                   </CardHeader>
                   
                   <Tabs defaultValue="code" value={activeTab} onValueChange={setActiveTab}>
-                    <div className="px-6">
+                    <div className="px-4 pt-2 pb-1">
                       <TabsList className={`w-full ${isFuturistic ? 'bg-gray-700' : ''}`}>
                         <TabsTrigger 
                           value="code" 
                           className={isFuturistic ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white text-gray-300' : ''}
                         >
-                          <Code className="h-4 w-4 mr-2" />
+                          <Code className="h-4 w-4 mr-1" />
                           Code
                         </TabsTrigger>
                         <TabsTrigger 
                           value="explanation" 
                           className={isFuturistic ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white text-gray-300' : ''}
                         >
-                          <MessageSquare className="h-4 w-4 mr-2" />
+                          <MessageSquare className="h-4 w-4 mr-1" />
                           Explication
                         </TabsTrigger>
                         <TabsTrigger 
                           value="structure" 
                           className={isFuturistic ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white text-gray-300' : ''}
                         >
-                          <LayoutList className="h-4 w-4 mr-2" />
+                          <LayoutList className="h-4 w-4 mr-1" />
                           Structure
                         </TabsTrigger>
                         <TabsTrigger 
                           value="references" 
                           className={isFuturistic ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white text-gray-300' : ''}
                         >
-                          <LinkIcon className="h-4 w-4 mr-2" />
+                          <LinkIcon className="h-4 w-4 mr-1" />
                           Références
                         </TabsTrigger>
                       </TabsList>
@@ -997,7 +997,7 @@ root.render(
               
               {/* Historique des requêtes */}
               {history.length > 0 && (
-                <Card className={`mt-6 ${isFuturistic ? 'bg-gray-800 border-gray-700' : ''}`}>
+                <Card className={`mt-4 ${isFuturistic ? 'bg-gray-800 border-gray-700' : ''}`}>
                   <CardHeader className="pb-3">
                     <CardTitle className={isFuturistic ? 'text-white' : ''}>
                       <div className="flex items-center gap-2">
