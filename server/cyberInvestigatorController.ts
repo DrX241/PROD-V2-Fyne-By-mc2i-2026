@@ -5,6 +5,62 @@ import { db } from './db';
 import { investigationProgress, InsertInvestigationProgress } from '@shared/schema';
 import { eq, and, sql } from 'drizzle-orm';
 
+/**
+ * Génère des notes d'investigation avancées avec GPT-4o
+ * Cette fonction permet de générer du contenu pour aider l'utilisateur
+ * dans la rédaction de ses notes d'enquête
+ */
+export async function generateInvestigationNotes(req: Request, res: Response) {
+  try {
+    const { prompt, evidences, suspects, currentLevel } = req.body;
+    
+    // Vérifier qu'on a au moins un prompt
+    if (!prompt) {
+      return res.status(400).json({ success: false, error: "Prompt requis pour générer du contenu" });
+    }
+    
+    // Construire un prompt riche avec le contexte
+    const messages: ChatCompletionRequestMessage[] = [
+      {
+        role: "system",
+        content: `Tu es un expert en investigation de cybersécurité spécialisé dans l'analyse des fuites de données. 
+        Tu aides l'utilisateur à générer des notes d'enquête structurées et pertinentes pour le niveau ${currentLevel || "Débutant"}.
+        Ton analyse doit être méthodique, précise et basée sur les éléments de preuve.
+        IMPORTANT: Ne jamais commencer par "Voici une analyse" ou similaire, rédige directement le contenu comme si c'était les notes de l'utilisateur.`
+      },
+      {
+        role: "user",
+        content: `${prompt}
+        
+        ${evidences ? `Voici les preuves que j'ai analysées jusqu'à présent:
+        ${JSON.stringify(evidences, null, 2)}` : ""}
+        
+        ${suspects ? `Voici les suspects identifiés:
+        ${JSON.stringify(suspects, null, 2)}` : ""}`
+      }
+    ];
+    
+    // Appel à l'API OpenAI avec le modèle principal (GPT-4o) pour une meilleure qualité
+    const notesContent = await openAIService.getChatCompletionWithModel(
+      messages,
+      0.7,
+      1500,
+      true // Utiliser GPT-4o au lieu de GPT-4o-mini
+    );
+    
+    return res.json({
+      success: true,
+      content: notesContent
+    });
+  } catch (error) {
+    console.error("Erreur lors de la génération des notes:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Erreur lors de la génération des notes d'enquête"
+    });
+  }
+}
+
 // Types pour les preuves et suspects
 interface Evidence {
   id: string;

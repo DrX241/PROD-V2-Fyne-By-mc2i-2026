@@ -28,7 +28,7 @@ import { generateDebriefing, getContextualDocumentation } from "./cyberLearningC
 import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearningController";
 import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
 import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
-import { analyzeEvidence, getInvestigationHints, evaluateInvestigationResult, generateInvestigationScenario } from "./cyberInvestigatorController";
+import { analyzeEvidence, getInvestigationHints, evaluateInvestigationResult, generateInvestigationScenario, generateInvestigationNotes } from "./cyberInvestigatorController";
 import { getInvestigationProgress, saveInvestigationProgress, evaluateUserNotes } from "./investigationProgressController";
 // Import des fonctions d'urgence cyber supprimé
 
@@ -419,6 +419,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/cyber-investigator/get-hints', getInvestigationHints);
   app.post('/api/cyber-investigator/evaluate-result', evaluateInvestigationResult);
   app.post('/api/cyber-investigator/generate-scenario', generateInvestigationScenario);
+  app.post('/api/cyber-investigator/generate-notes', generateInvestigationNotes);
   
   // Routes pour la progression de l'investigation
   app.get('/api/cyber-investigator/progress/:userId/:gameId/:sessionId?', getInvestigationProgress);

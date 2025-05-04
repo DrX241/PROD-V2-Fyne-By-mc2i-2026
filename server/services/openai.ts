@@ -124,6 +124,92 @@ class OpenAIService {
     return this.currentConfig === 'primary' ? this.primaryConfig : this.secondaryConfig;
   }
 
+  async getChatCompletionWithModel(
+    messages: ChatCompletionRequestMessage[],
+    temperature: number = 0.7,
+    maxTokens: number = 2000,
+    usePrimaryModel: boolean = false
+  ): Promise<string> {
+    try {
+      // Utiliser le modèle principal (GPT-4o) ou secondaire (GPT-4o-mini) selon le paramètre
+      const config = usePrimaryModel ? this.primaryConfig : this.secondaryConfig;
+      
+      // Formatage correct de l'URL : suppression des doubles slashes
+      let baseEndpoint = config.endpoint;
+      if (baseEndpoint.endsWith('/')) {
+        baseEndpoint = baseEndpoint.slice(0, -1);
+      }
+      
+      const url = `${baseEndpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
+
+      console.log(`Making API request to: ${url} with ${config.modelName} ${usePrimaryModel ? "(primary)" : ""}`);
+      
+      // Afficher plus de détails sur les paramètres de la requête (sans la clé API)
+      console.log(`Request parameters: temperature=${temperature}, max_tokens=${maxTokens}`);
+      console.log(`Nombre de messages: ${messages.length}, Premier role: ${messages[0]?.role}`);
+      
+      // Formater la requête pour l'API
+      const requestBody = {
+        messages: messages,
+        temperature: temperature,
+        max_tokens: maxTokens
+      };
+      
+      console.log(`Requête formatée pour ${config.deploymentName}`);
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'api-key': config.apiKey
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`Azure OpenAI API error (${response.status}): ${errorText}`);
+        console.error(`Endpoint: ${url}`);
+        console.error(`Modèle: ${config.modelName}, Deployment: ${config.deploymentName}, API version: ${config.apiVersion}`);
+        this.connectionStatus = 'disconnected';
+        
+        // Analyser le texte d'erreur pour des détails plus clairs
+        let detailedError = `Azure OpenAI API error (${response.status})`;
+        try {
+          // Essayer de parser l'erreur au format JSON 
+          const errorJson = JSON.parse(errorText);
+          if (errorJson.error) {
+            if (errorJson.error.message) {
+              detailedError += `: ${errorJson.error.message}`;
+            }
+            if (errorJson.error.code) {
+              detailedError += ` (Code: ${errorJson.error.code})`;
+            }
+          }
+        } catch (parseError) {
+          // Si ce n'est pas un JSON valide, utiliser simplement le texte brut
+          detailedError += `: ${errorText}`;
+        }
+        
+        throw new Error(detailedError);
+      }
+
+      const data = await response.json();
+
+      if (data?.choices?.[0]?.message?.content) {
+        this.connectionStatus = 'connected';
+        this.lastConnectionCheck = Date.now();
+        return data.choices[0].message.content;
+      } else {
+        throw new Error("Invalid response format from Azure OpenAI API");
+      }
+    } catch (error) {
+      console.error("Error calling Azure OpenAI API:", error);
+      this.connectionStatus = 'disconnected';
+      throw error;
+    }
+  }
+
   async getChatCompletion(
     messages: ChatCompletionRequestMessage[],
     temperature: number = 0.7,
