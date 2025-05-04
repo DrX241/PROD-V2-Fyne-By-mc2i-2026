@@ -1,192 +1,244 @@
 import React from 'react';
 import { Progress } from '@/components/ui/progress';
-import { Avatar } from '@/components/ui/avatar';
-import { Award, BarChart2, Trophy } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Award, Star, TrendingUp, Calendar, ShieldAlert, BarChart2, Hammer, Crown } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+interface LearningHistoryItem {
+  moduleId: string;
+  completedAt: string;
+  score: number;
+  strengths: string[];
+  areasToImprove: string[];
+}
+
+interface LearningPath {
+  id: string;
+  title: string;
+  icon: string;
+  difficulty: string;
+  modules: string[];
+}
 
 interface ProgressTrackerProps {
   className?: string;
-  learningHistory: Array<{
-    moduleId: string;
-    completedAt: string;
-    score: number;
-    strengths: string[];
-    areasToImprove: string[];
-  }>;
-  allPaths: Array<{
-    id: string;
-    title: string;
-    modules: string[];
-  }>;
+  learningHistory: LearningHistoryItem[];
+  allPaths: LearningPath[];
 }
 
-export function ProgressTracker({ 
-  className = '', 
-  learningHistory, 
-  allPaths 
-}: ProgressTrackerProps) {
-  // Calcul de la progression globale
+export function ProgressTracker({ className = '', learningHistory, allPaths }: ProgressTrackerProps) {
+  // Si aucun module n'a été complété, afficher un message d'encouragement
+  if (learningHistory.length === 0) {
+    return (
+      <Card className={`p-6 text-center ${className}`}>
+        <h3 className="text-xl font-semibold text-indigo-900 mb-2">Commencez votre parcours</h3>
+        <p className="text-gray-600 mb-4">
+          Sélectionnez un module ci-dessus pour débuter votre apprentissage en cybersécurité.
+        </p>
+        <div className="flex justify-center">
+          <Badge variant="outline" className="bg-indigo-100 text-indigo-800 border-indigo-200">
+            Niveau: Novice
+          </Badge>
+        </div>
+      </Card>
+    );
+  }
+  
+  // Calcul global des statistiques
   const totalModules = allPaths.reduce((sum, path) => sum + path.modules.length, 0);
   const completedModules = learningHistory.length;
-  const progressPercentage = totalModules > 0 
-    ? Math.round((completedModules / totalModules) * 100) 
-    : 0;
+  const completionPercentage = Math.round((completedModules / totalModules) * 100);
+  
+  // Calculer le score moyen
+  const averageScore = learningHistory.reduce((sum, item) => sum + item.score, 0) / completedModules;
+  
+  // Déterminer le niveau actuel
+  const getUserLevel = (completedCount: number) => {
+    if (completedCount >= 15) return { label: "Maître", icon: <Crown className="h-4 w-4 mr-1" /> };
+    if (completedCount >= 10) return { label: "Expert", icon: <Star className="h-4 w-4 mr-1" /> };
+    if (completedCount >= 5) return { label: "Praticien", icon: <TrendingUp className="h-4 w-4 mr-1" /> };
+    if (completedCount >= 2) return { label: "Apprenti", icon: <Award className="h-4 w-4 mr-1" /> };
+    return { label: "Novice", icon: <ShieldAlert className="h-4 w-4 mr-1" /> };
+  };
+  
+  const userLevel = getUserLevel(completedModules);
+  
+  // Formater une date
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('fr-FR', { 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date);
+  };
+  
+  // Obtenir l'icône correspondant au parcours
+  const getPathIcon = (pathId: string) => {
+    switch (pathId) {
+      case 'sensibilisation':
+        return <ShieldAlert className="h-5 w-5" />;
+      case 'rgpd':
+        return <BarChart2 className="h-5 w-5" />;
+      case 'risques':
+        return <ShieldAlert className="h-5 w-5" />;
+      case 'audit':
+        return <Hammer className="h-5 w-5" />;
+      case 'strategie':
+        return <Crown className="h-5 w-5" />;
+      default:
+        return <Award className="h-5 w-5" />;
+    }
+  };
+  
+  // Regrouper les modules complétés par parcours
+  const completedByPath = allPaths.map(path => {
+    const pathModules = learningHistory.filter(item => path.modules.includes(item.moduleId));
+    const pathPercentage = Math.round((pathModules.length / path.modules.length) * 100);
     
-  // Calcul des scores par parcours
-  const pathsProgress = allPaths.map(path => {
-    const pathModules = path.modules;
-    const pathCompletedModules = learningHistory.filter(h => 
-      pathModules.includes(h.moduleId)
-    );
-    
-    const pathProgress = pathModules.length > 0 
-      ? Math.round((pathCompletedModules.length / pathModules.length) * 100)
-      : 0;
-      
-    const averageScore = pathCompletedModules.length > 0
-      ? Math.round(pathCompletedModules.reduce((sum, m) => sum + m.score, 0) / pathCompletedModules.length * 100)
-      : 0;
-      
     return {
       id: path.id,
       title: path.title,
-      progress: pathProgress,
-      completedCount: pathCompletedModules.length,
-      totalCount: pathModules.length,
-      averageScore
+      icon: getPathIcon(path.id),
+      total: path.modules.length,
+      completed: pathModules.length,
+      percentage: pathPercentage,
+      modules: pathModules
     };
   });
   
-  // Calcul du niveau actuel
-  let level = "Novice";
-  if (progressPercentage >= 80) level = "Maître";
-  else if (progressPercentage >= 60) level = "Expert";
-  else if (progressPercentage >= 40) level = "Praticien";
-  else if (progressPercentage >= 20) level = "Apprenti";
-  
-  // Recherche des points forts (top 3)
-  const allStrengths = learningHistory.flatMap(h => h.strengths);
-  const strengthCounts: Record<string, number> = {};
-  
-  allStrengths.forEach(strength => {
-    if (!strengthCounts[strength]) strengthCounts[strength] = 0;
-    strengthCounts[strength]++;
-  });
-  
-  const topStrengths = Object.entries(strengthCounts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 3)
-    .map(([strength]) => strength);
-    
-  // Recherche des axes d'amélioration (top 3)
-  const allWeaknesses = learningHistory.flatMap(h => h.areasToImprove);
-  const weaknessCounts: Record<string, number> = {};
-  
-  allWeaknesses.forEach(weakness => {
-    if (!weaknessCounts[weakness]) weaknessCounts[weakness] = 0;
-    weaknessCounts[weakness]++;
-  });
-  
-  const topWeaknesses = Object.entries(weaknessCounts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 3)
-    .map(([weakness]) => weakness);
-  
   return (
-    <div className={`bg-gradient-to-br from-indigo-50 to-blue-50 p-6 rounded-xl border border-indigo-100 shadow-sm ${className}`}>
-      <div className="flex flex-col md:flex-row gap-6">
-        {/* Progression globale et niveau */}
-        <div className="flex-1">
-          <h3 className="text-lg font-semibold text-indigo-900 mb-4 flex items-center">
-            <Trophy className="h-5 w-5 mr-2 text-indigo-600" />
-            Progression et niveau
-          </h3>
-          
-          <div className="mb-6">
-            <div className="flex justify-between mb-2">
-              <span className="text-sm text-indigo-700">Progression globale</span>
-              <span className="text-sm font-medium text-indigo-900">{progressPercentage}%</span>
-            </div>
-            <Progress value={progressPercentage} className="h-2" />
-          </div>
-          
-          <div className="flex items-center gap-4 mb-4">
-            <Avatar className="bg-indigo-100 h-16 w-16 flex items-center justify-center text-2xl text-indigo-600">
-              {level.charAt(0)}
-            </Avatar>
-            <div>
-              <h4 className="text-lg font-medium text-indigo-900">Niveau: {level}</h4>
-              <p className="text-sm text-gray-600">{completedModules} modules complétés sur {totalModules}</p>
-            </div>
-          </div>
+    <Card className={`p-6 ${className}`}>
+      <div className="mb-6">
+        <h3 className="text-xl font-semibold text-indigo-900 mb-2">Suivi de votre progression</h3>
+        <div className="flex flex-wrap gap-2 mb-4">
+          <Badge className="bg-indigo-100 text-indigo-800 border-indigo-200 flex items-center">
+            {userLevel.icon}
+            Niveau: {userLevel.label}
+          </Badge>
+          <Badge className="bg-green-100 text-green-700 border-green-200">
+            {completedModules} modules sur {totalModules} ({completionPercentage}%)
+          </Badge>
+          <Badge className="bg-blue-100 text-blue-700 border-blue-200">
+            Score moyen: {Math.round(averageScore * 100)}%
+          </Badge>
         </div>
         
-        {/* Points forts et axes d'amélioration */}
-        <div className="flex-1">
-          <h3 className="text-lg font-semibold text-indigo-900 mb-4 flex items-center">
-            <BarChart2 className="h-5 w-5 mr-2 text-indigo-600" />
-            Analyse des compétences
-          </h3>
-          
-          <div className="mb-4">
-            <h4 className="text-sm font-medium text-green-700 mb-2">Points forts</h4>
-            <ul className="space-y-1">
-              {topStrengths.length > 0 ? (
-                topStrengths.map((strength, index) => (
-                  <li key={index} className="text-sm text-gray-700 flex items-start">
-                    <span className="text-green-500 mr-2">✓</span>
-                    {strength}
-                  </li>
-                ))
-              ) : (
-                <li className="text-sm text-gray-500 italic">Complétez des modules pour obtenir une analyse</li>
-              )}
-            </ul>
-          </div>
-          
-          <div>
-            <h4 className="text-sm font-medium text-orange-700 mb-2">Axes d'amélioration</h4>
-            <ul className="space-y-1">
-              {topWeaknesses.length > 0 ? (
-                topWeaknesses.map((weakness, index) => (
-                  <li key={index} className="text-sm text-gray-700 flex items-start">
-                    <span className="text-orange-500 mr-2">→</span>
-                    {weakness}
-                  </li>
-                ))
-              ) : (
-                <li className="text-sm text-gray-500 italic">Complétez des modules pour obtenir une analyse</li>
-              )}
-            </ul>
-          </div>
-        </div>
+        <Progress value={completionPercentage} className="h-2 mb-2" />
+      </div>
+      
+      <Tabs defaultValue="apercu" className="w-full">
+        <TabsList className="grid grid-cols-2 mb-4">
+          <TabsTrigger value="apercu">Aperçu par parcours</TabsTrigger>
+          <TabsTrigger value="details">Détails des modules</TabsTrigger>
+        </TabsList>
         
-        {/* Progression par parcours */}
-        <div className="flex-1">
-          <h3 className="text-lg font-semibold text-indigo-900 mb-4 flex items-center">
-            <Award className="h-5 w-5 mr-2 text-indigo-600" />
-            Progression par parcours
-          </h3>
-          
-          <div className="space-y-4">
-            {pathsProgress.map(path => (
-              <div key={path.id}>
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-sm font-medium text-indigo-800">{path.title}</span>
-                  <span className="text-xs text-indigo-600">
-                    {path.completedCount}/{path.totalCount} modules
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Progress value={path.progress} className="h-1.5 flex-grow" />
-                  <span className="text-xs font-medium w-8 text-right">
-                    {path.progress}%
-                  </span>
-                </div>
-              </div>
+        <TabsContent value="apercu">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {completedByPath.map((path, index) => (
+              <motion.div
+                key={path.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.1 }}
+              >
+                <Card className="p-4 border-l-4 border-l-indigo-500">
+                  <div className="flex items-center mb-2 gap-2">
+                    {path.icon}
+                    <h4 className="font-medium text-indigo-900">{path.title}</h4>
+                  </div>
+                  
+                  <div className="flex justify-between text-sm text-gray-600 mb-2">
+                    <span>{path.completed} modules sur {path.total}</span>
+                    <span>{path.percentage}% complété</span>
+                  </div>
+                  
+                  <Progress value={path.percentage} className="h-2" />
+                </Card>
+              </motion.div>
             ))}
           </div>
-        </div>
-      </div>
-    </div>
+        </TabsContent>
+        
+        <TabsContent value="details">
+          <div className="space-y-4">
+            {learningHistory.length > 0 ? (
+              learningHistory.map((item, index) => {
+                // Déterminer à quel parcours appartient ce module
+                let parentPath;
+                let moduleTitle = item.moduleId;
+                
+                for (const path of allPaths) {
+                  if (path.modules.includes(item.moduleId)) {
+                    parentPath = path;
+                    moduleTitle = item.moduleId.charAt(0).toUpperCase() + 
+                      item.moduleId.slice(1).replace(/([A-Z])/g, ' $1');
+                    break;
+                  }
+                }
+                
+                return (
+                  <motion.div
+                    key={item.moduleId}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                  >
+                    <Card className="p-4 border-l-4 border-l-green-500">
+                      <div className="flex justify-between mb-2">
+                        <h4 className="font-medium text-gray-900">{moduleTitle}</h4>
+                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-100">
+                          {Math.round(item.score * 100)}%
+                        </Badge>
+                      </div>
+                      
+                      {parentPath && (
+                        <div className="flex items-center text-sm text-gray-600 mb-2">
+                          {getPathIcon(parentPath.id)}
+                          <span className="ml-1">{parentPath.title}</span>
+                        </div>
+                      )}
+                      
+                      <div className="flex items-center text-xs text-gray-500 mb-3">
+                        <Calendar className="h-3 w-3 mr-1" />
+                        Complété le {formatDate(item.completedAt)}
+                      </div>
+                      
+                      {item.strengths.length > 0 && (
+                        <div className="mb-2">
+                          <p className="text-xs font-medium text-green-700 mb-1">Points forts:</p>
+                          <ul className="text-xs text-green-800 list-disc pl-4">
+                            {item.strengths.slice(0, 2).map((strength, idx) => (
+                              <li key={idx}>{strength}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {item.areasToImprove.length > 0 && (
+                        <div>
+                          <p className="text-xs font-medium text-orange-700 mb-1">À améliorer:</p>
+                          <ul className="text-xs text-orange-800 list-disc pl-4">
+                            {item.areasToImprove.slice(0, 2).map((area, idx) => (
+                              <li key={idx}>{area}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </Card>
+                  </motion.div>
+                );
+              })
+            ) : (
+              <p className="text-center text-gray-500">Aucun module complété pour le moment.</p>
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
+    </Card>
   );
 }

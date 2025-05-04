@@ -121,7 +121,11 @@ export function CyberForgeAcademy() {
     setSelectedModule(null);
   };
 
-  const handleCompleteModule = (moduleId: string, results: any) => {
+  const handleCompleteModule = (moduleId: string, results: { 
+    score: number, 
+    strengths: string[], 
+    areasToImprove: string[] 
+  }) => {
     // Mise à jour de l'historique d'apprentissage
     setLearningHistory(prev => {
       // Vérifier si le module existe déjà dans l'historique

@@ -9,58 +9,60 @@ import { ScenarioSimulation } from './ScenarioSimulation';
 import { QuizSection } from './QuizSection';
 import { ResourceLibrary } from './ResourceLibrary';
 
+// Définition des types pour les paramètres
 interface LearningModuleProps {
   moduleId: string;
   learningContent: any;
-  onComplete: (results: any) => void;
+  onComplete: (results: {
+    score: number,
+    strengths: string[],
+    areasToImprove: string[]
+  }) => void;
   onBack: () => void;
 }
 
+// Composant principal de module d'apprentissage
 export function LearningModule({
   moduleId,
   learningContent,
   onComplete,
   onBack
 }: LearningModuleProps) {
+  // États pour gérer l'interface
   const [activeSection, setActiveSection] = useState('introduction');
-  const [progress, setProgress] = useState(0);
+  const [completedSections, setCompletedSections] = useState<Record<string, boolean>>({});
   const [userResponses, setUserResponses] = useState<Record<string, string>>({});
   const [evaluations, setEvaluations] = useState<Record<string, any>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  if (!learningContent) {
-    return (
-      <div className="flex flex-col items-center justify-center h-64">
-        <AlertCircle className="h-12 w-12 text-red-500" />
-        <p className="mt-4 text-red-600">Contenu du module non disponible.</p>
-        <Button onClick={onBack} variant="outline" className="mt-4">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Retour
-        </Button>
-      </div>
-    );
-  }
+  // Calcul de la progression
+  const totalSections = 5; // Introduction, Concepts, Scenario, Quiz, Resources
+  const completedCount = Object.values(completedSections).filter(Boolean).length;
+  const progress = (completedCount / totalSections) * 100;
   
+  // Marquer une section comme complétée et passer à la suivante
   const handleSectionComplete = (section: string) => {
-    setProgress(prevProgress => {
-      const increment = 100 / 5; // 5 sections: introduction, concepts, scenario, quiz, resources
-      return Math.min(prevProgress + increment, 100);
-    });
+    setCompletedSections(prev => ({
+      ...prev,
+      [section]: true
+    }));
     
-    // Passer automatiquement à la section suivante
+    // Navigation entre les sections
     if (section === 'introduction') setActiveSection('concepts');
     else if (section === 'concepts') setActiveSection('scenario');
     else if (section === 'scenario') setActiveSection('quiz');
     else if (section === 'quiz') setActiveSection('resources');
   };
   
+  // Traiter la soumission d'une réponse à une question
   const handleResponseSubmit = async (questionId: string, response: string) => {
-    // Sauvegarder la réponse
+    // Enregistrer la réponse
     setUserResponses(prev => ({
       ...prev,
       [questionId]: response
     }));
     
-    // Évaluer la réponse avec l'API
+    // Évaluer la réponse
     setIsSubmitting(true);
     
     try {
@@ -68,7 +70,7 @@ export function LearningModule({
       let evaluation;
       
       try {
-        // Appel à l'API réelle
+        // Tenter d'appeler l'API d'évaluation
         evaluation = await evaluateUserResponse(
           response, 
           question.question, 
@@ -77,7 +79,7 @@ export function LearningModule({
       } catch (apiError) {
         console.error("Erreur lors de l'appel API, utilisation de l'évaluation de secours", apiError);
         
-        // Évaluation de secours en cas d'échec de l'appel API
+        // Évaluation de secours en cas d'échec de l'API
         const hasKeyConcepts = (question?.key_concepts || []).some((concept: string) => 
           response.toLowerCase().includes(concept.toLowerCase())
         );
@@ -97,6 +99,7 @@ export function LearningModule({
         };
       }
       
+      // Enregistrer l'évaluation
       setEvaluations(prev => ({
         ...prev,
         [questionId]: evaluation
@@ -108,11 +111,12 @@ export function LearningModule({
     }
   };
   
+  // Finaliser le module et générer le résumé
   const handleModuleCompletion = () => {
-    // Calculer le score final et les commentaires
     const allQuestions = learningContent.questions || [];
     const answeredQuestions = Object.keys(evaluations).length;
     
+    // Cas où aucune question n'a été répondue
     if (answeredQuestions === 0 || allQuestions.length === 0) {
       onComplete({
         score: 0,
@@ -122,11 +126,12 @@ export function LearningModule({
       return;
     }
     
-    // Extraire les forces et faiblesses des évaluations
+    // Compiler les résultats
     const strengths: string[] = [];
     const areasToImprove: string[] = [];
     let totalScore = 0;
     
+    // Éviter d'utiliser le mot-clé "eval" comme nom de variable
     Object.values(evaluations).forEach(evaluation => {
       totalScore += evaluation.score || 0;
       if (evaluation.strengths) strengths.push(...evaluation.strengths);
@@ -139,6 +144,7 @@ export function LearningModule({
     const uniqueStrengths = [...new Set(strengths)].slice(0, 3);
     const uniqueAreasToImprove = [...new Set(areasToImprove)].slice(0, 3);
     
+    // Transmettre les résultats
     onComplete({
       score: averageScore,
       strengths: uniqueStrengths,
@@ -146,6 +152,7 @@ export function LearningModule({
     });
   };
   
+  // Rendu du composant
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -192,7 +199,7 @@ export function LearningModule({
             <div className="prose max-w-none">
               <h3 className="text-xl font-semibold mb-4 text-indigo-900">Concepts clés</h3>
               <ul className="space-y-2">
-                {learningContent.concepts_clés.map((concept: string, idx: number) => (
+                {learningContent.concepts_clés && learningContent.concepts_clés.map((concept: string, idx: number) => (
                   <li key={idx} className="flex items-start">
                     <span className="text-indigo-600 font-medium mr-2">•</span>
                     <span>{concept}</span>
@@ -211,14 +218,14 @@ export function LearningModule({
         
         <TabsContent value="scenario">
           <ScenarioSimulation 
-            scenario={learningContent.scenario_interactif}
+            scenario={learningContent.scenario_interactif || {}}
             onComplete={() => handleSectionComplete('scenario')}
           />
         </TabsContent>
         
         <TabsContent value="quiz">
           <QuizSection
-            questions={learningContent.questions}
+            questions={learningContent.questions || []}
             userResponses={userResponses}
             evaluations={evaluations}
             isSubmitting={isSubmitting}
@@ -229,7 +236,7 @@ export function LearningModule({
         
         <TabsContent value="resources">
           <ResourceLibrary 
-            resources={learningContent.ressources_additionnelles}
+            resources={learningContent.ressources_additionnelles || []}
             onComplete={handleModuleCompletion}
           />
         </TabsContent>

@@ -1,177 +1,235 @@
-import { Request, Response } from 'express';
 import { openAIService } from './services/openai';
 
 /**
  * Interface pour le contenu d'apprentissage
  */
 interface LearningContent {
-  theme: string;
-  level: string;
-  sections: {
-    title: string;
-    content: string;
-    type: 'theory' | 'scenario' | 'quiz';
-  }[];
-  resources: {
-    title: string;
-    url: string;
-    description: string;
-  }[];
-  quiz: {
+  title: string;
+  introduction: string;
+  concepts_clés: string[];
+  scenario_interactif: {
+    titre: string;
+    contexte: string;
+    etapes: Array<{
+      id: string;
+      description: string;
+      options: Array<{
+        id: string;
+        text: string;
+      }>;
+      correct_option: string;
+      explication: string;
+    }>;
+  };
+  questions: Array<{
+    id: string;
     question: string;
-    options: string[];
-    correctAnswer: number;
-    explanation: string;
-  }[];
+    key_concepts: string[];
+  }>;
+  ressources_additionnelles: Array<{
+    titre: string;
+    description: string;
+    lien: string;
+    type?: string;
+  }>;
 }
 
 /**
- * Génère du contenu d'apprentissage personnalisé basé sur un thème et niveau
+ * Interface pour l'évaluation des réponses
  */
-export async function generateLearningContent(req: Request, res: Response) {
+interface ResponseEvaluation {
+  score: number;
+  feedback: string;
+  strengths: string[];
+  areas_to_improve: string[];
+  explanation: string;
+}
+
+/**
+ * Instance partagée d'OpenAI
+ */
+// Le service openAIService est déjà importé en haut du fichier
+
+/**
+ * Génère du contenu d'apprentissage en cybersécurité
+ */
+export async function generateLearningContent(
+  theme: string,
+  userLevel: string = 'débutant',
+  learningHistory: any[] = []
+): Promise<LearningContent> {
+  const systemMessage = `Vous êtes un expert en éducation en cybersécurité, spécialisé dans la création de matériel pédagogique interactif. 
+Votre mission est de générer un module d'apprentissage complet sur un sujet de cybersécurité.
+
+Suivez ces consignes importantes:
+1. Créez un contenu adapté au niveau '${userLevel}' (débutant, intermédiaire ou expert).
+2. Incluez uniquement des faits et recommandations précis et à jour.
+3. Privilégiez les sources officielles françaises comme l'ANSSI et la CNIL.
+4. Intégrez des exemples concrets et pertinents pour le contexte professionnel.
+5. Structurez clairement l'information pour une progression logique.
+6. Utilisez un ton professionnel et accessible.
+
+Générez un module d'apprentissage sur "${theme}" qui inclut les sections suivantes:
+- Un titre clair et descriptif
+- Une introduction engageante qui présente l'importance du sujet
+- 5 concepts clés essentiels à comprendre
+- Un scénario interactif avec au moins 2 étapes de prise de décision, chacune avec plusieurs options et des explications détaillées
+- 2-3 questions ouvertes pour évaluer la compréhension, avec des concepts clés à rechercher dans les réponses
+- 2-4 ressources additionnelles pertinentes et fiables pour approfondir (documentation ANSSI, CNIL, ENISA, etc.)`;
+
+  const userMessage = `Créez un module d'apprentissage interactif sur "${theme}" adapté au niveau ${userLevel}.
+
+${learningHistory.length > 0
+  ? `L'utilisateur a déjà complété ${learningHistory.length} modules, dont: ${learningHistory
+      .slice(0, 3)
+      .map((h: any) => h.moduleId)
+      .join(', ')}${learningHistory.length > 3 ? '...' : ''}`
+  : "C'est le premier module que l'utilisateur va suivre."
+}`;
+
   try {
-    const { theme, level, subtheme } = req.body;
+    const completion = await openaiService.getChatCompletion([
+      { role: 'system', content: systemMessage },
+      { role: 'user', content: userMessage }
+    ]);
 
-    if (!theme || !level) {
-      return res.status(400).json({ message: 'Theme et niveau requis' });
-    }
-
-    const prompt = `
-    Génère un module d'apprentissage de cybersécurité pour le thème: "${theme}" ${subtheme ? `(sous-thème: "${subtheme}")` : ''} 
-    avec un niveau de difficulté: "${level}".
-    
-    Le contenu doit être structuré en français et inclure:
-    1. Une introduction théorique concise et claire
-    2. Un scénario pratique réaliste illustrant les concepts
-    3. Trois questions de quiz avec 4 réponses possibles chacune
-    4. Des ressources externes pertinentes (ANSSI, CNIL, ENISA, etc.)
-    
-    Structure la réponse en JSON avec le format suivant:
-    {
-      "theme": "Titre du module",
-      "level": "Niveau de difficulté",
-      "sections": [
-        {
-          "title": "Introduction",
-          "content": "Contenu théorique",
-          "type": "theory"
-        },
-        {
-          "title": "Mise en pratique",
-          "content": "Scénario",
-          "type": "scenario"
-        }
-      ],
-      "resources": [
-        {
-          "title": "Titre de la ressource",
-          "url": "URL",
-          "description": "Description de la ressource"
-        }
-      ],
-      "quiz": [
-        {
-          "question": "Question du quiz",
-          "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
-          "correctAnswer": 0,
-          "explanation": "Explication de la réponse correcte"
-        }
-      ]
-    }
-    
-    Veille à ce que le contenu soit techniquement précis, à jour, et conforme aux meilleures pratiques actuelles de cybersécurité en 2025.
-    `;
-
-    const response = await openAIService.getChatCompletion(
-      [{ role: 'user', content: prompt }],
-      0.3, // Température basse pour des réponses plus cohérentes
-      4000 // Plus de tokens pour un contenu détaillé
-    );
-
-    // Extraction du JSON de la réponse
-    let learningContent: LearningContent;
+    // Vérifier que la réponse est au format JSON
     try {
-      // Nettoyer la réponse pour s'assurer qu'elle contient uniquement du JSON valide
-      const jsonStr = response.trim().replace(/```json|```/g, '');
-      learningContent = JSON.parse(jsonStr);
-    } catch (error) {
-      console.error('Erreur lors du parsing du JSON:', error);
-      return res.status(500).json({ 
-        message: 'Erreur lors de la génération du contenu',
-        error: String(error)
-      });
-    }
+      // Si c'est déjà un objet JSON structuré
+      if (typeof completion === 'object') {
+        const content = completion as unknown as LearningContent;
+        return ensureContentStructure(content, theme);
+      }
 
-    res.json(learningContent);
+      // Sinon, essayer de parser la réponse comme du JSON
+      const content = JSON.parse(completion);
+      return ensureContentStructure(content, theme);
+    } catch (parseError) {
+      console.error('Erreur de parsing JSON:', parseError);
+      
+      // En cas d'erreur, essayer d'extraire le JSON de la réponse
+      const jsonMatch = completion.match(/```json([\s\S]*?)```/) || 
+                        completion.match(/{[\s\S]*}/);
+                        
+      if (jsonMatch) {
+        try {
+          const extractedJson = jsonMatch[1] ? jsonMatch[1].trim() : jsonMatch[0];
+          const content = JSON.parse(extractedJson);
+          return ensureContentStructure(content, theme);
+        } catch (extractError) {
+          console.error('Erreur lors de l\'extraction JSON:', extractError);
+          throw new Error('Le format de la réponse est invalide');
+        }
+      } else {
+        throw new Error('Impossible de générer un contenu correctement structuré');
+      }
+    }
   } catch (error) {
-    console.error('Erreur lors de la génération du contenu d\'apprentissage:', error);
-    res.status(500).json({ 
-      message: 'Erreur lors de la génération du contenu', 
-      error: String(error)
-    });
+    console.error('Erreur lors de la génération de contenu:', error);
+    throw error;
   }
+}
+
+/**
+ * Assure que le contenu d'apprentissage a la structure attendue
+ */
+function ensureContentStructure(content: any, theme: string): LearningContent {
+  // S'assurer que toutes les propriétés requises sont présentes
+  return {
+    title: content.title || `Module sur ${theme}`,
+    introduction: content.introduction || `<p>Bienvenue dans ce module sur ${theme}.</p>`,
+    concepts_clés: Array.isArray(content.concepts_clés) ? content.concepts_clés : [],
+    scenario_interactif: {
+      titre: content.scenario_interactif?.titre || 'Mise en situation professionnelle',
+      contexte: content.scenario_interactif?.contexte || 'Vous êtes confronté à un défi de cybersécurité.',
+      etapes: Array.isArray(content.scenario_interactif?.etapes) 
+        ? content.scenario_interactif.etapes 
+        : []
+    },
+    questions: Array.isArray(content.questions) ? content.questions : [],
+    ressources_additionnelles: Array.isArray(content.ressources_additionnelles) 
+      ? content.ressources_additionnelles 
+      : []
+  };
 }
 
 /**
  * Évalue la réponse d'un utilisateur à une question
  */
-export async function evaluateUserResponse(req: Request, res: Response) {
+export async function evaluateUserResponse(
+  userResponse: string,
+  context: string,
+  expectedConcepts: string[] = []
+): Promise<ResponseEvaluation> {
+  const systemMessage = `Vous êtes un évaluateur expert en cybersécurité, chargé d'évaluer les réponses des apprenants à des questions de formation.
+
+Suivez ces consignes:
+1. Évaluez objectivement si la réponse démontre une compréhension des concepts clés attendus
+2. Attribuez un score de 0 à 1 (0 = compréhension minimale, 1 = excellente compréhension)
+3. Fournissez un feedback constructif et précis
+4. Identifiez les forces de la réponse (maximum 3)
+5. Suggérez des points d'amélioration (maximum 3)
+6. Expliquez brièvement votre évaluation
+
+Répondez UNIQUEMENT au format JSON avec les champs suivants:
+{
+  "score": (nombre entre 0 et 1),
+  "feedback": (commentaire général),
+  "strengths": [(liste des points forts)],
+  "areas_to_improve": [(liste des points à améliorer)],
+  "explanation": (explication de l'évaluation)
+}`;
+
+  const userMessage = `Question: ${context}
+
+Réponse de l'apprenant: "${userResponse}"
+
+Concepts clés attendus: ${expectedConcepts.join(', ')}
+
+Évaluez cette réponse selon les critères demandés. Répondez uniquement au format JSON spécifié.`;
+
   try {
-    const { question, userResponse, correctAnswer, theme, level } = req.body;
+    const completion = await openaiService.getChatCompletion([
+      { role: 'system', content: systemMessage },
+      { role: 'user', content: userMessage }
+    ]);
 
-    if (!question || !userResponse) {
-      return res.status(400).json({ message: 'Question et réponse requises' });
-    }
-
-    const prompt = `
-    Évalue la réponse d'un utilisateur à une question de cybersécurité.
-    
-    Question: "${question}"
-    Réponse de l'utilisateur: "${userResponse}"
-    Réponse correcte: "${correctAnswer || 'Non fournie'}"
-    Thème: "${theme || 'Cybersécurité'}"
-    Niveau: "${level || 'Intermédiaire'}"
-    
-    Fournir une évaluation détaillée au format JSON:
-    {
-      "isCorrect": true/false,
-      "score": 0-100,
-      "feedback": "Commentaire constructif sur la réponse",
-      "improvements": "Suggestions d'améliorations",
-      "additionalResources": [
-        {
-          "title": "Titre de la ressource",
-          "url": "URL"
-        }
-      ]
-    }
-    
-    Sois juste mais exigeant dans ton évaluation.
-    `;
-
-    const response = await openAIService.getChatCompletion(
-      [{ role: 'user', content: prompt }],
-      0.3,
-      2000
-    );
-
-    // Extraction du JSON de la réponse
+    // Vérifier que la réponse est au format JSON
     try {
-      const jsonStr = response.trim().replace(/```json|```/g, '');
-      const evaluation = JSON.parse(jsonStr);
-      res.json(evaluation);
-    } catch (error) {
-      console.error('Erreur lors du parsing du JSON:', error);
-      res.status(500).json({ 
-        message: 'Erreur lors de l\'évaluation', 
-        error: String(error)
-      });
+      // Si c'est déjà un objet JSON structuré
+      if (typeof completion === 'object') {
+        return completion as unknown as ResponseEvaluation;
+      }
+
+      // Sinon, essayer de parser la réponse comme du JSON
+      return JSON.parse(completion);
+    } catch (parseError) {
+      console.error('Erreur de parsing JSON:', parseError);
+      
+      // En cas d'erreur, essayer d'extraire le JSON de la réponse
+      const jsonMatch = completion.match(/```json([\s\S]*?)```/) || 
+                        completion.match(/{[\s\S]*}/);
+                        
+      if (jsonMatch) {
+        try {
+          const extractedJson = jsonMatch[1] ? jsonMatch[1].trim() : jsonMatch[0];
+          return JSON.parse(extractedJson);
+        } catch (extractError) {
+          console.error('Erreur lors de l\'extraction JSON:', extractError);
+        }
+      }
+      
+      // Valeur par défaut en cas d'erreur
+      return {
+        score: 0.5,
+        feedback: "Impossible d'évaluer précisément votre réponse.",
+        strengths: ["Effort de réponse"],
+        areas_to_improve: ["Structurer davantage la réponse", "Aborder les concepts clés attendus"],
+        explanation: "Évaluation par défaut due à une erreur technique."
+      };
     }
   } catch (error) {
-    console.error('Erreur lors de l\'évaluation de la réponse:', error);
-    res.status(500).json({ 
-      message: 'Erreur lors de l\'évaluation', 
-      error: String(error)
-    });
+    console.error('Erreur lors de l\'évaluation:', error);
+    throw error;
   }
 }

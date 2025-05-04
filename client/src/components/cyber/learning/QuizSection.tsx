@@ -1,27 +1,34 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Send, ThumbsUp, ChevronRight } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
-interface QuizQuestion {
+interface Question {
   id: string;
   question: string;
   key_concepts: string[];
 }
 
+interface Evaluation {
+  score: number;
+  feedback: string;
+  strengths: string[];
+  areas_to_improve: string[];
+  explanation: string;
+}
+
 interface QuizSectionProps {
-  questions: QuizQuestion[];
+  questions: Question[];
   userResponses: Record<string, string>;
-  evaluations: Record<string, any>;
+  evaluations: Record<string, Evaluation>;
   isSubmitting: boolean;
   onSubmitResponse: (questionId: string, response: string) => void;
   onComplete: () => void;
 }
 
-export function QuizSection({ 
+export function QuizSection({
   questions,
   userResponses,
   evaluations,
@@ -30,162 +37,169 @@ export function QuizSection({
   onComplete
 }: QuizSectionProps) {
   const [currentResponse, setCurrentResponse] = useState<string>('');
-  const [activeQuestionIndex, setActiveQuestionIndex] = useState<number>(0);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   
-  const currentQuestion = questions[activeQuestionIndex];
-  const hasResponse = !!userResponses[currentQuestion?.id];
-  const evaluation = currentQuestion ? evaluations[currentQuestion.id] : null;
+  if (!questions || questions.length === 0) {
+    return (
+      <Card className="p-6 text-center">
+        <AlertCircle className="h-12 w-12 text-orange-500 mx-auto mb-4" />
+        <h3 className="text-xl font-semibold mb-2">Quiz non disponible</h3>
+        <p className="mb-4 text-gray-600">Ce module ne contient pas de questions.</p>
+        <Button 
+          className="bg-indigo-600 hover:bg-indigo-700" 
+          onClick={onComplete}
+        >
+          Continuer <CheckCircle className="ml-2 h-4 w-4" />
+        </Button>
+      </Card>
+    );
+  }
   
-  const handleSubmitResponse = () => {
-    if (currentQuestion && currentResponse.trim()) {
-      onSubmitResponse(currentQuestion.id, currentResponse.trim());
-    }
+  const currentQuestion = questions[currentQuestionIndex];
+  const hasResponse = !!userResponses[currentQuestion.id];
+  const hasEvaluation = !!evaluations[currentQuestion.id];
+  const evaluation = evaluations[currentQuestion.id];
+  
+  const handleChangeResponse = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setCurrentResponse(e.target.value);
   };
   
-  const handleNext = () => {
-    if (activeQuestionIndex < questions.length - 1) {
-      setActiveQuestionIndex(prevIndex => prevIndex + 1);
-      setCurrentResponse(userResponses[questions[activeQuestionIndex + 1]?.id] || '');
+  const handleSubmitResponse = () => {
+    if (!currentResponse.trim()) return;
+    onSubmitResponse(currentQuestion.id, currentResponse);
+    setCurrentResponse('');
+  };
+  
+  const handleNextQuestion = () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
     } else {
       onComplete();
     }
   };
   
-  const handlePrevious = () => {
-    if (activeQuestionIndex > 0) {
-      setActiveQuestionIndex(prevIndex => prevIndex - 1);
-      setCurrentResponse(userResponses[questions[activeQuestionIndex - 1]?.id] || '');
+  const handlePreviousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(prev => prev - 1);
     }
   };
   
-  if (!currentQuestion) {
-    return (
-      <Card className="p-6">
-        <div className="text-center p-8">
-          <p className="text-gray-500">Aucune question disponible pour ce module.</p>
-          <Button onClick={onComplete} className="mt-4">
-            Continuer
-          </Button>
-        </div>
-      </Card>
-    );
-  }
+  // Calculer le nombre de questions complétées
+  const completedCount = Object.keys(evaluations).length;
+  const completionPercentage = questions.length > 0 
+    ? Math.round((completedCount / questions.length) * 100) 
+    : 0;
   
   return (
     <Card className="p-6">
-      <div className="mb-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-indigo-900">Quiz d'évaluation</h2>
-          <div className="text-sm text-gray-500">
-            Question {activeQuestionIndex + 1} sur {questions.length}
-          </div>
+      <div className="flex justify-between items-center mb-6">
+        <h3 className="text-xl font-semibold text-indigo-900">Quiz d'évaluation</h3>
+        <div className="text-sm text-gray-600">
+          Question {currentQuestionIndex + 1} sur {questions.length} | {completionPercentage}% complété
         </div>
-        
+      </div>
+      
+      <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-100 mb-6">
+        <p className="text-indigo-800 font-medium mb-1">Question {currentQuestionIndex + 1}:</p>
+        <p className="text-indigo-900">{currentQuestion.question}</p>
+      </div>
+      
+      {hasEvaluation ? (
         <motion.div
-          key={currentQuestion.id}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
           className="mb-6"
         >
-          <p className="text-gray-800 text-lg mb-4">{currentQuestion.question}</p>
+          <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 mb-4">
+            <p className="text-gray-700 font-medium mb-2">Votre réponse:</p>
+            <p className="text-gray-800">{userResponses[currentQuestion.id]}</p>
+          </div>
           
+          <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-100">
+            <div className="flex justify-between items-center mb-2">
+              <p className="text-indigo-900 font-medium">Évaluation:</p>
+              <span className="text-indigo-700">
+                Score: {Math.round(evaluation.score * 100)}%
+              </span>
+            </div>
+            
+            <p className="text-indigo-800 mb-3">{evaluation.feedback}</p>
+            
+            {evaluation.strengths.length > 0 && (
+              <div className="mb-3">
+                <p className="text-green-700 font-medium">Points forts:</p>
+                <ul className="list-disc pl-5 text-green-800">
+                  {evaluation.strengths.map((strength, idx) => (
+                    <li key={idx}>{strength}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            {evaluation.areas_to_improve.length > 0 && (
+              <div>
+                <p className="text-orange-700 font-medium">Points à améliorer:</p>
+                <ul className="list-disc pl-5 text-orange-800">
+                  {evaluation.areas_to_improve.map((area, idx) => (
+                    <li key={idx}>{area}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      ) : (
+        <div className="mb-6">
           <Textarea
-            placeholder="Entrez votre réponse ici..."
+            placeholder="Rédigez votre réponse ici..."
+            className="min-h-[150px] mb-2"
             value={hasResponse ? userResponses[currentQuestion.id] : currentResponse}
-            onChange={(e) => setCurrentResponse(e.target.value)}
-            className="min-h-32 mb-4"
-            disabled={hasResponse}
+            onChange={handleChangeResponse}
+            disabled={hasResponse || isSubmitting}
           />
+          <p className="text-xs text-gray-500 mb-4">
+            Essayez d'aborder les aspects essentiels de la question pour une évaluation optimale.
+          </p>
           
-          {!hasResponse && (
-            <div className="flex justify-end">
-              <Button 
-                onClick={handleSubmitResponse}
-                disabled={isSubmitting || !currentResponse.trim()}
-                className="bg-indigo-600 hover:bg-indigo-700"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Évaluation en cours...
-                  </>
-                ) : (
-                  <>
-                    Soumettre
-                    <Send className="ml-2 h-4 w-4" />
-                  </>
-                )}
-              </Button>
+          {isSubmitting && (
+            <div className="flex items-center justify-center p-4 bg-gray-50 rounded-lg">
+              <Loader2 className="animate-spin h-5 w-5 mr-2 text-indigo-600" />
+              <p>Évaluation en cours...</p>
             </div>
           )}
-          
-          {evaluation && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              transition={{ duration: 0.3 }}
-              className="mt-6"
-            >
-              <Alert variant={evaluation.score >= 0.7 ? "default" : "destructive"}>
-                <AlertTitle className="flex items-center gap-2">
-                  <ThumbsUp className={`h-5 w-5 ${evaluation.score >= 0.7 ? 'text-green-500' : 'text-orange-500'}`} />
-                  Évaluation ({Math.round(evaluation.score * 100)}%)
-                </AlertTitle>
-                <AlertDescription className="mt-2">
-                  <p className="mb-2">{evaluation.feedback}</p>
-                  
-                  {evaluation.strengths?.length > 0 && (
-                    <div className="mb-2">
-                      <h4 className="text-sm font-medium text-green-700">Points forts:</h4>
-                      <ul className="text-sm space-y-1 mt-1">
-                        {evaluation.strengths.map((strength: string, index: number) => (
-                          <li key={index} className="flex items-start">
-                            <span className="text-green-500 mr-1.5">✓</span>
-                            {strength}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  
-                  {evaluation.areas_to_improve?.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-medium text-orange-700">Axes d'amélioration:</h4>
-                      <ul className="text-sm space-y-1 mt-1">
-                        {evaluation.areas_to_improve.map((area: string, index: number) => (
-                          <li key={index} className="flex items-start">
-                            <span className="text-orange-500 mr-1.5">→</span>
-                            {area}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </AlertDescription>
-              </Alert>
-            </motion.div>
-          )}
-        </motion.div>
-      </div>
+        </div>
+      )}
       
       <div className="flex justify-between">
         <Button 
           variant="outline" 
-          onClick={handlePrevious}
-          disabled={activeQuestionIndex === 0}
+          onClick={handlePreviousQuestion}
+          disabled={currentQuestionIndex === 0}
         >
           Question précédente
         </Button>
         
-        <Button 
-          onClick={handleNext}
-          disabled={!hasResponse}
-          className="bg-indigo-600 hover:bg-indigo-700"
-        >
-          {activeQuestionIndex === questions.length - 1 ? "Terminer" : "Question suivante"}
-          <ChevronRight className="ml-2 h-4 w-4" />
-        </Button>
+        <div className="flex gap-2">
+          {!hasResponse && (
+            <Button 
+              className="bg-indigo-600 hover:bg-indigo-700" 
+              onClick={handleSubmitResponse}
+              disabled={!currentResponse.trim() || isSubmitting}
+            >
+              Soumettre
+            </Button>
+          )}
+          
+          <Button 
+            variant={hasEvaluation ? "default" : "outline"}
+            className={hasEvaluation ? "bg-indigo-600 hover:bg-indigo-700" : ""}
+            onClick={handleNextQuestion}
+            disabled={!hasEvaluation && (!hasResponse || isSubmitting)}
+          >
+            {currentQuestionIndex === questions.length - 1 ? 'Terminer' : 'Question suivante'}
+          </Button>
+        </div>
       </div>
     </Card>
   );
