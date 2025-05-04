@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
+import GameInterface from './GameInterface';
 import { ArrowLeft, Shield, FileCode, AlertTriangle, Play, Book } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
