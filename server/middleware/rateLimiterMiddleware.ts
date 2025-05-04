@@ -5,7 +5,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { rateLimiter } from '../services/rateLimiterService';
 
-// Interface pour les options du middleware
 interface RateLimiterOptions {
   keyGenerator?: (req: Request) => string;
   getAssistantType?: (req: Request) => string | undefined;
@@ -20,96 +19,110 @@ interface RateLimiterOptions {
  * @returns Middleware Express
  */
 export const rateLimiterMiddleware = (options: RateLimiterOptions = {}) => {
-  // Fonction par défaut pour générer la clé (basée sur l'utilisateur ou l'IP)
+  // Fonction par défaut pour générer la clé de limitation
   const defaultKeyGenerator = (req: Request): string => {
-    if (req.session?.user?.id) {
-      return `user:${req.session.user.id}`;
+    // Utiliser en priorité l'utilisateur si disponible
+    if (req.headers['x-user-id']) {
+      return `user:${req.headers['x-user-id']}`;
     }
-    // Utiliser l'ID dans le body si disponible
-    if (req.body?.userId) {
-      return `user:${req.body.userId}`;
-    }
-    // Utiliser l'IP comme fallback
-    const ip = req.ip || 
-               req.connection.remoteAddress || 
-               req.headers['x-forwarded-for'] || 
-               'unknown';
+    
+    // Nous n'utilisons pas les sessions express dans cette application
+    // Mais nous pourrions les utiliser à l'avenir
+    
+    // Sinon, utiliser l'IP
+    const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
     return `ip:${ip}`;
   };
   
-  // Fonction par défaut pour obtenir le type d'assistant
+  // Fonction par défaut pour récupérer le type d'assistant
   const defaultGetAssistantType = (req: Request): string | undefined => {
-    // Essayer d'obtenir le type depuis le corps de la requête
-    if (req.body?.assistantType || req.body?.domain) {
-      return req.body.assistantType || req.body.domain;
+    // Essayer de récupérer le type d'assistant depuis les paramètres
+    if (req.params.assistantType) {
+      return req.params.assistantType;
     }
     
-    // Essayer d'obtenir depuis les paramètres de requête
-    if (req.query?.type || req.query?.domain) {
-      return req.query.type as string || req.query.domain as string;
+    // Essayer de récupérer le domaine depuis le corps de la requête
+    if (req.body && req.body.domain) {
+      return req.body.domain;
     }
     
-    // Essayer d'obtenir depuis les paramètres d'URL
-    if (req.params?.type || req.params?.domain) {
-      return req.params.type || req.params.domain;
+    // Essayer de récupérer le domaine depuis la query string
+    if (req.query.domain) {
+      return req.query.domain as string;
     }
     
     return undefined;
   };
   
-  // Gestionnaire d'erreur par défaut
+  // Fonction par défaut pour gérer les erreurs de limitation
   const defaultErrorHandler = (_req: Request, res: Response) => {
     res.status(429).json({
       success: false,
-      error: 'Trop de requêtes, veuillez réessayer plus tard',
-      retryAfter: 60 // Suggérer de réessayer après 60 secondes
+      error: 'Trop de requêtes, veuillez réessayer plus tard.',
+      code: 'RATE_LIMIT_EXCEEDED'
     });
   };
   
-  // Extraire les options avec des valeurs par défaut
-  const keyGenerator = options.keyGenerator || defaultKeyGenerator;
-  const getAssistantType = options.getAssistantType || defaultGetAssistantType;
-  const errorHandler = options.errorHandler || defaultErrorHandler;
-  const skipIfAdmin = options.skipIfAdmin || false;
-  
-  // Retourner le middleware
   return async (req: Request, res: Response, next: NextFunction) => {
+    const keyGenerator = options.keyGenerator || defaultKeyGenerator;
+    const getAssistantType = options.getAssistantType || defaultGetAssistantType;
+    const errorHandler = options.errorHandler || defaultErrorHandler;
+    
+    // Ignorer la limitation pour les administrateurs si requis
+    if (options.skipIfAdmin && req.headers['x-user-role'] === 'admin') {
+      return next();
+    }
+    
+    // Générer la clé et récupérer le type d'assistant
+    const key = keyGenerator(req);
+    const assistantType = getAssistantType(req);
+    
     try {
-      // Vérifier si c'est un administrateur et si on doit ignorer la limite dans ce cas
-      if (skipIfAdmin && req.headers['x-user-role'] === 'admin') {
-        return next();
-      }
-      
-      // Générer la clé et obtenir le type d'assistant
-      const key = keyGenerator(req);
-      const assistantType = getAssistantType(req);
-      
-      // Vérifier si la requête peut être traitée
+      // Vérifier la limitation de débit
       const canProceed = await rateLimiter.checkRateLimit(key, assistantType);
       
-      if (canProceed) {
-        // Ajouter un hook pour libérer la limite en cas d'erreur
-        // afin de ne pas pénaliser l'utilisateur pour les échecs côté serveur
-        const originalEnd = res.end;
-        res.end = function(...args: any[]) {
-          const statusCode = res.statusCode;
-          if (statusCode >= 500) {
-            // Libérer la limite pour les erreurs serveur
-            rateLimiter.releaseLimit(key);
-          }
-          return originalEnd.apply(res, args);
-        };
-        
-        // Continuer le traitement de la requête
-        next();
-      } else {
-        // Appliquer le gestionnaire d'erreur
-        errorHandler(req, res);
+      if (!canProceed) {
+        // Appliquer le gestionnaire d'erreur personnalisé
+        return errorHandler(req, res);
       }
-    } catch (error) {
-      // En cas d'erreur dans la vérification du rate limit, continuer quand même
-      console.error('Erreur lors de la vérification du rate limit:', error);
+      
+      // Intercepter la fonction d'envoi pour libérer le rate limiter en cas d'erreur interne
+      const originalSend = res.send;
+      res.send = function(this: Response, body: any) {
+        // Vérifier si la réponse indique une erreur
+        let isError = false;
+        
+        try {
+          // Si le corps est un objet JSON
+          if (typeof body === 'string' && body.startsWith('{')) {
+            const parsed = JSON.parse(body);
+            isError = parsed.success === false || parsed.error;
+          } else if (typeof body === 'object') {
+            // Si c'est déjà un objet
+            isError = body.success === false || body.error;
+          }
+        } catch (e) {
+          // Ignorer les erreurs de parsing
+        }
+        
+        // Si c'est une erreur, libérer un jeton
+        if (res.statusCode >= 500 || isError) {
+          rateLimiter.releaseLimit(key);
+        }
+        
+        // Appeler la fonction originale
+        return originalSend.call(this, body);
+      };
+      
+      // Continuer avec la requête
       next();
+    } catch (error) {
+      // Erreur de timeout ou autre
+      res.status(429).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Erreur de limitation de débit',
+        code: 'RATE_LIMIT_ERROR'
+      });
     }
   };
 };

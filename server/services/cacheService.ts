@@ -1,9 +1,7 @@
 /**
- * Service de cache intelligent pour les réponses d'OpenAI
- * Permet de réduire le nombre d'appels à l'API en mémorisant les paires question/réponse
+ * Service de cache pour réduire les appels à l'API OpenAI
  */
 
-// Type pour stocker les entrées du cache
 interface CacheEntry {
   response: any;            // Réponse mise en cache
   timestamp: number;        // Timestamp de création
@@ -12,33 +10,29 @@ interface CacheEntry {
 }
 
 class CacheService {
-  // Stockage principal du cache
+  // Map pour stocker les entrées de cache par domaine et clé
   private cache: Map<string, CacheEntry> = new Map();
   
-  // Configuration par défaut
+  // Configuration par défaut du cache
   private defaultConfig = {
-    ttl: 30 * 60 * 1000,      // Time-to-live: 30 minutes par défaut
-    maxSize: 1000,            // Nombre maximum d'entrées dans le cache
-    minSimilarity: 0.92,      // Seuil de similarité pour considérer des questions comme identiques
-    cleanupInterval: 5 * 60 * 1000, // Intervalle de nettoyage: 5 minutes
+    ttl: 3600 * 1000,           // Time to live: 1 heure par défaut
+    maxEntries: 1000,           // Nombre maximum d'entrées dans le cache
+    similarityThreshold: 0.85,  // Seuil de similarité pour la recherche floue
+    cleanupInterval: 300 * 1000 // Intervalle de nettoyage: 5 minutes
   };
   
-  // Configuration personnalisée par domaine d'assistant
+  // Configurations spécifiques par domaine
   private domainConfigs: Record<string, Partial<typeof this.defaultConfig>> = {
-    cybersecurite: {
-      // Les réponses de cybersécurité peuvent changer plus fréquemment
-      ttl: 15 * 60 * 1000, // 15 minutes
+    'cybersecurite': {
+      ttl: 24 * 3600 * 1000,     // 24 heures pour la cybersécurité (informations plus stables)
+      similarityThreshold: 0.9   // Seuil plus élevé pour plus de précision
     },
-    data_ia: {
-      // Les réponses de data science peuvent être plus stables
-      ttl: 60 * 60 * 1000, // 1 heure
-    },
-    amoa: {
-      // Les réponses AMOA sont souvent plus longues et complexes
-      minSimilarity: 0.95, // Plus stricte pour éviter des réponses inappropriées
+    'amoa': {
+      ttl: 12 * 3600 * 1000,     // 12 heures pour l'AMOA
+      maxEntries: 500            // Moins d'entrées car domaine plus spécifique
     }
   };
-  
+
   constructor() {
     // Configurer le nettoyage périodique du cache
     setInterval(() => this.cleanupCache(), this.defaultConfig.cleanupInterval);
@@ -48,29 +42,27 @@ class CacheService {
    * Génère une clé de cache basée sur le contenu de la requête
    */
   private generateCacheKey(query: string, domain: string, context?: any): string {
-    // Normaliser la requête (minuscules, suppression des espaces excessifs)
-    const normalizedQuery = query.toLowerCase().trim().replace(/\s+/g, ' ');
+    // Normaliser le texte de la requête (minuscules, espaces supprimés)
+    const normalizedQuery = query.toLowerCase().trim();
     
-    // Ajouter le domaine pour éviter des correspondances entre domaines différents
-    const baseKey = `${domain}:${normalizedQuery}`;
+    // Ajouter un préfixe de domaine pour séparer les caches par domaine
+    let key = `${domain}:${normalizedQuery}`;
     
-    // Si un contexte est fourni, l'inclure dans la clé
+    // Si un contexte est fourni, l'ajouter à la clé
     if (context) {
       try {
-        // Simplifier le contexte pour ne garder que l'essentiel
-        const simplifiedContext = JSON.stringify(context)
-          .replace(/["{},]/g, '') // Supprimer la syntaxe JSON
-          .replace(/\s+/g, ' ')   // Normaliser les espaces
-          .slice(0, 100);         // Limiter la taille
-          
-        return `${baseKey}:${simplifiedContext}`;
-      } catch (e) {
-        console.warn('Erreur lors de la génération de la clé de cache avec contexte:', e);
-        return baseKey;
+        // Si le contexte est un objet, le convertir en chaîne JSON
+        const contextStr = typeof context === 'object' 
+          ? JSON.stringify(context)
+          : String(context);
+        
+        key += `:${contextStr}`;
+      } catch (error) {
+        console.warn('Erreur lors de la génération de la clé de cache avec contexte', error);
       }
     }
     
-    return baseKey;
+    return key;
   }
   
   /**
@@ -78,9 +70,12 @@ class CacheService {
    * Basé sur une version simplifiée de la distance de Jaccard
    */
   private calculateSimilarity(str1: string, str2: string): number {
-    // Convertir en ensembles de mots
-    const words1 = new Set(str1.toLowerCase().split(/\s+/));
-    const words2 = new Set(str2.toLowerCase().split(/\s+/));
+    // Convertir les chaînes en ensembles de mots
+    const words1 = new Set(str1.toLowerCase().split(/\s+/).filter(w => w.length > 3));
+    const words2 = new Set(str2.toLowerCase().split(/\s+/).filter(w => w.length > 3));
+    
+    // Si l'une des chaînes est vide, retourner 0
+    if (words1.size === 0 || words2.size === 0) return 0;
     
     // Calculer l'intersection
     const intersection = new Set([...words1].filter(x => words2.has(x)));
@@ -88,7 +83,7 @@ class CacheService {
     // Calculer l'union
     const union = new Set([...words1, ...words2]);
     
-    // Retourner le rapport intersection/union (coefficient de Jaccard)
+    // Retourner la similarité de Jaccard
     return intersection.size / union.size;
   }
   
@@ -96,51 +91,67 @@ class CacheService {
    * Recherche une entrée dans le cache qui correspond à la requête
    */
   get(query: string, domain: string, context?: any): any | null {
-    // Obtenir la configuration applicable
+    // Récupérer la configuration pour ce domaine
     const config = this.getConfig(domain);
     
-    // Générer la clé exacte pour vérifier une correspondance parfaite
+    // Générer la clé de cache
     const exactKey = this.generateCacheKey(query, domain, context);
     
-    // Si une correspondance exacte existe, la retourner
+    // Vérifier si une correspondance exacte existe
     if (this.cache.has(exactKey)) {
       const entry = this.cache.get(exactKey)!;
-      const now = Date.now();
       
       // Vérifier si l'entrée est toujours valide
-      if (now - entry.timestamp <= config.ttl) {
-        // Mettre à jour les statistiques
+      if (Date.now() - entry.timestamp < config.ttl) {
+        // Mettre à jour les statistiques d'utilisation
         entry.hits++;
-        entry.lastUsed = now;
+        entry.lastUsed = Date.now();
+        this.cache.set(exactKey, entry);
+        
         return entry.response;
       } else {
-        // Entrée expirée, la supprimer
+        // Supprimer l'entrée expirée
         this.cache.delete(exactKey);
       }
     }
     
-    // Si aucune correspondance exacte, chercher une entrée similaire
-    const normalizedQuery = query.toLowerCase().trim().replace(/\s+/g, ' ');
-    
-    for (const [key, entry] of this.cache.entries()) {
-      // Extraire la requête de la clé (format: domaine:requête:contexte)
-      const keyParts = key.split(':');
-      const keyDomain = keyParts[0];
-      const keyQuery = keyParts.length > 1 ? keyParts[1] : '';
+    // Si la recherche floue est activée, chercher des entrées similaires
+    // (seulement si le seuil est < 1.0, sinon on requiert une correspondance exacte)
+    if (config.similarityThreshold < 1.0) {
+      const keys = Array.from(this.cache.keys())
+        .filter(key => key.startsWith(`${domain}:`));
       
-      // Vérifier si c'est le même domaine
-      if (keyDomain !== domain) continue;
+      // Trouver la clé la plus similaire
+      let bestMatch = null;
+      let bestSimilarity = 0;
       
-      // Calculer la similarité
-      const similarity = this.calculateSimilarity(normalizedQuery, keyQuery);
+      for (const key of keys) {
+        const entry = this.cache.get(key)!;
+        
+        // Vérifier si l'entrée est toujours valide
+        if (Date.now() - entry.timestamp >= config.ttl) continue;
+        
+        // Extraire la partie requête de la clé
+        const keyParts = key.split(':');
+        keyParts.shift(); // Enlever le domaine
+        const keyQuery = keyParts.join(':');
+        
+        // Calculer la similarité
+        const similarity = this.calculateSimilarity(query, keyQuery);
+        
+        // Si la similarité est suffisante et meilleure que les précédentes
+        if (similarity > config.similarityThreshold && similarity > bestSimilarity) {
+          bestSimilarity = similarity;
+          bestMatch = entry;
+        }
+      }
       
-      // Vérifier si la similarité est suffisante et si l'entrée est valide
-      const now = Date.now();
-      if (similarity >= config.minSimilarity && (now - entry.timestamp <= config.ttl)) {
-        // Mettre à jour les statistiques
-        entry.hits++;
-        entry.lastUsed = now;
-        return entry.response;
+      // Si une correspondance a été trouvée
+      if (bestMatch) {
+        bestMatch.hits++;
+        bestMatch.lastUsed = Date.now();
+        
+        return bestMatch.response;
       }
     }
     
@@ -155,20 +166,19 @@ class CacheService {
     // Générer la clé de cache
     const key = this.generateCacheKey(query, domain, context);
     
-    // Créer l'entrée
-    const now = Date.now();
     const entry: CacheEntry = {
       response,
-      timestamp: now,
+      timestamp: Date.now(),
       hits: 1,
-      lastUsed: now
+      lastUsed: Date.now()
     };
     
-    // Ajouter au cache
+    // Ajouter l'entrée au cache
     this.cache.set(key, entry);
     
-    // Vérifier si le cache a dépassé sa taille maximale
-    if (this.cache.size > this.defaultConfig.maxSize) {
+    // Si le cache dépasse sa taille maximale, supprimer les entrées les moins utilisées
+    const config = this.getConfig(domain);
+    if (this.cache.size > config.maxEntries) {
       this.trimCache();
     }
   }
@@ -177,14 +187,8 @@ class CacheService {
    * Obtient la configuration applicable pour un domaine
    */
   private getConfig(domain: string): typeof this.defaultConfig {
-    if (!domain || !this.domainConfigs[domain]) {
-      return this.defaultConfig;
-    }
-    
-    return {
-      ...this.defaultConfig,
-      ...this.domainConfigs[domain]
-    };
+    const domainConfig = this.domainConfigs[domain] || {};
+    return { ...this.defaultConfig, ...domainConfig };
   }
   
   /**
@@ -192,22 +196,16 @@ class CacheService {
    */
   private cleanupCache(): void {
     const now = Date.now();
-    let expiredCount = 0;
     
     for (const [key, entry] of this.cache.entries()) {
-      // Extraire le domaine pour appliquer la configuration spécifique
+      // Extraire le domaine de la clé
       const domain = key.split(':')[0];
       const config = this.getConfig(domain);
       
-      // Supprimer si expiré
+      // Supprimer les entrées expirées
       if (now - entry.timestamp > config.ttl) {
         this.cache.delete(key);
-        expiredCount++;
       }
-    }
-    
-    if (expiredCount > 0) {
-      console.log(`Cache nettoyé: ${expiredCount} entrées expirées supprimées`);
     }
   }
   
@@ -215,24 +213,22 @@ class CacheService {
    * Réduit la taille du cache en supprimant les entrées les moins utilisées
    */
   private trimCache(): void {
-    // Trier les entrées par nombre d'utilisations et dernière utilisation
+    // Trier les entrées par nombre d'utilisations et date de dernière utilisation
     const entries = Array.from(this.cache.entries())
-      .sort((a, b) => {
-        // D'abord par nombre d'hits
-        const hitsDiff = a[1].hits - b[1].hits;
-        if (hitsDiff !== 0) return hitsDiff;
-        
-        // En cas d'égalité, par dernier usage (le plus ancien en premier)
-        return a[1].lastUsed - b[1].lastUsed;
+      .sort(([, a], [, b]) => {
+        // D'abord par hits
+        if (a.hits !== b.hits) {
+          return a.hits - b.hits;
+        }
+        // Puis par dernier accès (les plus anciens d'abord)
+        return a.lastUsed - b.lastUsed;
       });
     
-    // Supprimer 20% des entrées les moins utilisées
-    const toRemove = Math.ceil(this.defaultConfig.maxSize * 0.2);
-    for (let i = 0; i < toRemove && i < entries.length; i++) {
+    // Supprimer les 20% d'entrées les moins utilisées
+    const toRemove = Math.floor(entries.length * 0.2);
+    for (let i = 0; i < toRemove; i++) {
       this.cache.delete(entries[i][0]);
     }
-    
-    console.log(`Cache réduit: ${toRemove} entrées supprimées`);
   }
   
   /**
@@ -241,7 +237,7 @@ class CacheService {
   invalidateForDomain(domain: string): number {
     let count = 0;
     
-    for (const [key, _] of this.cache.entries()) {
+    for (const key of this.cache.keys()) {
       if (key.startsWith(`${domain}:`)) {
         this.cache.delete(key);
         count++;
@@ -255,31 +251,51 @@ class CacheService {
    * Obtient des statistiques sur l'utilisation du cache
    */
   getStats(): {
-    totalEntries: number;
-    entriesByDomain: Record<string, number>;
-    hitRate: number;
-    totalHits: number;
-    cacheSize: number;
+    totalEntries: number,
+    totalHits: number,
+    entriesByDomain: Record<string, number>,
+    hitsByDomain: Record<string, number>,
+    topQueries: Array<{query: string, domain: string, hits: number}>
   } {
-    const entriesByDomain: Record<string, number> = {};
     let totalHits = 0;
+    const entriesByDomain: Record<string, number> = {};
+    const hitsByDomain: Record<string, number> = {};
     
-    // Calculer les statistiques
+    // Collecter les statistiques
     for (const [key, entry] of this.cache.entries()) {
       const domain = key.split(':')[0];
-      entriesByDomain[domain] = (entriesByDomain[domain] || 0) + 1;
+      
       totalHits += entry.hits;
+      
+      // Compteur d'entrées par domaine
+      entriesByDomain[domain] = (entriesByDomain[domain] || 0) + 1;
+      
+      // Compteur de hits par domaine
+      hitsByDomain[domain] = (hitsByDomain[domain] || 0) + entry.hits;
     }
     
-    // Estimation de la taille mémoire (approximative)
-    const cacheSize = JSON.stringify(Array.from(this.cache.entries())).length;
+    // Collecter les requêtes les plus populaires
+    const topQueries = Array.from(this.cache.entries())
+      .map(([key, entry]) => {
+        const parts = key.split(':');
+        const domain = parts[0];
+        const query = parts.slice(1).join(':');
+        
+        return {
+          query,
+          domain,
+          hits: entry.hits
+        };
+      })
+      .sort((a, b) => b.hits - a.hits)
+      .slice(0, 10);
     
     return {
       totalEntries: this.cache.size,
-      entriesByDomain,
-      hitRate: totalHits > 0 ? (totalHits - this.cache.size) / totalHits : 0,
       totalHits,
-      cacheSize
+      entriesByDomain,
+      hitsByDomain,
+      topQueries
     };
   }
   

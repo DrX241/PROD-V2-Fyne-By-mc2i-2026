@@ -13,6 +13,7 @@ import { eq, desc, asc, and, sql, isNull } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { openAIService } from './services/openai';
+import { enhancedOpenAIService } from './services/enhancedOpenAIService';
 import { 
   logAssistantOperation, 
   AssistantOperation, 
@@ -877,14 +878,44 @@ export async function sendMessage(req: Request, res: Response) {
       content: message
     });
     
-    // Générer la réponse de l'assistant avec Azure OpenAI
+    // Générer la réponse de l'assistant avec Azure OpenAI (version améliorée avec cache et rate limiting)
     try {
       const openaiMessages = messages.map(msg => ({
         role: msg.role,
         content: msg.content
       }));
       
-      const assistantResponse = await openAIService.getChatCompletion(openaiMessages);
+      // Récupérer le domaine depuis l'assistant pour le cache et la limitation
+      let domain = 'general';
+      
+      // Identifier le domaine depuis le prompt système ou la conversation
+      if (isPersistent && conversationId) {
+        const assistant = await db.select({domain: customAssistants.domain})
+          .from(customAssistants)
+          .where(eq(customAssistants.id, Number(conversationId)))
+          .limit(1);
+          
+        if (assistant.length > 0) {
+          domain = assistant[0].domain;
+        }
+      } else if (systemPrompt.toLowerCase().includes('cybersécurité')) {
+        domain = 'cybersecurite';
+      } else if (systemPrompt.toLowerCase().includes('amoa')) {
+        domain = 'amoa';
+      } else if (systemPrompt.toLowerCase().includes('data') || systemPrompt.toLowerCase().includes('ia')) {
+        domain = 'data_ia';
+      }
+      
+      // Utiliser notre service amélioré avec cache et rate limiting
+      const assistantResponse = await enhancedOpenAIService.getChatCompletion(
+        openaiMessages,
+        {
+          userId: conversationId ? `conv_${conversationId}` : sessionId || 'anonymous',
+          domain: domain,
+          useCache: true, // Activer le cache
+          useRateLimiter: true // Activer le rate limiting
+        }
+      );
       
       // Ajouter la réponse de l'assistant aux messages
       messages.push({

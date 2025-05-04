@@ -2,12 +2,14 @@
  * Service amélioré pour Azure OpenAI intégrant le cache et le rate limiter
  */
 
-import { openAIService } from '../openAiResponseHelper';
+import { openAIService } from '../services/openai';
 import { cacheService } from './cacheService';
 import { rateLimiter } from './rateLimiterService';
 
+import { ChatCompletionRequestMessage } from "@shared/schema";
+
 interface ChatMessage {
-  role: string;
+  role: "user" | "system" | "assistant";
   content: string;
 }
 
@@ -33,7 +35,7 @@ class EnhancedOpenAIService {
    * @returns La réponse d'OpenAI
    */
   async getChatCompletion(
-    messages: ChatMessage[],
+    messages: ChatCompletionRequestMessage[],
     options: EnhancedOpenAIOptions = {}
   ): Promise<string> {
     const {
