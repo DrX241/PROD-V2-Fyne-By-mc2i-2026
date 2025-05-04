@@ -1,7 +1,9 @@
 import React from "react";
 import { BotMessageSquare, User, Zap } from "lucide-react";
-import { CrisisDecisionContent } from "@shared/types/cyber";
+import { CrisisDecisionContent, BinaryDecision, TeamFeedback } from "@shared/types/cyber";
 import DecisionChoices from "./DecisionChoices";
+import BinaryDecisionMessage from "./BinaryDecisionMessage";
+import TeamFeedbackMessage from "./TeamFeedbackMessage";
 import { useChatContext } from "@/contexts/ChatContext";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -25,8 +27,8 @@ const formatBudgetAmounts = (content: React.ReactNode): React.ReactNode => {
 };
 
 interface ChatMessageProps {
-  type: "user" | "bot" | "scenario-context" | "decision-choices";
-  content: string | CrisisDecisionContent;
+  type: "user" | "bot" | "scenario-context" | "decision-choices" | "binary-decision";
+  content: string | CrisisDecisionContent | BinaryDecision | TeamFeedback;
   contactName?: string;
   contactRole?: string;
   userName?: string; // Ajouter le nom de l'utilisateur pour le formatage du prénom
