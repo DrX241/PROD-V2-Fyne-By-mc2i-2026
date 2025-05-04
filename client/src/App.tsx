@@ -108,7 +108,15 @@ function App() {
             <Route path="/cyber/cyber-agent-old" component={CyberAgentRedirectPage} /> {/* Ancienne version (redirection) */}
             <Route path="/cyber/cyber-agent-new" component={CyberAgentNewPage} /> {/* Nouvelle version du module Cyber Agent */}
             <Route path="/cyber/expert-learning" component={ExpertLearningPage} /> {/* Module Apprendre en échangeant */}
-            {/* Suppression de la route CyberForge existante */}
+            <Route path="/cyber/learning/cyber-mastery" component={() => {
+              // Import dynamique de la nouvelle page Cyber Mastery
+              const CyberMasteryPage = lazy(() => import('./pages/cyber/learning/cyber-mastery'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <CyberMasteryPage />
+                </Suspense>
+              );
+            }} />
             {/* Module d'arcade cyber et jeux d'enquête */}
             <Route path="/cyber/arcade" component={CyberArcade} />
             <Route path="/cyber/arcade/cyber-investigator" component={CyberInvestigator} />

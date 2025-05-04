@@ -20,6 +20,7 @@ interface ModeOption {
     icon: React.ReactNode;
     destination: string;
     comingSoon?: boolean;
+    isNew?: boolean;
   }>;
 }
 
@@ -73,6 +74,13 @@ export default function CyberModeSelection() {
           icon: null,
           destination: '#',
           comingSoon: true
+        },
+        {
+          id: 'cyber-mastery',
+          title: 'CYBER MASTERY',
+          icon: null,
+          destination: '/cyber/learning/cyber-mastery',
+          isNew: true
         }
       ]
     },
@@ -193,7 +201,12 @@ export default function CyberModeSelection() {
                           <Link key={item.id} href={item.comingSoon ? '#' : item.destination} onClick={(e) => item.comingSoon && e.preventDefault()}>
                             <div className="flex items-center p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors cursor-pointer border border-white/20 shadow-sm hover:shadow-md hover:border-white/40">
                               <div className="flex-grow">
-                                <h3 className="text-white font-medium">{item.title}</h3>
+                                <div className="flex items-center gap-2">
+                                  <h3 className="text-white font-medium">{item.title}</h3>
+                                  {item.isNew && (
+                                    <span className="text-xs px-1.5 py-0.5 bg-amber-500 text-white rounded-full">Nouveau</span>
+                                  )}
+                                </div>
                               </div>
                               {item.comingSoon ? (
                                 <div className="text-white bg-blue-500/30 p-1 rounded-full">
