@@ -404,15 +404,15 @@ export default function Home() {
   
   // Modules avec animations interactives
   const modules = [
-      // Module mc2i AI Learning
+      // Module Outils IA (nouvelle catégorie)
       {
-        title: "MC2I AI LEARNING",
-        description: "Chatbot spécialisé dans l'évaluation en temps réel des compétences avec scénarios professionnels adaptés et feedback personnalisé.",
+        title: "OUTILS IA",
+        description: "Collection d'outils d'intelligence artificielle pour améliorer votre productivité et faciliter votre apprentissage dans différents domaines.",
         icon: <GraduationCap size={36} />,
-        color: "bg-emerald-600",
-        bgColor: "bg-gradient-to-br from-emerald-50 to-emerald-100",
-        accentColor: "bg-emerald-500",
-        linkTo: "/mcai-learning",
+        color: "bg-violet-600",
+        bgColor: "bg-gradient-to-br from-violet-50 to-violet-100",
+        accentColor: "bg-violet-500",
+        linkTo: "/outils-ia",
         isNew: true
       },
       // Le module CyberForge Academy a été supprimé pour reconstruction
