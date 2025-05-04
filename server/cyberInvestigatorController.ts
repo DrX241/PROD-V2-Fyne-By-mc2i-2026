@@ -74,7 +74,7 @@ export async function analyzeEvidence(req: Request, res: Response) {
 
     // Appel à l'API OpenAI
     const analysisContent = await openAIService.getChatCompletion(
-      messages.map(m => ({ role: m.role, content: m.content })),
+      messages,
       0.7,
       1500
     );
@@ -83,11 +83,12 @@ export async function analyzeEvidence(req: Request, res: Response) {
       success: true,
       analysis: analysisContent
     });
-  } catch (error) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
     console.error('Erreur lors de l\'analyse IA des preuves:', error);
     return res.status(500).json({
       error: 'Erreur lors de l\'analyse des preuves',
-      details: error.message
+      details: errorMessage
     });
   }
 }
@@ -141,7 +142,7 @@ export async function getInvestigationHints(req: Request, res: Response) {
 
     // Appel à l'API OpenAI
     const hintsContent = await openAIService.getChatCompletion(
-      messages.map(m => ({ role: m.role, content: m.content })),
+      messages,
       0.7,
       1500
     );
@@ -150,11 +151,12 @@ export async function getInvestigationHints(req: Request, res: Response) {
       success: true,
       hints: hintsContent
     });
-  } catch (error) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
     console.error('Erreur lors de la génération des indices IA:', error);
     return res.status(500).json({
       error: 'Erreur lors de la génération des indices',
-      details: error.message
+      details: errorMessage
     });
   }
 }
@@ -226,7 +228,7 @@ export async function evaluateInvestigationResult(req: Request, res: Response) {
 
     // Appel à l'API OpenAI
     const evaluationContent = await openAIService.getChatCompletion(
-      messages.map(m => ({ role: m.role, content: m.content })),
+      messages,
       0.7,
       2000
     );
@@ -268,11 +270,12 @@ export async function evaluateInvestigationResult(req: Request, res: Response) {
       success: true,
       evaluation: parsedEvaluation
     });
-  } catch (error) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
     console.error('Erreur lors de l\'évaluation de l\'enquête:', error);
     return res.status(500).json({
       error: 'Erreur lors de l\'évaluation de l\'enquête',
-      details: error.message
+      details: errorMessage
     });
   }
 }
@@ -285,7 +288,7 @@ export async function generateInvestigationScenario(req: Request, res: Response)
     const { difficulty = 'medium', theme = 'data_breach' } = req.body;
 
     // Construction du prompt pour la génération de scénario
-    const messages = [
+    const messages: ChatCompletionRequestMessage[] = [
       {
         role: "system",
         content: `Tu es un concepteur de scénarios d'investigation en cybersécurité pour une plateforme éducative.
@@ -364,7 +367,7 @@ export async function generateInvestigationScenario(req: Request, res: Response)
 
     // Appel à l'API OpenAI
     const scenarioContent = await openAIService.getChatCompletion(
-      messages.map(m => ({ role: m.role, content: m.content })),
+      messages,
       0.8,
       4000
     );
@@ -384,7 +387,7 @@ export async function generateInvestigationScenario(req: Request, res: Response)
 
       // Ajouter le champ analyzed: false à chaque preuve
       if (parsedScenario.evidences) {
-        parsedScenario.evidences = parsedScenario.evidences.map(evidence => ({
+        parsedScenario.evidences = parsedScenario.evidences.map((evidence: Evidence) => ({
           ...evidence,
           analyzed: false
         }));
@@ -392,7 +395,7 @@ export async function generateInvestigationScenario(req: Request, res: Response)
 
       // Initialiser le niveau de suspicion des suspects
       if (parsedScenario.suspects) {
-        parsedScenario.suspects = parsedScenario.suspects.map(suspect => ({
+        parsedScenario.suspects = parsedScenario.suspects.map((suspect: Suspect) => ({
           ...suspect,
           suspicionLevel: 0
         }));
@@ -410,11 +413,12 @@ export async function generateInvestigationScenario(req: Request, res: Response)
       success: true,
       scenario: parsedScenario
     });
-  } catch (error) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
     console.error('Erreur lors de la génération du scénario d\'enquête:', error);
     return res.status(500).json({
       error: 'Erreur lors de la génération du scénario',
-      details: error.message
+      details: errorMessage
     });
   }
 }
