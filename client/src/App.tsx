@@ -117,6 +117,7 @@ function App() {
                 </Suspense>
               );
             }} />
+            <Route path="/cyber/learning/cyber-mastery/:themeId" component={NotYetImplemented} />
             {/* Module d'arcade cyber et jeux d'enquête */}
             <Route path="/cyber/arcade" component={CyberArcade} />
             <Route path="/cyber/arcade/cyber-investigator" component={CyberInvestigator} />

@@ -68,13 +68,7 @@ export default function CyberModeSelection() {
       gradient: 'from-indigo-700 to-indigo-900',
       destination: '#',
       items: [
-        {
-          id: 'cyberforge-academy',
-          title: 'CYBERFORGE ACADEMY',
-          icon: null,
-          destination: '#',
-          comingSoon: true
-        },
+
         {
           id: 'cyber-mastery',
           title: 'CYBER MASTERY',

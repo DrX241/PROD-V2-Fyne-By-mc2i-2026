@@ -32,7 +32,7 @@ const learningThemes: LearningTheme[] = [
     title: 'Sensibilisation Cybersécurité',
     description: 'Apprenez les fondamentaux de la cybersécurité et les bonnes pratiques pour protéger votre organisation.',
     icon: <ShieldCheck className="h-8 w-8" />,
-    color: 'bg-blue-500',
+    color: 'bg-blue-600',
     levels: 5,
     skills: ['Identification des menaces', 'Phishing & Social Engineering', 'Sécurité des mots de passe', 'Protection des données', 'Réaction aux incidents'],
     duration: '3-5h',
@@ -44,7 +44,7 @@ const learningThemes: LearningTheme[] = [
     title: 'Cybersécurité et RGPD',
     description: 'Maîtrisez les exigences du RGPD et leur impact sur la cybersécurité de votre organisation.',
     icon: <File className="h-8 w-8" />,
-    color: 'bg-purple-500',
+    color: 'bg-purple-700',
     levels: 5,
     skills: ['Principes du RGPD', 'Traitement des données personnelles', 'Droits des personnes', 'Gestion des violations', 'Mesures techniques'],
     duration: '4-6h',
@@ -56,7 +56,7 @@ const learningThemes: LearningTheme[] = [
     title: 'Analyse des Risques Cyber',
     description: 'Apprenez à identifier, évaluer et prioriser les risques de cybersécurité.',
     icon: <LineChart className="h-8 w-8" />,
-    color: 'bg-amber-500',
+    color: 'bg-amber-600',
     levels: 6,
     skills: ['Méthodes d\'analyse de risques', 'Cartographie des actifs', 'Évaluation des menaces', 'Gestion des vulnérabilités', 'Plans de traitement'],
     duration: '6-8h',
@@ -68,7 +68,7 @@ const learningThemes: LearningTheme[] = [
     title: 'Audit Cybersécurité',
     description: 'Découvrez les méthodologies et outils pour réaliser des audits de sécurité efficaces.',
     icon: <Target className="h-8 w-8" />,
-    color: 'bg-red-500',
+    color: 'bg-red-600',
     levels: 7,
     skills: ['Standards d\'audit (ISO27001, NIST)', 'Pentesting', 'Revue de code', 'Évaluation de l\'architecture', 'Rapports d\'audit'],
     duration: '7-10h',
@@ -80,7 +80,7 @@ const learningThemes: LearningTheme[] = [
     title: 'Stratégie & Gouvernance Cyber',
     description: 'Développez une vision stratégique de la cybersécurité pour votre organisation.',
     icon: <Settings className="h-8 w-8" />,
-    color: 'bg-emerald-500',
+    color: 'bg-emerald-700',
     levels: 5,
     skills: ['Cadres de gouvernance', 'Politiques de sécurité', 'Gestion des équipes cyber', 'Conformité réglementaire', 'KPI de sécurité'],
     duration: '5-7h',
@@ -186,22 +186,24 @@ const LearningThemeCard: React.FC<{ theme: LearningTheme, index: number }> = ({ 
         </CardContent>
         
         <CardFooter>
-          <Button 
-            disabled={theme.comingSoon}
-            variant={isDark ? "outline" : "default"} 
-            className="w-full flex items-center justify-center gap-2"
-          >
-            {theme.comingSoon ? (
-              <>
-                <span>Bientôt disponible</span>
-              </>
-            ) : (
-              <>
-                <span>Commencer l'apprentissage</span>
-                <ArrowLeft className="h-4 w-4 rotate-180" />
-              </>
-            )}
-          </Button>
+          <Link href={`/cyber/learning/cyber-mastery/${theme.id}`} className="w-full">
+            <Button 
+              disabled={theme.comingSoon}
+              variant={isDark ? "outline" : "default"} 
+              className="w-full flex items-center justify-center gap-2"
+            >
+              {theme.comingSoon ? (
+                <>
+                  <span>Bientôt disponible</span>
+                </>
+              ) : (
+                <>
+                  <span>Commencer l'apprentissage</span>
+                  <ArrowLeft className="h-4 w-4 rotate-180" />
+                </>
+              )}
+            </Button>
+          </Link>
         </CardFooter>
       </Card>
     </motion.div>
@@ -225,14 +227,15 @@ export default function CyberMasteryPage() {
           <div className="container mx-auto px-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
-                <Button
-                  variant="ghost"
-                  onClick={() => setLocation('/cyber-mode-selection')}
-                  className={`mb-2 sm:mb-0 ${isDark ? 'text-slate-300 hover:text-white' : 'text-slate-700 hover:text-black'}`}
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Retour à I AM CYBER
-                </Button>
+                <Link href="/cyber">
+                  <Button
+                    variant="ghost"
+                    className={`mb-2 sm:mb-0 ${isDark ? 'text-slate-300 hover:text-white' : 'text-slate-700 hover:text-black'}`}
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Retour à I AM CYBER
+                  </Button>
+                </Link>
               </div>
               
               <div className="flex items-center">
