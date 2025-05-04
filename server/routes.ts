@@ -3221,6 +3221,10 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
 
   // Routes pour les fonctionnalités d'apprentissage
   app.post('/api/cyber/debriefing', generateDebriefing);
+  
+  // Routes pour la progression des utilisateurs dans les modules d'apprentissage
+  app.get('/api/learning/progress/:userId/:moduleId', getUserProgress);
+  app.post('/api/learning/progress', saveUserProgress);
   app.get('/api/cyber/documentation', getContextualDocumentation);
 
   // Routes pour le nouveau module Cyber Agent (version 2)

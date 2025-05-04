@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
 import { 
   ArrowLeft, Shield, MailQuestion, KeyRound, Database, Smartphone, Share2, 
   AlertTriangle, Zap, Award, CheckCircle, XCircle, ChevronRight, Gift, Trophy,
@@ -18,6 +19,9 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { v4 as uuidv4 } from 'uuid';
 
 // Types pour le système de gamification
 interface GameStat {
@@ -1512,7 +1516,14 @@ const ProgressDashboard: React.FC<{
  */
 export default function SensibilisationCyberGame() {
   const { isDark } = useTheme();
-  const [currentLevel, setCurrentLevel] = useState<string | null>("phishing");
+  const [, setLocation] = useLocation();
+  const [currentLevel, setCurrentLevel] = useState<string | null>(null);
+  const [userDialogOpen, setUserDialogOpen] = useState(true);
+  const [userName, setUserName] = useState('');
+  const [userId, setUserId] = useState('');
+  const [loadingProgress, setLoadingProgress] = useState(false);
+  const { toast } = useToast();
+  
   const [gameState, setGameState] = useState<GameState>({
     xp: 0,
     level: 1,
@@ -1521,7 +1532,6 @@ export default function SensibilisationCyberGame() {
     stats: initialGameStats,
     rank: "Novice"
   });
-  const { toast } = useToast();
   
   // Niveaux disponibles dans ce module
   const levels = [
@@ -1532,6 +1542,124 @@ export default function SensibilisationCyberGame() {
     securityIncidentLevel
   ];
   
+  // Initialisation du composant
+  useEffect(() => {
+    // Utiliser un ID stocké ou en générer un nouveau
+    const storedUserId = localStorage.getItem('cyber_learning_user_id');
+    const storedUserName = localStorage.getItem('cyber_learning_user_name');
+    
+    if (storedUserId && storedUserName) {
+      setUserId(storedUserId);
+      setUserName(storedUserName);
+      setUserDialogOpen(false);
+      
+      // Charger les données utilisateur depuis la base de données
+      loadUserProgress(storedUserId);
+    }
+  }, []);
+
+  // Fonction pour sauvegarder la progression
+  const saveUserProgress = async () => {
+    if (!userId) return;
+
+    try {
+      await axios.post('/api/learning/progress', {
+        userId,
+        userName,
+        moduleId: 'cyber-sensibilisation',
+        xp: gameState.xp,
+        completedLevels: gameState.completedLevels,
+        currentLevel: gameState.level,
+        badges: gameState.badges.filter(b => b.unlocked).map(b => b.id)
+      });
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde de la progression:', error);
+    }
+  };
+
+  // Fonction pour charger la progression
+  const loadUserProgress = async (uid: string) => {
+    if (!uid) return;
+    
+    setLoadingProgress(true);
+    try {
+      const response = await axios.get(`/api/learning/progress/${uid}/cyber-sensibilisation`);
+      
+      if (response.data && response.data.progress) {
+        const progress = response.data.progress;
+        
+        // Mettre à jour l'état du jeu avec les données chargées
+        const newBadges = [...gameState.badges];
+        
+        // Débloquer les badges enregistrés
+        if (progress.badges && progress.badges.length > 0) {
+          for (const badgeId of progress.badges) {
+            const badge = newBadges.find(b => b.id === badgeId);
+            if (badge) {
+              badge.unlocked = true;
+            }
+          }
+        }
+        
+        setGameState({
+          ...gameState,
+          xp: progress.xp || 0,
+          level: progress.currentLevel || 1,
+          completedLevels: progress.completedLevels || [],
+          badges: newBadges,
+        });
+        
+        // Mettre à jour les stats
+        setTimeout(() => {
+          updateStats();
+        }, 500);
+        
+        toast({
+          title: "Progression chargée",
+          description: `Bienvenue ${userName} ! Votre progression a été chargée.`,
+          variant: "default",
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement de la progression:', error);
+    } finally {
+      setLoadingProgress(false);
+    }
+  };
+
+  // Fonction pour gérer la soumission du nom d'utilisateur
+  const handleUserSubmit = () => {
+    if (!userName.trim()) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez entrer votre prénom pour continuer.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Générer un ID utilisateur si nécessaire
+    const newUserId = userId || uuidv4();
+    setUserId(newUserId);
+    
+    // Sauvegarder l'ID et le nom dans le localStorage
+    localStorage.setItem('cyber_learning_user_id', newUserId);
+    localStorage.setItem('cyber_learning_user_name', userName);
+    
+    // Fermer la boîte de dialogue
+    setUserDialogOpen(false);
+    
+    // Charger les données ou initialiser une nouvelle session
+    loadUserProgress(newUserId);
+  };
+
+  // Sauvegarder la progression quand elle change
+  useEffect(() => {
+    if (userId && gameState.xp > 0) {
+      saveUserProgress();
+    }
+  }, [gameState.xp, gameState.completedLevels]);
+
   // Gestion des rangs
   useEffect(() => {
     let newRank = "Novice";
