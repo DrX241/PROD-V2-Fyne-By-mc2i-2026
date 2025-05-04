@@ -1346,15 +1346,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API route for chat messages
   app.post('/api/cyber/chat', async (req, res) => {
     try {
-      // Route commentée pour éliminer l'agent conversationnel
-      res.status(410).json({ message: 'Cette fonctionnalité a été supprimée' });
-    } catch (error) {
-      console.error('Error in chat:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
-  
-  // ====== CYBER DEFENSE ROUTES ====== //
+      const { message, userName, userRole, scenarioId, config, chatHistory, scenarioContacts, currentStage } = req.body;
+      
+      if (!message || !userName) {
+        return res.status(400).json({ message: 'Missing required parameters' });
+      }
+      
+      // Récupérer les scénarios pour avoir le domaine actuel
+      // Get scenario data - in a real app, this would come from the database
+      const scenarios = [
+        // Ingénierie sociale et phishing
+        {
+          id: "phishing-awareness",
+          title: "Sensibilisation aux attaques de phishing",
+          domain: "Ingénierie sociale et phishing",
+          contact: {
+            name: "Marion Lopez",
+            role: "Senior Partner et Directrice Marketing, Communication et RSE"
+          },
+          difficulty: "Débutant"
+        },
+        {
+          id: "social-engineering-incident",
+          title: "Gestion d'un incident d'ingénierie sociale",
+          domain: "Ingénierie sociale et phishing",
+          contact: {
+            name: "Isabelle Dubacq",
+            role: "Senior Partner, Directrice des Ressources Humaines"
           },
           difficulty: "Intermédiaire"
         },
