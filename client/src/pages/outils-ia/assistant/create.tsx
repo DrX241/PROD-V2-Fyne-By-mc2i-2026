@@ -415,13 +415,13 @@ export default function CreateAssistantPage() {
                       <TabsList className={`grid grid-cols-3 w-full mb-6 ${
                         isFuturistic ? 'bg-gray-700/50 border border-violet-500/20' : 'bg-gray-100'
                       }`}>
-                        <TabsTrigger value="base" className={isFuturistic ? 'data-[state=active]:bg-violet-800/40 data-[state=active]:text-white text-gray-300' : 'data-[state=active]:bg-gray-200 text-gray-800'}>
+                        <TabsTrigger value="base" className={isFuturistic ? 'data-[state=active]:bg-violet-800/40 data-[state=active]:text-white text-gray-300' : 'data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-700'}>
                           Informations de base
                         </TabsTrigger>
-                        <TabsTrigger value="capacites" className={isFuturistic ? 'data-[state=active]:bg-violet-800/40 data-[state=active]:text-white text-gray-300' : 'data-[state=active]:bg-gray-200 text-gray-800'}>
+                        <TabsTrigger value="capacites" className={isFuturistic ? 'data-[state=active]:bg-violet-800/40 data-[state=active]:text-white text-gray-300' : 'data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-700'}>
                           Capacités
                         </TabsTrigger>
-                        <TabsTrigger value="personalisation" className={isFuturistic ? 'data-[state=active]:bg-violet-800/40 data-[state=active]:text-white text-gray-300' : 'data-[state=active]:bg-gray-200 text-gray-800'}>
+                        <TabsTrigger value="personalisation" className={isFuturistic ? 'data-[state=active]:bg-violet-800/40 data-[state=active]:text-white text-gray-300' : 'data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-700'}>
                           Personnalisation
                         </TabsTrigger>
                       </TabsList>
@@ -440,7 +440,7 @@ export default function CreateAssistantPage() {
                                   {...field} 
                                   className={isFuturistic 
                                     ? 'bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus-visible:ring-violet-500/50'
-                                    : ''
+                                    : 'focus-visible:ring-blue-500/50 focus-visible:border-blue-500'
                                   }
                                 />
                               </FormControl>
@@ -462,7 +462,7 @@ export default function CreateAssistantPage() {
                                   {...field} 
                                   className={isFuturistic 
                                     ? 'bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus-visible:ring-violet-500/50'
-                                    : ''
+                                    : 'focus-visible:ring-blue-500/50 focus-visible:border-blue-500'
                                   }
                                 />
                               </FormControl>
@@ -598,7 +598,7 @@ export default function CreateAssistantPage() {
                                   }}
                                   className={isFuturistic 
                                     ? 'bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus-visible:ring-violet-500/50'
-                                    : ''
+                                    : 'focus-visible:ring-blue-500/50 focus-visible:border-blue-500'
                                   }
                                 />
                                 <Button
@@ -715,7 +715,7 @@ export default function CreateAssistantPage() {
                                 <Switch
                                   checked={field.value}
                                   onCheckedChange={field.onChange}
-                                  className={isFuturistic ? 'data-[state=checked]:bg-violet-600' : ''}
+                                  className={isFuturistic ? 'data-[state=checked]:bg-violet-600' : 'data-[state=checked]:bg-blue-600'}
                                 />
                               </FormControl>
                             </FormItem>
@@ -741,7 +741,7 @@ export default function CreateAssistantPage() {
                                       onClick={() => form.setValue('avatarStyle', style)}
                                       className={`
                                         w-16 h-16 rounded-full flex items-center justify-center text-2xl
-                                        ${field.value === style ? 'ring-2 ring-offset-2 ring-violet-500' : ''}
+                                        ${field.value === style ? 'ring-2 ring-offset-2 ring-blue-500' : ''}
                                         ${isFuturistic ? 'ring-offset-gray-800' : ''}
                                         ${getAvatarColorClass(form.getValues().avatarColor || 'violet')}
                                       `}
@@ -775,7 +775,7 @@ export default function CreateAssistantPage() {
                                     onClick={() => form.setValue('avatarColor', color)}
                                     className={`
                                       w-10 h-10 rounded-full
-                                      ${field.value === color ? 'ring-2 ring-offset-2 ring-violet-500' : ''}
+                                      ${field.value === color ? 'ring-2 ring-offset-2 ring-blue-500' : ''}
                                       ${isFuturistic ? 'ring-offset-gray-800' : ''}
                                       ${getAvatarColorClass(color || 'violet')}
                                     `}
@@ -796,7 +796,7 @@ export default function CreateAssistantPage() {
                         type="button"
                         variant="outline"
                         onClick={() => setLocation('/outils-ia/assistant')}
-                        className={isFuturistic ? 'border-violet-500/40 text-white hover:bg-gray-700' : ''}
+                        className={isFuturistic ? 'border-violet-500/40 text-white hover:bg-gray-700' : 'border-blue-500/40 text-gray-800 hover:bg-blue-50'}
                       >
                         Annuler
                       </Button>
@@ -806,7 +806,7 @@ export default function CreateAssistantPage() {
                         className={`${
                           isFuturistic 
                             ? 'bg-gradient-to-r from-violet-700 to-indigo-700 hover:from-violet-600 hover:to-indigo-600 text-white border border-violet-500/40'
-                            : 'bg-violet-600 hover:bg-violet-700 text-white'
+                            : 'bg-blue-600 hover:bg-blue-700 text-white'
                         }`}
                       >
                         <Save className="mr-2 h-4 w-4" />
