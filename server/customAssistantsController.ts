@@ -102,30 +102,49 @@ export async function getUserAssistants(req: Request, res: Response) {
       });
     }
     
+    console.log(`Recherche des assistants pour l'utilisateur: ${userId}`);
+    
     // Vérifier si l'utilisateur existe
-    const userExists = await db.select({ id: users.id }).from(users).where(eq(users.username, userId)).limit(1);
+    // Si c'est un nombre, on cherche par ID, sinon par username (UUID)
+    let userExists;
+    let numUserId = Number(userId);
+    
+    if (!isNaN(numUserId)) {
+      userExists = await db.select({ id: users.id }).from(users).where(eq(users.id, numUserId)).limit(1);
+      console.log(`Recherche par ID numérique: ${numUserId}`);
+    } else {
+      userExists = await db.select({ id: users.id }).from(users).where(eq(users.username, userId)).limit(1);
+      console.log(`Recherche par nom d'utilisateur: ${userId}`);
+    }
     
     // Si l'utilisateur n'existe pas, créons-en un temporaire pour la démo
-    let userId1 = 0;
+    let databaseUserId = 0;
     if (!userExists.length) {
+      console.log(`Utilisateur non trouvé, création d'un nouvel utilisateur avec le nom d'utilisateur: ${userId}`);
       const [newUser] = await db.insert(users).values({
         username: userId,
         password: 'password123' // Ne jamais faire ça en production!
       }).returning({ id: users.id });
       
-      userId1 = newUser.id;
+      databaseUserId = newUser.id;
+      console.log(`Nouvel utilisateur créé avec ID: ${databaseUserId}`);
     } else {
-      userId1 = userExists[0].id;
+      databaseUserId = userExists[0].id;
+      console.log(`Utilisateur existant trouvé avec ID: ${databaseUserId}`);
     }
     
     // Récupérer les assistants personnalisés de l'utilisateur
+    console.log(`Recherche des assistants pour l'utilisateur ID: ${databaseUserId}`);
     const assistants = await db.select().from(customAssistants)
-      .where(eq(customAssistants.userId, userId1))
+      .where(eq(customAssistants.userId, databaseUserId))
       .orderBy(desc(customAssistants.updatedAt));
+    
+    console.log(`${assistants.length} assistant(s) trouvé(s) pour l'utilisateur ID: ${databaseUserId}`);
     
     return res.json({
       success: true,
-      assistants
+      assistants,
+      userId: databaseUserId
     });
   } catch (error) {
     console.error('Erreur lors de la récupération des assistants:', error);
@@ -443,10 +462,36 @@ export async function initConversation(req: Request, res: Response) {
     }
     
     // Vérifier si l'utilisateur existe dans la base de données
-    const userExists = await db.select({ id: users.id }).from(users).where(eq(users.username, userId)).limit(1);
+    // Si c'est un nombre, on cherche par ID, sinon par username (UUID)
+    let userExists;
+    let numUserId = Number(userId);
+    
+    if (!isNaN(numUserId)) {
+      console.log(`Recherche de l'utilisateur par ID: ${numUserId}`);
+      userExists = await db.select({ id: users.id }).from(users).where(eq(users.id, numUserId)).limit(1);
+    } else {
+      console.log(`Recherche de l'utilisateur par nom d'utilisateur: ${userId}`);
+      userExists = await db.select({ id: users.id }).from(users).where(eq(users.username, userId)).limit(1);
+    }
+    
+    // Si l'utilisateur n'existe pas, on le crée automatiquement
+    if (!userExists.length && typeof userId === 'string') {
+      console.log(`Utilisateur non trouvé, création d'un nouvel utilisateur: ${userId}`);
+      try {
+        const [newUser] = await db.insert(users).values({
+          username: userId,
+          password: 'password123' // Ne jamais faire ça en production!
+        }).returning({ id: users.id });
+        
+        userExists = [{ id: newUser.id }];
+        console.log(`Nouvel utilisateur créé avec ID: ${newUser.id}`);
+      } catch (createError) {
+        console.error('Erreur lors de la création de l\'utilisateur:', createError);
+      }
+    }
     
     // Si l'utilisateur est authentifié, créer une conversation persistante
-    if (userExists.length) {
+    if (userExists && userExists.length) {
       const [conversation] = await db.insert(assistantConversations).values({
         assistantId: Number(assistantId),
         userId: userExists[0].id,
