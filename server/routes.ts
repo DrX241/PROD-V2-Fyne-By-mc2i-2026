@@ -30,6 +30,18 @@ import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpert
 import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
 import { analyzeEvidence, getInvestigationHints, evaluateInvestigationResult, generateInvestigationScenario, generateInvestigationNotes } from "./cyberInvestigatorController";
 import { getInvestigationProgress, saveInvestigationProgress, evaluateUserNotes } from "./investigationProgressController";
+import { 
+  getAssistantTemplates, 
+  getAssistantTemplate, 
+  getUserAssistants, 
+  createAssistant, 
+  updateAssistant, 
+  deleteAssistant, 
+  initConversation, 
+  sendMessage, 
+  getConversationHistory, 
+  getPopularAssistants 
+} from "./customAssistantsController";
 // Import des fonctions d'urgence cyber supprimé
 
 /**
@@ -403,6 +415,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Routes pour mc2i AI Learning
   app.post('/api/mcai-learning/init', initMcaiLearningSession);
   app.post('/api/mcai-learning/message', processMcaiLearningMessage);
+  
+  // Routes pour les assistants personnalisés
+  app.get('/api/assistants/templates', getAssistantTemplates);
+  app.get('/api/assistants/templates/:templateId', getAssistantTemplate);
+  app.get('/api/assistants/popular', getPopularAssistants);
+  app.get('/api/assistants/user/:userId', getUserAssistants);
+  app.post('/api/assistants', createAssistant);
+  app.put('/api/assistants/:assistantId', updateAssistant);
+  app.delete('/api/assistants/:assistantId', deleteAssistant);
+  app.post('/api/assistants/conversation/init', initConversation);
+  app.post('/api/assistants/conversation/message', sendMessage);
+  app.get('/api/assistants/conversation/history/:conversationId', getConversationHistory);
+  app.get('/api/assistants/conversation/history/session/:sessionId', getConversationHistory);
   
   // Routes pour le chatbot expert en cybersécurité (carte "Apprendre en échangeant")
   app.post('/api/cyber-expert/init', initCyberExpertSession);
