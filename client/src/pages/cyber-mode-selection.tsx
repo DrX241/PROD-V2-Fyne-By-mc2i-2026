@@ -39,6 +39,13 @@ export default function CyberModeSelection() {
       destination: '#',
       items: [
         {
+          id: 'investigation-cyber',
+          title: 'ENQUÊTE CYBERSÉCURITÉ',
+          icon: null,
+          destination: '/cyber/investigation',
+          isNew: true
+        },
+        {
           id: 'agent-ia',
           title: 'AGENT CONVERSATIONNEL',
           icon: null,
