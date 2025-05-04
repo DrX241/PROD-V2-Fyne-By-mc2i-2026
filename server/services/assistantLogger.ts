@@ -1,21 +1,25 @@
 import { db } from '../db';
-import { pgTable, serial, text, timestamp, integer, jsonb } from 'drizzle-orm/pg-core';
-import * as schema from '@shared/schema';
-import { eq, desc } from 'drizzle-orm';
+import { pgTable, serial, integer, text, timestamp, jsonb } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 
-// Table pour stocker les journaux des opérations liées aux assistants
+/**
+ * Table pour stocker les journaux d'opérations sur les assistants
+ */
 export const assistantOperationLogs = pgTable('assistant_operation_logs', {
   id: serial('id').primaryKey(),
   assistantId: integer('assistant_id'),
+  templateId: integer('template_id'),
   userId: integer('user_id').notNull(),
-  operation: text('operation').notNull(), // CREATE, UPDATE, DELETE, PROMPT_GENERATION, CONVERSATION_START, etc.
-  status: text('status').notNull(), // SUCCESS, FAILURE, WARNING
+  operation: text('operation').notNull(),
+  status: text('status').notNull(),
   details: jsonb('details').default({}),
   errorMessage: text('error_message'),
   timestamp: timestamp('timestamp').defaultNow()
 });
 
-// Types d'opérations disponibles pour le journal
+/**
+ * Enum pour les types d'opérations sur les assistants
+ */
 export enum AssistantOperation {
   CREATE = 'CREATE',
   UPDATE = 'UPDATE',
@@ -31,14 +35,18 @@ export enum AssistantOperation {
   DUPLICATE_DETECTION = 'DUPLICATE_DETECTION'
 }
 
-// Statuts possibles pour les entrées du journal
+/**
+ * Enum pour les statuts des opérations
+ */
 export enum LogStatus {
   SUCCESS = 'SUCCESS',
   FAILURE = 'FAILURE',
   WARNING = 'WARNING'
 }
 
-// Interface pour l'objet de log
+/**
+ * Interface pour les données de journalisation
+ */
 export interface AssistantLog {
   assistantId?: number;
   templateId?: number;
@@ -49,87 +57,66 @@ export interface AssistantLog {
   errorMessage?: string;
 }
 
-// Fonction pour ajouter une entrée au journal
+/**
+ * Journalise une opération sur un assistant
+ */
 export async function logAssistantOperation(logData: AssistantLog): Promise<void> {
   try {
-    // Gérer les champs optionnels templateId/assistantId
-    const insertData = {
+    await db.insert(assistantOperationLogs).values({
       assistantId: logData.assistantId,
+      templateId: logData.templateId,
       userId: logData.userId,
       operation: logData.operation,
       status: logData.status,
-      details: logData.details || {},
-      errorMessage: logData.errorMessage
-    };
-    
-    // Ajout du templateId dans les détails si présent
-    if (logData.templateId) {
-      insertData.details = {
-        ...insertData.details,
-        templateId: logData.templateId
-      };
-    }
-    
-    await db.insert(assistantOperationLogs).values([insertData]);
-    
-    // Journalisation console pour déboggage
-    const logLevel = logData.status === LogStatus.SUCCESS ? 'info' : 
-                    logData.status === LogStatus.WARNING ? 'warn' : 'error';
-    
-    const message = `[${logData.operation}] - ${logData.status}${logData.assistantId ? ` - Assistant #${logData.assistantId}` : ''} - User #${logData.userId}`;
-    
-    if (logLevel === 'info') {
-      console.info(message, logData.details);
-    } else if (logLevel === 'warn') {
-      console.warn(message, logData.details, logData.errorMessage);
-    } else {
-      console.error(message, logData.details, logData.errorMessage);
-    }
+      details: logData.details ? JSON.stringify(logData.details) : null,
+      errorMessage: logData.errorMessage,
+      timestamp: new Date()
+    });
   } catch (error) {
-    // Même si la journalisation échoue, nous ne voulons pas que cela perturbe le flux principal
-    console.error('Erreur lors de la journalisation d\'une opération d\'assistant:', error);
+    // En cas d'erreur, on ne bloque pas l'opération principale, on log en console
+    console.error('Erreur lors de la journalisation de l\'opération:', error);
   }
 }
 
-// Fonction pour obtenir l'historique des actions d'un assistant
+/**
+ * Récupère les logs d'opérations pour un assistant spécifique
+ */
 export async function getAssistantLogs(assistantId: number): Promise<any[]> {
-  return db.select().from(assistantOperationLogs)
-    .where(eq(assistantOperationLogs.assistantId, assistantId))
-    .orderBy(desc(assistantOperationLogs.timestamp))
+  return db.select()
+    .from(assistantOperationLogs)
+    .where(sql`assistant_id = ${assistantId}`)
+    .orderBy(sql`timestamp DESC`)
     .limit(100);
 }
 
-// Fonction pour obtenir l'historique des actions d'un utilisateur
+/**
+ * Récupère les logs d'opérations pour un utilisateur spécifique
+ */
 export async function getUserAssistantLogs(userId: number): Promise<any[]> {
-  return db.select().from(assistantOperationLogs)
-    .where(eq(assistantOperationLogs.userId, userId))
-    .orderBy(desc(assistantOperationLogs.timestamp))
+  return db.select()
+    .from(assistantOperationLogs)
+    .where(sql`user_id = ${userId}`)
+    .orderBy(sql`timestamp DESC`)
     .limit(100);
 }
 
-// Fonction pour analyser les erreurs récurrentes
+/**
+ * Récupère les erreurs récurrentes pour identifier des problèmes potentiels
+ */
 export async function getRecurringErrors(): Promise<any> {
-  // Solution simplifiée sans groupBy et count pour contourner les erreurs de typage
-  const logs = await db.select({
-    errorMessage: assistantOperationLogs.errorMessage
+  const recentErrorLogs = await db.select({
+    errorMessage: assistantOperationLogs.errorMessage,
+    operation: assistantOperationLogs.operation,
+    count: sql<number>`count(*)`.as('count')
   })
   .from(assistantOperationLogs)
-  .where(eq(assistantOperationLogs.status, LogStatus.FAILURE))
-  .limit(100);
+  .where(sql`status = 'FAILURE' AND timestamp > NOW() - INTERVAL '24 hours'`)
+  .groupBy(assistantOperationLogs.errorMessage, assistantOperationLogs.operation)
+  .having(sql`count(*) > 5`)
+  .orderBy(sql`count DESC`);
   
-  // Faire l'agrégation manuellement
-  const errorCounts: Record<string, number> = {};
-  logs.forEach(log => {
-    if (log.errorMessage) {
-      errorCounts[log.errorMessage] = (errorCounts[log.errorMessage] || 0) + 1;
-    }
-  });
-  
-  // Convertir en tableau et trier
-  const result = Object.entries(errorCounts)
-    .map(([errorMessage, count]) => ({ errorMessage, count }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 10);
-  
-  return result;
+  return {
+    recentErrorLogs,
+    totalErrorCount: recentErrorLogs.reduce((sum, log) => sum + log.count, 0)
+  };
 }

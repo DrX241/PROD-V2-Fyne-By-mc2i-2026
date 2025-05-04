@@ -40,7 +40,11 @@ import {
   initConversation, 
   sendMessage, 
   getConversationHistory, 
-  getPopularAssistants 
+  getPopularAssistants,
+  detectDuplicates,
+  mergeTemplates,
+  searchSimilarAssistants,
+  deleteTemplate
 } from "./customAssistantsController";
 import { getOrCreateUser, getUserById } from "./userController";
 // Import des fonctions d'urgence cyber supprimé
@@ -434,6 +438,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/assistants/conversation/message', sendMessage);
   app.get('/api/assistants/conversation/history/:conversationId', getConversationHistory);
   app.get('/api/assistants/conversation/history/session/:sessionId', getConversationHistory);
+  
+  // Routes pour la gestion des modèles et la détection des doublons
+  app.get('/api/assistants/duplicates/detect', detectDuplicates);
+  app.post('/api/assistants/duplicates/merge', mergeTemplates);
+  app.get('/api/assistants/search', searchSimilarAssistants);
+  app.delete('/api/assistants/templates/:templateId', deleteTemplate);
   
   // Routes pour le chatbot expert en cybersécurité (carte "Apprendre en échangeant")
   app.post('/api/cyber-expert/init', initCyberExpertSession);
