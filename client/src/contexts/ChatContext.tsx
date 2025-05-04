@@ -790,11 +790,13 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Extraire les détails additionnels de la réponse si disponible
       try {
         if (error instanceof Response || (error && typeof error === 'object' && 'json' in error)) {
-          error.json().then(data => {
+          // Utilisation de type assertion pour éviter l'erreur de typage
+          const errorObj = error as Response;
+          errorObj.json().then((data: any) => {
             console.log("Réponse serveur complète:", data);
             if (data.message) serverErrorMsg = data.message;
             if (data.model) modelUsed = data.model;
-          }).catch(jsonError => console.error("Impossible de traiter la réponse JSON:", jsonError));
+          }).catch((jsonError: Error) => console.error("Impossible de traiter la réponse JSON:", jsonError));
         } else if (error instanceof Error && error.cause && typeof error.cause === 'object') {
           const cause = error.cause as any;
           if (cause.data) {
@@ -1184,6 +1186,15 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsTyping(false);
   };
 
+  // Adaptateurs pour les fonctions dont les signatures ne correspondent pas au type attendu
+  const selectDomainAdapter = (domain: CyberDomain) => {
+    handleSelectDomain(domain.id);
+  };
+
+  const selectScenarioAdapter = (scenario: CyberScenario) => {
+    handleSelectScenario(scenario.id);
+  };
+
   return (
     <ChatContext.Provider
       value={{
@@ -1201,8 +1212,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         missionBriefReceived,
         setUserName: handleSetUserName,
         setUserRole: handleSetUserRole,
-        selectDomain: handleSelectDomain,
-        selectScenario: handleSelectScenario,
+        selectDomain: selectDomainAdapter,
+        selectScenario: selectScenarioAdapter,
         sendMessage: handleSendMessage,
         updateConfig: handleUpdateConfig,
         resetChat: handleResetChat,
