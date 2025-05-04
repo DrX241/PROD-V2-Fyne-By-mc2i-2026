@@ -6,6 +6,8 @@ import ScenarioSelection from "./ScenarioSelection";
 import RoleSelection from "./RoleSelection";
 import EmailMessage from "./EmailMessage";
 import ContextBanner from "./ContextBanner";
+import BinaryDecisionMessage from "./BinaryDecisionMessage";
+import TeamFeedbackMessage from "./TeamFeedbackMessage";
 import { Send, RefreshCw, ChevronDown } from "lucide-react";
 
 interface ChatInterfaceProps {
@@ -121,6 +123,10 @@ export default function ChatInterface({ onMessagesUpdate }: ChatInterfaceProps) 
         return userRole ? null : <RoleSelection onSelectRole={setUserRole} />;
       case 'email':
         return <EmailMessage email={message.content} />;
+      case 'binary-decision':
+        return <BinaryDecisionMessage decision={message.content} />;
+      case 'team-feedback':
+        return <TeamFeedbackMessage feedback={message.content} />;
       case 'scenario-context':
         return (
           <ChatMessage 
