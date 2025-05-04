@@ -1,5 +1,29 @@
 import { Request, Response } from 'express';
 import { openAIService } from './services/openai';
+import { ChatCompletionRequestMessage } from '@shared/schema';
+
+// Types pour les preuves et suspects
+interface Evidence {
+  id: string;
+  title: string;
+  type: string;
+  content: string;
+  timestamp?: string;
+  tags?: string[];
+  relevance?: string;
+  analyzed: boolean;
+}
+
+interface Suspect {
+  id: string;
+  name: string;
+  role: string;
+  motif?: string;
+  notes?: string;
+  indicators?: string[];
+  is_culprit?: boolean;
+  suspicionLevel: number;
+}
 
 /**
  * Génère une analyse IA des preuves dans le cadre de l'enquête
@@ -15,7 +39,7 @@ export async function analyzeEvidence(req: Request, res: Response) {
     }
 
     // Construction du prompt pour l'analyse IA des preuves
-    const messages = [
+    const messages: ChatCompletionRequestMessage[] = [
       {
         role: "system",
         content: `Tu es un expert en investigation numérique et cybersécurité, spécialisé dans l'analyse des fuites de données. 
@@ -82,7 +106,7 @@ export async function getInvestigationHints(req: Request, res: Response) {
     }
 
     // Construction du prompt pour les indices IA
-    const messages = [
+    const messages: ChatCompletionRequestMessage[] = [
       {
         role: "system",
         content: `Tu es un mentor expert en cybersécurité et investigation numérique, guidant un apprenti enquêteur.
@@ -149,7 +173,7 @@ export async function evaluateInvestigationResult(req: Request, res: Response) {
     }
 
     // Construction du prompt pour l'évaluation IA
-    const messages = [
+    const messages: ChatCompletionRequestMessage[] = [
       {
         role: "system",
         content: `Tu es un expert en investigation numérique et cybersécurité, chargé d'évaluer les conclusions 
