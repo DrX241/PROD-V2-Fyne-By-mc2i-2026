@@ -1,0 +1,47 @@
+🛡️ Créer son propre antivirus, concrètement, dans CodeShield
+1. 🧱 Tu construis un moteur de détection personnalisé
+À chaque niveau, tu rédiges toi-même les règles qui définissent ce qu’est un malware selon toi :
+
+Au début, ce sont des règles simples (ex : reconnaître un fichier par son nom ou sa signature).
+
+Puis tu progresses vers des règles plus complexes : détection de comportements suspects, d’actions réseau, de tentatives d’évasion, etc.
+
+✅ Résultat : ton antivirus détecte ce que tu décides de considérer comme suspect.
+
+2. 🧠 Tu entraînes ton antivirus grâce aux retours de l’IA
+Après chaque test, une intelligence artificielle analyse tes résultats : as-tu bien repéré les virus ? As-tu bloqué des fichiers sains par erreur ?
+
+Elle te donne un retour précis, et t’aide à améliorer la finesse de tes règles.
+
+✅ Tu deviens capable d’améliorer ton propre moteur, comme le ferait un ingénieur cybersécurité.
+
+3. 🔬 Tu fais des tests en sandbox simulée
+Tu exécutes des fichiers dans un environnement de test.
+
+Tu observes les comportements (ex : ouverture de ports, chiffrement de fichiers, appels réseau).
+
+Tu ajoutes des règles pour réagir à ces comportements.
+
+✅ Tu apprends à détecter des menaces non connues, comme le font les antivirus modernes.
+
+4. 🧩 Tu combines plusieurs méthodes de défense
+À la fin du jeu :
+
+Tu as un système de règles statiques (signatures, motifs suspects),
+
+Un moteur de détection comportementale (ce qu’un programme fait),
+
+Et une stratégie d’analyse dynamique (sandbox, vérifications croisées).
+
+✅ Tu obtiens une base complète d’antivirus personnalisable, qui reflète tes choix, ton niveau d’analyse, et ta logique de protection.
+
+5. 🎓 Tu comprends les limites et les dilemmes réels
+Est-ce que tu bloques trop ? (faux positifs)
+
+Est-ce que tu laisses passer des menaces ? (faux négatifs)
+
+Est-ce que ton antivirus ralentit l’exécution des programmes ?
+
+✅ Tu ne fais pas qu’"utiliser" un antivirus : tu en conçois les règles internes et tu les ajustes comme un pro.
+
+En résumé : CodeShield ne simule pas un antivirus, il t’apprend à en construire un, pas à pas, avec une vraie logique de décision et d’amélioration.
