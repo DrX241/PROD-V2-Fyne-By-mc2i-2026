@@ -243,10 +243,13 @@ export default function McaiLearningOutils() {
                 </div>
               </motion.div>
             ))}
+            {/* Indicateur de chargement - s'affiche uniquement si isLoading est true */}
             {isLoading && (
               <motion.div
+                key="loading-indicator"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 className="flex justify-start mb-4"
               >
                 <div className="flex max-w-[80%]">
