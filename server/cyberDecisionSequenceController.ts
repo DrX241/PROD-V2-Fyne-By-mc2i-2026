@@ -467,15 +467,18 @@ async function generateTeamFeedback(
  * @param step Étape actuelle
  */
 function createFallbackDecision(step: number): BinaryDecision {
-  const fallbackDecisions: Array<Partial<BinaryDecision>> = [
+  // Liste des décisions de secours prédéfinies
+  const fallbackDecisions = [
     {
       context: "Une tentative d'hameçonnage ciblée a été détectée visant les cadres dirigeants de l'entreprise. Plusieurs emails contenant des liens suspects ont été identifiés dans les boîtes de réception.",
       optionA: {
+        id: `option-a-fallback-1`,
         text: "Déployer un filtrage avancé des emails",
         description: "Mettre en place immédiatement un filtrage supplémentaire des emails avec analyse comportementale pour bloquer les tentatives similaires.",
         consequences: "Délai de traitement des emails légitimes potentiellement augmenté pendant le réglage du système."
       },
       optionB: {
+        id: `option-b-fallback-1`,
         text: "Lancer une campagne de sensibilisation d'urgence",
         description: "Informer immédiatement tous les employés par notification d'urgence et organiser des sessions rapides de sensibilisation ciblées.",
         consequences: "Impact sur la productivité à court terme mais renforcement de la vigilance collective."
@@ -484,11 +487,13 @@ function createFallbackDecision(step: number): BinaryDecision {
     {
       context: "Un scan de vulnérabilités a révélé des failles critiques dans plusieurs serveurs de production. Ces vulnérabilités pourraient permettre un accès non autorisé aux données sensibles.",
       optionA: {
+        id: `option-a-fallback-2`,
         text: "Appliquer immédiatement les correctifs disponibles",
         description: "Déployer les correctifs de sécurité en urgence sur tous les systèmes concernés, même pendant les heures de travail.",
         consequences: "Risque d'interruption temporaire des services pendant la mise à jour."
       },
       optionB: {
+        id: `option-b-fallback-2`,
         text: "Mettre en place des mesures d'atténuation temporaires",
         description: "Renforcer la surveillance, limiter l'accès et planifier les correctifs pour le prochain créneau de maintenance.",
         consequences: "Vulnérabilités toujours présentes mais risques réduits par les contrôles supplémentaires."
@@ -497,11 +502,13 @@ function createFallbackDecision(step: number): BinaryDecision {
     {
       context: "Un prestataire externe signale une possible compromission de ses systèmes. Cette société a accès à certaines de vos plateformes dans le cadre d'un contrat de maintenance.",
       optionA: {
+        id: `option-a-fallback-3`,
         text: "Révoquer tous les accès du prestataire",
         description: "Suspendre immédiatement tous les accès du prestataire à vos systèmes jusqu'à clarification de la situation.",
         consequences: "Interruption possible de certains services maintenus par le prestataire."
       },
       optionB: {
+        id: `option-b-fallback-3`,
         text: "Restreindre et surveiller les accès",
         description: "Limiter les accès du prestataire au strict minimum et mettre en place une surveillance renforcée de toutes ses activités.",
         consequences: "Maintien des services mais risque résiduel si la compromission est confirmée."
@@ -510,11 +517,13 @@ function createFallbackDecision(step: number): BinaryDecision {
     {
       context: "Un comportement anormal a été détecté sur le réseau interne, suggérant un possible mouvement latéral après une intrusion. Plusieurs connexions inhabituelles entre systèmes ont été observées.",
       optionA: {
+        id: `option-a-fallback-4`,
         text: "Isoler les systèmes suspects",
         description: "Déconnecter immédiatement du réseau tous les systèmes présentant un comportement anormal pour stopper la propagation.",
         consequences: "Impact opérationnel significatif mais limitation immédiate de la compromission."
       },
       optionB: {
+        id: `option-b-fallback-4`,
         text: "Mener une investigation discrète",
         description: "Déployer des outils de surveillance supplémentaires pour analyser la situation sans alerter le potentiel attaquant.",
         consequences: "Risque de propagation continue pendant l'investigation mais meilleure compréhension de la menace."
@@ -523,11 +532,13 @@ function createFallbackDecision(step: number): BinaryDecision {
     {
       context: "Une fuite de données client potentielle a été identifiée. Des informations sensibles pourraient avoir été exposées via une application web mal configurée.",
       optionA: {
+        id: `option-a-fallback-5`,
         text: "Notification immédiate aux parties concernées",
         description: "Informer immédiatement les clients potentiellement affectés et les autorités réglementaires conformément au RGPD.",
         consequences: "Impact réputationnel immédiat mais démonstration de transparence et respect des obligations légales."
       },
       optionB: {
+        id: `option-b-fallback-5`,
         text: "Analyse complète avant communication",
         description: "Conduire une investigation approfondie pour déterminer l'étendue exacte de la fuite avant toute communication externe.",
         consequences: "Communication plus précise mais risque de non-conformité avec les délais réglementaires de notification."

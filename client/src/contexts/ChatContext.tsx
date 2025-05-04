@@ -367,6 +367,9 @@ const initialScenarioState: ScenarioState = {
   activeDomain: null
 };
 
+// ID utilisateur pour la séquence de décisions
+let decisionSequenceUserId = "";
+
 // Create context
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
@@ -1189,11 +1192,15 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const handleInitDecisionSequence = async () => {
     setIsTyping(true);
     
+    // Générer un ID utilisateur unique pour cette session de décisions
+    decisionSequenceUserId = `${userName.replace(/\s+/g, "-").toLowerCase()}-${Date.now()}`;
+    
     try {
       // Envoyer une requête pour initialiser la séquence de décisions
       const response = await apiRequest('/api/cyber/decisions/init', {
         method: 'POST',
         body: JSON.stringify({
+          userId: decisionSequenceUserId,
           userRole,
           domain: scenario.activeDomain?.id,
           userName,
@@ -1253,13 +1260,13 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     try {
       // Envoyer une requête pour traiter la décision
-      const response = await apiRequest('/api/cyber/sequence-decision', {
+      const response = await apiRequest('/api/cyber/decisions/submit', {
         method: 'POST',
         body: JSON.stringify({
+          userId: decisionSequenceUserId,
           userRole,
           domain: scenario.activeDomain?.id,
           userName,
-          decisionStep: decisionSequenceStep,
           optionId,
           contextData: {
             companyName: 'mc2i'

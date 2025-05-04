@@ -8,10 +8,10 @@ interface BinaryDecisionMessageProps {
 }
 
 export default function BinaryDecisionMessage({ decision }: BinaryDecisionMessageProps) {
-  const { sendMessage } = useChatContext();
+  const { makeDecision } = useChatContext();
 
   const handleOptionClick = (optionId: string) => {
-    sendMessage(`#binary_decision#${decision.id}#${optionId}`);
+    makeDecision(optionId);
   };
 
   return (
