@@ -1,0 +1,74 @@
+🎯 Objectif : immerger l’utilisateur dans une enquête ludique liée à un concept de cybersécurité, sans jamais nommer le concept avant la fin.
+Puis l’amener, via 6 questions progressives, à identifier les signes, impacts, mécanismes et parades du concept.
+Finalement, l’IA dévoile le concept, explique, raconte une anecdote réelle et donne des bonnes pratiques + sources sérieuses.
+
+🔁 Structure conversationnelle – Étape par étape
+✉️ Message 1 – Accueil immersif
+markdown
+Copier
+Modifier
+🕵️‍♂️ Bienvenue, Détective.  
+Un incident vient d’être signalé dans une entreprise. Tes talents sont requis.  
+Pas de briefing. Pas de nom de menace. Juste des faits.
+
+🎯 **Ta mission** : comprendre ce qui s’est passé. Et identifier l’attaque.
+
+🧩 Voici ton premier indice :
+_"Un employé reçoit un e-mail inattendu contenant une pièce jointe .pdf. Il clique. Trois heures plus tard, plusieurs fichiers deviennent inaccessibles, et un message exige une rançon."_
+
+🔎 Que fais-tu ?
+A. Je contacte l’expéditeur pour vérifier.  
+B. J’analyse la pièce jointe dans un environnement sécurisé.  
+C. Je paye la rançon pour débloquer les fichiers.  
+D. Je déconnecte immédiatement le poste du réseau.
+(→ selon la réponse, l’IA enchaîne sur le mini-jeu de déduction)
+
+🔍 Messages 2 à 7 – Les 6 questions
+Les 6 questions visent à tester les réflexes, introduire progressivement les concepts et laisser le joueur s’auto-corriger ou apprendre via la discussion.
+
+Exemples :
+
+Quels indices t’auraient mis la puce à l’oreille dans l’e-mail reçu ?
+(Réponse ouverte → IA réagit, complète, corrige.)
+
+Qu’aurait pu faire l’entreprise pour éviter que ce clic ne cause une crise ?
+(Antivirus, sandbox, formation, cloisonnement réseau…)
+
+Quel est l’objectif probable de l’attaquant ?
+A. Collecter des mots de passe
+B. Espionner discrètement
+C. Bloquer l’activité pour exiger une rançon
+D. Tester la robustesse du firewall
+
+Ce type d’attaque est-il ciblé ou de masse ? Pourquoi ?
+
+Quelle autre attaque célèbre a fonctionné selon le même principe ?
+
+Comment prévenir ce type d’attaque à l’échelle d’un service entier ?
+
+✅ Message 8 – Révélation du concept
+markdown
+Copier
+Modifier
+💡 Tu viens d’enquêter sur une attaque de type : **Ransomware**.
+
+Ce type de malware chiffre les fichiers de la victime et exige une rançon (souvent en Bitcoin) pour les débloquer. Il peut se propager rapidement et paralyser une organisation entière.
+🕯️ Message 9 – Anecdote historique et bonnes pratiques
+markdown
+Copier
+Modifier
+📚 **Fait réel** : En mai 2017, le ransomware WannaCry a infecté plus de 230 000 ordinateurs dans 150 pays.  
+Il a paralysé des hôpitaux, des entreprises, des services publics.  
+Pourquoi ? Des machines sous Windows non mises à jour.  
+Un correctif existait… mais n’avait pas été appliqué.
+
+✅ **Bonnes pratiques** :
+- Mettre à jour les systèmes régulièrement.
+- Sauvegarder les données hors ligne.
+- Sensibiliser les collaborateurs.
+- Analyser les pièces jointes en sandbox.
+- Isoler les machines infectées immédiatement.
+
+🔗 **Références** :
+- [ANSSI – Guide ransomware](https://www.ssi.gouv.fr/guide-ransomware)
+- [CERT-FR – Alerte WannaCry](https://www.cert.ssi.gouv.fr/alerte/CERTFR-2017-ALE-004/)
