@@ -165,15 +165,26 @@ export async function createAssistant(req: Request, res: Response) {
     
     // Générer le prompt système personnalisé basé sur les paramètres de l'assistant
     try {
+      // Convertir le niveau de gamification du format base de données au format attendu par la méthode
+      let gamificationLevel: 'none' | 'low' | 'medium' | 'high' = 'none';
+      
+      switch(assistantData.gamificationLevel) {
+        case 'aucun': gamificationLevel = 'none'; break;
+        case 'leger': gamificationLevel = 'low'; break;
+        case 'modere': gamificationLevel = 'medium'; break;
+        case 'eleve': 
+        case 'intense': gamificationLevel = 'high'; break;
+      }
+      
       const systemPrompt = await openAIService.generateCustomAssistantPrompt({
         name: assistantData.name,
-        description: assistantData.description,
+        description: assistantData.description || undefined,
         domain: assistantData.domain,
         personality: assistantData.personality,
-        expertise: assistantData.expertise,
-        gamificationLevel: assistantData.gamificationLevel as 'none' | 'low' | 'medium' | 'high',
-        responseStyle: assistantData.responseStyle,
-        additionalInfo: assistantData.additionalInstructions
+        expertise: Array.isArray(assistantData.expertise) ? assistantData.expertise.join(', ') : 'général',
+        gamificationLevel: gamificationLevel,
+        responseStyle: assistantData.personality, // Utiliser la personnalité comme style de réponse
+        additionalInfo: assistantData.customInstructions ? JSON.stringify(assistantData.customInstructions) : undefined
       });
       
       // Ajouter le prompt système à l'assistant
@@ -248,6 +259,53 @@ export async function updateAssistant(req: Request, res: Response) {
     }
     
     const updateData = validationResult.data;
+    
+    // Si les paramètres qui affectent le prompt système ont été modifiés, régénérer le prompt
+    if (updateData.name || 
+        updateData.description || 
+        updateData.domain || 
+        updateData.personality || 
+        updateData.expertise || 
+        updateData.gamificationLevel ||
+        updateData.customInstructions) {
+      
+      // Récupérer les données complètes de l'assistant
+      const assistantData = {
+        ...existingAssistant[0],
+        ...updateData
+      };
+      
+      try {
+        // Convertir le niveau de gamification
+        let gamificationLevel: 'none' | 'low' | 'medium' | 'high' = 'none';
+        
+        switch(assistantData.gamificationLevel) {
+          case 'aucun': gamificationLevel = 'none'; break;
+          case 'leger': gamificationLevel = 'low'; break;
+          case 'modere': gamificationLevel = 'medium'; break;
+          case 'eleve': 
+          case 'intense': gamificationLevel = 'high'; break;
+        }
+        
+        // Générer un nouveau prompt système
+        const systemPrompt = await openAIService.generateCustomAssistantPrompt({
+          name: assistantData.name,
+          description: assistantData.description || undefined,
+          domain: assistantData.domain,
+          personality: assistantData.personality,
+          expertise: Array.isArray(assistantData.expertise) ? assistantData.expertise.join(', ') : 'général',
+          gamificationLevel: gamificationLevel,
+          responseStyle: assistantData.personality,
+          additionalInfo: assistantData.customInstructions ? JSON.stringify(assistantData.customInstructions) : undefined
+        });
+        
+        // Ajouter le prompt système mis à jour
+        updateData.systemPrompt = systemPrompt;
+      } catch (promptError) {
+        console.error('Erreur lors de la mise à jour du prompt système:', promptError);
+        // Continuer sans mettre à jour le prompt système
+      }
+    }
     
     // Mettre à jour l'assistant
     const [updatedAssistant] = await db.update(customAssistants)
