@@ -1,128 +1,67 @@
 /**
- * Middleware pour appliquer la limitation de débit (rate limiting) aux routes
+ * Middleware pour la limitation de débit (rate limiting)
+ * Ce middleware protège les routes d'API contre les abus
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { rateLimiter } from '../services/rateLimiterService';
+import { rateLimiterService } from '../services/rateLimiterService';
 
 interface RateLimiterOptions {
-  keyGenerator?: (req: Request) => string;
-  getAssistantType?: (req: Request) => string | undefined;
-  errorHandler?: (req: Request, res: Response) => void;
-  skipIfAdmin?: boolean;
+  // Utiliser l'ID utilisateur si disponible, sinon l'IP
+  useUserId?: boolean;
+  // Domaine spécifique pour les limites
+  domain?: string;
+  // Message d'erreur personnalisé
+  message?: string;
+  // Code d'état HTTP en cas de limite dépassée
+  statusCode?: number;
 }
 
 /**
  * Middleware de limitation de débit
- * 
- * @param options Options de configuration
- * @returns Middleware Express
+ * @param options Options du middleware
  */
-export const rateLimiterMiddleware = (options: RateLimiterOptions = {}) => {
-  // Fonction par défaut pour générer la clé de limitation
-  const defaultKeyGenerator = (req: Request): string => {
-    // Utiliser en priorité l'utilisateur si disponible
-    if (req.headers['x-user-id']) {
-      return `user:${req.headers['x-user-id']}`;
-    }
-    
-    // Nous n'utilisons pas les sessions express dans cette application
-    // Mais nous pourrions les utiliser à l'avenir
-    
-    // Sinon, utiliser l'IP
-    const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
-    return `ip:${ip}`;
-  };
-  
-  // Fonction par défaut pour récupérer le type d'assistant
-  const defaultGetAssistantType = (req: Request): string | undefined => {
-    // Essayer de récupérer le type d'assistant depuis les paramètres
-    if (req.params.assistantType) {
-      return req.params.assistantType;
-    }
-    
-    // Essayer de récupérer le domaine depuis le corps de la requête
-    if (req.body && req.body.domain) {
-      return req.body.domain;
-    }
-    
-    // Essayer de récupérer le domaine depuis la query string
-    if (req.query.domain) {
-      return req.query.domain as string;
-    }
-    
-    return undefined;
-  };
-  
-  // Fonction par défaut pour gérer les erreurs de limitation
-  const defaultErrorHandler = (_req: Request, res: Response) => {
-    res.status(429).json({
-      success: false,
-      error: 'Trop de requêtes, veuillez réessayer plus tard.',
-      code: 'RATE_LIMIT_EXCEEDED'
-    });
-  };
-  
+export function rateLimiter(options: RateLimiterOptions = {}) {
+  const {
+    useUserId = true,
+    domain,
+    message = 'Rate limit exceeded. Please try again later.',
+    statusCode = 429 // Too Many Requests
+  } = options;
+
   return async (req: Request, res: Response, next: NextFunction) => {
-    const keyGenerator = options.keyGenerator || defaultKeyGenerator;
-    const getAssistantType = options.getAssistantType || defaultGetAssistantType;
-    const errorHandler = options.errorHandler || defaultErrorHandler;
-    
-    // Ignorer la limitation pour les administrateurs si requis
-    if (options.skipIfAdmin && req.headers['x-user-role'] === 'admin') {
-      return next();
-    }
-    
-    // Générer la clé et récupérer le type d'assistant
-    const key = keyGenerator(req);
-    const assistantType = getAssistantType(req);
-    
     try {
-      // Vérifier la limitation de débit
-      const canProceed = await rateLimiter.checkRateLimit(key, assistantType);
-      
-      if (!canProceed) {
-        // Appliquer le gestionnaire d'erreur personnalisé
-        return errorHandler(req, res);
+      // Déterminer la clé à utiliser pour le rate limiting
+      let key: string;
+
+      if (useUserId && req.user && (req.user as any).id) {
+        // Utiliser l'ID utilisateur si disponible
+        key = `user:${(req.user as any).id}`;
+      } else if (useUserId && req.headers['x-user-id']) {
+        // Utiliser l'en-tête x-user-id si disponible
+        key = `user:${req.headers['x-user-id']}`;
+      } else {
+        // Utiliser l'IP comme fallback
+        const ip = req.ip || req.socket.remoteAddress || 'unknown';
+        key = `ip:${ip}`;
       }
-      
-      // Intercepter la fonction d'envoi pour libérer le rate limiter en cas d'erreur interne
-      const originalSend = res.send;
-      res.send = function(this: Response, body: any) {
-        // Vérifier si la réponse indique une erreur
-        let isError = false;
-        
-        try {
-          // Si le corps est un objet JSON
-          if (typeof body === 'string' && body.startsWith('{')) {
-            const parsed = JSON.parse(body);
-            isError = parsed.success === false || parsed.error;
-          } else if (typeof body === 'object') {
-            // Si c'est déjà un objet
-            isError = body.success === false || body.error;
-          }
-        } catch (e) {
-          // Ignorer les erreurs de parsing
-        }
-        
-        // Si c'est une erreur, libérer un jeton
-        if (res.statusCode >= 500 || isError) {
-          rateLimiter.releaseLimit(key);
-        }
-        
-        // Appeler la fonction originale
-        return originalSend.call(this, body);
-      };
-      
-      // Continuer avec la requête
-      next();
+
+      // Vérifier les limites de débit
+      const isAllowed = await rateLimiterService.check(key, domain);
+
+      if (isAllowed) {
+        // La requête est autorisée
+        next();
+      } else {
+        // La requête est refusée
+        res.status(statusCode).json({
+          success: false,
+          error: message
+        });
+      }
     } catch (error) {
-      // Erreur de timeout ou autre
-      res.status(429).json({
-        success: false,
-        error: error instanceof Error ? error.message : 'Erreur de limitation de débit',
-        code: 'RATE_LIMIT_ERROR'
-      });
+      console.error('Rate limiter error:', error);
+      next(error);
     }
   };
-};
+}

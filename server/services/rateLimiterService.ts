@@ -1,220 +1,296 @@
 /**
- * Service de limitation de débit pour protéger l'API Azure OpenAI
+ * Service de limitation de débit (rate limiting)
+ * Ce service permet de limiter le nombre de requêtes par utilisateur/clé et par période
+ * Il offre également des fonctionnalités de file d'attente et de déblocage
  */
 
-interface RateLimitEntry {
-  count: number;        // Nombre de requêtes effectuées
-  lastReset: number;    // Timestamp du dernier reset
-  blocked: boolean;     // Si l'utilisateur est actuellement bloqué
-  blockExpires?: number; // Quand le blocage expire (si applicable)
-  queue: Array<{        // File d'attente des requêtes en attente
-    resolve: Function;
-    timestamp: number;
+interface RateLimitOptions {
+  // Nombre maximum de requêtes par période
+  maxRequests: number;
+  // Période en secondes
+  windowSizeInSeconds: number;
+  // Capacité de la file d'attente (0 = pas de file d'attente)
+  queueCapacity: number;
+  // Durée de blocage en secondes (0 = pas de blocage)
+  blockDurationInSeconds: number;
+}
+
+interface RateLimitState {
+  // Horodatages des requêtes dans la fenêtre courante
+  timestamps: number[];
+  // État de blocage
+  blocked: boolean;
+  // Horodatage de fin de blocage
+  blockExpiresAt: number;
+  // File d'attente des requêtes
+  queue: Array<{
+    resolve: (value: void) => void;
+    reject: (reason: Error) => void;
+    createdAt: number;
   }>;
 }
 
+// Configuration par défaut
+const DEFAULT_OPTIONS: RateLimitOptions = {
+  maxRequests: 50,
+  windowSizeInSeconds: 60,
+  queueCapacity: 20,
+  blockDurationInSeconds: 300, // 5 minutes
+};
+
+// Configuration spécifique par domaine
+const DOMAIN_SPECIFIC_OPTIONS: Record<string, Partial<RateLimitOptions>> = {
+  'general': {
+    maxRequests: 60,
+    windowSizeInSeconds: 60,
+  },
+  'cybersecurite': {
+    maxRequests: 40,
+    windowSizeInSeconds: 60,
+  },
+  'amoa': {
+    maxRequests: 50,
+    windowSizeInSeconds: 60,
+  },
+  'data_ia': {
+    maxRequests: 30,
+    windowSizeInSeconds: 60,
+  },
+  'developement': {
+    maxRequests: 45,
+    windowSizeInSeconds: 60,
+  },
+};
+
 class RateLimiterService {
-  // Map pour stocker les limites par utilisateur/IP
-  private limits: Map<string, RateLimitEntry> = new Map();
-  
-  // Configuration par défaut
-  private defaultConfig = {
-    windowMs: 60 * 1000,       // Fenêtre de 1 minute
-    maxRequests: 20,           // 20 requêtes par minute
-    blockDuration: 5 * 60 * 1000, // Blocage de 5 minutes après trop de tentatives
-    maxConsecutiveFailures: 10, // Nombre d'échecs consécutifs avant blocage
-    queueTimeout: 30 * 1000,   // Timeout de 30 secondes pour la file d'attente
-    maxQueueSize: 10           // Taille maximale de la file d'attente
-  };
-  
-  // Configurations spécifiques par type d'assistant
-  private assistantTypeConfigs: Record<string, Partial<typeof this.defaultConfig>> = {
-    'cybersecurite': {
-      maxRequests: 30,           // Plus de requêtes pour la cybersécurité (cas d'urgence)
-      blockDuration: 2 * 60 * 1000 // Blocage plus court
-    },
-    'amoa': {
-      maxRequests: 15,           // Moins de requêtes pour l'AMOA (plus de texte, moins d'interactions)
-      queueTimeout: 45 * 1000    // Timeout plus long car requêtes plus complexes
-    }
-  };
-  
-  /**
-   * Vérifie si une demande peut être traitée ou doit être limitée/mise en file d'attente
-   * @param key Identifiant unique (userId ou IP)
-   * @param assistantType Type d'assistant (pour appliquer des limites spécifiques)
-   * @returns Promise qui se résout quand la requête peut être traitée
-   */
-  async checkRateLimit(key: string, assistantType?: string): Promise<boolean> {
-    // Récupérer la configuration applicable
-    const config = this.getConfig(assistantType);
+  private state: Map<string, RateLimitState> = new Map();
+  private options: RateLimitOptions;
+  private domainOptions: Record<string, RateLimitOptions> = {};
+  private logQueue: Array<{
+    timestamp: number,
+    key: string,
+    action: 'limit' | 'queue' | 'block' | 'reset',
+    domain?: string
+  }> = [];
+  private maxLogQueueSize = 1000;
+
+  constructor(options: Partial<RateLimitOptions> = {}) {
+    this.options = { ...DEFAULT_OPTIONS, ...options };
     
-    // Si aucune entrée n'existe pour cette clé, en créer une
-    if (!this.limits.has(key)) {
-      this.limits.set(key, {
-        count: 0,
-        lastReset: Date.now(),
+    // Initialiser les options par domaine
+    for (const [domain, opts] of Object.entries(DOMAIN_SPECIFIC_OPTIONS)) {
+      this.domainOptions[domain] = { ...this.options, ...opts };
+    }
+  }
+
+  /**
+   * Vérifie si une clé (utilisateur, IP, etc.) a dépassé sa limite de débit
+   * @param key Identifiant unique (user:id, ip:address, etc.)
+   * @param domain Domaine optionnel pour appliquer des limites spécifiques
+   * @returns True si la requête est autorisée, False sinon
+   */
+  public async check(key: string, domain?: string): Promise<boolean> {
+    const options = domain && this.domainOptions[domain] 
+      ? this.domainOptions[domain] 
+      : this.options;
+    
+    // Initialiser l'état si nécessaire
+    if (!this.state.has(key)) {
+      this.state.set(key, {
+        timestamps: [],
         blocked: false,
-        queue: []
+        blockExpiresAt: 0,
+        queue: [],
       });
     }
     
-    const entry = this.limits.get(key)!;
+    const state = this.state.get(key)!;
     const now = Date.now();
     
     // Vérifier si l'utilisateur est bloqué
-    if (entry.blocked) {
-      // Vérifier si le blocage a expiré
-      if (entry.blockExpires && now > entry.blockExpires) {
-        entry.blocked = false;
-        entry.blockExpires = undefined;
-        entry.count = 0;
+    if (state.blocked) {
+      if (now >= state.blockExpiresAt) {
+        // Le blocage a expiré
+        state.blocked = false;
+        state.timestamps = [];
+        this.addLog(key, 'reset', domain);
       } else {
         return false;
       }
     }
     
-    // Réinitialiser le compteur si la fenêtre est passée
-    if (now - entry.lastReset > config.windowMs) {
-      entry.count = 0;
-      entry.lastReset = now;
+    // Supprimer les horodatages en dehors de la fenêtre courante
+    const windowStart = now - (options.windowSizeInSeconds * 1000);
+    state.timestamps = state.timestamps.filter(ts => ts >= windowStart);
+    
+    // Vérifier si l'utilisateur a dépassé sa limite
+    if (state.timestamps.length < options.maxRequests) {
+      // Autorisé : ajouter l'horodatage et continuer
+      state.timestamps.push(now);
+      return true;
     }
     
-    // Vérifier si la limite a été atteinte
-    if (entry.count >= config.maxRequests) {
-      // Si la file d'attente est pleine, rejeter la demande
-      if (entry.queue.length >= config.maxQueueSize) {
-        return false;
+    // Limite dépassée
+    this.addLog(key, 'limit', domain);
+    
+    // Si la file d'attente est désactivée ou pleine, bloquer l'utilisateur
+    if (options.queueCapacity === 0 || state.queue.length >= options.queueCapacity) {
+      if (options.blockDurationInSeconds > 0) {
+        state.blocked = true;
+        state.blockExpiresAt = now + (options.blockDurationInSeconds * 1000);
+        this.addLog(key, 'block', domain);
       }
-      
-      // Mettre la demande en file d'attente
-      return new Promise((resolve, reject) => {
-        const queueItem = { resolve: resolve as Function, timestamp: now };
-        entry.queue.push(queueItem);
+      return false;
+    }
+    
+    // Ajouter la requête à la file d'attente
+    try {
+      await new Promise<void>((resolve, reject) => {
+        state.queue.push({ resolve, reject, createdAt: now });
+        this.addLog(key, 'queue', domain);
         
-        // Timeout après un certain temps
-        setTimeout(() => {
-          const index = entry.queue.indexOf(queueItem);
-          if (index !== -1) {
-            entry.queue.splice(index, 1);
-            reject(new Error('Timeout de la file d\'attente'));
-          }
-        }, config.queueTimeout);
-      }) as Promise<boolean>;
-    }
-    
-    // Incrémenter le compteur
-    entry.count++;
-    
-    // Traiter la file d'attente si possible
-    this.processQueue(key);
-    
-    return true;
-  }
-  
-  /**
-   * Traite les requêtes en file d'attente si des créneaux se libèrent
-   */
-  private processQueue(key: string): void {
-    const entry = this.limits.get(key);
-    if (!entry || entry.queue.length === 0) return;
-    
-    const config = this.getConfig();
-    const now = Date.now();
-    
-    // Réinitialiser le compteur si la fenêtre est passée
-    if (now - entry.lastReset > config.windowMs) {
-      entry.count = 0;
-      entry.lastReset = now;
-    }
-    
-    // Traiter les éléments de la file d'attente tant qu'il y a de la place
-    while (entry.count < config.maxRequests && entry.queue.length > 0) {
-      const queueItem = entry.queue.shift()!;
-      entry.count++;
+        // Vérifier périodiquement si la requête peut être traitée
+        this.processQueue(key, domain);
+      });
       
-      // Résoudre la promesse pour permettre à la requête de continuer
-      queueItem.resolve(true);
+      // La requête a été traitée depuis la file d'attente
+      return true;
+    } catch (error) {
+      return false;
     }
   }
-  
+
   /**
-   * Obtient la configuration applicable en fonction du type d'assistant
+   * Traite la file d'attente pour une clé donnée
+   * @param key Identifiant unique
+   * @param domain Domaine optionnel
    */
-  private getConfig(assistantType?: string): typeof this.defaultConfig {
-    if (!assistantType || !this.assistantTypeConfigs[assistantType]) {
-      return this.defaultConfig;
-    }
+  private processQueue(key: string, domain?: string): void {
+    const state = this.state.get(key);
+    if (!state || state.queue.length === 0) return;
     
-    return {
-      ...this.defaultConfig,
-      ...this.assistantTypeConfigs[assistantType]
+    const options = domain && this.domainOptions[domain] 
+      ? this.domainOptions[domain] 
+      : this.options;
+    
+    const now = Date.now();
+    const windowStart = now - (options.windowSizeInSeconds * 1000);
+    
+    // Supprimer les horodatages en dehors de la fenêtre courante
+    state.timestamps = state.timestamps.filter(ts => ts >= windowStart);
+    
+    // Si l'utilisateur est maintenant sous sa limite, traiter la première requête de la file
+    if (state.timestamps.length < options.maxRequests) {
+      const nextRequest = state.queue.shift();
+      if (nextRequest) {
+        state.timestamps.push(now);
+        nextRequest.resolve();
+      }
+    } else {
+      // Réessayer après un délai
+      setTimeout(() => this.processQueue(key, domain), 1000);
+    }
+  }
+
+  /**
+   * Réinitialise les limites pour une clé donnée
+   * @param key Identifiant unique
+   */
+  public reset(key: string): void {
+    const state = this.state.get(key);
+    if (state) {
+      state.timestamps = [];
+      state.blocked = false;
+      state.blockExpiresAt = 0;
+      
+      // Rejeter toutes les requêtes en attente
+      state.queue.forEach(request => {
+        request.reject(new Error('Rate limit reset'));
+      });
+      state.queue = [];
+      
+      this.addLog(key, 'reset');
+    }
+  }
+
+  /**
+   * Réinitialise toutes les limites
+   */
+  public resetAll(): void {
+    for (const key of this.state.keys()) {
+      this.reset(key);
+    }
+  }
+
+  /**
+   * Configure les options du rate limiter
+   * @param options Nouvelles options
+   */
+  public configure(options: Partial<RateLimitOptions>): void {
+    this.options = { ...this.options, ...options };
+  }
+
+  /**
+   * Configure les options pour un domaine spécifique
+   * @param domain Nom du domaine
+   * @param options Options spécifiques
+   */
+  public configureDomain(domain: string, options: Partial<RateLimitOptions>): void {
+    this.domainOptions[domain] = { 
+      ...(this.domainOptions[domain] || this.options), 
+      ...options 
     };
   }
-  
+
   /**
-   * Libère manuellement des créneaux pour un utilisateur (utile après des erreurs)
+   * Ajoute une entrée de log
+   * @param key Identifiant unique
+   * @param action Type d'action
+   * @param domain Domaine optionnel
    */
-  releaseLimit(key: string, count: number = 1): void {
-    const entry = this.limits.get(key);
-    if (!entry) return;
+  private addLog(key: string, action: 'limit' | 'queue' | 'block' | 'reset', domain?: string): void {
+    this.logQueue.push({
+      timestamp: Date.now(),
+      key,
+      action,
+      domain
+    });
     
-    entry.count = Math.max(0, entry.count - count);
-    this.processQueue(key);
-  }
-  
-  /**
-   * Réinitialise complètement les limites pour un utilisateur
-   */
-  resetLimits(key: string): void {
-    const entry = this.limits.get(key);
-    if (!entry) return;
-    
-    entry.count = 0;
-    entry.blocked = false;
-    entry.blockExpires = undefined;
-    
-    // Traiter toutes les requêtes en attente
-    while (entry.queue.length > 0) {
-      const queueItem = entry.queue.shift()!;
-      queueItem.resolve(true);
+    // Limiter la taille de la file de logs
+    if (this.logQueue.length > this.maxLogQueueSize) {
+      this.logQueue.shift();
     }
   }
-  
+
   /**
-   * Obtient les statistiques d'utilisation du rate limiter
+   * Récupère les statistiques du rate limiter
    */
-  getStats(): {
-    totalUsers: number,
-    blockedUsers: number,
-    queuedRequests: number,
-    topUsers: Array<{key: string, count: number, blocked: boolean}>
-  } {
-    let blockedUsers = 0;
-    let queuedRequests = 0;
+  public getStats() {
+    const now = Date.now();
+    const blockedUsers = Array.from(this.state.entries())
+      .filter(([_, state]) => state.blocked && state.blockExpiresAt > now);
     
-    const topUsers = Array.from(this.limits.entries())
-      .map(([key, entry]) => {
-        if (entry.blocked) blockedUsers++;
-        queuedRequests += entry.queue.length;
-        
-        return {
-          key,
-          count: entry.count,
-          blocked: entry.blocked
-        };
-      })
+    const queuedRequests = Array.from(this.state.entries())
+      .reduce((total, [_, state]) => total + state.queue.length, 0);
+    
+    const topUsers = Array.from(this.state.entries())
+      .map(([key, state]) => ({
+        key,
+        count: state.timestamps.length,
+        blocked: state.blocked && state.blockExpiresAt > now
+      }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
-      
+    
     return {
-      totalUsers: this.limits.size,
-      blockedUsers,
+      totalUsers: this.state.size,
+      blockedUsers: blockedUsers.length,
       queuedRequests,
-      topUsers
+      topUsers,
+      logs: this.logQueue.slice(-100).reverse()
     };
   }
 }
 
-// Exporter une instance singleton
-export const rateLimiter = new RateLimiterService();
+// Instance singleton du service
+export const rateLimiterService = new RateLimiterService();

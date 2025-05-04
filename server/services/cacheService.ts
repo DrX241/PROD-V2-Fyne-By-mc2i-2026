@@ -1,311 +1,432 @@
 /**
- * Service de cache pour réduire les appels à l'API OpenAI
+ * Service de cache intelligent pour les réponses de l'API OpenAI
+ * Ce service permet de mettre en cache les réponses fréquentes et d'optimiser les coûts d'API
  */
 
+import { ChatCompletionRequestMessage } from './openAiTypes';
+
+/**
+ * Entrée dans le cache
+ */
 interface CacheEntry {
-  response: any;            // Réponse mise en cache
-  timestamp: number;        // Timestamp de création
-  hits: number;             // Nombre de fois où cette entrée a été utilisée
-  lastUsed: number;         // Dernier moment où l'entrée a été utilisée
+  // Clé de cache
+  key: string;
+  // Domaine du contenu mis en cache (cybersecurite, amoa, etc.)
+  domain: string;
+  // Requête d'origine (prompt utilisateur)
+  query: string;
+  // Réponse mise en cache
+  response: string;
+  // Date d'expiration
+  expiresAt: number;
+  // Nombre de hits
+  hits: number;
+  // Dernier accès
+  lastAccessed: number;
+  // Indicateur de réponse exacte ou approximative (similarité)
+  exact: boolean;
+}
+
+/**
+ * Configuration du cache
+ */
+interface CacheConfig {
+  // Durée de vie par défaut (en minutes)
+  defaultTTL: number; 
+  // Taille maximale du cache
+  maxSize: number;
+  // Seuil de similarité pour considérer une requête comme similaire (0.0 - 1.0)
+  similarityThreshold: number;
+  // Configuration par domaine
+  domainConfig: Record<string, {
+    // Durée de vie spécifique au domaine (en minutes)
+    ttl: number;
+  }>;
+}
+
+/**
+ * Log d'une opération de cache
+ */
+interface CacheLog {
+  // Horodatage de l'opération
+  timestamp: number;
+  // Type d'opération (hit, miss, set, invalidate, clear)
+  action: 'hit' | 'miss' | 'set' | 'invalidate' | 'clear';
+  // Domaine concerné
+  domain: string;
+  // ID utilisateur (optionnel)
+  userId?: string;
+  // Requête d'origine (prompt utilisateur)
+  query?: string;
+  // Clé de cache
+  cacheKey?: string;
 }
 
 class CacheService {
-  // Map pour stocker les entrées de cache par domaine et clé
   private cache: Map<string, CacheEntry> = new Map();
-  
-  // Configuration par défaut du cache
-  private defaultConfig = {
-    ttl: 3600 * 1000,           // Time to live: 1 heure par défaut
-    maxEntries: 1000,           // Nombre maximum d'entrées dans le cache
-    similarityThreshold: 0.85,  // Seuil de similarité pour la recherche floue
-    cleanupInterval: 300 * 1000 // Intervalle de nettoyage: 5 minutes
-  };
-  
-  // Configurations spécifiques par domaine
-  private domainConfigs: Record<string, Partial<typeof this.defaultConfig>> = {
-    'cybersecurite': {
-      ttl: 24 * 3600 * 1000,     // 24 heures pour la cybersécurité (informations plus stables)
-      similarityThreshold: 0.9   // Seuil plus élevé pour plus de précision
-    },
-    'amoa': {
-      ttl: 12 * 3600 * 1000,     // 12 heures pour l'AMOA
-      maxEntries: 500            // Moins d'entrées car domaine plus spécifique
-    }
-  };
+  private config: CacheConfig;
+  private logQueue: CacheLog[] = [];
+  private maxLogQueueSize = 1000;
+  private domainHitCounts: Record<string, number> = {};
+  private domainEntryCounts: Record<string, number> = {};
 
   constructor() {
-    // Configurer le nettoyage périodique du cache
-    setInterval(() => this.cleanupCache(), this.defaultConfig.cleanupInterval);
+    // Configuration par défaut
+    this.config = {
+      defaultTTL: 60, // 60 minutes (1 heure)
+      maxSize: 1000,  // 1000 entrées
+      similarityThreshold: 0.85, // 85% de similarité
+      domainConfig: {
+        'general': { ttl: 60 }, // 1 heure
+        'cybersecurite': { ttl: 1440 }, // 24 heures
+        'amoa': { ttl: 720 }, // 12 heures
+        'data_ia': { ttl: 360 }, // 6 heures
+        'developpement': { ttl: 1440 }, // 24 heures
+        'cloud': { ttl: 720 }, // 12 heures
+        'agile': { ttl: 720 }, // 12 heures
+      }
+    };
   }
-  
+
   /**
-   * Génère une clé de cache basée sur le contenu de la requête
+   * Crée une clé de cache à partir des messages
+   * @param messages Messages de la requête
+   * @param domain Domaine de la requête
+   * @returns Clé de cache
    */
-  private generateCacheKey(query: string, domain: string, context?: any): string {
-    // Normaliser le texte de la requête (minuscules, espaces supprimés)
-    const normalizedQuery = query.toLowerCase().trim();
+  private createCacheKey(messages: ChatCompletionRequestMessage[], domain?: string): string {
+    // Simplifier les messages pour créer une clé plus stable
+    const simplifiedMessages = messages.map(msg => ({
+      role: msg.role,
+      content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
+    }));
     
-    // Ajouter un préfixe de domaine pour séparer les caches par domaine
-    let key = `${domain}:${normalizedQuery}`;
+    // Créer une clé à partir des messages simplifiés
+    const key = JSON.stringify(simplifiedMessages);
     
-    // Si un contexte est fourni, l'ajouter à la clé
-    if (context) {
-      try {
-        // Si le contexte est un objet, le convertir en chaîne JSON
-        const contextStr = typeof context === 'object' 
-          ? JSON.stringify(context)
-          : String(context);
-        
-        key += `:${contextStr}`;
-      } catch (error) {
-        console.warn('Erreur lors de la génération de la clé de cache avec contexte', error);
+    // Préfixer avec le domaine si fourni
+    return domain ? `${domain}:${key}` : key;
+  }
+
+  /**
+   * Extrait le texte de la requête pour l'analyse
+   * @param messages Messages de la requête
+   * @returns Texte de la requête
+   */
+  private extractQueryText(messages: ChatCompletionRequestMessage[]): string {
+    // Récupérer le dernier message utilisateur
+    const userMessages = messages.filter(msg => msg.role === 'user');
+    if (userMessages.length === 0) return '';
+    
+    const lastUserMessage = userMessages[userMessages.length - 1];
+    
+    // Extraire le contenu textuel
+    if (typeof lastUserMessage.content === 'string') {
+      return lastUserMessage.content;
+    } else if (Array.isArray(lastUserMessage.content)) {
+      // Pour les messages multimodaux, extraire le texte
+      return lastUserMessage.content
+        .filter(part => typeof part === 'object' && part.type === 'text')
+        .map(part => (part as { text: string }).text)
+        .join(' ');
+    }
+    
+    return '';
+  }
+
+  /**
+   * Calcule la similarité entre deux textes
+   * Utilise une implémentation simple de similarité basée sur les mots communs
+   * @param text1 Premier texte
+   * @param text2 Deuxième texte
+   * @returns Score de similarité entre 0 et 1
+   */
+  private calculateSimilarity(text1: string, text2: string): number {
+    if (!text1 || !text2) return 0;
+    
+    // Normaliser les textes
+    const normalize = (text: string): string[] => {
+      return text
+        .toLowerCase()
+        .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '')
+        .split(/\s+/)
+        .filter(word => word.length > 3);
+    };
+    
+    const words1 = normalize(text1);
+    const words2 = normalize(text2);
+    
+    if (words1.length === 0 || words2.length === 0) return 0;
+    
+    // Calculer l'intersection des mots
+    const intersection = words1.filter(word => words2.includes(word));
+    
+    // Calculer la similarité de Jaccard
+    return intersection.length / (words1.length + words2.length - intersection.length);
+  }
+
+  /**
+   * Recherche une entrée de cache par similarité
+   * @param query Texte de la requête
+   * @param domain Domaine de la requête
+   * @param threshold Seuil de similarité
+   * @returns Entrée trouvée ou null
+   */
+  private findSimilarEntry(query: string, domain: string, threshold = this.config.similarityThreshold): CacheEntry | null {
+    if (!query) return null;
+    
+    let bestMatch: CacheEntry | null = null;
+    let bestSimilarity = threshold;
+    
+    // Parcourir les entrées du cache pour le domaine spécifié
+    for (const entry of this.cache.values()) {
+      if (entry.domain !== domain) continue;
+      
+      const similarity = this.calculateSimilarity(query, entry.query);
+      
+      if (similarity > bestSimilarity) {
+        bestMatch = entry;
+        bestSimilarity = similarity;
       }
     }
     
-    return key;
+    return bestMatch;
   }
-  
+
   /**
-   * Calcule un score de similarité entre deux chaînes de texte
-   * Basé sur une version simplifiée de la distance de Jaccard
+   * Récupère une réponse du cache
+   * @param messages Messages de la requête
+   * @param domain Domaine de la requête
+   * @returns Réponse mise en cache ou null
    */
-  private calculateSimilarity(str1: string, str2: string): number {
-    // Convertir les chaînes en ensembles de mots
-    const words1 = new Set(str1.toLowerCase().split(/\s+/).filter(w => w.length > 3));
-    const words2 = new Set(str2.toLowerCase().split(/\s+/).filter(w => w.length > 3));
+  public get(messages: ChatCompletionRequestMessage[], domain = 'general'): string | null {
+    const now = Date.now();
+    const cacheKey = this.createCacheKey(messages, domain);
+    const queryText = this.extractQueryText(messages);
     
-    // Si l'une des chaînes est vide, retourner 0
-    if (words1.size === 0 || words2.size === 0) return 0;
-    
-    // Calculer l'intersection
-    const intersection = new Set([...words1].filter(x => words2.has(x)));
-    
-    // Calculer l'union
-    const union = new Set([...words1, ...words2]);
-    
-    // Retourner la similarité de Jaccard
-    return intersection.size / union.size;
-  }
-  
-  /**
-   * Recherche une entrée dans le cache qui correspond à la requête
-   */
-  get(query: string, domain: string, context?: any): any | null {
-    // Récupérer la configuration pour ce domaine
-    const config = this.getConfig(domain);
-    
-    // Générer la clé de cache
-    const exactKey = this.generateCacheKey(query, domain, context);
-    
-    // Vérifier si une correspondance exacte existe
-    if (this.cache.has(exactKey)) {
-      const entry = this.cache.get(exactKey)!;
+    // Vérifier si la requête exacte est en cache
+    if (this.cache.has(cacheKey)) {
+      const entry = this.cache.get(cacheKey)!;
       
-      // Vérifier si l'entrée est toujours valide
-      if (Date.now() - entry.timestamp < config.ttl) {
-        // Mettre à jour les statistiques d'utilisation
+      // Vérifier si l'entrée n'est pas expirée
+      if (entry.expiresAt > now) {
+        // Mettre à jour les statistiques
         entry.hits++;
-        entry.lastUsed = Date.now();
-        this.cache.set(exactKey, entry);
+        entry.lastAccessed = now;
+        this.domainHitCounts[domain] = (this.domainHitCounts[domain] || 0) + 1;
+        
+        // Ajouter un log
+        this.addLog('hit', domain, undefined, queryText, cacheKey);
         
         return entry.response;
       } else {
-        // Supprimer l'entrée expirée
-        this.cache.delete(exactKey);
-      }
-    }
-    
-    // Si la recherche floue est activée, chercher des entrées similaires
-    // (seulement si le seuil est < 1.0, sinon on requiert une correspondance exacte)
-    if (config.similarityThreshold < 1.0) {
-      const keys = Array.from(this.cache.keys())
-        .filter(key => key.startsWith(`${domain}:`));
-      
-      // Trouver la clé la plus similaire
-      let bestMatch = null;
-      let bestSimilarity = 0;
-      
-      for (const key of keys) {
-        const entry = this.cache.get(key)!;
+        // Entrée expirée, la supprimer
+        this.cache.delete(cacheKey);
         
-        // Vérifier si l'entrée est toujours valide
-        if (Date.now() - entry.timestamp >= config.ttl) continue;
-        
-        // Extraire la partie requête de la clé
-        const keyParts = key.split(':');
-        keyParts.shift(); // Enlever le domaine
-        const keyQuery = keyParts.join(':');
-        
-        // Calculer la similarité
-        const similarity = this.calculateSimilarity(query, keyQuery);
-        
-        // Si la similarité est suffisante et meilleure que les précédentes
-        if (similarity > config.similarityThreshold && similarity > bestSimilarity) {
-          bestSimilarity = similarity;
-          bestMatch = entry;
+        // Mettre à jour les statistiques du domaine
+        if (this.domainEntryCounts[domain]) {
+          this.domainEntryCounts[domain]--;
         }
       }
-      
-      // Si une correspondance a été trouvée
-      if (bestMatch) {
-        bestMatch.hits++;
-        bestMatch.lastUsed = Date.now();
-        
-        return bestMatch.response;
-      }
     }
     
-    // Aucune correspondance trouvée
+    // Rechercher une entrée similaire
+    const similarEntry = this.findSimilarEntry(queryText, domain);
+    if (similarEntry) {
+      // Mettre à jour les statistiques
+      similarEntry.hits++;
+      similarEntry.lastAccessed = now;
+      this.domainHitCounts[domain] = (this.domainHitCounts[domain] || 0) + 1;
+      
+      // Ajouter un log
+      this.addLog('hit', domain, undefined, queryText, similarEntry.key);
+      
+      return similarEntry.response;
+    }
+    
+    // Aucune entrée trouvée
+    this.addLog('miss', domain, undefined, queryText);
     return null;
   }
-  
+
   /**
-   * Ajoute une entrée au cache
+   * Met en cache une réponse
+   * @param messages Messages de la requête
+   * @param response Réponse à mettre en cache
+   * @param domain Domaine de la requête
+   * @param userId ID utilisateur optionnel
    */
-  set(query: string, response: any, domain: string, context?: any): void {
-    // Générer la clé de cache
-    const key = this.generateCacheKey(query, domain, context);
+  public set(messages: ChatCompletionRequestMessage[], response: string, domain = 'general', userId?: string): void {
+    const now = Date.now();
+    const cacheKey = this.createCacheKey(messages, domain);
+    const queryText = this.extractQueryText(messages);
     
+    // Calculer la durée de vie
+    const ttlMinutes = this.config.domainConfig[domain]?.ttl || this.config.defaultTTL;
+    const expiresAt = now + (ttlMinutes * 60 * 1000);
+    
+    // Créer l'entrée
     const entry: CacheEntry = {
+      key: cacheKey,
+      domain,
+      query: queryText,
       response,
-      timestamp: Date.now(),
-      hits: 1,
-      lastUsed: Date.now()
+      expiresAt,
+      hits: 0,
+      lastAccessed: now,
+      exact: true
     };
     
-    // Ajouter l'entrée au cache
-    this.cache.set(key, entry);
-    
-    // Si le cache dépasse sa taille maximale, supprimer les entrées les moins utilisées
-    const config = this.getConfig(domain);
-    if (this.cache.size > config.maxEntries) {
-      this.trimCache();
+    // Vérifier si le cache est plein
+    if (this.cache.size >= this.config.maxSize) {
+      this.evictLeastUsed();
     }
-  }
-  
-  /**
-   * Obtient la configuration applicable pour un domaine
-   */
-  private getConfig(domain: string): typeof this.defaultConfig {
-    const domainConfig = this.domainConfigs[domain] || {};
-    return { ...this.defaultConfig, ...domainConfig };
-  }
-  
-  /**
-   * Nettoie le cache en supprimant les entrées expirées
-   */
-  private cleanupCache(): void {
-    const now = Date.now();
     
-    for (const [key, entry] of this.cache.entries()) {
-      // Extraire le domaine de la clé
-      const domain = key.split(':')[0];
-      const config = this.getConfig(domain);
-      
-      // Supprimer les entrées expirées
-      if (now - entry.timestamp > config.ttl) {
+    // Ajouter l'entrée au cache
+    this.cache.set(cacheKey, entry);
+    
+    // Mettre à jour les statistiques du domaine
+    this.domainEntryCounts[domain] = (this.domainEntryCounts[domain] || 0) + 1;
+    
+    // Ajouter un log
+    this.addLog('set', domain, userId, queryText, cacheKey);
+  }
+
+  /**
+   * Supprime les entrées les moins utilisées du cache
+   */
+  private evictLeastUsed(): void {
+    // Trier les entrées par date de dernier accès
+    const entries = Array.from(this.cache.entries())
+      .sort(([_, a], [__, b]) => a.lastAccessed - b.lastAccessed);
+    
+    // Supprimer 10% des entrées les moins utilisées
+    const toRemove = Math.max(1, Math.floor(this.cache.size * 0.1));
+    
+    for (let i = 0; i < toRemove; i++) {
+      if (entries.length > i) {
+        const [key, entry] = entries[i];
         this.cache.delete(key);
+        
+        // Mettre à jour les statistiques du domaine
+        if (this.domainEntryCounts[entry.domain]) {
+          this.domainEntryCounts[entry.domain]--;
+        }
       }
     }
   }
-  
+
   /**
-   * Réduit la taille du cache en supprimant les entrées les moins utilisées
+   * Invalide toutes les entrées d'un domaine spécifique
+   * @param domain Domaine à invalider
+   * @returns Nombre d'entrées supprimées
    */
-  private trimCache(): void {
-    // Trier les entrées par nombre d'utilisations et date de dernière utilisation
-    const entries = Array.from(this.cache.entries())
-      .sort(([, a], [, b]) => {
-        // D'abord par hits
-        if (a.hits !== b.hits) {
-          return a.hits - b.hits;
-        }
-        // Puis par dernier accès (les plus anciens d'abord)
-        return a.lastUsed - b.lastUsed;
-      });
-    
-    // Supprimer les 20% d'entrées les moins utilisées
-    const toRemove = Math.floor(entries.length * 0.2);
-    for (let i = 0; i < toRemove; i++) {
-      this.cache.delete(entries[i][0]);
-    }
-  }
-  
-  /**
-   * Invalide les entrées du cache pour un domaine spécifique
-   */
-  invalidateForDomain(domain: string): number {
+  public invalidateDomain(domain: string): number {
     let count = 0;
     
-    for (const key of this.cache.keys()) {
-      if (key.startsWith(`${domain}:`)) {
+    // Parcourir toutes les entrées et supprimer celles du domaine spécifié
+    for (const [key, entry] of this.cache.entries()) {
+      if (entry.domain === domain) {
         this.cache.delete(key);
         count++;
       }
     }
     
+    // Réinitialiser les statistiques du domaine
+    this.domainEntryCounts[domain] = 0;
+    this.domainHitCounts[domain] = 0;
+    
+    // Ajouter un log
+    this.addLog('invalidate', domain);
+    
     return count;
   }
-  
+
   /**
-   * Obtient des statistiques sur l'utilisation du cache
+   * Vide le cache entièrement
    */
-  getStats(): {
-    totalEntries: number,
-    totalHits: number,
-    entriesByDomain: Record<string, number>,
-    hitsByDomain: Record<string, number>,
-    topQueries: Array<{query: string, domain: string, hits: number}>
-  } {
-    let totalHits = 0;
-    const entriesByDomain: Record<string, number> = {};
-    const hitsByDomain: Record<string, number> = {};
+  public clear(): void {
+    this.cache.clear();
+    this.domainEntryCounts = {};
+    this.domainHitCounts = {};
     
-    // Collecter les statistiques
-    for (const [key, entry] of this.cache.entries()) {
-      const domain = key.split(':')[0];
-      
-      totalHits += entry.hits;
-      
-      // Compteur d'entrées par domaine
-      entriesByDomain[domain] = (entriesByDomain[domain] || 0) + 1;
-      
-      // Compteur de hits par domaine
-      hitsByDomain[domain] = (hitsByDomain[domain] || 0) + entry.hits;
-    }
-    
-    // Collecter les requêtes les plus populaires
-    const topQueries = Array.from(this.cache.entries())
-      .map(([key, entry]) => {
-        const parts = key.split(':');
-        const domain = parts[0];
-        const query = parts.slice(1).join(':');
-        
-        return {
-          query,
-          domain,
-          hits: entry.hits
-        };
-      })
-      .sort((a, b) => b.hits - a.hits)
-      .slice(0, 10);
-    
-    return {
-      totalEntries: this.cache.size,
-      totalHits,
-      entriesByDomain,
-      hitsByDomain,
-      topQueries
+    // Ajouter un log
+    this.addLog('clear', 'all');
+  }
+
+  /**
+   * Configure le service de cache
+   * @param config Nouvelle configuration
+   */
+  public configure(config: Partial<CacheConfig>): void {
+    this.config = {
+      ...this.config,
+      ...config,
+      domainConfig: {
+        ...this.config.domainConfig,
+        ...(config.domainConfig || {})
+      }
     };
   }
-  
+
   /**
-   * Vide complètement le cache
+   * Ajoute une entrée de log
+   * @param action Type d'action
+   * @param domain Domaine concerné
+   * @param userId ID utilisateur optionnel
+   * @param query Requête optionnelle
+   * @param cacheKey Clé de cache optionnelle
    */
-  clear(): void {
-    this.cache.clear();
+  private addLog(
+    action: 'hit' | 'miss' | 'set' | 'invalidate' | 'clear',
+    domain: string,
+    userId?: string,
+    query?: string,
+    cacheKey?: string
+  ): void {
+    this.logQueue.push({
+      timestamp: Date.now(),
+      action,
+      domain,
+      userId,
+      query,
+      cacheKey
+    });
+    
+    // Limiter la taille de la file de logs
+    if (this.logQueue.length > this.maxLogQueueSize) {
+      this.logQueue.shift();
+    }
+  }
+
+  /**
+   * Récupère les statistiques du cache
+   */
+  public getStats() {
+    // Calculer le nombre total d'entrées et de hits
+    const totalEntries = this.cache.size;
+    const totalHits = Object.values(this.domainHitCounts).reduce((sum, count) => sum + count, 0);
+    
+    // Trouver les requêtes les plus fréquentes
+    const topQueries = Array.from(this.cache.values())
+      .sort((a, b) => b.hits - a.hits)
+      .slice(0, 10)
+      .map(entry => ({
+        query: entry.query,
+        domain: entry.domain,
+        hits: entry.hits
+      }));
+    
+    return {
+      totalEntries,
+      totalHits,
+      entriesByDomain: { ...this.domainEntryCounts },
+      hitsByDomain: { ...this.domainHitCounts },
+      topQueries,
+      logs: this.logQueue.slice(-100).reverse()
+    };
   }
 }
 
-// Exporter une instance singleton
+// Instance singleton du service
 export const cacheService = new CacheService();
