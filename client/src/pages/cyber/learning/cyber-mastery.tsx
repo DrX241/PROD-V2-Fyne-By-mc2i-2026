@@ -176,7 +176,7 @@ const LearningThemeCard: React.FC<{ theme: LearningTheme, index: number }> = ({ 
         </CardContent>
         
         <CardFooter>
-          <Link href={theme.id === 'sensibilisation' ? '/cyber/learning/cyber-mastery/sensibilisation' : `/cyber/learning/cyber-mastery/${theme.id}`} className="w-full">
+          <Link href={`/cyber/learning/cyber-mastery/${theme.id}`} className="w-full">
             <Button 
               disabled={theme.id !== 'sensibilisation' && theme.comingSoon !== undefined ? theme.comingSoon : false}
               variant={isDark ? "outline" : "default"} 
