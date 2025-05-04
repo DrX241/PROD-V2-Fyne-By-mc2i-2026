@@ -71,7 +71,7 @@ export default function CyberModeSelection() {
           id: 'cyberforge-academy',
           title: 'CYBERFORGE ACADEMY',
           icon: null,
-          destination: '/cyberforge'
+          destination: '/cyberforge-academy'
         }
       ]
     },
