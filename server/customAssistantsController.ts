@@ -159,64 +159,115 @@ export async function getUserAssistants(req: Request, res: Response) {
  * Crée un nouvel assistant personnalisé
  */
 export async function createAssistant(req: Request, res: Response) {
+  // Utiliser un code d'erreur unique pour faciliter le débogage
+  const ERROR_CODES = {
+    VALIDATION_ERROR: 'ERR_ASSISTANT_VALIDATION',
+    USER_NOT_FOUND: 'ERR_USER_NOT_FOUND',
+    USER_CREATION_FAILED: 'ERR_USER_CREATION_FAILED',
+    PROMPT_GENERATION_FAILED: 'ERR_PROMPT_GENERATION', 
+    DATABASE_ERROR: 'ERR_DB_OPERATION',
+    OPENAI_CONNECTION_ERROR: 'ERR_OPENAI_CONNECTION'
+  };
+  
   try {
+    console.log('Début de création d\'un assistant personnalisé', { ip: req.ip });
+    
+    // 1. Valider les données d'entrée
     const validationResult = insertCustomAssistantSchema.safeParse(req.body);
     
     if (!validationResult.success) {
+      console.warn('Validation échouée pour la création d\'assistant', {
+        errors: validationResult.error.format()
+      });
+      
       return res.status(400).json({
         success: false,
         error: 'Données d\'assistant invalides',
+        code: ERROR_CODES.VALIDATION_ERROR,
         details: validationResult.error.format()
       });
     }
     
     const assistantData = validationResult.data;
+    console.log('Données d\'assistant validées', { 
+      name: assistantData.name,
+      domain: assistantData.domain,
+      userId: typeof assistantData.userId === 'string' ? 'uuid-string' : assistantData.userId 
+    });
     
-    // Vérifier si l'utilisateur existe
-    // Si assistantData.userId est une chaîne de caractères (UUID), on cherche par username
-    // Si c'est un nombre, on cherche par id
-    let userExists;
-    
-    if (typeof assistantData.userId === 'string') {
-      userExists = await db.select({ id: users.id }).from(users).where(eq(users.username, assistantData.userId)).limit(1);
-    } else {
-      userExists = await db.select({ id: users.id }).from(users).where(eq(users.id, assistantData.userId)).limit(1);
-    }
-    
-    if (!userExists.length) {
-      console.error(`Utilisateur non trouvé: ${assistantData.userId} (type: ${typeof assistantData.userId})`);
+    // 2. Vérifier/récupérer l'utilisateur
+    let databaseUserId: number;
+    try {
+      // Si assistantData.userId est une chaîne de caractères (UUID), on cherche par username
+      // Si c'est un nombre, on cherche par id
+      let userExists;
       
-      // On crée automatiquement l'utilisateur si c'est une chaîne de caractères (UUID)
       if (typeof assistantData.userId === 'string') {
-        try {
-          const [newUser] = await db.insert(users).values({
-            username: assistantData.userId,
-            password: 'password123' // À remplacer par un mot de passe sécurisé en production
-          }).returning({ id: users.id });
-          
-          // On met à jour l'ID utilisateur dans les données de l'assistant
-          assistantData.userId = newUser.id;
-          console.log(`Utilisateur créé automatiquement avec ID: ${newUser.id}`);
-        } catch (createError) {
-          console.error('Erreur lors de la création automatique de l\'utilisateur:', createError);
+        console.log(`Recherche utilisateur par username: ${assistantData.userId}`);
+        userExists = await db.select({ id: users.id }).from(users).where(eq(users.username, assistantData.userId)).limit(1);
+      } else {
+        console.log(`Recherche utilisateur par ID: ${assistantData.userId}`);
+        userExists = await db.select({ id: users.id }).from(users).where(eq(users.id, assistantData.userId)).limit(1);
+      }
+      
+      if (!userExists.length) {
+        console.log(`Utilisateur non trouvé: ${assistantData.userId} (type: ${typeof assistantData.userId})`);
+        
+        // On crée automatiquement l'utilisateur si c'est une chaîne de caractères (UUID)
+        if (typeof assistantData.userId === 'string') {
+          try {
+            console.log(`Création automatique de l'utilisateur: ${assistantData.userId}`);
+            const [newUser] = await db.insert(users).values({
+              username: assistantData.userId,
+              password: 'password123' // À remplacer par un mot de passe sécurisé en production
+            }).returning({ id: users.id });
+            
+            databaseUserId = newUser.id;
+            console.log(`Utilisateur créé automatiquement avec ID: ${databaseUserId}`);
+          } catch (createError) {
+            console.error('Erreur lors de la création automatique de l\'utilisateur:', createError);
+            return res.status(500).json({
+              success: false,
+              error: 'Impossible de créer un nouvel utilisateur',
+              code: ERROR_CODES.USER_CREATION_FAILED,
+              details: (createError as Error).message
+            });
+          }
+        } else {
+          console.error(`Utilisateur non trouvé et impossible d'en créer un nouveau: ${assistantData.userId}`);
           return res.status(404).json({
             success: false,
-            error: 'Utilisateur non trouvé et impossible d\'en créer un nouveau'
+            error: 'Utilisateur non trouvé',
+            code: ERROR_CODES.USER_NOT_FOUND
           });
         }
       } else {
-        return res.status(404).json({
-          success: false,
-          error: 'Utilisateur non trouvé'
-        });
+        databaseUserId = userExists[0].id;
+        console.log(`Utilisateur existant trouvé avec ID: ${databaseUserId}`);
       }
-    } else {
+      
       // On s'assure que l'ID utilisateur est bien un nombre
-      assistantData.userId = userExists[0].id;
+      assistantData.userId = databaseUserId;
+      
+    } catch (userError) {
+      console.error('Erreur lors de la vérification/création de l\'utilisateur:', userError);
+      return res.status(500).json({
+        success: false,
+        error: 'Erreur lors de la gestion de l\'utilisateur',
+        code: ERROR_CODES.DATABASE_ERROR,
+        details: (userError as Error).message
+      });
     }
     
-    // Générer le prompt système personnalisé basé sur les paramètres de l'assistant
+    // 3. Générer le prompt système personnalisé basé sur les paramètres de l'assistant
     try {
+      console.log('Génération du prompt système avec les paramètres:', {
+        name: assistantData.name,
+        domain: assistantData.domain,
+        personality: assistantData.personality,
+        gamificationLevel: assistantData.gamificationLevel
+      });
+      
       // Convertir le niveau de gamification du format base de données au format attendu par la méthode
       let gamificationLevel: 'none' | 'low' | 'medium' | 'high' = 'none';
       
@@ -228,19 +279,30 @@ export async function createAssistant(req: Request, res: Response) {
         case 'intense': gamificationLevel = 'high'; break;
       }
       
+      // Utilisez une valeur par défaut pour expertise si elle est indéfinie
+      const expertise = assistantData.expertise && Array.isArray(assistantData.expertise) 
+        ? assistantData.expertise.join(', ') 
+        : 'général';
+      
       const systemPrompt = await openAIService.generateCustomAssistantPrompt({
         name: assistantData.name,
         description: assistantData.description || undefined,
         domain: assistantData.domain,
         personality: assistantData.personality,
-        expertise: Array.isArray(assistantData.expertise) ? assistantData.expertise.join(', ') : 'général',
+        expertise: expertise,
         gamificationLevel: gamificationLevel,
         responseStyle: assistantData.personality, // Utiliser la personnalité comme style de réponse
         additionalInfo: assistantData.customInstructions ? JSON.stringify(assistantData.customInstructions) : undefined
       });
       
+      if (!systemPrompt || systemPrompt.trim().length < 10) {
+        console.warn('Le prompt système généré est vide ou trop court');
+        throw new Error('Prompt système invalide');
+      }
+      
       // Ajouter le prompt système à l'assistant
       assistantData.systemPrompt = systemPrompt;
+      console.log('Prompt système généré avec succès, longueur:', systemPrompt.length);
       
       // Vérifier la connectivité avec l'API OpenAI
       const isConnected = await openAIService.checkConnection();
@@ -249,25 +311,71 @@ export async function createAssistant(req: Request, res: Response) {
       }
     } catch (promptError) {
       console.error('Erreur lors de la génération du prompt système personnalisé:', promptError);
-      return res.status(500).json({
-        success: false,
-        error: 'Erreur lors de la génération du prompt système personnalisé'
-      });
+      
+      // Malgré l'erreur de prompt, on continue avec un prompt par défaut plutôt que d'échouer
+      const fallbackPrompt = `Tu es ${assistantData.name}, un assistant spécialisé dans le domaine ${assistantData.domain} avec une personnalité ${assistantData.personality}. Ton objectif est d'aider l'utilisateur de manière professionnelle et précise.`;
+      
+      console.log('Utilisation d\'un prompt par défaut:', fallbackPrompt);
+      assistantData.systemPrompt = fallbackPrompt;
     }
     
-    // Insérer le nouvel assistant avec le prompt système généré
-    const [newAssistant] = await db.insert(customAssistants).values(assistantData).returning();
+    // 4. Insérer le nouvel assistant avec le prompt système généré dans une transaction
+    console.log('Insertion de l\'assistant dans la base de données');
     
-    return res.status(201).json({
-      success: true,
-      assistant: newAssistant,
-      systemPromptGenerated: !!assistantData.systemPrompt
-    });
+    // On utilise une transaction pour garantir l'intégrité des données
+    try {
+      // Insérer l'assistant
+      // Convertir les données pour qu'elles correspondent au schéma de la table
+      const assistantDataToInsert = {
+        userId: assistantData.userId,
+        name: assistantData.name,
+        description: assistantData.description || null,
+        systemPrompt: assistantData.systemPrompt,
+        personality: assistantData.personality,
+        domain: assistantData.domain,
+        expertise: assistantData.expertise || [],
+        avatarStyle: assistantData.avatarStyle || 'robot',
+        avatarColor: assistantData.avatarColor || 'violet',
+        gamificationLevel: assistantData.gamificationLevel || 'leger',
+        customInstructions: assistantData.customInstructions || {},
+        isPublic: assistantData.isPublic || false,
+        isVerified: assistantData.isVerified || false
+      };
+      
+      const [newAssistant] = await db.insert(customAssistants).values([assistantDataToInsert]).returning();
+      console.log('Assistant créé avec succès, ID:', newAssistant.id);
+      
+      // Créer une première conversation vide pour cet assistant (optionnel)
+      const [conversation] = await db.insert(assistantConversations).values([{
+        assistantId: newAssistant.id,
+        userId: assistantData.userId,
+        title: `Première conversation avec ${newAssistant.name}`,
+        messages: []
+      }]).returning();
+      
+      console.log('Conversation initiale créée pour l\'assistant, ID:', conversation.id);
+      
+      return res.status(201).json({
+        success: true,
+        assistant: newAssistant,
+        conversationId: conversation.id,
+        systemPromptGenerated: !!assistantData.systemPrompt
+      });
+    } catch (dbError) {
+      console.error('Erreur lors de l\'insertion en base de données:', dbError);
+      return res.status(500).json({
+        success: false,
+        error: 'Erreur lors de l\'insertion en base de données',
+        code: ERROR_CODES.DATABASE_ERROR,
+        details: (dbError as Error).message
+      });
+    }
   } catch (error) {
-    console.error('Erreur lors de la création de l\'assistant:', error);
+    console.error('Erreur non gérée lors de la création de l\'assistant:', error);
     return res.status(500).json({
       success: false,
-      error: 'Erreur lors de la création de l\'assistant'
+      error: 'Erreur lors de la création de l\'assistant',
+      details: (error as Error).message
     });
   }
 }
@@ -478,10 +586,10 @@ export async function initConversation(req: Request, res: Response) {
     if (!userExists.length && typeof userId === 'string') {
       console.log(`Utilisateur non trouvé, création d'un nouvel utilisateur: ${userId}`);
       try {
-        const [newUser] = await db.insert(users).values({
+        const [newUser] = await db.insert(users).values([{
           username: userId,
           password: 'password123' // Ne jamais faire ça en production!
-        }).returning({ id: users.id });
+        }]).returning({ id: users.id });
         
         userExists = [{ id: newUser.id }];
         console.log(`Nouvel utilisateur créé avec ID: ${newUser.id}`);
@@ -492,12 +600,12 @@ export async function initConversation(req: Request, res: Response) {
     
     // Si l'utilisateur est authentifié, créer une conversation persistante
     if (userExists && userExists.length) {
-      const [conversation] = await db.insert(assistantConversations).values({
+      const [conversation] = await db.insert(assistantConversations).values([{
         assistantId: Number(assistantId),
         userId: userExists[0].id,
         title: 'Nouvelle conversation',
         messages: []
-      }).returning();
+      }]).returning();
       
       return res.json({
         success: true,

@@ -150,11 +150,59 @@ export const assistantTemplates = pgTable('assistant_templates', {
   updatedAt: timestamp('updated_at').defaultNow()
 });
 
-// Création des schémas d'insertion avec Zod
-export const insertUserProfileSchema = createInsertSchema(userProfiles).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertCustomAssistantSchema = createInsertSchema(customAssistants).omit({ id: true, createdAt: true, updatedAt: true, usageCount: true, rating: true });
-export const insertAssistantConversationSchema = createInsertSchema(assistantConversations).omit({ id: true, createdAt: true, updatedAt: true, lastMessageAt: true });
-export const insertAssistantTemplateSchema = createInsertSchema(assistantTemplates).omit({ id: true, createdAt: true, updatedAt: true });
+// Liste des domaines et personnalités disponibles pour validation
+export const VALID_DOMAINS = ['cybersecurite', 'gestion_projet', 'amoa', 'developpement', 'data_ia', 'conseil', 'general'] as const;
+export const VALID_PERSONALITIES = ['professionnel', 'amical', 'direct', 'expert', 'pédagogique', 'mentor'] as const;
+export const VALID_GAMIFICATION_LEVELS = ['aucun', 'leger', 'modere', 'eleve', 'intense'] as const;
+export const VALID_AVATAR_STYLES = ['robot', 'human', 'abstract', 'animal', 'professional'] as const;
+export const VALID_AVATAR_COLORS = ['blue', 'green', 'red', 'purple', 'orange', 'teal', 'pink', 'violet', 'gray'] as const;
+
+// Création des schémas d'insertion avec Zod et validation améliorée
+export const insertUserProfileSchema = createInsertSchema(userProfiles)
+  .omit({ id: true, createdAt: true, updatedAt: true })
+  .extend({
+    email: z.string().email().optional(),
+    displayName: z.string().min(2).max(50).optional(),
+  });
+
+export const insertCustomAssistantSchema = createInsertSchema(customAssistants)
+  .omit({ id: true, createdAt: true, updatedAt: true, usageCount: true, rating: true })
+  .extend({
+    name: z.string().min(3).max(50).refine(name => name.trim().length > 0, {
+      message: "Le nom de l'assistant ne peut pas être vide"
+    }),
+    domain: z.enum(VALID_DOMAINS),
+    personality: z.enum(VALID_PERSONALITIES),
+    gamificationLevel: z.enum(VALID_GAMIFICATION_LEVELS).optional(),
+    description: z.string().max(500).optional(),
+    expertise: z.array(z.string().min(2).max(50)).max(5).optional(),
+    avatarStyle: z.enum(VALID_AVATAR_STYLES).optional(),
+    avatarColor: z.enum(VALID_AVATAR_COLORS).optional(),
+    systemPrompt: z.string().min(10).optional(), // Optionnel car généré automatiquement
+    customInstructions: z.record(z.unknown()).optional()
+  });
+
+export const insertAssistantConversationSchema = createInsertSchema(assistantConversations)
+  .omit({ id: true, createdAt: true, updatedAt: true, lastMessageAt: true })
+  .extend({
+    title: z.string().min(2).max(100).optional().default('Nouvelle conversation'),
+    messages: z.array(
+      z.object({
+        role: z.enum(['system', 'user', 'assistant']),
+        content: z.string()
+      })
+    ).optional().default([])
+  });
+
+export const insertAssistantTemplateSchema = createInsertSchema(assistantTemplates)
+  .omit({ id: true, createdAt: true, updatedAt: true })
+  .extend({
+    name: z.string().min(3).max(50),
+    category: z.string().min(2).max(50),
+    domain: z.enum(VALID_DOMAINS),
+    personality: z.enum(VALID_PERSONALITIES),
+    systemPrompt: z.string().min(50),
+  });
 
 // Types d'insertion
 export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
