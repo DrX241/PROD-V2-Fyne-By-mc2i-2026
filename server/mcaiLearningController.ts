@@ -4,13 +4,18 @@ import { ChatCompletionRequestMessage } from "@shared/schema";
 
 // Interface pour les sessions de chatbot
 interface LearningBotSession {
-  mode: 'classique' | 'immersion' | null;
+  mode: 'classique' | 'tunnel' | null;
   formation: 'interne' | 'externe' | null;
   formationChoisie: string | null;
   stageActuel: 'choix_mode' | 'choix_formation' | 'formation' | 'scenario' | null;
   scenarioActuel: number;
   reponses: Array<{question: string, reponse: string}>;
   messages: Array<ChatCompletionRequestMessage>;
+  // Stockage des situations précédentes pour le mode tunnel
+  contexteTunnel: {
+    situationActuelle: string;
+    decisionsPrecedentes: string[];
+  };
 }
 
 // Map pour stocker les sessions par ID utilisateur
@@ -35,7 +40,11 @@ export async function initMcaiLearningSession(req: Request, res: Response) {
       stageActuel: 'choix_mode',
       scenarioActuel: 0,
       reponses: [],
-      messages: []
+      messages: [],
+      contexteTunnel: {
+        situationActuelle: "",
+        decisionsPrecedentes: []
+      }
     };
 
     // Ajouter le message système initial
@@ -50,7 +59,7 @@ export async function initMcaiLearningSession(req: Request, res: Response) {
     // Générer le message d'accueil
     const welcomeMessage: ChatCompletionRequestMessage = {
       role: "assistant",
-      content: "Bonjour et bienvenue sur AI Learning, votre Chatbot spécialisé dans l'évaluation en temps réel. Veuillez choisir entre deux modes d'apprentissage :\n1. Un apprentissage classique avec 4 scénarios différents sans lien direct entre eux\n2. Un effet immersion avec 6 scénarios reliés entre eux où chaque décision a un impact immédiat sur la suite"
+      content: "Bonjour et bienvenue sur AI Learning, votre Chatbot spécialisé dans l'évaluation en temps réel. Veuillez choisir entre deux modes d'apprentissage :\n1. Mode classique : 4 scénarios différents sans lien direct entre eux\n2. Mode tunnel : 4 scénarios reliés entre eux où chaque décision influence la suite"
     };
 
     session.messages.push(welcomeMessage);
