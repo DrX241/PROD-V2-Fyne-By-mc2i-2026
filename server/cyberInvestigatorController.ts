@@ -423,21 +423,42 @@ export async function evaluateUserNotes(req: Request, res: Response) {
         sessionId: sessionId || `session_${Date.now()}`
       };
       
-      // Insérer ou mettre à jour la progression
-      await db.insert(investigationProgress).values(progressData)
-        .onConflictDoUpdate({
-          target: [investigationProgress.userId, investigationProgress.gameId],
-          set: {
+      // Vérifier si une progression existe déjà pour cet utilisateur et ce jeu
+      const existingProgress = await db.select()
+        .from(investigationProgress)
+        .where(
+          and(
+            eq(investigationProgress.userId, progressData.userId),
+            eq(investigationProgress.gameId, progressData.gameId)
+          )
+        );
+      
+      if (existingProgress.length > 0) {
+        // Mettre à jour la progression existante
+        const bestScore = Math.max(existingProgress[0].bestScore, progressData.score);
+        const attempts = existingProgress[0].attempts + 1;
+        
+        await db.update(investigationProgress)
+          .set({
             currentLevel: progressData.currentLevel,
             score: progressData.score,
-            bestScore: sql`GREATEST(${investigationProgress.bestScore}, ${progressData.score})`,
-            attempts: sql`${investigationProgress.attempts} + 1`,
+            bestScore: bestScore,
+            attempts: attempts,
             lastPlayed: progressData.lastPlayed,
             notes: progressData.notes,
             evaluationData: progressData.evaluationData,
             sessionId: progressData.sessionId
-          }
-        });
+          })
+          .where(
+            and(
+              eq(investigationProgress.userId, progressData.userId),
+              eq(investigationProgress.gameId, progressData.gameId)
+            )
+          );
+      } else {
+        // Insérer une nouvelle progression
+        await db.insert(investigationProgress).values(progressData);
+      }
       
       return res.status(200).json({
         success: true,
@@ -500,21 +521,46 @@ export async function saveInvestigationProgress(req: Request, res: Response) {
       sessionId: sessionId || `session_${Date.now()}`
     };
     
-    // Insérer ou mettre à jour la progression
-    await db.insert(investigationProgress).values(progressData)
-      .onConflictDoUpdate({
-        target: [investigationProgress.userId, investigationProgress.gameId],
-        set: {
+    // Vérifier si une progression existe déjà pour cet utilisateur et ce jeu
+    const existingProgress = await db.select()
+      .from(investigationProgress)
+      .where(
+        and(
+          eq(investigationProgress.userId, progressData.userId),
+          eq(investigationProgress.gameId, progressData.gameId)
+        )
+      );
+    
+    if (existingProgress.length > 0) {
+      // Mettre à jour la progression existante
+      const existingBestScore = existingProgress[0].bestScore || 0;
+      const existingAttempts = existingProgress[0].attempts || 0;
+      const currentScore = progressData.score || 0;
+      
+      const bestScore = Math.max(existingBestScore, currentScore);
+      const attempts = existingAttempts + 1;
+      
+      await db.update(investigationProgress)
+        .set({
           currentLevel: progressData.currentLevel,
           score: progressData.score,
-          bestScore: db.sql`GREATEST(${investigationProgress.bestScore}, ${progressData.score})`,
-          attempts: db.sql`${investigationProgress.attempts} + 1`,
+          bestScore: bestScore,
+          attempts: attempts,
           lastPlayed: progressData.lastPlayed,
           notes: progressData.notes,
           evaluationData: progressData.evaluationData,
           sessionId: progressData.sessionId
-        }
-      });
+        })
+        .where(
+          and(
+            eq(investigationProgress.userId, progressData.userId),
+            eq(investigationProgress.gameId, progressData.gameId)
+          )
+        );
+    } else {
+      // Insérer une nouvelle progression
+      await db.insert(investigationProgress).values(progressData);
+    }
     
     return res.status(200).json({
       success: true,
