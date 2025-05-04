@@ -313,12 +313,32 @@ export default function CodeShield() {
                             )}
                           </CardContent>
                           <CardFooter>
-                            <Button
-                              className={`${level.locked ? 'bg-gray-700' : 'bg-blue-600 hover:bg-blue-700'} text-white`}
-                              disabled={level.locked}
-                            >
-                              {level.completed ? 'Rejouer' : 'Commencer'}
-                            </Button>
+                            {level.id === 'signatures' ? (
+                              <Link href="/cyber/arcade/code-shield/levels/signatures">
+                                <Button
+                                  className={`${level.locked ? 'bg-gray-700' : 'bg-blue-600 hover:bg-blue-700'} text-white`}
+                                  disabled={level.locked}
+                                >
+                                  {level.completed ? 'Rejouer' : 'Commencer'}
+                                </Button>
+                              </Link>
+                            ) : level.id === 'static-analysis' ? (
+                              <Link href="/cyber/arcade/code-shield/levels/static-analysis">
+                                <Button
+                                  className={`${level.locked ? 'bg-gray-700' : 'bg-blue-600 hover:bg-blue-700'} text-white`}
+                                  disabled={level.locked}
+                                >
+                                  {level.completed ? 'Rejouer' : 'Commencer'}
+                                </Button>
+                              </Link>
+                            ) : (
+                              <Button
+                                className={`${level.locked ? 'bg-gray-700' : 'bg-blue-600 hover:bg-blue-700'} text-white`}
+                                disabled={level.locked}
+                              >
+                                {level.completed ? 'Rejouer' : 'Commencer'}
+                              </Button>
+                            )}
                           </CardFooter>
                         </Card>
                       </motion.div>
@@ -335,17 +355,36 @@ export default function CodeShield() {
                         Un espace pour créer et tester votre propre antivirus
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="flex flex-col items-center justify-center py-12">
-                      <div className="bg-blue-900/20 p-6 rounded-lg text-center max-w-md">
-                        <Code className="h-12 w-12 text-blue-400 mx-auto mb-4" />
-                        <h3 className="text-xl font-medium text-white mb-2">Fonctionnalité à venir</h3>
+                    <CardContent className="space-y-4">
+                      <div className="bg-blue-900/20 p-4 rounded-lg border border-blue-500/20">
+                        <h3 className="text-lg font-medium text-white mb-2">Zone de création avancée</h3>
                         <p className="text-blue-200 mb-4">
-                          Le laboratoire d'expérimentation vous permettra de créer librement votre propre système de détection
+                          Le laboratoire d'expérimentation vous permet de créer librement votre propre système de détection
                           et de le tester contre des vagues de menaces générées par l'IA.
                         </p>
-                        <p className="text-blue-300 text-sm">
-                          Terminez les 5 niveaux du jeu pour débloquer cette fonctionnalité.
-                        </p>
+                        <ul className="space-y-2">
+                          <li className="flex items-start text-blue-100">
+                            <div className="bg-blue-900/40 rounded-full p-1 mr-2 h-6 w-6 flex-shrink-0 flex items-center justify-center text-blue-200">1</div>
+                            <p>Créez vos propres règles de détection en utilisant différentes méthodes</p>
+                          </li>
+                          <li className="flex items-start text-blue-100">
+                            <div className="bg-blue-900/40 rounded-full p-1 mr-2 h-6 w-6 flex-shrink-0 flex items-center justify-center text-blue-200">2</div>
+                            <p>Testez votre antivirus contre des menaces générées dynamiquement</p>
+                          </li>
+                          <li className="flex items-start text-blue-100">
+                            <div className="bg-blue-900/40 rounded-full p-1 mr-2 h-6 w-6 flex-shrink-0 flex items-center justify-center text-blue-200">3</div>
+                            <p>Analysez la performance de votre système et recevez des recommandations</p>
+                          </li>
+                        </ul>
+                      </div>
+                      
+                      <div className="flex justify-center">
+                        <Link href="/cyber/arcade/code-shield/lab">
+                          <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                            <Code className="mr-2 h-4 w-4" />
+                            Accéder au laboratoire
+                          </Button>
+                        </Link>
                       </div>
                     </CardContent>
                   </Card>
