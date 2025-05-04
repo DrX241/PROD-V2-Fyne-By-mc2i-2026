@@ -163,17 +163,14 @@ Formate ta réponse en Markdown pour une meilleure lisibilité.
 Adopte le style d'un ${randomStyle} et adapte la complexité au niveau ${randomDifficulty}.`;
     
     try {
-      const completion = await openai.chat.completions.create({
-        messages: [
+      const welcomeMessage = await openAIService.getChatCompletionWithCache(
+        [
           { role: "system", content: systemPrompt },
           { role: "user", content: initialPrompt }
         ],
-        temperature: 0.9, // Température élevée pour plus de créativité
-        max_tokens: 1000,
-        model: "gpt-4o" // Utiliser GPT-4o pour une qualité optimale
-      });
-      
-      const welcomeMessage = completion.choices[0].message.content || "Bienvenue dans cette enquête cybersécurité. Un incident vient d'être signalé...";
+        0.9, // Température élevée pour plus de créativité
+        1000  // Nombre maximum de tokens
+      );
       
       // Ajouter ce message à l'historique de la session
       newSession.messages.push({
@@ -302,19 +299,16 @@ Utilise ton style de ${session.narrativeStyle} et garde un niveau adapté à ${s
         session.userName
       );
       
-      // Appel à GPT-4o pour générer la réponse
-      const completion = await openai.chat.completions.create({
-        messages: [
+      // Appel à GPT-4o pour générer la réponse via le service existant
+      const responseContent = await openAIService.getChatCompletionWithCache(
+        [
           { role: "system", content: systemPrompt },
           ...messageHistory.slice(-10), // Les 10 derniers messages pour le contexte
           { role: "user", content: promptContent }
         ],
-        temperature: 0.8, // Température élevée pour favoriser la variété
-        max_tokens: 1200, // Plus de tokens pour des réponses plus riches
-        model: "gpt-4o" // Utiliser GPT-4o pour une qualité optimale
-      });
-      
-      const responseContent = completion.choices[0].message.content || "Je n'ai pas pu générer une réponse. Pouvez-vous reformuler?";
+        0.8, // Température élevée pour favoriser la variété
+        1200 // Plus de tokens pour des réponses plus riches
+      );
       
       // Incrémenter le compteur de questions si nécessaire
       if (shouldIncrementQuestionCount) {
