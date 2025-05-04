@@ -19,6 +19,7 @@ import { CheckIcon, Trash2Icon, GitMergeIcon, RefreshCw, AlertCircle } from 'luc
 import Layout from '@/components/layout/Layout';
 import AdminPageTitle from '@/components/layout/AdminPageTitle';
 import { useTheme } from '@/components/theme-provider';
+import { getDomainLabel } from '@/lib/domainUtils';
 
 interface DuplicateAssistant {
   id: number;

@@ -640,19 +640,36 @@ export default function CustomAssistantPage() {
             </p>
           </div>
           
-          <Button 
-            asChild
-            className={`${
-              isFuturistic 
-                ? 'bg-gradient-to-r from-violet-700 to-indigo-700 hover:from-violet-600 hover:to-indigo-600 text-white border border-violet-500/40' 
-                : 'bg-violet-600 hover:bg-violet-700 text-white'
-            }`}
-          >
-            <Link href="/outils-ia/assistant/create">
-              <Plus size={16} className="mr-2" />
-              Créer un assistant
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              asChild
+              className={`${
+                isFuturistic 
+                  ? 'bg-gradient-to-r from-violet-700 to-indigo-700 hover:from-violet-600 hover:to-indigo-600 text-white border border-violet-500/40' 
+                  : 'bg-violet-600 hover:bg-violet-700 text-white'
+              }`}
+            >
+              <Link href="/outils-ia/assistant/create">
+                <Plus size={16} className="mr-2" />
+                Créer un assistant
+              </Link>
+            </Button>
+            
+            <Button 
+              asChild
+              variant="outline"
+              className={`${
+                isFuturistic 
+                  ? 'border-violet-500/40 text-violet-300 hover:bg-violet-900/20' 
+                  : 'border-violet-200 text-violet-700 hover:bg-violet-50'
+              }`}
+            >
+              <Link href="/outils-ia/admin">
+                <Settings size={16} className="mr-2" />
+                Administration
+              </Link>
+            </Button>
+          </div>
         </div>
         
         {/* Barre de filtres */}
