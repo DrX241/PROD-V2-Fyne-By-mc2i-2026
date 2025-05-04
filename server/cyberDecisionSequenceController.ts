@@ -1,10 +1,9 @@
 import { Request, Response } from "express";
+import OpenAI from "openai";
 import { v4 as uuidv4 } from "uuid";
-import { BinaryDecision, BinaryDecisionOption, TeamFeedback } from "@shared/types/cyber";
-import { openAIService } from "./services/openai";
-import { extractJsonFromOpenAiResponse, createFallbackJson } from "./openAiResponseHelper";
+import { BinaryDecision, BinaryDecisionOption, TeamFeedback } from "../shared/types/cyber";
+import { getContactByName, getEvaluatorsByDomain } from "../shared/types/cyber";
 
-// Session de cache pour les décisions (en mémoire pour cette implémentation)
 interface DecisionSequenceSession {
   userId: string;
   userRole: string;
@@ -15,7 +14,7 @@ interface DecisionSequenceSession {
   decisions: BinaryDecision[];
 }
 
-// Cache temporaire pour les sessions en cours
+// Stockage des sessions de décision en mémoire
 const decisionSessions: { [userId: string]: DecisionSequenceSession } = {};
 
 /**
@@ -25,39 +24,52 @@ const decisionSessions: { [userId: string]: DecisionSequenceSession } = {};
  */
 export async function initDecisionSequence(req: Request, res: Response) {
   try {
-    const { userRole, domain, userName, companyName = 'mc2i' } = req.body;
-
+    const { userRole, domain, userName, companyName = "mc2i" } = req.body;
+    
     if (!userRole || !domain || !userName) {
       return res.status(400).json({
         success: false,
         message: "Paramètres manquants: userRole, domain et userName sont requis"
       });
     }
-
-    const userId = uuidv4();
-
-    // Création de la première décision binaire
-    const firstDecision = await generateBinaryDecision(userRole, domain, userName, companyName, 1);
-
-    // Initialisation de la session
-    decisionSessions[userId] = {
+    
+    // Générer un ID utilisateur si non fourni
+    const userId = req.body.userId || `${userName.replace(/\s+/g, "-").toLowerCase()}-${Date.now()}`;
+    
+    // Créer une nouvelle session
+    const session: DecisionSequenceSession = {
       userId,
       userRole,
       domain,
       currentStep: 1,
-      decisions: [firstDecision],
+      decisions: []
     };
-
-    return res.status(200).json({
+    
+    // Générer la première décision
+    const firstDecision = await generateBinaryDecision(
+      userRole,
+      domain,
+      userName,
+      companyName,
+      1,
+      undefined
+    );
+    
+    // Stocker la session
+    decisionSessions[userId] = session;
+    
+    // Renvoyer la première décision
+    return res.json({
       success: true,
       userId,
-      decision: firstDecision
+      nextDecision: firstDecision
     });
   } catch (error) {
-    console.error("Erreur lors de l'initialisation de la séquence de décisions:", error);
+    console.error("Erreur lors de l'initialisation de la séquence:", error);
     return res.status(500).json({
       success: false,
-      message: "Une erreur est survenue lors de l'initialisation de la séquence de décisions"
+      message: "Une erreur s'est produite lors de l'initialisation de la séquence",
+      error: error instanceof Error ? error.message : String(error)
     });
   }
 }
@@ -69,65 +81,98 @@ export async function initDecisionSequence(req: Request, res: Response) {
  */
 export async function handleSequenceDecision(req: Request, res: Response) {
   try {
-    const { userRole, domain, userName, decisionStep, optionId, contextData } = req.body;
-    const companyName = contextData?.companyName || 'mc2i';
-
-    if (!userRole || !domain || !decisionStep) {
+    const { userId, optionId, contextData = {} } = req.body;
+    
+    if (!userId || !optionId) {
       return res.status(400).json({
         success: false,
-        message: "Paramètres manquants"
+        message: "Paramètres manquants: userId et optionId sont requis"
       });
     }
-
-    // Génération de la décision
-    if (decisionStep > 0 && decisionStep <= 5) {
-      // Déterminer l'option sélectionnée (A ou B)
-      const optionType = optionId.includes("A") ? "A" : "B";
-      
-      // Générer le feedback de l'équipe
-      const teamFeedback = await generateTeamFeedback(userRole, domain, optionType, decisionStep);
-      
-      // Si c'est la dernière étape, on ne génère pas de nouvelle décision
-      let nextDecision = null;
-      
-      if (decisionStep < 5) {
-        nextDecision = await generateBinaryDecision(
-          userRole, 
-          domain, 
-          userName, 
-          companyName, 
-          decisionStep + 1,
-          optionType
-        );
-      }
-
-      // Construire la réponse avec l'option sélectionnée
-      const selectedOption = {
-        id: optionId,
-        text: optionType === "A" 
-          ? "Vous avez choisi l'option A"
-          : "Vous avez choisi l'option B",
-      };
-
-      return res.status(200).json({
-        success: true,
-        selectedOption,
-        teamFeedback,
-        nextDecision,
-        currentStep: decisionStep,
-        isComplete: decisionStep >= 5
+    
+    // Récupérer la session
+    const session = decisionSessions[userId];
+    if (!session) {
+      return res.status(404).json({
+        success: false,
+        message: "Session de décision non trouvée. Veuillez initialiser une nouvelle séquence."
       });
     }
-
-    return res.status(400).json({
-      success: false,
-      message: "Étape de décision invalide"
+    
+    // Récupérer la décision actuelle
+    const currentDecision = session.decisions[session.currentStep - 1];
+    if (!currentDecision) {
+      return res.status(400).json({
+        success: false,
+        message: "Aucune décision en cours. La séquence est peut-être terminée."
+      });
+    }
+    
+    // Identifier l'option choisie
+    let selectedOption: BinaryDecisionOption | undefined;
+    if (optionId === currentDecision.optionA.id) {
+      selectedOption = currentDecision.optionA;
+    } else if (optionId === currentDecision.optionB.id) {
+      selectedOption = currentDecision.optionB;
+    }
+    
+    if (!selectedOption) {
+      return res.status(400).json({
+        success: false,
+        message: "Option non valide. Veuillez choisir une option disponible."
+      });
+    }
+    
+    // Mettre à jour la session
+    session.lastDecision = selectedOption;
+    session.currentStep++;
+    
+    // Générer le feedback de l'équipe
+    const teamFeedback = await generateTeamFeedback(
+      session.userRole,
+      session.domain,
+      selectedOption.id === currentDecision.optionA.id ? "A" : "B",
+      session.currentStep - 1
+    );
+    
+    // Ajouter le feedback à la session
+    if (!session.teamFeedback) {
+      session.teamFeedback = [];
+    }
+    session.teamFeedback.push(teamFeedback);
+    
+    // Vérifier si la séquence est terminée
+    let nextDecision: BinaryDecision | null = null;
+    if (session.currentStep <= 5) {
+      // Générer la prochaine décision
+      nextDecision = await generateBinaryDecision(
+        session.userRole,
+        session.domain,
+        req.body.userName || "utilisateur",
+        contextData.companyName || "mc2i",
+        session.currentStep,
+        selectedOption.id === currentDecision.optionA.id ? "A" : "B"
+      );
+      
+      // Ajouter la décision à la session
+      session.decisions.push(nextDecision);
+    }
+    
+    // Renvoyer la réponse
+    return res.json({
+      success: true,
+      currentStep: session.currentStep - 1,
+      selectedOption,
+      teamFeedback,
+      nextDecision,
+      isComplete: session.currentStep > 5
     });
   } catch (error) {
     console.error("Erreur lors du traitement de la décision:", error);
     return res.status(500).json({
       success: false,
-      message: "Une erreur est survenue lors du traitement de la décision"
+      message: "Une erreur s'est produite lors du traitement de la décision",
+      error: error instanceof Error ? error.message : String(error)
     });
   }
 }
@@ -142,68 +187,148 @@ export async function handleSequenceDecision(req: Request, res: Response) {
  * @param previousChoice Type de la décision précédente (A ou B), pour assurer une continuité
  */
 async function generateBinaryDecision(
-  userRole: string, 
-  domain: string, 
-  userName: string, 
+  userRole: string,
+  domain: string,
+  userName: string,
   companyName: string,
   step: number,
   previousChoice?: string
 ): Promise<BinaryDecision> {
   try {
-    // Construire le prompt pour l'IA en fonction du domaine et du rôle
-    const prompt = `Génère une décision critique cybersécurité qui pourrait survenir dans le cadre du scénario suivant, dans le contexte d'une entreprise de conseil type ESN comme ${companyName}.
-
-Domain: ${domain}
-Rôle utilisateur: ${userRole}
-Étape: ${step}/5 ${previousChoice ? `(suite à un choix de type ${previousChoice})` : ''}
-
-Crée UNE SEULE décision binaire pour un professionnel en cybersécurité avec:
-1. Un contexte court (maximum 3 phrases) décrivant une situation critique liée à la cybersécurité.
-2. Deux options (A et B) radicalement opposées mais toutes deux défendables. Les options doivent être pertinentes, stratégiques et présenter un dilemme réel.
-
-Pour chaque option, inclus:
-- Un titre court et impactant (1 ligne)
-- Une description détaillée de l'approche (2-3 phrases)
-- Les conséquences potentielles de ce choix (1-2 phrases)
-
-Respecte strictement ce format JSON :
-{
-  "id": "decision-${step}",
-  "context": "contexte en 3 phrases maximum",
-  "optionA": {
-    "id": "option-${step}A",
-    "text": "titre de l'option A",
-    "description": "description détaillée de l'option A",
-    "consequences": "conséquences possibles de l'option A"
-  },
-  "optionB": {
-    "id": "option-${step}B",
-    "text": "titre de l'option B",
-    "description": "description détaillée de l'option B", 
-    "consequences": "conséquences possibles de l'option B"
-  },
-  "step": ${step}
-}
-
-Important: Le format doit être strictement respecté pour être parsé correctement.`;
-
-    // Appel à l'API OpenAI
-    const response = await openAIService.getChatCompletion([
-      { role: "system", content: "Tu es un expert en cybersécurité spécialisé dans les situations de crise et la prise de décision stratégique. Tu crées des scénarios réalistes de dilemmes en cybersécurité qui correspondent aux standards et meilleures pratiques actuelles (ANSSI, NIST, etc.)." },
-      { role: "user", content: prompt }
-    ], 0.7);
-
-    // Extraire le JSON de la réponse
-    const decisionData = extractJsonFromOpenAiResponse(response);
+    // Déterminer le contexte en fonction du domaine
+    let domainName = "cybersécurité";
+    switch (domain) {
+      case "gestion-crise":
+        domainName = "gestion de crise cyber";
+        break;
+      case "ingenierie-sociale":
+        domainName = "ingénierie sociale et phishing";
+        break;
+      case "donnees-personnelles":
+        domainName = "protection des données personnelles";
+        break;
+      case "gestion-incidents":
+        domainName = "gestion des incidents de sécurité";
+        break;
+      case "supply-chain":
+        domainName = "sécurité de la chaîne d'approvisionnement";
+        break;
+      case "strategie-cyber":
+        domainName = "stratégie et gouvernance cybersécurité";
+        break;
+    }
     
-    if (!decisionData || !decisionData.context || !decisionData.optionA || !decisionData.optionB) {
-      // Créer un fallback au cas où le format ne serait pas respecté
+    // Définir un court contexte pour la décision basé sur l'étape
+    let contextBase = "";
+    switch (step) {
+      case 1:
+        contextBase = `Vous venez d'être alerté d'un problème en ${domainName} chez ${companyName}.`;
+        break;
+      case 2:
+        contextBase = `La situation évolue rapidement après votre première action en ${domainName}.`;
+        break;
+      case 3:
+        contextBase = `Les conséquences des premières décisions se manifestent maintenant en ${domainName}.`;
+        break;
+      case 4:
+        contextBase = `Un nouveau développement critique requiert votre expertise en ${domainName}.`;
+        break;
+      case 5:
+        contextBase = `La situation atteint un point culminant qui pourrait résoudre la crise en ${domainName}.`;
+        break;
+    }
+    
+    // Construire un prompt pour Azure OpenAI
+    const openai = new OpenAI({
+      apiKey: process.env.AZURE_OPENAI_API_KEY as string,
+      baseURL: `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT_NAME_SECONDARY}`,
+      defaultQuery: { "api-version": process.env.AZURE_OPENAI_API_VERSION_SECONDARY },
+    });
+    
+    // Prompt pour générer une décision binaire avec deux options contrastées
+    const prompt = `
+    En tant qu'expert en cybersécurité dans le domaine de la ${domainName}, générez une situation de décision binaire stratégique pour un ${userRole} chez ${companyName}.
+
+    Contexte initial: ${contextBase}
+    
+    Étape actuelle: ${step}/5
+    ${previousChoice ? `Choix précédent: Option ${previousChoice}` : "Première décision"}
+    
+    Veuillez générer une situation de décision avec:
+    1. Un contexte court en 2-3 phrases maximum décrivant la situation actuelle
+    2. Deux options (A et B) qui sont clairement contrastées et représentent des approches différentes
+    3. Pour chaque option, fournir:
+       - Un titre court (1 ligne)
+       - Une description détaillée de l'approche (2-3 lignes)
+       - Potentielles conséquences (1-2 lignes)
+    
+    Important:
+    - Les deux options doivent être légitimes et réalistes dans un contexte professionnel
+    - Aucune option ne doit être manifestement meilleure que l'autre
+    - Les options doivent avoir des philosophies d'approche contrastées (ex: proactif vs réactif, technique vs organisationnel)
+    - Citez des technologies, normes ou réglementations réelles (ISO 27001, ANSSI, NIST, etc.)
+    
+    Répondez au format JSON structuré comme ceci:
+    {
+      "context": "Description précise du contexte en 2-3 phrases maximum",
+      "optionA": {
+        "text": "Titre court de l'option A",
+        "description": "Description détaillée de l'approche A",
+        "consequences": "Potentielles conséquences de l'option A"
+      },
+      "optionB": {
+        "text": "Titre court de l'option B",
+        "description": "Description détaillée de l'approche B",
+        "consequences": "Potentielles conséquences de l'option B"
+      }
+    }
+    `;
+    
+    const response = await openai.chat.completions.create({
+      model: process.env.AZURE_OPENAI_DEPLOYMENT_NAME_SECONDARY || "",
+      messages: [
+        { 
+          role: "system", 
+          content: "Vous êtes un expert en cybersécurité qui génère des scénarios de décision réalistes et équilibrés pour former des professionnels. Vos réponses sont en format JSON structuré uniquement."
+        },
+        { role: "user", content: prompt }
+      ],
+      temperature: 0.7,
+      response_format: { type: "json_object" }
+    });
+    
+    // Extraire la réponse
+    let decisionData: any;
+    try {
+      decisionData = JSON.parse(response.choices[0].message.content || "{}");
+    } catch (e) {
+      console.error("Erreur lors du parsing de la réponse JSON:", e);
       return createFallbackDecision(step);
     }
-
-    return decisionData as BinaryDecision;
+    
+    // Créer l'objet de décision
+    const decision: BinaryDecision = {
+      id: uuidv4(),
+      context: decisionData.context || `Situation critique en ${domainName} requérant votre attention immédiate.`,
+      optionA: {
+        id: `option-a-${step}`,
+        text: decisionData.optionA?.text || `Option A stratégique`,
+        description: decisionData.optionA?.description || `Approche stratégique recommandée par les standards de l'industrie.`,
+        consequences: decisionData.optionA?.consequences || `Impact potentiel sur les opérations.`
+      },
+      optionB: {
+        id: `option-b-${step}`,
+        text: decisionData.optionB?.text || `Option B tactique`,
+        description: decisionData.optionB?.description || `Approche tactique alternative avec différentes considérations.`,
+        consequences: decisionData.optionB?.consequences || `Impact potentiel sur les ressources.`
+      },
+      step
+    };
+    
+    return decision;
   } catch (error) {
     console.error("Erreur lors de la génération de la décision binaire:", error);
+    // En cas d'erreur, retourner une décision de secours
     return createFallbackDecision(step);
   }
 }
@@ -222,83 +347,118 @@ async function generateTeamFeedback(
   step: number
 ): Promise<TeamFeedback> {
   try {
-    // Déterminer le membre de l'équipe qui va réagir en fonction de l'étape
-    const teamMembers = [
-      { name: "Thomas Mercier", role: "RSSI" },
-      { name: "Yousra Saidani", role: "Directrice Communication et RSE" },
-      { name: "Julien Grimault", role: "Sponsor du centre d'expertise Cybersécurité" },
-      { name: "Sarah Dumont", role: "Directrice Juridique" },
-      { name: "Eddy MISSONI IDEMBI", role: "Expert Data / IA" }
-    ];
+    // Sélectionner un membre de l'équipe approprié pour donner le feedback
+    const teamMembers = getEvaluatorsByDomain(domain);
+    const memberIndex = Math.min(step - 1, teamMembers.length - 1);
+    const teamMember = teamMembers[memberIndex] || getContactByName("Thomas Mercier");
     
-    // Sélectionner un membre d'équipe en fonction de l'étape
-    const responder = teamMembers[(step - 1) % teamMembers.length];
-    
-    // Générer un sentiment approprié avec une tendance, mais pas complètement déterministe
-    // Par exemple, Thomas Mercier peut être plus positif sur l'option A dans certains contextes
-    let sentimentBias = Math.random();
-    
-    // Ajuster le biais en fonction du répondant et de l'option
-    if (responder.name === "Thomas Mercier" && optionType === "A") {
-      sentimentBias += 0.2; // Thomas préfère légèrement les approches de type A (plus techniques/rigoureuses)
-    } else if (responder.name === "Yousra Saidani" && optionType === "B") {
-      sentimentBias += 0.2; // Yousra préfère légèrement les approches de type B (plus orientées business/communication)
+    if (!teamMember) {
+      return createFallbackFeedback(
+        "Équipe Cybersécurité",
+        "Expert technique",
+        optionType === "A" ? "positive" : "neutral"
+      );
     }
     
-    // Normaliser entre 0 et 1
-    sentimentBias = Math.min(sentimentBias, 1);
+    // Construire un prompt pour Azure OpenAI
+    const openai = new OpenAI({
+      apiKey: process.env.AZURE_OPENAI_API_KEY as string,
+      baseURL: `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT_NAME_SECONDARY}`,
+      defaultQuery: { "api-version": process.env.AZURE_OPENAI_API_VERSION_SECONDARY },
+    });
     
-    // Déterminer le sentiment final
-    let sentiment: "positive" | "negative" | "neutral" = "neutral";
-    if (sentimentBias > 0.65) {
+    // Déterminer le sentiment en fonction de l'option et de l'étape
+    // Nous alternons entre positif, neutre et négatif pour créer une expérience variée
+    let sentiment: "positive" | "negative" | "neutral";
+    if (step === 1) {
+      // Première étape: feedback toujours positif pour encourager
       sentiment = "positive";
-    } else if (sentimentBias < 0.35) {
-      sentiment = "negative";
+    } else if (step === 5) {
+      // Dernière étape: feedback plus critique
+      sentiment = optionType === "A" ? "neutral" : "negative";
+    } else {
+      // Étapes intermédiaires: varier selon l'option et l'étape
+      if ((step === 2 && optionType === "A") || (step === 3 && optionType === "B") || (step === 4 && optionType === "A")) {
+        sentiment = "positive";
+      } else if ((step === 2 && optionType === "B") || (step === 4 && optionType === "B")) {
+        sentiment = "negative";
+      } else {
+        sentiment = "neutral";
+      }
     }
     
-    // Construire le prompt pour l'IA
-    const prompt = `Génère une réaction crédible de la part d'un membre de l'équipe suite à une décision en cybersécurité.
-
-Contexte:
-- Domaine: ${domain}
-- Type de décision prise par l'utilisateur: Option ${optionType} (${optionType === "A" ? "généralement plus technique/rigoureuse" : "généralement plus pragmatique/business"})
-- Sentiment à exprimer: ${sentiment}
-- Membre de l'équipe: ${responder.name}, ${responder.role}
-
-Génère UNIQUEMENT une réaction concise (2-4 phrases) qui:
-1. Est réaliste et professionnelle
-2. Reflète le sentiment indiqué (${sentiment})
-3. Est cohérente avec le rôle professionnel de la personne
-4. Ne révèle pas explicitement si le choix était bon ou mauvais, mais donne un indice subtil
-5. Inclut une brève remarque personnelle ou un conseil
-
-Format strict JSON:
-{
-  "message": "Réaction du membre de l'équipe",
-  "sender": "${responder.name}",
-  "senderRole": "${responder.role}",
-  "sentiment": "${sentiment}"
-}`;
-
-    // Appel à l'API OpenAI
-    const response = await openAIService.getChatCompletion([
-      { role: "system", content: "Tu es un expert en cybersécurité spécialisé dans les communications d'équipe et les dynamiques professionnelles. Tu génères des réactions réalistes de professionnels face à des décisions critiques." },
-      { role: "user", content: prompt }
-    ], 0.7);
-
-    // Extraire le JSON de la réponse
-    const feedbackData = extractJsonFromOpenAiResponse(response);
+    // Prompt pour générer un feedback réaliste
+    const prompt = `
+    Générez un feedback professionnel et réaliste de la part d'un membre d'équipe cybersécurité suite à une décision prise par un ${userRole}.
     
-    if (!feedbackData || !feedbackData.message) {
-      // Créer un fallback au cas où le format ne serait pas respecté
-      return createFallbackFeedback(responder.name, responder.role, sentiment);
+    Membre de l'équipe:
+    Nom: ${teamMember.name}
+    Rôle: ${teamMember.role}
+    Expertise: ${teamMember.expertise || "Expertise générale en cybersécurité"}
+    
+    Contexte:
+    - Étape: ${step}/5 dans la séquence de décisions
+    - Option choisie: Option ${optionType}
+    - Sentiment général à exprimer: ${sentiment === "positive" ? "positif" : sentiment === "negative" ? "négatif" : "nuancé/neutre"}
+    - Domaine concerné: ${domain}
+    
+    Le feedback doit:
+    1. Être réaliste et professionnel (comme dans une situation d'entreprise réelle)
+    2. Faire référence à l'expertise spécifique du membre de l'équipe
+    3. Exprimer le sentiment demandé sans être trop extrême
+    4. Rester concis (2-4 phrases maximum)
+    5. Ne pas répéter les mêmes formulations que les feedbacks précédents
+    6. Inclure au moins une référence à une norme ou bonne pratique du secteur (ex: ANSSI, NIST, ISO 27001)
+    7. Ne pas contenir d'instructions techniques spécifiques ou de recommandations détaillées (juste un feedback)
+    
+    Répondez au format JSON structuré:
+    {
+      "message": "Le message de feedback complet",
+      "sentiment": "${sentiment}"
     }
-
-    return feedbackData as TeamFeedback;
+    `;
+    
+    const response = await openai.chat.completions.create({
+      model: process.env.AZURE_OPENAI_DEPLOYMENT_NAME_SECONDARY || "",
+      messages: [
+        { 
+          role: "system", 
+          content: "Vous êtes un expert en cybersécurité qui génère des retours d'équipe réalistes et professionnels. Vos réponses sont en format JSON structuré uniquement."
+        },
+        { role: "user", content: prompt }
+      ],
+      temperature: 0.7,
+      response_format: { type: "json_object" }
+    });
+    
+    // Extraire la réponse
+    let feedbackData: any;
+    try {
+      feedbackData = JSON.parse(response.choices[0].message.content || "{}");
+    } catch (e) {
+      console.error("Erreur lors du parsing de la réponse JSON:", e);
+      return createFallbackFeedback(
+        teamMember.name,
+        teamMember.role,
+        sentiment
+      );
+    }
+    
+    // Créer l'objet de feedback
+    return {
+      message: feedbackData.message || `Réaction à votre décision concernant la situation actuelle.`,
+      sender: teamMember.name,
+      senderRole: teamMember.role,
+      sentiment: feedbackData.sentiment || sentiment
+    };
   } catch (error) {
     console.error("Erreur lors de la génération du feedback d'équipe:", error);
-    // Créer un feedback de secours en cas d'erreur
-    return createFallbackFeedback("Thomas Mercier", "RSSI", "neutral");
+    // En cas d'erreur, retourner un feedback de secours
+    return createFallbackFeedback(
+      "Équipe Cybersécurité",
+      "Expert technique",
+      optionType === "A" ? "positive" : "neutral"
+    );
   }
 }
 
@@ -307,20 +467,91 @@ Format strict JSON:
  * @param step Étape actuelle
  */
 function createFallbackDecision(step: number): BinaryDecision {
+  const fallbackDecisions: Array<Partial<BinaryDecision>> = [
+    {
+      context: "Une tentative d'hameçonnage ciblée a été détectée visant les cadres dirigeants de l'entreprise. Plusieurs emails contenant des liens suspects ont été identifiés dans les boîtes de réception.",
+      optionA: {
+        text: "Déployer un filtrage avancé des emails",
+        description: "Mettre en place immédiatement un filtrage supplémentaire des emails avec analyse comportementale pour bloquer les tentatives similaires.",
+        consequences: "Délai de traitement des emails légitimes potentiellement augmenté pendant le réglage du système."
+      },
+      optionB: {
+        text: "Lancer une campagne de sensibilisation d'urgence",
+        description: "Informer immédiatement tous les employés par notification d'urgence et organiser des sessions rapides de sensibilisation ciblées.",
+        consequences: "Impact sur la productivité à court terme mais renforcement de la vigilance collective."
+      }
+    },
+    {
+      context: "Un scan de vulnérabilités a révélé des failles critiques dans plusieurs serveurs de production. Ces vulnérabilités pourraient permettre un accès non autorisé aux données sensibles.",
+      optionA: {
+        text: "Appliquer immédiatement les correctifs disponibles",
+        description: "Déployer les correctifs de sécurité en urgence sur tous les systèmes concernés, même pendant les heures de travail.",
+        consequences: "Risque d'interruption temporaire des services pendant la mise à jour."
+      },
+      optionB: {
+        text: "Mettre en place des mesures d'atténuation temporaires",
+        description: "Renforcer la surveillance, limiter l'accès et planifier les correctifs pour le prochain créneau de maintenance.",
+        consequences: "Vulnérabilités toujours présentes mais risques réduits par les contrôles supplémentaires."
+      }
+    },
+    {
+      context: "Un prestataire externe signale une possible compromission de ses systèmes. Cette société a accès à certaines de vos plateformes dans le cadre d'un contrat de maintenance.",
+      optionA: {
+        text: "Révoquer tous les accès du prestataire",
+        description: "Suspendre immédiatement tous les accès du prestataire à vos systèmes jusqu'à clarification de la situation.",
+        consequences: "Interruption possible de certains services maintenus par le prestataire."
+      },
+      optionB: {
+        text: "Restreindre et surveiller les accès",
+        description: "Limiter les accès du prestataire au strict minimum et mettre en place une surveillance renforcée de toutes ses activités.",
+        consequences: "Maintien des services mais risque résiduel si la compromission est confirmée."
+      }
+    },
+    {
+      context: "Un comportement anormal a été détecté sur le réseau interne, suggérant un possible mouvement latéral après une intrusion. Plusieurs connexions inhabituelles entre systèmes ont été observées.",
+      optionA: {
+        text: "Isoler les systèmes suspects",
+        description: "Déconnecter immédiatement du réseau tous les systèmes présentant un comportement anormal pour stopper la propagation.",
+        consequences: "Impact opérationnel significatif mais limitation immédiate de la compromission."
+      },
+      optionB: {
+        text: "Mener une investigation discrète",
+        description: "Déployer des outils de surveillance supplémentaires pour analyser la situation sans alerter le potentiel attaquant.",
+        consequences: "Risque de propagation continue pendant l'investigation mais meilleure compréhension de la menace."
+      }
+    },
+    {
+      context: "Une fuite de données client potentielle a été identifiée. Des informations sensibles pourraient avoir été exposées via une application web mal configurée.",
+      optionA: {
+        text: "Notification immédiate aux parties concernées",
+        description: "Informer immédiatement les clients potentiellement affectés et les autorités réglementaires conformément au RGPD.",
+        consequences: "Impact réputationnel immédiat mais démonstration de transparence et respect des obligations légales."
+      },
+      optionB: {
+        text: "Analyse complète avant communication",
+        description: "Conduire une investigation approfondie pour déterminer l'étendue exacte de la fuite avant toute communication externe.",
+        consequences: "Communication plus précise mais risque de non-conformité avec les délais réglementaires de notification."
+      }
+    }
+  ];
+  
+  const index = Math.min(step - 1, fallbackDecisions.length - 1);
+  const fallback = fallbackDecisions[index];
+  
   return {
-    id: `fallback-decision-${step}`,
-    context: "Une tentative d'intrusion avancée vient d'être détectée sur le réseau de l'entreprise. Des comportements suspects indiquent qu'un acteur malveillant a potentiellement accédé à des données sensibles. Le CERT-FR vient d'émettre une alerte concernant ce type d'attaque.",
+    id: uuidv4(),
+    context: fallback.context || `Situation critique requérant votre attention immédiate à l'étape ${step}.`,
     optionA: {
-      id: `option-${step}A`,
-      text: "Isoler immédiatement les systèmes impactés",
-      description: "Déconnecter immédiatement les systèmes potentiellement compromis du reste du réseau pour stopper la propagation. Effectuer ensuite une analyse forensique approfondie avant toute remise en service.",
-      consequences: "Interruption temporaire des services critiques mais meilleure garantie de contenir la menace et d'effectuer une analyse complète."
+      id: `option-a-${step}`,
+      text: fallback.optionA?.text || "Approche proactive",
+      description: fallback.optionA?.description || "Prendre des mesures immédiates pour résoudre la situation.",
+      consequences: fallback.optionA?.consequences || "Impact opérationnel à court terme mais résolution rapide."
     },
     optionB: {
-      id: `option-${step}B`,
-      text: "Maintenir les services avec surveillance renforcée",
-      description: "Garder les systèmes en ligne tout en déployant des mesures de surveillance avancées pour observer l'attaquant et collecter des informations. Préparer un plan d'isolation en parallèle.",
-      consequences: "Continuité des services critiques mais risque de propagation de l'attaque ou de destruction de preuves par l'attaquant."
+      id: `option-b-${step}`,
+      text: fallback.optionB?.text || "Approche méthodique",
+      description: fallback.optionB?.description || "Analyser la situation en détail avant d'agir.",
+      consequences: fallback.optionB?.consequences || "Délai de résolution mais minimisation des impacts collatéraux."
     },
     step
   };
@@ -337,21 +568,28 @@ function createFallbackFeedback(
   role: string,
   sentiment: "positive" | "negative" | "neutral"
 ): TeamFeedback {
-  let message = "";
+  const messages = {
+    positive: [
+      "Excellente décision qui s'aligne parfaitement avec les recommandations de l'ANSSI pour ce type de situation. Votre approche démontre une bonne compréhension des priorités.",
+      "Choix pertinent qui respecte les bonnes pratiques de l'ISO 27001. Cette décision permet de maintenir un équilibre optimal entre sécurité et continuité des activités.",
+      "Je suis favorable à cette approche qui correspond aux standards du NIST. Vous avez bien identifié le levier d'action le plus efficace dans ce contexte."
+    ],
+    neutral: [
+      "Cette décision présente des avantages, mais n'oublions pas de suivre les recommandations complémentaires du référentiel de l'ANSSI pour couvrir tous les aspects du risque.",
+      "Approche acceptable selon les critères de l'ISO 27001, mais qui nécessitera une vigilance particulière lors de la mise en œuvre pour éviter les effets secondaires.",
+      "Ce choix peut fonctionner si nous l'accompagnons des contrôles appropriés tels que recommandés par le NIST. Restons attentifs à l'évolution de la situation."
+    ],
+    negative: [
+      "Cette décision s'écarte des recommandations de l'ANSSI pour ce type de scénario. Nous devrions reconsidérer notre approche pour limiter notre exposition.",
+      "Je m'inquiète de ce choix qui ne respecte pas pleinement les exigences de l'ISO 27001 en matière de gestion des risques. Nous devrions envisager des mesures compensatoires.",
+      "Cette approche contrevient aux bonnes pratiques du NIST et pourrait nous exposer à des risques significatifs. Une révision de notre stratégie serait prudente."
+    ]
+  };
   
-  switch (sentiment) {
-    case "positive":
-      message = "Je pense que cette approche est judicieuse compte tenu des circonstances. Elle reflète une bonne compréhension des enjeux sécuritaires et business. Continuons dans cette direction tout en restant vigilants.";
-      break;
-    case "negative":
-      message = "Cette décision présente des risques significatifs que nous devons impérativement considérer. Je recommande fortement de réévaluer notre stratégie et d'envisager des mesures de protection supplémentaires.";
-      break;
-    default:
-      message = "Cette décision a des avantages et des inconvénients. Nous devrions surveiller attentivement l'évolution de la situation et être prêts à ajuster notre approche si nécessaire.";
-  }
+  const index = Math.floor(Math.random() * 3);
   
   return {
-    message,
+    message: messages[sentiment][index],
     sender: name,
     senderRole: role,
     sentiment

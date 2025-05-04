@@ -1118,7 +1118,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsTyping(true);
 
     try {
-      // Envoyer une requête pour obtenir le message de bienvenue et les choix initiaux
+      // Envoyer une requête pour obtenir le message de bienvenue
       const response = await apiRequest('/api/cyber/decision', {
         method: 'POST',
         body: JSON.stringify({
@@ -1163,7 +1163,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.log(`Conditions non remplies pour passer au stage ${nextStage}`);
         }
         
-        // Note: On ne montre plus les options de décision après le message de Thomas Mercier
+        // Initialiser la séquence de décisions binaires après un court délai
+        setTimeout(() => {
+          handleInitDecisionSequence();
+        }, 1500);
       }
     } catch (error) {
       console.error('Erreur lors du démarrage du scénario de crise:', error);
@@ -1179,6 +1182,68 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setMessages(prev => [...prev, errorMessage]);
     }
 
+    setIsTyping(false);
+  };
+  
+  // Fonction pour initialiser la séquence de décisions binaires
+  const handleInitDecisionSequence = async () => {
+    setIsTyping(true);
+    
+    try {
+      // Envoyer une requête pour initialiser la séquence de décisions
+      const response = await apiRequest('/api/cyber/decisions/init', {
+        method: 'POST',
+        body: JSON.stringify({
+          userRole,
+          domain: scenario.activeDomain?.id,
+          userName,
+          companyName: 'mc2i'
+        })
+      });
+      
+      if (response.success && response.nextDecision) {
+        // Ajouter un message de Thomas Mercier pour introduire la séquence
+        const introMessage: ChatMessage = {
+          id: uuidv4(),
+          type: 'bot',
+          content: "Nous devons maintenant prendre une série de décisions cruciales pour résoudre cette situation. Je vais vous présenter cinq cas qui nécessitent votre expertise. Pour chacun, vous aurez deux options. Voici la première situation :",
+          timestamp: Date.now(),
+          contactName: "Thomas Mercier",
+          contactRole: "RSSI"
+        };
+        
+        setMessages(prev => [...prev, introMessage]);
+        
+        // Petite pause pour améliorer l'expérience utilisateur
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Ajouter la première décision
+        const decisionMessage: ChatMessage = {
+          id: uuidv4(),
+          type: 'binary-decision',
+          content: response.nextDecision,
+          timestamp: Date.now()
+        };
+        
+        setMessages(prev => [...prev, decisionMessage]);
+        
+        // Mettre à jour l'étape de décision
+        setDecisionSequenceStep(1);
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'initialisation de la séquence de décisions:', error);
+      
+      // Message d'erreur
+      const errorMessage: ChatMessage = {
+        id: uuidv4(),
+        type: 'bot',
+        content: "Je suis désolé, une erreur s'est produite lors de l'initialisation de la séquence de décisions. Veuillez réessayer ultérieurement.",
+        timestamp: Date.now()
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+    }
+    
     setIsTyping(false);
   };
 
