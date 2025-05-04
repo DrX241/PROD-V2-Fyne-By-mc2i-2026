@@ -20,11 +20,7 @@ export default function DomainSelection() {
       return;
     }
     
-    // Trouver l'objet domain complet à partir de l'id
-    const domainObj = domains.find(d => d.id === domainId);
-    if (domainObj) {
-      selectDomain(domainObj);
-    }
+    selectDomain(domainId);
   };
 
   // Map des icônes et styles pour chaque domaine spécifique

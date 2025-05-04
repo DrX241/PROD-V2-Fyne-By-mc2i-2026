@@ -16,8 +16,7 @@ import CyberAgentPage from "@/pages/cyber-agent";
 // Utiliser les chemins relatifs pour les nouveaux composants
 import CyberAgentRedirectPage from "./pages/cyber/cyber-agent-redirect";
 import CyberAgentNewPage from "./pages/cyber/cyber-agent-new";
-// Import de la nouvelle page de quiz
-import CyberQuizPage from "./pages/quiz";
+// EmergencyResponsePage a été supprimé
 
 // Import de la nouvelle page Playground
 import PlaygroundPage from "./pages/playground";
@@ -109,7 +108,6 @@ function App() {
             <Route path="/cyber/cyber-agent-old" component={CyberAgentRedirectPage} /> {/* Ancienne version (redirection) */}
             <Route path="/cyber/cyber-agent-new" component={CyberAgentNewPage} /> {/* Nouvelle version du module Cyber Agent */}
             <Route path="/cyber/expert-learning" component={ExpertLearningPage} /> {/* Module Apprendre en échangeant */}
-            <Route path="/quiz" component={CyberQuizPage} /> {/* Nouvelle page de quiz de cybersécurité */}
             <Route path="/cyber/learning/cyber-mastery" component={() => {
               // Import dynamique de la nouvelle page Cyber Mastery
               const CyberMasteryPage = lazy(() => import('./pages/cyber/learning/cyber-mastery'));

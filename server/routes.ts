@@ -27,8 +27,7 @@ import { generateDebriefing, getContextualDocumentation } from "./cyberLearningC
 import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearningController";
 import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
 import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
-// Import des fonctions du nouveau quiz
-import { startQuiz, submitAnswer, completeQuiz } from "./quizController";
+// Import des fonctions d'urgence cyber supprimé
 
 /**
  * Fonction utilitaire pour obtenir la description détaillée d'un rôle utilisateur
@@ -411,11 +410,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/cyber-expert/decisions/start', startDecisionFlow);
   app.post('/api/cyber-expert/decisions/submit', submitDecision);
   app.post('/api/cyber-expert/decisions/status', checkDecisionStatus);
-  
-  // Routes pour le nouveau quiz de cybersécurité
-  app.post('/api/quiz/start', startQuiz);
-  app.post('/api/quiz/submit-answer', submitAnswer);
-  app.post('/api/quiz/complete', completeQuiz);
   
   // Route directe pour servir le document texte avec le mot de passe
   app.get('/download-attachment/:role', (req, res) => {

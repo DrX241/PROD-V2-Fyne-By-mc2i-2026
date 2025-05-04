@@ -35,8 +35,7 @@ export default function ScenarioSelection() {
     const selectedScenario = filteredScenarios.find(s => s.id === scenarioId);
     if (!selectedScenario) return;
     
-    // Passer l'objet scenario complet au lieu de juste l'ID
-    selectScenario(selectedScenario);
+    selectScenario(scenarioId);
   };
 
   // Fonction pour obtenir les couleurs basées sur la difficulté
