@@ -633,8 +633,8 @@ export default function CodeGeneratorPage() {
                                 ? 'bg-blue-500 border border-blue-400 text-white font-medium' 
                                 : 'bg-blue-100 border border-blue-200'
                               : isFuturistic 
-                                ? 'bg-blue-900/30 hover:bg-blue-400 border border-blue-400 text-white font-medium' 
-                                : 'hover:bg-blue-50 border border-gray-200'
+                                ? 'bg-blue-900/30 border border-blue-400 text-white font-medium' 
+                                : 'border border-gray-200'
                           } transition-colors`}
                           onClick={() => usePromptExample(index)}
                         >
