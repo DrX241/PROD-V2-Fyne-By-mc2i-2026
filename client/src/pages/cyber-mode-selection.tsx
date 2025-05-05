@@ -148,7 +148,7 @@ export default function CyberModeSelection() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 px-4 sm:px-8 max-w-6xl mx-auto mt-0">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 px-3 sm:px-6 max-w-full mx-auto">
             {cyberModes.map((category, index) => (
               <motion.div
                 key={category.id}
@@ -178,11 +178,11 @@ export default function CyberModeSelection() {
                     <p className="text-blue-100 mb-2 text-xs lg:text-sm text-center line-clamp-2 px-1">{category.description}</p>
                     
                     {/* Liste des modules dans cette catégorie */}
-                    <div className="mt-8 flex-grow">
-                      <div className="space-y-12">
+                    <div className="mt-4 flex-grow">
+                      <div className="space-y-3">
                         {category.items && category.items.map((item) => (
                           <Link key={item.id} href={item.comingSoon ? '#' : item.destination} onClick={(e) => item.comingSoon && e.preventDefault()}>
-                            <div className="flex items-center p-4 rounded-lg bg-white/10 hover:bg-blue-500/20 transition-all cursor-pointer border border-white/30 shadow-md hover:shadow-lg hover:border-white/50 transform hover:-translate-y-1">
+                            <div className="flex items-center p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors cursor-pointer border border-white/20 shadow-sm hover:shadow-md hover:border-white/40">
                               <div className="flex-grow">
                                 <div className="flex items-center gap-2">
                                   <h3 className="text-white font-medium text-base">{item.title}</h3>
@@ -191,8 +191,8 @@ export default function CyberModeSelection() {
                                   )}
                                 </div>
                               </div>
-                              <div className="text-white bg-blue-600/60 p-2 rounded-full ml-2 flex-shrink-0">
-                                <ArrowRight className="h-5 w-5" />
+                              <div className="text-white bg-blue-500/30 p-1 rounded-full">
+                                <ArrowRight className="h-4 w-4" />
                               </div>
                             </div>
                           </Link>
