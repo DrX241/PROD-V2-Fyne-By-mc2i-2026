@@ -630,11 +630,11 @@ export default function CodeGeneratorPage() {
                           className={`p-2 rounded-md cursor-pointer text-sm ${
                             selectedExample === index
                               ? isFuturistic 
-                                ? 'bg-blue-600 border border-blue-400 text-white font-medium' 
-                                : 'bg-blue-100 border border-blue-200'
+                                ? 'bg-blue-600 border-2 border-blue-400 text-white font-medium shadow-md' 
+                                : 'bg-blue-600 border border-blue-400 text-white font-medium'
                               : isFuturistic 
-                                ? 'bg-blue-900/30 border border-blue-400 text-white font-medium' 
-                                : 'border border-gray-200'
+                                ? 'bg-white border border-gray-300 text-gray-800 font-medium hover:border-blue-400' 
+                                : 'bg-white border border-gray-200 text-gray-800 hover:border-blue-300'
                           } transition-colors`}
                           onClick={() => usePromptExample(index)}
                         >
