@@ -152,9 +152,9 @@ export default function Mc2iLearningOutils() {
       <div className="container mx-auto py-6 h-full flex flex-col">
         {/* Chemin de navigation */}
         <div className="mb-6">
-          <Link href="/outils-ia" className="flex items-center text-violet-600 hover:text-violet-700 w-fit transition-colors">
+          <Link href="/amoa-mode-selection" className="flex items-center text-violet-600 hover:text-violet-700 w-fit transition-colors">
             <ArrowLeft size={16} className="mr-1" />
-            <span>Retour aux outils IA</span>
+            <span>Retour à I AM AMOA</span>
           </Link>
         </div>
         
