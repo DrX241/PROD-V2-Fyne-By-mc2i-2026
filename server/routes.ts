@@ -53,6 +53,12 @@ import {
   saveGeneratedCode,
   generatePromptExamples
 } from "./codeGeneratorController";
+import {
+  generateQuestions,
+  evaluateResponses,
+  generateCertificate,
+  getTestOptions
+} from "./cyberTestTechniqueController";
 // Import des fonctions d'urgence cyber supprimé
 
 /**
@@ -438,6 +444,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Enregistrer les routes pour CyberForge Academy
   app.use('/api/ai', cyberForgeRoutes);
+  
+  // Routes pour le module de test technique cybersécurité
+  app.get('/api/cyber/test-technique/options', getTestOptions);
+  app.post('/api/cyber/test-technique/generate', generateQuestions);
+  app.post('/api/cyber/test-technique/evaluate', evaluateResponses);
+  app.post('/api/cyber/test-technique/certificate', generateCertificate);
   
   // Routes pour mc2i AI Learning
   app.post('/api/mcai-learning/init', initMcaiLearningSession);
