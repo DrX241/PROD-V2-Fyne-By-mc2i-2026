@@ -775,6 +775,40 @@ export default function CodeGeneratorPage() {
                           className={isFuturistic ? 'data-[state=checked]:bg-blue-600' : ''}
                         />
                       </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Label htmlFor="autoDetectLanguage" className={isFuturistic ? 'text-gray-300' : ''}>
+                            Détection auto. de langage
+                          </Label>
+                          {isSuggestingLanguage && <Loader2 className="h-3 w-3 animate-spin" />}
+                        </div>
+                        <Switch 
+                          id="autoDetectLanguage"
+                          checked={formData.autoDetectLanguage}
+                          onCheckedChange={(checked) => {
+                            handleInputChange('autoDetectLanguage', checked);
+                            // Si on active l'auto-détection et qu'il y a déjà un prompt
+                            if (checked && formData.prompt.length > 20) {
+                              suggestLanguageMutation.mutate(formData.prompt);
+                            }
+                          }}
+                          className={isFuturistic ? 'data-[state=checked]:bg-blue-600' : ''}
+                        />
+                      </div>
+                      
+                      {languageSuggestion && (
+                        <div className="text-xs mt-0 pl-2 italic rounded bg-blue-50 dark:bg-gray-800 p-2 border-l-2 border-blue-300 dark:border-blue-700">
+                          <span className={isFuturistic ? 'text-blue-300' : 'text-blue-600'}>Suggestion :</span>{' '}
+                          <span className={isFuturistic ? 'text-gray-300' : 'text-gray-700'}>
+                            {languageSuggestion.language} 
+                            {languageSuggestion.framework !== 'none' && ` avec ${languageSuggestion.framework}`}
+                          </span>
+                          <span className={`ml-1 ${isFuturistic ? 'text-gray-400' : 'text-gray-500'}`}>
+                            (confiance: {Math.round(languageSuggestion.confidence * 100)}%)
+                          </span>
+                        </div>
+                      )}
                     </div>
                     
                     <div className="space-y-2">
