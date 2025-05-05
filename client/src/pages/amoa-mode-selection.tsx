@@ -30,57 +30,75 @@ export default function AmoaModeSelection() {
   // Structure des modes AMOA en 4 catégories standardisées
   const amoaModes: ModeOption[] = [
     {
-      id: 'scenarios-formation',
-      title: 'SCÉNARIOS DE FORMATION',
-      description: "Développez vos compétences en AMOA grâce à des mises en situation guidées par l'IA.",
+      id: 'amoa-trainer',
+      title: 'AMOA TRAINER',
+      description: "Approfondir les fondamentaux AMOA grâce à une IA experte ou des formats courts et interactifs.",
       icon: null,
       gradient: 'from-blue-700 to-blue-900',
       destination: '#',
       items: [
         {
-          id: 'amoa-quest',
-          title: 'AMOA QUEST',
+          id: 'agent-ia-amoa',
+          title: 'Agent IA AMOA',
           icon: null,
-          destination: '/amoa/quest'
+          destination: '/amoa/agent-ia'
+        },
+        {
+          id: 'modules-express',
+          title: 'Modules Express',
+          icon: null,
+          destination: '/amoa/modules-express'
         }
       ]
     },
     {
-      id: 'gamification',
-      title: 'GAMIFICATION AVANCÉE',
-      description: "Testez vos connaissances en AMOA avec des jeux interactifs adaptés à tous les niveaux.",
+      id: 'amoa-ops',
+      title: 'AMOA OPS',
+      description: "Se confronter à des missions AMOA simulées, en conditions proches du terrain.",
       icon: null,
       gradient: 'from-purple-700 to-purple-900',
       destination: '#',
       items: [
         {
-          id: 'projet-imposteur',
-          title: 'QUI EST L\'IMPOSTEUR ?',
+          id: 'simulation-projet',
+          title: 'Simulation Projet',
           icon: null,
-          destination: '/amoa/projet-imposteur'
+          destination: '/amoa/simulation-projet'
+        },
+        {
+          id: 'simulation-reunion',
+          title: 'Simulation de Réunion Client',
+          icon: null,
+          destination: '/amoa/simulation-reunion'
         }
       ]
     },
     {
-      id: 'recrutement',
-      title: 'MISE EN SITUATION D\'AUDITION',
-      description: "Préparez vos consultants aux auditions clients avec évaluation détaillée de leur prestation.",
+      id: 'amoa-test',
+      title: 'AMOA TEST',
+      description: "Mesurez votre maîtrise fonctionnelle via des exercices concrets et des audits simulés.",
       icon: null,
       gradient: 'from-green-700 to-green-900',
       destination: '#',
       items: [
         {
-          id: 'interview-simulation',
-          title: 'PRÉPARATION D\'AUDITION CLIENT',
+          id: 'audit-flash',
+          title: 'Audit Flash',
           icon: null,
-          destination: '/amoa/interview-simulation'
+          destination: '/amoa/audit-flash'
+        },
+        {
+          id: 'test-reflexes',
+          title: 'Test de Réflexes AMOA',
+          icon: null,
+          destination: '/amoa/test-reflexes'
         }
       ]
     },
     {
-      id: 'parcours-certifiant',
-      title: 'PARCOURS CERTIFIANT',
-      description: "Formations pour préparer des certifications professionnelles en assistance à maîtrise d'ouvrage.",
+      id: 'amoa-ascension',
+      title: 'AMOA ASCENSION',
+      description: "Un programme avancé pour accéder aux rôles de PO, AMOA senior, ou chef de projet.",
       icon: null,
       gradient: 'from-amber-700 to-amber-900',
       destination: '#',
@@ -97,7 +115,7 @@ export default function AmoaModeSelection() {
         <div className="relative z-10 max-w-[1600px] w-full mx-auto px-4 py-12 sm:px-6 sm:py-16">
           <div className="text-center mb-10 sm:mb-16">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-              IAM mc2i
+              I AM mc2i
             </h1>
             <p className="text-lg sm:text-xl text-blue-200 max-w-3xl mx-auto">
               Choisissez votre experience d'apprentissage en assistance à maîtrise d'ouvrage
