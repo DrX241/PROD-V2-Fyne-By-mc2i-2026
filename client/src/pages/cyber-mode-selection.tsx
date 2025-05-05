@@ -164,7 +164,7 @@ export default function CyberModeSelection() {
                   {/* Glow effect on hover */}
                   {hoveredMode === category.id && (
                     <>
-                      <div className="absolute inset-0 bg-white opacity-10 animate-pulse"></div>
+                      <div className="absolute inset-0 bg-white opacity-5"></div>
                     </>
                   )}
                   
@@ -182,7 +182,7 @@ export default function CyberModeSelection() {
                       <div className="space-y-12">
                         {category.items && category.items.map((item) => (
                           <Link key={item.id} href={item.comingSoon ? '#' : item.destination} onClick={(e) => item.comingSoon && e.preventDefault()}>
-                            <div className="flex items-center p-4 rounded-lg bg-white/10 hover:bg-blue-500/30 transition-all cursor-pointer border border-white/30 shadow-md hover:shadow-lg hover:border-white/60 transform hover:-translate-y-1">
+                            <div className="flex items-center p-4 rounded-lg bg-white/10 hover:bg-blue-500/20 transition-all cursor-pointer border border-white/30 shadow-md hover:shadow-lg hover:border-white/50 transform hover:-translate-y-1">
                               <div className="flex-grow">
                                 <div className="flex items-center gap-2">
                                   <h3 className="text-white font-medium text-base">{item.title}</h3>
