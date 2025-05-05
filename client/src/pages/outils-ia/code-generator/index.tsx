@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
@@ -534,9 +534,12 @@ root.render(
         setIsLoadingExamples(true);
         
         // Envoyer une requête à l'API pour générer des exemples de prompts
-        const response = await apiRequest('/api/code-generator/prompt-examples', 'POST', {
-          language: language || formData.language,
-          count: 8 // Nombre d'exemples à générer
+        const response = await apiRequest('/api/code-generator/prompt-examples', {
+          method: 'POST',
+          body: JSON.stringify({
+            language: language || formData.language,
+            count: 8 // Nombre d'exemples à générer
+          })
         });
         
         return response.examples;
@@ -565,15 +568,15 @@ root.render(
   
   // Effet pour charger des exemples dynamiques au chargement de la page
   useEffect(() => {
-    generatePromptExamplesMutation.mutate();
+    generatePromptExamplesMutation.mutate(undefined);
     
     // Rafraîchir les exemples toutes les 30 minutes
     const refreshInterval = setInterval(() => {
-      generatePromptExamplesMutation.mutate();
+      generatePromptExamplesMutation.mutate(undefined);
     }, 30 * 60 * 1000);
     
     return () => clearInterval(refreshInterval);
-  }, []);
+  }, [generatePromptExamplesMutation]);
   
   // Effet pour mettre à jour les exemples lorsque le langage change
   useEffect(() => {
@@ -581,7 +584,7 @@ root.render(
     if (formData.language !== 'python') {
       generatePromptExamplesMutation.mutate(formData.language);
     }
-  }, [formData.language]);
+  }, [formData.language, generatePromptExamplesMutation]);
 
   // Fonction pour soumettre le formulaire
   const handleSubmit = (e: React.FormEvent) => {
