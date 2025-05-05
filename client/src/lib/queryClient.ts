@@ -11,17 +11,22 @@ export async function apiRequest<T = any>(
   url: string,
   options?: RequestInit,
 ): Promise<T> {
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      ...(options?.body ? { "Content-Type": "application/json" } : {}),
-      ...options?.headers,
-    },
-    credentials: "include",
-  });
+  try {
+    const res = await fetch(url, {
+      ...options,
+      headers: {
+        ...(options?.body ? { "Content-Type": "application/json" } : {}),
+        ...options?.headers,
+      },
+      credentials: "include",
+    });
 
-  await throwIfResNotOk(res);
-  return await res.json();
+    await throwIfResNotOk(res);
+    return await res.json();
+  } catch (error) {
+    console.error(`API request failed for ${url}:`, error);
+    throw error;
+  }
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
