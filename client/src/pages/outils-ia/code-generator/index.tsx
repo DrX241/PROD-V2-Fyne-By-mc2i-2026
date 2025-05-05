@@ -19,7 +19,10 @@ import {
   Link as LinkIcon,
   CheckCircle,
   MessageSquare,
-  Lightbulb
+  Lightbulb,
+  Database,
+  BarChart2 as BarChartBig,
+  FileSpreadsheet
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -75,6 +78,9 @@ const programmingLanguages = [
   { value: 'typescript', label: 'TypeScript', extension: '.ts', icon: <FileCode2 className="h-4 w-4 mr-2" /> },
   { value: 'java', label: 'Java', extension: '.java', icon: <Cpu className="h-4 w-4 mr-2" /> },
   { value: 'csharp', label: 'C#', extension: '.cs', icon: <Terminal className="h-4 w-4 mr-2" /> },
+  { value: 'sql', label: 'SQL', extension: '.sql', icon: <Database className="h-4 w-4 mr-2" /> },
+  { value: 'dax', label: 'DAX', extension: '.dax', icon: <BarChartBig className="h-4 w-4 mr-2" /> },
+  { value: 'vba', label: 'VBA', extension: '.bas', icon: <FileSpreadsheet className="h-4 w-4 mr-2" /> },
   { value: 'go', label: 'Go', extension: '.go', icon: <Braces className="h-4 w-4 mr-2" /> },
   { value: 'rust', label: 'Rust', extension: '.rs', icon: <Code className="h-4 w-4 mr-2" /> },
   { value: 'php', label: 'PHP', extension: '.php', icon: <Code className="h-4 w-4 mr-2" /> },
@@ -120,6 +126,28 @@ const frameworksByLanguage: Record<string, Array<{ value: string, label: string 
     { value: 'dotnet', label: '.NET' },
     { value: 'aspnet', label: 'ASP.NET Core' },
     { value: 'xamarin', label: 'Xamarin' },
+  ],
+  sql: [
+    { value: 'none', label: 'Aucun' },
+    { value: 'mysql', label: 'MySQL' },
+    { value: 'postgresql', label: 'PostgreSQL' },
+    { value: 'sqlserver', label: 'SQL Server' },
+    { value: 'oracle', label: 'Oracle' },
+    { value: 'sqlite', label: 'SQLite' },
+  ],
+  dax: [
+    { value: 'none', label: 'Aucun' },
+    { value: 'powerbi', label: 'Power BI' },
+    { value: 'ssas', label: 'SQL Server Analysis Services' },
+    { value: 'excel', label: 'Excel Power Pivot' },
+  ],
+  vba: [
+    { value: 'none', label: 'Aucun' },
+    { value: 'excel', label: 'Excel' },
+    { value: 'access', label: 'Access' },
+    { value: 'word', label: 'Word' },
+    { value: 'powerpoint', label: 'PowerPoint' },
+    { value: 'outlook', label: 'Outlook' },
   ],
 };
 
@@ -763,7 +791,7 @@ root.render(
                               ? 'bg-blue-500/30 border border-blue-400 text-white' 
                               : 'bg-blue-100 border border-blue-200'
                             : isFuturistic 
-                              ? 'bg-blue-900/20 hover:bg-blue-800/40 border border-blue-700/50 text-white' 
+                              ? 'bg-blue-900/20 hover:bg-blue-600/50 border border-blue-700/50 text-white' 
                               : 'hover:bg-gray-100 border border-gray-200'
                         } transition-colors`}
                         onClick={() => usePromptExample(index)}
