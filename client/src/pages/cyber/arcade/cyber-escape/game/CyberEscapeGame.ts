@@ -217,7 +217,7 @@ export class CyberEscapeGame {
     
     // Mettre à jour le pirate
     if (this.hacker && this.vulnerabilities) {
-      this.hacker.update(this.vulnerabilities, delta / 1000); // Convertir en secondes
+      this.hacker.update(this.vulnerabilities as any, delta / 1000); // Convertir en secondes
     }
     
     // Mettre à jour les vulnérabilités
