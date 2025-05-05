@@ -124,8 +124,11 @@ class CodeSandboxService {
       // Écrire le code dans un fichier temporaire
       await writeFilePromise(tempFilePath, code);
       
+      // Utiliser le chemin absolu vers Python 3.11
+      const pythonPath = '/nix/store/wqhkxzzlaswkj3gimqign99sshvllcg6-python-wrapped-0.1.0/bin/python3.11';
+      
       // Exécuter le code Python avec un timeout
-      const { stdout, stderr } = await execPromise(`python -u ${tempFilePath}`, {
+      const { stdout, stderr } = await execPromise(`${pythonPath} -u ${tempFilePath}`, {
         timeout: this.timeout,
         maxBuffer: 1024 * 1024 // 1MB buffer
       });
