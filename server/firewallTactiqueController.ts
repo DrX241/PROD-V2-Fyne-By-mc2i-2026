@@ -95,15 +95,15 @@ Ta mission est d'analyser la stratégie du joueur et de fournir un feedback cons
 - Score du joueur: ${defenseScore}
 
 # Composants placés
-${placedComponents.map(placed => {
-  const component = availableComponents.find(c => c.id === placed.componentId);
+${placedComponents.map((placed: PlacedComponent) => {
+  const component = availableComponents.find((c: SecurityComponent) => c.id === placed.componentId);
   return `- ${component?.name} (${component?.category}) à la position [${placed.position.x}, ${placed.position.y}]`;
 }).join('\n')}
 
 # Positions clés
 - Internet: [${levelData.internetPosition.x}, ${levelData.internetPosition.y}]
-- Serveurs: ${levelData.serverPositions.map(pos => `[${pos.x}, ${pos.y}]`).join(', ')}
-- Clients: ${levelData.clientPositions.map(pos => `[${pos.x}, ${pos.y}]`).join(', ')}
+- Serveurs: ${levelData.serverPositions.map((pos: {x: number, y: number}) => `[${pos.x}, ${pos.y}]`).join(', ')}
+- Clients: ${levelData.clientPositions.map((pos: {x: number, y: number}) => `[${pos.x}, ${pos.y}]`).join(', ')}
 
 Analyse la stratégie de défense et fournit une évaluation détaillée au format JSON suivant exactement cette structure:
 {
@@ -239,8 +239,8 @@ dans le jeu éducatif "Firewall Tactique".`;
 Le joueur fait face aux types d'attaques suivants: ${attackTypes.join(', ')}.
 
 Voici les composants qu'il a déjà placés:
-${placedComponents.map(placed => {
-  const component = availableComponents.find(c => c.id === placed.componentId);
+${placedComponents.map((placed: PlacedComponent) => {
+  const component = availableComponents.find((c: SecurityComponent) => c.id === placed.componentId);
   return `- ${component?.name} (${component?.category})`;
 }).join('\n')}
 
@@ -259,7 +259,7 @@ Fournis une réponse au format JSON structurée exactement comme suit:
 }`;
 
     // Appeler l'API OpenAI pour la génération du conseil
-    const response = await openAIService.generateCompletion({
+    const response = await openAIService.getChatCompletion({
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt }
