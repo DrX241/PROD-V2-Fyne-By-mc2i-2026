@@ -256,11 +256,60 @@ function App() {
             {/* Routes héritées pour compatibilité */}
             <Route path="/cyber/arcade/password-puzzle" component={NotYetImplemented} />
             <Route path="/cyber/arcade/firewall-defense" component={NotYetImplemented} />
+            {/* Section Data & IA */}
             <Route path="/data-ia" component={() => {
               const DataIaModeSelection = lazy(() => import('./pages/data-ia-mode-selection'));
               return (
                 <Suspense fallback={<GlobalLoader />}>
                   <DataIaModeSelection />
+                </Suspense>
+              );
+            }} />
+            <Route path="/data-ia/agent-ia" component={() => {
+              const DataIANotImplemented = lazy(() => import('./pages/data-ia/not-implemented'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <DataIANotImplemented />
+                </Suspense>
+              );
+            }} />
+            <Route path="/data-ia/modules-express" component={() => {
+              const DataIANotImplemented = lazy(() => import('./pages/data-ia/not-implemented'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <DataIANotImplemented />
+                </Suspense>
+              );
+            }} />
+            <Route path="/data-ia/simulation-mission" component={() => {
+              const DataIANotImplemented = lazy(() => import('./pages/data-ia/not-implemented'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <DataIANotImplemented />
+                </Suspense>
+              );
+            }} />
+            <Route path="/data-ia/pitch-restitution" component={() => {
+              const DataIANotImplemented = lazy(() => import('./pages/data-ia/not-implemented'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <DataIANotImplemented />
+                </Suspense>
+              );
+            }} />
+            <Route path="/data-ia/test-technique" component={() => {
+              const DataIANotImplemented = lazy(() => import('./pages/data-ia/not-implemented'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <DataIANotImplemented />
+                </Suspense>
+              );
+            }} />
+            <Route path="/data-ia/diagnostic-express" component={() => {
+              const DataIANotImplemented = lazy(() => import('./pages/data-ia/not-implemented'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <DataIANotImplemented />
                 </Suspense>
               );
             }} />
