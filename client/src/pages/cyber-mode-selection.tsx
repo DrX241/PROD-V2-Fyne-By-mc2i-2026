@@ -182,7 +182,7 @@ export default function CyberModeSelection() {
                       <div className="space-y-8">
                         {category.items && category.items.map((item) => (
                           <Link key={item.id} href={item.comingSoon ? '#' : item.destination} onClick={(e) => item.comingSoon && e.preventDefault()}>
-                            <div className="flex items-center p-4 rounded-lg bg-white/10 hover:bg-white/20 transition-colors cursor-pointer border border-white/20 shadow-sm hover:shadow-md hover:border-white/40">
+                            <div className="flex items-center p-4 rounded-lg bg-white/10 hover:bg-blue-500/30 transition-all cursor-pointer border border-white/30 shadow-md hover:shadow-lg hover:border-white/60 transform hover:-translate-y-1">
                               <div className="flex-grow">
                                 <div className="flex items-center gap-2">
                                   <h3 className="text-white font-medium text-base">{item.title}</h3>
@@ -191,15 +191,9 @@ export default function CyberModeSelection() {
                                   )}
                                 </div>
                               </div>
-                              {item.comingSoon ? (
-                                <div className="text-white bg-blue-500/30 p-1.5 rounded-full">
-                                  <ArrowRight className="h-5 w-5" />
-                                </div>
-                              ) : (
-                                <div className="text-white bg-blue-500/30 p-1.5 rounded-full">
-                                  <ArrowRight className="h-5 w-5" />
-                                </div>
-                              )}
+                              <div className="text-white bg-blue-600/60 p-2 rounded-full ml-2 flex-shrink-0">
+                                <ArrowRight className="h-5 w-5" />
+                              </div>
                             </div>
                           </Link>
                         ))}
