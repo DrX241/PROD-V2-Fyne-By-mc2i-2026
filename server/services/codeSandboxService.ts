@@ -51,24 +51,94 @@ class CodeSandboxService {
       const usesReact = code.includes('import React') || code.includes('from "react"') || code.includes('from \'react\'');
       
       if (usesModules || usesReact) {
-        // Pour le code utilisant des modules ES6 ou React, créer une prévisualisation simulée
+        // Pour le code utilisant des modules ES6 ou React, créer une prévisualisation interactive
         let output = '';
         
         if (usesReact) {
+          // Extraire le composant React principal
+          // Créer un HTML de démonstration qui inclut les dépendances React et rend le composant
+          const reactComponent = code;
+          const demoHTML = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Aperçu React</title>
+            <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+            <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+            <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+              #root { padding: 10px; }
+            </style>
+          </head>
+          <body>
+            <div id="root"></div>
+            
+            <script type="text/babel">
+              ${reactComponent}
+              
+              // Tenter de rendre le composant
+              try {
+                // Essayer de déterminer le nom du composant principal
+                const componentNames = Object.keys(window).filter(key => 
+                  typeof window[key] === 'function' && 
+                  /^[A-Z]/.test(key) && 
+                  key !== 'React' && 
+                  key !== 'ReactDOM'
+                );
+                
+                let MainComponent;
+                
+                if (componentNames.length > 0) {
+                  // Utiliser le premier composant trouvé avec majuscule
+                  MainComponent = window[componentNames[0]];
+                } else {
+                  // Chercher les exports par défaut ou nommés
+                  const exportDefaultMatch = /${reactComponent}/.match(/export\s+default\s+(\w+)/);
+                  if (exportDefaultMatch && exportDefaultMatch[1]) {
+                    MainComponent = window[exportDefaultMatch[1]];
+                  }
+                }
+                
+                // Si on a trouvé un composant, le rendre
+                if (MainComponent) {
+                  ReactDOM.render(<MainComponent />, document.getElementById('root'));
+                } else {
+                  // Sinon afficher un message d'erreur
+                  document.getElementById('root').innerHTML = 
+                    '<div style="color: #d00">Impossible de trouver le composant principal à rendre.</div>';
+                }
+              } catch (e) {
+                // Afficher l'erreur
+                document.getElementById('root').innerHTML = 
+                  '<div style="color: #d00">Erreur de rendu: ' + e.message + '</div>';
+              }
+            </script>
+          </body>
+          </html>
+          `;
+          
           output = `
             <div style="border: 1px solid #ddd; border-radius: 5px; padding: 10px; font-family: sans-serif;">
               <div style="margin-bottom: 10px; font-size: 14px; color: #555;">
-                Prévisualisation React (affichage simulé):
+                Prévisualisation React (rendu direct):
               </div>
-              <div style="border: 1px solid #eee; border-radius: 4px; padding: 10px; background-color: white;">
-                Le code React sera rendu comme un composant avec JSX.
+              <div style="border: 1px solid #eee; border-radius: 4px; padding: 10px; background-color: white; height: 300px; overflow: auto;">
+                <iframe 
+                  sandbox="allow-scripts" 
+                  style="width: 100%; height: 100%; border: none;"
+                  srcdoc="${demoHTML.replace(/"/g, '&quot;')}"
+                ></iframe>
               </div>
               <div style="margin-top: 10px; font-size: 12px; color: #666;">
-                Note: Pour une prévisualisation complète, vous devrez utiliser ce code dans un environnement React complet.
+                Note: Certains composants React avancés peuvent ne pas s'afficher correctement dans cet environnement limité.
               </div>
             </div>
           `;
         } else {
+          // Pour les modules ES6 non-React, afficher une prévisualisation basique
           output = `
             <div style="border: 1px solid #ddd; border-radius: 5px; padding: 10px; font-family: sans-serif;">
               <div style="margin-bottom: 10px; font-size: 14px; color: #555;">
@@ -307,17 +377,21 @@ class CodeSandboxService {
     const startTime = Date.now();
     
     try {
-      // Créer une prévisualisation HTML avec un iframe
+      // Créer un aperçu interactif HTML avec un iframe sandbox sécurisé
       const previewOutput = `
         <div style="border: 1px solid #ddd; border-radius: 5px; padding: 10px; font-family: sans-serif;">
           <div style="margin-bottom: 10px; font-size: 14px; color: #555;">
-            Prévisualisation HTML (affichage simulé):
+            Prévisualisation HTML (rendu direct):
           </div>
-          <div style="border: 1px solid #eee; border-radius: 4px; padding: 10px; background-color: white;">
-            Le code HTML sera rendu dans un navigateur. Voici la structure du document:
+          <div style="border: 1px solid #eee; border-radius: 4px; padding: 10px; background-color: white; height: 300px; overflow: auto;">
+            <iframe 
+              sandbox="allow-scripts" 
+              style="width: 100%; height: 100%; border: none;"
+              srcdoc="${code.replace(/"/g, '&quot;')}"
+            ></iframe>
           </div>
           <div style="margin-top: 10px; font-size: 12px; color: #666;">
-            Note: Pour une prévisualisation complète, vous devrez ouvrir ce code dans un navigateur ou utiliser un éditeur comme CodePen.
+            Note: Ce rendu est exécuté dans un environnement sécurisé (sandbox). Certaines fonctionnalités peuvent être limitées.
           </div>
         </div>
       `;
@@ -344,17 +418,66 @@ class CodeSandboxService {
     const startTime = Date.now();
     
     try {
-      // Créer une prévisualisation CSS avec un exemple d'application
+      // Créer un aperçu interactif CSS avec un exemple d'application
+      // Générer un HTML de démonstration qui utilise le CSS fourni
+      const demoHTML = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          ${code}
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <header class="header">
+            <h1>Titre de la page</h1>
+            <nav>
+              <ul>
+                <li><a href="#">Accueil</a></li>
+                <li><a href="#">À propos</a></li>
+                <li><a href="#">Services</a></li>
+                <li><a href="#">Contact</a></li>
+              </ul>
+            </nav>
+          </header>
+          
+          <main>
+            <section class="hero">
+              <h2>Section principale</h2>
+              <p>Ceci est un texte d'exemple pour visualiser le rendu CSS</p>
+              <button class="btn">Bouton d'action</button>
+            </section>
+            
+            <section class="features">
+              <div class="card">Carte 1</div>
+              <div class="card">Carte 2</div>
+              <div class="card">Carte 3</div>
+            </section>
+          </main>
+          
+          <footer>
+            <p>Pied de page © 2025</p>
+          </footer>
+        </div>
+      </body>
+      </html>
+      `;
+      
       const previewOutput = `
         <div style="border: 1px solid #ddd; border-radius: 5px; padding: 10px; font-family: sans-serif;">
           <div style="margin-bottom: 10px; font-size: 14px; color: #555;">
-            Prévisualisation CSS (affichage simulé):
+            Prévisualisation CSS (rendu direct):
           </div>
-          <div style="border: 1px solid #eee; border-radius: 4px; padding: 10px; background-color: white;">
-            Le code CSS sera appliqué aux éléments HTML. Voici la structure de style identifiée:
+          <div style="border: 1px solid #eee; border-radius: 4px; padding: 10px; background-color: white; height: 300px; overflow: auto;">
+            <iframe 
+              sandbox="allow-scripts" 
+              style="width: 100%; height: 100%; border: none;"
+              srcdoc="${demoHTML.replace(/"/g, '&quot;')}"
+            ></iframe>
           </div>
           <div style="margin-top: 10px; font-size: 12px; color: #666;">
-            Note: Pour une prévisualisation complète, vous devrez ouvrir ce code dans un navigateur ou utiliser un éditeur comme CodePen.
+            Note: Ce rendu utilise une structure HTML de démonstration pour visualiser le CSS appliqué.
           </div>
         </div>
       `;
