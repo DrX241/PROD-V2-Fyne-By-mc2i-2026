@@ -199,9 +199,6 @@ export default function CyberModeSelection() {
                               <div className="flex-grow">
                                 <div className="flex items-center gap-2">
                                   <h3 className="text-white font-medium text-base">{item.title}</h3>
-                                  {item.isNew && (
-                                    <span className="text-xs px-1.5 py-0.5 bg-amber-500 text-white rounded-full flex-shrink-0">Nouveau</span>
-                                  )}
                                 </div>
                               </div>
                               <div className="text-white bg-blue-500/30 p-1 rounded-full">
