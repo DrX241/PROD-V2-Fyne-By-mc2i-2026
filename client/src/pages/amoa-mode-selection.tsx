@@ -38,6 +38,12 @@ export default function AmoaModeSelection() {
       destination: '#',
       items: [
         {
+          id: 'mc2i-ai-learning',
+          title: 'mc2i AI Learning',
+          icon: null,
+          destination: '/outils-ia/mc2i-learning'
+        },
+        {
           id: 'amoa-quest',
           title: 'AMOA QUEST',
           icon: null,

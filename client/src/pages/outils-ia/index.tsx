@@ -136,12 +136,6 @@ export default function OutilsIAPage() {
   
   const tools = [
     {
-      title: 'mc2i AI Learning',
-      description: 'Chatbot spécialisé en gestion de projet et AMOA qui fournit des exemples concrets, recommande des outils et propose des mini-jeux interactifs pour un apprentissage ludique.',
-      icon: <MessagesSquare className="h-6 w-6" />,
-      href: '/outils-ia/mc2i-learning'
-    },
-    {
       title: 'Assistant IA Personnalisé',
       description: 'Créez votre propre assistant IA adapté à vos besoins spécifiques grâce à nos modèles d\'IA avancés. Personnalisez-le pour répondre à vos questions professionnelles.',
       icon: <BrainCircuit className="h-6 w-6" />,
