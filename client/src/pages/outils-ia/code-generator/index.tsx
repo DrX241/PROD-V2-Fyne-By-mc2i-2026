@@ -120,75 +120,22 @@ interface CodeImprovementResponse {
   improvementType: string;
 }
 
-// Langages de programmation disponibles
+// Langages de programmation disponibles (simplifiés comme demandé)
 const programmingLanguages = [
   { value: 'python', label: 'Python', extension: '.py', icon: <Braces className="h-4 w-4 mr-2" /> },
-  { value: 'javascript', label: 'JavaScript', extension: '.js', icon: <Code className="h-4 w-4 mr-2" /> },
-  { value: 'typescript', label: 'TypeScript', extension: '.ts', icon: <FileCode2 className="h-4 w-4 mr-2" /> },
-  { value: 'html', label: 'HTML', extension: '.html', icon: <Code className="h-4 w-4 mr-2" /> },
-  { value: 'css', label: 'CSS', extension: '.css', icon: <FileCode2 className="h-4 w-4 mr-2" /> },
-  { value: 'java', label: 'Java', extension: '.java', icon: <Cpu className="h-4 w-4 mr-2" /> },
-  { value: 'csharp', label: 'C#', extension: '.cs', icon: <Terminal className="h-4 w-4 mr-2" /> },
   { value: 'sql', label: 'SQL', extension: '.sql', icon: <Database className="h-4 w-4 mr-2" /> },
-  { value: 'dax', label: 'DAX', extension: '.dax', icon: <BarChartBig className="h-4 w-4 mr-2" /> },
-  { value: 'vba', label: 'VBA', extension: '.bas', icon: <FileSpreadsheet className="h-4 w-4 mr-2" /> },
-  { value: 'go', label: 'Go', extension: '.go', icon: <Braces className="h-4 w-4 mr-2" /> },
-  { value: 'rust', label: 'Rust', extension: '.rs', icon: <Code className="h-4 w-4 mr-2" /> },
-  { value: 'php', label: 'PHP', extension: '.php', icon: <Code className="h-4 w-4 mr-2" /> },
-  { value: 'swift', label: 'Swift', extension: '.swift', icon: <Braces className="h-4 w-4 mr-2" /> },
-  { value: 'kotlin', label: 'Kotlin', extension: '.kt', icon: <Terminal className="h-4 w-4 mr-2" /> },
-  { value: 'ruby', label: 'Ruby', extension: '.rb', icon: <Braces className="h-4 w-4 mr-2" /> },
+  { value: 'excel', label: 'Formules Excel', extension: '.xlsx', icon: <FileSpreadsheet className="h-4 w-4 mr-2" /> },
 ];
 
-// Frameworks par langage
+// Frameworks par langage (simplifiés pour nos 3 langages)
 const frameworksByLanguage: Record<string, Array<{ value: string, label: string }>> = {
   python: [
     { value: 'none', label: 'Aucun' },
-    { value: 'flask', label: 'Flask' },
-    { value: 'django', label: 'Django' },
-    { value: 'fastapi', label: 'FastAPI' },
-    { value: 'pytorch', label: 'PyTorch' },
+    { value: 'pandas', label: 'Pandas' },
+    { value: 'numpy', label: 'NumPy' },
+    { value: 'matplotlib', label: 'Matplotlib' },
+    { value: 'scikit-learn', label: 'Scikit-Learn' },
     { value: 'tensorflow', label: 'TensorFlow' },
-  ],
-  javascript: [
-    { value: 'none', label: 'Aucun' },
-    { value: 'react', label: 'React' },
-    { value: 'vue', label: 'Vue.js' },
-    { value: 'angular', label: 'Angular' },
-    { value: 'express', label: 'Express' },
-    { value: 'nextjs', label: 'Next.js' },
-  ],
-  typescript: [
-    { value: 'none', label: 'Aucun' },
-    { value: 'react', label: 'React' },
-    { value: 'vue', label: 'Vue.js' },
-    { value: 'angular', label: 'Angular' },
-    { value: 'express', label: 'Express' },
-    { value: 'nextjs', label: 'Next.js' },
-  ],
-  html: [
-    { value: 'none', label: 'Aucun' },
-    { value: 'bootstrap', label: 'Bootstrap' },
-    { value: 'tailwind', label: 'Tailwind CSS' },
-    { value: 'materialize', label: 'Materialize' },
-  ],
-  css: [
-    { value: 'none', label: 'Aucun' },
-    { value: 'sass', label: 'SASS' },
-    { value: 'less', label: 'LESS' },
-    { value: 'postcss', label: 'PostCSS' },
-  ],
-  java: [
-    { value: 'none', label: 'Aucun' },
-    { value: 'spring', label: 'Spring' },
-    { value: 'springboot', label: 'Spring Boot' },
-    { value: 'jakarta', label: 'Jakarta EE' },
-  ],
-  csharp: [
-    { value: 'none', label: 'Aucun' },
-    { value: 'dotnet', label: '.NET' },
-    { value: 'aspnet', label: 'ASP.NET Core' },
-    { value: 'xamarin', label: 'Xamarin' },
   ],
   sql: [
     { value: 'none', label: 'Aucun' },
@@ -198,32 +145,26 @@ const frameworksByLanguage: Record<string, Array<{ value: string, label: string 
     { value: 'oracle', label: 'Oracle' },
     { value: 'sqlite', label: 'SQLite' },
   ],
-  dax: [
+  excel: [
     { value: 'none', label: 'Aucun' },
-    { value: 'powerbi', label: 'Power BI' },
-    { value: 'ssas', label: 'SQL Server Analysis Services' },
-    { value: 'excel', label: 'Excel Power Pivot' },
-  ],
-  vba: [
-    { value: 'none', label: 'Aucun' },
-    { value: 'excel', label: 'Excel' },
-    { value: 'access', label: 'Access' },
-    { value: 'word', label: 'Word' },
-    { value: 'powerpoint', label: 'PowerPoint' },
-    { value: 'outlook', label: 'Outlook' },
+    { value: 'formules', label: 'Formules de base' },
+    { value: 'statistiques', label: 'Statistiques' },
+    { value: 'financier', label: 'Financier' },
+    { value: 'recherche', label: 'Recherche et référence' },
+    { value: 'date', label: 'Date et heure' },
   ],
 };
 
-// Exemples initiaux de prompts pour inspirer l'utilisateur (utilisés comme fallback)
+// Exemples initiaux de prompts pour inspirer l'utilisateur (adaptés aux langages simplifiés)
 const defaultPromptExamples = [
-  "Créer une API REST pour gérer un inventaire de produits avec authentification",
-  "Développer un jeu simple de devinette de nombre en interface console",
-  "Concevoir une classe pour gérer une file d'attente prioritaire",
-  "Créer un script qui convertit des images PNG en JPG avec redimensionnement",
-  "Implémenter un algorithme de tri fusion (merge sort)",
-  "Créer un formulaire d'inscription avec validation des champs",
-  "Développer un crawler web simple qui extrait les titres d'articles",
-  "Créer un système de cache en mémoire avec expiration des données",
+  "Python: Créer un script d'analyse de données qui traite un fichier CSV et génère des statistiques",
+  "SQL: Écrire une requête pour extraire les ventes mensuelles par catégorie de produit",
+  "Excel: Créer une formule pour calculer le taux de croissance entre deux périodes",
+  "Python: Développer un modèle de machine learning pour prédire des valeurs à partir d'un dataset",
+  "SQL: Concevoir une requête pour identifier les clients inactifs depuis plus de 90 jours",
+  "Excel: Formule pour créer un tableau de bord financier avec calculs automatiques",
+  "Python: Script pour automatiser l'envoi de rapports par email avec graphiques",
+  "SQL: Requête d'optimisation des performances d'une base de données client",
 ];
 
 export default function CodeGeneratorPage() {

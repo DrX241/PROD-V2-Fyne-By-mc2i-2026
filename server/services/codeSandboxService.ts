@@ -590,6 +590,49 @@ class CodeSandboxService {
   }
 
   /**
+   * Exécute des formules Excel
+   */
+  async executeExcel(code: string): Promise<ExecutionResult> {
+    const startTime = Date.now();
+    
+    try {
+      // Formater le code Excel
+      const formattedCode = code.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      
+      const explanation = `
+        <div style="border: 1px solid #ddd; border-radius: 5px; padding: 15px; font-family: sans-serif;">
+          <div style="margin-bottom: 10px; font-size: 14px; font-weight: bold; color: #333;">
+            Formules Excel
+          </div>
+          <div style="border: 1px solid #eee; border-radius: 4px; padding: 15px; background-color: white; margin-bottom: 15px;">
+            <pre style="margin: 0; padding: 10px; background-color: #f5f5f5; border-radius: 4px; overflow: auto; font-family: monospace; font-size: 12px;">${formattedCode}</pre>
+          </div>
+          <div style="margin-top: 15px; background-color: #f8f9fa; padding: 15px; border-radius: 4px; border: 1px solid #ddd;">
+            <div style="font-weight: bold; margin-bottom: 10px; color: #333;">Explication des formules:</div>
+            <p style="margin-bottom: 10px;">Les formules Excel ne peuvent pas être exécutées directement dans ce navigateur. Vous devez les copier dans Excel pour les tester.</p>
+            <div style="color: #0066cc; font-weight: bold; margin-top: 10px;">
+              Astuce: Copiez ces formules dans Excel pour voir le résultat.
+            </div>
+          </div>
+        </div>
+      `;
+      
+      return {
+        success: true,
+        output: explanation,
+        executionTimeMs: Date.now() - startTime
+      };
+    } catch (error) {
+      return {
+        success: false,
+        output: '',
+        error: error instanceof Error ? error.message : String(error),
+        executionTimeMs: Date.now() - startTime
+      };
+    }
+  }
+
+  /**
    * Fonction d'exécution générique qui sélectionne le bon exécuteur selon le langage
    */
   async executeCode(code: string, language: string): Promise<ExecutionResult> {
@@ -614,6 +657,8 @@ class CodeSandboxService {
         return this.executeHTML(code);
       case 'css':
         return this.executeCSS(code);
+      case 'excel':
+        return this.executeExcel(code);
       case 'sql':
       case 'mysql':
       case 'postgresql':
