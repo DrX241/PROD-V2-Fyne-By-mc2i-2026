@@ -44,7 +44,7 @@ interface Question {
 
 interface QuizResponse {
   questionId: string;
-  answer: number;
+  answer: number | string;
 }
 
 interface AnalysisResult {
@@ -67,11 +67,15 @@ interface EvaluationResult {
   totalQuestions: number;
   detailedResults: Array<{
     questionId: string;
+    type: 'mcq' | 'code' | 'scenario' | 'open';
     isCorrect: boolean;
-    userAnswer: number;
-    correctAnswer: number;
+    userAnswer: number | string;
+    correctAnswer?: number;
     question: string;
-    options: string[];
+    options?: string[];
+    code?: string;
+    solution?: string;
+    context?: string;
     explanation: string;
   }>;
   analysis: AnalysisResult;
@@ -312,8 +316,23 @@ export default function CyberTestTechnique() {
       return;
     }
     
-    // Check if all questions have been answered
-    const unansweredCount = responses.filter(r => r.answer === -1).length;
+    // Vérifiez si toutes les questions ont été répondues
+    const unansweredCount = responses.filter((r, index) => {
+      if (!questions || index >= questions.length) return false;
+      const questionType = questions[index].type;
+      
+      // Pour les QCM, vérifier si la réponse est -1 (non répondue)
+      if (questionType === 'mcq' && r.answer === -1) {
+        return true;
+      }
+      
+      // Pour les autres types, vérifier si la réponse est une chaîne vide
+      if (questionType !== 'mcq' && (r.answer === '' || r.answer === undefined)) {
+        return true;
+      }
+      
+      return false;
+    }).length;
     
     if (unansweredCount > 0 && timeLeft > 10) {
       toast({
@@ -458,7 +477,12 @@ export default function CyberTestTechnique() {
           <Progress value={questions && questions.length > 0 ? ((currentQuestion + 1) / questions.length * 100) : 0} className="h-2" />
           <div className="flex justify-between text-xs text-gray-500 mt-1">
             <span>Question {currentQuestion + 1} sur {questions ? questions.length : 0}</span>
-            <span>{responses ? responses.filter(r => r.answer !== -1).length : 0} répondue(s)</span>
+            <span>{responses && questions ? responses.filter((r, index) => {
+              if (!questions || index >= questions.length) return false;
+              const type = questions[index].type;
+              return (type === 'mcq' && r.answer !== -1) || 
+                     (type !== 'mcq' && r.answer !== '' && r.answer !== undefined);
+            }).length : 0} répondue(s)</span>
           </div>
         </div>
       </CardHeader>
@@ -760,23 +784,92 @@ export default function CyberTestTechnique() {
                           ) : (
                             <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
                           )}
-                          <div>
-                            <div className="font-medium text-black">
-                              Question {index + 1}: {result.question}
+                          <div className="flex-grow">
+                            <div className="flex items-center gap-2">
+                              {/* Badge de type */}
+                              <div className={`text-xs font-semibold px-2 py-1 rounded ${
+                                result.type === 'mcq' ? 'bg-blue-100 text-blue-700' :
+                                result.type === 'code' ? 'bg-green-100 text-green-700' :
+                                result.type === 'scenario' ? 'bg-amber-100 text-amber-700' :
+                                'bg-purple-100 text-purple-700'
+                              }`}>
+                                {result.type === 'mcq' ? 'QCM' :
+                                 result.type === 'code' ? 'Code' :
+                                 result.type === 'scenario' ? 'Scénario' :
+                                 'Question ouverte'}
+                              </div>
+                              <div className="font-medium text-black">
+                                Question {index + 1}: {result.question}
+                              </div>
                             </div>
                             <div className="text-sm mt-1">
                               {result.isCorrect ? (
-                                <span className="text-green-600">Réponse correcte!</span>
+                                <span className="text-green-600">
+                                  {result.type === 'mcq' ? 'Réponse correcte!' : 'Solution acceptée!'}
+                                </span>
                               ) : (
                                 <span className="text-red-600">
-                                  Votre réponse: {String.fromCharCode(65 + result.userAnswer)} | 
-                                  Réponse correcte: {String.fromCharCode(65 + result.correctAnswer)}
+                                  {result.type === 'mcq' ? (
+                                    <>
+                                      Votre réponse: {typeof result.userAnswer === 'number' ? 
+                                        `${String.fromCharCode(65 + result.userAnswer)} (${result.options?.[result.userAnswer as number] || 'N/A'})` : 
+                                        'Non répondu'} 
+                                      | Réponse correcte: {result.correctAnswer !== undefined ? 
+                                        `${String.fromCharCode(65 + result.correctAnswer)} (${result.options?.[result.correctAnswer] || 'N/A'})` : 
+                                        'N/A'}
+                                    </>
+                                  ) : (
+                                    'Solution incorrecte ou incomplète'
+                                  )}
                                 </span>
                               )}
                             </div>
                           </div>
                         </div>
-                        <div className="p-3 bg-white">
+
+                        {/* Affichage du code pour les exercices de code */}
+                        {result.type === 'code' && (
+                          <div className="border-t border-gray-200 p-3 bg-gray-50">
+                            <div className="text-sm font-medium mb-2">Votre solution:</div>
+                            <div className="bg-gray-900 text-white p-3 rounded-md overflow-x-auto font-mono text-xs mb-3 whitespace-pre">
+                              {typeof result.userAnswer === 'string' ? result.userAnswer : '// Aucune solution fournie'}
+                            </div>
+                            
+                            {result.solution && (
+                              <>
+                                <div className="text-sm font-medium mb-2">Solution attendue:</div>
+                                <div className="bg-gray-900 text-white p-3 rounded-md overflow-x-auto font-mono text-xs whitespace-pre">
+                                  {result.solution}
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        )}
+                        
+                        {/* Affichage pour les scénarios */}
+                        {result.type === 'scenario' && result.context && (
+                          <div className="border-t border-gray-200 p-3 bg-amber-50">
+                            <div className="text-sm font-medium mb-2">Contexte:</div>
+                            <p className="text-sm">{result.context}</p>
+                            
+                            <div className="mt-3 text-sm font-medium mb-2">Votre solution:</div>
+                            <div className="bg-white p-2 rounded border border-gray-200">
+                              <p className="text-sm">{typeof result.userAnswer === 'string' ? result.userAnswer : 'Aucune solution fournie'}</p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Affichage pour les questions ouvertes */}
+                        {result.type === 'open' && (
+                          <div className="border-t border-gray-200 p-3 bg-purple-50">
+                            <div className="text-sm font-medium mb-2">Votre réponse:</div>
+                            <div className="bg-white p-2 rounded border border-gray-200">
+                              <p className="text-sm">{typeof result.userAnswer === 'string' ? result.userAnswer : 'Aucune réponse fournie'}</p>
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div className="p-3 bg-white border-t border-gray-200">
                           <div className="text-sm font-medium mb-2 text-blue-600">Explication:</div>
                           <p className="text-sm text-black">{result.explanation}</p>
                         </div>
