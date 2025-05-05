@@ -24,7 +24,16 @@ import {
   Database,
   BarChart2 as BarChartBig,
   FileSpreadsheet,
-  Loader2
+  Loader2,
+  Zap,
+  FileText,
+  FileQuestion,
+  FlaskConical,
+  Wrench,
+  Play,
+  AlertCircle,
+  Clock,
+  Folder
 } from 'lucide-react';
 
 // Icons pour l'application
