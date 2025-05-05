@@ -325,25 +325,15 @@ export default function CodeGeneratorPage() {
     }
   });
   
-  // Effet pour charger des exemples dynamiques au chargement de la page
+  // Charger les exemples par défaut au démarrage (sans appel API)
   useEffect(() => {
-    generatePromptExamplesMutation.mutate(undefined);
-    
-    // Rafraîchir les exemples toutes les 30 minutes
-    const refreshInterval = setInterval(() => {
-      generatePromptExamplesMutation.mutate(undefined);
-    }, 30 * 60 * 1000);
-    
-    return () => clearInterval(refreshInterval);
-  }, [generatePromptExamplesMutation]);
+    setPromptExamples(defaultPromptExamples);
+  }, []);
   
-  // Effet pour mettre à jour les exemples lorsque le langage change
-  useEffect(() => {
-    // Ne pas rafraîchir si c'est juste le chargement initial
-    if (formData.language !== 'python') {
-      generatePromptExamplesMutation.mutate(formData.language);
-    }
-  }, [formData.language, generatePromptExamplesMutation]);
+  // Fonction pour rafraîchir les exemples manuellement
+  const refreshExamples = () => {
+    generatePromptExamplesMutation.mutate(formData.language);
+  };
 
   // Fonction pour soumettre le formulaire
   const handleSubmit = (e: React.FormEvent) => {
@@ -595,35 +585,57 @@ export default function CodeGeneratorPage() {
               {/* Exemples de prompts */}
               <Card className={`mt-4 ${isFuturistic ? 'bg-gray-800 border-gray-700' : ''}`}>
                 <CardHeader className="pb-3">
-                  <CardTitle className={isFuturistic ? 'text-white' : ''}>
-                    <div className="flex items-center gap-2">
-                      <Lightbulb className={`h-5 w-5 ${isFuturistic ? 'text-yellow-400' : 'text-yellow-600'}`} />
-                      Exemples d'idées
-                    </div>
-                  </CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className={isFuturistic ? 'text-white' : ''}>
+                      <div className="flex items-center gap-2">
+                        <Lightbulb className={`h-5 w-5 ${isFuturistic ? 'text-yellow-400' : 'text-yellow-600'}`} />
+                        Exemples d'idées
+                      </div>
+                    </CardTitle>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={refreshExamples}
+                      disabled={isLoadingExamples}
+                      className={isFuturistic ? 'border-gray-700 text-gray-300 hover:bg-gray-800' : ''}
+                    >
+                      {isLoadingExamples ? (
+                        <Icons.spinner className="h-4 w-4 animate-spin mr-1" />
+                      ) : (
+                        <RefreshCw className="h-4 w-4 mr-1" />
+                      )}
+                      {isLoadingExamples ? 'Chargement...' : 'Générer'}
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
-                    {promptExamples.map((example, index) => (
-                      <div 
-                        key={index}
-                        className={`p-2 rounded-md cursor-pointer text-sm ${
-                          selectedExample === index
-                            ? isFuturistic 
-                              ? 'bg-blue-500/30 border border-blue-400 text-white' 
-                              : 'bg-blue-100 border border-blue-200'
-                            : isFuturistic 
-                              ? 'bg-blue-900/20 hover:bg-blue-600/50 border border-blue-700/50 text-white' 
-                              : 'hover:bg-gray-100 border border-gray-200'
-                        } transition-colors`}
-                        onClick={() => usePromptExample(index)}
-                      >
-                        <p className="font-medium">
-                          {example}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
+                  {isLoadingExamples ? (
+                    <div className="flex justify-center items-center p-6">
+                      <Icons.spinner className={`h-8 w-8 animate-spin ${isFuturistic ? 'text-blue-400' : 'text-blue-600'}`} />
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {promptExamples.map((example, index) => (
+                        <div 
+                          key={index}
+                          className={`p-2 rounded-md cursor-pointer text-sm ${
+                            selectedExample === index
+                              ? isFuturistic 
+                                ? 'bg-blue-500/30 border border-blue-400 text-white' 
+                                : 'bg-blue-100 border border-blue-200'
+                              : isFuturistic 
+                                ? 'bg-blue-900/20 hover:bg-blue-600/50 border border-blue-700/50 text-white' 
+                                : 'hover:bg-gray-100 border border-gray-200'
+                          } transition-colors`}
+                          onClick={() => usePromptExample(index)}
+                        >
+                          <p className="font-medium">
+                            {example}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
