@@ -81,6 +81,28 @@ interface CodeGenerationResponse {
   }>;
 }
 
+interface CodeExecutionResponse {
+  success: boolean;
+  output: string;
+  error?: string;
+  executionTimeMs: number;
+}
+
+interface CodeImprovementRequest {
+  code: string;
+  language: string;
+  executionError?: string;
+  improvement: 'optimize' | 'simplify' | 'document' | 'test' | 'fix';
+}
+
+interface CodeImprovementResponse {
+  improvedCode: string;
+  explanation: string;
+  changesMade: string[];
+  language: string;
+  improvementType: string;
+}
+
 // Langages de programmation disponibles
 const programmingLanguages = [
   { value: 'python', label: 'Python', extension: '.py', icon: <Braces className="h-4 w-4 mr-2" /> },
@@ -203,6 +225,13 @@ export default function CodeGeneratorPage() {
   const [promptExamples, setPromptExamples] = useState<string[]>(defaultPromptExamples);
   // État pour le chargement des exemples
   const [isLoadingExamples, setIsLoadingExamples] = useState(false);
+  // États pour l'exécution de code
+  const [executionResult, setExecutionResult] = useState<CodeExecutionResponse | null>(null);
+  const [isExecutingCode, setIsExecutingCode] = useState(false);
+  // États pour l'amélioration de code
+  const [improvedResult, setImprovedResult] = useState<CodeImprovementResponse | null>(null);
+  const [isImprovingCode, setIsImprovingCode] = useState(false);
+  const [improvementType, setImprovementType] = useState<'optimize' | 'simplify' | 'document' | 'test' | 'fix'>('optimize');
   
   // Fonction pour utiliser un exemple de prompt
   const usePromptExample = (index: number) => {
@@ -343,6 +372,102 @@ export default function CodeGeneratorPage() {
   // Fonction pour rafraîchir les exemples manuellement
   const refreshExamples = () => {
     generatePromptExamplesMutation.mutate(formData.language);
+  };
+
+  // Mutation pour exécuter le code
+  const executeCodeMutation = useMutation({
+    mutationFn: async (data: { code: string; language: string }) => {
+      setIsExecutingCode(true);
+      try {
+        const response = await apiRequest('/api/code-generator/execute', {
+          method: 'POST',
+          body: JSON.stringify(data),
+        });
+        
+        return response as CodeExecutionResponse;
+      } catch (error) {
+        console.error('Error executing code:', error);
+        throw error;
+      } finally {
+        setIsExecutingCode(false);
+      }
+    },
+    onSuccess: (result) => {
+      setExecutionResult(result);
+      toast({
+        title: result.success ? "Exécution réussie" : "Erreur d'exécution",
+        description: result.success 
+          ? `Code exécuté en ${result.executionTimeMs}ms` 
+          : "Le code a généré une erreur lors de l'exécution",
+        variant: result.success ? "default" : "destructive",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'exécution du code",
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Mutation pour améliorer le code
+  const improveCodeMutation = useMutation({
+    mutationFn: async (data: CodeImprovementRequest) => {
+      setIsImprovingCode(true);
+      try {
+        const response = await apiRequest('/api/code-generator/improve', {
+          method: 'POST',
+          body: JSON.stringify(data),
+        });
+        
+        return response as CodeImprovementResponse;
+      } catch (error) {
+        console.error('Error improving code:', error);
+        throw error;
+      } finally {
+        setIsImprovingCode(false);
+      }
+    },
+    onSuccess: (result) => {
+      setImprovedResult(result);
+      toast({
+        title: "Amélioration réussie",
+        description: `Code ${result.improvementType === 'fix' ? 'corrigé' : 'amélioré'} avec succès`,
+        variant: "default",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'amélioration du code",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Fonction pour exécuter le code généré
+  const handleExecuteCode = () => {
+    if (!lastResult) return;
+    
+    executeCodeMutation.mutate({
+      code: lastResult.code,
+      language: lastResult.language
+    });
+  };
+  
+  // Fonction pour améliorer ou corriger le code
+  const handleImproveCode = (type: 'optimize' | 'simplify' | 'document' | 'test' | 'fix' = 'optimize') => {
+    if (!lastResult) return;
+    
+    setImprovementType(type);
+    
+    improveCodeMutation.mutate({
+      code: lastResult.code,
+      language: lastResult.language,
+      executionError: executionResult && !executionResult.success ? executionResult.error : undefined,
+      improvement: type
+    });
   };
 
   // Fonction pour soumettre le formulaire
@@ -731,6 +856,20 @@ export default function CodeGeneratorPage() {
                           Code
                         </TabsTrigger>
                         <TabsTrigger 
+                          value="execution" 
+                          className={isFuturistic ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white text-gray-300' : ''}
+                        >
+                          <Terminal className="h-4 w-4 mr-1" />
+                          Exécution
+                        </TabsTrigger>
+                        <TabsTrigger 
+                          value="improvement" 
+                          className={isFuturistic ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white text-gray-300' : ''}
+                        >
+                          <Sparkles className="h-4 w-4 mr-1" />
+                          Amélioration
+                        </TabsTrigger>
+                        <TabsTrigger 
                           value="explanation" 
                           className={isFuturistic ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white text-gray-300' : ''}
                         >
@@ -838,6 +977,209 @@ export default function CodeGeneratorPage() {
                               </div>
                             ))}
                           </div>
+                        </div>
+                      </CardContent>
+                    </TabsContent>
+                    
+                    <TabsContent value="execution" className="m-0">
+                      <CardContent className="pt-6">
+                        <div className={`p-4 rounded-lg ${isFuturistic ? 'bg-gray-700 text-gray-300' : 'bg-blue-50 text-gray-700'}`}>
+                          <h3 className={`text-lg font-medium mb-3 ${isFuturistic ? 'text-white' : 'text-blue-800'}`}>
+                            Exécution du code
+                          </h3>
+                          
+                          <div className="flex justify-between items-center mb-4">
+                            <p className="text-sm">
+                              Exécutez votre code dans un environnement sécurisé pour tester son fonctionnement.
+                            </p>
+                            <Button 
+                              onClick={handleExecuteCode}
+                              disabled={!lastResult || isExecutingCode}
+                              className={`${isFuturistic ? 'bg-blue-700 hover:bg-blue-600 text-white' : ''}`}
+                            >
+                              {isExecutingCode ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                  Exécution...
+                                </>
+                              ) : (
+                                <>
+                                  <Play className="h-4 w-4 mr-2" />
+                                  Exécuter
+                                </>
+                              )}
+                            </Button>
+                          </div>
+
+                          {executionResult && (
+                            <div className={`mt-4 p-4 rounded-lg overflow-auto max-h-[300px] ${
+                              executionResult.success 
+                                ? (isFuturistic ? 'bg-green-900/30 border border-green-800' : 'bg-green-50 border border-green-100') 
+                                : (isFuturistic ? 'bg-red-900/30 border border-red-800' : 'bg-red-50 border border-red-100')
+                            }`}>
+                              <div className="flex justify-between items-center mb-2">
+                                <div className="flex items-center">
+                                  {executionResult.success ? (
+                                    <CheckCircle className={`h-5 w-5 mr-2 ${isFuturistic ? 'text-green-400' : 'text-green-500'}`} />
+                                  ) : (
+                                    <AlertCircle className={`h-5 w-5 mr-2 ${isFuturistic ? 'text-red-400' : 'text-red-500'}`} />
+                                  )}
+                                  <h4 className={`font-medium ${
+                                    executionResult.success 
+                                      ? (isFuturistic ? 'text-green-400' : 'text-green-700')
+                                      : (isFuturistic ? 'text-red-400' : 'text-red-700')
+                                  }`}>
+                                    {executionResult.success ? 'Exécution réussie' : 'Erreur d\'exécution'}
+                                  </h4>
+                                </div>
+                                <Badge variant="outline" className={isFuturistic ? 'text-gray-300 border-gray-600' : ''}>
+                                  {executionResult.executionTimeMs}ms
+                                </Badge>
+                              </div>
+                              
+                              <div className="font-mono text-sm whitespace-pre-wrap mt-2 pt-2 border-t border-dashed border-opacity-30 border-current">
+                                {executionResult.success ? (
+                                  <div className={isFuturistic ? 'text-gray-300' : 'text-gray-800'}>
+                                    {executionResult.output || "Aucune sortie générée"}
+                                  </div>
+                                ) : (
+                                  <div className={isFuturistic ? 'text-red-300' : 'text-red-600'}>
+                                    {executionResult.error}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {!executionResult && (
+                            <div className={`mt-4 p-4 rounded-lg text-center ${isFuturistic ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-500'}`}>
+                              <Terminal className="h-16 w-16 mx-auto mb-3 opacity-30" />
+                              <p>Cliquez sur "Exécuter" pour tester votre code</p>
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </TabsContent>
+                    
+                    <TabsContent value="improvement" className="m-0">
+                      <CardContent className="pt-6">
+                        <div className={`p-4 rounded-lg ${isFuturistic ? 'bg-gray-700 text-gray-300' : 'bg-blue-50 text-gray-700'}`}>
+                          <h3 className={`text-lg font-medium mb-3 ${isFuturistic ? 'text-white' : 'text-blue-800'}`}>
+                            Amélioration du code
+                          </h3>
+                          
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleImproveCode('optimize')}
+                              disabled={!lastResult || isImprovingCode}
+                              className={`${isFuturistic ? 'border-gray-600 text-gray-300 hover:bg-gray-600' : ''} ${improvementType === 'optimize' ? 'border-blue-500 bg-blue-50 text-blue-700' : ''}`}
+                            >
+                              <Zap className="h-4 w-4 mr-1" />
+                              Optimiser
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleImproveCode('simplify')}
+                              disabled={!lastResult || isImprovingCode}
+                              className={`${isFuturistic ? 'border-gray-600 text-gray-300 hover:bg-gray-600' : ''} ${improvementType === 'simplify' ? 'border-blue-500 bg-blue-50 text-blue-700' : ''}`}
+                            >
+                              <FileText className="h-4 w-4 mr-1" />
+                              Simplifier
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleImproveCode('document')}
+                              disabled={!lastResult || isImprovingCode}
+                              className={`${isFuturistic ? 'border-gray-600 text-gray-300 hover:bg-gray-600' : ''} ${improvementType === 'document' ? 'border-blue-500 bg-blue-50 text-blue-700' : ''}`}
+                            >
+                              <FileQuestion className="h-4 w-4 mr-1" />
+                              Documenter
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleImproveCode('test')}
+                              disabled={!lastResult || isImprovingCode}
+                              className={`${isFuturistic ? 'border-gray-600 text-gray-300 hover:bg-gray-600' : ''} ${improvementType === 'test' ? 'border-blue-500 bg-blue-50 text-blue-700' : ''}`}
+                            >
+                              <FlaskConical className="h-4 w-4 mr-1" />
+                              Tester
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleImproveCode('fix')}
+                              disabled={!lastResult || isImprovingCode}
+                              className={`${isFuturistic ? 'border-gray-600 text-gray-300 hover:bg-gray-600' : ''} ${improvementType === 'fix' ? 'border-blue-500 bg-blue-50 text-blue-700' : ''}`}
+                            >
+                              <Wrench className="h-4 w-4 mr-1" />
+                              Corriger
+                            </Button>
+                          </div>
+                          
+                          {isImprovingCode && (
+                            <div className="flex items-center justify-center p-8">
+                              <Loader2 className="h-8 w-8 animate-spin mr-2" />
+                              <p>Amélioration du code en cours...</p>
+                            </div>
+                          )}
+                          
+                          {improvedResult && !isImprovingCode && (
+                            <div className="space-y-4 mt-4">
+                              <div>
+                                <h4 className={`font-medium mb-2 ${isFuturistic ? 'text-white' : 'text-blue-800'}`}>
+                                  Code amélioré
+                                </h4>
+                                <div className={`p-4 rounded-lg ${isFuturistic ? 'bg-gray-900' : 'bg-white'} overflow-x-auto`}>
+                                  <pre className={`font-mono text-sm whitespace-pre-wrap ${isFuturistic ? 'text-gray-300' : 'text-gray-800'}`}>
+                                    <code>{improvedResult.improvedCode}</code>
+                                  </pre>
+                                </div>
+                                <div className="flex justify-end mt-2 space-x-2">
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    onClick={() => copyToClipboard(improvedResult.improvedCode)}
+                                    className={isFuturistic ? 'border-gray-600 text-gray-300 hover:bg-gray-600' : ''}
+                                  >
+                                    <Copy className="h-3 w-3 mr-1" />
+                                    Copier
+                                  </Button>
+                                </div>
+                              </div>
+                              
+                              <div>
+                                <h4 className={`font-medium mb-2 ${isFuturistic ? 'text-white' : 'text-blue-800'}`}>
+                                  Changements effectués
+                                </h4>
+                                <ul className={`list-disc pl-5 space-y-1 ${isFuturistic ? 'text-gray-300' : 'text-gray-700'}`}>
+                                  {improvedResult.changesMade.map((change, idx) => (
+                                    <li key={idx}>{change}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                              
+                              <div>
+                                <h4 className={`font-medium mb-2 ${isFuturistic ? 'text-white' : 'text-blue-800'}`}>
+                                  Explication
+                                </h4>
+                                <p className={`${isFuturistic ? 'text-gray-300' : 'text-gray-700'} whitespace-pre-line`}>
+                                  {improvedResult.explanation}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {!improvedResult && !isImprovingCode && (
+                            <div className={`mt-4 p-4 rounded-lg text-center ${isFuturistic ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-500'}`}>
+                              <Sparkles className="h-16 w-16 mx-auto mb-3 opacity-30" />
+                              <p>Sélectionnez une option pour améliorer votre code</p>
+                            </div>
+                          )}
                         </div>
                       </CardContent>
                     </TabsContent>
