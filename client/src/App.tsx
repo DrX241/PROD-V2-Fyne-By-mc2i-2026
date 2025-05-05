@@ -52,7 +52,6 @@ import ThreatIntelligence from "@/pages/cyber/arcade/threat-intelligence";
 // Pages AMOA
 import AmoaPage from "@/pages/amoa";
 import AmoaModeSelection from "@/pages/amoa-mode-selection";
-import AmoaQuestPage from "@/pages/amoa/quest";
 // Modules Simulation d'Entretien
 import CyberInterviewSimulation from "@/pages/cyber/interview-simulation";
 import AmoaInterviewSimulation from "@/pages/amoa/interview-simulation";
@@ -347,7 +346,7 @@ function App() {
             }} />
             <Route path="/amoa" component={AmoaPage} />
             <Route path="/amoa-mode-selection" component={AmoaModeSelection} />
-            <Route path="/amoa/quest" component={AmoaQuestPage} />
+            {/* Route AMOA Quest supprimée */}
             <Route path="/amoa/projet-imposteur" component={ProjetImposteur} />
             <Route path="/custom" component={NotYetImplemented} />
             <Route component={NotFound} />
