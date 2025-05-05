@@ -421,7 +421,7 @@ export default function CyberTestTechnique() {
         {questions.length > 0 && currentQuestion < questions.length && (
           <div className="space-y-6">
             <div className="p-4 bg-gray-50 rounded-lg">
-              <h3 className="text-lg font-medium mb-3">
+              <h3 className="text-lg font-medium mb-3 text-blue-600">
                 {questions[currentQuestion].question}
               </h3>
               <div className="space-y-3">
@@ -443,7 +443,7 @@ export default function CyberTestTechnique() {
                       }`}>
                         {String.fromCharCode(65 + index)}
                       </div>
-                      <div className="flex-grow">
+                      <div className="flex-grow text-black">
                         {option}
                       </div>
                     </div>
@@ -543,8 +543,8 @@ export default function CyberTestTechnique() {
                 
                 <TabsContent value="summary" className="space-y-4 pt-4">
                   <div className="border rounded-lg p-4">
-                    <h3 className="font-semibold text-lg mb-2">Analyse globale</h3>
-                    <p>{evaluationResults.analysis?.summary}</p>
+                    <h3 className="font-semibold text-lg mb-2 text-blue-600">Analyse globale</h3>
+                    <p className="text-black">{evaluationResults.analysis?.summary}</p>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -607,7 +607,7 @@ export default function CyberTestTechnique() {
                             <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
                           )}
                           <div>
-                            <div className="font-medium">
+                            <div className="font-medium text-black">
                               Question {index + 1}: {result.question}
                             </div>
                             <div className="text-sm mt-1">
@@ -623,8 +623,8 @@ export default function CyberTestTechnique() {
                           </div>
                         </div>
                         <div className="p-3 bg-white">
-                          <div className="text-sm font-medium mb-2">Explication:</div>
-                          <p className="text-sm text-gray-700">{result.explanation}</p>
+                          <div className="text-sm font-medium mb-2 text-blue-600">Explication:</div>
+                          <p className="text-sm text-black">{result.explanation}</p>
                         </div>
                       </div>
                     ))}
@@ -633,24 +633,24 @@ export default function CyberTestTechnique() {
                 
                 <TabsContent value="recommendations" className="space-y-4 pt-4">
                   <div className="border rounded-lg p-4">
-                    <h3 className="font-semibold text-lg mb-2">Recommandations</h3>
+                    <h3 className="font-semibold text-lg mb-2 text-blue-600">Recommandations</h3>
                     <ul className="space-y-2">
                       {evaluationResults.analysis?.recommendations.map((rec, index) => (
                         <li key={index} className="flex items-start">
                           <ChevronRight className="h-4 w-4 text-blue-500 mt-1 mr-1 flex-shrink-0" />
-                          <span>{rec}</span>
+                          <span className="text-black">{rec}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
                   
                   <div className="border rounded-lg p-4">
-                    <h3 className="font-semibold text-lg mb-2">Ressources recommandées</h3>
+                    <h3 className="font-semibold text-lg mb-2 text-blue-600">Ressources recommandées</h3>
                     <div className="space-y-3">
                       {evaluationResults.analysis?.resources.map((resource, index) => (
                         <div key={index} className="border-b pb-3 last:border-0 last:pb-0">
-                          <h4 className="font-medium">{resource.title}</h4>
-                          <p className="text-sm text-gray-600 mt-1">{resource.description}</p>
+                          <h4 className="font-medium text-black">{resource.title}</h4>
+                          <p className="text-sm text-black mt-1">{resource.description}</p>
                           {resource.url && (
                             <a 
                               href={resource.url} 
@@ -668,7 +668,7 @@ export default function CyberTestTechnique() {
                   
                   <div className="border rounded-lg p-4 bg-blue-50">
                     <h3 className="font-semibold text-blue-700 mb-2">Prochaines étapes</h3>
-                    <p>{evaluationResults.analysis?.nextSteps}</p>
+                    <p className="text-black">{evaluationResults.analysis?.nextSteps}</p>
                   </div>
                 </TabsContent>
               </Tabs>
