@@ -46,6 +46,52 @@ class CodeSandboxService {
     };
 
     try {
+      // Détecter si le code utilise des imports/exports (modules ES6) ou React
+      const usesModules = code.includes('import ') || code.includes('export ');
+      const usesReact = code.includes('import React') || code.includes('from "react"') || code.includes('from \'react\'');
+      
+      if (usesModules || usesReact) {
+        // Pour le code utilisant des modules ES6 ou React, créer une prévisualisation simulée
+        let output = '';
+        
+        if (usesReact) {
+          output = `
+            <div style="border: 1px solid #ddd; border-radius: 5px; padding: 10px; font-family: sans-serif;">
+              <div style="margin-bottom: 10px; font-size: 14px; color: #555;">
+                Prévisualisation React (affichage simulé):
+              </div>
+              <div style="border: 1px solid #eee; border-radius: 4px; padding: 10px; background-color: white;">
+                Le code React sera rendu comme un composant avec JSX.
+              </div>
+              <div style="margin-top: 10px; font-size: 12px; color: #666;">
+                Note: Pour une prévisualisation complète, vous devrez utiliser ce code dans un environnement React complet.
+              </div>
+            </div>
+          `;
+        } else {
+          output = `
+            <div style="border: 1px solid #ddd; border-radius: 5px; padding: 10px; font-family: sans-serif;">
+              <div style="margin-bottom: 10px; font-size: 14px; color: #555;">
+                Prévisualisation JavaScript modules (affichage simulé):
+              </div>
+              <div style="border: 1px solid #eee; border-radius: 4px; padding: 10px; background-color: white;">
+                Le code JavaScript utilisant des modules ES6 sera exécuté dans un environnement approprié.
+              </div>
+              <div style="margin-top: 10px; font-size: 12px; color: #666;">
+                Note: Pour une exécution complète, vous devrez utiliser ce code dans un environnement supportant les modules ES6.
+              </div>
+            </div>
+          `;
+        }
+        
+        return {
+          success: true,
+          output: output,
+          executionTimeMs: Date.now() - startTime
+        };
+      }
+      
+      // Pour le JavaScript standard sans modules, exécuter normalement
       // Capturer la sortie console
       let output = '';
       const vm = new VM({
