@@ -47,14 +47,14 @@ export class CyberEscapeGame {
     // Configuration du jeu Phaser
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
-      width: '100%',
-      height: '100%',
+      width: 800,
+      height: 600,
       parent: 'game-container',
       backgroundColor: '#132c41',
       physics: {
         default: 'arcade',
         arcade: {
-          gravity: { y: 0 },
+          gravity: { x: 0, y: 0 },
           debug: false
         }
       },
@@ -239,7 +239,7 @@ export class CyberEscapeGame {
     const positions = this.office ? this.office.getRandomPositions(this.vulnerabilityCount) : [];
     
     // Créer chaque vulnérabilité
-    positions.forEach((pos, index) => {
+    positions.forEach((pos: { x: number, y: number }, index: number) => {
       // Sélectionner un type de vulnérabilité aléatoire
       const vulnType = VULN_TYPES[Math.floor(Math.random() * VULN_TYPES.length)];
       

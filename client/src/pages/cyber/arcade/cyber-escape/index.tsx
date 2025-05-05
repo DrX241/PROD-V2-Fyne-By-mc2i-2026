@@ -335,7 +335,7 @@ export default function CyberEscape() {
                 {/* Le jeu Phaser sera monté ici */}
                 <CyberEscapeGame 
                   level={level} 
-                  onGameInit={(gameInstance) => setGameInstance(gameInstance)}
+                  onGameInit={(gameInstance: any) => setGameInstance(gameInstance)}
                 />
               </div>
             </div>
