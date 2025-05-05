@@ -228,6 +228,9 @@ export async function evaluateResponses(req: Request, res: Response) {
 
     // Calculer les résultats
     let correctCount = 0;
+    let totalPoints = 0;
+    let earnedPoints = 0;
+    
     const detailedResults = responses.map(response => {
       const question = questionsMap.get(response.questionId);
       
@@ -238,37 +241,108 @@ export async function evaluateResponses(req: Request, res: Response) {
           message: 'Question not found',
           userAnswer: response.answer,
           correctAnswer: null,
-          explanation: null
+          explanation: null,
+          type: 'unknown'
         };
       }
-
-      const isCorrect = response.answer === question.correctAnswer;
-      if (isCorrect) correctCount++;
+      
+      // Ajouter les points de la question au total
+      const questionPoints = question.points || 10; // Valeur par défaut si non spécifié
+      totalPoints += questionPoints;
+      
+      let isCorrect = false;
+      
+      // Évaluation différente selon le type de question
+      switch (question.type) {
+        case 'mcq':
+          // Pour les QCM, vérifier si la réponse est exactement l'index correct
+          isCorrect = response.answer === question.correctAnswer;
+          break;
+          
+        case 'code':
+          // Pour les exercices de code, utiliser une évaluation par l'IA
+          // mais pour l'instant, considérer comme correct si la réponse contient certains mots clés de la solution
+          if (question.solution && response.answer) {
+            const solutionKeywords = question.solution.toLowerCase().split(/\s+/).filter(k => k.length > 4);
+            const answerText = String(response.answer).toLowerCase();
+            const matchPercentage = solutionKeywords.filter(keyword => answerText.includes(keyword)).length / solutionKeywords.length;
+            isCorrect = matchPercentage > 0.7; // Plus de 70% des mots clés importants sont présents
+          }
+          break;
+          
+        case 'scenario':
+        case 'open':
+          // Pour les questions ouvertes et scénarios, utiliser une évaluation par l'IA
+          // mais pour l'instant, considérer comme partiellement correct si la réponse est substantielle
+          if (response.answer && String(response.answer).length > 50) {
+            isCorrect = true; // Simplification temporaire
+          }
+          break;
+          
+        default:
+          isCorrect = false;
+      }
+      
+      // Ajouter les points au total gagné
+      if (isCorrect) {
+        correctCount++;
+        earnedPoints += questionPoints;
+      }
 
       return {
         questionId: response.questionId,
         isCorrect,
         userAnswer: response.answer,
-        correctAnswer: question.correctAnswer,
+        correctAnswer: question.type === 'mcq' ? question.correctAnswer : null,
+        solution: question.type === 'code' ? question.solution : null,
+        expectedOutput: question.type === 'code' ? question.expectedOutput : null,
         question: question.question,
+        type: question.type,
         options: question.options,
-        explanation: question.explanation
+        code: question.code,
+        codeLanguage: question.codeLanguage,
+        context: question.context,
+        explanation: question.explanation,
+        points: questionPoints,
+        earnedPoints: isCorrect ? questionPoints : 0
       };
     });
 
+    // Calculer le score basé sur les points
+    const scoreByPoints = totalPoints > 0 ? (earnedPoints / totalPoints) * 100 : 0;
     const score = (correctCount / responses.length) * 100;
+
+    // Analyser les résultats par type d'exercice
+    const resultsByType = EXERCISE_TYPES.map(type => {
+      const questionsOfType = detailedResults.filter(r => r.type === type.id);
+      const correctOfType = questionsOfType.filter(r => r.isCorrect).length;
+      const totalOfType = questionsOfType.length;
+      const scoreOfType = totalOfType > 0 ? (correctOfType / totalOfType) * 100 : 0;
+      
+      return {
+        type: type.id,
+        name: type.name,
+        totalQuestions: totalOfType,
+        correctAnswers: correctOfType,
+        score: scoreOfType
+      };
+    }).filter(t => t.totalQuestions > 0);
 
     // Génération d'une analyse par l'IA
     const analysisPrompt = `En tant qu'expert en cybersécurité spécialisé dans l'évaluation des compétences, analyse ces résultats de test:
 - Catégorie: ${category}
 - Niveau de difficulté: ${difficulty}
-- Score: ${score.toFixed(1)}% (${correctCount}/${responses.length} réponses correctes)
-- Détails des erreurs: ${detailedResults.filter(r => !r.isCorrect).map(r => r.question).join('; ')}
+- Score global: ${score.toFixed(1)}% (${correctCount}/${responses.length} réponses correctes)
+- Score pondéré par points: ${scoreByPoints.toFixed(1)}% (${earnedPoints}/${totalPoints} points)
+- Performances par type d'exercice: ${resultsByType.map(t => 
+  `${t.name}: ${t.score.toFixed(1)}% (${t.correctAnswers}/${t.totalQuestions})`).join(', ')}
+- Détails des erreurs: ${detailedResults.filter(r => !r.isCorrect && r.question).map(r => 
+  `[${r.type || 'unknown'}] ${String(r.question).substring(0, 50)}...`).join('; ')}
 
 Fournis:
 1) Une analyse des forces et faiblesses basée sur ces résultats
 2) Des recommandations personnalisées pour améliorer les compétences dans les domaines faibles
-3) Des ressources d'apprentissage recommandées
+3) Des ressources d'apprentissage recommandées pour chaque type d'exercice 
 4) Le niveau estimé actuel et le potentiel de progression
 
 Réponds avec un JSON de la forme:
@@ -277,7 +351,16 @@ Réponds avec un JSON de la forme:
   "strengths": ["Point fort 1", "Point fort 2", ...],
   "weaknesses": ["Point faible 1", "Point faible 2", ...],
   "recommendations": ["Recommandation 1", "Recommandation 2", ...],
-  "resources": [{"title": "Titre ressource", "url": "URL optionnelle", "description": "Description courte"}, ...],
+  "performanceByType": [
+    {"type": "mcq", "analysis": "Analyse des performances aux QCM"},
+    {"type": "code", "analysis": "Analyse des performances aux exercices de code"},
+    {"type": "scenario", "analysis": "Analyse des performances aux mises en situation"},
+    {"type": "open", "analysis": "Analyse des performances aux questions ouvertes"}
+  ],
+  "resources": [
+    {"title": "Titre ressource", "url": "URL optionnelle", "description": "Description courte", "type": "mcq"},
+    {"title": "Titre ressource", "url": "URL optionnelle", "description": "Description courte", "type": "code"}
+  ],
   "skillLevel": "Niveau estimé actuel",
   "nextSteps": "Prochaines étapes suggérées"
 }`;
@@ -306,8 +389,12 @@ Réponds avec un JSON de la forme:
     return res.status(200).json({
       success: true,
       score,
+      scoreByPoints,
       correctCount,
       totalQuestions: responses.length,
+      totalPoints,
+      earnedPoints,
+      resultsByType,
       detailedResults,
       analysis
     });
