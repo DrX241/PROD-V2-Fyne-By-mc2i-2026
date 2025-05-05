@@ -623,11 +623,11 @@ export default function CodeGeneratorPage() {
       </div>
       
       {/* Contenu principal */}
-      <div className={`w-full ${isFuturistic ? 'bg-gray-900' : 'bg-white'} py-6 px-4 sm:px-6 lg:px-8`}>
+      <div className={`w-full ${isFuturistic ? 'bg-gray-900' : 'bg-white'} py-6 px-2 sm:px-4 md:px-6 lg:px-8`}>
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Formulaire de génération de code */}
-            <div className="lg:col-span-1">
+            <div className="md:col-span-1">
               <Card className={isFuturistic ? 'bg-gray-800 border-gray-700' : ''}>
                 <CardHeader>
                   <CardTitle className={isFuturistic ? 'text-white' : ''}>
@@ -898,7 +898,7 @@ export default function CodeGeneratorPage() {
             </div>
             
             {/* Résultat de la génération */}
-            <div className="lg:col-span-2">
+            <div className="md:col-span-1 lg:col-span-2">
               {!lastResult && !generateCodeMutation.isPending ? (
                 <div className={`h-full flex flex-col items-center justify-center p-10 border ${isFuturistic ? 'border-gray-700 text-gray-400' : 'border-gray-200 text-gray-500'} rounded-lg`}>
                   <Code className={`h-16 w-16 ${isFuturistic ? 'text-gray-700' : 'text-gray-300'} mb-4`} />
@@ -924,12 +924,14 @@ export default function CodeGeneratorPage() {
               ) : (
                 <Card className={isFuturistic ? 'bg-gray-800 border-gray-700' : ''}>
                   <CardHeader className="pb-3">
-                    <div className="flex justify-between items-center">
-                      <CardTitle className={isFuturistic ? 'text-white' : ''}>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+                      <CardTitle className={`text-sm sm:text-base ${isFuturistic ? 'text-white' : ''}`}>
                         <div className="flex items-center gap-2">
                           <FileCode2 className={`h-5 w-5 ${isFuturistic ? 'text-blue-400' : 'text-blue-600'}`} />
-                          Code généré - {programmingLanguages.find(l => l.value === lastResult?.language)?.label || lastResult?.language}
-                          {lastResult?.framework && lastResult.framework !== 'none' && ` + ${lastResult.framework}`}
+                          <span className="line-clamp-1">
+                            Code généré - {programmingLanguages.find(l => l.value === lastResult?.language)?.label || lastResult?.language}
+                            {lastResult?.framework && lastResult.framework !== 'none' && ` + ${lastResult.framework}`}
+                          </span>
                         </div>
                       </CardTitle>
                       <div className="flex gap-2">
@@ -937,19 +939,19 @@ export default function CodeGeneratorPage() {
                           variant="outline" 
                           size="sm"
                           onClick={() => copyToClipboard(lastResult?.code || '')}
-                          className={isFuturistic ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : ''}
+                          className={`text-xs sm:text-sm px-2 sm:px-3 h-8 ${isFuturistic ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : ''}`}
                         >
                           {copied ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
-                          {copied ? 'Copié' : 'Copier'}
+                          <span className="hidden xs:inline">{copied ? 'Copié' : 'Copier'}</span>
                         </Button>
                         <Button 
                           variant="outline" 
                           size="sm"
                           onClick={() => downloadCode(lastResult?.code || '', lastResult?.fileExtension || '.txt')}
-                          className={isFuturistic ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : ''}
+                          className={`text-xs sm:text-sm px-2 sm:px-3 h-8 ${isFuturistic ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : ''}`}
                         >
                           <Download className="h-4 w-4 mr-1" />
-                          Télécharger
+                          <span className="hidden xs:inline">Télécharger</span>
                         </Button>
                       </div>
                     </div>
@@ -957,47 +959,47 @@ export default function CodeGeneratorPage() {
                   
                   <Tabs defaultValue="code" value={activeTab} onValueChange={setActiveTab}>
                     <div className="px-4 pt-2 pb-1">
-                      <TabsList className={`w-full ${isFuturistic ? 'bg-gray-700' : ''}`}>
+                      <TabsList className={`w-full flex-wrap gap-1 ${isFuturistic ? 'bg-gray-700' : ''}`}>
                         <TabsTrigger 
                           value="code" 
-                          className={isFuturistic ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white text-gray-300' : ''}
+                          className={`text-xs sm:text-sm ${isFuturistic ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white text-gray-300' : ''}`}
                         >
-                          <Code className="h-4 w-4 mr-1" />
+                          <Code className="h-4 w-4 mr-1 hidden sm:inline" />
                           Code
                         </TabsTrigger>
                         <TabsTrigger 
                           value="execution" 
-                          className={isFuturistic ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white text-gray-300' : ''}
+                          className={`text-xs sm:text-sm ${isFuturistic ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white text-gray-300' : ''}`}
                         >
-                          <Terminal className="h-4 w-4 mr-1" />
+                          <Terminal className="h-4 w-4 mr-1 hidden sm:inline" />
                           Exécution
                         </TabsTrigger>
                         <TabsTrigger 
                           value="improvement" 
-                          className={isFuturistic ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white text-gray-300' : ''}
+                          className={`text-xs sm:text-sm ${isFuturistic ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white text-gray-300' : ''}`}
                         >
-                          <Sparkles className="h-4 w-4 mr-1" />
+                          <Sparkles className="h-4 w-4 mr-1 hidden sm:inline" />
                           Amélioration
                         </TabsTrigger>
                         <TabsTrigger 
                           value="explanation" 
-                          className={isFuturistic ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white text-gray-300' : ''}
+                          className={`text-xs sm:text-sm ${isFuturistic ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white text-gray-300' : ''}`}
                         >
-                          <MessageSquare className="h-4 w-4 mr-1" />
+                          <MessageSquare className="h-4 w-4 mr-1 hidden sm:inline" />
                           Explication
                         </TabsTrigger>
                         <TabsTrigger 
                           value="structure" 
-                          className={isFuturistic ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white text-gray-300' : ''}
+                          className={`text-xs sm:text-sm ${isFuturistic ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white text-gray-300' : ''}`}
                         >
-                          <LayoutList className="h-4 w-4 mr-1" />
+                          <LayoutList className="h-4 w-4 mr-1 hidden sm:inline" />
                           Structure
                         </TabsTrigger>
                         <TabsTrigger 
                           value="references" 
-                          className={isFuturistic ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white text-gray-300' : ''}
+                          className={`text-xs sm:text-sm ${isFuturistic ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white text-gray-300' : ''}`}
                         >
-                          <LinkIcon className="h-4 w-4 mr-1" />
+                          <LinkIcon className="h-4 w-4 mr-1 hidden sm:inline" />
                           Références
                         </TabsTrigger>
                       </TabsList>
@@ -1098,24 +1100,26 @@ export default function CodeGeneratorPage() {
                             Exécution du code
                           </h3>
                           
-                          <div className="flex justify-between items-center mb-4">
-                            <p className="text-sm">
+                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4">
+                            <p className="text-xs sm:text-sm">
                               Exécutez votre code dans un environnement sécurisé pour tester son fonctionnement.
                             </p>
                             <Button 
                               onClick={handleExecuteCode}
                               disabled={!lastResult || isExecutingCode}
-                              className={`${isFuturistic ? 'bg-blue-700 hover:bg-blue-600 text-white' : ''}`}
+                              className={`text-xs sm:text-sm px-3 h-8 ${isFuturistic ? 'bg-blue-700 hover:bg-blue-600 text-white' : ''}`}
                             >
                               {isExecutingCode ? (
                                 <>
-                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                  Exécution...
+                                  <Loader2 className="h-4 w-4 mr-1 sm:mr-2 animate-spin" />
+                                  <span className="hidden xs:inline">Exécution...</span>
+                                  <span className="xs:hidden">En cours...</span>
                                 </>
                               ) : (
                                 <>
-                                  <Play className="h-4 w-4 mr-2" />
-                                  Exécuter
+                                  <Play className="h-4 w-4 mr-1 sm:mr-2" />
+                                  <span className="hidden xs:inline">Exécuter</span>
+                                  <span className="xs:hidden">Lancer</span>
                                 </>
                               )}
                             </Button>
