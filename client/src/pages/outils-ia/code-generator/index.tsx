@@ -1171,11 +1171,12 @@ export default function CodeGeneratorPage() {
                                 </Badge>
                               </div>
                               
-                              <div className="font-mono text-sm whitespace-pre-wrap mt-2 pt-2 border-t border-dashed border-opacity-30 border-current">
+                              <div className="mt-2 pt-2 border-t border-dashed border-opacity-30 border-current">
                                 {executionResult.success ? (
-                                  <div className={isFuturistic ? 'text-gray-300' : 'text-gray-800'}>
-                                    {executionResult.output || "Aucune sortie générée"}
-                                  </div>
+                                  <div 
+                                    className={isFuturistic ? 'text-gray-300' : 'text-gray-800'}
+                                    dangerouslySetInnerHTML={{ __html: executionResult.output || "Aucune sortie générée" }}
+                                  />
                                 ) : (
                                   <div className={isFuturistic ? 'text-red-300' : 'text-red-600'}>
                                     {executionResult.error}
