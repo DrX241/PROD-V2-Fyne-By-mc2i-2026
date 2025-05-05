@@ -222,7 +222,7 @@ export async function generateQuestions(req: Request, res: Response) {
     }
 
     // Vérifier si des questions sont déjà en cache
-    const cachedQuestions = getCachedQuestions(category, difficulty);
+    const cachedQuestions = getCachedQuestions(category, difficulty, exerciseType);
     if (cachedQuestions.length > 0) {
       return res.status(200).json({
         success: true,
@@ -424,7 +424,7 @@ IMPORTANT:
       }));
 
       // Stocker dans le cache
-      cacheQuestions(questions, category, difficulty);
+      cacheQuestions(questions, category, difficulty, exerciseType);
 
       return res.status(200).json({
         success: true,
@@ -454,7 +454,7 @@ IMPORTANT:
  */
 export async function evaluateResponses(req: Request, res: Response) {
   try {
-    const { responses, category, difficulty } = req.body;
+    const { responses, category, difficulty, exerciseType } = req.body;
 
     if (!responses || !Array.isArray(responses)) {
       return res.status(400).json({
@@ -464,7 +464,7 @@ export async function evaluateResponses(req: Request, res: Response) {
     }
 
     // Récupérer les questions du cache
-    const cachedQuestions = getCachedQuestions(category, difficulty);
+    const cachedQuestions = getCachedQuestions(category, difficulty, exerciseType);
     
     if (cachedQuestions.length === 0) {
       return res.status(404).json({
@@ -911,10 +911,11 @@ export function getTestOptions(req: Request, res: Response) {
 /**
  * Récupère des questions du cache
  */
-function getCachedQuestions(category: string, difficulty: string): QuizQuestion[] {
+function getCachedQuestions(category: string, difficulty: string, exerciseType?: string): QuizQuestion[] {
   const cache = questionCaches.find(c => 
     c.category === category && 
-    c.difficulty === difficulty && 
+    c.difficulty === difficulty &&
+    c.exerciseType === exerciseType && 
     (Date.now() - c.timestamp) < CACHE_EXPIRY
   );
   
@@ -924,10 +925,12 @@ function getCachedQuestions(category: string, difficulty: string): QuizQuestion[
 /**
  * Stocke des questions dans le cache
  */
-function cacheQuestions(questions: QuizQuestion[], category: string, difficulty: string): void {
-  // Supprimer l'ancien cache pour cette catégorie/difficulté s'il existe
+function cacheQuestions(questions: QuizQuestion[], category: string, difficulty: string, exerciseType?: string): void {
+  // Supprimer l'ancien cache pour cette catégorie/difficulté/type d'exercice s'il existe
   const existingCacheIndex = questionCaches.findIndex(c => 
-    c.category === category && c.difficulty === difficulty
+    c.category === category && 
+    c.difficulty === difficulty && 
+    c.exerciseType === exerciseType
   );
   
   if (existingCacheIndex !== -1) {
@@ -939,6 +942,7 @@ function cacheQuestions(questions: QuizQuestion[], category: string, difficulty:
     questions,
     category,
     difficulty,
+    exerciseType,
     timestamp: Date.now()
   });
 }
