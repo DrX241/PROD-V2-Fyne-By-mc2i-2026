@@ -630,10 +630,10 @@ export default function CodeGeneratorPage() {
                           className={`p-2 rounded-md cursor-pointer text-sm ${
                             selectedExample === index
                               ? isFuturistic 
-                                ? 'bg-blue-500/30 border border-blue-400 text-white' 
+                                ? 'bg-blue-500/50 border border-blue-400 text-white' 
                                 : 'bg-blue-100 border border-blue-200'
                               : isFuturistic 
-                                ? 'bg-blue-900/20 hover:bg-blue-600/50 border border-blue-700/50 text-white' 
+                                ? 'bg-blue-900/40 hover:bg-blue-500/50 border border-blue-400 text-white' 
                                 : 'hover:bg-gray-100 border border-gray-200'
                           } transition-colors`}
                           onClick={() => usePromptExample(index)}
