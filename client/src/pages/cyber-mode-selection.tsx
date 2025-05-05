@@ -81,7 +81,7 @@ export default function CyberModeSelection() {
       icon: null,
       gradient: 'from-purple-700 to-purple-900',
       destination: '#',
-      comingSoon: true,
+      comingSoon: false,
       items: [
         {
           id: 'mode-entretien',
@@ -94,8 +94,9 @@ export default function CyberModeSelection() {
           id: 'test-technique',
           title: 'TEST TECHNIQUE',
           icon: null,
-          destination: '#',
-          comingSoon: true
+          destination: '/cyber/test-technique',
+          comingSoon: false,
+          isNew: true
         }
       ]
     },
