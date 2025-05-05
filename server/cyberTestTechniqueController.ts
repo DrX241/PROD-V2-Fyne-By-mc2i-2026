@@ -63,6 +63,138 @@ const CACHE_EXPIRY = 30 * 60 * 1000;
 const questionCaches: QuestionCache[] = [];
 
 /**
+ * Génère des questions de secours basiques en cas d'échec de l'IA
+ * Cette fonction fournit des questions prédéfinies pour éviter une erreur complète
+ */
+function generateFallbackQuestions(category: string, difficulty: string, count: number): QuizQuestion[] {
+  const fallbackQuestions: QuizQuestion[] = [
+    {
+      id: `${category}_${difficulty}_fallback_1`,
+      type: 'mcq',
+      question: 'Quelle mesure de sécurité protège contre les attaques par force brute sur les mots de passe?',
+      options: ['Limitation du nombre de tentatives', 'Chiffrement des données', 'Pare-feu applicatif', 'Sauvegarde régulière'],
+      correctAnswer: 0,
+      explanation: 'La limitation du nombre de tentatives est une mesure efficace contre les attaques par force brute car elle empêche un attaquant de tester un grand nombre de mots de passe en peu de temps.',
+      category,
+      difficulty,
+      tags: ['authentication', 'password-security'],
+      points: 10
+    },
+    {
+      id: `${category}_${difficulty}_fallback_2`,
+      type: 'mcq',
+      question: 'Quel protocole cryptographique remplace HTTP pour sécuriser les communications web?',
+      options: ['FTP', 'SMTP', 'HTTPS', 'DHCP'],
+      correctAnswer: 2,
+      explanation: 'HTTPS (HyperText Transfer Protocol Secure) est la version sécurisée du protocole HTTP, utilisant TLS/SSL pour chiffrer les communications entre le navigateur et le serveur web.',
+      category,
+      difficulty,
+      tags: ['web-security', 'encryption'],
+      points: 10
+    },
+    {
+      id: `${category}_${difficulty}_fallback_3`,
+      type: 'mcq',
+      question: 'Quelle technique permet de contrôler les accès aux ressources informatiques en fonction des rôles des utilisateurs?',
+      options: ['RBAC (Role-Based Access Control)', 'VPN (Virtual Private Network)', 'DDoS (Distributed Denial of Service)', 'DNS (Domain Name System)'],
+      correctAnswer: 0,
+      explanation: 'Le contrôle d\'accès basé sur les rôles (RBAC) permet d\'attribuer des permissions en fonction du rôle de l\'utilisateur dans l\'organisation, simplifiant ainsi la gestion des accès.',
+      category,
+      difficulty,
+      tags: ['access-control', 'identity-management'],
+      points: 10
+    },
+    {
+      id: `${category}_${difficulty}_fallback_4`,
+      type: 'mcq',
+      question: 'Quel type de logiciel malveillant chiffre les données de l\'utilisateur et demande une rançon pour les déchiffrer?',
+      options: ['Ver informatique', 'Ransomware', 'Adware', 'Spyware'],
+      correctAnswer: 1,
+      explanation: 'Le ransomware est un type de logiciel malveillant qui chiffre les données de la victime et exige un paiement (rançon) pour fournir la clé de déchiffrement.',
+      category,
+      difficulty,
+      tags: ['malware', 'ransomware'],
+      points: 10
+    },
+    {
+      id: `${category}_${difficulty}_fallback_5`,
+      type: 'mcq',
+      question: 'Quelle technique consiste à envoyer un email frauduleux pour obtenir des informations sensibles?',
+      options: ['Phishing', 'Pharming', 'Spoofing', 'Sniffing'],
+      correctAnswer: 0,
+      explanation: 'Le phishing est une technique d\'ingénierie sociale où l\'attaquant se fait passer pour une entité de confiance afin d\'inciter la victime à révéler des informations sensibles.',
+      category,
+      difficulty,
+      tags: ['social-engineering', 'phishing'],
+      points: 10
+    },
+    {
+      id: `${category}_${difficulty}_fallback_6`,
+      type: 'mcq',
+      question: 'Quel élément de sécurité réseau filtre le trafic entre différents réseaux?',
+      options: ['Firewall', 'Router', 'Switch', 'Hub'],
+      correctAnswer: 0,
+      explanation: 'Un firewall (pare-feu) est conçu pour filtrer le trafic réseau entrant et sortant selon des règles de sécurité prédéfinies, protégeant ainsi le réseau contre les accès non autorisés.',
+      category,
+      difficulty,
+      tags: ['network-security', 'firewall'],
+      points: 10
+    },
+    {
+      id: `${category}_${difficulty}_fallback_7`,
+      type: 'mcq',
+      question: 'Quelle technologie permet d\'établir une connexion sécurisée à travers un réseau public comme Internet?',
+      options: ['DNS', 'DHCP', 'VPN', 'NAT'],
+      correctAnswer: 2,
+      explanation: 'Un VPN (Virtual Private Network) crée un tunnel chiffré à travers un réseau public, permettant une connexion sécurisée et privée entre des réseaux distants ou un utilisateur et un réseau.',
+      category,
+      difficulty,
+      tags: ['network-security', 'vpn'],
+      points: 10
+    },
+    {
+      id: `${category}_${difficulty}_fallback_8`,
+      type: 'mcq',
+      question: 'Quel principe de sécurité consiste à utiliser plusieurs couches de protection?',
+      options: ['Défense en profondeur', 'Principe du moindre privilège', 'Séparation des tâches', 'Sécurité par l\'obscurité'],
+      correctAnswer: 0,
+      explanation: 'La défense en profondeur est une stratégie qui utilise plusieurs couches de sécurité, de sorte que si une couche est compromise, d\'autres couches continuent à protéger le système.',
+      category,
+      difficulty,
+      tags: ['security-principles', 'defense-in-depth'],
+      points: 10
+    },
+    {
+      id: `${category}_${difficulty}_fallback_9`,
+      type: 'mcq',
+      question: 'Quel type d\'attaque exploite les vulnérabilités dans le code d\'une application web pour injecter du code malveillant?',
+      options: ['Cross-Site Scripting (XSS)', 'SQL Injection', 'Brute Force', 'Social Engineering'],
+      correctAnswer: 0,
+      explanation: 'Le Cross-Site Scripting (XSS) permet à un attaquant d\'injecter du code JavaScript malveillant qui s\'exécute dans le navigateur de la victime, pouvant ainsi voler des informations ou effectuer des actions non autorisées.',
+      category,
+      difficulty,
+      tags: ['web-security', 'xss'],
+      points: 10
+    },
+    {
+      id: `${category}_${difficulty}_fallback_10`,
+      type: 'mcq',
+      question: 'Quelle méthode d\'authentification utilise des caractéristiques physiques ou comportementales pour vérifier l\'identité?',
+      options: ['Biométrie', 'Authentification à deux facteurs', 'Single Sign-On', 'CAPTCHA'],
+      correctAnswer: 0,
+      explanation: 'La biométrie utilise des caractéristiques uniques comme les empreintes digitales, la reconnaissance faciale ou vocale pour authentifier les utilisateurs de manière plus sécurisée que les mots de passe traditionnels.',
+      category,
+      difficulty,
+      tags: ['authentication', 'biometrics'],
+      points: 10
+    }
+  ];
+  
+  // Retourner le nombre demandé de questions, avec un minimum de 5
+  return fallbackQuestions.slice(0, Math.max(5, count));
+}
+
+/**
  * Génère dynamiquement des questions de test technique en cybersécurité
  * en utilisant l'IA
  */
@@ -135,8 +267,16 @@ Réponds UNIQUEMENT au format JSON suivant:
 ]
 `;
 
-    // Appel à Azure OpenAI
-    const openAIResponse = await callAzureOpenAI(systemPrompt);
+    // Modification du prompt système pour forcer un format plus strict et plus simple
+    const updatedSystemPrompt = `${systemPrompt}
+
+IMPORTANT: Réponds UNIQUEMENT avec un tableau JSON valide contenant exactement ${count} questions à choix multiples (type "mcq").
+NE PAS inclure d'autres types de questions pour éviter les erreurs de formatage.
+N'AJOUTE PAS de commentaires, explications ou formatage markdown autour du JSON.
+VÉRIFIE que le JSON généré est strictement valide avant de répondre.`;
+
+    // Appel à Azure OpenAI avec le prompt modifié
+    const openAIResponse = await callAzureOpenAI(updatedSystemPrompt);
     
     if (!openAIResponse) {
       return res.status(500).json({
@@ -174,12 +314,32 @@ Réponds UNIQUEMENT au format JSON suivant:
         const regex = /"([^"]*)$/g;
         jsonStr = jsonStr.replace(regex, '"$1"');
         
+        // Tentative de réparation supplémentaire pour les JSON incomplets
+        // Vérifier si le JSON se termine correctement
+        if (!jsonStr.trim().endsWith(']')) {
+          // Récupérer uniquement la partie valide jusqu'au dernier objet JSON complet
+          const lastValidBraceIndex = jsonStr.lastIndexOf('}');
+          if (lastValidBraceIndex > 0) {
+            jsonStr = jsonStr.substring(0, lastValidBraceIndex + 1) + ']';
+          }
+        }
+        
         // Tenter de parser le JSON réparé
-        questions = JSON.parse(jsonStr);
+        try {
+          questions = JSON.parse(jsonStr);
+        } catch (parseError) {
+          // Si échec, essayer avec des questions par défaut
+          console.error('Erreur de parsing JSON, utilisation de questions de secours:', parseError);
+          
+          // Générer des questions de secours basiques pour éviter une erreur complète
+          questions = generateFallbackQuestions(category, difficulty, count);
+        }
       } catch (jsonFixError) {
         console.error('Erreur lors de la réparation du JSON:', jsonFixError);
         console.error('JSON problématique:', jsonStr);
-        throw new Error('Impossible de réparer le JSON malformé');
+        
+        // Générer des questions de secours basiques pour éviter une erreur complète
+        questions = generateFallbackQuestions(category, difficulty, count);
       }
       
       // Validation basique
