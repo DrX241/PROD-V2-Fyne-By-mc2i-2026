@@ -872,7 +872,7 @@ export default function CodeGeneratorPage() {
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      {promptExamples.map((example, index) => (
+                      {promptExamples.slice(0, 3).map((example, index) => (
                         <div 
                           key={index}
                           className={`p-2 rounded-md cursor-pointer text-sm ${
