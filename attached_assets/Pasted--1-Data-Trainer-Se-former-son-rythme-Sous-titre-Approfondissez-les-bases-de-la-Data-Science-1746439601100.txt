@@ -1,0 +1,37 @@
+🔹 1. Data Trainer – Se former à son rythme
+Sous-titre : Approfondissez les bases de la Data Science, du Machine Learning et de l’IA en interagissant avec une IA experte ou via des parcours guidés.
+
+Deux options dans ce module :
+
+🧠 Agent IA Data & IA – Discutez avec une IA spécialisée pour mieux comprendre un concept (modélisation, algorithmes, pipeline, biais, etc.) ou obtenir de l’aide en continu.
+👉 Bouton : Lancer l’Agent IA
+
+📚 Modules express – Apprenez les fondements de la data, du ML, de l’IA générative et des pipelines, via des formats courts, simples et visuels.
+👉 Bouton : Accéder aux Modules Express
+
+🔹 2. Data Ops – Apprendre en situation réelle
+Sous-titre : Vivez des projets Data comme si vous y étiez, en vous confrontant à des cas concrets et interactifs.
+
+Deux options dans ce module :
+
+📊 Simulation de mission Data – Préparation de jeux de données, nettoyage, choix de modèles, confrontation aux demandes du métier via un client IA simulé.
+👉 Bouton : Démarrer une Simulation Data/IA
+
+🧑‍💼 Pitch & restitution – Entraînez-vous à présenter vos résultats à un client (non technique), reformuler ses besoins et justifier vos choix.
+👉 Bouton : Simuler une Présentation Client
+
+🔹 3. Data Test – Évaluer ses compétences
+Sous-titre : Mesurez vos capacités techniques en Python, SQL, Machine Learning ou en IA générative.
+
+Deux options dans ce module :
+
+🧪 Test technique Data/IA – Exos corrigés par IA : traitement de données, visualisation, feature engineering, modèles supervisés, etc.
+👉 Bouton : Lancer un Test Technique
+
+❓ Diagnostic express – Mini-cas (avec dataset simplifié) où vous devez poser un diagnostic rapide, structurer une analyse, proposer un modèle et expliquer vos choix.
+👉 Bouton : Lancer un Cas Express
+
+🔹 4. Data Ascension – Se préparer aux certifications ou expertises avancées (à venir)
+Sous-titre : Un parcours complet pour viser les certifications Data (ex : Azure, Google, AWS, OpenAI, etc.) ou affiner son expertise sur des sujets avancés.
+👉 Bouton : Bientôt disponible
+

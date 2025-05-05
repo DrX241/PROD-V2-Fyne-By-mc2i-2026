@@ -256,7 +256,14 @@ function App() {
             {/* Routes héritées pour compatibilité */}
             <Route path="/cyber/arcade/password-puzzle" component={NotYetImplemented} />
             <Route path="/cyber/arcade/firewall-defense" component={NotYetImplemented} />
-            <Route path="/data-ia" component={NotYetImplemented} />
+            <Route path="/data-ia" component={() => {
+              const DataIaModeSelection = lazy(() => import('./pages/data-ia-mode-selection'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <DataIaModeSelection />
+                </Suspense>
+              );
+            }} />
             <Route path="/amoa" component={AmoaPage} />
             <Route path="/amoa-mode-selection" component={AmoaModeSelection} />
             <Route path="/amoa/quest" component={AmoaQuestPage} />
