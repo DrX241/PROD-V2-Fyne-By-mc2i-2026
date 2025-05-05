@@ -36,7 +36,8 @@ import {
   saveGeneratedCode, 
   generatePromptExamples,
   executeGeneratedCode,
-  improveGeneratedCode
+  improveGeneratedCode,
+  suggestLanguageAndFramework
 } from "./codeGeneratorController";
 import { analyzeEvidence, getInvestigationHints, evaluateInvestigationResult, generateInvestigationScenario, generateInvestigationNotes } from "./cyberInvestigatorController";
 import { getInvestigationProgress, saveInvestigationProgress, evaluateUserNotes } from "./investigationProgressController";
@@ -448,6 +449,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.post("/api/code-generator/improve", (req: Request, res: Response) => {
     improveGeneratedCode(req, res);
+  });
+  
+  app.post("/api/code-generator/suggest-language-framework", (req: Request, res: Response) => {
+    suggestLanguageAndFramework(req, res);
   });
   // Servir les pièces jointes depuis le dossier public/attachments
   app.use('/attachments', express.static(path.join(__dirname, 'public/attachments')));

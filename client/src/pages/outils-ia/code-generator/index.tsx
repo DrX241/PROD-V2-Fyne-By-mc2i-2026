@@ -218,7 +218,19 @@ export default function CodeGeneratorPage() {
     includeComments: true,
     includeTests: false,
     additionalContext: '',
+    autoDetectLanguage: true,
   });
+  
+  // État pour la suggestion de langage
+  const [languageSuggestion, setLanguageSuggestion] = useState<{
+    language: string;
+    framework: string;
+    confidence: number;
+    reasoning: string;
+  } | null>(null);
+  
+  // État pour le chargement de la suggestion
+  const [isSuggestingLanguage, setIsSuggestingLanguage] = useState(false);
 
   // État pour suivre si le code a été copié
   const [copied, setCopied] = useState(false);

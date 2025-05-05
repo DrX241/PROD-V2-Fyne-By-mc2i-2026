@@ -22,6 +22,14 @@ interface CodeGenerationRequest {
   includeComments: boolean;
   includeTests: boolean;
   additionalContext?: string;
+  autoDetectLanguage?: boolean;
+}
+
+interface LanguageFrameworkSuggestion {
+  language: string;
+  framework: string;
+  confidence: number;
+  reasoning: string;
 }
 
 // Types pour la réponse
@@ -40,6 +48,108 @@ interface CodeGenerationResponse {
     title: string;
     url: string;
   }>;
+}
+
+/**
+ * Suggère le langage et le framework appropriés en fonction du prompt utilisateur
+ */
+export async function suggestLanguageAndFramework(req: Request, res: Response) {
+  try {
+    const userId = req.headers['x-user-id'] ? parseInt(req.headers['x-user-id'] as string) : undefined;
+    
+    // Vérification du rate limiting
+    const rateLimitResult = await rateLimiterService.checkRateLimit({
+      userId: userId || 0,
+      endpoint: '/api/code-generator/suggest-language-framework',
+      actionType: 'suggest_language',
+      req
+    });
+
+    if (!rateLimitResult.allowed) {
+      return res.status(429).json({
+        error: 'Limite de requêtes atteinte',
+        retryAfter: rateLimitResult.retryAfter,
+        message: 'Vous avez atteint la limite de requêtes. Veuillez réessayer plus tard.'
+      });
+    }
+
+    const { prompt } = req.body;
+    
+    if (!prompt) {
+      return res.status(400).json({ error: 'Prompt requis pour la suggestion' });
+    }
+
+    // Vérification du cache
+    const cacheKey = `suggest_lang_${prompt.substring(0, 100)}`;
+    const cachedResponse = await simpleCacheService.get(cacheKey, 'code_generator');
+    
+    if (cachedResponse) {
+      console.log(`Cache hit for language suggestion: ${cacheKey.substring(0, 50)}...`);
+      await simpleCacheService.logCacheHit('code_generator', 'Suggestion de langage');
+      return res.json(JSON.parse(cachedResponse));
+    }
+
+    // Construction du prompt pour l'IA
+    const systemPrompt = `Tu es un expert en développement logiciel qui analyse les demandes des utilisateurs pour suggérer le langage de programmation et le framework les plus appropriés pour résoudre leur problème.
+
+Analyse la demande suivante et suggère le langage de programmation et le framework les plus adaptés. 
+Considère les facteurs suivants :
+1. La nature du problème à résoudre
+2. Les technologies mentionnées explicitement ou implicitement
+3. Les besoins en termes de performance, facilité d'implémentation ou maintenabilité
+4. Les cas d'usage typiques pour différents langages et frameworks
+
+Ta réponse doit être un objet JSON avec la structure suivante:
+{
+  "language": "le langage suggéré",
+  "framework": "le framework suggéré ou 'none' si aucun framework n'est nécessaire",
+  "confidence": un nombre entre 0 et 1 représentant ton niveau de confiance,
+  "reasoning": "une brève explication de ton choix"
+}`;
+
+    const userPrompt = `Voici la demande de l'utilisateur: "${prompt}"
+
+Analyse cette demande et suggère le langage et le framework les plus appropriés à utiliser.`;
+
+    // Appel à l'API Azure OpenAI
+    const response = await openai.chat.completions.create({
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0.3,
+      max_tokens: 800
+    } as any);
+
+    // Parsing de la réponse
+    const content = response.choices[0].message.content;
+    if (!content) {
+      return res.status(500).json({ error: 'Échec de la suggestion' });
+    }
+
+    try {
+      const suggestion: LanguageFrameworkSuggestion = JSON.parse(content);
+      
+      // Mise en cache de la réponse
+      await simpleCacheService.set(cacheKey, JSON.stringify(suggestion), 24 * 60 * 60, 'code_generator', 'Suggestion de langage');
+      await simpleCacheService.logCacheMiss('code_generator', 'Suggestion de langage');
+      
+      return res.json(suggestion);
+    } catch (error) {
+      console.error('Error parsing OpenAI response:', error);
+      return res.status(500).json({ 
+        error: 'Erreur lors du parsing de la réponse', 
+        details: error instanceof Error ? error.message : 'Unknown error' 
+      });
+    }
+  } catch (error) {
+    console.error('Error in language suggestion:', error);
+    return res.status(500).json({ 
+      error: 'Erreur lors de la suggestion', 
+      details: error instanceof Error ? error.message : 'Unknown error' 
+    });
+  }
 }
 
 /**
@@ -68,8 +178,78 @@ export async function generateCode(req: Request, res: Response) {
     const requestData: CodeGenerationRequest = req.body;
     
     // Vérification des données requises
-    if (!requestData.prompt || !requestData.language || !requestData.level) {
+    if (!requestData.prompt || (!requestData.language && !requestData.autoDetectLanguage) || !requestData.level) {
       return res.status(400).json({ error: 'Données manquantes' });
+    }
+    
+    // Si autoDetectLanguage est activé, on détecte automatiquement le langage et le framework
+    if (requestData.autoDetectLanguage) {
+      const cacheKey = `suggest_lang_${requestData.prompt.substring(0, 100)}`;
+      let suggestion = null;
+      
+      // Vérifier si la suggestion est en cache
+      const cachedSuggestion = await simpleCacheService.get(cacheKey, 'code_generator');
+      if (cachedSuggestion) {
+        suggestion = JSON.parse(cachedSuggestion);
+      } else {
+        // Appel à l'API pour obtenir une suggestion
+        const systemPrompt = `Tu es un expert en développement logiciel qui analyse les demandes des utilisateurs pour suggérer le langage de programmation et le framework les plus appropriés pour résoudre leur problème.
+
+Analyse la demande suivante et suggère le langage de programmation et le framework les plus adaptés. 
+Considère les facteurs suivants :
+1. La nature du problème à résoudre
+2. Les technologies mentionnées explicitement ou implicitement
+3. Les besoins en termes de performance, facilité d'implémentation ou maintenabilité
+4. Les cas d'usage typiques pour différents langages et frameworks
+
+Ta réponse doit être un objet JSON avec la structure suivante:
+{
+  "language": "le langage suggéré",
+  "framework": "le framework suggéré ou 'none' si aucun framework n'est nécessaire",
+  "confidence": un nombre entre 0 et 1 représentant ton niveau de confiance,
+  "reasoning": "une brève explication de ton choix"
+}`;
+
+        const userPrompt = `Voici la demande de l'utilisateur: "${requestData.prompt}"
+
+Analyse cette demande et suggère le langage et le framework les plus appropriés à utiliser.`;
+
+        // Appel à l'API Azure OpenAI
+        const response = await openai.chat.completions.create({
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
+          ],
+          response_format: { type: "json_object" },
+          temperature: 0.3,
+          max_tokens: 800
+        } as any);
+
+        const content = response.choices[0].message.content;
+        if (content) {
+          try {
+            suggestion = JSON.parse(content);
+            // Mise en cache de la suggestion
+            await simpleCacheService.set(cacheKey, JSON.stringify(suggestion), 24 * 60 * 60, 'code_generator', 'Suggestion de langage');
+          } catch (error) {
+            console.error('Error parsing language suggestion:', error);
+          }
+        }
+      }
+      
+      // Utiliser la suggestion si disponible
+      if (suggestion && suggestion.language) {
+        requestData.language = suggestion.language;
+        if (suggestion.framework && suggestion.framework !== 'none') {
+          requestData.framework = suggestion.framework;
+        }
+        console.log(`Auto-detected language: ${requestData.language}, framework: ${requestData.framework || 'none'}`);
+      } else {
+        // Si la détection a échoué, utiliser Python comme fallback
+        requestData.language = 'python';
+        requestData.framework = undefined;
+        console.log('Failed to auto-detect language, using Python as fallback');
+      }
     }
 
     // Vérification du cache
