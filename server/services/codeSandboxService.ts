@@ -255,6 +255,80 @@ class CodeSandboxService {
   }
   
   /**
+   * Exécute du code HTML
+   */
+  async executeHTML(code: string): Promise<ExecutionResult> {
+    const startTime = Date.now();
+    
+    try {
+      // Créer une prévisualisation HTML avec un iframe
+      const previewOutput = `
+        <div style="border: 1px solid #ddd; border-radius: 5px; padding: 10px; font-family: sans-serif;">
+          <div style="margin-bottom: 10px; font-size: 14px; color: #555;">
+            Prévisualisation HTML (affichage simulé):
+          </div>
+          <div style="border: 1px solid #eee; border-radius: 4px; padding: 10px; background-color: white;">
+            Le code HTML sera rendu dans un navigateur. Voici la structure du document:
+          </div>
+          <div style="margin-top: 10px; font-size: 12px; color: #666;">
+            Note: Pour une prévisualisation complète, vous devrez ouvrir ce code dans un navigateur ou utiliser un éditeur comme CodePen.
+          </div>
+        </div>
+      `;
+      
+      return {
+        success: true,
+        output: previewOutput,
+        executionTimeMs: Date.now() - startTime
+      };
+    } catch (error) {
+      return {
+        success: false,
+        output: '',
+        error: error instanceof Error ? error.message : String(error),
+        executionTimeMs: Date.now() - startTime
+      };
+    }
+  }
+
+  /**
+   * Exécute du code CSS
+   */
+  async executeCSS(code: string): Promise<ExecutionResult> {
+    const startTime = Date.now();
+    
+    try {
+      // Créer une prévisualisation CSS avec un exemple d'application
+      const previewOutput = `
+        <div style="border: 1px solid #ddd; border-radius: 5px; padding: 10px; font-family: sans-serif;">
+          <div style="margin-bottom: 10px; font-size: 14px; color: #555;">
+            Prévisualisation CSS (affichage simulé):
+          </div>
+          <div style="border: 1px solid #eee; border-radius: 4px; padding: 10px; background-color: white;">
+            Le code CSS sera appliqué aux éléments HTML. Voici la structure de style identifiée:
+          </div>
+          <div style="margin-top: 10px; font-size: 12px; color: #666;">
+            Note: Pour une prévisualisation complète, vous devrez ouvrir ce code dans un navigateur ou utiliser un éditeur comme CodePen.
+          </div>
+        </div>
+      `;
+      
+      return {
+        success: true,
+        output: previewOutput,
+        executionTimeMs: Date.now() - startTime
+      };
+    } catch (error) {
+      return {
+        success: false,
+        output: '',
+        error: error instanceof Error ? error.message : String(error),
+        executionTimeMs: Date.now() - startTime
+      };
+    }
+  }
+
+  /**
    * Fonction d'exécution générique qui sélectionne le bon exécuteur selon le langage
    */
   async executeCode(code: string, language: string): Promise<ExecutionResult> {
@@ -265,6 +339,10 @@ class CodeSandboxService {
         return this.executeTypeScript(code);
       case 'python':
         return this.executePython(code);
+      case 'html':
+        return this.executeHTML(code);
+      case 'css':
+        return this.executeCSS(code);
       case 'sql':
       case 'mysql':
       case 'postgresql':

@@ -125,6 +125,8 @@ const programmingLanguages = [
   { value: 'python', label: 'Python', extension: '.py', icon: <Braces className="h-4 w-4 mr-2" /> },
   { value: 'javascript', label: 'JavaScript', extension: '.js', icon: <Code className="h-4 w-4 mr-2" /> },
   { value: 'typescript', label: 'TypeScript', extension: '.ts', icon: <FileCode2 className="h-4 w-4 mr-2" /> },
+  { value: 'html', label: 'HTML', extension: '.html', icon: <Code className="h-4 w-4 mr-2" /> },
+  { value: 'css', label: 'CSS', extension: '.css', icon: <FileCode2 className="h-4 w-4 mr-2" /> },
   { value: 'java', label: 'Java', extension: '.java', icon: <Cpu className="h-4 w-4 mr-2" /> },
   { value: 'csharp', label: 'C#', extension: '.cs', icon: <Terminal className="h-4 w-4 mr-2" /> },
   { value: 'sql', label: 'SQL', extension: '.sql', icon: <Database className="h-4 w-4 mr-2" /> },
@@ -163,6 +165,18 @@ const frameworksByLanguage: Record<string, Array<{ value: string, label: string 
     { value: 'angular', label: 'Angular' },
     { value: 'express', label: 'Express' },
     { value: 'nextjs', label: 'Next.js' },
+  ],
+  html: [
+    { value: 'none', label: 'Aucun' },
+    { value: 'bootstrap', label: 'Bootstrap' },
+    { value: 'tailwind', label: 'Tailwind CSS' },
+    { value: 'materialize', label: 'Materialize' },
+  ],
+  css: [
+    { value: 'none', label: 'Aucun' },
+    { value: 'sass', label: 'SASS' },
+    { value: 'less', label: 'LESS' },
+    { value: 'postcss', label: 'PostCSS' },
   ],
   java: [
     { value: 'none', label: 'Aucun' },
