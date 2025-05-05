@@ -630,7 +630,7 @@ export default function CodeGeneratorPage() {
                           className={`p-2 rounded-md cursor-pointer text-sm ${
                             selectedExample === index
                               ? isFuturistic 
-                                ? 'bg-blue-500 border border-blue-400 text-white font-medium' 
+                                ? 'bg-blue-600 border border-blue-400 text-white font-medium' 
                                 : 'bg-blue-100 border border-blue-200'
                               : isFuturistic 
                                 ? 'bg-blue-900/30 border border-blue-400 text-white font-medium' 
