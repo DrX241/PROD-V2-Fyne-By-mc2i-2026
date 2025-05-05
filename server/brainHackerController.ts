@@ -173,37 +173,76 @@ Traits: ${target.traits.join(', ')}
 Vulnérabilités: ${target.vulnerabilities.join(', ')}
 
 Objectifs du scénario:
-${scenario.objectives.map(obj => `- ${obj}`).join('\n')}
+${scenario.objectives.map((obj: string) => `- ${obj}`).join('\n')}
 
 Fournis une analyse détaillée au format JSON avec:
 1. Une évaluation globale
 2. Les techniques d'ingénierie sociale identifiées
 3. Points forts et faibles de l'approche
 4. Recommandations d'amélioration
-5. Un score sur 100`;
+5. Un score sur 100
+
+Réponds UNIQUEMENT au format JSON suivant sans aucun autre texte autour:
+{
+  "evaluation": "Évaluation globale de la tentative d'ingénierie sociale",
+  "techniques": ["Technique 1", "Technique 2", "..."],
+  "strengths": ["Point fort 1", "Point fort 2", "..."],
+  "weaknesses": ["Point faible 1", "Point faible 2", "..."],
+  "recommendations": ["Recommandation 1", "Recommandation 2", "..."],
+  "score": 75
+}`;
 
     // Convertir l'historique de conversation en format adapté pour le modèle
-    const formattedHistory = conversationHistory.map(msg => {
+    const formattedHistory: ChatCompletionRequestMessage[] = conversationHistory.map((msg: any) => {
+      const role = msg.sender === 'player' ? 'user' as const : 
+                  (msg.sender === 'target' ? 'assistant' as const : 'system' as const);
       return {
-        role: msg.sender === 'player' ? 'user' : (msg.sender === 'target' ? 'assistant' : 'system'),
+        role,
         content: msg.content
       };
     });
 
-    const response = await openAIService.getChatCompletion([
+    // Créer le tableau final de messages
+    const messages: ChatCompletionRequestMessage[] = [
       { role: 'system', content: systemPrompt },
       ...formattedHistory
-    ], "json_object");
+    ];
 
-    const content = response.choices[0]?.message?.content || '{}';
-    const analysis = JSON.parse(content);
-
-    return res.json(analysis);
-  } catch (error) {
+    // Appel à Azure OpenAI
+    const response = await openAIService.getChatCompletion(messages);
+    
+    // Analyse de la réponse
+    try {
+      const analysis = JSON.parse(response);
+      return res.json(analysis);
+    } catch (parseError: any) {
+      console.error("Erreur lors du parsing de la réponse JSON:", parseError);
+      return res.status(500).json({ 
+        error: "Format de réponse invalide",
+        details: parseError.message,
+        fallback: {
+          evaluation: "Impossible d'analyser la performance. Format de réponse invalide.",
+          techniques: [],
+          strengths: [],
+          weaknesses: [],
+          recommendations: ["Réessayez l'analyse"],
+          score: 0
+        }
+      });
+    }
+  } catch (error: any) {
     console.error("Erreur dans analyzePerformance:", error);
     return res.status(500).json({ 
       error: "Erreur lors de l'analyse de la performance",
-      details: error.message 
+      details: error.message,
+      fallback: {
+        evaluation: "Une erreur est survenue lors de l'analyse.",
+        techniques: [],
+        strengths: [],
+        weaknesses: [],
+        recommendations: ["Réessayez plus tard"],
+        score: 0
+      }
     });
   }
 }

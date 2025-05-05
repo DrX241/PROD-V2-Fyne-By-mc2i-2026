@@ -352,12 +352,13 @@ export default function BrainHacker() {
     ]);
   };
 
-  // Envoyer un message dans la simulation
-  const sendMessage = () => {
+  // Envoyer un message dans la simulation en utilisant l'API
+  const sendMessage = async () => {
     if (!playerMessage.trim() || !currentScenario) return;
     
     const target = targets.find(t => t.id === currentScenario.targetId);
-    if (!target) return;
+    const vector = attackVectors.find(v => v.id === currentScenario.vectorId);
+    if (!target || !vector) return;
 
     // Ajouter le message du joueur
     const newMessage: SimulationMessage = {
@@ -370,9 +371,64 @@ export default function BrainHacker() {
     setSimulationMessages(updatedMessages);
     setPlayerMessage('');
     
-    // Simuler une réponse de la cible (délai simulé pour le réalisme)
-    setTimeout(() => {
-      const targetResponse = simulateTargetResponse(playerMessage, target, messageIntentions);
+    // Afficher un indicateur de chargement
+    setSimulationMessages(prev => [...prev, {
+      sender: 'system',
+      content: 'En attente de réponse...',
+      timestamp: getFormattedTimestamp()
+    }]);
+    
+    try {
+      // Préparation des données pour l'API
+      const requestData = {
+        message: playerMessage,
+        target: {
+          id: target.id,
+          name: target.name,
+          role: target.role,
+          department: target.department,
+          traits: target.traits,
+          vulnerabilities: target.vulnerabilities,
+          description: target.description,
+          expertise: target.expertise
+        },
+        intentions: messageIntentions,
+        attackVector: {
+          id: vector.id,
+          name: vector.name,
+          description: vector.description,
+          effectiveness: vector.effectiveness
+        },
+        scenario: {
+          title: currentScenario.title,
+          description: currentScenario.description,
+          objectives: currentScenario.objectives
+        },
+        conversationHistory: simulationMessages.map(msg => ({
+          sender: msg.sender,
+          content: msg.content
+        }))
+      };
+      
+      // Appel à l'API
+      const response = await fetch('/api/cyber/arcade/brain-hacker/simulate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Erreur API: ${response.status}`);
+      }
+      
+      const targetResponse = await response.json();
+      
+      // Retirer le message d'attente
+      setSimulationMessages(prev => prev.filter(msg => msg.content !== 'En attente de réponse...'));
+      
+      // Ajouter la réponse de la cible
       setSimulationMessages(prev => [...prev, {
         sender: 'target',
         content: targetResponse.message,
@@ -380,10 +436,31 @@ export default function BrainHacker() {
       }]);
 
       // Si la tentative a réussi ou échoué définitivement, terminer le jeu
-      if (targetResponse.success || targetResponse.criticalFailure) {
-        endGame(targetResponse.success, targetResponse);
+      if (targetResponse.analysis.success || targetResponse.analysis.criticalFailure) {
+        endGame(
+          targetResponse.analysis.success, 
+          {
+            success: targetResponse.analysis.success,
+            criticalFailure: targetResponse.analysis.criticalFailure,
+            exploitedVulnerability: targetResponse.analysis.vulnerabilityExploited,
+            score: targetResponse.analysis.score,
+            feedback: targetResponse.analysis.feedback
+          }
+        );
       }
-    }, 1500);
+    } catch (error) {
+      console.error('Erreur lors de l\'appel à l\'API:', error);
+      
+      // Retirer le message d'attente
+      setSimulationMessages(prev => prev.filter(msg => msg.content !== 'En attente de réponse...'));
+      
+      // Afficher un message d'erreur
+      setSimulationMessages(prev => [...prev, {
+        sender: 'system',
+        content: 'Une erreur est survenue lors de la communication avec la cible.',
+        timestamp: getFormattedTimestamp()
+      }]);
+    }
   };
 
   // Simuler la réponse de la cible (IA simple)
@@ -516,13 +593,104 @@ export default function BrainHacker() {
     };
   };
 
+  // Demander une analyse complète de la performance à l'API
+  const requestPerformanceAnalysis = async () => {
+    if (!currentScenario) return null;
+    
+    const target = targets.find(t => t.id === currentScenario.targetId);
+    if (!target) return null;
+    
+    try {
+      // Préparation des données pour l'API
+      const requestData = {
+        conversationHistory: simulationMessages.map(msg => ({
+          sender: msg.sender,
+          content: msg.content
+        })),
+        target: {
+          id: target.id,
+          name: target.name,
+          role: target.role,
+          traits: target.traits,
+          vulnerabilities: target.vulnerabilities,
+          description: target.description
+        },
+        scenario: {
+          title: currentScenario.title,
+          description: currentScenario.description,
+          objectives: currentScenario.objectives
+        }
+      };
+      
+      // Appel à l'API
+      const response = await fetch('/api/cyber/arcade/brain-hacker/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Erreur API: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Erreur lors de l\'analyse de performance:', error);
+      return null;
+    }
+  };
+
   // Terminer le jeu et afficher les résultats
-  const endGame = (success: boolean, results: any) => {
-    setTimeout(() => {
-      setGamePhase('analysis');
+  const endGame = async (success: boolean, results: any) => {
+    setGamePhase('analysis');
+    
+    const score = results.score || (success ? 85 : 35);
+    
+    // Ajouter un message système avec les résultats immédiats
+    setSimulationMessages(prev => [...prev, {
+      sender: 'system',
+      content: `Simulation terminée. ${success ? 'Attaque réussie!' : 'Attaque échouée.'} Score initial: ${score}/100`,
+      timestamp: getFormattedTimestamp()
+    }]);
+    
+    // Message d'attente pour l'analyse détaillée
+    setSimulationMessages(prev => [...prev, {
+      sender: 'system',
+      content: 'Analyse détaillée de votre technique en cours...',
+      timestamp: getFormattedTimestamp()
+    }]);
+    
+    // Obtenir l'analyse détaillée de l'API
+    const detailedAnalysis = await requestPerformanceAnalysis();
+    
+    // Supprimer le message d'attente
+    setSimulationMessages(prev => 
+      prev.filter(msg => msg.content !== 'Analyse détaillée de votre technique en cours...')
+    );
+    
+    if (detailedAnalysis) {
+      // Ajouter un message système avec l'analyse détaillée
+      setSimulationMessages(prev => [...prev, {
+        sender: 'system',
+        content: `📊 Analyse détaillée - Score final: ${detailedAnalysis.score}/100\n\n${detailedAnalysis.evaluation}`,
+        timestamp: getFormattedTimestamp()
+      }]);
       
-      const score = results.score || (success ? 85 : 35);
-      
+      // Mettre à jour les résultats du jeu
+      setGameResult({
+        success,
+        score: detailedAnalysis.score,
+        feedback: detailedAnalysis.evaluation,
+        techniques: detailedAnalysis.techniques,
+        strengths: detailedAnalysis.strengths,
+        weaknesses: detailedAnalysis.weaknesses,
+        recommendations: detailedAnalysis.recommendations,
+        vulnerabilityExploited: results.exploitedVulnerability
+      });
+    } else {
+      // Fallback si l'analyse détaillée échoue
       let feedback = '';
       let improvement = '';
       
@@ -556,13 +724,13 @@ export default function BrainHacker() {
         improvement
       });
       
-      // Ajouter un message système avec les résultats
+      // Message d'erreur concernant l'analyse détaillée
       setSimulationMessages(prev => [...prev, {
         sender: 'system',
-        content: `Simulation terminée. ${success ? 'Attaque réussie!' : 'Attaque échouée.'} Score: ${score}/100`,
+        content: 'L\'analyse détaillée n\'a pas pu être générée. Voici une évaluation simplifiée.',
         timestamp: getFormattedTimestamp()
       }]);
-    }, 1000);
+    }
   };
 
   // Réinitialiser le jeu
