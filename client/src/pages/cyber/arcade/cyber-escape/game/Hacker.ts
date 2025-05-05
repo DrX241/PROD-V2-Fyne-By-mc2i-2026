@@ -20,9 +20,11 @@ export class Hacker {
     this.sprite.setDepth(10);
     
     // Ajout d'une hitbox plus petite que le sprite
-    this.sprite.body.setSize(24, 24);
-    this.sprite.body.offset.x = 4;
-    this.sprite.body.offset.y = 4;
+    if (this.sprite.body) {
+      this.sprite.body.setSize(24, 24);
+      this.sprite.body.offset.x = 4;
+      this.sprite.body.offset.y = 4;
+    }
     
     // Ajouter un cercle d'alerte autour du pirate (invisible par défaut)
     this.alertCircle = scene.add.ellipse(x, y, 60, 60, 0xff0000, 0.2);

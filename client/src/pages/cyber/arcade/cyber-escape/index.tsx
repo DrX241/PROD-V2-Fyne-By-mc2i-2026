@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { CyberEscapeGame } from './game/CyberEscapeGame';
+import GameComponent from './components/GameComponent';
 import PageTitle from '@/components/utils/PageTitle';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
