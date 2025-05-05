@@ -172,10 +172,10 @@ export default function CyberModeSelection() {
                   <div className="absolute h-16 w-16 -top-8 -right-8 bg-white opacity-20 rounded-full blur-md"></div>
                   
                   <div className="flex flex-col h-full relative z-10">
-                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-3 text-center">
+                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-3 text-center truncate px-2">
                       {category.title}
                     </h2>
-                    <p className="text-blue-100 mb-4 text-sm lg:text-base text-center">{category.description}</p>
+                    <p className="text-blue-100 mb-4 text-xs lg:text-sm text-center line-clamp-3 px-1">{category.description}</p>
                     
                     {/* Liste des modules dans cette catégorie */}
                     <div className="mt-4 flex-grow">
@@ -185,9 +185,9 @@ export default function CyberModeSelection() {
                             <div className="flex items-center p-4 rounded-lg bg-white/10 hover:bg-white/20 transition-colors cursor-pointer border border-white/20 shadow-sm hover:shadow-md hover:border-white/40">
                               <div className="flex-grow">
                                 <div className="flex items-center gap-2">
-                                  <h3 className="text-white font-medium text-base">{item.title}</h3>
+                                  <h3 className="text-white font-medium text-base truncate">{item.title}</h3>
                                   {item.isNew && (
-                                    <span className="text-xs px-1.5 py-0.5 bg-amber-500 text-white rounded-full">Nouveau</span>
+                                    <span className="text-xs px-1.5 py-0.5 bg-amber-500 text-white rounded-full flex-shrink-0">Nouveau</span>
                                   )}
                                 </div>
                               </div>
