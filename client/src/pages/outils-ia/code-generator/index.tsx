@@ -71,6 +71,14 @@ interface CodeGenerationRequest {
   includeComments: boolean;
   includeTests: boolean;
   additionalContext?: string;
+  autoDetectLanguage?: boolean;
+}
+
+interface LanguageFrameworkSuggestion {
+  language: string;
+  framework: string;
+  confidence: number;
+  reasoning: string;
 }
 
 interface CodeGenerationResponse {
@@ -263,6 +271,58 @@ export default function CodeGeneratorPage() {
     });
   };
 
+  // Mutation pour suggérer le langage et le framework
+  const suggestLanguageMutation = useMutation({
+    mutationFn: async (prompt: string) => {
+      setIsSuggestingLanguage(true);
+      try {
+        const response = await apiRequest('/api/code-generator/suggest-language-framework', {
+          method: 'POST',
+          body: JSON.stringify({ prompt }),
+        });
+        return response as LanguageFrameworkSuggestion;
+      } catch (error) {
+        console.error('Error suggesting language:', error);
+        throw error;
+      } finally {
+        setIsSuggestingLanguage(false);
+      }
+    },
+    onSuccess: (data) => {
+      setLanguageSuggestion(data);
+      if (data.confidence > 0.6) {
+        // Si la confiance est élevée, utiliser automatiquement la suggestion
+        setFormData(prev => ({
+          ...prev,
+          language: data.language,
+          framework: data.framework !== 'none' && frameworksByLanguage[data.language]?.some(f => f.value === data.framework) 
+            ? data.framework 
+            : 'none',
+        }));
+        
+        toast({
+          title: "Langage détecté",
+          description: `Langage ${data.language} détecté automatiquement (confiance: ${Math.round(data.confidence * 100)}%)`,
+          variant: "default",
+        });
+      } else {
+        // Sinon, suggérer seulement
+        toast({
+          title: "Suggestion de langage",
+          description: `Suggestion: ${data.language} (confiance: ${Math.round(data.confidence * 100)}%)`,
+          variant: "default",
+        });
+      }
+    },
+    onError: () => {
+      toast({
+        title: "Erreur de suggestion",
+        description: "Impossible de suggérer un langage pour cette demande",
+        variant: "destructive",
+      });
+    }
+  });
+
   // Fonction pour mettre à jour le formulaire
   const handleInputChange = (field: keyof CodeGenerationRequest, value: any) => {
     setFormData(prev => ({
@@ -277,6 +337,11 @@ export default function CodeGeneratorPage() {
         [field]: value,
         framework: frameworksByLanguage[value] ? 'none' : undefined,
       }));
+    }
+    
+    // Déclencher la suggestion de langage lorsque le prompt change et que l'auto-détection est activée
+    if (field === 'prompt' && value.length > 20 && formData.autoDetectLanguage) {
+      suggestLanguageMutation.mutate(value);
     }
   };
 
