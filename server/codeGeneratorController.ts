@@ -276,7 +276,7 @@ Réponds uniquement avec un tableau JSON d'idées, sans explications supplément
         response_format: { type: "json_object" },
         temperature: 0.8,
         max_tokens: 1000
-      });
+      } as any);
       
       let examples: string[] = [];
       
