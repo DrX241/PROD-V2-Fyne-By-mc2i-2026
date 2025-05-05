@@ -26,7 +26,7 @@ export interface Character {
   department: string;
   status: 'online' | 'away' | 'offline';
   securityLevel: number; // 1-5
-  vulnerabilities: string[]; // Les vulnérabilités liées à ce personnage
+  vulnerabilities?: string[]; // Les vulnérabilités liées à ce personnage (optionnel)
   conversations: Record<string, Conversation>;
 }
 
@@ -281,6 +281,7 @@ export const virtualRooms: VirtualRoom[] = [
         department: 'Ressources Humaines',
         status: 'away',
         securityLevel: 3,
+        vulnerabilities: ['partage d\'informations sensibles', 'emails non sécurisés', 'gestion des documents'],
         conversations: {
           'introduction': {
             messages: [
@@ -374,6 +375,7 @@ export const virtualRooms: VirtualRoom[] = [
         department: 'Finance',
         status: 'online',
         securityLevel: 4,
+        vulnerabilities: ['fraude au président', 'vérification des paiements', 'gestion budgétaire'],
         conversations: {
           'introduction': {
             messages: [
