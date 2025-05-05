@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
 import { Button } from '@/components/ui/button';
-import { Search, FileSearch, ArrowLeft, Fingerprint, HardDrive, Shield } from 'lucide-react';
+import { Search, FileSearch, ArrowLeft, Fingerprint, HardDrive, Shield, Network } from 'lucide-react';
 
 interface Game {
   id: string;
@@ -21,6 +21,15 @@ export default function CyberArcade() {
   const [hoveredGame, setHoveredGame] = useState<string | null>(null);
 
   const games: Game[] = [
+    {
+      id: 'firewall-tactique',
+      title: 'FIREWALL TACTIQUE',
+      description: 'Construisez une défense réseau en plaçant des composants de sécurité pour stopper des attaques',
+      icon: <Network className="w-6 h-6" />,
+      gradient: 'from-indigo-500 to-purple-700',
+      available: true,
+      route: '/cyber/arcade/firewall-tactique'
+    },
     {
       id: 'code-shield',
       title: 'CODE SHIELD',
