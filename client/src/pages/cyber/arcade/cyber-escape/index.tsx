@@ -1,294 +1,392 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useLocation } from 'wouter';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'wouter';
+import { ArrowLeft, ShieldAlert, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { ArrowLeft, HelpCircle, Info, Award, AlertCircle } from 'lucide-react';
-import { useTheme } from '@/contexts/ThemeContext';
-import HomeLayout from '@/components/layout/HomeLayout';
-import { useToast } from '@/hooks/use-toast';
-import Phaser from 'phaser';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { CyberEscapeGame } from './game/CyberEscapeGame';
+import PageTitle from '@/components/utils/PageTitle';
+import { Separator } from '@/components/ui/separator';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { toast } from '@/hooks/use-toast';
 
-// Hauteur du jeu
-const GAME_HEIGHT = 600;
+export default function CyberEscape() {
+  const [gameStarted, setGameStarted] = useState(false);
+  const [vulnerabilitiesFixed, setVulnerabilitiesFixed] = useState(0);
+  const [vulnerabilitiesTotal, setVulnerabilitiesTotal] = useState(10);
+  const [vulnerabilitiesExploited, setVulnerabilitiesExploited] = useState(0);
+  const [level, setLevel] = useState(1);
+  const [timeRemaining, setTimeRemaining] = useState(300); // 5 minutes en secondes
+  const [gameInstance, setGameInstance] = useState<CyberEscapeGame | null>(null);
+  const [gamePaused, setGamePaused] = useState(false);
 
-// Interface pour les statistiques du joueur
-interface GameStats {
-  fixes: number;
-  totalVulnerabilities: number;
-  timeRemaining: number;
-  level: number;
-}
-
-export default function CyberEscapePage() {
-  const { themeMode } = useTheme();
-  const isDark = themeMode === 'dark' || themeMode === 'futuristic';
-  const [, setLocation] = useLocation();
-  const gameContainerRef = useRef<HTMLDivElement>(null);
-  const gameInstanceRef = useRef<Phaser.Game | null>(null);
-  const { toast } = useToast();
-  const [showInstructions, setShowInstructions] = useState(false);
-  const [gameStats, setGameStats] = useState<GameStats>({
-    fixes: 0,
-    totalVulnerabilities: 10,
-    timeRemaining: 300,
-    level: 1,
-  });
-  const [gameStatus, setGameStatus] = useState<'ready' | 'playing' | 'paused' | 'gameOver' | 'victory'>('ready');
-
-  // Initialisation du jeu
-  useEffect(() => {
-    if (gameContainerRef.current && !gameInstanceRef.current) {
-      // Configuration de Phaser
-      const config: Phaser.Types.Core.GameConfig = {
-        type: Phaser.AUTO,
-        width: gameContainerRef.current.clientWidth,
-        height: GAME_HEIGHT,
-        parent: gameContainerRef.current,
-        backgroundColor: '#1a1a2e',
-        scene: [CyberEscapeGame],
-        physics: {
-          default: 'arcade',
-          arcade: {
-            gravity: { y: 0 },
-            debug: false
-          }
-        },
-        scale: {
-          mode: Phaser.Scale.RESIZE,
-          autoCenter: Phaser.Scale.CENTER_BOTH
-        }
-      };
-
-      // Création de l'instance du jeu
-      gameInstanceRef.current = new Phaser.Game(config);
-
-      // Communication avec le jeu
-      const game = gameInstanceRef.current;
-      
-      // Exposer des méthodes pour la communication entre React et Phaser
-      window.PhaserEvents = {
-        updateStats: (stats: Partial<GameStats>) => {
-          setGameStats(prevStats => ({
-            ...prevStats,
-            ...stats
-          }));
-        },
-        setGameStatus: (status: 'ready' | 'playing' | 'paused' | 'gameOver' | 'victory') => {
-          setGameStatus(status);
-        },
-        showToast: (message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') => {
-          toast({
-            title: type === 'success' ? 'Bravo !' : type === 'error' ? 'Erreur' : 'Information',
-            description: message,
-            variant: type === 'error' ? 'destructive' : 'default',
-          });
-        }
-      };
-    }
-
-    // Nettoyage à la fermeture
-    return () => {
-      if (gameInstanceRef.current) {
-        gameInstanceRef.current.destroy(true);
-        gameInstanceRef.current = null;
-      }
-      
-      // Suppression des méthodes globales
-      if (window.PhaserEvents) {
-        window.PhaserEvents = undefined;
-      }
-    };
-  }, [toast]);
-
-  // Ajuster la taille du jeu lors du redimensionnement de la fenêtre
-  useEffect(() => {
-    const handleResize = () => {
-      if (gameInstanceRef.current && gameContainerRef.current) {
-        gameInstanceRef.current.scale.resize(gameContainerRef.current.clientWidth, GAME_HEIGHT);
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Gestion du démarrage du jeu
+  // Fonction pour démarrer le jeu
   const startGame = () => {
-    if (gameInstanceRef.current) {
-      // Communiquer avec la scène Phaser pour démarrer le jeu
-      const scene = gameInstanceRef.current.scene.getScene('CyberEscapeGame') as any;
-      if (scene && scene.startGame) {
-        scene.startGame();
-        setGameStatus('playing');
-      }
+    setGameStarted(true);
+    setVulnerabilitiesFixed(0);
+    setVulnerabilitiesExploited(0);
+    
+    // Définir le nombre total de vulnérabilités en fonction du niveau
+    const totalVulnerabilities = 5 + (level * 2);
+    setVulnerabilitiesTotal(totalVulnerabilities);
+    
+    // Réinitialiser le temps
+    setTimeRemaining(300);
+  };
+
+  // Fonction pour mettre le jeu en pause
+  const togglePause = () => {
+    setGamePaused(!gamePaused);
+    if (gameInstance) {
+      gameInstance.setPaused(!gamePaused);
     }
   };
 
-  // Interface utilisateur
+  // Formatage du temps restant (mm:ss)
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Configuration des événements du jeu
+  useEffect(() => {
+    if (!window.PhaserEvents) {
+      window.PhaserEvents = {
+        onVulnerabilityFixed: () => {},
+        onVulnerabilityExploited: () => {},
+        showToast: () => {},
+      };
+    }
+
+    window.PhaserEvents.onVulnerabilityFixed = () => {
+      setVulnerabilitiesFixed(prev => prev + 1);
+      toast({
+        title: "Vulnérabilité corrigée !",
+        description: "Vous avez sécurisé une vulnérabilité.",
+        variant: "default",
+      });
+    };
+
+    window.PhaserEvents.onVulnerabilityExploited = () => {
+      setVulnerabilitiesExploited(prev => prev + 1);
+      toast({
+        title: "Vulnérabilité exploitée !",
+        description: "Un attaquant a exploité une vulnérabilité.",
+        variant: "destructive",
+      });
+    };
+
+    window.PhaserEvents.showToast = (message: string, type: string) => {
+      toast({
+        title: type === 'error' ? "Alerte" : "Information",
+        description: message,
+        variant: type === 'error' ? "destructive" : "default",
+      });
+    };
+
+    // Décompte du temps
+    let timerInterval: NodeJS.Timeout | null = null;
+    
+    if (gameStarted && !gamePaused) {
+      timerInterval = setInterval(() => {
+        setTimeRemaining(prev => {
+          if (prev <= 0) {
+            // Fin du jeu quand le temps est écoulé
+            if (timerInterval) clearInterval(timerInterval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (timerInterval) clearInterval(timerInterval);
+    };
+  }, [gameStarted, gamePaused]);
+
+  // Détecter la fin du jeu
+  useEffect(() => {
+    // Conditions de victoire/défaite
+    if (gameStarted) {
+      // Victoire : toutes les vulnérabilités sont corrigées
+      if (vulnerabilitiesFixed >= vulnerabilitiesTotal) {
+        toast({
+          title: "Mission réussie !",
+          description: "Vous avez sécurisé toutes les vulnérabilités. L'entreprise est désormais protégée !",
+          variant: "default",
+        });
+        setGameStarted(false);
+      }
+      
+      // Défaite : trop de vulnérabilités exploitées ou temps écoulé
+      if (vulnerabilitiesExploited >= Math.ceil(vulnerabilitiesTotal / 2) || timeRemaining <= 0) {
+        toast({
+          title: "Mission échouée !",
+          description: "Trop de vulnérabilités ont été exploitées ou le temps est écoulé. L'entreprise est compromise.",
+          variant: "destructive",
+        });
+        setGameStarted(false);
+      }
+    }
+  }, [vulnerabilitiesFixed, vulnerabilitiesExploited, vulnerabilitiesTotal, timeRemaining, gameStarted]);
+
   return (
-    <HomeLayout>
-      <div className={`min-h-screen ${isDark ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
-        {/* En-tête */}
-        <header className={`px-4 py-3 border-b ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
-          <div className="container mx-auto flex items-center justify-between">
-            <div className="flex items-center">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="mr-3"
-                onClick={() => setLocation('/cyber/arcade')}
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-              <h1 className="text-xl font-bold">CyberEscape - L'infiltration inverse</h1>
-            </div>
-            <div className="flex items-center">
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={() => setShowInstructions(!showInstructions)}
-              >
-                <HelpCircle className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
-        </header>
-
-        {/* Instructions */}
-        {showInstructions && (
-          <div className="container mx-auto px-4 py-4">
-            <Card className={`p-4 mb-4 ${isDark ? 'bg-gray-800 text-white border-gray-700' : 'bg-white border-gray-200'}`}>
-              <h2 className="text-lg font-bold mb-2 flex items-center">
-                <Info className="h-5 w-5 mr-2" />
-                Comment jouer
-              </h2>
-              <div className="space-y-2 text-sm">
-                <p>🎯 <strong>Objectif :</strong> Vous êtes un responsable cybersécurité qui doit repérer et corriger les failles de sécurité dans les bureaux avant qu'un attaquant ne les exploite.</p>
+    <div className="min-h-screen bg-gradient-to-b from-blue-900 via-blue-800 to-cyan-900 text-white">
+      <div className="container mx-auto py-6 px-4">
+        <PageTitle title="CYBER ESCAPE - L'INFILTRATION INVERSE" />
+        
+        <div className="flex items-center mb-6">
+          <Link href="/cyber/arcade">
+            <Button variant="ghost" className="text-white hover:bg-blue-700/20 mr-4">
+              <ArrowLeft className="mr-2 h-4 w-4" /> Retour
+            </Button>
+          </Link>
+          
+          {gameStarted && (
+            <Button variant="outline" className="ml-auto" onClick={togglePause}>
+              {gamePaused ? "Reprendre" : "Pause"}
+            </Button>
+          )}
+        </div>
+        
+        {!gameStarted ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <Card className="bg-blue-800/50 border-blue-700 text-white">
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold">CYBER ESCAPE</CardTitle>
+                <CardDescription className="text-blue-200">
+                  L'infiltration inverse : Déjouez les attaques avant qu'il ne soit trop tard
+                </CardDescription>
+              </CardHeader>
+              
+              <CardContent>
+                <p className="mb-6">
+                  Dans ce jeu, vous incarnez un responsable cybersécurité chargé de protéger 
+                  l'entreprise contre les attaques. Vous devez identifier et corriger les vulnérabilités 
+                  avant qu'un attaquant ne puisse les exploiter.
+                </p>
                 
-                <p>🕹️ <strong>Contrôles :</strong></p>
-                <ul className="list-disc pl-6">
-                  <li>Utilisez les flèches du clavier ou ZQSD pour vous déplacer</li>
-                  <li>Appuyez sur E ou cliquez pour interagir avec les objets</li>
-                  <li>Appuyez sur ESPACE pour utiliser votre scanner de vulnérabilités</li>
-                </ul>
+                <div className="rounded-lg bg-blue-900/50 p-4 mb-6">
+                  <h3 className="text-lg font-semibold mb-2">Niveau {level} : Bureau en danger</h3>
+                  <p className="text-sm text-blue-200 mb-4">
+                    Des vulnérabilités ont été détectées dans l'environnement de bureau. 
+                    Localisez et corrigez-les avant qu'un attaquant ne les exploite.
+                  </p>
+                  
+                  <div className="flex items-center text-sm mb-1">
+                    <Shield className="h-4 w-4 mr-2 text-blue-200" />
+                    <span>Objectif: Sécuriser toutes les vulnérabilités ({vulnerabilitiesTotal})</span>
+                  </div>
+                  
+                  <div className="flex items-center text-sm">
+                    <ShieldAlert className="h-4 w-4 mr-2 text-blue-200" />
+                    <span>Limite: Maximum {Math.floor(vulnerabilitiesTotal / 2)} vulnérabilités peuvent être exploitées</span>
+                  </div>
+                </div>
                 
-                <p>⚠️ <strong>Vulnérabilités à chercher :</strong></p>
-                <ul className="list-disc pl-6">
-                  <li>Mots de passe visibles (Post-it)</li>
-                  <li>Ports USB non surveillés</li>
-                  <li>Écrans déverrouillés</li>
-                  <li>Documents confidentiels</li>
-                  <li>Appareils non autorisés</li>
-                </ul>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Niveau:</span>
+                    <div className="flex space-x-2">
+                      {[1, 2, 3].map((lvl) => (
+                        <Button 
+                          key={lvl} 
+                          size="sm" 
+                          variant={level === lvl ? "default" : "outline"}
+                          onClick={() => setLevel(lvl)}
+                          className={level === lvl ? "" : "text-white"}
+                        >
+                          {lvl}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+              
+              <CardFooter>
+                <Button className="w-full" onClick={startGame}>
+                  Commencer la mission
+                </Button>
+              </CardFooter>
+            </Card>
+            
+            <Card className="bg-blue-800/50 border-blue-700 text-white">
+              <CardHeader>
+                <CardTitle className="text-xl font-bold">Instructions</CardTitle>
+              </CardHeader>
+              
+              <CardContent className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold mb-2 flex items-center">
+                    <span className="bg-blue-700 text-white rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">1</span>
+                    Déplacez-vous
+                  </h3>
+                  <p className="text-sm text-blue-200 pl-8">
+                    Utilisez les touches <Badge variant="outline">▲</Badge> <Badge variant="outline">▼</Badge> <Badge variant="outline">◄</Badge> <Badge variant="outline">►</Badge> ou 
+                    <Badge variant="outline">W</Badge> <Badge variant="outline">A</Badge> <Badge variant="outline">S</Badge> <Badge variant="outline">D</Badge> pour vous déplacer dans le bureau.
+                  </p>
+                </div>
                 
-                <p>⏱️ <strong>Adversaire :</strong> Un pirate informatique progresse en parallèle. Si vous tardez trop, il exploitera les failles avant vous !</p>
-              </div>
+                <div>
+                  <h3 className="text-lg font-semibold mb-2 flex items-center">
+                    <span className="bg-blue-700 text-white rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">2</span>
+                    Recherchez les vulnérabilités
+                  </h3>
+                  <p className="text-sm text-blue-200 pl-8">
+                    Appuyez sur <Badge variant="outline">ESPACE</Badge> pour scanner votre environnement à la recherche de vulnérabilités.
+                  </p>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-semibold mb-2 flex items-center">
+                    <span className="bg-blue-700 text-white rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">3</span>
+                    Corrigez les vulnérabilités
+                  </h3>
+                  <p className="text-sm text-blue-200 pl-8">
+                    Approchez-vous d'une vulnérabilité et cliquez dessus pour la corriger. Soyez rapide !
+                  </p>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-semibold mb-2 flex items-center">
+                    <span className="bg-blue-700 text-white rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">4</span>
+                    Attention au pirate
+                  </h3>
+                  <p className="text-sm text-blue-200 pl-8">
+                    Un pirate parcourt également l'environnement et cherche à exploiter les vulnérabilités avant vous.
+                  </p>
+                </div>
+                
+                <Alert className="bg-blue-700/50 border-blue-600">
+                  <ShieldAlert className="h-4 w-4" />
+                  <AlertTitle>Attention</AlertTitle>
+                  <AlertDescription>
+                    Le temps est limité ! Vous devez terminer avant que le chronomètre n'atteigne zéro.
+                  </AlertDescription>
+                </Alert>
+              </CardContent>
             </Card>
           </div>
+        ) : (
+          <>
+            <div className="bg-blue-800/30 rounded-lg p-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                <div>
+                  <h3 className="text-sm text-blue-200 mb-1">Temps restant</h3>
+                  <div className="text-2xl font-mono">{formatTime(timeRemaining)}</div>
+                </div>
+                
+                <div>
+                  <h3 className="text-sm text-blue-200 mb-1">Niveau</h3>
+                  <div className="text-2xl font-bold">{level}</div>
+                </div>
+                
+                <div>
+                  <h3 className="text-sm text-blue-200 mb-1">Statut</h3>
+                  <div className="text-2xl">
+                    {gamePaused ? (
+                      <Badge variant="outline" className="text-yellow-400 border-yellow-400">En pause</Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-green-400 border-green-400">En cours</Badge>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm text-blue-200">Vulnérabilités corrigées</span>
+                    <span className="text-sm font-bold">{vulnerabilitiesFixed} / {vulnerabilitiesTotal}</span>
+                  </div>
+                  <Progress 
+                    value={(vulnerabilitiesFixed / vulnerabilitiesTotal) * 100} 
+                    className="h-2 bg-blue-900" 
+                  />
+                </div>
+                
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm text-blue-200">Vulnérabilités exploitées</span>
+                    <span className="text-sm font-bold">{vulnerabilitiesExploited} / {Math.ceil(vulnerabilitiesTotal / 2)}</span>
+                  </div>
+                  <Progress 
+                    value={(vulnerabilitiesExploited / Math.ceil(vulnerabilitiesTotal / 2)) * 100} 
+                    className="h-2 bg-blue-900" 
+                    indicatorClassName="bg-red-500"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-black p-1 rounded-lg shadow-lg" style={{ aspectRatio: "16/9" }}>
+              <div id="game-container" className="w-full h-full rounded overflow-hidden">
+                {/* Le jeu Phaser sera monté ici */}
+                <CyberEscapeGame 
+                  level={level} 
+                  onGameInit={(gameInstance) => setGameInstance(gameInstance)}
+                />
+              </div>
+            </div>
+          </>
         )}
-
-        {/* Conteneur principal */}
-        <div className="container mx-auto px-4 py-4">
-          {/* Statistiques du jeu */}
-          <div className={`grid grid-cols-4 gap-4 mb-4 ${gameStatus === 'ready' ? 'opacity-50' : 'opacity-100'}`}>
-            <Card className={`p-3 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
-              <div className="flex flex-col items-center">
-                <span className="text-sm opacity-80">Niveau</span>
-                <span className="text-xl font-bold">{gameStats.level}</span>
-              </div>
-            </Card>
-            <Card className={`p-3 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
-              <div className="flex flex-col items-center">
-                <span className="text-sm opacity-80">Failles corrigées</span>
-                <span className="text-xl font-bold">{gameStats.fixes} / {gameStats.totalVulnerabilities}</span>
-              </div>
-            </Card>
-            <Card className={`p-3 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
-              <div className="flex flex-col items-center">
-                <span className="text-sm opacity-80">Temps restant</span>
-                <span className="text-xl font-bold">
-                  {Math.floor(gameStats.timeRemaining / 60)}:{(gameStats.timeRemaining % 60).toString().padStart(2, '0')}
-                </span>
-              </div>
-            </Card>
-            <Card className={`p-3 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
-              <div className="flex flex-col items-center">
-                <span className="text-sm opacity-80">Avance sur le pirate</span>
-                <span className={`text-xl font-bold ${
-                  gameStats.fixes > gameStats.totalVulnerabilities / 2 ? 'text-green-500' : 'text-orange-500'
-                }`}>
-                  {Math.round((gameStats.fixes / gameStats.totalVulnerabilities) * 100)}%
-                </span>
-              </div>
-            </Card>
-          </div>
-
-          {/* Canvas du jeu */}
-          <div 
-            ref={gameContainerRef} 
-            className={`w-full rounded-lg overflow-hidden shadow-lg border ${
-              isDark ? 'border-gray-700' : 'border-gray-200'
-            }`} 
-            style={{ height: `${GAME_HEIGHT}px` }}
-          />
-
-          {/* Boutons de contrôle */}
-          <div className="mt-4 flex justify-center">
-            {gameStatus === 'ready' && (
-              <Button 
-                onClick={startGame}
-                className="px-8 py-4 text-lg bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                Commencer la mission
-              </Button>
-            )}
-            
-            {gameStatus === 'gameOver' && (
-              <div className="text-center">
-                <div className="flex items-center justify-center mb-4">
-                  <AlertCircle className="h-8 w-8 text-red-500 mr-2" />
-                  <h2 className="text-2xl font-bold">Mission échouée</h2>
-                </div>
-                <p className="mb-4">Le pirate informatique a exploité trop de failles. La sécurité du système est compromise.</p>
-                <Button 
-                  onClick={() => window.location.reload()}
-                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  Réessayer
-                </Button>
-              </div>
-            )}
-            
-            {gameStatus === 'victory' && (
-              <div className="text-center">
-                <div className="flex items-center justify-center mb-4">
-                  <Award className="h-8 w-8 text-yellow-500 mr-2" />
-                  <h2 className="text-2xl font-bold">Mission accomplie !</h2>
-                </div>
-                <p className="mb-4">Vous avez corrigé toutes les failles de sécurité avant le pirate informatique.</p>
-                <Button 
-                  onClick={() => window.location.reload()}
-                  className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white"
-                >
-                  Niveau suivant
-                </Button>
-              </div>
-            )}
-          </div>
+        
+        <Separator className="my-8 bg-blue-700/50" />
+        
+        <div className="prose prose-invert max-w-none">
+          <h2 className="text-2xl font-bold mb-4">À propos de CyberEscape</h2>
+          
+          <p>
+            CyberEscape est une simulation interactive qui vous place dans le rôle d'un responsable 
+            cybersécurité devant protéger une entreprise contre des cyberattaques en temps réel.
+          </p>
+          
+          <h3 className="text-xl font-bold mt-6 mb-3">Contexte</h3>
+          
+          <p>
+            Dans l'environnement professionnel actuel, les vulnérabilités de sécurité peuvent se trouver 
+            partout : un mot de passe sur un post-it, un écran déverrouillé, un document confidentiel 
+            laissé à la vue de tous, ou encore des périphériques non sécurisés.
+          </p>
+          
+          <p>
+            Votre mission est de parcourir l'environnement de bureau, d'identifier ces vulnérabilités et 
+            de les corriger avant qu'un attaquant ne puisse les exploiter pour compromettre le système.
+          </p>
+          
+          <h3 className="text-xl font-bold mt-6 mb-3">Compétences développées</h3>
+          
+          <ul className="list-disc pl-6 space-y-2">
+            <li>Identification des vulnérabilités physiques et numériques</li>
+            <li>Priorisation des risques de sécurité</li>
+            <li>Gestion du temps et prise de décision sous pression</li>
+            <li>Compréhension des vecteurs d'attaque courants</li>
+            <li>Mise en place de bonnes pratiques de sécurité</li>
+          </ul>
         </div>
       </div>
-    </HomeLayout>
+    </div>
   );
 }
 
-// Type global pour la communication entre React et Phaser
+// Déclaration globale pour les événements Phaser
 declare global {
   interface Window {
     PhaserEvents?: {
-      updateStats: (stats: Partial<GameStats>) => void;
-      setGameStatus: (status: 'ready' | 'playing' | 'paused' | 'gameOver' | 'victory') => void;
-      showToast: (message: string, type?: 'success' | 'error' | 'warning' | 'info') => void;
+      onVulnerabilityFixed: () => void;
+      onVulnerabilityExploited: () => void;
+      showToast: (message: string, type: string) => void;
     };
   }
 }

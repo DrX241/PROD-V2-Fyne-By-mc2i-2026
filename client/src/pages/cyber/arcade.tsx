@@ -22,6 +22,15 @@ export default function CyberArcade() {
 
   const games: Game[] = [
     {
+      id: 'cyber-escape',
+      title: 'CYBER ESCAPE',
+      description: 'L\'infiltration inverse : devenez responsable cybersécurité et repérez les failles avant qu\'un attaquant ne les exploite',
+      icon: <Shield className="w-6 h-6" />,
+      gradient: 'from-blue-500 to-cyan-700',
+      available: true,
+      route: '/cyber/arcade/cyber-escape'
+    },
+    {
       id: 'brain-hacker',
       title: 'BRAIN HACKER',
       description: 'Ingénierie sociale inversée : incarnez le hacker et trouvez le moyen le plus subtil de piéger la victime',
