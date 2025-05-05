@@ -238,7 +238,7 @@ export default function CyberMasteryPage() {
               <div className="flex items-center gap-2">
                 <Badge variant={isDark ? "outline" : "secondary"} className="font-normal">
                   <Zap className="h-3 w-3 mr-1" />
-                  Nouveau
+                  Interactive
                 </Badge>
                 <Badge variant="outline" className={`font-normal ${isDark ? 'border-blue-500/50 text-blue-400' : 'border-blue-500 text-blue-600'}`}>
                   <Users className="h-3 w-3 mr-1" />

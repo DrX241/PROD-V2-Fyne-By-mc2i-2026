@@ -171,7 +171,7 @@ export default function CyberDefense() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <Badge className="bg-[#006a9e]/40 text-white border-[#006a9e]/30 mb-6">
-                Nouveau module
+                Module Cyberdéfense
               </Badge>
               <motion.h1 
                 className="text-4xl sm:text-5xl font-bold mb-6"

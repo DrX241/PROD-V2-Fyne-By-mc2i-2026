@@ -983,7 +983,7 @@ export default function CyberTestTechnique() {
       <CardFooter className="flex justify-between">
         <Button variant="outline" onClick={resetQuiz}>
           <RefreshCcw className="mr-2 h-4 w-4" />
-          Nouveau test
+          Refaire un test
         </Button>
         {!showCertificate && evaluationResults && evaluationResults.score >= 60 && (
           <Button 
