@@ -230,17 +230,13 @@ export async function generatePromptExamples(req: Request, res: Response) {
     const userId = req.headers['x-user-id'] ? parseInt(req.headers['x-user-id'] as string) : undefined;
     
     // Vérification du rate limiting
-    const rateLimitResult = await rateLimiterService.checkRateLimit({
-      userId: userId || 0,
-      endpoint: '/api/code-generator/prompt-examples',
-      actionType: 'generate_examples',
-      req
-    });
+    const key = `user:${userId || 'anonymous'}`;
+    const allowed = await rateLimiterService.check(key, 'developement');
     
-    if (!rateLimitResult.allowed) {
+    if (!allowed) {
       return res.status(429).json({
         error: 'Limite de requêtes atteinte',
-        retryAfter: rateLimitResult.retryAfter
+        retryAfter: 60 // Attendre 60 secondes par défaut
       });
     }
     
