@@ -410,7 +410,8 @@ export async function getCodeGenerationHistory(req: Request, res: Response) {
  */
 export async function generatePromptExamples(req: Request, res: Response) {
   try {
-    const { language = 'general', count = 8 } = req.body;
+    // Toujours générer exactement 3 exemples (1 par langage)
+    const { language = 'general', count = 3 } = req.body;
     const userId = req.headers['x-user-id'] ? parseInt(req.headers['x-user-id'] as string) : undefined;
     
     // Vérification du rate limiting
@@ -485,12 +486,7 @@ Réponds uniquement avec un tableau JSON d'idées, sans explications supplément
         examples = [
           "Python: Créer un script d'analyse de données CSV avec graphiques",
           "SQL: Requête pour analyser les ventes mensuelles par région et produit",
-          "Excel: Formule pour calculer des projections financières sur 5 ans",
-          "Python: Développer un modèle de machine learning pour prédiction de données",
-          "SQL: Créer des vues optimisées pour tableau de bord commercial",
-          "Excel: Formules pour automatiser un suivi de budget avec catégories",
-          "Python: Script pour nettoyer et transformer des données structurées",
-          "SQL: Requêtes d'analyse de performance avec indexes et optimisations"
+          "Excel: Formule pour calculer des projections financières sur 5 ans"
         ];
       }
       
@@ -506,12 +502,7 @@ Réponds uniquement avec un tableau JSON d'idées, sans explications supplément
         examples: [
           "Python: Créer un script d'analyse de données CSV avec graphiques",
           "SQL: Requête pour analyser les ventes mensuelles par région et produit",
-          "Excel: Formule pour calculer des projections financières sur 5 ans",
-          "Python: Développer un modèle de machine learning pour prédiction de données",
-          "SQL: Créer des vues optimisées pour tableau de bord commercial",
-          "Excel: Formules pour automatiser un suivi de budget avec catégories",
-          "Python: Script pour nettoyer et transformer des données structurées",
-          "SQL: Requêtes d'analyse de performance avec indexes et optimisations"
+          "Excel: Formule pour calculer des projections financières sur 5 ans"
         ]
       });
     }
@@ -522,12 +513,7 @@ Réponds uniquement avec un tableau JSON d'idées, sans explications supplément
       examples: [
         "Python: Créer un script d'analyse de données CSV avec graphiques",
         "SQL: Requête pour analyser les ventes mensuelles par région et produit",
-        "Excel: Formule pour calculer des projections financières sur 5 ans",
-        "Python: Développer un modèle de machine learning pour prédiction de données",
-        "SQL: Créer des vues optimisées pour tableau de bord commercial",
-        "Excel: Formules pour automatiser un suivi de budget avec catégories",
-        "Python: Script pour nettoyer et transformer des données structurées",
-        "SQL: Requêtes d'analyse de performance avec indexes et optimisations"
+        "Excel: Formule pour calculer des projections financières sur 5 ans"
       ]
     });
   }
