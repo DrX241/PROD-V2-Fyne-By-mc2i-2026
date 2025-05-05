@@ -378,20 +378,45 @@ class CodeSandboxService {
     
     try {
       // Créer un aperçu interactif HTML avec un iframe sandbox sécurisé
+      // Utiliser un ID unique pour l'iframe pour garantir qu'il est bien traité
+      const iframeId = `html-preview-${Date.now()}`;
+      const renderedHtml = code.replace(/"/g, '&quot;');
+      
       const previewOutput = `
         <div style="border: 1px solid #ddd; border-radius: 5px; padding: 10px; font-family: sans-serif;">
           <div style="margin-bottom: 10px; font-size: 14px; color: #555;">
             Prévisualisation HTML (rendu direct):
           </div>
-          <div style="border: 1px solid #eee; border-radius: 4px; padding: 10px; background-color: white; height: 300px; overflow: auto;">
-            <iframe 
-              sandbox="allow-scripts" 
-              style="width: 100%; height: 100%; border: none;"
-              srcdoc="${code.replace(/"/g, '&quot;')}"
-            ></iframe>
+          <div style="border: 1px solid #eee; border-radius: 4px; padding: 10px; background-color: white; height: 300px; overflow: auto; position: relative;">
+            <div id="${iframeId}-container" style="width: 100%; height: 100%;">
+              <iframe 
+                id="${iframeId}"
+                sandbox="allow-scripts allow-same-origin" 
+                style="width: 100%; height: 100%; border: none;"
+                srcdoc="${renderedHtml}"
+              ></iframe>
+            </div>
+            <script>
+              // Aide à déboguer les problèmes d'iframe
+              setTimeout(function() {
+                try {
+                  var iframe = document.getElementById('${iframeId}');
+                  if (!iframe) {
+                    console.error('Iframe non trouvé:', '${iframeId}');
+                    var container = document.getElementById('${iframeId}-container');
+                    if (container) {
+                      container.innerHTML = '<div style="color: red; padding: 20px;">Erreur: Impossible de charger l\'aperçu. Veuillez rafraîchir la page.</div>';
+                    }
+                  }
+                } catch(e) {
+                  console.error('Erreur iframe:', e);
+                }
+              }, 500);
+            </script>
           </div>
           <div style="margin-top: 10px; font-size: 12px; color: #666;">
-            Note: Ce rendu est exécuté dans un environnement sécurisé (sandbox). Certaines fonctionnalités peuvent être limitées.
+            <b>Aperçu direct du HTML généré</b><br/>
+            Note: Ce rendu est exécuté dans un environnement sécurisé. Certaines fonctionnalités peuvent être limitées.
           </div>
         </div>
       `;
@@ -420,6 +445,7 @@ class CodeSandboxService {
     try {
       // Créer un aperçu interactif CSS avec un exemple d'application
       // Générer un HTML de démonstration qui utilise le CSS fourni
+      const iframeId = `css-preview-${Date.now()}`;
       const demoHTML = `
       <!DOCTYPE html>
       <html>
@@ -469,14 +495,37 @@ class CodeSandboxService {
           <div style="margin-bottom: 10px; font-size: 14px; color: #555;">
             Prévisualisation CSS (rendu direct):
           </div>
-          <div style="border: 1px solid #eee; border-radius: 4px; padding: 10px; background-color: white; height: 300px; overflow: auto;">
-            <iframe 
-              sandbox="allow-scripts" 
-              style="width: 100%; height: 100%; border: none;"
-              srcdoc="${demoHTML.replace(/"/g, '&quot;')}"
-            ></iframe>
+          <div style="border: 1px solid #eee; border-radius: 4px; padding: 10px; background-color: white; height: 300px; overflow: auto; position: relative;">
+            <div id="${iframeId}-container" style="width: 100%; height: 100%;">
+              <iframe 
+                id="${iframeId}"
+                sandbox="allow-scripts allow-same-origin" 
+                style="width: 100%; height: 100%; border: none;"
+                srcdoc="${demoHTML.replace(/"/g, '&quot;')}"
+              ></iframe>
+            </div>
+            <script>
+              // Aide à déboguer les problèmes d'iframe
+              setTimeout(function() {
+                try {
+                  var iframe = document.getElementById('${iframeId}');
+                  if (!iframe) {
+                    console.error('Iframe CSS non trouvé:', '${iframeId}');
+                    var container = document.getElementById('${iframeId}-container');
+                    if (container) {
+                      container.innerHTML = '<div style="color: red; padding: 20px;">Erreur: Impossible de charger l\'aperçu CSS. Veuillez rafraîchir la page.</div>';
+                    }
+                  } else {
+                    console.log('Iframe CSS chargé:', '${iframeId}');
+                  }
+                } catch(e) {
+                  console.error('Erreur iframe CSS:', e);
+                }
+              }, 500);
+            </script>
           </div>
           <div style="margin-top: 10px; font-size: 12px; color: #666;">
+            <b>Aperçu du CSS appliqué sur une page web</b><br/>
             Note: Ce rendu utilise une structure HTML de démonstration pour visualiser le CSS appliqué.
           </div>
         </div>
