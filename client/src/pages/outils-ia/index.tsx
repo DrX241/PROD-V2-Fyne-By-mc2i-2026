@@ -12,11 +12,10 @@ interface ToolCardProps {
   description: string;
   icon: React.ReactNode;
   href: string;
-  isNew?: boolean;
   isComingSoon?: boolean;
 }
 
-const ToolCard: React.FC<ToolCardProps> = ({ title, description, icon, href, isNew, isComingSoon }) => {
+const ToolCard: React.FC<ToolCardProps> = ({ title, description, icon, href, isComingSoon }) => {
   const { themeMode } = useTheme();
   const isFuturistic = themeMode === 'futuristic';
   
@@ -58,16 +57,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ title, description, icon, href, isN
         </div>
       )}
       
-      {/* Badge "Nouveau" si applicable */}
-      {isNew && (
-        <div className={`absolute top-3 right-3 text-xs px-2 py-0.5 rounded-full ${
-          isFuturistic 
-            ? 'bg-violet-700/70 text-violet-100 border border-violet-500/50' 
-            : 'bg-violet-100 text-violet-800 border border-violet-200'
-        } font-medium z-10`}>
-          Nouveau
-        </div>
-      )}
+
       
       {/* Badge "Bientôt disponible" si applicable */}
       {isComingSoon && (
@@ -149,22 +139,19 @@ export default function OutilsIAPage() {
       title: 'mc2i AI Learning',
       description: 'Chatbot spécialisé en gestion de projet et AMOA qui fournit des exemples concrets, recommande des outils et propose des mini-jeux interactifs pour un apprentissage ludique.',
       icon: <MessagesSquare className="h-6 w-6" />,
-      href: '/outils-ia/mc2i-learning',
-      isNew: true
+      href: '/outils-ia/mc2i-learning'
     },
     {
       title: 'Assistant IA Personnalisé',
       description: 'Créez votre propre assistant IA adapté à vos besoins spécifiques grâce à nos modèles d\'IA avancés. Personnalisez-le pour répondre à vos questions professionnelles.',
       icon: <BrainCircuit className="h-6 w-6" />,
-      href: '/outils-ia/assistant',
-      isNew: true
+      href: '/outils-ia/assistant'
     },
     {
       title: 'Générateur de Code',
       description: 'Transformez vos idées en code fonctionnel grâce à notre générateur basé sur l\'IA. Spécifiez vos besoins et obtenez du code dans plusieurs langages de programmation.',
       icon: <Code className="h-6 w-6" />,
-      href: '/outils-ia/code-generator',
-      isNew: true
+      href: '/outils-ia/code-generator'
     },
   ];
   
@@ -238,8 +225,7 @@ export default function OutilsIAPage() {
                 description={tool.description}
                 icon={tool.icon}
                 href={tool.href}
-                isNew={tool.isNew}
-                isComingSoon={tool.isComingSoon}
+                isComingSoon={false}
               />
             ))}
           </div>
