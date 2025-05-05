@@ -49,7 +49,7 @@ export const virtualRooms: VirtualRoom[] = [
       {
         id: 'receptionist',
         name: 'Marie Dupont',
-        avatar: '/assets/avatars/receptionist.jpg',
+        avatar: '/assets/avatars/receptionist.svg',
         role: 'Réceptionniste',
         department: 'Administration',
         status: 'online',
@@ -142,7 +142,7 @@ export const virtualRooms: VirtualRoom[] = [
       {
         id: 'security-guard',
         name: 'Thomas Legrand',
-        avatar: '/assets/avatars/security-guard.jpg',
+        avatar: '/assets/avatars/security-guard.svg',
         role: 'Agent de sécurité',
         department: 'Sécurité physique',
         status: 'online',
@@ -245,7 +245,7 @@ export const virtualRooms: VirtualRoom[] = [
       {
         id: 'hr-manager',
         name: 'Claire Martin',
-        avatar: '/assets/avatars/hr-manager.jpg',
+        avatar: '/assets/avatars/hr-manager.svg',
         role: 'Responsable RH',
         department: 'Ressources Humaines',
         status: 'away',
@@ -338,7 +338,7 @@ export const virtualRooms: VirtualRoom[] = [
       {
         id: 'finance-director',
         name: 'Marc Leroy',
-        avatar: '/assets/avatars/finance-director.jpg',
+        avatar: '/assets/avatars/finance-director.svg',
         role: 'Directeur Financier',
         department: 'Finance',
         status: 'online',
@@ -441,7 +441,7 @@ export const virtualRooms: VirtualRoom[] = [
       {
         id: 'it-manager',
         name: 'Lucas Ricard',
-        avatar: '/assets/avatars/it-manager.jpg',
+        avatar: '/assets/avatars/it-manager.svg',
         role: 'Responsable IT',
         department: 'Informatique',
         status: 'online',
@@ -558,7 +558,7 @@ export const virtualRooms: VirtualRoom[] = [
       {
         id: 'helpdesk-tech',
         name: 'Sophie Blanc',
-        avatar: '/assets/avatars/helpdesk-tech.jpg',
+        avatar: '/assets/avatars/helpdesk-tech.svg',
         role: 'Technicienne Helpdesk',
         department: 'Support IT',
         status: 'online',
@@ -662,7 +662,7 @@ export const virtualRooms: VirtualRoom[] = [
       {
         id: 'developer',
         name: 'Alex Dubois',
-        avatar: '/assets/avatars/developer.jpg',
+        avatar: '/assets/avatars/developer.svg',
         role: 'Développeur Senior',
         department: 'Développement',
         status: 'online',
@@ -755,7 +755,7 @@ export const virtualRooms: VirtualRoom[] = [
       {
         id: 'product-manager',
         name: 'Julie Lambert',
-        avatar: '/assets/avatars/product-manager.jpg',
+        avatar: '/assets/avatars/product-manager.svg',
         role: 'Chef de Produit',
         department: 'Produit',
         status: 'away',
@@ -859,7 +859,7 @@ export const virtualRooms: VirtualRoom[] = [
       {
         id: 'system-admin',
         name: 'Nicolas Fournier',
-        avatar: '/assets/avatars/system-admin.jpg',
+        avatar: '/assets/avatars/system-admin.svg',
         role: 'Administrateur Système',
         department: 'Infrastructure',
         status: 'online',
@@ -952,7 +952,7 @@ export const virtualRooms: VirtualRoom[] = [
       {
         id: 'network-engineer',
         name: 'Émilie Roux',
-        avatar: '/assets/avatars/network-engineer.jpg',
+        avatar: '/assets/avatars/network-engineer.svg',
         role: 'Ingénieure Réseau',
         department: 'Infrastructure',
         status: 'away',
@@ -1056,7 +1056,7 @@ export const virtualRooms: VirtualRoom[] = [
       {
         id: 'ceo',
         name: 'Philippe Moreau',
-        avatar: '/assets/avatars/ceo.jpg',
+        avatar: '/assets/avatars/ceo.svg',
         role: 'PDG',
         department: 'Direction',
         status: 'away',
@@ -1149,7 +1149,7 @@ export const virtualRooms: VirtualRoom[] = [
       {
         id: 'ciso',
         name: 'Isabelle Laurent',
-        avatar: '/assets/avatars/ciso.jpg',
+        avatar: '/assets/avatars/ciso.svg',
         role: 'RSSI',
         department: 'Sécurité',
         status: 'online',
