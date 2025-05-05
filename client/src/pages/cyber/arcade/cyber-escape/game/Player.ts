@@ -4,14 +4,14 @@ export class Player {
   scene: Phaser.Scene;
   sprite: Phaser.Physics.Arcade.Sprite;
   speed: number = 150;
-  cursors: Phaser.Types.Input.Keyboard.CursorKeys;
-  wasdKeys: {
+  cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
+  wasdKeys!: {
     up: Phaser.Input.Keyboard.Key;
     down: Phaser.Input.Keyboard.Key;
     left: Phaser.Input.Keyboard.Key;
     right: Phaser.Input.Keyboard.Key;
   };
-  scanKey: Phaser.Input.Keyboard.Key;
+  scanKey!: Phaser.Input.Keyboard.Key;
   scanRadius: number = 100;
   scanCooldown: number = 0;
   controlsEnabled: boolean = false;
@@ -25,21 +25,25 @@ export class Player {
     this.sprite.setDepth(10);
     
     // Ajout d'une hitbox plus petite que le sprite
-    this.sprite.body.setSize(24, 24);
-    this.sprite.body.offset.x = 4;
-    this.sprite.body.offset.y = 4;
+    if (this.sprite.body) {
+      this.sprite.body.setSize(24, 24);
+      this.sprite.body.offset.x = 4;
+      this.sprite.body.offset.y = 4;
+    }
     
     // Configuration des contrôles
-    this.cursors = scene.input.keyboard.createCursorKeys();
-    this.wasdKeys = {
-      up: scene.input.keyboard.addKey('W'),
-      down: scene.input.keyboard.addKey('S'),
-      left: scene.input.keyboard.addKey('A'),
-      right: scene.input.keyboard.addKey('D')
-    };
-    
-    // Touche pour scanner les vulnérabilités
-    this.scanKey = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+    if (scene.input.keyboard) {
+      this.cursors = scene.input.keyboard.createCursorKeys();
+      this.wasdKeys = {
+        up: scene.input.keyboard.addKey('W'),
+        down: scene.input.keyboard.addKey('S'),
+        left: scene.input.keyboard.addKey('A'),
+        right: scene.input.keyboard.addKey('D')
+      };
+      
+      // Touche pour scanner les vulnérabilités
+      this.scanKey = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+    }
   }
 
   // Activation des contrôles
@@ -84,7 +88,8 @@ export class Player {
     }
     
     // Normaliser la diagonale
-    if (this.sprite.body.velocity.x !== 0 && this.sprite.body.velocity.y !== 0) {
+    if (this.sprite.body && this.sprite.body.velocity && 
+        this.sprite.body.velocity.x !== 0 && this.sprite.body.velocity.y !== 0) {
       this.sprite.body.velocity.normalize().scale(this.speed);
     }
   }

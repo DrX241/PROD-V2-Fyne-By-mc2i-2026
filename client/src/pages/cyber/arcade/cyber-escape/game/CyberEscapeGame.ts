@@ -142,7 +142,7 @@ export class CyberEscapeGame {
         this.vulnerabilities,
         (playerSprite, vulnSprite: any) => {
           // Vérifier si on est assez proche et si on clique sur la vulnérabilité
-          if (Phaser.Input.Keyboard.JustDown(scene.input.keyboard.addKey('E')) || 
+          if ((scene.input.keyboard && Phaser.Input.Keyboard.JustDown(scene.input.keyboard.addKey('E'))) || 
               (vulnSprite.input && vulnSprite.input.justDown)) {
             // Récupérer l'objet vulnérabilité
             const vulnObject = vulnSprite.getData('object');
@@ -169,7 +169,13 @@ export class CyberEscapeGame {
     }
     
     // Afficher un message de bienvenue
-    const textStyle = { fontSize: '18px', fontStyle: 'bold', fill: '#ffffff', stroke: '#000000', strokeThickness: 3 };
+    const textStyle: Phaser.Types.GameObjects.Text.TextStyle = { 
+      fontSize: '18px',
+      fontStyle: 'bold',
+      color: '#ffffff', 
+      stroke: '#000000',
+      strokeThickness: 3
+    };
     const instructionText = scene.add.text(
       scene.cameras.main.width / 2,
       scene.cameras.main.height - 50,
