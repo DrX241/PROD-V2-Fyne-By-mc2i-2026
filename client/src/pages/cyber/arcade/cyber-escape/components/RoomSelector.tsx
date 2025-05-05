@@ -1,6 +1,6 @@
 import React from 'react';
 import { useGame } from '../context/GameContext';
-import { VirtualRoom } from '../data/rooms';
+import { VirtualRoom, virtualRooms } from '../data/rooms';
 import {
   Card,
   CardContent,
@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { LockIcon, ServerIcon, BuildingIcon, DatabaseIcon, UsersIcon, FlaskIcon, BanknoteIcon } from 'lucide-react';
+import { LockIcon, ServerIcon, BuildingIcon, DatabaseIcon, UsersIcon, FlaskConicalIcon, BanknoteIcon } from 'lucide-react';
 
 // Map des icônes pour les salles
 const roomIcons: { [key: string]: React.ReactNode } = {
@@ -19,7 +19,7 @@ const roomIcons: { [key: string]: React.ReactNode } = {
   'server': <ServerIcon className="h-6 w-6" />,
   'database': <DatabaseIcon className="h-6 w-6" />,
   'users': <UsersIcon className="h-6 w-6" />,
-  'flask': <FlaskIcon className="h-6 w-6" />,
+  'flask': <FlaskConicalIcon className="h-6 w-6" />,
   'banknote': <BanknoteIcon className="h-6 w-6" />,
 };
 
@@ -28,7 +28,7 @@ const RoomSelector: React.FC = () => {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-      {virtualRooms.map((room) => (
+      {virtualRooms.map((room: VirtualRoom) => (
         <Card 
           key={room.id}
           className={`relative overflow-hidden transition-all duration-200 hover:-translate-y-1 cursor-pointer border ${
