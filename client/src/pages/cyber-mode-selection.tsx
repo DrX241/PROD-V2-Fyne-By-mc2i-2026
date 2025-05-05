@@ -148,7 +148,7 @@ export default function CyberModeSelection() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-8 px-3 sm:px-6 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-4 sm:px-8 max-w-5xl mx-auto">
             {cyberModes.map((category, index) => (
               <motion.div
                 key={category.id}
@@ -160,7 +160,7 @@ export default function CyberModeSelection() {
                 onMouseLeave={() => setHoveredMode(null)}
               >
                 {/* Gradient background */}
-                <div className={`bg-gradient-to-br ${category.gradient} p-5 lg:p-6 h-full flex flex-col relative overflow-hidden rounded-xl`}>
+                <div className={`bg-gradient-to-br ${category.gradient} p-6 lg:p-8 h-full flex flex-col relative overflow-hidden rounded-xl`}>
                   {/* Glow effect on hover */}
                   {hoveredMode === category.id && (
                     <>
@@ -172,32 +172,32 @@ export default function CyberModeSelection() {
                   <div className="absolute h-16 w-16 -top-8 -right-8 bg-white opacity-20 rounded-full blur-md"></div>
                   
                   <div className="flex flex-col h-full relative z-10">
-                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-2 text-center">
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-3 text-center">
                       {category.title}
                     </h2>
-                    <p className="text-blue-100 mb-3 text-xs lg:text-sm text-center">{category.description}</p>
+                    <p className="text-blue-100 mb-4 text-sm lg:text-base text-center">{category.description}</p>
                     
                     {/* Liste des modules dans cette catégorie */}
                     <div className="mt-4 flex-grow">
                       <div className="space-y-3">
                         {category.items && category.items.map((item) => (
                           <Link key={item.id} href={item.comingSoon ? '#' : item.destination} onClick={(e) => item.comingSoon && e.preventDefault()}>
-                            <div className="flex items-center p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors cursor-pointer border border-white/20 shadow-sm hover:shadow-md hover:border-white/40">
+                            <div className="flex items-center p-4 rounded-lg bg-white/10 hover:bg-white/20 transition-colors cursor-pointer border border-white/20 shadow-sm hover:shadow-md hover:border-white/40">
                               <div className="flex-grow">
                                 <div className="flex items-center gap-2">
-                                  <h3 className="text-white font-medium">{item.title}</h3>
+                                  <h3 className="text-white font-medium text-base">{item.title}</h3>
                                   {item.isNew && (
                                     <span className="text-xs px-1.5 py-0.5 bg-amber-500 text-white rounded-full">Nouveau</span>
                                   )}
                                 </div>
                               </div>
                               {item.comingSoon ? (
-                                <div className="text-white bg-blue-500/30 p-1 rounded-full">
-                                  <ArrowRight className="h-4 w-4" />
+                                <div className="text-white bg-blue-500/30 p-1.5 rounded-full">
+                                  <ArrowRight className="h-5 w-5" />
                                 </div>
                               ) : (
-                                <div className="text-white bg-blue-500/30 p-1 rounded-full">
-                                  <ArrowRight className="h-4 w-4" />
+                                <div className="text-white bg-blue-500/30 p-1.5 rounded-full">
+                                  <ArrowRight className="h-5 w-5" />
                                 </div>
                               )}
                             </div>
