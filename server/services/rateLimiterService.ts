@@ -16,6 +16,20 @@ interface RateLimitOptions {
   blockDurationInSeconds: number;
 }
 
+interface RateLimitContext {
+  userId: number;
+  endpoint: string;
+  actionType: string;
+  req: Request;
+}
+
+interface RateLimitResult {
+  allowed: boolean;
+  retryAfter?: number;
+  remaining?: number;
+  limit?: number;
+}
+
 interface RateLimitState {
   // Horodatages des requêtes dans la fenêtre courante
   timestamps: number[];
@@ -261,6 +275,60 @@ class RateLimiterService {
     if (this.logQueue.length > this.maxLogQueueSize) {
       this.logQueue.shift();
     }
+  }
+
+  /**
+   * Vérifie et applique les limitations de taux pour une requête complexe
+   * avec informations plus détaillées
+   * @param context Contexte de la requête
+   * @returns Résultat détaillé de la limitation
+   */
+  public async checkRateLimit(context: RateLimitContext): Promise<RateLimitResult> {
+    const { userId, endpoint, actionType, req } = context;
+    const key = `user:${userId || 'anonymous'}:${actionType}`;
+    const domain = actionType.split('_')[0] || 'general';
+    
+    const isAllowed = await this.check(key, domain);
+    
+    if (!isAllowed) {
+      // Déterminer combien de temps attendre
+      const state = this.state.get(key);
+      let retryAfter = 60; // Par défaut 1 minute
+      
+      if (state) {
+        if (state.blocked) {
+          retryAfter = Math.ceil((state.blockExpiresAt - Date.now()) / 1000);
+        } else {
+          const options = domain && this.domainOptions[domain] 
+            ? this.domainOptions[domain] 
+            : this.options;
+          retryAfter = options.windowSizeInSeconds;
+        }
+        retryAfter = Math.max(1, retryAfter); // Au moins 1 seconde
+      }
+      
+      return {
+        allowed: false,
+        retryAfter
+      };
+    }
+    
+    // Calculer les valeurs restantes pour information
+    const state = this.state.get(key);
+    const options = domain && this.domainOptions[domain] 
+      ? this.domainOptions[domain] 
+      : this.options;
+    
+    let remaining = 0;
+    if (state) {
+      remaining = Math.max(0, options.maxRequests - state.timestamps.length);
+    }
+    
+    return { 
+      allowed: true,
+      remaining,
+      limit: options.maxRequests
+    };
   }
 
   /**
