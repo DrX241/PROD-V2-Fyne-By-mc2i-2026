@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { AlertCircle, Play, RefreshCw, Trophy, Terminal, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { AlertCircle, Play, RefreshCw, Trophy, Terminal, AlertTriangle, CheckCircle, XCircle, Server, Network } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
