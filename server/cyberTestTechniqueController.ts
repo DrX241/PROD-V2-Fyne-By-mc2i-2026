@@ -150,14 +150,37 @@ Réponds UNIQUEMENT au format JSON suivant:
     try {
       // Extraire le JSON des réponses qui pourraient contenir des délimiteurs markdown
       let jsonStr = openAIResponse;
-      // Si la réponse contient des délimiteurs de code markdown, extraire uniquement le JSON
-      if (jsonStr.includes('```json')) {
-        jsonStr = jsonStr.split('```json')[1].split('```')[0].trim();
-      } else if (jsonStr.includes('```')) {
-        jsonStr = jsonStr.split('```')[1].split('```')[0].trim();
-      }
+      console.log('Réponse JSON brute:', jsonStr.substring(0, 100) + '...');
       
-      questions = JSON.parse(jsonStr);
+      // Nettoyage de la réponse JSON
+      try {
+        // Si la réponse contient des délimiteurs de code markdown, extraire uniquement le JSON
+        if (jsonStr.includes('```json')) {
+          jsonStr = jsonStr.split('```json')[1].split('```')[0].trim();
+        } else if (jsonStr.includes('```')) {
+          jsonStr = jsonStr.split('```')[1].split('```')[0].trim();
+        }
+        
+        // Remplacer les sauts de ligne par des espaces pour éviter les erreurs de parsing JSON
+        jsonStr = jsonStr.replace(/\n/g, ' ');
+        
+        // Nettoyer les échappements de caractères potentiellement problématiques
+        jsonStr = jsonStr.replace(/\\\\/g, '\\').replace(/\\"/g, '"').replace(/\\'/g, "'");
+        
+        // Supprimer les commentaires en ligne qui ne sont pas valides en JSON
+        jsonStr = jsonStr.replace(/\/\/.*$/gm, '');
+        
+        // Corriger les chaînes non terminées
+        const regex = /"([^"]*)$/g;
+        jsonStr = jsonStr.replace(regex, '"$1"');
+        
+        // Tenter de parser le JSON réparé
+        questions = JSON.parse(jsonStr);
+      } catch (jsonFixError) {
+        console.error('Erreur lors de la réparation du JSON:', jsonFixError);
+        console.error('JSON problématique:', jsonStr);
+        throw new Error('Impossible de réparer le JSON malformé');
+      }
       
       // Validation basique
       if (!Array.isArray(questions) || questions.length === 0) {
@@ -370,14 +393,38 @@ Réponds avec un JSON de la forme:
     
     try {
       if (analysisResponse) {
-        // Extraire le JSON qui pourrait contenir des délimiteurs markdown
-        let jsonStr = analysisResponse;
-        if (jsonStr.includes('```json')) {
-          jsonStr = jsonStr.split('```json')[1].split('```')[0].trim();
-        } else if (jsonStr.includes('```')) {
-          jsonStr = jsonStr.split('```')[1].split('```')[0].trim();
+        console.log('Réponse d\'analyse brute:', analysisResponse.substring(0, 100) + '...');
+        
+        // Nettoyage de la réponse JSON
+        try {
+          let jsonStr = analysisResponse;
+          // Si la réponse contient des délimiteurs de code markdown, extraire uniquement le JSON
+          if (jsonStr.includes('```json')) {
+            jsonStr = jsonStr.split('```json')[1].split('```')[0].trim();
+          } else if (jsonStr.includes('```')) {
+            jsonStr = jsonStr.split('```')[1].split('```')[0].trim();
+          }
+          
+          // Remplacer les sauts de ligne par des espaces pour éviter les erreurs de parsing JSON
+          jsonStr = jsonStr.replace(/\n/g, ' ');
+          
+          // Nettoyer les échappements de caractères potentiellement problématiques
+          jsonStr = jsonStr.replace(/\\\\/g, '\\').replace(/\\"/g, '"').replace(/\\'/g, "'");
+          
+          // Supprimer les commentaires en ligne qui ne sont pas valides en JSON
+          jsonStr = jsonStr.replace(/\/\/.*$/gm, '');
+          
+          // Corriger les chaînes non terminées
+          const regex = /"([^"]*)$/g;
+          jsonStr = jsonStr.replace(regex, '"$1"');
+          
+          // Tenter de parser le JSON réparé
+          analysis = JSON.parse(jsonStr);
+        } catch (jsonFixError) {
+          console.error('Erreur lors de la réparation du JSON d\'analyse:', jsonFixError);
+          console.error('JSON d\'analyse problématique:', analysisResponse);
+          analysis = null;
         }
-        analysis = JSON.parse(jsonStr);
       } else {
         analysis = null;
       }
@@ -683,13 +730,16 @@ async function callAzureOpenAI(systemPrompt: string): Promise<string | null> {
       return null;
     }
 
+    // Ajouter une instruction pour garantir que la réponse est un JSON valide
+    const enhancedPrompt = systemPrompt + `\n\nIMPORTANT: Ta réponse doit être un JSON valide et bien formaté. Assure-toi que les chaînes de caractères sont correctement échappées, qu'il n'y a pas de commentaires dans le JSON et que toutes les guillemets sont fermés correctement. Fournis uniquement le JSON brut sans aucun texte additionnel, sans délimiteurs de code markdown ni préfixes.`;
+
     const url = `${endpoint}/openai/deployments/${deploymentName}/chat/completions?api-version=${apiVersion}`;
     
     const response = await axios.post(
       url,
       {
         messages: [
-          { role: "system", content: systemPrompt }
+          { role: "system", content: enhancedPrompt }
         ],
         temperature: 0.2,
         top_p: 0.95,
