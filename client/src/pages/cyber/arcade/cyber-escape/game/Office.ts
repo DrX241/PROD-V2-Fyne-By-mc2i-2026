@@ -7,7 +7,21 @@ export class Office {
   floors!: Phaser.GameObjects.TileSprite;
   officeWidth: number = 1600;
   officeHeight: number = 1200;
-  tileSize: number = 20;
+  tileSize: number = 64; // Taille des tuiles dans l'image (64x64 pixels)
+  tilesetImage: Phaser.GameObjects.Image | null = null;
+  
+  // Indices des tuiles dans le tileset (basé sur la position dans l'image fournie)
+  tileIndexes = {
+    wall: 0, // Mur gris en haut à gauche
+    floor1: 3, // Sol bleu foncé en bas à gauche
+    floor2: 4, // Sol bleu clair au milieu en bas
+    floor3: 5, // Sol gris avec points en bas à droite
+    door1: 1, // Porte au milieu en haut
+    door2: 2, // Porte cassée à droite en haut
+    servers: 6, // Serveurs en bas à gauche
+    elevator: 7, // Grande porte/ascenseur au milieu en bas
+    storage: 8  // Étagères de stockage en bas à droite
+  };
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;

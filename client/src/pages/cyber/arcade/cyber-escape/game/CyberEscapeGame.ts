@@ -79,8 +79,9 @@ export class CyberEscapeGame {
     // Images pour les personnages et les objets
     scene.load.image('player', 'https://i.imgur.com/RpQQxq5.png');
     scene.load.image('hacker', 'https://i.imgur.com/8EqGaof.png');
-    scene.load.image('wall', 'https://i.imgur.com/ZfLhfZi.png');
-    scene.load.image('floor', 'https://i.imgur.com/QcCBJCT.png');
+    scene.load.image('office-tiles', '/src/assets/cyber-escape/office-tiles.png');
+    scene.load.image('wall', 'https://i.imgur.com/ZfLhfZi.png'); // Backup en cas de problème de chargement
+    scene.load.image('floor', 'https://i.imgur.com/QcCBJCT.png'); // Backup en cas de problème de chargement
     scene.load.image('desk', 'https://i.imgur.com/sUvdg6L.png');
     
     // Images pour les vulnérabilités
