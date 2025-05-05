@@ -197,7 +197,7 @@ export class CyberEscapeGame {
     const hackerDelay = this.gameConfig[this.level]?.hackerDelay || 10000;
     scene.time.delayedCall(hackerDelay, () => {
       if (this.hacker && this.vulnerabilities) {
-        this.hacker.startHacking(this.vulnerabilities);
+        this.hacker.startHacking(this.vulnerabilities as any);
         
         if (window.PhaserEvents) {
           window.PhaserEvents.showToast('Alerte ! Un attaquant a été détecté dans le réseau !', 'error');

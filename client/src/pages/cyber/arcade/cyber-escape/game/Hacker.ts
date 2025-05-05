@@ -33,7 +33,7 @@ export class Hacker {
   }
 
   // Démarrer l'activité de piratage
-  startHacking(vulnerabilities: Phaser.Physics.Arcade.StaticGroup) {
+  startHacking(vulnerabilities: Phaser.Physics.Arcade.Group | Phaser.Physics.Arcade.StaticGroup) {
     this.isActive = true;
     
     // Choisir une vulnérabilité cible
@@ -73,7 +73,7 @@ export class Hacker {
   }
 
   // Mise à jour à chaque frame
-  update(vulnerabilities: Phaser.Physics.Arcade.StaticGroup, deltaTime: number) {
+  update(vulnerabilities: Phaser.Physics.Arcade.Group | Phaser.Physics.Arcade.StaticGroup, deltaTime: number) {
     if (!this.isActive) return;
     
     // Mettre à jour la position du cercle d'alerte
@@ -116,7 +116,7 @@ export class Hacker {
   }
 
   // Choisir une nouvelle vulnérabilité à cibler
-  private chooseNewTarget(vulnerabilities: Phaser.Physics.Arcade.StaticGroup) {
+  private chooseNewTarget(vulnerabilities: Phaser.Physics.Arcade.Group | Phaser.Physics.Arcade.StaticGroup) {
     // Réinitialiser la progression du piratage
     this.hackingProgress = 0;
     

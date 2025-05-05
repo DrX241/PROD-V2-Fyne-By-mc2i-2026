@@ -25,7 +25,7 @@ export default function CyberEscape() {
   const [vulnerabilitiesExploited, setVulnerabilitiesExploited] = useState(0);
   const [level, setLevel] = useState(1);
   const [timeRemaining, setTimeRemaining] = useState(300); // 5 minutes en secondes
-  const [gameInstance, setGameInstance] = useState<CyberEscapeGame | null>(null);
+  const [gameInstance, setGameInstance] = useState<any>(null);
   const [gamePaused, setGamePaused] = useState(false);
 
   // Fonction pour démarrer le jeu
@@ -331,11 +331,11 @@ export default function CyberEscape() {
             </div>
             
             <div className="bg-black p-1 rounded-lg shadow-lg" style={{ aspectRatio: "16/9" }}>
-              <div id="game-container" className="w-full h-full rounded overflow-hidden">
+              <div className="w-full h-full rounded overflow-hidden">
                 {/* Le jeu Phaser sera monté ici */}
-                <CyberEscapeGame 
+                <GameComponent 
                   level={level} 
-                  onGameInit={(gameInstance: any) => setGameInstance(gameInstance)}
+                  onGameInit={(gameInstance) => setGameInstance(gameInstance)}
                 />
               </div>
             </div>
