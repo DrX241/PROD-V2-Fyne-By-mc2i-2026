@@ -6,7 +6,7 @@ import DnDWrapper from './DnDProvider';
 import DefenseBoard, { NetworkNode, PlacedComponent } from './DefenseBoard';
 import DraggableComponent, { SecurityComponent } from './DraggableComponent';
 import TutorialOverlay from './TutorialOverlay';
-import { apiRequest } from '@lib/queryClient';
+import { apiRequest } from '@/lib/queryClient';
 
 // Types pour les niveaux
 interface Level {

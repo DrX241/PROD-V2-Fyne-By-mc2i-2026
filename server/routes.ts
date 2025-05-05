@@ -30,6 +30,14 @@ import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpert
 import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
 import { simulateTargetResponse, analyzePerformance } from "./brainHackerController";
 import { analyzeDefenseStrategy, generateAttackScenario, generateTacticalTip } from "./firewallTactiqueController";
+import { 
+  generateCode, 
+  getCodeGenerationHistory, 
+  saveGeneratedCode, 
+  generatePromptExamples,
+  executeGeneratedCode,
+  improveGeneratedCode
+} from "./codeGeneratorController";
 import { analyzeEvidence, getInvestigationHints, evaluateInvestigationResult, generateInvestigationScenario, generateInvestigationNotes } from "./cyberInvestigatorController";
 import { getInvestigationProgress, saveInvestigationProgress, evaluateUserNotes } from "./investigationProgressController";
 import { 
@@ -49,12 +57,7 @@ import {
   deleteTemplate
 } from "./customAssistantsController";
 import { getOrCreateUser, getUserById } from "./userController";
-import {
-  generateCode,
-  getCodeGenerationHistory,
-  saveGeneratedCode,
-  generatePromptExamples
-} from "./codeGeneratorController";
+
 import {
   generateQuestions,
   evaluateResponses,
@@ -437,6 +440,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.post("/api/code-generator/prompt-examples", (req: Request, res: Response) => {
     generatePromptExamples(req, res);
+  });
+  
+  app.post("/api/code-generator/execute", (req: Request, res: Response) => {
+    executeGeneratedCode(req, res);
+  });
+  
+  app.post("/api/code-generator/improve", (req: Request, res: Response) => {
+    improveGeneratedCode(req, res);
   });
   // Servir les pièces jointes depuis le dossier public/attachments
   app.use('/attachments', express.static(path.join(__dirname, 'public/attachments')));

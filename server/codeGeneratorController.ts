@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import OpenAI from 'openai';
 import { rateLimiterService } from './services/rateLimiterService';
 import { simpleCacheService } from './services/simpleCacheService';
+import { codeSandboxService } from './services/codeSandboxService';
 
 // Initialisation du client OpenAI avec Azure
 // Le newest OpenAI model est "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
@@ -376,6 +377,179 @@ export async function saveGeneratedCode(req: Request, res: Response) {
     console.error('Error saving generated code:', error);
     return res.status(500).json({ 
       error: 'Erreur lors de la sauvegarde du code', 
+      details: error instanceof Error ? error.message : 'Unknown error' 
+    });
+  }
+}
+
+/**
+ * Exécute un code généré dans un environnement sandbox sécurisé
+ */
+export async function executeGeneratedCode(req: Request, res: Response) {
+  try {
+    const { code, language } = req.body;
+    
+    if (!code || !language) {
+      return res.status(400).json({ error: 'Code ou langage manquant' });
+    }
+    
+    // Vérification du rate limiting pour éviter les abus
+    const userId = req.headers['x-user-id'] ? parseInt(req.headers['x-user-id'] as string) : undefined;
+    const rateLimitResult = await rateLimiterService.checkRateLimit({
+      userId: userId || 0,
+      endpoint: '/api/code-generator/execute',
+      actionType: 'execute_code',
+      req
+    });
+
+    if (!rateLimitResult.allowed) {
+      return res.status(429).json({
+        error: 'Limite de requêtes atteinte',
+        retryAfter: rateLimitResult.retryAfter,
+        message: 'Vous avez atteint la limite d\'exécution de code. Veuillez réessayer plus tard.'
+      });
+    }
+    
+    // Vérification de la sécurité - interdire certains patterns dangereux
+    const dangerousPatterns = [
+      /process\.exit/i,
+      /require\s*\(\s*['"]child_process['"]\s*\)/i,
+      /exec\s*\(/i,
+      /spawn\s*\(/i,
+      /fork\s*\(/i,
+      /fs\.(write|append|unlink|rmdir|rm|mkdir)/i,
+      /process\.env/i,
+      /rm\s+-rf/i,
+      /http[s]?:\/\/evil\./i,
+      /new\s+Function\s*\(/i,
+      /eval\s*\(/i
+    ];
+    
+    for (const pattern of dangerousPatterns) {
+      if (pattern.test(code)) {
+        return res.status(403).json({
+          error: 'Code potentiellement dangereux détecté',
+          message: 'Le code contient des instructions qui ne sont pas autorisées pour des raisons de sécurité.'
+        });
+      }
+    }
+
+    // Exécuter le code dans l'environnement sandbox
+    console.log(`Executing ${language} code in sandbox...`);
+    const executionResult = await codeSandboxService.executeCode(code, language);
+    
+    // Enregistrer l'exécution
+    console.log(`Code execution result: ${executionResult.success ? 'success' : 'error'}`);
+    
+    return res.json(executionResult);
+  } catch (error) {
+    console.error('Error executing generated code:', error);
+    return res.status(500).json({ 
+      error: 'Erreur lors de l\'exécution du code', 
+      details: error instanceof Error ? error.message : 'Unknown error',
+      success: false,
+      executionTimeMs: 0
+    });
+  }
+}
+
+/**
+ * Améliore le code généré en corrigeant les erreurs ou en optimisant les performances
+ */
+export async function improveGeneratedCode(req: Request, res: Response) {
+  try {
+    const { code, language, executionError, improvement } = req.body;
+    
+    if (!code || !language) {
+      return res.status(400).json({ error: 'Code ou langage manquant' });
+    }
+    
+    // Vérification du rate limiting
+    const userId = req.headers['x-user-id'] ? parseInt(req.headers['x-user-id'] as string) : undefined;
+    const rateLimitResult = await rateLimiterService.checkRateLimit({
+      userId: userId || 0,
+      endpoint: '/api/code-generator/improve',
+      actionType: 'improve_code',
+      req
+    });
+
+    if (!rateLimitResult.allowed) {
+      return res.status(429).json({
+        error: 'Limite de requêtes atteinte',
+        retryAfter: rateLimitResult.retryAfter
+      });
+    }
+    
+    // Déterminer le type d'amélioration demandée
+    let improvementType = improvement || 'optimize';
+    let systemPrompt = `Tu es un expert en développement logiciel spécialisé dans l'amélioration de code ${language}.`;
+    
+    if (executionError) {
+      // Si une erreur d'exécution est fournie, on demande de la corriger
+      improvementType = 'fix';
+      systemPrompt += `\n\nLe code fourni produit l'erreur suivante lors de l'exécution:\n${executionError}\n\nCorrige le code pour résoudre cette erreur.`;
+    } else {
+      // Sinon on demande une optimisation générale ou selon le type d'amélioration demandé
+      switch (improvementType) {
+        case 'optimize':
+          systemPrompt += `\n\nOptimise le code fourni pour améliorer ses performances et sa lisibilité.`;
+          break;
+        case 'simplify':
+          systemPrompt += `\n\nSimplifie le code fourni pour le rendre plus lisible et plus facile à maintenir.`;
+          break;
+        case 'document':
+          systemPrompt += `\n\nAjoute une documentation détaillée au code fourni, incluant des commentaires, des docstrings, et des exemples d'utilisation.`;
+          break;
+        case 'test':
+          systemPrompt += `\n\nAjoute des tests unitaires ou d'intégration complets pour le code fourni.`;
+          break;
+        default:
+          systemPrompt += `\n\nAméliore le code fourni en termes de qualité, lisibilité et performances.`;
+      }
+    }
+    
+    systemPrompt += `\n\nTa réponse doit être un objet JSON avec la structure suivante:
+    {
+      "improvedCode": "Le code amélioré",
+      "explanation": "Une explication des améliorations apportées",
+      "changesMade": ["Liste des modifications effectuées"]
+    }`;
+    
+    // Appel à l'API Azure OpenAI pour l'amélioration du code
+    const response = await openai.chat.completions.create({
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: `Voici le code ${language} à améliorer:\n\n${code}` }
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0.3,
+      max_tokens: 4000
+    } as any);
+    
+    // Parsing de la réponse
+    const content = response.choices[0].message.content;
+    if (!content) {
+      return res.status(500).json({ error: 'Échec de l\'amélioration du code' });
+    }
+    
+    try {
+      const parsedResponse = JSON.parse(content);
+      return res.json({
+        ...parsedResponse,
+        language,
+        improvementType
+      });
+    } catch (error) {
+      console.error('Error parsing OpenAI response:', error);
+      return res.status(500).json({ 
+        error: 'Erreur lors du parsing de la réponse', 
+        details: error instanceof Error ? error.message : 'Unknown error' 
+      });
+    }
+  } catch (error) {
+    console.error('Error improving generated code:', error);
+    return res.status(500).json({ 
+      error: 'Erreur lors de l\'amélioration du code', 
       details: error instanceof Error ? error.message : 'Unknown error' 
     });
   }
