@@ -85,8 +85,15 @@ export default function CyberTestTechnique() {
   const [certificateHtml, setCertificateHtml] = useState<string>('');
   const [showCertificate, setShowCertificate] = useState(false);
 
+  // Define options interface
+  interface Options {
+    categories: Category[];
+    difficulties: Difficulty[];
+    success?: boolean;
+  }
+
   // Fetch options
-  const { data: options, isLoading: isLoadingOptions } = useQuery({
+  const { data: options, isLoading: isLoadingOptions } = useQuery<Options>({
     queryKey: ['/api/cyber/test-technique/options'],
     retry: 1,
   });
@@ -107,7 +114,7 @@ export default function CyberTestTechnique() {
     onSuccess: (data) => {
       if (data.success && data.questions && data.questions.length > 0) {
         setQuestions(data.questions);
-        setResponses(data.questions.map(q => ({ questionId: q.id, answer: -1 })));
+        setResponses(data.questions.map((q: Question) => ({ questionId: q.id, answer: -1 })));
         setStep('quiz');
         setTimeLeft(600); // 10 minutes (600 seconds)
         toast({
@@ -170,12 +177,12 @@ export default function CyberTestTechnique() {
     mutationFn: async () => {
       const response = await apiRequest('/api/cyber/test-technique/certificate', {
         method: 'POST',
-        body: {
+        body: JSON.stringify({
           name: userName,
           category: selectedCategory,
           difficulty: selectedDifficulty,
           score: evaluationResults?.score
-        }
+        })
       });
       return response;
     },
