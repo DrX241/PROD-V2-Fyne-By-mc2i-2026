@@ -1,3 +1,5 @@
+import { Choice } from '../context/GameContext';
+
 export interface Conversation {
   messages: Array<{
     sender: 'character' | 'player';
@@ -12,6 +14,8 @@ export interface Conversation {
     explanation: string;
     points: number;
   }>;
+  choices?: Choice[];
+  bestPracticeIds?: string[]; // IDs des bonnes pratiques à découvrir dans cette conversation
 }
 
 export interface Character {
@@ -22,6 +26,7 @@ export interface Character {
   department: string;
   status: 'online' | 'away' | 'offline';
   securityLevel: number; // 1-5
+  vulnerabilities: string[]; // Les vulnérabilités liées à ce personnage
   conversations: Record<string, Conversation>;
 }
 
@@ -54,6 +59,7 @@ export const virtualRooms: VirtualRoom[] = [
         department: 'Administration',
         status: 'online',
         securityLevel: 2,
+        vulnerabilities: ['mots de passe visibles', 'divulgation d\'informations', 'absence de procédure pour les visiteurs'],
         conversations: {
           'introduction': {
             messages: [
@@ -135,7 +141,31 @@ export const virtualRooms: VirtualRoom[] = [
                 explanation: 'La vérification de l\'identité des appelants et la confirmation avec les employés concernés permet d\'éviter l\'ingénierie sociale par téléphone tout en maintenant les communications nécessaires.',
                 points: 15
               }
-            ]
+            ],
+            choices: [
+              {
+                id: 'phone-policy-choice',
+                question: 'Quelqu\'un vient d\'appeler en se présentant comme consultant IT et demande l\'adresse email du directeur financier pour lui envoyer un rapport urgent. Que conseillez-vous à Marie de faire ?',
+                options: [
+                  {
+                    text: 'Donner l\'information car c\'est seulement une adresse email professionnelle qui est publique',
+                    impact: -15,
+                    reason: 'Vous avez facilité une possible attaque de phishing ciblé (spear phishing) contre le directeur financier'
+                  },
+                  {
+                    text: 'Refuser poliment et proposer de prendre le message et le numéro du consultant pour que le directeur le rappelle',
+                    impact: 10,
+                    reason: 'Vous avez évité une fuite d\'information potentiellement exploitable tout en maintenant la communication professionnelle'
+                  },
+                  {
+                    text: 'Demander des informations détaillées sur ce consultant et son entreprise avant de décider',
+                    impact: 5,
+                    reason: 'Votre démarche est prudente mais la vérification reste difficile par téléphone et des professionnels de l\'ingénierie sociale peuvent fabriquer des histoires crédibles'
+                  }
+                ]
+              }
+            ],
+            bestPracticeIds: ['bp-phishing-awareness', 'bp-security-awareness']
           }
         }
       },
@@ -147,6 +177,7 @@ export const virtualRooms: VirtualRoom[] = [
         department: 'Sécurité physique',
         status: 'online',
         securityLevel: 3,
+        vulnerabilities: ['prêt de badges', 'caméras non sécurisées', 'accès salle serveurs'],
         conversations: {
           'introduction': {
             messages: [

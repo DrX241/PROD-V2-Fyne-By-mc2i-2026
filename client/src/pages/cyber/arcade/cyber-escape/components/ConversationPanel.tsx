@@ -30,6 +30,8 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { toast } from '@/hooks/use-toast';
+import ConversationChoices from './ConversationChoices';
+import { getBestPracticeById } from '../data/best-practices';
 
 const ConversationPanel: React.FC = () => {
   const { 
@@ -197,6 +199,16 @@ const ConversationPanel: React.FC = () => {
               </div>
             ))}
             
+            {/* Afficher les choix de la conversation s'ils existent */}
+            {conversation?.choices && conversation.choices.length > 0 && (
+              <ConversationChoices 
+                choices={conversation.choices} 
+                conversationId={currentConversation}
+                onChoiceMade={() => setShowExplanation(true)}
+              />
+            )}
+            
+            {/* Afficher les défis de la conversation s'ils existent */}
             {!showExplanation && challenges.length > 0 && !isChallengeCompleted(challenges[0].id) && (
               <div className="bg-blue-800/40 rounded-lg p-4 border border-blue-700">
                 <h3 className="font-semibold mb-2 flex items-center">
@@ -249,6 +261,27 @@ const ConversationPanel: React.FC = () => {
                 <AlertTitle>Explication</AlertTitle>
                 <AlertDescription>
                   {challenges[0].explanation}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Afficher les bonnes pratiques découvertes si elles existent */}
+            {showExplanation && conversation?.bestPracticeIds && conversation.bestPracticeIds.length > 0 && (
+              <Alert className="bg-green-700/30 border-green-600">
+                <AlertTitle className="flex items-center">
+                  <Star className="h-4 w-4 mr-2 text-yellow-400" />
+                  Bonnes pratiques découvertes
+                </AlertTitle>
+                <AlertDescription className="space-y-2">
+                  {conversation.bestPracticeIds.map(id => {
+                    const practice = getBestPracticeById(id);
+                    return practice ? (
+                      <div key={id} className="p-2 rounded bg-green-800/30">
+                        <h4 className="font-medium text-sm">{practice.title}</h4>
+                        <p className="text-xs opacity-90">{practice.description}</p>
+                      </div>
+                    ) : null;
+                  })}
                 </AlertDescription>
               </Alert>
             )}

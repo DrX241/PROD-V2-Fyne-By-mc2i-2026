@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'wouter';
-import { ArrowLeft, Info } from 'lucide-react';
+import { ArrowLeft, Info, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import PageTitle from '@/components/utils/PageTitle';
@@ -10,6 +10,7 @@ import CharacterList from './components/CharacterList';
 import ConversationPanel from './components/ConversationPanel';
 import GameHeader from './components/GameHeader';
 import GameNavigation from './components/GameNavigation';
+import GameSummary from './components/GameSummary';
 import { useGame } from './context/GameContext';
 
 import {
@@ -22,11 +23,26 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 // Composant principal avec toute la structure
 const CyberEscapeGame: React.FC = () => {
-  const { currentCharacter } = useGame();
+  const { 
+    currentCharacter, 
+    isGameOver, 
+    securityPoints,
+    generateGameSummary,
+    setShowSummary
+  } = useGame();
   const [showAboutDialog, setShowAboutDialog] = React.useState(false);
+
+  // Générer le résumé et l'afficher si le score est négatif
+  React.useEffect(() => {
+    if (isGameOver && securityPoints < 0) {
+      generateGameSummary();
+      setShowSummary(true);
+    }
+  }, [isGameOver, securityPoints, generateGameSummary, setShowSummary]);
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -55,6 +71,17 @@ const CyberEscapeGame: React.FC = () => {
           
           <GameHeader />
           
+          {isGameOver && securityPoints < 0 && (
+            <Alert className="bg-red-900/30 border-red-800 mb-4">
+              <AlertTriangle className="h-4 w-4 text-red-400" />
+              <AlertTitle>Mission échouée</AlertTitle>
+              <AlertDescription>
+                La sécurité de l'entreprise a été compromise suite à une série de mauvaises décisions.
+                Consultez le résumé de votre mission pour voir où vous avez fait des erreurs.
+              </AlertDescription>
+            </Alert>
+          )}
+          
           <div className="mb-6">
             <h2 className="text-xl font-semibold mb-3">Réseau virtuel de l'entreprise</h2>
             <p className="text-blue-300 mb-4">
@@ -76,6 +103,9 @@ const CyberEscapeGame: React.FC = () => {
           ) : (
             <CharacterList />
           )}
+          
+          {/* Composant GameSummary pour afficher le résumé de fin de partie */}
+          <GameSummary />
           
           {/* Dialogue À propos */}
           <Dialog open={showAboutDialog} onOpenChange={setShowAboutDialog}>
@@ -105,6 +135,17 @@ const CyberEscapeGame: React.FC = () => {
                   Votre mission est d'explorer le réseau virtuel de l'entreprise, de discuter avec les différents collaborateurs 
                   pour identifier leurs comportements à risque et leur proposer des solutions conformes aux bonnes pratiques de cybersécurité.
                 </p>
+                
+                <h3 className="text-xl font-bold mt-4 mb-2">Règles du jeu</h3>
+                
+                <ul className="list-disc pl-6 space-y-1">
+                  <li>Vous commencez avec <strong>20 points de sécurité</strong></li>
+                  <li>Chaque bonne décision vous fera gagner des points</li>
+                  <li>Chaque mauvaise décision vous fera perdre des points</li>
+                  <li>Si votre score devient négatif, la mission échoue</li>
+                  <li>Découvrez des bonnes pratiques en interagissant avec les personnages</li>
+                  <li>Certaines salles sont verrouillées et nécessitent un minimum de points pour être accessibles</li>
+                </ul>
                 
                 <h3 className="text-xl font-bold mt-4 mb-2">Compétences développées</h3>
                 
