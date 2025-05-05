@@ -412,24 +412,24 @@ export default function CyberTestTechnique() {
         <div className="mt-2">
           <Progress value={(currentQuestion + 1) / questions.length * 100} className="h-2" />
           <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>Question {currentQuestion + 1} sur {questions.length}</span>
-            <span>{responses.filter(r => r.answer !== -1).length} répondue(s)</span>
+            <span>Question {currentQuestion + 1} sur {questions ? questions.length : 0}</span>
+            <span>{responses ? responses.filter(r => r.answer !== -1).length : 0} répondue(s)</span>
           </div>
         </div>
       </CardHeader>
       <CardContent className="pt-4">
-        {questions.length > 0 && currentQuestion < questions.length && (
+        {questions && questions.length > 0 && currentQuestion < questions.length && questions[currentQuestion] && (
           <div className="space-y-6">
             <div className="p-4 bg-gray-50 rounded-lg">
               <h3 className="text-lg font-medium mb-3 text-blue-600">
                 {questions[currentQuestion].question}
               </h3>
               <div className="space-y-3">
-                {questions[currentQuestion].options.map((option, index) => (
+                {questions[currentQuestion].options && questions[currentQuestion].options.map((option, index) => (
                   <div 
                     key={index}
                     className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                      responses[currentQuestion].answer === index 
+                      responses && responses[currentQuestion] && responses[currentQuestion].answer === index 
                         ? 'bg-blue-100 border-blue-500' 
                         : 'hover:bg-gray-100 border-gray-200'
                     }`}
@@ -437,7 +437,7 @@ export default function CyberTestTechnique() {
                   >
                     <div className="flex items-start">
                       <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mr-2 ${
-                        responses[currentQuestion].answer === index 
+                        responses && responses[currentQuestion] && responses[currentQuestion].answer === index 
                           ? 'bg-white text-blue-600 border border-blue-500' 
                           : 'bg-white text-gray-700 border border-gray-300'
                       }`}>
