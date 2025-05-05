@@ -124,15 +124,14 @@ Analyse la stratégie de défense et fournit une évaluation détaillée au form
 }`;
 
     // Appeler l'API OpenAI pour l'analyse
-    const response = await openAIService.getChatCompletion({
-      messages: [
+    const response = await openAIService.getChatCompletion(
+      [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt }
       ],
-      temperature: 0.7,
-      max_tokens: 2000,
-      response_format: { type: "json_object" }
-    });
+      0.7,
+      2000
+    );
 
     // Analyser la réponse
     let analysis: DefenseAnalysis;
@@ -194,15 +193,14 @@ Génère une réponse au format JSON structurée exactement comme suit:
 }`;
 
     // Appeler l'API OpenAI pour la génération de scénario
-    const response = await openAIService.getChatCompletion({
-      messages: [
+    const response = await openAIService.getChatCompletion(
+      [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt }
       ],
-      temperature: 0.8,
-      max_tokens: 1500,
-      response_format: { type: "json_object" }
-    });
+      0.8,
+      1500
+    );
 
     // Retourner le scénario généré
     try {
@@ -259,15 +257,14 @@ Fournis une réponse au format JSON structurée exactement comme suit:
 }`;
 
     // Appeler l'API OpenAI pour la génération du conseil
-    const response = await openAIService.getChatCompletion({
-      messages: [
+    const response = await openAIService.getChatCompletion(
+      [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt }
       ],
-      temperature: 0.7,
-      max_tokens: 1000,
-      response_format: { type: "json_object" }
-    });
+      0.7,
+      1000
+    );
 
     // Retourner le conseil tactique
     try {

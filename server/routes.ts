@@ -457,6 +457,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/cyber/arcade/brain-hacker/simulate', simulateTargetResponse);
   app.post('/api/cyber/arcade/brain-hacker/analyze', analyzePerformance);
   
+  // Routes pour le jeu Firewall Tactique
+  app.post('/api/cyber/arcade/firewall-tactique/analyze', analyzeDefenseStrategy);
+  app.post('/api/cyber/arcade/firewall-tactique/scenario', generateAttackScenario);
+  app.post('/api/cyber/arcade/firewall-tactique/tips', generateTacticalTip);
+  
   // Routes pour mc2i AI Learning
   app.post('/api/mcai-learning/init', initMcaiLearningSession);
   app.post('/api/mcai-learning/message', processMcaiLearningMessage);
