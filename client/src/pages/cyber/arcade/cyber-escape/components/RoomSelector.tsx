@@ -1,6 +1,6 @@
 import React from 'react';
 import { useGame } from '../context/GameContext';
-import { VirtualRoom, virtualRooms } from '../data/rooms';
+import { VirtualRoom, virtualRooms, Character } from '../data/rooms';
 import {
   Card,
   CardContent,
@@ -69,7 +69,7 @@ const RoomSelector: React.FC = () => {
           
           <CardFooter className="flex justify-between pt-0">
             <div className="flex space-x-1">
-              {room.characters.map((character) => (
+              {room.characters.map((character: Character) => (
                 <Badge 
                   key={character.id} 
                   variant="outline" 
