@@ -438,8 +438,8 @@ export default function CyberTestTechnique() {
                     <div className="flex items-start">
                       <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mr-2 ${
                         responses[currentQuestion].answer === index 
-                          ? 'bg-blue-500 text-white' 
-                          : 'bg-gray-200'
+                          ? 'bg-white text-blue-600 border border-blue-500' 
+                          : 'bg-white text-gray-700 border border-gray-300'
                       }`}>
                         {String.fromCharCode(65 + index)}
                       </div>
