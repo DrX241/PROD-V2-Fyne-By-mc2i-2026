@@ -434,18 +434,24 @@ export async function generatePromptExamples(req: Request, res: Response) {
       return res.json({ examples: JSON.parse(cachedExamples) });
     }
     
-    // Construire le prompt pour l'IA
-    const systemPrompt = `Tu es un expert en programmation et en génération de code. Génère ${count} idées de projets ou de fonctionnalités de code que quelqu'un pourrait vouloir implémenter.`;
+    // Construire le prompt pour l'IA, adapté aux 3 langages supportés
+    const systemPrompt = `Tu es un expert en programmation et en génération de code, spécialisé dans Python, SQL et les formules Excel. Génère ${count} idées de projets ou de fonctionnalités de code que quelqu'un pourrait vouloir implémenter.`;
     
-    let userPrompt = "Génère des idées créatives, variées et réalistes pour des projets de programmation.";
+    let userPrompt = "";
     
-    if (language && language !== 'general') {
-      userPrompt += ` Concentre-toi sur des projets qui seraient bien adaptés au langage ${language}.`;
+    if (language === 'python') {
+      userPrompt = `Génère des idées créatives et pratiques pour des scripts Python, en te concentrant sur l'analyse de données, l'automatisation, les algorithmes, et la science des données.`;
+    } else if (language === 'sql') {
+      userPrompt = `Génère des idées réalistes de requêtes SQL pour l'analyse de données, les rapports commerciaux, la gestion de bases de données et l'optimisation de performances.`;
+    } else if (language === 'excel') {
+      userPrompt = `Génère des idées pratiques de formules Excel pour l'analyse financière, la gestion de données, les tableaux de bord et les calculs statistiques.`;
+    } else {
+      userPrompt = `Génère des idées créatives et pratiques pour des scripts Python, des requêtes SQL et des formules Excel.`;
     }
     
-    userPrompt += ` Les idées doivent être formulées comme des instructions concises pour un générateur de code, chacune ne dépassant pas 100 caractères.
+    userPrompt += ` Les idées doivent être formulées comme des instructions concises pour un générateur de code, préfixées par le nom du langage approprié (Python, SQL ou Excel).
     
-Réponds uniquement avec un tableau JSON d'idées, sans explications supplémentaires. Format: {"ideas": ["idée 1", "idée 2", ...]}`;
+Réponds uniquement avec un tableau JSON d'idées, sans explications supplémentaires. Format: {"ideas": ["Python: analyse de données CSV", "SQL: requête de ventes", "Excel: formule pour budget", ...]}`;
     
     try {
       // Pour Azure OpenAI, avec Azure on n'a pas besoin de spécifier le modèle car il est dans le baseURL
@@ -477,14 +483,14 @@ Réponds uniquement avec un tableau JSON d'idées, sans explications supplément
         console.error('Error parsing examples:', parseError);
         // Utiliser des exemples par défaut en cas d'erreur
         examples = [
-          "Créer une API REST pour gérer un inventaire de produits avec authentification",
-          "Développer un jeu simple de devinette de nombre en interface console",
-          "Concevoir une classe pour gérer une file d'attente prioritaire",
-          "Créer un script qui convertit des images PNG en JPG avec redimensionnement",
-          "Implémenter un algorithme de tri fusion (merge sort)",
-          "Créer un formulaire d'inscription avec validation des champs",
-          "Développer un crawler web simple qui extrait les titres d'articles",
-          "Créer un système de cache en mémoire avec expiration des données"
+          "Python: Créer un script d'analyse de données CSV avec graphiques",
+          "SQL: Requête pour analyser les ventes mensuelles par région et produit",
+          "Excel: Formule pour calculer des projections financières sur 5 ans",
+          "Python: Développer un modèle de machine learning pour prédiction de données",
+          "SQL: Créer des vues optimisées pour tableau de bord commercial",
+          "Excel: Formules pour automatiser un suivi de budget avec catégories",
+          "Python: Script pour nettoyer et transformer des données structurées",
+          "SQL: Requêtes d'analyse de performance avec indexes et optimisations"
         ];
       }
       
@@ -498,14 +504,14 @@ Réponds uniquement avec un tableau JSON d'idées, sans explications supplément
       res.status(500).json({ 
         error: 'Error generating examples', 
         examples: [
-          "Créer une API REST pour gérer un inventaire de produits avec authentification",
-          "Développer un jeu simple de devinette de nombre en interface console",
-          "Concevoir une classe pour gérer une file d'attente prioritaire",
-          "Créer un script qui convertit des images PNG en JPG avec redimensionnement",
-          "Implémenter un algorithme de tri fusion (merge sort)",
-          "Créer un formulaire d'inscription avec validation des champs",
-          "Développer un crawler web simple qui extrait les titres d'articles",
-          "Créer un système de cache en mémoire avec expiration des données"
+          "Python: Créer un script d'analyse de données CSV avec graphiques",
+          "SQL: Requête pour analyser les ventes mensuelles par région et produit",
+          "Excel: Formule pour calculer des projections financières sur 5 ans",
+          "Python: Développer un modèle de machine learning pour prédiction de données",
+          "SQL: Créer des vues optimisées pour tableau de bord commercial",
+          "Excel: Formules pour automatiser un suivi de budget avec catégories",
+          "Python: Script pour nettoyer et transformer des données structurées",
+          "SQL: Requêtes d'analyse de performance avec indexes et optimisations"
         ]
       });
     }
@@ -514,14 +520,14 @@ Réponds uniquement avec un tableau JSON d'idées, sans explications supplément
     res.status(500).json({ 
       error: 'An error occurred while generating prompt examples',
       examples: [
-        "Créer une API REST pour gérer un inventaire de produits avec authentification",
-        "Développer un jeu simple de devinette de nombre en interface console",
-        "Concevoir une classe pour gérer une file d'attente prioritaire",
-        "Créer un script qui convertit des images PNG en JPG avec redimensionnement",
-        "Implémenter un algorithme de tri fusion (merge sort)",
-        "Créer un formulaire d'inscription avec validation des champs",
-        "Développer un crawler web simple qui extrait les titres d'articles",
-        "Créer un système de cache en mémoire avec expiration des données"
+        "Python: Créer un script d'analyse de données CSV avec graphiques",
+        "SQL: Requête pour analyser les ventes mensuelles par région et produit",
+        "Excel: Formule pour calculer des projections financières sur 5 ans",
+        "Python: Développer un modèle de machine learning pour prédiction de données",
+        "SQL: Créer des vues optimisées pour tableau de bord commercial",
+        "Excel: Formules pour automatiser un suivi de budget avec catégories",
+        "Python: Script pour nettoyer et transformer des données structurées",
+        "SQL: Requêtes d'analyse de performance avec indexes et optimisations"
       ]
     });
   }
