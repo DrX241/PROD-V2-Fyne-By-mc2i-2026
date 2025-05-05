@@ -44,12 +44,6 @@ export default function AmoaModeSelection() {
           destination: '/outils-ia/mc2i-learning'
         },
         {
-          id: 'amoa-quest',
-          title: 'AMOA QUEST',
-          icon: null,
-          destination: '/amoa/quest'
-        },
-        {
           id: 'modules-express',
           title: 'Modules Express',
           icon: null,
@@ -162,9 +156,6 @@ export default function AmoaModeSelection() {
                             <div className="flex items-center p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors cursor-pointer border border-white/20 shadow-sm hover:shadow-md hover:border-white/40">
                               <div className="flex-grow">
                                 <h3 className="text-white font-medium">{item.title}</h3>
-                                {item.id === 'amoa-quest' && (
-                                  <p className="text-white/80 text-xs mt-1">Apprentissage par simulation : prenez des décisions comme un AMOA dans un projet réaliste</p>
-                                )}
                               </div>
                               <div className="text-white bg-blue-500/30 p-1 rounded-full">
                                 <ArrowRight className="h-4 w-4" />

@@ -34,20 +34,6 @@ export default function AmoaPage() {
   // Liste des modules disponibles en format optimisé pour la nouvelle présentation
   const amoaModules = [
     {
-      id: "amoa-quest",
-      title: "AMOA QUEST",
-      description: "Parcourez une aventure narrative interactive où vous incarnez un Assistant à Maîtrise d'Ouvrage confronté à des défis réels de gestion de projet.",
-      icon: <Brain className="w-12 h-12 text-blue-100" />,
-      gradient: "from-blue-600 to-blue-900",
-      level: "Tous niveaux",
-      duration: "45-60 min",
-      path: "/amoa/quest",
-      isNew: true,
-      status: "available",
-      cardClass: "amoa-card-1",
-      skills: ["Analyse des besoins", "Communication", "Gestion des parties prenantes", "Documentation"]
-    },
-    {
       id: "interview-simulation",
       title: "SIMULATION D'ENTRETIEN",
       description: "Participez à une simulation d'entretien d'embauche réaliste pour évaluer les compétences des candidats aux profils AMOA avec feedback IA.",
