@@ -142,6 +142,22 @@ function App() {
             <Route path="/cyber/arcade/cyber-investigator/insider-threat" component={InsiderThreat} />
             <Route path="/cyber/arcade/digital-forensics" component={DigitalForensics} />
             <Route path="/cyber/arcade/threat-intelligence" component={ThreatIntelligence} />
+            <Route path="/cyber/arcade/firewall-tactique" component={() => {
+              const FirewallTactiqueComponent = lazy(() => import('./pages/cyber/arcade/firewall-tactique'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <FirewallTactiqueComponent />
+                </Suspense>
+              );
+            }} />
+            <Route path="/cyber/arcade/brain-hacker" component={() => {
+              const BrainHackerComponent = lazy(() => import('./pages/cyber/arcade/brain-hacker'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <BrainHackerComponent />
+                </Suspense>
+              );
+            }} />
             <Route path="/cyber/test-technique" component={() => {
               const CyberTestTechnique = lazy(() => import('./pages/cyber/test-technique'));
               return (
