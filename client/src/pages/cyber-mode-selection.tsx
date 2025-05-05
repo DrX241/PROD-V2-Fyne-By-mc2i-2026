@@ -148,7 +148,7 @@ export default function CyberModeSelection() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-4 sm:px-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-4 sm:px-8 max-w-6xl mx-auto">
             {cyberModes.map((category, index) => (
               <motion.div
                 key={category.id}
@@ -172,7 +172,7 @@ export default function CyberModeSelection() {
                   <div className="absolute h-16 w-16 -top-8 -right-8 bg-white opacity-20 rounded-full blur-md"></div>
                   
                   <div className="flex flex-col h-full relative z-10">
-                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-3 text-center truncate px-2">
+                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-3 text-center px-2">
                       {category.title}
                     </h2>
                     <p className="text-blue-100 mb-4 text-xs lg:text-sm text-center line-clamp-3 px-1">{category.description}</p>
@@ -185,7 +185,7 @@ export default function CyberModeSelection() {
                             <div className="flex items-center p-4 rounded-lg bg-white/10 hover:bg-white/20 transition-colors cursor-pointer border border-white/20 shadow-sm hover:shadow-md hover:border-white/40">
                               <div className="flex-grow">
                                 <div className="flex items-center gap-2">
-                                  <h3 className="text-white font-medium text-base truncate">{item.title}</h3>
+                                  <h3 className="text-white font-medium text-base">{item.title}</h3>
                                   {item.isNew && (
                                     <span className="text-xs px-1.5 py-0.5 bg-amber-500 text-white rounded-full flex-shrink-0">Nouveau</span>
                                   )}
