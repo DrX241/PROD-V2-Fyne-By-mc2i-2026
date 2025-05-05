@@ -96,12 +96,18 @@ export default function BrainHacker() {
     confidentiality: 50
   });
   const [gamePhase, setGamePhase] = useState<'planning' | 'execution' | 'analysis'>('planning');
+  // Résultats de l'analyse du jeu par Azure OpenAI
   const [gameResult, setGameResult] = useState<{
     success: boolean;
     score: number;
     feedback: string;
     vulnerabilityExploited?: string;
     improvement?: string;
+    // Nouveaux champs pour l'analyse détaillée par IA
+    techniques?: string[];
+    strengths?: string[];
+    weaknesses?: string[];
+    recommendations?: string[];
   } | null>(null);
 
   // Données des cibles potentielles
@@ -1646,7 +1652,52 @@ export default function BrainHacker() {
                                       </div>
                                     )}
                                     
-                                    <div className="mt-2">
+                                    {/* Affichage de l'analyse détaillée générée par IA */}
+                                    {gameResult && gameResult.techniques && (
+                                      <div className="p-3 bg-indigo-900/30 border border-indigo-500/30 rounded-lg">
+                                        <h4 className="text-sm font-medium text-purple-300 mb-2">Techniques d'ingénierie sociale identifiées</h4>
+                                        <ul className="list-disc list-inside space-y-1">
+                                          {Array.isArray(gameResult.techniques) && gameResult.techniques.map((technique: string, index: number) => (
+                                            <li key={index} className="text-purple-200 text-sm ml-2">{technique}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+                                    
+                                    {gameResult && gameResult.strengths && (
+                                      <div className="p-3 bg-emerald-900/20 border border-emerald-500/20 rounded-lg mt-3">
+                                        <h4 className="text-sm font-medium text-purple-300 mb-2">Points forts de votre approche</h4>
+                                        <ul className="list-disc list-inside space-y-1">
+                                          {Array.isArray(gameResult.strengths) && gameResult.strengths.map((strength: string, index: number) => (
+                                            <li key={index} className="text-purple-200 text-sm ml-2">{strength}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+                                    
+                                    {gameResult && gameResult.weaknesses && (
+                                      <div className="p-3 bg-amber-900/20 border border-amber-500/20 rounded-lg mt-3">
+                                        <h4 className="text-sm font-medium text-purple-300 mb-2">Points faibles à améliorer</h4>
+                                        <ul className="list-disc list-inside space-y-1">
+                                          {Array.isArray(gameResult.weaknesses) && gameResult.weaknesses.map((weakness: string, index: number) => (
+                                            <li key={index} className="text-purple-200 text-sm ml-2">{weakness}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+                                    
+                                    {gameResult && gameResult.recommendations && (
+                                      <div className="p-3 bg-sky-900/20 border border-sky-500/20 rounded-lg mt-3">
+                                        <h4 className="text-sm font-medium text-purple-300 mb-2">Recommandations pour s'améliorer</h4>
+                                        <ul className="list-disc list-inside space-y-1">
+                                          {Array.isArray(gameResult.recommendations) && gameResult.recommendations.map((rec: string, index: number) => (
+                                            <li key={index} className="text-purple-200 text-sm ml-2">{rec}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+                                    
+                                    <div className="mt-4">
                                       <h4 className="text-sm font-medium text-purple-300 mb-2">Points clés à retenir</h4>
                                       <ul className="text-purple-200 text-sm space-y-1 pl-4 list-disc">
                                         <li>L'ingénierie sociale exploite les faiblesses humaines, pas techniques</li>
