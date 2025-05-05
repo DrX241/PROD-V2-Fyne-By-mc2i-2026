@@ -1173,10 +1173,18 @@ export default function CodeGeneratorPage() {
                               
                               <div className="mt-2 pt-2 border-t border-dashed border-opacity-30 border-current">
                                 {executionResult.success ? (
-                                  <div 
-                                    className={isFuturistic ? 'text-gray-300' : 'text-gray-800'}
-                                    dangerouslySetInnerHTML={{ __html: executionResult.output || "Aucune sortie générée" }}
-                                  />
+                                  executionResult.output ? (
+                                    <iframe 
+                                      srcDoc={executionResult.output}
+                                      sandbox="allow-scripts allow-same-origin"
+                                      className="w-full min-h-[300px] border-0 rounded-md"
+                                      style={{ backgroundColor: 'white' }}
+                                    />
+                                  ) : (
+                                    <div className={isFuturistic ? 'text-gray-300' : 'text-gray-800'}>
+                                      Aucune sortie générée
+                                    </div>
+                                  )
                                 ) : (
                                   <div className={isFuturistic ? 'text-red-300' : 'text-red-600'}>
                                     {executionResult.error}
