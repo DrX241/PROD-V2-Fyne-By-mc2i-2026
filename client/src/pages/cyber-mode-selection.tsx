@@ -178,8 +178,8 @@ export default function CyberModeSelection() {
                     <p className="text-blue-100 mb-2 text-xs lg:text-sm text-center line-clamp-2 px-1">{category.description}</p>
                     
                     {/* Liste des modules dans cette catégorie */}
-                    <div className="mt-6 flex-grow">
-                      <div className="space-y-8">
+                    <div className="mt-8 flex-grow">
+                      <div className="space-y-12">
                         {category.items && category.items.map((item) => (
                           <Link key={item.id} href={item.comingSoon ? '#' : item.destination} onClick={(e) => item.comingSoon && e.preventDefault()}>
                             <div className="flex items-center p-4 rounded-lg bg-white/10 hover:bg-blue-500/30 transition-all cursor-pointer border border-white/30 shadow-md hover:shadow-lg hover:border-white/60 transform hover:-translate-y-1">
