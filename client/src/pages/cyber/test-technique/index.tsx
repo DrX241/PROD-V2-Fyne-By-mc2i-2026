@@ -190,7 +190,8 @@ export default function CyberTestTechnique() {
         body: JSON.stringify({
           responses,
           category: selectedCategory,
-          difficulty: selectedDifficulty
+          difficulty: selectedDifficulty,
+          exerciseType: selectedExerciseType
         })
       });
       return response;
@@ -469,7 +470,20 @@ export default function CyberTestTechnique() {
             <div className="bg-blue-50 p-4 rounded-lg">
               <h3 className="font-medium text-blue-800">À propos de ce test</h3>
               <p className="text-sm text-blue-700 mt-2">
-                Ce test comporte 10 questions à choix multiples et dure 10 minutes. Vous pouvez naviguer librement entre les questions avant de soumettre vos réponses.
+                {selectedExerciseType && options?.exerciseTypes ? (
+                  <>
+                    Ce test comporte 10 questions de type "{getExerciseTypeName(selectedExerciseType)}" 
+                    {selectedExerciseType === 'mcq' && " à choix multiples"}
+                    {selectedExerciseType === 'code' && " de programmation"}
+                    {selectedExerciseType === 'scenario' && " de mise en situation"}
+                    {selectedExerciseType === 'open' && " ouvertes"}. 
+                    La durée du test sera ajustée selon le type et le niveau de difficulté. Vous pouvez naviguer librement entre les questions avant de soumettre vos réponses.
+                  </>
+                ) : (
+                  <>
+                    Ce test comporte 10 questions et dure environ 10 minutes. Vous pouvez naviguer librement entre les questions avant de soumettre vos réponses.
+                  </>
+                )}
               </p>
             </div>
           </>
@@ -708,7 +722,7 @@ export default function CyberTestTechnique() {
           <div>
             <CardTitle className="text-2xl">Résultats du Test</CardTitle>
             <CardDescription>
-              {getCategoryName(selectedCategory)} - Niveau {getDifficultyName(selectedDifficulty)}
+              {getCategoryName(selectedCategory)} - Niveau {getDifficultyName(selectedDifficulty)} - Type {getExerciseTypeName(selectedExerciseType)}
             </CardDescription>
           </div>
           {evaluationResults && (
