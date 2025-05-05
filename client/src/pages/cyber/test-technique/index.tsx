@@ -233,6 +233,10 @@ export default function CyberTestTechnique() {
   };
 
   const handleResponseChange = (questionIndex: number, optionIndex: number) => {
+    if (!responses || !Array.isArray(responses) || questionIndex < 0 || questionIndex >= responses.length) {
+      return;
+    }
+    
     const updatedResponses = [...responses];
     updatedResponses[questionIndex] = {
       ...updatedResponses[questionIndex],
@@ -242,7 +246,7 @@ export default function CyberTestTechnique() {
   };
 
   const goToNextQuestion = () => {
-    if (currentQuestion < questions.length - 1) {
+    if (questions && Array.isArray(questions) && currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     }
   };
@@ -267,6 +271,16 @@ export default function CyberTestTechnique() {
   };
 
   const submitQuiz = () => {
+    // Check if responses is valid
+    if (!responses || !Array.isArray(responses)) {
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue avec vos réponses. Veuillez réessayer.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     // Check if all questions have been answered
     const unansweredCount = responses.filter(r => r.answer === -1).length;
     
@@ -410,7 +424,7 @@ export default function CyberTestTechnique() {
           </div>
         </div>
         <div className="mt-2">
-          <Progress value={(currentQuestion + 1) / questions.length * 100} className="h-2" />
+          <Progress value={questions && questions.length > 0 ? ((currentQuestion + 1) / questions.length * 100) : 0} className="h-2" />
           <div className="flex justify-between text-xs text-gray-500 mt-1">
             <span>Question {currentQuestion + 1} sur {questions ? questions.length : 0}</span>
             <span>{responses ? responses.filter(r => r.answer !== -1).length : 0} répondue(s)</span>
@@ -459,7 +473,7 @@ export default function CyberTestTechnique() {
           <Button variant="outline" onClick={goToPreviousQuestion} disabled={currentQuestion === 0}>
             Précédent
           </Button>
-          <Button variant="outline" onClick={goToNextQuestion} disabled={currentQuestion === questions.length - 1}>
+          <Button variant="outline" onClick={goToNextQuestion} disabled={!questions || currentQuestion >= (questions.length - 1)}>
             Suivant
           </Button>
         </div>
