@@ -18,6 +18,7 @@ import {
   Languages,
   Link as LinkIcon,
   CheckCircle,
+  Home,
   MessageSquare,
   Lightbulb,
   Database,
