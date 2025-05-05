@@ -79,10 +79,21 @@ export class CyberEscapeGame {
     // Images pour les personnages et les objets
     scene.load.image('player', 'https://i.imgur.com/RpQQxq5.png');
     scene.load.image('hacker', 'https://i.imgur.com/8EqGaof.png');
-    scene.load.image('office-tiles', '/src/assets/cyber-escape/office-tiles.png');
-    scene.load.image('wall', 'https://i.imgur.com/ZfLhfZi.png'); // Backup en cas de problème de chargement
-    scene.load.image('floor', 'https://i.imgur.com/QcCBJCT.png'); // Backup en cas de problème de chargement
+    
+    // Chargement des textures de backup (en cas de problème avec les tuiles personnalisées)
+    scene.load.image('wall', 'https://i.imgur.com/ZfLhfZi.png');
+    scene.load.image('floor', 'https://i.imgur.com/QcCBJCT.png');
     scene.load.image('desk', 'https://i.imgur.com/sUvdg6L.png');
+    
+    // Chargement et configuration de l'atlas de tuiles personnalisées
+    scene.load.spritesheet('office-tiles', '/src/assets/cyber-escape/office-tiles.png', {
+      frameWidth: 64, // Largeur d'une tuile individuelle
+      frameHeight: 64, // Hauteur d'une tuile individuelle
+      startFrame: 0,
+      endFrame: 8, // 9 tuiles au total (indices 0-8)
+      margin: 0,
+      spacing: 0
+    });
     
     // Images pour les vulnérabilités
     scene.load.image('password', 'https://i.imgur.com/t8DmdGj.png');

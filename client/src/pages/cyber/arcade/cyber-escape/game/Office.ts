@@ -42,8 +42,9 @@ export class Office {
     this.createFurniture();
   }
 
-  // Créer le sol
+  // Créer le sol avec les nouvelles tuiles
   private createFloor() {
+    // Utiliser la texture de sol alternative comme backup
     this.floors = this.scene.add.tileSprite(
       0, 
       0, 
@@ -51,8 +52,27 @@ export class Office {
       this.officeHeight, 
       'floor'
     );
+    
     this.floors.setOrigin(0, 0);
     this.floors.setDepth(0);
+    
+    // Essayer de charger l'atlas de tuiles pour remplacer la texture par défaut
+    this.scene.textures.on('addtexture', (key: string) => {
+      if (key === 'office-tiles') {
+        // Mettre à jour le sprite de sol quand la texture est disponible
+        this.floors.setTexture('office-tiles');
+        // Si la texture est chargée, on peut essayer d'utiliser une partie spécifique
+        try {
+          // Utiliser le sol bleu clair (au milieu en bas de l'image)
+          const textureFrame = this.scene.textures.getFrame('office-tiles', 4);
+          if (textureFrame) {
+            this.floors.setFrame(4);
+          }
+        } catch (e) {
+          console.error("Impossible d'accéder au frame spécifique:", e);
+        }
+      }
+    });
   }
 
   // Créer les murs
@@ -90,10 +110,22 @@ export class Office {
     this.createHorizontalWall(400, 400, 200);
   }
 
-  // Ajouter un mur individuel
+  // Ajouter un mur individuel avec les nouvelles tuiles
   private addWall(x: number, y: number) {
+    // Créer le mur avec la texture de backup en attendant
     const wall = this.walls.create(x, y, 'wall');
     wall.setOrigin(0, 0);
+    wall.setDisplaySize(this.tileSize, this.tileSize);
+    
+    // Essayer d'utiliser la nouvelle texture si disponible
+    if (this.scene.textures.exists('office-tiles')) {
+      try {
+        wall.setTexture('office-tiles');
+        wall.setFrame(this.tileIndexes.wall);
+      } catch (e) {
+        console.error("Erreur lors de l'application de la texture de mur:", e);
+      }
+    }
     
     // S'assurer que le mur est considéré comme un obstacle solide
     wall.body.immovable = true;
@@ -179,11 +211,29 @@ export class Office {
     this.addDesk(800, 750);
   }
 
-  // Ajouter un bureau
+  // Ajouter un bureau avec les nouvelles tuiles
   private addDesk(x: number, y: number) {
+    // Créer le bureau avec la texture de backup
     const desk = this.furniture.create(x, y, 'desk');
     desk.setOrigin(0.5);
     desk.setDepth(5);
+    
+    // Essayer d'utiliser la nouvelle texture si disponible
+    if (this.scene.textures.exists('office-tiles')) {
+      try {
+        // Utiliser les serveurs ou le stockage comme mobilier
+        desk.setTexture('office-tiles');
+        
+        // Choisir aléatoirement entre les serveurs et le stockage
+        const furnitureType = Math.random() > 0.5 ? this.tileIndexes.servers : this.tileIndexes.storage;
+        desk.setFrame(furnitureType);
+        
+        // Adapter la taille pour la nouvelle texture
+        desk.setDisplaySize(this.tileSize * 1.5, this.tileSize * 1.5);
+      } catch (e) {
+        console.error("Erreur lors de l'application de la texture de bureau:", e);
+      }
+    }
     
     // Ajuster la hitbox du bureau
     desk.body.setSize(70, 30);
