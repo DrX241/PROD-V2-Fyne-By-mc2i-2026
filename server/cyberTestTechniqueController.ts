@@ -71,10 +71,134 @@ function generateFallbackQuestions(category: string, difficulty: string, count: 
   // Si un type d'exercice est spécifié, générer des questions de ce type uniquement
   const questionType = exerciseType || 'mcq'; // Par défaut, on génère des QCM
   
-  const fallbackQuestions: QuizQuestion[] = [
+  let fallbackQuestions: QuizQuestion[] = [];
+  
+  // Questions de type 'code'
+  if (questionType === 'code') {
+    fallbackQuestions = [
+      {
+        id: `${category}_${difficulty}_code_1`,
+        type: 'code',
+        question: 'Compléter ce code Python pour valider un mot de passe selon les critères de sécurité (au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial)',
+        code: `import re\n\ndef validate_password(password):\n    # Compléter la fonction pour vérifier:\n    # - Au moins 8 caractères\n    # - Au moins une lettre majuscule\n    # - Au moins une lettre minuscule\n    # - Au moins un chiffre\n    # - Au moins un caractère spécial\n    \n    # Votre code ici\n    \n    return False  # Remplacer par votre logique`,
+        codeLanguage: 'python',
+        solution: `import re\n\ndef validate_password(password):\n    if len(password) < 8:\n        return False\n    \n    # Vérifier au moins une majuscule\n    if not re.search(r'[A-Z]', password):\n        return False\n    \n    # Vérifier au moins une minuscule\n    if not re.search(r'[a-z]', password):\n        return False\n    \n    # Vérifier au moins un chiffre\n    if not re.search(r'[0-9]', password):\n        return False\n    \n    # Vérifier au moins un caractère spécial\n    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):\n        return False\n    \n    return True`,
+        expectedOutput: 'True pour un mot de passe sécurisé comme "Secure1!"',
+        explanation: 'La validation de mots de passe robustes est essentielle pour la sécurité des applications. Cette fonction vérifie plusieurs critères pour s\'assurer que le mot de passe est suffisamment complexe contre les attaques par dictionnaire ou par force brute.',
+        category,
+        difficulty,
+        tags: ['code', 'password-security', 'python'],
+        points: 15
+      },
+      {
+        id: `${category}_${difficulty}_code_2`,
+        type: 'code',
+        question: 'Corriger ce code JavaScript qui présente une vulnérabilité d\'injection XSS',
+        code: `function displayUserInput(input) {\n    // Cette fonction affiche l'entrée utilisateur dans la page\n    const outputDiv = document.getElementById('output');\n    outputDiv.innerHTML = input;\n}`,
+        codeLanguage: 'javascript',
+        solution: `function displayUserInput(input) {\n    // Cette fonction affiche l'entrée utilisateur dans la page de manière sécurisée\n    const outputDiv = document.getElementById('output');\n    // Échapper les caractères spéciaux pour prévenir les injections XSS\n    const safeInput = input\n        .replace(/&/g, '&amp;')\n        .replace(/</g, '&lt;')\n        .replace(/>/g, '&gt;')\n        .replace(/"/g, '&quot;')\n        .replace(/'/g, '&#039;');\n    outputDiv.innerHTML = safeInput;\n    \n    // Alternative plus moderne :\n    // outputDiv.textContent = input; // Échappe automatiquement le contenu\n}`,
+        expectedOutput: 'Affichage sécurisé du texte sans exécution de code malveillant',
+        explanation: 'L\'injection XSS (Cross-Site Scripting) est une vulnérabilité courante dans les applications web où un attaquant peut injecter du code JavaScript malveillant. En utilisant innerHTML avec une entrée utilisateur non échappée, on expose l\'application à ce type d\'attaque. La solution consiste à échapper les caractères spéciaux ou à utiliser textContent qui le fait automatiquement.',
+        category,
+        difficulty,
+        tags: ['code', 'web-security', 'xss', 'javascript'],
+        points: 15
+      },
+      {
+        id: `${category}_${difficulty}_code_3`,
+        type: 'code',
+        question: 'Compléter ce code pour implémenter une fonction de hachage sécurisée de mot de passe en Java',
+        code: `import java.security.NoSuchAlgorithmException;\nimport java.security.spec.InvalidKeySpecException;\nimport javax.crypto.SecretKeyFactory;\nimport javax.crypto.spec.PBEKeySpec;\nimport java.util.Base64;\n\npublic class PasswordHasher {\n    \n    public static String hashPassword(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {\n        // Compléter cette méthode pour:\n        // 1. Générer un sel aléatoire\n        // 2. Utiliser PBKDF2 avec HMAC-SHA256\n        // 3. Retourner le sel et le hash encodés en Base64\n        \n        // Votre code ici\n        \n        return \"hashed_password\";\n    }\n}`,
+        codeLanguage: 'java',
+        solution: `import java.security.NoSuchAlgorithmException;\nimport java.security.SecureRandom;\nimport java.security.spec.InvalidKeySpecException;\nimport javax.crypto.SecretKeyFactory;\nimport javax.crypto.spec.PBEKeySpec;\nimport java.util.Base64;\n\npublic class PasswordHasher {\n    \n    public static String hashPassword(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {\n        int iterations = 10000;\n        int keyLength = 256;\n        \n        // 1. Générer un sel aléatoire\n        SecureRandom random = new SecureRandom();\n        byte[] salt = new byte[16];\n        random.nextBytes(salt);\n        \n        // 2. Utiliser PBKDF2 avec HMAC-SHA256\n        PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterations, keyLength);\n        SecretKeyFactory factory = SecretKeyFactory.getInstance(\"PBKDF2WithHmacSHA256\");\n        byte[] hash = factory.generateSecret(spec).getEncoded();\n        \n        // 3. Retourner le sel et le hash encodés en Base64\n        String saltBase64 = Base64.getEncoder().encodeToString(salt);\n        String hashBase64 = Base64.getEncoder().encodeToString(hash);\n        \n        return iterations + \":\" + saltBase64 + \":\" + hashBase64;\n    }\n}`,
+        expectedOutput: "Une chaîne au format: '10000:sel_en_base64:hash_en_base64'",
+        explanation: 'Le hachage sécurisé des mots de passe est crucial pour protéger les données d\'authentification. Cette implémentation utilise PBKDF2 avec HMAC-SHA256, qui est recommandé par les standards de sécurité. L\'utilisation d\'un sel aléatoire et d\'un nombre élevé d\'itérations renforce la sécurité contre les attaques par table arc-en-ciel et par force brute.',
+        category,
+        difficulty,
+        tags: ['code', 'password-security', 'cryptography', 'java'],
+        points: 20
+      }
+    ];
+  } 
+  // Questions de type 'scenario'
+  else if (questionType === 'scenario') {
+    fallbackQuestions = [
+      {
+        id: `${category}_${difficulty}_scenario_1`,
+        type: 'scenario',
+        question: 'Scénario de violation de données : Vous êtes RSSI d\'une entreprise de e-commerce. Un samedi matin, vous recevez une alerte indiquant qu\'un grand volume de données clients a été extrait des serveurs de base de données. Quelles seraient vos actions immédiates et à moyen terme?',
+        context: 'Entreprise de e-commerce, 500 employés, stockage de données clients incluant noms, adresses, numéros de téléphone et historiques d\'achats. Pas de stockage de données de carte bancaire (sous-traité à un prestataire de paiement).',
+        explanation: 'Face à une violation de données, le RSSI doit suivre un plan de réponse aux incidents structuré: 1) Contenir l\'incident en isolant les systèmes affectés, 2) Évaluer l\'étendue de la violation, 3) Collecter des preuves forensiques, 4) Notifier les parties prenantes internes (direction, juridique), 5) Restaurer les systèmes de manière sécurisée, 6) Notifier les autorités et les personnes concernées conformément au RGPD, 7) Conduire une analyse post-incident, et 8) Renforcer les mesures de sécurité pour éviter une récurrence.',
+        category,
+        difficulty,
+        tags: ['incident-response', 'data-breach', 'RGPD'],
+        points: 15
+      },
+      {
+        id: `${category}_${difficulty}_scenario_2`,
+        type: 'scenario',
+        question: 'Vous êtes consultant en sécurité pour une banque qui souhaite mettre en place une solution d\'authentification à deux facteurs (2FA) pour ses clients. Quelles solutions recommanderiez-vous et pourquoi?',
+        context: 'Institution financière avec une clientèle variée (jeunes actifs technophiles, seniors moins à l\'aise avec la technologie, entreprises). Système actuel: authentification par identifiant/mot de passe uniquement.',
+        explanation: 'Pour une implémentation réussie de 2FA dans un contexte bancaire, il est recommandé de proposer plusieurs options: 1) Applications d\'authentification (comme Google Authenticator) pour les utilisateurs technophiles, 2) SMS/codes par téléphone pour une adoption facile mais avec sensibilisation aux risques de SIM swapping, 3) Clés de sécurité physiques (FIDO2/WebAuthn) pour le plus haut niveau de sécurité, notamment pour les entreprises. L\'approche doit être progressive avec une période de transition, une forte communication, et un support client renforcé. Il est également crucial d\'avoir une procédure de récupération robuste mais sécurisée en cas de perte du second facteur.',
+        category,
+        difficulty,
+        tags: ['authentication', '2FA', 'MFA', 'banking-security'],
+        points: 15
+      },
+      {
+        id: `${category}_${difficulty}_scenario_3`,
+        type: 'scenario',
+        question: 'Dans une entreprise industrielle, vous détectez un trafic réseau inhabituel vers des adresses IP externes inconnues provenant de systèmes SCADA qui contrôlent des équipements critiques. Comment réagissez-vous?',
+        context: 'Environnement industriel avec des systèmes OT (Operational Technology) et IT interconnectés. Les systèmes SCADA contrôlent des processus industriels critiques qui ne peuvent pas être interrompus sans conséquences majeures sur la production.',
+        explanation: 'Dans un incident de sécurité impliquant des systèmes SCADA, la réponse doit équilibrer la continuité opérationnelle et la sécurité: 1) Surveiller et analyser le trafic suspect sans perturber les opérations, 2) Isoler partiellement le réseau SCADA si possible sans arrêter les processus critiques, 3) Identifier l\'origine et la nature de la menace par analyse forensique, 4) Engager l\'équipe OT et les responsables de production dans la prise de décision, 5) Préparer un plan d\'intervention minimisant l\'impact opérationnel, 6) Mettre en place une segmentation réseau renforcée entre IT et OT, et 7) Implémenter une surveillance spécifique aux protocoles industriels. La spécificité des environnements OT nécessite une approche différente de celle des environnements IT classiques.',
+        category,
+        difficulty,
+        tags: ['OT-security', 'SCADA', 'industrial-control-systems', 'incident-response'],
+        points: 20
+      }
+    ];
+  }
+  // Questions de type 'open'
+  else if (questionType === 'open') {
+    fallbackQuestions = [
+      {
+        id: `${category}_${difficulty}_open_1`,
+        type: 'open',
+        question: 'Expliquez l\'importance du principe de défense en profondeur (defense in depth) en cybersécurité et comment l\'implémenter concrètement dans une organisation.',
+        explanation: 'Le principe de défense en profondeur est fondamental en cybersécurité car il reconnaît qu\'aucune mesure de sécurité n\'est infaillible. Ce concept militaire adapté à l\'informatique consiste à déployer plusieurs couches de protection complémentaires. Une implémentation concrète inclut: 1) Des mesures physiques (contrôle d\'accès aux locaux), 2) Des contrôles techniques à différents niveaux (périmètre réseau, systèmes, applications, données), 3) Des contrôles administratifs (politiques, procédures, sensibilisation), et 4) Une détection et réponse aux incidents. Chaque couche compense les faiblesses potentielles des autres, rendant une compromission complète beaucoup plus difficile pour un attaquant.',
+        category,
+        difficulty,
+        tags: ['security-principles', 'defense-in-depth', 'risk-management'],
+        points: 15
+      },
+      {
+        id: `${category}_${difficulty}_open_2`,
+        type: 'open',
+        question: 'Décrivez les avantages et les risques associés au déploiement de solutions de sécurité basées sur l\'intelligence artificielle et le machine learning.',
+        explanation: 'Les solutions de cybersécurité basées sur l\'IA et le ML offrent des avantages considérables: détection d\'anomalies et de menaces inconnues, automatisation de l\'analyse, réduction des faux positifs, et adaptation rapide aux nouvelles menaces. Cependant, elles présentent aussi des risques importants: 1) Dépendance excessive à la technologie, 2) Vulnérabilité aux attaques adversariales, 3) Biais dans les données d\'entraînement, 4) Manque d\'expliquabilité des décisions ("boîte noire"), et 5) Besoin de compétences spécialisées pour l\'implémentation et la maintenance. Une approche équilibrée consiste à utiliser l\'IA/ML comme complément aux méthodes traditionnelles, avec une supervision humaine appropriée et une validation continue des résultats.',
+        category,
+        difficulty,
+        tags: ['artificial-intelligence', 'machine-learning', 'security-technology', 'advanced-threats'],
+        points: 15
+      },
+      {
+        id: `${category}_${difficulty}_open_3`,
+        type: 'open',
+        question: 'Analysez l\'impact du RGPD (Règlement Général sur la Protection des Données) sur les pratiques de sécurité des organisations et les bénéfices pour la protection des données personnelles.',
+        explanation: 'Le RGPD a transformé les pratiques de sécurité des organisations en introduisant: 1) L\'approche "privacy by design" qui intègre la protection des données dès la conception des systèmes, 2) Des obligations strictes de notification des violations de données, 3) Le droit à l\'effacement ("droit à l\'oubli") qui implique une traçabilité complète des données, 4) La minimisation des données collectées, et 5) Des sanctions financières dissuasives. Ces exigences ont conduit à une meilleure gouvernance des données, un renforcement des mesures de sécurité techniques et organisationnelles, et une responsabilisation accrue des entreprises. Pour les individus, les bénéfices incluent une plus grande transparence, un meilleur contrôle sur leurs données personnelles, et une réduction des risques liés au traitement abusif ou négligent de leurs informations.',
+        category,
+        difficulty,
+        tags: ['RGPD', 'data-protection', 'privacy', 'compliance'],
+        points: 20
+      }
+    ];
+  }
+  // Questions de type 'mcq' (par défaut)
+  else {
+    fallbackQuestions = [
     {
       id: `${category}_${difficulty}_fallback_1`,
-      type: questionType as 'mcq' | 'code' | 'scenario' | 'open',
+      type: 'mcq',
       question: 'Quelle mesure de sécurité protège contre les attaques par force brute sur les mots de passe?',
       options: ['Limitation du nombre de tentatives', 'Chiffrement des données', 'Pare-feu applicatif', 'Sauvegarde régulière'],
       correctAnswer: 0,
@@ -193,9 +317,106 @@ function generateFallbackQuestions(category: string, difficulty: string, count: 
       points: 10
     }
   ];
+  }
   
   // Retourner le nombre demandé de questions, avec un minimum de 5
   return fallbackQuestions.slice(0, Math.max(5, count));
+}
+
+/**
+ * Récupère des questions du cache
+ */
+function getCachedQuestions(category: string, difficulty: string, exerciseType?: string): QuizQuestion[] {
+  const cache = questionCaches.find(c => 
+    c.category === category && 
+    c.difficulty === difficulty &&
+    c.exerciseType === exerciseType && 
+    (Date.now() - c.timestamp) < CACHE_EXPIRY
+  );
+  
+  return cache ? cache.questions : [];
+}
+
+/**
+ * Stocke des questions dans le cache
+ */
+function cacheQuestions(questions: QuizQuestion[], category: string, difficulty: string, exerciseType?: string): void {
+  // Supprimer l'ancien cache pour cette catégorie/difficulté/type d'exercice s'il existe
+  const existingCacheIndex = questionCaches.findIndex(c => 
+    c.category === category && 
+    c.difficulty === difficulty && 
+    c.exerciseType === exerciseType
+  );
+  
+  if (existingCacheIndex !== -1) {
+    questionCaches.splice(existingCacheIndex, 1);
+  }
+  
+  // Ajouter le nouveau cache
+  questionCaches.push({
+    questions,
+    category,
+    difficulty,
+    exerciseType,
+    timestamp: Date.now()
+  });
+}
+
+/**
+ * Appelle Azure OpenAI avec une invite système
+ * Utilise le modèle gpt-4o-mini qui est plus adapté pour des réponses de format spécifique
+ */
+async function callAzureOpenAI(systemPrompt: string): Promise<string | null> {
+  try {
+    // Utilisation du modèle gpt-4o-mini explicitement configuré dans l'application
+    const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
+    const apiKey = process.env.AZURE_OPENAI_KEY;
+    
+    // Utiliser le déploiement du modèle gpt-4o-mini spécifiquement
+    const deploymentName = "Eddy-02-2025-gpt-4o-mini"; // Nom exact du déploiement observé dans les logs
+    const apiVersion = "2024-12-01-preview"; // Version API observée dans les logs
+    
+    if (!endpoint || !apiKey) {
+      console.error('Azure OpenAI configuration missing');
+      return null;
+    }
+
+    // Ajouter une instruction pour garantir que la réponse est un JSON valide
+    const enhancedPrompt = systemPrompt + `\n\nIMPORTANT: Ta réponse doit être un JSON valide et bien formaté. Assure-toi que les chaînes de caractères sont correctement échappées, qu'il n'y a pas de commentaires dans le JSON et que toutes les guillemets sont fermés correctement. Fournis uniquement le JSON brut sans aucun texte additionnel, sans délimiteurs de code markdown ni préfixes.`;
+
+    const url = `${endpoint}/openai/deployments/${deploymentName}/chat/completions?api-version=${apiVersion}`;
+    
+    console.log(`Appel Azure OpenAI URL: ${url}`);
+    
+    const response = await axios.post(
+      url,
+      {
+        messages: [
+          { role: "system", content: enhancedPrompt }
+        ],
+        temperature: 0.2,
+        top_p: 0.95,
+        max_tokens: 2000,
+        response_format: { type: "json_object" } // Forcer le format JSON pour les modèles récents
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "api-key": apiKey
+        }
+      }
+    );
+
+    console.log('Réponse Azure OpenAI reçue');
+    return response.data.choices[0].message.content;
+  } catch (error: any) {
+    console.error('Error calling Azure OpenAI:', error);
+    if (error.response) {
+      console.error('Response status:', error.response.status);
+      console.error('Response data:', error.response.data);
+    }
+    return null;
+  }
 }
 
 /**
@@ -274,10 +495,8 @@ Réponds UNIQUEMENT au format JSON suivant:
     "difficulty": "${difficulty}",
     "tags": ["tag1", "tag2"], // Mots-clés pertinents pour la question
     "points": 10 // Nombre de points pour cette question
-  },
-  ...
-]
-`;
+  }
+]`;
 
     // Ajuster les instructions selon le type d'exercice spécifiquement demandé
     let exerciseTypesForDifficulty = "";
@@ -774,93 +993,119 @@ export async function generateCertificate(req: Request, res: Response) {
       line-height: 1.6;
       margin-bottom: 30px;
     }
-    .score {
+    .certificate-details {
+      display: flex;
+      justify-content: space-around;
+      margin: 40px 0;
+    }
+    .detail-item {
+      text-align: center;
+    }
+    .detail-label {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 5px;
+    }
+    .detail-value {
+      font-size: 18px;
+      color: #006a9e;
       font-weight: bold;
-      font-size: 24px;
-      color: ${score >= 80 ? '#2e7d32' : score >= 60 ? '#ff9800' : '#e53935'};
     }
     .certificate-footer {
       margin-top: 50px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-    }
-    .signature-container {
       text-align: center;
-    }
-    .signature {
-      border-top: 1px solid #666;
-      padding-top: 5px;
-      width: 200px;
-      margin: 0 auto;
-      font-style: italic;
-    }
-    .certificate-date {
-      text-align: right;
-      font-style: italic;
+      font-size: 14px;
+      color: #666;
     }
     .certificate-id {
+      font-family: monospace;
+      margin-top: 10px;
+    }
+    .seal {
       position: absolute;
-      bottom: 10px;
-      right: 20px;
+      bottom: 40px;
+      right: 50px;
+      width: 120px;
+      height: 120px;
+      border: 2px solid #006a9e;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 12px;
-      color: #999;
+      color: #006a9e;
+      transform: rotate(-15deg);
+      opacity: 0.8;
+    }
+    .seal-inner {
+      width: 100px;
+      height: 100px;
+      border: 1px solid #006a9e;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px;
+      text-align: center;
     }
     .watermark {
       position: absolute;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%) rotate(-45deg);
-      font-size: 100px;
-      opacity: 0.05;
-      color: #006a9e;
+      transform: translate(-50%, -50%);
+      font-size: 120px;
+      color: rgba(0, 106, 158, 0.03);
       font-weight: bold;
       pointer-events: none;
       z-index: 0;
-    }
-    .badge {
-      display: inline-block;
-      padding: 5px 15px;
-      background-color: #006a9e;
-      color: white;
-      border-radius: 20px;
-      font-size: 14px;
-      margin: 5px;
     }
   </style>
 </head>
 <body>
   <div class="certificate-container">
     <div class="watermark">mc2i</div>
+    
     <div class="certificate-header">
-      <div class="certificate-title">Certificat de Compétence Cybersécurité</div>
-      <div class="certificate-subtitle">I AM CYBER - Programme de Formation</div>
+      <div class="certificate-title">Certificat de Compétence</div>
+      <div class="certificate-subtitle">Test Technique Cybersécurité</div>
     </div>
     
     <div class="certificate-body">
-      <div>Ce certificat atteste que</div>
+      <p>Ce certificat est décerné à</p>
       <div class="recipient-name">${name}</div>
-      <div class="certificate-text">
-        a démontré avec succès ses compétences en cybersécurité dans le domaine de
-        <div class="badge">${categoryInfo.name}</div>
-        avec un niveau de difficulté
-        <div class="badge">${difficultyInfo.name}</div>
-        <br><br>
-        Score obtenu: <span class="score">${score}%</span>
+      
+      <p class="certificate-text">
+        pour avoir démontré des compétences avancées en cybersécurité, 
+        spécifiquement dans le domaine de <strong>${categoryInfo.name}</strong>, 
+        en obtenant un score de <strong>${Math.round(score)}%</strong>.
+      </p>
+    </div>
+    
+    <div class="certificate-details">
+      <div class="detail-item">
+        <div class="detail-label">Catégorie</div>
+        <div class="detail-value">${categoryInfo.name}</div>
+      </div>
+      
+      <div class="detail-item">
+        <div class="detail-label">Niveau</div>
+        <div class="detail-value">${difficultyInfo.name}</div>
+      </div>
+      
+      <div class="detail-item">
+        <div class="detail-label">Score</div>
+        <div class="detail-value">${Math.round(score)}%</div>
       </div>
     </div>
     
     <div class="certificate-footer">
-      <div class="signature-container">
-        <div class="signature">Responsable Formation Cyber</div>
-      </div>
-      <div class="certificate-date">
-        Délivré le ${dateString}
-      </div>
+      <p>Délivré le ${dateString}</p>
+      <p>mc2i - Expert en transformation digitale et cybersécurité</p>
+      <p class="certificate-id">ID: ${certificateId}</p>
     </div>
     
-    <div class="certificate-id">
-      ID: ${certificateId}
+    <div class="seal">
+      <div class="seal-inner">CERTIFICATION VALIDÉE mc2i CYBERSÉCURITÉ</div>
     </div>
   </div>
 </body>
@@ -869,13 +1114,8 @@ export async function generateCertificate(req: Request, res: Response) {
 
     return res.status(200).json({
       success: true,
-      certificateId,
-      certificateHTML,
-      dateIssued: certDate,
-      name,
-      category: categoryInfo.name,
-      difficulty: difficultyInfo.name,
-      score
+      certificateHtml: certificateHTML,
+      certificateId
     });
   } catch (error) {
     console.error('Error generating certificate:', error);
@@ -899,107 +1139,11 @@ export function getTestOptions(req: Request, res: Response) {
       exerciseTypes: EXERCISE_TYPES
     });
   } catch (error) {
-    console.error('Error getting test options:', error);
+    console.error('Error fetching test options:', error);
     return res.status(500).json({
       success: false,
       message: 'Internal server error',
       error: error instanceof Error ? error.message : String(error)
     });
-  }
-}
-
-/**
- * Récupère des questions du cache
- */
-function getCachedQuestions(category: string, difficulty: string, exerciseType?: string): QuizQuestion[] {
-  const cache = questionCaches.find(c => 
-    c.category === category && 
-    c.difficulty === difficulty &&
-    c.exerciseType === exerciseType && 
-    (Date.now() - c.timestamp) < CACHE_EXPIRY
-  );
-  
-  return cache ? cache.questions : [];
-}
-
-/**
- * Stocke des questions dans le cache
- */
-function cacheQuestions(questions: QuizQuestion[], category: string, difficulty: string, exerciseType?: string): void {
-  // Supprimer l'ancien cache pour cette catégorie/difficulté/type d'exercice s'il existe
-  const existingCacheIndex = questionCaches.findIndex(c => 
-    c.category === category && 
-    c.difficulty === difficulty && 
-    c.exerciseType === exerciseType
-  );
-  
-  if (existingCacheIndex !== -1) {
-    questionCaches.splice(existingCacheIndex, 1);
-  }
-  
-  // Ajouter le nouveau cache
-  questionCaches.push({
-    questions,
-    category,
-    difficulty,
-    exerciseType,
-    timestamp: Date.now()
-  });
-}
-
-/**
- * Appelle Azure OpenAI avec une invite système
- * Utilise le modèle gpt-4o-mini qui est plus adapté pour des réponses de format spécifique
- */
-async function callAzureOpenAI(systemPrompt: string): Promise<string | null> {
-  try {
-    // Utilisation du modèle gpt-4o-mini explicitement configuré dans l'application
-    const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
-    const apiKey = process.env.AZURE_OPENAI_KEY;
-    
-    // Utiliser le déploiement du modèle gpt-4o-mini spécifiquement
-    const deploymentName = "Eddy-02-2025-gpt-4o-mini"; // Nom exact du déploiement observé dans les logs
-    const apiVersion = "2024-12-01-preview"; // Version API observée dans les logs
-    
-    if (!endpoint || !apiKey) {
-      console.error('Azure OpenAI configuration missing');
-      return null;
-    }
-
-    // Ajouter une instruction pour garantir que la réponse est un JSON valide
-    const enhancedPrompt = systemPrompt + `\n\nIMPORTANT: Ta réponse doit être un JSON valide et bien formaté. Assure-toi que les chaînes de caractères sont correctement échappées, qu'il n'y a pas de commentaires dans le JSON et que toutes les guillemets sont fermés correctement. Fournis uniquement le JSON brut sans aucun texte additionnel, sans délimiteurs de code markdown ni préfixes.`;
-
-    const url = `${endpoint}/openai/deployments/${deploymentName}/chat/completions?api-version=${apiVersion}`;
-    
-    console.log(`Appel Azure OpenAI URL: ${url}`);
-    
-    const response = await axios.post(
-      url,
-      {
-        messages: [
-          { role: "system", content: enhancedPrompt }
-        ],
-        temperature: 0.2,
-        top_p: 0.95,
-        max_tokens: 2000,
-        response_format: { type: "json_object" } // Forcer le format JSON pour les modèles récents
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "api-key": apiKey
-        }
-      }
-    );
-
-    console.log('Réponse Azure OpenAI reçue');
-    return response.data.choices[0].message.content;
-  } catch (error) {
-    console.error('Error calling Azure OpenAI:', error);
-    if (error.response) {
-      console.error('Response status:', error.response.status);
-      console.error('Response data:', error.response.data);
-    }
-    return null;
   }
 }
