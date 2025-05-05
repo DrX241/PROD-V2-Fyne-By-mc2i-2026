@@ -255,14 +255,16 @@ const AssistantCard = ({ assistant }: { assistant: CustomAssistant }) => {
             <CardTitle className={`text-lg ${isFuturistic ? 'text-white' : ''}`}>
               {assistant.name}
             </CardTitle>
-            <CardDescription className={isFuturistic ? 'text-gray-400' : ''}>
-              {getDomainLabel(assistant.domain)}
+            <div className="flex items-center">
+              <CardDescription className={isFuturistic ? 'text-gray-400' : ''}>
+                {getDomainLabel(assistant.domain)}
+              </CardDescription>
               {assistant.isVerified && (
                 <Badge variant="outline" className="ml-2 bg-green-500/10 text-green-500 border-green-500/20">
                   Vérifié
                 </Badge>
               )}
-            </CardDescription>
+            </div>
           </div>
         </div>
       </CardHeader>

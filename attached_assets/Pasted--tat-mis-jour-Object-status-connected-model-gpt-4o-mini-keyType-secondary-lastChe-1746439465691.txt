@@ -1,0 +1,33 @@
+État mis à jour : 
+Object {status: "connected", model: "gpt-4o-mini", keyType: "secondary", lastCheck: 1746439438264}
+Theme actuel: classic
+Thème appliqué: classic
+État mis à jour : 
+Object {status: "connected", model: "gpt-4o-mini", keyType: "secondary", lastCheck: 1746439439653}
+Theme actuel: classic
+Warning: validateDOMNesting(...): <div> cannot appear as a descendant of &lt;p&gt;.
+    at div
+    at _c (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/components/ui/badge.tsx:37:11)
+    at p
+    at _c7 (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/components/ui/card.tsx:92:12)
+    at div
+    at div
+    at div
+    at _c3 (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/components/ui/card.tsx:45:12)
+    at div
+    at _c (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/components/ui/card.tsx:20:11)
+    at AssistantCard (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/pages/outils-ia/assistant/index.tsx:223:26)
+    at div
+    at div
+    at div
+    at div
+    at main
+    at div
+    at Layout (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/components/layout/Layout.tsx:20:34)
+    at CustomAssistantPage (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/pages/outils-ia/assistant/index.tsx:441:25)
+    at Route (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=0e9ab05a:323:16)
+    at Switch (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=0e9ab05a:379:17)
+    at ChatProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/ChatContext.tsx:346:32)
+    at ThemeProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/ThemeContext.tsx:33:33)
+    at QueryClientProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=0e9ab05a:2805:3)
+    at App
