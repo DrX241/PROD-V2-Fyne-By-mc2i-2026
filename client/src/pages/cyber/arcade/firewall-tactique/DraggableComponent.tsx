@@ -1,124 +1,146 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { useDrag } from 'react-dnd';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Badge } from "@/components/ui/badge";
+import { motion } from 'framer-motion';
+import { Shield, Lock, Database, Network, Grid2X2, EyeIcon } from 'lucide-react';
 
-interface SecurityComponent {
+// Types pour les composants de sécurité
+export interface SecurityComponent {
   id: string;
   name: string;
-  icon: React.ReactNode;
-  description: string;
   category: 'firewall' | 'authentication' | 'segmentation' | 'monitoring' | 'other';
   power: number;
   cost: number;
-  compatibility: string[];
+  description?: string;
 }
 
 interface DraggableComponentProps {
   component: SecurityComponent;
-  isSelected: boolean;
-  onSelect: (id: string) => void;
-  disabled: boolean;
+  isInventory?: boolean;
+  position?: { x: number, y: number };
+  onRemove?: () => void;
 }
+
+const ITEM_TYPE = 'SECURITY_COMPONENT';
 
 const DraggableComponent: React.FC<DraggableComponentProps> = ({ 
   component, 
-  isSelected, 
-  onSelect,
-  disabled
+  isInventory = true,
+  position,
+  onRemove
 }) => {
-  const [{ isDragging }, drag] = useDrag(() => ({
-    type: 'security-component',
-    item: { id: component.id },
+  
+  const [{ isDragging }, dragRef] = useDrag({
+    type: ITEM_TYPE,
+    item: { ...component, fromInventory: isInventory },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
-    canDrag: !disabled,
-  }));
+    end: (item, monitor) => {
+      const didDrop = monitor.didDrop();
+      if (!didDrop && !isInventory) {
+        // Si on a lâché le composant hors de la zone et qu'il vient du plateau
+        onRemove && onRemove();
+      }
+    },
+  });
 
-  // Classes pour les catégories
-  const getCategoryColor = (category: string): string => {
-    switch (category) {
-      case 'firewall': return 'bg-orange-700/20 text-orange-500';
-      case 'authentication': return 'bg-green-700/20 text-green-500';
-      case 'segmentation': return 'bg-purple-700/20 text-purple-500';
-      case 'monitoring': return 'bg-blue-700/20 text-blue-500';
-      default: return 'bg-gray-700/20 text-gray-500';
+  // Sélection de l'icône selon la catégorie
+  const getComponentIcon = () => {
+    switch (component.category) {
+      case 'firewall':
+        return <Shield size={24} className="text-blue-500" />;
+      case 'authentication':
+        return <Lock size={24} className="text-purple-500" />;
+      case 'segmentation':
+        return <Grid2X2 size={24} className="text-orange-500" />;
+      case 'monitoring':
+        return <EyeIcon size={24} className="text-green-500" />;
+      default:
+        return <Database size={24} className="text-gray-500" />;
     }
   };
 
+  // Sélection de la couleur de fond selon la catégorie
+  const getBgColor = () => {
+    switch (component.category) {
+      case 'firewall':
+        return 'bg-blue-100 dark:bg-blue-900';
+      case 'authentication':
+        return 'bg-purple-100 dark:bg-purple-900';
+      case 'segmentation':
+        return 'bg-orange-100 dark:bg-orange-900';
+      case 'monitoring':
+        return 'bg-green-100 dark:bg-green-900';
+      default:
+        return 'bg-gray-100 dark:bg-gray-800';
+    }
+  };
+
+  const getBorderColor = () => {
+    switch (component.category) {
+      case 'firewall':
+        return 'border-blue-400 dark:border-blue-600';
+      case 'authentication':
+        return 'border-purple-400 dark:border-purple-600';
+      case 'segmentation':
+        return 'border-orange-400 dark:border-orange-600';
+      case 'monitoring':
+        return 'border-green-400 dark:border-green-600';
+      default:
+        return 'border-gray-400 dark:border-gray-600';
+    }
+  };
+
+  // Style pour l'élément
+  const componentClasses = `
+    ${getBgColor()}
+    ${getBorderColor()}
+    border-2
+    rounded-lg
+    flex
+    flex-col
+    items-center
+    justify-center
+    p-2
+    shadow-md
+    transition-all
+    duration-200
+    ${isDragging ? 'opacity-50' : 'opacity-100'}
+    ${isInventory ? 'w-32 h-32 m-2 cursor-grab' : 'w-full h-full cursor-move'}
+  `;
+
   return (
     <motion.div
-      ref={drag}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      className={`rounded-lg overflow-hidden border ${
-        isSelected 
-          ? 'border-indigo-500 bg-indigo-900/40' 
-          : 'border-indigo-500/20 bg-slate-900/60 hover:bg-indigo-900/20'
-      } ${
-        isDragging ? 'opacity-50' : 'opacity-100'
-      } ${
-        disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-grab'
-      } transition-all`}
-      style={{ 
-        userSelect: 'none',
-        touchAction: 'none',
-      }}
-      onClick={() => !disabled && onSelect(component.id)}
+      ref={dragRef}
+      className={componentClasses}
+      whileHover={{ scale: isInventory ? 1.05 : 1.1 }}
+      whileTap={{ scale: 0.95 }}
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.2 }}
+      style={position ? { 
+        position: 'absolute',
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+        transform: 'translate(-50%, -50%)'
+      } : {}}
     >
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="p-3 space-y-2">
-              <div className="flex items-center">
-                <div className="h-8 w-8 rounded-md bg-indigo-900/60 flex items-center justify-center mr-2">
-                  {component.icon}
-                </div>
-                <div>
-                  <div className="font-medium text-white text-sm">{component.name}</div>
-                  <Badge className={`text-xs ${getCategoryColor(component.category)} mt-1`}>
-                    {component.category}
-                  </Badge>
-                </div>
-              </div>
-              
-              <div className="flex text-xs space-x-2">
-                <div className="text-green-400 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3 mr-1">
-                    <path d="M10.339 2.237a.532.532 0 00-.678 0 11.947 11.947 0 01-7.078 2.75.5.5 0 00-.479.425A12.11 12.11 0 002 7c0 5.163 3.26 9.564 7.834 11.257a.48.48 0 00.332 0C14.74 16.564 18 12.163 18 7.001c0-.54-.035-1.07-.104-1.59a.5.5 0 00-.48-.425 11.947 11.947 0 01-7.077-2.75zM10 6a4 4 0 100 8 4 4 0 000-8zm0 6.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z" />
-                  </svg>
-                  Puissance: {component.power}
-                </div>
-                <div className="text-amber-400 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3 mr-1">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.732 6.232a2.5 2.5 0 013.536 0 .75.75 0 101.06-1.06A4 4 0 006.5 8v.165c0 .364.034.728.1 1.085h-.35a.75.75 0 000 1.5h.737a5.25 5.25 0 01-.367.67 4 4 0 01-.9 1.05.75.75 0 101.06 1.06 5.5 5.5 0 00.9-7.778V6.232z" clipRule="evenodd" />
-                  </svg>
-                  Coût: {component.cost}
-                </div>
-              </div>
-            </div>
-          </TooltipTrigger>
-          <TooltipContent side="right" align="start" className="max-w-xs">
-            <div className="space-y-2">
-              <p>{component.description}</p>
-              {component.compatibility.length > 0 && (
-                <div>
-                  <p className="text-xs font-medium text-blue-400">Compatible avec:</p>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {component.compatibility.map(id => (
-                      <span key={id} className="px-1.5 py-0.5 bg-blue-900/40 text-blue-300 rounded text-xs">
-                        {id}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <div className="mb-2">
+        {getComponentIcon()}
+      </div>
+      <div className="text-center">
+        <p className="font-medium text-sm truncate max-w-full">{component.name}</p>
+        {isInventory && (
+          <>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+              Puissance: {component.power}
+            </p>
+            <p className="text-xs text-gray-600 dark:text-gray-400">
+              Coût: {component.cost}
+            </p>
+          </>
+        )}
+      </div>
     </motion.div>
   );
 };
