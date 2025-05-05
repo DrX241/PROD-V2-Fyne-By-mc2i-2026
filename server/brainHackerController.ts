@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { openAIService } from "./services/openai";
+import { ChatCompletionRequestMessage } from "@shared/schema";
 
 /**
  * Interface pour la requête du jeu BrainHacker
@@ -91,26 +92,49 @@ Réponds UNIQUEMENT au format JSON suivant sans aucun autre texte autour:
 }`;
 
     // Conversion de l'historique des messages
-    const conversationContext = data.conversationHistory?.map(msg => {
+    const conversationContext: ChatCompletionRequestMessage[] = data.conversationHistory?.map(msg => {
+      const role = msg.sender === 'player' ? 'user' as const : 
+                  (msg.sender === 'target' ? 'assistant' as const : 'system' as const);
       return {
-        role: msg.sender === 'player' ? 'user' : (msg.sender === 'target' ? 'assistant' : 'system'),
+        role,
         content: msg.content
       };
     }) || [];
 
-    // Appel à Azure OpenAI
-    const response = await openAIService.getChatCompletion([
+    // Création du tableau de messages pour l'API
+    const messages: ChatCompletionRequestMessage[] = [
       { role: 'system', content: systemPrompt },
       ...conversationContext,
       { role: 'user', content: data.message }
-    ], "json_object");
-
-    // Extraction et analyse de la réponse
-    const content = response.choices[0]?.message?.content || '{}';
-    const parsedResponse = JSON.parse(content);
-
-    return res.json(parsedResponse);
-  } catch (error) {
+    ];
+    
+    // Appel à Azure OpenAI
+    const response = await openAIService.getChatCompletion(messages);
+    
+    // Analyse de la réponse
+    try {
+      const parsedResponse = JSON.parse(response);
+      return res.json(parsedResponse);
+    } catch (parseError) {
+      console.error("Erreur lors du parsing de la réponse JSON:", parseError);
+      return res.status(500).json({ 
+        error: "Format de réponse invalide",
+        details: parseError.message,
+        fallback: {
+          message: "Je ne comprends pas bien votre demande. Pourriez-vous être plus clair ?",
+          analysis: {
+            suspicionLevel: 5,
+            vulnerabilityExploited: null,
+            psychologicalFactors: [],
+            success: false,
+            criticalFailure: false,
+            score: 30,
+            feedback: "La tentative n'a pas été assez convaincante."
+          }
+        }
+      });
+    }
+  } catch (error: any) {
     console.error("Erreur dans simulateTargetResponse:", error);
     return res.status(500).json({ 
       error: "Erreur lors de la simulation de la réponse de la cible",

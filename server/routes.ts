@@ -452,6 +452,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/cyber/test-technique/evaluate', evaluateResponses);
   app.post('/api/cyber/test-technique/certificate', generateCertificate);
   
+  // Routes pour le jeu BrainHacker (ingénierie sociale)
+  app.post('/api/cyber/arcade/brain-hacker/simulate', simulateTargetResponse);
+  app.post('/api/cyber/arcade/brain-hacker/analyze', analyzePerformance);
+  
   // Routes pour mc2i AI Learning
   app.post('/api/mcai-learning/init', initMcaiLearningSession);
   app.post('/api/mcai-learning/message', processMcaiLearningMessage);
