@@ -479,33 +479,68 @@ export default function CodeGeneratorPage() {
     mutationFn: async (data: { code: string; language: string }) => {
       setIsExecutingCode(true);
       try {
-        const response = await apiRequest('/api/code-generator/execute', {
+        const response = await fetch('/api/code-generator/execute', {
           method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
           body: JSON.stringify(data),
         });
         
-        return response as CodeExecutionResponse;
+        // Gérer différents types d'erreurs HTTP
+        if (!response.ok) {
+          if (response.status === 403) {
+            const errorData = await response.json();
+            return {
+              success: false,
+              output: '',
+              error: errorData.error || "Code potentiellement dangereux détecté",
+              executionTimeMs: 0
+            } as CodeExecutionResponse;
+          }
+          
+          throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+        
+        return await response.json() as CodeExecutionResponse;
       } catch (error) {
         console.error('Error executing code:', error);
-        throw error;
+        // Retourner un résultat d'erreur formaté au lieu de lancer une exception
+        return {
+          success: false,
+          output: '',
+          error: error instanceof Error ? error.message : "Erreur d'exécution inconnue",
+          executionTimeMs: 0
+        } as CodeExecutionResponse;
       } finally {
         setIsExecutingCode(false);
       }
     },
     onSuccess: (result) => {
       setExecutionResult(result);
-      toast({
-        title: result.success ? "Exécution réussie" : "Erreur d'exécution",
-        description: result.success 
-          ? `Code exécuté en ${result.executionTimeMs}ms` 
-          : "Le code a généré une erreur lors de l'exécution",
-        variant: result.success ? "default" : "destructive",
-      });
+      if (result.success) {
+        toast({
+          title: "Exécution réussie",
+          description: `Code exécuté en ${result.executionTimeMs}ms`,
+          variant: "default",
+        });
+      } else {
+        const errorMsg = result.error?.includes("potentiellement dangereux") 
+          ? "Code potentiellement dangereux détecté. Essayez un code plus simple."
+          : "Le code a généré une erreur lors de l'exécution";
+          
+        toast({
+          title: "Erreur d'exécution",
+          description: errorMsg,
+          variant: "destructive",
+        });
+      }
     },
     onError: (error) => {
+      // Cette partie ne devrait plus être appelée car nous gérons les erreurs à l'intérieur de mutationFn
       toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de l'exécution du code",
+        title: "Erreur critique",
+        description: "Une erreur inattendue est survenue lors de l'exécution du code",
         variant: "destructive",
       });
     }
@@ -1166,20 +1201,17 @@ export default function CodeGeneratorPage() {
                                     {executionResult.success ? 'Exécution réussie' : 'Erreur d\'exécution'}
                                   </h4>
                                 </div>
-                                <Badge variant="outline" className={isFuturistic ? 'text-gray-300 border-gray-600' : ''}>
-                                  {executionResult.executionTimeMs}ms
-                                </Badge>
+                                {executionResult.executionTimeMs > 0 && (
+                                  <Badge variant="outline" className={isFuturistic ? 'text-gray-300 border-gray-600' : ''}>
+                                    {executionResult.executionTimeMs}ms
+                                  </Badge>
+                                )}
                               </div>
                               
                               <div className="mt-2 pt-2 border-t border-dashed border-opacity-30 border-current">
                                 {executionResult.success ? (
                                   executionResult.output ? (
-                                    <iframe 
-                                      srcDoc={executionResult.output}
-                                      sandbox="allow-scripts allow-same-origin"
-                                      className="w-full min-h-[300px] border-0 rounded-md"
-                                      style={{ backgroundColor: 'white' }}
-                                    />
+                                    <div dangerouslySetInnerHTML={{ __html: executionResult.output }} />
                                   ) : (
                                     <div className={isFuturistic ? 'text-gray-300' : 'text-gray-800'}>
                                       Aucune sortie générée
@@ -1187,7 +1219,26 @@ export default function CodeGeneratorPage() {
                                   )
                                 ) : (
                                   <div className={isFuturistic ? 'text-red-300' : 'text-red-600'}>
-                                    {executionResult.error}
+                                    {executionResult.error ? (
+                                      <>
+                                        <div className="font-medium mb-2">Erreur détectée:</div>
+                                        <div className="bg-red-900/20 p-3 rounded border border-red-800/30">
+                                          {executionResult.error}
+                                        </div>
+                                        {executionResult.error.includes("potentiellement dangereux") && (
+                                          <div className="mt-3 p-3 bg-gray-100 border border-gray-300 rounded text-gray-700">
+                                            <p><strong>Suggestion:</strong> Utilisez un code plus simple ou essayez l'une des options suivantes:</p>
+                                            <ul className="list-disc ml-5 mt-2">
+                                              <li>Générez du HTML ou CSS simple plutôt que du code d'application complexe</li>
+                                              <li>Essayez un langage avec moins de fonctionnalités potentiellement dangereuses</li>
+                                              <li>Utilisez le mode "Amélioration" pour optimiser votre code</li>
+                                            </ul>
+                                          </div>
+                                        )}
+                                      </>
+                                    ) : (
+                                      "Une erreur inconnue s'est produite lors de l'exécution"
+                                    )}
                                   </div>
                                 )}
                               </div>

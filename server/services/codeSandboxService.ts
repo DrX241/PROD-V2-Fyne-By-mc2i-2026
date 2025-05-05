@@ -511,9 +511,98 @@ class CodeSandboxService {
   }
 
   /**
+   * Fonction pour vérifier si le code contient des éléments potentiellement dangereux
+   */
+  private isCodePotentiallyDangerous(code: string, language: string): boolean {
+    // Définir des patterns potentiellement dangereux par langage
+    const dangerousPatterns: {[key: string]: RegExp[]} = {
+      javascript: [
+        /eval\s*\(/, // eval()
+        /Function\s*\(/, // new Function()
+        /require\s*\(\s*['"](?!\.\/|\.\.\/|@)/, // require() non relatif
+        /process\.env/, // accès aux variables d'environnement
+        /(?<!console\.)log\s*\(/, // log() qui n'est pas console.log()
+        /(?:document|window|global)\./, // accès aux objets globaux
+        /fetch\s*\(/, // requêtes réseau
+        /XMLHttpRequest/, // requêtes XHR
+        /localStorage/, // accès au stockage local
+        /sessionStorage/, // accès au stockage de session
+        /indexedDB/, // accès à indexedDB
+        /WebSocket/, // WebSockets
+        /Worker/, // Web Workers
+        /navigator/, // accès à l'objet navigator
+        /__dirname/, // accès au répertoire courant
+        /__filename/, // accès au fichier courant
+        /fs\s*\./, // module fs
+        /http\s*\./, // module http
+        /net\s*\./, // module net
+        /child_process/, // exécution de processus
+        /crypto/, // cryptographie
+        /path\.resolve/, // résolution de chemins
+        /module\.exports/, // exports de module
+        /import\s+(?!React|{|"|')/ // imports non standards
+      ],
+      python: [
+        /(?:import|from)\s+(?:os|sys|subprocess|shutil|glob|pathlib|tempfile|pty|tty|fcntl|termios|resource|pwd|grp)/, // modules système
+        /(?:import|from)\s+(?:socket|ssl|email|smtplib|poplib|imaplib|nntplib|telnetlib|xmlrpc|http|urllib|ftplib)/, // modules réseau
+        /(?:import|from)\s+(?:sqlite3|pymysql|psycopg2|sqlalchemy)/, // modules BDD
+        /(?:import|from)\s+(?:cryptography|hashlib|hmac|secrets)/, // modules crypto
+        /os\s*\.\s*(?:system|popen|exec|spawn|fork|walk|path|environ|getenv|putenv|mkdir|makedirs|remove|rmdir|rename|replace)/, // opérations système
+        /subprocess\s*\.\s*(?:run|call|check_output|Popen)/, // exécution de processus
+        /open\s*\(/, // ouverture de fichier
+        /with\s+open/, // ouverture de fichier avec with
+        /eval\s*\(/, // eval()
+        /exec\s*\(/, // exec()
+        /(?:__import__|globals|locals|compile)/, // fonctions dangereuses
+        /importlib/, // importation dynamique
+        /os\.environ/, // variables d'environnement
+        /sys\.(?:argv|path|exit|stdin|stdout|stderr)/, // accès à sys
+        /(?:getattr|setattr|delattr|hasattr|vars)/, // manipulation d'attributs
+        /requests\s*\./ // requêtes HTTP
+      ],
+      sql: [
+        /(?:DROP|TRUNCATE|ALTER)\s+(?:TABLE|DATABASE|SCHEMA)/, // DROP/TRUNCATE/ALTER TABLE
+        /DELETE\s+FROM/, // DELETE FROM sans WHERE
+        /INSERT\s+INTO/, // INSERT INTO
+        /UPDATE\s+\w+\s+SET/, // UPDATE
+        /CREATE\s+(?:TABLE|DATABASE|VIEW|PROCEDURE|FUNCTION|TRIGGER)/, // CREATE
+        /GRANT\s+/, // GRANT
+        /REVOKE\s+/, // REVOKE
+        /EXECUTE\s+/, // EXECUTE
+        /xp_cmdshell/, // xp_cmdshell
+        /sp_execute_sql/, // sp_execute_sql
+        /OPENROWSET/, // OPENROWSET
+        /BULK\s+INSERT/, // BULK INSERT
+        /DBCC/, // DBCC
+        /BACKUP/, // BACKUP
+        /RESTORE/ // RESTORE
+      ]
+    };
+
+    // Pour HTML et CSS, considérer comme sûr par défaut
+    if (language.toLowerCase() === 'html' || language.toLowerCase() === 'css') {
+      return false;
+    }
+
+    // Vérifier les patterns dangereux pour le langage spécifié
+    const patternsToCheck = dangerousPatterns[language.toLowerCase()] || [];
+    return patternsToCheck.some(pattern => pattern.test(code));
+  }
+
+  /**
    * Fonction d'exécution générique qui sélectionne le bon exécuteur selon le langage
    */
   async executeCode(code: string, language: string): Promise<ExecutionResult> {
+    // Vérifier si le code contient des éléments potentiellement dangereux
+    if (this.isCodePotentiallyDangerous(code, language)) {
+      return {
+        success: false,
+        output: '',
+        error: `Code potentiellement dangereux détecté. Pour des raisons de sécurité, nous ne pouvons pas exécuter ce code.`,
+        executionTimeMs: 0
+      };
+    }
+
     switch (language.toLowerCase()) {
       case 'javascript':
         return this.executeJavaScript(code);
