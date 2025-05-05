@@ -3,10 +3,13 @@ import OpenAI from 'openai';
 import { rateLimiterService } from './services/rateLimiterService';
 import { simpleCacheService } from './services/simpleCacheService';
 
-// Initialisation du client OpenAI
+// Initialisation du client OpenAI avec Azure
 // Le newest OpenAI model est "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.AZURE_OPENAI_KEY,
+  baseURL: `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT}`,
+  defaultQuery: { 'api-version': '2023-12-01-preview' },
+  defaultHeaders: { 'api-key': process.env.AZURE_OPENAI_KEY }
 });
 
 // Types pour la requête
@@ -84,9 +87,9 @@ export async function generateCode(req: Request, res: Response) {
     // Construction du prompt utilisateur
     const userPrompt = constructUserPrompt(requestData);
 
-    // Appel à l'API OpenAI pour la génération de code
+    // Appel à l'API Azure OpenAI pour la génération de code
+    // Avec Azure OpenAI, nous n'avons pas besoin de spécifier 'model' car il est déjà dans le baseURL
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt }
@@ -94,7 +97,7 @@ export async function generateCode(req: Request, res: Response) {
       response_format: { type: "json_object" },
       temperature: 0.5,
       max_tokens: 4000
-    });
+    } as any);
 
     // Parsing de la réponse
     const content = response.choices[0].message.content;
@@ -264,8 +267,8 @@ export async function generatePromptExamples(req: Request, res: Response) {
 Réponds uniquement avec un tableau JSON d'idées, sans explications supplémentaires. Format: {"ideas": ["idée 1", "idée 2", ...]}`;
     
     try {
+      // Pour Azure OpenAI, avec Azure on n'a pas besoin de spécifier le modèle car il est dans le baseURL
       const response = await openai.chat.completions.create({
-        model: "gpt-4o", // le newest OpenAI model est "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
