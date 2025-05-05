@@ -106,30 +106,30 @@ const ConversationPanel: React.FC = () => {
   };
   
   return (
-    <Card className="h-full bg-blue-900/20 border-blue-800">
-      <CardHeader className="bg-blue-900/40 border-b border-blue-800 flex flex-row items-center space-x-4">
+    <Card className="h-full bg-blue-900/20 border-blue-800 shadow-lg">
+      <CardHeader className="bg-blue-900/40 border-b border-blue-800 flex flex-row items-center space-x-3 py-3 px-4">
         <Button 
           variant="ghost" 
           size="icon"
-          className="text-white hover:bg-blue-800/50 h-8 w-8"
+          className="text-white hover:bg-blue-800/50 h-8 w-8 flex-shrink-0"
           onClick={() => selectCharacter(null)}
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <Avatar className="h-10 w-10">
+        <Avatar className="h-10 w-10 flex-shrink-0 border border-blue-700">
           <AvatarImage src={currentCharacter.avatar} alt={currentCharacter.name} />
           <AvatarFallback>
             {currentCharacter.name.split(' ').map(n => n[0]).join('')}
           </AvatarFallback>
         </Avatar>
-        <div>
-          <CardTitle className="text-lg">{currentCharacter.name}</CardTitle>
-          <CardDescription className="text-sm text-blue-300">
+        <div className="flex-1 min-w-0">
+          <CardTitle className="text-lg truncate">{currentCharacter.name}</CardTitle>
+          <CardDescription className="text-sm text-blue-300 truncate">
             {currentCharacter.role}
           </CardDescription>
         </div>
         <Badge 
-          className={`ml-auto ${
+          className={`flex-shrink-0 ${
             currentCharacter.status === 'online' 
               ? 'bg-green-600' 
               : currentCharacter.status === 'away' 
