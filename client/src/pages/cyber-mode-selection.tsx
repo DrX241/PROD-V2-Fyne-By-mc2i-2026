@@ -28,75 +28,81 @@ export default function CyberModeSelection() {
   const [hoveredMode, setHoveredMode] = useState<string | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
-  // Réorganisation des modules en 5 catégories
+  // Réorganisation des modules en 4 catégories selon la nouvelle structure
   const cyberModes: ModeOption[] = [
     {
-      id: 'expert-learning',
-      title: 'APPRENDRE EN ÉCHANGEANT',
-      description: "Échangez avec un expert en cybersécurité pour approfondir vos connaissances de manière personnalisée.",
+      id: 'cyber-trainer',
+      title: 'CYBERTRAINER',
+      description: "Explorez librement la cybersécurité, échangez avec une IA experte ou jouez à des mini-jeux pédagogiques.",
       icon: null,
-      gradient: 'from-cyan-700 to-cyan-900',
-      destination: '/cyber/expert-learning',
-      items: [{
-        id: 'expert-interactive',
-        title: 'EXPERT INTERACTIF',
-        icon: null,
-        destination: '/cyber/expert-learning'
-      }]
-    },
-    {
-      id: 'learning-by-playing',
-      title: 'APPRENDRE EN JOUANT',
-      description: "Acquérez des compétences cyber par une approche pédagogique interactive et ludique.",
-      icon: null,
-      gradient: 'from-indigo-700 to-indigo-900',
+      gradient: 'from-blue-700 to-blue-900',
       destination: '#',
       items: [
-
         {
-          id: 'cyber-mastery',
-          title: 'CYBER MASTERY',
+          id: 'agent-ia',
+          title: 'AGENT IA',
           icon: null,
-          destination: '/cyber/learning/cyber-mastery'
-        }
-      ]
-    },
-    {
-      id: 'gamification',
-      title: 'GAMIFICATION AVANCÉE',
-      description: "Testez vos connaissances en cybersécurité avec des jeux interactifs adaptés à tous les niveaux.",
-      icon: null,
-      gradient: 'from-purple-700 to-purple-900',
-      destination: '#',
-      items: [
+          destination: '/cyber/expert-learning'
+        },
         {
           id: 'cyber-arcade',
-          title: 'CYBER ARCADE',
+          title: 'CYBERARCADE',
           icon: null,
           destination: '/cyber/arcade'
         }
       ]
     },
     {
-      id: 'recrutement',
-      title: 'MISE EN SITUATION D\'AUDITION',
-      description: "Préparez vos consultants aux auditions clients avec évaluation détaillée de leur prestation.",
+      id: 'cyber-ops',
+      title: 'CYBEROPS',
+      description: "Vivez des scénarios réalistes pour apprendre à réagir comme un professionnel.",
       icon: null,
-      gradient: 'from-green-700 to-green-900',
+      gradient: 'from-indigo-700 to-indigo-900',
       destination: '#',
       items: [
         {
-          id: 'interview-simulation',
-          title: 'PRÉPARATION D\'AUDITION CLIENT',
+          id: 'mise-en-situation',
+          title: 'MISE EN SITUATION',
+          icon: null,
+          destination: '/cyber-defense-new'
+        },
+        {
+          id: 'preparation-audition',
+          title: 'PRÉPARATION AUDITION CLIENT',
           icon: null,
           destination: '/cyber/interview-simulation'
         }
       ]
     },
     {
-      id: 'parcours-certifiant',
-      title: 'PARCOURS CERTIFIANT',
-      description: "Formations pour préparer des certifications professionnelles en cybersécurité.",
+      id: 'cyber-test',
+      title: 'CYBERTEST',
+      description: "Mesurez vos connaissances techniques et vos réflexes cyber.",
+      icon: null,
+      gradient: 'from-purple-700 to-purple-900',
+      destination: '#',
+      comingSoon: true,
+      items: [
+        {
+          id: 'mode-entretien',
+          title: 'MODE ENTRETIEN',
+          icon: null,
+          destination: '#',
+          comingSoon: true
+        },
+        {
+          id: 'test-technique',
+          title: 'TEST TECHNIQUE',
+          icon: null,
+          destination: '#',
+          comingSoon: true
+        }
+      ]
+    },
+    {
+      id: 'cyber-ascension',
+      title: 'CYBERASCENSION',
+      description: "Un programme dédié pour se former et réussir les certifications cybersécurité les plus reconnues.",
       icon: null,
       gradient: 'from-amber-700 to-amber-900',
       destination: '#',
@@ -138,7 +144,7 @@ export default function CyberModeSelection() {
               I AM CYBER
             </h1>
             <p className="text-lg sm:text-xl text-blue-200 max-w-3xl mx-auto">
-              Choisissez votre expérience d'apprentissage en cybersécurité
+              Choisissez votre parcours d'apprentissage en cybersécurité
             </p>
           </motion.div>
 
