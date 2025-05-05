@@ -877,15 +877,19 @@ function cacheQuestions(questions: QuizQuestion[], category: string, difficulty:
 
 /**
  * Appelle Azure OpenAI avec une invite système
+ * Utilise le modèle gpt-4o-mini qui est plus adapté pour des réponses de format spécifique
  */
 async function callAzureOpenAI(systemPrompt: string): Promise<string | null> {
   try {
+    // Utilisation du modèle gpt-4o-mini explicitement configuré dans l'application
     const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
     const apiKey = process.env.AZURE_OPENAI_KEY;
-    const deploymentName = process.env.AZURE_OPENAI_DEPLOYMENT;
-    const apiVersion = "2024-02-01";
     
-    if (!endpoint || !apiKey || !deploymentName) {
+    // Utiliser le déploiement du modèle gpt-4o-mini spécifiquement
+    const deploymentName = "Eddy-02-2025-gpt-4o-mini"; // Nom exact du déploiement observé dans les logs
+    const apiVersion = "2024-12-01-preview"; // Version API observée dans les logs
+    
+    if (!endpoint || !apiKey) {
       console.error('Azure OpenAI configuration missing');
       return null;
     }
@@ -895,6 +899,8 @@ async function callAzureOpenAI(systemPrompt: string): Promise<string | null> {
 
     const url = `${endpoint}/openai/deployments/${deploymentName}/chat/completions?api-version=${apiVersion}`;
     
+    console.log(`Appel Azure OpenAI URL: ${url}`);
+    
     const response = await axios.post(
       url,
       {
@@ -903,7 +909,8 @@ async function callAzureOpenAI(systemPrompt: string): Promise<string | null> {
         ],
         temperature: 0.2,
         top_p: 0.95,
-        max_tokens: 2000
+        max_tokens: 2000,
+        response_format: { type: "json_object" } // Forcer le format JSON pour les modèles récents
       },
       {
         headers: {
@@ -913,9 +920,14 @@ async function callAzureOpenAI(systemPrompt: string): Promise<string | null> {
       }
     );
 
+    console.log('Réponse Azure OpenAI reçue');
     return response.data.choices[0].message.content;
   } catch (error) {
     console.error('Error calling Azure OpenAI:', error);
+    if (error.response) {
+      console.error('Response status:', error.response.status);
+      console.error('Response data:', error.response.data);
+    }
     return null;
   }
 }
