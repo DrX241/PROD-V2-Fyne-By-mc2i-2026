@@ -648,7 +648,7 @@ export default function CyberTestTechnique() {
                   <div>
                     <label className="block text-sm font-medium text-black mb-2">Votre solution :</label>
                     <textarea 
-                      className="w-full min-h-[150px] p-3 border border-gray-300 rounded-md text-sm"
+                      className="w-full min-h-[150px] p-3 border border-gray-300 rounded-md text-sm text-black"
                       value={responses && responses[currentQuestion] ? String(responses[currentQuestion].answer || '') : ''}
                       onChange={(e) => {
                         const updatedResponses = [...responses];
@@ -670,7 +670,7 @@ export default function CyberTestTechnique() {
                   <div>
                     <label className="block text-sm font-medium text-black mb-2">Votre réponse :</label>
                     <textarea 
-                      className="w-full min-h-[150px] p-3 border border-gray-300 rounded-md text-sm"
+                      className="w-full min-h-[150px] p-3 border border-gray-300 rounded-md text-sm text-black"
                       value={responses && responses[currentQuestion] ? String(responses[currentQuestion].answer || '') : ''}
                       onChange={(e) => {
                         const updatedResponses = [...responses];
