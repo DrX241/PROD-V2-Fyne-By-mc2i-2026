@@ -546,7 +546,7 @@ export default function CyberTestTechnique() {
       <CardContent className="pt-4">
         {questions && questions.length > 0 && currentQuestion < questions.length && questions[currentQuestion] && (
           <div className="space-y-6">
-            <div className="p-4 bg-gray-50 rounded-lg">
+            <div className="p-4 bg-white rounded-lg border border-gray-200">
               <div className="flex items-center mb-3">
                 <div className={`text-xs font-semibold px-2 py-1 rounded mr-2 ${
                   questions[currentQuestion].type === 'mcq' ? 'bg-blue-100 text-blue-700' :
@@ -777,7 +777,7 @@ export default function CyberTestTechnique() {
                 </TabsList>
                 
                 <TabsContent value="summary" className="space-y-4 pt-4">
-                  <div className="border rounded-lg p-4">
+                  <div className="border rounded-lg p-4 bg-white">
                     <h3 className="font-semibold text-lg mb-2 text-blue-600">Analyse globale</h3>
                     <p className="text-black">{evaluationResults.analysis?.summary}</p>
                   </div>
@@ -814,8 +814,8 @@ export default function CyberTestTechnique() {
                     </div>
                   </div>
                   
-                  <div className="border rounded-lg p-4">
-                    <h3 className="font-semibold mb-2">Niveau de compétence actuel</h3>
+                  <div className="border rounded-lg p-4 bg-white">
+                    <h3 className="font-semibold mb-2 text-blue-600">Niveau de compétence actuel</h3>
                     <div className="flex items-center gap-2">
                       <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 px-3 py-1">
                         {evaluationResults.analysis?.skillLevel}
@@ -936,7 +936,7 @@ export default function CyberTestTechnique() {
                 </TabsContent>
                 
                 <TabsContent value="recommendations" className="space-y-4 pt-4">
-                  <div className="border rounded-lg p-4">
+                  <div className="border rounded-lg p-4 bg-white">
                     <h3 className="font-semibold text-lg mb-2 text-blue-600">Recommandations</h3>
                     <ul className="space-y-2">
                       {evaluationResults.analysis?.recommendations.map((rec, index) => (
@@ -948,7 +948,7 @@ export default function CyberTestTechnique() {
                     </ul>
                   </div>
                   
-                  <div className="border rounded-lg p-4">
+                  <div className="border rounded-lg p-4 bg-white">
                     <h3 className="font-semibold text-lg mb-2 text-blue-600">Ressources recommandées</h3>
                     <div className="space-y-3">
                       {evaluationResults.analysis?.resources.map((resource, index) => (
