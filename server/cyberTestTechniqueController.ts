@@ -471,7 +471,7 @@ export async function generateCertificate(req: Request, res: Response) {
     return res.status(500).json({
       success: false,
       message: 'Internal server error',
-      error: error.message
+      error: error instanceof Error ? error.message : String(error)
     });
   }
 }
@@ -491,7 +491,7 @@ export function getTestOptions(req: Request, res: Response) {
     return res.status(500).json({
       success: false,
       message: 'Internal server error',
-      error: error.message
+      error: error instanceof Error ? error.message : String(error)
     });
   }
 }
