@@ -319,54 +319,198 @@ class CodeSandboxService {
   }
 
   /**
-   * Exécute du code SQL dans un environnement simulé
-   * Note: Cette fonction simule l'exécution SQL car nous ne voulons pas
-   * exécuter de requêtes SQL arbitraires sur une vraie base de données
+   * Exécute du code SQL dans un environnement simulé avec approche pédagogique
+   * Note: Cette fonction ne peut pas exécuter de requêtes SQL réelles
    */
   async executeSQL(code: string): Promise<ExecutionResult> {
     const startTime = Date.now();
     
     try {
-      // Pour l'instant, nous faisons une simple validation de syntaxe
-      // et nous simulons l'exécution des commandes SQL courantes
+      // Formater le code SQL
+      const formattedCode = code.replace(/</g, '&lt;').replace(/>/g, '&gt;');
       
-      const lines = code.split(';').filter(line => line.trim());
-      let output = '';
+      // Analyser la requête SQL pour déterminer son type
+      const queryType = this.identifySQLQueryType(code);
       
-      for (const line of lines) {
-        const trimmedLine = line.trim().toLowerCase();
-        
-        if (trimmedLine.startsWith('select')) {
-          output += "Simulation de requête SELECT - Les données seraient retournées ici\n";
-        } else if (trimmedLine.startsWith('insert')) {
-          output += "Simulation de requête INSERT - Données insérées avec succès\n";
-        } else if (trimmedLine.startsWith('update')) {
-          output += "Simulation de requête UPDATE - Données mises à jour avec succès\n";
-        } else if (trimmedLine.startsWith('delete')) {
-          output += "Simulation de requête DELETE - Données supprimées avec succès\n";
-        } else if (trimmedLine.startsWith('create')) {
-          output += "Simulation de requête CREATE - Objet créé avec succès\n";
-        } else if (trimmedLine.startsWith('alter')) {
-          output += "Simulation de requête ALTER - Objet modifié avec succès\n";
-        } else if (trimmedLine.startsWith('drop')) {
-          output += "Simulation de requête DROP - Objet supprimé avec succès\n";
-        } else {
-          output += `Exécution simulée de: ${trimmedLine}\n`;
-        }
+      // Générer une explication pédagogique
+      let output = `
+      <div style="font-family: sans-serif; padding: 15px; border-radius: 5px; border: 1px solid #ddd;">
+        <div style="margin-bottom: 15px;">
+          <h3 style="margin-top: 0; color: #333;">Requête SQL - Type: ${queryType}</h3>
+          <div style="background-color: #f5f5f5; padding: 12px; border-radius: 4px; overflow-x: auto;">
+            <pre style="margin: 0; font-family: monospace; white-space: pre-wrap;">${formattedCode}</pre>
+          </div>
+        </div>
+      `;
+      
+      // Générer un exemple de résultat adapté au type de requête
+      if (queryType === 'SELECT') {
+        // Exemple de résultat pour une requête SELECT
+        output += `
+        <div style="margin-top: 20px;">
+          <h4 style="margin-top: 0; color: #333;">Résultat (simulé):</h4>
+          <table style="width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid #ddd;">
+            <thead>
+              <tr style="background-color: #f2f2f2;">
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">id</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">nom</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">valeur</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">date_creation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding: 10px; text-align: left; border: 1px solid #ddd;">1</td>
+                <td style="padding: 10px; text-align: left; border: 1px solid #ddd;">Exemple 1</td>
+                <td style="padding: 10px; text-align: left; border: 1px solid #ddd;">42.50</td>
+                <td style="padding: 10px; text-align: left; border: 1px solid #ddd;">2025-05-01 14:30:00</td>
+              </tr>
+              <tr style="background-color: #f9f9f9;">
+                <td style="padding: 10px; text-align: left; border: 1px solid #ddd;">2</td>
+                <td style="padding: 10px; text-align: left; border: 1px solid #ddd;">Exemple 2</td>
+                <td style="padding: 10px; text-align: left; border: 1px solid #ddd;">78.20</td>
+                <td style="padding: 10px; text-align: left; border: 1px solid #ddd;">2025-05-02 09:15:00</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; text-align: left; border: 1px solid #ddd;">3</td>
+                <td style="padding: 10px; text-align: left; border: 1px solid #ddd;">Exemple 3</td>
+                <td style="padding: 10px; text-align: left; border: 1px solid #ddd;">105.75</td>
+                <td style="padding: 10px; text-align: left; border: 1px solid #ddd;">2025-05-03 16:45:00</td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="margin-top: 10px; color: #666; font-style: italic;">3 lignes retournées</div>
+        </div>
+        `;
+      } else if (queryType === 'INSERT') {
+        output += `
+        <div style="margin-top: 20px;">
+          <h4 style="margin-top: 0; color: #333;">Résultat (simulé):</h4>
+          <div style="padding: 12px; background-color: #e8f5e9; border-left: 4px solid #4caf50; margin-top: 10px;">
+            1 ligne insérée avec succès.
+          </div>
+          <div style="margin-top: 15px; background-color: #f5f5f5; padding: 12px; border-radius: 4px;">
+            <strong>ID généré:</strong> 4<br>
+            <strong>Opération:</strong> INSERT
+          </div>
+        </div>
+        `;
+      } else if (queryType === 'UPDATE') {
+        output += `
+        <div style="margin-top: 20px;">
+          <h4 style="margin-top: 0; color: #333;">Résultat (simulé):</h4>
+          <div style="padding: 12px; background-color: #e8f5e9; border-left: 4px solid #4caf50; margin-top: 10px;">
+            2 lignes mises à jour avec succès.
+          </div>
+          <div style="margin-top: 15px; background-color: #f5f5f5; padding: 12px; border-radius: 4px;">
+            <strong>Lignes affectées:</strong> 2<br>
+            <strong>Opération:</strong> UPDATE
+          </div>
+        </div>
+        `;
+      } else if (queryType === 'DELETE') {
+        output += `
+        <div style="margin-top: 20px;">
+          <h4 style="margin-top: 0; color: #333;">Résultat (simulé):</h4>
+          <div style="padding: 12px; background-color: #e8f5e9; border-left: 4px solid #4caf50; margin-top: 10px;">
+            1 ligne supprimée avec succès.
+          </div>
+          <div style="margin-top: 15px; background-color: #f5f5f5; padding: 12px; border-radius: 4px;">
+            <strong>Lignes affectées:</strong> 1<br>
+            <strong>Opération:</strong> DELETE
+          </div>
+        </div>
+        `;
+      } else if (queryType === 'CREATE') {
+        output += `
+        <div style="margin-top: 20px;">
+          <h4 style="margin-top: 0; color: #333;">Résultat (simulé):</h4>
+          <div style="padding: 12px; background-color: #e8f5e9; border-left: 4px solid #4caf50; margin-top: 10px;">
+            Objet créé avec succès.
+          </div>
+          <div style="margin-top: 15px; background-color: #f5f5f5; padding: 12px; border-radius: 4px;">
+            <strong>Opération:</strong> CREATE<br>
+            <strong>Objet créé:</strong> Table ou autre objet SQL
+          </div>
+        </div>
+        `;
+      } else {
+        output += `
+        <div style="margin-top: 20px;">
+          <h4 style="margin-top: 0; color: #333;">Résultat (simulé):</h4>
+          <div style="padding: 12px; background-color: #e8f5e9; border-left: 4px solid #4caf50; margin-top: 10px;">
+            Requête exécutée avec succès.
+          </div>
+        </div>
+        `;
       }
+      
+      // Ajouter une explication éducative
+      output += `
+        <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 4px; border: 1px solid #ddd;">
+          <h4 style="margin-top: 0; color: #333;">Explication:</h4>
+          <p>Cette exécution est simulée pour des raisons pédagogiques. Dans un environnement de production, cette requête interagirait avec une base de données réelle.</p>
+          <p>Les requêtes SQL de type ${queryType} sont généralement utilisées pour ${this.getSQLTypeExplanation(queryType)}</p>
+        </div>
+      </div>
+      `;
       
       return {
         success: true,
         output,
-        executionTimeMs: Date.now() - startTime
+        executionTimeMs: Date.now() - startTime,
       };
     } catch (error) {
       return {
         success: false,
         output: '',
         error: error instanceof Error ? error.message : String(error),
-        executionTimeMs: Date.now() - startTime
+        executionTimeMs: Date.now() - startTime,
       };
+    }
+  }
+  
+  /**
+   * Identifie le type de requête SQL
+   */
+  private identifySQLQueryType(query: string): string {
+    const normalizedQuery = query.trim().toUpperCase();
+    
+    if (normalizedQuery.startsWith('SELECT')) return 'SELECT';
+    if (normalizedQuery.startsWith('INSERT')) return 'INSERT';
+    if (normalizedQuery.startsWith('UPDATE')) return 'UPDATE';
+    if (normalizedQuery.startsWith('DELETE')) return 'DELETE';
+    if (normalizedQuery.startsWith('CREATE')) return 'CREATE';
+    if (normalizedQuery.startsWith('ALTER')) return 'ALTER';
+    if (normalizedQuery.startsWith('DROP')) return 'DROP';
+    if (normalizedQuery.startsWith('TRUNCATE')) return 'TRUNCATE';
+    
+    return 'OTHER';
+  }
+
+  /**
+   * Fournit une explication pédagogique pour chaque type de requête SQL
+   */
+  private getSQLTypeExplanation(sqlType: string): string {
+    switch (sqlType) {
+      case 'SELECT':
+        return "extraire et récupérer des données d'une ou plusieurs tables. Les requêtes SELECT peuvent inclure des filtres (WHERE), des tris (ORDER BY), des regroupements (GROUP BY) et des jointures entre tables.";
+      case 'INSERT':
+        return "ajouter de nouvelles lignes de données dans une table. Vous pouvez spécifier les valeurs directement ou les insérer à partir d'une autre requête SELECT.";
+      case 'UPDATE':
+        return "modifier des données existantes dans une table. Il est courant d'utiliser une clause WHERE pour spécifier quelles lignes doivent être mises à jour.";
+      case 'DELETE':
+        return "supprimer des lignes de données d'une table. Comme pour UPDATE, une clause WHERE est généralement utilisée pour cibler des lignes spécifiques.";
+      case 'CREATE':
+        return "créer de nouveaux objets dans la base de données, comme des tables, des vues, des procédures stockées ou des index.";
+      case 'ALTER':
+        return "modifier la structure d'objets existants, comme ajouter ou supprimer des colonnes d'une table.";
+      case 'DROP':
+        return "supprimer des objets de la base de données, comme des tables ou des vues.";
+      case 'TRUNCATE':
+        return "vider rapidement toutes les données d'une table tout en conservant sa structure.";
+      default:
+        return "effectuer diverses opérations spécifiques dans la base de données.";
     }
   }
   
