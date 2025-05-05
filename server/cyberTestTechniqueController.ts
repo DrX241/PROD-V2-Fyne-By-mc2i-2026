@@ -53,6 +53,7 @@ interface QuestionCache {
   questions: QuizQuestion[];
   category: string;
   difficulty: string;
+  exerciseType?: string;  // Type d'exercice optionnel
   timestamp: number;
 }
 
@@ -66,11 +67,14 @@ const questionCaches: QuestionCache[] = [];
  * Génère des questions de secours basiques en cas d'échec de l'IA
  * Cette fonction fournit des questions prédéfinies pour éviter une erreur complète
  */
-function generateFallbackQuestions(category: string, difficulty: string, count: number): QuizQuestion[] {
+function generateFallbackQuestions(category: string, difficulty: string, count: number, exerciseType?: string): QuizQuestion[] {
+  // Si un type d'exercice est spécifié, générer des questions de ce type uniquement
+  const questionType = exerciseType || 'mcq'; // Par défaut, on génère des QCM
+  
   const fallbackQuestions: QuizQuestion[] = [
     {
       id: `${category}_${difficulty}_fallback_1`,
-      type: 'mcq',
+      type: questionType as 'mcq' | 'code' | 'scenario' | 'open',
       question: 'Quelle mesure de sécurité protège contre les attaques par force brute sur les mots de passe?',
       options: ['Limitation du nombre de tentatives', 'Chiffrement des données', 'Pare-feu applicatif', 'Sauvegarde régulière'],
       correctAnswer: 0,
@@ -200,12 +204,20 @@ function generateFallbackQuestions(category: string, difficulty: string, count: 
  */
 export async function generateQuestions(req: Request, res: Response) {
   try {
-    const { category, difficulty, count = 10 } = req.body;
+    const { category, difficulty, exerciseType, count = 10 } = req.body;
 
     if (!category || !difficulty) {
       return res.status(400).json({
         success: false,
         message: 'Category and difficulty are required'
+      });
+    }
+    
+    // Valider le type d'exercice s'il est fourni
+    if (exerciseType && !EXERCISE_TYPES.some(t => t.id === exerciseType)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid exercise type'
       });
     }
 
@@ -267,18 +279,30 @@ Réponds UNIQUEMENT au format JSON suivant:
 ]
 `;
 
-    // Modification du prompt système pour inclure différents types d'exercices selon la difficulté
+    // Ajuster les instructions selon le type d'exercice spécifiquement demandé
     let exerciseTypesForDifficulty = "";
     
-    // Ajuster les types d'exercices selon le niveau de difficulté
-    if (difficulty === 'beginner') {
-      exerciseTypesForDifficulty = `Pour ce niveau débutant, inclus principalement des QCM (80%) et quelques questions de code simples (20%).`;
-    } else if (difficulty === 'intermediate') {
-      exerciseTypesForDifficulty = `Pour ce niveau intermédiaire, inclus un mélange de QCM (60%), exercices de code (30%) et scénarios pratiques (10%).`;
-    } else if (difficulty === 'advanced') {
-      exerciseTypesForDifficulty = `Pour ce niveau avancé, inclus un mélange équilibré de QCM (40%), exercices de code complexes (40%) et scénarios pratiques détaillés (20%).`;
-    } else if (difficulty === 'expert') {
-      exerciseTypesForDifficulty = `Pour ce niveau expert, privilégie les exercices de code complexes (50%), scénarios pratiques avancés (30%) et quelques QCM pointus (20%).`;
+    // Si un type d'exercice spécifique est demandé, on se concentre uniquement sur ce type
+    if (exerciseType) {
+      const exerciseTypeInfo = EXERCISE_TYPES.find(t => t.id === exerciseType);
+      if (exerciseTypeInfo) {
+        // Donner la priorité au type d'exercice sélectionné par l'utilisateur
+        const typeName = exerciseTypeInfo.name;
+        exerciseTypesForDifficulty = `IMPORTANT: Génère UNIQUEMENT des questions de type "${exerciseType}" (${typeName}).
+Toutes les questions doivent être de ce type exact, ne génère aucun autre type de question.`;
+      }
+    } 
+    // Sinon, on s'appuie sur la difficulté pour définir les ratios
+    else {
+      if (difficulty === 'beginner') {
+        exerciseTypesForDifficulty = `Pour ce niveau débutant, inclus principalement des QCM (80%) et quelques questions de code simples (20%).`;
+      } else if (difficulty === 'intermediate') {
+        exerciseTypesForDifficulty = `Pour ce niveau intermédiaire, inclus un mélange de QCM (60%), exercices de code (30%) et scénarios pratiques (10%).`;
+      } else if (difficulty === 'advanced') {
+        exerciseTypesForDifficulty = `Pour ce niveau avancé, inclus un mélange équilibré de QCM (40%), exercices de code complexes (40%) et scénarios pratiques détaillés (20%).`;
+      } else if (difficulty === 'expert') {
+        exerciseTypesForDifficulty = `Pour ce niveau expert, privilégie les exercices de code complexes (50%), scénarios pratiques avancés (30%) et quelques QCM pointus (20%).`;
+      }
     }
     
     // Ajouter des consignes spécifiques pour la catégorie
@@ -376,14 +400,14 @@ IMPORTANT:
           console.error('Erreur de parsing JSON, utilisation de questions de secours:', parseError);
           
           // Générer des questions de secours basiques pour éviter une erreur complète
-          questions = generateFallbackQuestions(category, difficulty, count);
+          questions = generateFallbackQuestions(category, difficulty, count, exerciseType);
         }
       } catch (jsonFixError) {
         console.error('Erreur lors de la réparation du JSON:', jsonFixError);
         console.error('JSON problématique:', jsonStr);
         
         // Générer des questions de secours basiques pour éviter une erreur complète
-        questions = generateFallbackQuestions(category, difficulty, count);
+        questions = generateFallbackQuestions(category, difficulty, count, exerciseType);
       }
       
       // Validation basique
