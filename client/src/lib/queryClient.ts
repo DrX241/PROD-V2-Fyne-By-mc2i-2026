@@ -23,9 +23,9 @@ export async function apiRequest<T = any>(
         },
         credentials: "include",
       });
-    } catch (networkError) {
-      console.error(`Network error for ${url}:`, networkError);
-      throw new Error(`Erreur réseau: Impossible de contacter le serveur. ${networkError.message}`);
+    } catch (error) {
+      console.error(`Network error for ${url}:`, error);
+      throw new Error(`Erreur réseau: Impossible de contacter le serveur.`);
     }
 
     try {
