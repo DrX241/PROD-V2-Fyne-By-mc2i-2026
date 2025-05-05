@@ -354,6 +354,18 @@ export default function CodeGeneratorPage() {
     <Layout>
       <PageTitle title="Générateur de Code" />
       
+      {/* Bouton retour à l'accueil */}
+      <div className="absolute top-4 left-4 z-20">
+        <Button 
+          variant="outline" 
+          className="bg-white/10 border-white/20 text-gray-800 hover:bg-white/20"
+          onClick={() => window.location.href = '/'}
+        >
+          <Home className="h-4 w-4 mr-2" />
+          Accueil
+        </Button>
+      </div>
+        
       {/* Hero section */}
       <div className={`w-full ${isFuturistic ? 'bg-gradient-to-b from-blue-950 to-indigo-950' : 'bg-blue-50'} py-8 px-4 sm:px-6 lg:px-8 relative overflow-hidden`}>
         {/* Effets visuels futuristes */}

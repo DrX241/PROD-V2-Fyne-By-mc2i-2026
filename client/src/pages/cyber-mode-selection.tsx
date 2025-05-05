@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
@@ -115,6 +115,18 @@ export default function CyberModeSelection() {
     <HomeLayout>
       <PageTitle title="I AM CYBER" />
       <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-gray-900 to-blue-900">
+        {/* Bouton retour à l'accueil */}
+        <div className="absolute top-4 left-4 z-20">
+          <Button 
+            variant="outline" 
+            className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white"
+            onClick={() => window.location.href = '/'}
+          >
+            <Home className="h-4 w-4 mr-2" />
+            Accueil
+          </Button>
+        </div>
+        
         {/* Arrière-plan cybersécurité simplifié */}
         <div className="absolute inset-0 w-full h-full opacity-20">
           {/* Fond cybersécurité statique avec motif simplifié */}

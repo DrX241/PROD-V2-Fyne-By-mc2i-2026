@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
@@ -111,6 +111,18 @@ export default function AmoaModeSelection() {
     <HomeLayout>
       <PageTitle title="IAM mc2i" />
       <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-[#006a9e] to-blue-900">
+        {/* Bouton retour à l'accueil */}
+        <div className="absolute top-4 left-4 z-20">
+          <Button 
+            variant="outline" 
+            className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white"
+            onClick={() => window.location.href = '/'}
+          >
+            <Home className="h-4 w-4 mr-2" />
+            Accueil
+          </Button>
+        </div>
+        
         {/* Contenu principal */}
         <div className="relative z-10 max-w-[1600px] w-full mx-auto px-4 py-12 sm:px-6 sm:py-16">
           <div className="text-center mb-10 sm:mb-16">
