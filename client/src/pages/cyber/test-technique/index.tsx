@@ -610,7 +610,7 @@ export default function CyberTestTechnique() {
                   )}
                   
                   <div>
-                    <label className="block text-sm font-medium mb-2">Votre solution :</label>
+                    <label className="block text-sm font-medium text-black mb-2">Votre solution :</label>
                     <textarea 
                       className="w-full min-h-[150px] p-3 border border-gray-300 rounded-md font-mono text-sm"
                       value={responses && responses[currentQuestion] ? String(responses[currentQuestion].answer || '') : ''}
@@ -627,9 +627,9 @@ export default function CyberTestTechnique() {
                   </div>
                   
                   {questions[currentQuestion].expectedOutput && (
-                    <div className="p-3 bg-gray-100 rounded-md">
-                      <p className="text-sm font-medium mb-1">Résultat attendu :</p>
-                      <p className="text-xs font-mono">{questions[currentQuestion].expectedOutput}</p>
+                    <div className="p-3 bg-white border border-gray-200 rounded-md">
+                      <p className="text-sm font-medium text-black mb-1">Résultat attendu :</p>
+                      <p className="text-xs font-mono text-black">{questions[currentQuestion].expectedOutput}</p>
                     </div>
                   )}
                 </div>
@@ -640,13 +640,13 @@ export default function CyberTestTechnique() {
                 <div className="space-y-4">
                   {questions[currentQuestion].context && (
                     <div className="p-4 bg-amber-50 border border-amber-200 rounded-md text-sm">
-                      <p className="font-medium mb-2">Contexte :</p>
-                      <p>{questions[currentQuestion].context}</p>
+                      <p className="font-medium text-black mb-2">Contexte :</p>
+                      <p className="text-black">{questions[currentQuestion].context}</p>
                     </div>
                   )}
                   
                   <div>
-                    <label className="block text-sm font-medium mb-2">Votre solution :</label>
+                    <label className="block text-sm font-medium text-black mb-2">Votre solution :</label>
                     <textarea 
                       className="w-full min-h-[150px] p-3 border border-gray-300 rounded-md text-sm"
                       value={responses && responses[currentQuestion] ? String(responses[currentQuestion].answer || '') : ''}
@@ -668,7 +668,7 @@ export default function CyberTestTechnique() {
               {questions[currentQuestion].type === 'open' && (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">Votre réponse :</label>
+                    <label className="block text-sm font-medium text-black mb-2">Votre réponse :</label>
                     <textarea 
                       className="w-full min-h-[150px] p-3 border border-gray-300 rounded-md text-sm"
                       value={responses && responses[currentQuestion] ? String(responses[currentQuestion].answer || '') : ''}
@@ -887,14 +887,14 @@ export default function CyberTestTechnique() {
                         {/* Affichage du code pour les exercices de code */}
                         {result.type === 'code' && (
                           <div className="border-t border-gray-200 p-3 bg-gray-50">
-                            <div className="text-sm font-medium mb-2">Votre solution:</div>
+                            <div className="text-sm font-medium text-black mb-2">Votre solution:</div>
                             <div className="bg-gray-900 text-white p-3 rounded-md overflow-x-auto font-mono text-xs mb-3 whitespace-pre">
                               {typeof result.userAnswer === 'string' ? result.userAnswer : '// Aucune solution fournie'}
                             </div>
                             
                             {result.solution && (
                               <>
-                                <div className="text-sm font-medium mb-2">Solution attendue:</div>
+                                <div className="text-sm font-medium text-black mb-2">Solution attendue:</div>
                                 <div className="bg-gray-900 text-white p-3 rounded-md overflow-x-auto font-mono text-xs whitespace-pre">
                                   {result.solution}
                                 </div>
@@ -906,12 +906,12 @@ export default function CyberTestTechnique() {
                         {/* Affichage pour les scénarios */}
                         {result.type === 'scenario' && result.context && (
                           <div className="border-t border-gray-200 p-3 bg-amber-50">
-                            <div className="text-sm font-medium mb-2">Contexte:</div>
-                            <p className="text-sm">{result.context}</p>
+                            <div className="text-sm font-medium text-black mb-2">Contexte:</div>
+                            <p className="text-sm text-black">{result.context}</p>
                             
-                            <div className="mt-3 text-sm font-medium mb-2">Votre solution:</div>
+                            <div className="mt-3 text-sm font-medium text-black mb-2">Votre solution:</div>
                             <div className="bg-white p-2 rounded border border-gray-200">
-                              <p className="text-sm">{typeof result.userAnswer === 'string' ? result.userAnswer : 'Aucune solution fournie'}</p>
+                              <p className="text-sm text-black">{typeof result.userAnswer === 'string' ? result.userAnswer : 'Aucune solution fournie'}</p>
                             </div>
                           </div>
                         )}
@@ -919,15 +919,15 @@ export default function CyberTestTechnique() {
                         {/* Affichage pour les questions ouvertes */}
                         {result.type === 'open' && (
                           <div className="border-t border-gray-200 p-3 bg-purple-50">
-                            <div className="text-sm font-medium mb-2">Votre réponse:</div>
+                            <div className="text-sm font-medium text-black mb-2">Votre réponse:</div>
                             <div className="bg-white p-2 rounded border border-gray-200">
-                              <p className="text-sm">{typeof result.userAnswer === 'string' ? result.userAnswer : 'Aucune réponse fournie'}</p>
+                              <p className="text-sm text-black">{typeof result.userAnswer === 'string' ? result.userAnswer : 'Aucune réponse fournie'}</p>
                             </div>
                           </div>
                         )}
                         
                         <div className="p-3 bg-white border-t border-gray-200">
-                          <div className="text-sm font-medium mb-2 text-blue-600">Explication:</div>
+                          <div className="text-sm font-medium text-blue-600 mb-2">Explication:</div>
                           <p className="text-sm text-black">{result.explanation}</p>
                         </div>
                       </div>
