@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import OpenAI from 'openai';
 import { rateLimiterService } from './services/rateLimiterService';
-import { cacheService } from './services/cacheService';
+import { simpleCacheService } from './services/simpleCacheService';
 
 // Initialisation du client OpenAI
 // Le newest OpenAI model est "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
@@ -70,11 +70,11 @@ export async function generateCode(req: Request, res: Response) {
 
     // Vérification du cache
     const cacheKey = `code_gen_${requestData.language}_${requestData.framework || 'none'}_${requestData.level}_${requestData.includeComments}_${requestData.includeTests}_${requestData.prompt}`;
-    const cachedResponse = await cacheService.get(cacheKey);
+    const cachedResponse = await simpleCacheService.get(cacheKey, 'code_generator');
     
     if (cachedResponse) {
       console.log(`Cache hit for code generation: ${cacheKey.substring(0, 50)}...`);
-      await cacheService.logCacheHit('code_generator', 'Génération de code');
+      await simpleCacheService.logCacheHit('code_generator', 'Génération de code');
       return res.json(JSON.parse(cachedResponse));
     }
 
@@ -106,8 +106,8 @@ export async function generateCode(req: Request, res: Response) {
       const parsedResponse: CodeGenerationResponse = JSON.parse(content);
       
       // Mise en cache de la réponse
-      await cacheService.set(cacheKey, JSON.stringify(parsedResponse), 24 * 60 * 60); // Cache pour 24 heures
-      await cacheService.logCacheMiss('code_generator', 'Génération de code');
+      await simpleCacheService.set(cacheKey, JSON.stringify(parsedResponse), 24 * 60 * 60, 'code_generator', 'Génération de code');
+      await simpleCacheService.logCacheMiss('code_generator', 'Génération de code');
       
       return res.json(parsedResponse);
     } catch (error) {
@@ -244,9 +244,9 @@ export async function generatePromptExamples(req: Request, res: Response) {
     const cacheKey = `prompt_examples_${language}_${count}`;
     
     // Vérifier si nous avons déjà des exemples en cache
-    const cachedExamples = await cacheService.get(cacheKey);
+    const cachedExamples = await simpleCacheService.get(cacheKey, 'prompt_examples');
     if (cachedExamples) {
-      await cacheService.logCacheHit('prompt_examples', 'Exemples de prompts');
+      await simpleCacheService.logCacheHit('prompt_examples', 'Exemples de prompts');
       return res.json({ examples: JSON.parse(cachedExamples) });
     }
     
@@ -305,8 +305,8 @@ Réponds uniquement avec un tableau JSON d'idées, sans explications supplément
       }
       
       // Mettre en cache les exemples pour une utilisation future (1 heure)
-      await cacheService.set(cacheKey, JSON.stringify(examples), 60 * 60);
-      await cacheService.logCacheMiss('prompt_examples', 'Exemples de prompts');
+      await simpleCacheService.set(cacheKey, JSON.stringify(examples), 60 * 60, 'prompt_examples', 'Génération d\'exemples');
+      await simpleCacheService.logCacheMiss('prompt_examples', 'Exemples de prompts');
       
       res.json({ examples });
     } catch (aiError) {

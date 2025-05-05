@@ -3,6 +3,7 @@
  * Ce service permet de limiter le nombre de requêtes par utilisateur/clé et par période
  * Il offre également des fonctionnalités de file d'attente et de déblocage
  */
+import { Request } from 'express';
 
 interface RateLimitOptions {
   // Nombre maximum de requêtes par période
