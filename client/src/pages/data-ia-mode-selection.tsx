@@ -42,7 +42,7 @@ export default function DataIAModeSelection() {
       items: [
         {
           id: 'agent-ia-data',
-          title: 'Agent IA Data & IA',
+          title: 'Agent IA',
           icon: null,
           destination: '/data-ia/agent-ia'
         },
