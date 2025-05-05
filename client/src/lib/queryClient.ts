@@ -12,17 +12,29 @@ export async function apiRequest<T = any>(
   options?: RequestInit,
 ): Promise<T> {
   try {
-    const res = await fetch(url, {
-      ...options,
-      headers: {
-        ...(options?.body ? { "Content-Type": "application/json" } : {}),
-        ...options?.headers,
-      },
-      credentials: "include",
-    });
+    // Gérer les erreurs de réseau
+    let res;
+    try {
+      res = await fetch(url, {
+        ...options,
+        headers: {
+          ...(options?.body ? { "Content-Type": "application/json" } : {}),
+          ...options?.headers,
+        },
+        credentials: "include",
+      });
+    } catch (networkError) {
+      console.error(`Network error for ${url}:`, networkError);
+      throw new Error(`Erreur réseau: Impossible de contacter le serveur. ${networkError.message}`);
+    }
 
-    await throwIfResNotOk(res);
-    return await res.json();
+    try {
+      await throwIfResNotOk(res);
+      return await res.json();
+    } catch (responseError) {
+      console.error(`API response error for ${url}:`, responseError);
+      throw responseError;
+    }
   } catch (error) {
     console.error(`API request failed for ${url}:`, error);
     throw error;
