@@ -133,12 +133,12 @@ export default function CyberModeSelection() {
         </div>
         
         {/* Contenu principal */}
-        <div className="relative z-10 max-w-[1600px] w-full mx-auto px-4 py-8 sm:px-6 sm:py-10">
+        <div className="relative z-10 max-w-[1600px] w-full mx-auto px-4 py-4 sm:px-6 sm:py-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-6 sm:mb-10 mt-4"
+            className="text-center mb-4 sm:mb-6 mt-2"
           >
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3">
               I AM CYBER
@@ -148,7 +148,7 @@ export default function CyberModeSelection() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-4 sm:px-8 max-w-6xl mx-auto mt-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 px-4 sm:px-8 max-w-6xl mx-auto mt-0">
             {cyberModes.map((category, index) => (
               <motion.div
                 key={category.id}
@@ -179,7 +179,7 @@ export default function CyberModeSelection() {
                     
                     {/* Liste des modules dans cette catégorie */}
                     <div className="mt-6 flex-grow">
-                      <div className="space-y-5">
+                      <div className="space-y-8">
                         {category.items && category.items.map((item) => (
                           <Link key={item.id} href={item.comingSoon ? '#' : item.destination} onClick={(e) => item.comingSoon && e.preventDefault()}>
                             <div className="flex items-center p-4 rounded-lg bg-white/10 hover:bg-white/20 transition-colors cursor-pointer border border-white/20 shadow-sm hover:shadow-md hover:border-white/40">
