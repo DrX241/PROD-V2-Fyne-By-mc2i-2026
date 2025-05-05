@@ -37,9 +37,11 @@ const ConversationPanel: React.FC = () => {
     currentConversation, 
     selectConversation,
     addSecurityPoints,
+    deductPoints,
     completeChallenge,
     isChallengeCompleted,
-    selectCharacter
+    selectCharacter,
+    isGameOver
   } = useGame();
   
   const [userInput, setUserInput] = useState('');
@@ -74,17 +76,21 @@ const ConversationPanel: React.FC = () => {
     const isCorrect = correctAnswer === -1 || selectedAnswer === correctAnswer;
     
     if (isCorrect) {
-      completeChallenge(challengeId);
-      addSecurityPoints(challenge.points);
+      completeChallenge(challengeId, true);
+      addSecurityPoints(challenge.points, `Défi réussi : ${challenge.question}`);
       toast({
         title: "Challenge réussi !",
         description: `+${challenge.points} points de sécurité`,
         variant: "default",
       });
     } else {
+      completeChallenge(challengeId, false);
+      // Déduire des points en cas de mauvaise réponse (la moitié des points du challenge)
+      const penaltyPoints = Math.ceil(challenge.points / 2);
+      deductPoints(penaltyPoints, `Mauvaise réponse au défi : ${challenge.question}`);
       toast({
         title: "Réponse incorrecte",
-        description: "Essayez une autre approche",
+        description: `-${penaltyPoints} points de sécurité`,
         variant: "destructive",
       });
     }
@@ -113,6 +119,7 @@ const ConversationPanel: React.FC = () => {
           size="icon"
           className="text-white hover:bg-blue-800/50 h-8 w-8 flex-shrink-0"
           onClick={() => selectCharacter(null)}
+          disabled={isGameOver}
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
@@ -130,6 +137,7 @@ const ConversationPanel: React.FC = () => {
         </div>
         <Badge 
           className={`flex-shrink-0 ${
+            isGameOver ? 'bg-red-600' :
             currentCharacter.status === 'online' 
               ? 'bg-green-600' 
               : currentCharacter.status === 'away' 
@@ -137,7 +145,8 @@ const ConversationPanel: React.FC = () => {
                 : 'bg-gray-600'
           }`}
         >
-          {currentCharacter.status === 'online' 
+          {isGameOver ? 'Terminé' :
+           currentCharacter.status === 'online' 
             ? 'En ligne' 
             : currentCharacter.status === 'away' 
               ? 'Absent' 
