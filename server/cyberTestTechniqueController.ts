@@ -21,16 +21,31 @@ export const DIFFICULTY_LEVELS = [
   { id: 'expert', name: 'Expert' }
 ];
 
+// Types d'exercices
+export const EXERCISE_TYPES = [
+  { id: 'mcq', name: 'QCM', description: 'Questions à choix multiples' },
+  { id: 'code', name: 'Code', description: 'Exercices de code à compléter' },
+  { id: 'scenario', name: 'Mise en situation', description: 'Scénarios concrets à analyser' },
+  { id: 'open', name: 'Questions ouvertes', description: 'Questions nécessitant une réponse détaillée' },
+];
+
 // Format de base pour les questions
 interface QuizQuestion {
   id: string;
+  type: 'mcq' | 'code' | 'scenario' | 'open';
   question: string;
-  options: string[];
-  correctAnswer: number;
+  options?: string[];
+  correctAnswer?: number;
+  code?: string;
+  codeLanguage?: string;
+  solution?: string;
+  expectedOutput?: string;
+  context?: string;
   explanation: string;
   category: string;
   difficulty: string;
   tags?: string[];
+  points?: number;
 }
 
 // Cache pour les questions générées
@@ -84,23 +99,37 @@ export async function generateQuestions(req: Request, res: Response) {
     }
 
     // Systemprompt pour l'IA
-    const systemPrompt = `Tu es un expert en cybersécurité spécialisé dans la conception de tests techniques.
-Génère ${count} questions à choix multiples dans la catégorie "${categoryInfo.name}" avec un niveau de difficulté "${difficultyInfo.name}".
+    const systemPrompt = `Tu es un expert en cybersécurité spécialisé dans la conception de tests techniques avancés.
+Génère ${count} questions variées dans la catégorie "${categoryInfo.name}" avec un niveau de difficulté "${difficultyInfo.name}".
 Les questions doivent être pertinentes, précises et refléter les connaissances et compétences attendues d'un professionnel de la cybersécurité.
-Chaque question doit avoir exactement 4 options de réponse, avec une seule réponse correcte.
+
+Crée un MÉLANGE des types de questions suivants:
+1. QCM (type: "mcq"): Questions à choix multiples avec 4 options et une seule bonne réponse
+2. Exercices de code (type: "code"): Snippets de code à compléter ou à corriger
+3. Mises en situation (type: "scenario"): Scénarios d'entreprise où il faut proposer une solution
+4. Questions ouvertes (type: "open"): Questions nécessitant une réponse développée
+
 Fournit également une explication détaillée pour chaque réponse correcte, qui sera affichée après que l'utilisateur ait répondu.
+Attribue un nombre de points pour chaque question (plus de points pour les questions difficiles).
 
 Réponds UNIQUEMENT au format JSON suivant:
 [
   {
     "id": "question_unique_id",
+    "type": "mcq", // Type de question: "mcq", "code", "scenario", "open"
     "question": "Question complète",
-    "options": ["Option A", "Option B", "Option C", "Option D"],
-    "correctAnswer": 0, // Index de la réponse correcte (0-3)
+    "options": ["Option A", "Option B", "Option C", "Option D"], // Pour les QCM uniquement
+    "correctAnswer": 0, // Index de la réponse correcte (0-3) pour les QCM uniquement
+    "code": "// Code à compléter ou corriger\\nfunction detectMalware() {\\n  // Code incomplet\\n}", // Pour les exercices de code uniquement
+    "codeLanguage": "javascript", // Langage du code (pour les exercices de code uniquement)
+    "solution": "// Solution attendue\\nfunction detectMalware() {\\n  // Code complet\\n}", // Pour les exercices de code uniquement
+    "expectedOutput": "Résultat attendu", // Pour les exercices de code uniquement
+    "context": "Description du contexte de l'entreprise", // Pour les mises en situation uniquement
     "explanation": "Explication détaillée de la réponse correcte",
     "category": "${category}",
     "difficulty": "${difficulty}",
-    "tags": ["tag1", "tag2"] // Mots-clés pertinents pour la question
+    "tags": ["tag1", "tag2"], // Mots-clés pertinents pour la question
+    "points": 10 // Nombre de points pour cette question
   },
   ...
 ]
@@ -119,7 +148,16 @@ Réponds UNIQUEMENT au format JSON suivant:
     // Parser et valider les questions générées
     let questions: QuizQuestion[];
     try {
-      questions = JSON.parse(openAIResponse);
+      // Extraire le JSON des réponses qui pourraient contenir des délimiteurs markdown
+      let jsonStr = openAIResponse;
+      // Si la réponse contient des délimiteurs de code markdown, extraire uniquement le JSON
+      if (jsonStr.includes('```json')) {
+        jsonStr = jsonStr.split('```json')[1].split('```')[0].trim();
+      } else if (jsonStr.includes('```')) {
+        jsonStr = jsonStr.split('```')[1].split('```')[0].trim();
+      }
+      
+      questions = JSON.parse(jsonStr);
       
       // Validation basique
       if (!Array.isArray(questions) || questions.length === 0) {
@@ -248,7 +286,18 @@ Réponds avec un JSON de la forme:
     let analysis;
     
     try {
-      analysis = analysisResponse ? JSON.parse(analysisResponse) : null;
+      if (analysisResponse) {
+        // Extraire le JSON qui pourrait contenir des délimiteurs markdown
+        let jsonStr = analysisResponse;
+        if (jsonStr.includes('```json')) {
+          jsonStr = jsonStr.split('```json')[1].split('```')[0].trim();
+        } else if (jsonStr.includes('```')) {
+          jsonStr = jsonStr.split('```')[1].split('```')[0].trim();
+        }
+        analysis = JSON.parse(jsonStr);
+      } else {
+        analysis = null;
+      }
     } catch (error) {
       console.error('Error parsing analysis:', error);
       analysis = null;
@@ -484,7 +533,8 @@ export function getTestOptions(req: Request, res: Response) {
     return res.status(200).json({
       success: true,
       categories: TEST_CATEGORIES,
-      difficulties: DIFFICULTY_LEVELS
+      difficulties: DIFFICULTY_LEVELS,
+      exerciseTypes: EXERCISE_TYPES
     });
   } catch (error) {
     console.error('Error getting test options:', error);
