@@ -50,7 +50,8 @@ import { getOrCreateUser, getUserById } from "./userController";
 import {
   generateCode,
   getCodeGenerationHistory,
-  saveGeneratedCode
+  saveGeneratedCode,
+  generatePromptExamples
 } from "./codeGeneratorController";
 // Import des fonctions d'urgence cyber supprimé
 
