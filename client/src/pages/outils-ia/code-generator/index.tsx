@@ -151,8 +151,8 @@ const frameworksByLanguage: Record<string, Array<{ value: string, label: string 
   ],
 };
 
-// Exemples de prompts pour inspirer l'utilisateur
-const promptExamples = [
+// Exemples initiaux de prompts pour inspirer l'utilisateur (utilisés comme fallback)
+const defaultPromptExamples = [
   "Créer une API REST pour gérer un inventaire de produits avec authentification",
   "Développer un jeu simple de devinette de nombre en interface console",
   "Concevoir une classe pour gérer une file d'attente prioritaire",
@@ -189,7 +189,11 @@ export default function CodeGeneratorPage() {
   const [lastResult, setLastResult] = useState<CodeGenerationResponse | null>(null);
   // État pour l'exemple de prompt sélectionné
   const [selectedExample, setSelectedExample] = useState(-1);
-
+  // État pour les exemples de prompts dynamiques
+  const [promptExamples, setPromptExamples] = useState<string[]>(defaultPromptExamples);
+  // État pour le chargement des exemples
+  const [isLoadingExamples, setIsLoadingExamples] = useState(false);
+  
   // Fonction pour utiliser un exemple de prompt
   const usePromptExample = (index: number) => {
     setSelectedExample(index);
@@ -522,6 +526,62 @@ root.render(
     element.click();
     document.body.removeChild(element);
   };
+  
+  // Mutation pour générer des exemples de prompts dynamiques en utilisant l'IA
+  const generatePromptExamplesMutation = useMutation({
+    mutationFn: async (language?: string) => {
+      try {
+        setIsLoadingExamples(true);
+        
+        // Envoyer une requête à l'API pour générer des exemples de prompts
+        const response = await apiRequest('/api/code-generator/prompt-examples', 'POST', {
+          language: language || formData.language,
+          count: 8 // Nombre d'exemples à générer
+        });
+        
+        return response.examples;
+      } catch (error) {
+        console.error('Error generating prompt examples:', error);
+        // En cas d'erreur, utiliser les exemples par défaut
+        return defaultPromptExamples;
+      } finally {
+        setIsLoadingExamples(false);
+      }
+    },
+    onSuccess: (examples) => {
+      setPromptExamples(examples);
+      setSelectedExample(-1);
+    },
+    onError: () => {
+      // En cas d'erreur, utiliser les exemples par défaut
+      setPromptExamples(defaultPromptExamples);
+      toast({
+        title: "Erreur",
+        description: "Impossible de générer des exemples d'idées. Les exemples par défaut ont été chargés.",
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Effet pour charger des exemples dynamiques au chargement de la page
+  useEffect(() => {
+    generatePromptExamplesMutation.mutate();
+    
+    // Rafraîchir les exemples toutes les 30 minutes
+    const refreshInterval = setInterval(() => {
+      generatePromptExamplesMutation.mutate();
+    }, 30 * 60 * 1000);
+    
+    return () => clearInterval(refreshInterval);
+  }, []);
+  
+  // Effet pour mettre à jour les exemples lorsque le langage change
+  useEffect(() => {
+    // Ne pas rafraîchir si c'est juste le chargement initial
+    if (formData.language !== 'python') {
+      generatePromptExamplesMutation.mutate(formData.language);
+    }
+  }, [formData.language]);
 
   // Fonction pour soumettre le formulaire
   const handleSubmit = (e: React.FormEvent) => {
