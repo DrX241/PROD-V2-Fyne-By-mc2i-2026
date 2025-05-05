@@ -348,6 +348,14 @@ function App() {
             <Route path="/amoa-mode-selection" component={AmoaModeSelection} />
             {/* Route AMOA Quest supprimée */}
             <Route path="/amoa/projet-imposteur" component={ProjetImposteur} />
+            <Route path="/amoa/test-reflexes" component={() => {
+              const TestReflexesComponent = lazy(() => import('./pages/amoa/test-reflexes'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <TestReflexesComponent />
+                </Suspense>
+              );
+            }} />
             <Route path="/custom" component={NotYetImplemented} />
             <Route component={NotFound} />
           </Switch>
