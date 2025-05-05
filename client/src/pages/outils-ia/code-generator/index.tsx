@@ -936,7 +936,7 @@ export default function CodeGeneratorPage() {
                               <div key={index} className="flex items-start">
                                 {item.type === 'directory' ? (
                                   <div className={`p-1 rounded mr-2 ${isFuturistic ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-100 text-blue-800'}`}>
-                                    <Folder className="h-4 w-4" />
+                                    <FolderIcon className="h-4 w-4" />
                                   </div>
                                 ) : (
                                   <div className={`p-1 rounded mr-2 ${isFuturistic ? 'bg-indigo-900/30 text-indigo-400' : 'bg-indigo-100 text-indigo-800'}`}>
@@ -1236,7 +1236,7 @@ export default function CodeGeneratorPage() {
                   <CardHeader className="pb-3">
                     <CardTitle className={isFuturistic ? 'text-white' : ''}>
                       <div className="flex items-center gap-2">
-                        <Clock className={`h-5 w-5 ${isFuturistic ? 'text-gray-400' : 'text-gray-600'}`} />
+                        <ClockIcon className={`h-5 w-5 ${isFuturistic ? 'text-gray-400' : 'text-gray-600'}`} />
                         Historique récent
                       </div>
                     </CardTitle>
