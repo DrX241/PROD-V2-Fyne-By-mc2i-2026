@@ -426,6 +426,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/code-generator/save", (req: Request, res: Response) => {
     saveGeneratedCode(req, res);
   });
+  
+  app.post("/api/code-generator/prompt-examples", (req: Request, res: Response) => {
+    generatePromptExamples(req, res);
+  });
   // Servir les pièces jointes depuis le dossier public/attachments
   app.use('/attachments', express.static(path.join(__dirname, 'public/attachments')));
   
