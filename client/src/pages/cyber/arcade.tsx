@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
 import { Button } from '@/components/ui/button';
-import { Search, FileSearch, ArrowLeft, Fingerprint, HardDrive, Shield, Network } from 'lucide-react';
+import { Search, FileSearch, ArrowLeft, Fingerprint, HardDrive, Shield, Network, Brain } from 'lucide-react';
 
 interface Game {
   id: string;
@@ -21,6 +21,15 @@ export default function CyberArcade() {
   const [hoveredGame, setHoveredGame] = useState<string | null>(null);
 
   const games: Game[] = [
+    {
+      id: 'brain-hacker',
+      title: 'BRAIN HACKER',
+      description: 'Ingénierie sociale inversée : incarnez le hacker et trouvez le moyen le plus subtil de piéger la victime',
+      icon: <Brain className="w-6 h-6" />,
+      gradient: 'from-fuchsia-500 to-purple-800',
+      available: true,
+      route: '/cyber/arcade/brain-hacker'
+    },
     {
       id: 'firewall-tactique',
       title: 'FIREWALL TACTIQUE',
