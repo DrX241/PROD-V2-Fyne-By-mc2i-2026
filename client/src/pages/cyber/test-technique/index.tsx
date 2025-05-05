@@ -86,6 +86,7 @@ export default function CyberTestTechnique() {
   // State
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('');
+  const [selectedExerciseType, setSelectedExerciseType] = useState<string>('');
   const [step, setStep] = useState<'select' | 'quiz' | 'results'>('select');
   const [questions, setQuestions] = useState<Question[]>([]);
   const [responses, setResponses] = useState<QuizResponse[]>([]);
@@ -97,9 +98,16 @@ export default function CyberTestTechnique() {
   const [showCertificate, setShowCertificate] = useState(false);
 
   // Define options interface
+  interface ExerciseType {
+    id: string;
+    name: string;
+    description: string;
+  }
+  
   interface Options {
     categories: Category[];
     difficulties: Difficulty[];
+    exerciseTypes: ExerciseType[];
     success?: boolean;
   }
 
@@ -117,6 +125,7 @@ export default function CyberTestTechnique() {
         body: JSON.stringify({
           category: selectedCategory,
           difficulty: selectedDifficulty,
+          exerciseType: selectedExerciseType,
           count: 10
         })
       });
@@ -266,6 +275,10 @@ export default function CyberTestTechnique() {
   const getDifficultyName = (id: string): string => {
     return options?.difficulties?.find((d: Difficulty) => d.id === id)?.name || id;
   };
+  
+  const getExerciseTypeName = (id: string): string => {
+    return options?.exerciseTypes?.find((t: ExerciseType) => t.id === id)?.name || id;
+  };
 
   const handleResponseChange = (questionIndex: number, optionIndex: number) => {
     if (!responses || !Array.isArray(responses) || questionIndex < 0 || questionIndex >= responses.length) {
@@ -297,6 +310,15 @@ export default function CyberTestTechnique() {
       toast({
         title: "Sélection requise",
         description: "Veuillez sélectionner une catégorie et un niveau de difficulté.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!selectedExerciseType) {
+      toast({
+        title: "Type d'exercice requis",
+        description: "Veuillez sélectionner un type d'exercice pour le test.",
         variant: "destructive",
       });
       return;
@@ -413,6 +435,27 @@ export default function CyberTestTechnique() {
             </div>
             
             <div className="space-y-2">
+              <label className="text-sm font-medium">Type d'exercice</label>
+              <Select value={selectedExerciseType} onValueChange={setSelectedExerciseType}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Sélectionnez un type d'exercice" />
+                </SelectTrigger>
+                <SelectContent>
+                  {options?.exerciseTypes?.map((type: ExerciseType) => (
+                    <SelectItem key={type.id} value={type.id}>
+                      {type.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedExerciseType && options?.exerciseTypes && (
+                <p className="text-sm text-gray-500 mt-1">
+                  {options.exerciseTypes.find(t => t.id === selectedExerciseType)?.description || ''}
+                </p>
+              )}
+            </div>
+            
+            <div className="space-y-2">
               <label className="text-sm font-medium">Votre nom (pour le certificat)</label>
               <input 
                 type="text" 
@@ -439,7 +482,7 @@ export default function CyberTestTechnique() {
         </Button>
         <Button 
           onClick={startQuiz} 
-          disabled={isLoadingOptions || !selectedCategory || !selectedDifficulty || generateQuestionsMutation.isPending}
+          disabled={isLoadingOptions || !selectedCategory || !selectedDifficulty || !selectedExerciseType || generateQuestionsMutation.isPending}
         >
           {generateQuestionsMutation.isPending ? (
             <>
@@ -466,7 +509,7 @@ export default function CyberTestTechnique() {
               Test: {getCategoryName(selectedCategory)}
             </CardTitle>
             <CardDescription>
-              Niveau: {getDifficultyName(selectedDifficulty)}
+              Niveau: {getDifficultyName(selectedDifficulty)} | Type: {getExerciseTypeName(selectedExerciseType)}
             </CardDescription>
           </div>
           <div className={`text-lg font-mono ${timeLeft < 60 ? 'text-red-500 animate-pulse' : 'text-gray-700'}`}>
