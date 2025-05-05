@@ -1,0 +1,58 @@
+🧍‍♂️ 1. CyberEscape – L'infiltration inverse
+But : Tu joues un responsable cybersécurité qui doit parcourir les bureaux d’une entreprise pour repérer et corriger les failles avant qu’un attaquant ne les exploite.
+
+👣 Déplacement dans un bâtiment (vue top-down).
+
+🧠 Objectif : identifier les mots de passe visibles, les ports USB non surveillés, les écrans déverrouillés…
+
+🧰 Tu collectes les preuves, corriges les failles, verrouilles les accès.
+
+⏱️ Pression du temps : un "pirate IA" progresse aussi en parallèle.
+
+💾 2. Serveur en péril
+But : Tu incarnes un technicien dans un data center en attaque. Tu dois te déplacer rapidement entre les salles pour protéger les équipements.
+
+🏃 Tu cours entre le bureau, la salle serveurs, la salle des archives.
+
+🔐 Tu dois activer les firewalls, déconnecter les machines infectées, faire des sauvegardes.
+
+🚨 Si tu tardes, des alertes se déclenchent (simulées par IA).
+
+🎯 Objectif : prioriser les bonnes actions au bon moment.
+
+🧠 3. Hacker Catcher
+But : Tu es chargé de la surveillance d’un bâtiment. Quelqu’un est en train d’essayer de pirater un poste. À toi de le repérer avant qu’il n’agisse.
+
+👁️ Tu peux parler aux PNJ IA dans le décor pour poser des questions ("As-tu vu quelqu’un brancher une clé USB ?").
+
+🔍 Tu dois observer les comportements suspects.
+
+📱 Si tu te trompes, l’IA te donne des indices pour progresser.
+
+📁 4. Mission : Données sensibles
+But : Tu dois aller chercher des documents sensibles dans un bâtiment piégé, sans te faire repérer.
+
+🕵️ Jeu en mode infiltration (vue du dessus).
+
+🎯 Objectif : collecter des documents, éviter les caméras, désactiver des virus ou ransomware dans les machines sur place.
+
+⚙️ Si tu accèdes à une machine, mini-jeu à résoudre (déchiffrer, faire un choix, etc.).
+
+🔐 5. CyberRun – Le protocole de secours
+But : Suite à une attaque, tu dois restaurer le système. Tu explores les différentes zones d’un réseau (visuellement représentées) pour relancer les composants dans le bon ordre.
+
+🎮 Déplacement par flèches ou clic.
+
+Tu actives les sauvegardes, tu réinitialises les DNS, tu recrées les accès, etc.
+
+L’IA t’interpelle : “Es-tu sûr d’avoir sécurisé cette salle avant de redémarrer ?”
+
+BONUS : éléments réutilisables dans tous les jeux
+👮 PNJ IA avec qui parler.
+
+🗝️ Objets interactifs : badge d’accès, mot de passe, terminal à réparer.
+
+🔁 IA qui t’interroge ou t’aide si tu bloques.
+
+🧭 Mini-carte avec zones verrouillées ou vulnérables.
+
