@@ -425,15 +425,7 @@ export default function Home() {
       accentColor: "bg-blue-500",
       linkTo: "/cyber"
     },
-    {
-      title: "CYBER PLAYGROUND",
-      description: "Apprenez la cybersécurité de façon interactive grâce à des exercices pratiques, des simulations d'attaques et des tests de pénétration assistés par IA.",
-      icon: null,
-      color: "bg-orange-600",
-      bgColor: "bg-gradient-to-br from-orange-50 to-orange-100",
-      accentColor: "bg-orange-500",
-      linkTo: "/playground"
-    },
+    // Le module Cyber Playground a été supprimé selon la demande
     {
       title: "I AM DATA & IA",
       description: "Maîtrisez les concepts avancés de data science et d'intelligence artificielle à travers des simulations pratiques et des défis concrets.",
