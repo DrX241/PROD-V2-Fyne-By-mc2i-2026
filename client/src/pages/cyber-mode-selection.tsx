@@ -133,14 +133,14 @@ export default function CyberModeSelection() {
         </div>
         
         {/* Contenu principal */}
-        <div className="relative z-10 max-w-[1600px] w-full mx-auto px-4 py-12 sm:px-6 sm:py-16">
+        <div className="relative z-10 max-w-[1600px] w-full mx-auto px-4 py-8 sm:px-6 sm:py-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-10 sm:mb-16"
+            className="text-center mb-6 sm:mb-10 mt-4"
           >
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3">
               I AM CYBER
             </h1>
             <p className="text-lg sm:text-xl text-blue-200 max-w-3xl mx-auto">
@@ -148,7 +148,7 @@ export default function CyberModeSelection() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-4 sm:px-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-4 sm:px-8 max-w-6xl mx-auto mt-2">
             {cyberModes.map((category, index) => (
               <motion.div
                 key={category.id}
@@ -160,7 +160,7 @@ export default function CyberModeSelection() {
                 onMouseLeave={() => setHoveredMode(null)}
               >
                 {/* Gradient background */}
-                <div className={`bg-gradient-to-br ${category.gradient} p-6 lg:p-8 h-full flex flex-col relative overflow-hidden rounded-xl`}>
+                <div className={`bg-gradient-to-br ${category.gradient} p-5 lg:p-6 h-full flex flex-col relative overflow-hidden rounded-xl`}>
                   {/* Glow effect on hover */}
                   {hoveredMode === category.id && (
                     <>
@@ -175,10 +175,10 @@ export default function CyberModeSelection() {
                     <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-3 text-center px-2">
                       {category.title}
                     </h2>
-                    <p className="text-blue-100 mb-4 text-xs lg:text-sm text-center line-clamp-3 px-1">{category.description}</p>
+                    <p className="text-blue-100 mb-2 text-xs lg:text-sm text-center line-clamp-2 px-1">{category.description}</p>
                     
                     {/* Liste des modules dans cette catégorie */}
-                    <div className="mt-4 flex-grow">
+                    <div className="mt-2 flex-grow">
                       <div className="space-y-3">
                         {category.items && category.items.map((item) => (
                           <Link key={item.id} href={item.comingSoon ? '#' : item.destination} onClick={(e) => item.comingSoon && e.preventDefault()}>
