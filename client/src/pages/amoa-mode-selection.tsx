@@ -38,10 +38,10 @@ export default function AmoaModeSelection() {
       destination: '#',
       items: [
         {
-          id: 'agent-ia-amoa',
-          title: 'Agent IA AMOA',
+          id: 'amoa-quest',
+          title: 'AMOA QUEST',
           icon: null,
-          destination: '/amoa/agent-ia'
+          destination: '/amoa/quest'
         },
         {
           id: 'modules-express',
@@ -60,10 +60,10 @@ export default function AmoaModeSelection() {
       destination: '#',
       items: [
         {
-          id: 'simulation-projet',
-          title: 'Simulation Projet',
+          id: 'projet-imposteur',
+          title: 'Qui est l\'Imposteur ?',
           icon: null,
-          destination: '/amoa/simulation-projet'
+          destination: '/amoa/projet-imposteur'
         },
         {
           id: 'simulation-reunion',
@@ -82,10 +82,10 @@ export default function AmoaModeSelection() {
       destination: '#',
       items: [
         {
-          id: 'audit-flash',
-          title: 'Audit Flash',
+          id: 'interview-simulation',
+          title: 'Préparation d\'Audition Client',
           icon: null,
-          destination: '/amoa/audit-flash'
+          destination: '/amoa/interview-simulation'
         },
         {
           id: 'test-reflexes',
