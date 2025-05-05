@@ -22,8 +22,17 @@ import {
   Lightbulb,
   Database,
   BarChart2 as BarChartBig,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Loader2
 } from 'lucide-react';
+
+// Icons pour l'application
+export const Icons = {
+  spinner: Loader2,
+  check: Check,
+  download: Download,
+  refresh: RefreshCw
+};
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
