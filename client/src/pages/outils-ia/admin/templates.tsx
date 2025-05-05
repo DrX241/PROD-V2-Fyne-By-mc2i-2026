@@ -450,7 +450,7 @@ export default function TemplatesAdminPage() {
 
           <Button className="gap-1">
             <Plus className="h-4 w-4" />
-            Nouveau modèle
+            Ajouter un modèle
           </Button>
         </div>
 

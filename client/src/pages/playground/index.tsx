@@ -194,7 +194,7 @@ export default function PlaygroundPage() {
             Prochainement
           </h3>
           <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-            Nouveaux modules en préparation : Sécurité des applications web, Cryptographie, 
+            Modules en développement : Sécurité des applications web, Cryptographie, 
             et Réponse aux incidents...
           </p>
         </div>
