@@ -377,46 +377,29 @@ class CodeSandboxService {
     const startTime = Date.now();
     
     try {
-      // Créer un aperçu interactif HTML avec un iframe sandbox sécurisé
-      // Utiliser un ID unique pour l'iframe pour garantir qu'il est bien traité
-      const iframeId = `html-preview-${Date.now()}`;
-      const renderedHtml = code.replace(/"/g, '&quot;');
+      // Version simplifiée: retourner le code HTML formaté
+      const htmlEscaped = code.replace(/</g, '&lt;').replace(/>/g, '&gt;');
       
       const previewOutput = `
         <div style="border: 1px solid #ddd; border-radius: 5px; padding: 10px; font-family: sans-serif;">
-          <div style="margin-bottom: 10px; font-size: 14px; color: #555;">
-            Prévisualisation HTML (rendu direct):
+          <div style="margin-bottom: 10px; font-size: 14px; font-weight: bold; color: #333;">
+            Prévisualisation HTML:
           </div>
-          <div style="border: 1px solid #eee; border-radius: 4px; padding: 10px; background-color: white; height: 300px; overflow: auto; position: relative;">
-            <div id="${iframeId}-container" style="width: 100%; height: 100%;">
-              <iframe 
-                id="${iframeId}"
-                sandbox="allow-scripts allow-same-origin" 
-                style="width: 100%; height: 100%; border: none;"
-                srcdoc="${renderedHtml}"
-              ></iframe>
+          <div style="border: 1px solid #eee; border-radius: 4px; padding: 15px; background-color: white; margin-bottom: 15px;">
+            <pre style="margin: 0; padding: 10px; background-color: #f5f5f5; border-radius: 4px; overflow: auto; font-family: monospace; font-size: 12px;">${htmlEscaped}</pre>
+          </div>
+          <div style="margin-top: 15px; background-color: #f8f9fa; padding: 15px; border-radius: 4px; border: 1px solid #ddd;">
+            <div style="font-weight: bold; margin-bottom: 10px; color: #333;">Pour visualiser le rendu HTML:</div>
+            <div style="background-color: white; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+              <ol style="margin-left: 20px; padding-left: 0;">
+                <li style="margin-bottom: 5px;">Copiez le code HTML ci-dessus</li>
+                <li style="margin-bottom: 5px;">Créez un fichier avec l'extension .html</li>
+                <li style="margin-bottom: 5px;">Collez le code et ouvrez le fichier dans votre navigateur</li>
+              </ol>
+              <div style="color: #0066cc; font-weight: bold; margin-top: 10px;">
+                Astuce: Utilisez notre fonctionnalité d'amélioration de code pour obtenir une version plus complète.
+              </div>
             </div>
-            <script>
-              // Aide à déboguer les problèmes d'iframe
-              setTimeout(function() {
-                try {
-                  var iframe = document.getElementById('${iframeId}');
-                  if (!iframe) {
-                    console.error('Iframe non trouvé:', '${iframeId}');
-                    var container = document.getElementById('${iframeId}-container');
-                    if (container) {
-                      container.innerHTML = '<div style="color: red; padding: 20px;">Erreur: Impossible de charger l\'aperçu. Veuillez rafraîchir la page.</div>';
-                    }
-                  }
-                } catch(e) {
-                  console.error('Erreur iframe:', e);
-                }
-              }, 500);
-            </script>
-          </div>
-          <div style="margin-top: 10px; font-size: 12px; color: #666;">
-            <b>Aperçu direct du HTML généré</b><br/>
-            Note: Ce rendu est exécuté dans un environnement sécurisé. Certaines fonctionnalités peuvent être limitées.
           </div>
         </div>
       `;
@@ -443,90 +426,71 @@ class CodeSandboxService {
     const startTime = Date.now();
     
     try {
-      // Créer un aperçu interactif CSS avec un exemple d'application
-      // Générer un HTML de démonstration qui utilise le CSS fourni
-      const iframeId = `css-preview-${Date.now()}`;
+      // Version simplifiée: retourner le code CSS formaté
+      const cssEscaped = code.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      
+      // Exemple de HTML basique pour l'application de ce CSS
       const demoHTML = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          ${code}
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <header class="header">
-            <h1>Titre de la page</h1>
-            <nav>
-              <ul>
-                <li><a href="#">Accueil</a></li>
-                <li><a href="#">À propos</a></li>
-                <li><a href="#">Services</a></li>
-                <li><a href="#">Contact</a></li>
-              </ul>
-            </nav>
-          </header>
-          
-          <main>
-            <section class="hero">
-              <h2>Section principale</h2>
-              <p>Ceci est un texte d'exemple pour visualiser le rendu CSS</p>
-              <button class="btn">Bouton d'action</button>
-            </section>
-            
-            <section class="features">
-              <div class="card">Carte 1</div>
-              <div class="card">Carte 2</div>
-              <div class="card">Carte 3</div>
-            </section>
-          </main>
-          
-          <footer>
-            <p>Pied de page © 2025</p>
-          </footer>
-        </div>
-      </body>
-      </html>
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    ${cssEscaped}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>Titre de la page</h1>
+      <nav>
+        <ul>
+          <li><a href="#">Accueil</a></li>
+          <li><a href="#">À propos</a></li>
+          <li><a href="#">Services</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </nav>
+    </header>
+    
+    <main>
+      <section class="hero">
+        <h2>Section principale</h2>
+        <p>Ceci est un texte d'exemple pour visualiser le rendu CSS</p>
+        <button class="btn">Bouton d'action</button>
+      </section>
+      
+      <section class="features">
+        <div class="card">Carte 1</div>
+        <div class="card">Carte 2</div>
+        <div class="card">Carte 3</div>
+      </section>
+    </main>
+    
+    <footer>
+      <p>Pied de page © 2025</p>
+    </footer>
+  </div>
+</body>
+</html>
       `;
       
       const previewOutput = `
         <div style="border: 1px solid #ddd; border-radius: 5px; padding: 10px; font-family: sans-serif;">
-          <div style="margin-bottom: 10px; font-size: 14px; color: #555;">
-            Prévisualisation CSS (rendu direct):
+          <div style="margin-bottom: 10px; font-size: 14px; font-weight: bold; color: #333;">
+            Prévisualisation CSS:
           </div>
-          <div style="border: 1px solid #eee; border-radius: 4px; padding: 10px; background-color: white; height: 300px; overflow: auto; position: relative;">
-            <div id="${iframeId}-container" style="width: 100%; height: 100%;">
-              <iframe 
-                id="${iframeId}"
-                sandbox="allow-scripts allow-same-origin" 
-                style="width: 100%; height: 100%; border: none;"
-                srcdoc="${demoHTML.replace(/"/g, '&quot;')}"
-              ></iframe>
+          <div style="border: 1px solid #eee; border-radius: 4px; padding: 15px; background-color: white; margin-bottom: 15px;">
+            <pre style="margin: 0; padding: 10px; background-color: #f5f5f5; border-radius: 4px; overflow: auto; font-family: monospace; font-size: 12px;">${cssEscaped}</pre>
+          </div>
+          <div style="margin-top: 15px; background-color: #f8f9fa; padding: 15px; border-radius: 4px; border: 1px solid #ddd;">
+            <div style="font-weight: bold; margin-bottom: 10px; color: #333;">Exemple d'application avec ce CSS:</div>
+            <div style="background-color: white; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+              <p style="margin-bottom: 10px;">Voici un exemple de HTML sur lequel ce CSS peut être appliqué:</p>
+              <pre style="margin: 0; padding: 10px; background-color: #f5f5f5; border-radius: 4px; overflow: auto; font-family: monospace; font-size: 12px; max-height: 150px;">${demoHTML.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+              <div style="color: #0066cc; font-weight: bold; margin-top: 10px;">
+                Astuce: Copiez ces deux codes dans un fichier HTML pour voir le rendu complet dans votre navigateur.
+              </div>
             </div>
-            <script>
-              // Aide à déboguer les problèmes d'iframe
-              setTimeout(function() {
-                try {
-                  var iframe = document.getElementById('${iframeId}');
-                  if (!iframe) {
-                    console.error('Iframe CSS non trouvé:', '${iframeId}');
-                    var container = document.getElementById('${iframeId}-container');
-                    if (container) {
-                      container.innerHTML = '<div style="color: red; padding: 20px;">Erreur: Impossible de charger l\'aperçu CSS. Veuillez rafraîchir la page.</div>';
-                    }
-                  } else {
-                    console.log('Iframe CSS chargé:', '${iframeId}');
-                  }
-                } catch(e) {
-                  console.error('Erreur iframe CSS:', e);
-                }
-              }, 500);
-            </script>
-          </div>
-          <div style="margin-top: 10px; font-size: 12px; color: #666;">
-            <b>Aperçu du CSS appliqué sur une page web</b><br/>
-            Note: Ce rendu utilise une structure HTML de démonstration pour visualiser le CSS appliqué.
           </div>
         </div>
       `;
