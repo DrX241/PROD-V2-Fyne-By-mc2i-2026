@@ -2,12 +2,16 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { Character, VirtualRoom, virtualRooms } from '../data/rooms';
 
 // Types pour le système de choix et de conséquences
-export interface Choice {
-  id: string;
+export interface ChoiceOption {
   text: string;
   impact: number;
-  consequence: string;
-  isSecurityBest: boolean;
+  reason: string;
+}
+
+export interface Choice {
+  id: string;
+  question: string;
+  options: ChoiceOption[];
 }
 
 export interface GameAction {
@@ -57,11 +61,12 @@ interface GameContextType {
   deductPoints: (points: number, reason: string) => void;
   completeChallenge: (challengeId: string, success: boolean) => void;
   resetGame: () => void;
-  makeChoice: (choiceId: string, choice: Choice) => void;
+  makeChoice: (choiceId: string, choice: Choice, selectedOptionIndex: number) => void;
   giveAdvice: (characterId: string, advice: string, impact: number) => void;
   setShowSummary: (show: boolean) => void;
   generateGameSummary: () => void;
   discoverBestPractice: (practice: BestPractice) => void;
+  addCompletedChoice: (choiceId: string) => void;
   
   // Méthodes utilitaires
   isRoomAccessible: (room: VirtualRoom) => boolean;
@@ -176,20 +181,22 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   // Enregistrer un choix effectué par le joueur
-  const makeChoice = (choiceId: string, choice: Choice) => {
+  const makeChoice = (choiceId: string, choice: Choice, selectedOptionIndex: number) => {
     if (isGameOver) return;
     
-    if (currentCharacterId) {
+    if (currentCharacterId && selectedOptionIndex >= 0 && selectedOptionIndex < choice.options.length) {
+      const selectedOption = choice.options[selectedOptionIndex];
+      
       // Ajouter ou déduire des points en fonction de l'impact du choix
-      setSecurityPoints(prev => prev + choice.impact);
+      setSecurityPoints(prev => prev + selectedOption.impact);
       
       const newAction: GameAction = {
         id: choiceId,
         timestamp: new Date(),
         type: 'choice',
         characterId: currentCharacterId,
-        points: choice.impact,
-        description: `Choix: ${choice.text}. Conséquence: ${choice.consequence}`
+        points: selectedOption.impact,
+        description: `Choix: ${selectedOption.text}. Raison: ${selectedOption.reason}`
       };
       
       setGameActions(prev => [...prev, newAction]);
@@ -219,6 +226,13 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (discoveredBestPractices.find(p => p.id === practice.id)) return;
     
     setDiscoveredBestPractices(prev => [...prev, practice]);
+  };
+  
+  // Marquer un choix comme complété
+  const addCompletedChoice = (choiceId: string) => {
+    if (!completedChallenges.includes(choiceId)) {
+      setCompletedChallenges(prev => [...prev, choiceId]);
+    }
   };
   
   // Générer un résumé de fin de partie
@@ -295,6 +309,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setShowSummary,
     generateGameSummary,
     discoverBestPractice,
+    addCompletedChoice,
     isRoomAccessible,
     isChallengeCompleted
   };
