@@ -267,13 +267,57 @@ Réponds UNIQUEMENT au format JSON suivant:
 ]
 `;
 
-    // Modification du prompt système pour forcer un format plus strict et plus simple
+    // Modification du prompt système pour inclure différents types d'exercices selon la difficulté
+    let exerciseTypesForDifficulty = "";
+    
+    // Ajuster les types d'exercices selon le niveau de difficulté
+    if (difficulty === 'beginner') {
+      exerciseTypesForDifficulty = `Pour ce niveau débutant, inclus principalement des QCM (80%) et quelques questions de code simples (20%).`;
+    } else if (difficulty === 'intermediate') {
+      exerciseTypesForDifficulty = `Pour ce niveau intermédiaire, inclus un mélange de QCM (60%), exercices de code (30%) et scénarios pratiques (10%).`;
+    } else if (difficulty === 'advanced') {
+      exerciseTypesForDifficulty = `Pour ce niveau avancé, inclus un mélange équilibré de QCM (40%), exercices de code complexes (40%) et scénarios pratiques détaillés (20%).`;
+    } else if (difficulty === 'expert') {
+      exerciseTypesForDifficulty = `Pour ce niveau expert, privilégie les exercices de code complexes (50%), scénarios pratiques avancés (30%) et quelques QCM pointus (20%).`;
+    }
+    
+    // Ajouter des consignes spécifiques pour la catégorie
+    let categorySpecificInstructions = "";
+    if (category === 'secure-coding') {
+      categorySpecificInstructions = `
+Pour les exercices de code, utilise des langages comme Python, JavaScript, Java ou C++.
+Voici quelques exemples:
+1. Exercice de correction de vulnérabilités SQL Injection
+2. Implémentation d'authentification sécurisée
+3. Validation de données d'entrée
+4. Gestion sécurisée des erreurs`;
+    } else if (category === 'network-security') {
+      categorySpecificInstructions = `
+Pour les exercices pratiques, utilise des exemples comme:
+1. Analyse de logs de pare-feu
+2. Configuration de règles VPN
+3. Détection d'intrusion réseau
+4. Mise en place de segmentation réseau`;
+    } else if (category === 'cloud-security') {
+      categorySpecificInstructions = `
+Pour les exercices pratiques, utilise des exemples comme:
+1. Configuration de sécurité AWS/Azure/GCP
+2. Mise en place de stratégies IAM
+3. Chiffrement des données dans le cloud
+4. Architecture de sécurité cloud`;
+    }
+    
     const updatedSystemPrompt = `${systemPrompt}
 
-IMPORTANT: Réponds UNIQUEMENT avec un tableau JSON valide contenant exactement ${count} questions à choix multiples (type "mcq").
-NE PAS inclure d'autres types de questions pour éviter les erreurs de formatage.
-N'AJOUTE PAS de commentaires, explications ou formatage markdown autour du JSON.
-VÉRIFIE que le JSON généré est strictement valide avant de répondre.`;
+${exerciseTypesForDifficulty}
+${categorySpecificInstructions}
+
+IMPORTANT: 
+1. N'AJOUTE PAS de commentaires, explications ou formatage markdown autour du JSON.
+2. VÉRIFIE que le JSON généré est strictement valide avant de répondre.
+3. Pour les exercices de code, fournis un code à compléter ou corriger avec une solution claire.
+4. Pour les exercices de type "scenario", décris un contexte professionnel réaliste avec un problème à résoudre.
+5. Augmente progressivement la difficulté des questions en fonction du niveau demandé.`;
 
     // Appel à Azure OpenAI avec le prompt modifié
     const openAIResponse = await callAzureOpenAI(updatedSystemPrompt);

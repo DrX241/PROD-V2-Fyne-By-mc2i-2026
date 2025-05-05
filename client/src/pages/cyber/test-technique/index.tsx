@@ -26,12 +26,19 @@ interface Difficulty {
 
 interface Question {
   id: string;
+  type: 'mcq' | 'code' | 'scenario' | 'open';
   question: string;
-  options: string[];
-  correctAnswer: number;
+  options?: string[];
+  correctAnswer?: number;
+  code?: string;
+  codeLanguage?: string;
+  solution?: string;
+  expectedOutput?: string;
+  context?: string;
   explanation: string;
   category: string;
   difficulty: string;
+  points?: number;
   tags?: string[];
 }
 
@@ -114,12 +121,36 @@ export default function CyberTestTechnique() {
     onSuccess: (data) => {
       if (data.success && data.questions && data.questions.length > 0) {
         setQuestions(data.questions);
-        setResponses(data.questions.map((q: Question) => ({ questionId: q.id, answer: -1 })));
+        
+        // Initialiser les réponses selon le type de question
+        const initialResponses = data.questions.map((q: Question) => {
+          // Pour les QCM, initialiser à -1 (aucune réponse)
+          if (q.type === 'mcq') {
+            return { questionId: q.id, answer: -1 };
+          } 
+          // Pour les autres types (code, scenario, open), initialiser avec une chaîne vide
+          else {
+            return { questionId: q.id, answer: '' };
+          }
+        });
+        
+        setResponses(initialResponses);
         setStep('quiz');
-        setTimeLeft(600); // 10 minutes (600 seconds)
+        
+        // Ajuster le temps selon le niveau de difficulté et le nombre de questions
+        const baseTimePerQuestion = 60; // 60 secondes par question
+        const difficultyMultiplier = 
+          data.questions[0].difficulty === 'beginner' ? 1 :
+          data.questions[0].difficulty === 'intermediate' ? 1.5 :
+          data.questions[0].difficulty === 'advanced' ? 2 : 
+          data.questions[0].difficulty === 'expert' ? 2.5 : 1;
+        
+        const totalTime = Math.min(3600, Math.max(600, Math.round(data.questions.length * baseTimePerQuestion * difficultyMultiplier)));
+        setTimeLeft(totalTime);
+        
         toast({
           title: "Test généré",
-          description: "Le test a été généré avec succès. Bonne chance!",
+          description: `Test de niveau ${getDifficultyName(selectedDifficulty)} généré avec succès. Vous disposez de ${Math.floor(totalTime/60)} minutes. Bonne chance!`,
         });
       } else {
         toast({
@@ -435,35 +466,144 @@ export default function CyberTestTechnique() {
         {questions && questions.length > 0 && currentQuestion < questions.length && questions[currentQuestion] && (
           <div className="space-y-6">
             <div className="p-4 bg-gray-50 rounded-lg">
-              <h3 className="text-lg font-medium mb-3 text-blue-600">
-                {questions[currentQuestion].question}
-              </h3>
-              <div className="space-y-3">
-                {questions[currentQuestion].options && questions[currentQuestion].options.map((option, index) => (
-                  <div 
-                    key={index}
-                    className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                      responses && responses[currentQuestion] && responses[currentQuestion].answer === index 
-                        ? 'bg-blue-100 border-blue-500' 
-                        : 'hover:bg-gray-100 border-gray-200'
-                    }`}
-                    onClick={() => handleResponseChange(currentQuestion, index)}
-                  >
-                    <div className="flex items-start">
-                      <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mr-2 ${
+              <div className="flex items-center mb-3">
+                <div className={`text-xs font-semibold px-2 py-1 rounded mr-2 ${
+                  questions[currentQuestion].type === 'mcq' ? 'bg-blue-100 text-blue-700' :
+                  questions[currentQuestion].type === 'code' ? 'bg-green-100 text-green-700' :
+                  questions[currentQuestion].type === 'scenario' ? 'bg-amber-100 text-amber-700' :
+                  'bg-purple-100 text-purple-700'
+                }`}>
+                  {questions[currentQuestion].type === 'mcq' ? 'QCM' :
+                   questions[currentQuestion].type === 'code' ? 'Code' :
+                   questions[currentQuestion].type === 'scenario' ? 'Scénario' :
+                   'Question ouverte'}
+                </div>
+                <h3 className="text-lg font-medium text-blue-600">
+                  {questions[currentQuestion].question}
+                </h3>
+              </div>
+              
+              {/* QCM */}
+              {questions[currentQuestion].type === 'mcq' && questions[currentQuestion].options && (
+                <div className="space-y-3">
+                  {questions[currentQuestion].options.map((option, index) => (
+                    <div 
+                      key={index}
+                      className={`p-3 border rounded-lg cursor-pointer transition-colors ${
                         responses && responses[currentQuestion] && responses[currentQuestion].answer === index 
-                          ? 'bg-white text-blue-600 border border-blue-500' 
-                          : 'bg-white text-gray-700 border border-gray-300'
-                      }`}>
-                        {String.fromCharCode(65 + index)}
-                      </div>
-                      <div className="flex-grow text-black">
-                        {option}
+                          ? 'bg-blue-100 border-blue-500' 
+                          : 'hover:bg-gray-100 border-gray-200'
+                      }`}
+                      onClick={() => handleResponseChange(currentQuestion, index)}
+                    >
+                      <div className="flex items-start">
+                        <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mr-2 ${
+                          responses && responses[currentQuestion] && responses[currentQuestion].answer === index 
+                            ? 'bg-white text-blue-600 border border-blue-500' 
+                            : 'bg-white text-gray-700 border border-gray-300'
+                        }`}>
+                          {String.fromCharCode(65 + index)}
+                        </div>
+                        <div className="flex-grow text-black">
+                          {option}
+                        </div>
                       </div>
                     </div>
+                  ))}
+                </div>
+              )}
+              
+              {/* Exercice de code */}
+              {questions[currentQuestion].type === 'code' && (
+                <div className="space-y-4">
+                  {questions[currentQuestion].codeLanguage && (
+                    <div className="bg-black text-white px-3 py-1 rounded text-xs inline-block">
+                      {questions[currentQuestion].codeLanguage}
+                    </div>
+                  )}
+                  
+                  {questions[currentQuestion].code && (
+                    <div className="bg-gray-900 text-white p-4 rounded-md overflow-x-auto font-mono text-sm whitespace-pre">
+                      {questions[currentQuestion].code}
+                    </div>
+                  )}
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Votre solution :</label>
+                    <textarea 
+                      className="w-full min-h-[150px] p-3 border border-gray-300 rounded-md font-mono text-sm"
+                      value={responses && responses[currentQuestion] ? String(responses[currentQuestion].answer || '') : ''}
+                      onChange={(e) => {
+                        const updatedResponses = [...responses];
+                        updatedResponses[currentQuestion] = {
+                          ...updatedResponses[currentQuestion],
+                          answer: e.target.value
+                        };
+                        setResponses(updatedResponses);
+                      }}
+                      placeholder="Écrivez votre code ici..."
+                    />
                   </div>
-                ))}
-              </div>
+                  
+                  {questions[currentQuestion].expectedOutput && (
+                    <div className="p-3 bg-gray-100 rounded-md">
+                      <p className="text-sm font-medium mb-1">Résultat attendu :</p>
+                      <p className="text-xs font-mono">{questions[currentQuestion].expectedOutput}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {/* Scénario */}
+              {questions[currentQuestion].type === 'scenario' && (
+                <div className="space-y-4">
+                  {questions[currentQuestion].context && (
+                    <div className="p-4 bg-amber-50 border border-amber-200 rounded-md text-sm">
+                      <p className="font-medium mb-2">Contexte :</p>
+                      <p>{questions[currentQuestion].context}</p>
+                    </div>
+                  )}
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Votre solution :</label>
+                    <textarea 
+                      className="w-full min-h-[150px] p-3 border border-gray-300 rounded-md text-sm"
+                      value={responses && responses[currentQuestion] ? String(responses[currentQuestion].answer || '') : ''}
+                      onChange={(e) => {
+                        const updatedResponses = [...responses];
+                        updatedResponses[currentQuestion] = {
+                          ...updatedResponses[currentQuestion],
+                          answer: e.target.value
+                        };
+                        setResponses(updatedResponses);
+                      }}
+                      placeholder="Décrivez votre approche et solution..."
+                    />
+                  </div>
+                </div>
+              )}
+              
+              {/* Question ouverte */}
+              {questions[currentQuestion].type === 'open' && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Votre réponse :</label>
+                    <textarea 
+                      className="w-full min-h-[150px] p-3 border border-gray-300 rounded-md text-sm"
+                      value={responses && responses[currentQuestion] ? String(responses[currentQuestion].answer || '') : ''}
+                      onChange={(e) => {
+                        const updatedResponses = [...responses];
+                        updatedResponses[currentQuestion] = {
+                          ...updatedResponses[currentQuestion],
+                          answer: e.target.value
+                        };
+                        setResponses(updatedResponses);
+                      }}
+                      placeholder="Écrivez votre réponse détaillée..."
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
