@@ -1,14 +1,28 @@
 import React from 'react';
 import { useGame } from '../context/GameContext';
-import { Shield, Award, Star, AlertTriangle, CheckCircle } from 'lucide-react';
+import { 
+  Award,
+  CheckCircle, 
+  RefreshCw, 
+  ShieldAlert,
+  Zap,
+  Clock,
+  AlertTriangle
+} from 'lucide-react';
 import { 
   Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
 } from '@/components/ui/card';
+import { 
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger
+} from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -17,210 +31,255 @@ import { Separator } from '@/components/ui/separator';
 const GameSummary: React.FC = () => {
   const { 
     gameSummary, 
-    securityPoints, 
-    resetGame, 
-    setShowSummary, 
-    isGameOver 
+    discoveredBestPractices, 
+    resetGame,
+    setShowSummary
   } = useGame();
   
   if (!gameSummary) return null;
   
-  const getSecurityLevelLabel = (level: number): string => {
-    switch (level) {
-      case 1: return 'Critique';
-      case 2: return 'Vulnérable';
-      case 3: return 'Moyen';
-      case 4: return 'Bon';
-      case 5: return 'Excellent';
-      default: return 'Inconnu';
+  // Classification des bonnes pratiques par catégorie
+  const bestPracticesByCategory = discoveredBestPractices.reduce<Record<string, typeof discoveredBestPractices>>(
+    (acc, practice) => {
+      if (!acc[practice.category]) {
+        acc[practice.category] = [];
+      }
+      acc[practice.category].push(practice);
+      return acc;
+    },
+    {}
+  );
+  
+  // Obtenir un nom lisible pour la catégorie
+  const getCategoryName = (category: string): string => {
+    const names: Record<string, string> = {
+      'passwords': 'Mots de passe',
+      'phishing': 'Phishing',
+      'data': 'Données',
+      'devices': 'Appareils',
+      'network': 'Réseau',
+      'general': 'Général'
+    };
+    return names[category] || category;
+  };
+  
+  // Obtenir une icône pour la catégorie
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'passwords':
+        return <ShieldAlert className="h-4 w-4 mr-2" />;
+      case 'phishing':
+        return <AlertTriangle className="h-4 w-4 mr-2" />;
+      case 'data':
+        return <Zap className="h-4 w-4 mr-2" />;
+      case 'devices':
+        return <Clock className="h-4 w-4 mr-2" />;
+      case 'network':
+        return <RefreshCw className="h-4 w-4 mr-2" />;
+      default:
+        return <CheckCircle className="h-4 w-4 mr-2" />;
     }
   };
   
-  const getSecurityLevelColor = (level: number): string => {
-    switch (level) {
-      case 1: return 'bg-red-600';
-      case 2: return 'bg-orange-500';
-      case 3: return 'bg-yellow-500';
-      case 4: return 'bg-green-500';
-      case 5: return 'bg-emerald-600';
-      default: return 'bg-blue-500';
-    }
+  // Obtenir une couleur pour la catégorie
+  const getCategoryColor = (category: string): string => {
+    const colors: Record<string, string> = {
+      'passwords': 'bg-red-800/20 border-red-700',
+      'phishing': 'bg-amber-800/20 border-amber-700',
+      'data': 'bg-blue-800/20 border-blue-700',
+      'devices': 'bg-purple-800/20 border-purple-700',
+      'network': 'bg-green-800/20 border-green-700',
+      'general': 'bg-blue-900/20 border-blue-800'
+    };
+    return colors[category] || '';
   };
   
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/70 z-50 p-4 backdrop-blur-sm">
-      <Card className="w-full max-w-3xl bg-blue-950/90 border-blue-800 shadow-lg max-h-[90vh] overflow-y-auto">
-        <CardHeader className="bg-gradient-to-r from-blue-900 to-blue-800 border-b border-blue-700">
+    <div className="container max-w-4xl mx-auto px-4 py-8">
+      <Card className="mb-8 bg-blue-900/20 border-blue-800">
+        <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-2xl font-bold flex items-center">
-                <Shield className="mr-2 h-6 w-6 text-blue-400" />
-                {isGameOver && securityPoints < 0 
-                  ? 'Mission échouée !' 
-                  : 'Bilan de sécurité'}
-              </CardTitle>
-              <CardDescription className="text-blue-300">
-                {isGameOver && securityPoints < 0 
-                  ? 'Votre score de sécurité est trop bas, la simulation s\'est terminée.'
-                  : 'Voici le résumé de vos décisions et leur impact sur la sécurité de l\'entreprise.'}
-              </CardDescription>
+            <div className="flex items-center">
+              <Award className="h-8 w-8 mr-3 text-yellow-400" />
+              <div>
+                <CardTitle className="text-2xl">Bilan de cybersécurité</CardTitle>
+                <CardDescription>
+                  Votre session de sensibilisation à la cybersécurité est terminée
+                </CardDescription>
+              </div>
             </div>
-            <Badge className={`text-lg px-3 py-1 ${getSecurityLevelColor(gameSummary.securityLevel)}`}>
-              Niveau {gameSummary.securityLevel}: {getSecurityLevelLabel(gameSummary.securityLevel)}
+            <Badge 
+              variant={gameSummary.securityLevel >= 3 ? "default" : "destructive"}
+              className="text-base py-1.5 px-3"
+            >
+              Niveau {gameSummary.securityLevel}/5
             </Badge>
           </div>
         </CardHeader>
         
-        <CardContent className="space-y-6 p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="bg-blue-900/50 border-blue-700">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center">
-                  <Star className="h-4 w-4 mr-2 text-yellow-400" />
-                  Score de sécurité
-                </CardTitle>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <Card className="bg-blue-800/30 border-blue-700">
+              <CardHeader className="py-2">
+                <CardTitle className="text-sm text-center">Points de sécurité</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-center">
+              <CardContent className="py-1">
+                <p className="text-center text-2xl font-bold text-blue-100">
                   {gameSummary.totalPoints}
-                </div>
+                </p>
               </CardContent>
             </Card>
             
-            <Card className="bg-blue-900/50 border-blue-700">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center">
-                  <CheckCircle className="h-4 w-4 mr-2 text-green-400" />
-                  Taux de réussite
-                </CardTitle>
+            <Card className="bg-blue-800/30 border-blue-700">
+              <CardHeader className="py-2">
+                <CardTitle className="text-sm text-center">Taux de réussite</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-center">
-                  <div className="text-3xl font-bold mb-2">
-                    {Math.round(gameSummary.successRate)}%
-                  </div>
-                  <Progress value={gameSummary.successRate} className="h-2 bg-blue-800" />
-                </div>
+              <CardContent className="py-1">
+                <p className="text-center text-2xl font-bold text-blue-100">
+                  {Math.round(gameSummary.successRate * 100)}%
+                </p>
               </CardContent>
             </Card>
             
-            <Card className="bg-blue-900/50 border-blue-700">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center">
-                  <Award className="h-4 w-4 mr-2 text-blue-400" />
-                  Défis complétés
-                </CardTitle>
+            <Card className="bg-blue-800/30 border-blue-700">
+              <CardHeader className="py-2">
+                <CardTitle className="text-sm text-center">Défis complétés</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-center">
+              <CardContent className="py-1">
+                <p className="text-center text-2xl font-bold text-blue-100">
                   {gameSummary.challengesCompleted}
-                </div>
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-blue-800/30 border-blue-700">
+              <CardHeader className="py-2">
+                <CardTitle className="text-sm text-center">Bonnes pratiques</CardTitle>
+              </CardHeader>
+              <CardContent className="py-1">
+                <p className="text-center text-2xl font-bold text-blue-100">
+                  {discoveredBestPractices.length}
+                </p>
               </CardContent>
             </Card>
           </div>
           
-          <Separator className="my-6 bg-blue-800" />
-          
           <div>
-            <h3 className="text-lg font-semibold mb-3 flex items-center">
-              <Star className="h-5 w-5 mr-2 text-yellow-400" />
-              Décisions clés
-            </h3>
-            
-            <div className="space-y-3">
-              {gameSummary.keyDecisions.map(decision => (
-                <div 
-                  key={decision.id} 
-                  className={`p-3 rounded-md ${
-                    decision.points > 0 
-                      ? 'bg-green-900/30 border border-green-800' 
-                      : 'bg-red-900/30 border border-red-800'
-                  }`}
-                >
-                  <div className="flex justify-between items-start">
-                    <div className="text-sm flex-1">
-                      {decision.description}
-                    </div>
-                    <Badge className={`${
-                      decision.points > 0 ? 'bg-green-700' : 'bg-red-700'
-                    } ml-2`}>
-                      {decision.points > 0 ? `+${decision.points}` : decision.points}
-                    </Badge>
-                  </div>
-                  <div className="text-xs text-blue-300 mt-1">
-                    {new Date(decision.timestamp).toLocaleTimeString()}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          <Separator className="my-6 bg-blue-800" />
-          
-          <div>
-            <h3 className="text-lg font-semibold mb-3 flex items-center">
-              <CheckCircle className="h-5 w-5 mr-2 text-green-400" />
-              Bonnes pratiques découvertes
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {gameSummary.bestPractices.map(practice => (
-                <Card 
-                  key={practice.id} 
-                  className="bg-blue-900/30 border-blue-700 hover:bg-blue-900/50 transition-colors"
-                >
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-base">{practice.title}</CardTitle>
-                      <Badge className={`
-                        ${practice.importance === 'critical' ? 'bg-red-600' : 
-                          practice.importance === 'high' ? 'bg-orange-500' :
-                          practice.importance === 'medium' ? 'bg-yellow-500' :
-                          'bg-green-500'}
-                      `}>
-                        {practice.importance === 'critical' ? 'Critique' : 
-                          practice.importance === 'high' ? 'Haute' :
-                          practice.importance === 'medium' ? 'Moyenne' :
-                          'Basse'}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="text-sm">
-                    <p>{practice.description}</p>
-                  </CardContent>
-                </Card>
-              ))}
-              
-              {gameSummary.bestPractices.length === 0 && (
-                <div className="col-span-2 text-center p-6 bg-blue-900/20 rounded-lg border border-dashed border-blue-700">
-                  <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-yellow-500" />
-                  <p>Vous n'avez pas encore découvert de bonnes pratiques de sécurité.</p>
-                </div>
-              )}
+            <h3 className="text-lg font-semibold mb-2">Progression de votre niveau de sécurité</h3>
+            <Progress 
+              value={gameSummary.securityLevel * 20} 
+              className="h-3 mb-2" 
+            />
+            <div className="flex justify-between text-xs">
+              <span>Débutant</span>
+              <span>Intermédiaire</span>
+              <span>Expert</span>
             </div>
           </div>
         </CardContent>
-        
-        <CardFooter className="flex justify-between border-t border-blue-800 p-4 bg-blue-900/50">
-          {!isGameOver ? (
-            <Button 
-              variant="outline" 
-              onClick={() => setShowSummary(false)}
-            >
-              Continuer la mission
-            </Button>
-          ) : (
-            <div></div>
-          )}
-          
-          <Button 
-            onClick={resetGame}
-            variant={isGameOver ? "default" : "secondary"}
-          >
-            {isGameOver ? 'Réessayer' : 'Recommencer la mission'}
-          </Button>
-        </CardFooter>
       </Card>
+      
+      <Tabs defaultValue="practices">
+        <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsTrigger value="practices">Bonnes pratiques découvertes</TabsTrigger>
+          <TabsTrigger value="decisions">Décisions clés</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="practices" className="space-y-6">
+          {Object.keys(bestPracticesByCategory).length === 0 ? (
+            <Card className="bg-blue-900/20 border-blue-800">
+              <CardContent className="py-8">
+                <p className="text-center text-lg text-blue-400">
+                  Vous n'avez pas encore découvert de bonnes pratiques de sécurité
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            Object.entries(bestPracticesByCategory).map(([category, practices]) => (
+              <div key={category}>
+                <div className="flex items-center mb-3">
+                  {getCategoryIcon(category)}
+                  <h3 className="text-lg font-semibold">{getCategoryName(category)}</h3>
+                </div>
+                
+                <div className="space-y-3">
+                  {practices.map(practice => (
+                    <Card key={practice.id} className={`${getCategoryColor(category)}`}>
+                      <CardHeader className="pb-2">
+                        <div className="flex justify-between items-start">
+                          <CardTitle className="text-base">{practice.title}</CardTitle>
+                          <Badge variant={
+                            practice.importance === 'critical' ? 'destructive' :
+                            practice.importance === 'high' ? 'default' :
+                            'secondary'
+                          }>
+                            {practice.importance === 'critical' ? 'Critique' :
+                             practice.importance === 'high' ? 'Important' :
+                             practice.importance === 'medium' ? 'Moyen' : 'Faible'}
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm">{practice.description}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            ))
+          )}
+        </TabsContent>
+        
+        <TabsContent value="decisions" className="space-y-4">
+          {gameSummary.keyDecisions.length === 0 ? (
+            <Card className="bg-blue-900/20 border-blue-800">
+              <CardContent className="py-8">
+                <p className="text-center text-lg text-blue-400">
+                  Aucune décision clé enregistrée
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            gameSummary.keyDecisions.map((decision, index) => (
+              <Card key={index} className={`bg-blue-900/20 border-blue-800 ${
+                decision.points > 0 ? 'border-l-4 border-l-green-600' : 
+                decision.points < 0 ? 'border-l-4 border-l-red-600' : ''
+              }`}>
+                <CardHeader className="pb-2">
+                  <div className="flex justify-between items-center">
+                    <CardTitle className="text-base">{decision.type === 'choice' ? 'Décision' : 'Défi'}</CardTitle>
+                    <Badge variant={decision.points > 0 ? 'default' : 'destructive'}>
+                      {decision.points > 0 ? `+${decision.points}` : decision.points} points
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm">{decision.description}</p>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </TabsContent>
+      </Tabs>
+      
+      <div className="flex justify-center mt-8 space-x-4">
+        <Button 
+          variant="default"
+          size="lg"
+          onClick={() => resetGame()}
+          className="w-40"
+        >
+          <RefreshCw className="mr-2 h-4 w-4" /> Rejouer
+        </Button>
+        <Button
+          variant="outline"
+          size="lg"
+          onClick={() => setShowSummary(false)}
+          className="w-40"
+        >
+          Fermer
+        </Button>
+      </div>
     </div>
   );
 };

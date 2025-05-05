@@ -200,11 +200,10 @@ const ConversationPanel: React.FC = () => {
             ))}
             
             {/* Afficher les choix de la conversation s'ils existent */}
-            {conversation?.choices && conversation.choices.length > 0 && (
+            {conversation?.choices && conversation.choices.length > 0 && currentConversation && (
               <ConversationChoices 
                 choices={conversation.choices} 
                 conversationId={currentConversation}
-                onChoiceMade={() => setShowExplanation(true)}
               />
             )}
             
