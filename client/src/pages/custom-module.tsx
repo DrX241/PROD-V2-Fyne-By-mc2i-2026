@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useRoute } from 'wouter';
-import { Loader2, ArrowLeft, Book, Code, Gamepad2, Trophy, Home, ArrowRight, Trash2 } from 'lucide-react';
+import { Loader2, ArrowLeft, Book, Code, Gamepad2, Trophy, Home, ArrowRight, Trash2, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import HomeLayout from '@/components/layout/HomeLayout';
@@ -14,6 +14,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { motion } from 'framer-motion';
 
 const CustomModule = () => {
@@ -26,6 +28,8 @@ const CustomModule = () => {
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [password, setPassword] = useState<string>('');
+  const [passwordError, setPasswordError] = useState<string>('');
 
   useEffect(() => {
     // Si aucun paramètre d'ID n'est trouvé, retourner à la page d'accueil
@@ -93,6 +97,19 @@ const CustomModule = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params?.id]);
 
+  // Fonction pour valider le mot de passe et supprimer le module
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (password.toLowerCase() !== 'supprimer') {
+      setPasswordError('Mot de passe incorrect');
+      return;
+    }
+    
+    setPasswordError('');
+    deleteModule();
+  };
+  
   // Fonction pour supprimer le module
   const deleteModule = async () => {
     try {
@@ -131,6 +148,7 @@ const CustomModule = () => {
     } finally {
       setIsDeleting(false);
       setDeleteDialogOpen(false);
+      setPassword('');
     }
   };
 
@@ -244,7 +262,13 @@ const CustomModule = () => {
   return (
     <HomeLayout>
       {/* Boîte de dialogue de confirmation de suppression */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <AlertDialog open={deleteDialogOpen} onOpenChange={(open) => {
+        setDeleteDialogOpen(open);
+        if (!open) {
+          setPassword('');
+          setPasswordError('');
+        }
+      }}>
         <AlertDialogContent className="bg-gray-800 border border-gray-700 text-white">
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
@@ -252,28 +276,56 @@ const CustomModule = () => {
               Êtes-vous sûr de vouloir supprimer ce module personnalisé ? Cette action ne peut pas être annulée.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel 
-              className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
-              disabled={isDeleting}
-            >
-              Annuler
-            </AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-red-600 hover:bg-red-700 text-white"
-              onClick={deleteModule}
-              disabled={isDeleting}
-            >
-              {isDeleting ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Suppression...
-                </>
-              ) : (
-                'Supprimer'
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
+          
+          <form onSubmit={handlePasswordSubmit} className="my-4">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-white">
+                  <div className="flex items-center gap-2">
+                    <Lock className="h-4 w-4" />
+                    Mot de passe de confirmation
+                  </div>
+                </Label>
+                <Input
+                  id="password"
+                  type="text"
+                  placeholder="Entrez le mot de passe"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
+                  disabled={isDeleting}
+                  required
+                />
+                {passwordError && (
+                  <p className="text-red-400 text-sm mt-1">{passwordError}</p>
+                )}
+              </div>
+            </div>
+          
+            <AlertDialogFooter className="mt-6">
+              <AlertDialogCancel 
+                type="button"
+                className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
+                disabled={isDeleting}
+              >
+                Annuler
+              </AlertDialogCancel>
+              <Button
+                type="submit"
+                className="bg-red-600 hover:bg-red-700 text-white"
+                disabled={isDeleting}
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Suppression...
+                  </>
+                ) : (
+                  'Supprimer'
+                )}
+              </Button>
+            </AlertDialogFooter>
+          </form>
         </AlertDialogContent>
       </AlertDialog>
       <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-gray-900 to-blue-900">
