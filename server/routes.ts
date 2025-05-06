@@ -4302,6 +4302,11 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   
   // Installation initiale des modules
   app.post("/api/admin/initialize-modules", adminController.initializeApplicationModules);
+  
+  // Routes pour la configuration du système et super admin
+  app.get("/api/system/setup-status", adminController.checkSystemSetup);
+  app.post("/api/system/initialize-super-admin", adminController.initializeSuperAdmin);
+  app.post("/api/system/authenticate-super-admin", adminController.authenticateSuperAdmin);
 
   // Fin des routes API
 
