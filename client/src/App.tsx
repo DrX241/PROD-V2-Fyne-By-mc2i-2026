@@ -359,13 +359,26 @@ function App() {
             <Route path="/custom" component={NotYetImplemented} />
             
             {/* Interface d'administration */}
-            <Route path="/admin" component={() => {
-              const AdminPage = lazy(() => import('./pages/admin'));
+            <Route path="/admin/modules" component={() => {
+              const ModulesManagement = lazy(() => import('./pages/admin/modules-management'));
               return (
                 <Suspense fallback={<GlobalLoader />}>
-                  <AdminPage />
+                  <ModulesManagement />
                 </Suspense>
               );
+            }} />
+            <Route path="/admin/access" component={() => {
+              const TemporaryAccess = lazy(() => import('./pages/admin/temporary-access'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <TemporaryAccess />
+                </Suspense>
+              );
+            }} />
+            <Route path="/admin" component={() => {
+              // Redirection vers modules par défaut
+              window.location.href = '/admin/modules';
+              return null;
             }} />
             
             <Route component={NotFound} />

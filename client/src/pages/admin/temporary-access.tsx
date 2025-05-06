@@ -132,10 +132,7 @@ export default function TemporaryAccessManagement() {
   // Mutation pour créer un accès temporaire
   const createAccessMutation = useMutation({
     mutationFn: async (accessData: z.infer<typeof temporaryAccessSchema>) => {
-      const res = await apiRequest("POST", "/api/admin/temporary-access", {
-        body: JSON.stringify(accessData),
-        headers: { 'Content-Type': 'application/json' }
-      });
+      const res = await apiRequest("POST", "/api/admin/temporary-access", accessData);
       return await res.json();
     },
     onSuccess: () => {
