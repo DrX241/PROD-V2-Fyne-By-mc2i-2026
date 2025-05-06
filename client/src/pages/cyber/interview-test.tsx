@@ -522,10 +522,10 @@ export default function CyberInterviewTest() {
             <Progress value={progress} className="mt-4" />
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2 dark:text-white">
-              <h3 className="text-lg font-medium text-gray-800 dark:text-white">{questions[currentQuestionIndex]?.question}</h3>
+            <div className="space-y-2 text-gray-800 dark:text-white bg-white dark:bg-gray-800 p-4 rounded-lg">
+              <h3 className="text-lg font-medium">{questions[currentQuestionIndex]?.question}</h3>
               {questions[currentQuestionIndex]?.hint && (
-                <p className="text-sm text-gray-800 dark:text-white">{questions[currentQuestionIndex]?.hint}</p>
+                <p className="text-sm">{questions[currentQuestionIndex]?.hint}</p>
               )}
             </div>
             <Textarea
