@@ -65,6 +65,7 @@ import {
   generateCertificate,
   getTestOptions
 } from "./cyberTestTechniqueController";
+import { evaluateInterviewTest } from "./cyberInterviewTestController";
 // Import des fonctions d'urgence cyber supprimé
 
 /**

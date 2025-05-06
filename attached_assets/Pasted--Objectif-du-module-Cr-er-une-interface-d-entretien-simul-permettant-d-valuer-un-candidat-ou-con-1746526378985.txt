@@ -1,0 +1,103 @@
+🎯 Objectif du module
+Créer une interface d’entretien simulé permettant d’évaluer un candidat ou consultant sur ses compétences en cybersécurité via :
+
+Un test chronométré de 15 minutes,
+
+Composé de 6 à 7 questions ouvertes ou semi-dirigées,
+
+À la fin, une analyse automatisée de ses réponses par GPT-4o via Azure OpenAI,
+
+Un profil d’évaluation personnalisé, sans score chiffré, contenant :
+
+Un résumé du profil,
+
+Les points forts,
+
+Les axes d’amélioration,
+
+Un badge final.
+
+🖥️ Interface utilisateur attendue
+Format pas-à-pas, 1 question à la fois (type assistant ou formulaire multi-étapes).
+
+Chronomètre global visible (15 minutes max, pas de chrono par question).
+
+Pas de retour immédiat, le feedback arrive uniquement à la fin.
+
+Une fois le test terminé, l’IA analyse toutes les réponses en une fois.
+
+Le résultat final est affiché sous forme d’une fiche synthétique de profil.
+
+✍️ Contenu-type du test
+Le test est composé de questions aléatoires ou semi-fixes, parmi des thématiques comme :
+
+Présentation : "Présente-toi en tant que professionnel de la cybersécurité."
+
+Réflexe : "Un mail suspect arrive. Quelles sont tes 3 premières actions ?"
+
+Incident : "Une attaque par ransomware bloque 3 serveurs. Que fais-tu dans la première heure ?"
+
+Analyse : "Observe ces logs (fournis) et identifie une anomalie possible."
+
+Éthique : "Tu identifies une faille passée sous silence. Quelle est ta réaction ?"
+
+Client : "Un client refuse une bonne pratique de sécurité. Comment gères-tu cela ?"
+
+Projection : "Quelle est la menace cyber qui t’inquiète le plus dans les 3 prochaines années ?"
+
+Toutes les réponses sont textuelles, courtes ou longues selon le joueur.
+
+🤖 Fonction IA (Azure OpenAI, GPT-4o)
+Une fois les réponses enregistrées, elles sont envoyées à GPT-4o avec le prompt suivant :
+
+Tu es un recruteur cybersécurité expérimenté. Tu viens de faire passer un test de 15 minutes à un candidat. Lis l’ensemble de ses réponses, puis rédige un profil d’évaluation structuré avec :
+
+Profil général (3 lignes) : posture, niveau perçu, comportement pro.
+
+Forces (3 points) : réflexes, raisonnement, qualités professionnelles.
+
+Axes de progression (3 points) : limites techniques ou comportementales.
+
+Badge final : nom du badge (ex : Cyber Guardian Junior) + 1 ligne de justification.
+
+Le ton doit être bienveillant, professionnel et orienté progression. Ne donne aucun score.
+
+✅ Exemple de rendu final à afficher
+🧑‍💼 Profil évalué
+Professionnel cybersécurité en début de carrière. Montre une bonne compréhension des enjeux opérationnels, mais manque encore de précision technique.
+
+✅ Forces
+Bonne logique de réaction à incident.
+
+Réflexion pertinente sur la gestion client.
+
+Sensibilité éthique bien marquée.
+
+⚠️ Axes de progression
+Manque de clarté sur l’analyse de logs.
+
+Absence de références concrètes dans les exemples.
+
+Réponses parfois trop générales.
+
+🎖️ Badge attribué
+🟩 Cyber Analyst Starter – Candidat sérieux et prometteur, à accompagner pour consolider les bases techniques.
+
+🔒 Sécurité et confidentialité
+Toutes les réponses sont temporaires et supprimées après analyse.
+
+Aucun score ni note n’est conservé.
+
+Les données peuvent être exportées manuellement si besoin.
+
+📦 Livrables attendus
+Interface web fluide (React ou HTML/CSS/JS).
+
+Chrono global de 15 min, questions affichées une par une.
+
+Backend capable d’envoyer l’ensemble des réponses à Azure OpenAI.
+
+Affichage du résultat IA formaté comme une carte de profil.
+
+Composants réutilisables pour d’autres modules (ex : AMOA ou Data/IA).
+
