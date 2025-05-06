@@ -24,6 +24,21 @@ export const shareAccessEnum = pgEnum('share_access', [
   'editable'    // Collaboration complète
 ]);
 
+// Enumération pour les rôles utilisateur dans le système
+export const userRoleEnum = pgEnum('user_role', [
+  'user',         // Utilisateur standard
+  'tester',       // Testeur avec accès temporaire
+  'contributor',  // Contributeur avec permissions étendues
+  'admin'         // Administrateur système
+]);
+
+// Enumération pour le statut des accès temporaires
+export const temporaryAccessStatusEnum = pgEnum('temporary_access_status', [
+  'active',       // Accès actif
+  'expired',      // Accès expiré
+  'revoked'       // Accès révoqué par un administrateur
+]);
+
 // Définition des tables pour les progressions des utilisateurs dans les modules d'apprentissage
 export const userLearningProgress = pgTable('user_learning_progress', {
   id: serial('id').primaryKey(),
@@ -94,12 +109,50 @@ export const userProfiles = pgTable('user_profiles', {
   displayName: varchar('display_name', { length: 255 }),
   email: varchar('email', { length: 255 }),
   avatarUrl: text('avatar_url'),
-  role: varchar('role', { length: 100 }).default('utilisateur'),
+  role: userRoleEnum('role').default('user'),
   jobTitle: varchar('job_title', { length: 255 }),
   department: varchar('department', { length: 255 }),
   preferences: jsonb('preferences').default({}),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// Table des modules disponibles dans l'application
+export const applicationModules = pgTable('application_modules', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 255 }).notNull().unique(),
+  displayName: varchar('display_name', { length: 255 }).notNull(),
+  description: text('description'),
+  category: varchar('category', { length: 100 }).notNull(),
+  path: varchar('path', { length: 255 }).notNull().unique(),
+  icon: varchar('icon', { length: 100 }),
+  isPublic: boolean('is_public').default(false),
+  requiredRole: userRoleEnum('required_role').default('user'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// Table des invitations temporaires
+export const temporaryAccesses = pgTable('temporary_accesses', {
+  id: serial('id').primaryKey(),
+  invitationCode: uuid('invitation_code').notNull().unique().defaultRandom(),
+  email: varchar('email', { length: 255 }).notNull(),
+  role: userRoleEnum('role').default('tester'),
+  status: temporaryAccessStatusEnum('status').default('active'),
+  createdBy: integer('created_by').references(() => users.id).notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+  expiresAt: timestamp('expires_at').notNull(),
+  lastLogin: timestamp('last_login'),
+  accessCount: integer('access_count').default(0),
+  notes: text('notes')
+});
+
+// Table de jointure pour les modules accessibles par un accès temporaire
+export const temporaryAccessModules = pgTable('temporary_access_modules', {
+  id: serial('id').primaryKey(),
+  temporaryAccessId: integer('temporary_access_id').references(() => temporaryAccesses.id).notNull(),
+  moduleId: integer('module_id').references(() => applicationModules.id).notNull(),
+  createdAt: timestamp('created_at').defaultNow()
 });
 
 // Table des assistants IA personnalisés
@@ -177,6 +230,8 @@ export const VALID_GAMIFICATION_LEVELS = ['aucun', 'leger', 'modere', 'eleve', '
 export const VALID_AVATAR_STYLES = ['robot', 'human', 'abstract', 'animal', 'professional'] as const;
 export const VALID_AVATAR_COLORS = ['blue', 'green', 'red', 'purple', 'orange', 'teal', 'pink', 'violet', 'gray'] as const;
 export const VALID_SHARE_ACCESS = ['private', 'readOnly', 'editable'] as const;
+export const VALID_USER_ROLES = ['user', 'tester', 'contributor', 'admin'] as const;
+export const VALID_TEMPORARY_ACCESS_STATUS = ['active', 'expired', 'revoked'] as const;
 
 // Création des schémas d'insertion avec Zod et validation améliorée
 export const insertUserProfileSchema = createInsertSchema(userProfiles)
@@ -225,17 +280,50 @@ export const insertAssistantTemplateSchema = createInsertSchema(assistantTemplat
     systemPrompt: z.string().min(50),
   });
 
+// Schémas d'insertion pour les nouveaux modèles
+export const insertApplicationModuleSchema = createInsertSchema(applicationModules)
+  .omit({ id: true, createdAt: true, updatedAt: true })
+  .extend({
+    name: z.string().min(3).max(50),
+    displayName: z.string().min(3).max(100),
+    category: z.string().min(2).max(50),
+    path: z.string().min(1).max(255),
+    requiredRole: z.enum(VALID_USER_ROLES).optional(),
+    isPublic: z.boolean().optional(),
+    description: z.string().max(500).optional(),
+    icon: z.string().max(100).optional()
+  });
+
+export const insertTemporaryAccessSchema = createInsertSchema(temporaryAccesses)
+  .omit({ id: true, invitationCode: true, createdAt: true, lastLogin: true, accessCount: true })
+  .extend({
+    email: z.string().email(),
+    role: z.enum(VALID_USER_ROLES).optional(),
+    status: z.enum(VALID_TEMPORARY_ACCESS_STATUS).optional(),
+    expiresAt: z.date(),
+    notes: z.string().max(500).optional()
+  });
+
+export const insertTemporaryAccessModuleSchema = createInsertSchema(temporaryAccessModules)
+  .omit({ id: true, createdAt: true });
+
 // Types d'insertion
 export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
 export type InsertCustomAssistant = z.infer<typeof insertCustomAssistantSchema>;
 export type InsertAssistantConversation = z.infer<typeof insertAssistantConversationSchema>;
 export type InsertAssistantTemplate = z.infer<typeof insertAssistantTemplateSchema>;
+export type InsertApplicationModule = z.infer<typeof insertApplicationModuleSchema>;
+export type InsertTemporaryAccess = z.infer<typeof insertTemporaryAccessSchema>;
+export type InsertTemporaryAccessModule = z.infer<typeof insertTemporaryAccessModuleSchema>;
 
 // Types de sélection
 export type UserProfile = typeof userProfiles.$inferSelect;
 export type CustomAssistant = typeof customAssistants.$inferSelect;
 export type AssistantConversation = typeof assistantConversations.$inferSelect;
 export type AssistantTemplate = typeof assistantTemplates.$inferSelect;
+export type ApplicationModule = typeof applicationModules.$inferSelect;
+export type TemporaryAccess = typeof temporaryAccesses.$inferSelect;
+export type TemporaryAccessModule = typeof temporaryAccessModules.$inferSelect;
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;

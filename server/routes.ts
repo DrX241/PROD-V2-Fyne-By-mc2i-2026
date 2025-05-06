@@ -11,6 +11,7 @@ import attachmentRoutes from './routes/attachmentRoutes';
 import cyberForgeRoutes from './routes/cyberForgeRoutes';
 import { createAttachmentWithHiddenPassword } from './services/attachmentService';
 import { CyberScenario, CrisisDecisionContent, CrisisDecisionOption } from '../shared/types/cyber';
+import adminController from './adminController';
 
 // Récupérer le chemin du répertoire actuel en module ES
 const __filename = fileURLToPath(import.meta.url);
@@ -4277,6 +4278,30 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
         });
       });
   });
+
+  /*
+   * Routes pour la gestion des accès temporaires et des modules
+   */
+  // Routes des modules
+  app.get("/api/admin/modules", adminController.getModules);
+  app.post("/api/admin/modules", adminController.upsertModule);
+  app.delete("/api/admin/modules/:moduleId", adminController.deleteModule);
+  
+  // Routes des accès temporaires
+  app.get("/api/admin/temporary-access", adminController.getTemporaryAccesses);
+  app.post("/api/admin/temporary-access", adminController.createTemporaryAccess);
+  app.put("/api/admin/temporary-access/:accessId", adminController.updateTemporaryAccess);
+  app.post("/api/admin/temporary-access/:accessId/revoke", adminController.revokeTemporaryAccess);
+  app.post("/api/admin/temporary-access/:accessId/resend", adminController.resendInvitation);
+  
+  // Route d'autorisation temporaire pour les modules
+  app.post("/api/verify-temporary-access", adminController.verifyTemporaryAccess);
+  
+  // Gestion des administrateurs
+  app.post("/api/admin/promote", adminController.promoteToAdmin);
+  
+  // Installation initiale des modules
+  app.post("/api/admin/initialize-modules", adminController.initializeApplicationModules);
 
   // Fin des routes API
 
