@@ -243,6 +243,39 @@ const CustomModule = () => {
 
   return (
     <HomeLayout>
+      {/* Boîte de dialogue de confirmation de suppression */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent className="bg-gray-800 border border-gray-700 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-300">
+              Êtes-vous sûr de vouloir supprimer ce module personnalisé ? Cette action ne peut pas être annulée.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel 
+              className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
+              disabled={isDeleting}
+            >
+              Annuler
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={deleteModule}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Suppression...
+                </>
+              ) : (
+                'Supprimer'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-gray-900 to-blue-900">
         {/* Bouton retour à l'accueil */}
         <div className="absolute top-4 left-4 z-20">
@@ -253,6 +286,18 @@ const CustomModule = () => {
           >
             <Home className="h-4 w-4 mr-2" />
             Accueil
+          </Button>
+        </div>
+        
+        {/* Bouton supprimer */}
+        <div className="absolute top-4 right-4 z-20">
+          <Button 
+            variant="outline" 
+            className="bg-red-500/20 border-red-500/30 text-white hover:bg-red-500/40 hover:text-white"
+            onClick={() => setDeleteDialogOpen(true)}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Supprimer
           </Button>
         </div>
         
