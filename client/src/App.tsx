@@ -173,6 +173,15 @@ function App() {
                 </Suspense>
               );
             }} />
+            
+            <Route path="/cyber/interview-test" component={() => {
+              const CyberInterviewTest = lazy(() => import('./pages/cyber/interview-test'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <CyberInterviewTest />
+                </Suspense>
+              );
+            }} />
 <Route path="/cyber/arcade/code-shield" component={() => {
               const CodeShieldComponent = lazy(() => import('./pages/cyber/arcade/code-shield'));
               return (

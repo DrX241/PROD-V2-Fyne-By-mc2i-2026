@@ -86,8 +86,8 @@ Analyse le profil du candidat et génère une évaluation selon le format JSON d
 
     // Appel à Azure OpenAI
     const messages = [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt }
+      { role: "system" as const, content: systemPrompt },
+      { role: "user" as const, content: userPrompt }
     ];
     const completion = await openAIService.getChatCompletion(
       messages,
