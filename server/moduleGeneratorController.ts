@@ -383,3 +383,43 @@ function getIconPath(domain: string): string {
   // Icône par défaut si aucune correspondance n'est trouvée
   return '/assets/icons/default-module.svg';
 }
+
+/**
+ * Supprime un module personnalisé par son ID
+ */
+export async function deleteCustomModule(req: Request, res: Response) {
+  try {
+    const moduleId = parseInt(req.params.id);
+    
+    if (isNaN(moduleId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID de module invalide',
+      });
+    }
+    
+    // Vérifier si le module existe
+    const [module] = await db.select().from(customModules).where(eq(customModules.id, moduleId));
+    
+    if (!module) {
+      return res.status(404).json({
+        success: false,
+        message: 'Module non trouvé',
+      });
+    }
+    
+    // Supprimer le module
+    await db.delete(customModules).where(eq(customModules.id, moduleId));
+    
+    return res.json({
+      success: true,
+      message: 'Module supprimé avec succès',
+    });
+  } catch (error) {
+    console.error('Erreur lors de la suppression du module:', error);
+    return res.status(500).json({
+      success: false,
+      message: error instanceof Error ? error.message : 'Une erreur est survenue lors de la suppression du module',
+    });
+  }
+}
