@@ -1318,6 +1318,38 @@ export async function authenticateSuperAdmin(req: Request, res: Response) {
   }
 }
 
+/**
+ * Déconnecte l'utilisateur super administrateur
+ */
+export async function logoutSuperAdmin(req: Request, res: Response) {
+  try {
+    // Vérifier que la session est disponible
+    if (!req.session) {
+      console.error("Session non initialisée");
+      return res.status(500).json({ 
+        success: false, 
+        message: "Erreur interne du serveur: session non disponible" 
+      });
+    }
+    
+    // Détruire la session
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Erreur lors de la déconnexion:", err);
+        return res.status(500).json({ success: false, message: "Erreur lors de la déconnexion" });
+      }
+      
+      res.status(200).json({ 
+        success: true, 
+        message: "Déconnexion réussie" 
+      });
+    });
+  } catch (error) {
+    console.error("Erreur lors de la déconnexion:", error);
+    res.status(500).json({ success: false, message: "Erreur interne du serveur" });
+  }
+}
+
 // Vérifier l'état d'initialisation du système
 export async function checkSystemSetup(req: Request, res: Response) {
   try {
@@ -1366,5 +1398,6 @@ export default {
   promoteToAdmin,
   initializeSuperAdmin,
   authenticateSuperAdmin,
+  logoutSuperAdmin,
   checkSystemSetup
 };
