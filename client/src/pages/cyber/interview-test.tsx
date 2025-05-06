@@ -393,7 +393,7 @@ export default function CyberInterviewTest() {
   // Affichage du test en cours
   return (
     <HomeLayout>
-      <div className="container mx-auto py-8 px-4">
+      <div className="container mx-auto py-8 px-4 cyber-interview-test">
         <Card className="max-w-3xl mx-auto">
           <CardHeader>
             <div className="flex justify-between items-center">
