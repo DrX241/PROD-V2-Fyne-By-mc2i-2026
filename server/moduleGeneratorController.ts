@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import { openAIService } from './services/openai';
+import { db } from './db';
+import { customModules, type InsertCustomModule } from '@shared/schema';
 
 // Types pour la configuration du module
 interface ModuleConfig {
@@ -187,4 +189,154 @@ Veuillez créer une structure complète pour ce module d'apprentissage incluant 
 Chaque sous-module devrait avoir une approche pédagogique cohérente, adaptée au domaine ${config.domain} et aux sujets mentionnés.
 
 Générez la réponse au format JSON comme spécifié, avec des descriptions riches et une progression pédagogique logique.`;
+}
+
+/**
+ * Sauvegarde un module personnalisé dans la base de données
+ */
+export async function saveCustomModule(req: Request, res: Response) {
+  try {
+    // Récupération des données du module et de la configuration
+    const { moduleData, moduleConfig } = req.body;
+    
+    if (!moduleData || !moduleConfig) {
+      return res.status(400).json({
+        success: false,
+        message: 'Données requises manquantes. Veuillez fournir moduleData et moduleConfig.'
+      });
+    }
+
+    // Conversion du niveau de gamification au format compatible avec la base de données
+    const gamificationLevelMap: Record<string, string> = {
+      'low': 'leger',
+      'medium': 'modere',
+      'high': 'eleve'
+    };
+
+    // Préparation des données pour l'insertion
+    const moduleToSave: InsertCustomModule = {
+      userId: req.session.userId || 'anonymous', // Utilisation de l'ID utilisateur de la session ou 'anonymous' si non connecté
+      userName: req.session.userName || 'Utilisateur anonyme',
+      name: moduleConfig.name,
+      domain: moduleConfig.domain,
+      description: moduleConfig.description,
+      iamName: moduleData.iamName || `I AM ${moduleConfig.domain.toUpperCase()}`,
+      difficulty: moduleConfig.difficulty,
+      topics: moduleConfig.topics,
+      gamificationLevel: gamificationLevelMap[moduleConfig.gamificationLevel] as any,
+      learningStyle: moduleConfig.learningStyle,
+      includeTrainerModule: moduleConfig.includeTrainerModule,
+      includeOpsModule: moduleConfig.includeOpsModule,
+      includeTestModule: moduleConfig.includeTestModule,
+      includeAscensionModule: moduleConfig.includeAscensionModule,
+      moduleData: moduleData,
+      // Icône par défaut basée sur le domaine
+      iconPath: getIconPath(moduleConfig.domain)
+    };
+
+    // Insertion dans la base de données
+    const [savedModule] = await db.insert(customModules).values(moduleToSave).returning();
+
+    // Retour du module sauvegardé
+    return res.status(201).json({
+      success: true,
+      message: 'Module sauvegardé avec succès',
+      module: savedModule
+    });
+
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde du module:', error);
+    return res.status(500).json({
+      success: false,
+      message: error instanceof Error ? error.message : 'Une erreur est survenue lors de la sauvegarde du module'
+    });
+  }
+}
+
+/**
+ * Récupère tous les modules personnalisés pour affichage
+ */
+export async function getCustomModules(req: Request, res: Response) {
+  try {
+    // Récupération de tous les modules actifs, triés par ordre d'affichage
+    const modules = await db.select().from(customModules)
+      .where({ isActive: true })
+      .orderBy('displayOrder', 'asc');
+
+    return res.status(200).json({
+      success: true,
+      modules
+    });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des modules:', error);
+    return res.status(500).json({
+      success: false,
+      message: error instanceof Error ? error.message : 'Une erreur est survenue lors de la récupération des modules'
+    });
+  }
+}
+
+/**
+ * Récupère un module personnalisé par son ID
+ */
+export async function getCustomModuleById(req: Request, res: Response) {
+  try {
+    const moduleId = parseInt(req.params.id);
+    
+    if (isNaN(moduleId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID de module invalide'
+      });
+    }
+
+    const [module] = await db.select().from(customModules).where({ id: moduleId });
+
+    if (!module) {
+      return res.status(404).json({
+        success: false,
+        message: 'Module non trouvé'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      module
+    });
+  } catch (error) {
+    console.error('Erreur lors de la récupération du module:', error);
+    return res.status(500).json({
+      success: false,
+      message: error instanceof Error ? error.message : 'Une erreur est survenue lors de la récupération du module'
+    });
+  }
+}
+
+/**
+ * Détermine le chemin de l'icône en fonction du domaine
+ */
+function getIconPath(domain: string): string {
+  // Nettoyage et conversion du domaine en minuscules
+  const normalizedDomain = domain.toLowerCase().trim();
+  
+  // Correspondance des domaines avec des icônes spécifiques
+  const iconMap: Record<string, string> = {
+    'cyber': '/assets/icons/module-cyber.svg',
+    'data': '/assets/icons/module-data.svg',
+    'dev': '/assets/icons/module-dev.svg',
+    'cloud': '/assets/icons/module-cloud.svg',
+    'amoa': '/assets/icons/module-amoa.svg',
+    'ia': '/assets/icons/module-ia.svg',
+    'consulting': '/assets/icons/module-consulting.svg'
+  };
+
+  // Recherche d'une correspondance partielle dans le domaine
+  for (const [key, iconPath] of Object.entries(iconMap)) {
+    if (normalizedDomain.includes(key)) {
+      return iconPath;
+    }
+  }
+
+  // Icône par défaut si aucune correspondance n'est trouvée
+  return '/assets/icons/default-module.svg';
 }
