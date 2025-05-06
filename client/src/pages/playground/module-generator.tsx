@@ -99,6 +99,68 @@ export default function ModuleGenerator() {
     }));
   };
 
+  // Sauvegarder le module dans la base de données
+  const saveModule = async () => {
+    if (!generatedModules) {
+      toast({
+        title: 'Erreur',
+        description: 'Veuillez d\'abord générer un module avant de le sauvegarder.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    setIsGenerating(true);
+    
+    try {
+      // Préparation des données pour l'API de sauvegarde
+      const moduleToSave = {
+        name: moduleConfig.name,
+        domain: moduleConfig.domain,
+        description: generatedModules.description || moduleConfig.description,
+        iamName: generatedModules.iamName || `I AM ${moduleConfig.domain.toUpperCase()}`,
+        difficulty: moduleConfig.difficulty,
+        topics: moduleConfig.topics,
+        gamificationLevel: moduleConfig.gamificationLevel,
+        learningStyle: moduleConfig.learningStyle,
+        includeTrainerModule: moduleConfig.includeTrainerModule,
+        includeOpsModule: moduleConfig.includeOpsModule,
+        includeTestModule: moduleConfig.includeTestModule,
+        includeAscensionModule: moduleConfig.includeAscensionModule,
+        moduleData: generatedModules // Les données complètes générées
+      };
+      
+      // Appel à l'API de sauvegarde
+      const response = await fetch('/api/module-generator/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(moduleToSave),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        toast({
+          title: 'Module sauvegardé',
+          description: 'Votre module a été sauvegardé avec succès !',
+        });
+      } else {
+        throw new Error(data.message || 'Erreur lors de la sauvegarde du module.');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
+      toast({
+        title: 'Erreur',
+        description: error instanceof Error ? error.message : 'Une erreur est survenue lors de la sauvegarde du module.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+  
   // Générer les modules
   const generateModules = async () => {
     // Vérifier que les champs obligatoires sont remplis
@@ -589,15 +651,17 @@ export default function ModuleGenerator() {
                     <div className="flex gap-2">
                       <Button 
                         variant="secondary"
-                        // Cette fonctionnalité serait implémentée dans une future version
-                        onClick={() => {
-                          toast({
-                            title: 'Fonctionnalité en développement',
-                            description: 'Cette fonctionnalité sera disponible prochainement.',
-                          });
-                        }}
+                        onClick={saveModule}
+                        disabled={isGenerating}
                       >
-                        Sauvegarder
+                        {isGenerating ? (
+                          <>
+                            <span className="animate-spin mr-2">⏳</span> 
+                            En cours...
+                          </>
+                        ) : (
+                          <>Sauvegarder</>
+                        )}
                       </Button>
                       <Button
                         variant="default"
