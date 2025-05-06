@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useRoute, Link } from 'wouter';
-import { Loader2, ArrowLeft, Book, Code, Gamepad2, Trophy, Brain } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Loader2, ArrowLeft, Book, Code, Gamepad2, Trophy, Home, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import HomeLayout from '@/components/layout/HomeLayout';
+import { motion } from 'framer-motion';
 
 const CustomModule = () => {
   const [match, params] = useRoute('/custom-module/:id');
@@ -15,6 +14,7 @@ const CustomModule = () => {
   const [module, setModule] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<string>('overview');
+  const [hoveredButton, setHoveredButton] = useState<string | null>(null);
 
   useEffect(() => {
     // Si aucun paramètre d'ID n'est trouvé, retourner à la page d'accueil
@@ -82,59 +82,28 @@ const CustomModule = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params?.id]);
 
-  // Fonction pour formater le niveau de difficulté
-  const formatDifficulty = (difficulty: string) => {
-    switch(difficulty) {
-      case 'beginner':
-        return 'Débutant';
-      case 'intermediate':
-        return 'Intermédiaire';
-      case 'advanced':
-        return 'Avancé';
+  // Fonction pour obtenir le gradient du module en fonction du domaine
+  const getModuleGradient = (domain: string) => {
+    switch (domain.toLowerCase()) {
+      case 'cybersécurité':
+      case 'cybersecurite':
+      case 'cyber':
+        return 'from-blue-700 to-blue-900';
+      case 'data science':
+      case 'data & ia':
+      case 'data':
+      case 'ia':
+        return 'from-indigo-700 to-indigo-900';
+      case 'developpement web':
+      case 'développement web':
+      case 'web':
+      case 'développement':
+      case 'developpement':
+        return 'from-purple-700 to-purple-900';
+      case 'ux/ui':
+        return 'from-pink-700 to-pink-900';
       default:
-        return difficulty;
-    }
-  };
-
-  // Fonction pour formater le niveau de gamification
-  const formatGamification = (level: string) => {
-    switch(level) {
-      case 'leger':
-        return 'Léger';
-      case 'modere':
-        return 'Modéré';
-      case 'eleve':
-        return 'Élevé';
-      default:
-        return level;
-    }
-  };
-
-  // Fonction pour formater le style d'apprentissage
-  const formatLearningStyle = (style: string) => {
-    switch(style) {
-      case 'reading':
-        return 'Lecture';
-      case 'interactive':
-        return 'Interactif';
-      case 'mixed':
-        return 'Mixte';
-      default:
-        return style;
-    }
-  };
-
-  // Fonction pour générer la couleur de l'icône de badge en fonction du niveau de difficulté
-  const getDifficultyColor = (difficulty: string) => {
-    switch(difficulty) {
-      case 'beginner':
-        return 'bg-green-500 text-white';
-      case 'intermediate':
-        return 'bg-yellow-500 text-white';
-      case 'advanced':
-        return 'bg-red-500 text-white';
-      default:
-        return 'bg-gray-500 text-white';
+        return 'from-blue-700 to-blue-900';
     }
   };
 
@@ -142,10 +111,10 @@ const CustomModule = () => {
   if (loading) {
     return (
       <HomeLayout>
-        <div className="h-[70vh] flex items-center justify-center">
+        <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-gray-900 to-blue-900 flex items-center justify-center">
           <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
-            <p className="text-lg font-medium">Chargement du module...</p>
+            <Loader2 className="h-10 w-10 animate-spin mx-auto mb-4 text-white" />
+            <p className="text-lg font-medium text-white">Chargement du module...</p>
           </div>
         </div>
       </HomeLayout>
@@ -156,10 +125,12 @@ const CustomModule = () => {
   if (!module) {
     return (
       <HomeLayout>
-        <div className="h-[70vh] flex items-center justify-center">
+        <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-gray-900 to-blue-900 flex items-center justify-center">
           <div className="text-center">
-            <p className="text-lg font-medium mb-4">Module non trouvé</p>
-            <Button onClick={() => navigate('/')}>Retour à l'accueil</Button>
+            <p className="text-lg font-medium mb-4 text-white">Module non trouvé</p>
+            <Button onClick={() => navigate('/')} className="bg-blue-600 hover:bg-blue-700 text-white">
+              Retour à l'accueil
+            </Button>
           </div>
         </div>
       </HomeLayout>
@@ -168,311 +139,451 @@ const CustomModule = () => {
 
   // Récupération des données du module
   const { moduleData } = module;
+  const moduleGradient = getModuleGradient(module.domain);
+  
+  const getModuleComponents = () => {
+    const components = [];
+    
+    if (module.includeTrainerModule) {
+      components.push({
+        id: 'trainer',
+        title: `${module.domain.toUpperCase()}TRAINER`,
+        description: moduleData?.trainerModule?.description || "Module théorique et connaissances fondamentales",
+        icon: <Book className="h-5 w-5 mr-2" />,
+        gradient: 'from-green-700 to-green-900'
+      });
+    }
+    
+    if (module.includeOpsModule) {
+      components.push({
+        id: 'ops',
+        title: `${module.domain.toUpperCase()}OPS`,
+        description: moduleData?.opsModule?.description || "Module pratique et application des connaissances",
+        icon: <Code className="h-5 w-5 mr-2" />,
+        gradient: 'from-blue-700 to-blue-900'
+      });
+    }
+    
+    if (module.includeTestModule) {
+      components.push({
+        id: 'test',
+        title: `${module.domain.toUpperCase()}TEST`,
+        description: moduleData?.testModule?.description || "Module d'évaluation des connaissances",
+        icon: <Gamepad2 className="h-5 w-5 mr-2" />,
+        gradient: 'from-purple-700 to-purple-900'
+      });
+    }
+    
+    if (module.includeAscensionModule) {
+      components.push({
+        id: 'ascension',
+        title: `${module.domain.toUpperCase()}ASCENSION`,
+        description: moduleData?.ascensionModule?.description || "Module avancé et perfectionnement",
+        icon: <Trophy className="h-5 w-5 mr-2" />,
+        gradient: 'from-amber-700 to-amber-900'
+      });
+    }
+    
+    return components;
+  };
+
+  const moduleComponents = getModuleComponents();
 
   return (
     <HomeLayout>
-      <div className="container mx-auto py-8 px-4">
-        {/* En-tête avec bouton de retour */}
-        <div className="flex items-center mb-6">
-          <Button variant="outline" size="icon" onClick={() => navigate('/')} className="mr-4">
-            <ArrowLeft className="h-5 w-5" />
+      <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-gray-900 to-blue-900">
+        {/* Bouton retour à l'accueil */}
+        <div className="absolute top-4 left-4 z-20">
+          <Button 
+            variant="outline" 
+            className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white"
+            onClick={() => navigate('/')}
+          >
+            <Home className="h-4 w-4 mr-2" />
+            Accueil
           </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-blue-800 dark:text-white">{module.iamName}</h1>
-            <p className="text-gray-600 dark:text-gray-300">{module.description}</p>
+        </div>
+        
+        {/* Arrière-plan cybersécurité simplifié */}
+        <div className="absolute inset-0 w-full h-full opacity-20">
+          <div className="absolute inset-0 bg-[#001529] overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 bottom-0 grid grid-cols-12 gap-3 opacity-30">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <div key={i} className="border-r border-blue-500/20 h-full"></div>
+              ))}
+            </div>
+            <div className="absolute top-0 left-0 right-0 bottom-0 grid grid-rows-12 gap-3 opacity-30">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <div key={i} className="border-b border-blue-500/20 w-full"></div>
+              ))}
+            </div>
           </div>
         </div>
+        
+        {/* Contenu principal */}
+        <div className="relative z-10 max-w-[1600px] w-full mx-auto px-4 py-8 sm:px-6 sm:py-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-8 mt-4"
+          >
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3">
+              {module.iamName}
+            </h1>
+            <p className="text-lg sm:text-xl text-blue-200 max-w-3xl mx-auto">
+              {module.description}
+            </p>
+          </motion.div>
 
-        {/* Informations du module */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Informations</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Domaine</p>
-                  <p>{module.domain}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Difficulté</p>
-                  <Badge className={`${getDifficultyColor(module.difficulty)}`}>
-                    {formatDifficulty(module.difficulty)}
-                  </Badge>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Gamification</p>
-                  <p>{formatGamification(module.gamificationLevel)}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Style d'apprentissage</p>
-                  <p>{formatLearningStyle(module.learningStyle)}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Sujets</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {module.topics && module.topics.map((topic: string, index: number) => (
-                  <Badge key={index} variant="outline">{topic}</Badge>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Composants du module</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {module.includeTrainerModule && (
-                  <div className="flex items-center">
-                    <Book className="h-4 w-4 mr-2 text-green-500" />
-                    <span>Module Trainer</span>
+          {/* Sélecteur de modules */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-3 sm:px-6 max-w-full mx-auto">
+            {moduleComponents.map((component, index) => (
+              <motion.div
+                key={component.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.2 }}
+                className="relative overflow-hidden shadow-xl transform transition-all duration-300 hover:shadow-2xl rounded-xl"
+                onMouseEnter={() => setHoveredButton(component.id)}
+                onMouseLeave={() => setHoveredButton(null)}
+                onClick={() => setActiveTab(component.id)}
+              >
+                {/* Gradient background */}
+                <div className={`bg-gradient-to-br ${component.gradient} p-5 lg:p-6 h-full flex flex-col relative overflow-hidden rounded-xl cursor-pointer`}>
+                  {/* Glow effect on hover */}
+                  {hoveredButton === component.id && (
+                    <div className="absolute inset-0 bg-white opacity-5"></div>
+                  )}
+                  
+                  {/* Éléments décoratifs */}
+                  <div className="absolute h-16 w-16 -top-8 -right-8 bg-white opacity-20 rounded-full blur-md"></div>
+                  
+                  <div className="flex flex-col h-full relative z-10">
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-lg sm:text-xl font-bold text-white mb-3">
+                        {component.title}
+                      </h2>
+                      {component.icon}
+                    </div>
+                    
+                    <p className="text-blue-100 mb-4 text-sm flex-grow">
+                      {component.description.length > 120 ? 
+                        `${component.description.substring(0, 120)}...` : 
+                        component.description
+                      }
+                    </p>
+                    
+                    <div className="flex items-center mt-auto">
+                      <span className="text-white text-sm font-medium">Explorer</span>
+                      <div className="ml-auto text-white bg-white/20 p-1 rounded-full">
+                        <ArrowRight className="h-4 w-4" />
+                      </div>
+                    </div>
                   </div>
-                )}
-                {module.includeOpsModule && (
-                  <div className="flex items-center">
-                    <Code className="h-4 w-4 mr-2 text-blue-500" />
-                    <span>Module OPS</span>
-                  </div>
-                )}
-                {module.includeTestModule && (
-                  <div className="flex items-center">
-                    <Gamepad2 className="h-4 w-4 mr-2 text-purple-500" />
-                    <span>Module Test</span>
-                  </div>
-                )}
-                {module.includeAscensionModule && (
-                  <div className="flex items-center">
-                    <Trophy className="h-4 w-4 mr-2 text-amber-500" />
-                    <span>Module Ascension</span>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Contenu détaillé du module */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-4 md:grid-cols-5 lg:flex mb-8">
-            <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
-            {module.includeTrainerModule && (
-              <TabsTrigger value="trainer">Trainer</TabsTrigger>
-            )}
-            {module.includeOpsModule && (
-              <TabsTrigger value="ops">OPS</TabsTrigger>
-            )}
-            {module.includeTestModule && (
-              <TabsTrigger value="test">Test</TabsTrigger>
-            )}
-            {module.includeAscensionModule && (
-              <TabsTrigger value="ascension">Ascension</TabsTrigger>
-            )}
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Vue d'ensemble du module</CardTitle>
-                <CardDescription>Description générale et structure du module</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-medium mb-2">Description</h3>
-                  <p className="text-gray-700 dark:text-gray-300">{moduleData?.description || module.description}</p>
                 </div>
-                {moduleData?.contentStructure && (
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Contenu détaillé du module sélectionné */}
+          <div className="mt-12">
+            <TabsContent value="overview" className={activeTab === 'overview' ? 'block' : 'hidden'}>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="bg-white/10 backdrop-blur-sm p-6 rounded-xl text-white shadow-xl border border-white/20"
+              >
+                <h2 className="text-2xl font-bold mb-4">Vue d'ensemble du module</h2>
+                <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-medium mb-2">Structure du contenu</h3>
-                    <p className="text-gray-700 dark:text-gray-300">{moduleData.contentStructure}</p>
+                    <h3 className="text-xl font-medium mb-2 text-blue-200">Description</h3>
+                    <p className="text-gray-200">{moduleData?.description || module.description}</p>
                   </div>
-                )}
-              </CardContent>
-              <CardFooter>
-                <Button className="w-full" onClick={() => navigate('/')}>
-                  Retour à l'accueil
-                </Button>
-              </CardFooter>
-            </Card>
-          </TabsContent>
-
-          {/* Module Trainer */}
-          {module.includeTrainerModule && (
-            <TabsContent value="trainer">
-              <Card>
-                <CardHeader>
-                  <CardTitle>{moduleData?.trainerModule?.name || 'Module Trainer'}</CardTitle>
-                  <CardDescription>Module théorique et connaissances fondamentales</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {moduleData?.trainerModule?.description && (
+                  
+                  {moduleData?.contentStructure && (
                     <div>
-                      <h3 className="text-lg font-medium mb-2">Description</h3>
-                      <p className="text-gray-700 dark:text-gray-300">{moduleData.trainerModule.description}</p>
+                      <h3 className="text-xl font-medium mb-2 text-blue-200">Structure du contenu</h3>
+                      <p className="text-gray-200">{moduleData.contentStructure}</p>
                     </div>
                   )}
                   
-                  {moduleData?.trainerModule?.features && moduleData.trainerModule.features.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-medium mb-2">Caractéristiques</h3>
-                      <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300">
-                        {moduleData.trainerModule.features.map((feature: string, index: number) => (
-                          <li key={index}>{feature}</li>
-                        ))}
-                      </ul>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                    <div className="bg-white/5 p-4 rounded-lg border border-white/10">
+                      <h4 className="font-medium mb-2 text-blue-200">Domaine</h4>
+                      <p className="text-white">{module.domain}</p>
                     </div>
-                  )}
+                    <div className="bg-white/5 p-4 rounded-lg border border-white/10">
+                      <h4 className="font-medium mb-2 text-blue-200">Difficulté</h4>
+                      <p className="text-white">{
+                        module.difficulty === 'beginner' ? 'Débutant' :
+                        module.difficulty === 'intermediate' ? 'Intermédiaire' : 
+                        module.difficulty === 'advanced' ? 'Avancé' : 
+                        module.difficulty
+                      }</p>
+                    </div>
+                    <div className="bg-white/5 p-4 rounded-lg border border-white/10">
+                      <h4 className="font-medium mb-2 text-blue-200">Style d'apprentissage</h4>
+                      <p className="text-white">{
+                        module.learningStyle === 'reading' ? 'Lecture' :
+                        module.learningStyle === 'interactive' ? 'Interactif' : 
+                        module.learningStyle === 'mixed' ? 'Mixte' : 
+                        module.learningStyle
+                      }</p>
+                    </div>
+                  </div>
                   
-                  {moduleData?.trainerModule?.contentOutline && moduleData.trainerModule.contentOutline.length > 0 && (
+                  {/* Sujets */}
+                  {module.topics && module.topics.length > 0 && (
                     <div>
-                      <h3 className="text-lg font-medium mb-2">Plan du contenu</h3>
-                      <ol className="list-decimal list-inside space-y-1 text-gray-700 dark:text-gray-300">
-                        {moduleData.trainerModule.contentOutline.map((item: string, index: number) => (
-                          <li key={index}>{item}</li>
+                      <h3 className="text-xl font-medium mb-2 text-blue-200">Sujets</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {module.topics.map((topic: string, index: number) => (
+                          <span key={index} className="bg-blue-500/20 text-blue-100 px-3 py-1 rounded-full text-sm">
+                            {topic}
+                          </span>
                         ))}
-                      </ol>
+                      </div>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </motion.div>
             </TabsContent>
-          )}
 
-          {/* Module OPS */}
-          {module.includeOpsModule && (
-            <TabsContent value="ops">
-              <Card>
-                <CardHeader>
-                  <CardTitle>{moduleData?.opsModule?.name || 'Module OPS'}</CardTitle>
-                  <CardDescription>Module pratique et applications concrètes</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {moduleData?.opsModule?.description && (
-                    <div>
-                      <h3 className="text-lg font-medium mb-2">Description</h3>
-                      <p className="text-gray-700 dark:text-gray-300">{moduleData.opsModule.description}</p>
-                    </div>
-                  )}
+            {/* Module Trainer */}
+            {module.includeTrainerModule && (
+              <TabsContent value="trainer" className={activeTab === 'trainer' ? 'block' : 'hidden'}>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="bg-white/10 backdrop-blur-sm p-6 rounded-xl text-white shadow-xl border border-white/20"
+                >
+                  <div className="flex items-center mb-4">
+                    <Button 
+                      variant="outline" 
+                      className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white mr-4"
+                      onClick={() => setActiveTab('overview')}
+                    >
+                      <ArrowLeft className="h-4 w-4 mr-2" />
+                      Retour
+                    </Button>
+                    <h2 className="text-2xl font-bold">{moduleData?.trainerModule?.name || `${module.domain.toUpperCase()}TRAINER`}</h2>
+                  </div>
                   
-                  {moduleData?.opsModule?.features && moduleData.opsModule.features.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-medium mb-2">Caractéristiques</h3>
-                      <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300">
-                        {moduleData.opsModule.features.map((feature: string, index: number) => (
-                          <li key={index}>{feature}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  
-                  {moduleData?.opsModule?.contentOutline && moduleData.opsModule.contentOutline.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-medium mb-2">Plan du contenu</h3>
-                      <ol className="list-decimal list-inside space-y-1 text-gray-700 dark:text-gray-300">
-                        {moduleData.opsModule.contentOutline.map((item: string, index: number) => (
-                          <li key={index}>{item}</li>
-                        ))}
-                      </ol>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          )}
+                  <div className="space-y-6">
+                    {moduleData?.trainerModule?.description && (
+                      <div>
+                        <h3 className="text-xl font-medium mb-2 text-blue-200">Description</h3>
+                        <p className="text-gray-200">{moduleData.trainerModule.description}</p>
+                      </div>
+                    )}
+                    
+                    {moduleData?.trainerModule?.features && moduleData.trainerModule.features.length > 0 && (
+                      <div>
+                        <h3 className="text-xl font-medium mb-2 text-blue-200">Caractéristiques</h3>
+                        <ul className="space-y-2 text-gray-200">
+                          {moduleData.trainerModule.features.map((feature: string, index: number) => (
+                            <li key={index} className="flex items-start">
+                              <span className="inline-block h-2 w-2 bg-green-400 rounded-full mt-2 mr-2"></span>
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    
+                    {moduleData?.trainerModule?.contentOutline && moduleData.trainerModule.contentOutline.length > 0 && (
+                      <div>
+                        <h3 className="text-xl font-medium mb-2 text-blue-200">Plan du contenu</h3>
+                        <ol className="space-y-2 text-gray-200 list-decimal list-inside">
+                          {moduleData.trainerModule.contentOutline.map((item: string, index: number) => (
+                            <li key={index}>{item}</li>
+                          ))}
+                        </ol>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              </TabsContent>
+            )}
 
-          {/* Module Test */}
-          {module.includeTestModule && (
-            <TabsContent value="test">
-              <Card>
-                <CardHeader>
-                  <CardTitle>{moduleData?.testModule?.name || 'Module Test'}</CardTitle>
-                  <CardDescription>Module d'évaluation et de vérification des connaissances</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {moduleData?.testModule?.description && (
-                    <div>
-                      <h3 className="text-lg font-medium mb-2">Description</h3>
-                      <p className="text-gray-700 dark:text-gray-300">{moduleData.testModule.description}</p>
-                    </div>
-                  )}
+            {/* Module OPS */}
+            {module.includeOpsModule && (
+              <TabsContent value="ops" className={activeTab === 'ops' ? 'block' : 'hidden'}>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="bg-white/10 backdrop-blur-sm p-6 rounded-xl text-white shadow-xl border border-white/20"
+                >
+                  <div className="flex items-center mb-4">
+                    <Button 
+                      variant="outline" 
+                      className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white mr-4"
+                      onClick={() => setActiveTab('overview')}
+                    >
+                      <ArrowLeft className="h-4 w-4 mr-2" />
+                      Retour
+                    </Button>
+                    <h2 className="text-2xl font-bold">{moduleData?.opsModule?.name || `${module.domain.toUpperCase()}OPS`}</h2>
+                  </div>
                   
-                  {moduleData?.testModule?.features && moduleData.testModule.features.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-medium mb-2">Caractéristiques</h3>
-                      <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300">
-                        {moduleData.testModule.features.map((feature: string, index: number) => (
-                          <li key={index}>{feature}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  
-                  {moduleData?.testModule?.contentOutline && moduleData.testModule.contentOutline.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-medium mb-2">Plan du contenu</h3>
-                      <ol className="list-decimal list-inside space-y-1 text-gray-700 dark:text-gray-300">
-                        {moduleData.testModule.contentOutline.map((item: string, index: number) => (
-                          <li key={index}>{item}</li>
-                        ))}
-                      </ol>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          )}
+                  <div className="space-y-6">
+                    {moduleData?.opsModule?.description && (
+                      <div>
+                        <h3 className="text-xl font-medium mb-2 text-blue-200">Description</h3>
+                        <p className="text-gray-200">{moduleData.opsModule.description}</p>
+                      </div>
+                    )}
+                    
+                    {moduleData?.opsModule?.features && moduleData.opsModule.features.length > 0 && (
+                      <div>
+                        <h3 className="text-xl font-medium mb-2 text-blue-200">Caractéristiques</h3>
+                        <ul className="space-y-2 text-gray-200">
+                          {moduleData.opsModule.features.map((feature: string, index: number) => (
+                            <li key={index} className="flex items-start">
+                              <span className="inline-block h-2 w-2 bg-blue-400 rounded-full mt-2 mr-2"></span>
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    
+                    {moduleData?.opsModule?.contentOutline && moduleData.opsModule.contentOutline.length > 0 && (
+                      <div>
+                        <h3 className="text-xl font-medium mb-2 text-blue-200">Plan du contenu</h3>
+                        <ol className="space-y-2 text-gray-200 list-decimal list-inside">
+                          {moduleData.opsModule.contentOutline.map((item: string, index: number) => (
+                            <li key={index}>{item}</li>
+                          ))}
+                        </ol>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              </TabsContent>
+            )}
 
-          {/* Module Ascension */}
-          {module.includeAscensionModule && (
-            <TabsContent value="ascension">
-              <Card>
-                <CardHeader>
-                  <CardTitle>{moduleData?.ascensionModule?.name || 'Module Ascension'}</CardTitle>
-                  <CardDescription>Module avancé et perfectionnement des compétences</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {moduleData?.ascensionModule?.description && (
-                    <div>
-                      <h3 className="text-lg font-medium mb-2">Description</h3>
-                      <p className="text-gray-700 dark:text-gray-300">{moduleData.ascensionModule.description}</p>
-                    </div>
-                  )}
+            {/* Module Test */}
+            {module.includeTestModule && (
+              <TabsContent value="test" className={activeTab === 'test' ? 'block' : 'hidden'}>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="bg-white/10 backdrop-blur-sm p-6 rounded-xl text-white shadow-xl border border-white/20"
+                >
+                  <div className="flex items-center mb-4">
+                    <Button 
+                      variant="outline" 
+                      className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white mr-4"
+                      onClick={() => setActiveTab('overview')}
+                    >
+                      <ArrowLeft className="h-4 w-4 mr-2" />
+                      Retour
+                    </Button>
+                    <h2 className="text-2xl font-bold">{moduleData?.testModule?.name || `${module.domain.toUpperCase()}TEST`}</h2>
+                  </div>
                   
-                  {moduleData?.ascensionModule?.features && moduleData.ascensionModule.features.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-medium mb-2">Caractéristiques</h3>
-                      <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300">
-                        {moduleData.ascensionModule.features.map((feature: string, index: number) => (
-                          <li key={index}>{feature}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                  <div className="space-y-6">
+                    {moduleData?.testModule?.description && (
+                      <div>
+                        <h3 className="text-xl font-medium mb-2 text-blue-200">Description</h3>
+                        <p className="text-gray-200">{moduleData.testModule.description}</p>
+                      </div>
+                    )}
+                    
+                    {moduleData?.testModule?.features && moduleData.testModule.features.length > 0 && (
+                      <div>
+                        <h3 className="text-xl font-medium mb-2 text-blue-200">Caractéristiques</h3>
+                        <ul className="space-y-2 text-gray-200">
+                          {moduleData.testModule.features.map((feature: string, index: number) => (
+                            <li key={index} className="flex items-start">
+                              <span className="inline-block h-2 w-2 bg-purple-400 rounded-full mt-2 mr-2"></span>
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    
+                    {moduleData?.testModule?.contentOutline && moduleData.testModule.contentOutline.length > 0 && (
+                      <div>
+                        <h3 className="text-xl font-medium mb-2 text-blue-200">Plan du contenu</h3>
+                        <ol className="space-y-2 text-gray-200 list-decimal list-inside">
+                          {moduleData.testModule.contentOutline.map((item: string, index: number) => (
+                            <li key={index}>{item}</li>
+                          ))}
+                        </ol>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              </TabsContent>
+            )}
+
+            {/* Module Ascension */}
+            {module.includeAscensionModule && (
+              <TabsContent value="ascension" className={activeTab === 'ascension' ? 'block' : 'hidden'}>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="bg-white/10 backdrop-blur-sm p-6 rounded-xl text-white shadow-xl border border-white/20"
+                >
+                  <div className="flex items-center mb-4">
+                    <Button 
+                      variant="outline" 
+                      className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white mr-4"
+                      onClick={() => setActiveTab('overview')}
+                    >
+                      <ArrowLeft className="h-4 w-4 mr-2" />
+                      Retour
+                    </Button>
+                    <h2 className="text-2xl font-bold">{moduleData?.ascensionModule?.name || `${module.domain.toUpperCase()}ASCENSION`}</h2>
+                  </div>
                   
-                  {moduleData?.ascensionModule?.contentOutline && moduleData.ascensionModule.contentOutline.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-medium mb-2">Plan du contenu</h3>
-                      <ol className="list-decimal list-inside space-y-1 text-gray-700 dark:text-gray-300">
-                        {moduleData.ascensionModule.contentOutline.map((item: string, index: number) => (
-                          <li key={index}>{item}</li>
-                        ))}
-                      </ol>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          )}
-        </Tabs>
+                  <div className="space-y-6">
+                    {moduleData?.ascensionModule?.description && (
+                      <div>
+                        <h3 className="text-xl font-medium mb-2 text-blue-200">Description</h3>
+                        <p className="text-gray-200">{moduleData.ascensionModule.description}</p>
+                      </div>
+                    )}
+                    
+                    {moduleData?.ascensionModule?.features && moduleData.ascensionModule.features.length > 0 && (
+                      <div>
+                        <h3 className="text-xl font-medium mb-2 text-blue-200">Caractéristiques</h3>
+                        <ul className="space-y-2 text-gray-200">
+                          {moduleData.ascensionModule.features.map((feature: string, index: number) => (
+                            <li key={index} className="flex items-start">
+                              <span className="inline-block h-2 w-2 bg-amber-400 rounded-full mt-2 mr-2"></span>
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    
+                    {moduleData?.ascensionModule?.contentOutline && moduleData.ascensionModule.contentOutline.length > 0 && (
+                      <div>
+                        <h3 className="text-xl font-medium mb-2 text-blue-200">Plan du contenu</h3>
+                        <ol className="space-y-2 text-gray-200 list-decimal list-inside">
+                          {moduleData.ascensionModule.contentOutline.map((item: string, index: number) => (
+                            <li key={index}>{item}</li>
+                          ))}
+                        </ol>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              </TabsContent>
+            )}
+          </div>
+        </div>
       </div>
     </HomeLayout>
   );
