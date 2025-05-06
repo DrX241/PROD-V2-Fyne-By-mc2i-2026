@@ -1099,9 +1099,212 @@ export async function promoteToAdmin(req: Request, res: Response) {
   }
 }
 
+// Fonction pour initialiser le super utilisateur
+export async function initializeSuperAdmin(req: Request, res: Response) {
+  try {
+    // Vérifier si un super admin existe déjà
+    const existingConfig = await db
+      .select()
+      .from(schema.systemConfiguration)
+      .limit(1);
+    
+    if (existingConfig.length > 0 && existingConfig[0].setupComplete) {
+      return res.status(409).json({ 
+        success: false, 
+        message: "La configuration système est déjà complète. Impossible de réinitialiser le super administrateur." 
+      });
+    }
+    
+    const { username, password } = req.body;
+    
+    if (!username || !password || username.length < 3 || password.length < 8) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Veuillez fournir un nom d'utilisateur (min. 3 caractères) et un mot de passe (min. 8 caractères)" 
+      });
+    }
+    
+    // Hacher le mot de passe
+    const hashedPassword = await hashPassword(password);
+    
+    // Supprimer toute configuration existante
+    await db.delete(schema.systemConfiguration);
+    
+    // Créer la nouvelle configuration système avec le super admin
+    const [config] = await db
+      .insert(schema.systemConfiguration)
+      .values({
+        superAdminUsername: username,
+        superAdminPasswordHash: hashedPassword,
+        setupComplete: true,
+        allowExternalUsers: true
+      })
+      .returning();
+    
+    // Créer ou obtenir l'utilisateur correspondant
+    let user;
+    
+    const [existingUser] = await db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.username, username));
+    
+    if (existingUser) {
+      user = existingUser;
+    } else {
+      [user] = await db
+        .insert(schema.users)
+        .values({
+          username: username,
+          password: hashedPassword
+        })
+        .returning();
+    }
+    
+    // Créer ou mettre à jour le profil utilisateur pour qu'il soit super admin
+    const [existingProfile] = await db
+      .select()
+      .from(schema.userProfiles)
+      .where(eq(schema.userProfiles.userId, user.id));
+    
+    if (existingProfile) {
+      await db
+        .update(schema.userProfiles)
+        .set({
+          role: "superadmin",
+          updatedAt: new Date()
+        })
+        .where(eq(schema.userProfiles.userId, user.id));
+    } else {
+      await db
+        .insert(schema.userProfiles)
+        .values({
+          userId: user.id,
+          displayName: "Super Administrateur",
+          role: "superadmin"
+        });
+    }
+    
+    res.status(200).json({ 
+      success: true, 
+      message: "Super Administrateur créé avec succès",
+      userId: user.id
+    });
+  } catch (error) {
+    console.error("Erreur lors de l'initialisation du super administrateur:", error);
+    res.status(500).json({ success: false, message: "Erreur interne du serveur" });
+  }
+}
+
+// Authentification du super utilisateur
+export async function authenticateSuperAdmin(req: Request, res: Response) {
+  try {
+    const { username, password } = req.body;
+    
+    if (!username || !password) {
+      return res.status(400).json({ success: false, message: "Nom d'utilisateur et mot de passe requis" });
+    }
+    
+    // Récupérer la configuration système
+    const [config] = await db
+      .select()
+      .from(schema.systemConfiguration)
+      .limit(1);
+    
+    if (!config) {
+      return res.status(404).json({ 
+        success: false, 
+        setupRequired: true,
+        message: "Configuration système non trouvée. Configuration initiale requise." 
+      });
+    }
+    
+    // Vérifier les identifiants du super admin
+    if (username !== config.superAdminUsername) {
+      return res.status(401).json({ success: false, message: "Identifiants invalides" });
+    }
+    
+    const passwordMatch = await comparePasswords(password, config.superAdminPasswordHash);
+    
+    if (!passwordMatch) {
+      return res.status(401).json({ success: false, message: "Identifiants invalides" });
+    }
+    
+    // Récupérer l'utilisateur correspondant
+    const [user] = await db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.username, username));
+    
+    if (!user) {
+      return res.status(500).json({ 
+        success: false, 
+        message: "Erreur de configuration: utilisateur super admin introuvable" 
+      });
+    }
+    
+    // Mettre à jour la session pour indiquer que l'utilisateur est connecté
+    req.session.userId = user.id;
+    req.session.username = user.username;
+    req.session.isAuthenticated = true;
+    req.session.isSuperAdmin = true;
+    
+    // Sauvegarder la session
+    req.session.save(err => {
+      if (err) {
+        console.error("Erreur lors de la sauvegarde de la session:", err);
+        return res.status(500).json({ success: false, message: "Erreur lors de la connexion" });
+      }
+      
+      res.status(200).json({ 
+        success: true, 
+        user: {
+          id: user.id,
+          username: user.username,
+          role: "superadmin"
+        }, 
+        message: "Authentification réussie" 
+      });
+    });
+  } catch (error) {
+    console.error("Erreur lors de l'authentification du super admin:", error);
+    res.status(500).json({ success: false, message: "Erreur interne du serveur" });
+  }
+}
+
+// Vérifier l'état d'initialisation du système
+export async function checkSystemSetup(req: Request, res: Response) {
+  try {
+    const [config] = await db
+      .select()
+      .from(schema.systemConfiguration)
+      .limit(1);
+    
+    if (!config) {
+      return res.status(200).json({
+        success: true,
+        setupComplete: false,
+        message: "Le système nécessite une configuration initiale"
+      });
+    }
+    
+    res.status(200).json({
+      success: true,
+      setupComplete: config.setupComplete,
+      message: config.setupComplete 
+        ? "La configuration système est complète" 
+        : "Le système nécessite une configuration supplémentaire"
+    });
+  } catch (error) {
+    console.error("Erreur lors de la vérification de la configuration système:", error);
+    res.status(500).json({ success: false, message: "Erreur interne du serveur" });
+  }
+}
+
 export default {
   checkAdminAccess,
   isAdmin,
+  isSuperAdmin,
   hasModuleAccess,
   getModules,
   upsertModule,
@@ -1113,5 +1316,8 @@ export default {
   resendInvitation,
   verifyTemporaryAccess,
   initializeApplicationModules,
-  promoteToAdmin
+  promoteToAdmin,
+  initializeSuperAdmin,
+  authenticateSuperAdmin,
+  checkSystemSetup
 };
