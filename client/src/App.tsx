@@ -357,6 +357,17 @@ function App() {
               );
             }} />
             <Route path="/custom" component={NotYetImplemented} />
+            
+            {/* Interface d'administration */}
+            <Route path="/admin" component={() => {
+              const AdminPage = lazy(() => import('./pages/admin'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <AdminPage />
+                </Suspense>
+              );
+            }} />
+            
             <Route component={NotFound} />
           </Switch>
           <Toaster />
