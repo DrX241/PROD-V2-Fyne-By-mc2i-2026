@@ -12,6 +12,7 @@ import cyberForgeRoutes from './routes/cyberForgeRoutes';
 import { createAttachmentWithHiddenPassword } from './services/attachmentService';
 import { CyberScenario, CrisisDecisionContent, CrisisDecisionOption } from '../shared/types/cyber';
 import adminController from './adminController';
+import analyticsController from './analyticsController';
 
 // Récupérer le chemin du répertoire actuel en module ES
 const __filename = fileURLToPath(import.meta.url);

@@ -334,6 +334,41 @@ export const systemConfiguration = pgTable('system_configuration', {
   updatedAt: timestamp('updated_at').defaultNow()
 });
 
+// Tables pour les analyses et statistiques d'utilisation
+export const usageStats = pgTable('usage_stats', {
+  id: serial('id').primaryKey(),
+  userId: varchar('user_id', { length: 255 }).notNull(),
+  userName: varchar('user_name', { length: 255 }).notNull(),
+  moduleId: varchar('module_id', { length: 255 }).notNull(),
+  moduleName: varchar('module_name', { length: 255 }).notNull(),
+  sessionId: varchar('session_id', { length: 255 }).notNull(),
+  sessionDuration: integer('session_duration').default(0), // Durée en secondes
+  tokensConsumed: integer('tokens_consumed').default(0),
+  requestCount: integer('request_count').default(0),
+  date: timestamp('date').defaultNow().notNull(),
+  deviceInfo: jsonb('device_info').default({}),
+  createdAt: timestamp('created_at').defaultNow()
+});
+
+export const tokenUsage = pgTable('token_usage', {
+  id: serial('id').primaryKey(),
+  userId: varchar('user_id', { length: 255 }).notNull(),
+  userName: varchar('user_name', { length: 255 }).notNull(),
+  moduleId: varchar('module_id', { length: 255 }).notNull(),
+  moduleName: varchar('module_name', { length: 255 }).notNull(),
+  requestId: varchar('request_id', { length: 255 }).notNull(),
+  promptTokens: integer('prompt_tokens').default(0),
+  completionTokens: integer('completion_tokens').default(0),
+  totalTokens: integer('total_tokens').default(0),
+  model: varchar('model', { length: 100 }).notNull(),
+  requestType: varchar('request_type', { length: 100 }).notNull(), // chat, completion, etc.
+  responseTime: integer('response_time').default(0), // Temps de réponse en ms
+  success: boolean('success').default(true),
+  errorCode: varchar('error_code', { length: 100 }),
+  date: timestamp('date').defaultNow().notNull(),
+  createdAt: timestamp('created_at').defaultNow()
+});
+
 // Types de sélection
 export type UserProfile = typeof userProfiles.$inferSelect;
 export type CustomAssistant = typeof customAssistants.$inferSelect;
@@ -343,6 +378,8 @@ export type ApplicationModule = typeof applicationModules.$inferSelect;
 export type TemporaryAccess = typeof temporaryAccesses.$inferSelect;
 export type TemporaryAccessModule = typeof temporaryAccessModules.$inferSelect;
 export type SystemConfiguration = typeof systemConfiguration.$inferSelect;
+export type UsageStats = typeof usageStats.$inferSelect;
+export type TokenUsage = typeof tokenUsage.$inferSelect;
 
 // Schéma d'insertion pour la configuration système
 export const insertSystemConfigurationSchema = createInsertSchema(systemConfiguration)
@@ -359,6 +396,41 @@ export const insertSystemConfigurationSchema = createInsertSchema(systemConfigur
     }).optional()
   });
 
+// Schémas d'insertion pour les statistiques d'utilisation
+export const insertUsageStatsSchema = createInsertSchema(usageStats)
+  .omit({ id: true, createdAt: true })
+  .extend({
+    userId: z.string().min(1),
+    userName: z.string().min(1),
+    moduleId: z.string().min(1),
+    moduleName: z.string().min(1),
+    sessionId: z.string().min(1),
+    sessionDuration: z.number().min(0).optional(),
+    tokensConsumed: z.number().min(0).optional(),
+    requestCount: z.number().min(0).optional(),
+    deviceInfo: z.record(z.unknown()).optional()
+  });
+
+export const insertTokenUsageSchema = createInsertSchema(tokenUsage)
+  .omit({ id: true, createdAt: true })
+  .extend({
+    userId: z.string().min(1),
+    userName: z.string().min(1),
+    moduleId: z.string().min(1),
+    moduleName: z.string().min(1),
+    requestId: z.string().min(1),
+    promptTokens: z.number().min(0).optional(),
+    completionTokens: z.number().min(0).optional(),
+    totalTokens: z.number().min(0).optional(),
+    model: z.string().min(1),
+    requestType: z.string().min(1),
+    responseTime: z.number().min(0).optional(),
+    success: z.boolean().optional(),
+    errorCode: z.string().optional()
+  });
+
+export type InsertUsageStats = z.infer<typeof insertUsageStatsSchema>;
+export type InsertTokenUsage = z.infer<typeof insertTokenUsageSchema>;
 export type InsertSystemConfiguration = z.infer<typeof insertSystemConfigurationSchema>;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
