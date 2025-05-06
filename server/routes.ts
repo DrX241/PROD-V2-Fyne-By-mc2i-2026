@@ -43,6 +43,7 @@ import {
 import { generateModule, saveCustomModule, getCustomModules, getCustomModuleById, deleteCustomModule } from "./moduleGeneratorController";
 import { analyzeEvidence, getInvestigationHints, evaluateInvestigationResult, generateInvestigationScenario, generateInvestigationNotes } from "./cyberInvestigatorController";
 import { getInvestigationProgress, saveInvestigationProgress, evaluateUserNotes } from "./investigationProgressController";
+import { enterRoom, interactWithNPC, interactWithItem, solvePuzzle, generatePlayerProfile, initializeGame } from "./cyberEscapeController";
 import { 
   getAssistantTemplates, 
   getAssistantTemplate, 
