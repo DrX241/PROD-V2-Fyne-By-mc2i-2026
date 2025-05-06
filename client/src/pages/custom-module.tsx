@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useRoute } from 'wouter';
-import { Loader2, ArrowLeft, Book, Code, Gamepad2, Trophy, Home, ArrowRight } from 'lucide-react';
+import { Loader2, ArrowLeft, Book, Code, Gamepad2, Trophy, Home, ArrowRight, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import HomeLayout from '@/components/layout/HomeLayout';
@@ -218,6 +218,29 @@ const CustomModule = () => {
             </div>
           </div>
         </div>
+        
+        {/* Bannière d'aperçu - uniquement visible pour les modules d'aperçu */}
+        {module.isPreview && (
+          <div className="relative z-20 w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white py-3 px-4 shadow-md">
+            <div className="max-w-[1600px] mx-auto flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Eye className="h-5 w-5" />
+                <span className="font-medium">Mode Aperçu</span>
+              </div>
+              <p className="text-sm">
+                Voici un aperçu de votre module personnalisé. Il sera disponible après validation par l'équipe FYNE.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+                onClick={() => navigate('/playground/module-generator')}
+              >
+                Retour à l'éditeur
+              </Button>
+            </div>
+          </div>
+        )}
         
         {/* Contenu principal */}
         <div className="relative z-10 max-w-[1600px] w-full mx-auto px-4 py-8 sm:px-6 sm:py-12">

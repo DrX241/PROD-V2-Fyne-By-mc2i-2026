@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { openAIService } from './services/openai';
 import { db } from './db';
 import { customModules, type InsertCustomModule } from '@shared/schema';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, and } from 'drizzle-orm';
 
 // Augmenter l'interface Request pour inclure la session
 declare global {
@@ -305,9 +305,14 @@ export async function saveCustomModule(req: Request, res: Response) {
 export async function getCustomModules(req: Request, res: Response) {
   try {
     // Récupération des modules actifs et non-aperçu, triés par ordre d'affichage
-    const modules = await db.select().from(customModules)
-      .where(eq(customModules.isActive, true))
-      .where(eq(customModules.isPreview, false)) // Ne pas inclure les aperçus dans la liste principale
+    const modules = await db.select()
+      .from(customModules)
+      .where(
+        and(
+          eq(customModules.isActive, true),
+          eq(customModules.isPreview, false) // Ne pas inclure les aperçus dans la liste principale
+        )
+      )
       .orderBy(customModules.displayOrder);
 
     console.log("Modules récupérés:", modules);
