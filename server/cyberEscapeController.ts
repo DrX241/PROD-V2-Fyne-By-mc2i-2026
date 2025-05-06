@@ -361,7 +361,7 @@ Réponds au format JSON suivant sans aucun autre texte autour:
         };
         
         // Vérifier si l'objet n'est pas déjà dans l'inventaire
-        if (!updatedGameState.inventory.some(item => item.id === newItem.id)) {
+        if (!updatedGameState.inventory.some((item: any) => item.id === newItem.id)) {
           updatedGameState.inventory.push(newItem);
         }
       }
@@ -494,7 +494,7 @@ Réponds au format JSON suivant sans aucun autre texte autour:
         };
         
         // Vérifier si le mot de passe n'est pas déjà dans l'inventaire
-        if (!updatedGameState.inventory.some(item => item.id === newItem.id)) {
+        if (!updatedGameState.inventory.some((item: any) => item.id === newItem.id)) {
           updatedGameState.inventory.push(newItem);
         }
       }
@@ -634,7 +634,7 @@ export async function solvePuzzle(req: Request, res: Response) {
           discovered: true
         };
         
-        if (!updatedGameState.inventory.some(item => item.id === newItem.id)) {
+        if (!updatedGameState.inventory.some((item: any) => item.id === newItem.id)) {
           updatedGameState.inventory.push(newItem);
         }
       }
