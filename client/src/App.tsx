@@ -383,6 +383,14 @@ function App() {
                 </Suspense>
               );
             }} />
+            <Route path="/admin/login" component={() => {
+              const AdminLogin = lazy(() => import('./pages/admin/login'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <AdminLogin />
+                </Suspense>
+              );
+            }} />
             <Route path="/admin" component={() => {
               // Redirection vers modules par défaut
               window.location.href = '/admin/modules';

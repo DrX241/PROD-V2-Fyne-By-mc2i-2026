@@ -37,6 +37,13 @@ declare global {
         username: string;
         role?: string;
       };
+      session?: {
+        userId?: number;
+        username?: string;
+        isAuthenticated?: boolean;
+        isSuperAdmin?: boolean;
+        save: (callback: (err?: any) => void) => void;
+      };
     }
   }
 }
@@ -134,7 +141,7 @@ export async function hasModuleAccess(userId: number, modulePath: string): Promi
 }
 
 // Vérifie l'accès administrateur
-function checkAdminAccess(req: Request, res: Response, next: () => void) {
+function checkAdminAccess(req: Request, res: Response, next: NextFunction) {
   if (!req.user || !req.user.id) {
     return res.status(401).json({ success: false, message: "Non authentifié" });
   }
@@ -148,6 +155,19 @@ function checkAdminAccess(req: Request, res: Response, next: () => void) {
     console.error("Erreur lors de la vérification des droits d'administrateur:", error);
     res.status(500).json({ success: false, message: "Erreur interne du serveur" });
   });
+}
+
+// Vérifie l'accès super administrateur via la session
+export function checkSuperAdminAccess(req: Request, res: Response, next: NextFunction) {
+  if (!req.session || !req.session.isSuperAdmin) {
+    return res.status(401).json({ 
+      success: false, 
+      message: "Authentification requise", 
+      redirectTo: "/admin/login" 
+    });
+  }
+  
+  next();
 }
 
 // Récupère la liste des modules disponibles
@@ -1303,6 +1323,7 @@ export async function checkSystemSetup(req: Request, res: Response) {
 
 export default {
   checkAdminAccess,
+  checkSuperAdminAccess,
   isAdmin,
   isSuperAdmin,
   hasModuleAccess,
