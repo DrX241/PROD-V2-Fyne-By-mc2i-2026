@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -59,6 +59,16 @@ interface TemporaryAccess {
   accessToken: string;
 }
 
+interface AccessesResponse {
+  success: boolean;
+  accesses: TemporaryAccess[];
+}
+
+interface ModulesResponse {
+  success: boolean;
+  modules: Module[];
+}
+
 const temporaryAccessSchema = z.object({
   id: z.number().optional(),
   email: z.string().email("Email invalide"),
@@ -89,28 +99,35 @@ export default function TemporaryAccessManagement() {
   });
 
   // Récupérer la liste des accès temporaires
-  const { data: accessList, isLoading: isLoadingAccess } = useQuery({
+  const { data: accessList, isLoading: isLoadingAccess, isError: isAccessError } = useQuery<AccessesResponse>({
     queryKey: ["/api/admin/temporary-access"],
-    onError: (error) => {
+  });
+
+  // Récupérer la liste des modules disponibles
+  const { data: modules, isLoading: isLoadingModules, isError: isModulesError } = useQuery<ModulesResponse>({
+    queryKey: ["/api/admin/modules"],
+  });
+  
+  // Gérer les erreurs avec useEffect
+  useEffect(() => {
+    if (isAccessError) {
       toast({
         title: "Erreur",
         description: "Impossible de récupérer la liste des accès temporaires.",
         variant: "destructive"
       });
     }
-  });
-
-  // Récupérer la liste des modules disponibles
-  const { data: modules, isLoading: isLoadingModules } = useQuery({
-    queryKey: ["/api/admin/modules"],
-    onError: (error) => {
+  }, [isAccessError, toast]);
+  
+  useEffect(() => {
+    if (isModulesError) {
       toast({
         title: "Erreur",
         description: "Impossible de récupérer la liste des modules.",
         variant: "destructive"
       });
     }
-  });
+  }, [isModulesError, toast]);
 
   // Mutation pour créer un accès temporaire
   const createAccessMutation = useMutation({
@@ -304,7 +321,7 @@ export default function TemporaryAccessManagement() {
           <div className="flex justify-center py-8">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
           </div>
-        ) : accessList?.accesses?.length > 0 ? (
+        ) : accessList && Array.isArray(accessList.accesses) && accessList.accesses.length > 0 ? (
           <Table>
             <TableHeader>
               <TableRow>
