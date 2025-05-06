@@ -1379,6 +1379,56 @@ export async function checkSystemSetup(req: Request, res: Response) {
   }
 }
 
+/**
+ * Vérifie l'état de connexion de l'utilisateur admin
+ */
+export async function checkAuthStatus(req: Request, res: Response) {
+  try {
+    // Vérifier que la session est disponible
+    if (!req.session) {
+      return res.status(200).json({ 
+        success: true, 
+        isAuthenticated: false,
+        isSuperAdmin: false
+      });
+    }
+    
+    const isAuthenticated = !!req.session.isAuthenticated;
+    const isSuperAdmin = !!req.session.isSuperAdmin;
+    const userId = req.session.userId;
+    const username = req.session.username;
+    
+    // Si l'utilisateur est authentifié, récupérer les informations supplémentaires
+    let user = null;
+    if (isAuthenticated && userId) {
+      const [userData] = await db
+        .select()
+        .from(schema.users)
+        .where(eq(schema.users.id, userId));
+      
+      if (userData) {
+        user = {
+          id: userData.id,
+          username: userData.username,
+          role: isSuperAdmin ? "superadmin" : "admin"
+        };
+      }
+    }
+    
+    res.status(200).json({ 
+      success: true,
+      isAuthenticated,
+      isSuperAdmin,
+      userId,
+      username,
+      user
+    });
+  } catch (error) {
+    console.error("Erreur lors de la vérification de l'état d'authentification:", error);
+    res.status(500).json({ success: false, message: "Erreur interne du serveur" });
+  }
+}
+
 export default {
   checkAdminAccess,
   checkSuperAdminAccess,
@@ -1399,5 +1449,6 @@ export default {
   initializeSuperAdmin,
   authenticateSuperAdmin,
   logoutSuperAdmin,
-  checkSystemSetup
+  checkSystemSetup,
+  checkAuthStatus
 };
