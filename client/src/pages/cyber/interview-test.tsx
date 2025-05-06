@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Clock, CheckCircle2, AlertCircle, ArrowRight, TimerReset } from 'lucide-react';
+import { Clock, CheckCircle2, AlertCircle, ArrowRight, ArrowLeft, TimerReset } from 'lucide-react';
 import HomeLayout from '@/components/layout/HomeLayout';
 
 // Types de questions possibles
@@ -465,9 +465,10 @@ export default function CyberInterviewTest() {
             <CardFooter className="flex justify-center">
               <Button 
                 onClick={handleBackToHome} 
-                className="w-full md:w-auto"
+                className="w-full md:w-auto gap-2"
               >
-                Retour à l'accueil
+                <ArrowLeft className="h-4 w-4" />
+                Retour à I AM CYBER
               </Button>
             </CardFooter>
           </Card>
@@ -535,7 +536,14 @@ export default function CyberInterviewTest() {
             />
           </CardContent>
           <CardFooter className="flex justify-between">
-            <div></div> {/* Espace vide pour l'alignement */}
+            <Button 
+              onClick={handleBackToHome} 
+              variant="outline"
+              className="gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Retour à I AM CYBER
+            </Button>
             <Button 
               onClick={handleNextQuestion}
               disabled={currentAnswer.trim().length < 3}
