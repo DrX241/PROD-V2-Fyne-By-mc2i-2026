@@ -1,0 +1,152 @@
+📄 FICHE PROJET DÉTAILLÉE – Escape Game Cyber immersif
+🎮 Titre : Cyber Escape – Le Pare-feu est tombé
+🔷 1. OBJECTIF DU JEU
+Créer un escape game en ligne immersif dans lequel l’utilisateur incarne un Responsable Cyber en pleine crise.
+Il doit naviguer dans des salles virtuelles, interagir avec des PNJ IA, résoudre des énigmes et codes, recruter des alliés, gérer un budget, éviter des pièges, et stopper une attaque avant qu’elle ne se propage.
+
+🔷 2. STRUCTURE TECHNIQUE RECHERCHÉE
+Vue immersive (point-and-click ou navigation entre écrans)
+
+Système de salles déverrouillables
+
+PNJ interactifs alimentés par prompts IA
+
+Éléments cliquables (objets, documents, terminaux)
+
+Chrono global (par ex. 45 min)
+
+Budget à gérer (déduction sur certaines actions)
+
+Déclencheurs/pièges dynamiques
+
+Mini-jeux simples intégrés (code, log, décodage)
+
+Résultat final généré par GPT-4o (profil joueur)
+
+🔷 3. PLAN DES SALLES
+plaintext
+Copier
+Modifier
+        [Salle Direction]
+              ▲
+[Salle RH] ◄── Hub ──► [Salle IT]
+              │
+     [Salle Support]       
+              │
+     [Salle Chiffrée 🔐]
+Le joueur commence dans le Hub central, déverrouille progressivement les autres salles.
+Chaque salle contient :
+
+1 PNJ IA unique,
+
+des éléments interactifs (documents, consoles),
+
+au moins 1 défi ou piège,
+
+une fonction narrative.
+
+🔷 4. PNJ IA (avec scripts comportementaux)
+👩‍💼 Emma (RH)
+Peureuse mais clé pour identifier le mail initial.
+
+Elle révèle un mot de passe si on la rassure et interroge correctement.
+
+Si on ouvre le fichier Word qu’elle donne → compte à rebours malware.
+
+👨‍💻 Lucas (DSI)
+Technique, logique.
+
+Donne accès à des logs à condition qu’on identifie une IP anormale.
+
+Permet de débloquer l’accès au support en cas de bonne réponse.
+
+👷 Karim (Support IT)
+Aide contre 150 crédits.
+
+Fournit une clé USB cryptée à décrypter via ROT13 + Base64.
+
+Peut isoler un poste à distance en cas d’alerte déclenchée.
+
+👩‍💼 Valérie (DG)
+Valide ou non la salle finale.
+
+Pose une question éthique ou stratégique (ordre de redémarrage des systèmes).
+
+Si réponse incohérente → déclenche un chrono final.
+
+🔷 5. MÉCANIQUES DE JEU À INCLURE
+✅ Navigation / Déverrouillage
+Portes cliquables activées après certaines conditions.
+
+Objets (clés, codes) débloquant d'autres zones.
+
+✅ Gestion du budget
+Début : 1 000 crédits
+
+Recrutements, outils, et erreurs coûtent des crédits.
+
+Score final influencé par choix de dépenses.
+
+✅ Inventaire (facultatif mais utile)
+Liste des objets ou codes trouvés (ex : mots de passe, logs, fichiers suspects).
+
+🔷 6. ÉNIGMES, CODES & MINI-JEUX
+Salle	Code/Défi	Mécanique	Échec déclenche...
+RH	Mot de passe dans métadonnées	Bouton “Inspecter propriétés”	Malware déclenché
+IT	IP suspecte dans logs	Choix parmi 5 options	Blocage salle suivante
+IT	Script PowerShell à corriger	Remplacer ligne malveillante	Perte de PNJ
+Support	Décryptage USB (ROT13 + Base64)	Décodeur en 2 étapes	Blocage clé USB
+Direction	Ordre redémarrage systèmes	Drag & drop ou QCM	Compte à rebours
+Salle finale	Mot de passe combiné	Récupérer 3 éléments dans le jeu	Game over si erreur
+
+🔷 7. PIÈGES ET PIÈCES PIÉGÉES
+📬 Mail piégé (RH) → clic sur lien = virus déclenché
+
+📂 Excel falsifié (Support) → mauvais indice si consulté
+
+🧑‍💼 Faux collègue (couloir) → coûte 300 crédits s’il est cru
+
+🔷 8. SYSTÈME DE FIN
+✅ Conditions de victoire
+Avoir :
+
+sécurisé 3 zones critiques (support, logs, RH),
+
+décrypté la clé USB,
+
+obtenu l’accord de Valérie (DG),
+
+et trouvé les 3 codes pour la salle finale.
+
+🤖 Résultat IA
+Une fois le jeu terminé, toutes les décisions du joueur sont compilées et envoyées à GPT-4o avec ce prompt :
+
+🔠 Prompt final GPT-4o :
+Tu es un expert en cybersécurité qui évalue le comportement d’un joueur dans un escape game cyber. Rédige une fiche profil à partir de ses décisions.
+Structure :
+
+Profil global (3 lignes max)
+
+Forces (3 bullets max)
+
+Axes de progression (3 bullets max)
+
+Badge final (titre + 1 phrase de justification)
+
+Ne donne aucun score. Adopte un ton professionnel et orienté progression.
+
+🔷 9. LIVRABLES ATTENDUS
+Interface immersive par navigation entre salles
+
+Système de clics intelligents (ouvrables selon conditions)
+
+Chronomètre global + timer locaux (si pièges)
+
+Gestion de budget et inventaire
+
+Scripts PNJ intégrés + logique IA
+
+Défis interactifs (logs, code, décodage, ordre)
+
+Résultat final IA affiché sur un écran "Mission terminée"
+

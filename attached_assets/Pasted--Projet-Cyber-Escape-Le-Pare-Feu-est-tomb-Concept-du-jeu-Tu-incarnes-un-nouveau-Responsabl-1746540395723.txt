@@ -1,0 +1,102 @@
+🔐 Projet : Cyber Escape – Le Pare-Feu est tombé
+🎯 Concept du jeu
+Tu incarnes un nouveau Responsable Cybersécurité fraîchement recruté.
+Une attaque en cours menace l’infrastructure de l'entreprise.
+Tu es enfermé dans un système virtualisé à l’intérieur du réseau, avec accès limité à certaines zones.
+Ton but : remonter la faille, protéger les fonctions vitales, et contenir l’attaque… avant qu’elle n’atteigne le SI industriel.
+
+🧱 Modules du jeu (à développer)
+🗂️ 1. Navigation en salles virtuelles
+Vue immersive avec clics de porte ou plan interactif.
+
+Chaque salle = un niveau / défi / zone à sécuriser.
+
+Salle RH : documents compromis, fuites de mots de passe.
+
+Salle Direction : pressions pour tout réactiver rapidement.
+
+Salle IT : serveurs, firewalls, accès aux logs.
+
+Open space : collègues IA qui peuvent t'aider ou te piéger.
+
+Salle Noire : zone chiffrée par le ransomware, à récupérer.
+
+🧠 2. PNJ IA avec comportements différents
+Lucas (DSI) : technique, exigeant, t'aide si tu prouves que tu sais lire les logs.
+
+Emma (RH) : stressée, te donne un mot de passe si tu l’aides à comprendre un mail frauduleux.
+
+Karim (Support) : peut t’aider à isoler une machine si tu réponds à une question rapide.
+
+Valérie (Direction) : te met la pression sur les coûts, t’oblige à choisir où affecter ton budget.
+
+Chaque PNJ a un script IA réactif selon tes réponses.
+
+💰 3. Budget limité et gestion d’équipe
+Tu reçois un budget de 1000 crédits.
+
+Tu peux recruter des experts pour t'aider :
+
+Expert Firewall (200)
+
+Analyste SOC (300)
+
+Consultant phishing awareness (150)
+
+Mauvais choix = dépenses inutiles, ou pas assez de ressources pour la suite.
+
+🔍 4. Mots de passe & documents piégés
+Dans chaque salle, tu peux cliquer sur des objets : post-it, fichier Word, papier collé au mur.
+
+Certains contiennent :
+
+Des indices codés à interpréter.
+
+Des mots de passe pour débloquer une autre salle.
+
+Des faux indices/pièges qui déclenchent un compte à rebours (ex : virus lancé si mauvais clic).
+
+🔓 5. Mini-jeux intégrés / codes à craquer
+🔐 Brute force contrôlé : deviner un code à 4 chiffres en 5 essais max (ex : style Mastermind).
+
+🧠 Décodage base64 / ROT13 : petit outil de déchiffrage à cliquer.
+
+📂 Lecture de log simplifié : identifier une IP anormale.
+
+⛔ Faux script à corriger : un code infecté que tu dois neutraliser (type “trouver l’erreur”).
+
+📚 6. Leçons intégrées et feedback IA
+Chaque erreur affiche une leçon flash ("Voici pourquoi il ne fallait pas ouvrir ce fichier sans antivirus").
+
+À la fin, une synthèse IA de ton profil :
+
+Tes forces (logique, gestion, vigilance…)
+
+Tes faiblesses (manque de rigueur, clics hâtifs…)
+
+Ton badge final : Cyber Investigateur / Risky Clicker / Commandant Sécu...
+
+🧭 7. Objectif final
+Tu dois :
+
+Retrouver la faille d'origine (mail piégé ou mot de passe volé),
+
+Restaurer les systèmes critiques (VPN, serveur de fichiers, AD),
+
+Prévenir la direction avec un plan de réponse clair,
+
+Et sortir de la cellule virtuelle en ayant sécurisé le réseau.
+
+Temps limite : 45 minutes ou version rapide en 15 min challenge.
+
+📦 À développer côté Replit
+Navigation entre salles par clic ou map.
+
+Système d'inventaire (mots de passe trouvés, accès débloqués).
+
+Budget tracker simple.
+
+PNJ interactifs avec choix ou dialogues ouverts via IA.
+
+Appel final à Azure OpenAI pour générer le profil du joueur.
+

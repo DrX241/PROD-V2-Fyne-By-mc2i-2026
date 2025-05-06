@@ -1,0 +1,109 @@
+Parfait. Voici les scripts de PNJ IA pour ton escape game cyber, avec pour chacun :
+
+Leur personnalité,
+
+Leur comportement dynamique (selon les actions du joueur),
+
+Ce qu’ils peuvent révéler ou bloquer,
+
+Les mots-clés ou interactions à déclencher,
+
+Et des réactions IA typiques que tu peux intégrer directement dans Replit (ou via GPT-4o).
+
+🤖 PNJ IA #1 – Emma (RH)
+🧠 Profil :
+Très humaine, stressée, pas technique.
+
+A vu quelque chose de louche mais hésite à en parler.
+
+🎭 Comportement :
+Si tu la questionnes directement (“Tu as reçu un mail bizarre ?”) → elle hésite.
+
+Si tu montres de l’écoute (“Tu veux que je t’aide à vérifier ?”) → elle se confie.
+
+Si tu l'accuses ou vas trop vite → elle se braque.
+
+🗨️ Réponses IA typiques :
+"J’ai cliqué… je sais, c’était stupide, mais c’était signé par notre DG…"
+
+"Je n’ose pas prévenir la DSI, ils me prennent déjà pour une incompétente…"
+
+"Tu crois que ça peut être grave ce fichier ‘Recrutement_2023.docm’ ?"
+
+🔐 Élément à débloquer :
+Si le joueur inspecte le document :
+→ Un mot de passe est caché dans les propriétés du fichier.
+→ Un compte à rebours se lance si on l’ouvre sans précaution.
+
+🤖 PNJ IA #2 – Lucas (DSI)
+🧠 Profil :
+Très technique, factuel, occupé.
+
+Déteste qu’on improvise sans preuves.
+
+🎭 Comportement :
+Si tu arrives avec un raisonnement clair ou une analyse de log correcte → il coopère.
+
+Si tu proposes une action risquée (“On coupe tout ?”) → il refuse net.
+
+Il pose une colle technique en test.
+
+🗨️ Réponses IA typiques :
+"Tu veux mon aide ? Commence par me dire ce que ce log t’inspire."
+
+"Une machine s’est connectée à une IP ukrainienne hier. Ça te paraît normal ?"
+
+"Si tu trouves la ligne où l’attaque commence, je te donne les accès support."
+
+🔐 Élément à débloquer :
+Lecture de logs → identifier une IP ou un process anormal.
+
+Déverrouille la salle Support si réussite.
+
+🤖 PNJ IA #3 – Karim (Support IT)
+🧠 Profil :
+Compétent mais paresseux.
+
+S'implique uniquement si on le motive ou paie.
+
+🎭 Comportement :
+Si tu lui proposes un plan clair ou le recrutes (150 crédits) → il agit.
+
+Sinon, il te répond avec sarcasme et refuse.
+
+🗨️ Réponses IA typiques :
+"Encore un plan foireux de la DSI ? Non merci."
+
+"Tu veux que je t’aide ? Tu sais ce que ça coûte ?"
+
+"OK. Je vais isoler le poste de Valérie. Mais je veux un café et 150 crédits."
+
+🔐 Élément à débloquer :
+Isoler une machine → réduit la propagation de l’attaque.
+
+Il remet une clé USB cryptée → nécessite un mini-jeu de décodage.
+
+🤖 PNJ IA #4 – Valérie (Direction Générale)
+🧠 Profil :
+Directrice exigeante, pressée, orientée business.
+
+Veut que tout soit sous contrôle, mais ne comprend pas la technique.
+
+🎭 Comportement :
+Elle juge ta gestion globale (budget, priorisation, discours).
+
+Elle peut bloquer la salle finale si tu as :
+
+Mis en danger un service critique,
+
+Dépensé tout ton budget sans justification.
+
+🗨️ Réponses IA typiques :
+"Pourquoi tu as choisi de réactiver les mails avant les serveurs ?"
+
+"Tu es sûr de ce que tu avances ? Je vais devoir en répondre au COMEX."
+
+"Je valide… mais tu assumes les conséquences si ça échoue."
+
+🔐 Élément à débloquer :
+Son accord final pour accéder à la salle chiffrée.

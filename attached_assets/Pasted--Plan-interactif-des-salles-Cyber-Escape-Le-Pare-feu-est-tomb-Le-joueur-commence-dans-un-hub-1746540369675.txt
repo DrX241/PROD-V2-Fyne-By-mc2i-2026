@@ -1,0 +1,89 @@
+🗺️ Plan interactif des salles – Cyber Escape : Le Pare-feu est tombé
+Le joueur commence dans un hub central, avec des salles verrouillées autour. Chaque salle contient des défis, des objets à interagir, des PNJ, et des effets sur le scénario.
+
+🏛️ Disposition générale (plan en étoile autour d’un centre)
+css
+Copier
+Modifier
+        [Salle Direction]
+              ▲
+              │
+[Salle RH] ◄──┼──► [Salle IT]
+              │
+     [Salle Support]       
+              │
+     [Salle Chiffrée 🔐]
+🔹 Détail de chaque salle
+🧩 1. Salle centrale – Hub de crise
+Point de départ.
+
+Affichage du compteur temps restant, du budget, et des accès débloqués.
+
+Une console IA qui donne le contexte de crise : "Un malware inconnu a pénétré le réseau. Vos accès sont limités."
+
+Accès disponibles : RH et IT (au départ).
+
+👩‍💼 2. Salle RH
+PNJ : Emma, Responsable RH, stressée.
+
+Elle a reçu un mail étrange mais n'ose pas le dire. Si tu poses la bonne question, elle te donne :
+
+Un fichier Word piégé (peut déclencher un chrono si mal ouvert),
+
+Ou un mot de passe caché dans les métadonnées.
+
+📄 Objets cliquables : CVs, messagerie, agenda.
+
+🧑‍💻 3. Salle IT
+PNJ : Lucas, DSI, rationnel et pressé.
+
+Donne accès à des logs serveur, mais uniquement si tu l’aides à :
+
+Corriger une erreur dans un script Bash (mini-code).
+
+Repérer une IP suspecte dans un log.
+
+🔐 Donne le code d’accès à la salle support une fois convaincu.
+
+🛠️ 4. Salle Support
+PNJ : Karim, technicien réseau, sarcastique.
+
+Tu peux le recruter (coût : 150 crédits).
+
+S’il t’aide :
+
+Il isole des machines infectées.
+
+Il te donne une clé USB contenant un fichier chiffré.
+
+Tu dois ensuite le décrypter avec une séquence base64/ROT13 (mini-jeu intégré).
+
+💼 5. Salle Direction
+PNJ : Valérie, DG, autoritaire.
+
+Tu dois justifier tes actions passées pour obtenir son feu vert.
+
+Mauvais choix = perte de temps.
+
+Elle te débloque la salle finale si tu as sécurisé 3 zones critiques.
+
+⚠️ Elle peut aussi t’imposer un arbitrage budgétaire dur (choisir entre 2 fonctions critiques à sauver).
+
+🕳️ 6. Salle Chiffrée (finale)
+Accès uniquement après validation DG + mots de passe collectés.
+
+Tu dois :
+
+Entrer 3 codes collectés dans le jeu (via métadonnées, brute-force, PNJ).
+
+Craquer un dernier puzzle logique : quelle action déclenchera la restauration du SI sans relancer le virus ?
+
+📦 Éléments à afficher globalement
+Budget restant (à chaque action de recrutement)
+
+Mots de passe trouvés (liste de preuves / inventaire)
+
+Chrono global
+
+Alertes déclenchées (si un piège est activé)
+

