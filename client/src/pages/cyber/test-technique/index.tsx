@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { apiRequest } from '@/lib/queryClient';
-import { Loader2, Home, RefreshCcw, CheckCircle, AlertCircle, Award, ArrowRight, ChevronRight, FileText } from 'lucide-react';
+import { Loader2, Home, RefreshCcw, CheckCircle, AlertCircle, Award, ArrowRight, ChevronRight, FileText, Clock } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
@@ -96,6 +96,7 @@ export default function CyberTestTechnique() {
   const [userName, setUserName] = useState<string>('');
   const [certificateHtml, setCertificateHtml] = useState<string>('');
   const [showCertificate, setShowCertificate] = useState(false);
+  const [showSelector, setShowSelector] = useState(true);
 
   // Define options interface
   interface ExerciseType {
@@ -390,10 +391,27 @@ export default function CyberTestTechnique() {
   const renderSelectionStep = () => (
     <Card className="w-full max-w-4xl">
       <CardHeader>
-        <CardTitle className="text-2xl">Test Technique de Cybersécurité</CardTitle>
-        <CardDescription>
-          Sélectionnez une catégorie et un niveau de difficulté pour commencer le test.
-        </CardDescription>
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle className="text-2xl">Test Technique de Cybersécurité</CardTitle>
+            <CardDescription>
+              Sélectionnez une catégorie et un niveau de difficulté pour commencer le test.
+            </CardDescription>
+          </div>
+          {!showSelector && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setShowSelector(true)}
+              className="flex items-center text-gray-500"
+            >
+              <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Retour
+            </Button>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         {isLoadingOptions ? (
@@ -1047,7 +1065,90 @@ export default function CyberTestTechnique() {
             </p>
           </div>
           
-          {step === 'select' && renderSelectionStep()}
+          {step === 'select' && showSelector && (
+            <div className="w-full max-w-4xl mb-8">
+              <div className="flex flex-col md:flex-row gap-4 mb-2">
+                <Card className="flex-1 overflow-hidden border-2 border-blue-500 hover:shadow-lg transition-all duration-300">
+                  <CardHeader className="bg-blue-50 dark:bg-blue-900/20 pb-2">
+                    <CardTitle className="text-xl flex items-center text-blue-700 dark:text-blue-300">
+                      <div className="bg-blue-100 dark:bg-blue-800 p-2 rounded-full mr-3">
+                        🎭
+                      </div>
+                      Mode Entretien
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                      Simulation d'un entretien technique en cybersécurité avec 6-7 questions ouvertes et une évaluation complète.
+                    </p>
+                    <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mb-2">
+                      <div className="flex items-center">
+                        <svg className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>15 minutes</span>
+                      </div>
+                      <span className="mx-2">•</span>
+                      <div className="flex items-center">
+                        <Award className="h-3 w-3 mr-1" />
+                        <span>Profil personnalisé</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                  <CardFooter className="pt-0">
+                    <Button 
+                      className="w-full" 
+                      onClick={() => window.location.href = '/cyber/test-technique/interview'}
+                    >
+                      Commencer l'entretien
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </CardFooter>
+                </Card>
+                
+                <Card className="flex-1 overflow-hidden border hover:shadow-lg transition-all duration-300">
+                  <CardHeader className="bg-purple-50 dark:bg-purple-900/20 pb-2">
+                    <CardTitle className="text-xl flex items-center text-purple-700 dark:text-purple-300">
+                      <div className="bg-purple-100 dark:bg-purple-800 p-2 rounded-full mr-3">
+                        📝
+                      </div>
+                      QCM Technique
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                      Test classique de connaissances techniques avec différents types de questions et niveaux de difficulté.
+                    </p>
+                    <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mb-2">
+                      <div className="flex items-center">
+                        <svg className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>10-30 minutes</span>
+                      </div>
+                      <span className="mx-2">•</span>
+                      <div className="flex items-center">
+                        <FileText className="h-3 w-3 mr-1" />
+                        <span>Certificat</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                  <CardFooter className="pt-0">
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => setShowSelector(false)}
+                    >
+                      Configurer le test
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </div>
+            </div>
+          )}
+          
+          {step === 'select' && !showSelector && renderSelectionStep()}
           {step === 'quiz' && renderQuizStep()}
           {step === 'results' && renderResultsStep()}
         </div>
