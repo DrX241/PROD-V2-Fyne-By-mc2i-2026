@@ -234,7 +234,7 @@ IMPORTANT: Ta réponse doit être formatée en JSON selon cette structure exacte
     
     try {
       // Appel à l'API d'IA
-      const result = await openAIService.getChatCompletionJson(messages);
+      const result = await openAIService.getChatCompletion(messages, 0.3);
       
       // Parser le JSON résultant
       const profile = JSON.parse(result);
