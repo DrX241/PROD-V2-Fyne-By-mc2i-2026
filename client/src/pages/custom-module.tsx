@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useRoute, Link } from 'wouter';
+import { useLocation, useRoute } from 'wouter';
 import { Loader2, ArrowLeft, Book, Code, Gamepad2, Trophy, Home, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import HomeLayout from '@/components/layout/HomeLayout';
 import { motion } from 'framer-motion';
@@ -25,7 +24,7 @@ const CustomModule = () => {
 
     // Pour éviter les appels API répétitifs
     const moduleId = params.id;
-    const cachedFetch = {};
+    const cachedFetch: Record<string, boolean> = {};
     const cacheKey = `module-${moduleId}`;
 
     // Vérifier si nous avons déjà les données du module
@@ -288,7 +287,7 @@ const CustomModule = () => {
 
           {/* Contenu détaillé du module sélectionné */}
           <div className="mt-12">
-            <TabsContent value="overview" className={activeTab === 'overview' ? 'block' : 'hidden'}>
+            <div className={activeTab === 'overview' ? 'block' : 'hidden'}>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -349,11 +348,11 @@ const CustomModule = () => {
                   )}
                 </div>
               </motion.div>
-            </TabsContent>
+            </div>
 
             {/* Module Trainer */}
             {module.includeTrainerModule && (
-              <TabsContent value="trainer" className={activeTab === 'trainer' ? 'block' : 'hidden'}>
+              <div className={activeTab === 'trainer' ? 'block' : 'hidden'}>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -406,12 +405,12 @@ const CustomModule = () => {
                     )}
                   </div>
                 </motion.div>
-              </TabsContent>
+              </div>
             )}
 
             {/* Module OPS */}
             {module.includeOpsModule && (
-              <TabsContent value="ops" className={activeTab === 'ops' ? 'block' : 'hidden'}>
+              <div className={activeTab === 'ops' ? 'block' : 'hidden'}>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -464,12 +463,12 @@ const CustomModule = () => {
                     )}
                   </div>
                 </motion.div>
-              </TabsContent>
+              </div>
             )}
 
             {/* Module Test */}
             {module.includeTestModule && (
-              <TabsContent value="test" className={activeTab === 'test' ? 'block' : 'hidden'}>
+              <div className={activeTab === 'test' ? 'block' : 'hidden'}>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -522,12 +521,12 @@ const CustomModule = () => {
                     )}
                   </div>
                 </motion.div>
-              </TabsContent>
+              </div>
             )}
 
             {/* Module Ascension */}
             {module.includeAscensionModule && (
-              <TabsContent value="ascension" className={activeTab === 'ascension' ? 'block' : 'hidden'}>
+              <div className={activeTab === 'ascension' ? 'block' : 'hidden'}>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -580,7 +579,7 @@ const CustomModule = () => {
                     )}
                   </div>
                 </motion.div>
-              </TabsContent>
+              </div>
             )}
           </div>
         </div>
