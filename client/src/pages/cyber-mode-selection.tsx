@@ -87,8 +87,9 @@ export default function CyberModeSelection() {
           id: 'mode-entretien',
           title: 'MODE ENTRETIEN',
           icon: null,
-          destination: '#',
-          comingSoon: true
+          destination: '/cyber/interview-test',
+          comingSoon: false,
+          isNew: true
         },
         {
           id: 'test-technique',

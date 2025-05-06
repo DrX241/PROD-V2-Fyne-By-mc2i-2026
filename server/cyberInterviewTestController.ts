@@ -85,11 +85,14 @@ Analyse le profil du candidat et génère une évaluation selon le format JSON d
 `;
 
     // Appel à Azure OpenAI
-    const completion = await openAIService.getChatCompletionLegacy(
-      systemPrompt,
-      userPrompt,
+    const messages = [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt }
+    ];
+    const completion = await openAIService.getChatCompletion(
+      messages,
       0.7,  // temperature
-      true  // useSecondaryModel
+      2000  // maxTokens
     );
 
     let evaluationResult: Evaluation;
