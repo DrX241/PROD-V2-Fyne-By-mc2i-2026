@@ -280,14 +280,22 @@ export class AnalyticsService {
         .orderBy(desc(schema.tokenUsage.date))
         .limit(100);
       
-      if (conditions.length > 0) {
-        const whereCondition = conditions.reduce((acc, condition, index) => 
-          index === 0 ? condition : and(acc, condition)
-        );
-        query = query.where(whereCondition);
+      // Si aucune condition n'est spécifiée, retourner directement la requête
+      if (conditions.length === 0) {
+        return await query;
       }
       
-      return await query;
+      // Construire la condition WHERE en combinant toutes les conditions avec AND
+      // Commencer avec la première condition
+      let whereCondition = conditions[0];
+      
+      // Ajouter toutes les autres conditions avec AND
+      for (let i = 1; i < conditions.length; i++) {
+        whereCondition = and(whereCondition, conditions[i]);
+      }
+      
+      // Exécuter la requête avec la condition WHERE
+      return await query.where(whereCondition);
     } catch (err) {
       console.error('Erreur lors de la récupération des détails d\'utilisation des tokens:', err);
       return [];
@@ -302,17 +310,19 @@ export class AnalyticsService {
     endDate?: Date
   ) {
     try {
-      let dateFilter: SQL<unknown> | undefined;
+      // Créer la condition de date si nécessaire
+      let dateCondition: SQL<unknown> | undefined;
       
       if (startDate && endDate) {
-        dateFilter = between(schema.usageStats.date, startDate, endDate);
+        dateCondition = between(schema.usageStats.date, startDate, endDate);
       } else if (startDate) {
-        dateFilter = gt(schema.usageStats.date, startDate);
+        dateCondition = gt(schema.usageStats.date, startDate);
       } else if (endDate) {
-        dateFilter = lt(schema.usageStats.date, endDate);
+        dateCondition = lt(schema.usageStats.date, endDate);
       }
       
-      const usageStatsQuery = db
+      // Requête pour les statistiques d'utilisation
+      let usageStatsQuery = db
         .select({
           totalSessions: count(schema.usageStats.id),
           totalTokens: sql<number>`sum(${schema.usageStats.tokensConsumed})`,
@@ -321,27 +331,29 @@ export class AnalyticsService {
         })
         .from(schema.usageStats);
       
-      if (dateFilter) {
-        usageStatsQuery.where(dateFilter);
+      // Ajouter la condition de date si elle existe
+      if (dateCondition) {
+        usageStatsQuery = usageStatsQuery.where(dateCondition);
       }
       
       const usageStats = await usageStatsQuery;
       
       // Requête pour obtenir le nombre d'utilisateurs uniques
-      const userStatsQuery = db
+      let userStatsQuery = db
         .select({
           uniqueUsers: sql<number>`count(distinct ${schema.usageStats.userId})`
         })
         .from(schema.usageStats);
       
-      if (dateFilter) {
-        userStatsQuery.where(dateFilter);
+      // Ajouter la condition de date si elle existe
+      if (dateCondition) {
+        userStatsQuery = userStatsQuery.where(dateCondition);
       }
       
       const userStats = await userStatsQuery;
       
       // Requête pour obtenir les statistiques par modèle
-      const modelStatsQuery = db
+      let modelStatsQuery = db
         .select({
           model: schema.tokenUsage.model,
           totalTokens: sql<number>`sum(${schema.tokenUsage.totalTokens})`,
@@ -352,8 +364,9 @@ export class AnalyticsService {
         .from(schema.tokenUsage)
         .groupBy(schema.tokenUsage.model);
       
-      if (dateFilter) {
-        modelStatsQuery.where(dateFilter);
+      // Ajouter la condition de date si elle existe
+      if (dateCondition) {
+        modelStatsQuery = modelStatsQuery.where(dateCondition);
       }
       
       const modelStats = await modelStatsQuery;

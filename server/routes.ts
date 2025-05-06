@@ -12,7 +12,7 @@ import cyberForgeRoutes from './routes/cyberForgeRoutes';
 import { createAttachmentWithHiddenPassword } from './services/attachmentService';
 import { CyberScenario, CrisisDecisionContent, CrisisDecisionOption } from '../shared/types/cyber';
 import adminController from './adminController';
-import analyticsController from './analyticsController';
+import * as analyticsController from './analyticsController';
 
 // Récupérer le chemin du répertoire actuel en module ES
 const __filename = fileURLToPath(import.meta.url);
@@ -4327,6 +4327,19 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   
   // Vérifier le statut d'authentification pour le portail administrateur
   app.get("/api/admin/auth-status", adminController.checkAuthStatus);
+  
+  // Routes pour les analytiques et statistiques d'utilisation
+  
+  // Routes publiques pour l'enregistrement des données d'utilisation
+  app.post("/api/analytics/start-session", analyticsController.startUserSession);
+  app.post("/api/analytics/end-session", analyticsController.endUserSession);
+  app.post("/api/analytics/record-token-usage", analyticsController.recordTokenUsage);
+  
+  // Routes protégées pour la consultation des statistiques (administrateur seulement)
+  app.get("/api/admin/analytics/modules", analyticsController.getModuleStats);
+  app.get("/api/admin/analytics/users", analyticsController.getUserStats);
+  app.get("/api/admin/analytics/token-usage", analyticsController.getTokenUsageDetails);
+  app.get("/api/admin/analytics/global", analyticsController.getGlobalStats);
 
   // Fin des routes API
 
