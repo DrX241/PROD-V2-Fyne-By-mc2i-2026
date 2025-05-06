@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -48,6 +48,11 @@ interface Module {
   updatedAt: string;
 }
 
+interface ModulesResponse {
+  success: boolean;
+  modules: Module[];
+}
+
 const moduleSchema = z.object({
   id: z.number().optional(),
   name: z.string().min(1, "Le nom est requis"),
@@ -84,7 +89,7 @@ export default function ModulesManagement() {
   });
 
   // Récupérer la liste des modules
-  const { data: modules, isLoading, isError } = useQuery({
+  const { data: modules, isLoading, isError } = useQuery<ModulesResponse>({
     queryKey: ["/api/admin/modules"],
   });
   
@@ -102,7 +107,16 @@ export default function ModulesManagement() {
   // Mutation pour ajouter/modifier un module
   const upsertModuleMutation = useMutation({
     mutationFn: async (moduleData: z.infer<typeof moduleSchema>) => {
-      const res = await apiRequest("POST", "/api/admin/modules", moduleData);
+      const res = await fetch("/api/admin/modules", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(moduleData),
+      });
+      if (!res.ok) {
+        throw new Error("Échec de l'opération");
+      }
       return await res.json();
     },
     onSuccess: () => {
@@ -128,7 +142,15 @@ export default function ModulesManagement() {
   // Mutation pour supprimer un module
   const deleteModuleMutation = useMutation({
     mutationFn: async (moduleId: number) => {
-      const res = await apiRequest("DELETE", `/api/admin/modules/${moduleId}`);
+      const res = await fetch(`/api/admin/modules/${moduleId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
+      if (!res.ok) {
+        throw new Error("Échec de la suppression");
+      }
       return await res.json();
     },
     onSuccess: () => {
@@ -215,7 +237,7 @@ export default function ModulesManagement() {
           <div className="flex justify-center py-8">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
           </div>
-        ) : modules?.modules?.length > 0 ? (
+        ) : modules && Array.isArray(modules.modules) && modules.modules.length > 0 ? (
           <Table>
             <TableHeader>
               <TableRow>
