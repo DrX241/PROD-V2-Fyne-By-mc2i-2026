@@ -859,9 +859,17 @@ async function sendInvitationEmail(
           </div>
           
           <div style="margin-top: 20px; text-align: center;">
-            <a href="https://votredomaine.com/login" style="background-color: #3498db; color: white; padding: 12px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">
+            <a href="https://votredomaine.com/login" style="background-color: #3498db; color: white; padding: 12px 20px; text-decoration: none; border-radius: 4px; display: inline-block; margin-bottom: 15px;">
               Se connecter à la plateforme
             </a>
+          </div>
+          
+          <div style="margin-top: 20px; text-align: center;">
+            <p style="margin-bottom: 10px; font-weight: bold;">Ou utilisez ce lien d'accès direct :</p>
+            <a href="${directAccessUrl}" style="background-color: #2ecc71; color: white; padding: 12px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">
+              Accès direct sans authentification
+            </a>
+            <p style="margin-top: 10px; font-size: 12px; color: #777;">Ce lien peut être utilisé ${temporaryAccess.maxAccessCount ? temporaryAccess.maxAccessCount + ' fois maximum' : 'sans limitation'} jusqu'à la date d'expiration.</p>
           </div>
         </div>
         
@@ -1567,6 +1575,8 @@ export async function checkAuthStatus(req: Request, res: Response) {
     res.status(500).json({ success: false, message: "Erreur interne du serveur" });
   }
 }
+
+
 
 export default {
   checkAdminAccess,

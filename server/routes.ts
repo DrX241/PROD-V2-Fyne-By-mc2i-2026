@@ -4319,50 +4319,9 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   });
   
   // Routes pour la configuration du système et super admin
-  app.get("/api/system/setup-status", adminController.checkSystemSetup);
-  app.get("/api/system/auth-status", adminController.checkAuthStatus);
-  app.post("/api/system/initialize-super-admin", adminController.initializeSuperAdmin);
-  app.post("/api/system/authenticate-super-admin", adminController.authenticateSuperAdmin);
-  app.post("/api/system/logout-super-admin", adminController.logoutSuperAdmin);
+  // Les routes de système ont été supprimées
   
-  // Vérifier le statut d'authentification pour le portail administrateur
-  app.get("/api/admin/auth-status", adminController.checkAuthStatus);
-  
-  // Routes pour l'accès public aux modules
-  app.get("/api/modules/public", adminController.getPublicModules);
-  app.get("/api/modules/access/:accessToken", adminController.accessModulesByToken);
-  
-  // Routes pour les analytiques et statistiques d'utilisation
-  
-  // Routes publiques pour l'enregistrement des données d'utilisation
-  app.post("/api/analytics/start-session", analyticsController.startUserSession);
-  app.post("/api/analytics/end-session", analyticsController.endUserSession);
-  app.post("/api/analytics/record-token-usage", analyticsController.recordTokenUsage);
-  
-  // Routes protégées pour la consultation des statistiques (administrateur seulement)
-  app.get("/api/admin/analytics/modules", (req, res, next) => {
-    adminController.checkSuperAdminAccess(req, res, () => {
-      analyticsController.getModuleStats(req, res);
-    });
-  });
-  
-  app.get("/api/admin/analytics/users", (req, res, next) => {
-    adminController.checkSuperAdminAccess(req, res, () => {
-      analyticsController.getUserStats(req, res);
-    });
-  });
-  
-  app.get("/api/admin/analytics/token-usage", (req, res, next) => {
-    adminController.checkSuperAdminAccess(req, res, () => {
-      analyticsController.getTokenUsageDetails(req, res);
-    });
-  });
-  
-  app.get("/api/admin/analytics/global", (req, res, next) => {
-    adminController.checkSuperAdminAccess(req, res, () => {
-      analyticsController.getGlobalStats(req, res);
-    });
-  });
+  // Toutes les routes d'administration et d'analytiques ont été supprimées
 
   // Fin des routes API
 
