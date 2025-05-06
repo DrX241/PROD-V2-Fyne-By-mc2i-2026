@@ -514,7 +514,7 @@ export default function CyberInterviewTest() {
                    'Prospective'}
                 </CardDescription>
               </div>
-              <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-2 rounded-md dark:text-white">
+              <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-2 rounded-md text-gray-900 dark:text-white">
                 <Clock className="h-5 w-5 mr-2 text-amber-600" />
                 <span className="font-mono font-medium">{formatTime(timeLeft)}</span>
               </div>
