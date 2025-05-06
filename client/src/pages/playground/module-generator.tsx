@@ -680,23 +680,23 @@ export default function ModuleGenerator() {
                           try {
                             setIsSaving(true);
                             
-                            // Préparation des données à envoyer
+                            // Préparation des données à envoyer conformément à l'API
                             const moduleToSave = {
-                              userId: 'user-' + Math.random().toString(36).substring(2, 9), // ID utilisateur générique
-                              userName: 'Utilisateur mc2i', // Nom d'utilisateur générique
-                              name: moduleConfig.name,
-                              domain: moduleConfig.domain,
-                              description: moduleConfig.description,
-                              iamName: `I AM ${moduleConfig.domain.toUpperCase()}`,
-                              difficulty: moduleConfig.difficulty,
-                              topics: moduleConfig.topics,
-                              gamificationLevel: moduleConfig.gamificationLevel === 'low' ? 'leger' : 
-                                                moduleConfig.gamificationLevel === 'medium' ? 'modere' : 'eleve',
-                              learningStyle: moduleConfig.learningStyle,
-                              includeTrainerModule: moduleConfig.includeTrainerModule,
-                              includeOpsModule: moduleConfig.includeOpsModule,
-                              includeTestModule: moduleConfig.includeTestModule,
-                              includeAscensionModule: moduleConfig.includeAscensionModule,
+                              moduleConfig: {
+                                userId: 'user-' + Math.random().toString(36).substring(2, 9), // ID utilisateur générique
+                                userName: 'Utilisateur mc2i', // Nom d'utilisateur générique
+                                name: moduleConfig.name,
+                                domain: moduleConfig.domain,
+                                description: moduleConfig.description,
+                                difficulty: moduleConfig.difficulty,
+                                topics: moduleConfig.topics,
+                                gamificationLevel: moduleConfig.gamificationLevel,
+                                learningStyle: moduleConfig.learningStyle,
+                                includeTrainerModule: moduleConfig.includeTrainerModule,
+                                includeOpsModule: moduleConfig.includeOpsModule,
+                                includeTestModule: moduleConfig.includeTestModule,
+                                includeAscensionModule: moduleConfig.includeAscensionModule,
+                              },
                               moduleData: generatedModules
                             };
                             

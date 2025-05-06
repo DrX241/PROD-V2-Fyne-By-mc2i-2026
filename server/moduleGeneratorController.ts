@@ -209,6 +209,8 @@ Générez la réponse au format JSON comme spécifié, avec des descriptions ric
  */
 export async function saveCustomModule(req: Request, res: Response) {
   try {
+    console.log("Requête reçue:", JSON.stringify(req.body, null, 2));
+    
     // Récupération des données du module et de la configuration
     const { moduleData, moduleConfig } = req.body;
     
@@ -219,6 +221,9 @@ export async function saveCustomModule(req: Request, res: Response) {
       });
     }
 
+    console.log("Module data:", moduleData);
+    console.log("Module config:", moduleConfig);
+
     // Conversion du niveau de gamification au format compatible avec la base de données
     const gamificationLevelMap: Record<string, string> = {
       'low': 'leger',
@@ -228,16 +233,16 @@ export async function saveCustomModule(req: Request, res: Response) {
 
     // Préparation des données pour l'insertion
     const moduleToSave: InsertCustomModule = {
-      userId: req.session.userId || 'anonymous', // Utilisation de l'ID utilisateur de la session ou 'anonymous' si non connecté
-      userName: req.session.userName || 'Utilisateur anonyme',
+      userId: moduleConfig.userId || 'anonymous',
+      userName: moduleConfig.userName || 'Utilisateur anonyme',
       name: moduleConfig.name,
       domain: moduleConfig.domain,
       description: moduleConfig.description,
-      iamName: moduleData.iamName || `I AM ${moduleConfig.domain.toUpperCase()}`,
-      difficulty: moduleConfig.difficulty,
+      iamName: `I AM ${moduleConfig.domain.toUpperCase()}`,
+      difficulty: moduleConfig.difficulty as 'beginner' | 'intermediate' | 'advanced',
       topics: moduleConfig.topics,
-      gamificationLevel: gamificationLevelMap[moduleConfig.gamificationLevel] as any,
-      learningStyle: moduleConfig.learningStyle,
+      gamificationLevel: gamificationLevelMap[moduleConfig.gamificationLevel] || 'leger' as any,
+      learningStyle: moduleConfig.learningStyle as 'reading' | 'interactive' | 'mixed',
       includeTrainerModule: moduleConfig.includeTrainerModule,
       includeOpsModule: moduleConfig.includeOpsModule,
       includeTestModule: moduleConfig.includeTestModule,
