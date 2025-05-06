@@ -44,6 +44,15 @@ interface ModuleConfig {
   additionalContext: string;
 }
 
+// Interface pour les informations client
+interface ClientInfo {
+  companyName: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+  projectDetails: string;
+}
+
 // Composant principal du générateur de modules
 export default function ModuleGenerator() {
   const [, setLocation] = useLocation();
@@ -64,6 +73,15 @@ export default function ModuleGenerator() {
     learningStyle: 'mixed',
     additionalContext: '',
   });
+  
+  // État des informations client
+  const [clientInfo, setClientInfo] = useState<ClientInfo>({
+    companyName: '',
+    contactName: '',
+    contactEmail: '',
+    contactPhone: '',
+    projectDetails: '',
+  });
 
   // État pour le nouveau topic à ajouter
   const [newTopic, setNewTopic] = useState('');
@@ -71,8 +89,11 @@ export default function ModuleGenerator() {
   // État pour suivre la progression de la génération
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isRequesting, setIsRequesting] = useState(false);
   const [generatedModules, setGeneratedModules] = useState<any>(null);
   const [currentTab, setCurrentTab] = useState<string>('config');
+  const [requestSubmitted, setRequestSubmitted] = useState(false);
+  const [previewMode, setPreviewMode] = useState(false);
 
   // Gérer les changements de champs
   const handleInputChange = (field: keyof ModuleConfig, value: any) => {
