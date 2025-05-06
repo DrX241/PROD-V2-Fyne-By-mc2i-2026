@@ -4282,6 +4282,12 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   /*
    * Routes pour la gestion des accès temporaires et des modules
    */
+  // Middleware d'authentification pour protéger toutes les routes admin
+  const adminRouter = express.Router();
+  app.use('/api/admin', (req, res, next) => {
+    adminController.checkAdminAccess(req, res, next);
+  });
+  
   // Routes des modules
   app.get("/api/admin/modules", adminController.getModules);
   app.post("/api/admin/modules", adminController.upsertModule);
@@ -4297,11 +4303,19 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   // Route d'autorisation temporaire pour les modules
   app.post("/api/verify-temporary-access", adminController.verifyTemporaryAccess);
   
-  // Gestion des administrateurs
-  app.post("/api/admin/promote", adminController.promoteToAdmin);
+  // Gestion des administrateurs - Nécessite des privilèges de super administrateur
+  app.post("/api/admin/promote", (req, res, next) => {
+    adminController.checkSuperAdminAccess(req, res, () => {
+      adminController.promoteToAdmin(req, res);
+    });
+  });
   
-  // Installation initiale des modules
-  app.post("/api/admin/initialize-modules", adminController.initializeApplicationModules);
+  // Installation initiale des modules - Nécessite des privilèges de super administrateur
+  app.post("/api/admin/initialize-modules", (req, res, next) => {
+    adminController.checkSuperAdminAccess(req, res, () => {
+      adminController.initializeApplicationModules(req, res);
+    });
+  });
   
   // Routes pour la configuration du système et super admin
   app.get("/api/system/setup-status", adminController.checkSystemSetup);
