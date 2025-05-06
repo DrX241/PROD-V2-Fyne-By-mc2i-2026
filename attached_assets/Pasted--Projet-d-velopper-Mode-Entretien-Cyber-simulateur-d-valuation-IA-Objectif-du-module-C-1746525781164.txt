@@ -1,0 +1,103 @@
+🧠 Projet à développer : Mode Entretien Cyber – simulateur d'évaluation IA
+🎯 Objectif du module
+Créer un simulateur d’entretien en cybersécurité, dans lequel un candidat ou consultant est mis en situation réelle pendant 15 minutes.
+Le but est d’évaluer sa capacité à :
+
+Réagir à des situations concrètes,
+
+Exprimer clairement son raisonnement,
+
+Adopter une posture professionnelle adaptée.
+
+Aucun score chiffré n’est affiché. À la fin du test, l’IA génère un profil personnalisé du participant.
+
+🧩 Fonctionnement général
+L'utilisateur lance une session d’entretien simulé.
+
+Il répond à 6 ou 7 questions ouvertes ou semi-dirigées.
+
+Il dispose de 15 minutes en tout, soit ~2 minutes par question.
+
+À la fin, ses réponses sont envoyées à GPT-4o via Azure OpenAI.
+
+L’IA génère un feedback structuré sous forme de profil.
+
+🧑‍💻 Interface attendue
+Affichage des questions une par une, dans une interface propre (type "chat" ou formulaire pas à pas).
+
+Chronomètre global de 15 minutes.
+
+À la fin, écran de transition pendant que l’IA analyse.
+
+Puis affichage du feedback final dans une tuile lisible, avec :
+
+🧑‍💼 Profil général (3 lignes)
+
+✅ Forces (liste de 3 éléments)
+
+⚠️ Axes de progression (liste de 3 éléments)
+
+🎖️ Badge symbolique (titre + justification)
+
+🧠 Contenu-type des questions
+Exemples de questions à intégrer dans la base (rotatives ou fixes) :
+
+“Présentez-vous brièvement en tant que professionnel de la cybersécurité.”
+
+“Un collaborateur reçoit un mail suspect. Que faites-vous ?”
+
+“Une machine est infectée. Tu es seul sur site. Que fais-tu dans les 10 premières minutes ?”
+
+“Analyse ces logs et décris ce que tu observes.” (logs simulés affichés)
+
+“Un client souhaite désactiver le MFA pour gagner du temps. Quelle est ta réaction ?”
+
+“Tu identifies une faille négligée par ton équipe. Que fais-tu ?”
+
+“Selon toi, quelle est la plus grande menace à venir en cybersécurité, et pourquoi ?”
+
+🤖 Instructions IA à utiliser (prompt de fin)
+À intégrer côté backend (après réception des réponses) :
+
+Tu es un recruteur cybersécurité expérimenté. Tu viens de faire passer un test de 15 minutes à un candidat.
+Lis l'ensemble de ses réponses et produis un profil d’évaluation structuré ainsi :
+
+Profil général (3 lignes) : posture, niveau perçu, comportement.
+
+Forces (3 bullets) : réflexes, qualité de raisonnement, clarté.
+
+Axes de progression (3 bullets) : limites, imprécisions, axes à creuser.
+
+Badge symbolique : nom du badge (ex. : Cyber Sentinel Junior) + 1 ligne de justification.
+
+Le ton doit être professionnel, bienveillant et utile pour faire progresser le candidat.
+
+💡 Exemple de rendu final IA (pour test)
+🧑‍💼 Profil évalué
+Consultant cybersécurité junior à potentiel. Bonne capacité à structurer ses idées, posture respectueuse mais encore hésitante dans certaines décisions critiques.
+
+✅ Forces
+Réactivité pertinente sur les scénarios d’incident.
+
+Bonne compréhension des enjeux MFA et phishing.
+
+Communication claire et structurée.
+
+⚠️ Axes de progression
+Plus de précision technique sur l’analyse de logs.
+
+Approche trop prudente sur les failles internes.
+
+À renforcer : gestion des dilemmes client.
+
+🎖️ Badge attribué
+🟦 Cyber Guardian Junior – Montre de solides bases opérationnelles et une éthique fiable. Doit désormais renforcer sa rigueur technique.
+
+📦 Livrables attendus
+Interface web fluide (1 question à la fois, navigation verrouillée).
+
+Chrono 15 minutes visible.
+
+Connexion à Azure OpenAI pour traitement des réponses en fin de test.
+
+Affichage propre du profil d’évaluation final.
