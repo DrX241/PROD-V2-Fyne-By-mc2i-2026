@@ -260,7 +260,7 @@ export default function CyberInterviewTest() {
   if (testState === 'intro') {
     return (
       <HomeLayout>
-        <div className="container mx-auto py-8 px-4">
+        <div className="container mx-auto py-8 px-4 cyber-interview-test">
           <Card className="max-w-3xl mx-auto">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-center text-blue-800 dark:text-white">Test d'entretien cybersécurité</CardTitle>
@@ -316,7 +316,7 @@ export default function CyberInterviewTest() {
   if (testState === 'results' && evaluationResult) {
     return (
       <HomeLayout>
-        <div className="container mx-auto py-8 px-4">
+        <div className="container mx-auto py-8 px-4 cyber-interview-test">
           <Card className="max-w-3xl mx-auto">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-bold text-blue-800 dark:text-white">Évaluation terminée</CardTitle>
@@ -378,7 +378,7 @@ export default function CyberInterviewTest() {
   if (testState === 'submitting') {
     return (
       <HomeLayout>
-        <div className="container mx-auto py-8 px-4 flex flex-col items-center justify-center min-h-[50vh]">
+        <div className="container mx-auto py-8 px-4 flex flex-col items-center justify-center min-h-[50vh] cyber-interview-test">
           <div className="w-16 h-16 border-4 border-t-transparent border-blue-600 rounded-full animate-spin mb-4"></div>
           <h2 className="text-xl font-semibold mb-2 text-blue-800 dark:text-white">Analyse en cours...</h2>
           <p className="text-black dark:text-white text-center max-w-md">

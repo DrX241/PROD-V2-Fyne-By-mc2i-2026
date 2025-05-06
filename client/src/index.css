@@ -6,6 +6,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Style global pour forcer le texte blanc en mode sombre pour le module "cyber/interview-test" */
+.dark .cyber-interview-test * {
+  color: white !important;
+}
+
+/* Exceptions pour les éléments qui doivent conserver leur couleur */
+.dark .cyber-interview-test svg,
+.dark .cyber-interview-test .preserve-color {
+  color: initial !important;
+}
+
 /* Optimisations responsive pour les appareils mobiles */
 @layer base {
   html {
