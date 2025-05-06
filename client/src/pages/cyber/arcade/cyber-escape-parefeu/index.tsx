@@ -121,6 +121,42 @@ const CyberEscapeParefeu: React.FC = () => {
         return "Vous examinez attentivement les lieux à la recherche d'indices.";
     }
   };
+  
+  // Fonction pour récupérer l'icône associée à un personnage selon son rôle
+  const getCharacterIcon = (role: string) => {
+    switch (role) {
+      case 'Responsable RH':
+        return <UsersIcon className="h-4 w-4 text-orange-300" />;
+      case 'DSI':
+        return <MonitorIcon className="h-4 w-4 text-orange-300" />;
+      case 'Technicienne Support':
+        return <HeadphonesIcon className="h-4 w-4 text-orange-300" />;
+      case 'Directeur Général':
+        return <BriefcaseIcon className="h-4 w-4 text-orange-300" />;
+      case 'Collègue suspect':
+        return <AlertTriangle className="h-4 w-4 text-orange-300" />;
+      default:
+        return <UsersIcon className="h-4 w-4 text-orange-300" />;
+    }
+  };
+  
+  // Fonction pour obtenir un indice sur chaque personnage
+  const getCharacterHint = (characterId: string) => {
+    switch (characterId) {
+      case 'eddy':
+        return "Semble nerveux depuis la panne du pare-feu. A récemment reçu plusieurs emails suspects.";
+      case 'neil':
+        return "Dirige l'équipe IT d'une main de fer. Possède tous les accès aux systèmes critiques.";
+      case 'yousra':
+        return "Connaît les systèmes mieux que personne. Travaille souvent en dehors des heures de bureau.";
+      case 'guillaume':
+        return "Autoritaire et pressé. S'intéresse beaucoup aux systèmes ces derniers temps.";
+      case 'fares':
+        return "Nouveau dans l'équipe. Propose souvent son aide pour les problèmes techniques.";
+      default:
+        return "Pourrait détenir des informations importantes sur l'incident en cours.";
+    }
+  };
 
   // Fonction pour générer le profil du joueur à la fin
   const handleGenerateProfile = async () => {
