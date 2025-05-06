@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { useAuth } from '@/contexts/AdminAuthContext';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { Redirect, useLocation } from 'wouter';
 import axios from 'axios';
 import { 
@@ -33,7 +33,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, AlertCircle, FileBarChart, Users, Database, BarChart3 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
-import fr from 'date-fns/locale/fr';
+import { fr } from 'date-fns/locale';
 
 type AnalyticsStats = {
   totalSessions: number;
@@ -89,7 +89,7 @@ type TokenUsageDetail = {
 };
 
 const AnalyticsPage = () => {
-  const { isAuthenticated, isSuperAdmin } = useAuth();
+  const { isAuthenticated, isSuperAdmin } = useAdminAuth();
   const [location, setLocation] = useLocation();
   
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
