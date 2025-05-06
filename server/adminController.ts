@@ -159,7 +159,18 @@ function checkAdminAccess(req: Request, res: Response, next: NextFunction) {
 
 // Vérifie l'accès super administrateur via la session
 export function checkSuperAdminAccess(req: Request, res: Response, next: NextFunction) {
-  if (!req.session || !req.session.isSuperAdmin) {
+  // S'assurer que req.session existe
+  if (!req.session) {
+    console.error("Session non initialisée");
+    return res.status(500).json({ 
+      success: false, 
+      message: "Erreur interne de serveur", 
+      redirectTo: "/admin/login" 
+    });
+  }
+  
+  // Vérifier si l'utilisateur est super admin
+  if (!req.session.isSuperAdmin) {
     return res.status(401).json({ 
       success: false, 
       message: "Authentification requise", 
@@ -1260,6 +1271,15 @@ export async function authenticateSuperAdmin(req: Request, res: Response) {
       return res.status(500).json({ 
         success: false, 
         message: "Erreur de configuration: utilisateur super admin introuvable" 
+      });
+    }
+    
+    // Vérifier que la session est disponible
+    if (!req.session) {
+      console.error("Session non initialisée");
+      return res.status(500).json({ 
+        success: false, 
+        message: "Erreur interne du serveur: session non disponible" 
       });
     }
     
