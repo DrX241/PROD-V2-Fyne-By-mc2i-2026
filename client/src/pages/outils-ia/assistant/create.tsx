@@ -71,8 +71,8 @@ const assistantSchema = z.object({
   personality: z.enum(["professionnel", "amical", "direct", "expert", "pédagogique", "mentor"]),
   domain: z.enum(["cybersecurite", "gestion_projet", "amoa", "developpement", "data_ia", "conseil", "general"]),
   expertise: z.array(z.string()).min(1, "Ajoutez au moins un domaine d'expertise"),
-  avatarStyle: z.string(),
-  avatarColor: z.string(),
+  avatarStyle: z.enum(["robot", "cyborg", "scientist", "teacher", "professional"]),
+  avatarColor: z.enum(["violet", "blue", "green", "yellow", "red", "orange", "pink", "gray"]),
   gamificationLevel: z.enum(["aucun", "leger", "modere", "eleve", "intense"]),
   isPublic: z.boolean().default(false),
   userId: z.number()
