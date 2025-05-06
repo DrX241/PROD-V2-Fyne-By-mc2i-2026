@@ -532,7 +532,7 @@ export default function CyberInterviewTest() {
               placeholder={questions[currentQuestionIndex]?.placeholder}
               value={currentAnswer}
               onChange={(e) => setCurrentAnswer(e.target.value)}
-              className="min-h-[150px] text-gray-800 dark:text-white"
+              className="min-h-[150px] bg-white dark:bg-gray-800 text-gray-800 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
             />
           </CardContent>
           <CardFooter className="flex justify-between">
