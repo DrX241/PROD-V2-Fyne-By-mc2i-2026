@@ -287,6 +287,25 @@ const CyberEscapeParefeu: React.FC = () => {
                 <li>Battez contre la montre pour stopper le malware avant qu'il ne prenne le contrôle total</li>
               </ul>
               
+              <h3 className="text-xl font-bold mt-4 mb-2">Progression et déverrouillage</h3>
+              
+              <p>
+                Au début du jeu, certaines salles sont verrouillées et nécessitent que vous accomplissiez des objectifs spécifiques pour y accéder :
+              </p>
+              
+              <ul className="list-disc pl-6 space-y-1">
+                <li><strong>Hub et RH</strong> : Accessibles dès le début</li>
+                <li><strong>IT</strong> : Se déverrouille après avoir parlé aux personnages du Hub et obtenu les premières informations</li>
+                <li><strong>Support</strong> : Nécessite de résoudre l'énigme "Analyse d'IP suspecte" dans les outils de résolution</li>
+                <li><strong>Direction</strong> : Demande d'avoir collecté au moins deux éléments dans l'inventaire et d'avoir visité l'IT</li>
+                <li><strong>Salle sécurisée</strong> : Exige un code de sécurité trouvé dans le bureau de la Direction</li>
+              </ul>
+              
+              <p className="text-sm text-orange-300 italic mt-2">
+                Astuce : Pour débloquer une salle, vous devrez parfois examiner les indices dans votre inventaire, 
+                interroger les personnages ou résoudre des énigmes via les "Outils de résolution" accessibles depuis chaque salle.
+              </p>
+                            
               <h3 className="text-xl font-bold mt-4 mb-2">Compétences développées</h3>
               
               <ul className="list-disc pl-6 space-y-1 mb-4">
@@ -415,6 +434,21 @@ const CyberEscapeParefeu: React.FC = () => {
                 </svg>
               </div>
               
+              {/* Message d'aide pour les salles verrouillées */}
+              {availableRooms.some(room => !room.isAccessible) && (
+                <Alert className="mb-4 bg-yellow-900/20 text-yellow-100 border-yellow-600">
+                  <AlertTriangle className="h-4 w-4 text-yellow-400" />
+                  <AlertTitle>Salles verrouillées</AlertTitle>
+                  <AlertDescription>
+                    Certaines salles sont inaccessibles et se déverrouillent progressivement à mesure que vous avancez dans l'enquête.
+                    Progressez en interagissant avec les personnages et en analysant les informations obtenues.
+                    <Button variant="link" className="p-0 h-auto text-yellow-400 hover:text-yellow-300" onClick={() => setShowAboutDialog(true)}>
+                      Voir les conditions de déverrouillage
+                    </Button>
+                  </AlertDescription>
+                </Alert>
+              )}
+              
               {/* Grille de boutons pour navigation mobile et tablette */}
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                 {availableRooms.map(room => (
@@ -426,6 +460,7 @@ const CyberEscapeParefeu: React.FC = () => {
                       onClick={() => handleRoomSelection(room.id)}
                       disabled={!room.isAccessible || isLoading}
                       variant={currentRoom?.id === room.id ? "default" : "outline"}
+                      title={!room.isAccessible ? "Cette salle est verrouillée. Explorez les autres zones pour obtenir les informations nécessaires au déverrouillage." : ""}
                       className={`
                         relative w-full py-3 group transition-all duration-200
                         ${currentRoom?.id === room.id ? 'bg-red-700 shadow-lg shadow-red-700/30' : 'bg-black/40'} 
