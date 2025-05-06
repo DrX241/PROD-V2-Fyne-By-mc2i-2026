@@ -158,6 +158,14 @@ function App() {
                 </Suspense>
               );
             }} />
+            <Route path="/cyber/arcade/cyber-escape-parefeu" component={() => {
+              const CyberEscapeParefeuComponent = lazy(() => import('./pages/cyber/arcade/cyber-escape-parefeu'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <CyberEscapeParefeuComponent />
+                </Suspense>
+              );
+            }} />
             <Route path="/cyber/arcade/brain-hacker" component={() => {
               const BrainHackerComponent = lazy(() => import('./pages/cyber/arcade/brain-hacker'));
               return (
