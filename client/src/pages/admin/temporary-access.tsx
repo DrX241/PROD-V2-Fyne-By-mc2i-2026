@@ -156,10 +156,7 @@ export default function TemporaryAccessManagement() {
   // Mutation pour mettre à jour un accès temporaire
   const updateAccessMutation = useMutation({
     mutationFn: async (accessData: z.infer<typeof temporaryAccessSchema>) => {
-      const res = await apiRequest("PUT", `/api/admin/temporary-access/${accessData.id}`, {
-        body: JSON.stringify(accessData),
-        headers: { 'Content-Type': 'application/json' }
-      });
+      const res = await apiRequest("PUT", `/api/admin/temporary-access/${accessData.id}`, accessData);
       return await res.json();
     },
     onSuccess: () => {
@@ -183,9 +180,7 @@ export default function TemporaryAccessManagement() {
   // Mutation pour révoquer un accès temporaire
   const revokeAccessMutation = useMutation({
     mutationFn: async (accessId: number) => {
-      const res = await apiRequest("POST", `/api/admin/temporary-access/${accessId}/revoke`, {
-        headers: { 'Content-Type': 'application/json' }
-      });
+      const res = await apiRequest("POST", `/api/admin/temporary-access/${accessId}/revoke`);
       return await res.json();
     },
     onSuccess: () => {
@@ -209,9 +204,7 @@ export default function TemporaryAccessManagement() {
   // Mutation pour renvoyer l'invitation par email
   const resendInvitationMutation = useMutation({
     mutationFn: async (accessId: number) => {
-      const res = await apiRequest("POST", `/api/admin/temporary-access/${accessId}/resend`, {
-        headers: { 'Content-Type': 'application/json' }
-      });
+      const res = await apiRequest("POST", `/api/admin/temporary-access/${accessId}/resend`);
       return await res.json();
     },
     onSuccess: () => {
