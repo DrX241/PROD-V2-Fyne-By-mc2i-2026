@@ -402,6 +402,30 @@ export default function Home() {
   // L'effet de chargement des scénarios a été supprimé
   // Ce code est maintenant uniquement dans la section "GAMIFICATION AVANCÉE" de "I AM mc2i"
   
+  // État pour stocker les modules personnalisés chargés depuis l'API
+  const [customModules, setCustomModules] = useState<any[]>([]);
+  
+  // Charger les modules personnalisés au chargement de la page
+  useEffect(() => {
+    const fetchCustomModules = async () => {
+      try {
+        const response = await fetch('/api/module-generator/modules');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && Array.isArray(data.modules)) {
+            setCustomModules(data.modules);
+          }
+        } else {
+          console.error('Erreur lors du chargement des modules personnalisés:', await response.text());
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement des modules personnalisés:', error);
+      }
+    };
+    
+    fetchCustomModules();
+  }, []);
+  
   // Modules avec animations interactives
   const modules = [
       // Module Outils IA (nouvelle catégorie)
@@ -451,7 +475,7 @@ export default function Home() {
       color: "bg-rose-600",
       bgColor: "bg-gradient-to-br from-rose-50 to-rose-100",
       accentColor: "bg-rose-500",
-      linkTo: "/custom"
+      linkTo: "/playground/module-generator"
     }
   ];
   
@@ -798,6 +822,7 @@ export default function Home() {
             
             {/* Grille principale */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-8">
+              {/* Modules prédéfinis */}
               {modules.map((module, index) => (
                 <motion.div
                   key={index}
@@ -878,6 +903,106 @@ export default function Home() {
                         <div className="mt-auto">
                           <Link href={module.linkTo}>
                             <button className={`${module.color} text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center transition-all hover:shadow-md`}>
+                              Explorer
+                              <ArrowRight className="h-4 w-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300"/>
+                            </button>
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              ))}
+              
+              {/* Modules personnalisés */}
+              {customModules.map((customModule, index) => (
+                <motion.div
+                  key={`custom-${index}`}
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: (modules.length + index) * 0.1 }}
+                  viewport={{ once: true }}
+                  className="transform hover:scale-105 hover:z-20 transition-all duration-300 group"
+                >
+                  {isFuturistic ? (
+                    // Wrapper avec effets futuristes galactiques
+                    <div className="relative bg-gradient-to-b from-blue-950/90 to-indigo-950/90 backdrop-blur-md rounded-xl shadow-xl overflow-hidden group-hover:shadow-cyan-500/60 border border-purple-500/40 h-72">
+                      {/* Effet de nébuleuse et étoiles en arrière-plan */}
+                      <div className="absolute inset-0 overflow-hidden">
+                        {/* Nébuleuse en arrière-plan */}
+                        <div className="absolute top-0 right-0 w-full h-full opacity-30 mix-blend-screen">
+                          <div className="absolute top-0 right-0 w-3/4 h-3/4 bg-cyan-500/10 rounded-full filter blur-2xl"></div>
+                          <div className="absolute bottom-0 left-0 w-2/3 h-2/3 bg-purple-500/15 rounded-full filter blur-2xl"></div>
+                          <div className="absolute top-1/3 left-1/4 w-1/2 h-1/2 bg-blue-500/10 rounded-full filter blur-xl"></div>
+                        </div>
+                        
+                        {/* Petites étoiles scintillantes */}
+                        {Array.from({ length: 20 }).map((_, i) => (
+                          <div 
+                            key={i}
+                            className="absolute rounded-full bg-white"
+                            style={{
+                              top: `${Math.random() * 100}%`,
+                              left: `${Math.random() * 100}%`,
+                              width: `${Math.max(1, Math.random() * 2)}px`,
+                              height: `${Math.max(1, Math.random() * 2)}px`,
+                              opacity: Math.random() * 0.7 + 0.3,
+                              animation: `twinkle ${1 + Math.random() * 3}s infinite ease-in-out ${Math.random() * 2}s`
+                            }}
+                          />
+                        ))}
+                      </div>
+                      
+                      {/* Effet de lueur sur hover */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-tr from-cyan-500/20 to-purple-500/20 transition-opacity duration-500"></div>
+                      
+                      {/* Le module personnalisé */}
+                      <ModuleCard 
+                        title={customModule.iamName || customModule.name}
+                        description={customModule.description}
+                        icon={<GraduationCap size={36} />}
+                        color="bg-purple-600"
+                        bgColor="bg-gradient-to-br from-purple-50 to-purple-100"
+                        accentColor="bg-purple-500"
+                        linkTo={`/modules/${customModule.id}`}
+                      />
+                      
+                      {/* Accent line galactique */}
+                      <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 via-purple-500 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out origin-left"></div>
+                    </div>
+                  ) : (
+                    // Wrapper avec style classique - design avec taille égale
+                    <div className="relative bg-white rounded-xl shadow-md overflow-hidden group-hover:shadow-xl transition-all duration-300 border border-gray-200 flex flex-col h-72">
+                      {/* Header avec la couleur du module */}
+                      <div className="h-3 w-full bg-purple-600"></div>
+                      
+                      {/* Contenu du module - layout vertical pour avoir une taille uniforme */}
+                      <div className="p-6 flex flex-col h-full">
+                        {/* Icône en haut */}
+                        <div className="flex items-center mb-4">
+                          <div className="w-14 h-14 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl flex items-center justify-center shadow mr-4 flex-shrink-0">
+                            <div className="bg-purple-600 p-2 rounded-md">
+                              <GraduationCap size={24} className="text-white" />
+                            </div>
+                          </div>
+                          
+                          {/* Titre à côté de l'icône */}
+                          <h3 className="text-lg font-semibold text-gray-800">
+                            {customModule.iamName || customModule.name}
+                          </h3>
+                        </div>
+                        
+                        {/* Contenu textuel */}
+                        <div className="flex-grow">
+                          <p className="text-gray-600 text-sm mb-6 line-clamp-3">
+                            {customModule.description}
+                          </p>
+                        </div>
+                        
+                        {/* Bouton en bas */}
+                        <div className="mt-auto">
+                          <Link href={`/modules/${customModule.id}`}>
+                            <button className="bg-purple-600 text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center transition-all hover:shadow-md">
                               Explorer
                               <ArrowRight className="h-4 w-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300"/>
                             </button>
