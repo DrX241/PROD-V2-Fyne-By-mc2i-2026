@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { Configuration, OpenAIApi } from 'openai';
 import axios from 'axios';
 
 /**
@@ -139,7 +138,14 @@ Réponds uniquement avec un JSON au format:
       const assistantResponse = response.data.choices[0].message.content;
       
       try {
-        const parsedResponse = JSON.parse(assistantResponse);
+        // Nettoyage de la réponse pour supprimer les délimiteurs markdown
+        let cleanedResponse = assistantResponse;
+        
+        // Supprimer les délimitateurs de code Markdown (```json et ```)
+        cleanedResponse = cleanedResponse.replace(/```json\s?/g, '');
+        cleanedResponse = cleanedResponse.replace(/```\s?/g, '');
+        
+        const parsedResponse = JSON.parse(cleanedResponse);
         
         return res.status(200).json({
           response: parsedResponse,
@@ -270,7 +276,14 @@ Réponds uniquement avec un JSON au format:
       const assistantResponse = response.data.choices[0].message.content;
       
       try {
-        const parsedResponse = JSON.parse(assistantResponse);
+        // Nettoyage de la réponse pour supprimer les délimiteurs markdown
+        let cleanedResponse = assistantResponse;
+        
+        // Supprimer les délimitateurs de code Markdown (```json et ```)
+        cleanedResponse = cleanedResponse.replace(/```json\s?/g, '');
+        cleanedResponse = cleanedResponse.replace(/```\s?/g, '');
+        
+        const parsedResponse = JSON.parse(cleanedResponse);
         
         // Si un nouvel indice est révélé, ajouter à l'inventaire
         if (parsedResponse.newInfo && parsedResponse.revealedClue) {
@@ -371,7 +384,14 @@ Réponds uniquement avec un JSON au format:
       const assistantResponse = response.data.choices[0].message.content;
       
       try {
-        const parsedResponse = JSON.parse(assistantResponse);
+        // Nettoyage de la réponse pour supprimer les délimiteurs markdown
+        let cleanedResponse = assistantResponse;
+        
+        // Supprimer les délimitateurs de code Markdown (```json et ```)
+        cleanedResponse = cleanedResponse.replace(/```json\s?/g, '');
+        cleanedResponse = cleanedResponse.replace(/```\s?/g, '');
+        
+        const parsedResponse = JSON.parse(cleanedResponse);
         
         return res.status(200).json({
           response: parsedResponse,
@@ -629,7 +649,14 @@ Réponds uniquement avec un JSON au format:
       const assistantResponse = response.data.choices[0].message.content;
       
       try {
-        const parsedProfile = JSON.parse(assistantResponse);
+        // Nettoyage de la réponse pour supprimer les délimiteurs markdown
+        let cleanedResponse = assistantResponse;
+        
+        // Supprimer les délimitateurs de code Markdown (```json et ```)
+        cleanedResponse = cleanedResponse.replace(/```json\s?/g, '');
+        cleanedResponse = cleanedResponse.replace(/```\s?/g, '');
+        
+        const parsedProfile = JSON.parse(cleanedResponse);
         
         return res.status(200).json(parsedProfile);
       } catch (parseError: any) {
@@ -739,7 +766,14 @@ Réponds uniquement avec un JSON au format:
       const assistantResponse = response.data.choices[0].message.content;
       
       try {
-        const missionBriefing = JSON.parse(assistantResponse);
+        // Nettoyage de la réponse pour supprimer les délimiteurs markdown
+        let cleanedResponse = assistantResponse;
+        
+        // Supprimer les délimitateurs de code Markdown (```json et ```)
+        cleanedResponse = cleanedResponse.replace(/```json\s?/g, '');
+        cleanedResponse = cleanedResponse.replace(/```\s?/g, '');
+        
+        const missionBriefing = JSON.parse(cleanedResponse);
         
         return res.status(200).json({
           gameState,
