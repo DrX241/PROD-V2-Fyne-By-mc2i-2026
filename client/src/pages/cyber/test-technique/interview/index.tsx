@@ -9,7 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, CheckCircle, Clock, AlertTriangle, Award, ChevronRight, ChevronLeft, Home } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import HomeLayout from '@/components/layout/HomeLayout';
-import PageTitle from '@/components/utils/PageTitle';
+import PageTitle from '@/components/layout/PageTitle';
+import { PageHeading } from '@/components/ui/page-heading';
 import { apiRequest } from '@/lib/queryClient';
 
 // Types
@@ -512,7 +513,8 @@ export default function CyberInterviewPage() {
   return (
     <HomeLayout>
       <div className="container mx-auto py-6 space-y-8">
-        <PageTitle
+        <PageTitle title="Mode Entretien Cyber" subtitle="Simulateur d'évaluation" />
+        <PageHeading
           title="Mode Entretien Cyber"
           subtitle="Simulateur d'évaluation en situation d'entretien"
           icon="🎭"
