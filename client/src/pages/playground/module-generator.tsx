@@ -362,8 +362,11 @@ export default function ModuleGenerator() {
 
                     <div className="flex items-center justify-between p-3 rounded-md bg-gray-50 dark:bg-gray-800">
                       <div className="flex items-center">
-                        <BrainCircuit className="h-5 w-5 mr-2 text-purple-600" />
-                        <Label htmlFor="ascension-module">Module Ascension</Label>
+                        <Trophy className="h-5 w-5 mr-2 text-purple-600" />
+                        <div>
+                          <Label htmlFor="ascension-module">Module Ascension</Label>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Progression avancée</p>
+                        </div>
                       </div>
                       <Switch 
                         id="ascension-module" 
@@ -505,7 +508,7 @@ export default function ModuleGenerator() {
                           {moduleConfig.includeOpsModule && generatedModules.opsModule && (
                             <div className="border rounded-md overflow-hidden">
                               <div className="bg-green-100 dark:bg-green-900 px-4 py-2 font-medium flex items-center">
-                                <Terminal className="h-5 w-5 mr-2 text-green-600 dark:text-green-400" />
+                                <SettingsIcon className="h-5 w-5 mr-2 text-green-600 dark:text-green-400" />
                                 {moduleConfig.domain}OPS
                               </div>
                               <div className="p-4 space-y-2">
@@ -526,7 +529,7 @@ export default function ModuleGenerator() {
                           {moduleConfig.includeTestModule && generatedModules.testModule && (
                             <div className="border rounded-md overflow-hidden">
                               <div className="bg-amber-100 dark:bg-amber-900 px-4 py-2 font-medium flex items-center">
-                                <Code className="h-5 w-5 mr-2 text-amber-600 dark:text-amber-400" />
+                                <Layers className="h-5 w-5 mr-2 text-amber-600 dark:text-amber-400" />
                                 {moduleConfig.domain}TEST
                               </div>
                               <div className="p-4 space-y-2">
@@ -547,7 +550,7 @@ export default function ModuleGenerator() {
                           {moduleConfig.includeAscensionModule && generatedModules.ascensionModule && (
                             <div className="border rounded-md overflow-hidden">
                               <div className="bg-purple-100 dark:bg-purple-900 px-4 py-2 font-medium flex items-center">
-                                <BrainCircuit className="h-5 w-5 mr-2 text-purple-600 dark:text-purple-400" />
+                                <Trophy className="h-5 w-5 mr-2 text-purple-600 dark:text-purple-400" />
                                 {moduleConfig.domain}ASCENSION
                               </div>
                               <div className="p-4 space-y-2">
