@@ -368,7 +368,7 @@ export default function CyberInterviewTest() {
                   <Clock className="h-5 w-5 mr-2 text-blue-600" />
                   Comment ça fonctionne
                 </h3>
-                <ul className="list-disc list-inside space-y-2 text-sm">
+                <ul className="list-disc list-inside space-y-2 text-sm text-gray-800 dark:text-gray-200">
                   <li>Test chronométré de 15 minutes</li>
                   <li>6 questions ouvertes sur différents aspects de la cybersécurité</li>
                   <li>Répondez à chaque question de façon concise mais complète</li>
