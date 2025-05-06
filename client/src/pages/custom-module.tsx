@@ -23,18 +23,35 @@ const CustomModule = () => {
       return;
     }
 
-    // Charger les données du module
+    // Pour éviter les appels API répétitifs
+    const moduleId = params.id;
+    const cachedFetch = {};
+    const cacheKey = `module-${moduleId}`;
+
+    // Vérifier si nous avons déjà les données du module
+    if (module && module.id === parseInt(moduleId)) {
+      return;
+    }
+
+    let isMounted = true;
+
     const fetchModule = async () => {
       try {
+        if (cachedFetch[cacheKey]) {
+          return;
+        }
+
+        cachedFetch[cacheKey] = true;
         setLoading(true);
-        const response = await fetch(`/api/module-generator/modules/${params.id}`);
+        
+        const response = await fetch(`/api/module-generator/modules/${moduleId}`);
         
         if (!response.ok) {
           throw new Error('Module non trouvé');
         }
 
         const data = await response.json();
-        if (data.success && data.module) {
+        if (data.success && data.module && isMounted) {
           console.log("Module chargé:", data.module);
           setModule(data.module);
         } else {
@@ -42,20 +59,28 @@ const CustomModule = () => {
         }
       } catch (error) {
         console.error('Erreur:', error);
-        toast({
-          title: 'Erreur',
-          description: error instanceof Error ? error.message : 'Une erreur est survenue lors du chargement du module',
-          variant: 'destructive',
-        });
-        // En cas d'erreur, retourner à la page d'accueil
-        navigate('/');
+        if (isMounted) {
+          toast({
+            title: 'Erreur',
+            description: error instanceof Error ? error.message : 'Une erreur est survenue lors du chargement du module',
+            variant: 'destructive',
+          });
+          navigate('/');
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchModule();
-  }, [params, navigate, toast]);
+
+    return () => {
+      isMounted = false;
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params?.id]);
 
   // Fonction pour formater le niveau de difficulté
   const formatDifficulty = (difficulty: string) => {
