@@ -91,7 +91,7 @@ const QUESTIONS: Question[] = [
 // Récupère uniquement la question de présentation
 const getInitialQuestion = (): Question[] => {
   const presentationQuestion = QUESTIONS.find(q => q.type === 'presentation');
-  
+
   return presentationQuestion ? [presentationQuestion] : [QUESTIONS[0]];
 };
 
@@ -124,7 +124,7 @@ const generateAdaptiveQuestion = async (
     }
 
     const data = await response.json();
-    
+
     if (data.success) {
       return data.question;
     } else {
@@ -253,11 +253,11 @@ export default function CyberInterviewTest() {
         const fallbackQuestion = QUESTIONS.find(q => 
           !questions.some(existingQ => existingQ.type === q.type)
         ) || QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)];
-        
+
         setQuestions(prev => [...prev, fallbackQuestion]);
         setCurrentQuestionIndex(prev => prev + 1);
         setCurrentAnswer('');
-        
+
         toast({
           title: 'Information',
           description: 'Une question générique a été chargée.',
@@ -320,7 +320,7 @@ export default function CyberInterviewTest() {
       }
 
       const data = await response.json();
-      
+
       if (data.success) {
         setEvaluationResult(data.evaluation);
         setTestState('results');
@@ -376,7 +376,7 @@ export default function CyberInterviewTest() {
                   <li>Vous recevrez une analyse de vos forces et axes d'amélioration</li>
                 </ul>
               </div>
-              
+
               <div className="bg-amber-50 dark:bg-amber-950 p-4 rounded-md dark:text-white">
                 <h3 className="font-semibold mb-2 flex items-center text-blue-800 dark:text-white">
                   <AlertCircle className="h-5 w-5 mr-2 text-amber-600" />
@@ -429,37 +429,37 @@ export default function CyberInterviewTest() {
             <CardContent className="space-y-6">
               <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-md dark:text-white">
                 <h3 className="font-semibold mb-2 text-blue-800 dark:text-white">🧑‍💼 Profil évalué</h3>
-                <p className="text-sm">{evaluationResult.profile}</p>
+                <p className="text-sm text-gray-800 dark:text-white">{evaluationResult.profile}</p>
               </div>
-              
+
               <div className="bg-green-50 dark:bg-green-950 p-4 rounded-md dark:text-white">
                 <h3 className="font-semibold mb-2 flex items-center text-blue-800 dark:text-white">
                   <CheckCircle2 className="h-5 w-5 mr-2 text-green-600" />
                   Forces
                 </h3>
-                <ul className="list-disc list-inside space-y-1 text-sm">
+                <ul className="list-disc list-inside space-y-1 text-sm text-gray-800 dark:text-white">
                   {evaluationResult.strengths.map((strength, index) => (
                     <li key={index}>{strength}</li>
                   ))}
                 </ul>
               </div>
-              
+
               <div className="bg-amber-50 dark:bg-amber-950 p-4 rounded-md dark:text-white">
                 <h3 className="font-semibold mb-2 flex items-center text-blue-800 dark:text-white">
                   <AlertCircle className="h-5 w-5 mr-2 text-amber-600" />
                   Axes de progression
                 </h3>
-                <ul className="list-disc list-inside space-y-1 text-sm">
+                <ul className="list-disc list-inside space-y-1 text-sm text-gray-800 dark:text-white">
                   {evaluationResult.improvements.map((improvement, index) => (
                     <li key={index}>{improvement}</li>
                   ))}
                 </ul>
               </div>
-              
+
               <div className="bg-purple-50 dark:bg-purple-950 p-4 rounded-md dark:text-white">
                 <h3 className="font-semibold mb-2 text-blue-800 dark:text-white">🎖️ Badge attribué</h3>
                 <Badge className="mb-2 bg-purple-600">{evaluationResult.badge.name}</Badge>
-                <p className="text-sm">{evaluationResult.badge.justification}</p>
+                <p className="text-sm text-gray-800 dark:text-white">{evaluationResult.badge.justification}</p>
               </div>
             </CardContent>
             <CardFooter className="flex justify-center">
@@ -523,16 +523,16 @@ export default function CyberInterviewTest() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2 dark:text-white">
-              <h3 className="text-lg font-medium text-blue-800 dark:text-white">{questions[currentQuestionIndex]?.question}</h3>
+              <h3 className="text-lg font-medium text-gray-800 dark:text-white">{questions[currentQuestionIndex]?.question}</h3>
               {questions[currentQuestionIndex]?.hint && (
-                <p className="text-sm">{questions[currentQuestionIndex]?.hint}</p>
+                <p className="text-sm text-gray-800 dark:text-white">{questions[currentQuestionIndex]?.hint}</p>
               )}
             </div>
             <Textarea
               placeholder={questions[currentQuestionIndex]?.placeholder}
               value={currentAnswer}
               onChange={(e) => setCurrentAnswer(e.target.value)}
-              className="min-h-[150px]"
+              className="min-h-[150px] text-gray-800 dark:text-white"
             />
           </CardContent>
           <CardFooter className="flex justify-between">
