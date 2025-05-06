@@ -4319,6 +4319,7 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   
   // Routes pour la configuration du système et super admin
   app.get("/api/system/setup-status", adminController.checkSystemSetup);
+  app.get("/api/system/auth-status", adminController.checkAuthStatus);
   app.post("/api/system/initialize-super-admin", adminController.initializeSuperAdmin);
   app.post("/api/system/authenticate-super-admin", adminController.authenticateSuperAdmin);
   app.post("/api/system/logout-super-admin", adminController.logoutSuperAdmin);
