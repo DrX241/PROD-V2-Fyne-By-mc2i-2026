@@ -1001,7 +1001,7 @@ export default function Home() {
                         
                         {/* Bouton en bas */}
                         <div className="mt-auto">
-                          <Link href={`/modules/${customModule.id}`}>
+                          <Link href={`/custom-module/${customModule.id}`}>
                             <button className="bg-purple-600 text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center transition-all hover:shadow-md">
                               Explorer
                               <ArrowRight className="h-4 w-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300"/>

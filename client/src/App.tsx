@@ -219,8 +219,16 @@ function App() {
               );
             }} />
             
-            {/* Générateur de Modules */}
+            {/* Générateur de Modules et affichage des modules personnalisés */}
             <Route path="/playground/module-generator" component={ModuleGeneratorPage} />
+            <Route path="/custom-module/:id" component={() => {
+              const CustomModulePage = lazy(() => import('./pages/custom-module'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <CustomModulePage />
+                </Suspense>
+              );
+            }} />
             
             {/* Toutes les autres routes Playground redirigent vers le générateur de modules */}
             <Route path="/playground" component={() => {
