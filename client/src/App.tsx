@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Suspense, lazy, startTransition } from "react";
 import { ChatProvider } from "./contexts/ChatContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { CyberQuestProvider } from "./contexts/CyberQuestContext";
 
 // Importation des composants directement car le lazy loading provoque des problèmes
 // avec wouter dans cette implémentation
@@ -104,7 +105,8 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <ChatProvider>
-          <Switch>
+          <CyberQuestProvider>
+            <Switch>
             <Route path="/cyber/interview-simulation" component={CyberInterviewSimulation} />
             <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
             <Route path="/" component={Home} />
@@ -134,6 +136,16 @@ function App() {
               );
             }} />
             <Route path="/cyber/learning/cyber-mastery/:themeId" component={NotYetImplemented} />
+            {/* CyberQuest - Le jeu RPG de cybersécurité */}
+            <Route path="/cyber/arcade/cyber-quest" component={() => {
+              const CyberQuestPage = lazy(() => import('./pages/cyber-quest'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <CyberQuestPage />
+                </Suspense>
+              );
+            }} />
+            
             {/* Module d'arcade cyber et jeux d'enquête */}
             <Route path="/cyber/arcade" component={CyberArcade} />
             <Route path="/cyber/arcade/cyber-investigator" component={CyberInvestigator} />
@@ -379,6 +391,7 @@ function App() {
             <Route component={NotFound} />
           </Switch>
           <Toaster />
+        </CyberQuestProvider>
         </ChatProvider>
       </ThemeProvider>
     </QueryClientProvider>

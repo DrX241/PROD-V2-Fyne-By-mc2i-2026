@@ -1,216 +1,279 @@
 import React from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
 import { CyberQuestPlayer } from '@shared/schema/cyber-quest';
+import { Shield, Award, ArrowUp, Brain, Eye, MessageCircle, Cpu } from "lucide-react";
+import { formatDistanceToNow } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import { Button } from '@/components/ui/button';
 import { 
-  User, 
-  Brain, 
-  Eye, 
-  Users, 
-  Terminal, 
-  Shield, 
-  Clock, 
-  Award, 
-  Target, 
-  Briefcase, 
-  Zap
-} from 'lucide-react';
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useToast } from '@/hooks/use-toast';
+import { useCyberQuest } from '@/contexts/CyberQuestContext';
 
 interface PlayerProfileProps {
   player: CyberQuestPlayer;
 }
 
-// Fonction pour calculer l'expérience requise pour le prochain niveau
-const calculateRequiredExp = (level: number): number => {
-  // Formule : 100 * (niveau actuel * 1.5)
-  return Math.floor(100 * (level * 1.5));
-};
-
 const PlayerProfile: React.FC<PlayerProfileProps> = ({ player }) => {
-  // Calcul de l'expérience requise pour le niveau suivant
-  const nextLevelExp = calculateRequiredExp(player.level);
-  const expPercentage = (player.experience / nextLevelExp) * 100;
-  
+  const { toast } = useToast();
+  const { levelUpAttribute } = useCyberQuest();
+
+  // Calculer le progrès d'XP vers le niveau suivant
+  const calculateRequiredExp = (level: number): number => {
+    return Math.floor(100 * (level * 1.5));
+  };
+
+  const requiredExp = calculateRequiredExp(player.level);
+  const expProgress = (player.experience / requiredExp) * 100;
+
+  // Définition des rangs en fonction du niveau
+  const getRank = (level: number): string => {
+    if (level < 5) return "Recrue";
+    if (level < 10) return "Agent";
+    if (level < 15) return "Agent Senior";
+    if (level < 20) return "Spécialiste";
+    if (level < 25) return "Expert";
+    if (level < 30) return "Vétéran";
+    return "Maître Cyber";
+  };
+
+  // Fonction pour améliorer un attribut
+  const handleAttributeUpgrade = async (attribute: 'intelligence' | 'perception' | 'charisma' | 'technicalKnowledge') => {
+    if (player.attributePoints <= 0) {
+      toast({
+        title: "Impossible d'améliorer l'attribut",
+        description: "Vous n'avez pas suffisamment de points d'attribut disponibles.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      await levelUpAttribute(attribute);
+      toast({
+        title: "Attribut amélioré",
+        description: `Vous avez augmenté votre ${getAttributeName(attribute)}.`,
+        variant: "success"
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible d'améliorer l'attribut pour le moment.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Fonction pour obtenir le nom français d'un attribut
+  const getAttributeName = (attribute: string): string => {
+    switch (attribute) {
+      case 'intelligence': return "Intelligence";
+      case 'perception': return "Perception";
+      case 'charisma': return "Charisme";
+      case 'technicalKnowledge': return "Connaissance Technique";
+      default: return attribute;
+    }
+  };
+
+  // Fonction pour obtenir l'icône d'un attribut
+  const getAttributeIcon = (attribute: string) => {
+    switch (attribute) {
+      case 'intelligence': return <Brain className="h-5 w-5 text-purple-500" />;
+      case 'perception': return <Eye className="h-5 w-5 text-blue-500" />;
+      case 'charisma': return <MessageCircle className="h-5 w-5 text-green-500" />;
+      case 'technicalKnowledge': return <Cpu className="h-5 w-5 text-amber-500" />;
+      default: return null;
+    }
+  };
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {/* Carte principale du profil */}
-      <Card className="md:col-span-2">
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-2xl flex items-center">
-              <User className="mr-2 h-6 w-6 text-blue-500" />
-              Agent {player.characterName}
-            </CardTitle>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Carte d'identité du joueur */}
+      <Card className="col-span-1">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-xl flex items-center justify-between">
+            <span>Identité d'Agent</span>
             <Badge variant="outline" className="bg-blue-900 text-white">
-              Niveau {player.level}
+              {getRank(player.level)}
             </Badge>
-          </div>
-          <CardDescription>
-            Spécialiste en cybersécurité • ID: #{player.id}
-          </CardDescription>
+          </CardTitle>
         </CardHeader>
-        
-        <CardContent className="space-y-6">
-          {/* Progression d'expérience */}
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Expérience</span>
-              <span>{player.experience} / {nextLevelExp} XP</span>
-            </div>
-            <Progress value={expPercentage} className="h-2" />
-          </div>
-          
-          <Separator />
-          
-          {/* Attributs du personnage */}
-          <div>
-            <h3 className="text-lg font-medium mb-4">Attributs</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center">
-                    <Brain className="h-4 w-4 mr-2 text-blue-500" />
-                    <span>Intelligence</span>
-                  </div>
-                  <span className="font-bold">{player.intelligence}</span>
+        <CardContent>
+          <div className="flex flex-col space-y-4">
+            <div className="flex items-center justify-center mb-4">
+              <div className="relative">
+                <div className="w-24 h-24 rounded-full bg-gradient-to-r from-blue-600 to-indigo-700 flex items-center justify-center">
+                  <Shield className="h-12 w-12 text-white" />
                 </div>
-                <Progress value={(player.intelligence / 10) * 100} className="h-1" />
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center">
-                    <Eye className="h-4 w-4 mr-2 text-blue-500" />
-                    <span>Perception</span>
-                  </div>
-                  <span className="font-bold">{player.perception}</span>
-                </div>
-                <Progress value={(player.perception / 10) * 100} className="h-1" />
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center">
-                    <Users className="h-4 w-4 mr-2 text-blue-500" />
-                    <span>Charisme</span>
-                  </div>
-                  <span className="font-bold">{player.charisma}</span>
-                </div>
-                <Progress value={(player.charisma / 10) * 100} className="h-1" />
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center">
-                    <Terminal className="h-4 w-4 mr-2 text-blue-500" />
-                    <span>Conn. Technique</span>
-                  </div>
-                  <span className="font-bold">{player.technicalKnowledge}</span>
-                </div>
-                <Progress value={(player.technicalKnowledge / 10) * 100} className="h-1" />
+                <Badge className="absolute -bottom-2 right-0 bg-blue-500">
+                  Nv. {player.level}
+                </Badge>
               </div>
             </div>
             
-            {player.attributePoints > 0 && (
-              <div className="mt-4">
-                <Button size="sm" className="w-full">
-                  Attribuer {player.attributePoints} point{player.attributePoints > 1 ? 's' : ''} disponible{player.attributePoints > 1 ? 's' : ''}
-                </Button>
+            <div className="space-y-3">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Nom de code</p>
+                <p className="font-medium">{player.characterName || 'Agent'}</p>
               </div>
-            )}
-          </div>
-          
-          <Separator />
-          
-          {/* Points de compétence */}
-          {player.skillPoints > 0 && (
-            <div className="flex justify-between items-center bg-blue-900/20 p-3 rounded-md">
-              <div className="flex items-center">
-                <Zap className="h-5 w-5 mr-2 text-yellow-400" />
-                <div>
-                  <h4 className="font-medium">Points de compétence disponibles</h4>
-                  <p className="text-sm text-gray-400">À dépenser dans l'arbre de compétences</p>
-                </div>
+              
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Identification</p>
+                <p className="font-medium">#{player.id}</p>
               </div>
-              <Badge className="bg-yellow-600">
-                {player.skillPoints} point{player.skillPoints > 1 ? 's' : ''}
-              </Badge>
+              
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Crédits</p>
+                <p className="font-medium flex items-center">
+                  <Award className="h-4 w-4 text-yellow-400 mr-1" />
+                  {player.credits}
+                </p>
+              </div>
+              
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Réputation</p>
+                <p className="font-medium">{player.reputation}</p>
+              </div>
+              
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Missions complétées</p>
+                <p className="font-medium">{player.missionsCompleted}</p>
+              </div>
+              
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Défis relevés</p>
+                <p className="font-medium">{player.challengesCompleted}</p>
+              </div>
+              
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Recrutement</p>
+                <p className="font-medium">{
+                  player.createdAt ? 
+                  `Il y a ${formatDistanceToNow(new Date(player.createdAt), { locale: fr })}` : 
+                  'Date inconnue'
+                }</p>
+              </div>
             </div>
-          )}
+          </div>
         </CardContent>
       </Card>
-      
-      {/* Cartes secondaires */}
-      <div className="space-y-6">
-        {/* Carte de ressources */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Ressources</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <Award className="h-4 w-4 mr-2 text-yellow-400" />
-                <span>Crédits</span>
+
+      {/* Progression et statistiques */}
+      <Card className="col-span-1 lg:col-span-2">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-xl">Progression</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>Niveau {player.level}</span>
+                <span>Niveau {player.level + 1}</span>
               </div>
-              <span className="font-bold">{player.credits}</span>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <Shield className="h-4 w-4 mr-2 text-blue-500" />
-                <span>Réputation</span>
+              <Progress value={expProgress} className="h-2" />
+              <div className="text-sm text-gray-500 text-center">
+                {player.experience} / {requiredExp} XP
               </div>
-              <span className="font-bold">{player.reputation}</span>
             </div>
-            
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <Target className="h-4 w-4 mr-2 text-green-500" />
-                <span>Rang</span>
+
+            <div className="pt-4">
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-lg font-semibold">Attributs</h3>
+                {player.attributePoints > 0 && (
+                  <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
+                    {player.attributePoints} point{player.attributePoints > 1 ? 's' : ''} disponible{player.attributePoints > 1 ? 's' : ''}
+                  </Badge>
+                )}
               </div>
-              <Badge variant="outline">{player.rank || 'Recrue'}</Badge>
+
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Attribut</TableHead>
+                    <TableHead>Niveau</TableHead>
+                    <TableHead>Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="flex items-center">
+                      <Brain className="h-5 w-5 text-purple-500 mr-2" /> Intelligence
+                    </TableCell>
+                    <TableCell>{player.intelligence}</TableCell>
+                    <TableCell>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        disabled={player.attributePoints <= 0}
+                        onClick={() => handleAttributeUpgrade('intelligence')}
+                      >
+                        <ArrowUp className="h-4 w-4 mr-1" /> Améliorer
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="flex items-center">
+                      <Eye className="h-5 w-5 text-blue-500 mr-2" /> Perception
+                    </TableCell>
+                    <TableCell>{player.perception}</TableCell>
+                    <TableCell>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        disabled={player.attributePoints <= 0}
+                        onClick={() => handleAttributeUpgrade('perception')}
+                      >
+                        <ArrowUp className="h-4 w-4 mr-1" /> Améliorer
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="flex items-center">
+                      <MessageCircle className="h-5 w-5 text-green-500 mr-2" /> Charisme
+                    </TableCell>
+                    <TableCell>{player.charisma}</TableCell>
+                    <TableCell>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        disabled={player.attributePoints <= 0}
+                        onClick={() => handleAttributeUpgrade('charisma')}
+                      >
+                        <ArrowUp className="h-4 w-4 mr-1" /> Améliorer
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="flex items-center">
+                      <Cpu className="h-5 w-5 text-amber-500 mr-2" /> Connaissance Technique
+                    </TableCell>
+                    <TableCell>{player.technicalKnowledge}</TableCell>
+                    <TableCell>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        disabled={player.attributePoints <= 0}
+                        onClick={() => handleAttributeUpgrade('technicalKnowledge')}
+                      >
+                        <ArrowUp className="h-4 w-4 mr-1" /> Améliorer
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             </div>
-          </CardContent>
-        </Card>
-        
-        {/* Carte de statistiques */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Statistiques</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <Clock className="h-4 w-4 mr-2 text-gray-400" />
-                <span>Temps de jeu</span>
-              </div>
-              <span className="font-medium">
-                {Math.floor(player.playTime / 60)}h {player.playTime % 60}m
-              </span>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <Briefcase className="h-4 w-4 mr-2 text-orange-400" />
-                <span>Missions terminées</span>
-              </div>
-              <span className="font-medium">{player.missionsCompleted}</span>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <Target className="h-4 w-4 mr-2 text-purple-400" />
-                <span>Défis complétés</span>
-              </div>
-              <span className="font-medium">{player.challengesCompleted}</span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
