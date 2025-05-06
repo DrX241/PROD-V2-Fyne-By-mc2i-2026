@@ -1,6 +1,20 @@
 import React, { useState } from 'react';
 import { useLocation } from 'wouter';
-import { ArrowLeft, PlusCircle, Check, HelpCircle, Code, Send, BookOpen, Bot, Terminal, BrainCircuit } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  PlusCircle, 
+  Check, 
+  HelpCircle, 
+  Code, 
+  Send, 
+  BookOpen, 
+  Terminal, 
+  BrainCircuit, 
+  Layers, 
+  PuzzleIcon, 
+  SettingsIcon,
+  Trophy
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -304,7 +318,10 @@ export default function ModuleGenerator() {
                     <div className="flex items-center justify-between p-3 rounded-md bg-gray-50 dark:bg-gray-800">
                       <div className="flex items-center">
                         <BookOpen className="h-5 w-5 mr-2 text-blue-600" />
-                        <Label htmlFor="trainer-module">Module Trainer</Label>
+                        <div>
+                          <Label htmlFor="trainer-module">Module Trainer</Label>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Apprentissage théorique</p>
+                        </div>
                       </div>
                       <Switch 
                         id="trainer-module" 
@@ -315,8 +332,11 @@ export default function ModuleGenerator() {
 
                     <div className="flex items-center justify-between p-3 rounded-md bg-gray-50 dark:bg-gray-800">
                       <div className="flex items-center">
-                        <Terminal className="h-5 w-5 mr-2 text-green-600" />
-                        <Label htmlFor="ops-module">Module OPS</Label>
+                        <SettingsIcon className="h-5 w-5 mr-2 text-green-600" />
+                        <div>
+                          <Label htmlFor="ops-module">Module OPS</Label>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Application pratique</p>
+                        </div>
                       </div>
                       <Switch 
                         id="ops-module" 
@@ -327,8 +347,11 @@ export default function ModuleGenerator() {
 
                     <div className="flex items-center justify-between p-3 rounded-md bg-gray-50 dark:bg-gray-800">
                       <div className="flex items-center">
-                        <Code className="h-5 w-5 mr-2 text-amber-600" />
-                        <Label htmlFor="test-module">Module Test</Label>
+                        <Layers className="h-5 w-5 mr-2 text-amber-600" />
+                        <div>
+                          <Label htmlFor="test-module">Module Test</Label>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Évaluation des connaissances</p>
+                        </div>
                       </div>
                       <Switch 
                         id="test-module" 

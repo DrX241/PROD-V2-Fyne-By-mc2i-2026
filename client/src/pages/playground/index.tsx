@@ -161,13 +161,21 @@ export default function PlaygroundPage() {
     <div className={`min-h-screen ${isDark ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
       {/* En-tête */}
       <header className={`px-4 py-3 border-b ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
-        <div className="container mx-auto flex items-center">
-          <Link href="/">
-            <Button variant="ghost" size="icon" className="mr-3">
-              <ArrowLeft className="h-5 w-5" />
+        <div className="container mx-auto flex items-center justify-between">
+          <div className="flex items-center">
+            <Link href="/">
+              <Button variant="ghost" size="icon" className="mr-3">
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+            </Link>
+            <h1 className="text-xl font-bold">Cyber Playground</h1>
+          </div>
+          <Link href="/playground/module-generator">
+            <Button variant="outline" className="flex items-center gap-2">
+              <span>Créer un Module</span>
+              <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
-          <h1 className="text-xl font-bold">Cyber Playground</h1>
         </div>
       </header>
       
@@ -186,17 +194,24 @@ export default function PlaygroundPage() {
           ))}
         </div>
         
-        {/* Prochaine mise à jour (fictive) */}
+        {/* Génération de modules personnalisés */}
         <div className={`mt-10 p-4 rounded-lg border ${
           isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
         }`}>
           <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
-            Prochainement
+            Générateur de Modules Personnalisés
           </h3>
-          <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-            Modules en développement : Sécurité des applications web, Cryptographie, 
-            et Réponse aux incidents...
+          <p className={`text-sm mb-4 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+            Vous pouvez désormais créer vos propres modules d'apprentissage personnalisés ! Configurez votre module
+            en définissant son domaine, sa difficulté, et les sujets à couvrir, puis laissez l'IA générer
+            automatiquement une structure complète pour vous.
           </p>
+          <Link href="/playground/module-generator">
+            <Button variant="default" className="flex items-center gap-2">
+              <span>Créer un module personnalisé</span>
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </main>
     </div>
