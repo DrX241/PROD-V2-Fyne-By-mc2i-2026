@@ -13,7 +13,8 @@ import {
   Layers, 
   PuzzleIcon, 
   SettingsIcon,
-  Trophy
+  Trophy,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -724,11 +725,11 @@ export default function ModuleGenerator() {
                               window.location.href = '/';
                             }, 1000);
                             
-                          } catch (error: any) {
+                          } catch (error) {
                             console.error('Erreur lors de la sauvegarde:', error);
                             toast({
                               title: 'Erreur',
-                              description: error.message || 'Une erreur est survenue lors de la sauvegarde',
+                              description: error instanceof Error ? error.message : 'Une erreur est survenue lors de la sauvegarde',
                               variant: 'destructive',
                             });
                           } finally {
@@ -739,7 +740,7 @@ export default function ModuleGenerator() {
                       >
                         {isSaving ? (
                           <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             Création en cours...
                           </>
                         ) : (
