@@ -422,6 +422,15 @@ function App() {
                 </Suspense>
               );
             }} />
+
+            <ProtectedAdminRoute path="/admin/analytics" component={() => {
+              const Analytics = lazy(() => import('./pages/admin/analytics'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <Analytics />
+                </Suspense>
+              );
+            }} />
             
             <Route component={NotFound} />
           </Switch>
