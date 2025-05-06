@@ -4336,10 +4336,29 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   app.post("/api/analytics/record-token-usage", analyticsController.recordTokenUsage);
   
   // Routes protégées pour la consultation des statistiques (administrateur seulement)
-  app.get("/api/admin/analytics/modules", analyticsController.getModuleStats);
-  app.get("/api/admin/analytics/users", analyticsController.getUserStats);
-  app.get("/api/admin/analytics/token-usage", analyticsController.getTokenUsageDetails);
-  app.get("/api/admin/analytics/global", analyticsController.getGlobalStats);
+  app.get("/api/admin/analytics/modules", (req, res, next) => {
+    adminController.checkSuperAdminAccess(req, res, () => {
+      analyticsController.getModuleStats(req, res);
+    });
+  });
+  
+  app.get("/api/admin/analytics/users", (req, res, next) => {
+    adminController.checkSuperAdminAccess(req, res, () => {
+      analyticsController.getUserStats(req, res);
+    });
+  });
+  
+  app.get("/api/admin/analytics/token-usage", (req, res, next) => {
+    adminController.checkSuperAdminAccess(req, res, () => {
+      analyticsController.getTokenUsageDetails(req, res);
+    });
+  });
+  
+  app.get("/api/admin/analytics/global", (req, res, next) => {
+    adminController.checkSuperAdminAccess(req, res, () => {
+      analyticsController.getGlobalStats(req, res);
+    });
+  });
 
   // Fin des routes API
 

@@ -42,7 +42,9 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
   const checkAuthStatus = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get('/api/admin/auth-status');
+      const response = await axios.get('/api/admin/auth-status', {
+        withCredentials: true // Assure que les cookies sont envoyés
+      });
       if (response.data.success) {
         setUser(response.data.user);
         setIsAuthenticated(true);
@@ -70,13 +72,17 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
   const login = async (username: string, password: string): Promise<boolean> => {
     setError(null);
     try {
-      const response = await axios.post('/api/system/authenticate-super-admin', { username, password });
+      const response = await axios.post('/api/system/authenticate-super-admin', { username, password }, {
+        withCredentials: true // Assure que les cookies sont envoyés et reçus
+      });
       const { success, user, isSuperAdmin: superAdmin } = response.data;
       
       if (success) {
         setUser(user);
         setIsAuthenticated(true);
         setIsSuperAdmin(superAdmin || false);
+        // Vérifie immédiatement si la session est bien établie
+        await checkAuthStatus();
         return true;
       } else {
         setError(response.data.message || 'Échec de l\'authentification');
@@ -92,7 +98,9 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
 
   const logout = async (): Promise<boolean> => {
     try {
-      await axios.post('/api/system/logout-super-admin');
+      await axios.post('/api/system/logout-super-admin', {}, {
+        withCredentials: true // Assure que les cookies sont envoyés
+      });
       setUser(null);
       setIsAuthenticated(false);
       setIsSuperAdmin(false);
