@@ -14,12 +14,13 @@ app.use(express.urlencoded({ extended: false }));
 // Configuration du middleware de session
 app.use(session({
   secret: sessionSecret,
-  resave: false,
-  saveUninitialized: false,
+  resave: true,
+  saveUninitialized: true,
   cookie: {
-    secure: process.env.NODE_ENV === 'production', // Utiliser HTTPS en production
+    secure: false, // Désactivé en mode développement
     maxAge: 24 * 60 * 60 * 1000, // 24 heures
-    httpOnly: true
+    httpOnly: true,
+    sameSite: 'lax'
   }
 }));
 
