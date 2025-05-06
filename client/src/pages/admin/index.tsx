@@ -10,8 +10,8 @@ import { AlertCircle, Lock, ShieldCheck } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 // Importation dynamique des composants pour résoudre les problèmes de dépendances circulaires
-const ModulesManagement = lazy(() => import("./modules-management"));
-const TemporaryAccessManagement = lazy(() => import("./temporary-access"));
+const ModulesManagement = lazy(() => import("@/pages/admin/modules-management"));
+const TemporaryAccessManagement = lazy(() => import("@/pages/admin/temporary-access"));
 
 interface AdminLayoutProps {
   children: React.ReactNode;

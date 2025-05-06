@@ -106,7 +106,10 @@ export default function ModulesManagement() {
   // Mutation pour ajouter/modifier un module
   const upsertModuleMutation = useMutation({
     mutationFn: async (moduleData: z.infer<typeof moduleSchema>) => {
-      const res = await apiRequest("POST", "/api/admin/modules", moduleData);
+      const res = await apiRequest("POST", "/api/admin/modules", { 
+        body: JSON.stringify(moduleData),
+        headers: { 'Content-Type': 'application/json' }
+      });
       return await res.json();
     },
     onSuccess: () => {
