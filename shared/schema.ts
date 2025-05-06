@@ -29,7 +29,8 @@ export const userRoleEnum = pgEnum('user_role', [
   'user',         // Utilisateur standard
   'tester',       // Testeur avec accès temporaire
   'contributor',  // Contributeur avec permissions étendues
-  'admin'         // Administrateur système
+  'admin',        // Administrateur système
+  'superadmin'    // Super administrateur (accès total)
 ]);
 
 // Enumération pour le statut des accès temporaires
@@ -230,7 +231,7 @@ export const VALID_GAMIFICATION_LEVELS = ['aucun', 'leger', 'modere', 'eleve', '
 export const VALID_AVATAR_STYLES = ['robot', 'human', 'abstract', 'animal', 'professional'] as const;
 export const VALID_AVATAR_COLORS = ['blue', 'green', 'red', 'purple', 'orange', 'teal', 'pink', 'violet', 'gray'] as const;
 export const VALID_SHARE_ACCESS = ['private', 'readOnly', 'editable'] as const;
-export const VALID_USER_ROLES = ['user', 'tester', 'contributor', 'admin'] as const;
+export const VALID_USER_ROLES = ['user', 'tester', 'contributor', 'admin', 'superadmin'] as const;
 export const VALID_TEMPORARY_ACCESS_STATUS = ['active', 'expired', 'revoked'] as const;
 
 // Création des schémas d'insertion avec Zod et validation améliorée
@@ -316,6 +317,23 @@ export type InsertApplicationModule = z.infer<typeof insertApplicationModuleSche
 export type InsertTemporaryAccess = z.infer<typeof insertTemporaryAccessSchema>;
 export type InsertTemporaryAccessModule = z.infer<typeof insertTemporaryAccessModuleSchema>;
 
+// Table de configuration système et super utilisateur
+export const systemConfiguration = pgTable('system_configuration', {
+  id: serial('id').primaryKey(),
+  superAdminUsername: varchar('super_admin_username', { length: 255 }).notNull().unique(),
+  superAdminPasswordHash: text('super_admin_password_hash').notNull(),
+  setupComplete: boolean('setup_complete').default(false),
+  allowExternalUsers: boolean('allow_external_users').default(true),
+  securitySettings: jsonb('security_settings').default({
+    passwordMinLength: 8,
+    requireMFA: false,
+    sessionTimeoutMinutes: 60,
+    maxLoginAttempts: 5
+  }),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
 // Types de sélection
 export type UserProfile = typeof userProfiles.$inferSelect;
 export type CustomAssistant = typeof customAssistants.$inferSelect;
@@ -324,6 +342,23 @@ export type AssistantTemplate = typeof assistantTemplates.$inferSelect;
 export type ApplicationModule = typeof applicationModules.$inferSelect;
 export type TemporaryAccess = typeof temporaryAccesses.$inferSelect;
 export type TemporaryAccessModule = typeof temporaryAccessModules.$inferSelect;
+export type SystemConfiguration = typeof systemConfiguration.$inferSelect;
 
+// Schéma d'insertion pour la configuration système
+export const insertSystemConfigurationSchema = createInsertSchema(systemConfiguration)
+  .omit({ id: true, createdAt: true, updatedAt: true, setupComplete: true })
+  .extend({
+    superAdminUsername: z.string().min(3).max(50),
+    superAdminPasswordHash: z.string().min(8),
+    allowExternalUsers: z.boolean().optional(),
+    securitySettings: z.object({
+      passwordMinLength: z.number().min(6).max(20).optional(),
+      requireMFA: z.boolean().optional(),
+      sessionTimeoutMinutes: z.number().min(15).max(1440).optional(),
+      maxLoginAttempts: z.number().min(3).max(10).optional()
+    }).optional()
+  });
+
+export type InsertSystemConfiguration = z.infer<typeof insertSystemConfigurationSchema>;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;

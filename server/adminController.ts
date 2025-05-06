@@ -5,6 +5,28 @@ import { eq, and, ne, lt, gt, sql } from "drizzle-orm";
 import { addDays } from "date-fns";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
+import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import { promisify } from "util";
+
+// Fonction asynchrone pour le hachage des mots de passe avec scrypt
+const scryptAsync = promisify(scrypt);
+
+// Fonction pour hacher un mot de passe
+async function hashPassword(password: string): Promise<string> {
+  const salt = randomBytes(16).toString("hex");
+  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${buf.toString("hex")}.${salt}`;
+}
+
+// Fonction pour comparer un mot de passe avec un hash stocké
+async function comparePasswords(supplied: string, stored: string): Promise<boolean> {
+  const [hashed, salt] = stored.split(".");
+  if (!hashed || !salt) return false;
+  
+  const hashedBuf = Buffer.from(hashed, "hex");
+  const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+  return timingSafeEqual(hashedBuf, suppliedBuf);
+}
 
 // Étendre l'interface Request pour inclure l'utilisateur connecté
 declare global {
@@ -26,7 +48,17 @@ export async function isAdmin(userId: number): Promise<boolean> {
     .from(schema.userProfiles)
     .where(eq(schema.userProfiles.userId, userId));
 
-  return userProfile?.role === "admin";
+  return userProfile?.role === "admin" || userProfile?.role === "superadmin";
+}
+
+// Vérifie si l'utilisateur est super administrateur
+export async function isSuperAdmin(userId: number): Promise<boolean> {
+  const [userProfile] = await db
+    .select()
+    .from(schema.userProfiles)
+    .where(eq(schema.userProfiles.userId, userId));
+
+  return userProfile?.role === "superadmin";
 }
 
 // Vérifie si un utilisateur a accès à un module spécifique
