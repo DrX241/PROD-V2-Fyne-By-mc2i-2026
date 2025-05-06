@@ -164,9 +164,9 @@ export default function ModuleGenerator() {
     }
   };
 
-  // Retour à la page de playground
+  // Retour à la page d'accueil
   const handleBack = () => {
-    setLocation('/playground');
+    setLocation('/');
   };
 
   return (
