@@ -4323,6 +4323,9 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   app.post("/api/system/initialize-super-admin", adminController.initializeSuperAdmin);
   app.post("/api/system/authenticate-super-admin", adminController.authenticateSuperAdmin);
   app.post("/api/system/logout-super-admin", adminController.logoutSuperAdmin);
+  
+  // Vérifier le statut d'authentification pour le portail administrateur
+  app.get("/api/admin/auth-status", adminController.checkAuthStatus);
 
   // Fin des routes API
 
