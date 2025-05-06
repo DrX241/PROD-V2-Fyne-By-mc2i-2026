@@ -154,66 +154,18 @@ const ModuleCard = ({ module }: { module: ModuleData }) => {
 
 // Page principale du Playground
 export default function PlaygroundPage() {
-  const { themeMode } = useTheme();
-  const isDark = themeMode === 'dark' || themeMode === 'futuristic';
+  // Redirection immédiate vers le générateur de modules
+  const [, navigate] = useLocation();
   
+  React.useEffect(() => {
+    navigate('/playground/module-generator');
+  }, [navigate]);
+  
+  // Page de chargement pendant la redirection
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
-      {/* En-tête */}
-      <header className={`px-4 py-3 border-b ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
-        <div className="container mx-auto flex items-center justify-between">
-          <div className="flex items-center">
-            <Link href="/">
-              <Button variant="ghost" size="icon" className="mr-3">
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-            </Link>
-            <h1 className="text-xl font-bold">Cyber Playground</h1>
-          </div>
-          <Link href="/playground/module-generator">
-            <Button variant="outline" className="flex items-center gap-2">
-              <span>Créer un Module</span>
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
-        </div>
-      </header>
-      
-      {/* Contenu principal */}
-      <main className="container mx-auto px-4 py-6">
-        <h2 className={`text-xl font-bold mb-2 ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
-          Modules d'apprentissage
-        </h2>
-        <p className={`mb-6 text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-          Choisissez un module pour commencer ou continuer votre apprentissage de la cybersécurité.
-        </p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {modules.map(module => (
-            <ModuleCard key={module.id} module={module} />
-          ))}
-        </div>
-        
-        {/* Génération de modules personnalisés */}
-        <div className={`mt-10 p-4 rounded-lg border ${
-          isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-        }`}>
-          <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
-            Générateur de Modules Personnalisés
-          </h3>
-          <p className={`text-sm mb-4 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-            Vous pouvez désormais créer vos propres modules d'apprentissage personnalisés ! Configurez votre module
-            en définissant son domaine, sa difficulté, et les sujets à couvrir, puis laissez l'IA générer
-            automatiquement une structure complète pour vous.
-          </p>
-          <Link href="/playground/module-generator">
-            <Button variant="default" className="flex items-center gap-2">
-              <span>Créer un module personnalisé</span>
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
-        </div>
-      </main>
+    <div className="min-h-screen flex items-center justify-center bg-gray-900">
+      <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+      <p className="text-white ml-4">Redirection...</p>
     </div>
   );
 }

@@ -219,12 +219,26 @@ function App() {
               );
             }} />
             
-            {/* Module Playground pour l'apprentissage de la cybersécurité */}
-            <Route path="/playground" component={PlaygroundPage} />
-            <Route path="/playground/module" component={ModuleDetailPage} />
-            <Route path="/playground/module/:moduleId" component={ModuleDetailPage} />
-            <Route path="/playground/path/:pathId" component={PlaygroundPage} />
+            {/* Générateur de Modules */}
             <Route path="/playground/module-generator" component={ModuleGeneratorPage} />
+            
+            {/* Toutes les autres routes Playground redirigent vers le générateur de modules */}
+            <Route path="/playground" component={() => {
+              window.location.href = '/playground/module-generator';
+              return null;
+            }} />
+            <Route path="/playground/module" component={() => {
+              window.location.href = '/playground/module-generator';
+              return null;
+            }} />
+            <Route path="/playground/module/:moduleId" component={() => {
+              window.location.href = '/playground/module-generator';
+              return null;
+            }} />
+            <Route path="/playground/path/:pathId" component={() => {
+              window.location.href = '/playground/module-generator';
+              return null;
+            }} />
             
             {/* Module CyberForge Academy */}
             {/* Suppression de la route CyberForge Academy */}
