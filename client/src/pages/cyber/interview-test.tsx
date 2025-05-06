@@ -398,10 +398,10 @@ export default function CyberInterviewTest() {
           <CardHeader>
             <div className="flex justify-between items-center">
               <div>
-                <CardTitle className="text-xl font-bold text-blue-800 dark:text-blue-200">
+                <CardTitle className="text-xl font-bold text-blue-800 dark:text-white">
                   Question {currentQuestionIndex + 1}/{questions.length}
                 </CardTitle>
-                <CardDescription className="text-black dark:text-gray-300">
+                <CardDescription className="text-black dark:text-white">
                   {questions[currentQuestionIndex]?.type === 'presentation' ? 'Présentation' : 
                    questions[currentQuestionIndex]?.type === 'reflex' ? 'Réflexes de sécurité' : 
                    questions[currentQuestionIndex]?.type === 'incident' ? 'Gestion d\'incident' : 
@@ -420,9 +420,9 @@ export default function CyberInterviewTest() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <h3 className="text-lg font-medium text-blue-800 dark:text-blue-200">{questions[currentQuestionIndex]?.question}</h3>
+              <h3 className="text-lg font-medium text-blue-800 dark:text-white">{questions[currentQuestionIndex]?.question}</h3>
               {questions[currentQuestionIndex]?.hint && (
-                <p className="text-sm text-black dark:text-gray-300">{questions[currentQuestionIndex]?.hint}</p>
+                <p className="text-sm text-black dark:text-white">{questions[currentQuestionIndex]?.hint}</p>
               )}
             </div>
             <Textarea
