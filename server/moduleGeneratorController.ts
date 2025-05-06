@@ -255,6 +255,9 @@ export async function saveCustomModule(req: Request, res: Response) {
       iconPath: getIconPath(moduleConfig.domain || 'general')
     };
     
+    // Vérifier si c'est un aperçu ou un module réel
+    const isPreview = moduleConfig.isPreview === true;
+    
     // Création d'un objet InsertCustomModule à partir des données validées
     const moduleToSave: InsertCustomModule = {
       userId: inputData.userId,
@@ -272,7 +275,8 @@ export async function saveCustomModule(req: Request, res: Response) {
       includeTestModule: inputData.includeTestModule,
       includeAscensionModule: inputData.includeAscensionModule,
       moduleData: inputData.moduleData,
-      iconPath: inputData.iconPath
+      iconPath: inputData.iconPath,
+      isPreview: isPreview
     };
 
     // Insertion dans la base de données
@@ -300,9 +304,10 @@ export async function saveCustomModule(req: Request, res: Response) {
  */
 export async function getCustomModules(req: Request, res: Response) {
   try {
-    // Récupération de tous les modules actifs, triés par ordre d'affichage
+    // Récupération des modules actifs et non-aperçu, triés par ordre d'affichage
     const modules = await db.select().from(customModules)
       .where(eq(customModules.isActive, true))
+      .where(eq(customModules.isPreview, false)) // Ne pas inclure les aperçus dans la liste principale
       .orderBy(customModules.displayOrder);
 
     console.log("Modules récupérés:", modules);
