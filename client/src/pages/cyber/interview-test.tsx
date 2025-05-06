@@ -358,12 +358,12 @@ export default function CyberInterviewTest() {
           <Card className="max-w-3xl mx-auto">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-center text-blue-800 dark:text-white">Test d'entretien cybersécurité</CardTitle>
-              <CardDescription className="text-center text-black dark:text-white">
+              <CardDescription className="text-center dark:text-white">
                 Évaluez vos compétences en cybersécurité avec ce test de 15 minutes
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-md text-black dark:text-white">
+              <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-md dark:text-white">
                 <h3 className="font-semibold mb-2 flex items-center text-blue-800 dark:text-white">
                   <Clock className="h-5 w-5 mr-2 text-blue-600" />
                   Comment ça fonctionne
@@ -377,7 +377,7 @@ export default function CyberInterviewTest() {
                 </ul>
               </div>
               
-              <div className="bg-amber-50 dark:bg-amber-950 p-4 rounded-md text-black dark:text-white">
+              <div className="bg-amber-50 dark:bg-amber-950 p-4 rounded-md dark:text-white">
                 <h3 className="font-semibold mb-2 flex items-center text-blue-800 dark:text-white">
                   <AlertCircle className="h-5 w-5 mr-2 text-amber-600" />
                   À savoir avant de commencer
@@ -390,11 +390,19 @@ export default function CyberInterviewTest() {
                 </ul>
               </div>
             </CardContent>
-            <CardFooter className="flex justify-center">
+            <CardFooter className="flex justify-between">
+              <Button 
+                onClick={handleBackToHome} 
+                variant="outline"
+                className="gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Retour à I AM CYBER
+              </Button>
               <Button 
                 size="lg" 
                 onClick={handleStartTest}
-                className="w-full md:w-auto"
+                className="md:w-auto"
               >
                 Commencer le test
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -414,17 +422,17 @@ export default function CyberInterviewTest() {
           <Card className="max-w-3xl mx-auto">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-bold text-blue-800 dark:text-white">Évaluation terminée</CardTitle>
-              <CardDescription className="text-black dark:text-white">
+              <CardDescription className="dark:text-white">
                 Analyse de votre profil en cybersécurité
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-md text-black dark:text-white">
+              <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-md dark:text-white">
                 <h3 className="font-semibold mb-2 text-blue-800 dark:text-white">🧑‍💼 Profil évalué</h3>
                 <p className="text-sm">{evaluationResult.profile}</p>
               </div>
               
-              <div className="bg-green-50 dark:bg-green-950 p-4 rounded-md text-black dark:text-white">
+              <div className="bg-green-50 dark:bg-green-950 p-4 rounded-md dark:text-white">
                 <h3 className="font-semibold mb-2 flex items-center text-blue-800 dark:text-white">
                   <CheckCircle2 className="h-5 w-5 mr-2 text-green-600" />
                   Forces
@@ -436,7 +444,7 @@ export default function CyberInterviewTest() {
                 </ul>
               </div>
               
-              <div className="bg-amber-50 dark:bg-amber-950 p-4 rounded-md text-black dark:text-white">
+              <div className="bg-amber-50 dark:bg-amber-950 p-4 rounded-md dark:text-white">
                 <h3 className="font-semibold mb-2 flex items-center text-blue-800 dark:text-white">
                   <AlertCircle className="h-5 w-5 mr-2 text-amber-600" />
                   Axes de progression
@@ -448,7 +456,7 @@ export default function CyberInterviewTest() {
                 </ul>
               </div>
               
-              <div className="bg-purple-50 dark:bg-purple-950 p-4 rounded-md text-black dark:text-white">
+              <div className="bg-purple-50 dark:bg-purple-950 p-4 rounded-md dark:text-white">
                 <h3 className="font-semibold mb-2 text-blue-800 dark:text-white">🎖️ Badge attribué</h3>
                 <Badge className="mb-2 bg-purple-600">{evaluationResult.badge.name}</Badge>
                 <p className="text-sm">{evaluationResult.badge.justification}</p>
@@ -475,7 +483,7 @@ export default function CyberInterviewTest() {
         <div className="container mx-auto py-8 px-4 flex flex-col items-center justify-center min-h-[50vh] cyber-interview-test">
           <div className="w-16 h-16 border-4 border-t-transparent border-blue-600 rounded-full animate-spin mb-4"></div>
           <h2 className="text-xl font-semibold mb-2 text-blue-800 dark:text-white">Analyse en cours...</h2>
-          <p className="text-black dark:text-white text-center max-w-md">
+          <p className="dark:text-white text-center max-w-md">
             Notre IA analyse vos réponses pour générer votre profil de compétences en cybersécurité.
             Cela peut prendre quelques instants.
           </p>
@@ -495,7 +503,7 @@ export default function CyberInterviewTest() {
                 <CardTitle className="text-xl font-bold text-blue-800 dark:text-white">
                   Question {currentQuestionIndex + 1}/{totalQuestions}
                 </CardTitle>
-                <CardDescription className="text-black dark:text-white">
+                <CardDescription className="dark:text-white">
                   {questions[currentQuestionIndex]?.type === 'presentation' ? 'Présentation' : 
                    questions[currentQuestionIndex]?.type === 'reflex' ? 'Réflexes de sécurité' : 
                    questions[currentQuestionIndex]?.type === 'incident' ? 'Gestion d\'incident' : 
@@ -505,7 +513,7 @@ export default function CyberInterviewTest() {
                    'Prospective'}
                 </CardDescription>
               </div>
-              <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-2 rounded-md text-black dark:text-white">
+              <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-2 rounded-md dark:text-white">
                 <Clock className="h-5 w-5 mr-2 text-amber-600" />
                 <span className="font-mono font-medium">{formatTime(timeLeft)}</span>
               </div>
