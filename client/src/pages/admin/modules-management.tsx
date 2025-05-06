@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Plus, Trash2, Lock, Eye, EyeOff } from "lucide-react";
+import { Pencil, Plus, Trash2, Lock, Eye } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -14,7 +14,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -107,16 +106,7 @@ export default function ModulesManagement() {
   // Mutation pour ajouter/modifier un module
   const upsertModuleMutation = useMutation({
     mutationFn: async (moduleData: z.infer<typeof moduleSchema>) => {
-      const res = await fetch("/api/admin/modules", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(moduleData),
-      });
-      if (!res.ok) {
-        throw new Error("Échec de l'opération");
-      }
+      const res = await apiRequest("POST", "/api/admin/modules", moduleData);
       return await res.json();
     },
     onSuccess: () => {
@@ -130,7 +120,7 @@ export default function ModulesManagement() {
       form.reset();
       setSelectedModule(null);
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de l'opération",
@@ -142,15 +132,7 @@ export default function ModulesManagement() {
   // Mutation pour supprimer un module
   const deleteModuleMutation = useMutation({
     mutationFn: async (moduleId: number) => {
-      const res = await fetch(`/api/admin/modules/${moduleId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        }
-      });
-      if (!res.ok) {
-        throw new Error("Échec de la suppression");
-      }
+      const res = await apiRequest("DELETE", `/api/admin/modules/${moduleId}`);
       return await res.json();
     },
     onSuccess: () => {
@@ -162,7 +144,7 @@ export default function ModulesManagement() {
       setIsDeleteDialogOpen(false);
       setSelectedModule(null);
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la suppression",
@@ -457,7 +439,7 @@ export default function ModulesManagement() {
                   Annuler
                 </Button>
                 <Button type="submit" disabled={upsertModuleMutation.isPending}>
-                  {upsertModuleMutation.isPending ? "Traitement..." : "Ajouter"}
+                  {upsertModuleMutation.isPending ? "Traitement..." : "Créer le module"}
                 </Button>
               </DialogFooter>
             </form>
@@ -633,7 +615,7 @@ export default function ModulesManagement() {
                   Annuler
                 </Button>
                 <Button type="submit" disabled={upsertModuleMutation.isPending}>
-                  {upsertModuleMutation.isPending ? "Traitement..." : "Enregistrer"}
+                  {upsertModuleMutation.isPending ? "Traitement..." : "Mettre à jour"}
                 </Button>
               </DialogFooter>
             </form>
@@ -645,29 +627,20 @@ export default function ModulesManagement() {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Confirmer la suppression</DialogTitle>
+            <DialogTitle>Supprimer le module</DialogTitle>
             <DialogDescription>
-              Êtes-vous sûr de vouloir supprimer le module "{selectedModule?.displayName}" ?
+              Êtes-vous sûr de vouloir supprimer le module <strong>{selectedModule?.displayName}</strong> ?
               Cette action est irréversible.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsDeleteDialogOpen(false)}
-            >
+          <div className="flex justify-end space-x-2 pt-6">
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
               Annuler
             </Button>
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={confirmDelete}
-              disabled={deleteModuleMutation.isPending}
-            >
-              {deleteModuleMutation.isPending ? "Suppression..." : "Supprimer"}
+            <Button variant="destructive" onClick={confirmDelete} disabled={deleteModuleMutation.isPending}>
+              {deleteModuleMutation.isPending ? "Traitement..." : "Supprimer"}
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </Card>

@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, Pencil, Plus, Send, Trash2, ShieldOff } from "lucide-react";
+import { CalendarIcon, Pencil, Plus, Send, ShieldOff } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -144,7 +144,7 @@ export default function TemporaryAccessManagement() {
       setIsAddDialogOpen(false);
       form.reset();
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la création de l'accès temporaire",
@@ -168,7 +168,7 @@ export default function TemporaryAccessManagement() {
       setIsEditDialogOpen(false);
       setSelectedAccess(null);
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la mise à jour de l'accès temporaire",
@@ -192,7 +192,7 @@ export default function TemporaryAccessManagement() {
       setIsDeleteDialogOpen(false);
       setSelectedAccess(null);
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la révocation de l'accès temporaire",
@@ -213,7 +213,7 @@ export default function TemporaryAccessManagement() {
         description: "Invitation renvoyée avec succès",
       });
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors du renvoi de l'invitation",
@@ -340,7 +340,7 @@ export default function TemporaryAccessManagement() {
                   <TableCell>{access.email}</TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
-                      {access.modules.map((module) => (
+                      {access.modules && Array.isArray(access.modules) && access.modules.map((module) => (
                         <Badge key={module.moduleId} variant="outline" className="text-xs">
                           {module.displayName}
                         </Badge>
@@ -488,7 +488,7 @@ export default function TemporaryAccessManagement() {
                       </div>
                     ) : (
                       <div className="grid grid-cols-2 gap-2">
-                        {modules?.modules?.map((module: Module) => (
+                        {modules && Array.isArray(modules.modules) && modules.modules.map((module: Module) => (
                           <FormField
                             key={module.id}
                             control={form.control}
@@ -677,7 +677,7 @@ export default function TemporaryAccessManagement() {
                       </div>
                     ) : (
                       <div className="grid grid-cols-2 gap-2">
-                        {modules?.modules?.map((module: Module) => (
+                        {modules && Array.isArray(modules.modules) && modules.modules.map((module: Module) => (
                           <FormField
                             key={module.id}
                             control={form.control}
@@ -755,7 +755,7 @@ export default function TemporaryAccessManagement() {
                   Annuler
                 </Button>
                 <Button type="submit" disabled={updateAccessMutation.isPending}>
-                  {updateAccessMutation.isPending ? "Traitement..." : "Enregistrer"}
+                  {updateAccessMutation.isPending ? "Traitement..." : "Mettre à jour"}
                 </Button>
               </DialogFooter>
             </form>
@@ -767,29 +767,20 @@ export default function TemporaryAccessManagement() {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Confirmer la révocation</DialogTitle>
+            <DialogTitle>Révoquer l'accès temporaire</DialogTitle>
             <DialogDescription>
-              Êtes-vous sûr de vouloir révoquer l'accès temporaire pour "{selectedAccess?.username}" ({selectedAccess?.email}) ?
+              Êtes-vous sûr de vouloir révoquer l'accès temporaire pour <strong>{selectedAccess?.username}</strong> ?
               Cette action est irréversible.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsDeleteDialogOpen(false)}
-            >
+          <div className="flex justify-end space-x-2 pt-6">
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
               Annuler
             </Button>
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={confirmRevoke}
-              disabled={revokeAccessMutation.isPending}
-            >
-              {revokeAccessMutation.isPending ? "Révocation..." : "Révoquer l'accès"}
+            <Button variant="destructive" onClick={confirmRevoke} disabled={revokeAccessMutation.isPending}>
+              {revokeAccessMutation.isPending ? "Traitement..." : "Révoquer"}
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </Card>
