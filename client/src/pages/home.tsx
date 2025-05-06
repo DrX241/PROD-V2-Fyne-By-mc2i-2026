@@ -1174,24 +1174,6 @@ export default function Home() {
                     {item}
                   </a>
                 ))}
-                <Link 
-                  href="/setup" 
-                  className={`${isFuturistic 
-                    ? 'text-blue-200/20 hover:text-cyan-300/60' 
-                    : 'text-gray-400/60 hover:text-blue-600/80'} 
-                    text-sm transition-colors font-cyber-body opacity-40`}
-                >
-                  Configuration
-                </Link>
-                <Link 
-                  href="/admin" 
-                  className={`${isFuturistic 
-                    ? 'text-blue-200/20 hover:text-cyan-300/60' 
-                    : 'text-gray-400/60 hover:text-blue-600/80'} 
-                    text-sm transition-colors font-cyber-body opacity-60`}
-                >
-                  Admin
-                </Link>
               </div>
             </div>
           </div>

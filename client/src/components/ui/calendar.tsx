@@ -1,35 +1,20 @@
 import * as React from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { DayPicker, DropdownProps } from "react-day-picker"
-import { fr } from "date-fns/locale"
+import { DayPicker } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>
 
-const Calendar = ({
+function Calendar({
   className,
   classNames,
   showOutsideDays = true,
   ...props
-}: CalendarProps) => {
-  const Dropdown = ({ value, onChange, children, ...props }: DropdownProps) => {
-    return (
-      <select
-        value={value}
-        onChange={onChange}
-        {...props}
-        className="inline-flex w-full justify-center rounded-md border border-input bg-background px-3 py-1 text-sm font-medium text-muted-foreground ring-offset-background hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        {children}
-      </select>
-    );
-  };
-
+}: CalendarProps) {
   return (
     <DayPicker
-      locale={fr}
       showOutsideDays={showOutsideDays}
       className={cn("p-3", className)}
       classNames={{
@@ -64,15 +49,9 @@ const Calendar = ({
         day_range_middle:
           "aria-selected:bg-accent aria-selected:text-accent-foreground",
         day_hidden: "invisible",
-        caption_dropdowns: "flex justify-center gap-1 text-sm",
-        dropdown: "custom-dropdown",
-        dropdown_month: "custom-dropdown-month",
-        dropdown_year: "custom-dropdown-year",
-        vhidden: "hidden",
         ...classNames,
       }}
       components={{
-        Dropdown,
         IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
       }}

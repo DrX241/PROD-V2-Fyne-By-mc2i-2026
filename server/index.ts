@@ -1,28 +1,10 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import session from "express-session";
-import { randomBytes } from "crypto";
-
-// Génération d'un secret aléatoire pour les sessions
-const sessionSecret = process.env.SESSION_SECRET || randomBytes(32).toString('hex');
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
-// Configuration du middleware de session
-app.use(session({
-  secret: sessionSecret,
-  resave: true,
-  saveUninitialized: true,
-  cookie: {
-    secure: false, // Désactivé en mode développement
-    maxAge: 24 * 60 * 60 * 1000, // 24 heures
-    httpOnly: true,
-    sameSite: 'lax'
-  }
-}));
 
 // Middleware pour forcer le Content-Type JSON pour les routes API
 app.use('/api', (req, res, next) => {

@@ -7,22 +7,18 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
-export async function apiRequest(
-  method: string,
+export async function apiRequest<T = any>(
   url: string,
-  data?: any,
   options?: RequestInit,
-): Promise<Response> {
+): Promise<T> {
   try {
     // Gérer les erreurs de réseau
     let res;
     try {
       res = await fetch(url, {
-        method,
-        body: data ? JSON.stringify(data) : undefined,
         ...options,
         headers: {
-          "Content-Type": "application/json",
+          ...(options?.body ? { "Content-Type": "application/json" } : {}),
           ...options?.headers,
         },
         credentials: "include",
@@ -34,7 +30,7 @@ export async function apiRequest(
 
     try {
       await throwIfResNotOk(res);
-      return res;
+      return await res.json();
     } catch (responseError) {
       console.error(`API response error for ${url}:`, responseError);
       throw responseError;
