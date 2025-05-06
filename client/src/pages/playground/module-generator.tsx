@@ -69,6 +69,7 @@ export default function ModuleGenerator() {
 
   // État pour suivre la progression de la génération
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [generatedModules, setGeneratedModules] = useState<any>(null);
   const [currentTab, setCurrentTab] = useState<string>('config');
 
@@ -665,15 +666,85 @@ export default function ModuleGenerator() {
                       </Button>
                       <Button
                         variant="default"
-                        // Cette fonctionnalité serait implémentée dans une future version
-                        onClick={() => {
-                          toast({
-                            title: 'Fonctionnalité en développement',
-                            description: 'Cette fonctionnalité sera disponible prochainement.',
-                          });
+                        onClick={async () => {
+                          if (!generatedModules) {
+                            toast({
+                              title: 'Erreur',
+                              description: 'Veuillez d\'abord générer un module',
+                              variant: 'destructive',
+                            });
+                            return;
+                          }
+                          
+                          try {
+                            setIsSaving(true);
+                            
+                            // Préparation des données à envoyer
+                            const moduleToSave = {
+                              userId: 'user-' + Math.random().toString(36).substring(2, 9), // ID utilisateur générique
+                              userName: 'Utilisateur mc2i', // Nom d'utilisateur générique
+                              name: moduleConfig.name,
+                              domain: moduleConfig.domain,
+                              description: moduleConfig.description,
+                              iamName: `I AM ${moduleConfig.domain.toUpperCase()}`,
+                              difficulty: moduleConfig.difficulty,
+                              topics: moduleConfig.topics,
+                              gamificationLevel: moduleConfig.gamificationLevel === 'low' ? 'leger' : 
+                                                moduleConfig.gamificationLevel === 'medium' ? 'modere' : 'eleve',
+                              learningStyle: moduleConfig.learningStyle,
+                              includeTrainerModule: moduleConfig.includeTrainerModule,
+                              includeOpsModule: moduleConfig.includeOpsModule,
+                              includeTestModule: moduleConfig.includeTestModule,
+                              includeAscensionModule: moduleConfig.includeAscensionModule,
+                              moduleData: generatedModules
+                            };
+                            
+                            // Appel à l'API
+                            const response = await fetch('/api/module-generator/save', {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                              },
+                              body: JSON.stringify(moduleToSave),
+                            });
+                            
+                            const result = await response.json();
+                            
+                            if (!response.ok) {
+                              throw new Error(result.message || 'Erreur lors de la sauvegarde');
+                            }
+                            
+                            toast({
+                              title: 'Module créé et publié avec succès !',
+                              description: 'Votre module a été ajouté à la page d\'accueil',
+                            });
+                            
+                            // Redirection vers la page d'accueil après 1 seconde
+                            setTimeout(() => {
+                              window.location.href = '/';
+                            }, 1000);
+                            
+                          } catch (error: any) {
+                            console.error('Erreur lors de la sauvegarde:', error);
+                            toast({
+                              title: 'Erreur',
+                              description: error.message || 'Une erreur est survenue lors de la sauvegarde',
+                              variant: 'destructive',
+                            });
+                          } finally {
+                            setIsSaving(false);
+                          }
                         }}
+                        disabled={isSaving || isGenerating || !generatedModules}
                       >
-                        Créer le module
+                        {isSaving ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                            Création en cours...
+                          </>
+                        ) : (
+                          <>Créer et publier le module</>
+                        )}
                       </Button>
                     </div>
                   </CardFooter>
