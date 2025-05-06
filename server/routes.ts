@@ -10,6 +10,7 @@ import { openAIService } from "./services/openai";
 import attachmentRoutes from './routes/attachmentRoutes';
 import cyberForgeRoutes from './routes/cyberForgeRoutes';
 import { createAttachmentWithHiddenPassword } from './services/attachmentService';
+import { evaluateInterviewTest, generateAdaptiveQuestion } from './cyberInterviewTestController';
 import { CyberScenario, CrisisDecisionContent, CrisisDecisionOption } from '../shared/types/cyber';
 
 // Récupérer le chemin du répertoire actuel en module ES
@@ -65,7 +66,6 @@ import {
   generateCertificate,
   getTestOptions
 } from "./cyberTestTechniqueController";
-import { evaluateInterviewTest } from "./cyberInterviewTestController";
 // Import des fonctions d'urgence cyber supprimé
 
 /**
@@ -470,8 +470,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/cyber/test-technique/evaluate', evaluateResponses);
   app.post('/api/cyber/test-technique/certificate', generateCertificate);
   
-  // Route pour le test d'entretien cybersécurité
+  // Routes pour le test d'entretien cybersécurité
   app.post('/api/cyber/interview-test/evaluate', evaluateInterviewTest);
+  app.post('/api/cyber/interview-test/generate-question', generateAdaptiveQuestion);
   
   // Routes pour le jeu BrainHacker (ingénierie sociale)
   app.post('/api/cyber/arcade/brain-hacker/simulate', simulateTargetResponse);

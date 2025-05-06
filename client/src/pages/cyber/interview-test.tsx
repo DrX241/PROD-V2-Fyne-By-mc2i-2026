@@ -88,16 +88,52 @@ const QUESTIONS: Question[] = [
   }
 ];
 
-// Sélectionne 6 questions aléatoires dans la liste
-const getRandomQuestions = (): Question[] => {
-  const shuffled = [...QUESTIONS].sort(() => 0.5 - Math.random());
-  // Assurons-nous d'avoir la question de présentation en premier
-  const presentationQuestion = shuffled.find(q => q.type === 'presentation');
-  const otherQuestions = shuffled.filter(q => q.type !== 'presentation');
+// Récupère uniquement la question de présentation
+const getInitialQuestion = (): Question[] => {
+  const presentationQuestion = QUESTIONS.find(q => q.type === 'presentation');
   
-  return presentationQuestion 
-    ? [presentationQuestion, ...otherQuestions.slice(0, 5)] 
-    : shuffled.slice(0, 6);
+  return presentationQuestion ? [presentationQuestion] : [QUESTIONS[0]];
+};
+
+// Génère une question adaptative basée sur les réponses précédentes
+const generateAdaptiveQuestion = async (
+  presentationAnswer: string,
+  currentQuestionIndex: number,
+  previousAnswers: Array<{
+    questionId: string;
+    type: QuestionType;
+    question: string;
+    answer: string;
+  }>
+): Promise<Question | null> => {
+  try {
+    const response = await fetch('/api/cyber/interview-test/generate-question', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        presentationAnswer,
+        currentQuestionIndex,
+        previousAnswers,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Erreur lors de la génération de la question adaptative');
+    }
+
+    const data = await response.json();
+    
+    if (data.success) {
+      return data.question;
+    } else {
+      throw new Error(data.message || 'Erreur lors de la génération de la question');
+    }
+  } catch (error) {
+    console.error('Erreur:', error);
+    return null;
+  }
 };
 
 export default function CyberInterviewTest() {
@@ -124,8 +160,8 @@ export default function CyberInterviewTest() {
       setTimeLeft(15 * 60);
       setEvaluationResult(null);
     } else if (testState === 'in-progress' && questions.length === 0) {
-      // Générer les questions au début du test
-      setQuestions(getRandomQuestions());
+      // Commencer par la question de présentation uniquement
+      setQuestions(getInitialQuestion());
     }
   }, [testState]);
 
@@ -166,8 +202,8 @@ export default function CyberInterviewTest() {
     setTestState('in-progress');
   };
 
-  // Passer à la question suivante
-  const handleNextQuestion = () => {
+  // Passer à la question suivante ou générer une nouvelle question adaptative
+  const handleNextQuestion = async () => {
     // Sauvegarder la réponse actuelle
     if (currentQuestionIndex < questions.length) {
       setAnswers(prev => ({
@@ -176,13 +212,70 @@ export default function CyberInterviewTest() {
       }));
     }
 
-    // Passer à la question suivante
+    // Si c'est la 6ème question (index 5), on termine le test
+    if (currentQuestionIndex >= 5) {
+      handleSubmitTest();
+      return;
+    }
+
+    // Si on a déjà une question suivante chargée, on y passe simplement
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
       setCurrentAnswer('');
-    } else {
-      // C'était la dernière question
-      handleSubmitTest();
+      return;
+    }
+
+    // Sinon, on doit générer une nouvelle question adaptative
+    try {
+      // Construction des précédentes réponses pour l'API
+      const presentationAnswer = answers[questions[0].id] || currentAnswer;
+      const previousAnswers = questions.map((q, index) => ({
+        questionId: q.id,
+        type: q.type,
+        question: q.question,
+        answer: index === currentQuestionIndex ? currentAnswer : answers[q.id] || ''
+      }));
+
+      // Obtenir une nouvelle question adaptative
+      const nextQuestion = await generateAdaptiveQuestion(
+        presentationAnswer,
+        currentQuestionIndex,
+        previousAnswers
+      );
+
+      if (nextQuestion) {
+        // Ajouter la nouvelle question à notre liste
+        setQuestions(prev => [...prev, nextQuestion]);
+        setCurrentQuestionIndex(prev => prev + 1);
+        setCurrentAnswer('');
+      } else {
+        // En cas d'erreur, utiliser une question de secours
+        const fallbackQuestion = QUESTIONS.find(q => 
+          !questions.some(existingQ => existingQ.type === q.type)
+        ) || QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)];
+        
+        setQuestions(prev => [...prev, fallbackQuestion]);
+        setCurrentQuestionIndex(prev => prev + 1);
+        setCurrentAnswer('');
+        
+        toast({
+          title: 'Information',
+          description: 'Une question générique a été chargée.',
+          variant: 'default',
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la génération de question:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Une erreur est survenue lors du chargement de la question suivante.',
+        variant: 'destructive',
+      });
+
+      // En cas d'erreur, terminer le test avec les questions actuelles
+      if (questions.length > 1) {
+        handleSubmitTest();
+      }
     }
   };
 
@@ -251,9 +344,10 @@ export default function CyberInterviewTest() {
     navigate('/cyber');
   };
 
-  // Calculer la progression
+  // Calculer la progression (6 questions au total)
+  const totalQuestions = 6;
   const progress = testState === 'in-progress' 
-    ? Math.min(((currentQuestionIndex + 1) / questions.length) * 100, 100)
+    ? Math.min(((currentQuestionIndex + 1) / totalQuestions) * 100, 100)
     : 100;
 
   // Affichage de l'introduction du test
@@ -399,7 +493,7 @@ export default function CyberInterviewTest() {
             <div className="flex justify-between items-center">
               <div>
                 <CardTitle className="text-xl font-bold text-blue-800 dark:text-white">
-                  Question {currentQuestionIndex + 1}/{questions.length}
+                  Question {currentQuestionIndex + 1}/{totalQuestions}
                 </CardTitle>
                 <CardDescription className="text-black dark:text-white">
                   {questions[currentQuestionIndex]?.type === 'presentation' ? 'Présentation' : 
