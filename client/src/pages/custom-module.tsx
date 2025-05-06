@@ -1,9 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useRoute } from 'wouter';
-import { Loader2, ArrowLeft, Book, Code, Gamepad2, Trophy, Home, ArrowRight } from 'lucide-react';
+import { Loader2, ArrowLeft, Book, Code, Gamepad2, Trophy, Home, ArrowRight, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import HomeLayout from '@/components/layout/HomeLayout';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { motion } from 'framer-motion';
 
 const CustomModule = () => {
@@ -14,6 +24,8 @@ const CustomModule = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<string>('overview');
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   useEffect(() => {
     // Si aucun paramètre d'ID n'est trouvé, retourner à la page d'accueil
@@ -80,6 +92,47 @@ const CustomModule = () => {
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params?.id]);
+
+  // Fonction pour supprimer le module
+  const deleteModule = async () => {
+    try {
+      if (!module || !params?.id) return;
+      
+      setIsDeleting(true);
+      const moduleId = params.id;
+      
+      const response = await fetch(`/api/module-generator/modules/${moduleId}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de la suppression du module');
+      }
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        toast({
+          title: 'Succès',
+          description: 'Module supprimé avec succès',
+          variant: 'default',
+        });
+        navigate('/');
+      } else {
+        throw new Error(data.message || 'Erreur lors de la suppression du module');
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast({
+        title: 'Erreur',
+        description: error instanceof Error ? error.message : 'Une erreur est survenue lors de la suppression du module',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeleting(false);
+      setDeleteDialogOpen(false);
+    }
+  };
 
   // Fonction pour obtenir le gradient du module en fonction du domaine
   const getModuleGradient = (domain: string) => {

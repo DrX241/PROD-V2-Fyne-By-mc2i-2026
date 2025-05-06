@@ -40,7 +40,7 @@ import {
   improveGeneratedCode,
   suggestLanguageAndFramework
 } from "./codeGeneratorController";
-import { generateModule, saveCustomModule, getCustomModules, getCustomModuleById } from "./moduleGeneratorController";
+import { generateModule, saveCustomModule, getCustomModules, getCustomModuleById, deleteCustomModule } from "./moduleGeneratorController";
 import { analyzeEvidence, getInvestigationHints, evaluateInvestigationResult, generateInvestigationScenario, generateInvestigationNotes } from "./cyberInvestigatorController";
 import { getInvestigationProgress, saveInvestigationProgress, evaluateUserNotes } from "./investigationProgressController";
 import { 
@@ -443,6 +443,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.get("/api/module-generator/modules/:id", (req: Request, res: Response) => {
     getCustomModuleById(req, res);
+  });
+
+  // Route pour supprimer un module personnalisé
+  app.delete("/api/module-generator/modules/:id", (req: Request, res: Response) => {
+    deleteCustomModule(req, res);
   });
   
   // Routes pour le générateur de code
