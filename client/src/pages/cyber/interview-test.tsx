@@ -532,7 +532,7 @@ export default function CyberInterviewTest() {
               onClick={handleNextQuestion}
               disabled={currentAnswer.trim().length < 3}
             >
-              {currentQuestionIndex < questions.length - 1 ? 'Question suivante' : 'Terminer le test'}
+              {currentQuestionIndex < totalQuestions - 1 ? 'Question suivante' : 'Terminer le test'}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </CardFooter>
