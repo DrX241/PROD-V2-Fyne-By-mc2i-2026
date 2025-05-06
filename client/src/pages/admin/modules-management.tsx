@@ -1,12 +1,29 @@
-import { useState, useEffect } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useToast } from "@/hooks/use-toast";
-import { Badge } from "@/components/ui/badge";
-import { Pencil, Plus, Trash2, Lock, Eye } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
+import axios from 'axios';
+import { Loader2, Plus, Save, Trash2, ArrowLeft } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useLocation } from 'wouter';
+
+// UI Components
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from '@/components/ui/card';
+import {
+  Table, 
+  TableBody, 
+  TableCaption, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow
+} from '@/components/ui/table';
 import {
   Dialog,
   DialogContent,
@@ -14,643 +31,385 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-const VALID_USER_ROLES = ['user', 'tester', 'contributor', 'admin'];
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Switch } from '@/components/ui/switch';
 
-interface Module {
+interface ApplicationModule {
   id: number;
   name: string;
-  displayName: string;
-  description: string;
-  category: string;
   path: string;
-  icon: string;
-  isPublic: boolean;
-  requiredRole: string;
-  createdAt: string;
-  updatedAt: string;
+  description: string;
+  active: boolean;
+  accessLevel: 'all' | 'admin' | 'superadmin';
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-interface ModulesResponse {
-  success: boolean;
-  modules: Module[];
-}
+const defaultNewModule: Omit<ApplicationModule, 'id' | 'createdAt' | 'updatedAt'> = {
+  name: '',
+  path: '',
+  description: '',
+  active: true,
+  accessLevel: 'all',
+};
 
-const moduleSchema = z.object({
-  id: z.number().optional(),
-  name: z.string().min(1, "Le nom est requis"),
-  displayName: z.string().min(1, "Le nom d'affichage est requis"),
-  description: z.string().optional(),
-  category: z.string().min(1, "La catégorie est requise"),
-  path: z.string().min(1, "Le chemin est requis"),
-  icon: z.string().optional(),
-  isPublic: z.boolean().default(false),
-  requiredRole: z.string().default("user")
-});
-
-export default function ModulesManagement() {
+const ModulesManagement: React.FC = () => {
+  const [, navigate] = useLocation();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [selectedModule, setSelectedModule] = useState<Module | null>(null);
-
-  // Formulaire d'ajout/modification de module
-  const form = useForm<z.infer<typeof moduleSchema>>({
-    resolver: zodResolver(moduleSchema),
-    defaultValues: {
-      name: "",
-      displayName: "",
-      description: "",
-      category: "",
-      path: "",
-      icon: "",
-      isPublic: false,
-      requiredRole: "user"
-    }
-  });
-
-  // Récupérer la liste des modules
-  const { data: modules, isLoading, isError } = useQuery<ModulesResponse>({
-    queryKey: ["/api/admin/modules"],
-  });
+  const { isAuthenticated, isSuperAdmin } = useAdminAuth();
   
-  // Gérer les erreurs avec useEffect
+  const [modules, setModules] = useState<ApplicationModule[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showAddDialog, setShowAddDialog] = useState<boolean>(false);
+  const [newModule, setNewModule] = useState<Omit<ApplicationModule, 'id' | 'createdAt' | 'updatedAt'>>(defaultNewModule);
+  const [processingAction, setProcessingAction] = useState<boolean>(false);
+  const [selectedModuleId, setSelectedModuleId] = useState<number | null>(null);
+
+  // Charger les modules au chargement de la page
   useEffect(() => {
-    if (isError) {
+    fetchModules();
+  }, []);
+
+  const fetchModules = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('/api/admin/modules');
+      setModules(response.data);
+      setError(null);
+    } catch (err: any) {
+      setError(`Erreur lors du chargement des modules: ${err.response?.data || err.message}`);
+      console.error('Erreur lors du chargement des modules:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddModule = async () => {
+    if (!newModule.name || !newModule.path) {
+      toast({
+        title: "Champs manquants",
+        description: "Le nom et le chemin sont requis",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setProcessingAction(true);
+    try {
+      await axios.post('/api/admin/modules', newModule);
+      await fetchModules();
+      setShowAddDialog(false);
+      setNewModule(defaultNewModule);
+      toast({
+        title: "Module ajouté",
+        description: "Le module a été ajouté avec succès",
+      });
+    } catch (err: any) {
       toast({
         title: "Erreur",
-        description: "Impossible de récupérer la liste des modules.",
-        variant: "destructive"
+        description: err.response?.data || "Une erreur est survenue lors de l'ajout du module",
+        variant: "destructive",
       });
+    } finally {
+      setProcessingAction(false);
     }
-  }, [isError, toast]);
+  };
 
-  // Mutation pour ajouter/modifier un module
-  const upsertModuleMutation = useMutation({
-    mutationFn: async (moduleData: z.infer<typeof moduleSchema>) => {
-      const res = await apiRequest("POST", "/api/admin/modules", moduleData, {
-        headers: {
-          'X-User-Role': 'admin'
-        }
-      });
-      return await res.json();
-    },
-    onSuccess: () => {
+  const handleUpdateModule = async (module: ApplicationModule) => {
+    setProcessingAction(true);
+    setSelectedModuleId(module.id);
+    try {
+      await axios.put(`/api/admin/modules/${module.id}`, module);
+      const updatedModules = modules.map(m => m.id === module.id ? module : m);
+      setModules(updatedModules);
       toast({
-        title: "Succès",
-        description: selectedModule ? "Module mis à jour avec succès" : "Module créé avec succès",
+        title: "Module mis à jour",
+        description: "Le module a été mis à jour avec succès",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/modules"] });
-      setIsAddDialogOpen(false);
-      setIsEditDialogOpen(false);
-      form.reset();
-      setSelectedModule(null);
-    },
-    onError: () => {
+    } catch (err: any) {
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue lors de l'opération",
-        variant: "destructive"
+        description: err.response?.data || "Une erreur est survenue lors de la mise à jour du module",
+        variant: "destructive",
       });
+    } finally {
+      setProcessingAction(false);
+      setSelectedModuleId(null);
     }
-  });
+  };
 
-  // Mutation pour supprimer un module
-  const deleteModuleMutation = useMutation({
-    mutationFn: async (moduleId: number) => {
-      const res = await apiRequest("DELETE", `/api/admin/modules/${moduleId}`, null, {
-        headers: {
-          'X-User-Role': 'admin'
-        }
-      });
-      return await res.json();
-    },
-    onSuccess: () => {
+  const handleDeleteModule = async (id: number) => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce module ?")) {
+      return;
+    }
+    
+    setProcessingAction(true);
+    setSelectedModuleId(id);
+    try {
+      await axios.delete(`/api/admin/modules/${id}`);
+      setModules(modules.filter(m => m.id !== id));
       toast({
-        title: "Succès",
-        description: "Module supprimé avec succès",
+        title: "Module supprimé",
+        description: "Le module a été supprimé avec succès",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/modules"] });
-      setIsDeleteDialogOpen(false);
-      setSelectedModule(null);
-    },
-    onError: () => {
+    } catch (err: any) {
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue lors de la suppression",
-        variant: "destructive"
+        description: err.response?.data || "Une erreur est survenue lors de la suppression du module",
+        variant: "destructive",
       });
-    }
-  });
-
-  // Initialiser le formulaire d'édition avec les données du module sélectionné
-  const handleEditModule = (module: Module) => {
-    setSelectedModule(module);
-    form.reset({
-      id: module.id,
-      name: module.name,
-      displayName: module.displayName,
-      description: module.description,
-      category: module.category,
-      path: module.path,
-      icon: module.icon,
-      isPublic: module.isPublic,
-      requiredRole: module.requiredRole
-    });
-    setIsEditDialogOpen(true);
-  };
-
-  // Confirmer la suppression d'un module
-  const handleDeleteModule = (module: Module) => {
-    setSelectedModule(module);
-    setIsDeleteDialogOpen(true);
-  };
-
-  // Soumettre le formulaire
-  const onSubmit = (data: z.infer<typeof moduleSchema>) => {
-    upsertModuleMutation.mutate(data);
-  };
-
-  // Fonction pour initialiser un nouveau module
-  const handleAddModule = () => {
-    form.reset({
-      name: "",
-      displayName: "",
-      description: "",
-      category: "",
-      path: "",
-      icon: "",
-      isPublic: false,
-      requiredRole: "user"
-    });
-    setIsAddDialogOpen(true);
-  };
-
-  // Fonction pour confirmer la suppression
-  const confirmDelete = () => {
-    if (selectedModule) {
-      deleteModuleMutation.mutate(selectedModule.id);
+    } finally {
+      setProcessingAction(false);
+      setSelectedModuleId(null);
     }
   };
+
+  // Helper pour mettre à jour les champs du nouveau module
+  const updateNewModuleField = (field: string, value: any) => {
+    setNewModule(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Helper pour mettre à jour les champs d'un module existant
+  const updateExistingModuleField = (module: ApplicationModule, field: string, value: any) => {
+    const updatedModule = { ...module, [field]: value };
+    handleUpdateModule(updatedModule);
+  };
+
+  if (loading && modules.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-4">
+        <Loader2 className="w-8 h-8 text-[#006a9e] animate-spin mb-4" />
+        <p className="text-lg text-muted-foreground">Chargement des modules...</p>
+      </div>
+    );
+  }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <CardTitle>Gestion des Modules</CardTitle>
-          <CardDescription>Gérer les modules disponibles dans l'application</CardDescription>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      {/* Header */}
+      <header className="bg-[#006a9e] text-white p-4 shadow-md">
+        <div className="container mx-auto flex justify-between items-center">
+          <div className="flex items-center space-x-4">
+            <h1 className="text-xl font-bold">Gestion des modules</h1>
+          </div>
+          <Button 
+            variant="outline" 
+            className="border-white text-white hover:bg-white hover:text-[#006a9e]"
+            onClick={() => navigate('/admin')}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" /> Retour au tableau de bord
+          </Button>
         </div>
-        <Button onClick={handleAddModule}>
-          <Plus className="mr-2 h-4 w-4" /> Ajouter un module
-        </Button>
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <div className="flex justify-center py-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-          </div>
-        ) : modules && Array.isArray(modules.modules) && modules.modules.length > 0 ? (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nom</TableHead>
-                <TableHead>Catégorie</TableHead>
-                <TableHead>Chemin</TableHead>
-                <TableHead>Accès</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {modules.modules.map((module: Module) => (
-                <TableRow key={module.id}>
-                  <TableCell className="font-medium">{module.displayName}</TableCell>
-                  <TableCell>{module.category}</TableCell>
-                  <TableCell>{module.path}</TableCell>
-                  <TableCell>
-                    {module.isPublic ? (
-                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                        <Eye className="mr-1 h-3 w-3" /> Public
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
-                        <Lock className="mr-1 h-3 w-3" /> {module.requiredRole}
-                      </Badge>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="outline" size="sm" onClick={() => handleEditModule(module)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => handleDeleteModule(module)}>
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        ) : (
-          <div className="text-center py-8">
-            <p className="text-muted-foreground">Aucun module n'a été trouvé.</p>
-            <Button onClick={handleAddModule} className="mt-4">
-              <Plus className="mr-2 h-4 w-4" /> Ajouter un module
-            </Button>
-          </div>
+      </header>
+
+      {/* Main content */}
+      <main className="container mx-auto p-6">
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         )}
-      </CardContent>
 
-      {/* Dialogue d'ajout de module */}
-      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Ajouter un module</DialogTitle>
-            <DialogDescription>
-              Créez un nouveau module dans l'application.
-            </DialogDescription>
-          </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Identifiant</FormLabel>
-                      <FormControl>
-                        <Input placeholder="cyber-escape" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Identifiant unique du module (sans espaces)
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="displayName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nom d'affichage</FormLabel>
-                      <FormControl>
-                        <Input placeholder="CyberEscape" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Nom affiché dans l'interface
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold">Modules de l'application</h2>
+          
+          <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+            <DialogTrigger asChild>
+              <Button className="bg-[#006a9e] hover:bg-[#00557e]">
+                <Plus className="mr-2 h-4 w-4" /> Ajouter un module
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Ajouter un nouveau module</DialogTitle>
+                <DialogDescription>
+                  Remplissez ce formulaire pour ajouter un nouveau module à l'application.
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Nom du module *</Label>
+                  <Input
+                    id="name"
+                    placeholder="Ex: Cyber Defense"
+                    value={newModule.name}
+                    onChange={(e) => updateNewModuleField('name', e.target.value)}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="path">Chemin d'accès *</Label>
+                  <Input
+                    id="path"
+                    placeholder="Ex: /cyber-defense"
+                    value={newModule.path}
+                    onChange={(e) => updateNewModuleField('path', e.target.value)}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    placeholder="Description du module..."
+                    value={newModule.description}
+                    onChange={(e) => updateNewModuleField('description', e.target.value)}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="accessLevel">Niveau d'accès</Label>
+                  <Select
+                    value={newModule.accessLevel}
+                    onValueChange={(value) => updateNewModuleField('accessLevel', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionner un niveau d'accès" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tous les utilisateurs</SelectItem>
+                      <SelectItem value="admin">Administrateurs uniquement</SelectItem>
+                      <SelectItem value="superadmin">Super administrateurs uniquement</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="active"
+                    checked={newModule.active}
+                    onCheckedChange={(checked) => updateNewModuleField('active', checked)}
+                  />
+                  <Label htmlFor="active">Module actif</Label>
+                </div>
               </div>
-
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Description du module..." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Catégorie</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Cyber Arcade" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="path"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Chemin d'accès</FormLabel>
-                      <FormControl>
-                        <Input placeholder="/cyber/arcade/cyber-escape" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Chemin URL du module
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="icon"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Icône</FormLabel>
-                      <FormControl>
-                        <Input placeholder="game-controller" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Nom de l'icône Lucide
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="requiredRole"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Rôle requis</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Sélectionner un rôle" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {VALID_USER_ROLES.map((role) => (
-                            <SelectItem key={role} value={role}>
-                              {role}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormDescription>
-                        Rôle minimal requis pour accéder au module
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="isPublic"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Module public</FormLabel>
-                      <FormDescription>
-                        Si activé, le module sera accessible à tous les utilisateurs sans restriction.
-                      </FormDescription>
-                    </div>
-                  </FormItem>
-                )}
-              />
-
+              
               <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsAddDialogOpen(false)}
-                >
+                <Button variant="outline" onClick={() => setShowAddDialog(false)}>
                   Annuler
                 </Button>
-                <Button type="submit" disabled={upsertModuleMutation.isPending}>
-                  {upsertModuleMutation.isPending ? "Traitement..." : "Créer le module"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Dialogue d'édition de module */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Modifier un module</DialogTitle>
-            <DialogDescription>
-              Modifiez les informations du module sélectionné.
-            </DialogDescription>
-          </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Identifiant</FormLabel>
-                      <FormControl>
-                        <Input placeholder="cyber-escape" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Identifiant unique du module (sans espaces)
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="displayName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nom d'affichage</FormLabel>
-                      <FormControl>
-                        <Input placeholder="CyberEscape" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Nom affiché dans l'interface
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Description du module..." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Catégorie</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Cyber Arcade" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="path"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Chemin d'accès</FormLabel>
-                      <FormControl>
-                        <Input placeholder="/cyber/arcade/cyber-escape" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Chemin URL du module
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="icon"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Icône</FormLabel>
-                      <FormControl>
-                        <Input placeholder="game-controller" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Nom de l'icône Lucide
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="requiredRole"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Rôle requis</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Sélectionner un rôle" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {VALID_USER_ROLES.map((role) => (
-                            <SelectItem key={role} value={role}>
-                              {role}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormDescription>
-                        Rôle minimal requis pour accéder au module
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="isPublic"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Module public</FormLabel>
-                      <FormDescription>
-                        Si activé, le module sera accessible à tous les utilisateurs sans restriction.
-                      </FormDescription>
-                    </div>
-                  </FormItem>
-                )}
-              />
-
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsEditDialogOpen(false)}
+                <Button 
+                  onClick={handleAddModule}
+                  className="bg-[#006a9e] hover:bg-[#00557e]"
+                  disabled={processingAction || !newModule.name || !newModule.path}
                 >
-                  Annuler
-                </Button>
-                <Button type="submit" disabled={upsertModuleMutation.isPending}>
-                  {upsertModuleMutation.isPending ? "Traitement..." : "Mettre à jour"}
+                  {processingAction ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Ajout...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-4 w-4" />
+                      Ajouter
+                    </>
+                  )}
                 </Button>
               </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+            </DialogContent>
+          </Dialog>
+        </div>
 
-      {/* Dialogue de confirmation de suppression */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Supprimer le module</DialogTitle>
-            <DialogDescription>
-              Êtes-vous sûr de vouloir supprimer le module <strong>{selectedModule?.displayName}</strong> ?
-              Cette action est irréversible.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-end space-x-2 pt-6">
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-              Annuler
-            </Button>
-            <Button variant="destructive" onClick={confirmDelete} disabled={deleteModuleMutation.isPending}>
-              {deleteModuleMutation.isPending ? "Traitement..." : "Supprimer"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Liste des modules</CardTitle>
+            <CardDescription>
+              Gérez les modules disponibles dans l'application. Vous pouvez activer ou désactiver des modules,
+              modifier leurs paramètres d'accès ou les supprimer.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {modules.length === 0 ? (
+              <div className="text-center p-8 border rounded-md bg-gray-50">
+                <p className="text-lg text-muted-foreground">Aucun module n'a été trouvé.</p>
+                <p className="text-sm text-muted-foreground mt-2">Cliquez sur "Ajouter un module" pour commencer.</p>
+              </div>
+            ) : (
+              <Table>
+                <TableCaption>Liste des modules de l'application</TableCaption>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nom</TableHead>
+                    <TableHead>Chemin</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Niveau d'accès</TableHead>
+                    <TableHead>État</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {modules.map((module) => (
+                    <TableRow key={module.id}>
+                      <TableCell className="font-medium">{module.name}</TableCell>
+                      <TableCell>{module.path}</TableCell>
+                      <TableCell className="max-w-xs truncate">{module.description}</TableCell>
+                      <TableCell>
+                        <Select
+                          value={module.accessLevel}
+                          onValueChange={(value) => updateExistingModuleField(module, 'accessLevel', value)}
+                          disabled={selectedModuleId === module.id && processingAction}
+                        >
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Tous les utilisateurs</SelectItem>
+                            <SelectItem value="admin">Administrateurs</SelectItem>
+                            <SelectItem value="superadmin">Super administrateurs</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center">
+                          <Switch
+                            checked={module.active}
+                            onCheckedChange={(checked) => updateExistingModuleField(module, 'active', checked)}
+                            disabled={selectedModuleId === module.id && processingAction}
+                          />
+                          <span className="ml-2">{module.active ? 'Actif' : 'Inactif'}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDeleteModule(module.id)}
+                          disabled={selectedModuleId === module.id && processingAction}
+                        >
+                          {selectedModuleId === module.id && processingAction ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+      </main>
+    </div>
   );
-}
+};
+
+export default ModulesManagement;

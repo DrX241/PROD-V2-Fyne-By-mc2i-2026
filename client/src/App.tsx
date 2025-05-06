@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Suspense, lazy, startTransition } from "react";
 import { ChatProvider } from "./contexts/ChatContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { AdminAuthProvider } from "./contexts/AdminAuthContext";
+import { ProtectedAdminRoute } from "./components/admin/ProtectedAdminRoute";
 
 // Importation des composants directement car le lazy loading provoque des problèmes
 // avec wouter dans cette implémentation
@@ -102,13 +104,14 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <ChatProvider>
-          <Switch>
-            <Route path="/cyber/interview-simulation" component={CyberInterviewSimulation} />
-            <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
-            <Route path="/" component={Home} />
-            <Route path="/modules" component={ModulesPage} />
-            <Route path="/cyber" component={CyberModeSelection} />
+        <AdminAuthProvider>
+          <ChatProvider>
+            <Switch>
+              <Route path="/cyber/interview-simulation" component={CyberInterviewSimulation} />
+              <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
+              <Route path="/" component={Home} />
+              <Route path="/modules" component={ModulesPage} />
+              <Route path="/cyber" component={CyberModeSelection} />
             <Route path="/cyber/agent" component={CyberAgentPage} />
             <Route path="/cyber/cyber-agent" component={CyberAgentRedirectPage} /> {/* Redirection vers la nouvelle version */}
             <Route path="/cyber/cyber-agent-old" component={CyberAgentRedirectPage} /> {/* Ancienne version (redirection) */}
@@ -383,6 +386,7 @@ function App() {
                 </Suspense>
               );
             }} />
+            {/* Routes d'administration */}
             <Route path="/admin/login" component={() => {
               const AdminLogin = lazy(() => import('./pages/admin/login'));
               return (
@@ -391,16 +395,39 @@ function App() {
                 </Suspense>
               );
             }} />
-            <Route path="/admin" component={() => {
-              // Redirection vers modules par défaut
-              window.location.href = '/admin/modules';
-              return null;
+            
+            <ProtectedAdminRoute path="/admin" component={() => {
+              const AdminDashboard = lazy(() => import('./pages/admin/index'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <AdminDashboard />
+                </Suspense>
+              );
+            }} />
+            
+            <ProtectedAdminRoute path="/admin/modules-management" component={() => {
+              const ModulesManagement = lazy(() => import('./pages/admin/modules-management'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <ModulesManagement />
+                </Suspense>
+              );
+            }} />
+            
+            <ProtectedAdminRoute path="/admin/temporary-access" component={() => {
+              const TemporaryAccess = lazy(() => import('./pages/admin/temporary-access'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <TemporaryAccess />
+                </Suspense>
+              );
             }} />
             
             <Route component={NotFound} />
           </Switch>
           <Toaster />
         </ChatProvider>
+        </AdminAuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

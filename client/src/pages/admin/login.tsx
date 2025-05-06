@@ -1,202 +1,185 @@
-import { useState } from "react";
-import { useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
+
+import { Button } from '@/components/ui/button';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import { Loader2, Shield, ShieldAlert } from "lucide-react";
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Loader2, ShieldAlert } from 'lucide-react';
 
-export default function AdminLoginPage() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isCheckingSetup, setIsCheckingSetup] = useState(true);
-  const [setupRequired, setSetupRequired] = useState(false);
-  const { toast } = useToast();
-  const [, setLocation] = useLocation();
+// Schéma de validation Zod
+const formSchema = z.object({
+  username: z.string().min(1, 'Le nom d\'utilisateur est requis'),
+  password: z.string().min(1, 'Le mot de passe est requis'),
+});
 
-  // Vérifier l'état d'initialisation du système
-  useState(() => {
-    const checkSystemSetup = async () => {
-      try {
-        const response = await apiRequest("GET", "/api/system/setup-status");
-        const data = await response.json();
-        
-        if (!data.setupComplete) {
-          setSetupRequired(true);
-        }
-      } catch (error) {
-        console.error("Erreur lors de la vérification de l'état du système:", error);
-      } finally {
-        setIsCheckingSetup(false);
-      }
-    };
-    
-    checkSystemSetup();
+// Types pour les données du formulaire
+type FormData = z.infer<typeof formSchema>;
+
+const AdminLoginPage: React.FC = () => {
+  const [, navigate] = useLocation();
+  const { login, isAuthenticated, isLoading, error } = useAdminAuth();
+  const [submitting, setSubmitting] = useState(false);
+
+  // Formulaire avec validation zod
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      username: '',
+      password: '',
+    },
   });
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!username || !password) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez entrer un nom d'utilisateur et un mot de passe",
-        variant: "destructive",
-      });
-      return;
+  // Rediriger si déjà authentifié
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/admin');
     }
-    
-    setIsLoading(true);
-    
+  }, [isAuthenticated, navigate]);
+
+  // Gestion de la soumission du formulaire
+  const onSubmit = async (data: FormData) => {
+    setSubmitting(true);
     try {
-      const response = await apiRequest("POST", "/api/system/authenticate-super-admin", {
-        username,
-        password
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        toast({
-          title: "Connexion réussie",
-          description: "Vous êtes maintenant connecté en tant que super administrateur",
-        });
-        
-        // Rediriger vers le tableau de bord d'administration
-        setLocation("/admin");
-      } else {
-        // Vérifier si une configuration initiale est requise
-        if (data.setupRequired) {
-          toast({
-            title: "Configuration requise",
-            description: "Le système doit être configuré avant la première utilisation",
-          });
-          setSetupRequired(true);
-        } else {
-          toast({
-            title: "Erreur d'authentification",
-            description: data.message || "Nom d'utilisateur ou mot de passe incorrect",
-            variant: "destructive",
-          });
-        }
+      const success = await login(data.username, data.password);
+      if (success) {
+        navigate('/admin');
       }
-    } catch (error) {
-      console.error("Erreur lors de l'authentification:", error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la tentative de connexion",
-        variant: "destructive",
-      });
     } finally {
-      setIsLoading(false);
+      setSubmitting(false);
     }
   };
-  
-  const goToSetup = () => {
-    setLocation("/setup");
-  };
 
-  if (isCheckingSetup) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <Loader2 className="w-10 h-10 mx-auto animate-spin text-primary" />
-          <p className="mt-4 text-lg">Vérification de l'état du système...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (setupRequired) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <Card className="w-full max-w-md border-yellow-200 shadow-lg">
-          <CardHeader className="bg-yellow-50 border-b border-yellow-100">
-            <ShieldAlert className="w-10 h-10 text-yellow-500 mx-auto mb-2" />
-            <CardTitle className="text-center text-yellow-800">Configuration initiale requise</CardTitle>
-            <CardDescription className="text-center text-yellow-700">
-              Le système n'est pas encore configuré
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground mb-6 text-center">
-              Avant de pouvoir utiliser l'interface d'administration, vous devez configurer un super administrateur.
-              Cette opération ne peut être effectuée qu'une seule fois.
-            </p>
-          </CardContent>
-          <CardFooter>
-            <Button onClick={goToSetup} className="w-full bg-yellow-600 hover:bg-yellow-700">
-              Aller à la page de configuration
-            </Button>
-          </CardFooter>
-        </Card>
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <Loader2 className="w-8 h-8 text-[#006a9e] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <div className="flex justify-center mb-2">
-            <Shield className="w-10 h-10 text-primary" />
-          </div>
-          <CardTitle className="text-center">Administration</CardTitle>
-          <CardDescription className="text-center">
-            Authentification Super Administrateur
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleLogin}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="username" className="text-sm font-medium">
-                Nom d'utilisateur
-              </label>
-              <Input
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium">
-                Mot de passe
-              </label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button 
-              type="submit" 
-              className="w-full" 
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Authentification...
-                </>
-              ) : (
-                "Se connecter"
+    <div className="flex min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      {/* Panneau de gauche avec formulaire */}
+      <div className="flex flex-col justify-center items-center w-full lg:w-1/2 p-8">
+        <div className="w-full max-w-md">
+          <Card className="border-0 shadow-lg">
+            <CardHeader className="space-y-1">
+              <div className="flex items-center justify-center mb-2">
+                <ShieldAlert className="h-12 w-12 text-[#006a9e]" />
+              </div>
+              <CardTitle className="text-2xl font-bold text-center">Administration</CardTitle>
+              <CardDescription className="text-center">
+                Connectez-vous pour accéder au panneau d'administration
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {error && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
               )}
-            </Button>
-          </CardFooter>
-        </form>
-      </Card>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="username"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Identifiant</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Votre identifiant" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Mot de passe</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="Votre mot de passe" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-[#006a9e] hover:bg-[#00557e]"
+                    disabled={submitting}
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Connexion...
+                      </>
+                    ) : 'Se connecter'}
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+            <CardFooter className="flex justify-center">
+              <Button variant="link" onClick={() => navigate('/')}>
+                Retour à l'accueil
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      </div>
+
+      {/* Panneau de droite avec informations */}
+      <div className="hidden lg:flex flex-col justify-center items-center w-1/2 p-8 bg-[#006a9e] text-white">
+        <div className="max-w-md">
+          <h1 className="text-3xl font-bold mb-6">
+            Centre d'administration mc2i
+          </h1>
+          <p className="text-lg mb-4">
+            Cette zone est réservée aux administrateurs de la plateforme.
+          </p>
+          <div className="space-y-4 mt-8">
+            <div className="flex items-start space-x-3">
+              <div className="bg-white rounded-full p-1">
+                <ShieldAlert className="h-5 w-5 text-[#006a9e]" />
+              </div>
+              <div>
+                <h3 className="font-medium">Gestion des accès</h3>
+                <p className="text-sm opacity-80">
+                  Créez et gérez des accès temporaires aux modules de la plateforme.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start space-x-3">
+              <div className="bg-white rounded-full p-1">
+                <ShieldAlert className="h-5 w-5 text-[#006a9e]" />
+              </div>
+              <div>
+                <h3 className="font-medium">Administration système</h3>
+                <p className="text-sm opacity-80">
+                  Configurez les modules et les paramètres avancés de la plateforme.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
-}
+};
+
+export default AdminLoginPage;

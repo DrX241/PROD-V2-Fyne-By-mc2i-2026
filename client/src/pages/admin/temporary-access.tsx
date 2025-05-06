@@ -1,12 +1,29 @@
-import { useState, useEffect } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useToast } from "@/hooks/use-toast";
-import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, Pencil, Plus, Send, ShieldOff } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
+import axios from 'axios';
+import { Loader2, Plus, Send, ArrowLeft, Copy, RefreshCw } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useLocation } from 'wouter';
+
+// UI Components
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from '@/components/ui/card';
+import {
+  Table, 
+  TableBody, 
+  TableCaption, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow
+} from '@/components/ui/table';
 import {
   Dialog,
   DialogContent,
@@ -14,775 +31,553 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { format, addDays } from "date-fns";
-import { fr } from "date-fns/locale";
-import { Checkbox } from "@/components/ui/checkbox";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
-interface Module {
+interface ApplicationModule {
   id: number;
   name: string;
-  displayName: string;
   path: string;
+  accessLevel: 'all' | 'admin' | 'superadmin';
 }
 
 interface TemporaryAccess {
   id: number;
+  token: string;
   email: string;
-  username: string;
-  expiresAt: string;
-  status: 'active' | 'expired' | 'revoked';
-  accessCount: number;
-  modules: {
-    moduleId: number;
-    name: string;
-    displayName: string;
-    path: string;
-  }[];
-  notes: string;
-  accessToken: string;
+  accessModules: string[];
+  expiration: string;
+  active: boolean;
+  accessCount: number | null;
+  maxAccessCount: number | null;
+  createdAt: string;
+  lastAccessed: string | null;
+  notes: string | null;
 }
 
-interface AccessesResponse {
-  success: boolean;
-  accesses: TemporaryAccess[];
-}
+const defaultNewAccess = {
+  email: '',
+  accessModules: [],
+  expiration: '',
+  maxAccessCount: 5,
+  notes: '',
+};
 
-interface ModulesResponse {
-  success: boolean;
-  modules: Module[];
-}
-
-const temporaryAccessSchema = z.object({
-  id: z.number().optional(),
-  email: z.string().email("Email invalide"),
-  username: z.string().min(1, "Le nom d'utilisateur est requis"),
-  notes: z.string().optional(),
-  expiresAt: z.date(),
-  modules: z.array(z.number()).min(1, "Sélectionnez au moins un module")
-});
-
-export default function TemporaryAccessManagement() {
+const TemporaryAccessPage: React.FC = () => {
+  const [, navigate] = useLocation();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [selectedAccess, setSelectedAccess] = useState<TemporaryAccess | null>(null);
-
-  // Formulaire d'ajout/modification d'accès temporaire
-  const form = useForm<z.infer<typeof temporaryAccessSchema>>({
-    resolver: zodResolver(temporaryAccessSchema),
-    defaultValues: {
-      email: "",
-      username: "",
-      notes: "",
-      expiresAt: addDays(new Date(), 7),
-      modules: []
-    }
-  });
-
-  // Récupérer la liste des accès temporaires
-  const { data: accessList, isLoading: isLoadingAccess, isError: isAccessError } = useQuery<AccessesResponse>({
-    queryKey: ["/api/admin/temporary-access"],
-  });
-
-  // Récupérer la liste des modules disponibles
-  const { data: modules, isLoading: isLoadingModules, isError: isModulesError } = useQuery<ModulesResponse>({
-    queryKey: ["/api/admin/modules"],
-  });
   
-  // Gérer les erreurs avec useEffect
+  const [temporaryAccesses, setTemporaryAccesses] = useState<TemporaryAccess[]>([]);
+  const [modules, setModules] = useState<ApplicationModule[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showAddDialog, setShowAddDialog] = useState<boolean>(false);
+  const [newAccess, setNewAccess] = useState(defaultNewAccess);
+  const [processingAction, setProcessingAction] = useState<boolean>(false);
+  const [selectedAccessId, setSelectedAccessId] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<string>('active');
+  const [invitationLink, setInvitationLink] = useState<string>('');
+  const [showLinkDialog, setShowLinkDialog] = useState<boolean>(false);
+
+  // Charger les données au chargement de la page
   useEffect(() => {
-    if (isAccessError) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de récupérer la liste des accès temporaires.",
-        variant: "destructive"
-      });
-    }
-  }, [isAccessError, toast]);
-  
+    fetchTemporaryAccesses();
+    fetchModules();
+  }, []);
+
+  // Formater la date pour l'input date
+  const formatDateForInput = (date: Date | null): string => {
+    if (!date) return '';
+    return date.toISOString().split('T')[0];
+  };
+
+  // Définir une date d'expiration par défaut (7 jours)
   useEffect(() => {
-    if (isModulesError) {
+    const defaultExpiration = new Date();
+    defaultExpiration.setDate(defaultExpiration.getDate() + 7); // 7 jours par défaut
+    setNewAccess(prev => ({
+      ...prev,
+      expiration: formatDateForInput(defaultExpiration)
+    }));
+  }, []);
+
+  const fetchTemporaryAccesses = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('/api/admin/temporary-accesses');
+      setTemporaryAccesses(response.data);
+      setError(null);
+    } catch (err: any) {
+      setError(`Erreur lors du chargement des accès temporaires: ${err.response?.data || err.message}`);
+      console.error('Erreur lors du chargement des accès temporaires:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchModules = async () => {
+    try {
+      const response = await axios.get('/api/admin/modules');
+      // Filtrer pour exclure les modules superadmin
+      const filteredModules = response.data.filter(
+        (module: ApplicationModule) => module.accessLevel !== 'superadmin'
+      );
+      setModules(filteredModules);
+    } catch (err: any) {
+      console.error('Erreur lors du chargement des modules:', err);
       toast({
         title: "Erreur",
-        description: "Impossible de récupérer la liste des modules.",
-        variant: "destructive"
+        description: "Impossible de charger la liste des modules",
+        variant: "destructive",
       });
     }
-  }, [isModulesError, toast]);
+  };
 
-  // Mutation pour créer un accès temporaire
-  const createAccessMutation = useMutation({
-    mutationFn: async (accessData: z.infer<typeof temporaryAccessSchema>) => {
-      const res = await apiRequest("POST", "/api/admin/temporary-access", accessData);
-      return await res.json();
-    },
-    onSuccess: () => {
+  const handleCreateAccess = async () => {
+    if (!newAccess.email || newAccess.accessModules.length === 0 || !newAccess.expiration) {
       toast({
-        title: "Succès",
-        description: "Accès temporaire créé avec succès",
+        title: "Champs manquants",
+        description: "L'email, au moins un module, et la date d'expiration sont requis",
+        variant: "destructive",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/temporary-access"] });
-      setIsAddDialogOpen(false);
-      form.reset();
-    },
-    onError: () => {
+      return;
+    }
+
+    setProcessingAction(true);
+    try {
+      const response = await axios.post('/api/admin/temporary-access', newAccess);
+      await fetchTemporaryAccesses();
+      setShowAddDialog(false);
+      
+      // Afficher le lien d'invitation
+      const baseUrl = window.location.origin;
+      const inviteLink = `${baseUrl}/verify-access/${response.data.token}`;
+      setInvitationLink(inviteLink);
+      setShowLinkDialog(true);
+      
+      setNewAccess(defaultNewAccess);
+      toast({
+        title: "Accès temporaire créé",
+        description: "L'accès temporaire a été créé avec succès",
+      });
+    } catch (err: any) {
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue lors de la création de l'accès temporaire",
-        variant: "destructive"
+        description: err.response?.data || "Une erreur est survenue lors de la création de l'accès",
+        variant: "destructive",
       });
+    } finally {
+      setProcessingAction(false);
     }
-  });
+  };
 
-  // Mutation pour mettre à jour un accès temporaire
-  const updateAccessMutation = useMutation({
-    mutationFn: async (accessData: z.infer<typeof temporaryAccessSchema>) => {
-      const res = await apiRequest("PUT", `/api/admin/temporary-access/${accessData.id}`, accessData);
-      return await res.json();
-    },
-    onSuccess: () => {
+  const handleRevokeAccess = async (id: number) => {
+    if (!window.confirm("Êtes-vous sûr de vouloir révoquer cet accès ?")) {
+      return;
+    }
+    
+    setProcessingAction(true);
+    setSelectedAccessId(id);
+    try {
+      await axios.post(`/api/admin/temporary-access/${id}/revoke`);
+      const updatedAccesses = temporaryAccesses.map(access => 
+        access.id === id ? { ...access, active: false } : access
+      );
+      setTemporaryAccesses(updatedAccesses);
       toast({
-        title: "Succès",
-        description: "Accès temporaire mis à jour avec succès",
+        title: "Accès révoqué",
+        description: "L'accès temporaire a été révoqué avec succès",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/temporary-access"] });
-      setIsEditDialogOpen(false);
-      setSelectedAccess(null);
-    },
-    onError: () => {
+    } catch (err: any) {
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue lors de la mise à jour de l'accès temporaire",
-        variant: "destructive"
+        description: err.response?.data || "Une erreur est survenue lors de la révocation de l'accès",
+        variant: "destructive",
       });
+    } finally {
+      setProcessingAction(false);
+      setSelectedAccessId(null);
     }
-  });
+  };
 
-  // Mutation pour révoquer un accès temporaire
-  const revokeAccessMutation = useMutation({
-    mutationFn: async (accessId: number) => {
-      const res = await apiRequest("POST", `/api/admin/temporary-access/${accessId}/revoke`);
-      return await res.json();
-    },
-    onSuccess: () => {
+  const handleResendInvitation = async (id: number) => {
+    setProcessingAction(true);
+    setSelectedAccessId(id);
+    try {
+      await axios.post(`/api/admin/temporary-access/${id}/resend`);
       toast({
-        title: "Succès",
-        description: "Accès temporaire révoqué avec succès",
+        title: "Invitation renvoyée",
+        description: "L'invitation a été renvoyée avec succès",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/temporary-access"] });
-      setIsDeleteDialogOpen(false);
-      setSelectedAccess(null);
-    },
-    onError: () => {
+    } catch (err: any) {
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue lors de la révocation de l'accès temporaire",
-        variant: "destructive"
+        description: err.response?.data || "Une erreur est survenue lors du renvoi de l'invitation",
+        variant: "destructive",
       });
+    } finally {
+      setProcessingAction(false);
+      setSelectedAccessId(null);
     }
-  });
+  };
 
-  // Mutation pour renvoyer l'invitation par email
-  const resendInvitationMutation = useMutation({
-    mutationFn: async (accessId: number) => {
-      const res = await apiRequest("POST", `/api/admin/temporary-access/${accessId}/resend`);
-      return await res.json();
-    },
-    onSuccess: () => {
-      toast({
-        title: "Succès",
-        description: "Invitation renvoyée avec succès",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors du renvoi de l'invitation",
-        variant: "destructive"
-      });
-    }
-  });
+  // Helper pour mettre à jour les champs du nouvel accès
+  const updateNewAccessField = (field: string, value: any) => {
+    setNewAccess(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
 
-  // Initialiser le formulaire d'édition avec les données de l'accès sélectionné
-  const handleEditAccess = (access: TemporaryAccess) => {
-    setSelectedAccess(access);
-    form.reset({
-      id: access.id,
-      email: access.email,
-      username: access.username,
-      notes: access.notes,
-      expiresAt: new Date(access.expiresAt),
-      modules: access.modules.map(m => m.moduleId)
+  // Gérer la sélection/désélection d'un module
+  const toggleModule = (moduleId: number) => {
+    setNewAccess(prev => {
+      const moduleIdStr = moduleId.toString();
+      if (prev.accessModules.includes(moduleIdStr)) {
+        return {
+          ...prev,
+          accessModules: prev.accessModules.filter(id => id !== moduleIdStr)
+        };
+      } else {
+        return {
+          ...prev,
+          accessModules: [...prev.accessModules, moduleIdStr]
+        };
+      }
     });
-    setIsEditDialogOpen(true);
   };
 
-  // Confirmer la révocation d'un accès
-  const handleRevokeAccess = (access: TemporaryAccess) => {
-    setSelectedAccess(access);
-    setIsDeleteDialogOpen(true);
-  };
-
-  // Renvoyer l'invitation
-  const handleResendInvitation = (access: TemporaryAccess) => {
-    resendInvitationMutation.mutate(access.id);
-  };
-
-  // Soumettre le formulaire
-  const onSubmit = (data: z.infer<typeof temporaryAccessSchema>) => {
-    if (data.id) {
-      updateAccessMutation.mutate(data);
-    } else {
-      createAccessMutation.mutate(data);
-    }
-  };
-
-  // Fonction pour initialiser un nouvel accès temporaire
-  const handleAddAccess = () => {
-    form.reset({
-      email: "",
-      username: "",
-      notes: "",
-      expiresAt: addDays(new Date(), 7),
-      modules: []
+  // Fonction pour copier le lien dans le presse-papier
+  const copyInvitationLink = () => {
+    navigator.clipboard.writeText(invitationLink);
+    toast({
+      title: "Lien copié",
+      description: "Le lien d'invitation a été copié dans le presse-papier",
     });
-    setIsAddDialogOpen(true);
   };
 
-  // Fonction pour confirmer la révocation
-  const confirmRevoke = () => {
-    if (selectedAccess) {
-      revokeAccessMutation.mutate(selectedAccess.id);
-    }
-  };
+  const filteredAccesses = temporaryAccesses.filter(access => 
+    activeTab === 'active' ? access.active : !access.active
+  );
 
-  // Obtenir le statut formaté
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'active':
-        return (
-          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-            Actif
-          </Badge>
-        );
-      case 'expired':
-        return (
-          <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
-            Expiré
-          </Badge>
-        );
-      case 'revoked':
-        return (
-          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
-            Révoqué
-          </Badge>
-        );
-      default:
-        return (
-          <Badge variant="outline">
-            {status}
-          </Badge>
-        );
-    }
-  };
+  if (loading && temporaryAccesses.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-4">
+        <Loader2 className="w-8 h-8 text-[#006a9e] animate-spin mb-4" />
+        <p className="text-lg text-muted-foreground">Chargement des accès temporaires...</p>
+      </div>
+    );
+  }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <CardTitle>Gestion des Accès Temporaires</CardTitle>
-          <CardDescription>Créer et gérer des accès temporaires aux modules</CardDescription>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      {/* Header */}
+      <header className="bg-[#006a9e] text-white p-4 shadow-md">
+        <div className="container mx-auto flex justify-between items-center">
+          <div className="flex items-center space-x-4">
+            <h1 className="text-xl font-bold">Gestion des accès temporaires</h1>
+          </div>
+          <Button 
+            variant="outline" 
+            className="border-white text-white hover:bg-white hover:text-[#006a9e]"
+            onClick={() => navigate('/admin')}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" /> Retour au tableau de bord
+          </Button>
         </div>
-        <Button onClick={handleAddAccess}>
-          <Plus className="mr-2 h-4 w-4" /> Créer un accès
-        </Button>
-      </CardHeader>
-      <CardContent>
-        {isLoadingAccess ? (
-          <div className="flex justify-center py-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-          </div>
-        ) : accessList && Array.isArray(accessList.accesses) && accessList.accesses.length > 0 ? (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Utilisateur</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Modules</TableHead>
-                <TableHead>Expiration</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {accessList.accesses.map((access: TemporaryAccess) => (
-                <TableRow key={access.id}>
-                  <TableCell className="font-medium">{access.username}</TableCell>
-                  <TableCell>{access.email}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {access.modules && Array.isArray(access.modules) && access.modules.map((module) => (
-                        <Badge key={module.moduleId} variant="outline" className="text-xs">
-                          {module.displayName}
-                        </Badge>
-                      ))}
-                    </div>
-                  </TableCell>
-                  <TableCell>{format(new Date(access.expiresAt), 'dd/MM/yyyy')}</TableCell>
-                  <TableCell>{getStatusBadge(access.status)}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      {access.status === 'active' && (
-                        <>
-                          <Button variant="outline" size="sm" onClick={() => handleEditAccess(access)}>
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button variant="outline" size="sm" onClick={() => handleResendInvitation(access)}>
-                            <Send className="h-4 w-4 text-blue-500" />
-                          </Button>
-                          <Button variant="outline" size="sm" onClick={() => handleRevokeAccess(access)}>
-                            <ShieldOff className="h-4 w-4 text-red-500" />
-                          </Button>
-                        </>
-                      )}
-                      {access.status !== 'active' && (
-                        <Button variant="outline" size="sm" disabled>
-                          <Pencil className="h-4 w-4 text-gray-400" />
-                        </Button>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        ) : (
-          <div className="text-center py-8">
-            <p className="text-muted-foreground">Aucun accès temporaire n'a été trouvé.</p>
-            <Button onClick={handleAddAccess} className="mt-4">
-              <Plus className="mr-2 h-4 w-4" /> Créer un accès
-            </Button>
-          </div>
+      </header>
+
+      {/* Main content */}
+      <main className="container mx-auto p-6">
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         )}
-      </CardContent>
 
-      {/* Dialogue d'ajout d'accès temporaire */}
-      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Créer un accès temporaire</DialogTitle>
-            <DialogDescription>
-              Créez un accès temporaire pour permettre à un utilisateur d'accéder à des modules spécifiques.
-            </DialogDescription>
-          </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input placeholder="utilisateur@exemple.com" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Email de l'utilisateur
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="username"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nom d'utilisateur</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Jean Dupont" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Nom de l'utilisateur
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="expiresAt"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Date d'expiration</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
-                          >
-                            {field.value ? (
-                              format(field.value, "dd MMMM yyyy", { locale: fr })
-                            ) : (
-                              <span>Sélectionner une date</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) => date < new Date()}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormDescription>
-                      Date à laquelle l'accès expirera
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="modules"
-                render={() => (
-                  <FormItem>
-                    <div className="mb-4">
-                      <FormLabel className="text-base">Modules accessibles</FormLabel>
-                      <FormDescription>
-                        Sélectionnez les modules auxquels l'utilisateur aura accès
-                      </FormDescription>
-                    </div>
-                    {isLoadingModules ? (
-                      <div className="flex justify-center py-4">
-                        <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-primary"></div>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-2 gap-2">
-                        {modules && Array.isArray(modules.modules) && modules.modules.map((module: Module) => (
-                          <FormField
-                            key={module.id}
-                            control={form.control}
-                            name="modules"
-                            render={({ field }) => {
-                              return (
-                                <FormItem
-                                  key={module.id}
-                                  className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4"
-                                >
-                                  <FormControl>
-                                    <Checkbox
-                                      checked={field.value?.includes(module.id)}
-                                      onCheckedChange={(checked) => {
-                                        const currentValues = [...(field.value || [])];
-                                        if (checked) {
-                                          if (!currentValues.includes(module.id)) {
-                                            field.onChange([...currentValues, module.id]);
-                                          }
-                                        } else {
-                                          field.onChange(
-                                            currentValues.filter((value) => value !== module.id)
-                                          );
-                                        }
-                                      }}
-                                    />
-                                  </FormControl>
-                                  <div className="space-y-1 leading-none">
-                                    <FormLabel className="font-medium">
-                                      {module.displayName}
-                                    </FormLabel>
-                                    <FormDescription>
-                                      {module.path}
-                                    </FormDescription>
-                                  </div>
-                                </FormItem>
-                              );
-                            }}
-                          />
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold">Accès temporaires</h2>
+          
+          <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+            <DialogTrigger asChild>
+              <Button className="bg-[#006a9e] hover:bg-[#00557e]">
+                <Plus className="mr-2 h-4 w-4" /> Créer un nouvel accès
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Créer un nouvel accès temporaire</DialogTitle>
+                <DialogDescription>
+                  Créez un accès temporaire pour permettre à un utilisateur externe d'accéder à certains modules.
+                  Un email avec un lien unique sera envoyé à l'adresse spécifiée.
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email du destinataire *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="email@exemple.com"
+                      value={newAccess.email}
+                      onChange={(e) => updateNewAccessField('email', e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="expiration">Date d'expiration *</Label>
+                    <Input
+                      id="expiration"
+                      type="date"
+                      value={newAccess.expiration}
+                      onChange={(e) => updateNewAccessField('expiration', e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="maxAccessCount">Nombre maximum d'utilisations</Label>
+                    <Input
+                      id="maxAccessCount"
+                      type="number"
+                      min="1"
+                      max="100"
+                      value={newAccess.maxAccessCount}
+                      onChange={(e) => updateNewAccessField('maxAccessCount', parseInt(e.target.value))}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="notes">Notes (optionnel)</Label>
+                    <Textarea
+                      id="notes"
+                      placeholder="Notes sur cet accès temporaire..."
+                      value={newAccess.notes}
+                      onChange={(e) => updateNewAccessField('notes', e.target.value)}
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="block mb-1">Modules accessibles *</Label>
+                    <ScrollArea className="h-[250px] border rounded-md p-4">
+                      <div className="space-y-2">
+                        {modules.map((module) => (
+                          <div key={module.id} className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              id={`module-${module.id}`}
+                              checked={newAccess.accessModules.includes(module.id.toString())}
+                              onChange={() => toggleModule(module.id)}
+                              className="h-4 w-4 text-[#006a9e] focus:ring-[#006a9e]"
+                            />
+                            <Label htmlFor={`module-${module.id}`} className="font-normal cursor-pointer">
+                              {module.name} <span className="text-xs text-muted-foreground">({module.path})</span>
+                            </Label>
+                          </div>
                         ))}
+                        {modules.length === 0 && (
+                          <p className="text-sm text-muted-foreground">Aucun module disponible</p>
+                        )}
                       </div>
-                    )}
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="notes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Notes</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Notes concernant cet accès temporaire..."
-                        className="resize-none"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Informations supplémentaires sur cet accès (optionnel)
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
+                    </ScrollArea>
+                  </div>
+                </div>
+              </div>
+              
               <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsAddDialogOpen(false)}
-                >
+                <Button variant="outline" onClick={() => setShowAddDialog(false)}>
                   Annuler
                 </Button>
-                <Button type="submit" disabled={createAccessMutation.isPending}>
-                  {createAccessMutation.isPending ? "Traitement..." : "Créer l'accès"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Dialogue d'édition d'accès temporaire */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Modifier un accès temporaire</DialogTitle>
-            <DialogDescription>
-              Modifiez les informations de l'accès temporaire sélectionné.
-            </DialogDescription>
-          </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input placeholder="utilisateur@exemple.com" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Email de l'utilisateur
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="username"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nom d'utilisateur</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Jean Dupont" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Nom de l'utilisateur
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="expiresAt"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Date d'expiration</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
-                          >
-                            {field.value ? (
-                              format(field.value, "dd MMMM yyyy", { locale: fr })
-                            ) : (
-                              <span>Sélectionner une date</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) => date < new Date()}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormDescription>
-                      Date à laquelle l'accès expirera
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="modules"
-                render={() => (
-                  <FormItem>
-                    <div className="mb-4">
-                      <FormLabel className="text-base">Modules accessibles</FormLabel>
-                      <FormDescription>
-                        Sélectionnez les modules auxquels l'utilisateur aura accès
-                      </FormDescription>
-                    </div>
-                    {isLoadingModules ? (
-                      <div className="flex justify-center py-4">
-                        <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-primary"></div>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-2 gap-2">
-                        {modules && Array.isArray(modules.modules) && modules.modules.map((module: Module) => (
-                          <FormField
-                            key={module.id}
-                            control={form.control}
-                            name="modules"
-                            render={({ field }) => {
-                              return (
-                                <FormItem
-                                  key={module.id}
-                                  className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4"
-                                >
-                                  <FormControl>
-                                    <Checkbox
-                                      checked={field.value?.includes(module.id)}
-                                      onCheckedChange={(checked) => {
-                                        const currentValues = [...(field.value || [])];
-                                        if (checked) {
-                                          if (!currentValues.includes(module.id)) {
-                                            field.onChange([...currentValues, module.id]);
-                                          }
-                                        } else {
-                                          field.onChange(
-                                            currentValues.filter((value) => value !== module.id)
-                                          );
-                                        }
-                                      }}
-                                    />
-                                  </FormControl>
-                                  <div className="space-y-1 leading-none">
-                                    <FormLabel className="font-medium">
-                                      {module.displayName}
-                                    </FormLabel>
-                                    <FormDescription>
-                                      {module.path}
-                                    </FormDescription>
-                                  </div>
-                                </FormItem>
-                              );
-                            }}
-                          />
-                        ))}
-                      </div>
-                    )}
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="notes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Notes</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Notes concernant cet accès temporaire..."
-                        className="resize-none"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Informations supplémentaires sur cet accès (optionnel)
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsEditDialogOpen(false)}
+                <Button 
+                  onClick={handleCreateAccess}
+                  className="bg-[#006a9e] hover:bg-[#00557e]"
+                  disabled={processingAction || !newAccess.email || newAccess.accessModules.length === 0 || !newAccess.expiration}
                 >
-                  Annuler
-                </Button>
-                <Button type="submit" disabled={updateAccessMutation.isPending}>
-                  {updateAccessMutation.isPending ? "Traitement..." : "Mettre à jour"}
+                  {processingAction ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Création...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="mr-2 h-4 w-4" />
+                      Créer et envoyer
+                    </>
+                  )}
                 </Button>
               </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+            </DialogContent>
+          </Dialog>
+        </div>
 
-      {/* Dialogue de confirmation de révocation */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Révoquer l'accès temporaire</DialogTitle>
-            <DialogDescription>
-              Êtes-vous sûr de vouloir révoquer l'accès temporaire pour <strong>{selectedAccess?.username}</strong> ?
-              Cette action est irréversible.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-end space-x-2 pt-6">
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-              Annuler
-            </Button>
-            <Button variant="destructive" onClick={confirmRevoke} disabled={revokeAccessMutation.isPending}>
-              {revokeAccessMutation.isPending ? "Traitement..." : "Révoquer"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </Card>
+        {/* Dialog pour afficher le lien d'invitation */}
+        <Dialog open={showLinkDialog} onOpenChange={setShowLinkDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Lien d'invitation créé</DialogTitle>
+              <DialogDescription>
+                Un email a été envoyé au destinataire, mais vous pouvez également copier ce lien pour le partager manuellement.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="flex items-center space-x-2">
+                <Input value={invitationLink} readOnly className="flex-1" />
+                <Button size="icon" onClick={copyInvitationLink}>
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button onClick={() => setShowLinkDialog(false)}>Fermer</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Liste des accès temporaires</CardTitle>
+            <CardDescription>
+              Gérez les accès temporaires créés pour les utilisateurs externes.
+              Vous pouvez révoquer un accès à tout moment ou renvoyer l'invitation.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="active" className="mb-6" onValueChange={setActiveTab}>
+              <TabsList>
+                <TabsTrigger value="active">Actifs</TabsTrigger>
+                <TabsTrigger value="inactive">Révoqués/Expirés</TabsTrigger>
+              </TabsList>
+            </Tabs>
+            
+            {filteredAccesses.length === 0 ? (
+              <div className="text-center p-8 border rounded-md bg-gray-50">
+                <p className="text-lg text-muted-foreground">
+                  {activeTab === 'active' 
+                    ? "Aucun accès temporaire actif."
+                    : "Aucun accès temporaire révoqué ou expiré."}
+                </p>
+                {activeTab === 'active' && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Cliquez sur "Créer un nouvel accès" pour commencer.
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableCaption>
+                    {activeTab === 'active' 
+                      ? "Liste des accès temporaires actifs"
+                      : "Liste des accès temporaires révoqués ou expirés"}
+                  </TableCaption>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Modules accessibles</TableHead>
+                      <TableHead>Expiration</TableHead>
+                      <TableHead>Utilisations</TableHead>
+                      <TableHead>Dernière utilisation</TableHead>
+                      <TableHead>État</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredAccesses.map((access) => (
+                      <TableRow key={access.id}>
+                        <TableCell className="font-medium">{access.email}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            {access.accessModules.map((moduleId) => {
+                              const module = modules.find(m => m.id.toString() === moduleId);
+                              return module ? (
+                                <Badge key={moduleId} variant="outline" className="text-xs">
+                                  {module.name}
+                                </Badge>
+                              ) : null;
+                            })}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {new Date(access.expiration).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          {access.accessCount !== null && access.maxAccessCount !== null
+                            ? `${access.accessCount}/${access.maxAccessCount}`
+                            : "Illimité"}
+                        </TableCell>
+                        <TableCell>
+                          {access.lastAccessed 
+                            ? new Date(access.lastAccessed).toLocaleString() 
+                            : "Jamais utilisé"}
+                        </TableCell>
+                        <TableCell>
+                          <Badge 
+                            variant={access.active ? "default" : "destructive"}
+                            className={access.active ? "bg-green-500" : ""}
+                          >
+                            {access.active ? "Actif" : "Révoqué"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end space-x-2">
+                            {access.active && (
+                              <>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleResendInvitation(access.id)}
+                                  disabled={selectedAccessId === access.id && processingAction}
+                                >
+                                  {selectedAccessId === access.id && processingAction ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <RefreshCw className="h-4 w-4" />
+                                  )}
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() => handleRevokeAccess(access.id)}
+                                  disabled={selectedAccessId === access.id && processingAction}
+                                >
+                                  {selectedAccessId === access.id && processingAction ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    "Révoquer"
+                                  )}
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </main>
+    </div>
   );
-}
+};
+
+export default TemporaryAccessPage;

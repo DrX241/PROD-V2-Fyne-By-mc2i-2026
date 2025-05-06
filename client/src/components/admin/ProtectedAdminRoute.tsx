@@ -1,6 +1,6 @@
 import React from 'react';
-import { Redirect, Route, RouteComponentProps } from 'wouter';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
+import { Redirect, Route } from 'wouter';
 import { Loader2 } from 'lucide-react';
 
 interface ProtectedAdminRouteProps {
@@ -19,9 +19,9 @@ export const ProtectedAdminRoute: React.FC<ProtectedAdminRouteProps> = ({
   if (isLoading) {
     return (
       <Route path={path}>
-        <div className="flex flex-col items-center justify-center min-h-screen p-4">
-          <Loader2 className="w-12 h-12 text-[#006a9e] animate-spin mb-4" />
-          <p className="text-lg text-muted-foreground">Vérification de l'authentification...</p>
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader2 className="h-8 w-8 animate-spin text-[#006a9e]" />
+          <p className="ml-2 text-lg">Vérification des droits d'accès...</p>
         </div>
       </Route>
     );
@@ -39,11 +39,11 @@ export const ProtectedAdminRoute: React.FC<ProtectedAdminRouteProps> = ({
     return (
       <Route path={path}>
         <div className="flex flex-col items-center justify-center min-h-screen p-4">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Accès refusé</h1>
-          <p className="text-lg text-muted-foreground mb-6">
-            Cette page nécessite des privilèges de super administrateur.
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Accès restreint</h1>
+          <p className="text-lg text-center max-w-md">
+            Cette section est réservée aux super administrateurs. 
+            Vous n'avez pas les droits nécessaires pour y accéder.
           </p>
-          <Redirect to="/admin" />
         </div>
       </Route>
     );

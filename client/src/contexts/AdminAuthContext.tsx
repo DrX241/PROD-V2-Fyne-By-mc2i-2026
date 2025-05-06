@@ -1,14 +1,14 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
+import axios from 'axios';
 
-// Types
+// Types pour l'utilisateur admin
 interface AdminUser {
   id: number;
   username: string;
   role: "admin" | "superadmin";
 }
 
+// Interface du contexte d'authentification admin
 interface AdminAuthContextType {
   user: AdminUser | null;
   isAuthenticated: boolean;
@@ -20,160 +20,97 @@ interface AdminAuthContextType {
   checkAuthStatus: () => Promise<void>;
 }
 
-// Créer le contexte
-const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
+// Création du contexte avec une valeur par défaut (null)
+const AdminAuthContext = createContext<AdminAuthContextType | null>(null);
 
-// Provider Component
+// Hook pour utiliser le contexte
+export const useAdminAuth = () => {
+  const context = useContext(AdminAuthContext);
+  if (!context) {
+    throw new Error("useAdminAuth must be used within an AdminAuthProvider");
+  }
+  return context;
+};
+
+// Définir le provider
 export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AdminUser | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [isSuperAdmin, setIsSuperAdmin] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const { toast } = useToast();
-
-  // Vérifier l'état d'authentification au chargement
+  
+  // Vérifier l'état d'authentification lors du montage du composant
   useEffect(() => {
     checkAuthStatus();
   }, []);
 
-  // Fonction pour vérifier l'état d'authentification
-  const checkAuthStatus = async () => {
+  const checkAuthStatus = async (): Promise<void> => {
     setIsLoading(true);
-    setError(null);
-
     try {
-      const response = await fetch('/api/system/auth-status');
-      const data = await response.json();
-
-      if (data.success) {
-        setIsAuthenticated(data.isAuthenticated);
-        setIsSuperAdmin(data.isSuperAdmin);
-        setUser(data.user);
+      const response = await axios.get('/api/admin/auth-status');
+      
+      if (response.data.isAuthenticated) {
+        setUser({
+          id: response.data.userId,
+          username: response.data.username,
+          role: response.data.isSuperAdmin ? "superadmin" : "admin"
+        });
       } else {
-        setIsAuthenticated(false);
-        setIsSuperAdmin(false);
         setUser(null);
       }
+      setError(null);
     } catch (err) {
-      console.error('Erreur lors de la vérification de l\'état d\'authentification:', err);
-      setError('Erreur de connexion au serveur');
-      setIsAuthenticated(false);
-      setIsSuperAdmin(false);
       setUser(null);
+      setError('Erreur lors de la vérification du statut d\'authentification');
+      console.error('Erreur lors de la vérification du statut d\'authentification:', err);
     } finally {
       setIsLoading(false);
     }
   };
-
-  // Fonction pour connecter l'administrateur
+  
+  // Fonction de connexion
   const login = async (username: string, password: string): Promise<boolean> => {
-    setIsLoading(true);
     setError(null);
-
     try {
-      const response = await apiRequest("POST", "/api/system/authenticate-super-admin", { username, password });
-      const data = await response.json();
-
-      if (data.success) {
-        setUser(data.user);
-        setIsAuthenticated(true);
-        setIsSuperAdmin(data.user.role === "superadmin");
-        
-        toast({
-          title: "Connexion réussie",
-          description: "Bienvenue dans l'administration",
-          variant: "default",
-        });
-        
-        return true;
-      } else {
-        setError(data.message || 'Échec de la connexion');
-        
-        toast({
-          title: "Échec de la connexion",
-          description: data.message || 'Identifiants invalides',
-          variant: "destructive",
-        });
-        
-        return false;
-      }
-    } catch (err) {
-      console.error('Erreur lors de la connexion:', err);
-      setError('Erreur de connexion au serveur');
-      
-      toast({
-        title: "Erreur de connexion",
-        description: 'Impossible de contacter le serveur',
-        variant: "destructive",
+      const response = await axios.post('/api/admin/login', { username, password });
+      setUser({
+        id: response.data.id,
+        username: response.data.username,
+        role: response.data.role
       });
-      
+      return true;
+    } catch (err: any) {
+      setUser(null);
+      const errorMessage = err.response?.data || 'Échec de la connexion';
+      setError(errorMessage);
       return false;
-    } finally {
-      setIsLoading(false);
     }
   };
-
-  // Fonction pour déconnecter l'administrateur
+  
+  // Fonction de déconnexion
   const logout = async (): Promise<boolean> => {
-    setIsLoading(true);
-    setError(null);
-
     try {
-      const response = await apiRequest("POST", "/api/system/logout-super-admin");
-      const data = await response.json();
-
-      if (data.success) {
-        setUser(null);
-        setIsAuthenticated(false);
-        setIsSuperAdmin(false);
-        
-        toast({
-          title: "Déconnexion réussie",
-          description: "Vous avez été déconnecté",
-          variant: "default",
-        });
-        
-        return true;
-      } else {
-        setError(data.message || 'Échec de la déconnexion');
-        
-        toast({
-          title: "Échec de la déconnexion",
-          description: data.message || 'Une erreur est survenue',
-          variant: "destructive",
-        });
-        
-        return false;
-      }
+      await axios.post('/api/admin/logout');
+      setUser(null);
+      setError(null);
+      return true;
     } catch (err) {
+      setError('Erreur lors de la déconnexion');
       console.error('Erreur lors de la déconnexion:', err);
-      setError('Erreur de connexion au serveur');
-      
-      toast({
-        title: "Erreur de déconnexion",
-        description: 'Impossible de contacter le serveur',
-        variant: "destructive",
-      });
-      
       return false;
-    } finally {
-      setIsLoading(false);
     }
   };
-
-  // Valeur du contexte
+  
   const value: AdminAuthContextType = {
     user,
-    isAuthenticated,
-    isSuperAdmin,
+    isAuthenticated: !!user,
+    isSuperAdmin: user?.role === "superadmin",
     isLoading,
     login,
     logout,
     error,
     checkAuthStatus
   };
-
+  
   return (
     <AdminAuthContext.Provider value={value}>
       {children}
@@ -181,11 +118,4 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
   );
 };
 
-// Hook pour utiliser le contexte d'authentification admin
-export const useAdminAuth = () => {
-  const context = useContext(AdminAuthContext);
-  if (context === undefined) {
-    throw new Error('useAdminAuth doit être utilisé à l\'intérieur d\'un AdminAuthProvider');
-  }
-  return context;
-};
+export default AdminAuthContext;
