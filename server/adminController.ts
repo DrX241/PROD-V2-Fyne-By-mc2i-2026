@@ -28,6 +28,19 @@ async function comparePasswords(supplied: string, stored: string): Promise<boole
   return timingSafeEqual(hashedBuf, suppliedBuf);
 }
 
+// Import Session de express-session pour le typage
+import { Session } from 'express-session';
+
+// Étendre l'interface de Session pour inclure nos propriétés personnalisées
+declare module 'express-session' {
+  interface SessionData {
+    userId?: number;
+    username?: string;
+    isAuthenticated?: boolean;
+    isSuperAdmin?: boolean;
+  }
+}
+
 // Étendre l'interface Request pour inclure l'utilisateur connecté
 declare global {
   namespace Express {
@@ -36,13 +49,6 @@ declare global {
         id: number;
         username: string;
         role?: string;
-      };
-      session?: {
-        userId?: number;
-        username?: string;
-        isAuthenticated?: boolean;
-        isSuperAdmin?: boolean;
-        save: (callback: (err?: any) => void) => void;
       };
     }
   }
