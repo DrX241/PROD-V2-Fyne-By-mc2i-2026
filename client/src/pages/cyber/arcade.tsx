@@ -22,6 +22,15 @@ export default function CyberArcade() {
 
   const games: Game[] = [
     {
+      id: 'cyber-quest',
+      title: 'CYBER QUEST',
+      description: 'Jeu de rôle immersif où vous incarnez un expert en cybersécurité. Accomplissez des missions, améliorez vos compétences et protégez les réseaux contre diverses menaces.',
+      icon: <Shield className="w-6 h-6" />,
+      gradient: 'from-blue-500 to-blue-800',
+      available: true,
+      route: '/cyber/arcade/cyber-quest'
+    },
+    {
       id: 'cyber-escape-parefeu',
       title: 'CYBER ESCAPE: LE PARE-FEU EST TOMBÉ',
       description: 'Gérez une crise cyber en tant que RSSI. Un malware a compromis le système, retrouvez les indices et résolvez les énigmes en temps limité',

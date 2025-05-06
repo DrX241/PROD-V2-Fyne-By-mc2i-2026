@@ -3,91 +3,168 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
   Form, 
   FormControl, 
-  FormDescription, 
   FormField, 
   FormItem, 
   FormLabel, 
-  FormMessage
-} from "@/components/ui/form";
-import { toast } from "@/hooks/use-toast";
+  FormMessage,
+  FormDescription
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Shield, Code, Users, Search, Network } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 import { useCyberQuest } from '@/contexts/CyberQuestContext';
-import { Shield, Brain, Eye, MessageCircle, Cpu } from "lucide-react";
 
-// Schéma de validation pour le formulaire de création de personnage
+// Schema pour la validation du formulaire
 const characterSchema = z.object({
-  characterName: z.string()
-    .min(3, { message: "Le nom doit contenir au moins 3 caractères" })
-    .max(20, { message: "Le nom ne doit pas dépasser 20 caractères" })
-    .refine(name => /^[a-zA-Z0-9_-]+$/.test(name), {
-      message: "Le nom ne peut contenir que des lettres, chiffres, tirets et underscores",
-    })
+  characterName: z.string().min(3, { message: 'Le nom de votre agent doit comporter au moins 3 caractères' }).max(30, { message: 'Le nom de votre agent ne peut pas dépasser 30 caractères' }),
+  archetype: z.enum(['defender', 'hacker', 'investigator', 'social', 'analyst'], {
+    required_error: 'Veuillez sélectionner un archétype',
+  })
 });
 
-type CharacterCreationForm = z.infer<typeof characterSchema>;
+type CharacterFormValues = z.infer<typeof characterSchema>;
+
+// Définition des archétypes
+interface Archetype {
+  id: 'defender' | 'hacker' | 'investigator' | 'social' | 'analyst';
+  name: string;
+  description: string;
+  icon: React.ReactNode;
+  baseStats: {
+    intelligence: number;
+    perception: number;
+    charisma: number;
+    technicalKnowledge: number;
+  };
+  startingSkills: string[];
+  gradient: string;
+}
+
+const archetypes: Archetype[] = [
+  {
+    id: 'defender',
+    name: 'Défenseur',
+    description: 'Spécialiste en sécurité périmétrique, protection des systèmes et réponse aux incidents',
+    icon: <Shield size={24} />,
+    baseStats: {
+      intelligence: 6,
+      perception: 7,
+      charisma: 4,
+      technicalKnowledge: 8
+    },
+    startingSkills: ['Configuration de pare-feu', 'Supervision de sécurité', 'Analyse de logs'],
+    gradient: 'from-blue-600 to-blue-800'
+  },
+  {
+    id: 'hacker',
+    name: 'Hacker Éthique',
+    description: 'Expert en test d\'intrusion, découverte de vulnérabilités et exploitation de failles',
+    icon: <Code size={24} />,
+    baseStats: {
+      intelligence: 8,
+      perception: 6,
+      charisma: 3,
+      technicalKnowledge: 8
+    },
+    startingSkills: ['Test d\'intrusion', 'Programmation', 'Rétro-ingénierie'],
+    gradient: 'from-emerald-600 to-emerald-800'
+  },
+  {
+    id: 'investigator',
+    name: 'Investigateur',
+    description: 'Spécialiste en analyse forensique, collecte de preuves et investigation numérique',
+    icon: <Search size={24} />,
+    baseStats: {
+      intelligence: 7,
+      perception: 8,
+      charisma: 5,
+      technicalKnowledge: 5
+    },
+    startingSkills: ['Analyse forensique', 'Récupération de données', 'Traçage de menaces'],
+    gradient: 'from-amber-600 to-amber-800'
+  },
+  {
+    id: 'social',
+    name: 'Ingénieur Social',
+    description: 'Expert en manipulation psychologique, sensibilisation et contre-mesures d\'ingénierie sociale',
+    icon: <Users size={24} />,
+    baseStats: {
+      intelligence: 6,
+      perception: 7,
+      charisma: 9,
+      technicalKnowledge: 3
+    },
+    startingSkills: ['Tactiques de persuasion', 'Analyse comportementale', 'Formation de sensibilisation'],
+    gradient: 'from-purple-600 to-purple-800'
+  },
+  {
+    id: 'analyst',
+    name: 'Analyste SOC',
+    description: 'Spécialiste en surveillance, détection et analyse des menaces en temps réel',
+    icon: <Network size={24} />,
+    baseStats: {
+      intelligence: 7,
+      perception: 8,
+      charisma: 4,
+      technicalKnowledge: 6
+    },
+    startingSkills: ['Triage d\'alertes', 'Corrélation de données', 'Investigation des menaces'],
+    gradient: 'from-red-600 to-red-800'
+  }
+];
 
 const CharacterCreation: React.FC = () => {
   const { refreshGameState } = useCyberQuest();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedArchetype, setSelectedArchetype] = useState<string>('analyst');
-  
-  // Configuration du formulaire avec validation
-  const form = useForm<CharacterCreationForm>({
+  const [selectedArchetype, setSelectedArchetype] = useState<Archetype | null>(null);
+
+  // Initialiser react-hook-form
+  const form = useForm<CharacterFormValues>({
     resolver: zodResolver(characterSchema),
     defaultValues: {
       characterName: '',
-    },
+      archetype: undefined
+    }
   });
 
-  // Soumission du formulaire
-  const onSubmit = async (data: CharacterCreationForm) => {
+  const onSubmit = async (values: CharacterFormValues) => {
     setIsSubmitting(true);
     
     try {
-      // Les attributs initiaux seront déterminés par l'archétype choisi
-      const initialAttributes = getInitialAttributes(selectedArchetype);
-      
-      // Appel à l'API pour créer le personnage
       const response = await fetch('/api/cyber-quest/player/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...data,
-          ...initialAttributes,
-          archetype: selectedArchetype,
+          ...values,
+          stats: selectedArchetype?.baseStats
         }),
       });
       
       if (!response.ok) {
-        throw new Error("Erreur lors de la création du personnage");
+        throw new Error('Une erreur est survenue lors de la création de votre personnage');
       }
       
-      // Mettre à jour l'état global du jeu
+      toast({
+        title: "Agent créé avec succès",
+        description: `Bienvenue, Agent ${values.characterName}! Prêt pour votre première mission?`,
+      });
+      
+      // Rafraîchir les données du joueur
       await refreshGameState();
       
-      toast({
-        title: "Personnage créé !",
-        description: `Bienvenue, Agent ${data.characterName}. Votre aventure commence.`,
-      });
     } catch (error) {
       console.error("Erreur lors de la création du personnage:", error);
       toast({
-        title: "Erreur",
-        description: "Impossible de créer votre personnage. Veuillez réessayer.",
+        title: "Erreur de création",
+        description: error instanceof Error ? error.message : "Une erreur est survenue",
         variant: "destructive",
       });
     } finally {
@@ -95,266 +172,176 @@ const CharacterCreation: React.FC = () => {
     }
   };
 
-  // Obtenir les attributs initiaux en fonction de l'archétype
-  const getInitialAttributes = (archetype: string) => {
-    switch (archetype) {
-      case 'analyst':
-        return { 
-          intelligence: 7, 
-          perception: 6, 
-          charisma: 4, 
-          technicalKnowledge: 5 
-        };
-      case 'field-agent':
-        return { 
-          intelligence: 5, 
-          perception: 7, 
-          charisma: 6, 
-          technicalKnowledge: 4 
-        };
-      case 'hacker':
-        return { 
-          intelligence: 6, 
-          perception: 5, 
-          charisma: 4, 
-          technicalKnowledge: 7 
-        };
-      case 'communicator':
-        return { 
-          intelligence: 5, 
-          perception: 4, 
-          charisma: 7, 
-          technicalKnowledge: 6 
-        };
-      default:
-        return { 
-          intelligence: 5, 
-          perception: 5, 
-          charisma: 5, 
-          technicalKnowledge: 5 
-        };
-    }
+  // Quand un archétype est sélectionné, mettre à jour le formulaire
+  const handleArchetypeSelect = (archetype: Archetype) => {
+    setSelectedArchetype(archetype);
+    form.setValue('archetype', archetype.id);
   };
-
-  // Obtenir les détails de l'archétype
-  const getArchetypeDetails = (archetype: string) => {
-    switch (archetype) {
-      case 'analyst':
-        return {
-          title: "Analyste de Sécurité",
-          description: "Expert en analyse de données et détection de menaces, vous excellez dans l'identification de patterns suspects.",
-          strengths: ["Intelligence élevée", "Bonnes capacités d'observation", "Analyse de données"],
-          icon: <Brain className="h-12 w-12 text-blue-500" />
-        };
-      case 'field-agent':
-        return {
-          title: "Agent de Terrain",
-          description: "Spécialiste des opérations tactiques, vous êtes formé pour l'investigation et la reconnaissance en environnement hostile.",
-          strengths: ["Perception aiguisée", "Bonnes compétences sociales", "Adaptabilité"],
-          icon: <Eye className="h-12 w-12 text-green-500" />
-        };
-      case 'hacker':
-        return {
-          title: "Expert Technique",
-          description: "Virtuose des systèmes informatiques, vous maîtrisez les technologies avancées et le hacking éthique.",
-          strengths: ["Connaissances techniques supérieures", "Résolution de problèmes", "Pensée créative"],
-          icon: <Cpu className="h-12 w-12 text-purple-500" />
-        };
-      case 'communicator':
-        return {
-          title: "Communicant Stratégique",
-          description: "Excellent en relations interpersonnelles, vous excellez dans la négociation et la gestion de crise.",
-          strengths: ["Charisme exceptionnel", "Persuasion", "Gestion d'équipe"],
-          icon: <MessageCircle className="h-12 w-12 text-amber-500" />
-        };
-      default:
-        return {
-          title: "Nouvel Agent",
-          description: "Un profil polyvalent et équilibré, prêt à se spécialiser.",
-          strengths: ["Polyvalence", "Adaptabilité", "Potentiel"],
-          icon: <Shield className="h-12 w-12 text-gray-500" />
-        };
-    }
-  };
-
-  const archetypeDetails = getArchetypeDetails(selectedArchetype);
-  const initialAttributes = getInitialAttributes(selectedArchetype);
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
-      <Card className="w-full max-w-4xl shadow-lg">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Création de Personnage</CardTitle>
-          <CardDescription className="text-center">
-            Bienvenue dans CyberQuest. Créez votre agent spécialisé en cybersécurité.
-          </CardDescription>
-        </CardHeader>
+    <div className="min-h-screen bg-gray-900 text-white py-10 px-4">
+      <div className="max-w-4xl mx-auto">
+        <header className="text-center mb-10">
+          <h1 className="text-4xl font-bold tracking-tight mb-4">Création de votre Agent CyberQuest</h1>
+          <p className="text-lg text-gray-300">
+            Choisissez l'archétype qui correspond à votre style de jeu et définissez l'identité de votre agent.
+          </p>
+        </header>
         
-        <CardContent>
-          <Tabs defaultValue="identity" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="identity">Identité</TabsTrigger>
-              <TabsTrigger value="archetype">Archétype</TabsTrigger>
-            </TabsList>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            {/* Nom du personnage */}
+            <Card className="bg-gray-800 border-gray-700">
+              <CardHeader>
+                <CardTitle>Identité de l'agent</CardTitle>
+                <CardDescription>
+                  Choisissez un nom d'agent pour votre nouvelle identité au sein de l'agence
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FormField
+                  control={form.control}
+                  name="characterName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nom d'agent</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Entrez le nom de votre agent..." 
+                          {...field} 
+                          className="bg-gray-700 border-gray-600"
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Ce nom sera utilisé pour vous identifier au sein de l'agence
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
             
-            <TabsContent value="identity" className="space-y-4 mt-4">
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="characterName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Nom de code</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Entrez votre nom de code" {...field} />
-                        </FormControl>
-                        <FormDescription>
-                          Ce nom sera votre identifiant en tant qu'agent de cybersécurité.
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </form>
-              </Form>
-            </TabsContent>
+            {/* Sélection d'archétype */}
+            <Card className="bg-gray-800 border-gray-700">
+              <CardHeader>
+                <CardTitle>Choix de spécialisation</CardTitle>
+                <CardDescription>
+                  Chaque archétype possède des attributs et compétences de départ uniques
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FormField
+                  control={form.control}
+                  name="archetype"
+                  render={({ field }) => (
+                    <FormItem className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {archetypes.map((archetype) => (
+                          <div
+                            key={archetype.id}
+                            className={`
+                              cursor-pointer relative rounded-lg p-4 border-2 transition-all
+                              ${field.value === archetype.id 
+                                ? 'border-blue-500 bg-gradient-to-br ' + archetype.gradient + ' bg-opacity-20' 
+                                : 'border-gray-700 bg-gray-800 hover:border-gray-500'
+                              }
+                            `}
+                            onClick={() => handleArchetypeSelect(archetype)}
+                          >
+                            <div className="flex items-center mb-3">
+                              <div className="p-2 rounded-full bg-gray-700 mr-3">
+                                {archetype.icon}
+                              </div>
+                              <h3 className="font-bold">{archetype.name}</h3>
+                            </div>
+                            <p className="text-sm text-gray-300 mb-3">
+                              {archetype.description}
+                            </p>
+                            {field.value === archetype.id && (
+                              <div className="absolute top-2 right-2 w-4 h-4 bg-blue-500 rounded-full" />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
             
-            <TabsContent value="archetype" className="space-y-4 mt-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button
-                  className={`p-4 rounded-lg border-2 transition-all ${selectedArchetype === 'analyst' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-gray-700'}`}
-                  onClick={() => setSelectedArchetype('analyst')}
-                >
-                  <div className="flex flex-col items-center space-y-2">
-                    <Brain className="h-10 w-10 text-blue-500" />
-                    <h3 className="font-semibold">Analyste de Sécurité</h3>
-                  </div>
-                </button>
-                
-                <button
-                  className={`p-4 rounded-lg border-2 transition-all ${selectedArchetype === 'field-agent' ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-gray-200 dark:border-gray-700'}`}
-                  onClick={() => setSelectedArchetype('field-agent')}
-                >
-                  <div className="flex flex-col items-center space-y-2">
-                    <Eye className="h-10 w-10 text-green-500" />
-                    <h3 className="font-semibold">Agent de Terrain</h3>
-                  </div>
-                </button>
-                
-                <button
-                  className={`p-4 rounded-lg border-2 transition-all ${selectedArchetype === 'hacker' ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20' : 'border-gray-200 dark:border-gray-700'}`}
-                  onClick={() => setSelectedArchetype('hacker')}
-                >
-                  <div className="flex flex-col items-center space-y-2">
-                    <Cpu className="h-10 w-10 text-purple-500" />
-                    <h3 className="font-semibold">Expert Technique</h3>
-                  </div>
-                </button>
-                
-                <button
-                  className={`p-4 rounded-lg border-2 transition-all ${selectedArchetype === 'communicator' ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20' : 'border-gray-200 dark:border-gray-700'}`}
-                  onClick={() => setSelectedArchetype('communicator')}
-                >
-                  <div className="flex flex-col items-center space-y-2">
-                    <MessageCircle className="h-10 w-10 text-amber-500" />
-                    <h3 className="font-semibold">Communicant Stratégique</h3>
-                  </div>
-                </button>
-              </div>
-              
-              <Card className="mt-6">
+            {/* Aperçu */}
+            {selectedArchetype && (
+              <Card className="bg-gray-800 border-gray-700">
                 <CardHeader>
-                  <CardTitle className="text-xl flex items-center space-x-2">
-                    {archetypeDetails.icon}
-                    <span>{archetypeDetails.title}</span>
-                  </CardTitle>
+                  <CardTitle>Aperçu de votre agent</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="mb-4">{archetypeDetails.description}</p>
-                  
-                  <div className="space-y-2">
-                    <h4 className="font-semibold">Forces:</h4>
-                    <ul className="list-disc pl-5 space-y-1">
-                      {archetypeDetails.strengths.map((strength, index) => (
-                        <li key={index}>{strength}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 mt-6">
-                    <div>
-                      <p className="text-sm text-gray-500">Intelligence</p>
-                      <div className="flex items-center space-x-2">
-                        <Brain className="h-4 w-4 text-purple-500" />
-                        <div className="w-full bg-gray-200 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
-                          <div
-                            className="bg-purple-500 h-full rounded-full"
-                            style={{ width: `${(initialAttributes.intelligence / 10) * 100}%` }}
-                          ></div>
+                  <Tabs defaultValue="stats">
+                    <TabsList className="bg-gray-700">
+                      <TabsTrigger value="stats">Attributs</TabsTrigger>
+                      <TabsTrigger value="skills">Compétences</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="stats" className="mt-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <p className="text-sm text-gray-400">Intelligence</p>
+                          <div className="w-full bg-gray-700 rounded-full h-2.5">
+                            <div className="bg-blue-500 h-2.5 rounded-full" style={{ width: `${selectedArchetype.baseStats.intelligence * 10}%` }}></div>
+                          </div>
+                          <p className="text-right text-xs">{selectedArchetype.baseStats.intelligence}/10</p>
                         </div>
-                        <span className="text-sm font-medium">{initialAttributes.intelligence}</span>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <p className="text-sm text-gray-500">Perception</p>
-                      <div className="flex items-center space-x-2">
-                        <Eye className="h-4 w-4 text-blue-500" />
-                        <div className="w-full bg-gray-200 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
-                          <div
-                            className="bg-blue-500 h-full rounded-full"
-                            style={{ width: `${(initialAttributes.perception / 10) * 100}%` }}
-                          ></div>
+                        <div className="space-y-2">
+                          <p className="text-sm text-gray-400">Perception</p>
+                          <div className="w-full bg-gray-700 rounded-full h-2.5">
+                            <div className="bg-purple-500 h-2.5 rounded-full" style={{ width: `${selectedArchetype.baseStats.perception * 10}%` }}></div>
+                          </div>
+                          <p className="text-right text-xs">{selectedArchetype.baseStats.perception}/10</p>
                         </div>
-                        <span className="text-sm font-medium">{initialAttributes.perception}</span>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <p className="text-sm text-gray-500">Charisme</p>
-                      <div className="flex items-center space-x-2">
-                        <MessageCircle className="h-4 w-4 text-green-500" />
-                        <div className="w-full bg-gray-200 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
-                          <div
-                            className="bg-green-500 h-full rounded-full"
-                            style={{ width: `${(initialAttributes.charisma / 10) * 100}%` }}
-                          ></div>
+                        <div className="space-y-2">
+                          <p className="text-sm text-gray-400">Charisme</p>
+                          <div className="w-full bg-gray-700 rounded-full h-2.5">
+                            <div className="bg-green-500 h-2.5 rounded-full" style={{ width: `${selectedArchetype.baseStats.charisma * 10}%` }}></div>
+                          </div>
+                          <p className="text-right text-xs">{selectedArchetype.baseStats.charisma}/10</p>
                         </div>
-                        <span className="text-sm font-medium">{initialAttributes.charisma}</span>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <p className="text-sm text-gray-500">Connaissance Technique</p>
-                      <div className="flex items-center space-x-2">
-                        <Cpu className="h-4 w-4 text-amber-500" />
-                        <div className="w-full bg-gray-200 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
-                          <div
-                            className="bg-amber-500 h-full rounded-full"
-                            style={{ width: `${(initialAttributes.technicalKnowledge / 10) * 100}%` }}
-                          ></div>
+                        <div className="space-y-2">
+                          <p className="text-sm text-gray-400">Connaissance Technique</p>
+                          <div className="w-full bg-gray-700 rounded-full h-2.5">
+                            <div className="bg-amber-500 h-2.5 rounded-full" style={{ width: `${selectedArchetype.baseStats.technicalKnowledge * 10}%` }}></div>
+                          </div>
+                          <p className="text-right text-xs">{selectedArchetype.baseStats.technicalKnowledge}/10</p>
                         </div>
-                        <span className="text-sm font-medium">{initialAttributes.technicalKnowledge}</span>
                       </div>
-                    </div>
-                  </div>
+                    </TabsContent>
+                    <TabsContent value="skills" className="mt-4">
+                      <h4 className="text-sm font-medium mb-2">Compétences de départ:</h4>
+                      <ul className="space-y-2">
+                        {selectedArchetype.startingSkills.map((skill, index) => (
+                          <li key={index} className="flex items-center">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                            <span>{skill}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </TabsContent>
+                  </Tabs>
                 </CardContent>
               </Card>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-        
-        <CardFooter>
-          <Button 
-            className="w-full" 
-            onClick={form.handleSubmit(onSubmit)}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Création en cours..." : "Créer mon agent"}
-          </Button>
-        </CardFooter>
-      </Card>
+            )}
+            
+            {/* Bouton de soumission */}
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={isSubmitting || !form.formState.isValid}
+            >
+              {isSubmitting ? 'Création en cours...' : 'Créer mon agent'}
+            </Button>
+          </form>
+        </Form>
+      </div>
     </div>
   );
 };
