@@ -32,7 +32,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { VALID_USER_ROLES } from "../../../shared/schema";
+const VALID_USER_ROLES = ['user', 'tester', 'contributor', 'admin'];
 
 interface Module {
   id: number;
@@ -84,16 +84,20 @@ export default function ModulesManagement() {
   });
 
   // Récupérer la liste des modules
-  const { data: modules, isLoading } = useQuery({
+  const { data: modules, isLoading, isError } = useQuery({
     queryKey: ["/api/admin/modules"],
-    onError: (error) => {
+  });
+  
+  // Gérer les erreurs avec useEffect
+  useEffect(() => {
+    if (isError) {
       toast({
         title: "Erreur",
         description: "Impossible de récupérer la liste des modules.",
         variant: "destructive"
       });
     }
-  });
+  }, [isError, toast]);
 
   // Mutation pour ajouter/modifier un module
   const upsertModuleMutation = useMutation({
