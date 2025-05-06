@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'wouter';
-import { ArrowLeft, Info, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Info, AlertTriangle, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import PageTitle from '@/components/utils/PageTitle';
@@ -11,6 +11,7 @@ import ConversationPanel from './components/ConversationPanel';
 import GameHeader from './components/GameHeader';
 import GameNavigation from './components/GameNavigation';
 import GameSummary from './components/GameSummary';
+import TutorialOverlay from './components/TutorialOverlay';
 import { useGame } from './context/GameContext';
 
 import {
@@ -34,10 +35,30 @@ const CyberEscapeGame: React.FC = () => {
     generateGameSummary,
     setShowSummary
   } = useGame();
-  const [showAboutDialog, setShowAboutDialog] = React.useState(false);
+  const [showAboutDialog, setShowAboutDialog] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [showHowToPlayDialog, setShowHowToPlayDialog] = useState(false);
+  
+  // Vérifier si c'est la première visite pour montrer le tutoriel automatiquement
+  useEffect(() => {
+    const hasSeenTutorial = localStorage.getItem('cyberEscape_hasSeenTutorial');
+    if (!hasSeenTutorial) {
+      // Petit délai pour laisser la page se charger
+      const timer = setTimeout(() => {
+        setShowTutorial(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+  
+  // Marquer le tutoriel comme vu
+  const handleCloseTutorial = () => {
+    setShowTutorial(false);
+    localStorage.setItem('cyberEscape_hasSeenTutorial', 'true');
+  };
 
   // Générer le résumé et l'afficher si le score est négatif
-  React.useEffect(() => {
+  useEffect(() => {
     if (isGameOver && securityPoints < 0) {
       generateGameSummary();
       setShowSummary(true);
@@ -70,6 +91,17 @@ const CyberEscapeGame: React.FC = () => {
           </div>
           
           <GameHeader />
+          
+          {/* Bouton d'aide flottant */}
+          <div className="fixed bottom-6 right-6 z-10">
+            <Button 
+              size="icon" 
+              className="h-12 w-12 rounded-full shadow-lg bg-blue-600 hover:bg-blue-700"
+              onClick={() => setShowHowToPlayDialog(true)}
+            >
+              <HelpCircle className="h-6 w-6" />
+            </Button>
+          </div>
           
           {isGameOver && securityPoints < 0 && (
             <Alert className="bg-red-900/30 border-red-800 mb-4">
@@ -165,6 +197,120 @@ const CyberEscapeGame: React.FC = () => {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+          
+          {/* Dialogue Comment jouer */}
+          <Dialog open={showHowToPlayDialog} onOpenChange={setShowHowToPlayDialog}>
+            <DialogContent className="max-w-3xl bg-blue-950 border-blue-800 text-white">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold">Comment jouer à CyberEscape</DialogTitle>
+                <DialogDescription className="text-blue-300">
+                  Guide pas à pas pour comprendre le fonctionnement du jeu
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-4">
+                <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700">
+                  <h3 className="text-lg font-semibold mb-2">1. Navigation dans les salles</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm mb-2">
+                        Cliquez sur les différentes salles dans la section "Réseau virtuel de l'entreprise" pour vous déplacer. 
+                        Certaines salles sont verrouillées et nécessitent un certain nombre de points pour être accessibles.
+                      </p>
+                    </div>
+                    <div className="bg-blue-900/50 p-3 rounded border border-blue-700 text-center">
+                      <div className="text-xs mb-1 text-blue-300">Exemple de sélection de salle</div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="p-2 rounded bg-blue-800/80 text-white text-xs">Lobby</div>
+                        <div className="p-2 rounded bg-blue-800/50 text-blue-200 text-xs">Bureau IT</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700">
+                  <h3 className="text-lg font-semibold mb-2">2. Interaction avec les personnages</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm mb-2">
+                        Dans chaque salle, vous rencontrerez différents personnages. Cliquez sur un personnage 
+                        pour commencer une conversation avec lui. Chaque personnage a des vulnérabilités 
+                        de sécurité que vous devez identifier.
+                      </p>
+                    </div>
+                    <div className="bg-blue-900/50 p-3 rounded border border-blue-700">
+                      <div className="text-xs mb-2 text-blue-300">Exemple de personnage</div>
+                      <div className="flex items-center">
+                        <div className="w-10 h-10 rounded-full bg-blue-700 flex items-center justify-center mr-3">
+                          <span className="text-lg">👨‍💼</span>
+                        </div>
+                        <div>
+                          <div className="font-medium">Employé</div>
+                          <div className="text-xs text-blue-300">Service IT</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700">
+                  <h3 className="text-lg font-semibold mb-2">3. Conversations et choix</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm mb-2">
+                        Pendant les conversations, vous devrez faire des choix qui auront un impact sur votre score de sécurité.
+                        Choisissez les réponses qui correspondent aux meilleures pratiques de cybersécurité.
+                      </p>
+                      <p className="text-sm">
+                        Vous pouvez également explorer différents sujets de conversation en cliquant sur l'onglet "Sujets" dans le panneau de conversation.
+                      </p>
+                    </div>
+                    <div className="bg-blue-900/50 p-3 rounded border border-blue-700">
+                      <div className="text-xs mb-2 text-blue-300">Exemple de choix</div>
+                      <div className="space-y-2">
+                        <div className="p-2 text-xs rounded bg-green-700/30 border border-green-600/30">
+                          ✓ Recommander l'utilisation d'un gestionnaire de mots de passe
+                        </div>
+                        <div className="p-2 text-xs rounded bg-red-700/30 border border-red-600/30">
+                          ✗ Suggérer d'utiliser le même mot de passe pour tous les comptes
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700">
+                  <h3 className="text-lg font-semibold mb-2">4. Progression et score</h3>
+                  <p className="text-sm mb-4">
+                    Votre progression est suivie par votre score de sécurité affiché dans la barre latérale. 
+                    Les bonnes décisions augmentent votre score, tandis que les mauvaises le diminuent. 
+                    Si votre score devient négatif, la partie est perdue.
+                  </p>
+                  <div className="text-xs p-2 bg-blue-800/50 rounded">
+                    💡 <strong>Astuce :</strong> Pour réussir, identifiez les vulnérabilités et proposez les meilleures solutions en vous basant sur les bonnes pratiques de cybersécurité.
+                  </div>
+                </div>
+              </div>
+              
+              <DialogFooter className="flex justify-between gap-2 pt-4">
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    setShowHowToPlayDialog(false);
+                    setShowTutorial(true);
+                  }}
+                >
+                  Démarrer le tutoriel
+                </Button>
+                <DialogClose asChild>
+                  <Button>Fermer</Button>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          
+          {/* Tutoriel interactif */}
+          {showTutorial && <TutorialOverlay onClose={handleCloseTutorial} />}
         </div>
       </div>
     </div>
