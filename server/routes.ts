@@ -507,6 +507,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/cyber/arcade/firewall-tactique/scenario', generateAttackScenario);
   app.post('/api/cyber/arcade/firewall-tactique/tips', generateTacticalTip);
   
+  // Routes pour le jeu Cyber Escape: Le Pare-feu est tombé
+  app.post('/api/cyber/arcade/cyber-escape/init', initializeGame);
+  app.post('/api/cyber/arcade/cyber-escape/enter-room', enterRoom);
+  app.post('/api/cyber/arcade/cyber-escape/interact-npc', interactWithNPC);
+  app.post('/api/cyber/arcade/cyber-escape/interact-item', interactWithItem);
+  app.post('/api/cyber/arcade/cyber-escape/solve-puzzle', solvePuzzle);
+  app.post('/api/cyber/arcade/cyber-escape/generate-profile', generatePlayerProfile);
+  
   // Routes pour mc2i AI Learning
   app.post('/api/mcai-learning/init', initMcaiLearningSession);
   app.post('/api/mcai-learning/message', processMcaiLearningMessage);

@@ -179,11 +179,11 @@ Réponds au format JSON suivant sans aucun autre texte autour:
         roomData: parsedResponse,
         gameState: updatedGameState
       });
-    } catch (parseError) {
+    } catch (parseError: unknown) {
       console.error("Erreur lors du parsing de la réponse JSON:", parseError);
       return res.status(500).json({ 
         error: "Format de réponse invalide",
-        details: parseError.message
+        details: parseError instanceof Error ? parseError.message : "Erreur inconnue"
       });
     }
   } catch (error: any) {
@@ -295,7 +295,7 @@ CONTEXTE DU JEU:
 - Un malware a pénétré le réseau de l'entreprise
 - Le joueur est un responsable cybersécurité qui doit résoudre la crise
 - Puzzles résolus: ${data.gameState.puzzlesSolved.join(', ') || 'Aucun'}
-- Inventaire du joueur: ${data.gameState.inventory.map(i => i.name).join(', ') || 'Vide'}
+- Inventaire du joueur: ${data.gameState.inventory.map((i: any) => i.name).join(', ') || 'Vide'}
 - Budget restant: ${data.gameState.budget} crédits
 
 INSTRUCTIONS:
@@ -404,7 +404,7 @@ export async function interactWithItem(req: Request, res: Response) {
 
 Voici le contexte du jeu:
 - Salles visitées: ${data.gameState.visitedRooms.join(', ')}
-- Inventaire: ${data.gameState.inventory.map(i => i.name).join(', ') || 'Vide'}
+- Inventaire: ${data.gameState.inventory.map((i: any) => i.name).join(', ') || 'Vide'}
 - Énigmes résolues: ${data.gameState.puzzlesSolved.join(', ') || 'Aucune'}
 
 DESCRIPTION DE L'OBJET:
@@ -679,7 +679,7 @@ DONNÉES DE LA PARTIE:
 - Temps restant à la fin: ${gameState.timeRemaining} minutes
 - Budget restant: ${gameState.budget} crédits
 - Salles visitées: ${gameState.visitedRooms.join(', ')}
-- Inventaire final: ${gameState.inventory.map(i => i.name).join(', ')}
+- Inventaire final: ${gameState.inventory.map((i: any) => i.name).join(', ')}
 - Puzzles résolus: ${gameState.puzzlesSolved.join(', ')}
 - Événements déclenchés: ${gameState.events.join(', ')}
 
