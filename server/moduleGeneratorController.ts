@@ -278,11 +278,12 @@ export async function saveCustomModule(req: Request, res: Response) {
     // Insertion dans la base de données
     const [savedModule] = await db.insert(customModules).values(moduleToSave).returning();
 
-    // Retour du module sauvegardé
+    // Retour du module sauvegardé avec son ID pour la redirection
     return res.status(201).json({
       success: true,
       message: 'Module sauvegardé avec succès',
-      module: savedModule
+      module: savedModule,
+      moduleId: savedModule.id
     });
 
   } catch (error) {
