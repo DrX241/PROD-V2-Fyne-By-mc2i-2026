@@ -34,7 +34,7 @@ export async function apiRequest(
 
     try {
       await throwIfResNotOk(res);
-      return await res.json();
+      return res;
     } catch (responseError) {
       console.error(`API response error for ${url}:`, responseError);
       throw responseError;

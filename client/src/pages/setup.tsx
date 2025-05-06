@@ -22,7 +22,11 @@ export default function SetupPage() {
   const initializeModules = async () => {
     setIsInitializing(true);
     try {
-      const response = await apiRequest("POST", "/api/admin/initialize-modules", {});
+      const response = await apiRequest("POST", "/api/admin/initialize-modules", {}, {
+        headers: {
+          'X-User-Role': 'admin'
+        }
+      });
       const data = await response.json();
       
       if (data.success) {
@@ -62,7 +66,11 @@ export default function SetupPage() {
 
     setIsPromoting(true);
     try {
-      const response = await apiRequest("POST", "/api/admin/promote", { userId: parseInt(userId) });
+      const response = await apiRequest("POST", "/api/admin/promote", { userId: parseInt(userId) }, {
+        headers: {
+          'X-User-Role': 'admin'
+        }
+      });
       const data = await response.json();
       
       if (data.success) {
