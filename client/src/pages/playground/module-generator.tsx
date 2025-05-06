@@ -318,8 +318,66 @@ export default function ModuleGenerator() {
   };
 
   // Voir l'aperçu du module
-  const viewModulePreview = () => {
-    setPreviewMode(true);
+  const viewModulePreview = async () => {
+    if (!generatedModules) {
+      toast({
+        title: 'Erreur',
+        description: 'Veuillez d\'abord générer un module avant de l\'apercevoir.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    // Sauvegarder temporairement le module pour l'aperçu
+    setIsSaving(true);
+    
+    try {
+      const moduleToSave = {
+        name: moduleConfig.name,
+        domain: moduleConfig.domain,
+        description: generatedModules.description || moduleConfig.description,
+        iamName: generatedModules.iamName || `I AM ${moduleConfig.domain.toUpperCase()}`,
+        difficulty: moduleConfig.difficulty,
+        topics: moduleConfig.topics,
+        gamificationLevel: moduleConfig.gamificationLevel,
+        learningStyle: moduleConfig.learningStyle,
+        includeTrainerModule: moduleConfig.includeTrainerModule,
+        includeOpsModule: moduleConfig.includeOpsModule,
+        includeTestModule: moduleConfig.includeTestModule,
+        includeAscensionModule: moduleConfig.includeAscensionModule,
+        moduleData: generatedModules,
+        isPreview: true  // Marquer comme aperçu temporaire
+      };
+      
+      // Appel à l'API de sauvegarde
+      const response = await fetch('/api/module-generator/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(moduleToSave),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success && data.moduleId) {
+        // Rediriger vers la page du module
+        setLocation(`/custom-module/${data.moduleId}`);
+      } else {
+        throw new Error(data.message || 'Erreur lors de la création de l\'aperçu.');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la création de l\'aperçu:', error);
+      toast({
+        title: 'Erreur',
+        description: error instanceof Error ? error.message : 'Une erreur est survenue lors de la création de l\'aperçu.',
+        variant: 'destructive',
+      });
+      // En cas d'erreur, active tout de même le mode aperçu local
+      setPreviewMode(true);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Retour à la page d'accueil
@@ -903,15 +961,23 @@ export default function ModuleGenerator() {
                       Retour à la configuration
                     </Button>
                     <div className="flex gap-2">
-                      {!previewMode && (
-                        <Button 
-                          variant="secondary"
-                          onClick={viewModulePreview}
-                        >
-                          <Eye className="h-4 w-4 mr-2" />
-                          Aperçu du module
-                        </Button>
-                      )}
+                      <Button 
+                        variant="secondary"
+                        onClick={viewModulePreview}
+                        disabled={isSaving || !generatedModules}
+                      >
+                        {isSaving ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Préparation de l'aperçu...
+                          </>
+                        ) : (
+                          <>
+                            <Eye className="h-4 w-4 mr-2" />
+                            Accéder au module
+                          </>
+                        )}
+                      </Button>
                       
                       <Button
                         variant="default"
