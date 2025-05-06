@@ -246,7 +246,7 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({ player }) => {
                     )}
                   </div>
                 </div>
-                <Progress value={player.perception * 10} className="h-2" variant="purple" />
+                <Progress value={player.perception * 10} className="h-2 bg-purple-500" />
                 <p className="text-xs text-gray-500">
                   Aptitude à remarquer des détails, détecter des anomalies et anticiper les menaces potentielles.
                 </p>
@@ -276,7 +276,7 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({ player }) => {
                     )}
                   </div>
                 </div>
-                <Progress value={player.charisma * 10} className="h-2" variant="green" />
+                <Progress value={player.charisma * 10} className="h-2 bg-green-500" />
                 <p className="text-xs text-gray-500">
                   Capacité à influencer les autres, négocier efficacement et établir des relations.
                 </p>
@@ -306,7 +306,7 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({ player }) => {
                     )}
                   </div>
                 </div>
-                <Progress value={player.technicalKnowledge * 10} className="h-2" variant="amber" />
+                <Progress value={player.technicalKnowledge * 10} className="h-2 bg-amber-500" />
                 <p className="text-xs text-gray-500">
                   Maîtrise des systèmes informatiques, réseaux, et outils techniques.
                 </p>

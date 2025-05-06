@@ -34,6 +34,17 @@ type Objective = {
   completed: boolean;
 };
 
+// Type pour les missions du joueur
+type PlayerMission = {
+  id: number;
+  playerId: number;
+  missionId: number;
+  status: 'active' | 'completed' | 'failed' | 'abandoned';
+  startedAt: Date;
+  completedAt?: Date;
+  completedObjectives: number[];
+};
+
 interface CyberQuestContextType {
   // Données du joueur et état global
   player: CyberQuestPlayer | null;
@@ -46,6 +57,7 @@ interface CyberQuestContextType {
   availableMissions: Mission[];
   currentMission: Mission | null;
   activeMissions: Mission[];
+  playerMissions: PlayerMission[]; // Liste des missions du joueur avec leur statut
   inventory: Item[];
   skills: Skill[];
   
@@ -54,12 +66,14 @@ interface CyberQuestContextType {
   startMission: (missionId: number) => Promise<void>;
   completeMission: (missionId: number) => Promise<void>;
   abandonMission: (missionId: number) => Promise<void>;
+  acceptMission: (missionId: number) => Promise<void>; // Accepter une mission
   buyItem: (itemId: number) => Promise<void>;
   useItem: (itemId: number, targetId?: number) => Promise<void>;
   talkToNpc: (npcId: number) => Promise<void>;
   upgradeSkill: (skillId: number) => Promise<void>;
   completeObjective: (missionId: number, objectiveId: number) => Promise<void>;
   levelUpAttribute: (attribute: 'intelligence' | 'perception' | 'charisma' | 'technicalKnowledge') => Promise<void>;
+  addExperience: (amount: number) => Promise<void>; // Ajouter de l'expérience
 }
 
 // Création du contexte avec une valeur initiale
@@ -78,6 +92,7 @@ export const CyberQuestProvider: React.FC<{ children: ReactNode }> = ({ children
   const [availableMissions, setAvailableMissions] = useState<Mission[]>([]);
   const [currentMission, setCurrentMission] = useState<Mission | null>(null);
   const [activeMissions, setActiveMissions] = useState<Mission[]>([]);
+  const [playerMissions, setPlayerMissions] = useState<PlayerMission[]>([]); // Ajout des missions du joueur
   const [inventory, setInventory] = useState<Item[]>([]);
   const [skills, setSkills] = useState<Skill[]>([]);
   
@@ -527,6 +542,93 @@ export const CyberQuestProvider: React.FC<{ children: ReactNode }> = ({ children
       setIsLoading(false);
     }
   };
+
+  // Accepter une mission
+  const acceptMission = async (missionId: number) => {
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch('/api/cyber-quest/missions/accept', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ missionId }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Impossible d\'accepter cette mission');
+      }
+      
+      const missionData = await response.json();
+      
+      toast({
+        title: "Mission acceptée",
+        description: `Vous avez accepté la mission: ${missionData.title}`,
+      });
+      
+      // Rafraîchir l'état du jeu
+      await refreshGameState();
+      
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Une erreur est survenue'));
+      toast({
+        title: "Erreur",
+        description: err instanceof Error ? err.message : "Impossible d'accepter cette mission",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Ajouter de l'expérience au joueur
+  const addExperience = async (amount: number) => {
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch('/api/cyber-quest/player/experience/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ amount }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Impossible d\'ajouter de l\'expérience');
+      }
+      
+      const result = await response.json();
+      
+      toast({
+        title: "Expérience gagnée",
+        description: `+${amount} XP`,
+      });
+      
+      // Vérifier si le joueur a monté de niveau
+      if (result.levelUp) {
+        toast({
+          title: "Niveau supérieur!",
+          description: `Félicitations! Vous avez atteint le niveau ${result.newLevel}!`,
+          variant: "default",
+        });
+      }
+      
+      // Rafraîchir l'état du jeu
+      await refreshGameState();
+      
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Une erreur est survenue'));
+      toast({
+        title: "Erreur",
+        description: err instanceof Error ? err.message : "Impossible d'ajouter de l'expérience",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
   // Fonction utilitaire pour obtenir le nom français d'un attribut
   const getAttributeName = (attribute: string): string => {
@@ -556,18 +658,21 @@ export const CyberQuestProvider: React.FC<{ children: ReactNode }> = ({ children
         availableMissions,
         currentMission,
         activeMissions,
+        playerMissions,
         inventory,
         skills,
         refreshGameState,
         startMission,
         completeMission,
         abandonMission,
+        acceptMission,
         buyItem,
         useItem,
         talkToNpc,
         upgradeSkill,
         completeObjective,
         levelUpAttribute,
+        addExperience,
       }}
     >
       {children}
