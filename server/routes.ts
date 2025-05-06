@@ -61,6 +61,27 @@ import {
   deleteTemplate
 } from "./customAssistantsController";
 import { getOrCreateUser, getUserById } from "./userController";
+import {
+  getOrCreatePlayer,
+  getPlayerData,
+  updatePlayerAttribute,
+  addExperience,
+  getEnvironment,
+  getUnlockedEnvironments,
+  changeEnvironment,
+  getAvailableMissions,
+  startMission,
+  completeObjective,
+  getPlayerSkills,
+  upgradeSkill,
+  getNPCsInEnvironment,
+  getNPCDetails,
+  getPlayerInventory,
+  addItemToInventory,
+  useInventoryItem,
+  addJournalEntry,
+  getPlayerJournal
+} from "./cyberQuestController";
 
 import {
   generateQuestions,
@@ -4316,6 +4337,91 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   });
 
   // Fin des routes API
+
+  // Routes pour CyberQuest
+  
+  // Routes du joueur
+  app.post("/api/cyber-quest/player", (req: Request, res: Response) => {
+    getOrCreatePlayer(req, res);
+  });
+  
+  app.get("/api/cyber-quest/player/:userId", (req: Request, res: Response) => {
+    getPlayerData(req, res);
+  });
+  
+  app.post("/api/cyber-quest/player/attribute", (req: Request, res: Response) => {
+    updatePlayerAttribute(req, res);
+  });
+  
+  app.post("/api/cyber-quest/player/experience", (req: Request, res: Response) => {
+    addExperience(req, res);
+  });
+  
+  // Routes des environnements
+  app.get("/api/cyber-quest/environment/:environmentId", (req: Request, res: Response) => {
+    getEnvironment(req, res);
+  });
+  
+  app.get("/api/cyber-quest/environment/unlocked/:playerId", (req: Request, res: Response) => {
+    getUnlockedEnvironments(req, res);
+  });
+  
+  app.post("/api/cyber-quest/environment/change", (req: Request, res: Response) => {
+    changeEnvironment(req, res);
+  });
+  
+  // Routes des missions
+  app.get("/api/cyber-quest/missions/available/:playerId", (req: Request, res: Response) => {
+    getAvailableMissions(req, res);
+  });
+  
+  app.post("/api/cyber-quest/mission/start", (req: Request, res: Response) => {
+    startMission(req, res);
+  });
+  
+  app.post("/api/cyber-quest/mission/objective", (req: Request, res: Response) => {
+    completeObjective(req, res);
+  });
+  
+  // Routes des compétences
+  app.get("/api/cyber-quest/skills/player/:playerId", (req: Request, res: Response) => {
+    getPlayerSkills(req, res);
+  });
+  
+  app.post("/api/cyber-quest/skill/upgrade", (req: Request, res: Response) => {
+    upgradeSkill(req, res);
+  });
+  
+  // Routes des PNJ
+  app.get("/api/cyber-quest/npcs/environment/:environmentId", (req: Request, res: Response) => {
+    getNPCsInEnvironment(req, res);
+  });
+  
+  app.get("/api/cyber-quest/npcs/:npcId", (req: Request, res: Response) => {
+    getNPCDetails(req, res);
+  });
+  
+  // Routes d'inventaire
+  app.get("/api/cyber-quest/inventory/:playerId", (req: Request, res: Response) => {
+    getPlayerInventory(req, res);
+  });
+  
+  app.post("/api/cyber-quest/item/add", (req: Request, res: Response) => {
+    addItemToInventory(req, res);
+  });
+  
+  app.post("/api/cyber-quest/item/use", (req: Request, res: Response) => {
+    useInventoryItem(req, res);
+  });
+  
+  // Routes du journal
+  app.post("/api/cyber-quest/journal/add", (req: Request, res: Response) => {
+    addJournalEntry(req, res);
+  });
+  
+  app.get("/api/cyber-quest/journal/:playerId", (req: Request, res: Response) => {
+    getPlayerJournal(req, res);
+  });
 
   return createServer(app);
 }

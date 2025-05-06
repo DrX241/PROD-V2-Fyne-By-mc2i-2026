@@ -99,7 +99,7 @@ export function CyberQuestProvider({ children }: { children: ReactNode }) {
   } = useQuery({
     queryKey: ['/api/cyber-quest/player'],
     queryFn: async () => {
-      const res = await apiRequest('GET', '/api/cyber-quest/player');
+      const res = await fetch('/api/cyber-quest/player');
       if (!res.ok) throw new Error('Failed to fetch player data');
       return await res.json();
     },
@@ -115,7 +115,7 @@ export function CyberQuestProvider({ children }: { children: ReactNode }) {
     queryKey: ['/api/cyber-quest/environment', player?.currentEnvironmentId],
     queryFn: async () => {
       if (!player?.currentEnvironmentId) return null;
-      const res = await apiRequest('GET', `/api/cyber-quest/environment/${player.currentEnvironmentId}`);
+      const res = await fetch(`/api/cyber-quest/environment/${player.currentEnvironmentId}`);
       if (!res.ok) throw new Error('Failed to fetch environment data');
       return await res.json();
     },
@@ -130,7 +130,7 @@ export function CyberQuestProvider({ children }: { children: ReactNode }) {
     queryKey: ['/api/cyber-quest/missions', player?.id],
     queryFn: async () => {
       if (!player?.id) return [];
-      const res = await apiRequest('GET', `/api/cyber-quest/missions/available/${player.id}`);
+      const res = await fetch(`/api/cyber-quest/missions/available/${player.id}`);
       if (!res.ok) throw new Error('Failed to fetch available missions');
       return await res.json();
     },
@@ -145,7 +145,7 @@ export function CyberQuestProvider({ children }: { children: ReactNode }) {
     queryKey: ['/api/cyber-quest/npcs', currentEnvironment?.id],
     queryFn: async () => {
       if (!currentEnvironment?.id) return [];
-      const res = await apiRequest('GET', `/api/cyber-quest/npcs/environment/${currentEnvironment.id}`);
+      const res = await fetch(`/api/cyber-quest/npcs/environment/${currentEnvironment.id}`);
       if (!res.ok) throw new Error('Failed to fetch NPCs');
       return await res.json();
     },
@@ -160,7 +160,7 @@ export function CyberQuestProvider({ children }: { children: ReactNode }) {
     queryKey: ['/api/cyber-quest/inventory', player?.id],
     queryFn: async () => {
       if (!player?.id) return [];
-      const res = await apiRequest('GET', `/api/cyber-quest/inventory/${player.id}`);
+      const res = await fetch(`/api/cyber-quest/inventory/${player.id}`);
       if (!res.ok) throw new Error('Failed to fetch inventory');
       return await res.json();
     },
@@ -175,7 +175,7 @@ export function CyberQuestProvider({ children }: { children: ReactNode }) {
     queryKey: ['/api/cyber-quest/skills', player?.id],
     queryFn: async () => {
       if (!player?.id) return [];
-      const res = await apiRequest('GET', `/api/cyber-quest/skills/player/${player.id}`);
+      const res = await fetch(`/api/cyber-quest/skills/player/${player.id}`);
       if (!res.ok) throw new Error('Failed to fetch skills');
       return await res.json();
     },
