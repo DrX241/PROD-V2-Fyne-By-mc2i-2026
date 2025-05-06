@@ -489,6 +489,10 @@ export async function createTemporaryAccess(req: Request, res: Response) {
     
     let temporaryAccess;
     
+    // Générer un token d'accès unique
+    const accessToken = crypto.randomBytes(32).toString('hex');
+    const maxAccessCount = req.body.maxAccessCount ? parseInt(req.body.maxAccessCount) : null;
+    
     if (existingAccess) {
       // Mettre à jour l'accès existant
       [temporaryAccess] = await db
@@ -497,7 +501,9 @@ export async function createTemporaryAccess(req: Request, res: Response) {
           role: role || existingAccess.role,
           expiresAt: new Date(expiresAt),
           notes: notes || existingAccess.notes,
-          status: "active"
+          status: "active",
+          accessToken: accessToken,
+          maxAccessCount: maxAccessCount
         })
         .where(eq(schema.temporaryAccesses.id, existingAccess.id))
         .returning();
@@ -516,7 +522,9 @@ export async function createTemporaryAccess(req: Request, res: Response) {
           expiresAt: new Date(expiresAt),
           notes,
           createdBy: req.user.id,
-          status: "active"
+          status: "active",
+          accessToken: accessToken,
+          maxAccessCount: maxAccessCount
         })
         .returning();
     }
@@ -808,6 +816,9 @@ async function sendInvitationEmail(
         </td>
       </tr>
     `).join('');
+    
+    // URL d'accès direct avec le token
+    const directAccessUrl = `https://votredomaine.com/modules/access/${temporaryAccess.accessToken}`;
     
     // Format de date français
     const expiresAtDate = temporaryAccess.expiresAt.toLocaleDateString('fr-FR', {
@@ -1578,5 +1589,7 @@ export default {
   authenticateSuperAdmin,
   logoutSuperAdmin,
   checkSystemSetup,
-  checkAuthStatus
+  checkAuthStatus,
+  getPublicModules,
+  accessModulesByToken
 };

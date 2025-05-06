@@ -137,6 +137,7 @@ export const applicationModules = pgTable('application_modules', {
 export const temporaryAccesses = pgTable('temporary_accesses', {
   id: serial('id').primaryKey(),
   invitationCode: uuid('invitation_code').notNull().unique().defaultRandom(),
+  accessToken: varchar('access_token', { length: 64 }).notNull().unique(),
   email: varchar('email', { length: 255 }).notNull(),
   role: userRoleEnum('role').default('tester'),
   status: temporaryAccessStatusEnum('status').default('active'),
@@ -144,7 +145,9 @@ export const temporaryAccesses = pgTable('temporary_accesses', {
   createdAt: timestamp('created_at').defaultNow(),
   expiresAt: timestamp('expires_at').notNull(),
   lastLogin: timestamp('last_login'),
+  lastAccessedAt: timestamp('last_accessed_at'),
   accessCount: integer('access_count').default(0),
+  maxAccessCount: integer('max_access_count'),
   notes: text('notes')
 });
 

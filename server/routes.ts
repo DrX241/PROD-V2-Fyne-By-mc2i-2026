@@ -4328,6 +4328,10 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   // Vérifier le statut d'authentification pour le portail administrateur
   app.get("/api/admin/auth-status", adminController.checkAuthStatus);
   
+  // Routes pour l'accès public aux modules
+  app.get("/api/modules/public", adminController.getPublicModules);
+  app.get("/api/modules/access/:accessToken", adminController.accessModulesByToken);
+  
   // Routes pour les analytiques et statistiques d'utilisation
   
   // Routes publiques pour l'enregistrement des données d'utilisation
