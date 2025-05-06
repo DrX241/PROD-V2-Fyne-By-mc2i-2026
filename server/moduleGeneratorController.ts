@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { openai } from './services/openai';
+import { openAIService } from './services/openai';
 
 // Types pour la configuration du module
 interface ModuleConfig {
@@ -40,13 +40,14 @@ export async function generateModule(req: Request, res: Response) {
     const userPrompt = constructUserPrompt(moduleConfig);
 
     // Appel à Azure OpenAI
-    const moduleResponse = await openai.chat({
-      model: 'gpt-4o-mini', // Utilisation du modèle mini pour les prototypes
-      systemPrompt: systemPrompt,
-      userPrompt: userPrompt,
-      temperature: 0.7,
-      maxTokens: 2000,
-    });
+    const moduleResponse = await openAIService.getChatCompletion(
+      [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      0.7, // temperature
+      2000 // max_tokens
+    );
 
     // Tentative de parser la réponse JSON
     let modules;

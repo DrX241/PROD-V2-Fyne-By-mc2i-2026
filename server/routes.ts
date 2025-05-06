@@ -428,6 +428,11 @@ function generateSynthesisHtml(
 // Les fonctions pour les pièces jointes sont déjà importées en haut du fichier
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Routes pour le générateur de modules
+  app.post("/api/module-generator/generate", (req: Request, res: Response) => {
+    generateModule(req, res);
+  });
+  
   // Routes pour le générateur de code
   app.post("/api/code-generator/generate", (req: Request, res: Response) => {
     generateCode(req, res);
