@@ -40,6 +40,7 @@ import {
   improveGeneratedCode,
   suggestLanguageAndFramework
 } from "./codeGeneratorController";
+import { generateModule } from "./moduleGeneratorController";
 import { analyzeEvidence, getInvestigationHints, evaluateInvestigationResult, generateInvestigationScenario, generateInvestigationNotes } from "./cyberInvestigatorController";
 import { getInvestigationProgress, saveInvestigationProgress, evaluateUserNotes } from "./investigationProgressController";
 import { 
