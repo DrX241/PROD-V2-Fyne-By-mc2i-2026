@@ -160,6 +160,44 @@ async function main() {
       );
     `);
     
+    // Création de la table custom_modules
+    await pool.query(`
+      DO $$ 
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'difficulty_level') THEN
+          CREATE TYPE difficulty_level AS ENUM ('beginner', 'intermediate', 'advanced');
+        END IF;
+        
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'learning_style') THEN
+          CREATE TYPE learning_style AS ENUM ('reading', 'interactive', 'mixed');
+        END IF;
+      END $$;
+      
+      CREATE TABLE IF NOT EXISTS custom_modules (
+        id SERIAL PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL,
+        user_name VARCHAR(255) NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        domain VARCHAR(100) NOT NULL,
+        description TEXT NOT NULL,
+        iam_name VARCHAR(255) NOT NULL,
+        display_order INTEGER DEFAULT 100,
+        difficulty difficulty_level DEFAULT 'intermediate',
+        topics TEXT[] NOT NULL,
+        gamification_level gamification_level DEFAULT 'leger',
+        learning_style learning_style DEFAULT 'mixed',
+        include_trainer_module BOOLEAN DEFAULT true,
+        include_ops_module BOOLEAN DEFAULT true,
+        include_test_module BOOLEAN DEFAULT true,
+        include_ascension_module BOOLEAN DEFAULT true,
+        module_data JSONB NOT NULL,
+        icon_path TEXT DEFAULT '/assets/icons/default-module.svg',
+        is_active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+    
     console.log('Tables created successfully');
     
     // Insertion de données initiales pour les modèles d'assistants
