@@ -681,6 +681,9 @@ export default function ModuleGenerator() {
                             setIsSaving(true);
                             
                             // Préparation des données à envoyer conformément à l'API
+                            console.log("Generated Modules Type:", typeof generatedModules);
+                            console.log("Generated Modules:", generatedModules);
+                            
                             const moduleToSave = {
                               moduleConfig: {
                                 userId: 'user-' + Math.random().toString(36).substring(2, 9), // ID utilisateur générique
@@ -697,8 +700,10 @@ export default function ModuleGenerator() {
                                 includeTestModule: moduleConfig.includeTestModule,
                                 includeAscensionModule: moduleConfig.includeAscensionModule,
                               },
-                              moduleData: generatedModules
+                              moduleData: generatedModules 
                             };
+                            
+                            console.log("Module to save:", moduleToSave);
                             
                             // Appel à l'API
                             const response = await fetch('/api/module-generator/save', {

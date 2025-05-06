@@ -214,15 +214,19 @@ export async function saveCustomModule(req: Request, res: Response) {
     // Récupération des données du module et de la configuration
     const { moduleData, moduleConfig } = req.body;
     
-    if (!moduleData || !moduleConfig) {
+    if (!moduleData) {
       return res.status(400).json({
         success: false,
-        message: 'Données requises manquantes. Veuillez fournir moduleData et moduleConfig.'
+        message: 'Données moduleData manquantes.'
       });
     }
-
-    console.log("Module data:", moduleData);
-    console.log("Module config:", moduleConfig);
+    
+    if (!moduleConfig) {
+      return res.status(400).json({
+        success: false,
+        message: 'Données moduleConfig manquantes.'
+      });
+    }
 
     // Conversion du niveau de gamification au format compatible avec la base de données
     const gamificationLevelMap: Record<string, string> = {
@@ -231,25 +235,44 @@ export async function saveCustomModule(req: Request, res: Response) {
       'high': 'eleve'
     };
 
-    // Préparation des données pour l'insertion
-    const moduleToSave: InsertCustomModule = {
+    // Préparation d'un objet conforme au schéma
+    const inputData = {
       userId: moduleConfig.userId || 'anonymous',
       userName: moduleConfig.userName || 'Utilisateur anonyme',
-      name: moduleConfig.name,
-      domain: moduleConfig.domain,
-      description: moduleConfig.description,
-      iamName: `I AM ${moduleConfig.domain.toUpperCase()}`,
-      difficulty: moduleConfig.difficulty as 'beginner' | 'intermediate' | 'advanced',
-      topics: moduleConfig.topics,
-      gamificationLevel: gamificationLevelMap[moduleConfig.gamificationLevel] || 'leger' as any,
-      learningStyle: moduleConfig.learningStyle as 'reading' | 'interactive' | 'mixed',
-      includeTrainerModule: moduleConfig.includeTrainerModule,
-      includeOpsModule: moduleConfig.includeOpsModule,
-      includeTestModule: moduleConfig.includeTestModule,
-      includeAscensionModule: moduleConfig.includeAscensionModule,
+      name: moduleConfig.name || 'Module sans nom',
+      domain: moduleConfig.domain || 'general',
+      description: moduleConfig.description || 'Aucune description fournie',
+      iamName: `I AM ${moduleConfig.domain ? moduleConfig.domain.toUpperCase() : 'MODULE'}`,
+      difficulty: (moduleConfig.difficulty || 'intermediate') as 'beginner' | 'intermediate' | 'advanced',
+      topics: Array.isArray(moduleConfig.topics) ? moduleConfig.topics : ['général'],
+      gamificationLevel: gamificationLevelMap[moduleConfig.gamificationLevel || 'medium'] || 'modere',
+      learningStyle: (moduleConfig.learningStyle || 'mixed') as 'reading' | 'interactive' | 'mixed',
+      includeTrainerModule: moduleConfig.includeTrainerModule !== undefined ? moduleConfig.includeTrainerModule : true,
+      includeOpsModule: moduleConfig.includeOpsModule !== undefined ? moduleConfig.includeOpsModule : true,
+      includeTestModule: moduleConfig.includeTestModule !== undefined ? moduleConfig.includeTestModule : true,
+      includeAscensionModule: moduleConfig.includeAscensionModule !== undefined ? moduleConfig.includeAscensionModule : true,
       moduleData: moduleData,
-      // Icône par défaut basée sur le domaine
-      iconPath: getIconPath(moduleConfig.domain)
+      iconPath: getIconPath(moduleConfig.domain || 'general')
+    };
+    
+    // Création d'un objet InsertCustomModule à partir des données validées
+    const moduleToSave: InsertCustomModule = {
+      userId: inputData.userId,
+      userName: inputData.userName,
+      name: inputData.name,
+      domain: inputData.domain,
+      description: inputData.description,
+      iamName: inputData.iamName,
+      difficulty: inputData.difficulty,
+      topics: inputData.topics,
+      gamificationLevel: inputData.gamificationLevel as any,
+      learningStyle: inputData.learningStyle,
+      includeTrainerModule: inputData.includeTrainerModule,
+      includeOpsModule: inputData.includeOpsModule,
+      includeTestModule: inputData.includeTestModule,
+      includeAscensionModule: inputData.includeAscensionModule,
+      moduleData: inputData.moduleData,
+      iconPath: inputData.iconPath
     };
 
     // Insertion dans la base de données
@@ -281,9 +304,11 @@ export async function getCustomModules(req: Request, res: Response) {
       .where(eq(customModules.isActive, true))
       .orderBy(customModules.displayOrder);
 
+    console.log("Modules récupérés:", modules);
+
     return res.status(200).json({
       success: true,
-      modules
+      modules: modules || []
     });
   } catch (error) {
     console.error('Erreur lors de la récupération des modules:', error);
