@@ -2,6 +2,19 @@ import { Request, Response } from 'express';
 import { openAIService } from './services/openai';
 import { db } from './db';
 import { customModules, type InsertCustomModule } from '@shared/schema';
+import { eq, desc } from 'drizzle-orm';
+
+// Augmenter l'interface Request pour inclure la session
+declare global {
+  namespace Express {
+    interface Request {
+      session: {
+        userId?: string;
+        userName?: string;
+      };
+    }
+  }
+}
 
 // Types pour la configuration du module
 interface ModuleConfig {

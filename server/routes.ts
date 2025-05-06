@@ -40,7 +40,7 @@ import {
   improveGeneratedCode,
   suggestLanguageAndFramework
 } from "./codeGeneratorController";
-import { generateModule } from "./moduleGeneratorController";
+import { generateModule, saveCustomModule, getCustomModules, getCustomModuleById } from "./moduleGeneratorController";
 import { analyzeEvidence, getInvestigationHints, evaluateInvestigationResult, generateInvestigationScenario, generateInvestigationNotes } from "./cyberInvestigatorController";
 import { getInvestigationProgress, saveInvestigationProgress, evaluateUserNotes } from "./investigationProgressController";
 import { 
@@ -431,6 +431,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Routes pour le générateur de modules
   app.post("/api/module-generator/generate", (req: Request, res: Response) => {
     generateModule(req, res);
+  });
+  
+  app.post("/api/module-generator/save", (req: Request, res: Response) => {
+    saveCustomModule(req, res);
+  });
+  
+  app.get("/api/module-generator/modules", (req: Request, res: Response) => {
+    getCustomModules(req, res);
+  });
+  
+  app.get("/api/module-generator/modules/:id", (req: Request, res: Response) => {
+    getCustomModuleById(req, res);
   });
   
   // Routes pour le générateur de code
