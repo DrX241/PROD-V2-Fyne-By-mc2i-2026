@@ -106,7 +106,11 @@ export default function ModulesManagement() {
   // Mutation pour ajouter/modifier un module
   const upsertModuleMutation = useMutation({
     mutationFn: async (moduleData: z.infer<typeof moduleSchema>) => {
-      const res = await apiRequest("POST", "/api/admin/modules", moduleData);
+      const res = await apiRequest("POST", "/api/admin/modules", moduleData, {
+        headers: {
+          'X-User-Role': 'admin'
+        }
+      });
       return await res.json();
     },
     onSuccess: () => {
@@ -132,7 +136,11 @@ export default function ModulesManagement() {
   // Mutation pour supprimer un module
   const deleteModuleMutation = useMutation({
     mutationFn: async (moduleId: number) => {
-      const res = await apiRequest("DELETE", `/api/admin/modules/${moduleId}`);
+      const res = await apiRequest("DELETE", `/api/admin/modules/${moduleId}`, null, {
+        headers: {
+          'X-User-Role': 'admin'
+        }
+      });
       return await res.json();
     },
     onSuccess: () => {

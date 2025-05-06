@@ -359,6 +359,14 @@ function App() {
             <Route path="/custom" component={NotYetImplemented} />
             
             {/* Interface d'administration */}
+            <Route path="/setup" component={() => {
+              const SetupPage = lazy(() => import('./pages/setup'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <SetupPage />
+                </Suspense>
+              );
+            }} />
             <Route path="/admin/modules" component={() => {
               const ModulesManagement = lazy(() => import('./pages/admin/modules-management'));
               return (
