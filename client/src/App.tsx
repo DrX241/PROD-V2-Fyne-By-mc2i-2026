@@ -349,7 +349,10 @@ function App() {
                 </Suspense>
               );
             }} />
-            <Route path="/custom" component={NotYetImplemented} />
+            <Route path="/custom" component={() => {
+              window.location.href = '/playground/module-generator';
+              return null;
+            }} />
             <Route component={NotFound} />
           </Switch>
           <Toaster />
