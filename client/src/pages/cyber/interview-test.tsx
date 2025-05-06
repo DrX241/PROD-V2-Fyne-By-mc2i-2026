@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'wouter';
+import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
@@ -109,7 +109,7 @@ export default function CyberInterviewTest() {
   const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 minutes en secondes
   const [evaluationResult, setEvaluationResult] = useState<EvaluationResult | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const { toast } = useToast();
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -158,7 +158,7 @@ export default function CyberInterviewTest() {
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return \`\${mins}:\${secs < 10 ? '0' : ''}\${secs}\`;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
   // Démarrer le test

@@ -470,6 +470,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/cyber/test-technique/evaluate', evaluateResponses);
   app.post('/api/cyber/test-technique/certificate', generateCertificate);
   
+  // Route pour le test d'entretien cybersécurité
+  app.post('/api/cyber/interview-test/evaluate', evaluateInterviewTest);
+  
   // Routes pour le jeu BrainHacker (ingénierie sociale)
   app.post('/api/cyber/arcade/brain-hacker/simulate', simulateTargetResponse);
   app.post('/api/cyber/arcade/brain-hacker/analyze', analyzePerformance);

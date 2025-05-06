@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { openai } from './openAiResponseHelper';
+import { openAIService } from './services/openai';
 
 interface Question {
   id: string;
@@ -85,21 +85,18 @@ Analyse le profil du candidat et génère une évaluation selon le format JSON d
 `;
 
     // Appel à Azure OpenAI
-    const chatCompletion = await openai.chat.completions.create({
-      model: process.env.GPT4_DEPLOYMENT_NAME || "gpt-4o",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt }
-      ],
-      temperature: 0.7,
-      max_tokens: 1000
-    });
+    const completion = await openAIService.getChatCompletionLegacy(
+      systemPrompt,
+      userPrompt,
+      0.7,  // temperature
+      true  // useSecondaryModel
+    );
 
     let evaluationResult: Evaluation;
     
     try {
       // Extraction et parsing de la réponse JSON
-      const content = chatCompletion.choices[0].message.content || '';
+      const content = completion || '';
       
       // Cherche un objet JSON dans la réponse
       const jsonMatch = content.match(/\{[\s\S]*\}/);
