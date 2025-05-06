@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { db } from "./db";
 import * as schema from "@shared/schema";
-import { eq, and, ne, lt, gt, sql } from "drizzle-orm";
+import { eq, and, ne, lt, gt, sql, inArray } from "drizzle-orm";
 import { addDays } from "date-fns";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
@@ -1381,6 +1381,128 @@ export async function checkSystemSetup(req: Request, res: Response) {
     });
   } catch (error) {
     console.error("Erreur lors de la vérification de la configuration système:", error);
+    res.status(500).json({ success: false, message: "Erreur interne du serveur" });
+  }
+}
+
+/**
+ * Obtenir la liste des modules publics sans authentification
+ * Cette fonction est utilisée pour accéder aux modules sans connexion
+ */
+export async function getPublicModules(req: Request, res: Response) {
+  try {
+    const modules = await db
+      .select()
+      .from(schema.applicationModules)
+      .where(eq(schema.applicationModules.isPublic, true))
+      .orderBy(schema.applicationModules.displayName);
+    
+    res.status(200).json({ success: true, modules });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des modules publics:", error);
+    res.status(500).json({ success: false, message: "Erreur interne du serveur" });
+  }
+}
+
+/**
+ * Accéder aux modules avec un jeton d'accès
+ */
+export async function accessModulesByToken(req: Request, res: Response) {
+  try {
+    const { accessToken } = req.params;
+    
+    if (!accessToken) {
+      return res.status(400).json({ success: false, message: "Token d'accès requis" });
+    }
+    
+    // Rechercher l'accès temporaire correspondant au token
+    const [temporaryAccess] = await db
+      .select()
+      .from(schema.temporaryAccesses)
+      .where(
+        and(
+          eq(schema.temporaryAccesses.accessToken, accessToken),
+          eq(schema.temporaryAccesses.status, "active"),
+          gt(schema.temporaryAccesses.expiresAt, new Date())
+        )
+      );
+    
+    if (!temporaryAccess) {
+      return res.status(404).json({ success: false, message: "Accès temporaire invalide ou expiré" });
+    }
+    
+    // Récupérer les IDs des modules accessibles
+    const moduleIds = await db
+      .select({ moduleId: schema.temporaryAccessModules.moduleId })
+      .from(schema.temporaryAccessModules)
+      .where(eq(schema.temporaryAccessModules.temporaryAccessId, temporaryAccess.id));
+    
+    const moduleIdList = moduleIds.map(m => m.moduleId);
+    
+    // Récupérer les modules correspondants
+    let modules = [];
+    
+    if (moduleIdList.length > 0) {
+      modules = await db
+        .select()
+        .from(schema.applicationModules)
+        .where(inArray(schema.applicationModules.id, moduleIdList))
+        .orderBy(schema.applicationModules.displayName);
+      
+      // On peut ajouter les modules publics également si nécessaire
+      const publicModules = await db
+        .select()
+        .from(schema.applicationModules)
+        .where(eq(schema.applicationModules.isPublic, true))
+        .orderBy(schema.applicationModules.displayName);
+      
+      // Fusionner les deux listes en évitant les doublons
+      const allModuleIds = new Set(modules.map(m => m.id));
+      for (const mod of publicModules) {
+        if (!allModuleIds.has(mod.id)) {
+          modules.push(mod);
+        }
+      }
+    } else {
+      // Si aucun module spécifique n'est autorisé, renvoyer uniquement les modules publics
+      modules = await db
+        .select()
+        .from(schema.applicationModules)
+        .where(eq(schema.applicationModules.isPublic, true))
+        .orderBy(schema.applicationModules.displayName);
+    }
+    
+    // Incrémenter le compteur d'accès si configuré
+    if (temporaryAccess.maxAccessCount !== null) {
+      const newAccessCount = (temporaryAccess.accessCount || 0) + 1;
+      await db
+        .update(schema.temporaryAccesses)
+        .set({ 
+          accessCount: newAccessCount,
+          lastAccessedAt: new Date(),
+          status: newAccessCount >= temporaryAccess.maxAccessCount ? "expired" : "active"
+        })
+        .where(eq(schema.temporaryAccesses.id, temporaryAccess.id));
+    } else {
+      await db
+        .update(schema.temporaryAccesses)
+        .set({ lastAccessedAt: new Date() })
+        .where(eq(schema.temporaryAccesses.id, temporaryAccess.id));
+    }
+    
+    res.status(200).json({ 
+      success: true, 
+      modules,
+      accessInfo: {
+        email: temporaryAccess.email,
+        expires: temporaryAccess.expiresAt,
+        remainingAccesses: temporaryAccess.maxAccessCount 
+          ? temporaryAccess.maxAccessCount - (temporaryAccess.accessCount || 0) - 1
+          : null
+      }
+    });
+  } catch (error) {
+    console.error("Erreur lors de l'accès aux modules par token:", error);
     res.status(500).json({ success: false, message: "Erreur interne du serveur" });
   }
 }
