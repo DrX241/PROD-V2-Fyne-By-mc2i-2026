@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { useLocation, useNavigate } from 'wouter';
+import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -49,8 +49,10 @@ export default function CyberInterviewPage() {
   // Start interview mutation
   const startInterviewMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest('POST', '/api/cyber/test-technique/interview/start', {});
-      return response.json();
+      return apiRequest('/api/cyber/test-technique/interview/start', {
+        method: 'POST',
+        body: JSON.stringify({})
+      });
     },
     onSuccess: (data) => {
       if (data.success) {
@@ -91,13 +93,14 @@ export default function CyberInterviewPage() {
       
       const currentQuestion = interviewState.questions[interviewState.currentQuestionIndex];
       
-      const response = await apiRequest('POST', '/api/cyber/test-technique/interview/answer', {
-        sessionId: interviewState.sessionId,
-        questionId: currentQuestion.id,
-        answer: currentAnswer
+      return apiRequest('/api/cyber/test-technique/interview/answer', {
+        method: 'POST',
+        body: JSON.stringify({
+          sessionId: interviewState.sessionId,
+          questionId: currentQuestion.id,
+          answer: currentAnswer
+        })
       });
-      
-      return response.json();
     },
     onSuccess: (data) => {
       if (!interviewState) return;
@@ -146,11 +149,12 @@ export default function CyberInterviewPage() {
     mutationFn: async () => {
       if (!interviewState) return null;
       
-      const response = await apiRequest('POST', '/api/cyber/test-technique/interview/complete', {
-        sessionId: interviewState.sessionId
+      return apiRequest('/api/cyber/test-technique/interview/complete', {
+        method: 'POST',
+        body: JSON.stringify({
+          sessionId: interviewState.sessionId
+        })
       });
-      
-      return response.json();
     },
     onSuccess: (data) => {
       if (!interviewState) return;
