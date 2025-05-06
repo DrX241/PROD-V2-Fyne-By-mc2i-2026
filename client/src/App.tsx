@@ -240,25 +240,7 @@ function App() {
               );
             }} />
             
-            {/* Routes d'administration pour les assistants */}
-            <Route path="/outils-ia/admin" component={() => {
-              // Import dynamique de la page d'administration
-              const AdminDashboardPage = lazy(() => import('./pages/outils-ia/admin'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <AdminDashboardPage />
-                </Suspense>
-              );
-            }} />
-            <Route path="/outils-ia/admin/duplicates" component={() => {
-              // Import dynamique de la page de gestion des doublons
-              const DuplicatesPage = lazy(() => import('./pages/outils-ia/admin/duplicates'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <DuplicatesPage />
-                </Suspense>
-              );
-            }} />
+            {/* Les routes d'administration pour les assistants ont été supprimées */}
             
             {/* Toutes les routes CyberForge redirigent vers la page "non disponible" */}
             <Route path="/cyberforge" component={NotYetImplemented} />
