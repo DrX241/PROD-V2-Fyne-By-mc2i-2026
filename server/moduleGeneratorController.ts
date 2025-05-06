@@ -273,8 +273,8 @@ export async function getCustomModules(req: Request, res: Response) {
   try {
     // Récupération de tous les modules actifs, triés par ordre d'affichage
     const modules = await db.select().from(customModules)
-      .where({ isActive: true })
-      .orderBy('displayOrder', 'asc');
+      .where(eq(customModules.isActive, true))
+      .orderBy(customModules.displayOrder);
 
     return res.status(200).json({
       success: true,
@@ -303,7 +303,7 @@ export async function getCustomModuleById(req: Request, res: Response) {
       });
     }
 
-    const [module] = await db.select().from(customModules).where({ id: moduleId });
+    const [module] = await db.select().from(customModules).where(eq(customModules.id, moduleId));
 
     if (!module) {
       return res.status(404).json({
