@@ -28,7 +28,6 @@ import { generateDebriefing, getContextualDocumentation } from "./cyberLearningC
 import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearningController";
 import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
 import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
-import { startInterview, submitAnswer, completeInterview } from "./cyberInterviewController";
 import { simulateTargetResponse, analyzePerformance } from "./brainHackerController";
 import { analyzeDefenseStrategy, generateAttackScenario, generateTacticalTip } from "./firewallTactiqueController";
 import { 
@@ -469,11 +468,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/cyber/test-technique/generate', generateQuestions);
   app.post('/api/cyber/test-technique/evaluate', evaluateResponses);
   app.post('/api/cyber/test-technique/certificate', generateCertificate);
-  
-  // Routes pour le Mode Entretien Cyber
-  app.post('/api/cyber/test-technique/interview/start', startInterview);
-  app.post('/api/cyber/test-technique/interview/answer', submitAnswer);
-  app.post('/api/cyber/test-technique/interview/complete', completeInterview);
   
   // Routes pour le jeu BrainHacker (ingénierie sociale)
   app.post('/api/cyber/arcade/brain-hacker/simulate', simulateTargetResponse);
