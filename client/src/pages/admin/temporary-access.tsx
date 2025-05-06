@@ -132,7 +132,10 @@ export default function TemporaryAccessManagement() {
   // Mutation pour créer un accès temporaire
   const createAccessMutation = useMutation({
     mutationFn: async (accessData: z.infer<typeof temporaryAccessSchema>) => {
-      const res = await apiRequest("POST", "/api/admin/temporary-access", accessData);
+      const res = await apiRequest("POST", "/api/admin/temporary-access", {
+        body: JSON.stringify(accessData),
+        headers: { 'Content-Type': 'application/json' }
+      });
       return await res.json();
     },
     onSuccess: () => {
@@ -156,7 +159,10 @@ export default function TemporaryAccessManagement() {
   // Mutation pour mettre à jour un accès temporaire
   const updateAccessMutation = useMutation({
     mutationFn: async (accessData: z.infer<typeof temporaryAccessSchema>) => {
-      const res = await apiRequest("PUT", `/api/admin/temporary-access/${accessData.id}`, accessData);
+      const res = await apiRequest("PUT", `/api/admin/temporary-access/${accessData.id}`, {
+        body: JSON.stringify(accessData),
+        headers: { 'Content-Type': 'application/json' }
+      });
       return await res.json();
     },
     onSuccess: () => {
@@ -180,7 +186,9 @@ export default function TemporaryAccessManagement() {
   // Mutation pour révoquer un accès temporaire
   const revokeAccessMutation = useMutation({
     mutationFn: async (accessId: number) => {
-      const res = await apiRequest("POST", `/api/admin/temporary-access/${accessId}/revoke`);
+      const res = await apiRequest("POST", `/api/admin/temporary-access/${accessId}/revoke`, {
+        headers: { 'Content-Type': 'application/json' }
+      });
       return await res.json();
     },
     onSuccess: () => {
@@ -204,7 +212,9 @@ export default function TemporaryAccessManagement() {
   // Mutation pour renvoyer l'invitation par email
   const resendInvitationMutation = useMutation({
     mutationFn: async (accessId: number) => {
-      const res = await apiRequest("POST", `/api/admin/temporary-access/${accessId}/resend`);
+      const res = await apiRequest("POST", `/api/admin/temporary-access/${accessId}/resend`, {
+        headers: { 'Content-Type': 'application/json' }
+      });
       return await res.json();
     },
     onSuccess: () => {

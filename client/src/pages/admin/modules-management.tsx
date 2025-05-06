@@ -135,7 +135,9 @@ export default function ModulesManagement() {
   // Mutation pour supprimer un module
   const deleteModuleMutation = useMutation({
     mutationFn: async (moduleId: number) => {
-      const res = await apiRequest("DELETE", `/api/admin/modules/${moduleId}`);
+      const res = await apiRequest("DELETE", `/api/admin/modules/${moduleId}`, {
+        headers: { 'Content-Type': 'application/json' }
+      });
       return await res.json();
     },
     onSuccess: () => {
