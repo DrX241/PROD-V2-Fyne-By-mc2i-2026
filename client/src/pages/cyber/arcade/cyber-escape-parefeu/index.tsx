@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { GameProvider, useGame } from './context/GameContext';
-import { ArrowLeft, Info, HardDriveIcon, Clock, Coins, AlertTriangle } from 'lucide-react';
+import { 
+  ArrowLeft, Info, HardDriveIcon, Clock, Coins, AlertTriangle, 
+  MapIcon, HomeIcon, UsersIcon, MonitorIcon, HeadphonesIcon, 
+  BriefcaseIcon, ShieldIcon, LockIcon
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from '@/components/ui/dialog';
@@ -75,6 +79,46 @@ const CyberEscapeParefeu: React.FC = () => {
         setShowPuzzleDialog(false);
         setPuzzleResult(null);
       }, 2000);
+    }
+  };
+  
+  // Fonction pour récupérer l'icône associée à une salle
+  const getRoomIcon = (roomId: string) => {
+    switch (roomId) {
+      case 'hub':
+        return <HomeIcon className="h-4 w-4 text-orange-300" />;
+      case 'rh':
+        return <UsersIcon className="h-4 w-4 text-orange-300" />;
+      case 'it':
+        return <MonitorIcon className="h-4 w-4 text-orange-300" />;
+      case 'support':
+        return <HeadphonesIcon className="h-4 w-4 text-orange-300" />;
+      case 'direction':
+        return <BriefcaseIcon className="h-4 w-4 text-orange-300" />;
+      case 'salle-chiffree':
+        return <ShieldIcon className="h-4 w-4 text-orange-300" />;
+      default:
+        return <AlertTriangle className="h-4 w-4 text-orange-300" />;
+    }
+  };
+  
+  // Fonction pour obtenir un message narratif sur l'emplacement actuel
+  const getLocationMessage = (roomId: string) => {
+    switch (roomId) {
+      case 'hub':
+        return "Le hub central est animé par les allées et venues du personnel, plusieurs écrans affichent des alertes de sécurité.";
+      case 'rh':
+        return "Le département RH est calme, avec des dossiers soigneusement rangés et plusieurs ordinateurs laissés déverrouillés.";
+      case 'it':
+        return "Les serveurs bourdonnent dans le département IT, des lignes de code défilent sur plusieurs écrans.";
+      case 'support':
+        return "L'équipe support est visiblement débordée, les téléphones ne cessent de sonner avec des signalements d'incidents.";
+      case 'direction':
+        return "Le bureau de la direction est spacieux et bien sécurisé, seuls quelques documents confidentiels sont visibles.";
+      case 'salle-chiffree':
+        return "Cette salle hautement sécurisée contient l'infrastructure critique de l'entreprise, l'accès est strictement contrôlé.";
+      default:
+        return "Vous examinez attentivement les lieux à la recherche d'indices.";
     }
   };
 
@@ -293,25 +337,89 @@ const CyberEscapeParefeu: React.FC = () => {
           </div>
         )}
         
-        {/* Sélection de salle */}
+        {/* Sélection de salle avec carte interactive */}
         <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-3">Navigation</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-            {availableRooms.map(room => (
-              <Button
-                key={room.id}
-                onClick={() => handleRoomSelection(room.id)}
-                disabled={!room.isAccessible || isLoading}
-                variant={currentRoom?.id === room.id ? "default" : "outline"}
-                className={`
-                  ${currentRoom?.id === room.id ? 'bg-red-700' : 'bg-transparent'} 
-                  ${!room.isAccessible ? 'opacity-50 cursor-not-allowed' : ''}
-                `}
-              >
-                {room.name}
-              </Button>
-            ))}
+          <h2 className="text-xl font-semibold mb-3 flex items-center">
+            <MapIcon className="mr-2 h-5 w-5 text-orange-500" />
+            Navigation
+          </h2>
+          <div className="relative p-4 bg-black/30 rounded-lg border border-red-900/30 mb-4">
+            <div className="absolute inset-0 opacity-10 overflow-hidden rounded-lg">
+              <div className="w-full h-full bg-[url('/assets/cyber-map-bg.jpg')] bg-cover bg-center"></div>
+            </div>
+            
+            <div className="relative z-10">
+              {/* Diagramme de connexions des salles */}
+              <div className="hidden lg:block h-[120px] relative mb-2">
+                <svg className="w-full h-full" viewBox="0 0 800 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  {/* Lignes de connexion entre les salles */}
+                  <line x1="150" y1="50" x2="250" y2="20" stroke={gameState?.unlockedRooms.includes('rh') ? "#ef4444" : "#6b7280"} strokeWidth="2" />
+                  <line x1="150" y1="50" x2="250" y2="80" stroke={gameState?.unlockedRooms.includes('it') ? "#ef4444" : "#6b7280"} strokeWidth="2" />
+                  <line x1="250" y1="80" x2="400" y2="80" stroke={gameState?.unlockedRooms.includes('support') ? "#ef4444" : "#6b7280"} strokeWidth="2" />
+                  <line x1="250" y1="20" x2="400" y2="20" stroke={gameState?.unlockedRooms.includes('direction') ? "#ef4444" : "#6b7280"} strokeWidth="2" />
+                  <line x1="400" y1="20" x2="550" y2="50" stroke={gameState?.unlockedRooms.includes('salle-chiffree') ? "#ef4444" : "#6b7280"} strokeWidth="2" />
+                  <line x1="400" y1="80" x2="550" y2="50" stroke={gameState?.unlockedRooms.includes('salle-chiffree') ? "#ef4444" : "#6b7280"} strokeWidth="2" />
+                  
+                  {/* Cercles aux points d'intersection */}
+                  <circle cx="150" cy="50" r="8" fill={currentRoom?.id === 'hub' ? "#ef4444" : "#1f2937"} stroke="#ef4444" strokeWidth="2" />
+                  <circle cx="250" cy="20" r="8" fill={currentRoom?.id === 'rh' ? "#ef4444" : "#1f2937"} stroke={gameState?.unlockedRooms.includes('rh') ? "#ef4444" : "#6b7280"} strokeWidth="2" />
+                  <circle cx="250" cy="80" r="8" fill={currentRoom?.id === 'it' ? "#ef4444" : "#1f2937"} stroke={gameState?.unlockedRooms.includes('it') ? "#ef4444" : "#6b7280"} strokeWidth="2" />
+                  <circle cx="400" cy="20" r="8" fill={currentRoom?.id === 'direction' ? "#ef4444" : "#1f2937"} stroke={gameState?.unlockedRooms.includes('direction') ? "#ef4444" : "#6b7280"} strokeWidth="2" />
+                  <circle cx="400" cy="80" r="8" fill={currentRoom?.id === 'support' ? "#ef4444" : "#1f2937"} stroke={gameState?.unlockedRooms.includes('support') ? "#ef4444" : "#6b7280"} strokeWidth="2" />
+                  <circle cx="550" cy="50" r="8" fill={currentRoom?.id === 'salle-chiffree' ? "#ef4444" : "#1f2937"} stroke={gameState?.unlockedRooms.includes('salle-chiffree') ? "#ef4444" : "#6b7280"} strokeWidth="2" />
+                  
+                  {/* Textes indiquant les salles */}
+                  <text x="150" y="90" textAnchor="middle" fill="white" fontSize="12">Hub Central</text>
+                  <text x="250" y="10" textAnchor="middle" fill="white" fontSize="12">Dépt. RH</text>
+                  <text x="250" y="100" textAnchor="middle" fill="white" fontSize="12">Dépt. IT</text>
+                  <text x="400" y="10" textAnchor="middle" fill="white" fontSize="12">Direction</text>
+                  <text x="400" y="100" textAnchor="middle" fill="white" fontSize="12">Support</text>
+                  <text x="550" y="40" textAnchor="middle" fill="white" fontSize="12">Salle</text>
+                  <text x="550" y="60" textAnchor="middle" fill="white" fontSize="12">Sécurisée</text>
+                </svg>
+              </div>
+              
+              {/* Grille de boutons pour navigation mobile et tablette */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                {availableRooms.map(room => (
+                  <div
+                    key={room.id}
+                    className={`transition-transform duration-150 ${room.isAccessible ? 'hover:scale-105 active:scale-95' : ''}`}
+                  >
+                    <Button
+                      onClick={() => handleRoomSelection(room.id)}
+                      disabled={!room.isAccessible || isLoading}
+                      variant={currentRoom?.id === room.id ? "default" : "outline"}
+                      className={`
+                        relative w-full py-3 group transition-all duration-200
+                        ${currentRoom?.id === room.id ? 'bg-red-700 shadow-lg shadow-red-700/30' : 'bg-black/40'} 
+                        ${!room.isAccessible ? 'opacity-50 cursor-not-allowed' : 'hover:bg-red-900/80'}
+                        border-red-900/50
+                      `}
+                    >
+                      {getRoomIcon(room.id)}
+                      <span className="ml-2">{room.name}</span>
+                      
+                      {/* Indicateur d'état pour les salles */}
+                      {room.isAccessible && (
+                        <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-green-500"></span>
+                      )}
+                      {!room.isAccessible && (
+                        <LockIcon className="absolute top-1 right-1 h-3 w-3 text-gray-500" />
+                      )}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
+          
+          {/* Description de la navigation actuelle */}
+          {currentRoom && (
+            <div className="text-sm text-gray-300 italic ml-2">
+              {getLocationMessage(currentRoom.id)}
+            </div>
+          )}
         </div>
         
         {/* Affichage de la salle actuelle */}
@@ -319,40 +427,96 @@ const CyberEscapeParefeu: React.FC = () => {
           <div className="mb-8">
             <h2 className="text-xl font-semibold mb-4">{currentRoom.name}</h2>
             
-            {/* Liste des personnages */}
-            {characters.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-                {characters.map(character => (
-                  <Card 
-                    key={character.id} 
-                    className={`
-                      border-orange-900/50 bg-gradient-to-br from-black/30 to-red-950/50
-                      ${activeCharacter?.id === character.id ? 'ring-2 ring-red-500' : ''}
-                      hover:shadow-md hover:shadow-red-900/30 transition-all cursor-pointer
-                    `}
-                    onClick={() => selectCharacter(character)}
-                  >
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-xl">{character.name}</CardTitle>
-                      <CardDescription className="text-orange-300">{character.role}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex flex-wrap gap-1 mb-2">
-                        {character.traits.map((trait, index) => (
-                          <Badge key={index} variant="outline" className="bg-red-950/50">
-                            {trait}
-                          </Badge>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <div className="bg-black/20 rounded-lg p-4 mb-6">
-                <p>Aucun personnel présent dans cette salle.</p>
-              </div>
-            )}
+            {/* Liste des personnages avec effets visuels améliorés */}
+            <div className="relative mb-6">
+              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-red-900/50 via-transparent to-red-900/50 blur-xl opacity-20 -z-10"></div>
+              
+              {characters.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {characters.map(character => (
+                    <div 
+                      key={character.id}
+                      className={`
+                        transition-all duration-300 transform 
+                        ${activeCharacter?.id === character.id ? 'scale-105' : 'hover:scale-102'}
+                      `}
+                    >
+                      <Card 
+                        className={`
+                          overflow-hidden border-orange-900/50 
+                          ${activeCharacter?.id === character.id 
+                            ? 'ring-2 ring-red-500 shadow-lg shadow-red-500/20' 
+                            : 'hover:shadow-md hover:shadow-red-900/30'}
+                          transition-all cursor-pointer relative
+                        `}
+                        onClick={() => selectCharacter(character)}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-br from-black/10 via-transparent to-red-900/30 z-0"></div>
+                        
+                        {/* Indicateur visuel pour personnage sélectionné */}
+                        {activeCharacter?.id === character.id && (
+                          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 via-orange-500 to-red-500"></div>
+                        )}
+                        
+                        <CardHeader className="pb-2 relative z-10">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <CardTitle className="text-xl font-bold">{character.name}</CardTitle>
+                              <CardDescription className="text-orange-300 font-medium">{character.role}</CardDescription>
+                            </div>
+                            
+                            {/* Icône basée sur le rôle */}
+                            <div className={`
+                              p-2 rounded-full bg-black/30 border border-orange-900/30
+                              ${activeCharacter?.id === character.id ? 'bg-red-900/50' : ''}
+                            `}>
+                              {getCharacterIcon(character.role)}
+                            </div>
+                          </div>
+                        </CardHeader>
+                        
+                        <CardContent className="relative z-10">
+                          <div className="flex flex-wrap gap-1 mb-2">
+                            {character.traits.map((trait, index) => (
+                              <Badge 
+                                key={index} 
+                                variant="outline" 
+                                className="bg-red-950/50 border-orange-900/30 px-2 py-1 text-xs"
+                              >
+                                {trait}
+                              </Badge>
+                            ))}
+                          </div>
+                          
+                          <div className="mt-3 text-xs text-gray-400 italic">
+                            {getCharacterHint(character.id)}
+                          </div>
+                        </CardContent>
+                        
+                        {/* Bouton d'interaction */}
+                        <CardFooter className="pt-1 pb-3 relative z-10">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="w-full border border-orange-900/30 hover:bg-red-900/30 text-orange-300"
+                          >
+                            Interroger
+                          </Button>
+                        </CardFooter>
+                      </Card>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-black/30 rounded-lg p-6 border border-red-900/20 text-center">
+                  <div className="flex flex-col items-center justify-center text-gray-400">
+                    <UsersIcon className="h-10 w-10 mb-3 text-red-900/50" />
+                    <p>Aucun personnel présent dans cette salle.</p>
+                    <p className="text-sm mt-2 italic">Explorez d'autres zones pour trouver des interlocuteurs.</p>
+                  </div>
+                </div>
+              )}
+            </div>
             
             {/* Conversation avec un personnage actif */}
             {activeCharacter && (

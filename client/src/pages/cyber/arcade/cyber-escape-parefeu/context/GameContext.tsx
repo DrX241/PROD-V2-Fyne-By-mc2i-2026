@@ -174,6 +174,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Cache pour stocker les données des salles déjà visitées
+  const [roomDataCache, setRoomDataCache] = useState<Record<string, any>>({});
+
   // Enter a room
   const enterRoom = useCallback(async (roomId: string) => {
     if (!gameState) return;
@@ -186,7 +189,36 @@ export function GameProvider({ children }: { children: ReactNode }) {
       if (!roomData) {
         throw new Error('Room not found');
       }
+
+      // Mise à jour instantanée de l'interface pour une meilleure réactivité
+      setCurrentRoom(roomData);
+      setActiveCharacter(null);
       
+      // Vérifier si les données de cette salle sont déjà en cache
+      // et si le gameState n'a pas changé significativement
+      const cachedData = roomDataCache[roomId];
+      const roomVisited = gameState.visitedRooms.includes(roomId);
+      
+      if (cachedData && roomVisited && 
+          // Ne pas utiliser le cache si l'inventaire ou les énigmes résolues ont changé
+          JSON.stringify(cachedData.inventory) === JSON.stringify(gameState.inventory) && 
+          JSON.stringify(cachedData.puzzlesSolved) === JSON.stringify(gameState.puzzlesSolved)) {
+        
+        // Utiliser les données en cache mais mettre à jour certaines parties du gameState
+        const updatedGameState = {
+          ...gameState,
+          currentRoom: roomId,
+          visitedRooms: [...new Set([...gameState.visitedRooms, roomId])]
+        };
+        
+        setGameState(updatedGameState);
+        console.log('Utilisation des données en cache pour la salle:', roomId);
+        
+        setIsLoading(false);
+        return;
+      }
+      
+      // Si pas en cache ou si le gameState a changé, faire la requête API
       const response = await axios.post('/api/cyber/arcade/cyber-escape/enter-room', {
         room: {
           id: roomId,
@@ -195,16 +227,26 @@ export function GameProvider({ children }: { children: ReactNode }) {
         gameState
       });
       
+      // Mettre à jour le cache avec les nouvelles données
+      setRoomDataCache(prev => ({
+        ...prev,
+        [roomId]: {
+          ...response.data,
+          inventory: [...gameState.inventory],
+          puzzlesSolved: [...gameState.puzzlesSolved],
+          timestamp: Date.now()
+        }
+      }));
+      
       setGameState(response.data.gameState);
-      setCurrentRoom(roomData);
-      setActiveCharacter(null);
+      
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to enter room');
       console.error('Error entering room:', err);
     } finally {
       setIsLoading(false);
     }
-  }, [gameState]);
+  }, [gameState, roomDataCache]);
 
   // Interact with an NPC
   const interactWithNPC = useCallback(async (characterId: string, message: string) => {
