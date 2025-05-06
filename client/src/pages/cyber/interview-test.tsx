@@ -382,7 +382,7 @@ export default function CyberInterviewTest() {
                   <AlertCircle className="h-5 w-5 mr-2 text-amber-600" />
                   À savoir avant de commencer
                 </h3>
-                <ul className="list-disc list-inside space-y-2 text-sm">
+                <ul className="list-disc list-inside space-y-2 text-sm text-gray-800 dark:text-gray-200">
                   <li>Le test sera chronométré dès que vous cliquerez sur "Commencer"</li>
                   <li>Vous ne pourrez pas revenir à une question précédente</li>
                   <li>Si le temps s'écoule, vos réponses seront automatiquement soumises</li>
