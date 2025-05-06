@@ -142,7 +142,7 @@ export default function CyberInterviewTest() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [currentAnswer, setCurrentAnswer] = useState('');
-  const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 minutes en secondes
+  const [timeLeft, setTimeLeft] = useState(10 * 60); // 10 minutes en secondes
   const [evaluationResult, setEvaluationResult] = useState<EvaluationResult | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [, navigate] = useLocation();
@@ -157,7 +157,7 @@ export default function CyberInterviewTest() {
       setCurrentQuestionIndex(0);
       setAnswers({});
       setCurrentAnswer('');
-      setTimeLeft(15 * 60);
+      setTimeLeft(10 * 60);
       setEvaluationResult(null);
     } else if (testState === 'in-progress' && questions.length === 0) {
       // Commencer par la question de présentation uniquement
@@ -212,8 +212,8 @@ export default function CyberInterviewTest() {
       }));
     }
 
-    // Si c'est la 6ème question (index 5), on termine le test
-    if (currentQuestionIndex >= 5) {
+    // Si c'est la 10ème question (index 9), on termine le test
+    if (currentQuestionIndex >= 9) {
       handleSubmitTest();
       return;
     }
@@ -345,7 +345,7 @@ export default function CyberInterviewTest() {
   };
 
   // Calculer la progression (6 questions au total)
-  const totalQuestions = 6;
+  const totalQuestions = 10;
   const progress = testState === 'in-progress' 
     ? Math.min(((currentQuestionIndex + 1) / totalQuestions) * 100, 100)
     : 100;
@@ -359,7 +359,7 @@ export default function CyberInterviewTest() {
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-center text-blue-800 dark:text-white">Test d'entretien cybersécurité</CardTitle>
               <CardDescription className="text-center dark:text-white">
-                Évaluez vos compétences en cybersécurité avec ce test de 15 minutes
+                Évaluez vos compétences en cybersécurité avec ce test de 10 minutes
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -369,8 +369,8 @@ export default function CyberInterviewTest() {
                   Comment ça fonctionne
                 </h3>
                 <ul className="list-disc list-inside space-y-2 text-sm text-gray-800 dark:text-gray-200">
-                  <li>Test chronométré de 15 minutes</li>
-                  <li>6 questions ouvertes sur différents aspects de la cybersécurité</li>
+                  <li>Test chronométré de 10 minutes</li>
+                  <li>10 questions ouvertes mêlant aspects techniques et fonctionnels</li>
                   <li>Répondez à chaque question de façon concise mais complète</li>
                   <li>À la fin, une IA analysera vos réponses et générera un profil d'évaluation</li>
                   <li>Vous recevrez une analyse de vos forces et axes d'amélioration</li>
