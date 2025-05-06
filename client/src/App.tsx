@@ -21,6 +21,7 @@ import CyberAgentNewPage from "./pages/cyber/cyber-agent-new";
 // Import de la nouvelle page Playground
 import PlaygroundPage from "./pages/playground";
 import ModuleDetailPage from "./pages/playground/module";
+import ModuleGeneratorPage from "./pages/playground/module-generator";
 // Suppression de l'import CyberForge
 
 // Import de la page mc2i AI Learning
@@ -223,6 +224,7 @@ function App() {
             <Route path="/playground/module" component={ModuleDetailPage} />
             <Route path="/playground/module/:moduleId" component={ModuleDetailPage} />
             <Route path="/playground/path/:pathId" component={PlaygroundPage} />
+            <Route path="/playground/module-generator" component={ModuleGeneratorPage} />
             
             {/* Module CyberForge Academy */}
             {/* Suppression de la route CyberForge Academy */}
