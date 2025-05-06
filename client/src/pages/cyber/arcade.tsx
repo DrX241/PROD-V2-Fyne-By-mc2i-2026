@@ -22,15 +22,6 @@ export default function CyberArcade() {
 
   const games: Game[] = [
     {
-      id: 'cyber-escape',
-      title: 'CYBER ESCAPE',
-      description: 'L\'infiltration inverse : devenez responsable cybersécurité et repérez les failles avant qu\'un attaquant ne les exploite',
-      icon: <Shield className="w-6 h-6" />,
-      gradient: 'from-blue-500 to-cyan-700',
-      available: true,
-      route: '/cyber/arcade/cyber-escape'
-    },
-    {
       id: 'cyber-escape-parefeu',
       title: 'CYBER ESCAPE: LE PARE-FEU EST TOMBÉ',
       description: 'Gérez une crise cyber en tant que RSSI. Un malware a compromis le système, retrouvez les indices et résolvez les énigmes en temps limité',

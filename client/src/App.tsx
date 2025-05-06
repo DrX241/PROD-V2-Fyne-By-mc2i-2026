@@ -150,14 +150,6 @@ function App() {
                 </Suspense>
               );
             }} />
-            <Route path="/cyber/arcade/cyber-escape" component={() => {
-              const CyberEscapeComponent = lazy(() => import('./pages/cyber/arcade/cyber-escape'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <CyberEscapeComponent />
-                </Suspense>
-              );
-            }} />
             <Route path="/cyber/arcade/cyber-escape-parefeu" component={() => {
               const CyberEscapeParefeuComponent = lazy(() => import('./pages/cyber/arcade/cyber-escape-parefeu'));
               return (
@@ -308,6 +300,7 @@ function App() {
             <Route path="/cyber-ascension/theme/:themeId/level/:levelId" component={NotYetImplemented} />
             
             {/* Routes héritées pour compatibilité */}
+            <Route path="/cyber/arcade/cyber-escape" component={NotYetImplemented} />
             <Route path="/cyber/arcade/password-puzzle" component={NotYetImplemented} />
             <Route path="/cyber/arcade/firewall-defense" component={NotYetImplemented} />
             {/* Section Data & IA */}
