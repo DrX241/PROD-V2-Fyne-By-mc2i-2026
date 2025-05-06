@@ -14,8 +14,7 @@ import {
   PuzzleIcon, 
   SettingsIcon,
   Trophy,
-  Loader2,
-  Eye
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -45,15 +44,6 @@ interface ModuleConfig {
   additionalContext: string;
 }
 
-// Interface pour les informations client
-interface ClientInfo {
-  companyName: string;
-  contactName: string;
-  contactEmail: string;
-  contactPhone: string;
-  projectDetails: string;
-}
-
 // Composant principal du générateur de modules
 export default function ModuleGenerator() {
   const [, setLocation] = useLocation();
@@ -74,15 +64,6 @@ export default function ModuleGenerator() {
     learningStyle: 'mixed',
     additionalContext: '',
   });
-  
-  // État des informations client
-  const [clientInfo, setClientInfo] = useState<ClientInfo>({
-    companyName: '',
-    contactName: '',
-    contactEmail: '',
-    contactPhone: '',
-    projectDetails: '',
-  });
 
   // État pour le nouveau topic à ajouter
   const [newTopic, setNewTopic] = useState('');
@@ -90,23 +71,12 @@ export default function ModuleGenerator() {
   // État pour suivre la progression de la génération
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [isRequesting, setIsRequesting] = useState(false);
   const [generatedModules, setGeneratedModules] = useState<any>(null);
   const [currentTab, setCurrentTab] = useState<string>('config');
-  const [requestSubmitted, setRequestSubmitted] = useState(false);
-  const [previewMode, setPreviewMode] = useState(false);
 
-  // Gérer les changements de champs du module
+  // Gérer les changements de champs
   const handleInputChange = (field: keyof ModuleConfig, value: any) => {
     setModuleConfig(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-  
-  // Gérer les changements de champs des informations client
-  const handleClientInfoChange = (field: keyof ClientInfo, value: string) => {
-    setClientInfo(prev => ({
       ...prev,
       [field]: value
     }));
@@ -255,128 +225,6 @@ export default function ModuleGenerator() {
       });
     } finally {
       setIsGenerating(false);
-    }
-  };
-
-  // Soumettre une demande de module à l'équipe FYNE
-  const submitModuleRequest = async () => {
-    if (!generatedModules) {
-      toast({
-        title: 'Erreur',
-        description: 'Veuillez d\'abord générer un module avant d\'envoyer votre demande.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    // Vérifier que les champs obligatoires pour le client sont remplis
-    if (!clientInfo.companyName || !clientInfo.contactName || !clientInfo.contactEmail) {
-      toast({
-        title: 'Informations manquantes',
-        description: 'Veuillez remplir les informations client obligatoires (entreprise, nom, email).',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setIsRequesting(true);
-
-    try {
-      // Préparation des données pour l'API
-      const requestData = {
-        moduleConfig: {
-          ...moduleConfig,
-          iamName: generatedModules.iamName || `I AM ${moduleConfig.domain.toUpperCase()}`
-        },
-        clientInfo,
-        moduleData: generatedModules
-      };
-
-      // Simulation d'un appel API (à remplacer par un vrai appel API)
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Activer l'aperçu du module
-      setPreviewMode(true);
-      
-      // Afficher la confirmation
-      setRequestSubmitted(true);
-      
-      toast({
-        title: 'Demande envoyée',
-        description: 'Votre demande a été transmise à l\'équipe FYNE avec succès !',
-      });
-    } catch (error) {
-      console.error('Erreur lors de l\'envoi de la demande:', error);
-      toast({
-        title: 'Erreur',
-        description: 'Une erreur est survenue lors de l\'envoi de votre demande.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsRequesting(false);
-    }
-  };
-
-  // Voir l'aperçu du module
-  const viewModulePreview = async () => {
-    if (!generatedModules) {
-      toast({
-        title: 'Erreur',
-        description: 'Veuillez d\'abord générer un module avant de l\'apercevoir.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    
-    // Sauvegarder temporairement le module pour l'aperçu
-    setIsSaving(true);
-    
-    try {
-      const moduleToSave = {
-        name: moduleConfig.name,
-        domain: moduleConfig.domain,
-        description: generatedModules.description || moduleConfig.description,
-        iamName: generatedModules.iamName || `I AM ${moduleConfig.domain.toUpperCase()}`,
-        difficulty: moduleConfig.difficulty,
-        topics: moduleConfig.topics,
-        gamificationLevel: moduleConfig.gamificationLevel,
-        learningStyle: moduleConfig.learningStyle,
-        includeTrainerModule: moduleConfig.includeTrainerModule,
-        includeOpsModule: moduleConfig.includeOpsModule,
-        includeTestModule: moduleConfig.includeTestModule,
-        includeAscensionModule: moduleConfig.includeAscensionModule,
-        moduleData: generatedModules,
-        isPreview: true  // Marquer comme aperçu temporaire
-      };
-      
-      // Appel à l'API de sauvegarde
-      const response = await fetch('/api/module-generator/save', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(moduleToSave),
-      });
-      
-      const data = await response.json();
-      
-      if (data.success && data.moduleId) {
-        // Rediriger vers la page du module
-        setLocation(`/custom-module/${data.moduleId}`);
-      } else {
-        throw new Error(data.message || 'Erreur lors de la création de l\'aperçu.');
-      }
-    } catch (error) {
-      console.error('Erreur lors de la création de l\'aperçu:', error);
-      toast({
-        title: 'Erreur',
-        description: error instanceof Error ? error.message : 'Une erreur est survenue lors de la création de l\'aperçu.',
-        variant: 'destructive',
-      });
-      // En cas d'erreur, active tout de même le mode aperçu local
-      setPreviewMode(true);
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -645,68 +493,6 @@ export default function ModuleGenerator() {
                     className="min-h-[100px]"
                   />
                 </div>
-                
-                {/* Informations client */}
-                <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                  <h3 className="text-lg font-semibold text-blue-800 dark:text-white">Informations client</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Ces informations seront utilisées par l'équipe FYNE pour vous contacter concernant votre demande de création de module.
-                  </p>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="company-name">Nom de l'entreprise *</Label>
-                      <Input 
-                        id="company-name" 
-                        placeholder="ex: mc2i Group" 
-                        value={clientInfo.companyName}
-                        onChange={(e) => handleClientInfoChange('companyName', e.target.value)}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="contact-name">Nom du contact *</Label>
-                      <Input 
-                        id="contact-name" 
-                        placeholder="ex: Jean Dupont" 
-                        value={clientInfo.contactName}
-                        onChange={(e) => handleClientInfoChange('contactName', e.target.value)}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="contact-email">Email du contact *</Label>
-                      <Input 
-                        id="contact-email" 
-                        type="email"
-                        placeholder="ex: jean.dupont@example.com" 
-                        value={clientInfo.contactEmail}
-                        onChange={(e) => handleClientInfoChange('contactEmail', e.target.value)}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="contact-phone">Téléphone du contact</Label>
-                      <Input 
-                        id="contact-phone" 
-                        placeholder="ex: 01 23 45 67 89" 
-                        value={clientInfo.contactPhone}
-                        onChange={(e) => handleClientInfoChange('contactPhone', e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="project-details">Détails du projet (optionnel)</Label>
-                    <Textarea 
-                      id="project-details" 
-                      placeholder="Précisez le contexte du projet, les besoins spécifiques, les délais souhaités, etc."
-                      value={clientInfo.projectDetails}
-                      onChange={(e) => handleClientInfoChange('projectDetails', e.target.value)}
-                      className="min-h-[100px]"
-                    />
-                  </div>
-                </div>
               </CardContent>
               <CardFooter className="flex justify-between border-t pt-6">
                 <Button 
@@ -857,102 +643,6 @@ export default function ModuleGenerator() {
                       </div>
                     </div>
                   </CardContent>
-                  {/* Message de confirmation */}
-                  {requestSubmitted && (
-                    <div className="my-6 p-6 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg">
-                      <div className="flex items-start">
-                        <div className="flex-shrink-0">
-                          <Check className="h-6 w-6 text-green-600 dark:text-green-400" />
-                        </div>
-                        <div className="ml-3">
-                          <h3 className="text-lg font-medium text-green-800 dark:text-green-300">
-                            Demande transmise à l'équipe FYNE
-                          </h3>
-                          <div className="mt-2 text-sm text-green-700 dark:text-green-400">
-                            <p>Merci pour votre demande de module personnalisé. L'équipe FYNE a bien reçu votre projet et reviendra vers vous dans les meilleurs délais.</p>
-                            <p className="mt-2">Un mail de confirmation a été envoyé à <strong>{clientInfo.contactEmail}</strong>.</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Aperçu du module */}
-                  {previewMode && (
-                    <div className="mt-8 mb-6">
-                      <div className="border rounded-lg overflow-hidden">
-                        <div className="bg-gradient-to-r from-blue-800 to-purple-900 p-6 text-white">
-                          <h3 className="text-2xl font-bold mb-2">{generatedModules.iamName || `I AM ${moduleConfig.domain.toUpperCase()}`}</h3>
-                          <p className="opacity-90">{generatedModules.description || moduleConfig.description}</p>
-                          
-                          <div className="mt-4 flex flex-wrap gap-2">
-                            {moduleConfig.topics.map((topic, idx) => (
-                              <Badge key={idx} className="bg-white/20 text-white hover:bg-white/30">
-                                {topic}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-0.5 bg-gray-100 dark:bg-gray-800">
-                          {moduleConfig.includeTrainerModule && (
-                            <div className="bg-white dark:bg-gray-900 p-4">
-                              <div className="flex items-center text-blue-600 dark:text-blue-400 mb-2">
-                                <BookOpen className="h-5 w-5 mr-2" />
-                                <h4 className="font-semibold">{moduleConfig.domain}TRAINER</h4>
-                              </div>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">
-                                Module d'apprentissage théorique
-                              </p>
-                            </div>
-                          )}
-                          
-                          {moduleConfig.includeOpsModule && (
-                            <div className="bg-white dark:bg-gray-900 p-4">
-                              <div className="flex items-center text-green-600 dark:text-green-400 mb-2">
-                                <SettingsIcon className="h-5 w-5 mr-2" />
-                                <h4 className="font-semibold">{moduleConfig.domain}OPS</h4>
-                              </div>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">
-                                Module de pratique et d'application
-                              </p>
-                            </div>
-                          )}
-                          
-                          {moduleConfig.includeTestModule && (
-                            <div className="bg-white dark:bg-gray-900 p-4">
-                              <div className="flex items-center text-amber-600 dark:text-amber-400 mb-2">
-                                <Layers className="h-5 w-5 mr-2" />
-                                <h4 className="font-semibold">{moduleConfig.domain}TEST</h4>
-                              </div>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">
-                                Module d'évaluation des connaissances
-                              </p>
-                            </div>
-                          )}
-                          
-                          {moduleConfig.includeAscensionModule && (
-                            <div className="bg-white dark:bg-gray-900 p-4">
-                              <div className="flex items-center text-purple-600 dark:text-purple-400 mb-2">
-                                <Trophy className="h-5 w-5 mr-2" />
-                                <h4 className="font-semibold">{moduleConfig.domain}ASCENSION</h4>
-                              </div>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">
-                                Module de progression avancée
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div className="p-4 bg-white dark:bg-gray-900 text-center">
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
-                            Ce module apparaîtra ainsi sur votre plateforme après développement par l'équipe FYNE
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  
                   <CardFooter className="flex flex-col sm:flex-row justify-between gap-4 border-t pt-6">
                     <Button 
                       variant="outline" 
@@ -963,42 +653,103 @@ export default function ModuleGenerator() {
                     <div className="flex gap-2">
                       <Button 
                         variant="secondary"
-                        onClick={viewModulePreview}
-                        disabled={isSaving || !generatedModules}
+                        onClick={saveModule}
+                        disabled={isGenerating}
+                      >
+                        {isGenerating ? (
+                          <>
+                            <span className="animate-spin mr-2">⏳</span> 
+                            En cours...
+                          </>
+                        ) : (
+                          <>Sauvegarder</>
+                        )}
+                      </Button>
+                      <Button
+                        variant="default"
+                        onClick={async () => {
+                          if (!generatedModules) {
+                            toast({
+                              title: 'Erreur',
+                              description: 'Veuillez d\'abord générer un module',
+                              variant: 'destructive',
+                            });
+                            return;
+                          }
+                          
+                          try {
+                            setIsSaving(true);
+                            
+                            // Préparation des données à envoyer conformément à l'API
+                            console.log("Generated Modules Type:", typeof generatedModules);
+                            console.log("Generated Modules:", generatedModules);
+                            
+                            const moduleToSave = {
+                              moduleConfig: {
+                                userId: 'user-' + Math.random().toString(36).substring(2, 9), // ID utilisateur générique
+                                userName: 'Utilisateur mc2i', // Nom d'utilisateur générique
+                                name: moduleConfig.name,
+                                domain: moduleConfig.domain,
+                                description: moduleConfig.description,
+                                difficulty: moduleConfig.difficulty,
+                                topics: moduleConfig.topics,
+                                gamificationLevel: moduleConfig.gamificationLevel,
+                                learningStyle: moduleConfig.learningStyle,
+                                includeTrainerModule: moduleConfig.includeTrainerModule,
+                                includeOpsModule: moduleConfig.includeOpsModule,
+                                includeTestModule: moduleConfig.includeTestModule,
+                                includeAscensionModule: moduleConfig.includeAscensionModule,
+                              },
+                              moduleData: generatedModules 
+                            };
+                            
+                            console.log("Module to save:", moduleToSave);
+                            
+                            // Appel à l'API
+                            const response = await fetch('/api/module-generator/save', {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                              },
+                              body: JSON.stringify(moduleToSave),
+                            });
+                            
+                            const result = await response.json();
+                            
+                            if (!response.ok) {
+                              throw new Error(result.message || 'Erreur lors de la sauvegarde');
+                            }
+                            
+                            toast({
+                              title: 'Module créé et publié avec succès !',
+                              description: 'Votre module a été ajouté à la page d\'accueil',
+                            });
+                            
+                            // Redirection vers la page d'accueil après 1 seconde
+                            setTimeout(() => {
+                              window.location.href = '/';
+                            }, 1000);
+                            
+                          } catch (error) {
+                            console.error('Erreur lors de la sauvegarde:', error);
+                            toast({
+                              title: 'Erreur',
+                              description: error instanceof Error ? error.message : 'Une erreur est survenue lors de la sauvegarde',
+                              variant: 'destructive',
+                            });
+                          } finally {
+                            setIsSaving(false);
+                          }
+                        }}
+                        disabled={isSaving || isGenerating || !generatedModules}
                       >
                         {isSaving ? (
                           <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Préparation de l'aperçu...
-                          </>
-                        ) : (
-                          <>
-                            <Eye className="h-4 w-4 mr-2" />
-                            Accéder au module
-                          </>
-                        )}
-                      </Button>
-                      
-                      <Button
-                        variant="default"
-                        onClick={submitModuleRequest}
-                        disabled={isRequesting || requestSubmitted || !generatedModules}
-                      >
-                        {isRequesting ? (
-                          <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Envoi en cours...
-                          </>
-                        ) : requestSubmitted ? (
-                          <>
-                            <Check className="mr-2 h-4 w-4" />
-                            Demande envoyée
+                            Création en cours...
                           </>
                         ) : (
-                          <>
-                            <Send className="mr-2 h-4 w-4" />
-                            Envoyer la demande
-                          </>
+                          <>Créer et publier le module</>
                         )}
                       </Button>
                     </div>

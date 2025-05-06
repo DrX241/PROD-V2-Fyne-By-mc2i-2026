@@ -94,7 +94,6 @@ export const customModules = pgTable('custom_modules', {
   moduleData: jsonb('module_data').notNull(),
   iconPath: text('icon_path').default('/assets/icons/default-module.svg'),
   isActive: boolean('is_active').default(true),
-  isPreview: boolean('is_preview').default(false), // Indique si c'est juste un aperçu temporaire
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow()
 });

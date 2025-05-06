@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { openAIService } from './services/openai';
 import { db } from './db';
 import { customModules, type InsertCustomModule } from '@shared/schema';
-import { eq, desc, and } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 
 // Augmenter l'interface Request pour inclure la session
 declare global {
@@ -255,9 +255,6 @@ export async function saveCustomModule(req: Request, res: Response) {
       iconPath: getIconPath(moduleConfig.domain || 'general')
     };
     
-    // Vérifier si c'est un aperçu ou un module réel
-    const isPreview = moduleConfig.isPreview === true;
-    
     // Création d'un objet InsertCustomModule à partir des données validées
     const moduleToSave: InsertCustomModule = {
       userId: inputData.userId,
@@ -275,19 +272,17 @@ export async function saveCustomModule(req: Request, res: Response) {
       includeTestModule: inputData.includeTestModule,
       includeAscensionModule: inputData.includeAscensionModule,
       moduleData: inputData.moduleData,
-      iconPath: inputData.iconPath,
-      isPreview: isPreview
+      iconPath: inputData.iconPath
     };
 
     // Insertion dans la base de données
     const [savedModule] = await db.insert(customModules).values(moduleToSave).returning();
 
-    // Retour du module sauvegardé avec son ID pour la redirection
+    // Retour du module sauvegardé
     return res.status(201).json({
       success: true,
       message: 'Module sauvegardé avec succès',
-      module: savedModule,
-      moduleId: savedModule.id
+      module: savedModule
     });
 
   } catch (error) {
@@ -304,15 +299,9 @@ export async function saveCustomModule(req: Request, res: Response) {
  */
 export async function getCustomModules(req: Request, res: Response) {
   try {
-    // Récupération des modules actifs et non-aperçu, triés par ordre d'affichage
-    const modules = await db.select()
-      .from(customModules)
-      .where(
-        and(
-          eq(customModules.isActive, true),
-          eq(customModules.isPreview, false) // Ne pas inclure les aperçus dans la liste principale
-        )
-      )
+    // Récupération de tous les modules actifs, triés par ordre d'affichage
+    const modules = await db.select().from(customModules)
+      .where(eq(customModules.isActive, true))
       .orderBy(customModules.displayOrder);
 
     console.log("Modules récupérés:", modules);
