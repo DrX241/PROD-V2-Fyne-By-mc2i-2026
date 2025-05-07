@@ -182,6 +182,13 @@ const CharacterCreation: React.FC = () => {
     form.setValue('archetype', archetype.id);
   };
 
+  // Affichage des erreurs et de l'état du formulaire pour débogage
+  console.log("Form state:", form.formState);
+  console.log("Form errors:", form.formState.errors);
+  console.log("Form is valid:", form.formState.isValid);
+  console.log("Selected archetype:", selectedArchetype);
+  console.log("Character name:", form.getValues("characterName"));
+
   return (
     <div className="min-h-screen bg-gray-900 text-white py-10 px-4">
       <div className="max-w-4xl mx-auto">
@@ -335,11 +342,24 @@ const CharacterCreation: React.FC = () => {
               </Card>
             )}
             
+            {/* Affichage des erreurs éventuelles pour déboguer */}
+            {Object.keys(form.formState.errors).length > 0 && (
+              <div className="bg-red-800 p-4 rounded-md mb-4">
+                <h3 className="text-white font-bold mb-2">Erreurs de validation:</h3>
+                <ul className="text-white text-sm">
+                  {Object.entries(form.formState.errors).map(([key, error]) => (
+                    <li key={key}>{key}: {error.message}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
             {/* Bouton de soumission */}
             <Button 
               type="submit" 
               className="w-full" 
-              disabled={isSubmitting || !form.formState.isValid}
+              // Désactiver uniquement pendant la soumission, plus pendant la validation
+              disabled={isSubmitting}
             >
               {isSubmitting ? 'Création en cours...' : 'Créer mon agent'}
             </Button>
