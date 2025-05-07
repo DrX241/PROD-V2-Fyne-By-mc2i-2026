@@ -509,7 +509,7 @@ const CyberAscension: React.FC = () => {
           <Button 
             variant="outline" 
             className="mb-6 bg-black/20 border-white/20 text-white hover:bg-white/10"
-            onClick={() => window.location.href = '/'}
+            onClick={() => window.location.href = '/cyber-mode-selection'}
           >
             <ArrowLeft className="mr-2 h-4 w-4" /> Retour
           </Button>
