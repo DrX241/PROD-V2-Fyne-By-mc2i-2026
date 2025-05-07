@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
-import { ArrowRight, Home, Settings, Lock, Unlock } from 'lucide-react';
+import { ArrowRight, Home, Settings, Lock, Unlock, ShieldAlert, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
 
@@ -28,6 +31,21 @@ export default function CyberModeSelection() {
   const [hoveredMode, setHoveredMode] = useState<string | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
+  const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false);
+  const [password, setPassword] = useState<string>("");
+  const [passwordError, setPasswordError] = useState<string>("");
+  
+  // Fonction pour vérifier le mot de passe (doit se terminer par "eddyfyne")
+  const validatePassword = () => {
+    if (password.endsWith("eddyfyne")) {
+      setIsAdminMode(true);
+      setShowPasswordModal(false);
+      setPassword("");
+      setPasswordError("");
+    } else {
+      setPasswordError("Mot de passe incorrect");
+    }
+  };
 
   // Réorganisation des modules en 5 catégories selon la nouvelle structure
   const cyberModes: ModeOption[] = [
@@ -269,12 +287,66 @@ export default function CyberModeSelection() {
               variant="outline"
               size="sm"
               className={`opacity-30 hover:opacity-100 transition-opacity ${isAdminMode ? 'bg-yellow-500/20 border-yellow-500' : 'bg-slate-700/50 border-slate-600'}`}
-              onClick={() => setIsAdminMode(!isAdminMode)}
+              onClick={() => isAdminMode ? setIsAdminMode(false) : setShowPasswordModal(true)}
             >
               {isAdminMode ? <Unlock className="h-3 w-3 mr-1" /> : <Lock className="h-3 w-3 mr-1" />}
               <span className="text-xs">{isAdminMode ? 'Mode Admin' : 'Mode Normal'}</span>
             </Button>
           </div>
+          
+          {/* Dialogue Modal pour la saisie du mot de passe */}
+          <Dialog open={showPasswordModal} onOpenChange={setShowPasswordModal}>
+            <DialogContent className="sm:max-w-md bg-gray-900 text-white border-gray-700">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <ShieldAlert className="h-5 w-5 text-yellow-500" />
+                  <span>Authentification Admin</span>
+                </DialogTitle>
+              </DialogHeader>
+              
+              <div className="py-4">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Mot de passe</Label>
+                    <Input 
+                      id="password" 
+                      type="password" 
+                      placeholder="Entrez votre mot de passe..." 
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && validatePassword()}
+                      className="bg-gray-800 border-gray-700 text-white"
+                    />
+                    {passwordError && (
+                      <p className="text-red-500 text-sm">{passwordError}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              <DialogFooter className="sm:justify-between">
+                <Button 
+                  variant="outline" 
+                  className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700"
+                  onClick={() => {
+                    setShowPasswordModal(false);
+                    setPassword("");
+                    setPasswordError("");
+                  }}
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Annuler
+                </Button>
+                <Button 
+                  onClick={validatePassword}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <Lock className="h-4 w-4 mr-2" />
+                  Déverrouiller
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </HomeLayout>
