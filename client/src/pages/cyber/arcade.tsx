@@ -46,7 +46,8 @@ export default function CyberArcade() {
       description: 'Construisez une défense réseau en plaçant des composants de sécurité pour stopper des attaques',
       icon: <Network className="w-6 h-6" />,
       gradient: 'from-indigo-500 to-purple-700',
-      available: true,
+      available: false,
+      comingSoon: true,
       route: '/cyber/arcade/firewall-tactique'
     },
     {
@@ -64,7 +65,8 @@ export default function CyberArcade() {
       description: 'Résolvez des enquêtes sur des incidents de cybersécurité et identifiez les responsables',
       icon: <Search className="w-6 h-6" />,
       gradient: 'from-indigo-600 to-indigo-900',
-      available: true,
+      available: false,
+      comingSoon: true,
       route: '/cyber/arcade/cyber-investigator'
     },
     {
@@ -73,7 +75,8 @@ export default function CyberArcade() {
       description: 'Analysez des preuves numériques pour reconstruire la chronologie d\'attaques sophistiquées',
       icon: <Fingerprint className="w-6 h-6" />,
       gradient: 'from-emerald-600 to-emerald-900',
-      available: true,
+      available: false,
+      comingSoon: true,
       route: '/cyber/arcade/digital-forensics'
     },
     {
@@ -82,7 +85,8 @@ export default function CyberArcade() {
       description: 'Traquez des acteurs malveillants grâce à l\'analyse de renseignements sur les menaces',
       icon: <Shield className="w-6 h-6" />,
       gradient: 'from-purple-600 to-purple-900',
-      available: true,
+      available: false,
+      comingSoon: true,
       route: '/cyber/arcade/threat-intelligence'
     }
   ];

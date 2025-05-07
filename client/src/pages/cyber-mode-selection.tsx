@@ -42,7 +42,8 @@ export default function CyberModeSelection() {
           id: 'agent-ia',
           title: 'AGENT IA',
           icon: null,
-          destination: '/cyber/expert-learning'
+          destination: '/cyber/expert-learning',
+          comingSoon: false
         },
         {
           id: 'cyber-arcade',
@@ -64,13 +65,15 @@ export default function CyberModeSelection() {
           id: 'mise-en-situation',
           title: 'MISE EN SITUATION',
           icon: null,
-          destination: '/cyber-defense-new'
+          destination: '/cyber-defense-new',
+          comingSoon: true
         },
         {
           id: 'preparation-audition',
           title: 'PRÉPARATION AUDITION CLIENT',
           icon: null,
-          destination: '/cyber/interview-simulation'
+          destination: '/cyber/interview-simulation',
+          comingSoon: true
         }
       ]
     },
@@ -96,7 +99,7 @@ export default function CyberModeSelection() {
           title: 'TEST TECHNIQUE',
           icon: null,
           destination: '/cyber/test-technique',
-          comingSoon: false,
+          comingSoon: true,
           isNew: true
         }
       ]
