@@ -77,10 +77,19 @@ export default function PhishingSimulator() {
       includeAttachments: boolean;
       includeBranding: boolean;
     }) => {
-      return apiRequest('/api/cyber/tools/phishing-simulator', {
+      const response = await fetch('/api/cyber/tools/phishing-simulator', {
         method: 'POST',
-        body: JSON.stringify(data)
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
       });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de la génération de la simulation de phishing');
+      }
+      
+      return await response.json();
     },
     onSuccess: (data: PhishingSimulationResult) => {
       setResult(data);
