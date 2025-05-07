@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation } from '@tanstack/react-query';
+import { useLocation } from 'wouter';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -10,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Loader2, FileText, FileOutput, ArrowLeftRight, Lightbulb, AlertTriangle } from 'lucide-react';
+import { Loader2, FileText, FileOutput, ArrowLeftRight, Lightbulb, AlertTriangle, ChevronLeft } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 
 type AudienceType = 'technical' | 'management' | 'general' | 'beginner';
@@ -41,6 +42,7 @@ const cleanMarkdown = (text: string): string => {
 
 export default function PolicyConverter() {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [originalPolicy, setOriginalPolicy] = useState('');
   const [policyType, setPolicyType] = useState<PolicyType>('general');
   const [targetAudience, setTargetAudience] = useState<AudienceType>('general');
@@ -129,6 +131,17 @@ export default function PolicyConverter() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            <div className="flex justify-start mb-6">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-blue-400 hover:text-blue-300 hover:bg-blue-950 border-blue-800"
+                onClick={() => setLocation('/cyber/tools')}
+              >
+                <ChevronLeft className="mr-2 h-4 w-4" />
+                Retour au menu
+              </Button>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <Label htmlFor="originalPolicy" className="text-gray-300 mb-2 block">
