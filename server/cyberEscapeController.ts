@@ -1,71 +1,209 @@
 import { Request, Response } from 'express';
 import axios from 'axios';
 
+// ---------------------- NOUVELLES INTERFACES DE JEU ---------------------- //
+
 /**
- * Interface pour la requête du jeu Cyber Escape
+ * Interface principale pour le jeu CyberEscape 2.0 - Expérience chronométrée
  */
-interface CyberEscapeRequest {
+interface CyberEscapeV2Request {
   action: string;
-  room: {
-    id: string;
-    name: string;
-  };
-  npc?: {
-    id: string;
-    name: string;
-    role: string;
-    traits: string[];
-  };
-  item?: {
-    id: string;
-    name: string;
-    type: 'document' | 'password' | 'tool' | 'clue';
-  };
-  userInput?: string;
-  gameState: {
-    currentRoom: string;
-    visitedRooms: string[];
-    inventory: Array<{
-      id: string;
-      name: string;
-      type: string;
-      discovered: boolean;
-    }>;
-    unlockedRooms: string[];
-    budget: number;
-    timeRemaining: number;
-    events: string[];
-    puzzlesSolved: string[];
-  };
+  stage?: number;                   // Étape actuelle du jeu (1-5)
+  difficulty?: 'easy' | 'normal' | 'hard';
+  challengeId?: string;             // ID du défi en cours
+  toolId?: string;                  // ID de l'outil utilisé
+  answerSubmitted?: string | string[];  // Réponse soumise au défi
+  interactionTargetId?: string;     // Cible de l'interaction (PNJ, terminal, etc.)
+  gameState: CyberEscapeGameState;
 }
 
 /**
- * Interface pour une interaction avec un PNJ
+ * État du jeu avec nouvelles propriétés
  */
-interface NPCInteractionRequest {
+interface CyberEscapeGameState {
+  currentStage: number;            // Étape actuelle du jeu (1-5)
+  stagesCompleted: number[];       // Étapes complétées
+  timeRemaining: number;           // Temps restant en secondes
+  timeExtensions: number;          // Nombre d'extensions de temps obtenues
+  score: number;                   // Score du joueur
+  
+  // Inventaire du joueur
+  inventory: {
+    keys: Key[];                   // Clés obtenues 
+    tools: Tool[];                 // Outils disponibles
+    clues: Clue[];                 // Indices collectés
+    vulnerabilities: Vulnerability[]; // Vulnérabilités découvertes
+  };
+  
+  // Progression du joueur
+  progress: {
+    challengesCompleted: string[];  // Défis complétés
+    failedAttempts: Record<string, number>;   // Tentatives échouées par défi
+    stageStartTime: number;        // Timestamp de début de l'étape 
+    interactionsHistory: any[];    // Historique des interactions
+    knowledgeGained: string[];     // Concepts cybersécurité appris
+  };
+  
+  // État actuel de l'environnement du jeu
+  environment: {
+    currentLocation: string;       // Emplacement actuel dans l'étape
+    securityLevel: number;         // Niveau de sécurité actuel (1-5)
+    detectionRisk: number;         // Risque de détection (0-100)
+    unlockedAreas: string[];       // Zones débloquées
+    activeAlarms: string[];        // Alarmes actives
+  };
+  
+  // Variables d'état spécifiques par étape
+  stageSpecificState: Record<string, any>;
+}
+
+/**
+ * Interface pour une clé dans le jeu
+ */
+interface Key {
+  id: string;
+  name: string;
+  description: string;
+  type: 'physical' | 'digital' | 'cryptographic';
+  usedOn?: string[];              // IDs des portes/systèmes où cette clé peut être utilisée
+  isEncrypted: boolean;           // Si la clé est cryptée et nécessite un déchiffrement
+  encryptionMethod?: string;      // Méthode de chiffrement utilisée
+}
+
+/**
+ * Interface pour un outil dans le jeu
+ */
+interface Tool {
+  id: string;
+  name: string;
+  description: string;
+  type: 'decryption' | 'hacking' | 'scanning' | 'social_engineering' | 'forensics';
+  usageLimit: number;             // Nombre d'utilisations restantes
+  cooldown: number;               // Temps de recharge en secondes
+  effectiveness: number;          // Efficacité de l'outil (1-100)
+  skillRequired?: string;         // Compétence requise pour utiliser efficacement
+}
+
+/**
+ * Interface pour un indice dans le jeu
+ */
+interface Clue {
+  id: string;
+  name: string;
+  description: string;
+  relatedConcept: string;         // Concept cybersécurité lié
+  relevantTo: string[];           // IDs des défis pour lesquels l'indice est pertinent
+  revealedAt: number;             // Timestamp de découverte
+}
+
+/**
+ * Interface pour une vulnérabilité dans le jeu
+ */
+interface Vulnerability {
+  id: string;
+  name: string;
+  description: string;
+  type: 'software' | 'configuration' | 'human' | 'physical';
+  exploitable: boolean;           // Si la vulnérabilité peut être exploitée
+  mitigationRequired: string;     // Action requise pour mitiger
+  severity: 'low' | 'medium' | 'high' | 'critical';
+}
+
+/**
+ * Interface pour un défi de jeu
+ */
+interface Challenge {
+  id: string;
+  title: string;
+  description: string;
+  type: 'qcm' | 'code' | 'puzzle' | 'analysis' | 'decision';
+  difficulty: number;              // 1-5
+  timeLimit: number;               // En secondes
+  category: CyberSecurityConcept;  // Concept cyber associé
+  rewards: ChallengeRewards;       // Récompenses pour complétion
+  penalties: ChallengePenalties;   // Pénalités pour échec
+  hints: string[];                 // Indices disponibles
+  relatedClues: string[];          // IDs des indices liés à ce défi
+  solutions: string[];             // Solutions acceptables
+  requiresTools?: string[];        // Outils requis pour résoudre
+}
+
+/**
+ * Concepts de cybersécurité couverts par le jeu
+ */
+type CyberSecurityConcept = 
+  'awareness' | 
+  'osint' | 
+  'compliance' | 
+  'strategy' | 
+  'crisis_management' | 
+  'supply_chain' | 
+  'iam' | 
+  'cloud_security' | 
+  'data_protection' | 
+  'vulnerability' | 
+  'incident_management' | 
+  'forensics';
+
+/**
+ * Interface pour les récompenses de défi
+ */
+interface ChallengeRewards {
+  score: number;                   // Points gagnés
+  timeBonus?: number;              // Temps supplémentaire en secondes
+  unlockTool?: string;             // ID d'outil débloqué
+  unlockArea?: string;             // ID de zone débloquée
+  knowledgeGained?: string[];      // Concepts appris
+}
+
+/**
+ * Interface pour les pénalités de défi
+ */
+interface ChallengePenalties {
+  timePenalty: number;             // Temps perdu en secondes
+  securityAlert?: boolean;         // Si une alerte de sécurité est déclenchée
+  detectionRiskIncrease?: number;  // Augmentation du risque de détection
+}
+
+/**
+ * Interface pour un PNJ dans le jeu
+ */
+interface GameNPC {
+  id: string;
+  name: string;
+  role: string;
+  disposition: 'helpful' | 'neutral' | 'antagonistic' | 'deceptive';
+  expertise: CyberSecurityConcept[];
+  dialogueOptions: Record<string, string[]>;
+  specialAbilities?: string[];
+  timeImpact: number;              // Impact sur le temps (positif=bonus, négatif=malus)
+  knowledgeAreas: string[];        // Domaines de connaissance
+}
+
+/**
+ * Interface pour une requête de défi
+ */
+interface ChallengeRequest {
+  challengeId: string;
+  answer: string | string[];
+  toolsUsed?: string[];
+  timeSpent?: number;
+  gameState: CyberEscapeGameState;
+}
+
+/**
+ * Interface pour une requête d'interaction PNJ
+ */
+interface NPCInteractionV2Request {
   npcId: string;
-  userInput: string;
-  conversationHistory: Array<{
-    sender: 'player' | 'npc' | 'system';
+  interactionType: 'question' | 'request_help' | 'deceive' | 'bribe' | 'threaten';
+  interactionDetails: string;
+  previousInteractions: Array<{
+    from: 'player' | 'npc';
     content: string;
+    timestamp: number;
   }>;
-  gameState: any;
-}
-
-/**
- * Interface pour le décodage d'un élément chiffré
- */
-interface DecodeItemRequest {
-  itemId: string;
-  decodeMethod: string;
-  userInput: string;
-  gameState: any;
-}
-
-interface PuzzleRequest {
-  puzzleId: string;
-  proposedSolution: string;
-  gameState: any;
+  gameState: CyberEscapeGameState;
 }
 
 /**
@@ -1119,40 +1257,138 @@ Réponds uniquement avec un JSON au format:
 /**
  * Initialise une nouvelle partie du jeu Cyber Escape
  */
-export async function initializeGame(req: Request, res: Response) {
+/**
+ * Initialise une nouvelle partie de CyberEscape 2.0
+ */
+export async function initializeGameV2(req: Request, res: Response) {
   try {
     const { difficulty = 'normal' } = req.body;
     
-    // Configurer les paramètres de jeu en fonction de la difficulté
-    let budget, timeRemaining;
+    // Configuration des paramètres de jeu selon la difficulté
+    let initialTimeSeconds: number;
+    let initialTools: Tool[];
+    let securityLevel: number;
     
     switch (difficulty) {
       case 'easy':
-        budget = 1200;
-        timeRemaining = 60;
+        initialTimeSeconds = 15 * 60; // 15 minutes en secondes
+        securityLevel = 2;
+        initialTools = [
+          {
+            id: 'basic_decryptor',
+            name: 'Déchiffreur basique',
+            description: 'Un outil simple pour décrypter des messages ou des clés utilisant des algorithmes basiques.',
+            type: 'decryption',
+            usageLimit: 5,
+            cooldown: 30,
+            effectiveness: 60
+          },
+          {
+            id: 'network_scanner',
+            name: 'Scanner réseau',
+            description: 'Détecte les appareils et services actifs sur un réseau.',
+            type: 'scanning',
+            usageLimit: 3,
+            cooldown: 60,
+            effectiveness: 70
+          },
+          {
+            id: 'social_toolkit',
+            name: 'Boîte à outils d\'ingénierie sociale',
+            description: 'Contient des modèles et techniques pour manipuler les personnes afin d\'obtenir des informations.',
+            type: 'social_engineering',
+            usageLimit: 3,
+            cooldown: 120,
+            effectiveness: 65
+          }
+        ];
         break;
       case 'hard':
-        budget = 800;
-        timeRemaining = 30;
+        initialTimeSeconds = 10 * 60; // 10 minutes en secondes
+        securityLevel = 4;
+        initialTools = [
+          {
+            id: 'basic_decryptor',
+            name: 'Déchiffreur basique',
+            description: 'Un outil simple pour décrypter des messages ou des clés utilisant des algorithmes basiques.',
+            type: 'decryption',
+            usageLimit: 3,
+            cooldown: 60,
+            effectiveness: 50
+          }
+        ];
         break;
       case 'normal':
       default:
-        budget = 1000;
-        timeRemaining = 45;
+        initialTimeSeconds = 12 * 60; // 12 minutes en secondes
+        securityLevel = 3;
+        initialTools = [
+          {
+            id: 'basic_decryptor',
+            name: 'Déchiffreur basique',
+            description: 'Un outil simple pour décrypter des messages ou des clés utilisant des algorithmes basiques.',
+            type: 'decryption',
+            usageLimit: 4,
+            cooldown: 45,
+            effectiveness: 55
+          },
+          {
+            id: 'network_scanner',
+            name: 'Scanner réseau',
+            description: 'Détecte les appareils et services actifs sur un réseau.',
+            type: 'scanning',
+            usageLimit: 2,
+            cooldown: 90,
+            effectiveness: 60
+          }
+        ];
         break;
     }
     
-    // État initial du jeu
-    const gameState = {
-      currentRoom: 'hub',
-      visitedRooms: ['hub'],
-      inventory: [],
-      unlockedRooms: ['hub', 'rh', 'it'], // Salles initialement débloquées
-      budget,
-      timeRemaining,
-      events: ['Mission commencée'],
-      puzzlesSolved: [],
-      difficulty
+    // État initial du jeu version 2.0
+    const gameState: CyberEscapeGameState = {
+      currentStage: 1,
+      stagesCompleted: [],
+      timeRemaining: initialTimeSeconds,
+      timeExtensions: 0,
+      score: 0,
+      
+      // Inventaire initial du joueur
+      inventory: {
+        keys: [],
+        tools: initialTools,
+        clues: [],
+        vulnerabilities: []
+      },
+      
+      // Progression initiale
+      progress: {
+        challengesCompleted: [],
+        failedAttempts: {},
+        stageStartTime: Date.now(),
+        interactionsHistory: [],
+        knowledgeGained: []
+      },
+      
+      // Environnement initial
+      environment: {
+        currentLocation: 'entry_point',
+        securityLevel: securityLevel,
+        detectionRisk: 0,
+        unlockedAreas: ['entry_point', 'corridor_a'],
+        activeAlarms: []
+      },
+      
+      // Variables d'état spécifiques à l'étape 1
+      stageSpecificState: {
+        // Étape 1: Reconnaissance et sensibilisation
+        stage1: {
+          osintCompleted: false,
+          identifiedTargets: [],
+          phishingEmailsAnalyzed: 0,
+          vulnerabilitiesScanned: false
+        }
+      }
     };
     
     // Générer le briefing de mission
