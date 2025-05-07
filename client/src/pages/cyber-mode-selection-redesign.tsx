@@ -212,7 +212,7 @@ export default function CyberModeSelectionRedesign() {
       id: 'creer',
       title: "CRÉER/AUTOMATISER",
       description: "Outils pour automatiser et simplifier les tâches de cybersécurité",
-      icon: <Tool className="h-6 w-6 text-teal-100" />,
+      icon: <Wrench className="h-6 w-6 text-teal-100" />,
       modules: ['policy-converter', 'phishing-simulator'],
       gradient: 'from-teal-700 to-teal-900'
     }
