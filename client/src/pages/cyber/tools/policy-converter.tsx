@@ -31,12 +31,12 @@ export default function PolicyConverter() {
   const [result, setResult] = useState<ConversionResult | null>(null);
   
   // Mutation pour convertir la politique
-  const convertPolicyMutation = useMutation({
-    mutationFn: async (data: { 
-      originalPolicy: string; 
-      policyType: PolicyType; 
-      targetAudience: AudienceType
-    }) => {
+  const convertPolicyMutation = useMutation<ConversionResult, Error, { 
+    originalPolicy: string; 
+    policyType: PolicyType; 
+    targetAudience: AudienceType 
+  }>({
+    mutationFn: async (data) => {
       try {
         const response = await apiRequest('POST', '/api/cyber/tools/policy-converter', data);
         return await response.json();

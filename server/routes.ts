@@ -9,6 +9,7 @@ import OpenAI from 'openai';
 import { openAIService } from "./services/openai";
 import attachmentRoutes from './routes/attachmentRoutes';
 import cyberForgeRoutes from './routes/cyberForgeRoutes';
+import cyberToolsRoutes from './routes/cyberToolsRoutes';
 import { createAttachmentWithHiddenPassword } from './services/attachmentService';
 import { evaluateInterviewTest, generateAdaptiveQuestion } from './cyberInterviewTestController';
 import { CyberScenario, CrisisDecisionContent, CrisisDecisionOption } from '../shared/types/cyber';
@@ -4310,6 +4311,9 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
         });
       });
   });
+
+  // Routes pour les outils cyber
+  app.use('/api/cyber/tools', cyberToolsRoutes);
 
   // Fin des routes API
 

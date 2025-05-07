@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { AzureOpenAiService } from './openAiResponseHelper';
+import { openAIService } from './services/openai';
 
 // Controller pour le convertisseur de politiques de sécurité
 export async function policyConverterController(req: Request, res: Response) {
@@ -11,24 +11,23 @@ export async function policyConverterController(req: Request, res: Response) {
     }
 
     // Utiliser Azure OpenAI pour convertir la politique
-    const azureOpenAiService = new AzureOpenAiService();
-
     const prompt = constructPolicyPrompt(originalPolicy, policyType, targetAudience);
-    const response = await azureOpenAiService.getSecondaryModelCompletion({
-      messages: [
-        {
-          role: 'system',
-          content: `Tu es un expert en cybersécurité et en communication, spécialisé dans la simplification et l'adaptation de politiques de sécurité pour différents publics. Ta tâche est de transformer des politiques techniques complexes en versions claires et accessibles tout en préservant les informations essentielles.`
-        },
-        {
-          role: 'user',
-          content: prompt
-        }
-      ],
-      temperature: 0.7,
-      max_tokens: 1500,
-      response_format: { type: 'json_object' }
-    });
+    const systemMessage = {
+      role: 'system',
+      content: `Tu es un expert en cybersécurité et en communication, spécialisé dans la simplification et l'adaptation de politiques de sécurité pour différents publics. Ta tâche est de transformer des politiques techniques complexes en versions claires et accessibles tout en préservant les informations essentielles.`
+    };
+    
+    const userMessage = {
+      role: 'user',
+      content: prompt
+    };
+    
+    // Utiliser le service OpenAI qui est configuré pour Azure
+    const response = await openAIService.getChatCompletion(
+      [systemMessage, userMessage],
+      0.7,
+      1500
+    );
 
     // Analyser la réponse JSON
     let responseData;
