@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { GameStatus, GameActionType, ExitStatus, ObjectState } from '../types/game-enums';
 import { GameState, GameAction, RoomData, ChallengeResult } from '../types/game';
 import { rooms, initialGameData } from '../data/rooms';
@@ -206,7 +206,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
     formatTime
   };
   
-  // Retourner le provider avec le contexte
   return (
     <GameContext.Provider value={contextValue}>
       {children}
