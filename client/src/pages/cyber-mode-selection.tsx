@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
-import { ArrowRight, Home } from 'lucide-react';
+import { ArrowRight, Home, Settings, Lock, Unlock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
@@ -27,6 +27,7 @@ interface ModeOption {
 export default function CyberModeSelection() {
   const [hoveredMode, setHoveredMode] = useState<string | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
 
   // Réorganisation des modules en 5 catégories selon la nouvelle structure
   const cyberModes: ModeOption[] = [
@@ -227,11 +228,16 @@ export default function CyberModeSelection() {
                     <div className="mt-4 flex-grow">
                       <div className="space-y-3">
                         {category.items && category.items.map((item) => (
-                          <Link key={item.id} href={item.comingSoon ? '#' : item.destination} onClick={(e) => item.comingSoon && e.preventDefault()}>
+                          <Link 
+                            key={item.id} 
+                            href={(!isAdminMode && item.comingSoon) ? '#' : item.destination} 
+                            onClick={(e) => (!isAdminMode && item.comingSoon) && e.preventDefault()}
+                          >
                             <div className="flex items-center p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors cursor-pointer border border-white/20 shadow-sm hover:shadow-md hover:border-white/40">
                               <div className="flex-grow">
                                 <div className="flex items-center gap-2">
                                   <h3 className="text-white font-medium text-base">{item.title}</h3>
+                                  {isAdminMode && item.comingSoon && <span className="px-1.5 py-0.5 text-xs bg-yellow-500/30 text-yellow-200 rounded-full">Admin</span>}
                                 </div>
                               </div>
                               <div className="text-white bg-blue-500/30 p-1 rounded-full">
@@ -244,7 +250,7 @@ export default function CyberModeSelection() {
                     </div>
                     
                     {/* Message "Bientôt disponible" pour les modules qui ne sont pas encore disponibles */}
-                    {category.comingSoon && (
+                    {!isAdminMode && category.comingSoon && (
                       <div className="mt-3 text-center">
                         <p className="text-gray-300 text-xs px-3 py-1.5 rounded">Bientôt disponible</p>
                       </div>
@@ -256,6 +262,19 @@ export default function CyberModeSelection() {
           </div>
           
           {/* Bannière d'information supprimée pour améliorer les performances */}
+          
+          {/* Bouton mode admin (discret) */}
+          <div className="fixed bottom-4 right-4 z-50">
+            <Button
+              variant="outline"
+              size="sm"
+              className={`opacity-30 hover:opacity-100 transition-opacity ${isAdminMode ? 'bg-yellow-500/20 border-yellow-500' : 'bg-slate-700/50 border-slate-600'}`}
+              onClick={() => setIsAdminMode(!isAdminMode)}
+            >
+              {isAdminMode ? <Unlock className="h-3 w-3 mr-1" /> : <Lock className="h-3 w-3 mr-1" />}
+              <span className="text-xs">{isAdminMode ? 'Mode Admin' : 'Mode Normal'}</span>
+            </Button>
+          </div>
         </div>
       </div>
     </HomeLayout>
