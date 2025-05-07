@@ -1,190 +1,174 @@
-import { ObjectState, ExitStatus } from '../types/game-enums';
-import { RoomData } from '../types/game';
+import { RoomData, InventoryItem } from '../types/game';
+import { ObjectState, ExitStatus, ChallengeType, ObjectType } from '../types/game-enums';
+
+// Données initiales du jeu
+export const initialGameData = {
+  currentStage: 1,
+  currentRoomId: 'server_room',
+  inventory: {} as Record<string, InventoryItem>,
+  messages: [
+    'Bienvenue dans Cyber Escape: Le Pare-feu est tombé!',
+    'Vous êtes le nouveau Responsable Cybersécurité de l\'entreprise.',
+    'Le système de sécurité a été compromis. Votre mission est de rétablir les défenses en traversant 10 niveaux de défis.',
+    'Commencez par explorer la salle des serveurs...'
+  ],
+  timeRemaining: 900 // 15 minutes en secondes
+};
 
 // Définition des salles du jeu
 export const rooms: Record<string, RoomData> = {
-  // Niveau 0: Introduction 
-  'intro': {
-    id: 'intro',
-    name: 'Briefing de Mission',
-    description: 'Salle holographique de préparation à la mission CYBER ESCAPE',
-    backgroundImage: '/assets/cyber/escape/intro-room.jpg',
+  // Niveau 1: Salle des serveurs
+  'server_room': {
+    id: 'server_room',
+    name: 'Salle des Serveurs',
+    description: 'La salle des serveurs principale de l\'entreprise. Les équipements clignotent frénétiquement, signe d\'une activité anormale.',
+    backgroundPath: '/assets/rooms/server_room.jpg',
     objects: [
       {
-        id: 'mission_brief',
-        name: 'Brief de mission',
-        description: 'Document explicatif de votre mission en tant que RSSI',
-        state: ObjectState.DEFAULT,
-        type: 'document',
-        usable: true
+        id: 'server_rack_1',
+        name: 'Rack Serveur Principal',
+        description: 'Le rack principal contenant les serveurs critiques. Un voyant rouge clignote, indiquant une intrusion possible.',
+        type: ObjectType.COMPUTER,
+        interactable: true,
+        collectible: false,
+        position: { x: 30, y: 50, width: 20, height: 40 },
+        state: ObjectState.NORMAL,
+        imagePath: '/assets/objects/server_rack.png'
       },
-      {
-        id: 'security_toolkit',
-        name: 'Kit de sécurité cyber',
-        description: 'Outil de base pour les opérations de cybersécurité',
-        state: ObjectState.DEFAULT,
-        type: 'device',
-        usable: true
-      }
-    ],
-    npcs: [
-      {
-        id: 'commander',
-        name: 'Commandant Vidal',
-        role: 'Chef des Opérations Cyber',
-        description: 'Responsable de la formation des nouveaux RSSI et des missions critiques'
-      }
-    ],
-    exits: {
-      'east': {
-        direction: 'east',
-        roomId: 'vestibule',
-        name: 'Entrée du Vestibule',
-        status: ExitStatus.OPEN
-      }
-    }
-  },
-  
-  // Niveau 1: Vestibule - Sensibilisation au phishing
-  'vestibule': {
-    id: 'vestibule',
-    name: 'Vestibule Phish-Alert',
-    description: 'Première ligne de défense: un espace dédié à la détection de phishing',
-    backgroundImage: '/assets/cyber/escape/vestibule-room.jpg',
-    objects: [
       {
         id: 'terminal_phishing',
-        name: 'Terminal d\'analyse de phishing',
-        description: 'Console dédiée à l\'identification des emails malveillants',
-        state: ObjectState.DEFAULT,
-        type: 'terminal',
-        usable: true
+        name: 'Terminal de Sécurité',
+        description: 'Un terminal de sécurité affichant une alerte concernant des emails de phishing détectés.',
+        type: ObjectType.COMPUTER,
+        interactable: true,
+        collectible: false,
+        position: { x: 60, y: 45, width: 15, height: 20 },
+        state: ObjectState.INTERACTIVE,
+        imagePath: '/assets/objects/security_terminal.png'
       },
       {
-        id: 'security_poster',
-        name: 'Affiche de sensibilisation',
-        description: 'Poster illustrant les 5 signes qui permettent de reconnaître un phishing',
-        state: ObjectState.DEFAULT,
-        type: 'document',
-        usable: true
-      },
-      {
-        id: 'alert_badge',
-        name: 'Badge d\'alerte',
-        description: 'Badge de signalement des tentatives de phishing, nécessaire pour progresser',
-        state: ObjectState.DISABLED,
-        type: 'item',
-        usable: false
+        id: 'security_badge',
+        name: 'Badge de Sécurité',
+        description: 'Un badge d\'accès appartenant à un administrateur système. Il peut être utilisé pour accéder à des zones sécurisées.',
+        type: 'key',
+        interactable: true,
+        collectible: true,
+        position: { x: 80, y: 70, width: 5, height: 5 },
+        state: ObjectState.NORMAL,
+        imagePath: '/assets/objects/security_badge.png'
       }
     ],
     npcs: [
       {
-        id: 'analyst_sara',
-        name: 'Sara Chen',
-        role: 'Analyste Sécurité Email',
-        description: 'Spécialiste en détection de phishing et protection de messagerie'
+        id: 'technician',
+        name: 'Alex',
+        role: 'Technicien Système',
+        description: 'Un technicien système expérimenté qui peut vous aider à comprendre l\'infrastructure.',
+        dialogues: [
+          'Bonjour, je suis Alex, le technicien système. Bienvenue dans notre salle des serveurs.',
+          'Nous avons remarqué une activité suspecte provenant de l\'extérieur. Je pense que quelqu\'un a envoyé des emails de phishing à notre personnel.',
+          'Vous devriez vérifier le terminal de sécurité pour analyser ces menaces. Utilisez vos compétences de détection de phishing.',
+          'Une fois que vous aurez identifié la menace, vous pourrez accéder à la salle de contrôle réseau pour restaurer le pare-feu.'
+        ],
+        position: { x: 15, y: 60, width: 10, height: 25 },
+        imagePath: '/assets/npcs/technician.png'
       }
     ],
     exits: {
-      'west': {
-        direction: 'west',
-        roomId: 'intro',
-        name: 'Retour au Briefing',
-        status: ExitStatus.OPEN
-      },
-      'east': {
-        direction: 'east',
-        roomId: 'mur_revelations',
-        name: 'Mur des Révélations',
-        status: ExitStatus.LOCKED
+      'to_network_control': {
+        roomId: 'network_control_room',
+        name: 'Salle de Contrôle Réseau',
+        description: 'La porte menant à la salle de contrôle réseau. Elle nécessite une authentification.',
+        status: ExitStatus.LOCKED,
+        requiresItem: 'security_badge',
+        position: { x: 90, y: 50, width: 10, height: 30 }
       }
     },
     challenge: {
-      id: 'phishing_challenge',
-      type: 'phishing',
+      id: 'phishing_detection_lvl1',
+      type: ChallengeType.PHISHING,
       title: 'Détection de Phishing',
-      description: 'Analysez les emails pour identifier ceux qui sont malveillants',
-      completed: false,
-      requiredScore: 7,
-      timeBonus: 50
+      description: 'Analysez les emails reçus et identifiez ceux qui sont des tentatives de phishing.',
+      difficulty: 'beginner',
+      timeLimit: 120,
+      data: {
+        emails: [
+          {
+            id: 'email1',
+            sender: 'service-client@bankofamerica.com',
+            subject: 'Action urgente requise sur votre compte',
+            content: 'Cher client, Nous avons détecté une activité inhabituelle sur votre compte. Veuillez cliquer sur le lien ci-dessous pour vérifier votre identité et sécuriser votre compte: https://bank0famerica-secure.com/verify',
+            isPhishing: true,
+            hints: ['Vérifiez l\'URL attentivement', 'Les banques légitimes n\'utilisent pas de domaines avec des chiffres au lieu de lettres']
+          },
+          {
+            id: 'email2',
+            sender: 'rh@entreprise-interne.com',
+            subject: 'Mise à jour de la politique de sécurité',
+            content: 'Chers collègues, Veuillez prendre connaissance de la nouvelle politique de sécurité de l\'entreprise en pièce jointe. Merci de confirmer que vous l\'avez lue avant vendredi. Cordialement, Le service RH',
+            isPhishing: false,
+            hints: ['L\'adresse email de l\'expéditeur correspond au domaine de l\'entreprise', 'Le message ne demande pas d\'informations sensibles']
+          },
+          {
+            id: 'email3',
+            sender: 'amazon-orders@amazonshopping.net',
+            subject: 'Confirmation de commande #A38259B',
+            content: 'Votre commande d\'un téléphone Samsung Galaxy S23 Ultra (1899€) a été traitée. Si vous n\'avez pas passé cette commande, veuillez cliquer ici pour l\'annuler et vérifier votre compte: https://amaz0n-verify.net/cancel',
+            isPhishing: true,
+            hints: ['Amazon utilise uniquement ses domaines officiels', 'Les liens suspects avec des domaines similaires sont souvent des signes de phishing']
+          },
+          {
+            id: 'email4',
+            sender: 'contact@microsoft.com',
+            subject: 'Renouvellement de votre licence Microsoft 365',
+            content: 'Votre abonnement Microsoft 365 sera bientôt renouvelé. Consultez les détails sur votre compte Microsoft en vous connectant sur https://account.microsoft.com',
+            isPhishing: false,
+            hints: ['L\'URL pointe vers le domaine officiel de Microsoft', 'Pas d\'urgence ou de menace dans le message']
+          }
+        ]
+      }
     }
   },
   
-  // Niveau 2: Mur des Révélations - Recherche OSINT
-  'mur_revelations': {
-    id: 'mur_revelations',
-    name: 'Mur des Révélations',
-    description: 'Centre d\'intelligence où les informations publiques révèlent des secrets',
-    backgroundImage: '/assets/cyber/escape/osint-room.jpg',
+  // Niveau 2: Salle de contrôle réseau (débloquée après le niveau 1)
+  'network_control_room': {
+    id: 'network_control_room',
+    name: 'Salle de Contrôle Réseau',
+    description: 'Centre névralgique du réseau de l\'entreprise. Les écrans de surveillance montrent plusieurs brèches de sécurité actives.',
+    backgroundPath: '/assets/rooms/network_control_room.jpg',
     objects: [
       {
-        id: 'osint_dashboard',
-        name: 'Dashboard OSINT',
-        description: 'Tableau de bord pour la recherche en sources ouvertes',
-        state: ObjectState.DEFAULT,
-        type: 'terminal',
-        usable: true
-      },
-      {
-        id: 'social_feed',
-        name: 'Flux de réseaux sociaux',
-        description: 'Agrégateur de données sociales pour l\'investigation numérique',
-        state: ObjectState.DEFAULT,
-        type: 'terminal',
-        usable: true
-      },
-      {
-        id: 'intel_token',
-        name: 'Jeton d\'Intelligence',
-        description: 'Preuve de compétence en investigation numérique',
-        state: ObjectState.DISABLED,
-        type: 'item',
-        usable: false
+        id: 'firewall_terminal',
+        name: 'Terminal Pare-feu',
+        description: 'Le terminal principal pour gérer le pare-feu de l\'entreprise. Il est actuellement désactivé.',
+        type: ObjectType.COMPUTER,
+        interactable: true,
+        collectible: false,
+        position: { x: 50, y: 40, width: 20, height: 25 },
+        state: ObjectState.INTERACTIVE,
+        imagePath: '/assets/objects/firewall_terminal.png'
       }
     ],
-    npcs: [
-      {
-        id: 'osint_expert',
-        name: 'Dimitri Volkov',
-        role: 'Expert OSINT',
-        description: 'Spécialiste de la collecte d\'information en sources ouvertes et de la reconnaissance passive'
-      }
-    ],
+    npcs: [],
     exits: {
-      'west': {
-        direction: 'west',
-        roomId: 'vestibule',
-        name: 'Retour au Vestibule',
-        status: ExitStatus.OPEN
-      },
-      'north': {
-        direction: 'north',
-        roomId: 'couloir_badges',
-        name: 'Couloir des Badges',
-        status: ExitStatus.LOCKED
+      'back_to_server': {
+        roomId: 'server_room',
+        name: 'Retour à la Salle des Serveurs',
+        description: 'La porte menant à la salle des serveurs.',
+        status: ExitStatus.OPEN,
+        position: { x: 10, y: 50, width: 10, height: 30 }
       }
     },
     challenge: {
-      id: 'osint_challenge',
-      type: 'puzzle',
-      title: 'Investigation Numérique',
-      description: 'Utilisez les sources ouvertes pour découvrir des informations cruciales',
-      completed: false,
-      requiredScore: 5,
-      timeBonus: 40
+      id: 'firewall_config_lvl2',
+      type: ChallengeType.FIREWALL,
+      title: 'Configuration du Pare-feu',
+      description: 'Configurez les règles du pare-feu pour bloquer les adresses IP malveillantes tout en maintenant les services essentiels.',
+      difficulty: 'beginner',
+      timeLimit: 150,
+      data: {
+        // Les données du défi de niveau 2 seront ajoutées plus tard
+      }
     }
   }
-};
-
-// Données initiales pour le jeu
-export const initialGameData = {
-  currentStage: 1,
-  currentRoomId: 'vestibule',
-  inventory: {},
-  messages: [
-    "Bienvenue dans CYBER ESCAPE: Le Pare-feu est tombé! Votre mission est de traverser 10 niveaux de défis cybersécurité pour rétablir les défenses.",
-    "En tant que nouveau RSSI, vous devez faire vos preuves en résolvant des défis de cybersécurité variés.",
-    "Commencez par démontrer vos compétences en détection de phishing dans le Vestibule Phish-Alert."
-  ],
-  timeRemaining: 900, // 15 minutes (en secondes)
 };

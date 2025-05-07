@@ -29,19 +29,133 @@ import StageProgress from './components/StageProgress';
 // Component principal de l'interface
 const CyberEscapeGame = () => {
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-200 p-4">
-      <div className="flex flex-col items-center justify-center h-full">
-        <h1 className="text-2xl font-bold text-green-400 mb-2">CYBER ESCAPE v2.0</h1>
-        <p className="text-gray-400">Version en cours de développement.</p>
-        <p className="text-gray-400 mt-4">Composants créés et prêts à l'intégration :</p>
-        <ul className="mt-2 text-gray-300 space-y-1">
-          <li>• RoomView - Affichage de la salle avec objets et PNJs</li>
-          <li>• CyberTerminal - Terminal pour les messages du jeu</li>
-          <li>• InventoryPanel - Affichage des objets collectés</li>
-          <li>• QuickActions - Actions rapides contextuelles</li>
-          <li>• PhishingChallenge - Mini-jeu de détection d'emails malveillants</li>
-          <li>• StageProgress - Barre de progression des niveaux</li>
-        </ul>
+    <div className="min-h-screen bg-gray-950 bg-[url('/assets/cyber-bg.jpg')] bg-cover bg-center bg-fixed text-gray-200 p-4">
+      {/* Overlay pour lisibilité */}
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-0"></div>
+      
+      {/* Contenu principal */}
+      <div className="relative z-10 max-w-7xl mx-auto pt-6">
+        <div className="flex flex-col gap-6">
+          {/* Bannière du jeu */}
+          <div className="bg-black/60 border border-blue-800 rounded-lg p-6 text-center">
+            <h1 className="text-3xl md:text-4xl font-bold text-blue-400 mb-4">
+              CYBER ESCAPE: Le Pare-feu est tombé
+            </h1>
+            <p className="text-gray-300 max-w-3xl mx-auto">
+              En tant que RSSI nouvellement nommé, votre mission est de restaurer les défenses de l'entreprise après une cyberattaque majeure. 
+              Relevez 10 défis techniques à travers différentes salles pour sécuriser à nouveau le système.
+            </p>
+          </div>
+          
+          {/* Présentation des composants du jeu avec aperçu visuel */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Aperçu RoomView */}
+            <div className="bg-black/40 border border-gray-800 rounded-lg p-4">
+              <h2 className="text-lg font-bold text-green-400 mb-3 flex items-center">
+                <span className="bg-green-800/30 text-green-300 px-2 py-1 rounded mr-2 text-xs">1</span>
+                RoomView
+              </h2>
+              <p className="text-gray-400 mb-4">Interface interactive permettant d'explorer les salles, d'interagir avec les objets et les personnages.</p>
+              <div className="relative h-[200px] bg-gray-900/60 rounded border border-gray-700 overflow-hidden flex justify-center items-center">
+                <div className="text-center p-4">
+                  <div className="grid grid-cols-3 gap-2 mb-4">
+                    <div className="bg-blue-900/30 border border-blue-700 h-16 rounded flex items-center justify-center">
+                      <span className="text-blue-300 text-xs">PNJ</span>
+                    </div>
+                    <div className="bg-green-900/30 border border-green-700 h-16 rounded flex items-center justify-center">
+                      <span className="text-green-300 text-xs">Terminal</span>
+                    </div>
+                    <div className="bg-yellow-900/30 border border-yellow-700 h-16 rounded flex items-center justify-center">
+                      <span className="text-yellow-300 text-xs">Objet</span>
+                    </div>
+                  </div>
+                  <span className="text-gray-500 text-sm">Interagissez avec les éléments de la salle</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Aperçu PhishingChallenge */}
+            <div className="bg-black/40 border border-gray-800 rounded-lg p-4">
+              <h2 className="text-lg font-bold text-blue-400 mb-3 flex items-center">
+                <span className="bg-blue-800/30 text-blue-300 px-2 py-1 rounded mr-2 text-xs">2</span>
+                PhishingChallenge
+              </h2>
+              <p className="text-gray-400 mb-4">Mini-jeu de détection d'emails malveillants. Identifiez les tentatives de phishing pour progresser.</p>
+              <div className="relative h-[200px] bg-gray-900/60 rounded border border-gray-700 overflow-hidden flex justify-center items-center">
+                <div className="text-center p-4">
+                  <div className="bg-white/90 text-gray-800 p-3 rounded-lg mb-3 text-left text-sm">
+                    <div className="font-bold">De: security@companyx.net</div>
+                    <div>Sujet: Vérification de compte urgente</div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="bg-red-900/30 border border-red-700 rounded p-2">
+                      <span className="text-red-300 text-xs">Phishing</span>
+                    </div>
+                    <div className="bg-green-900/30 border border-green-700 rounded p-2">
+                      <span className="text-green-300 text-xs">Légitime</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Aperçu CyberTerminal */}
+            <div className="bg-black/40 border border-gray-800 rounded-lg p-4">
+              <h2 className="text-lg font-bold text-green-400 mb-3 flex items-center">
+                <span className="bg-green-800/30 text-green-300 px-2 py-1 rounded mr-2 text-xs">3</span>
+                CyberTerminal
+              </h2>
+              <p className="text-gray-400 mb-4">Console affichant les messages et l'historique de vos actions dans le jeu.</p>
+              <div className="relative h-[200px] bg-black/60 rounded border border-green-900 overflow-hidden">
+                <div className="bg-green-900/20 p-2 border-b border-green-800">
+                  <span className="text-green-400 text-xs font-mono">CYBER TERMINAL v2.1</span>
+                </div>
+                <div className="p-3 font-mono text-xs">
+                  <div className="text-green-500">> Bienvenue dans Cyber Escape v2.0!</div>
+                  <div className="text-green-500">> Vous êtes dans la Salle des Serveurs.</div>
+                  <div className="text-green-500">> Examinez le terminal pour détecter les emails de phishing.</div>
+                  <div className="text-green-500 flex">
+                    <span className="animate-pulse mr-1">_</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Aperçu InventoryPanel */}
+            <div className="bg-black/40 border border-gray-800 rounded-lg p-4">
+              <h2 className="text-lg font-bold text-blue-400 mb-3 flex items-center">
+                <span className="bg-blue-800/30 text-blue-300 px-2 py-1 rounded mr-2 text-xs">4</span>
+                InventoryPanel
+              </h2>
+              <p className="text-gray-400 mb-4">Gestion des objets collectés lors de votre progression. Utilisez-les pour débloquer des passages.</p>
+              <div className="relative h-[200px] bg-black/60 rounded border border-blue-900 overflow-hidden">
+                <div className="bg-blue-900/20 p-2 border-b border-blue-800">
+                  <span className="text-blue-400 text-xs font-mono">Inventaire</span>
+                </div>
+                <div className="p-3">
+                  <div className="grid grid-cols-1 gap-2">
+                    <div className="bg-blue-900/20 border border-blue-800 rounded p-2 flex items-center justify-between">
+                      <span className="text-blue-300 text-xs">Badge de Sécurité</span>
+                      <span className="bg-blue-800/60 px-2 py-0.5 rounded text-blue-200 text-xs">Utiliser</span>
+                    </div>
+                    <div className="bg-blue-900/20 border border-blue-800 rounded p-2 flex items-center justify-between">
+                      <span className="text-blue-300 text-xs">Clé USB</span>
+                      <span className="bg-blue-800/60 px-2 py-0.5 rounded text-blue-200 text-xs">Utiliser</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Bouton pour lancer le jeu */}
+          <div className="mt-4 text-center">
+            <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg border border-blue-500 transition-all hover:scale-105">
+              🚀 Commencer l'aventure
+            </button>
+            <p className="text-gray-400 mt-4 text-sm">Version 2.0 - Niveau 1 en développement</p>
+          </div>
+        </div>
       </div>
     </div>
   );

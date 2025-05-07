@@ -1,16 +1,16 @@
-import { createContext, useContext, useReducer, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { GameStatus, GameActionType, ExitStatus, ObjectState } from '../types/game-enums';
-import { rooms, initialGameData } from '../data/rooms';
-import {
-  GameState,
-  GameAction,
-  InventoryItem,
-  RoomData,
-  RoomObject,
-  RoomNPC,
-  RoomExit,
-  ChallengeResult
-} from '../types/game';
+import { GameState, GameAction, RoomData, ChallengeResult } from '../types/game';
+
+// Imports temporaires en attendant le fichier rooms.ts
+const rooms: Record<string, RoomData> = {};
+const initialGameData = {
+  currentStage: 1,
+  currentRoomId: 'server_room',
+  inventory: {},
+  messages: ['Bienvenue dans Cyber Escape v2.0! Le pare-feu est tombé, et vous devez restaurer la sécurité.'],
+  timeRemaining: 900 // 15 minutes
+};
 
 // État initial du jeu
 const initialState: GameState = {
@@ -29,22 +29,17 @@ const initialState: GameState = {
 function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case GameActionType.MOVE:
-      // Déplacer le joueur vers une nouvelle salle
       return {
         ...state,
         currentRoomId: action.payload,
-        messages: [...state.messages, `Vous entrez dans ${rooms[action.payload].name}.`]
+        messages: [...state.messages, `Vous entrez dans ${rooms[action.payload]?.name || 'une nouvelle salle'}.`]
       };
-      
     case GameActionType.INTERACT:
-      // Interaction avec un objet
       return {
         ...state,
         messages: [...state.messages, action.payload.message]
       };
-      
     case GameActionType.COLLECT_ITEM:
-      // Collecter un objet dans l'inventaire
       return {
         ...state,
         inventory: {
@@ -53,29 +48,20 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         },
         messages: [...state.messages, `Vous avez obtenu: ${action.payload.name}`]
       };
-      
     case GameActionType.START_CHALLENGE:
-      // Démarrer un défi
       return {
         ...state,
         status: GameStatus.CHALLENGE_ACTIVE,
         activeChallengeId: action.payload,
         isTimerActive: true
       };
-      
     case GameActionType.COMPLETE_CHALLENGE:
       const result = action.payload as ChallengeResult;
-      
-      // Vérifier si le challenge est un succès
       if (result.success) {
-        const currentRoom = rooms[state.currentRoomId];
         const nextStage = state.currentStage + 1;
-        // Ajouter le nouveau niveau aux niveaux débloqués
         const unlockedStages = state.unlockedStages.includes(nextStage) 
           ? state.unlockedStages 
           : [...state.unlockedStages, nextStage];
-          
-        // Mettre à jour le temps restant avec le bonus de temps
         const timeRemaining = state.timeRemaining + result.timeBonus;
         
         return {
@@ -102,12 +88,8 @@ function gameReducer(state: GameState, action: GameAction): GameState {
           ]
         };
       }
-      
     case 'UPDATE_TIME':
-      // Mettre à jour le temps restant
       const newTimeRemaining = state.timeRemaining - 1;
-      
-      // Si le temps est écoulé, passer en game over
       if (newTimeRemaining <= 0) {
         return {
           ...state,
@@ -117,46 +99,17 @@ function gameReducer(state: GameState, action: GameAction): GameState {
           messages: [...state.messages, "Temps écoulé! La mission a échoué."]
         };
       }
-      
-      return {
-        ...state,
-        timeRemaining: newTimeRemaining
-      };
-      
+      return { ...state, timeRemaining: newTimeRemaining };
     case 'PAUSE_GAME':
-      return {
-        ...state,
-        status: GameStatus.PAUSED,
-        isTimerActive: false
-      };
-      
+      return { ...state, status: GameStatus.PAUSED, isTimerActive: false };
     case 'RESUME_GAME':
-      return {
-        ...state,
-        status: GameStatus.PLAYING,
-        isTimerActive: true
-      };
-      
+      return { ...state, status: GameStatus.PLAYING, isTimerActive: true };
     case 'RESTART_GAME':
-      return {
-        ...initialState,
-        status: GameStatus.PLAYING,
-        isTimerActive: true
-      };
-      
+      return { ...initialState, status: GameStatus.PLAYING, isTimerActive: true };
     case 'ADD_MESSAGE':
-      return {
-        ...state,
-        messages: [...state.messages, action.payload]
-      };
-      
+      return { ...state, messages: [...state.messages, action.payload] };
     case 'UNLOCK_EXIT':
-      // Débloquer une sortie
-      return {
-        ...state,
-        messages: [...state.messages, action.payload?.message || "Sortie déverrouillée!"]
-      };
-      
+      return { ...state, messages: [...state.messages, action.payload?.message || "Sortie déverrouillée!"] };
     case 'GAME_VICTORY':
       return {
         ...state,
@@ -165,14 +118,8 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         gameCompleted: true,
         messages: [...state.messages, "Mission accomplie! Vous avez rétabli la sécurité du système."]
       };
-      
     case 'INIT_COMPLETE':
-      return {
-        ...state,
-        status: GameStatus.PLAYING,
-        isTimerActive: true
-      };
-      
+      return { ...state, status: GameStatus.PLAYING, isTimerActive: true };
     default:
       return state;
   }
@@ -196,8 +143,16 @@ export function GameProvider({ children }: { children: ReactNode }) {
   // Utiliser le reducer pour gérer l'état
   const [state, dispatch] = useReducer(gameReducer, initialState);
   
-  // Obtenir la salle actuelle
-  const currentRoom = rooms[state.currentRoomId];
+  // Obtenir la salle actuelle (temporaire)
+  const currentRoom = rooms[state.currentRoomId] || {
+    id: 'temp',
+    name: 'Salle temporaire',
+    description: 'Cette salle est en cours de développement',
+    backgroundPath: '',
+    objects: [],
+    npcs: [],
+    exits: {}
+  };
   
   // Effet pour gérer le timer
   useEffect(() => {
@@ -217,7 +172,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
   // Effet pour initialiser le jeu
   useEffect(() => {
     if (state.status === GameStatus.INITIALIZING) {
-      // Simuler un petit délai pour l'initialisation
       const timer = setTimeout(() => {
         dispatch({ type: 'INIT_COMPLETE' });
       }, 1000);
@@ -228,79 +182,20 @@ export function GameProvider({ children }: { children: ReactNode }) {
   
   // Gérer les interactions avec les éléments du jeu
   const handleInteract = (type: string, targetId: string) => {
-    switch (type) {
-      case 'object':
-        const object = currentRoom.objects.find(obj => obj.id === targetId);
-        if (!object) return;
-        
-        if (object.id === 'terminal_phishing' && currentRoom.challenge?.type === 'phishing') {
-          // Lancer le défi de phishing
-          dispatch({ 
-            type: GameActionType.START_CHALLENGE, 
-            payload: currentRoom.challenge.id 
-          });
-        } else {
-          // Message d'examen standard
-          dispatch({ 
-            type: GameActionType.INTERACT, 
-            payload: { 
-              message: `Vous examinez ${object.name}: ${object.description}` 
-            } 
-          });
-        }
-        break;
-        
-      case 'npc':
-        const npc = currentRoom.npcs.find(n => n.id === targetId);
-        if (!npc) return;
-        
-        dispatch({ 
-          type: GameActionType.INTERACT, 
-          payload: { 
-            message: `${npc.name}: "Bonjour, je suis ${npc.name}, ${npc.role}. Je peux vous aider dans cette mission."` 
-          } 
-        });
-        break;
-        
-      case 'exit':
-        const exit = currentRoom.exits[targetId];
-        if (!exit || exit.status === ExitStatus.LOCKED) {
-          if (exit?.status === ExitStatus.LOCKED) {
-            dispatch({ 
-              type: 'ADD_MESSAGE', 
-              payload: `Cette sortie est verrouillée. Vous devez d'abord relever le défi de cette salle.` 
-            });
-          }
-          return;
-        }
-        
-        dispatch({ type: GameActionType.MOVE, payload: exit.roomId });
-        break;
-        
-      default:
-        console.log("Type d'interaction non géré:", type);
-    }
+    dispatch({ 
+      type: GameActionType.INTERACT, 
+      payload: { 
+        message: `Interaction avec ${type}: ${targetId}` 
+      } 
+    });
   };
   
   // Gérer la fin d'un défi
   const handleChallengeComplete = (success: boolean, score: number, timeBonus: number) => {
     dispatch({
       type: GameActionType.COMPLETE_CHALLENGE,
-      payload: {
-        success,
-        score,
-        timeBonus
-      }
+      payload: { success, score, timeBonus }
     });
-    
-    // Si le défi est réussi, débloquer la sortie correspondante
-    if (success) {
-      // Débloquer virtuellement la sortie
-      // Note: dans un vrai jeu, nous modifierions l'état physique de la salle
-      dispatch({
-        type: 'UNLOCK_EXIT'
-      });
-    }
   };
   
   // Formater le temps pour l'affichage
