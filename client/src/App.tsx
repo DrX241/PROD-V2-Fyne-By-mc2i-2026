@@ -110,6 +110,7 @@ function App() {
             <Route path="/" component={Home} />
             <Route path="/modules" component={ModulesPage} />
             <Route path="/cyber" component={CyberModeSelection} />
+            <Route path="/cyber-mode-selection" component={CyberModeSelection} />
             <Route path="/cyber/agent" component={CyberAgentPage} />
             <Route path="/cyber/cyber-agent" component={CyberAgentRedirectPage} /> {/* Redirection vers la nouvelle version */}
             <Route path="/cyber/cyber-agent-old" component={CyberAgentRedirectPage} /> {/* Ancienne version (redirection) */}
