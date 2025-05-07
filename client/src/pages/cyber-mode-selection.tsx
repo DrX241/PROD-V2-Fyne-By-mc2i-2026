@@ -28,7 +28,7 @@ export default function CyberModeSelection() {
   const [hoveredMode, setHoveredMode] = useState<string | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
-  // Réorganisation des modules en 4 catégories selon la nouvelle structure
+  // Réorganisation des modules en 5 catégories selon la nouvelle structure
   const cyberModes: ModeOption[] = [
     {
       id: 'cyber-trainer',
@@ -96,6 +96,25 @@ export default function CyberModeSelection() {
           title: 'TEST TECHNIQUE',
           icon: null,
           destination: '/cyber/test-technique',
+          comingSoon: false,
+          isNew: true
+        }
+      ]
+    },
+    {
+      id: 'cyber-tools',
+      title: 'CYBERTOOLS',
+      description: "Utilisez des outils d'automatisation pour générer et transformer des documents de sécurité.",
+      icon: null,
+      gradient: 'from-teal-700 to-teal-900',
+      destination: '#',
+      comingSoon: false,
+      items: [
+        {
+          id: 'policy-converter',
+          title: 'CONVERTISSEUR DE POLITIQUES',
+          icon: null,
+          destination: '/cyber/tools/policy-converter',
           comingSoon: false,
           isNew: true
         }
