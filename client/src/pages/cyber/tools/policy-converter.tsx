@@ -38,8 +38,10 @@ export default function PolicyConverter() {
   }>({
     mutationFn: async (data) => {
       try {
-        const response = await apiRequest('POST', '/api/cyber/tools/policy-converter', data);
-        return await response.json();
+        return await apiRequest('/api/cyber/tools/policy-converter', {
+          method: 'POST',
+          body: JSON.stringify(data)
+        });
       } catch (error) {
         console.error('Erreur lors de la conversion:', error);
         throw new Error('Échec de la conversion de la politique');
