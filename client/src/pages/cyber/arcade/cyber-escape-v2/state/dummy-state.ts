@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 // État temporaire très simplifié pour rendre l'interface fonctionnelle
 // Sera remplacé par un état plus complexe basé sur game-state.tsx plus tard
@@ -9,6 +9,9 @@ export const useGameState = () => {
   const [stage, setStage] = useState(0);
   const [messages, setMessages] = useState<string[]>([]);
   const [inventory, setInventory] = useState<Record<string, any>>({});
+  
+  // Référence pour suivre si la notification a déjà été affichée
+  const stageNotifiedRef = useRef<number[]>([]);
 
   // Simule le démarrage du jeu
   const startGame = useCallback(() => {

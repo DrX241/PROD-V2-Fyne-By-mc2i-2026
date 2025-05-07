@@ -60,15 +60,20 @@ const CyberEscapeV2 = () => {
   const [commandInput, setCommandInput] = useState('');
   const { toast } = useToast();
   
+  // Référence pour stocker les étapes déjà notifiées
+  const notifiedStagesRef = useRef<number[]>([]);
+  
   // Effet pour afficher une notification pour chaque nouvelle étape
   useEffect(() => {
-    if (currentStage > 0 && gameState.currentRoom) {
+    if (currentStage > 0 && gameState.currentRoom && !notifiedStagesRef.current.includes(currentStage)) {
       const roomName = gameState.currentRoom.name;
       toast({
         title: `Étape ${currentStage} déverrouillée !`,
         description: roomName,
         variant: "default",
       });
+      // Marquer cette étape comme notifiée
+      notifiedStagesRef.current.push(currentStage);
     }
   }, [currentStage, toast, gameState.currentRoom]);
 
