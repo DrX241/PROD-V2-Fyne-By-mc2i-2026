@@ -391,7 +391,7 @@ Cette approche échelonnée permettra d'améliorer rapidement votre posture de s
   
   // Fonction pour terminer la simulation et revenir à la sélection des niveaux
   const completeLevel = () => {
-    navigate('/cyber/ascension');
+    window.location.href = '/cyber/ascension';
     
     // Dans une implémentation réelle, vous mettriez à jour la progression du joueur ici
     toast({
@@ -413,7 +413,7 @@ Cette approche échelonnée permettra d'améliorer rapidement votre posture de s
           <Button 
             variant="outline" 
             className="mb-6 bg-black/20 border-white/20 text-white hover:bg-white/10"
-            onClick={() => navigate('/cyber/ascension')}
+            onClick={() => window.location.href = '/cyber/ascension'}
           >
             <ArrowLeft className="mr-2 h-4 w-4" /> Retour
           </Button>
