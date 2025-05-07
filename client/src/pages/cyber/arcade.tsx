@@ -23,11 +23,12 @@ export default function CyberArcade() {
   const games: Game[] = [
     {
       id: 'cyber-escape-v2',
-      title: 'CYBER ESCAPE v2.0',
+      title: 'CYBER ESCAPE',
       description: 'Escape game immersif de haute volée : 15 minutes pour franchir 10 étapes avec des défis de cybersécurité réalistes. Chronomètre et médailles en jeu !',
       icon: <Shield className="w-6 h-6" />,
       gradient: 'from-green-600 to-blue-700',
-      available: true,
+      available: false,
+      comingSoon: true,
       route: '/cyber/arcade/cyber-escape-v2'
     },
     {
