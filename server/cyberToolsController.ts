@@ -13,12 +13,12 @@ export async function policyConverterController(req: Request, res: Response) {
     // Utiliser Azure OpenAI pour convertir la politique
     const prompt = constructPolicyPrompt(originalPolicy, policyType, targetAudience);
     const systemMessage = {
-      role: 'system',
+      role: 'system' as const,
       content: `Tu es un expert en cybersécurité et en communication, spécialisé dans la simplification et l'adaptation de politiques de sécurité pour différents publics. Ta tâche est de transformer des politiques techniques complexes en versions claires et accessibles tout en préservant les informations essentielles.`
     };
     
     const userMessage = {
-      role: 'user',
+      role: 'user' as const,
       content: prompt
     };
     
