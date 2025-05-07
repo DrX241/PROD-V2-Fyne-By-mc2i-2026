@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useLocation } from 'wouter';
 import HomeLayout from "@/components/layout/HomeLayout";
-import { ArrowRight, Layers, BookOpen, GraduationCap } from "lucide-react";
+import { ArrowRight, Layers, BookOpen, GraduationCap, Lock, ShieldCheck, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useChatContext } from "@/contexts/ChatContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { motion } from "framer-motion";
@@ -447,7 +449,7 @@ export default function Home() {
       color: "bg-blue-600",
       bgColor: "bg-gradient-to-br from-blue-50 to-blue-100",
       accentColor: "bg-blue-500",
-      linkTo: "/cyber"
+      linkTo: "#cyber-password-modal" // Changer le lien pour ouvrir une modale au lieu d'aller directement au module
     },
     // Le module Cyber Playground a été supprimé selon la demande
     {
