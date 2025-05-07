@@ -1,203 +1,221 @@
-import { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-import Joyride, { CallBackProps, STATUS, Step } from 'react-joyride';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import Joyride, { STATUS, CallBackProps, Step, ACTIONS } from 'react-joyride';
 
-// Types pour le contexte du tutoriel
-type TutorialContextType = {
+interface TutorialContextType {
   showTutorial: boolean;
   startTutorial: () => void;
-  endTutorial: () => void;
-  tourSteps: Record<string, Step[]>;
+  stopTutorial: () => void;
+  setCurrentTour: (tourName: string) => void;
   currentTour: string | null;
-  setCurrentTour: (tour: string) => void;
   tutorialSeen: Record<string, boolean>;
-  markTutorialAsSeen: (tour: string) => void;
+}
+
+interface TutorialProviderProps {
+  children: ReactNode;
+}
+
+// Création du contexte avec des valeurs par défaut
+const TutorialContext = createContext<TutorialContextType>({
+  showTutorial: false,
+  startTutorial: () => {},
+  stopTutorial: () => {},
+  setCurrentTour: () => {},
+  currentTour: null,
+  tutorialSeen: {},
+});
+
+// Étapes du tutoriel pour chaque page
+const tourSteps: Record<string, Step[]> = {
+  'cyber-mode-selection': [
+    {
+      target: 'body',
+      content: 'Bienvenue dans I AM CYBER ! Découvrez notre plateforme dédiée à la formation en cybersécurité.',
+      disableBeacon: true,
+      placement: 'center',
+    },
+    {
+      target: '[data-id="cyber-trainer"]',
+      content: 'La section CYBERTRAINER vous permet d\'apprendre la cybersécurité de manière interactive avec notre IA experte ou via des mini-jeux pédagogiques.',
+      disableBeacon: true,
+    },
+    {
+      target: '[data-id="cyber-ops"]',
+      content: 'CYBEROPS propose des scénarios réalistes pour vous entraîner et réagir comme un professionnel face à des incidents de sécurité.',
+      disableBeacon: true,
+    },
+    {
+      target: '[data-id="cyber-test"]',
+      content: 'Testez vos connaissances avec CYBERTEST grâce à des modes d\'entretien et des tests techniques.',
+      disableBeacon: true,
+    },
+    {
+      target: '[data-id="cyber-tools"]',
+      content: 'CYBERTOOLS met à votre disposition des outils pratiques d\'automatisation pour créer et transformer des documents de sécurité.',
+      disableBeacon: true,
+    },
+    {
+      target: '[data-id="cyber-ascension"]',
+      content: 'CYBERASCENSION est un programme complet de formation pour réussir les certifications en cybersécurité.',
+      disableBeacon: true,
+    },
+  ],
+  'cyber-mode-selection-redesign': [
+    {
+      target: 'body',
+      content: 'Bienvenue dans la nouvelle interface d\'I AM CYBER ! Découvrez notre approche entièrement repensée pour rendre l\'apprentissage de la cybersécurité plus accessible et personnalisé.',
+      disableBeacon: true,
+      placement: 'center',
+    },
+    {
+      target: '[data-id="guide-button"]',
+      content: 'Ce bouton Guide vous permet de réafficher ce tutoriel à tout moment.',
+      disableBeacon: true,
+    },
+    {
+      target: '[data-id="search-input"]',
+      content: 'Utilisez cette barre de recherche pour trouver rapidement un module spécifique.',
+      disableBeacon: true,
+    },
+    {
+      target: '[data-id="contrast-toggle"]',
+      content: 'Activez le mode contraste élevé pour améliorer la lisibilité, particulièrement utile pour les personnes malvoyantes.',
+      disableBeacon: true,
+    },
+    {
+      target: '[data-id="text-increase"]',
+      content: 'Augmentez la taille du texte pour un meilleur confort de lecture.',
+      disableBeacon: true,
+    },
+    {
+      target: '[data-id="filter-button"]',
+      content: 'Filtrez les modules selon différents critères comme le niveau de difficulté.',
+      disableBeacon: true,
+    },
+    {
+      target: '[data-id="main-tabs"]',
+      content: 'Vous pouvez naviguer entre différentes vues : par objectif d\'apprentissage, par métier, ou voir tous les modules.',
+      disableBeacon: true,
+    },
+    {
+      target: '[data-id="objectives-tab"]',
+      content: 'Cette vue organise les modules selon ce que vous souhaitez accomplir : se former, s\'entraîner, s\'évaluer ou créer.',
+      disableBeacon: true,
+    },
+    {
+      target: '[data-id="careers-tab"]',
+      content: 'Cette vue présente des parcours adaptés à différents métiers de la cybersécurité, comme la gouvernance, la sécurité opérationnelle ou le test d\'intrusion.',
+      disableBeacon: true,
+    },
+    {
+      target: '[data-id="all-modules-tab"]',
+      content: 'Accédez ici à tous les modules disponibles avec des options de filtrage avancées.',
+      disableBeacon: true,
+    },
+    {
+      target: 'body',
+      content: 'Vous pouvez maintenant explorer I AM CYBER selon vos préférences. N\'hésitez pas à utiliser le bouton Guide si vous avez besoin d\'aide !',
+      disableBeacon: true,
+      placement: 'center',
+    },
+  ],
 };
 
-// Création du contexte avec une valeur par défaut
-const TutorialContext = createContext<TutorialContextType | undefined>(undefined);
-
-// Provider du tutoriel
-export const TutorialProvider = ({ children }: { children: ReactNode }) => {
+export const TutorialProvider: React.FC<TutorialProviderProps> = ({ children }) => {
   const [showTutorial, setShowTutorial] = useState(false);
   const [currentTour, setCurrentTour] = useState<string | null>(null);
   const [tutorialSeen, setTutorialSeen] = useState<Record<string, boolean>>({});
 
-  // Chargement de l'état "a vu le tutoriel" depuis le localStorage lors du montage du composant
+  // Charger les tutoriels déjà vus depuis le localStorage
   useEffect(() => {
-    const savedTutorialState = localStorage.getItem('tutorialSeen');
-    if (savedTutorialState) {
-      try {
-        setTutorialSeen(JSON.parse(savedTutorialState));
-      } catch (e) {
-        console.error('Erreur lors du chargement de l\'état du tutoriel:', e);
-      }
+    const seenTutorials = localStorage.getItem('tutorialSeen');
+    if (seenTutorials) {
+      setTutorialSeen(JSON.parse(seenTutorials));
     }
   }, []);
 
-  // Sauvegarde de l'état "a vu le tutoriel" dans le localStorage lorsqu'il change
-  useEffect(() => {
-    if (Object.keys(tutorialSeen).length > 0) {
-      localStorage.setItem('tutorialSeen', JSON.stringify(tutorialSeen));
-    }
-  }, [tutorialSeen]);
+  // Gestionnaire de callback pour le tutoriel
+  const handleJoyrideCallback = (data: CallBackProps) => {
+    const { status, action, type } = data;
 
-  // Fonction pour démarrer le tutoriel
+    // Quand le tutoriel est terminé ou fermé
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status as any) || 
+        [ACTIONS.CLOSE].includes(action as any)) {
+      setShowTutorial(false);
+      
+      // Enregistrer que l'utilisateur a vu ce tutoriel
+      if (currentTour) {
+        const updatedTutorialSeen = { ...tutorialSeen, [currentTour]: true };
+        setTutorialSeen(updatedTutorialSeen);
+        localStorage.setItem('tutorialSeen', JSON.stringify(updatedTutorialSeen));
+      }
+    }
+  };
+
+  // Démarrer le tutoriel
   const startTutorial = () => {
     setShowTutorial(true);
   };
 
-  // Fonction pour terminer le tutoriel
-  const endTutorial = () => {
+  // Arrêter le tutoriel
+  const stopTutorial = () => {
     setShowTutorial(false);
   };
 
-  // Fonction pour marquer un tutoriel comme vu
-  const markTutorialAsSeen = (tour: string) => {
-    setTutorialSeen(prev => ({ ...prev, [tour]: true }));
-  };
-
-  // Définition des étapes du tutoriel pour différentes pages/sections
-  const tourSteps: Record<string, Step[]> = {
-    // Tutoriel pour la page principale I AM CYBER
-    'cyber-mode-selection': [
-      {
-        target: 'body',
-        content: 'Bienvenue dans I AM CYBER, votre plateforme de formation en cybersécurité.',
-        placement: 'center',
-        disableBeacon: true,
-      },
-      {
-        target: '.grid', // Sélecteur pour la grille des modules
-        content: 'Choisissez parmi nos différents modules de formation pour développer vos compétences en cybersécurité.',
-        placement: 'bottom',
-      },
-      {
-        target: '[data-id="cyber-arcade"]', // Ajoutez cet attribut aux éléments
-        content: 'CYBER ARCADE : Des jeux éducatifs pour apprendre les bases de la cybersécurité de manière ludique.',
-        placement: 'auto',
-      },
-      {
-        target: '[data-id="cyber-ops"]',
-        content: 'CYBER OPS : Participez à des scénarios réalistes pour apprendre à réagir comme un professionnel.',
-        placement: 'auto',
-      },
-      {
-        target: '[data-id="cyber-test"]',
-        content: 'CYBER TEST : Évaluez vos connaissances et compétences en cybersécurité.',
-        placement: 'auto',
-      },
-      {
-        target: '[data-id="cyber-tools"]',
-        content: 'CYBER TOOLS : Des outils d\'automatisation pour générer et transformer des documents de sécurité.',
-        placement: 'auto',
-      },
-      {
-        target: '[data-id="cyber-ascension"]',
-        content: 'CYBER ASCENSION : Un programme complet pour vous former aux certifications cybersécurité les plus reconnues.',
-        placement: 'auto',
-      },
-    ],
-    
-    // Tutoriel pour la page CYBER ASCENSION
-    'cyber-ascension': [
-      {
-        target: 'body',
-        content: 'Bienvenue dans CYBER ASCENSION, votre parcours complet de formation en cybersécurité.',
-        placement: 'center',
-        disableBeacon: true,
-      },
-      {
-        target: '.level-cards', // Sélecteur à ajouter aux éléments de niveau
-        content: 'Progressez à travers des niveaux de difficulté croissante pour maîtriser différents aspects de la cybersécurité.',
-        placement: 'bottom',
-      },
-      {
-        target: '[data-level="1"]', // Attribut à ajouter au niveau 1
-        content: 'Commencez par le niveau 1 pour apprendre les bases fondamentales de la cybersécurité.',
-        placement: 'auto',
-      },
-    ],
-    
-    // Tutoriel pour la page CYBER TOOLS
-    'cyber-tools': [
-      {
-        target: 'body',
-        content: 'Bienvenue dans CYBER TOOLS, des outils pratiques pour automatiser vos tâches de cybersécurité.',
-        placement: 'center',
-        disableBeacon: true,
-      },
-      {
-        target: '.tools-grid', // Sélecteur à ajouter à la grille d'outils
-        content: 'Explorez nos différents outils pour générer et transformer des documents de sécurité.',
-        placement: 'bottom',
-      },
-      {
-        target: '[data-tool="policy-converter"]', // Attribut à ajouter à l'outil
-        content: 'Le Convertisseur de Politiques transforme des documents techniques en versions accessibles pour différents publics.',
-        placement: 'auto',
-      },
-      {
-        target: '[data-tool="phishing-simulator"]', // Attribut à ajouter à l'outil
-        content: 'Le Simulateur de Phishing vous aide à créer et analyser des scénarios d\'attaques par hameçonnage.',
-        placement: 'auto',
-      },
-    ],
-
-    // Ajoutez d'autres tutoriels pour différentes sections ici
-  };
+  // Steps pour le tutoriel actuel
+  const currentSteps = currentTour ? tourSteps[currentTour] || [] : [];
 
   return (
-    <TutorialContext.Provider
-      value={{
-        showTutorial,
-        startTutorial,
-        endTutorial,
-        tourSteps,
-        currentTour,
+    <TutorialContext.Provider 
+      value={{ 
+        showTutorial, 
+        startTutorial, 
+        stopTutorial, 
         setCurrentTour,
-        tutorialSeen,
-        markTutorialAsSeen,
+        currentTour,
+        tutorialSeen
       }}
     >
+      <Joyride
+        steps={currentSteps}
+        run={showTutorial}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        callback={handleJoyrideCallback}
+        styles={{
+          options: {
+            primaryColor: '#3B82F6', // blue-500
+            backgroundColor: '#1E293B', // slate-800
+            textColor: '#F8FAFC', // slate-50
+            arrowColor: '#1E293B', // slate-800
+            overlayColor: 'rgba(0, 0, 0, 0.7)'
+          },
+          tooltip: {
+            fontSize: '15px',
+            padding: '15px'
+          },
+          buttonBack: {
+            color: '#94A3B8' // slate-400
+          },
+          buttonNext: {
+            backgroundColor: '#3B82F6' // blue-500
+          },
+          buttonSkip: {
+            color: '#94A3B8' // slate-400
+          }
+        }}
+        locale={{
+          back: 'Précédent',
+          close: 'Fermer',
+          last: 'Terminer',
+          next: 'Suivant',
+          skip: 'Ignorer'
+        }}
+      />
       {children}
-      {showTutorial && currentTour && (
-        <Joyride
-          steps={tourSteps[currentTour] || []}
-          run={showTutorial}
-          continuous
-          scrollToFirstStep
-          showProgress
-          showSkipButton
-          styles={{
-            options: {
-              primaryColor: '#3B82F6', // Bleu qui correspond à la palette de l'application
-              zIndex: 10000,
-            },
-            buttonNext: {
-              backgroundColor: '#3B82F6',
-            },
-            buttonBack: {
-              color: '#3B82F6',
-            },
-          }}
-          callback={(data: CallBackProps) => {
-            const { status } = data;
-            if (status === 'finished' || status === 'skipped') {
-              endTutorial();
-              markTutorialAsSeen(currentTour);
-            }
-          }}
-        />
-      )}
     </TutorialContext.Provider>
   );
 };
 
-// Hook personnalisé pour utiliser le contexte du tutoriel
-export const useTutorial = () => {
-  const context = useContext(TutorialContext);
-  if (context === undefined) {
-    throw new Error('useTutorial doit être utilisé avec un TutorialProvider');
-  }
-  return context;
-};
+// Hook personnalisé pour utiliser le contexte
+export const useTutorial = () => useContext(TutorialContext);

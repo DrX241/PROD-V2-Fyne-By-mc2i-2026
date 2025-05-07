@@ -1,0 +1,70 @@
+🔐 1. Gouvernance, Risque et Conformité (GRC)
+Ce sont les métiers orientés pilotage et stratégie :
+
+RSSI (Responsable de la sécurité des systèmes d'information) : Définit la politique de sécurité de l’entreprise.
+
+Consultant GRC : Identifie les risques, définit les plans d’action, veille à la conformité (ISO 27001, RGPD, etc.).
+
+Auditeur SSI : Réalise des audits de sécurité internes ou externes pour évaluer la robustesse du système.
+
+🧪 2. Sécurité Opérationnelle
+Métiers techniques au cœur de la surveillance et de la défense :
+
+Analyste SOC (Security Operation Center) : Surveille les alertes de sécurité en temps réel.
+
+Incident Responder / Analyste CSIRT : Réagit aux incidents (cyberattaques, fuites de données).
+
+Threat Hunter : Recherche de manière proactive des menaces non détectées dans les systèmes.
+
+Forensique numérique : Analyse les traces laissées par les attaques pour comprendre ce qui s’est passé.
+
+🛡️ 3. Architecture et Sécurisation des systèmes
+Conception de systèmes sécurisés :
+
+Architecte sécurité : Intègre la sécurité dans les infrastructures (réseaux, cloud, applications).
+
+Ingénieur sécurité : Met en place des solutions techniques de sécurité (firewalls, VPN, chiffrement, etc.).
+
+Spécialiste IAM (Identity & Access Management) : Gère les accès et identités numériques.
+
+🧑‍💻 4. Test d’intrusion et Red Team
+Métiers offensifs pour tester la sécurité :
+
+Pentester (testeur d’intrusion) : Simule des attaques pour identifier les failles.
+
+Red Team : Mène des attaques réalistes et coordonnées contre l’entreprise (avec son accord).
+
+Ethical Hacker : Expert en sécurité offensif, agit dans un cadre légal pour améliorer la sécurité.
+
+🛠️ 5. Sécurité des applications & DevSecOps
+Cybersécurité dans le développement logiciel :
+
+DevSecOps : Intègre la sécurité dans les chaînes CI/CD.
+
+Security Champion : Point de contact sécurité dans une équipe de développement.
+
+Analyste en sécurité applicative : Audite le code, détecte les vulnérabilités logicielles.
+
+☁️ 6. Spécialistes en Cloud, OT, et IoT
+Domaines techniques émergents :
+
+Cloud Security Engineer : Sécurise les environnements cloud (AWS, Azure, GCP…).
+
+Spécialiste sécurité OT / SCADA : Protège les systèmes industriels et de production.
+
+Spécialiste IoT Security : Sécurise les objets connectés (domestiques, industriels, médicaux…).
+
+📚 7. Sensibilisation et formation
+Métiers autour de l'acculturation :
+
+Responsable sensibilisation à la cybersécurité : Met en place des campagnes pour former les utilisateurs.
+
+Formateur cyber : Conçoit et anime des formations techniques ou générales.
+
+⚙️ 8. R&D et veille
+Expertise en innovation et suivi de la menace :
+
+Chercheur en cybersécurité : Développe de nouveaux algorithmes ou mécanismes de protection.
+
+Veilleur en cybersécurité : Suit l’évolution des menaces et vulnérabilités (threat intelligence).
+
