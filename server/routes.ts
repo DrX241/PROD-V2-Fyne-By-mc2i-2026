@@ -493,6 +493,126 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Enregistrer les routes pour les outils cyber
   app.use('/api/cyber/tools', cyberToolsRoutes);
   
+  // Routes directes pour le simulateur de phishing (fallback en cas de problème d'importation)
+  app.post('/api/cyber/tools/phishing-simulator', async (req: Request, res: Response) => {
+    try {
+      const { scenario, targetType, technique, complexity, includeAttachments, includeBranding } = req.body;
+
+      if (!scenario || !targetType || !technique || !complexity) {
+        return res.status(400).json({ error: 'Tous les champs obligatoires sont requis' });
+      }
+
+      // Construire le prompt pour le simulateur de phishing
+      const targetDescriptions: Record<string, string> = {
+        general: "tous les employés de l'entreprise avec divers niveaux de compétences techniques",
+        executive: "les cadres supérieurs et dirigeants de l'entreprise",
+        it: "le personnel du service informatique avec des connaissances techniques avancées",
+        finance: "le personnel du service financier gérant les opérations financières et les paiements",
+        hr: "le personnel des ressources humaines gérant les informations des employés"
+      };
+
+      const techniqueDescriptions: Record<string, string> = {
+        urgency: "créer un sentiment d'urgence pour pousser à l'action immédiate",
+        curiosity: "susciter la curiosité pour inciter le destinataire à ouvrir une pièce jointe ou cliquer sur un lien",
+        fear: "générer de la peur ou de l'anxiété pour pousser à une action rapide",
+        reward: "offrir une récompense ou un avantage pour inciter à l'action",
+        authority: "se faire passer pour une figure d'autorité pour obtenir la conformité",
+        social: "utiliser la pression sociale ou la référence à des collègues pour encourager l'action"
+      };
+
+      const complexityDescriptions: Record<string, string> = {
+        basic: "facile à détecter, avec des erreurs évidentes et des signaux d'alerte clairs",
+        intermediate: "moyennement difficile à détecter, avec quelques subtilités mais des indices reconnaissables",
+        advanced: "difficile à détecter, très sophistiqué avec peu d'indices évidents"
+      };
+
+      const attachmentNote = includeAttachments 
+        ? "Inclus des références à des pièces jointes fictives (comme un PDF, un document Word ou un fichier ZIP) dans l'email."
+        : "N'inclus pas de références à des pièces jointes dans l'email.";
+
+      const brandingNote = includeBranding
+        ? "Imite l'image de marque d'une entreprise ou d'un service légitime pour rendre l'email plus crédible."
+        : "N'utilise pas d'imitation spécifique d'une marque existante.";
+
+      const prompt = `
+        Crée une simulation d'email de phishing éducatif basée sur le scénario suivant:
+        
+        """
+        ${scenario}
+        """
+        
+        Cible: ${targetDescriptions[targetType]}
+        Technique principale: ${techniqueDescriptions[technique]}
+        Niveau de complexité: ${complexityDescriptions[complexity]}
+        
+        Instructions spécifiques:
+        - ${attachmentNote}
+        - ${brandingNote}
+        - Crée un email réaliste qui pourrait être utilisé dans une attaque de phishing.
+        - L'objectif est éducatif: montrer comment ces emails fonctionnent pour sensibiliser et former.
+        - Inclus des signaux d'alerte qui pourraient être identifiés par un utilisateur attentif.
+        
+        Réponds avec un objet JSON au format suivant:
+        {
+          "emailSubject": "Objet de l'email de phishing",
+          "emailBody": "Corps complet de l'email, formaté de manière réaliste",
+          "senderName": "Nom de l'expéditeur fictif",
+          "senderEmail": "email.de.expediteur@exemple.com",
+          "targetedVulnerabilities": ["Liste de 3-5 vulnérabilités psychologiques ciblées par cet email"],
+          "warningFlags": ["Liste de 3-6 signaux d'alerte qui devraient faire suspecter un phishing"],
+          "educationalPoints": ["Liste de 3-5 points éducatifs expliquant comment cet email fonctionne"],
+          "difficultyLevel": 7 // Un nombre entre 1 et 10 indiquant la difficulté à détecter cette tentative
+        }
+        
+        Le format doit être strictement JSON valide.
+      `;
+      
+      const systemMessage = {
+        role: 'system' as const,
+        content: `Tu es un expert en cybersécurité spécialisé dans la sensibilisation au phishing et à l'ingénierie sociale. Ta mission est de créer des simulations d'emails de phishing réalistes à des fins éducatives, pour aider à former les employés à reconnaître et éviter les tentatives d'hameçonnage.`
+      };
+      
+      const userMessage = {
+        role: 'user' as const,
+        content: prompt
+      };
+      
+      // Utiliser le service OpenAI
+      const response = await openAIService.getChatCompletion(
+        [systemMessage, userMessage],
+        0.7,
+        1500
+      );
+
+      // Analyser la réponse JSON
+      let responseData;
+      try {
+        // Nettoyer la réponse des délimiteurs Markdown
+        let cleanResponse = response;
+        
+        // Supprimer les délimiteurs de bloc de code Markdown
+        if (cleanResponse.includes('```json')) {
+          cleanResponse = cleanResponse.replace(/```json\n/g, '');
+          cleanResponse = cleanResponse.replace(/```/g, '');
+        }
+        
+        // Supprimer toute autre balise Markdown potentielle
+        cleanResponse = cleanResponse.trim();
+        
+        responseData = JSON.parse(cleanResponse);
+      } catch (error) {
+        console.error('Erreur lors de l\'analyse de la réponse JSON:', error);
+        console.error('Réponse brute:', response);
+        return res.status(500).json({ error: 'Erreur lors de l\'analyse de la réponse' });
+      }
+
+      res.json(responseData);
+    } catch (error) {
+      console.error('Erreur lors de la génération de la simulation de phishing:', error);
+      res.status(500).json({ error: 'Erreur lors de la génération de la simulation de phishing' });
+    }
+  });
+  
   // Routes pour le module de test technique cybersécurité
   app.get('/api/cyber/test-technique/options', getTestOptions);
   app.post('/api/cyber/test-technique/generate', generateQuestions);
