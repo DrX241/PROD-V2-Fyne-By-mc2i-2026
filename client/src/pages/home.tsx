@@ -396,6 +396,7 @@ export default function Home() {
   const { userName } = useChatContext();
   const { themeMode } = useTheme();
   const isFuturistic = themeMode === 'futuristic';
+  const [, setLocation] = useLocation();
   
   // État pour stocker les scénarios chargés
   // Les états et fonctions liés aux scénarios ont été supprimés de la page d'accueil
@@ -406,6 +407,55 @@ export default function Home() {
   
   // État pour stocker les modules personnalisés chargés depuis l'API
   const [customModules, setCustomModules] = useState<any[]>([]);
+  
+  // États pour la modalité de protection par mot de passe pour I AM CYBER
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [password, setPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordAttempts, setPasswordAttempts] = useState(0);
+  
+  // Fonction pour vérifier le mot de passe pour accéder à I AM CYBER
+  const handleCyberPasswordCheck = () => {
+    const correctPassword = "Bienvenuechezmc2i,enfin,sur,fyne:)";
+    
+    if (password === correctPassword) {
+      // Mot de passe correct, rediriger vers I AM CYBER
+      setIsPasswordModalOpen(false);
+      setPassword('');
+      setPasswordError('');
+      setPasswordAttempts(0);
+      window.location.href = '/cyber';
+    } else {
+      // Mot de passe incorrect
+      setPasswordError('Mot de passe incorrect. Veuillez réessayer.');
+      setPasswordAttempts(prev => prev + 1);
+      // Après 3 tentatives, donner un indice
+      if (passwordAttempts >= 2) {
+        setPasswordError('Indice: Le mot de passe contient "Bienvenuechezmc2i" et une référence à la plateforme.');
+      }
+    }
+  };
+  
+  // Ouvrir la modale de mot de passe quand l'utilisateur clique sur le module I AM CYBER
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (window.location.hash === '#cyber-password-modal') {
+        setIsPasswordModalOpen(true);
+        // Supprimer le hash de l'URL
+        window.history.replaceState(null, document.title, window.location.pathname);
+      }
+    };
+    
+    // Vérifier si le hash est déjà présent au chargement
+    handleHashChange();
+    
+    // Ajouter un écouteur pour les changements futurs
+    window.addEventListener('hashchange', handleHashChange);
+    
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, []);
   
   // Charger les modules personnalisés au chargement de la page
   useEffect(() => {
@@ -1308,6 +1358,68 @@ export default function Home() {
       </footer>
       
       {/* Suppression de la bannière flottante */}
+      
+      {/* Modale de mot de passe pour I AM CYBER */}
+      <Dialog open={isPasswordModalOpen} onOpenChange={setIsPasswordModalOpen}>
+        <DialogContent className={`sm:max-w-md ${isFuturistic ? 'bg-gradient-to-b from-blue-950 to-indigo-950 text-white border border-blue-500/30 backdrop-blur-sm' : 'bg-white text-gray-800'}`}>
+          <DialogHeader>
+            <DialogTitle className={`flex items-center gap-2 ${isFuturistic ? 'text-cyan-300' : 'text-blue-600'}`}>
+              <Lock className="h-5 w-5" />
+              Accès Sécurisé
+            </DialogTitle>
+            <DialogDescription className={isFuturistic ? 'text-gray-300' : 'text-gray-600'}>
+              Pour accéder à I AM CYBER, veuillez saisir le mot de passe.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex flex-col gap-4 py-4">
+            {/* Icône de sécurité */}
+            <div className="w-full flex justify-center mb-2">
+              <div className={`rounded-full p-3 ${isFuturistic ? 'bg-blue-900/60 text-cyan-300' : 'bg-blue-100 text-blue-600'}`}>
+                <ShieldCheck className="h-8 w-8" />
+              </div>
+            </div>
+            
+            <Input
+              type="password"
+              placeholder="Entrez le mot de passe"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={`${isFuturistic ? 'bg-blue-900/30 border-blue-700/50 text-white placeholder-blue-300/40' : 'bg-white border-gray-300'}`}
+              onKeyDown={(e) => e.key === 'Enter' && handleCyberPasswordCheck()}
+            />
+            
+            {passwordError && (
+              <div className={`text-sm flex items-center gap-2 ${isFuturistic ? 'text-red-300' : 'text-red-500'}`}>
+                <AlertTriangle className="h-4 w-4" />
+                {passwordError}
+              </div>
+            )}
+          </div>
+          
+          <DialogFooter className="gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setIsPasswordModalOpen(false);
+                setPassword('');
+                setPasswordError('');
+              }}
+              className={isFuturistic ? 'bg-transparent hover:bg-blue-900/30 border-blue-700/50 text-blue-300' : ''}
+            >
+              Annuler
+            </Button>
+            <Button
+              type="button"
+              onClick={handleCyberPasswordCheck}
+              className={`${isFuturistic ? 'bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 border border-blue-500/30' : 'bg-blue-600 hover:bg-blue-700'}`}
+            >
+              Accéder
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </HomeLayout>
   );
 }
