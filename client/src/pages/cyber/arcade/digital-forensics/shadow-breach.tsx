@@ -143,6 +143,17 @@ export default function ShadowBreach() {
       updateSessionTab(activeTab);
     }
   }, [activeTab, session]);
+  
+  // Initialiser les tableaux vides dans session si nécessaire
+  useEffect(() => {
+    if (session && !session.completedChallengeIds) {
+      setSession({
+        ...session,
+        completedChallengeIds: [],
+        discoveredEvidenceIds: session.discoveredEvidenceIds || []
+      });
+    }
+  }, [session]);
 
   // Fonctions d'interaction avec l'API
   const initSession = async () => {
@@ -152,9 +163,15 @@ export default function ShadowBreach() {
       const userId = localStorage.getItem('userId') || 'user-' + Math.random().toString(36).substring(2, 9);
       localStorage.setItem('userId', userId);
       
-      const response = await apiRequest('POST', '/api/cyber/arcade/digital-forensics/session/init', {
-        userId: userId,
-        scenarioId: 'shadow-breach'
+      const response = await fetch('/api/cyber/arcade/digital-forensics/session/init', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: userId,
+          scenarioId: 'shadow-breach'
+        })
       });
       
       if (!response.ok) {
@@ -164,7 +181,14 @@ export default function ShadowBreach() {
       const data = await response.json();
       
       if (data.success && data.sessionId) {
-        setSession(data.session);
+        // Assurer que les propriétés nécessaires existent
+        const safeSession = {
+          ...data.session,
+          completedChallengeIds: data.session.completedChallengeIds || [],
+          discoveredEvidenceIds: data.session.discoveredEvidenceIds || []
+        };
+        
+        setSession(safeSession);
         loadEvidence(data.sessionId);
         loadChallenges(data.sessionId);
       } else {
@@ -185,7 +209,7 @@ export default function ShadowBreach() {
   const loadEvidence = async (sessionId: string) => {
     try {
       setIsLoading(true);
-      const response = await apiRequest('GET', `/api/cyber/arcade/digital-forensics/evidence?scenarioId=shadow-breach&sessionId=${sessionId}`);
+      const response = await fetch(`/api/cyber/arcade/digital-forensics/evidence?scenarioId=shadow-breach&sessionId=${sessionId}`);
       
       if (!response.ok) {
         throw new Error('Erreur lors du chargement des preuves');
@@ -213,7 +237,7 @@ export default function ShadowBreach() {
   const loadChallenges = async (sessionId: string) => {
     try {
       setIsLoading(true);
-      const response = await apiRequest('GET', `/api/cyber/arcade/digital-forensics/challenges?scenarioId=shadow-breach&sessionId=${sessionId}`);
+      const response = await fetch(`/api/cyber/arcade/digital-forensics/challenges?scenarioId=shadow-breach&sessionId=${sessionId}`);
       
       if (!response.ok) {
         throw new Error('Erreur lors du chargement des défis');
@@ -471,7 +495,7 @@ export default function ShadowBreach() {
 
   // Calcul des statistiques
   const calculateProgress = (): number => {
-    if (!session || challengeList.length === 0) return 0;
+    if (!session || !session.completedChallengeIds || challengeList.length === 0) return 0;
     return Math.floor((session.completedChallengeIds.length / challengeList.length) * 100);
   };
 
