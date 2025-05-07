@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { Suspense, lazy, startTransition } from "react";
 import { ChatProvider } from "./contexts/ChatContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { AdminProvider } from "./contexts/AdminContext";
 
 // Importation des composants directement car le lazy loading provoque des problèmes
 // avec wouter dans cette implémentation
@@ -104,8 +103,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <AdminProvider>
-          <ChatProvider>
+        <ChatProvider>
             <Switch>
             <Route path="/cyber/interview-simulation" component={CyberInterviewSimulation} />
             <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
@@ -411,8 +409,7 @@ function App() {
             <Route component={NotFound} />
           </Switch>
           <Toaster />
-          </ChatProvider>
-        </AdminProvider>
+        </ChatProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

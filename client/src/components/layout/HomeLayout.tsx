@@ -1,5 +1,4 @@
 import Header from "./Header";
-import AdminButton from "../admin/AdminButton";
 
 interface HomeLayoutProps {
   children: React.ReactNode;
@@ -11,7 +10,7 @@ export default function HomeLayout({ children }: HomeLayoutProps) {
   
   return (
     <div className="min-h-screen w-full flex flex-col bg-slate-50 overflow-x-hidden overflow-y-auto max-w-[100vw]">
-      <Header />
+      <Header isFeny={true} />
 
       <main className="flex-1 w-full overflow-y-auto overflow-x-hidden max-w-full pt-[70px]" style={{ 
         minHeight: `calc(100vh - ${headerHeight})`,
@@ -19,11 +18,6 @@ export default function HomeLayout({ children }: HomeLayoutProps) {
       }}>
         <div className="w-full max-w-full">
           {children}
-        </div>
-        
-        {/* Bouton mode admin (discret) */}
-        <div className="fixed bottom-4 right-4 z-50">
-          <AdminButton />
         </div>
       </main>
     </div>

@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
 import { ArrowRight, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
-import AdminStorage from '@/utils/adminStorage';
 
 interface ModeOption {
   id: string;
@@ -28,20 +27,6 @@ interface ModeOption {
 export default function CyberModeSelection() {
   const [hoveredMode, setHoveredMode] = useState<string | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
-  
-  // Utiliser l'état admin depuis le store
-  const [isAdminMode, setIsAdminMode] = useState<boolean>(AdminStorage.getAdminMode());
-  
-  // S'abonner aux changements dans le gestionnaire d'état admin
-  useEffect(() => {
-    // S'abonner aux changements
-    const unsubscribe = AdminStorage.subscribe((newValue) => {
-      setIsAdminMode(newValue);
-    });
-    
-    // Se désabonner lors du démontage du composant
-    return () => unsubscribe();
-  }, []);
 
   // Réorganisation des modules en 5 catégories selon la nouvelle structure
   const cyberModes: ModeOption[] = [
@@ -242,16 +227,11 @@ export default function CyberModeSelection() {
                     <div className="mt-4 flex-grow">
                       <div className="space-y-3">
                         {category.items && category.items.map((item) => (
-                          <Link 
-                            key={item.id} 
-                            href={(!isAdminMode && item.comingSoon) ? '#' : item.destination} 
-                            onClick={(e) => (!isAdminMode && item.comingSoon) && e.preventDefault()}
-                          >
+                          <Link key={item.id} href={item.comingSoon ? '#' : item.destination} onClick={(e) => item.comingSoon && e.preventDefault()}>
                             <div className="flex items-center p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors cursor-pointer border border-white/20 shadow-sm hover:shadow-md hover:border-white/40">
                               <div className="flex-grow">
                                 <div className="flex items-center gap-2">
                                   <h3 className="text-white font-medium text-base">{item.title}</h3>
-                                  {isAdminMode && item.comingSoon && <span className="px-1.5 py-0.5 text-xs bg-yellow-500/30 text-yellow-200 rounded-full">Admin</span>}
                                 </div>
                               </div>
                               <div className="text-white bg-blue-500/30 p-1 rounded-full">
@@ -264,7 +244,7 @@ export default function CyberModeSelection() {
                     </div>
                     
                     {/* Message "Bientôt disponible" pour les modules qui ne sont pas encore disponibles */}
-                    {!isAdminMode && category.comingSoon && (
+                    {category.comingSoon && (
                       <div className="mt-3 text-center">
                         <p className="text-gray-300 text-xs px-3 py-1.5 rounded">Bientôt disponible</p>
                       </div>
@@ -275,7 +255,7 @@ export default function CyberModeSelection() {
             ))}
           </div>
           
-          {/* Rien à ajouter ici - le bouton admin est maintenant dans le layout */}
+          {/* Bannière d'information supprimée pour améliorer les performances */}
         </div>
       </div>
     </HomeLayout>
