@@ -49,7 +49,8 @@ export default function CyberModeSelection() {
           id: 'cyber-arcade',
           title: 'CYBERARCADE',
           icon: null,
-          destination: '/cyber/arcade'
+          destination: '/cyber/arcade',
+          comingSoon: false
         }
       ]
     },
