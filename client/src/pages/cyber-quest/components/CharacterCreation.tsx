@@ -137,14 +137,18 @@ const CharacterCreation: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      const response = await fetch('/api/cyber-quest/player/create', {
+      // Utiliser la route correcte '/api/cyber-quest/player' au lieu de '/api/cyber-quest/player/create'
+      const response = await fetch('/api/cyber-quest/player', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           ...values,
-          stats: selectedArchetype?.baseStats
+          stats: selectedArchetype?.baseStats,
+          // Obtenir l'ID utilisateur actuel (normalement, cela devrait être géré par le backend)
+          userId: localStorage.getItem('userId') || 'user-' + Math.random().toString(36).substring(2, 9),
+          userName: values.characterName
         }),
       });
       
