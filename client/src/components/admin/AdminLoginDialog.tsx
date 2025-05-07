@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from '@/components/ui/button';
-import { useAdmin } from '@/contexts/AdminContext';
+import AdminStorage from '@/utils/adminStorage';
 
 interface AdminLoginDialogProps {
   open: boolean;
@@ -15,27 +15,10 @@ export default function AdminLoginDialog({ open, onOpenChange }: AdminLoginDialo
   const [password, setPassword] = useState<string>("");
   const [passwordError, setPasswordError] = useState<string>("");
   
-  // État local pour le mode admin comme solution de secours
-  const [localAdminMode, setLocalAdminMode] = useState<boolean>(false);
-  
-  // Fonction locale qui vérifie si le mot de passe est valide (doit se terminer par "eddyfyne")
-  const localValidatePassword = (pwd: string): boolean => {
-    const isValid = pwd.endsWith("eddyfyne");
-    if (isValid) {
-      setLocalAdminMode(true);
-    }
-    return isValid;
+  // Utiliser le validateur de mot de passe de l'utilitaire AdminStorage
+  const validateAdminPassword = (pwd: string): boolean => {
+    return AdminStorage.validatePassword(pwd);
   };
-  
-  // Fonction qui valide le mot de passe
-  let validateAdminPassword = localValidatePassword;
-  
-  try {
-    const adminContext = useAdmin();
-    validateAdminPassword = adminContext.validateAdminPassword;
-  } catch (error) {
-    console.log("AdminLoginDialog: Fallback to local password validation");
-  }
   
   const handleValidation = () => {
     const isValid = validateAdminPassword(password);

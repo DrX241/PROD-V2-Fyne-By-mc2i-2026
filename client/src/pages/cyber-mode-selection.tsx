@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
 import { ArrowRight, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
-import { useAdmin } from '@/contexts/AdminContext';
+import AdminStorage from '@/utils/adminStorage';
 
 interface ModeOption {
   id: string;
@@ -29,19 +29,19 @@ export default function CyberModeSelection() {
   const [hoveredMode, setHoveredMode] = useState<string | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   
-  // Utilisation d'un état local comme solution de secours (fallback)
-  // plutôt que de dépendre directement du contexte global
-  const [localAdminMode, setLocalAdminMode] = useState<boolean>(false);
+  // Utiliser l'état admin depuis le store
+  const [isAdminMode, setIsAdminMode] = useState<boolean>(AdminStorage.getAdminMode());
   
-  // On essaie d'utiliser le contexte admin, mais on a un fallback si l'appel échoue
-  let isAdminMode = localAdminMode;
-  try {
-    const adminContext = useAdmin();
-    isAdminMode = adminContext.isAdminMode;
-  } catch (error) {
-    // On utilise l'état local si le contexte n'est pas disponible
-    console.log("Fallback to local admin state");
-  }
+  // S'abonner aux changements dans le gestionnaire d'état admin
+  useEffect(() => {
+    // S'abonner aux changements
+    const unsubscribe = AdminStorage.subscribe((newValue) => {
+      setIsAdminMode(newValue);
+    });
+    
+    // Se désabonner lors du démontage du composant
+    return () => unsubscribe();
+  }, []);
 
   // Réorganisation des modules en 5 catégories selon la nouvelle structure
   const cyberModes: ModeOption[] = [
