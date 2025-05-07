@@ -8,7 +8,8 @@ import { Link } from 'wouter';
 import HomeLayout from '@/components/layout/HomeLayout';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { useGameState } from './state/game-state';
+import { useGameState } from './state/dummy-state';
+import { GameStage } from './types/game-enums';
 
 // Import des composants personnalisés
 import CyberTerminal from './components/CyberTerminal';
