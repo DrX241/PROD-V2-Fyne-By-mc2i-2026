@@ -28,6 +28,8 @@ export const cyberQuestPlayers = pgTable('cyber_quest_players', {
   missionsCompleted: integer('missions_completed').notNull().default(0),
   challengesCompleted: integer('challenges_completed').notNull().default(0),
   playTime: integer('play_time').notNull().default(0),
+  unlockedEnvironments: jsonb('unlocked_environments').default('[1]'),
+  inventory: jsonb('inventory').default('[]'),
   lastSaved: timestamp('last_saved'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
