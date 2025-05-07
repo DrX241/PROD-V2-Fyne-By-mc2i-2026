@@ -490,6 +490,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Enregistrer les routes pour CyberForge Academy
   app.use('/api/ai', cyberForgeRoutes);
   
+  // Enregistrer les routes pour les outils cyber
+  app.use('/api/cyber/tools', cyberToolsRoutes);
+  
   // Routes pour le module de test technique cybersécurité
   app.get('/api/cyber/test-technique/options', getTestOptions);
   app.post('/api/cyber/test-technique/generate', generateQuestions);
