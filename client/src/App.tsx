@@ -180,9 +180,12 @@ function App() {
             
             {/* Section Outils Cyber */}
             <Route path="/cyber/tools" component={() => {
-              // Redirection vers la page principale des outils cyber
-              window.location.href = '/cyber/tools/policy-converter';
-              return null;
+              const ToolsPageComponent = lazy(() => import('./pages/cyber/tools'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <ToolsPageComponent />
+                </Suspense>
+              );
             }} />
             <Route path="/cyber/tools/policy-converter" component={() => {
               const PolicyConverterComponent = lazy(() => import('./pages/cyber/tools/policy-converter'));
