@@ -181,8 +181,8 @@ export default function CyberModeSelection() {
     <HomeLayout>
       <PageTitle title="I AM CYBER" />
       <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-gray-900 to-blue-900">
-        {/* Bouton retour à l'accueil */}
-        <div className="absolute top-4 left-4 z-20">
+        {/* Bouton retour à l'accueil et Guide */}
+        <div className="absolute top-4 left-4 z-20 flex gap-2">
           <Button 
             variant="outline" 
             className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white"
@@ -190,6 +190,17 @@ export default function CyberModeSelection() {
           >
             <Home className="h-4 w-4 mr-2" />
             Accueil
+          </Button>
+          <Button 
+            variant="outline" 
+            className="bg-blue-600/80 border-blue-400 text-white hover:bg-blue-500 hover:text-white"
+            onClick={() => {
+              setCurrentTour('cyber-mode-selection');
+              startTutorial();
+            }}
+          >
+            <HelpCircle className="h-4 w-4 mr-2" />
+            Guide
           </Button>
         </div>
         
@@ -230,6 +241,7 @@ export default function CyberModeSelection() {
             {cyberModes.map((category, index) => (
               <motion.div
                 key={category.id}
+                data-id={category.id}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.2 }}
