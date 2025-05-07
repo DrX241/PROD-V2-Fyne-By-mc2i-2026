@@ -178,6 +178,21 @@ function App() {
               );
             }} />
             
+            {/* Section Outils Cyber */}
+            <Route path="/cyber/tools" component={() => {
+              // Redirection vers la page principale des outils cyber
+              window.location.href = '/cyber/tools/policy-converter';
+              return null;
+            }} />
+            <Route path="/cyber/tools/policy-converter" component={() => {
+              const PolicyConverterComponent = lazy(() => import('./pages/cyber/tools/policy-converter'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <PolicyConverterComponent />
+                </Suspense>
+              );
+            }} />
+            
             <Route path="/cyber/interview-test" component={() => {
               const CyberInterviewTest = lazy(() => import('./pages/cyber/interview-test'));
               return (
