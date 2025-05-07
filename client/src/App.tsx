@@ -192,6 +192,14 @@ function App() {
                 </Suspense>
               );
             }} />
+            <Route path="/cyber/tools/phishing-simulator" component={() => {
+              const PhishingSimulatorComponent = lazy(() => import('./pages/cyber/tools/phishing-simulator'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <PhishingSimulatorComponent />
+                </Suspense>
+              );
+            }} />
             
             <Route path="/cyber/interview-test" component={() => {
               const CyberInterviewTest = lazy(() => import('./pages/cyber/interview-test'));
