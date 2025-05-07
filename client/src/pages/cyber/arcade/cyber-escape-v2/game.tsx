@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
-import { GameStatus } from './types/game-enums';
+import { GameStatus, ObjectType } from './types/game-enums';
 import { GameProvider, useGameState } from './state/game-state-v2';
 import RoomView from './components/RoomView';
 import CyberTerminal from './components/CyberTerminal';
@@ -51,7 +51,7 @@ const GameInterface = () => {
         id: object.id,
         name: object.name,
         description: object.description,
-        type: typeof object.type === 'string' ? object.type : object.type.toString(),
+        type: typeof object.type === 'string' ? object.type : ObjectType.GENERIC,
         imagePath: object.imagePath,
         usable: true
       };
