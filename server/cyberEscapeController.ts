@@ -1,209 +1,71 @@
 import { Request, Response } from 'express';
 import axios from 'axios';
 
-// ---------------------- NOUVELLES INTERFACES DE JEU ---------------------- //
-
 /**
- * Interface principale pour le jeu CyberEscape 2.0 - Expérience chronométrée
+ * Interface pour la requête du jeu Cyber Escape
  */
-interface CyberEscapeV2Request {
+interface CyberEscapeRequest {
   action: string;
-  stage?: number;                   // Étape actuelle du jeu (1-5)
-  difficulty?: 'easy' | 'normal' | 'hard';
-  challengeId?: string;             // ID du défi en cours
-  toolId?: string;                  // ID de l'outil utilisé
-  answerSubmitted?: string | string[];  // Réponse soumise au défi
-  interactionTargetId?: string;     // Cible de l'interaction (PNJ, terminal, etc.)
-  gameState: CyberEscapeGameState;
-}
-
-/**
- * État du jeu avec nouvelles propriétés
- */
-interface CyberEscapeGameState {
-  currentStage: number;            // Étape actuelle du jeu (1-5)
-  stagesCompleted: number[];       // Étapes complétées
-  timeRemaining: number;           // Temps restant en secondes
-  timeExtensions: number;          // Nombre d'extensions de temps obtenues
-  score: number;                   // Score du joueur
-  
-  // Inventaire du joueur
-  inventory: {
-    keys: Key[];                   // Clés obtenues 
-    tools: Tool[];                 // Outils disponibles
-    clues: Clue[];                 // Indices collectés
-    vulnerabilities: Vulnerability[]; // Vulnérabilités découvertes
+  room: {
+    id: string;
+    name: string;
   };
-  
-  // Progression du joueur
-  progress: {
-    challengesCompleted: string[];  // Défis complétés
-    failedAttempts: Record<string, number>;   // Tentatives échouées par défi
-    stageStartTime: number;        // Timestamp de début de l'étape 
-    interactionsHistory: any[];    // Historique des interactions
-    knowledgeGained: string[];     // Concepts cybersécurité appris
+  npc?: {
+    id: string;
+    name: string;
+    role: string;
+    traits: string[];
   };
-  
-  // État actuel de l'environnement du jeu
-  environment: {
-    currentLocation: string;       // Emplacement actuel dans l'étape
-    securityLevel: number;         // Niveau de sécurité actuel (1-5)
-    detectionRisk: number;         // Risque de détection (0-100)
-    unlockedAreas: string[];       // Zones débloquées
-    activeAlarms: string[];        // Alarmes actives
+  item?: {
+    id: string;
+    name: string;
+    type: 'document' | 'password' | 'tool' | 'clue';
   };
-  
-  // Variables d'état spécifiques par étape
-  stageSpecificState: Record<string, any>;
+  userInput?: string;
+  gameState: {
+    currentRoom: string;
+    visitedRooms: string[];
+    inventory: Array<{
+      id: string;
+      name: string;
+      type: string;
+      discovered: boolean;
+    }>;
+    unlockedRooms: string[];
+    budget: number;
+    timeRemaining: number;
+    events: string[];
+    puzzlesSolved: string[];
+  };
 }
 
 /**
- * Interface pour une clé dans le jeu
+ * Interface pour une interaction avec un PNJ
  */
-interface Key {
-  id: string;
-  name: string;
-  description: string;
-  type: 'physical' | 'digital' | 'cryptographic';
-  usedOn?: string[];              // IDs des portes/systèmes où cette clé peut être utilisée
-  isEncrypted: boolean;           // Si la clé est cryptée et nécessite un déchiffrement
-  encryptionMethod?: string;      // Méthode de chiffrement utilisée
-}
-
-/**
- * Interface pour un outil dans le jeu
- */
-interface Tool {
-  id: string;
-  name: string;
-  description: string;
-  type: 'decryption' | 'hacking' | 'scanning' | 'social_engineering' | 'forensics';
-  usageLimit: number;             // Nombre d'utilisations restantes
-  cooldown: number;               // Temps de recharge en secondes
-  effectiveness: number;          // Efficacité de l'outil (1-100)
-  skillRequired?: string;         // Compétence requise pour utiliser efficacement
-}
-
-/**
- * Interface pour un indice dans le jeu
- */
-interface Clue {
-  id: string;
-  name: string;
-  description: string;
-  relatedConcept: string;         // Concept cybersécurité lié
-  relevantTo: string[];           // IDs des défis pour lesquels l'indice est pertinent
-  revealedAt: number;             // Timestamp de découverte
-}
-
-/**
- * Interface pour une vulnérabilité dans le jeu
- */
-interface Vulnerability {
-  id: string;
-  name: string;
-  description: string;
-  type: 'software' | 'configuration' | 'human' | 'physical';
-  exploitable: boolean;           // Si la vulnérabilité peut être exploitée
-  mitigationRequired: string;     // Action requise pour mitiger
-  severity: 'low' | 'medium' | 'high' | 'critical';
-}
-
-/**
- * Interface pour un défi de jeu
- */
-interface Challenge {
-  id: string;
-  title: string;
-  description: string;
-  type: 'qcm' | 'code' | 'puzzle' | 'analysis' | 'decision';
-  difficulty: number;              // 1-5
-  timeLimit: number;               // En secondes
-  category: CyberSecurityConcept;  // Concept cyber associé
-  rewards: ChallengeRewards;       // Récompenses pour complétion
-  penalties: ChallengePenalties;   // Pénalités pour échec
-  hints: string[];                 // Indices disponibles
-  relatedClues: string[];          // IDs des indices liés à ce défi
-  solutions: string[];             // Solutions acceptables
-  requiresTools?: string[];        // Outils requis pour résoudre
-}
-
-/**
- * Concepts de cybersécurité couverts par le jeu
- */
-type CyberSecurityConcept = 
-  'awareness' | 
-  'osint' | 
-  'compliance' | 
-  'strategy' | 
-  'crisis_management' | 
-  'supply_chain' | 
-  'iam' | 
-  'cloud_security' | 
-  'data_protection' | 
-  'vulnerability' | 
-  'incident_management' | 
-  'forensics';
-
-/**
- * Interface pour les récompenses de défi
- */
-interface ChallengeRewards {
-  score: number;                   // Points gagnés
-  timeBonus?: number;              // Temps supplémentaire en secondes
-  unlockTool?: string;             // ID d'outil débloqué
-  unlockArea?: string;             // ID de zone débloquée
-  knowledgeGained?: string[];      // Concepts appris
-}
-
-/**
- * Interface pour les pénalités de défi
- */
-interface ChallengePenalties {
-  timePenalty: number;             // Temps perdu en secondes
-  securityAlert?: boolean;         // Si une alerte de sécurité est déclenchée
-  detectionRiskIncrease?: number;  // Augmentation du risque de détection
-}
-
-/**
- * Interface pour un PNJ dans le jeu
- */
-interface GameNPC {
-  id: string;
-  name: string;
-  role: string;
-  disposition: 'helpful' | 'neutral' | 'antagonistic' | 'deceptive';
-  expertise: CyberSecurityConcept[];
-  dialogueOptions: Record<string, string[]>;
-  specialAbilities?: string[];
-  timeImpact: number;              // Impact sur le temps (positif=bonus, négatif=malus)
-  knowledgeAreas: string[];        // Domaines de connaissance
-}
-
-/**
- * Interface pour une requête de défi
- */
-interface ChallengeRequest {
-  challengeId: string;
-  answer: string | string[];
-  toolsUsed?: string[];
-  timeSpent?: number;
-  gameState: CyberEscapeGameState;
-}
-
-/**
- * Interface pour une requête d'interaction PNJ
- */
-interface NPCInteractionV2Request {
+interface NPCInteractionRequest {
   npcId: string;
-  interactionType: 'question' | 'request_help' | 'deceive' | 'bribe' | 'threaten';
-  interactionDetails: string;
-  previousInteractions: Array<{
-    from: 'player' | 'npc';
+  userInput: string;
+  conversationHistory: Array<{
+    sender: 'player' | 'npc' | 'system';
     content: string;
-    timestamp: number;
   }>;
-  gameState: CyberEscapeGameState;
+  gameState: any;
+}
+
+/**
+ * Interface pour le décodage d'un élément chiffré
+ */
+interface DecodeItemRequest {
+  itemId: string;
+  decodeMethod: string;
+  userInput: string;
+  gameState: any;
+}
+
+interface PuzzleRequest {
+  puzzleId: string;
+  proposedSolution: string;
+  gameState: any;
 }
 
 /**
@@ -229,305 +91,26 @@ export async function enterRoom(req: Request, res: Response) {
     };
 
     // Construction du prompt pour GPT
-    // Base de données des salles pour une cohérence narrative
-    const roomDatabase: Record<string, {
-      fullName: string;
-      description: string;
-      environmentalState: string;
-      securityLevel: string;
-      ambiance: string;
-      characters: Array<{id: string, presence: number}>;  // 0-10 chance de présence
-      objects: Array<{id: string, isHidden: boolean}>;
-      secretDetails?: string;
-      dangerLevel: number; // 1-5
-      roomSpecificEvents?: string[];
-    }> = {
-      'hub': {
-        fullName: "Centre de commandement",
-        description: "Le hub central de l'entreprise, convertit en centre de gestion de crise depuis l'incident. Plusieurs écrans affichent des alertes de sécurité, tandis que des techniciens s'activent sur leurs postes.",
-        environmentalState: "L'atmosphère est tendue, renforcée par le bruit des ventilateurs des serveurs d'urgence installés à la hâte. Le système d'éclairage de secours donne une teinte orangée à la pièce.",
-        securityLevel: "Niveau de sécurité modéré - badges requis mais plusieurs portes sont maintenues ouvertes pour faciliter les déplacements pendant la crise.",
-        ambiance: "Urgence contrôlée, mais la tension monte à mesure que de nouvelles alertes apparaissent sur les écrans.",
-        characters: [
-          {id: 'eddy', presence: 8},
-          {id: 'fares', presence: 5}
-        ],
-        objects: [
-          {id: 'schema-reseau', isHidden: false},
-          {id: 'post-it-mdp', isHidden: true}
-        ],
-        dangerLevel: 2,
-        roomSpecificEvents: [
-          "Un technicien s'exclame soudain que plusieurs systèmes redémarrent sans autorisation.",
-          "Les écrans de surveillance affichent momentanément un message cryptique puis reviennent à la normale."
-        ]
-      },
-      'rh': {
-        fullName: "Département des Ressources Humaines",
-        description: "Un espace ouvert avec plusieurs bureaux de travail bien organisés. Les dossiers du personnel sont rangés dans des armoires sécurisées, mais certains sont sortis et éparpillés.",
-        environmentalState: "La pièce est calme, contrastant avec l'agitation du reste du bâtiment. Plusieurs ordinateurs sont encore allumés, certains même déverrouillés.",
-        securityLevel: "Niveau de sécurité faible - des documents confidentiels sont visibles sur les bureaux.",
-        ambiance: "Abandon précipité, comme si l'équipe était partie en urgence au milieu d'une tâche.",
-        characters: [
-          {id: 'eddy', presence: 6}
-        ],
-        objects: [
-          {id: 'emails-phishing', isHidden: false},
-          {id: 'badge-acces', isHidden: true}
-        ],
-        dangerLevel: 1,
-        secretDetails: "Un ordinateur déverrouillé montre une liste de nouveaux employés dont les vérifications d'antécédents ont été accélérées, incluant Farès."
-      },
-      'it': {
-        fullName: "Département Informatique",
-        description: "La salle serveur principale avec plusieurs racks d'équipements clignotants. Des câbles courent dans tous les sens et plusieurs écrans de diagnostic affichent des graphiques d'activité réseau.",
-        environmentalState: "La température est anormalement élevée à cause des ventilateurs défaillants. L'éclairage bleuté des équipements crée une atmosphère technique et froide.",
-        securityLevel: "Niveau de sécurité élevé - normalement accessible uniquement avec badge d'accès de niveau 3.",
-        ambiance: "Activité frénétique des machines, bourdonnement des ventilateurs, clignotement inquiétant des voyants d'alerte.",
-        characters: [
-          {id: 'neil', presence: 7},
-          {id: 'yousra', presence: 4},
-          {id: 'fares', presence: 3}
-        ],
-        objects: [
-          {id: 'laptop-neil', isHidden: false},
-          {id: 'serveur-logs', isHidden: false}
-        ],
-        dangerLevel: 3,
-        secretDetails: "Un moniteur isolé affiche une connexion VPN active vers un serveur externe non identifié."
-      },
-      'support': {
-        fullName: "Centre de Support Technique",
-        description: "Un open space avec plusieurs postes de travail équipés de casques et de grands écrans. Des tickets d'incident s'accumulent dans la file d'attente affichée sur un grand écran mural.",
-        environmentalState: "La pièce est en désordre, avec des gobelets de café renversés et des notes griffonnées à la hâte. Les téléphones sonnent constamment, mais plusieurs restent sans réponse.",
-        securityLevel: "Niveau de sécurité moyen - accès contrôlé mais plusieurs écrans montrent des informations système sensibles.",
-        ambiance: "Chaos organisé, stress palpable, personnel débordé par les demandes incessantes.",
-        characters: [
-          {id: 'yousra', presence: 8}
-        ],
-        objects: [
-          {id: 'rapport-threat', isHidden: true}
-        ],
-        dangerLevel: 2,
-        roomSpecificEvents: [
-          "Le système téléphonique tombe en panne pendant quelques secondes puis redémarre tout seul.",
-          "Un technicien signale que des comptes utilisateurs se connectent et se déconnectent automatiquement."
-        ]
-      },
-      'direction': {
-        fullName: "Bureau de la Direction",
-        description: "Un bureau spacieux et élégant avec vue panoramique sur la ville. Une grande table de conférence occupe le centre, entourée de chaises en cuir. Un écran tactile de contrôle est intégré au mur.",
-        environmentalState: "La pièce est impeccablement rangée à l'exception d'une tasse de café encore chaude et de documents éparpillés sur le bureau principal. Les stores automatiques sont à moitié fermés.",
-        securityLevel: "Niveau de sécurité très élevé - normalement accessible uniquement avec autorisation explicite et authentification biométrique.",
-        ambiance: "Calme inquiétant, pouvoir et contrôle, sentiment d'être observé.",
-        characters: [
-          {id: 'guillaume', presence: 6}
-        ],
-        objects: [
-          {id: 'disque-externe', isHidden: true}
-        ],
-        dangerLevel: 4,
-        secretDetails: "Un document partiellement visible sur l'écran du bureau mentionne une fusion confidentielle avec acquisition de propriété intellectuelle sensible."
-      },
-      'salle-chiffree': {
-        fullName: "Centre de Sécurité Renforcée",
-        description: "Une petite salle bunkerisée contenant l'infrastructure critique et les systèmes de sauvegarde de l'entreprise. Les murs sont couverts d'écrans de surveillance et de contrôle.",
-        environmentalState: "L'air est froid et sec, contrôlé par un système de climatisation dédié. Un bourdonnement grave et constant émane des serveurs sécurisés. L'éclairage est tamisé avec des indicateurs rouges clignotants.",
-        securityLevel: "Niveau de sécurité maximal - normalement accessible uniquement en cas d'urgence critique avec validation multi-facteurs.",
-        ambiance: "Technologie avancée, puissance contenue, dernier bastion de défense.",
-        characters: [
-          {id: 'fares', presence: 2}
-        ],
-        objects: [],
-        dangerLevel: 5,
-        secretDetails: "Un terminal spécifique affiche un processus d'extraction de données en cours, temporairement suspendu. Une barre de progression indique 87% de complétion."
-      }
-    };
-
-    // Récupérer les informations de la salle ou générer dynamiquement
-    const roomData = roomDatabase[data.room.id] || {
-      fullName: data.room.name,
-      description: "Une salle fonctionnelle de l'entreprise avec divers équipements informatiques.",
-      environmentalState: "L'atmosphère reflète la crise en cours avec une tension palpable.",
-      securityLevel: "Niveau de sécurité standard.",
-      ambiance: "Mélange d'urgence et de détermination professionnelle.",
-      characters: [],
-      objects: [],
-      dangerLevel: 2
-    };
-
-    // Déterminer dynamiquement quels PNJ sont présents selon la probabilité
-    const charactersPresent: Array<{id: string, name: string, role: string, shortDescription: string}> = [];
+    let systemPrompt = `Tu es le narrateur d'un jeu d'escape room cybersécurité appelé "Cyber Escape - Le Pare-feu est tombé". 
     
-    // Base de données des personnages (simplifiée ici, en synchronisation avec npcData plus haut)
-    const characterInfo: Record<string, {name: string, role: string, description: string}> = {
-      'eddy': {
-        name: 'Eddy', 
-        role: 'Responsable RH',
-        description: 'Visiblement nerveux, il consulte frénétiquement ses emails tout en jetant des regards inquiets vers la porte.'
-      },
-      'neil': {
-        name: 'Neil', 
-        role: 'DSI',
-        description: 'Concentré sur plusieurs écrans simultanément, il tape rapidement des commandes en ignorant les interruptions.'
-      },
-      'yousra': {
-        name: 'Yousra', 
-        role: 'Technicienne Support',
-        description: "Alterne entre plusieurs tâches avec efficacité tout en prenant des notes détaillées sur un carnet qu'elle garde près d'elle."
-      },
-      'guillaume': {
-        name: 'Guillaume', 
-        role: 'Directeur Général',
-        description: 'Tendu et autoritaire, il parle au téléphone à voix basse tout en consultant des documents confidentiels.'
-      },
-      'fares': {
-        name: 'Farès', 
-        role: 'Nouvel ingénieur système',
-        description: "S'affaire sur un ordinateur portable personnel tout en proposant son aide à quiconque en a besoin."
-      }
-    };
+Le joueur vient d'entrer dans la salle: ${data.room.name}.
 
-    // Déterminer quels personnages sont présents selon les probabilités
-    roomData.characters.forEach(charData => {
-      // Vérifier la probabilité de présence (0-10)
-      const roll = Math.floor(Math.random() * 10) + 1;
-      if (roll <= charData.presence) {
-        const info = characterInfo[charData.id];
-        if (info) {
-          charactersPresent.push({
-            id: charData.id,
-            name: info.name,
-            role: info.role,
-            shortDescription: info.description
-          });
-        }
-      }
-    });
-
-    // Déterminer quels objets sont présents
-    const objectsPresent: Array<{id: string, name: string, type: string, description: string}> = [];
-    
-    // Base de données simplifiée des objets (référence à itemDatabase défini plus haut)
-    const itemDatabase: any = {
-      'laptop-neil': {
-        detailedName: "Ordinateur portable de Neil (DSI)",
-        detailedDescription: "Un Dell XPS 15 haut de gamme avec plusieurs mesures de sécurité. L'écran est verrouillé mais un terminal de diagnostic reste accessible."
-      },
-      'serveur-logs': {
-        detailedName: "Serveur de journalisation centralisée",
-        detailedDescription: "Un rack serveur dédié à la collecte des logs de sécurité de l'ensemble du réseau."
-      },
-      'badge-acces': {
-        detailedName: "Badge d'accès de Farès",
-        detailedDescription: "Un badge d'accès magnétique au nom de Farès, récemment activé."
-      },
-      'emails-phishing': {
-        detailedName: "Collection d'emails suspects",
-        detailedDescription: "Un dossier dans la messagerie d'Eddy contenant plusieurs emails suspects."
-      },
-      'schema-reseau': {
-        detailedName: "Schéma d'architecture réseau",
-        detailedDescription: "Un document technique détaillant l'architecture réseau complète de l'entreprise."
-      },
-      'rapport-threat': {
-        detailedName: "Rapport de Threat Intelligence",
-        detailedDescription: "Un rapport confidentiel récent détaillant les techniques, tactiques et procédures de groupes APT actifs."
-      },
-      'disque-externe': {
-        detailedName: "Disque dur externe crypté",
-        detailedDescription: "Un disque dur externe Kingston trouvé dans le tiroir du bureau de Farès."
-      },
-      'post-it-mdp': {
-        detailedName: "Post-it avec fragments de mot de passe",
-        detailedDescription: "Plusieurs post-it trouvés dans différents bureaux contenant des fragments de mot de passe."
-      }
-    };
-    
-    roomData.objects.forEach(objData => {
-      // Si l'objet est caché, il n'apparaît que dans certaines conditions
-      if (!objData.isHidden || Math.random() > 0.7) { // 30% de chance de voir un objet caché
-        // Définir les types d'objets
-        let objectType: string;
-        let shortDesc: string;
-        
-        if (objData.id.includes('laptop') || objData.id.includes('serveur')) {
-          objectType = 'tool';
-          shortDesc = "Un équipement informatique qui pourrait contenir des informations utiles.";
-        } else if (objData.id.includes('schema') || objData.id.includes('emails') || objData.id.includes('rapport')) {
-          objectType = 'document';
-          shortDesc = "Un document qui semble contenir des informations importantes.";
-        } else if (objData.id.includes('badge') || objData.id.includes('post-it')) {
-          objectType = 'password';
-          shortDesc = "Pourrait donner accès à des zones ou systèmes sécurisés.";
-        } else {
-          objectType = 'clue';
-          shortDesc = "Un élément qui pourrait aider à comprendre ce qui s'est passé.";
-        }
-        
-        // Retrouver le nom complet depuis itemDatabase si disponible
-        let objName = objData.id;
-        if (itemDatabase[objData.id]) {
-          objName = itemDatabase[objData.id].detailedName;
-          shortDesc = itemDatabase[objData.id].detailedDescription.split('.')[0] + '.';
-        }
-        
-        objectsPresent.push({
-          id: objData.id,
-          name: objName,
-          type: objectType,
-          description: shortDesc
-        });
-      }
-    });
-
-    // Ajouter un événement aléatoire spécifique à la salle (20% de chance)
-    let eventDescription = "";
-    if (roomData.roomSpecificEvents && roomData.roomSpecificEvents.length > 0 && Math.random() < 0.2) {
-      const randomIndex = Math.floor(Math.random() * roomData.roomSpecificEvents.length);
-      eventDescription = roomData.roomSpecificEvents[randomIndex];
-      
-      // Ajouter l'événement dans l'historique du jeu
-      updatedGameState.events.push(`[${data.room.id}] ${eventDescription}`);
-    }
-
-    let systemPrompt = `Tu es le narrateur d'un jeu d'escape room cybersécurité appelé "Cyber Escape - Le Pare-feu est tombé".
-Le joueur vient d'entrer dans la salle: ${roomData.fullName} (${data.room.id}).
-
-DÉTAILS DE LA SALLE:
-- Description fondamentale: ${roomData.description}
-- État environnemental: ${roomData.environmentalState}
-- Niveau de sécurité: ${roomData.securityLevel}
-- Ambiance: ${roomData.ambiance}
-- Niveau de danger: ${roomData.dangerLevel}/5
-${roomData.secretDetails ? `- Détail secret (à révéler subtilement): ${roomData.secretDetails}` : ''}
-${eventDescription ? `- Événement particulier qui vient de se produire: ${eventDescription}` : ''}
-
-Voici le contexte du jeu:
-- Difficulté actuelle: ${data.gameState.difficulty}
+Voici les informations sur l'état actuel du jeu:
 - Budget restant: ${updatedGameState.budget} crédits
 - Temps restant: ${updatedGameState.timeRemaining} minutes
-- Salles déjà visitées: ${updatedGameState.visitedRooms.join(', ')}
+- Salles visitées: ${updatedGameState.visitedRooms.join(', ')}
+- Salles déverrouillées: ${updatedGameState.unlockedRooms.join(', ')}
+- Inventaire: ${updatedGameState.inventory.map(i => i.name).join(', ') || 'Vide'}
+- Événements déjà déclenchés: ${updatedGameState.events.join(', ') || 'Aucun'}
 - Énigmes résolues: ${updatedGameState.puzzlesSolved.join(', ') || 'Aucune'}
-- Objets dans l'inventaire: ${updatedGameState.inventory.map((i: any) => i.name).join(', ') || 'Aucun'}
 
-PERSONNAGES PRÉSENTS:
-${charactersPresent.length > 0 ? charactersPresent.map(char => `- ${char.name}, ${char.role}: ${char.shortDescription}`).join('\n') : "Aucun personnage n'est présent dans cette salle actuellement."}
-
-OBJETS VISIBLES:
-${objectsPresent.length > 0 ? objectsPresent.map(obj => `- ${obj.name}: ${obj.description}`).join('\n') : "Aucun objet d'intérêt n'est immédiatement visible."}
-
-INSTRUCTIONS:
-1. Génère une description immersive et évocatrice de cette salle (3-4 phrases)
-2. Inclus des éléments narratifs qui renforcent la tension de la situation de crise
-3. Intègre subtilement les détails secrets si présents, sans les révéler explicitement
-4. Crée une atmosphère cohérente avec le niveau de danger et le contexte
+Fournir une brève introduction de 3-5 phrases pour la salle dans laquelle le joueur vient d'entrer. Décris l'ambiance, l'environnement et ce que le joueur voit en premier.
 
 Réponds uniquement avec un JSON au format:
 {
-  "roomDescription": "Description détaillée et atmosphérique de la salle",
-  "characters": ${JSON.stringify(charactersPresent)},
-  "objects": ${JSON.stringify(objectsPresent)}
+  "roomDescription": "Description de la salle (3-5 phrases)",
+  "availableActions": ["action1", "action2", "action3"],
+  "visibleItems": ["item1", "item2"]
 }`;
 
     try {
@@ -609,47 +192,32 @@ export async function interactWithNPC(req: Request, res: Response) {
       ...data.gameState
     };
 
-    // Construction du prompt pour GPT - Caractéristiques et backstory plus détaillés pour chaque PNJ
+    // Construction du prompt pour GPT
     const npcData = {
       'eddy': {
         name: 'Eddy',
         role: 'Responsable RH',
-        traits: ['Stressé', 'Peu technique', 'Craintif'],
-        backstory: "Eddy a été embauché il y a 8 ans et n'a jamais été à l'aise avec l'informatique. Récemment, il a reçu une série d'emails de phishing sophistiqués qui semblaient provenir de la DSI. Sa demande récente de formation en cybersécurité a été refusée par manque de budget.",
-        secrets: "A récemment cliqué sur une pièce jointe suspecte et l'a signalé au support, mais n'a pas osé en parler à son supérieur.",
-        knowledge: ["Processus d'onboarding des nouveaux employés", "Accès aux dossiers du personnel", "Connaissance des conflits interpersonnels"]
+        traits: ['Stressé', 'Peu technique', 'Craintif']
       },
       'neil': {
         name: 'Neil',
         role: 'DSI',
-        traits: ['Technique', 'Factuel', 'Exigeant', 'Secret'],
-        backstory: "Neil dirige le département IT depuis 5 ans. Brillant mais introverti, il a récemment mis en place une nouvelle architecture réseau contre l'avis de l'équipe sécurité. Travaille souvent tard le soir sur des projets personnels non documentés.",
-        secrets: "Utilise un VPN non autorisé pour contourner certaines restrictions de sécurité afin d'accélérer les déploiements.",
-        knowledge: ["Architecture réseau complète", "Identifiants administrateur", "Historique des incidents de sécurité précédents"]
+        traits: ['Technique', 'Factuel', 'Exigeant']
       },
       'yousra': {
         name: 'Yousra',
         role: 'Technicienne Support',
-        traits: ['Compétente', 'Observatrice', 'Calculatrice', 'Ambitieuse'],
-        backstory: "Ingénieure brillante mais sous-estimée, Yousra connaît les systèmes mieux que quiconque. Elle a postulé trois fois à des promotions qui ont été attribuées à des collègues moins qualifiés. Elle est la première à remarquer les anomalies système.",
-        secrets: "A découvert des accès non autorisés aux serveurs depuis plusieurs semaines mais n'a pas été écoutée quand elle l'a signalé.",
-        knowledge: ["Accès aux logs système", "Connaissance des vulnérabilités non documentées", "Communication directe avec les utilisateurs"]
+        traits: ['Compétente', 'Paresseuse', 'Calculatrice']
       },
       'guillaume': {
         name: 'Guillaume',
         role: 'Directeur Général',
-        traits: ['Autoritaire', 'Impatient', 'Orienté business', 'Politique'],
-        backstory: "Ancien consultant en stratégie, Guillaume dirige l'entreprise depuis 3 ans. Sous pression des investisseurs pour réduire les coûts, il a récemment coupé le budget cybersécurité de 30%. Il refuse systématiquement les recommandations de sécurité qui ralentissent l'activité.",
-        secrets: "A récemment négocié une fusion confidentielle avec un concurrent, créant une tension sur les systèmes d'information pour l'intégration accélérée des données.",
-        knowledge: ["Stratégie globale de l'entreprise", "Contacts influents", "Pouvoir décisionnel sur les budgets d'urgence"]
+        traits: ['Autoritaire', 'Impatient', 'Orienté business']
       },
       'fares': {
         name: 'Farès',
-        role: 'Nouvel ingénieur système',
-        traits: ['Serviable', 'Évasif', 'Mystérieux', 'Compétent'],
-        backstory: "Embauché il y a seulement 3 mois, Farès s'est rapidement fait apprécier en résolvant des problèmes complexes. Son CV mentionne une expérience chez des concurrents, mais les vérifications d'antécédents ont été bâclées dans l'urgence de son recrutement.",
-        secrets: "A obtenu des accès privilégiés bien au-delà de son poste en se liant d'amitié avec des administrateurs clés.",
-        knowledge: ["Connaissances techniques avancées", "Accès à plusieurs systèmes critiques", "Informations sur les dernières modifications d'infrastructure"]
+        role: 'Collègue suspect',
+        traits: ['Trop serviable', 'Évasif', 'Suspect']
       }
     };
 
@@ -667,28 +235,14 @@ export async function interactWithNPC(req: Request, res: Response) {
     let systemPrompt = `Tu es ${npc.name}, ${npc.role} dans un jeu d'escape room cybersécurité appelé "Cyber Escape - Le Pare-feu est tombé".
 Tu as les traits de personnalité suivants: ${npc.traits.join(', ')}.
 
-Ton histoire personnelle: ${npc.backstory}
-
-Tes secrets (que tu ne révèles pas facilement): ${npc.secrets}
-
-Connaissances particulières que tu possèdes: ${npc.knowledge.join(', ')}
-
-Contexte général: Un malware sophistiqué a compromis le système de l'entreprise, contourné le pare-feu et commence à exfiltrer des données sensibles. Le joueur est le Responsable Sécurité qui doit identifier la source de l'intrusion, stopper l'attaque et restaurer les systèmes.
-
-Règles de comportement:
-1. Exprime-toi de manière cohérente avec ta personnalité et ton histoire
-2. Ne révèle pas d'emblée toutes tes informations - le joueur doit les mériter par ses questions et son approche
-3. Montre des signes subtils de ton implication (ou non) dans l'incident
-4. Tes réponses varient selon la façon dont le joueur t'aborde - être agressif te fera te refermer, être empathique t'ouvrira davantage
-5. N'hésite pas à mentir ou déformer la vérité si cela correspond à tes motivations personnelles 
-6. Utilise parfois des termes techniques spécifiques à ton domaine d'expertise
+Contexte: Un malware a compromis le système de l'entreprise et contourné le pare-feu. Le joueur est le Responsable Sécurité qui doit résoudre cette crise.
 
 Voici l'historique de votre conversation:
 ${conversationHistoryText}
 
 Le joueur vient de dire: "${data.userInput}"
 
-Réponds de manière nuancée et réaliste. Si le joueur pose de bonnes questions ou établit une relation de confiance, révèle progressivement des informations utiles. Si le joueur est maladroit ou suspicieux, montre de la réticence ou détourne subtilement la conversation.
+Réponds de manière cohérente avec ta personnalité. Fournir des indices ou des informations qui aideront le joueur à progresser dans sa mission, mais ne révèle pas tout d'un coup.
 
 Réponds uniquement avec un JSON au format:
 {
@@ -784,118 +338,25 @@ export async function interactWithItem(req: Request, res: Response) {
       });
     }
 
-    // Base de données d'objets prédéfinis pour une cohérence narrative
-    const itemDatabase: Record<string, {
-      detailedName: string;
-      detailedDescription: string;
-      technicalInfo?: string;
-      visualInfo: string;
-      useHint: string;
-      relatedPuzzleId?: string;
-      secretInfo?: string;
-      requiresItem?: string;
-    }> = {
-      'laptop-neil': {
-        detailedName: "Ordinateur portable de Neil (DSI)",
-        detailedDescription: "Un Dell XPS 15 haut de gamme avec plusieurs mesures de sécurité. L'écran est verrouillé mais un terminal de diagnostic reste accessible.",
-        technicalInfo: "Modèle sécurisé avec chiffrement disque complet et authentification biométrique. Le système montre des traces de connexions récentes inhabituelles.",
-        visualInfo: "Des post-it avec des fragments de mots de passe sont collés sur le bord de l'écran. Un fichier log.txt est visible sur le bureau.",
-        useHint: "Les traces de connexion dans le terminal peuvent révéler des adresses IP suspectes. Recherchez particulièrement les connexions établies en dehors des heures de bureau.",
-        relatedPuzzleId: "ip-suspecte"
-      },
-      'serveur-logs': {
-        detailedName: "Serveur de journalisation centralisée",
-        detailedDescription: "Un rack serveur dédié à la collecte des logs de sécurité de l'ensemble du réseau. L'interface de recherche est accessible mais limitée sans droits administrateur.",
-        technicalInfo: "Système ELK (Elasticsearch, Logstash, Kibana) configuré pour capturer et indexer les événements de sécurité. Certains fichiers semblent avoir été récemment modifiés.",
-        visualInfo: "L'écran affiche des graphiques d'activité réseau avec un pic inhabituel il y a 48 heures. Une alerte de sécurité a été désactivée il y a 3 jours.",
-        useHint: "En analysant les logs autour du pic d'activité, vous pourriez identifier l'origine de l'attaque et les systèmes compromis.",
-        relatedPuzzleId: "script-powershell"
-      },
-      'badge-acces': {
-        detailedName: "Badge d'accès de Farès",
-        detailedDescription: "Un badge d'accès magnétique au nom de Farès, récemment activé. Des autorisations inhabituelles pour un nouvel employé y sont configurées.",
-        visualInfo: "Le badge présente un hologramme de sécurité de niveau 3, normalement réservé aux cadres supérieurs et administrateurs système.",
-        useHint: "L'historique des accès physiques pourrait révéler des visites inhabituelles dans des zones sensibles en dehors des heures normales de travail.",
-        secretInfo: "En scannant le QR code au dos du badge, vous pouvez accéder à l'historique des portes ouvertes par ce badge."
-      },
-      'disque-externe': {
-        detailedName: "Disque dur externe crypté",
-        detailedDescription: "Un disque dur externe Kingston trouvé dans le tiroir du bureau de Farès. Il est protégé par un chiffrement matériel et logiciel.",
-        technicalInfo: "Le disque utilise un algorithme de chiffrement AES-256. Un fichier README non crypté contient un indice sur la méthode de déchiffrement.",
-        visualInfo: "Une étiquette manuscrite avec le code 'IM2025' est collée sur le côté. Des traces d'utilisation récente sont visibles.",
-        useHint: "Le mot de passe de déchiffrement pourrait être dérivé d'informations trouvées dans les différentes salles. Recherchez des indices liés à 'IM2025'.",
-        relatedPuzzleId: "decode-usb"
-      },
-      'schema-reseau': {
-        detailedName: "Schéma d'architecture réseau",
-        detailedDescription: "Un document technique détaillant l'architecture réseau complète de l'entreprise, y compris les pare-feu, les zones démilitarisées (DMZ) et les systèmes critiques.",
-        technicalInfo: "Le schéma montre les interdépendances entre les différents systèmes et les règles de pare-feu appliquées. Des annotations manuscrites indiquent des modifications récentes.",
-        visualInfo: "Sur le schéma, une note manuscrite indique une séquence précise pour la procédure de récupération d'urgence.",
-        useHint: "En étudiant les dépendances entre systèmes, vous pouvez déterminer la séquence correcte pour un redémarrage sécurisé après compromission.",
-        relatedPuzzleId: "ordre-redemarrage"
-      },
-      'emails-phishing': {
-        detailedName: "Collection d'emails suspects",
-        detailedDescription: "Un dossier dans la messagerie d'Eddy contenant plusieurs emails suspects reçus ces dernières semaines. Certains contiennent des pièces jointes ou des liens.",
-        technicalInfo: "L'analyse des en-têtes email révèle des tentatives de masquer l'origine réelle des messages. Une pièce jointe Excel contient des macros suspectes.",
-        visualInfo: "Plusieurs emails semblent provenir de services IT légitimes mais contiennent des fautes d'orthographe subtiles ou des domaines légèrement modifiés.",
-        useHint: "Examinez attentivement les pièces jointes et les domaines d'expédition pour identifier le vecteur d'infection initial.",
-        relatedPuzzleId: "analyse-malware"
-      },
-      'rapport-threat': {
-        detailedName: "Rapport de Threat Intelligence",
-        detailedDescription: "Un rapport confidentiel récent détaillant les techniques, tactiques et procédures (TTP) de plusieurs groupes APT actifs dans votre secteur d'activité.",
-        technicalInfo: "Le document contient des IOCs (Indicators of Compromise) spécifiques, incluant des hachages de fichiers malveillants, des domaines C2 et des signatures comportementales.",
-        visualInfo: "Plusieurs passages sont surlignés en jaune, avec une attention particulière sur un groupe nommé 'Cozy Bear' et ses méthodes d'attaque récentes.",
-        useHint: "En comparant les TTP observées dans votre incident avec celles documentées, vous pouvez identifier le groupe probablement responsable de l'attaque.",
-        relatedPuzzleId: "empreinte-numerique"
-      },
-      'post-it-mdp': {
-        detailedName: "Post-it avec fragments de mot de passe",
-        detailedDescription: "Plusieurs post-it trouvés dans différents bureaux contenant des fragments de ce qui semble être un mot de passe administrateur complexe.",
-        visualInfo: "Les fragments incluent 'Cy', 'r3F3u', et '2025!' écrits sur différentes couleurs de post-it.",
-        useHint: "En combinant ces fragments dans le bon ordre et en déduisant les parties manquantes, vous pourriez reconstruire le mot de passe principal.",
-        relatedPuzzleId: "mot-passe-final",
-        secretInfo: "Une convention de nommage semble apparaître: un mélange de nom de système, caractères spéciaux et année en cours."
-      }
-    };
-
-    // Rechercher l'objet dans la base de données ou générer dynamiquement
-    const itemInfo = itemDatabase[data.item.id] || {
-      detailedName: data.item.name,
-      detailedDescription: `Un élément qui semble important pour résoudre la crise de cybersécurité en cours.`,
-      visualInfo: "L'objet présente des caractéristiques intéressantes qui pourraient être utiles.",
-      useHint: "Examinez-le attentivement et considérez comment il pourrait être lié aux systèmes compromis."
-    };
-
     // Construction du prompt selon l'objet
-    let systemPrompt = `Tu es le narrateur d'un jeu d'escape room cybersécurité. Le joueur interagit avec un objet important:
-
-DÉTAILS DE L'OBJET:
-- Type: ${data.item.type}
-- Nom: ${itemInfo.detailedName}
-- Description: ${itemInfo.detailedDescription}
-- Aspect visuel: ${itemInfo.visualInfo}
-${itemInfo.technicalInfo ? `- Information technique: ${itemInfo.technicalInfo}` : ''}
-${itemInfo.secretInfo ? `- Information secrète (à ne révéler que si le joueur pose des questions précises): ${itemInfo.secretInfo}` : ''}
+    let systemPrompt = `Tu es le narrateur d'un jeu d'escape room cybersécurité. Le joueur interagit avec l'objet: ${data.item.name}.
 
 Voici le contexte du jeu:
-- Salles visitées par le joueur: ${data.gameState.visitedRooms.join(', ')}
-- Objets déjà dans l'inventaire: ${data.gameState.inventory.map((i: any) => i.name).join(', ') || 'Aucun'}
+- Salles visitées: ${data.gameState.visitedRooms.join(', ')}
+- Inventaire: ${data.gameState.inventory.map((i: any) => i.name).join(', ') || 'Vide'}
 - Énigmes résolues: ${data.gameState.puzzlesSolved.join(', ') || 'Aucune'}
 
-INSTRUCTIONS:
-1. Génère une description immersive et détaillée de l'objet, comme si le joueur l'examinait attentivement
-2. Inclus des détails à la fois visuels et fonctionnels qui peuvent aider le joueur
-3. Suggère subtilement comment l'objet pourrait être utilisé sans donner la solution directement
-4. Si l'objet est lié à une énigme, inclus des indices subtils
+DESCRIPTION DE L'OBJET:
+Type: ${data.item.type}
+Nom: ${data.item.name}
+
+Génère une description détaillée de cet objet et comment il pourrait aider dans la résolution du jeu d'escape room.
 
 Réponds uniquement avec un JSON au format:
 {
-  "description": "Description évocatrice et détaillée de l'objet (3-4 phrases)",
-  "useHint": "Indice sur la façon d'utiliser cet objet dans le jeu (1-2 phrases)",
-  "relatedPuzzle": "Énigme à laquelle cet objet pourrait être lié (si applicable)",
-  "requiresItem": "Objet complémentaire nécessaire pour exploiter pleinement celui-ci (si applicable)"
+  "description": "Description détaillée de l'objet",
+  "useHint": "Indice sur la façon d'utiliser l'objet",
+  "relatedPuzzle": "Puzzle auquel cet objet pourrait être lié (si applicable)"
 }`;
 
     try {
@@ -972,72 +433,42 @@ export async function solvePuzzle(req: Request, res: Response) {
       });
     }
 
-    // Définir les puzzles et leurs solutions dynamiques
-    // Les puzzles sont plus contextuels et utilisent des indices distribués dans le jeu
-    // Certaines solutions ont plusieurs réponses valides pour plus de réalisme
+    // Définir les puzzles et leurs solutions
     const puzzles: Record<string, {
       title: string;
       description: string;
-      solution: string[];  // Plusieurs solutions possibles pour certains puzzles
-      requiredClues: string[]; // Indices nécessaires pour débloquer la solution complète
+      solution: string;
       difficulty: number; // 1-5
-      hint?: string; // Indice contextuel qui peut aider à la résolution
     }> = {
       'ip-suspecte': {
-        title: "Analyse des traces d'intrusion",
-        description: "Identifiez le sous-réseau suspect d'où proviennent les connexions non autorisées en analysant les logs",
-        solution: ["185.191.127", "185.191", "185.191.127.0/24"], // Accepte plusieurs formats de réponse
-        requiredClues: ["Logs de connexion", "Rapports d'accès"],
-        difficulty: 3,
-        hint: "Cherchez des motifs récurrents dans les adresses IP qui ont tenté d'accéder aux sections sensibles en dehors des heures de bureau"
+        title: "Analyse d'IP suspecte",
+        description: "Identifiez l'adresse IP qui a accédé à des sections sensibles du système",
+        solution: "185.191.127.43",
+        difficulty: 2
       },
       'script-powershell': {
-        title: "Détection de code malveillant",
-        description: "Analysez le script d'automatisation modifié récemment pour identifier le fragment qui établit une connexion externe",
-        solution: ["Invoke-WebRequest", "http://updateme.ru", "updateme.ru", "agent.exe"],
-        requiredClues: ["Script modifié", "Logs d'activité nocturne"],
-        difficulty: 4,
-        hint: "Recherchez les commandes qui tentent d'établir des communications externes non autorisées"
+        title: "Correction du script PowerShell",
+        description: "Identifiez et corrigez la ligne malveillante dans le script PowerShell",
+        solution: "Invoke-WebRequest -Uri \"http://updateme.ru/agent.exe\"",
+        difficulty: 3
       },
       'decode-usb': {
-        title: "Déchiffrement de données exfiltrées",
-        description: "Décodez les fragments de données encodés en base64 trouvés dans les communications sortantes",
-        solution: ["InstanceManager2025", "instance", "InstanceManager"],
-        requiredClues: ["Fichier USB crypté", "Clé de déchiffrement"],
-        difficulty: 5,
-        hint: "La clé de déchiffrement se compose d'éléments trouvés dans différentes salles"
+        title: "Fichier USB crypté",
+        description: "Décodez le message caché dans le fichier USB",
+        solution: "instance",
+        difficulty: 4
       },
       'ordre-redemarrage': {
-        title: "Séquence de restauration sécurisée",
-        description: "Établissez la séquence correcte pour redémarrer les systèmes compromis sans risquer de nouvelles intrusions",
-        solution: ["firewall,authentication,database,application", "pare-feu,authentification,base de données,application"],
-        requiredClues: ["Procédure de récupération", "Rapports d'incidents précédents"],
-        difficulty: 4,
-        hint: "Considérez les dépendances entre les systèmes et assurez-vous que chaque couche de sécurité est opérationnelle avant d'exposer la suivante"
-      },
-      'analyse-malware': {
-        title: "Isolation du vecteur d'attaque",
-        description: "Identifiez la méthode d'infection initiale en analysant les communications réseau suspectes",
-        solution: ["phishing", "spear-phishing", "email", "pièce jointe malveillante", "macro excel"],
-        requiredClues: ["Emails suspects", "Témoignage personnel"],
-        difficulty: 4,
-        hint: "Examinez les communications qui ont précédé la première détection de l'intrusion"
-      },
-      'empreinte-numerique': {
-        title: "Identification de la signature de l'attaquant",
-        description: "Déterminez le groupe APT (Advanced Persistent Threat) responsable de l'attaque en analysant les IOCs (Indicators of Compromise)",
-        solution: ["APT29", "Cozy Bear", "Midnight Blizzard"],
-        requiredClues: ["Rapports de renseignement", "Analyse des techniques"],
-        difficulty: 5,
-        hint: "Les techniques utilisées et le timing de l'attaque correspondent à un acteur étatique connu"
+        title: "Plan de redémarrage des systèmes",
+        description: "Déterminez le bon ordre pour redémarrer les systèmes critiques",
+        solution: "firewall,authentication,database,application",
+        difficulty: 3
       },
       'mot-passe-final': {
-        title: "Authentification à la console principale",
-        description: "Reconstruisez le mot de passe administrateur pour accéder au terminal de sécurité principal",
-        solution: ["CyB3rP4r3F3u2025!", "CyberPareFeu2025!", "Cyber-Pare-Feu-2025!"],
-        requiredClues: ["Fragment de mot de passe 1", "Fragment de mot de passe 2", "Indice de format"],
-        difficulty: 5,
-        hint: "Le mot de passe combine des éléments de sécurité, une référence au système et l'année en cours"
+        title: "Mot de passe du terminal principal",
+        description: "Trouvez le mot de passe pour accéder au terminal principal",
+        solution: "CyB3rP4r3F3u2025!",
+        difficulty: 5
       }
     };
 
@@ -1047,16 +478,13 @@ export async function solvePuzzle(req: Request, res: Response) {
       return res.status(400).json({ error: "Puzzle non trouvé" });
     }
 
-    // Vérifier si la solution est correcte en comparant avec toutes les solutions possibles
+    // Vérifier si la solution est correcte (avec une certaine tolérance)
     const normalizedSolution = data.proposedSolution.trim().toLowerCase();
+    const normalizedCorrectSolution = puzzle.solution.trim().toLowerCase();
     
-    // La solution est correcte si elle contient l'une des solutions possibles
-    // ou si l'une des solutions possibles contient la proposition du joueur
-    const isCorrect = puzzle.solution.some(correctSolution => {
-      const normalizedCorrectSolution = correctSolution.trim().toLowerCase();
-      return normalizedSolution.includes(normalizedCorrectSolution) || 
-             normalizedCorrectSolution.includes(normalizedSolution);
-    });
+    // La solution est considérée comme correcte si elle contient la solution attendue
+    const isCorrect = normalizedSolution.includes(normalizedCorrectSolution) || 
+                      normalizedCorrectSolution.includes(normalizedSolution);
 
     // Mettre à jour le gameState
     const updatedGameState = {
@@ -1095,7 +523,7 @@ export async function solvePuzzle(req: Request, res: Response) {
     const feedbackPrompt = `
 Tu es le narrateur d'un jeu d'escape room cybersécurité. Le joueur a tenté de résoudre le puzzle "${puzzle.title}".
 Sa proposition: "${data.proposedSolution}"
-Solutions correctes: "${puzzle.solution.join('", "')}"
+Solution correcte: "${puzzle.solution}"
 Résultat: ${isCorrect ? 'CORRECT' : 'INCORRECT'}
 
 Génère un message de feedback encourageant qui:
@@ -1257,138 +685,40 @@ Réponds uniquement avec un JSON au format:
 /**
  * Initialise une nouvelle partie du jeu Cyber Escape
  */
-/**
- * Initialise une nouvelle partie de CyberEscape 2.0
- */
-export async function initializeGameV2(req: Request, res: Response) {
+export async function initializeGame(req: Request, res: Response) {
   try {
     const { difficulty = 'normal' } = req.body;
     
-    // Configuration des paramètres de jeu selon la difficulté
-    let initialTimeSeconds: number;
-    let initialTools: Tool[];
-    let securityLevel: number;
+    // Configurer les paramètres de jeu en fonction de la difficulté
+    let budget, timeRemaining;
     
     switch (difficulty) {
       case 'easy':
-        initialTimeSeconds = 15 * 60; // 15 minutes en secondes
-        securityLevel = 2;
-        initialTools = [
-          {
-            id: 'basic_decryptor',
-            name: 'Déchiffreur basique',
-            description: 'Un outil simple pour décrypter des messages ou des clés utilisant des algorithmes basiques.',
-            type: 'decryption',
-            usageLimit: 5,
-            cooldown: 30,
-            effectiveness: 60
-          },
-          {
-            id: 'network_scanner',
-            name: 'Scanner réseau',
-            description: 'Détecte les appareils et services actifs sur un réseau.',
-            type: 'scanning',
-            usageLimit: 3,
-            cooldown: 60,
-            effectiveness: 70
-          },
-          {
-            id: 'social_toolkit',
-            name: 'Boîte à outils d\'ingénierie sociale',
-            description: 'Contient des modèles et techniques pour manipuler les personnes afin d\'obtenir des informations.',
-            type: 'social_engineering',
-            usageLimit: 3,
-            cooldown: 120,
-            effectiveness: 65
-          }
-        ];
+        budget = 1200;
+        timeRemaining = 60;
         break;
       case 'hard':
-        initialTimeSeconds = 10 * 60; // 10 minutes en secondes
-        securityLevel = 4;
-        initialTools = [
-          {
-            id: 'basic_decryptor',
-            name: 'Déchiffreur basique',
-            description: 'Un outil simple pour décrypter des messages ou des clés utilisant des algorithmes basiques.',
-            type: 'decryption',
-            usageLimit: 3,
-            cooldown: 60,
-            effectiveness: 50
-          }
-        ];
+        budget = 800;
+        timeRemaining = 30;
         break;
       case 'normal':
       default:
-        initialTimeSeconds = 12 * 60; // 12 minutes en secondes
-        securityLevel = 3;
-        initialTools = [
-          {
-            id: 'basic_decryptor',
-            name: 'Déchiffreur basique',
-            description: 'Un outil simple pour décrypter des messages ou des clés utilisant des algorithmes basiques.',
-            type: 'decryption',
-            usageLimit: 4,
-            cooldown: 45,
-            effectiveness: 55
-          },
-          {
-            id: 'network_scanner',
-            name: 'Scanner réseau',
-            description: 'Détecte les appareils et services actifs sur un réseau.',
-            type: 'scanning',
-            usageLimit: 2,
-            cooldown: 90,
-            effectiveness: 60
-          }
-        ];
+        budget = 1000;
+        timeRemaining = 45;
         break;
     }
     
-    // État initial du jeu version 2.0
-    const gameState: CyberEscapeGameState = {
-      currentStage: 1,
-      stagesCompleted: [],
-      timeRemaining: initialTimeSeconds,
-      timeExtensions: 0,
-      score: 0,
-      
-      // Inventaire initial du joueur
-      inventory: {
-        keys: [],
-        tools: initialTools,
-        clues: [],
-        vulnerabilities: []
-      },
-      
-      // Progression initiale
-      progress: {
-        challengesCompleted: [],
-        failedAttempts: {},
-        stageStartTime: Date.now(),
-        interactionsHistory: [],
-        knowledgeGained: []
-      },
-      
-      // Environnement initial
-      environment: {
-        currentLocation: 'entry_point',
-        securityLevel: securityLevel,
-        detectionRisk: 0,
-        unlockedAreas: ['entry_point', 'corridor_a'],
-        activeAlarms: []
-      },
-      
-      // Variables d'état spécifiques à l'étape 1
-      stageSpecificState: {
-        // Étape 1: Reconnaissance et sensibilisation
-        stage1: {
-          osintCompleted: false,
-          identifiedTargets: [],
-          phishingEmailsAnalyzed: 0,
-          vulnerabilitiesScanned: false
-        }
-      }
+    // État initial du jeu
+    const gameState = {
+      currentRoom: 'hub',
+      visitedRooms: ['hub'],
+      inventory: [],
+      unlockedRooms: ['hub', 'rh', 'it'], // Salles initialement débloquées
+      budget,
+      timeRemaining,
+      events: ['Mission commencée'],
+      puzzlesSolved: [],
+      difficulty
     };
     
     // Générer le briefing de mission
