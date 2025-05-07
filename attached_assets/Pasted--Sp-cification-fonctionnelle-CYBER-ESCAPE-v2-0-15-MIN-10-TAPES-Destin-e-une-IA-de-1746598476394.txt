@@ -1,0 +1,141 @@
+# Spécification fonctionnelle – **CYBER ESCAPE v2.0 (15 MIN / 10 ÉTAPES)**
+
+*(Destinée à une IA de génération de code sur **Replit**)*
+
+---
+
+## 1 · Objectif
+
+Concevoir un serious‑game **100 % textuel** où le joueur dispose de **15 minutes (900 s)** pour franchir **10 étapes** successives liées aux grands piliers de la cybersécurité. Chaque étape :
+
+* propose une mini‑mission ou un défi QCM ;
+* attribue un **Jeton‑Clé** (clé cryptée, virus USB, badge IAM, etc.) ;
+* donne un bonus ou déclenche une pénalité de temps ;
+* peut impliquer un PNJ (dialogue interactif).
+
+Le joueur sort s’il ouvre la « Porte Sigma » de l’étape 10 **et** répond correctement au quiz final. Des médailles (or/argent/bronze) sanctionnent la performance temps + connaissances.
+
+---
+
+## 2 · Boucle de jeu (commandes génériques)
+
+| Commande                             | Effet                                     |
+| ------------------------------------ | ----------------------------------------- |
+| `aller <direction>`                  | Se déplacer N/S/E/O (labyrinthe textuel). |
+| `regarder`                           | Décrit la salle, les PNJ, les portes.     |
+| `parler <pnj>`                       | Ouvre dialogue (menu + saisie libre).     |
+| `utiliser <objet>`                   | Emploie un item de l’inventaire.          |
+| `déverrouiller <porte> [avec <clé>]` | Ouvre une porte verrouillée.              |
+| `answer <A/B/C/D>`                   | Répond à un QCM.                          |
+| `inventaire`                         | Affiche items.                            |
+
+API interne (exemple Python) :
+
+```python
+game.start(player_id)
+game.process(player_id, command_str) -> GameState
+game.end(player_id)
+```
+
+---
+
+## 3 · Chronomètre
+
+* Temps initial : **900 s**.
+* `update_timer(delta)` ajoute ou retire des secondes ; 0 ⇒ défaite.
+
+---
+
+## 4 · Inventaire initial
+
+| ID               | Nom                 | Usage clé                                |
+| ---------------- | ------------------- | ---------------------------------------- |
+| `decrypt_device` | Décrypteur portable | Déchiffrer clés SHA‑1 / AES étapes 6 & 7 |
+| `rfid_reader`    | Lecteur RFID        | Scanner badges IAM étape 3               |
+
+Les autres objets sont gagnés : `virus_usb`, `cloud_token`, `supply_pass`, etc.
+
+---
+
+## 5 · Table des 10 étapes
+
+| #  | Thèmes majeurs               | Nom de la salle           | Objectif & Mécanique                                                  | Bonus / Pénalité                  | Jeton/Sortie                   |             |
+| -- | ---------------------------- | ------------------------- | --------------------------------------------------------------------- | --------------------------------- | ------------------------------ | ----------- |
+| 1  | Sensibilisation, phishing    | **Vestibule Phish‑Alert** | Trier 20 e‑mails (commande \`flag spam                                | safe\`).                          | +10 s par bon tri, ‑20 s sinon | `key_phish` |
+| 2  | **OSINT**                    | **Mur des Révélations**   | Trouver 3 infos dans faux réseaux sociaux (`rechercher <mot>`).       | +15 s info valide, ‑30 s fausse   | `intel_fragment`               |             |
+| 3  | **IAM** & conformité         | **Couloir des Badges**    | Associer badge‑rôle→service Cloud (`scanner <badge>`).                | +45 s correct, ‑60 s erreur       | `badge_admin`                  |             |
+| 4  | Stratégie & feuille de route | **Salle Stratex**         | Ordre de priorisation CAPEX/OPEX (QCM).                               | +30 s bonne priorité, ‑30 s autre | `plan_chip`                    |             |
+| 5  | **Gestion de crise**         | **Centre d’Alerte**       | Choix rapides de communication crise (dialogue PNJ « CISO »).         | +60 s si aligné, ‑45 s mauvais    | `crisis_pass`                  |             |
+| 6  | Supply‑chain                 | **Chaîne Fantôme**        | Décrypter 2 hash libs (`utiliser decrypt_device`) & choisir la saine. | +40 s / ‑90 s                     | `supply_stamp`                 |             |
+| 7  | **Cloud security**           | **Nuage Troué v2**        | Patch conteneur vuln :`patch pod …`.                                  | +60 s réussite, ‑15 s cmd inutile | `cloud_token`                  |             |
+| 8  | Vuln scan & pentest          | **Zone Root‑Lab**         | Exploit PoC : remplir bloc code, IA décrit effet.                     | +50 s si PoC marche, ‑40 s sinon  | `exploit_cert`                 |             |
+| 9  | Incidents & Forensics        | **Atelier Forensic**      | Sélectionner 3 indices logs + commande `report`.                      | +30 s indice correct, ‑20 s faux  | `forensic_key`                 |             |
+| 10 | Synthèse & conformité RGPD   | **Porte Sigma**           | Quiz final 8 QCM sur le jeu (`answer X`).                             | +30 s bonne / ‑30 s mauvaise      | Ouverture + médaille           |             |
+
+> **NPC interactifs** : chaque salle possède 1 PNJ qui peut proposer un marché temps ↔ indice.
+
+---
+
+## 6 · Système de médailles
+
+| Médaille   | Condition                               |
+| ---------- | --------------------------------------- |
+| **Or**     | ≥120 s restantes **et** ≥7/8 bonnes QCM |
+| **Argent** | 30‑119 s **et** ≥6/8                    |
+| **Bronze** | 1‑29 s **et** ≥5/8                      |
+| **Échec**  | 0 s ou <5 QCM                           |
+
+---
+
+## 7 · PNJ génériques & IA dynamique
+
+* **Echo** : mentor invisible ; après chaque étape, affiche un *mème ASCII* + indice.
+* **Marchand de temps** (présent 2, 6, 9) : propose +60 s contre un item ou ‑90 s si refus.
+
+---
+
+## 8 · Fichiers & structure **Replit**
+
+```
+/README.md
+/main.py          # point d’entrée
+/game/__init__.py
+/game/engine.py   # logique cœur
+/game/data/
+    steps.json    # métadonnées 10 étapes
+    qcm.json      # questions finales
+/tests/test_game.py
+.replit           # run = "python3 main.py"
+replit.nix        # Python 3.12 + rich + prompt_toolkit
+```
+
+Secrets : `AZURE_OPENAI_API_KEY` (optionnel pour génération mails/logs dynamiques).
+
+---
+
+## 9 · Exigences non fonctionnelles
+
+|  Critère      | Cible                                          |
+| ------------- | ---------------------------------------------- |
+| Latence cmd   | ≤200 ms dans la console Replit                 |
+| Persistant    | Replit DB key `logs:<player>`                  |
+| Accessibilité | 80 car./ligne max ; couleurs ANSI optionnelles |
+
+---
+
+## 10 · Checklist pour l’IA développeuse
+
+1. **Initialiser repo Replit** avec structure §8.
+2. Importer `rich` et `prompt_toolkit` pour I/O stylé.
+3. Implémenter `GameState` (timer, position, inventaire).
+4. Charger `steps.json`, générer salles & PNJ.
+5. Gérer `update_timer()` sur chaque action.
+6. Scripts des 10 étapes selon table §5.
+7. Dialogues PNJ via fonctions dans `game/dialogue.py`.
+8. QCM engine (`evaluate_answer`).
+9. Log JSON dans Replit DB.
+10. Tests unitaires sur timer & médailles.
+
+---
+
+**Fin de la spécification v2.0 (08 mai 2025)**
