@@ -162,7 +162,7 @@ const sampleEmails: EmailData[] = [
       'URL de redirection suspecte (ms-office365-verify.com)',
       'Menace de suspension de compte',
       'Design imitant les emails Microsoft',
-Absence d'informations spécifiques sur la tentative d'accès
+      'Manque de details precis'
     ]
   }
 ];

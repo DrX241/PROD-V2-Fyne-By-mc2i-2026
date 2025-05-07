@@ -6,7 +6,7 @@ import {
   LogIn, 
   MessageCircle, 
   Search, 
-  Tool, 
+  Wrench, 
   User 
 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -176,7 +176,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({ onAction, currentRoom, clas
                   className={`${baseButtonClass} ${activeButtonClass}`}
                   onClick={() => onAction('utiliser')}
                 >
-                  <Tool className="h-4 w-4" />
+                  <Wrench className="h-4 w-4" />
                 </Button>
               </motion.div>
             </TooltipTrigger>

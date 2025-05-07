@@ -1,76 +1,123 @@
-import { GameStage, ChallengeType, MedalType, GameStatus, ObjectState, Direction, ExitStatus } from './game-enums';
+import { ObjectState, ExitStatus, ChallengeType, GameStatus } from './game-enums';
 
 /**
- * Interface pour les objets dans l'inventaire du joueur
+ * Interfaces pour le jeu CYBER ESCAPE v2
  */
+
+// Interface pour un objet dans une salle
+export interface RoomObject {
+  id: string;
+  name: string;
+  description: string;
+  state: ObjectState;
+  type?: string;
+  usable?: boolean;
+  interactive?: boolean;
+}
+
+// Interface pour un PNJ (personnage non-joueur)
+export interface RoomNPC {
+  id: string;
+  name: string;
+  role: string;
+  description: string;
+}
+
+// Interface pour une sortie de salle
+export interface RoomExit {
+  direction: string;
+  roomId: string;
+  name: string;
+  status: ExitStatus;
+}
+
+// Interface pour un défi dans une salle
+export interface RoomChallenge {
+  id: string;
+  type: string;
+  title: string;
+  description: string;
+  completed: boolean;
+  requiredScore: number;
+  timeBonus: number;
+}
+
+// Interface pour une salle
+export interface RoomData {
+  id: string;
+  name: string;
+  description: string;
+  backgroundImage?: string;
+  objects: RoomObject[];
+  npcs: RoomNPC[];
+  exits: Record<string, RoomExit>;
+  challenge?: RoomChallenge;
+}
+
+// Interface pour un objet dans l'inventaire
 export interface InventoryItem {
   id: string;
   name: string;
   description: string;
-  usable?: boolean;
-  consumed?: boolean;
-  useTarget?: string[];
+  type: string;
+  usable: boolean;
+  image?: string;
 }
 
-/**
- * Interface pour les effets spéciaux (visuels, sonores, etc.)
- */
-export interface GameEffect {
-  type: 'notification' | 'highlight' | 'shake' | 'pulse' | 'fadeIn' | 'fadeOut';
-  target?: string;
-  duration?: number;
+// Interface pour l'état du jeu
+export interface GameState {
+  status: GameStatus;
+  currentStage: number;
+  currentRoomId: string;
+  inventory: Record<string, InventoryItem>;
+  messages: string[];
+  timeRemaining: number;
+  isTimerActive: boolean;
+  activeChallengeId?: string;
+  gameCompleted: boolean;
+  unlockedStages: number[];
+}
+
+// Interface pour une action de jeu
+export interface GameAction {
+  type: string;
+  payload?: any;
+}
+
+// Interface pour les données d'initialisation
+export interface InitialGameData {
+  currentStage: number;
+  currentRoomId: string;
+  inventory: Record<string, InventoryItem>;
+  messages: string[];
+  timeRemaining: number;
+}
+
+// Interface pour le dialogue avec un PNJ
+export interface NPCDialogue {
+  id: string;
+  npcId: string;
+  lines: NPCDialogueLine[];
+  currentLineIndex: number;
+}
+
+// Interface pour une ligne de dialogue
+export interface NPCDialogueLine {
+  text: string;
+  options?: NPCDialogueOption[];
+}
+
+// Interface pour une option de dialogue
+export interface NPCDialogueOption {
+  text: string;
+  nextLineIndex: number;
+  action?: () => void;
+}
+
+// Interface pour le résultat d'un challenge
+export interface ChallengeResult {
+  success: boolean;
+  score: number;
+  timeBonus: number;
   message?: string;
 }
-
-/**
- * Interface pour les événements du jeu
- */
-export interface GameEvent {
-  type: 'item_pickup' | 'item_use' | 'door_unlock' | 'challenge_start' | 'challenge_complete' | 'npc_talk';
-  targetId?: string;
-  data?: any;
-  effect?: GameEffect;
-}
-
-/**
- * Interface pour les résultats de commandes
- */
-export interface CommandResult {
-  success: boolean;
-  message: string;
-  event?: GameEvent;
-}
-
-/**
- * Interface pour les données du joueur
- */
-export interface PlayerData {
-  stagesCompleted: number[];
-  inventory: Record<string, InventoryItem>;
-  medals: Record<string, MedalType>;
-  quizScores: Record<string, number>;
-}
-
-/**
- * Interface pour les données d'une partie sauvegardée
- */
-export interface SavedGameData {
-  player: PlayerData;
-  currentStage: GameStage;
-  timeRemaining: number;
-  timestamp: number;
-}
-
-/**
- * Type pour les fonctions de manipulation de l'état du jeu
- */
-export type GameActionHandler = (action: string, target?: string) => CommandResult;
-
-/**
- * Type pour les fonctions gérant les défis
- */
-export type ChallengeHandler = (data: any, answer: any) => {
-  success: boolean;
-  message: string;
-  timeChange: number;
-};

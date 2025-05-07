@@ -1,206 +1,328 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Server, Users, AlertTriangle, Database, Lock, Fingerprint, Terminal } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { 
+  AlertCircle, 
+  ArrowLeft, 
+  ArrowRight, 
+  Computer, 
+  DoorOpen, 
+  FileText, 
+  Info, 
+  Laptop, 
+  Lock, 
+  UserRound, 
+  Zap
+} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
-// Type pour un PNJ
-interface NPC {
+interface RoomObject {
   id: string;
   name: string;
-  avatar: string;
+  description: string;
+  state: 'default' | 'active' | 'disabled';
+  usable?: boolean;
+  interactive?: boolean;
+  type?: string;
+}
+
+interface RoomNPC {
+  id: string;
+  name: string;
   role: string;
-  position: { x: number; y: number };
+  description: string;
 }
 
-// Type pour un objet interactif
-interface InteractiveObject {
+interface RoomExit {
+  direction: string;
+  roomId: string;
+  name: string;
+  status: 'open' | 'locked' | 'hidden';
+}
+
+interface Room {
   id: string;
   name: string;
-  icon: string;
-  position: { x: number; y: number };
   description: string;
+  backgroundImage?: string;
+  objects: RoomObject[];
+  npcs: RoomNPC[];
+  exits: Record<string, RoomExit>;
 }
 
-// Type pour une sortie (porte, passage, etc)
-interface Exit {
-  direction: 'north' | 'south' | 'east' | 'west';
-  status: 'open' | 'locked' | 'hidden';
-  roomId?: string;
-}
-
-// Type pour les propriétés du composant
 interface RoomViewProps {
-  roomId: string;
-  roomName: string;
-  description: string;
-  npcs?: NPC[];
-  objects?: InteractiveObject[];
-  exits: Exit[];
-  onExitClick: (direction: string) => void;
-  onNpcClick: (npcId: string) => void;
-  onObjectClick: (objectId: string) => void;
+  room: Room;
+  onInteract: (type: string, targetId: string) => void;
+  message?: string;
 }
 
-// Mapping des icônes pour les objets interactifs
-const iconMapping: Record<string, React.ReactNode> = {
-  terminal: <Terminal className="h-6 w-6 text-blue-400" />,
-  server: <Server className="h-6 w-6 text-blue-400" />,
-  fingerprint: <Fingerprint className="h-6 w-6 text-purple-400" />,
-  lock: <Lock className="h-6 w-6 text-yellow-400" />,
-  database: <Database className="h-6 w-6 text-green-400" />,
-  alert: <AlertTriangle className="h-6 w-6 text-red-400" />,
-  users: <Users className="h-6 w-6 text-indigo-400" />,
-  shield: <Shield className="h-6 w-6 text-green-400" />,
-};
-
-const RoomView: React.FC<RoomViewProps> = ({
-  roomId,
-  roomName,
-  description,
-  npcs = [],
-  objects = [],
-  exits,
-  onExitClick,
-  onNpcClick,
-  onObjectClick,
-}) => {
-  // Boutons de direction avec statut visuel
-  const renderExitButtons = () => {
-    const directions = [
-      { key: 'north', label: 'Nord', position: 'top', icon: '↑' },
-      { key: 'east', label: 'Est', position: 'right', icon: '→' },
-      { key: 'south', label: 'Sud', position: 'bottom', icon: '↓' },
-      { key: 'west', label: 'Ouest', position: 'left', icon: '←' },
-    ];
-
-    return (
-      <div className="absolute inset-0 pointer-events-none">
-        {directions.map(({ key, label, position, icon }) => {
-          const exit = exits.find((e) => e.direction === key);
-          
-          if (!exit) return null;
-          
-          const isLocked = exit.status === 'locked';
-          const isHidden = exit.status === 'hidden';
-          
-          if (isHidden) return null;
-          
-          let positionClass = '';
-          switch (position) {
-            case 'top':
-              positionClass = 'top-0 left-1/2 transform -translate-x-1/2';
-              break;
-            case 'right':
-              positionClass = 'right-0 top-1/2 transform -translate-y-1/2';
-              break;
-            case 'bottom':
-              positionClass = 'bottom-0 left-1/2 transform -translate-x-1/2';
-              break;
-            case 'left':
-              positionClass = 'left-0 top-1/2 transform -translate-y-1/2';
-              break;
-          }
-          
-          return (
-            <div key={key} className={`absolute ${positionClass} pointer-events-auto`}>
-              <Button
-                variant={isLocked ? "outline" : "default"}
-                size="sm"
-                className={`font-mono ${isLocked ? 'bg-gray-800 border-yellow-500 text-yellow-500' : 'bg-blue-600 text-white'}`}
-                onClick={() => onExitClick(key)}
-                disabled={isLocked}
-              >
-                {icon} {label} {isLocked && <Lock className="ml-1 h-3 w-3" />}
-              </Button>
-            </div>
-          );
-        })}
-      </div>
-    );
+/**
+ * Composant pour afficher une salle avec ses objets et personnages
+ */
+const RoomView: React.FC<RoomViewProps> = ({ room, onInteract, message }) => {
+  // Animation variants pour les éléments de la salle
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  };
+  
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 }
   };
 
+  // Déterminer l'icône appropriée pour un objet
+  const getObjectIcon = (object: RoomObject) => {
+    const { type = "" } = object;
+    
+    if (type.includes('terminal') || type.includes('computer')) return Computer;
+    if (type.includes('document') || type.includes('note')) return FileText;
+    if (type.includes('laptop')) return Laptop;
+    if (type.includes('device') || type.includes('electronic')) return Zap;
+    return Info;
+  };
+  
+  // Obtenir les classes CSS pour un objet en fonction de son état
+  const getObjectClasses = (object: RoomObject) => {
+    const base = "border rounded-lg p-3 cursor-pointer";
+    if (object.state === 'active') {
+      return `${base} border-green-500 bg-green-900/20`;
+    } else if (object.state === 'disabled') {
+      return `${base} border-gray-700 bg-gray-900/20 opacity-50 cursor-not-allowed`;
+    }
+    return `${base} border-gray-700 bg-gray-900/50 hover:bg-gray-800/50 transition-colors`;
+  };
+  
+  // Rendu du message de feedback dans la salle si présent
+  const renderMessage = () => {
+    if (!message) return null;
+    
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="absolute top-2 left-0 right-0 flex justify-center"
+      >
+        <Alert className="w-auto mx-auto bg-black/70 backdrop-blur-sm border-green-600">
+          <AlertCircle className="h-4 w-4 text-green-500" />
+          <AlertDescription className="text-sm text-green-300">
+            {message}
+          </AlertDescription>
+        </Alert>
+      </motion.div>
+    );
+  };
+  
+  // Style pour l'image de fond de la salle
+  const roomStyle = {
+    backgroundImage: room.backgroundImage 
+      ? `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${room.backgroundImage})` 
+      : 'linear-gradient(to bottom, rgba(0,0,0,0.8), rgba(0,0,0,0.95))',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center'
+  };
+  
   return (
-    <Card className="relative border-green-500 bg-black/80 text-white overflow-hidden">
-      <CardHeader className="border-b border-green-800">
-        <CardTitle className="text-xl flex items-center text-green-400">
-          <Shield className="mr-2 h-5 w-5" />
-          {roomName}
-        </CardTitle>
-      </CardHeader>
-      
-      <CardContent className="relative p-6 min-h-[300px]">
-        {/* Description de la salle */}
-        <p className="text-gray-300 mb-6">{description}</p>
-        
-        {/* Représentation visuelle de la salle */}
-        <div className="relative border border-green-800 rounded-md bg-black/40 h-64 mt-4">
-          {/* Grille cyberpunk */}
-          <div 
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              backgroundImage: "linear-gradient(rgba(0, 255, 0, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 0, 0.05) 1px, transparent 1px)",
-              backgroundSize: "20px 20px",
-            }}
-          />
+    <Card className="border-green-500 relative overflow-hidden">
+      <CardContent className="p-0">
+        <div 
+          className="relative h-[400px] md:h-[500px] flex flex-col p-4"
+          style={roomStyle}
+        >
+          {/* Message de feedback */}
+          {renderMessage()}
           
-          {/* Boutons de direction pour les sorties */}
-          {renderExitButtons()}
+          {/* Entête de la salle */}
+          <div className="mb-4 flex justify-between items-start">
+            <div>
+              <motion.h2 
+                className="text-xl font-bold text-green-300 mb-1"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+              >
+                {room.name}
+              </motion.h2>
+              <motion.p 
+                className="text-gray-300 text-sm"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                {room.description}
+              </motion.p>
+            </div>
+            
+            <Badge 
+              variant="outline" 
+              className="bg-black/50 border-green-700 text-green-400"
+            >
+              Salle {room.id}
+            </Badge>
+          </div>
           
-          {/* PNJs présents dans la salle */}
-          <TooltipProvider>
-            {npcs.map((npc) => (
-              <Tooltip key={npc.id}>
-                <TooltipTrigger asChild>
-                  <motion.div 
-                    className="absolute cursor-pointer"
-                    style={{
-                      left: `${npc.position.x}%`,
-                      top: `${npc.position.y}%`,
-                    }}
-                    whileHover={{ scale: 1.1 }}
-                    onClick={() => onNpcClick(npc.id)}
-                  >
-                    <div className="bg-blue-900/70 p-2 rounded-full border border-blue-400">
-                      <Users className="h-6 w-6 text-blue-400" />
-                    </div>
-                  </motion.div>
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                  <p className="font-semibold">{npc.name}</p>
-                  <p className="text-xs opacity-80">{npc.role}</p>
-                </TooltipContent>
-              </Tooltip>
-            ))}
-          </TooltipProvider>
-          
-          {/* Objets interactifs */}
-          <TooltipProvider>
-            {objects.map((obj) => (
-              <Tooltip key={obj.id}>
-                <TooltipTrigger asChild>
-                  <motion.div 
-                    className="absolute cursor-pointer"
-                    style={{
-                      left: `${obj.position.x}%`,
-                      top: `${obj.position.y}%`,
-                    }}
-                    whileHover={{ scale: 1.1 }}
-                    onClick={() => onObjectClick(obj.id)}
-                  >
-                    <div className="bg-gray-900/70 p-2 rounded-full border border-green-400">
-                      {iconMapping[obj.icon] || <Database className="h-6 w-6 text-green-400" />}
-                    </div>
-                  </motion.div>
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                  <p className="font-semibold">{obj.name}</p>
-                  <p className="text-xs opacity-80">{obj.description}</p>
-                </TooltipContent>
-              </Tooltip>
-            ))}
-          </TooltipProvider>
+          {/* Contenu principal de la salle: objets, PNJ, sorties */}
+          <div className="flex-1 flex flex-col justify-between">
+            {/* Objets dans la salle */}
+            <div className="space-y-3 mb-4">
+              <h3 className="text-green-400 text-sm font-medium">Objets et éléments</h3>
+              
+              {room.objects.length === 0 ? (
+                <p className="text-gray-500 text-sm italic">Aucun objet remarquable dans cette salle</p>
+              ) : (
+                <motion.div 
+                  className="grid grid-cols-2 gap-2"
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  {room.objects.map(object => {
+                    const ObjectIcon = getObjectIcon(object);
+                    
+                    return (
+                      <motion.div
+                        key={object.id}
+                        variants={itemVariants}
+                        onClick={() => object.state !== 'disabled' && onInteract('object', object.id)}
+                      >
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className={getObjectClasses(object)}>
+                                <div className="flex items-center gap-2">
+                                  <ObjectIcon className="h-4 w-4 text-gray-400" />
+                                  <span className="text-sm font-medium">
+                                    {object.name}
+                                  </span>
+                                </div>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="right" className="bg-gray-900 border-gray-700">
+                              <p className="font-medium mb-1">{object.name}</p>
+                              <p className="text-xs text-gray-300">{object.description}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </motion.div>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </div>
+            
+            {/* PNJ dans la salle */}
+            <div className="space-y-3 mb-4">
+              <h3 className="text-blue-400 text-sm font-medium">Personnages</h3>
+              
+              {room.npcs.length === 0 ? (
+                <p className="text-gray-500 text-sm italic">Personne d'autre dans cette salle</p>
+              ) : (
+                <motion.div 
+                  className="grid grid-cols-2 gap-2"
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  {room.npcs.map(npc => (
+                    <motion.div
+                      key={npc.id}
+                      variants={itemVariants}
+                      onClick={() => onInteract('npc', npc.id)}
+                      className="border border-blue-700 rounded-lg p-3 cursor-pointer bg-blue-900/20 hover:bg-blue-900/30 transition-colors"
+                    >
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center gap-2">
+                              <UserRound className="h-4 w-4 text-blue-400" />
+                              <div>
+                                <div className="text-sm font-medium text-blue-300">
+                                  {npc.name}
+                                </div>
+                                <div className="text-xs text-blue-200 opacity-80">
+                                  {npc.role}
+                                </div>
+                              </div>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent side="right" className="bg-gray-900 border-blue-700">
+                            <p className="font-medium text-blue-300 mb-1">{npc.name}</p>
+                            <p className="text-xs italic text-blue-200 mb-2">{npc.role}</p>
+                            <p className="text-xs text-gray-300">{npc.description}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </div>
+            
+            {/* Sorties de la salle */}
+            <div className="mt-auto">
+              <h3 className="text-yellow-400 text-sm font-medium mb-2">Sorties</h3>
+              
+              {Object.keys(room.exits).length === 0 ? (
+                <p className="text-gray-500 text-sm italic">Aucune sortie visible</p>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  {Object.entries(room.exits).map(([direction, exit]) => {
+                    // Déterminer les icônes et classes en fonction du statut de la sortie
+                    let ExitIcon = DoorOpen;
+                    let exitClass = "border border-yellow-700 rounded-lg p-2 cursor-pointer flex items-center gap-2 ";
+                    let directionIcon;
+                    
+                    if (exit.status === 'locked') {
+                      ExitIcon = Lock;
+                      exitClass += "bg-yellow-900/20 opacity-70";
+                    } else if (exit.status === 'hidden') {
+                      exitClass += "bg-gray-900/30 opacity-50";
+                    } else {
+                      exitClass += "bg-yellow-900/20 hover:bg-yellow-900/40 transition-colors";
+                    }
+                    
+                    // Icônes de direction
+                    if (direction === 'north') directionIcon = <ArrowLeft className="h-3 w-3 rotate-90" />;
+                    else if (direction === 'south') directionIcon = <ArrowLeft className="h-3 w-3 -rotate-90" />;
+                    else if (direction === 'east') directionIcon = <ArrowRight className="h-3 w-3" />;
+                    else if (direction === 'west') directionIcon = <ArrowLeft className="h-3 w-3" />;
+                    
+                    return (
+                      <div
+                        key={direction}
+                        className={exitClass}
+                        onClick={() => exit.status !== 'locked' && onInteract('exit', direction)}
+                      >
+                        <ExitIcon className="h-4 w-4 text-yellow-500" />
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-yellow-300 text-sm capitalize">
+                              {direction}
+                            </span>
+                            {directionIcon && (
+                              <span className="text-yellow-500">
+                                {directionIcon}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-xs text-gray-300">
+                            {exit.name}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>

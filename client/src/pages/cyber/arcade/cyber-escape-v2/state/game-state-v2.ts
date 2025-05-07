@@ -1,433 +1,342 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { GameStage } from '../types/game-enums';
-import { Room, getRoomByStage, getRoomById, Exit, NPC, InteractiveObject } from '../data/rooms';
+import { createContext, useContext, useReducer, useState, useEffect, ReactNode } from 'react';
+import { GameStatus, GameActionType, ExitStatus, ObjectState } from '../types/game-enums';
+import { rooms, initialGameData } from '../data/rooms';
+import {
+  GameState,
+  GameAction,
+  InventoryItem,
+  RoomData,
+  RoomObject,
+  RoomNPC,
+  RoomExit,
+  ChallengeResult
+} from '../types/game';
 
-export interface GameStateType {
-  status: 'initial' | 'running' | 'completed' | 'failed';
-  currentStage: GameStage;
-  timeRemaining: number;
-  messages: string[];
-  currentRoom: Room | null;
-  inventory: Record<string, any>;
-  success: boolean;
-  medal: 'or' | 'argent' | 'bronze' | 'aucune';
-  quizScore: number;
-  failReason: string;
-  challengeActive: boolean;
-  activeChallenge: string | null;
+// État initial du jeu
+const initialState: GameState = {
+  status: GameStatus.INITIALIZING,
+  currentStage: initialGameData.currentStage,
+  currentRoomId: initialGameData.currentRoomId,
+  inventory: initialGameData.inventory,
+  messages: initialGameData.messages,
+  timeRemaining: initialGameData.timeRemaining,
+  isTimerActive: false,
+  gameCompleted: false,
+  unlockedStages: [1] // Le niveau 1 est débloqué par défaut
+};
+
+// Reducer pour gérer les actions de jeu
+function gameReducer(state: GameState, action: GameAction): GameState {
+  switch (action.type) {
+    case GameActionType.MOVE:
+      // Déplacer le joueur vers une nouvelle salle
+      return {
+        ...state,
+        currentRoomId: action.payload,
+        messages: [...state.messages, `Vous entrez dans ${rooms[action.payload].name}.`]
+      };
+      
+    case GameActionType.INTERACT:
+      // Interaction avec un objet
+      return {
+        ...state,
+        messages: [...state.messages, action.payload.message]
+      };
+      
+    case GameActionType.COLLECT_ITEM:
+      // Collecter un objet dans l'inventaire
+      return {
+        ...state,
+        inventory: {
+          ...state.inventory,
+          [action.payload.id]: action.payload
+        },
+        messages: [...state.messages, `Vous avez obtenu: ${action.payload.name}`]
+      };
+      
+    case GameActionType.START_CHALLENGE:
+      // Démarrer un défi
+      return {
+        ...state,
+        status: GameStatus.CHALLENGE_ACTIVE,
+        activeChallengeId: action.payload,
+        isTimerActive: true
+      };
+      
+    case GameActionType.COMPLETE_CHALLENGE:
+      const result = action.payload as ChallengeResult;
+      
+      // Vérifier si le challenge est un succès
+      if (result.success) {
+        const currentRoom = rooms[state.currentRoomId];
+        const nextStage = state.currentStage + 1;
+        // Ajouter le nouveau niveau aux niveaux débloqués
+        const unlockedStages = state.unlockedStages.includes(nextStage) 
+          ? state.unlockedStages 
+          : [...state.unlockedStages, nextStage];
+          
+        // Mettre à jour le temps restant avec le bonus de temps
+        const timeRemaining = state.timeRemaining + result.timeBonus;
+        
+        return {
+          ...state,
+          status: GameStatus.PLAYING,
+          currentStage: nextStage,
+          activeChallengeId: undefined,
+          unlockedStages,
+          timeRemaining,
+          messages: [
+            ...state.messages, 
+            `Défi réussi avec un score de ${result.score}! Vous gagnez ${result.timeBonus} secondes de temps bonus.`,
+            result.message || `Niveau ${nextStage} débloqué!`
+          ]
+        };
+      } else {
+        return {
+          ...state,
+          status: GameStatus.PLAYING,
+          activeChallengeId: undefined,
+          messages: [
+            ...state.messages, 
+            `Défi échoué avec un score de ${result.score}. Essayez à nouveau.`,
+          ]
+        };
+      }
+      
+    case 'UPDATE_TIME':
+      // Mettre à jour le temps restant
+      const newTimeRemaining = state.timeRemaining - 1;
+      
+      // Si le temps est écoulé, passer en game over
+      if (newTimeRemaining <= 0) {
+        return {
+          ...state,
+          timeRemaining: 0,
+          isTimerActive: false,
+          status: GameStatus.GAME_OVER,
+          messages: [...state.messages, "Temps écoulé! La mission a échoué."]
+        };
+      }
+      
+      return {
+        ...state,
+        timeRemaining: newTimeRemaining
+      };
+      
+    case 'PAUSE_GAME':
+      return {
+        ...state,
+        status: GameStatus.PAUSED,
+        isTimerActive: false
+      };
+      
+    case 'RESUME_GAME':
+      return {
+        ...state,
+        status: GameStatus.PLAYING,
+        isTimerActive: true
+      };
+      
+    case 'RESTART_GAME':
+      return {
+        ...initialState,
+        status: GameStatus.PLAYING,
+        isTimerActive: true
+      };
+      
+    case 'ADD_MESSAGE':
+      return {
+        ...state,
+        messages: [...state.messages, action.payload]
+      };
+      
+    case 'UNLOCK_EXIT':
+      // Débloquer une sortie
+      return {
+        ...state,
+        messages: [...state.messages, action.payload.message || "Sortie déverrouillée!"]
+      };
+      
+    case 'GAME_VICTORY':
+      return {
+        ...state,
+        status: GameStatus.VICTORY,
+        isTimerActive: false,
+        gameCompleted: true,
+        messages: [...state.messages, "Mission accomplie! Vous avez rétabli la sécurité du système."]
+      };
+      
+    case 'INIT_COMPLETE':
+      return {
+        ...state,
+        status: GameStatus.PLAYING,
+        isTimerActive: true
+      };
+      
+    default:
+      return state;
+  }
 }
 
-// Hook personnalisé pour gérer l'état du jeu
-export const useGameStateV2 = () => {
-  // État du jeu
-  const [gameState, setGameState] = useState<GameStateType>({
-    status: 'initial',
-    currentStage: 0 as GameStage,
-    timeRemaining: 900, // 15 minutes en secondes
-    messages: [],
-    currentRoom: null,
-    inventory: {},
-    success: false,
-    medal: 'aucune',
-    quizScore: 0,
-    failReason: '',
-    challengeActive: false,
-    activeChallenge: null
-  });
+// Interface pour le contexte du jeu
+interface GameContextType {
+  state: GameState;
+  dispatch: React.Dispatch<GameAction>;
+  currentRoom: RoomData;
+  handleInteract: (type: string, targetId: string) => void;
+  handleChallengeComplete: (success: boolean, score: number, timeBonus: number) => void;
+  formatTime: (seconds: number) => string;
+}
 
-  // Timer pour le décompte
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+// Créer le contexte
+const GameContext = createContext<GameContextType | undefined>(undefined);
 
-  // Mémoriser la dernière commande pour éviter les duplications
-  const lastCommandRef = useRef<string>('');
-
-  // Démarrer une nouvelle partie
-  const startGame = useCallback(() => {
-    // Récupérer la première salle (Vestibule)
-    const firstRoom = getRoomByStage(GameStage.VESTIBULE);
-    
-    if (!firstRoom) {
-      console.error("Erreur: Première salle non trouvée");
-      return;
-    }
-    
-    setGameState({
-      status: 'running',
-      currentStage: GameStage.VESTIBULE,
-      timeRemaining: 900,
-      messages: [
-        "[[SYSTÈME]]: Initialisation du terminal sécurisé...",
-        "[[SYSTÈME]]: Connexion établie. Bienvenue agent.",
-        "[[SYSTÈME]]: Vous avez **15 minutes** pour compléter cette mission.",
-        "",
-        `Vous entrez dans le {{${firstRoom.name}}}. La première étape de votre mission commence ici.`,
-        "Utilisez la commande `regarder` pour observer la salle et `inventaire` pour vérifier votre équipement initial."
-      ],
-      currentRoom: firstRoom,
-      inventory: {
-        "decrypt_device": {
-          id: "decrypt_device",
-          name: "Décrypteur portable",
-          description: "Un petit appareil high-tech capable de déchiffrer différents types de chiffrements.",
-          usable: true
-        },
-        "rfid_reader": {
-          id: "rfid_reader",
-          name: "Lecteur RFID",
-          description: "Un scanner de badges RFID permettant d'analyser les jetons d'accès numériques.",
-          usable: true
-        }
-      },
-      success: false,
-      medal: 'aucune',
-      quizScore: 0,
-      failReason: '',
-      challengeActive: false,
-      activeChallenge: null
-    });
-  }, []);
-
+// Provider pour le contexte du jeu
+export function GameProvider({ children }: { children: ReactNode }) {
+  // Utiliser le reducer pour gérer l'état
+  const [state, dispatch] = useReducer(gameReducer, initialState);
+  
+  // Obtenir la salle actuelle
+  const currentRoom = rooms[state.currentRoomId];
+  
   // Effet pour gérer le timer
   useEffect(() => {
-    if (gameState.status === 'running') {
-      timerRef.current = setInterval(() => {
-        setGameState(prev => {
-          if (prev.timeRemaining <= 1) {
-            clearInterval(timerRef.current as NodeJS.Timeout);
-            // Gérer la fin du temps
-            return {
-              ...prev,
-              status: 'failed',
-              timeRemaining: 0,
-              failReason: 'Temps écoulé'
-            };
-          }
-          return {
-            ...prev,
-            timeRemaining: prev.timeRemaining - 1
-          };
-        });
+    let timer: NodeJS.Timeout | null = null;
+    
+    if (state.isTimerActive && state.timeRemaining > 0) {
+      timer = setInterval(() => {
+        dispatch({ type: 'UPDATE_TIME' });
       }, 1000);
     }
-
+    
     return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
+      if (timer) clearInterval(timer);
     };
-  }, [gameState.status]);
-
-  // Ajouter ou soustraire du temps (pour les récompenses/pénalités)
-  const modifyTime = useCallback((seconds: number) => {
-    setGameState(prev => ({
-      ...prev,
-      timeRemaining: Math.max(0, prev.timeRemaining + seconds)
-    }));
-  }, []);
-
-  // Ajouter un message au terminal
-  const addMessage = useCallback((message: string) => {
-    setGameState(prev => ({
-      ...prev,
-      messages: [...prev.messages, message]
-    }));
-  }, []);
-
-  // Ajouter un item à l'inventaire
-  const addInventoryItem = useCallback((itemId: string, itemData: any) => {
-    setGameState(prev => ({
-      ...prev,
-      inventory: {
-        ...prev.inventory,
-        [itemId]: itemData
-      }
-    }));
-  }, []);
-
-  // Changer de salle
-  const changeRoom = useCallback((roomId: string) => {
-    const newRoom = getRoomById(roomId);
-    
-    if (!newRoom) {
-      addMessage("[[ERREUR]]: Impossible de trouver cette salle.");
-      return;
-    }
-    
-    setGameState(prev => ({
-      ...prev,
-      currentRoom: newRoom,
-      currentStage: newRoom.stageId,
-      messages: [...prev.messages, `Vous êtes entré dans le {{${newRoom.name}}}.`, newRoom.detailedDescription]
-    }));
-  }, [addMessage]);
-
-  // Traiter un dialogue avec un PNJ
-  const talkToNPC = useCallback((npcId: string) => {
-    if (!gameState.currentRoom) return;
-    
-    const npc = gameState.currentRoom.npcs.find(n => n.id === npcId);
-    
-    if (!npc) {
-      addMessage("Ce personnage n'est pas présent dans cette salle.");
-      return;
-    }
-    
-    addMessage(`((${npc.name})): "${npc.dialogues.initial}"`);
-  }, [gameState.currentRoom, addMessage]);
-
-  // Interagir avec un objet
-  const interactWithObject = useCallback((objectId: string) => {
-    if (!gameState.currentRoom) return;
-    
-    const object = gameState.currentRoom.objects.find(o => o.id === objectId);
-    
-    if (!object) {
-      addMessage("Cet objet n'est pas présent dans cette salle.");
-      return;
-    }
-    
-    if (object.state === 'disabled') {
-      addMessage(`L'objet ${object.name} n'est pas disponible pour le moment.`);
-      return;
-    }
-    
-    if (object.requiredItem && !gameState.inventory[object.requiredItem]) {
-      addMessage(`Vous avez besoin de ${object.requiredItem} pour interagir avec cet objet.`);
-      return;
-    }
-    
-    if (object.interactionResult) {
-      addMessage(object.interactionResult);
-    }
-    
-    // Activer un défi si c'est un terminal ou un objet spécial
-    if (object.id === 'terminal-central' && gameState.currentRoom.challenge?.type === 'phishing') {
-      setGameState(prev => ({
-        ...prev,
-        challengeActive: true,
-        activeChallenge: 'phishing'
-      }));
-      return;
-    }
-    
-    // Autres logiques spécifiques aux objets
-  }, [gameState.currentRoom, gameState.inventory, addMessage]);
-
-  // Essayer de passer par une sortie
-  const useExit = useCallback((direction: 'north' | 'south' | 'east' | 'west') => {
-    if (!gameState.currentRoom) return;
-    
-    const exit = gameState.currentRoom.exits.find(e => e.direction === direction);
-    
-    if (!exit) {
-      addMessage(`Il n'y a pas de sortie dans cette direction.`);
-      return;
-    }
-    
-    if (exit.status === 'locked') {
-      if (!exit.unlockedBy) {
-        addMessage(`Cette sortie est verrouillée.`);
-        return;
-      }
+  }, [state.isTimerActive, state.timeRemaining]);
+  
+  // Effet pour initialiser le jeu
+  useEffect(() => {
+    if (state.status === GameStatus.INITIALIZING) {
+      // Simuler un petit délai pour l'initialisation
+      const timer = setTimeout(() => {
+        dispatch({ type: 'INIT_COMPLETE' });
+      }, 1000);
       
-      if (!gameState.inventory[exit.unlockedBy]) {
-        addMessage(`Cette sortie est verrouillée. Vous avez besoin de ${exit.unlockedBy} pour la déverrouiller.`);
-        return;
-      }
-      
-      addMessage(`Vous utilisez ${gameState.inventory[exit.unlockedBy].name} pour déverrouiller la sortie.`);
+      return () => clearTimeout(timer);
     }
-    
-    if (exit.destinationRoomId) {
-      changeRoom(exit.destinationRoomId);
-    }
-  }, [gameState.currentRoom, gameState.inventory, addMessage, changeRoom]);
-
-  // Finaliser un défi
-  const completeChallenge = useCallback((success: boolean, challengeType: string) => {
-    setGameState(prev => ({
-      ...prev,
-      challengeActive: false,
-      activeChallenge: null
-    }));
-    
-    if (!gameState.currentRoom || !gameState.currentRoom.challenge) return;
-    
-    if (success) {
-      // Activer l'objet de récompense (jeton-clé, etc.)
-      const completionItemId = gameState.currentRoom.challenge.completionItem;
-      const completionItem = gameState.currentRoom.objects.find(o => o.id === completionItemId);
-      
-      if (completionItem) {
-        // Ajouter l'item à l'inventaire
-        addInventoryItem(completionItem.id, {
-          id: completionItem.id,
-          name: completionItem.name,
-          description: completionItem.description,
-          usable: true
+  }, [state.status]);
+  
+  // Gérer les interactions avec les éléments du jeu
+  const handleInteract = (type: string, targetId: string) => {
+    switch (type) {
+      case 'object':
+        const object = currentRoom.objects.find(obj => obj.id === targetId);
+        if (!object) return;
+        
+        if (object.id === 'terminal_phishing' && currentRoom.challenge?.type === 'phishing') {
+          // Lancer le défi de phishing
+          dispatch({ 
+            type: GameActionType.START_CHALLENGE, 
+            payload: currentRoom.challenge.id 
+          });
+        } else {
+          // Message d'examen standard
+          dispatch({ 
+            type: GameActionType.INTERACT, 
+            payload: { 
+              message: `Vous examinez ${object.name}: ${object.description}` 
+            } 
+          });
+        }
+        break;
+        
+      case 'npc':
+        const npc = currentRoom.npcs.find(n => n.id === targetId);
+        if (!npc) return;
+        
+        dispatch({ 
+          type: GameActionType.INTERACT, 
+          payload: { 
+            message: `${npc.name}: "Bonjour, je suis ${npc.name}, ${npc.role}. Je peux vous aider dans cette mission."` 
+          } 
         });
+        break;
         
-        // Dialogue de succès avec le PNJ si présent
-        if (gameState.currentRoom.npcs.length > 0) {
-          const mainNPC = gameState.currentRoom.npcs[0];
-          if (mainNPC.dialogues.success) {
-            addMessage(`((${mainNPC.name})): "${mainNPC.dialogues.success}"`);
+      case 'exit':
+        const exit = currentRoom.exits[targetId];
+        if (!exit || exit.status === ExitStatus.LOCKED) {
+          if (exit?.status === ExitStatus.LOCKED) {
+            dispatch({ 
+              type: 'ADD_MESSAGE', 
+              payload: `Cette sortie est verrouillée. Vous devez d'abord relever le défi de cette salle.` 
+            });
           }
-        }
-        
-        // Marquer la salle comme complétée
-        // Cette partie nécessite une mise à jour plus complexe de l'état
-      }
-    } else {
-      // Dialogue d'échec avec le PNJ si présent
-      if (gameState.currentRoom.npcs.length > 0) {
-        const mainNPC = gameState.currentRoom.npcs[0];
-        if (mainNPC.dialogues.failure) {
-          addMessage(`((${mainNPC.name})): "${mainNPC.dialogues.failure}"`);
-        }
-      }
-    }
-  }, [gameState.currentRoom, addMessage, addInventoryItem]);
-
-  // Exécuter une commande
-  const executeCommand = useCallback((command: string) => {
-    // Éviter les duplications si la même commande est entrée deux fois de suite
-    if (command === lastCommandRef.current) {
-      return;
-    }
-    lastCommandRef.current = command;
-    
-    // Ajouter la commande au terminal
-    addMessage(`$ ${command}`);
-    
-    // Analyser la commande
-    const commandLower = command.toLowerCase().trim();
-    const args = commandLower.split(' ');
-    const action = args[0];
-    
-    // Traiter différentes commandes
-    switch (action) {
-      case 'regarder':
-        if (!gameState.currentRoom) return;
-        addMessage(gameState.currentRoom.detailedDescription);
-        
-        // Lister les objets et PNJ visibles
-        if (gameState.currentRoom.npcs.length > 0) {
-          const npcsText = gameState.currentRoom.npcs
-            .map(npc => `- {{${npc.name}}} (${npc.role})`)
-            .join('\n');
-          addMessage(`\nPersonnages présents:\n${npcsText}`);
-        }
-        
-        if (gameState.currentRoom.objects.length > 0) {
-          const objectsText = gameState.currentRoom.objects
-            .filter(obj => obj.state !== 'disabled')
-            .map(obj => `- {{${obj.name}}}: ${obj.description}`)
-            .join('\n');
-          addMessage(`\nObjets visibles:\n${objectsText}`);
-        }
-        
-        // Décrire les sorties
-        const exitsText = gameState.currentRoom.exits
-          .filter(exit => exit.status !== 'hidden')
-          .map(exit => {
-            const status = exit.status === 'locked' ? ' (verrouillée)' : '';
-            return `- ${exit.direction.charAt(0).toUpperCase() + exit.direction.slice(1)}${status}`;
-          })
-          .join('\n');
-        addMessage(`\nSorties:\n${exitsText}`);
-        break;
-        
-      case 'inventaire':
-        if (Object.keys(gameState.inventory).length === 0) {
-          addMessage("Votre inventaire est vide.");
-        } else {
-          const inventoryText = Object.values(gameState.inventory)
-            .map((item: any) => `- {{${item.name}}}: ${item.description}`)
-            .join('\n');
-          addMessage(`[[INVENTAIRE]]:\n${inventoryText}`);
-        }
-        break;
-        
-      case 'utiliser':
-        if (args.length < 2) {
-          addMessage("Utiliser quoi? Spécifiez un objet de votre inventaire.");
           return;
         }
         
-        const itemId = args[1];
-        if (gameState.inventory[itemId]) {
-          addMessage(`Vous utilisez ${gameState.inventory[itemId].name}.`);
-          // Logique spécifique pour utiliser différents items
-        } else {
-          addMessage("Vous n'avez pas cet objet dans votre inventaire.");
-        }
-        break;
-        
-      case 'parler':
-        if (args.length < 2) {
-          addMessage("Parler à qui? Spécifiez un personnage présent dans la salle.");
-          return;
-        }
-        
-        const npcId = args[1];
-        talkToNPC(npcId);
-        break;
-        
-      case 'aller':
-        if (args.length < 2) {
-          addMessage("Aller où? Spécifiez une direction (nord, sud, est, ouest).");
-          return;
-        }
-        
-        const direction = args[1] as 'north' | 'south' | 'east' | 'west';
-        useExit(direction);
-        break;
-        
-      case 'examiner':
-        if (args.length < 2) {
-          addMessage("Examiner quoi? Spécifiez un objet présent dans la salle.");
-          return;
-        }
-        
-        interactWithObject(args[1]);
-        break;
-        
-      case 'flag':
-        if (args.length < 2 || isNaN(parseInt(args[1]))) {
-          addMessage("Veuillez spécifier un numéro d'email à marquer, par exemple 'flag 3'.");
-          return;
-        }
-        
-        const emailId = parseInt(args[1]);
-        addMessage(`Email ${emailId} marqué comme suspect.`);
-        // La logique complète sera gérée par le composant PhishingChallenge
+        dispatch({ type: GameActionType.MOVE, payload: exit.roomId });
         break;
         
       default:
-        addMessage("Commande non reconnue. Essayez 'regarder', 'inventaire', 'utiliser <objet>', 'parler <personnage>', 'aller <direction>', ou 'examiner <objet>'.");
+        console.log("Type d'interaction non géré:", type);
     }
-  }, [gameState.currentRoom, gameState.inventory, addMessage, talkToNPC, interactWithObject, useExit]);
-
-  // Formatage des messages pour le terminal
-  const formatMessage = useCallback((message: string): string => {
-    return message
-      .replace(/\[\[(.*?)\]\]/g, '<span class="text-yellow-300 font-bold">$1</span>')
-      .replace(/\{\{(.*?)\}\}/g, '<span class="text-green-500">$1</span>')
-      .replace(/!!(.*?)!!/g, '<span class="text-red-500 font-bold">$1</span>')
-      .replace(/\*\*(.*?)\*\*/g, '<span class="text-cyan-400">$1</span>')
-      .replace(/\(\((.*?)\)\)/g, '<span class="text-purple-400">$1</span>')
-      .replace(/\`(.*?)\`/g, '<code class="bg-gray-800 px-1 rounded text-white">$1</code>');
-  }, []);
-
-  return {
-    gameState,
-    startGame,
-    executeCommand,
-    formatMessage,
-    modifyTime,
-    completeChallenge
   };
-};
+  
+  // Gérer la fin d'un défi
+  const handleChallengeComplete = (success: boolean, score: number, timeBonus: number) => {
+    dispatch({
+      type: GameActionType.COMPLETE_CHALLENGE,
+      payload: {
+        success,
+        score,
+        timeBonus
+      }
+    });
+    
+    // Si le défi est réussi, débloquer la sortie correspondante
+    if (success) {
+      // Débloquer virtuellement la sortie
+      // Note: dans un vrai jeu, nous modifierions l'état physique de la salle
+      dispatch({
+        type: 'UNLOCK_EXIT'
+      });
+    }
+  };
+  
+  // Formater le temps pour l'affichage
+  const formatTime = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+  };
+  
+  // Valeur du context
+  const contextValue: GameContextType = {
+    state,
+    dispatch,
+  
+  // Valeur du context
+  const contextValue: GameContextType = {
+    state,
+    dispatch,
+    currentRoom,
+    handleInteract,
+    handleChallengeComplete,
+    formatTime
+  };
+  
+  return (
+    <GameContext.Provider value={contextValue}>
+      {children}
+    </GameContext.Provider>
+  );
+}
 
-export default useGameStateV2;
+// Hook pour utiliser le contexte du jeu
+export function useGameState() {
+  const context = useContext(GameContext);
+  if (context === undefined) {
+    throw new Error('useGameState must be used within a GameProvider');
+  }
+  return context;
+}
