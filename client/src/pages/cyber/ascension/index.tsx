@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'wouter';
+import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Shield, Lock, Server, Database, Search, FileText, Users, Globe, AlertTriangle, Clock, Layers, Terminal, CheckCircle, Star, Gift, InfoCircle, Cloud } from 'lucide-react';
+import { ArrowLeft, Shield, Lock, Server, Database, Search, FileText, Users, Globe, AlertTriangle, Clock, Layers, Terminal, CheckCircle, Star, Gift, Info, Cloud } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent } from '@/components/ui/card';
@@ -764,7 +764,7 @@ const CyberAscension: React.FC = () => {
                     
                     <div className="bg-blue-900/20 border border-blue-900/50 rounded-lg p-4">
                       <div className="flex items-start">
-                        <InfoCircle className="h-5 w-5 text-blue-400 mr-3 mt-1 flex-shrink-0" />
+                        <Info className="h-5 w-5 text-blue-400 mr-3 mt-1 flex-shrink-0" />
                         <p className="text-sm text-blue-300">
                           Ce défi utilise Azure OpenAI pour générer des scénarios dynamiques, créer des adversaires IA adaptatifs et fournir un retour personnalisé sur vos décisions. Chaque tentative sera différente et adaptée à votre style de résolution de problèmes.
                         </p>

@@ -240,7 +240,7 @@ export async function getLevelInfo(req: Request, res: Response) {
     }
     
     // Si c'est le niveau 5, ajouter les étapes spécifiques
-    let steps = [];
+    let steps: Array<{id: number, title: string}> = [];
     if (levelId === 5) {
       steps = crisisManagementSteps.map(step => ({
         id: step.id,
@@ -258,7 +258,7 @@ export async function getLevelInfo(req: Request, res: Response) {
       }
     });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error("Erreur lors de la récupération des informations du niveau:", error);
     return res.status(500).json({
       success: false,
