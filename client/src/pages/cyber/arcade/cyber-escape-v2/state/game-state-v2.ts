@@ -154,7 +154,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       // Débloquer une sortie
       return {
         ...state,
-        messages: [...state.messages, action.payload.message || "Sortie déverrouillée!"]
+        messages: [...state.messages, action.payload?.message || "Sortie déverrouillée!"]
       };
       
     case 'GAME_VICTORY':
@@ -310,12 +310,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
     return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
   };
   
-  // Valeur du context
-  const contextValue: GameContextType = {
-    state,
-    dispatch,
-  
-  // Valeur du context
   const contextValue: GameContextType = {
     state,
     dispatch,
@@ -333,9 +327,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
 }
 
 // Hook pour utiliser le contexte du jeu
-export function useGameState() {
+export function useGameState(): GameContextType {
   const context = useContext(GameContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useGameState must be used within a GameProvider');
   }
   return context;

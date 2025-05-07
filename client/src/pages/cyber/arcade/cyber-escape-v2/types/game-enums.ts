@@ -1,68 +1,62 @@
 /**
- * Énumérations pour le jeu CYBER ESCAPE v2
+ * Énumérations pour les types de jeu
  */
 
-// État des objets dans le jeu
-export enum ObjectState {
-  DEFAULT = 'default',
-  ACTIVE = 'active',
-  DISABLED = 'disabled'
+// États possibles du jeu
+export enum GameStatus {
+  INITIALIZING = 'initializing',
+  PLAYING = 'playing',
+  PAUSED = 'paused',
+  CHALLENGE_ACTIVE = 'challenge_active',
+  GAME_OVER = 'game_over',
+  VICTORY = 'victory'
 }
 
-// Types d'objets dans le jeu
-export enum ObjectType {
-  TERMINAL = 'terminal',
-  DOCUMENT = 'document',
-  DEVICE = 'device',
-  ITEM = 'item',
-  KEY = 'key'
+// Types d'actions pour le reducer
+export enum GameActionType {
+  MOVE = 'MOVE',
+  INTERACT = 'INTERACT',
+  COLLECT_ITEM = 'COLLECT_ITEM',
+  START_CHALLENGE = 'START_CHALLENGE',
+  COMPLETE_CHALLENGE = 'COMPLETE_CHALLENGE'
 }
 
-// État des sorties (portes, passages, etc.)
+// États possibles des sorties
 export enum ExitStatus {
   OPEN = 'open',
   LOCKED = 'locked',
   HIDDEN = 'hidden'
 }
 
+// États possibles des objets
+export enum ObjectState {
+  NORMAL = 'normal',
+  HIGHLIGHTED = 'highlighted',
+  DISABLED = 'disabled',
+  INTERACTIVE = 'interactive'
+}
+
 // Types de défis
 export enum ChallengeType {
   PHISHING = 'phishing',
-  PUZZLE = 'puzzle',
+  FIREWALL = 'firewall',
+  PASSWORD = 'password',
   CODE = 'code',
-  NETWORK = 'network',
-  FORENSIC = 'forensic',
-  PASSWORD = 'password'
+  PUZZLE = 'puzzle'
 }
 
-// Niveaux de difficulté
-export enum DifficultyLevel {
-  BEGINNER = 'beginner',
-  INTERMEDIATE = 'intermediate',
-  ADVANCED = 'advanced',
-  EXPERT = 'expert'
+// Types d'objets dans la salle
+export enum ObjectType {
+  COMPUTER = 'computer',
+  DEVICE = 'device',
+  DOCUMENT = 'document',
+  KEY = 'key',
+  FURNITURE = 'furniture',
+  DECORATION = 'decoration'
 }
 
-// États de jeu
-export enum GameStatus {
-  INITIALIZING = 'initializing',
-  PLAYING = 'playing',
-  PAUSED = 'paused',
-  CHALLENGE_ACTIVE = 'challenge_active',
-  DIALOG_ACTIVE = 'dialog_active',
-  GAME_OVER = 'game_over',
-  VICTORY = 'victory'
-}
-
-// Types d'actions dans le jeu
-export enum GameActionType {
-  MOVE = 'move',
-  INTERACT = 'interact',
-  USE_ITEM = 'use_item',
-  TALK = 'talk',
-  EXAMINE = 'examine',
-  UNLOCK = 'unlock',
-  START_CHALLENGE = 'start_challenge',
-  COMPLETE_CHALLENGE = 'complete_challenge',
-  COLLECT_ITEM = 'collect_item'
+// Type de vue de la salle
+export enum RoomViewMode {
+  NORMAL = '2d',
+  DETAILED = 'detailed'
 }

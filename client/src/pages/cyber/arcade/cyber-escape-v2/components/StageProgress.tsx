@@ -1,171 +1,90 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Award, Check, Lock } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  Tooltip, 
-  TooltipContent, 
-  TooltipProvider, 
-  TooltipTrigger 
-} from '@/components/ui/tooltip';
-// Définir directement l'enum ici car l'import pose des problèmes
-export enum GameStage {
-  INITIAL = 0,
-  VESTIBULE = 1,
-  MUR_REVELATIONS = 2,
-  COULOIR_BADGES = 3,
-  LABO_ANALYSE = 4,
-  SALLE_MONITORING = 5,
-  CRYPTEX = 6,
-  QUARTIER_RESEAU = 7,
-  FORENSIC_LAB = 8,
-  CENTRE_DEFENSE = 9,
-  PORTE_SIGMA = 10
-}
+import { Check, ChevronRight, Lock } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface StageProgressProps {
-  currentStage: GameStage;
-  className?: string;
+  currentStage: number;
+  unlockedStages: number[];
+  totalStages: number;
 }
 
-// Mapping des noms d'étapes pour les tooltips
-const stageNames: Record<number, string> = {
-  0: 'Début du jeu',
-  1: 'Vestibule Phish-Alert',
-  2: 'Mur des Révélations',
-  3: 'Couloir des Badges',
-  4: 'Laboratoire d\'Analyse',
-  5: 'Salle de Monitoring',
-  6: 'Cryptex',
-  7: 'Quartier Réseau',
-  8: 'Laboratoire Forensic',
-  9: 'Centre de Défense',
-  10: 'Porte Sigma'
-};
-
-// Mapping des tooltips avec description détaillée
-const stageDescriptions: Record<number, string> = {
-  1: 'Identification des emails de phishing',
-  2: 'Recherche en sources ouvertes (OSINT)',
-  3: 'Gestion des contrôles d\'accès',
-  4: 'Analyse des vulnérabilités',
-  5: 'Détection d\'intrusion en temps réel',
-  6: 'Déchiffrement de codes cryptographiques',
-  7: 'Sécurisation d\'un réseau compromis',
-  8: 'Analyse forensique de preuves numériques',
-  9: 'Gestion de crise et réponse à incident',
-  10: 'Objectif final - Sécurisation du système'
-};
-
-// Composant pour chaque badge/niveau d'étape
-const StageBadge: React.FC<{ 
-  stage: number, 
-  currentStage: number,
-  onClick?: () => void 
-}> = ({ stage, currentStage, onClick }) => {
-  // Déterminer l'état du badge
-  const isCompleted = stage < currentStage;
-  const isCurrent = stage === currentStage;
-  const isLocked = stage > currentStage;
-  
-  // Classes conditionnelles
-  let bgClass = 'bg-gray-800 text-gray-500 border-gray-700';
-  if (isCompleted) bgClass = 'bg-green-900/30 text-green-300 border-green-600';
-  if (isCurrent) bgClass = 'bg-blue-900/30 text-blue-300 border-blue-600 animate-pulse';
-  
-  // Icône à afficher
-  const Icon = isCompleted ? Check : isLocked ? Lock : null;
+/**
+ * Composant qui affiche la progression à travers les niveaux du jeu
+ */
+const StageProgress: React.FC<StageProgressProps> = ({ 
+  currentStage, 
+  unlockedStages, 
+  totalStages 
+}) => {
+  // Créer un tableau de tous les niveaux pour l'affichage
+  const stages = Array.from({ length: totalStages }, (_, i) => i + 1);
   
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <motion.div
-            className={`
-              relative w-8 h-8 rounded-full border flex items-center justify-center
-              ${bgClass} cursor-pointer transition-colors
-              ${isLocked ? 'opacity-60' : 'opacity-100 hover:brightness-125'}
-            `}
-            whileHover={{ scale: isLocked ? 1 : 1.1 }}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.2, delay: stage * 0.05 }}
-            onClick={isLocked ? undefined : onClick}
-          >
-            {Icon ? <Icon className="h-3.5 w-3.5" /> : <span className="text-xs font-bold">{stage}</span>}
-            
-            {isCurrent && (
-              <motion.div
-                className="absolute -inset-1 rounded-full border border-blue-400/50"
-                animate={{ scale: [1, 1.1, 1], opacity: [0.7, 0.5, 0.7] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              />
-            )}
-          </motion.div>
-        </TooltipTrigger>
-        <TooltipContent side="bottom" className="bg-gray-900 border-gray-700">
-          <div className="space-y-1">
-            <p className="font-medium">
-              {isLocked ? (
-                <span className="text-gray-400">Niveau {stage} - Verrouillé</span>
-              ) : (
-                <span className={isCurrent ? 'text-blue-400' : 'text-green-400'}>
-                  Niveau {stage} - {stageNames[stage]}
-                </span>
-              )}
-            </p>
-            {!isLocked && (
-              <p className="text-xs text-gray-400">{stageDescriptions[stage]}</p>
-            )}
-          </div>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-};
-
-const StageProgress: React.FC<StageProgressProps> = ({ currentStage, className = '' }) => {
-  // Calculer le pourcentage d'avancement (10 étapes au total)
-  const progressPercentage = Math.min(Math.round((currentStage / 10) * 100), 100);
-  
-  return (
-    <Card className={`border-green-500 bg-black/50 ${className}`}>
-      <CardHeader className="py-2 px-3 border-b border-green-800">
-        <CardTitle className="text-sm text-green-400 flex items-center justify-between">
-          <div className="flex items-center">
-            <Award className="h-4 w-4 mr-2" />
-            <span>Progression</span>
-          </div>
-          <span className="text-xs bg-green-900/30 px-2 py-0.5 rounded border border-green-800">
-            {progressPercentage}%
-          </span>
-        </CardTitle>
-      </CardHeader>
+    <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-xs font-medium text-gray-400">Progression des niveaux</h3>
+        <div className="text-xs text-gray-500">
+          Niveau {currentStage} / {totalStages}
+        </div>
+      </div>
       
-      <CardContent className="p-3">
+      <div className="mt-3 relative">
         {/* Barre de progression */}
-        <div className="w-full h-1.5 bg-gray-800 rounded-full mb-4 overflow-hidden">
-          <motion.div
-            className="h-full bg-green-500 rounded-full"
-            initial={{ width: 0 }}
-            animate={{ width: `${progressPercentage}%` }}
-            transition={{ duration: 0.7, ease: "easeOut" }}
-          />
-        </div>
+        <div className="absolute h-[2px] bg-gray-800 top-[14px] left-0 right-0 z-0" />
+        <div 
+          className="absolute h-[2px] bg-green-500 top-[14px] left-0 z-10" 
+          style={{ width: `${(Math.max(1, currentStage - 1) / totalStages) * 100}%` }}
+        />
         
-        {/* Badges d'étapes */}
-        <div className="flex justify-between pt-1">
-          {Array.from({ length: 10 }, (_, i) => i + 1).map(stage => (
-            <StageBadge
-              key={stage}
-              stage={stage}
-              currentStage={currentStage}
-              onClick={() => console.log(`Clic sur l'étape ${stage}`)}
-            />
-          ))}
+        {/* Points de progression */}
+        <div className="relative z-20 flex justify-between">
+          {stages.map((stage) => {
+            const isComplete = stage < currentStage;
+            const isCurrent = stage === currentStage;
+            const isUnlocked = unlockedStages.includes(stage);
+            const isLocked = !isUnlocked;
+            
+            return (
+              <div 
+                key={stage}
+                className="flex flex-col items-center"
+              >
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: stage * 0.1 }}
+                  className={cn(
+                    "w-7 h-7 rounded-full flex items-center justify-center border-2",
+                    isComplete && "border-green-500 bg-green-500/20 text-green-400",
+                    isCurrent && "border-blue-500 bg-blue-500/20 text-blue-400 animate-pulse",
+                    isLocked && "border-gray-700 bg-gray-800/50 text-gray-600"
+                  )}
+                >
+                  {isComplete ? (
+                    <Check className="h-3 w-3" />
+                  ) : isCurrent ? (
+                    <ChevronRight className="h-3 w-3" />
+                  ) : (
+                    <Lock className="h-3 w-3" />
+                  )}
+                </motion.div>
+                <span 
+                  className={cn(
+                    "text-xs mt-1",
+                    isComplete && "text-green-400",
+                    isCurrent && "text-blue-400 font-medium",
+                    isLocked && "text-gray-600"
+                  )}
+                >
+                  {stage}
+                </span>
+              </div>
+            );
+          })}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

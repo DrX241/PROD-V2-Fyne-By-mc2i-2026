@@ -1,143 +1,136 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Briefcase, Info } from 'lucide-react';
-import { 
-  Tooltip, 
-  TooltipContent, 
-  TooltipProvider, 
-  TooltipTrigger 
-} from "@/components/ui/tooltip";
+import { Backpack, Info, Shield, ZapOff } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import { InventoryItem } from '../types/game';
 
 interface InventoryPanelProps {
-  items: Record<string, InventoryItem>;
-  onUseItem?: (itemId: string) => void;
-  className?: string;
+  items: InventoryItem[];
+  onUseItem: (itemId: string) => void;
 }
 
-const InventoryPanel: React.FC<InventoryPanelProps> = ({ 
-  items, 
-  onUseItem, 
-  className = "" 
-}) => {
-  // Animation pour les nouveaux items
-  const itemVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: { opacity: 1, scale: 1, transition: { type: "spring", stiffness: 300, damping: 20 } }
+/**
+ * Composant pour afficher l'inventaire du joueur
+ */
+const InventoryPanel: React.FC<InventoryPanelProps> = ({ items, onUseItem }) => {
+  // Animation variants pour les éléments de l'inventaire
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
   };
   
-  // Classes pour les items basées sur leur type/rareté
-  const getItemClasses = (item: InventoryItem) => {
-    // Items de base (décrypteur, lecteur RFID)
-    if (item.id === 'decrypt_device' || item.id === 'rfid_reader') {
-      return 'bg-blue-900/30 border-blue-600';
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 }
+  };
+
+  // Obtenir un icône en fonction du type d'objet
+  const getItemIcon = (itemType: string) => {
+    switch (itemType) {
+      case 'key':
+        return <Shield className="h-4 w-4 text-yellow-500" />;
+      case 'device':
+        return <ZapOff className="h-4 w-4 text-blue-500" />;
+      default:
+        return <Info className="h-4 w-4 text-gray-400" />;
     }
-    
-    // Objets spéciaux (cristal temporel, etc.)
-    if (item.id === 'time_crystal' || item.id === 'debug_tool' || item.id === 'crypto_analyzer') {
-      return 'bg-purple-900/30 border-purple-600';
-    }
-    
-    // Jetons-clés (récompenses d'étape)
-    return 'bg-green-900/30 border-green-600';
   };
   
   return (
-    <Card className={`border-green-500 bg-black/50 backdrop-blur-sm ${className}`}>
-      <div className="p-3 border-b border-green-800 flex items-center">
-        <Briefcase className="h-4 w-4 mr-2 text-green-400" />
-        <h3 className="text-sm font-medium text-green-400">Inventaire</h3>
-        <Badge variant="outline" className="ml-auto text-xs border-green-500 text-green-400">
-          {Object.keys(items).length} / 12
-        </Badge>
-      </div>
-      <div className="p-3">
-        {Object.keys(items).length > 0 ? (
-          <div className="grid grid-cols-3 gap-2">
-            {Object.entries(items).map(([id, item]) => (
-              <TooltipProvider key={id}>
-                <Tooltip delayDuration={300}>
-                  <TooltipTrigger asChild>
-                    <motion.div
-                      initial="hidden"
-                      animate="visible"
-                      variants={itemVariants}
-                      className={`relative p-2 rounded border ${getItemClasses(item)} cursor-pointer transition-all hover:brightness-125 hover:border-opacity-100 group`}
-                      onClick={() => onUseItem && onUseItem(id)}
-                    >
-                      <div className="absolute top-0 right-0 w-full h-full overflow-hidden opacity-10">
-                        <div className="absolute inset-0 bg-gradient-to-br from-transparent to-green-400 group-hover:opacity-20 transition-opacity"></div>
-                      </div>
-                      
-                      {/* Icône stylisée basée sur le type d'item */}
-                      <div className="mb-1 flex justify-center">
-                        {item.id.includes('key') || item.id.includes('token') || item.id.includes('badge') ? (
-                          <div className="w-6 h-6 rounded-full bg-green-800/50 flex items-center justify-center">
-                            <span className="text-green-400 text-xs font-bold">
-                              {item.name.charAt(0)}
-                            </span>
+    <Card className="border-blue-600 bg-black/60 h-[500px] flex flex-col">
+      <CardHeader className="px-4 py-2 flex-shrink-0 border-b border-blue-800 bg-blue-900/20">
+        <div className="flex items-center gap-2">
+          <Backpack className="h-4 w-4 text-blue-400" />
+          <span className="text-sm font-medium text-blue-400">Inventaire</span>
+          <Badge variant="outline" className="ml-auto bg-blue-950/30 border-blue-700 text-blue-300">
+            {items.length} items
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="p-0 flex-grow">
+        <ScrollArea className="h-full w-full">
+          {items.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full p-4 text-center">
+              <Backpack className="h-10 w-10 text-gray-600 mb-2" />
+              <p className="text-gray-400 text-sm">Votre inventaire est vide</p>
+              <p className="text-gray-500 text-xs mt-1">
+                Explorez les salles pour trouver des objets utiles
+              </p>
+            </div>
+          ) : (
+            <motion.div 
+              className="grid grid-cols-1 gap-2 p-3"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {items.map((item) => (
+                <motion.div
+                  key={item.id}
+                  variants={itemVariants}
+                  className="border border-blue-800 bg-blue-900/10 hover:bg-blue-900/20 rounded-lg p-3 cursor-pointer transition-colors"
+                >
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex items-start space-x-3">
+                          <div className="mt-0.5">
+                            {getItemIcon(item.type)}
                           </div>
-                        ) : item.id === 'decrypt_device' ? (
-                          <div className="w-6 h-6 rounded-full bg-blue-800/50 flex items-center justify-center">
-                            <span className="text-blue-400 text-xs font-bold">DC</span>
+                          <div className="flex-1">
+                            <div className="font-medium text-blue-300">{item.name}</div>
+                            <div className="text-xs text-gray-400 mt-1">{item.description}</div>
                           </div>
-                        ) : item.id === 'rfid_reader' ? (
-                          <div className="w-6 h-6 rounded-full bg-blue-800/50 flex items-center justify-center">
-                            <span className="text-blue-400 text-xs font-bold">RF</span>
-                          </div>
-                        ) : (
-                          <div className="w-6 h-6 rounded-full bg-purple-800/50 flex items-center justify-center">
-                            <span className="text-purple-400 text-xs font-bold">SP</span>
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* Nom de l'item avec troncature */}
-                      <p className="text-center text-xs font-medium text-green-300 truncate">
-                        {item.name.length > 15 ? `${item.name.substring(0, 13)}...` : item.name}
-                      </p>
-                      
-                      {/* Badge pour les objets consommables */}
-                      {item.consumed && (
-                        <span className="absolute top-0 right-0 w-2 h-2 bg-orange-500 rounded-full transform translate-x-1/2 -translate-y-1/2"></span>
-                      )}
-                    </motion.div>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="bg-gray-900 border-green-600 p-3 max-w-[250px]">
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <p className="font-bold text-green-400">{item.name}</p>
-                        {item.consumed && (
-                          <Badge variant="outline" className="text-xs border-orange-500 text-orange-400">
-                            Consommable
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-xs text-gray-300">{item.description}</p>
-                      
-                      {item.useTarget && item.useTarget.length > 0 && (
-                        <div className="pt-1 mt-1 border-t border-gray-700">
-                          <div className="flex items-center">
-                            <Info className="h-3 w-3 mr-1 text-blue-400" />
-                            <p className="text-xs text-blue-400">Utilisable sur: {item.useTarget.join(', ')}</p>
+                          {item.usable && (
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="text-blue-400 hover:text-blue-300 hover:bg-blue-900/30 p-1 h-auto"
+                              onClick={() => onUseItem(item.id)}
+                            >
+                              Utiliser
+                            </Button>
+                          )}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="right" className="bg-gray-900 border-blue-700">
+                        <div className="space-y-1">
+                          <p className="font-medium text-blue-300">{item.name}</p>
+                          <p className="text-xs text-gray-300">{item.description}</p>
+                          <div className="flex items-center mt-1 pt-1 border-t border-gray-800">
+                            <Badge variant="outline" className="text-xs bg-blue-950/20 border-blue-700">
+                              {item.type}
+                            </Badge>
+                            {item.usable ? (
+                              <Badge variant="outline" className="text-xs ml-2 bg-green-950/20 border-green-700 text-green-400">
+                                Utilisable
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="text-xs ml-2 bg-gray-950/20 border-gray-700 text-gray-400">
+                                Non utilisable
+                              </Badge>
+                            )}
                           </div>
                         </div>
-                      )}
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            ))}
-          </div>
-        ) : (
-          <div className="py-6 text-center text-gray-500">
-            <Briefcase className="h-8 w-8 mx-auto mb-2 opacity-30" />
-            <p className="text-sm">Inventaire vide</p>
-          </div>
-        )}
-      </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </ScrollArea>
+      </CardContent>
     </Card>
   );
 };

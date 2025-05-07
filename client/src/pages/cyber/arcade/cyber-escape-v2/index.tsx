@@ -29,9 +29,21 @@ import StageProgress from './components/StageProgress';
 // Component principal de l'interface
 const CyberEscapeGame = () => {
   return (
-    <GameProvider>
-      <CyberEscapeInterface />
-    </GameProvider>
+    <div className="min-h-screen bg-gray-950 text-gray-200 p-4">
+      <div className="flex flex-col items-center justify-center h-full">
+        <h1 className="text-2xl font-bold text-green-400 mb-2">CYBER ESCAPE v2.0</h1>
+        <p className="text-gray-400">Version en cours de développement.</p>
+        <p className="text-gray-400 mt-4">Composants créés et prêts à l'intégration :</p>
+        <ul className="mt-2 text-gray-300 space-y-1">
+          <li>• RoomView - Affichage de la salle avec objets et PNJs</li>
+          <li>• CyberTerminal - Terminal pour les messages du jeu</li>
+          <li>• InventoryPanel - Affichage des objets collectés</li>
+          <li>• QuickActions - Actions rapides contextuelles</li>
+          <li>• PhishingChallenge - Mini-jeu de détection d'emails malveillants</li>
+          <li>• StageProgress - Barre de progression des niveaux</li>
+        </ul>
+      </div>
+    </div>
   );
 };
 
