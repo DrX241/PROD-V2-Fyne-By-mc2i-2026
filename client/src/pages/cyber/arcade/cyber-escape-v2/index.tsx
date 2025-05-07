@@ -111,9 +111,9 @@ const CyberEscapeGame = () => {
                   <span className="text-green-400 text-xs font-mono">CYBER TERMINAL v2.1</span>
                 </div>
                 <div className="p-3 font-mono text-xs">
-                  <div className="text-green-500">> Bienvenue dans Cyber Escape v2.0!</div>
-                  <div className="text-green-500">> Vous êtes dans la Salle des Serveurs.</div>
-                  <div className="text-green-500">> Examinez le terminal pour détecter les emails de phishing.</div>
+                  <div className="text-green-500">{'>'} Bienvenue dans Cyber Escape v2.0!</div>
+                  <div className="text-green-500">{'>'} Vous êtes dans la Salle des Serveurs.</div>
+                  <div className="text-green-500">{'>'} Examinez le terminal pour détecter les emails de phishing.</div>
                   <div className="text-green-500 flex">
                     <span className="animate-pulse mr-1">_</span>
                   </div>

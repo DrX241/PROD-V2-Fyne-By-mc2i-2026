@@ -1,8 +1,6 @@
-/**
- * Énumérations pour les types de jeu
- */
+// Énumérations pour les états et types du jeu
 
-// États possibles du jeu
+// Statut du jeu
 export enum GameStatus {
   INITIALIZING = 'initializing',
   PLAYING = 'playing',
@@ -12,7 +10,7 @@ export enum GameStatus {
   VICTORY = 'victory'
 }
 
-// Types d'actions pour le reducer
+// Types d'actions du jeu
 export enum GameActionType {
   MOVE = 'MOVE',
   INTERACT = 'INTERACT',
@@ -21,42 +19,36 @@ export enum GameActionType {
   COMPLETE_CHALLENGE = 'COMPLETE_CHALLENGE'
 }
 
-// États possibles des sorties
+// États des objets
+export enum ObjectState {
+  NORMAL = 'normal',
+  INTERACTIVE = 'interactive',
+  HIGHLIGHTED = 'highlighted',
+  DISABLED = 'disabled'
+}
+
+// États des sorties
 export enum ExitStatus {
   OPEN = 'open',
   LOCKED = 'locked',
   HIDDEN = 'hidden'
 }
 
-// États possibles des objets
-export enum ObjectState {
-  NORMAL = 'normal',
-  HIGHLIGHTED = 'highlighted',
-  DISABLED = 'disabled',
-  INTERACTIVE = 'interactive'
+// Types d'objets
+export enum ObjectType {
+  COMPUTER = 'computer',
+  DOCUMENT = 'document',
+  KEY = 'key',
+  TOOL = 'tool',
+  GENERIC = 'generic'
 }
 
 // Types de défis
 export enum ChallengeType {
   PHISHING = 'phishing',
   FIREWALL = 'firewall',
+  MALWARE = 'malware',
   PASSWORD = 'password',
-  CODE = 'code',
-  PUZZLE = 'puzzle'
-}
-
-// Types d'objets dans la salle
-export enum ObjectType {
-  COMPUTER = 'computer',
-  DEVICE = 'device',
-  DOCUMENT = 'document',
-  KEY = 'key',
-  FURNITURE = 'furniture',
-  DECORATION = 'decoration'
-}
-
-// Type de vue de la salle
-export enum RoomViewMode {
-  NORMAL = '2d',
-  DETAILED = 'detailed'
+  FORENSIC = 'forensic',
+  SOCIAL_ENGINEERING = 'social_engineering'
 }

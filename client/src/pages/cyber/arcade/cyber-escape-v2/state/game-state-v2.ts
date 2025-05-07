@@ -1,16 +1,7 @@
 import { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { GameStatus, GameActionType, ExitStatus, ObjectState } from '../types/game-enums';
 import { GameState, GameAction, RoomData, ChallengeResult } from '../types/game';
-
-// Imports temporaires en attendant le fichier rooms.ts
-const rooms: Record<string, RoomData> = {};
-const initialGameData = {
-  currentStage: 1,
-  currentRoomId: 'server_room',
-  inventory: {},
-  messages: ['Bienvenue dans Cyber Escape v2.0! Le pare-feu est tombé, et vous devez restaurer la sécurité.'],
-  timeRemaining: 900 // 15 minutes
-};
+import { rooms, initialGameData } from '../data/rooms';
 
 // État initial du jeu
 const initialState: GameState = {

@@ -1,68 +1,68 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Terminal } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface CyberTerminalProps {
   messages: string[];
-  formatMessage?: (message: string) => string; // Optionnel pour formatter les messages
 }
 
 /**
- * Composant pour afficher un terminal de console avec l'historique des messages
+ * Console de terminal pour afficher les messages du jeu
  */
 const CyberTerminal: React.FC<CyberTerminalProps> = ({ messages }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   
-  // Faire défiler automatiquement vers le bas lorsque de nouveaux messages arrivent
+  // Défiler automatiquement vers le bas quand de nouveaux messages arrivent
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollIntoView({ behavior: 'smooth' });
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
   
-  // Animation pour l'affichage des nouveaux messages
-  const messageVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
-  
   return (
-    <Card className="border-green-600 bg-black/60 h-[500px] flex flex-col">
-      <CardHeader className="px-4 py-2 flex-shrink-0 border-b border-green-800 bg-green-900/20">
-        <div className="flex items-center gap-2">
-          <Terminal className="h-4 w-4 text-green-400" />
-          <span className="text-sm font-mono text-green-400">CYBER TERMINAL v2.1</span>
-        </div>
+    <Card className="bg-black/70 border-green-900 shadow-lg shadow-green-900/10">
+      <CardHeader className="border-b border-green-900/50 bg-green-950/30 py-2 px-4 flex flex-row items-center gap-2">
+        <Terminal className="h-4 w-4 text-green-500" />
+        <span className="text-sm font-mono text-green-500">Terminal Système</span>
       </CardHeader>
-      <CardContent className="p-0 flex-grow relative">
-        <ScrollArea className="h-full w-full px-4 py-2">
-          <div className="space-y-2 font-mono text-sm pb-2">
+      
+      <CardContent className="p-0">
+        <ScrollArea 
+          className="h-[300px] bg-black font-mono text-xs px-0"
+          ref={scrollRef}
+        >
+          <div className="p-3 space-y-1">
             {messages.map((message, index) => (
               <motion.div
                 key={index}
-                initial="hidden"
-                animate="visible"
-                variants={messageVariants}
-                transition={{ duration: 0.3, delay: 0.1 }}
-                className={`p-2 rounded ${index % 2 === 0 ? 'bg-green-900/10' : ''}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.05 }}
+                className="text-green-500"
               >
-                <div className="flex items-start gap-2">
-                  <span className="text-green-500 flex-shrink-0">&gt;</span>
-                  <span className="text-green-100">{message}</span>
-                </div>
+                {message.includes('[ALERTE]') ? (
+                  <div className="text-red-500 bg-red-950/20 px-2 py-1 rounded-sm">
+                    {message}
+                  </div>
+                ) : message.includes('[SUCCÈS]') || message.includes('débloqué') ? (
+                  <div className="text-blue-400 bg-blue-950/20 px-2 py-1 rounded-sm">
+                    {message}
+                  </div>
+                ) : (
+                  <div>{'>'} {message}</div>
+                )}
               </motion.div>
             ))}
-            <div ref={scrollRef} />
+            
+            {/* Curseur clignotant */}
+            <div className="flex text-green-500 mt-2">
+              <span className="mr-1">{'>'}</span>
+              <span className="w-3 h-4 bg-green-500 animate-pulse"></span>
+            </div>
           </div>
         </ScrollArea>
-        
-        {/* Effet de scanline pour le style rétro */}
-        <div className="absolute inset-0 pointer-events-none bg-scanline opacity-10" />
-        
-        {/* Effet de terminal clignotant */}
-        <div className="absolute bottom-3 left-6 w-3 h-5 bg-green-500 opacity-80 animate-pulse" />
       </CardContent>
     </Card>
   );
