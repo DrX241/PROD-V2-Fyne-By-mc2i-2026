@@ -136,7 +136,7 @@ export default function PolicyConverter() {
                 variant="outline"
                 size="sm"
                 className="text-blue-400 hover:text-blue-300 hover:bg-blue-950 border-blue-800"
-                onClick={() => setLocation('/cyber-mode-selection')}
+                onClick={() => setLocation('/cyber')}
               >
                 <ChevronLeft className="mr-2 h-4 w-4" />
                 Retour à I AM CYBER
