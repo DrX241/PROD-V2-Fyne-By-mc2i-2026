@@ -181,7 +181,8 @@ export const TutorialProvider = ({ children }: { children: ReactNode }) => {
             },
           }}
           callback={(data: CallBackProps) => {
-            if ([STATUS.FINISHED, STATUS.SKIPPED].includes(data.status)) {
+            const { status } = data;
+            if (status === 'finished' || status === 'skipped') {
               endTutorial();
               markTutorialAsSeen(currentTour);
             }

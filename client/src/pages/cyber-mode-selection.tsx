@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
-import { ArrowRight, Home } from 'lucide-react';
+import { ArrowRight, Home, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
+import { useTutorial } from '@/contexts/TutorialContext';
 
 interface ModeOption {
   id: string;
@@ -27,6 +28,27 @@ interface ModeOption {
 export default function CyberModeSelection() {
   const [hoveredMode, setHoveredMode] = useState<string | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  
+  // Intégration du didacticiel
+  const { 
+    showTutorial, 
+    startTutorial, 
+    setCurrentTour, 
+    tutorialSeen 
+  } = useTutorial();
+
+  // Démarrage du didacticiel lors de la première visite
+  useEffect(() => {
+    // Vérification si c'est la première visite
+    if (!tutorialSeen['cyber-mode-selection']) {
+      setCurrentTour('cyber-mode-selection');
+      // Léger délai pour laisser la page se charger
+      const timer = setTimeout(() => {
+        startTutorial();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [tutorialSeen, setCurrentTour, startTutorial]);
 
   // Réorganisation des modules en 5 catégories selon la nouvelle structure
   const cyberModes: ModeOption[] = [
