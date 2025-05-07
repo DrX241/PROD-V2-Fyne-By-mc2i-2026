@@ -20,12 +20,10 @@ import { Shield, Code, Users, Search, Network } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useCyberQuest } from '@/contexts/CyberQuestContext';
 
-// Schema pour la validation du formulaire
+// Schema pour la validation du formulaire - version simplifiée
 const characterSchema = z.object({
-  characterName: z.string().min(3, { message: 'Le nom de votre agent doit comporter au moins 3 caractères' }).max(30, { message: 'Le nom de votre agent ne peut pas dépasser 30 caractères' }),
-  archetype: z.enum(['defender', 'hacker', 'investigator', 'social', 'analyst'], {
-    required_error: 'Veuillez sélectionner un archétype',
-  })
+  characterName: z.string().optional().or(z.literal('')),
+  archetype: z.enum(['defender', 'hacker', 'investigator', 'social', 'analyst']).optional(),
 });
 
 type CharacterFormValues = z.infer<typeof characterSchema>;
@@ -136,24 +134,66 @@ const CharacterCreation: React.FC = () => {
   const onSubmit = async (values: CharacterFormValues) => {
     setIsSubmitting(true);
     
+    // Vérifier si un archétype a été sélectionné, sinon afficher un message
+    if (!selectedArchetype) {
+      toast({
+        title: "Sélection requise",
+        description: "Veuillez choisir un archétype pour votre agent",
+        variant: "destructive",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+    
+    // Vérifier si un nom a été entré
+    if (!values.characterName || values.characterName.trim() === '') {
+      toast({
+        title: "Nom requis",
+        description: "Veuillez entrer un nom pour votre agent",
+        variant: "destructive",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+    
     try {
-      // Utiliser la route correcte '/api/cyber-quest/player' au lieu de '/api/cyber-quest/player/create'
+      // Générer un ID utilisateur s'il n'existe pas
+      const randomUserId = 'user-' + Math.random().toString(36).substring(2, 9);
+      const userId = localStorage.getItem('userId') || randomUserId;
+      
+      // Si l'ID n'existait pas, le stocker
+      if (!localStorage.getItem('userId')) {
+        localStorage.setItem('userId', userId);
+      }
+      
+      console.log("Envoi de données:", {
+        characterName: values.characterName,
+        archetype: values.archetype,
+        userId: userId,
+        userName: values.characterName,
+        stats: selectedArchetype.baseStats
+      });
+      
+      // Utiliser la route correcte '/api/cyber-quest/player'
       const response = await fetch('/api/cyber-quest/player', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...values,
-          stats: selectedArchetype?.baseStats,
-          // Obtenir l'ID utilisateur actuel (normalement, cela devrait être géré par le backend)
-          userId: localStorage.getItem('userId') || 'user-' + Math.random().toString(36).substring(2, 9),
-          userName: values.characterName
+          characterName: values.characterName,
+          archetype: values.archetype,
+          userId: userId,
+          userName: values.characterName,
+          stats: selectedArchetype.baseStats
         }),
       });
       
+      const data = await response.json();
+      console.log("Réponse du serveur:", data);
+      
       if (!response.ok) {
-        throw new Error('Une erreur est survenue lors de la création de votre personnage');
+        throw new Error(data.message || 'Une erreur est survenue lors de la création de votre personnage');
       }
       
       toast({
