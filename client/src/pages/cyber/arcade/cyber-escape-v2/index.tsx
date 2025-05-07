@@ -67,17 +67,17 @@ const CyberEscapeV2 = () => {
   
   // Effet pour afficher une notification pour chaque nouvelle étape
   useEffect(() => {
-    if (currentStage > 0 && gameState.currentRoom && !notifiedStagesRef.current.includes(currentStage)) {
+    if (gameState.currentStage > 0 && gameState.currentRoom && !notifiedStagesRef.current.includes(gameState.currentStage)) {
       const roomName = gameState.currentRoom.name;
       toast({
-        title: `Étape ${currentStage} déverrouillée !`,
+        title: `Étape ${gameState.currentStage} déverrouillée !`,
         description: roomName,
         variant: "default",
       });
       // Marquer cette étape comme notifiée
-      notifiedStagesRef.current.push(currentStage);
+      notifiedStagesRef.current.push(gameState.currentStage);
     }
-  }, [currentStage, toast, gameState.currentRoom]);
+  }, [gameState.currentStage, toast, gameState.currentRoom]);
 
   // Gestion de l'entrée de commande
   const handleCommandSubmit = (e: React.FormEvent) => {
@@ -111,7 +111,7 @@ const CyberEscapeV2 = () => {
   };
 
   // Aide sémantique pour décider quand afficher un effet cyberpunk
-  const showCyberpunkEffect = gameState.status === 'running' && currentStage >= 5;
+  const showCyberpunkEffect = gameState.status === 'running' && gameState.currentStage >= 5;
 
   // Rendu conditionnel basé sur l'état du jeu
   return (
@@ -159,7 +159,7 @@ const CyberEscapeV2 = () => {
             {gameState.status === 'running' && (
               <div className="min-w-[180px]">
                 <CountdownTimer
-                  seconds={timeRemaining}
+                  seconds={gameState.timeRemaining}
                   totalSeconds={900}
                 />
               </div>
@@ -414,7 +414,7 @@ const CyberEscapeV2 = () => {
                             </h3>
                             
                             <p className="text-gray-300 mt-2 text-center">
-                              Temps restant: {formatTime(timeRemaining)} • Score QCM: {gameState.quizScore}/8
+                              Temps restant: {formatTime(gameState.timeRemaining)} • Score QCM: {gameState.quizScore}/8
                             </p>
                           </motion.div>
                         </div>
@@ -453,15 +453,15 @@ const CyberEscapeV2 = () => {
                             <ul className="space-y-2 text-gray-300">
                               <li className="flex justify-between">
                                 <span>Étapes complétées:</span> 
-                                <span className="font-mono">{currentStage}/10</span>
+                                <span className="font-mono">{gameState.currentStage}/10</span>
                               </li>
                               <li className="flex justify-between">
                                 <span>Temps total:</span> 
-                                <span className="font-mono">{formatTime(900 - timeRemaining)}</span>
+                                <span className="font-mono">{formatTime(900 - gameState.timeRemaining)}</span>
                               </li>
                               <li className="flex justify-between">
                                 <span>Items collectés:</span>
-                                <span className="font-mono">{Object.keys(inventory).length - 2}</span>
+                                <span className="font-mono">{Object.keys(gameState.inventory).length - 2}</span>
                               </li>
                             </ul>
                           </div>
@@ -471,8 +471,8 @@ const CyberEscapeV2 = () => {
                             <div className="space-y-2 text-gray-300">
                               <div className="flex justify-between">
                                 <span>Gestion du temps:</span>
-                                <span className={timeRemaining > 300 ? 'text-green-400' : timeRemaining > 100 ? 'text-yellow-400' : 'text-red-400'}>
-                                  {timeRemaining > 300 ? 'Excellente' : timeRemaining > 100 ? 'Bonne' : 'À améliorer'}
+                                <span className={gameState.timeRemaining > 300 ? 'text-green-400' : gameState.timeRemaining > 100 ? 'text-yellow-400' : 'text-red-400'}>
+                                  {gameState.timeRemaining > 300 ? 'Excellente' : gameState.timeRemaining > 100 ? 'Bonne' : 'À améliorer'}
                                 </span>
                               </div>
                               <div className="flex justify-between">
@@ -528,12 +528,12 @@ const CyberEscapeV2 = () => {
               {gameState.status === 'running' && (
                 <>
                   {/* Progression du jeu avec composant dédié */}
-                  <StageProgress currentStage={currentStage} />
+                  <StageProgress currentStage={gameState.currentStage} />
 
                   {/* Inventaire avec composant dédié */}
                   <InventoryPanel 
-                    items={inventory} 
-                    onUseItem={handleUseItem}
+                    items={gameState.inventory} 
+                    onUse={handleUseItem}
                   />
 
                   {/* Aide rapide */}
