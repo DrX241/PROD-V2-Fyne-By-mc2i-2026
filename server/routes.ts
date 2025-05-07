@@ -28,17 +28,6 @@ import { getRandomScenarios, getScenarioById, getScenariosByDifficulty } from ".
 import { startAgentSession, completeAgentSession } from "./cyberAgentController";
 import { generateDebriefing, getContextualDocumentation } from "./cyberLearningController";
 import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearningController";
-import { 
-  initForensicSession,
-  getForensicSession,
-  getEvidenceList,
-  getEvidenceDetail,
-  getChallengeList,
-  analyzeChallengeAnswer,
-  generateAttackHypothesis,
-  updateSessionTab,
-  completeForensicSession
-} from "./forensicAnalysisController";
 import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
 import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
 import { simulateTargetResponse, analyzePerformance } from "./brainHackerController";
@@ -642,17 +631,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/cyber/arcade/firewall-tactique/analyze', analyzeDefenseStrategy);
   app.post('/api/cyber/arcade/firewall-tactique/scenario', generateAttackScenario);
   app.post('/api/cyber/arcade/firewall-tactique/tips', generateTacticalTip);
-  
-  // Routes pour le module d'analyse forensique
-  app.post('/api/cyber/arcade/digital-forensics/session/init', initForensicSession);
-  app.get('/api/cyber/arcade/digital-forensics/session/:sessionId', getForensicSession);
-  app.get('/api/cyber/arcade/digital-forensics/evidence', getEvidenceList);
-  app.get('/api/cyber/arcade/digital-forensics/evidence/:scenarioId/:evidenceId/:sessionId', getEvidenceDetail);
-  app.get('/api/cyber/arcade/digital-forensics/challenges', getChallengeList);
-  app.post('/api/cyber/arcade/digital-forensics/challenge/analyze', analyzeChallengeAnswer);
-  app.post('/api/cyber/arcade/digital-forensics/hypothesis', generateAttackHypothesis);
-  app.post('/api/cyber/arcade/digital-forensics/session/tab', updateSessionTab);
-  app.post('/api/cyber/arcade/digital-forensics/session/complete', completeForensicSession);
   
   // Routes pour le jeu Cyber Escape: Le Pare-feu est tombé
   // Routes pour le jeu "Cyber Escape: Le Pare-feu est tombé" supprimées
