@@ -29,8 +29,19 @@ export default function CyberModeSelection() {
   const [hoveredMode, setHoveredMode] = useState<string | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   
-  // Utiliser le contexte global admin au lieu d'un état local
-  const { isAdminMode } = useAdmin();
+  // Utilisation d'un état local comme solution de secours (fallback)
+  // plutôt que de dépendre directement du contexte global
+  const [localAdminMode, setLocalAdminMode] = useState<boolean>(false);
+  
+  // On essaie d'utiliser le contexte admin, mais on a un fallback si l'appel échoue
+  let isAdminMode = localAdminMode;
+  try {
+    const adminContext = useAdmin();
+    isAdminMode = adminContext.isAdminMode;
+  } catch (error) {
+    // On utilise l'état local si le contexte n'est pas disponible
+    console.log("Fallback to local admin state");
+  }
 
   // Réorganisation des modules en 5 catégories selon la nouvelle structure
   const cyberModes: ModeOption[] = [
