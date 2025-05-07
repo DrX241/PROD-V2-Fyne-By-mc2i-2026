@@ -143,6 +143,14 @@ function App() {
             <Route path="/cyber/arcade/cyber-investigator/ransomware-attack" component={RansomwareAttack} />
             <Route path="/cyber/arcade/cyber-investigator/insider-threat" component={InsiderThreat} />
             <Route path="/cyber/arcade/digital-forensics" component={DigitalForensics} />
+            <Route path="/cyber/arcade/digital-forensics/shadow-breach" component={() => {
+              const DigitalForensicsShadowBreach = lazy(() => import('./pages/cyber/arcade/digital-forensics/shadow-breach'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <DigitalForensicsShadowBreach />
+                </Suspense>
+              );
+            }} />
             <Route path="/cyber/arcade/threat-intelligence" component={ThreatIntelligence} />
             <Route path="/cyber/arcade/firewall-tactique" component={() => {
               const FirewallTactiqueComponent = lazy(() => import('./pages/cyber/arcade/firewall-tactique'));
