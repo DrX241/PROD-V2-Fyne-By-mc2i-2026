@@ -91,26 +91,305 @@ export async function enterRoom(req: Request, res: Response) {
     };
 
     // Construction du prompt pour GPT
-    let systemPrompt = `Tu es le narrateur d'un jeu d'escape room cybersécurité appelé "Cyber Escape - Le Pare-feu est tombé". 
-    
-Le joueur vient d'entrer dans la salle: ${data.room.name}.
+    // Base de données des salles pour une cohérence narrative
+    const roomDatabase: Record<string, {
+      fullName: string;
+      description: string;
+      environmentalState: string;
+      securityLevel: string;
+      ambiance: string;
+      characters: Array<{id: string, presence: number}>;  // 0-10 chance de présence
+      objects: Array<{id: string, isHidden: boolean}>;
+      secretDetails?: string;
+      dangerLevel: number; // 1-5
+      roomSpecificEvents?: string[];
+    }> = {
+      'hub': {
+        fullName: "Centre de commandement",
+        description: "Le hub central de l'entreprise, convertit en centre de gestion de crise depuis l'incident. Plusieurs écrans affichent des alertes de sécurité, tandis que des techniciens s'activent sur leurs postes.",
+        environmentalState: "L'atmosphère est tendue, renforcée par le bruit des ventilateurs des serveurs d'urgence installés à la hâte. Le système d'éclairage de secours donne une teinte orangée à la pièce.",
+        securityLevel: "Niveau de sécurité modéré - badges requis mais plusieurs portes sont maintenues ouvertes pour faciliter les déplacements pendant la crise.",
+        ambiance: "Urgence contrôlée, mais la tension monte à mesure que de nouvelles alertes apparaissent sur les écrans.",
+        characters: [
+          {id: 'eddy', presence: 8},
+          {id: 'fares', presence: 5}
+        ],
+        objects: [
+          {id: 'schema-reseau', isHidden: false},
+          {id: 'post-it-mdp', isHidden: true}
+        ],
+        dangerLevel: 2,
+        roomSpecificEvents: [
+          "Un technicien s'exclame soudain que plusieurs systèmes redémarrent sans autorisation.",
+          "Les écrans de surveillance affichent momentanément un message cryptique puis reviennent à la normale."
+        ]
+      },
+      'rh': {
+        fullName: "Département des Ressources Humaines",
+        description: "Un espace ouvert avec plusieurs bureaux de travail bien organisés. Les dossiers du personnel sont rangés dans des armoires sécurisées, mais certains sont sortis et éparpillés.",
+        environmentalState: "La pièce est calme, contrastant avec l'agitation du reste du bâtiment. Plusieurs ordinateurs sont encore allumés, certains même déverrouillés.",
+        securityLevel: "Niveau de sécurité faible - des documents confidentiels sont visibles sur les bureaux.",
+        ambiance: "Abandon précipité, comme si l'équipe était partie en urgence au milieu d'une tâche.",
+        characters: [
+          {id: 'eddy', presence: 6}
+        ],
+        objects: [
+          {id: 'emails-phishing', isHidden: false},
+          {id: 'badge-acces', isHidden: true}
+        ],
+        dangerLevel: 1,
+        secretDetails: "Un ordinateur déverrouillé montre une liste de nouveaux employés dont les vérifications d'antécédents ont été accélérées, incluant Farès."
+      },
+      'it': {
+        fullName: "Département Informatique",
+        description: "La salle serveur principale avec plusieurs racks d'équipements clignotants. Des câbles courent dans tous les sens et plusieurs écrans de diagnostic affichent des graphiques d'activité réseau.",
+        environmentalState: "La température est anormalement élevée à cause des ventilateurs défaillants. L'éclairage bleuté des équipements crée une atmosphère technique et froide.",
+        securityLevel: "Niveau de sécurité élevé - normalement accessible uniquement avec badge d'accès de niveau 3.",
+        ambiance: "Activité frénétique des machines, bourdonnement des ventilateurs, clignotement inquiétant des voyants d'alerte.",
+        characters: [
+          {id: 'neil', presence: 7},
+          {id: 'yousra', presence: 4},
+          {id: 'fares', presence: 3}
+        ],
+        objects: [
+          {id: 'laptop-neil', isHidden: false},
+          {id: 'serveur-logs', isHidden: false}
+        ],
+        dangerLevel: 3,
+        secretDetails: "Un moniteur isolé affiche une connexion VPN active vers un serveur externe non identifié."
+      },
+      'support': {
+        fullName: "Centre de Support Technique",
+        description: "Un open space avec plusieurs postes de travail équipés de casques et de grands écrans. Des tickets d'incident s'accumulent dans la file d'attente affichée sur un grand écran mural.",
+        environmentalState: "La pièce est en désordre, avec des gobelets de café renversés et des notes griffonnées à la hâte. Les téléphones sonnent constamment, mais plusieurs restent sans réponse.",
+        securityLevel: "Niveau de sécurité moyen - accès contrôlé mais plusieurs écrans montrent des informations système sensibles.",
+        ambiance: "Chaos organisé, stress palpable, personnel débordé par les demandes incessantes.",
+        characters: [
+          {id: 'yousra', presence: 8}
+        ],
+        objects: [
+          {id: 'rapport-threat', isHidden: true}
+        ],
+        dangerLevel: 2,
+        roomSpecificEvents: [
+          "Le système téléphonique tombe en panne pendant quelques secondes puis redémarre tout seul.",
+          "Un technicien signale que des comptes utilisateurs se connectent et se déconnectent automatiquement."
+        ]
+      },
+      'direction': {
+        fullName: "Bureau de la Direction",
+        description: "Un bureau spacieux et élégant avec vue panoramique sur la ville. Une grande table de conférence occupe le centre, entourée de chaises en cuir. Un écran tactile de contrôle est intégré au mur.",
+        environmentalState: "La pièce est impeccablement rangée à l'exception d'une tasse de café encore chaude et de documents éparpillés sur le bureau principal. Les stores automatiques sont à moitié fermés.",
+        securityLevel: "Niveau de sécurité très élevé - normalement accessible uniquement avec autorisation explicite et authentification biométrique.",
+        ambiance: "Calme inquiétant, pouvoir et contrôle, sentiment d'être observé.",
+        characters: [
+          {id: 'guillaume', presence: 6}
+        ],
+        objects: [
+          {id: 'disque-externe', isHidden: true}
+        ],
+        dangerLevel: 4,
+        secretDetails: "Un document partiellement visible sur l'écran du bureau mentionne une fusion confidentielle avec acquisition de propriété intellectuelle sensible."
+      },
+      'salle-chiffree': {
+        fullName: "Centre de Sécurité Renforcée",
+        description: "Une petite salle bunkerisée contenant l'infrastructure critique et les systèmes de sauvegarde de l'entreprise. Les murs sont couverts d'écrans de surveillance et de contrôle.",
+        environmentalState: "L'air est froid et sec, contrôlé par un système de climatisation dédié. Un bourdonnement grave et constant émane des serveurs sécurisés. L'éclairage est tamisé avec des indicateurs rouges clignotants.",
+        securityLevel: "Niveau de sécurité maximal - normalement accessible uniquement en cas d'urgence critique avec validation multi-facteurs.",
+        ambiance: "Technologie avancée, puissance contenue, dernier bastion de défense.",
+        characters: [
+          {id: 'fares', presence: 2}
+        ],
+        objects: [],
+        dangerLevel: 5,
+        secretDetails: "Un terminal spécifique affiche un processus d'extraction de données en cours, temporairement suspendu. Une barre de progression indique 87% de complétion."
+      }
+    };
 
-Voici les informations sur l'état actuel du jeu:
+    // Récupérer les informations de la salle ou générer dynamiquement
+    const roomData = roomDatabase[data.room.id] || {
+      fullName: data.room.name,
+      description: "Une salle fonctionnelle de l'entreprise avec divers équipements informatiques.",
+      environmentalState: "L'atmosphère reflète la crise en cours avec une tension palpable.",
+      securityLevel: "Niveau de sécurité standard.",
+      ambiance: "Mélange d'urgence et de détermination professionnelle.",
+      characters: [],
+      objects: [],
+      dangerLevel: 2
+    };
+
+    // Déterminer dynamiquement quels PNJ sont présents selon la probabilité
+    const charactersPresent: Array<{id: string, name: string, role: string, shortDescription: string}> = [];
+    
+    // Base de données des personnages (simplifiée ici, en synchronisation avec npcData plus haut)
+    const characterInfo: Record<string, {name: string, role: string, description: string}> = {
+      'eddy': {
+        name: 'Eddy', 
+        role: 'Responsable RH',
+        description: 'Visiblement nerveux, il consulte frénétiquement ses emails tout en jetant des regards inquiets vers la porte.'
+      },
+      'neil': {
+        name: 'Neil', 
+        role: 'DSI',
+        description: 'Concentré sur plusieurs écrans simultanément, il tape rapidement des commandes en ignorant les interruptions.'
+      },
+      'yousra': {
+        name: 'Yousra', 
+        role: 'Technicienne Support',
+        description: "Alterne entre plusieurs tâches avec efficacité tout en prenant des notes détaillées sur un carnet qu'elle garde près d'elle."
+      },
+      'guillaume': {
+        name: 'Guillaume', 
+        role: 'Directeur Général',
+        description: 'Tendu et autoritaire, il parle au téléphone à voix basse tout en consultant des documents confidentiels.'
+      },
+      'fares': {
+        name: 'Farès', 
+        role: 'Nouvel ingénieur système',
+        description: "S'affaire sur un ordinateur portable personnel tout en proposant son aide à quiconque en a besoin."
+      }
+    };
+
+    // Déterminer quels personnages sont présents selon les probabilités
+    roomData.characters.forEach(charData => {
+      // Vérifier la probabilité de présence (0-10)
+      const roll = Math.floor(Math.random() * 10) + 1;
+      if (roll <= charData.presence) {
+        const info = characterInfo[charData.id];
+        if (info) {
+          charactersPresent.push({
+            id: charData.id,
+            name: info.name,
+            role: info.role,
+            shortDescription: info.description
+          });
+        }
+      }
+    });
+
+    // Déterminer quels objets sont présents
+    const objectsPresent: Array<{id: string, name: string, type: string, description: string}> = [];
+    
+    // Base de données simplifiée des objets (référence à itemDatabase défini plus haut)
+    const itemDatabase: any = {
+      'laptop-neil': {
+        detailedName: "Ordinateur portable de Neil (DSI)",
+        detailedDescription: "Un Dell XPS 15 haut de gamme avec plusieurs mesures de sécurité. L'écran est verrouillé mais un terminal de diagnostic reste accessible."
+      },
+      'serveur-logs': {
+        detailedName: "Serveur de journalisation centralisée",
+        detailedDescription: "Un rack serveur dédié à la collecte des logs de sécurité de l'ensemble du réseau."
+      },
+      'badge-acces': {
+        detailedName: "Badge d'accès de Farès",
+        detailedDescription: "Un badge d'accès magnétique au nom de Farès, récemment activé."
+      },
+      'emails-phishing': {
+        detailedName: "Collection d'emails suspects",
+        detailedDescription: "Un dossier dans la messagerie d'Eddy contenant plusieurs emails suspects."
+      },
+      'schema-reseau': {
+        detailedName: "Schéma d'architecture réseau",
+        detailedDescription: "Un document technique détaillant l'architecture réseau complète de l'entreprise."
+      },
+      'rapport-threat': {
+        detailedName: "Rapport de Threat Intelligence",
+        detailedDescription: "Un rapport confidentiel récent détaillant les techniques, tactiques et procédures de groupes APT actifs."
+      },
+      'disque-externe': {
+        detailedName: "Disque dur externe crypté",
+        detailedDescription: "Un disque dur externe Kingston trouvé dans le tiroir du bureau de Farès."
+      },
+      'post-it-mdp': {
+        detailedName: "Post-it avec fragments de mot de passe",
+        detailedDescription: "Plusieurs post-it trouvés dans différents bureaux contenant des fragments de mot de passe."
+      }
+    };
+    
+    roomData.objects.forEach(objData => {
+      // Si l'objet est caché, il n'apparaît que dans certaines conditions
+      if (!objData.isHidden || Math.random() > 0.7) { // 30% de chance de voir un objet caché
+        // Définir les types d'objets
+        let objectType: string;
+        let shortDesc: string;
+        
+        if (objData.id.includes('laptop') || objData.id.includes('serveur')) {
+          objectType = 'tool';
+          shortDesc = "Un équipement informatique qui pourrait contenir des informations utiles.";
+        } else if (objData.id.includes('schema') || objData.id.includes('emails') || objData.id.includes('rapport')) {
+          objectType = 'document';
+          shortDesc = "Un document qui semble contenir des informations importantes.";
+        } else if (objData.id.includes('badge') || objData.id.includes('post-it')) {
+          objectType = 'password';
+          shortDesc = "Pourrait donner accès à des zones ou systèmes sécurisés.";
+        } else {
+          objectType = 'clue';
+          shortDesc = "Un élément qui pourrait aider à comprendre ce qui s'est passé.";
+        }
+        
+        // Retrouver le nom complet depuis itemDatabase si disponible
+        let objName = objData.id;
+        if (itemDatabase[objData.id]) {
+          objName = itemDatabase[objData.id].detailedName;
+          shortDesc = itemDatabase[objData.id].detailedDescription.split('.')[0] + '.';
+        }
+        
+        objectsPresent.push({
+          id: objData.id,
+          name: objName,
+          type: objectType,
+          description: shortDesc
+        });
+      }
+    });
+
+    // Ajouter un événement aléatoire spécifique à la salle (20% de chance)
+    let eventDescription = "";
+    if (roomData.roomSpecificEvents && roomData.roomSpecificEvents.length > 0 && Math.random() < 0.2) {
+      const randomIndex = Math.floor(Math.random() * roomData.roomSpecificEvents.length);
+      eventDescription = roomData.roomSpecificEvents[randomIndex];
+      
+      // Ajouter l'événement dans l'historique du jeu
+      updatedGameState.events.push(`[${data.room.id}] ${eventDescription}`);
+    }
+
+    let systemPrompt = `Tu es le narrateur d'un jeu d'escape room cybersécurité appelé "Cyber Escape - Le Pare-feu est tombé".
+Le joueur vient d'entrer dans la salle: ${roomData.fullName} (${data.room.id}).
+
+DÉTAILS DE LA SALLE:
+- Description fondamentale: ${roomData.description}
+- État environnemental: ${roomData.environmentalState}
+- Niveau de sécurité: ${roomData.securityLevel}
+- Ambiance: ${roomData.ambiance}
+- Niveau de danger: ${roomData.dangerLevel}/5
+${roomData.secretDetails ? `- Détail secret (à révéler subtilement): ${roomData.secretDetails}` : ''}
+${eventDescription ? `- Événement particulier qui vient de se produire: ${eventDescription}` : ''}
+
+Voici le contexte du jeu:
+- Difficulté actuelle: ${data.gameState.difficulty}
 - Budget restant: ${updatedGameState.budget} crédits
 - Temps restant: ${updatedGameState.timeRemaining} minutes
-- Salles visitées: ${updatedGameState.visitedRooms.join(', ')}
-- Salles déverrouillées: ${updatedGameState.unlockedRooms.join(', ')}
-- Inventaire: ${updatedGameState.inventory.map(i => i.name).join(', ') || 'Vide'}
-- Événements déjà déclenchés: ${updatedGameState.events.join(', ') || 'Aucun'}
+- Salles déjà visitées: ${updatedGameState.visitedRooms.join(', ')}
 - Énigmes résolues: ${updatedGameState.puzzlesSolved.join(', ') || 'Aucune'}
+- Objets dans l'inventaire: ${updatedGameState.inventory.map((i: any) => i.name).join(', ') || 'Aucun'}
 
-Fournir une brève introduction de 3-5 phrases pour la salle dans laquelle le joueur vient d'entrer. Décris l'ambiance, l'environnement et ce que le joueur voit en premier.
+PERSONNAGES PRÉSENTS:
+${charactersPresent.length > 0 ? charactersPresent.map(char => `- ${char.name}, ${char.role}: ${char.shortDescription}`).join('\n') : "Aucun personnage n'est présent dans cette salle actuellement."}
+
+OBJETS VISIBLES:
+${objectsPresent.length > 0 ? objectsPresent.map(obj => `- ${obj.name}: ${obj.description}`).join('\n') : "Aucun objet d'intérêt n'est immédiatement visible."}
+
+INSTRUCTIONS:
+1. Génère une description immersive et évocatrice de cette salle (3-4 phrases)
+2. Inclus des éléments narratifs qui renforcent la tension de la situation de crise
+3. Intègre subtilement les détails secrets si présents, sans les révéler explicitement
+4. Crée une atmosphère cohérente avec le niveau de danger et le contexte
 
 Réponds uniquement avec un JSON au format:
 {
-  "roomDescription": "Description de la salle (3-5 phrases)",
-  "availableActions": ["action1", "action2", "action3"],
-  "visibleItems": ["item1", "item2"]
+  "roomDescription": "Description détaillée et atmosphérique de la salle",
+  "characters": ${JSON.stringify(charactersPresent)},
+  "objects": ${JSON.stringify(objectsPresent)}
 }`;
 
     try {
@@ -250,14 +529,28 @@ export async function interactWithNPC(req: Request, res: Response) {
     let systemPrompt = `Tu es ${npc.name}, ${npc.role} dans un jeu d'escape room cybersécurité appelé "Cyber Escape - Le Pare-feu est tombé".
 Tu as les traits de personnalité suivants: ${npc.traits.join(', ')}.
 
-Contexte: Un malware a compromis le système de l'entreprise et contourné le pare-feu. Le joueur est le Responsable Sécurité qui doit résoudre cette crise.
+Ton histoire personnelle: ${npc.backstory}
+
+Tes secrets (que tu ne révèles pas facilement): ${npc.secrets}
+
+Connaissances particulières que tu possèdes: ${npc.knowledge.join(', ')}
+
+Contexte général: Un malware sophistiqué a compromis le système de l'entreprise, contourné le pare-feu et commence à exfiltrer des données sensibles. Le joueur est le Responsable Sécurité qui doit identifier la source de l'intrusion, stopper l'attaque et restaurer les systèmes.
+
+Règles de comportement:
+1. Exprime-toi de manière cohérente avec ta personnalité et ton histoire
+2. Ne révèle pas d'emblée toutes tes informations - le joueur doit les mériter par ses questions et son approche
+3. Montre des signes subtils de ton implication (ou non) dans l'incident
+4. Tes réponses varient selon la façon dont le joueur t'aborde - être agressif te fera te refermer, être empathique t'ouvrira davantage
+5. N'hésite pas à mentir ou déformer la vérité si cela correspond à tes motivations personnelles 
+6. Utilise parfois des termes techniques spécifiques à ton domaine d'expertise
 
 Voici l'historique de votre conversation:
 ${conversationHistoryText}
 
 Le joueur vient de dire: "${data.userInput}"
 
-Réponds de manière cohérente avec ta personnalité. Fournir des indices ou des informations qui aideront le joueur à progresser dans sa mission, mais ne révèle pas tout d'un coup.
+Réponds de manière nuancée et réaliste. Si le joueur pose de bonnes questions ou établit une relation de confiance, révèle progressivement des informations utiles. Si le joueur est maladroit ou suspicieux, montre de la réticence ou détourne subtilement la conversation.
 
 Réponds uniquement avec un JSON au format:
 {
@@ -353,25 +646,118 @@ export async function interactWithItem(req: Request, res: Response) {
       });
     }
 
+    // Base de données d'objets prédéfinis pour une cohérence narrative
+    const itemDatabase: Record<string, {
+      detailedName: string;
+      detailedDescription: string;
+      technicalInfo?: string;
+      visualInfo: string;
+      useHint: string;
+      relatedPuzzleId?: string;
+      secretInfo?: string;
+      requiresItem?: string;
+    }> = {
+      'laptop-neil': {
+        detailedName: "Ordinateur portable de Neil (DSI)",
+        detailedDescription: "Un Dell XPS 15 haut de gamme avec plusieurs mesures de sécurité. L'écran est verrouillé mais un terminal de diagnostic reste accessible.",
+        technicalInfo: "Modèle sécurisé avec chiffrement disque complet et authentification biométrique. Le système montre des traces de connexions récentes inhabituelles.",
+        visualInfo: "Des post-it avec des fragments de mots de passe sont collés sur le bord de l'écran. Un fichier log.txt est visible sur le bureau.",
+        useHint: "Les traces de connexion dans le terminal peuvent révéler des adresses IP suspectes. Recherchez particulièrement les connexions établies en dehors des heures de bureau.",
+        relatedPuzzleId: "ip-suspecte"
+      },
+      'serveur-logs': {
+        detailedName: "Serveur de journalisation centralisée",
+        detailedDescription: "Un rack serveur dédié à la collecte des logs de sécurité de l'ensemble du réseau. L'interface de recherche est accessible mais limitée sans droits administrateur.",
+        technicalInfo: "Système ELK (Elasticsearch, Logstash, Kibana) configuré pour capturer et indexer les événements de sécurité. Certains fichiers semblent avoir été récemment modifiés.",
+        visualInfo: "L'écran affiche des graphiques d'activité réseau avec un pic inhabituel il y a 48 heures. Une alerte de sécurité a été désactivée il y a 3 jours.",
+        useHint: "En analysant les logs autour du pic d'activité, vous pourriez identifier l'origine de l'attaque et les systèmes compromis.",
+        relatedPuzzleId: "script-powershell"
+      },
+      'badge-acces': {
+        detailedName: "Badge d'accès de Farès",
+        detailedDescription: "Un badge d'accès magnétique au nom de Farès, récemment activé. Des autorisations inhabituelles pour un nouvel employé y sont configurées.",
+        visualInfo: "Le badge présente un hologramme de sécurité de niveau 3, normalement réservé aux cadres supérieurs et administrateurs système.",
+        useHint: "L'historique des accès physiques pourrait révéler des visites inhabituelles dans des zones sensibles en dehors des heures normales de travail.",
+        secretInfo: "En scannant le QR code au dos du badge, vous pouvez accéder à l'historique des portes ouvertes par ce badge."
+      },
+      'disque-externe': {
+        detailedName: "Disque dur externe crypté",
+        detailedDescription: "Un disque dur externe Kingston trouvé dans le tiroir du bureau de Farès. Il est protégé par un chiffrement matériel et logiciel.",
+        technicalInfo: "Le disque utilise un algorithme de chiffrement AES-256. Un fichier README non crypté contient un indice sur la méthode de déchiffrement.",
+        visualInfo: "Une étiquette manuscrite avec le code 'IM2025' est collée sur le côté. Des traces d'utilisation récente sont visibles.",
+        useHint: "Le mot de passe de déchiffrement pourrait être dérivé d'informations trouvées dans les différentes salles. Recherchez des indices liés à 'IM2025'.",
+        relatedPuzzleId: "decode-usb"
+      },
+      'schema-reseau': {
+        detailedName: "Schéma d'architecture réseau",
+        detailedDescription: "Un document technique détaillant l'architecture réseau complète de l'entreprise, y compris les pare-feu, les zones démilitarisées (DMZ) et les systèmes critiques.",
+        technicalInfo: "Le schéma montre les interdépendances entre les différents systèmes et les règles de pare-feu appliquées. Des annotations manuscrites indiquent des modifications récentes.",
+        visualInfo: "Sur le schéma, une note manuscrite indique une séquence précise pour la procédure de récupération d'urgence.",
+        useHint: "En étudiant les dépendances entre systèmes, vous pouvez déterminer la séquence correcte pour un redémarrage sécurisé après compromission.",
+        relatedPuzzleId: "ordre-redemarrage"
+      },
+      'emails-phishing': {
+        detailedName: "Collection d'emails suspects",
+        detailedDescription: "Un dossier dans la messagerie d'Eddy contenant plusieurs emails suspects reçus ces dernières semaines. Certains contiennent des pièces jointes ou des liens.",
+        technicalInfo: "L'analyse des en-têtes email révèle des tentatives de masquer l'origine réelle des messages. Une pièce jointe Excel contient des macros suspectes.",
+        visualInfo: "Plusieurs emails semblent provenir de services IT légitimes mais contiennent des fautes d'orthographe subtiles ou des domaines légèrement modifiés.",
+        useHint: "Examinez attentivement les pièces jointes et les domaines d'expédition pour identifier le vecteur d'infection initial.",
+        relatedPuzzleId: "analyse-malware"
+      },
+      'rapport-threat': {
+        detailedName: "Rapport de Threat Intelligence",
+        detailedDescription: "Un rapport confidentiel récent détaillant les techniques, tactiques et procédures (TTP) de plusieurs groupes APT actifs dans votre secteur d'activité.",
+        technicalInfo: "Le document contient des IOCs (Indicators of Compromise) spécifiques, incluant des hachages de fichiers malveillants, des domaines C2 et des signatures comportementales.",
+        visualInfo: "Plusieurs passages sont surlignés en jaune, avec une attention particulière sur un groupe nommé 'Cozy Bear' et ses méthodes d'attaque récentes.",
+        useHint: "En comparant les TTP observées dans votre incident avec celles documentées, vous pouvez identifier le groupe probablement responsable de l'attaque.",
+        relatedPuzzleId: "empreinte-numerique"
+      },
+      'post-it-mdp': {
+        detailedName: "Post-it avec fragments de mot de passe",
+        detailedDescription: "Plusieurs post-it trouvés dans différents bureaux contenant des fragments de ce qui semble être un mot de passe administrateur complexe.",
+        visualInfo: "Les fragments incluent 'Cy', 'r3F3u', et '2025!' écrits sur différentes couleurs de post-it.",
+        useHint: "En combinant ces fragments dans le bon ordre et en déduisant les parties manquantes, vous pourriez reconstruire le mot de passe principal.",
+        relatedPuzzleId: "mot-passe-final",
+        secretInfo: "Une convention de nommage semble apparaître: un mélange de nom de système, caractères spéciaux et année en cours."
+      }
+    };
+
+    // Rechercher l'objet dans la base de données ou générer dynamiquement
+    const itemInfo = itemDatabase[data.item.id] || {
+      detailedName: data.item.name,
+      detailedDescription: `Un élément qui semble important pour résoudre la crise de cybersécurité en cours.`,
+      visualInfo: "L'objet présente des caractéristiques intéressantes qui pourraient être utiles.",
+      useHint: "Examinez-le attentivement et considérez comment il pourrait être lié aux systèmes compromis."
+    };
+
     // Construction du prompt selon l'objet
-    let systemPrompt = `Tu es le narrateur d'un jeu d'escape room cybersécurité. Le joueur interagit avec l'objet: ${data.item.name}.
+    let systemPrompt = `Tu es le narrateur d'un jeu d'escape room cybersécurité. Le joueur interagit avec un objet important:
+
+DÉTAILS DE L'OBJET:
+- Type: ${data.item.type}
+- Nom: ${itemInfo.detailedName}
+- Description: ${itemInfo.detailedDescription}
+- Aspect visuel: ${itemInfo.visualInfo}
+${itemInfo.technicalInfo ? `- Information technique: ${itemInfo.technicalInfo}` : ''}
+${itemInfo.secretInfo ? `- Information secrète (à ne révéler que si le joueur pose des questions précises): ${itemInfo.secretInfo}` : ''}
 
 Voici le contexte du jeu:
-- Salles visitées: ${data.gameState.visitedRooms.join(', ')}
-- Inventaire: ${data.gameState.inventory.map((i: any) => i.name).join(', ') || 'Vide'}
+- Salles visitées par le joueur: ${data.gameState.visitedRooms.join(', ')}
+- Objets déjà dans l'inventaire: ${data.gameState.inventory.map((i: any) => i.name).join(', ') || 'Aucun'}
 - Énigmes résolues: ${data.gameState.puzzlesSolved.join(', ') || 'Aucune'}
 
-DESCRIPTION DE L'OBJET:
-Type: ${data.item.type}
-Nom: ${data.item.name}
-
-Génère une description détaillée de cet objet et comment il pourrait aider dans la résolution du jeu d'escape room.
+INSTRUCTIONS:
+1. Génère une description immersive et détaillée de l'objet, comme si le joueur l'examinait attentivement
+2. Inclus des détails à la fois visuels et fonctionnels qui peuvent aider le joueur
+3. Suggère subtilement comment l'objet pourrait être utilisé sans donner la solution directement
+4. Si l'objet est lié à une énigme, inclus des indices subtils
 
 Réponds uniquement avec un JSON au format:
 {
-  "description": "Description détaillée de l'objet",
-  "useHint": "Indice sur la façon d'utiliser l'objet",
-  "relatedPuzzle": "Puzzle auquel cet objet pourrait être lié (si applicable)"
+  "description": "Description évocatrice et détaillée de l'objet (3-4 phrases)",
+  "useHint": "Indice sur la façon d'utiliser cet objet dans le jeu (1-2 phrases)",
+  "relatedPuzzle": "Énigme à laquelle cet objet pourrait être lié (si applicable)",
+  "requiresItem": "Objet complémentaire nécessaire pour exploiter pleinement celui-ci (si applicable)"
 }`;
 
     try {
