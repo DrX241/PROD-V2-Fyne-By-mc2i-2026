@@ -111,7 +111,9 @@ export const useGameState = () => {
     messages,
     currentStage: stage,
     timeRemaining: time,
-    currentRoom: stage === 1 
+    currentRoom: stage === 0
+      ? null
+      : stage === 1 
       ? { name: "Vestibule Phish-Alert", description: "Salle d'analyse de phishing" }
       : stage === 2
       ? { name: "Mur des Révélations", description: "Centre d'analyse OSINT" }

@@ -57,11 +57,11 @@ const CyberEscapeV2 = () => {
     formatMessage
   } = useGameState();
   
-  const [commandInput, setCommandInput] = useState('');
-  const { toast } = useToast();
-  
   // Référence pour stocker les étapes déjà notifiées
   const notifiedStagesRef = useRef<number[]>([]);
+  
+  const [commandInput, setCommandInput] = useState('');
+  const { toast } = useToast();
   
   // Effet pour afficher une notification pour chaque nouvelle étape
   useEffect(() => {
