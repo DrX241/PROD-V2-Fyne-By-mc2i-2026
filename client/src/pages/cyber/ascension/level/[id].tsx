@@ -518,7 +518,7 @@ Cette approche échelonnée permettra d'améliorer rapidement votre posture de s
                 {/* Équipe disponible */}
                 <div className="bg-black/30 border border-gray-800 rounded-lg p-5">
                   <h3 className="text-lg font-bold mb-3 flex items-center">
-                    <Users className="h-5 w-5 mr-2 text-green-400" />
+                    <MessageSquare className="h-5 w-5 mr-2 text-green-400" />
                     Équipe d'urgence
                   </h3>
                   <div className="space-y-2 text-sm">
