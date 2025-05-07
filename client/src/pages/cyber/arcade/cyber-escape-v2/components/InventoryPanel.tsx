@@ -8,21 +8,17 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { InventoryItem } from '../types/game';
 
 interface InventoryPanelProps {
-  items: Record<string, InventoryItem>;
+  inventory: InventoryItem[];
   onUseItem: (itemId: string) => void;
-  onInspectItem: (itemId: string) => void;
 }
 
 /**
  * Panneau d'inventaire pour gérer les objets collectés
  */
 const InventoryPanel: React.FC<InventoryPanelProps> = ({ 
-  items, 
-  onUseItem, 
-  onInspectItem 
+  inventory, 
+  onUseItem
 }) => {
-  const itemsArray = Object.values(items);
-  
   // Animation pour les éléments de l'inventaire
   const itemVariants = {
     initial: { scale: 0.9, opacity: 0 },
@@ -50,13 +46,13 @@ const InventoryPanel: React.FC<InventoryPanelProps> = ({
           <span className="text-sm font-medium text-blue-400">Inventaire</span>
         </div>
         <Badge variant="outline" className="text-xs">
-          {itemsArray.length} / 10
+          {inventory.length} / 10
         </Badge>
       </CardHeader>
       
       <CardContent className="p-0">
         <ScrollArea className="h-[300px]">
-          {itemsArray.length === 0 ? (
+          {inventory.length === 0 ? (
             <div className="p-8 text-center">
               <Package className="h-10 w-10 text-gray-600 mx-auto mb-4" />
               <p className="text-gray-500 text-sm">Votre inventaire est vide.</p>
@@ -66,7 +62,7 @@ const InventoryPanel: React.FC<InventoryPanelProps> = ({
             </div>
           ) : (
             <div className="p-3 space-y-2">
-              {itemsArray.map((item) => (
+              {inventory.map((item) => (
                 <motion.div
                   key={item.id}
                   variants={itemVariants}
@@ -98,7 +94,7 @@ const InventoryPanel: React.FC<InventoryPanelProps> = ({
                         variant="ghost"
                         size="sm"
                         className="text-gray-400 hover:text-blue-300 hover:bg-blue-950"
-                        onClick={() => onInspectItem(item.id)}
+                        onClick={() => onUseItem(item.id)}
                       >
                         <Info className="h-3.5 w-3.5 mr-1" />
                         Inspecter
