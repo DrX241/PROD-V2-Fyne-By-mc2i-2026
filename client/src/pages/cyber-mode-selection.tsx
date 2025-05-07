@@ -37,20 +37,21 @@ export default function CyberModeSelection() {
       icon: null,
       gradient: 'from-blue-700 to-blue-900',
       destination: '#',
+      comingSoon: true,
       items: [
         {
           id: 'agent-ia',
           title: 'AGENT IA',
           icon: null,
           destination: '/cyber/expert-learning',
-          comingSoon: false
+          comingSoon: true
         },
         {
           id: 'cyber-arcade',
           title: 'CYBERARCADE',
           icon: null,
           destination: '/cyber/arcade',
-          comingSoon: false
+          comingSoon: true
         }
       ]
     },
@@ -85,14 +86,14 @@ export default function CyberModeSelection() {
       icon: null,
       gradient: 'from-purple-700 to-purple-900',
       destination: '#',
-      comingSoon: false,
+      comingSoon: true,
       items: [
         {
           id: 'mode-entretien',
           title: 'MODE ENTRETIEN',
           icon: null,
           destination: '/cyber/interview-test',
-          comingSoon: false,
+          comingSoon: true,
           isNew: true
         },
         {
@@ -112,14 +113,14 @@ export default function CyberModeSelection() {
       icon: null,
       gradient: 'from-teal-700 to-teal-900',
       destination: '#',
-      comingSoon: false,
+      comingSoon: true,
       items: [
         {
           id: 'policy-converter',
           title: 'CONVERTISSEUR DE POLITIQUES',
           icon: null,
           destination: '/cyber/tools/policy-converter',
-          comingSoon: false,
+          comingSoon: true,
           isNew: false
         },
         {
@@ -127,7 +128,7 @@ export default function CyberModeSelection() {
           title: 'SIMULATEUR DE PHISHING',
           icon: null,
           destination: '/cyber/tools/phishing-simulator',
-          comingSoon: false,
+          comingSoon: true,
           isNew: true
         }
       ]
