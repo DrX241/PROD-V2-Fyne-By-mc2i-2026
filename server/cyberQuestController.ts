@@ -71,9 +71,8 @@ export async function getOrCreatePlayer(req: Request, res: Response) {
       attributePoints: 0,
       skillPoints: 3, // Points de compétence initiaux
       
-      // Déverrouillages initiaux
-      unlockedEnvironments: [1], // QG déverrouillé par défaut
-      unlockedSkills: [],
+      // Ces champs sont stockés en JSON dans la base de données
+      unlocked_environments: [1], // QG déverrouillé par défaut
       inventory: [],
       
       // Statistiques
