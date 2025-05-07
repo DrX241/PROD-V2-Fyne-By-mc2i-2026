@@ -23,6 +23,22 @@ interface ConversionResult {
   keyPoints: string[];
 }
 
+// Fonction utilitaire pour nettoyer le Markdown
+const cleanMarkdown = (text: string): string => {
+  if (!text) return '';
+  
+  // Remplacer les balises Markdown les plus courantes
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '$1') // Gras
+    .replace(/\*(.*?)\*/g, '$1')     // Italique
+    .replace(/#{1,6} (.+)/g, '$1')   // Titres
+    .replace(/`(.+?)`/g, '$1')       // Code inline
+    .replace(/~~(.+?)~~/g, '$1')     // Barré
+    .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Liens
+    .replace(/```.*?\n([\s\S]*?)```/g, '$1') // Blocs de code
+    .replace(/- /g, '• '); // Transformer les listes en puces
+};
+
 export default function PolicyConverter() {
   const { toast } = useToast();
   const [originalPolicy, setOriginalPolicy] = useState('');
@@ -38,10 +54,12 @@ export default function PolicyConverter() {
   }>({
     mutationFn: async (data) => {
       try {
-        return await apiRequest('/api/cyber/tools/policy-converter', {
+        const response = await apiRequest('/api/cyber/tools/policy-converter', {
           method: 'POST',
           body: JSON.stringify(data)
         });
+        // Pas besoin de nettoyer ici, on nettoie au moment de l'affichage
+        return response;
       } catch (error) {
         console.error('Erreur lors de la conversion:', error);
         throw new Error('Échec de la conversion de la politique');
@@ -230,7 +248,7 @@ export default function PolicyConverter() {
                       </TabsList>
                       <TabsContent value="converted" className="mt-4">
                         <div className="bg-gray-700 rounded-md p-4 text-white whitespace-pre-wrap min-h-[300px]">
-                          {result.convertedPolicy}
+                          {cleanMarkdown(result.convertedPolicy)}
                         </div>
                       </TabsContent>
                       <TabsContent value="insights" className="mt-4">
@@ -242,7 +260,7 @@ export default function PolicyConverter() {
                             </h3>
                             <ul className="list-disc pl-5 space-y-1">
                               {result.keyPoints.map((point, index) => (
-                                <li key={index} className="text-gray-200">{point}</li>
+                                <li key={index} className="text-gray-200">{cleanMarkdown(point)}</li>
                               ))}
                             </ul>
                           </div>
@@ -254,7 +272,7 @@ export default function PolicyConverter() {
                             </h3>
                             <ul className="list-disc pl-5 space-y-1">
                               {result.simplificationNotes.map((note, index) => (
-                                <li key={index} className="text-gray-200">{note}</li>
+                                <li key={index} className="text-gray-200">{cleanMarkdown(note)}</li>
                               ))}
                             </ul>
                           </div>
