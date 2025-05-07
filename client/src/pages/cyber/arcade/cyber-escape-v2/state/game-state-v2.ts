@@ -207,10 +207,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
   };
   
   // Retourner le provider avec le contexte
-  return React.createElement(
-    GameContext.Provider,
-    { value: contextValue },
-    children
+  return (
+    <GameContext.Provider value={contextValue}>
+      {children}
+    </GameContext.Provider>
   );
 }
 

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
 /**
- * Page de présentation pour le nouveau jeu Cyber Escape v2.0
+ * Page simplifiée pour présenter le jeu Cyber Escape v2.0
  */
 const CyberEscapeV2 = () => {
   return (
