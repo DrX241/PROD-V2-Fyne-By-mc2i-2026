@@ -134,7 +134,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   // Utiliser le reducer pour gérer l'état
   const [state, dispatch] = useReducer(gameReducer, initialState);
   
-  // Obtenir la salle actuelle (temporaire)
+  // Obtenir la salle actuelle
   const currentRoom = rooms[state.currentRoomId] || {
     id: 'temp',
     name: 'Salle temporaire',
@@ -196,7 +196,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
   };
   
-  const contextValue: GameContextType = {
+  // Créer la valeur du contexte
+  const contextValue = {
     state,
     dispatch,
     currentRoom,
@@ -205,10 +206,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
     formatTime
   };
   
-  return (
-    <GameContext.Provider value={contextValue}>
-      {children}
-    </GameContext.Provider>
+  // Retourner le provider avec le contexte
+  return React.createElement(
+    GameContext.Provider,
+    { value: contextValue },
+    children
   );
 }
 

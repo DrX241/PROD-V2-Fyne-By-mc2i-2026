@@ -456,11 +456,8 @@ const CyberEscapeInterface = () => {
   );
 };
 
-// Wrapper du jeu avec le provider pour le contexte d'état du jeu
-const CyberEscapeWithProvider = () => (
-  <GameProvider>
-    <CyberEscapeInterface />
-  </GameProvider>
-);
+// Cette page présente le composant de présentation du jeu par défaut
+// Lorsque l'utilisateur clique sur le bouton de démarrage, il sera redirigé vers le jeu complet
 
-export default CyberEscapeWithProvider;
+// Pour le moment, on exporte simplement le composant de présentation
+export default CyberEscapeGame;
