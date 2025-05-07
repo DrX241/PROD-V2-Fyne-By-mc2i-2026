@@ -1,18 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { motion } from 'framer-motion';
+import { Mail, Shield, CheckCircle, XCircle, AlertCircle, Clock } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlarmClock, AlertCircle, ArrowRight, CheckCircle, Mail, ShieldAlert, ThumbsDown, ThumbsUp, XCircle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-
-interface PhishingChallengeProps {
-  onComplete: (success: boolean, score: number, timeBonus: number) => void;
-  difficultyLevel: 'beginner' | 'intermediate' | 'advanced';
-}
 
 interface Email {
   id: string;
@@ -23,355 +17,310 @@ interface Email {
   hints?: string[];
 }
 
+interface PhishingChallengeProps {
+  onComplete: (success: boolean, score: number, timeBonus: number) => void;
+  difficultyLevel: 'beginner' | 'intermediate' | 'advanced';
+}
+
 /**
- * Mini-jeu de détection des emails de phishing
+ * Mini-jeu de détection de phishing
  */
-const PhishingChallenge: React.FC<PhishingChallengeProps> = ({ onComplete, difficultyLevel }) => {
-  // États du jeu
-  const [emails, setEmails] = useState<Email[]>([]);
-  const [currentEmailIndex, setCurrentEmailIndex] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<Record<string, boolean>>({});
-  const [score, setScore] = useState(0);
-  const [showResult, setShowResult] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(120); // 2 minutes par défaut
-  const [gameOver, setGameOver] = useState(false);
-  const [showHint, setShowHint] = useState(false);
-  
-  // Charger les emails au démarrage (dans un vrai jeu, ils viendraient de l'API)
-  useEffect(() => {
-    // Simuler le chargement des emails
-    const dummyEmails: Email[] = [
-      {
-        id: 'email1',
-        sender: 'service-client@bankofamerica.com',
-        subject: 'Action urgente requise sur votre compte',
-        content: 'Cher client, Nous avons détecté une activité inhabituelle sur votre compte. Veuillez cliquer sur le lien ci-dessous pour vérifier votre identité et sécuriser votre compte: https://bank0famerica-secure.com/verify',
-        isPhishing: true,
-        hints: ['Vérifiez l\'URL attentivement', 'Les banques légitimes n\'utilisent pas de domaines avec des chiffres au lieu de lettres']
-      },
-      {
-        id: 'email2',
-        sender: 'rh@entreprise-interne.com',
-        subject: 'Mise à jour de la politique de sécurité',
-        content: 'Chers collègues, Veuillez prendre connaissance de la nouvelle politique de sécurité de l\'entreprise en pièce jointe. Merci de confirmer que vous l\'avez lue avant vendredi. Cordialement, Le service RH',
-        isPhishing: false,
-        hints: ['L\'adresse email de l\'expéditeur correspond au domaine de l\'entreprise', 'Le message ne demande pas d\'informations sensibles']
-      },
-      {
-        id: 'email3',
-        sender: 'amazon-orders@amazonshopping.net',
-        subject: 'Confirmation de commande #A38259B',
-        content: 'Votre commande d\'un téléphone Samsung Galaxy S23 Ultra (1899€) a été traitée. Si vous n\'avez pas passé cette commande, veuillez cliquer ici pour l\'annuler et vérifier votre compte: https://amaz0n-verify.net/cancel',
-        isPhishing: true,
-        hints: ['Amazon utilise uniquement ses domaines officiels', 'Les liens suspects avec des domaines similaires sont souvent des signes de phishing']
-      },
-      {
-        id: 'email4',
-        sender: 'contact@microsoft.com',
-        subject: 'Renouvellement de votre licence Microsoft 365',
-        content: 'Votre abonnement Microsoft 365 sera bientôt renouvelé. Consultez les détails sur votre compte Microsoft en vous connectant sur https://account.microsoft.com',
-        isPhishing: false,
-        hints: ['L\'URL pointe vers le domaine officiel de Microsoft', 'Pas d\'urgence ou de menace dans le message']
-      },
-    ];
-    
-    setEmails(dummyEmails);
-  }, []);
-  
-  // Timer
-  useEffect(() => {
-    if (timeLeft <= 0) {
-      finishGame();
-      return;
+const PhishingChallenge: React.FC<PhishingChallengeProps> = ({
+  onComplete,
+  difficultyLevel
+}) => {
+  // Emails factices pour le challenge
+  const [emails, setEmails] = useState<Email[]>([
+    {
+      id: 'email1',
+      sender: 'service-client@bankofamerica.com',
+      subject: 'Action urgente requise sur votre compte',
+      content: 'Cher client, Nous avons détecté une activité inhabituelle sur votre compte. Veuillez cliquer sur le lien ci-dessous pour vérifier votre identité et sécuriser votre compte: https://bank0famerica-secure.com/verify',
+      isPhishing: true,
+      hints: ['Vérifiez l\'URL attentivement', 'Les banques légitimes n\'utilisent pas de domaines avec des chiffres au lieu de lettres']
+    },
+    {
+      id: 'email2',
+      sender: 'rh@entreprise-interne.com',
+      subject: 'Mise à jour de la politique de sécurité',
+      content: 'Chers collègues, Veuillez prendre connaissance de la nouvelle politique de sécurité de l\'entreprise en pièce jointe. Merci de confirmer que vous l\'avez lue avant vendredi. Cordialement, Le service RH',
+      isPhishing: false,
+      hints: ['L\'adresse email de l\'expéditeur correspond au domaine de l\'entreprise', 'Le message ne demande pas d\'informations sensibles']
+    },
+    {
+      id: 'email3',
+      sender: 'amazon-orders@amazonshopping.net',
+      subject: 'Confirmation de commande #A38259B',
+      content: 'Votre commande d\'un téléphone Samsung Galaxy S23 Ultra (1899€) a été traitée. Si vous n\'avez pas passé cette commande, veuillez cliquer ici pour l\'annuler et vérifier votre compte: https://amaz0n-verify.net/cancel',
+      isPhishing: true,
+      hints: ['Amazon utilise uniquement ses domaines officiels', 'Les liens suspects avec des domaines similaires sont souvent des signes de phishing']
+    },
+    {
+      id: 'email4',
+      sender: 'contact@microsoft.com',
+      subject: 'Renouvellement de votre licence Microsoft 365',
+      content: 'Votre abonnement Microsoft 365 sera bientôt renouvelé. Consultez les détails sur votre compte Microsoft en vous connectant sur https://account.microsoft.com',
+      isPhishing: false,
+      hints: ['L\'URL pointe vers le domaine officiel de Microsoft', 'Pas d\'urgence ou de menace dans le message']
     }
-    
-    const timer = setTimeout(() => {
-      setTimeLeft(prev => prev - 1);
+  ]);
+  
+  const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
+  const [userAnswers, setUserAnswers] = useState<Record<string, boolean>>({});
+  const [timeLeft, setTimeLeft] = useState<number>(120); // 2 minutes en secondes
+  const [showFeedback, setShowFeedback] = useState<boolean>(false);
+  const [hintUsed, setHintUsed] = useState<Record<string, boolean>>({});
+  
+  // Démarrer le timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          completeChallenge();
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
     
-    return () => clearTimeout(timer);
-  }, [timeLeft]);
+    return () => clearInterval(timer);
+  }, []);
   
-  // Email actuel
-  const currentEmail = emails[currentEmailIndex];
-  
-  // Gérer la réponse de l'utilisateur
-  const handleAnswer = (isPhishing: boolean) => {
-    if (!currentEmail || gameOver) return;
-    
-    const newUserAnswers = {
-      ...userAnswers,
-      [currentEmail.id]: isPhishing
-    };
-    
-    setUserAnswers(newUserAnswers);
-    
-    // Calculer si la réponse est correcte
-    const isCorrect = isPhishing === currentEmail.isPhishing;
-    
-    // Mettre à jour le score
-    if (isCorrect) {
-      setScore(prev => prev + 25); // 25 points par bonne réponse
-    }
-    
-    // Passer à l'email suivant ou terminer le jeu
-    if (currentEmailIndex < emails.length - 1) {
-      setTimeout(() => {
-        setCurrentEmailIndex(prev => prev + 1);
-        setShowHint(false);
-      }, 1000);
-    } else {
-      setTimeout(() => {
-        setShowResult(true);
-      }, 1000);
-    }
-  };
-  
-  // Terminer le jeu
-  const finishGame = () => {
-    setGameOver(true);
-    
-    // Un score de 75 ou plus est considéré comme réussi
-    const success = score >= 75;
-    
-    // Bonus de temps en fonction du score
-    const timeBonus = success ? 
-      (score === 100 ? 60 : // Score parfait = 60 secondes bonus
-       score >= 75 ? 30 : 15) : 0; // Score de passage = 30 secondes, autres scores réussis = 15 secondes
-    
-    // Informe le parent que le défi est terminé
-    onComplete(success, score, timeBonus);
-  };
-  
-  // Formatage du temps
-  const formatTime = (seconds: number): string => {
+  // Formater le temps au format MM:SS
+  const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
   
-  // Rendu du résultat
-  const renderResult = () => {
-    const correctAnswers = Object.keys(userAnswers).filter(id => {
-      const email = emails.find(e => e.id === id);
-      return email && userAnswers[id] === email.isPhishing;
-    }).length;
+  // Calculer le score
+  const calculateScore = () => {
+    let correctAnswers = 0;
+    let totalEmails = emails.length;
     
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-4"
-      >
-        <Alert 
-          className={score >= 75 ? "border-green-500 bg-green-900/20" : "border-red-500 bg-red-900/20"}
-        >
-          <div className="flex items-center">
-            {score >= 75 ? (
-              <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-            ) : (
-              <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
-            )}
-            <AlertTitle className={score >= 75 ? "text-green-400" : "text-red-400"}>
-              {score >= 75 ? "Défi réussi!" : "Défi échoué"}
-            </AlertTitle>
-          </div>
-          <AlertDescription className="mt-2">
-            {score >= 75 
-              ? `Beau travail! Vous avez correctement identifié ${correctAnswers} sur ${emails.length} emails.` 
-              : `Vous devez obtenir au moins 75 points pour réussir. Vous avez identifié ${correctAnswers} sur ${emails.length} emails.`
-            }
-          </AlertDescription>
-        </Alert>
-        
-        <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-lg font-medium">Score final</h3>
-            <Badge 
-              className={`text-lg ${score >= 75 ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}`}
-            >
-              {score}/100
-            </Badge>
-          </div>
-          
-          <Progress value={score} className="h-3 mb-4" />
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gray-950/50 p-3 rounded-md border border-gray-800">
-              <div className="text-sm text-gray-400">Temps restant</div>
-              <div className="text-xl font-mono text-blue-400 mt-1">{formatTime(timeLeft)}</div>
-            </div>
-            
-            <div className="bg-gray-950/50 p-3 rounded-md border border-gray-800">
-              <div className="text-sm text-gray-400">Bonus de temps</div>
-              <div className="text-xl font-mono text-green-400 mt-1">
-                +{score === 100 ? '60' : score >= 75 ? '30' : '0'}s
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex justify-end">
-          <Button 
-            onClick={finishGame}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            Continuer <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
-      </motion.div>
-    );
+    emails.forEach(email => {
+      if (userAnswers[email.id] === email.isPhishing) {
+        correctAnswers++;
+      }
+    });
+    
+    // Calculer le score sur 100
+    const score = Math.round((correctAnswers / totalEmails) * 100);
+    
+    // Calculer le bonus de temps (plus de temps restant = plus de bonus)
+    const timeBonus = Math.round(timeLeft / 4);
+    
+    return { score, correctAnswers, totalEmails, timeBonus };
   };
   
-  if (!currentEmail) {
-    return (
-      <div className="p-8 text-center">
-        <div className="animate-spin h-8 w-8 border-4 border-gray-600 border-t-blue-500 rounded-full mx-auto mb-4"></div>
-        <p className="text-gray-400">Chargement du défi...</p>
-      </div>
-    );
-  }
+  // Vérifier si le challenge est complet
+  const isComplete = () => {
+    return emails.every(email => userAnswers[email.id] !== undefined);
+  };
+  
+  // Finaliser le challenge
+  const completeChallenge = () => {
+    const { score, timeBonus } = calculateScore();
+    const success = score >= 75; // 75% de réussite minimum
+    
+    // Attendre un peu pour afficher le feedback avant de compléter
+    setTimeout(() => {
+      onComplete(success, score, timeBonus);
+    }, 2000);
+    
+    setShowFeedback(true);
+  };
+  
+  // Répondre à un email
+  const handleAnswer = (emailId: string, isPhishing: boolean) => {
+    setUserAnswers(prev => ({
+      ...prev,
+      [emailId]: isPhishing
+    }));
+    
+    // Si c'est le dernier email, compléter le challenge
+    if (Object.keys(userAnswers).length + 1 === emails.length) {
+      completeChallenge();
+    }
+  };
+  
+  // Utiliser un indice
+  const useHint = (emailId: string) => {
+    setHintUsed(prev => ({
+      ...prev,
+      [emailId]: true
+    }));
+  };
   
   return (
-    <Card className="border-blue-800 bg-gray-900/70 shadow-xl">
-      <CardHeader className="border-b border-gray-800 bg-gray-900/50">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-blue-400">Détection de Phishing</CardTitle>
-            <CardDescription>Analysez les emails et identifiez ceux qui sont malveillants</CardDescription>
+    <Card className="bg-gray-900 border-blue-900 shadow-lg shadow-blue-900/10">
+      <CardHeader className="border-b border-blue-900/50 bg-blue-950/30">
+        <div className="flex flex-row items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Shield className="h-5 w-5 text-blue-400" />
+            <CardTitle className="text-lg text-blue-300">Détection de Phishing</CardTitle>
           </div>
           
-          <div className="flex items-center bg-gray-950 px-3 py-2 rounded-md border border-gray-800">
-            <AlarmClock className="h-4 w-4 text-yellow-500 mr-2" />
-            <span className={`font-mono ${timeLeft < 30 ? 'text-red-400 animate-pulse' : 'text-yellow-400'}`}>
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-yellow-500" />
+            <span className="text-sm font-mono text-yellow-400">
               {formatTime(timeLeft)}
             </span>
+            <Progress value={(timeLeft / 120) * 100} className="w-24 h-2" />
           </div>
         </div>
       </CardHeader>
       
-      <CardContent className="p-4 pt-6">
-        <AnimatePresence mode="wait">
-          {showResult ? (
-            <motion.div
-              key="result"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              {renderResult()}
-            </motion.div>
-          ) : (
-            <motion.div
-              key={currentEmail.id}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6"
-            >
-              <div className="flex items-center justify-between">
-                <Badge variant="outline" className="border-blue-700 bg-blue-900/30 text-blue-300">
-                  Email {currentEmailIndex + 1} / {emails.length}
-                </Badge>
-                
-                <div className="text-sm text-gray-400">
-                  Score actuel: <span className="text-blue-400 font-medium">{score}</span>
+      <CardContent className="p-0 grid grid-cols-1 md:grid-cols-3">
+        {/* Liste des emails */}
+        <div className="col-span-1 border-r border-gray-800">
+          <div className="p-4">
+            <h3 className="text-sm font-medium text-gray-400 mb-2">Boîte de réception</h3>
+            <div className="space-y-2">
+              {emails.map((email) => (
+                <div 
+                  key={email.id} 
+                  className={`
+                    p-3 border rounded-md cursor-pointer transition-all
+                    ${selectedEmail?.id === email.id 
+                      ? 'bg-blue-950/30 border-blue-700' 
+                      : 'bg-gray-800/50 border-gray-700 hover:border-gray-600'}
+                    ${userAnswers[email.id] !== undefined ? 'opacity-60' : ''}
+                  `}
+                  onClick={() => setSelectedEmail(email)}
+                >
+                  <div className="flex justify-between items-start mb-1">
+                    <div className="font-medium text-sm truncate">{email.sender}</div>
+                    {userAnswers[email.id] !== undefined && (
+                      userAnswers[email.id] === email.isPhishing 
+                        ? <CheckCircle className="h-4 w-4 text-green-500" /> 
+                        : <XCircle className="h-4 w-4 text-red-500" />
+                    )}
+                  </div>
+                  <div className="text-sm text-gray-400 truncate">{email.subject}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        
+        {/* Contenu de l'email */}
+        <div className="col-span-2 p-4">
+          {selectedEmail ? (
+            <div>
+              <div className="bg-gray-800 rounded-t-md p-3 border border-gray-700">
+                <div className="grid grid-cols-12 gap-2 text-sm">
+                  <div className="col-span-2 text-gray-400">De:</div>
+                  <div className="col-span-10 font-medium">{selectedEmail.sender}</div>
+                  
+                  <div className="col-span-2 text-gray-400">Objet:</div>
+                  <div className="col-span-10">{selectedEmail.subject}</div>
                 </div>
               </div>
               
-              <Card className="border border-gray-700 bg-white/95 text-gray-800">
-                <CardHeader className="bg-gray-100 border-b border-gray-300 pb-3">
-                  <div className="flex items-center mb-2">
-                    <Mail className="h-5 w-5 text-gray-500 mr-2" />
-                    <span className="font-medium text-gray-900">{currentEmail.sender}</span>
-                  </div>
-                  <CardTitle className="text-lg text-gray-900">{currentEmail.subject}</CardTitle>
-                </CardHeader>
-                
-                <CardContent className="py-4">
-                  <div className="whitespace-pre-line text-gray-700">
-                    {currentEmail.content}
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="bg-white text-gray-900 p-4 rounded-b-md mb-4 border-x border-b border-gray-700 min-h-[200px]">
+                <p className="text-sm whitespace-pre-line">{selectedEmail.content}</p>
+              </div>
               
-              {userAnswers[currentEmail.id] !== undefined ? (
-                <Alert 
-                  className={userAnswers[currentEmail.id] === currentEmail.isPhishing 
-                    ? "border-green-500 bg-green-900/20" 
-                    : "border-red-500 bg-red-900/20"}
-                >
-                  <div className="flex items-center">
-                    {userAnswers[currentEmail.id] === currentEmail.isPhishing ? (
-                      <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                    ) : (
-                      <XCircle className="h-5 w-5 text-red-500 mr-2" />
-                    )}
-                    <span className={userAnswers[currentEmail.id] === currentEmail.isPhishing 
-                      ? "text-green-400" 
-                      : "text-red-400"}
+              {/* Actions */}
+              {userAnswers[selectedEmail.id] === undefined ? (
+                <div className="flex flex-col gap-4">
+                  <div className="flex gap-2 justify-center">
+                    <Button 
+                      variant="destructive" 
+                      onClick={() => handleAnswer(selectedEmail.id, true)}
+                      className="flex-1"
                     >
-                      {userAnswers[currentEmail.id] === currentEmail.isPhishing 
-                        ? "Correct!" 
-                        : "Incorrect!"}
-                    </span>
+                      <AlertCircle className="mr-2 h-4 w-4" /> 
+                      C'est du phishing
+                    </Button>
+                    
+                    <Button 
+                      variant="outline" 
+                      onClick={() => handleAnswer(selectedEmail.id, false)}
+                      className="flex-1 border-green-700 text-green-500 hover:bg-green-900/20"
+                    >
+                      <CheckCircle className="mr-2 h-4 w-4" /> 
+                      Email légitime
+                    </Button>
                   </div>
-                  <div className="mt-2">
-                    {currentEmail.isPhishing 
-                      ? "Cet email est une tentative de phishing. Soyez vigilant face aux signes comme les URL suspectes, les demandes urgentes ou les fautes d'orthographe." 
-                      : "Cet email est légitime. Il ne présente pas les signes typiques d'une tentative de phishing."}
-                  </div>
-                </Alert>
-              ) : (
-                <div className="grid grid-cols-2 gap-3">
-                  <Button 
-                    size="lg"
-                    variant="outline"
-                    className="border-2 border-red-800 bg-red-900/30 hover:bg-red-800/50 py-6"
-                    onClick={() => handleAnswer(true)}
-                  >
-                    <ShieldAlert className="h-6 w-6 text-red-400 mr-2" />
-                    <span className="text-lg font-medium text-red-300">Phishing</span>
-                  </Button>
                   
-                  <Button 
-                    size="lg"
-                    variant="outline"
-                    className="border-2 border-green-800 bg-green-900/30 hover:bg-green-800/50 py-6"
-                    onClick={() => handleAnswer(false)}
-                  >
-                    <CheckCircle className="h-6 w-6 text-green-400 mr-2" />
-                    <span className="text-lg font-medium text-green-300">Légitime</span>
-                  </Button>
-                </div>
-              )}
-              
-              {currentEmail.hints && (
-                <div>
-                  {showHint ? (
-                    <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700">
-                      <h3 className="text-sm font-medium text-yellow-300 mb-2">Indices</h3>
+                  {!hintUsed[selectedEmail.id] && selectedEmail.hints && (
+                    <Button 
+                      variant="ghost" 
+                      onClick={() => useHint(selectedEmail.id)}
+                      className="text-gray-400 hover:text-gray-300"
+                    >
+                      Utiliser un indice
+                    </Button>
+                  )}
+                  
+                  {hintUsed[selectedEmail.id] && selectedEmail.hints && (
+                    <div className="bg-blue-900/20 border border-blue-800 rounded-md p-3 text-sm text-blue-300">
+                      <div className="font-medium mb-1">Indices:</div>
                       <ul className="list-disc pl-5 space-y-1">
-                        {currentEmail.hints.map((hint, index) => (
-                          <li key={index} className="text-sm text-gray-300">{hint}</li>
+                        {selectedEmail.hints.map((hint, index) => (
+                          <li key={index}>{hint}</li>
                         ))}
                       </ul>
                     </div>
-                  ) : (
-                    <Button 
-                      variant="ghost"
-                      className="text-yellow-400 hover:text-yellow-300 hover:bg-yellow-900/20"
-                      onClick={() => setShowHint(true)}
-                    >
-                      Afficher les indices
-                    </Button>
                   )}
                 </div>
+              ) : (
+                <div className={`rounded-md p-3 mt-2 ${userAnswers[selectedEmail.id] === selectedEmail.isPhishing 
+                  ? 'bg-green-900/20 border border-green-800 text-green-400' 
+                  : 'bg-red-900/20 border border-red-800 text-red-400'}`}>
+                  <div className="font-medium mb-1 flex items-center">
+                    {userAnswers[selectedEmail.id] === selectedEmail.isPhishing ? (
+                      <>
+                        <CheckCircle className="h-4 w-4 mr-2" /> 
+                        Bonne réponse!
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="h-4 w-4 mr-2" /> 
+                        Mauvaise réponse!
+                      </>
+                    )}
+                  </div>
+                  <p className="text-sm">
+                    {selectedEmail.isPhishing 
+                      ? 'Cet email est une tentative de phishing. ' 
+                      : 'Cet email est légitime. '}
+                    {selectedEmail.hints && selectedEmail.hints[0]}
+                  </p>
+                </div>
               )}
-            </motion.div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full text-center p-8">
+              <Mail className="h-12 w-12 text-gray-600 mb-4" />
+              <h3 className="text-gray-400 mb-2">Sélectionnez un email</h3>
+              <p className="text-sm text-gray-500">
+                Analysez chaque email pour détecter les tentatives de phishing.
+              </p>
+            </div>
           )}
-        </AnimatePresence>
+        </div>
       </CardContent>
+      
+      <CardFooter className="border-t border-gray-800 p-3 flex justify-between">
+        <div className="text-sm text-gray-400">
+          {Object.keys(userAnswers).length} sur {emails.length} analysés
+        </div>
+        
+        {showFeedback && (
+          <div className="bg-gray-800 rounded-md p-2 text-sm text-center">
+            <div className="font-medium">
+              {calculateScore().score >= 75 ? 'Défi réussi!' : 'Défi échoué!'}
+            </div>
+            <div className="text-xs text-gray-400">
+              Score: {calculateScore().score}% ({calculateScore().correctAnswers}/{calculateScore().totalEmails})
+            </div>
+          </div>
+        )}
+      </CardFooter>
     </Card>
   );
 };

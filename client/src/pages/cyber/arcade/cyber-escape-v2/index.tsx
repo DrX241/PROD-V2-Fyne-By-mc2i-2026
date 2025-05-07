@@ -456,4 +456,11 @@ const CyberEscapeInterface = () => {
   );
 };
 
-export default CyberEscapeGame;
+// Wrapper du jeu avec le provider pour le contexte d'état du jeu
+const CyberEscapeWithProvider = () => (
+  <GameProvider>
+    <CyberEscapeInterface />
+  </GameProvider>
+);
+
+export default CyberEscapeWithProvider;
