@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { openAIService } from './services/openai';
-import { ChatCompletionRequestMessage } from './services/openAiTypes';
 
 // Controller pour le convertisseur de politiques de sécurité
 export async function policyConverterController(req: Request, res: Response) {
@@ -13,13 +12,13 @@ export async function policyConverterController(req: Request, res: Response) {
 
     // Utiliser Azure OpenAI pour convertir la politique
     const prompt = constructPolicyPrompt(originalPolicy, policyType, targetAudience);
-    const systemMessage: ChatCompletionRequestMessage = {
-      role: 'system',
+    const systemMessage = {
+      role: 'system' as const,
       content: `Tu es un expert en cybersécurité et en communication, spécialisé dans la simplification et l'adaptation de politiques de sécurité pour différents publics. Ta tâche est de transformer des politiques techniques complexes en versions claires et accessibles tout en préservant les informations essentielles.`
     };
     
-    const userMessage: ChatCompletionRequestMessage = {
-      role: 'user',
+    const userMessage = {
+      role: 'user' as const,
       content: prompt
     };
     
