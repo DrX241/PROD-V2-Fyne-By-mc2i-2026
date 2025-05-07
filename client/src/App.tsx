@@ -152,14 +152,7 @@ function App() {
                 </Suspense>
               );
             }} />
-            <Route path="/cyber/arcade/cyber-escape-parefeu" component={() => {
-              const CyberEscapeParefeuComponent = lazy(() => import('./pages/cyber/arcade/cyber-escape-parefeu'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <CyberEscapeParefeuComponent />
-                </Suspense>
-              );
-            }} />
+
             <Route path="/cyber/arcade/brain-hacker" component={() => {
               const BrainHackerComponent = lazy(() => import('./pages/cyber/arcade/brain-hacker'));
               return (
@@ -303,6 +296,7 @@ function App() {
             
             {/* Routes héritées pour compatibilité */}
             <Route path="/cyber/arcade/cyber-escape" component={NotYetImplemented} />
+            <Route path="/cyber/arcade/cyber-escape-parefeu" component={NotYetImplemented} />
             <Route path="/cyber/arcade/password-puzzle" component={NotYetImplemented} />
             <Route path="/cyber/arcade/firewall-defense" component={NotYetImplemented} />
             {/* Section Data & IA */}
