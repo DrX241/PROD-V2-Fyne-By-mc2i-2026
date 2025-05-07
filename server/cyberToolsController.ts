@@ -32,7 +32,19 @@ export async function policyConverterController(req: Request, res: Response) {
     // Analyser la réponse JSON
     let responseData;
     try {
-      responseData = JSON.parse(response);
+      // Nettoyer la réponse des délimiteurs Markdown
+      let cleanResponse = response;
+      
+      // Supprimer les délimiteurs de bloc de code Markdown
+      if (cleanResponse.includes('```json')) {
+        cleanResponse = cleanResponse.replace(/```json\n/g, '');
+        cleanResponse = cleanResponse.replace(/```/g, '');
+      }
+      
+      // Supprimer toute autre balise Markdown potentielle
+      cleanResponse = cleanResponse.trim();
+      
+      responseData = JSON.parse(cleanResponse);
     } catch (error) {
       console.error('Erreur lors de l\'analyse de la réponse JSON:', error);
       console.error('Réponse brute:', response);
