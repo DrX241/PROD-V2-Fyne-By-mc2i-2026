@@ -15,6 +15,8 @@ interface PhishingSimulationRequest {
   includeBranding: boolean;
 }
 
+
+
 // Controller pour le convertisseur de politiques de sécurité
 export async function policyConverterController(req: Request, res: Response) {
   try {

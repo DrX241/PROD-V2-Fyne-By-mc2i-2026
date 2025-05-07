@@ -1,6 +1,6 @@
 import { Router } from 'express';
-// Importation explicite des contrôleurs des outils cyber
-import { policyConverterController, phishingSimulatorController } from '../cyberToolsController';
+// Importation relative explicite des contrôleurs des outils cyber (avec chemin complet)
+import { policyConverterController, phishingSimulatorController } from '../../server/cyberToolsController';
 
 const router = Router();
 
