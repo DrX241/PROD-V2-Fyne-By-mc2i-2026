@@ -121,6 +121,8 @@ export const cyberQuestPlayerSkills = pgTable('cyber_quest_player_skills', {
   playerId: integer('player_id').notNull().references(() => cyberQuestPlayers.id),
   skillId: integer('skill_id').notNull().references(() => cyberQuestSkills.id),
   level: integer('level').notNull().default(1),
+  experience: integer('experience').notNull().default(0),
+  usageCount: integer('usage_count').notNull().default(0),
   purchasedAt: timestamp('purchased_at').defaultNow().notNull(),
   lastUpgraded: timestamp('last_upgraded'),
 });

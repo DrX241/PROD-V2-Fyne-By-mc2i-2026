@@ -82,19 +82,19 @@ export async function getOrCreatePlayer(req: Request, res: Response) {
     }).returning();
     
     // Ajouter les compétences de base au joueur
-    const baseSkills = await db.select().from(cyberQuestSkills).where(and(
-      eq(cyberQuestSkills.requiredLevel, 1),
-      eq(cyberQuestSkills.level, 1)
-    ));
+    // Pour l'instant, nous ne filtrons que par le niveau requis
+    const baseSkills = await db.select().from(cyberQuestSkills).where(
+      eq(cyberQuestSkills.requiredLevel, 1)
+    );
     
     // Attribuer les compétences de base
     for (const skill of baseSkills) {
       await db.insert(cyberQuestPlayerSkills).values({
-        playerId: newPlayer.id,
-        skillId: skill.id,
+        player_id: newPlayer.id,
+        skill_id: skill.id,
         level: 1,
         experience: 0,
-        usageCount: 0
+        usage_count: 0
       });
     }
     
