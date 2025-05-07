@@ -24,9 +24,9 @@ export default function CyberArcade() {
     {
       id: 'cyber-escape-parefeu',
       title: 'CYBER ESCAPE: LE PARE-FEU EST TOMBÉ',
-      description: 'Gérez une crise cyber en tant que RSSI. Un malware a compromis le système, retrouvez les indices et résolvez les énigmes en temps limité',
+      description: 'Affrontez une crise cyber complexe avec des énigmes multicouches. Menez l\'enquête dans un réseau compromis par un acteur malveillant sophistiqué qui déjoue les méthodes de détection traditionnelles.',
       icon: <HardDrive className="w-6 h-6" />,
-      gradient: 'from-red-700 to-orange-700',
+      gradient: 'from-red-900 to-orange-800',
       available: true,
       route: '/cyber/arcade/cyber-escape-parefeu'
     },

