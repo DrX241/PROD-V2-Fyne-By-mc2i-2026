@@ -141,7 +141,16 @@ export default function CyberModeSelection() {
       gradient: 'from-amber-700 to-amber-900',
       destination: '#',
       comingSoon: true,
-      items: []
+      items: [
+        {
+          id: 'ascension-progression',
+          title: 'PARCOURS COMPLET',
+          icon: null,
+          destination: '/cyber/ascension',
+          comingSoon: false,
+          isNew: true
+        }
+      ]
     }
   ];
 

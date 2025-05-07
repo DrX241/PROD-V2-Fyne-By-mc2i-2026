@@ -41,7 +41,7 @@ interface Level {
 }
 
 const CyberAscension: React.FC = () => {
-  const [location, navigate] = useLocation();
+  const [location, setLocation] = useLocation();
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
   const [tab, setTab] = useState('aperçu'); // aperçu, objectifs, défi
   const [userProgress, setUserProgress] = useState({
@@ -497,7 +497,7 @@ const CyberAscension: React.FC = () => {
     }
     
     // Naviguer vers la page du niveau spécifique
-    navigate(`/cyber/ascension/level/${level.id}`);
+    setLocation(`/cyber/ascension/level/${level.id}`);
   };
 
   return (
@@ -509,7 +509,7 @@ const CyberAscension: React.FC = () => {
           <Button 
             variant="outline" 
             className="mb-6 bg-black/20 border-white/20 text-white hover:bg-white/10"
-            onClick={() => navigate('/cyber-mode-selection')}
+            onClick={() => setLocation('/cyber-mode-selection')}
           >
             <ArrowLeft className="mr-2 h-4 w-4" /> Retour
           </Button>

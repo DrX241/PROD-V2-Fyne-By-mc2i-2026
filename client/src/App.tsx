@@ -324,9 +324,35 @@ function App() {
             
             {/* Modules obsolètes redirigés vers page d'erreur */}
             <Route path="/cyber/emergency-response" component={NotYetImplemented} />
-            <Route path="/cyber-ascension" component={NotYetImplemented} />
-            <Route path="/cyber-ascension/theme/:themeId" component={NotYetImplemented} />
-            <Route path="/cyber-ascension/theme/:themeId/level/:levelId" component={NotYetImplemented} />
+            <Route path="/cyber/ascension" component={() => {
+              const CyberAscensionComponent = lazy(() => import('./pages/cyber/ascension'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <CyberAscensionComponent />
+                </Suspense>
+              );
+            }} />
+            <Route path="/cyber/ascension/level/:id" component={() => {
+              const CyberAscensionLevelComponent = lazy(() => import('./pages/cyber/ascension/level/[id]'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <CyberAscensionLevelComponent />
+                </Suspense>
+              );
+            }} />
+            <Route path="/cyber-ascension" component={() => {
+              window.location.href = '/cyber/ascension';
+              return null;
+            }} />
+            <Route path="/cyber-ascension/theme/:themeId" component={() => {
+              window.location.href = '/cyber/ascension';
+              return null;
+            }} />
+            <Route path="/cyber-ascension/theme/:themeId/level/:levelId" component={() => {
+              const id = window.location.pathname.split('/').pop();
+              window.location.href = `/cyber/ascension/level/${id}`;
+              return null;
+            }} />
             
             {/* Routes héritées pour compatibilité */}
             <Route path="/cyber/arcade/cyber-escape" component={NotYetImplemented} />
