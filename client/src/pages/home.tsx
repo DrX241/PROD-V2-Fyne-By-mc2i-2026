@@ -27,7 +27,8 @@ const ModuleCard = ({
   bgColor, 
   accentColor, 
   linkTo,
-  classicMode = false
+  classicMode = false,
+  onCustomClick = null
 }: { 
   title: string;
   description: string;
@@ -37,6 +38,7 @@ const ModuleCard = ({
   accentColor: string;
   linkTo: string;
   classicMode?: boolean;
+  onCustomClick?: ((e: React.MouseEvent) => void) | null;
 }) => {
   const [isHover, setIsHover] = useState(false);
   
@@ -45,11 +47,23 @@ const ModuleCard = ({
   const { themeMode } = useTheme();
   const isClassic = classicMode || themeMode === 'classic';
   
+  // Déterminer si c'est le module I AM CYBER
+  const isCyberModule = title === "I AM CYBER";
+  
+  // Handler pour la navigation
+  const handleClick = (e: React.MouseEvent) => {
+    if (isCyberModule && onCustomClick) {
+      e.preventDefault();
+      onCustomClick(e);
+    }
+  };
+  
   return (
     <div
       className="relative overflow-hidden h-full flex flex-col flex-1"
       onMouseEnter={() => setIsHover(true)}
       onMouseLeave={() => setIsHover(false)}
+      onClick={isCyberModule && onCustomClick ? handleClick : undefined}
     >
       {/* Fond galactique et nébuleuse - uniquement en mode futuriste */}
       {!isClassic && (
@@ -436,26 +450,11 @@ export default function Home() {
     }
   };
   
-  // Ouvrir la modale de mot de passe quand l'utilisateur clique sur le module I AM CYBER
-  useEffect(() => {
-    const handleHashChange = () => {
-      if (window.location.hash === '#cyber-password-modal') {
-        setIsPasswordModalOpen(true);
-        // Supprimer le hash de l'URL
-        window.history.replaceState(null, document.title, window.location.pathname);
-      }
-    };
-    
-    // Vérifier si le hash est déjà présent au chargement
-    handleHashChange();
-    
-    // Ajouter un écouteur pour les changements futurs
-    window.addEventListener('hashchange', handleHashChange);
-    
-    return () => {
-      window.removeEventListener('hashchange', handleHashChange);
-    };
-  }, []);
+  // Fonction pour ouvrir directement la modale de mot de passe
+  const openCyberPasswordModal = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsPasswordModalOpen(true);
+  };
   
   // Charger les modules personnalisés au chargement de la page
   useEffect(() => {
@@ -499,7 +498,7 @@ export default function Home() {
       color: "bg-blue-600",
       bgColor: "bg-gradient-to-br from-blue-50 to-blue-100",
       accentColor: "bg-blue-500",
-      linkTo: "#cyber-password-modal" // Changer le lien pour ouvrir une modale au lieu d'aller directement au module
+      linkTo: "#" // Ceci sera remplacé par un onClick personnalisé
     },
     // Le module Cyber Playground a été supprimé selon la demande
     {
@@ -917,7 +916,10 @@ export default function Home() {
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-tr from-cyan-500/20 to-purple-500/20 transition-opacity duration-500"></div>
                       
                       {/* Le module */}
-                      <ModuleCard {...module} />
+                      <ModuleCard 
+                        {...module} 
+                        onCustomClick={module.title === "I AM CYBER" ? openCyberPasswordModal : null}
+                      />
                       
                       {/* Accent line galactique */}
                       <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 via-purple-500 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out origin-left"></div>
@@ -953,12 +955,22 @@ export default function Home() {
                         
                         {/* Bouton en bas */}
                         <div className="mt-auto">
-                          <Link href={module.linkTo}>
-                            <button className={`${module.color} text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center transition-all hover:shadow-md`}>
+                          {module.title === "I AM CYBER" ? (
+                            <button 
+                              onClick={openCyberPasswordModal}
+                              className={`${module.color} text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center transition-all hover:shadow-md`}
+                            >
                               Explorer
                               <ArrowRight className="h-4 w-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300"/>
                             </button>
-                          </Link>
+                          ) : (
+                            <Link href={module.linkTo}>
+                              <button className={`${module.color} text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center transition-all hover:shadow-md`}>
+                                Explorer
+                                <ArrowRight className="h-4 w-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300"/>
+                              </button>
+                            </Link>
+                          )}
                         </div>
                       </div>
                     </div>
