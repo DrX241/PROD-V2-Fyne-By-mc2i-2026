@@ -1,0 +1,69 @@
+🎮 Niveau 5 — Incident 14:00 | “Verrou rouge”
+Thème : Gestion de crise cyber
+Objectif : Gérer une attaque par ransomware dans une entreprise fictive
+Durée estimée : 25 à 40 minutes
+
+🧩 CONTEXTE (Slide d’introduction narrative)
+Tu es Responsable Cyberdéfense au sein de Nexera Industries, une société énergétique.
+
+Il est 14h02. Des alertes de chiffrement de fichiers remontent sur plusieurs postes.
+
+Le SIEM signale une activité réseau suspecte sur les serveurs de production.
+
+Les sauvegardes semblent inaccessibles.
+
+🎙️ Une IA “PNJ RSSI” (Azure OpenAI) t’interpelle :
+
+“On a un souci critique. Dois-je déclencher l’alerte rouge maintenant ? Faut-il prévenir les équipes métier ? Que fait-on du mail suspect trouvé ce matin ?”
+
+🕹️ MISSION DU JOUEUR
+Identifier l’attaque :
+
+Interroger l’IA analyste SOC pour reconstituer la chronologie.
+
+Croiser les logs avec des indices (adresses IP, fichiers .locky, etc.).
+
+Lancer un scan via un faux outil intégré (Zmap, Nmap, etc.).
+
+Décider du plan de réponse :
+
+Choisir : isolement réseau, désactivation des partages, communication interne.
+
+Chaque action génère des conséquences simulées (pertes de service, réaction des médias, etc.).
+
+Gérer les parties prenantes :
+
+Discuter avec le DG (via IA), le DSI, le DPO, et un représentant légal.
+
+Rédiger une communication de crise (guidée par l’IA).
+
+Rétablir la continuité :
+
+Tenter une restauration partielle.
+
+Décider si l’on paye la rançon ou pas (l’IA fournit les arguments pour/contre).
+
+Leçon et post-mortem :
+
+Recevoir un debrief personnalisé généré par Azure OpenAI.
+
+Proposer des actions correctives : PRA, segmentation réseau, training, etc.
+
+🧠 MÉCANIQUES GAMIFIÉES
+Barre de stress, jauge de confiance des parties prenantes.
+
+Timer pour certaines décisions (15-30 secondes).
+
+Scores selon réactivité, communication, conformité.
+
+IA qui modifie le scénario selon tes choix précédents.
+
+Bonus si le joueur a collecté assez d’indicateurs techniques pour établir l’origine de l’attaque.
+
+🛠️ MODULES TECHNIQUES (connectés à Azure OpenAI)
+🎯 Prompt de simulation dynamique : “Tu es un analyste SOC, réagis aux logs suivants…”
+
+🧠 IA mentor : tu peux l’interroger à tout moment pour savoir quoi faire (limité à 3 questions).
+
+✍️ Co-rédaction IA : rédaction de mails de crise, communiqués, ou rapport post-incident.
+

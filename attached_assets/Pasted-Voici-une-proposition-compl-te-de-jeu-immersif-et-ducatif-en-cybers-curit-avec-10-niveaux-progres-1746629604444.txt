@@ -1,0 +1,37 @@
+Voici une proposition complète de jeu immersif et éducatif en cybersécurité, avec 10 niveaux progressifs et un moteur dynamique basé sur Azure OpenAI. Le jeu est conçu comme une campagne narrative gamifiée, avec des missions, des choix critiques, des points de compétence, et une IA générative intégrée pour simuler les réponses, les défis et les scénarios en temps réel.
+
+🎮 Nom du jeu : CYBERSPHÈRE
+Pitch : Incarne un(e) analyste en cybersécurité dans une organisation menacée par une entité inconnue. Tu vas devoir progresser dans la hiérarchie cyber, prendre des décisions critiques, résoudre des incidents en temps réel, et bâtir la résilience de ton entreprise. Chaque niveau débloque des outils, des responsabilités, et t’expose à des attaques ou enjeux plus complexes.
+
+🔐 NIVEAUX DU JEU (1 niveau = 1 grand chapitre narratif)
+Niveau	Thème central	Objectif du joueur	Mécanique clé
+1	Formation & Sensibilisation	Découvrir les bases de la cybersécurité et ses enjeux humains	Mini-jeux d’analyse de comportement + quiz dynamique (via Azure OpenAI)
+2	OSINT	Rechercher des données publiques pour prévenir une attaque ciblée	Phase d'enquête interactive avec outils simulés (Shodan, Maltego...)
+3	Conformité Cyber	Identifier les écarts de conformité dans une entreprise fictive	Audit gamifié de documentation avec IA (analyse de politiques, questionnaires dynamiques)
+4	Stratégie & Roadmap Cyber	Élaborer une stratégie cybersécurité réaliste pour une PME	Tableaux de bord interactifs + IA pour générer feuille de route à partir des priorités
+5	Gestion de Crise	Réagir à une cyberattaque en temps réel (type ransomware)	Simulateur de crise avec messages IA, décisions sous pression, communication à gérer
+6	Supply Chain Security	Identifier et mitiger les risques liés aux partenaires externes	Jeu de stratégie avec dépendances fournisseurs, scoring de risques dynamiques
+7	IAM (Gestion des identités)	Mettre en place une stratégie d’authentification et d’accès	Puzzle d’architecture (IAM, MFA, Zero Trust) avec IA pour analyser les failles
+8	Cloud Security	Sécuriser une infrastructure cloud hybride en expansion	Interface d’architecture cloud avec erreurs cachées, red teaming IA
+9	Données personnelles & RGPD	Évaluer les risques et définir des plans d’action RGPD	Mécanique d’évaluation d'impact + Dialogue avec un DPO IA
+10	Vulnérabilités, Pentest, Forensic	Mener un test d'intrusion, détecter une faille, analyser une compromission	Terminal virtuel + logs IA, IA-analyste pour challenger les hypothèses
+
+🧠 INTÉGRATION D’AZURE OPENAI
+Narration adaptative : Chaque niveau démarre avec une situation générée dynamiquement par Azure OpenAI.
+
+Dialogue interactif avec des IA PNJ (DPO, RSSI, Hacker, Analyste Forensic).
+
+Aide IA : Le joueur peut demander conseil à l’IA pour analyser les logs, proposer une stratégie, ou comprendre les enjeux d’une faille.
+
+Personnalisation dynamique des scénarios selon le niveau du joueur, ses erreurs précédentes, et ses choix stratégiques.
+
+🏆 MÉCANIQUES DE JEU
+Points de réputation : Basés sur la rigueur, l’efficacité, la conformité et la réactivité.
+
+Compétences à débloquer : IAM, cloud, forensic, etc.
+
+Temps réel & gestion du stress : Certains niveaux imposent des décisions chronométrées.
+
+Modes coopératif ou solo : Possibilité de jouer en groupe avec rôles séparés (Red Team, Blue Team).
+
+Badges & certification interne en fin de jeu.
