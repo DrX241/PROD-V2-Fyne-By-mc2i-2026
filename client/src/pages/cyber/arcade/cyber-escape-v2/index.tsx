@@ -533,7 +533,7 @@ const CyberEscapeV2 = () => {
                   {/* Inventaire avec composant dédié */}
                   <InventoryPanel 
                     items={gameState.inventory} 
-                    onUse={handleUseItem}
+                    onUseItem={handleUseItem}
                   />
 
                   {/* Aide rapide */}

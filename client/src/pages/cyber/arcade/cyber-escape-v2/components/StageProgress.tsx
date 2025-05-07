@@ -1,240 +1,168 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Shield, 
-  Database, 
-  Lock, 
-  BarChart, 
-  AlertTriangle, 
-  Box,
-  Cloud, 
-  Terminal, 
-  FileSearch, 
-  Key 
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Award, Check, Lock } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   Tooltip, 
   TooltipContent, 
   TooltipProvider, 
   TooltipTrigger 
-} from "@/components/ui/tooltip";
-import { GameStage } from '../types/game';
+} from '@/components/ui/tooltip';
+// Définir directement l'enum ici car l'import pose des problèmes
+export enum GameStage {
+  INITIAL = 0,
+  VESTIBULE = 1,
+  MUR_REVELATIONS = 2,
+  COULOIR_BADGES = 3,
+  LABO_ANALYSE = 4,
+  SALLE_MONITORING = 5,
+  CRYPTEX = 6,
+  QUARTIER_RESEAU = 7,
+  FORENSIC_LAB = 8,
+  CENTRE_DEFENSE = 9,
+  PORTE_SIGMA = 10
+}
 
 interface StageProgressProps {
-  currentStage: number;
+  currentStage: GameStage;
   className?: string;
 }
 
-// Données des étapes avec icônes et descriptions
-const stageData = [
-  {
-    id: GameStage.VESTIBULE,
-    name: "Vestibule Phish-Alert",
-    icon: <Shield className="h-4 w-4" />,
-    color: "text-blue-400",
-    bgColor: "bg-blue-900/40",
-    borderColor: "border-blue-700",
-    description: "Triage de 20 emails pour identifier les tentatives de phishing"
-  },
-  {
-    id: GameStage.MUR_REVELATIONS,
-    name: "Mur des Révélations",
-    icon: <Database className="h-4 w-4" />,
-    color: "text-indigo-400",
-    bgColor: "bg-indigo-900/40",
-    borderColor: "border-indigo-700",
-    description: "Recherche OSINT pour trouver des informations critiques"
-  },
-  {
-    id: GameStage.COULOIR_BADGES,
-    name: "Couloir des Badges",
-    icon: <Lock className="h-4 w-4" />,
-    color: "text-purple-400",
-    bgColor: "bg-purple-900/40",
-    borderColor: "border-purple-700",
-    description: "Association de badges aux rôles et services cloud appropriés"
-  },
-  {
-    id: GameStage.SALLE_STRATEX,
-    name: "Salle Stratex",
-    icon: <BarChart className="h-4 w-4" />,
-    color: "text-cyan-400",
-    bgColor: "bg-cyan-900/40", 
-    borderColor: "border-cyan-700",
-    description: "Priorisation stratégique des investissements cybersécurité"
-  },
-  {
-    id: GameStage.CENTRE_ALERTE,
-    name: "Centre d'Alerte",
-    icon: <AlertTriangle className="h-4 w-4" />,
-    color: "text-yellow-400",
-    bgColor: "bg-yellow-900/40",
-    borderColor: "border-yellow-700",
-    description: "Gestion de crise face à un incident de sécurité majeur"
-  },
-  {
-    id: GameStage.CHAINE_FANTOME,
-    name: "Chaîne Fantôme",
-    icon: <Box className="h-4 w-4" />,
-    color: "text-amber-400",
-    bgColor: "bg-amber-900/40",
-    borderColor: "border-amber-700",
-    description: "Audit et analyse de la chaîne d'approvisionnement logicielle"
-  },
-  {
-    id: GameStage.NUAGE_TROUE,
-    name: "Nuage Troué v2",
-    icon: <Cloud className="h-4 w-4" />,
-    color: "text-orange-400",
-    bgColor: "bg-orange-900/40",
-    borderColor: "border-orange-700", 
-    description: "Correction de vulnérabilités dans un environnement cloud"
-  },
-  {
-    id: GameStage.ZONE_ROOTLAB,
-    name: "Zone Root-Lab",
-    icon: <Terminal className="h-4 w-4" />,
-    color: "text-rose-400",
-    bgColor: "bg-rose-900/40",
-    borderColor: "border-rose-700",
-    description: "Exploitation et démonstration de PoC sur des vulnérabilités"
-  },
-  {
-    id: GameStage.ATELIER_FORENSIC,
-    name: "Atelier Forensic",
-    icon: <FileSearch className="h-4 w-4" />,
-    color: "text-fuchsia-400", 
-    bgColor: "bg-fuchsia-900/40",
-    borderColor: "border-fuchsia-700",
-    description: "Analyse forensique de preuves numériques après incident"
-  },
-  {
-    id: GameStage.PORTE_SIGMA,
-    name: "Porte Sigma",
-    icon: <Key className="h-4 w-4" />,
-    color: "text-green-400",
-    bgColor: "bg-green-900/40",
-    borderColor: "border-green-700",
-    description: "Quiz final de synthèse sur tous les aspects de la cybersécurité"
-  }
-];
+// Mapping des noms d'étapes pour les tooltips
+const stageNames: Record<number, string> = {
+  0: 'Début du jeu',
+  1: 'Vestibule Phish-Alert',
+  2: 'Mur des Révélations',
+  3: 'Couloir des Badges',
+  4: 'Laboratoire d\'Analyse',
+  5: 'Salle de Monitoring',
+  6: 'Cryptex',
+  7: 'Quartier Réseau',
+  8: 'Laboratoire Forensic',
+  9: 'Centre de Défense',
+  10: 'Porte Sigma'
+};
 
-const StageProgress: React.FC<StageProgressProps> = ({ currentStage, className = "" }) => {
+// Mapping des tooltips avec description détaillée
+const stageDescriptions: Record<number, string> = {
+  1: 'Identification des emails de phishing',
+  2: 'Recherche en sources ouvertes (OSINT)',
+  3: 'Gestion des contrôles d\'accès',
+  4: 'Analyse des vulnérabilités',
+  5: 'Détection d\'intrusion en temps réel',
+  6: 'Déchiffrement de codes cryptographiques',
+  7: 'Sécurisation d\'un réseau compromis',
+  8: 'Analyse forensique de preuves numériques',
+  9: 'Gestion de crise et réponse à incident',
+  10: 'Objectif final - Sécurisation du système'
+};
+
+// Composant pour chaque badge/niveau d'étape
+const StageBadge: React.FC<{ 
+  stage: number, 
+  currentStage: number,
+  onClick?: () => void 
+}> = ({ stage, currentStage, onClick }) => {
+  // Déterminer l'état du badge
+  const isCompleted = stage < currentStage;
+  const isCurrent = stage === currentStage;
+  const isLocked = stage > currentStage;
+  
+  // Classes conditionnelles
+  let bgClass = 'bg-gray-800 text-gray-500 border-gray-700';
+  if (isCompleted) bgClass = 'bg-green-900/30 text-green-300 border-green-600';
+  if (isCurrent) bgClass = 'bg-blue-900/30 text-blue-300 border-blue-600 animate-pulse';
+  
+  // Icône à afficher
+  const Icon = isCompleted ? Check : isLocked ? Lock : null;
+  
   return (
-    <Card className={`border-green-500 bg-black/50 backdrop-blur-sm ${className}`}>
-      <CardHeader className="p-3 pb-2 border-b border-green-800">
-        <CardTitle className="text-sm font-medium text-green-400 flex items-center">
-          <Shield className="h-4 w-4 mr-2" /> 
-          Progression du parcours
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <motion.div
+            className={`
+              relative w-8 h-8 rounded-full border flex items-center justify-center
+              ${bgClass} cursor-pointer transition-colors
+              ${isLocked ? 'opacity-60' : 'opacity-100 hover:brightness-125'}
+            `}
+            whileHover={{ scale: isLocked ? 1 : 1.1 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.2, delay: stage * 0.05 }}
+            onClick={isLocked ? undefined : onClick}
+          >
+            {Icon ? <Icon className="h-3.5 w-3.5" /> : <span className="text-xs font-bold">{stage}</span>}
+            
+            {isCurrent && (
+              <motion.div
+                className="absolute -inset-1 rounded-full border border-blue-400/50"
+                animate={{ scale: [1, 1.1, 1], opacity: [0.7, 0.5, 0.7] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
+            )}
+          </motion.div>
+        </TooltipTrigger>
+        <TooltipContent side="bottom" className="bg-gray-900 border-gray-700">
+          <div className="space-y-1">
+            <p className="font-medium">
+              {isLocked ? (
+                <span className="text-gray-400">Niveau {stage} - Verrouillé</span>
+              ) : (
+                <span className={isCurrent ? 'text-blue-400' : 'text-green-400'}>
+                  Niveau {stage} - {stageNames[stage]}
+                </span>
+              )}
+            </p>
+            {!isLocked && (
+              <p className="text-xs text-gray-400">{stageDescriptions[stage]}</p>
+            )}
+          </div>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
+
+const StageProgress: React.FC<StageProgressProps> = ({ currentStage, className = '' }) => {
+  // Calculer le pourcentage d'avancement (10 étapes au total)
+  const progressPercentage = Math.min(Math.round((currentStage / 10) * 100), 100);
+  
+  return (
+    <Card className={`border-green-500 bg-black/50 ${className}`}>
+      <CardHeader className="py-2 px-3 border-b border-green-800">
+        <CardTitle className="text-sm text-green-400 flex items-center justify-between">
+          <div className="flex items-center">
+            <Award className="h-4 w-4 mr-2" />
+            <span>Progression</span>
+          </div>
+          <span className="text-xs bg-green-900/30 px-2 py-0.5 rounded border border-green-800">
+            {progressPercentage}%
+          </span>
         </CardTitle>
       </CardHeader>
+      
       <CardContent className="p-3">
-        <div className="space-y-1.5">
-          {/* Pourcentage global */}
-          <div className="flex justify-between text-xs mb-1">
-            <span className="text-green-400">Étape {currentStage}/10</span>
-            <span className="text-gray-400">{(currentStage / 10) * 100}%</span>
-          </div>
-          
-          {/* Affichage des étapes comme une timeline visuelle */}
-          <div className="relative pt-2">
-            {/* Ligne de progression */}
-            <div className="absolute left-3.5 top-0 bottom-0 w-0.5 bg-gray-800 z-0"></div>
-            
-            {/* Étapes */}
-            <div className="relative z-10 space-y-3">
-              {stageData.map((stage) => {
-                const isCompleted = currentStage > stage.id;
-                const isCurrent = currentStage === stage.id;
-                const isLocked = currentStage < stage.id;
-                
-                return (
-                  <TooltipProvider key={stage.id}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="flex items-center group">
-                          {/* Indicateur d'étape */}
-                          <motion.div
-                            initial={{ scale: isCurrent ? 0.8 : 1 }}
-                            animate={{ 
-                              scale: isCurrent ? [1, 1.2, 1] : 1,
-                              boxShadow: isCurrent ? "0 0 12px rgba(74, 222, 128, 0.5)" : "none"
-                            }}
-                            transition={{ duration: 2, repeat: isCurrent ? Infinity : 0, repeatType: "reverse" }}
-                            className={`
-                              relative flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center z-10
-                              ${isCompleted ? 'bg-green-800 border-green-500' : 
-                                isCurrent ? `${stage.bgColor} ${stage.borderColor}` : 
-                                'bg-gray-900 border-gray-700'}
-                              border transition-all
-                            `}
-                          >
-                            {isCompleted ? (
-                              <div className="h-2 w-2 rounded-full bg-green-400"></div>
-                            ) : (
-                              <span className={isLocked ? 'text-gray-500' : stage.color}>
-                                {stage.icon}
-                              </span>
-                            )}
-                            
-                            {/* Numéro d'étape (petit) */}
-                            <span className="absolute -top-1 -right-1 text-[9px] font-bold bg-black rounded-full w-3.5 h-3.5 flex items-center justify-center">
-                              {stage.id}
-                            </span>
-                          </motion.div>
-                          
-                          {/* Nom de l'étape */}
-                          <div 
-                            className={`
-                              ml-3 text-xs font-medium transition-colors
-                              ${isCompleted ? 'text-green-400' : 
-                                isCurrent ? stage.color : 
-                                'text-gray-500'}
-                            `}
-                          >
-                            {stage.name}
-                            
-                            {/* Badge pour l'étape courante */}
-                            {isCurrent && (
-                              <Badge 
-                                variant="outline" 
-                                className="ml-2 text-[8px] px-1 py-0 h-3.5 border-green-500 text-green-400"
-                              >
-                                Actuelle
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent 
-                        side="right" 
-                        className="bg-gray-900 border-gray-700"
-                      >
-                        <div className="space-y-1 max-w-[240px]">
-                          <div className="font-bold flex items-center">
-                            <span className={isLocked ? 'text-gray-400' : stage.color}>
-                              {stage.icon}
-                              <span className="ml-2">{stage.name}</span>
-                            </span>
-                          </div>
-                          <p className="text-xs text-gray-300">
-                            {stage.description}
-                          </p>
-                          <div className="pt-1">
-                            <Badge variant={isCompleted ? "default" : "outline"} className="text-[9px]">
-                              {isCompleted ? "Complété" : isCurrent ? "En cours" : "Verrouillé"}
-                            </Badge>
-                          </div>
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                );
-              })}
-            </div>
-          </div>
+        {/* Barre de progression */}
+        <div className="w-full h-1.5 bg-gray-800 rounded-full mb-4 overflow-hidden">
+          <motion.div
+            className="h-full bg-green-500 rounded-full"
+            initial={{ width: 0 }}
+            animate={{ width: `${progressPercentage}%` }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+          />
+        </div>
+        
+        {/* Badges d'étapes */}
+        <div className="flex justify-between pt-1">
+          {Array.from({ length: 10 }, (_, i) => i + 1).map(stage => (
+            <StageBadge
+              key={stage}
+              stage={stage}
+              currentStage={currentStage}
+              onClick={() => console.log(`Clic sur l'étape ${stage}`)}
+            />
+          ))}
         </div>
       </CardContent>
     </Card>
