@@ -136,10 +136,10 @@ export default function PolicyConverter() {
                 variant="outline"
                 size="sm"
                 className="text-blue-400 hover:text-blue-300 hover:bg-blue-950 border-blue-800"
-                onClick={() => setLocation('/cyber/tools')}
+                onClick={() => setLocation('/cyber-mode-selection')}
               >
                 <ChevronLeft className="mr-2 h-4 w-4" />
-                Retour au menu
+                Retour à I AM CYBER
               </Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
