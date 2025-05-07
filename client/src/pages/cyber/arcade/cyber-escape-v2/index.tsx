@@ -8,7 +8,7 @@ import { Link } from 'wouter';
 import HomeLayout from '@/components/layout/HomeLayout';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { useGameState } from './state/dummy-state';
+import { useGameStateV2 } from './state/game-state-v2';
 import { GameStage } from './types/game-enums';
 
 // Import des composants personnalisés
@@ -16,6 +16,9 @@ import CyberTerminal from './components/CyberTerminal';
 import InventoryPanel from './components/InventoryPanel';
 import CountdownTimer from './components/CountdownTimer';
 import StageProgress from './components/StageProgress';
+import RoomView from './components/RoomView';
+import QuickActions from './components/QuickActions';
+import PhishingChallenge from './components/PhishingChallenge';
 
 // Animation de particules pour l'arrière-plan
 const ParticleBackground = () => (
@@ -49,13 +52,12 @@ const CyberEscapeV2 = () => {
   // État du jeu géré par un custom hook
   const { 
     gameState,
-    timeRemaining,
-    currentStage,
-    inventory,
     startGame,
     executeCommand,
-    formatMessage
-  } = useGameState();
+    formatMessage,
+    modifyTime,
+    completeChallenge
+  } = useGameStateV2();
   
   // Référence pour stocker les étapes déjà notifiées
   const notifiedStagesRef = useRef<number[]>([]);
