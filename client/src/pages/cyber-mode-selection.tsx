@@ -116,6 +116,14 @@ export default function CyberModeSelection() {
           icon: null,
           destination: '/cyber/tools/policy-converter',
           comingSoon: false,
+          isNew: false
+        },
+        {
+          id: 'phishing-simulator',
+          title: 'SIMULATEUR DE PHISHING',
+          icon: null,
+          destination: '/cyber/tools/phishing-simulator',
+          comingSoon: false,
           isNew: true
         }
       ]
