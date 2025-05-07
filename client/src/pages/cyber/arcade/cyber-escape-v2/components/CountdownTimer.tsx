@@ -8,13 +8,15 @@ interface CountdownTimerProps {
   totalSeconds?: number;
   onTimeUp?: () => void;
   className?: string;
+  isActive?: boolean;
 }
 
 const CountdownTimer: React.FC<CountdownTimerProps> = ({
   seconds,
   totalSeconds = 900, // 15 minutes par défaut
   onTimeUp,
-  className = ""
+  className = "",
+  isActive = false
 }) => {
   // État pour les moments de transition d'animation
   const [isAnimating, setIsAnimating] = useState(false);

@@ -10,18 +10,26 @@ import { ObjectState, ExitStatus } from '../types/game-enums';
 
 interface RoomViewProps {
   room: RoomData;
-  onInteract: (type: string, targetId: string) => void;
+  onObjectClick: (objectId: string) => void;
+  onNpcClick: (npcId: string) => void;
+  onExitClick: (exitKey: string) => void;
 }
 
 /**
  * Composant qui affiche la vue de la salle avec ses objets, PNJs et sorties
  */
-const RoomView: React.FC<RoomViewProps> = ({ room, onInteract }) => {
+const RoomView: React.FC<RoomViewProps> = ({ room, onObjectClick, onNpcClick, onExitClick }) => {
   const [hoverInfo, setHoverInfo] = useState<{id: string, name: string, type: string} | null>(null);
 
   // Gérer l'interaction avec un élément de la salle
   const handleInteraction = (type: string, id: string) => {
-    onInteract(type, id);
+    if (type === 'object') {
+      onObjectClick(id);
+    } else if (type === 'npc') {
+      onNpcClick(id);
+    } else if (type === 'exit') {
+      onExitClick(id);
+    }
   };
 
   // Déterminer la classe CSS basée sur l'état de l'objet

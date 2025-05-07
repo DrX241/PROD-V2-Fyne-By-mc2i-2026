@@ -130,7 +130,7 @@ interface GameContextType {
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 // Provider pour le contexte du jeu
-export function GameProvider({ children }: { children: ReactNode }) {
+export function GameProvider({ children }: { children: ReactNode }): JSX.Element {
   // Utiliser le reducer pour gérer l'état
   const [state, dispatch] = useReducer(gameReducer, initialState);
   
@@ -197,7 +197,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   };
   
   // Créer la valeur du contexte
-  const contextValue = {
+  const contextValue: GameContextType = {
     state,
     dispatch,
     currentRoom,
