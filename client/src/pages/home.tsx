@@ -443,9 +443,9 @@ export default function Home() {
       // Mot de passe incorrect
       setPasswordError('Mot de passe incorrect. Veuillez réessayer.');
       setPasswordAttempts(prev => prev + 1);
-      // Après 3 tentatives, donner un indice
+      // Après 3 tentatives, envoyer une alerte au support
       if (passwordAttempts >= 2) {
-        setPasswordError('Indice: Le mot de passe contient "Bienvenuechezmc2i" et une référence à la plateforme.');
+        setPasswordError('Attention: Une tentative d\'accès non autorisé a été détectée. Une alerte sera transmise par mail au support technique.');
       }
     }
   };
