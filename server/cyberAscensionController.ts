@@ -1,9 +1,5 @@
 import { Request, Response } from 'express';
-import {
-  AzureKeyCredential,
-  ChatRequestMessage,
-  OpenAIClient
-} from '@azure/openai';
+import OpenAI from 'openai';
 
 // Configuration Azure OpenAI
 const endpoint = process.env.AZURE_OPENAI_ENDPOINT || '';
@@ -11,7 +7,12 @@ const apiKey = process.env.AZURE_OPENAI_KEY || '';
 const deploymentName = process.env.AZURE_OPENAI_DEPLOYMENT || '';
 
 // Initialisation du client OpenAI
-const client = new OpenAIClient(endpoint, new AzureKeyCredential(apiKey));
+const openai = new OpenAI({
+  apiKey: apiKey,
+  baseURL: `${endpoint}/openai/deployments/${deploymentName}`,
+  defaultQuery: { 'api-version': '2024-12-01-preview' },
+  defaultHeaders: { 'api-key': apiKey }
+});
 
 /**
  * Interface pour les niveaux d'CYBERASCENSION
@@ -176,16 +177,15 @@ export async function analyzeUserResponse(req: Request, res: Response) {
     // Construire le prompt approprié
     const systemPrompt = buildPrompt(levelId, stepId || 1, userResponse);
     
-    // Préparer les messages pour l'API
-    const messages: ChatRequestMessage[] = [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userResponse }
-    ];
-    
     // Appel à Azure OpenAI
-    const result = await client.getChatCompletions(deploymentName, messages, {
+    const result = await openai.chat.completions.create({
+      model: deploymentName,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userResponse }
+      ],
       temperature: 0.7,
-      maxTokens: 1000
+      max_tokens: 1000
     });
     
     if (!result.choices || result.choices.length === 0) {
@@ -205,7 +205,7 @@ export async function analyzeUserResponse(req: Request, res: Response) {
       stepId: stepId || 1
     });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error("Erreur lors de l'analyse de la réponse utilisateur:", error);
     return res.status(500).json({
       success: false,
@@ -323,17 +323,16 @@ export async function generateScenario(req: Request, res: Response) {
       "learningObjectives": ["Objectif pédagogique 1", "Objectif pédagogique 2", "etc."]
     }`;
     
-    // Préparer les messages pour l'API
-    const messages: ChatRequestMessage[] = [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: `Génère un scénario de formation en ${level.theme} de difficulté ${difficulty || 'intermédiaire'}.` }
-    ];
-    
     // Appel à Azure OpenAI
-    const result = await client.getChatCompletions(deploymentName, messages, {
+    const result = await openai.chat.completions.create({
+      model: deploymentName,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: `Génère un scénario de formation en ${level.theme} de difficulté ${difficulty || 'intermédiaire'}.` }
+      ],
       temperature: 0.8,
-      maxTokens: 1500,
-      responseFormat: { type: "json_object" }
+      max_tokens: 1500,
+      response_format: { type: "json_object" }
     });
     
     if (!result.choices || result.choices.length === 0) {
@@ -353,7 +352,7 @@ export async function generateScenario(req: Request, res: Response) {
       levelId
     });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error("Erreur lors de la génération du scénario:", error);
     return res.status(500).json({
       success: false,
@@ -407,17 +406,16 @@ export async function evaluatePerformance(req: Request, res: Response) {
       "recommendedResources": ["Ressource 1", "Ressource 2", "etc."]
     }`;
     
-    // Préparer les messages pour l'API
-    const messages: ChatRequestMessage[] = [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: `Évalue mes performances dans le scénario de ${level.theme}.` }
-    ];
-    
     // Appel à Azure OpenAI
-    const result = await client.getChatCompletions(deploymentName, messages, {
+    const result = await openai.chat.completions.create({
+      model: deploymentName,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: `Évalue mes performances dans le scénario de ${level.theme}.` }
+      ],
       temperature: 0.7,
-      maxTokens: 1500,
-      responseFormat: { type: "json_object" }
+      max_tokens: 1500,
+      response_format: { type: "json_object" }
     });
     
     if (!result.choices || result.choices.length === 0) {
@@ -437,7 +435,7 @@ export async function evaluatePerformance(req: Request, res: Response) {
       levelId
     });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error("Erreur lors de l'évaluation de la performance:", error);
     return res.status(500).json({
       success: false,
@@ -498,17 +496,16 @@ export async function generateLearningRecommendations(req: Request, res: Respons
       ]
     }`;
     
-    // Préparer les messages pour l'API
-    const messages: ChatRequestMessage[] = [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: `Je souhaite améliorer mes compétences en ${skillAreas.join(', ')}. Quelles ressources me recommandes-tu?` }
-    ];
-    
     // Appel à Azure OpenAI
-    const result = await client.getChatCompletions(deploymentName, messages, {
+    const result = await openai.chat.completions.create({
+      model: deploymentName,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: `Je souhaite améliorer mes compétences en ${skillAreas.join(', ')}. Quelles ressources me recommandes-tu?` }
+      ],
       temperature: 0.7,
-      maxTokens: 1500,
-      responseFormat: { type: "json_object" }
+      max_tokens: 1500,
+      response_format: { type: "json_object" }
     });
     
     if (!result.choices || result.choices.length === 0) {
@@ -528,7 +525,7 @@ export async function generateLearningRecommendations(req: Request, res: Respons
       userId
     });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error("Erreur lors de la génération des recommandations:", error);
     return res.status(500).json({
       success: false,

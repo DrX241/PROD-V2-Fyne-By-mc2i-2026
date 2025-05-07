@@ -41,6 +41,13 @@ import {
   improveGeneratedCode,
   suggestLanguageAndFramework
 } from "./codeGeneratorController";
+import {
+  analyzeUserResponse,
+  getLevelInfo,
+  generateScenario,
+  evaluatePerformance,
+  generateLearningRecommendations
+} from "./cyberAscensionController";
 import { generateModule, saveCustomModule, getCustomModules, getCustomModuleById, deleteCustomModule } from "./moduleGeneratorController";
 import { analyzeEvidence, getInvestigationHints, evaluateInvestigationResult, generateInvestigationScenario, generateInvestigationNotes } from "./cyberInvestigatorController";
 import { getInvestigationProgress, saveInvestigationProgress, evaluateUserNotes } from "./investigationProgressController";
@@ -634,6 +641,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Routes pour le jeu Cyber Escape: Le Pare-feu est tombé
   // Routes pour le jeu "Cyber Escape: Le Pare-feu est tombé" supprimées
+  
+  // Routes pour CYBERASCENSION
+  app.post('/api/cyber/ascension/analyze-response', async (req: Request, res: Response) => {
+    await analyzeUserResponse(req, res);
+  });
+  
+  app.get('/api/cyber/ascension/level/:id', async (req: Request, res: Response) => {
+    await getLevelInfo(req, res);
+  });
+  
+  app.post('/api/cyber/ascension/generate-scenario', async (req: Request, res: Response) => {
+    await generateScenario(req, res);
+  });
+  
+  app.post('/api/cyber/ascension/evaluate-performance', async (req: Request, res: Response) => {
+    await evaluatePerformance(req, res);
+  });
+  
+  app.post('/api/cyber/ascension/learning-recommendations', async (req: Request, res: Response) => {
+    await generateLearningRecommendations(req, res);
+  });
   
   // Routes pour mc2i AI Learning
   app.post('/api/mcai-learning/init', initMcaiLearningSession);
