@@ -117,8 +117,39 @@ export default function CyberArcade() {
                 onMouseEnter={() => setHoveredGame(game.id)}
                 onMouseLeave={() => setHoveredGame(null)}
               >
-                <Link href={game.route}>
-                  <div className={`bg-gradient-to-br ${game.gradient} p-6 h-full min-h-[220px] flex flex-col relative overflow-hidden rounded-xl cursor-pointer transition-all duration-300 hover:shadow-2xl`}>
+                {!game.comingSoon ? (
+                  <Link href={game.route}>
+                    <div className={`bg-gradient-to-br ${game.gradient} p-6 h-full min-h-[220px] flex flex-col relative overflow-hidden rounded-xl cursor-pointer transition-all duration-300 hover:shadow-2xl`}>
+                      {/* Glow effect on hover */}
+                      {hoveredGame === game.id && (
+                        <div className="absolute inset-0 bg-white opacity-10 animate-pulse"></div>
+                      )}
+
+                      <div className="flex items-center mb-4">
+                        <div className="bg-white/10 p-2 rounded-lg mr-3">
+                          {game.icon}
+                        </div>
+                        <h2 className="text-xl font-bold text-white">
+                          {game.title}
+                        </h2>
+                      </div>
+
+                      <p className="text-blue-100 text-sm mb-4 flex-grow">
+                        {game.description}
+                      </p>
+
+                      <div className="flex justify-end mt-2">
+                        <Button
+                          variant="ghost"
+                          className="bg-white/10 hover:bg-white/20 py-1.5 px-4 rounded-lg text-white text-sm font-medium"
+                        >
+                          Jouer maintenant
+                        </Button>
+                      </div>
+                    </div>
+                  </Link>
+                ) : (
+                  <div className={`bg-gradient-to-br ${game.gradient} p-6 h-full min-h-[220px] flex flex-col relative overflow-hidden rounded-xl cursor-not-allowed opacity-80 transition-all duration-300`}>
                     {/* Glow effect on hover */}
                     {hoveredGame === game.id && (
                       <div className="absolute inset-0 bg-white opacity-10 animate-pulse"></div>
@@ -141,13 +172,13 @@ export default function CyberArcade() {
                       <Button
                         variant="ghost"
                         className="bg-white/10 hover:bg-white/20 py-1.5 px-4 rounded-lg text-white text-sm font-medium"
-                        disabled={game.comingSoon}
+                        disabled
                       >
-                        {game.comingSoon ? "Bientôt disponible" : "Jouer maintenant"}
+                        Bientôt disponible
                       </Button>
                     </div>
                   </div>
-                </Link>
+                )}
               </motion.div>
             ))}
           </div>
