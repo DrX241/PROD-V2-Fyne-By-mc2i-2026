@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getOpenAIClient } from './services/openai';
+import { openAIService } from './services/openai';
 
 interface CyberPractice {
   text: string;
@@ -25,9 +25,8 @@ export async function generateCyberPractices(req: Request, res: Response) {
     et 50% de mauvaises pratiques. Assure-toi que chaque pratique est clairement identifiable comme bonne ou mauvaise. 
     Évite les nuances ou les ambiguïtés.`;
 
-    const client = getOpenAIClient();
-    
-    const response = await client.chat.completions.create({
+    // Utiliser le service OpenAI
+    const response = await openAIService.createChatCompletion({
       model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: systemPrompt },
@@ -54,7 +53,7 @@ export async function generateCyberPractices(req: Request, res: Response) {
       success: true, 
       practices: jsonData.practices 
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Erreur lors de la génération des pratiques de cybersécurité:", error);
     res.status(500).json({ 
       success: false, 

@@ -43,6 +43,7 @@ import {
   improveGeneratedCode,
   suggestLanguageAndFramework
 } from "./codeGeneratorController";
+import { generateCyberPractices } from "./cyberSnakeController";
 import {
   analyzeUserResponse,
   getLevelInfo,
