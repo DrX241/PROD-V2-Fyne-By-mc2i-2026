@@ -36,23 +36,34 @@ export function useAuth() {
     error, 
     isLoading,
     refetch 
-  } = useQuery<User>({
+  } = useQuery<User | null>({
     queryKey: ['/api/auth/user'],
     queryFn: async () => {
       try {
-        const res = await apiRequest('GET', '/api/auth/user');
+        const res = await fetch('/api/auth/user', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include'
+        });
+        
         if (!res.ok) {
           if (res.status === 401) {
             return null; // Utilisateur non authentifié
           }
           throw new Error('Erreur lors de la récupération de l\'utilisateur');
         }
-        return await res.json();
+        
+        const data = await res.json();
+        // Le serveur peut retourner soit directement l'utilisateur, soit un objet avec une propriété user
+        return data.user || data;
       } catch (error) {
+        console.error('Erreur dans récupération utilisateur:', error);
         return null; // En cas d'erreur, on considère que l'utilisateur n'est pas connecté
       }
     },
-    retry: false, // Ne pas réessayer en cas d'erreur
+    retry: 0, // Ne pas réessayer en cas d'erreur
   });
 
   // Mutation pour la connexion
@@ -104,22 +115,38 @@ export function useAuth() {
   // Mutation pour la déconnexion
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      const res = await apiRequest('POST', '/api/auth/logout');
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || 'Échec de la déconnexion');
+      try {
+        const res = await fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include'
+        });
+        
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.message || 'Échec de la déconnexion');
+        }
+        
+        return await res.json();
+      } catch (error) {
+        console.error("Erreur lors de la déconnexion:", error);
+        throw error;
       }
-      return await res.json();
     },
     onSuccess: () => {
       // Nettoyer les données après déconnexion
       queryClient.setQueryData(['/api/auth/user'], null);
-      queryClient.invalidateQueries();
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
       
       toast({
         title: 'Déconnexion réussie',
         description: 'Vous avez été déconnecté avec succès.',
       });
+      
+      // On peut aussi forcer un rafraîchissement pour être sûr
+      window.location.href = '/auth';
     },
     onError: (error: Error) => {
       toast({

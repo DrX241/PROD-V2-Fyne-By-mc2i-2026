@@ -32,7 +32,9 @@ export function ProtectedRoute({ path, component: Component }: ProtectedRoutePro
 
   // Si l'utilisateur est authentifié, afficher le composant protégé
   return (
-    <Route path={path} component={Component} />
+    <Route path={path}>
+      <Component />
+    </Route>
   );
 }
 
@@ -71,6 +73,8 @@ export function AdminRoute({ path, component: Component }: ProtectedRouteProps) 
 
   // Si l'utilisateur est authentifié et administrateur, afficher le composant protégé
   return (
-    <Route path={path} component={Component} />
+    <Route path={path}>
+      <Component />
+    </Route>
   );
 }
