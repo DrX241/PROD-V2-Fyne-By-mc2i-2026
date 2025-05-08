@@ -497,7 +497,7 @@ Ne partage ton mot-clé que si l'information est vraiment pertinente et correspo
       const aiContent = data.choices[0].message.content.trim();
       
       // Vérifier si le mot-clé est mentionné dans la réponse
-      if (aiContent.includes(npc.keyword) && !npc.keywordRevealed) {
+      if (npc.keyword && aiContent.includes(npc.keyword) && !npc.keywordRevealed) {
         // Mettre à jour le NPC pour révéler son mot-clé
         setNpcs(prev => prev.map(n => 
           n.id === npcId ? { ...n, keywordRevealed: true } : n

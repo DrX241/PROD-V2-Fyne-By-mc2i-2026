@@ -91,7 +91,8 @@ const CyberSnake: React.FC = () => {
     if (practices.length === 0) return;
     
     // Éviter de placer de la nourriture sur le serpent
-    let newX, newY;
+    let newX: number = 0;
+    let newY: number = 0;
     let isOnSnake = true;
     
     while (isOnSnake) {
@@ -101,13 +102,16 @@ const CyberSnake: React.FC = () => {
     }
     
     // Sélectionner une pratique aléatoire
-    const randomPractice = practices[Math.floor(Math.random() * practices.length)];
+    const randomIndex = Math.floor(Math.random() * practices.length);
+    const randomPractice = practices[randomIndex];
     
-    setFood({
-      x: newX,
-      y: newY,
-      practice: randomPractice
-    });
+    if (randomPractice) {
+      setFood({
+        x: newX,
+        y: newY,
+        practice: randomPractice
+      });
+    }
   }, [practices, snake]);
   
   // Initialiser le jeu
