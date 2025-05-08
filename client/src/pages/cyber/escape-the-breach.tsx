@@ -576,44 +576,216 @@ Recommandations immédiates:
   
   // Rendu des composants
   
+  // Composant pour afficher et interagir avec les PNJ
+  const NPCPanel = () => {
+    return (
+      <div className="mb-6 bg-gray-900/80 border border-gray-700 rounded-lg overflow-hidden shadow-lg">
+        <div className="p-3 bg-gray-800/90 border-b border-gray-700">
+          <h2 className="text-lg font-semibold flex items-center">
+            <Shield className="mr-2 h-5 w-5 text-blue-500" />
+            Équipe d'intervention
+          </h2>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
+          {npcs.map((npc) => (
+            <div 
+              key={npc.id}
+              onClick={() => setSelectedNpc(npc)}
+              className={`p-4 rounded-lg border transition-colors duration-200 cursor-pointer relative overflow-hidden ${
+                selectedNpc?.id === npc.id 
+                  ? 'bg-blue-900/30 border-blue-800 shadow-lg shadow-blue-900/20' 
+                  : 'bg-gray-800/80 border-gray-700 hover:bg-gray-800'
+              }`}
+            >
+              <div className="flex items-start space-x-3 relative z-10">
+                <div className="flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-gray-700 text-2xl">
+                  {npc.avatar}
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium">{npc.name}</h3>
+                  <p className="text-sm text-blue-400">{npc.role.split(' ')[0]}</p>
+                  {npc.keywordRevealed && (
+                    <div className="mt-2 inline-flex items-center rounded-full bg-green-900/30 px-2.5 py-0.5 text-xs font-medium text-green-400 border border-green-800">
+                      <span className="mr-1">•</span> Mot-clé obtenu
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        {selectedNpc && (
+          <div className="p-4 border-t border-gray-700 bg-gray-800/50">
+            <h3 className="text-md font-semibold mb-2">Objectifs de {selectedNpc.name}:</h3>
+            <ul className="space-y-1 text-sm text-gray-300">
+              {selectedNpc.objectives.map((obj, index) => (
+                <li key={index} className="flex items-start">
+                  <span className="inline-block w-4 h-4 mr-2 pt-0.5">•</span>
+                  <span>{obj}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 text-sm text-gray-400 italic">
+              {selectedNpc.description}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Affichage du défi final (quand tous les mots-clés sont collectés)
+  const FinalChallenge = () => {
+    const totalKeywords = npcs.length;
+    const collectedKeywords = npcs.filter(npc => npc.keywordRevealed).length;
+    
+    return (
+      <Card className="bg-gray-900/80 border-gray-700 shadow-xl mt-4">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg flex items-center">
+            <Award className="mr-2 h-5 w-5 text-yellow-500" />
+            Défi final
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="mb-4">
+            <h3 className="text-sm text-gray-400 mb-1">Progression</h3>
+            <div className="flex items-center space-x-3">
+              <Progress value={(collectedKeywords / totalKeywords) * 100} className="h-2" />
+              <span className="text-sm font-medium">{collectedKeywords}/{totalKeywords}</span>
+            </div>
+          </div>
+          
+          {collectedKeywords === totalKeywords ? (
+            <div className="space-y-4">
+              <Alert className="bg-green-900/20 border-green-800 text-gray-200">
+                <AlertTitle className="text-green-400">Tous les mots-clés collectés !</AlertTitle>
+                <AlertDescription>
+                  Combinez les mots-clés pour trouver la solution finale.
+                </AlertDescription>
+              </Alert>
+              
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                {npcs.map(npc => (
+                  <div key={npc.id} className="bg-gray-800 rounded p-2 text-center border border-gray-700">
+                    <div className="text-xs text-gray-400">{npc.name.split(' ')[0]}</div>
+                    <div className="font-mono text-green-400 mt-1">{npc.keyword}</div>
+                  </div>
+                ))}
+              </div>
+              
+              <div>
+                <label className="text-sm text-gray-400 mb-2 block">Entrez la solution finale:</label>
+                <div className="flex space-x-2">
+                  <input 
+                    type="text" 
+                    value={finalSolution}
+                    onChange={e => setFinalSolution(e.target.value)}
+                    placeholder="FIREWALL-DEFENDER-PERIMETER" 
+                    className="flex-1 bg-gray-800 border border-gray-700 rounded-l-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <Button 
+                    className={isSolving ? 'opacity-70' : ''}
+                    onClick={() => {
+                      setIsSolving(true);
+                      // Simuler la vérification
+                      setTimeout(() => {
+                        const correctSolution = "FIREWALL-DEFENDER-PERIMETER";
+                        if (finalSolution.toUpperCase().replace(/\s+/g, '-') === correctSolution) {
+                          addSystemMessage("🎉 FÉLICITATIONS! Vous avez réussi à résoudre le défi et sécuriser le système!");
+                        } else {
+                          addSystemMessage("❌ Solution incorrecte. Vérifiez l'ordre et le format des mots-clés.");
+                        }
+                        setIsSolving(false);
+                      }, 1500);
+                    }}
+                    disabled={isSolving}
+                  >
+                    {isSolving ? 'Vérification...' : 'Valider'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <Alert className="bg-blue-900/20 border-blue-800">
+              <AlertTitle className="text-blue-400">Collectez tous les mots-clés</AlertTitle>
+              <AlertDescription>
+                Pour débloquer le défi final, vous devez obtenir un mot-clé de chaque membre de l'équipe en leur fournissant les bonnes informations.
+              </AlertDescription>
+            </Alert>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
+
   const renderMessageBubble = (message: Message) => {
-    switch (message.sender) {
-      case 'user':
-        return (
-          <div key={message.id} className="flex justify-end mb-4">
-            <div className="flex flex-col items-end">
-              <div className="bg-blue-600 text-white rounded-lg py-2 px-4 max-w-[80%]">
-                {message.content}
-              </div>
-              <span className="text-xs text-gray-400 mt-1">{message.timestamp}</span>
-            </div>
+    const isRSSI = message.sender === 'rssi';
+    const isSystem = message.sender === 'system';
+    const isUser = message.sender === 'user';
+    const isExpertForensique = message.sender === 'expert_forensique';
+    const isResponsableInfra = message.sender === 'responsable_infrastructure';
+    
+    let avatarText = '';
+    let avatarColor = '';
+    let bgClass = '';
+    let senderName = '';
+    
+    if (isSystem) {
+      return (
+        <div key={message.id} className="flex justify-center mb-4">
+          <div className="bg-gray-800 border border-gray-600 text-gray-300 rounded-lg py-2 px-4 max-w-[90%] text-sm">
+            <Info className="inline-block h-4 w-4 mr-2 text-blue-400" />
+            {message.content}
           </div>
-        );
-      case 'rssi':
-        return (
-          <div key={message.id} className="flex mb-4">
-            <Avatar className="h-8 w-8 mr-2">
-              <AvatarFallback className="bg-indigo-700 text-white">ML</AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col">
-              <div className="bg-gray-700 text-white rounded-lg py-2 px-4 max-w-[80%]">
-                {message.content}
-              </div>
-              <span className="text-xs text-gray-400 mt-1">{message.timestamp}</span>
-            </div>
-          </div>
-        );
-      case 'system':
-        return (
-          <div key={message.id} className="flex justify-center mb-4">
-            <div className="bg-gray-800 border border-gray-600 text-gray-300 rounded-lg py-2 px-4 max-w-[90%] text-sm">
-              <Info className="inline-block h-4 w-4 mr-2 text-blue-400" />
+        </div>
+      );
+    } else if (isUser) {
+      return (
+        <div key={message.id} className="flex justify-end mb-4">
+          <div className="flex flex-col items-end">
+            <div className="bg-blue-600 text-white rounded-lg py-2 px-4 max-w-[80%]">
               {message.content}
             </div>
+            <span className="text-xs text-gray-400 mt-1">{message.timestamp}</span>
           </div>
-        );
-      default:
-        return null;
+        </div>
+      );
+    } else {
+      // Configurer pour chaque type de PNJ
+      if (isRSSI) {
+        avatarText = 'AM';
+        avatarColor = 'bg-indigo-700';
+        bgClass = 'bg-indigo-900/40 border border-indigo-700';
+        senderName = 'Alexandre Moreau (RSSI)';
+      } else if (isExpertForensique) {
+        avatarText = 'SL';
+        avatarColor = 'bg-purple-700';
+        bgClass = 'bg-purple-900/40 border border-purple-700';
+        senderName = 'Sophie Laurent (Forensique)';
+      } else if (isResponsableInfra) {
+        avatarText = 'TG';
+        avatarColor = 'bg-cyan-700';
+        bgClass = 'bg-cyan-900/40 border border-cyan-700';
+        senderName = 'Thomas Garcia (Infrastructure)';
+      }
+      
+      return (
+        <div key={message.id} className="flex mb-4">
+          <Avatar className="h-8 w-8 mr-2">
+            <AvatarFallback className={`${avatarColor} text-white`}>{avatarText}</AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col">
+            <p className="text-xs text-gray-400 mb-1">{senderName}</p>
+            <div className={`${bgClass} text-white rounded-lg py-2 px-4 max-w-[80%]`}>
+              {message.content}
+            </div>
+            <span className="text-xs text-gray-400 mt-1">{message.timestamp}</span>
+          </div>
+        </div>
+      );
     }
   };
   
