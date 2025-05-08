@@ -1,17 +1,32 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Terminal, File, Database, Server, Shield, Clock, Info, HelpCircle, Award, Check } from 'lucide-react';
 import { Link } from 'wouter';
+import { 
+  ArrowLeft, Clock, Check, Info, 
+  Terminal, File, Database, Server, 
+  Shield, HelpCircle, Award, User
+} from 'lucide-react';
+import { 
+  Card, CardContent, CardDescription, 
+  CardFooter, CardHeader, CardTitle 
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { 
+  Dialog, DialogContent, DialogDescription, 
+  DialogHeader, DialogTitle, DialogFooter,
+  DialogTrigger
+} from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { 
+  Tooltip, TooltipContent, TooltipProvider, 
+  TooltipTrigger 
+} from '@/components/ui/tooltip';
 
-// Types pour l'application
+// Interfaces
 interface Message {
   id: string;
   sender: 'user' | 'rssi' | 'expert_forensique' | 'responsable_infrastructure' | 'system';
@@ -65,7 +80,6 @@ export default function EscapeTheBreach() {
   const [showTutorialHighlight, setShowTutorialHighlight] = useState<string | null>("evidence-tab"); // Pour guider l'utilisateur
   const [npcs, setNpcs] = useState<NPC[]>([]);
   const [selectedNpc, setSelectedNpc] = useState<NPC | null>(null);
-  const [showFinalChallenge, setShowFinalChallenge] = useState(false);
   const [finalKeywords, setFinalKeywords] = useState<{[key: string]: string}>({});
   const [finalSolution, setFinalSolution] = useState("");
   const [isSolving, setIsSolving] = useState(false);
@@ -90,7 +104,6 @@ export default function EscapeTheBreach() {
         setTimeRemaining(prev => {
           if (prev <= 1) {
             clearInterval(timerInterval);
-            setIsTimerRunning(false);
             return 0;
           }
           return prev - 1;
@@ -196,7 +209,8 @@ export default function EscapeTheBreach() {
 [10/05/2025 03:15:10] ERROR: Critical services shutdown on srv-app-01, srv-db-01
 [10/05/2025 03:16:30] ALERT: Multiple files encrypted with unknown extension .lock_mc2i
 [10/05/2025 03:17:02] ERROR: Backup service connection failed`,
-        discovered: false
+        discovered: false,
+        relevantFor: ['rssi', 'responsable_infrastructure']
       },
       {
         id: 'alert_email',
@@ -216,7 +230,8 @@ Services affectés:
 - Serveurs de fichiers
 
 Merci de répondre selon le protocole d'incident.`,
-        discovered: false
+        discovered: false,
+        relevantFor: ['rssi']
       },
       {
         id: 'auth_logs',
@@ -230,7 +245,8 @@ Merci de répondre selon le protocole d'incident.`,
 [10/05/2025 01:42:33] SUCCESS: User thomas.legrand logged in from 45.77.65.211
 [10/05/2025 01:43:15] SUCCESS: User thomas.legrand elevated to admin privileges
 [10/05/2025 02:15:44] SUCCESS: User thomas.legrand logged in from 45.77.65.211`,
-        discovered: false
+        discovered: false,
+        relevantFor: ['expert_forensique', 'rssi']
       },
       {
         id: 'phishing_email',
@@ -248,55 +264,64 @@ Veuillez cliquer sur le lien ci-dessous et vous connecter avec vos identifiants 
 https://portail-rh.mc2i-careers.net/update [LIEN MALVEILLANT]
 
 Service des Ressources Humaines
-MC2I Group`,
-        discovered: false
+mc2i Group`,
+        discovered: false,
+        relevantFor: ['expert_forensique']
       },
       {
         id: 'network_traffic',
         type: 'network',
-        name: 'Analyse du trafic réseau',
-        content: `Rapport d'analyse du trafic réseau (10/05/2025 00:00 - 04:00)
+        name: 'Capture de trafic réseau',
+        content: `# Analyse de trafic réseau (extrait)
+Timestamp: 10/05/2025 01:45:22
+Source IP: 192.168.1.87 (poste-tlegrand)
+Destination: 45.77.65.211:443
+Protocol: HTTPS
+Volume: 17.8 GB (sortant)
+Duration: 28 minutes
 
-Points d'intérêt:
-- Connexion suspecte depuis 45.77.65.211 (localisée en Europe de l'Est)
-- Volume inhabituel de communications entre srv-app-01 et des adresses IP externes non reconnues
-- Trafic chiffré non standard sur le port 1035
-- Tentatives de connexion multiples aux serveurs de base de données
-- Communications avec l'IP 91.243.85.126 connue comme hébergeant des serveurs C2`,
-        discovered: false
+Timestamp: 10/05/2025 02:58:12
+Source IP: 45.77.65.211
+Destination: 192.168.1.87 (poste-tlegrand)
+Protocol: HTTPS
+Payload: Encrypted (TLS)
+
+Timestamp: 10/05/2025 03:12:47
+Source IP: 192.168.1.87 (poste-tlegrand)
+Multiple destinations: Internal network (192.168.1.0/24)
+Protocol: SMB
+High volume of file access across shared drives`,
+        discovered: false,
+        relevantFor: ['expert_forensique', 'responsable_infrastructure']
       },
       {
         id: 'affected_servers',
         type: 'server',
         name: 'Liste des serveurs affectés',
-        content: `Serveurs confirmés comme compromis:
+        content: `# Rapport automatique - Systèmes affectés
+Généré le: 10/05/2025 05:30:12
 
-1. srv-app-01 (Serveur d'application principal)
-   - Status: Critique
-   - Services compromis: Tous
-   - Données: Chiffrées
+SERVEURS CRITIQUES HORS LIGNE:
+- srv-app-01 (Portail client) - 100% des fichiers chiffrés
+- srv-app-02 (API interne) - 100% des fichiers chiffrés
+- srv-db-01 (Base de données principale) - Base de données corrompue
+- srv-file-01 (Partage de fichiers) - 95% des fichiers chiffrés
+- srv-backup-01 (Serveur de sauvegarde primaire) - Sauvegardes des 7 derniers jours chiffrées
 
-2. srv-db-01 (Base de données client)
-   - Status: Critique
-   - Services compromis: SQL Server
-   - Données: Partiellement chiffrées
+SERVEURS PARTIELLEMENT AFFECTÉS:
+- srv-mail-01 (Serveur mail) - Fonctionnel mais certaines archives chiffrées
+- srv-db-02 (Base données analytique) - En ligne, mais certaines tables corrompues
 
-3. srv-file-02 (Serveur de fichiers secondaire)
-   - Status: Moyen
-   - Services compromis: Partage de fichiers
-   - Données: Chiffrées
-
-4. srv-backup-01 (Serveur de sauvegarde)
-   - Status: Critique
-   - Services compromis: Rotation des sauvegardes interrompue
-   - Données: Sauvegardes récentes chiffrées`,
-        discovered: false
+ESTIMATION DES DONNÉES PERDUES: ~4.2 TB
+ESTIMATION DES DONNÉES EXFILTRÉES: ~17.8 GB (selon les logs de trafic)`,
+        discovered: false,
+        relevantFor: ['responsable_infrastructure', 'rssi']
       },
       {
         id: 'ransom_note',
         type: 'file',
-        name: 'Note de rançon (RANSOM.txt)',
-        content: `=== CYBER LOCK ENTERPRISE ===
+        name: 'Note de rançon',
+        content: `======= CYBERLOCKENTERPRISE RANSOMWARE =======
 
 VOS FICHIERS ONT ÉTÉ CHIFFRÉS
 
@@ -310,7 +335,8 @@ Pour récupérer vos données, vous devez:
 VOUS AVEZ 72 HEURES. APRÈS CE DÉLAI, LA CLÉ SERA SUPPRIMÉE ET VOS DONNÉES SERONT PERDUES.
 
 Note: Si vous contactez les autorités, nous publierons toutes les données exfiltrées (17.8 GB) sur notre site de fuite.`,
-        discovered: false
+        discovered: false,
+        relevantFor: ['rssi']
       },
       {
         id: 'malware_sample',
@@ -348,129 +374,168 @@ function encryptFiles(path) {
 function disableBackups() {
   const backupServices = [
     'Windows Backup',
-    'SQL Backup Agent',
     'Veeam Backup',
-    'Shadow Copy'
+    'SQL Backup'
   ];
   
   backupServices.forEach(service => {
-    stopService(service);
+    try {
+      stopService(service);
+      setServiceStartupType(service, 'disabled');
+      logSuccess(\`Successfully disabled \${service}\`);
+    } catch (e) {
+      logError(\`Failed to disable \${service}: \${e}\`);
+    }
   });
 }`,
-        discovered: false
-      },
-      {
-        id: 'timeline',
-        type: 'file',
-        name: 'Chronologie de l\'incident',
-        content: `CHRONOLOGIE DE L'INCIDENT (Brouillon)
-
-09/05/2025:
-- Email de phishing reçu par Thomas Legrand de l'équipe système
-- ?
-
-10/05/2025:
-- 00:15 - Tentatives d'authentification échouées depuis IP externe
-- 01:42 - Authentification réussie avec les identifiants volés
-- 01:43 - Élévation de privilèges
-- 02:15 - Nouvel accès depuis la même IP
-- 02:20-03:00 - ? (À déterminer)
-- 03:14 - Début du chiffrement des données
-- 03:17 - Désactivation des sauvegardes
-- 03:30 - Déploiement des notes de rançon
-- 04:15 - Détection de l'incident par l'équipe de surveillance
-
-LACUNES À COMBLER:
-- Comment l'attaquant a-t-il élevé ses privilèges?
-- Quelles actions ont été effectuées entre 02:20 et 03:00?
-- L'exfiltration des données est-elle confirmée?`,
-        discovered: false
-      },
-      {
-        id: 'vulnerabilities',
-        type: 'file',
-        name: 'Vulnérabilités identifiées',
-        content: `RAPPORT PRÉLIMINAIRE DES VULNÉRABILITÉS
-
-Vulnérabilités exploitées:
-1. [CRITIQUE] Ingénierie sociale / Phishing - Utilisateur compromis via email frauduleux
-2. [ÉLEVÉE] Identifiants réutilisés - Les mêmes identifiants utilisés pour plusieurs systèmes
-3. [CRITIQUE] Absence d'authentification multifacteur sur les comptes administrateurs
-4. [ÉLEVÉE] Sauvegarde non isolée du réseau principal
-5. [MOYENNE] Détection d'intrusion défaillante - L'activité anormale n'a pas généré d'alerte
-
-Recommandations immédiates:
-- Mettre en place l'authentification multifacteur
-- Isoler les sauvegardes du réseau principal
-- Améliorer la formation contre le phishing
-- Renforcer la segmentation réseau
-- Déployer une solution EDR sur tous les points terminaux`,
-        discovered: false
+        discovered: false,
+        relevantFor: ['expert_forensique']
       }
     ];
     
-    const initialMessages: Message[] = [
-      {
-        id: '1',
-        sender: 'system',
-        content: '📋 BIENVENUE DANS "ESCAPE THE BREACH" - SIMULATION D\'INVESTIGATION CYBERSÉCURITÉ',
-        timestamp: formatTime(new Date())
-      },
-      {
-        id: '2',
-        sender: 'system',
-        content: '⚠️ COMMENT JOUER :\n1. Examinez les preuves dans l\'onglet "Preuves" à droite\n2. Cliquez sur chaque preuve pour la découvrir\n3. Posez des questions au RSSI par le chat\n4. Complétez l\'objectif actuel avant de passer à l\'étape suivante',
-        timestamp: formatTime(new Date())
-      },
-      {
-        id: '3',
-        sender: 'rssi',
-        content: 'Bonjour, je suis Marie Lemaire, RSSI de MC2i Group. Nous avons été victimes d\'une cyberattaque cette nuit. Nos serveurs ont été chiffrés par un ransomware et nous ne pouvons plus accéder à nos données.',
-        timestamp: formatTime(new Date())
-      },
-      {
-        id: '4',
-        sender: 'rssi',
-        content: 'VOTRE MISSION : m\'aider à comprendre comment l\'attaque s\'est produite en analysant les preuves disponibles. Commencez par les journaux système et l\'email d\'alerte que vous trouverez dans l\'onglet "Preuves" à droite.',
-        timestamp: formatTime(new Date())
-      },
-      {
-        id: '5',
-        sender: 'system',
-        content: '🔍 CONSEIL : Consultez l\'onglet "Étapes" pour voir votre progression et l\'objectif actuel. Bonne chance !',
-        timestamp: formatTime(new Date())
-      }
-    ];
-    
-    setStages(initialStages);
     setEvidences(initialEvidences);
-    setMessages(initialMessages);
+    setStages(initialStages);
+    
+    // Message initial quand le scénario commence
+    setTimeout(() => {
+      const initialMessages = [
+        {
+          id: Date.now().toString(),
+          sender: 'rssi' as const,
+          content: "Bonjour, je suis Alexandre Moreau, RSSI de MC2i Group. Nous sommes face à une situation critique. Nos serveurs ont été compromis par une attaque de ransomware. Nous avons besoin de votre expertise pour comprendre ce qui s'est passé et déterminer comment nous avons été infectés.",
+          timestamp: formatTime(new Date())
+        },
+        {
+          id: (Date.now() + 1).toString(),
+          sender: 'system' as const,
+          content: "Utilisez les onglets pour examiner les preuves et interagir avec l'équipe d'intervention. Chaque spécialiste a des connaissances et des objectifs différents.",
+          timestamp: formatTime(new Date())
+        }
+      ];
+      
+      setMessages(initialMessages);
+    }, 1000);
+    
     setScenarioStarted(true);
-  }, [scenarioStarted]);
+    
+  }, [isTimerRunning]);
   
   // Fonctions utilitaires
-  
   function formatTime(date: Date): string {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
   }
   
   function formatTimeRemaining(seconds: number): string {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }
   
-  // Gestionnaires d'événements
-  
-  const handleStartScenario = () => {
-    setIsTimerRunning(true);
-    addSystemMessage('L\'investigation a commencé. Vous avez 60 minutes pour découvrir ce qui s\'est passé.');
+  // Fonction pour interagir avec l'IA via Azure OpenAI
+  const interactWithNPC = async (npcId: string, message: string, evidenceId?: string) => {
+    // Ajouter un état de chargement
+    const loadingMessageId = Date.now().toString();
+    setMessages(prev => [...prev, {
+      id: loadingMessageId,
+      sender: npcId as 'rssi' | 'expert_forensique' | 'responsable_infrastructure' | 'system',
+      content: '...',
+      timestamp: formatTime(new Date())
+    }]);
+    
+    try {
+      // Construire le contexte basé sur le NPC
+      const npc = npcs.find(n => n.id === npcId);
+      if (!npc) throw new Error("NPC non trouvé");
+      
+      // Déterminer quelles preuves sont pertinentes pour ce NPC
+      let relevantEvidences = evidences.filter(e => e.discovered);
+      
+      // Si une preuve spécifique est partagée, l'inclure dans le contexte
+      let sharedEvidence = null;
+      if (evidenceId) {
+        sharedEvidence = evidences.find(e => e.id === evidenceId);
+        if (sharedEvidence) {
+          relevantEvidences = [sharedEvidence];
+        }
+      }
+      
+      // Construire le prompt pour l'IA
+      const prompt = `Agis comme ${npc.name}, ${npc.role} dans une simulation d'incident de cybersécurité. 
+Voici tes objectifs: ${npc.objectives.join(", ")}. 
+${sharedEvidence ? `L'utilisateur te partage cette preuve: 
+TITRE: ${sharedEvidence.name}
+CONTENU: ${sharedEvidence.content}
+
+` : ''}
+Réponds à ce message de l'utilisateur de manière réaliste et dans ton rôle: "${message}"
+
+Si l'utilisateur te partage des informations très pertinentes pour ton rôle, tu peux partager ton mot-clé: ${npc.keyword}.
+Ne partage ton mot-clé que si l'information est vraiment pertinente et correspond aux objectifs de ton rôle.`;
+
+      const response = await fetch('/api/openai/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: [{
+            role: 'user',
+            content: prompt
+          }],
+          model: 'gpt-4o-mini'
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Erreur lors de la communication avec l'IA');
+      }
+      
+      const aiContent = data.choices[0].message.content.trim();
+      
+      // Vérifier si le mot-clé est mentionné dans la réponse
+      if (aiContent.includes(npc.keyword) && !npc.keywordRevealed) {
+        // Mettre à jour le NPC pour révéler son mot-clé
+        setNpcs(prev => prev.map(n => 
+          n.id === npcId ? { ...n, keywordRevealed: true } : n
+        ));
+        setFinalKeywords(prev => ({ ...prev, [npcId]: npc.keyword }));
+        
+        // Ajouter un message système pour indiquer que le mot-clé a été découvert
+        addSystemMessage(`🔑 Vous avez obtenu un mot-clé de ${npc.name}: ${npc.keyword}`);
+      }
+      
+      // Remplacer le message de chargement par la réponse
+      setMessages(prev => 
+        prev.map(m => m.id === loadingMessageId 
+          ? { ...m, content: aiContent } 
+          : m
+        )
+      );
+    } catch (error) {
+      console.error('Erreur lors de l\'interaction avec l\'IA:', error);
+      
+      // Remplacer le message de chargement par un message d'erreur
+      setMessages(prev => 
+        prev.map(m => m.id === loadingMessageId 
+          ? { ...m, content: "Désolé, je ne peux pas répondre pour le moment. Veuillez réessayer." } 
+          : m
+        )
+      );
+      
+      // Afficher l'erreur à l'utilisateur
+      addSystemMessage("Une erreur s'est produite lors de la communication avec l'assistant. Veuillez réessayer.");
+    }
   };
   
+  // Traitement des messages utilisateur
   const handleSendMessage = () => {
     if (!userInput.trim()) return;
     
-    // Ajouter le message de l'utilisateur
+    // Ajouter le message utilisateur
     const userMessage: Message = {
       id: Date.now().toString(),
       sender: 'user',
@@ -479,56 +544,43 @@ Recommandations immédiates:
     };
     
     setMessages(prev => [...prev, userMessage]);
+    
+    const currentInput = userInput;
     setUserInput('');
     
-    // Simuler une réponse du RSSI
-    setTimeout(() => {
-      processUserMessage(userInput);
-    }, 1000);
-  };
-  
-  const processUserMessage = (message: string) => {
-    const lowerMessage = message.toLowerCase();
-    
-    // Logique simple pour des réponses simulées
-    if (lowerMessage.includes('ransomware') || lowerMessage.includes('ransom')) {
-      addRSSIMessage('Oui, il s\'agit bien d\'une attaque par ransomware. Selon les premiers éléments, nos fichiers ont été chiffrés avec l\'extension ".lock_mc2i".');
-    } else if (lowerMessage.includes('phishing') || lowerMessage.includes('hameçonnage')) {
-      addRSSIMessage('Le phishing est effectivement une hypothèse à considérer. Plusieurs de nos employés ont signalé avoir reçu des emails suspects récemment.');
-      
-      // Révéler l'indice du phishing s'il n'est pas déjà découvert
-      if (!evidences.find(e => e.id === 'phishing_email')?.discovered) {
-        addSystemMessage('Indice: Vérifiez les emails suspects dans les preuves disponibles.');
-      }
-    } else if (lowerMessage.includes('sauvegarde') || lowerMessage.includes('backup')) {
-      addRSSIMessage('Malheureusement, nos sauvegardes récentes semblent également avoir été compromises. Le serveur de backup a été affecté par l\'attaque.');
-    } else if (lowerMessage.includes('help') || lowerMessage.includes('aide')) {
-      setShowHelp(true);
+    // Si un NPC est sélectionné, lui envoyer le message
+    if (selectedNpc) {
+      interactWithNPC(selectedNpc.id, currentInput, selectedEvidence?.id);
     } else {
-      addRSSIMessage('Concentrez-vous sur l\'analyse des preuves disponibles. Chaque élément peut contenir des indices importants pour comprendre le déroulement de l\'attaque.');
+      // Logique par défaut si aucun NPC n'est sélectionné - utiliser le RSSI
+      interactWithNPC('rssi', currentInput, selectedEvidence?.id);
     }
   };
   
-  const addRSSIMessage = (content: string) => {
-    const newMessage: Message = {
+  // Partager explicitement une preuve avec un NPC
+  const shareEvidenceWithNPC = (evidenceId: string, npcId: string) => {
+    if (!evidences.find(e => e.id === evidenceId)?.discovered) {
+      // Découvrir d'abord la preuve
+      handleDiscoverEvidence(evidenceId);
+    }
+    
+    const evidence = evidences.find(e => e.id === evidenceId);
+    const npc = npcs.find(n => n.id === npcId);
+    
+    if (!evidence || !npc) return;
+    
+    // Message utilisateur indiquant le partage
+    const userMessage: Message = {
       id: Date.now().toString(),
-      sender: 'rssi',
-      content,
+      sender: 'user',
+      content: `J'ai trouvé cette preuve qui pourrait vous intéresser: ${evidence.name}`,
       timestamp: formatTime(new Date())
     };
     
-    setMessages(prev => [...prev, newMessage]);
-  };
-  
-  const addSystemMessage = (content: string) => {
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      sender: 'system',
-      content,
-      timestamp: formatTime(new Date())
-    };
+    setMessages(prev => [...prev, userMessage]);
     
-    setMessages(prev => [...prev, newMessage]);
+    // Envoyer la preuve au NPC
+    interactWithNPC(npcId, `Voici une preuve que j'ai trouvée: ${evidence.name}`, evidenceId);
   };
   
   const handleDiscoverEvidence = (id: string) => {
@@ -552,19 +604,12 @@ Recommandations immédiates:
           idx === currentStage ? { ...stage, completed: true } : stage
         ));
         
-        addSystemMessage(`Objectif complété: ${currentStageObj.objective}`);
-        
-        // Passer à l'étape suivante si ce n'est pas la dernière
+        // Passer à l'étape suivante
         if (currentStage < stages.length - 1) {
-          setTimeout(() => {
-            setCurrentStage(prev => prev + 1);
-            addRSSIMessage(`Excellent travail! Passons maintenant à la prochaine étape: ${stages[currentStage + 1].title}`);
-          }, 2000);
+          setCurrentStage(prev => prev + 1);
+          addSystemMessage(`Étape ${currentStage + 1} complétée! Passez à l'étape suivante.`);
         } else {
-          // Compléter le scénario
-          setIsTimerRunning(false);
-          addSystemMessage('Félicitations! Vous avez complété toutes les étapes de l\'investigation.');
-          addRSSIMessage('Excellent travail! Vous avez réussi à reconstituer le déroulement complet de cette attaque par ransomware. Ces informations seront cruciales pour notre remédiation et pour renforcer nos défenses.');
+          addSystemMessage("Toutes les étapes ont été complétées! Vous avez reconstitué l'attaque. Collectez maintenant les mots-clés de chaque expert pour résoudre le défi final.");
         }
       }
     }
@@ -574,9 +619,7 @@ Recommandations immédiates:
     setSelectedEvidence(evidence);
   };
   
-  // Rendu des composants
-  
-  // Composant pour afficher et interagir avec les PNJ
+  // Composants pour afficher et interagir avec les PNJ
   const NPCPanel = () => {
     return (
       <div className="mb-6 bg-gray-900/80 border border-gray-700 rounded-lg overflow-hidden shadow-lg">
@@ -720,7 +763,20 @@ Recommandations immédiates:
       </Card>
     );
   };
-
+  
+  const addSystemMessage = (content: string) => {
+    const newMessage: Message = {
+      id: Date.now().toString(),
+      sender: 'system',
+      content,
+      timestamp: formatTime(new Date())
+    };
+    
+    setMessages(prev => [...prev, newMessage]);
+  };
+  
+  // Rendu des composants
+  
   const renderMessageBubble = (message: Message) => {
     const isRSSI = message.sender === 'rssi';
     const isSystem = message.sender === 'system';
@@ -837,6 +893,59 @@ Recommandations immédiates:
     );
   };
   
+  const renderEvidenceDetails = () => {
+    if (!selectedEvidence) {
+      return (
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center text-gray-500">
+            <File className="h-12 w-12 mx-auto mb-3 opacity-50" />
+            <p>Sélectionnez une preuve pour l'examiner</p>
+          </div>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="p-4 h-full flex flex-col">
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h3 className="text-lg font-medium">{selectedEvidence.name}</h3>
+            <p className="text-sm text-gray-400">Type: {selectedEvidence.type}</p>
+          </div>
+          
+          {selectedEvidence.relevantFor && (
+            <div className="flex space-x-1">
+              {npcs.filter(npc => selectedEvidence.relevantFor?.includes(npc.id)).map(npc => (
+                <TooltipProvider key={npc.id}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="h-8 px-2"
+                        onClick={() => shareEvidenceWithNPC(selectedEvidence.id, npc.id)}
+                      >
+                        <User className="h-4 w-4 mr-1" />
+                        {npc.name.split(' ')[0]}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Partager avec {npc.name}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ))}
+            </div>
+          )}
+        </div>
+        
+        <ScrollArea className="flex-1 border border-gray-700 rounded-lg p-3 bg-gray-950/50 font-mono text-sm">
+          <pre className="whitespace-pre-wrap">{selectedEvidence.content}</pre>
+        </ScrollArea>
+      </div>
+    );
+  };
+  
   const renderStageProgress = () => {
     const completedStages = stages.filter(stage => stage.completed).length;
     const progressPercentage = (completedStages / stages.length) * 100;
@@ -870,6 +979,12 @@ Recommandations immédiates:
             </div>
           ))}
         </div>
+        
+        <NPCPanel />
+        
+        {npcs.filter(npc => npc.keywordRevealed).length > 0 && (
+          <FinalChallenge />
+        )}
       </div>
     );
   };
@@ -919,25 +1034,32 @@ Recommandations immédiates:
               <div className="pt-2 text-sm text-gray-400">
                 <p>Ce scénario est limité à 60 minutes. Votre performance sera évaluée sur la qualité de votre investigation et la rapidité à laquelle vous identifiez les éléments clés de l'attaque.</p>
               </div>
+              
+              <div className="text-sm text-blue-400 bg-blue-900/30 p-3 border border-blue-800 rounded-lg mt-2">
+                <p className="flex items-center">
+                  <Info className="h-4 w-4 mr-2" />
+                  <span>Nouveauté : Interagissez avec les membres de l'équipe d'intervention et partagez vos découvertes. Obtenez des mots-clés auprès de chaque spécialiste pour résoudre le défi final.</span>
+                </p>
+              </div>
             </CardContent>
-            <CardFooter>
-              <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={handleStartScenario}>
-                Démarrer l'investigation
+            <CardFooter className="flex justify-end">
+              <Button onClick={() => setIsTimerRunning(true)}>
+                Commencer l'investigation
               </Button>
             </CardFooter>
           </Card>
         </div>
       ) : (
-        <div className="container mx-auto p-4">
-          <header className="flex justify-between items-center mb-4">
+        <div className="container mx-auto px-4 py-6">
+          <header className="flex justify-between items-center mb-6">
             <div className="flex items-center">
-              <Link href="/cyber-mode-selection-fixed">
-                <Button variant="ghost" size="sm" className="mr-2">
-                  <ArrowLeft className="h-4 w-4 mr-1" />
+              <Link to="/cyber-mode-selection">
+                <Button variant="ghost" className="gap-1" size="sm">
+                  <ArrowLeft className="h-4 w-4" />
                   Retour
                 </Button>
               </Link>
-              <h1 className="text-xl font-bold">Escape the Breach: Investigation Ransomware</h1>
+              <h1 className="text-2xl font-bold ml-4">Escape the Breach</h1>
             </div>
             
             <div className="flex items-center">
@@ -971,20 +1093,51 @@ Recommandations immédiates:
             {/* Panneau de chat */}
             <div className="lg:col-span-1 h-[calc(100vh-120px)] flex flex-col bg-gray-800 rounded-lg border border-gray-700">
               <div className="bg-gray-700 p-3 border-b border-gray-600 rounded-t-lg">
-                <div className="flex items-center">
-                  <Avatar className="h-8 w-8 mr-2">
-                    <AvatarFallback className="bg-indigo-700 text-white">ML</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="font-medium">Marie Lemaire</h3>
-                    <p className="text-xs text-gray-400">RSSI MC2i Group</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Avatar className="h-8 w-8 mr-2">
+                      <AvatarFallback className={`${selectedNpc ? 
+                        selectedNpc.id === 'rssi' ? 'bg-indigo-700' : 
+                        selectedNpc.id === 'expert_forensique' ? 'bg-purple-700' :
+                        'bg-cyan-700'
+                        : 'bg-indigo-700'} text-white`}>
+                        {selectedNpc ? 
+                          selectedNpc.id === 'rssi' ? 'AM' : 
+                          selectedNpc.id === 'expert_forensique' ? 'SL' : 
+                          'TG' 
+                          : 'AM'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h3 className="font-medium">
+                        {selectedNpc ? selectedNpc.name : 'Alexandre Moreau'}
+                      </h3>
+                      <p className="text-xs text-gray-400">
+                        {selectedNpc ? selectedNpc.role.split(' ')[0] : 'RSSI MC2i Group'}
+                      </p>
+                    </div>
                   </div>
+                  {selectedNpc && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => setSelectedNpc(null)}
+                    >
+                      <ArrowLeft className="h-4 w-4 mr-1" />
+                      Retour
+                    </Button>
+                  )}
                 </div>
               </div>
               
               <ScrollArea className="flex-1 p-4" ref={chatContainerRef}>
                 <div className="space-y-2">
-                  {messages.map(message => renderMessageBubble(message))}
+                  {messages.filter(m => 
+                    !selectedNpc || 
+                    m.sender === 'user' || 
+                    m.sender === 'system' || 
+                    m.sender === selectedNpc.id
+                  ).map(message => renderMessageBubble(message))}
                 </div>
               </ScrollArea>
               
@@ -995,7 +1148,7 @@ Recommandations immédiates:
                     value={userInput}
                     onChange={(e) => setUserInput(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                    placeholder="Posez une question ou faites une observation..." 
+                    placeholder={`Message ${selectedNpc ? selectedNpc.name.split(' ')[0] : 'Alexandre'}...`}
                     className="flex-1 bg-gray-700 border border-gray-600 rounded-l-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <Button 
@@ -1019,190 +1172,85 @@ Recommandations immédiates:
                 
                 <TabsContent value="progress" className="flex-1 bg-gray-800 rounded-lg border border-gray-700 p-4 overflow-y-auto">
                   {renderStageProgress()}
-                  
-                  <div className="mt-6">
-                    <h3 className="text-lg font-medium mb-3">Étape actuelle: {stages[currentStage]?.title}</h3>
-                    <Card className="bg-gray-700 border-gray-600">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-md">{stages[currentStage]?.objective}</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-gray-300">{stages[currentStage]?.description}</p>
-                        
-                        <div className="mt-4">
-                          <h4 className="text-sm font-medium mb-2">Preuves nécessaires:</h4>
-                          <div className="space-y-2">
-                            {stages[currentStage]?.evidenceRequired.map(evId => {
-                              const ev = evidences.find(e => e.id === evId);
-                              return (
-                                <div 
-                                  key={evId}
-                                  className={`p-2 border rounded-lg flex items-center ${
-                                    ev?.discovered 
-                                      ? 'bg-green-900/20 border-green-800' 
-                                      : 'bg-gray-800 border-gray-700'
-                                  }`}
-                                >
-                                  {ev?.discovered ? (
-                                    <Check className="h-4 w-4 text-green-400 mr-2" />
-                                  ) : (
-                                    <div className="h-4 w-4 rounded-full border border-gray-500 mr-2" />
-                                  )}
-                                  <span className="text-sm">
-                                    {ev?.discovered ? ev.name : 'Preuve à découvrir'}
-                                  </span>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
                 </TabsContent>
                 
-                <TabsContent value="evidence" className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 overflow-hidden">
-                  <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 overflow-y-auto">
+                <TabsContent value="evidence" className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-800 rounded-lg border border-gray-700 p-4">
+                  <div className="h-full overflow-y-auto">
                     <h3 className="text-lg font-medium mb-3">Preuves disponibles</h3>
                     <div className="space-y-2">
                       {evidences.map(evidence => renderEvidenceItem(evidence))}
                     </div>
                   </div>
                   
-                  <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 overflow-y-auto">
-                    <h3 className="text-lg font-medium mb-3">
-                      {selectedEvidence ? selectedEvidence.name : 'Détails de la preuve'}
-                    </h3>
-                    
-                    {selectedEvidence ? (
-                      <div>
-                        <Badge className="mb-3" variant="outline">
-                          {selectedEvidence.type === 'log' && 'Journal système'}
-                          {selectedEvidence.type === 'file' && 'Fichier'}
-                          {selectedEvidence.type === 'network' && 'Trafic réseau'}
-                          {selectedEvidence.type === 'code' && 'Code source'}
-                          {selectedEvidence.type === 'server' && 'Serveur'}
-                        </Badge>
-                        
-                        <Card className="bg-gray-900 border-gray-700">
-                          <CardContent className="p-4">
-                            <pre className="whitespace-pre-wrap text-sm text-gray-300 font-mono">
-                              {selectedEvidence.content}
-                            </pre>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center h-[300px] text-center text-gray-400">
-                        <File className="h-12 w-12 mb-4 opacity-30" />
-                        <p>Sélectionnez une preuve pour voir les détails</p>
-                      </div>
-                    )}
+                  <div className="h-full bg-gray-900/50 rounded-lg border border-gray-700">
+                    {renderEvidenceDetails()}
                   </div>
                 </TabsContent>
                 
                 <TabsContent value="details" className="flex-1 bg-gray-800 rounded-lg border border-gray-700 p-4 overflow-y-auto">
                   <div className="space-y-6">
                     <div>
-                      <h3 className="text-lg font-medium mb-3">Résumé de l'incident</h3>
-                      <Card className="bg-gray-700 border-gray-600">
-                        <CardContent className="p-4">
-                          <p className="text-gray-300">
-                            Un incident de sécurité a été détecté à 03:14 le 10/05/2025. Plusieurs serveurs critiques de MC2i Group ont été compromis par un ransomware, entraînant le chiffrement de données importantes. L'investigation vise à déterminer le vecteur d'attaque, l'étendue de la compromission et à identifier les vulnérabilités exploitées.
-                          </p>
+                      <h3 className="text-lg font-medium mb-3">Détails du scénario</h3>
+                      <Card className="bg-gray-900/50 border-gray-700">
+                        <CardContent className="pt-6">
+                          <p className="mb-4">Vous êtes un analyste en cybersécurité travaillant pour MC2i Group. À 5h du matin, vous recevez un appel urgent vous informant que plusieurs serveurs de l'entreprise ont été compromise et que des messages de rançon sont apparus sur les écrans des employés.</p>
+                          <p className="mb-4">Votre mission est de mener l'investigation numérique pour comprendre comment l'attaque s'est produite, quels systèmes ont été compromis, et quelles données ont potentiellement été volées.</p>
+                          <p>En collaboration avec l'équipe d'intervention (RSSI, expert forensique et responsable infrastructure), vous devez analyser les preuves et reconstituer la chronologie de l'attaque pour éclairer la prise de décision.</p>
                         </CardContent>
                       </Card>
                     </div>
                     
                     <div>
-                      <h3 className="text-lg font-medium mb-3">Informations connues</h3>
-                      <ul className="space-y-2 text-gray-300">
-                        <li className="flex items-start">
-                          <span className="bg-blue-900 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs mr-2 mt-0.5">•</span>
-                          <span>L'incident a été détecté dans la nuit du 10 mai 2025.</span>
-                        </li>
-                        <li className="flex items-start">
-                          <span className="bg-blue-900 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs mr-2 mt-0.5">•</span>
-                          <span>Les fichiers ont été chiffrés avec l'extension ".lock_mc2i".</span>
-                        </li>
-                        <li className="flex items-start">
-                          <span className="bg-blue-900 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs mr-2 mt-0.5">•</span>
-                          <span>Une demande de rançon a été laissée sur les systèmes affectés.</span>
-                        </li>
-                        <li className="flex items-start">
-                          <span className="bg-blue-900 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs mr-2 mt-0.5">•</span>
-                          <span>Plusieurs serveurs critiques sont inaccessibles, affectant les opérations de l'entreprise.</span>
-                        </li>
-                      </ul>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-lg font-medium mb-3">Votre rôle</h3>
-                      <Card className="bg-gray-700 border-gray-600">
-                        <CardContent className="p-4">
-                          <p className="text-gray-300">
-                            En tant qu'analyste de sécurité, votre mission est de mener l'investigation numérique pour déterminer:
-                          </p>
-                          <ul className="list-disc list-inside mt-2 space-y-1 text-gray-300">
-                            <li>Comment les attaquants ont obtenu un accès initial</li>
-                            <li>Comment ils se sont déplacés dans le réseau</li>
-                            <li>Quelles vulnérabilités ont été exploitées</li>
-                            <li>Quels systèmes et données ont été compromis</li>
-                            <li>L'identité potentielle des attaquants</li>
-                          </ul>
-                        </CardContent>
-                      </Card>
+                      <h3 className="text-lg font-medium mb-3">Comment jouer</h3>
+                      <ol className="space-y-2 list-decimal list-inside text-gray-300">
+                        <li>Examinez les preuves dans l'onglet <strong>Preuves</strong></li>
+                        <li>Interagissez avec les membres de l'équipe d'intervention dans l'onglet <strong>Progression</strong></li>
+                        <li>Partagez les preuves pertinentes avec chaque spécialiste pour obtenir leur mot-clé</li>
+                        <li>Collectez les trois mots-clés pour résoudre le défi final</li>
+                        <li>Complétez l'investigation avant la fin du temps imparti</li>
+                      </ol>
                     </div>
                   </div>
                 </TabsContent>
               </Tabs>
             </div>
           </div>
-        </div>
-      )}
-      
-      {/* Fenêtre d'aide */}
-      {showHelp && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <Card className="w-full max-w-md bg-gray-800 border-gray-700">
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <HelpCircle className="mr-2 h-5 w-5 text-blue-400" />
-                Aide et conseils
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h3 className="font-medium mb-1">Comment jouer</h3>
-                <ul className="list-disc list-inside space-y-1 text-sm text-gray-300">
-                  <li>Explorez les preuves disponibles dans l'onglet "Preuves"</li>
-                  <li>Discutez avec le RSSI pour obtenir plus d'informations</li>
-                  <li>Consultez régulièrement l'onglet "Progression" pour suivre vos objectifs</li>
-                  <li>Analysez les preuves découvertes pour comprendre le déroulement de l'attaque</li>
-                </ul>
+                    
+          {/* Modales */}
+          <Dialog open={showHelp} onOpenChange={setShowHelp}>
+            <DialogContent className="bg-gray-800 text-white border-gray-700">
+              <DialogHeader>
+                <DialogTitle>Aide - Escape the Breach</DialogTitle>
+                <DialogDescription className="text-gray-400">
+                  Conseils pour réussir l'investigation de l'incident
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-medium mb-1">Par où commencer ?</h4>
+                  <ul className="list-disc pl-5 text-sm text-gray-300 space-y-1">
+                    <li>Examinez les logs système et les alertes pour comprendre quand l'attaque a eu lieu</li>
+                    <li>Recherchez des signes d'accès non autorisés dans les journaux d'authentification</li>
+                    <li>Analysez les communications suspectes dans les captures réseau</li>
+                    <li>Vérifiez les emails suspects qui pourraient avoir servi de vecteur initial</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h4 className="font-medium mb-1">Interagir avec l'équipe</h4>
+                  <ul className="list-disc pl-5 text-sm text-gray-300 space-y-1">
+                    <li>Chaque membre de l'équipe a des connaissances spécifiques dans son domaine</li>
+                    <li>Sélectionnez un expert pour discuter directement avec lui</li>
+                    <li>Partagez les preuves pertinentes avec le bon expert pour obtenir son mot-clé</li>
+                    <li>Combinaison des mots-clés : ils forment une phrase qui permet de résoudre le défi final</li>
+                  </ul>
+                </div>
               </div>
-              
-              <div>
-                <h3 className="font-medium mb-1">Conseils pour l'investigation</h3>
-                <ul className="list-disc list-inside space-y-1 text-sm text-gray-300">
-                  <li>Commencez par les logs système et alertes initiales</li>
-                  <li>Cherchez des indices sur le vecteur d'entrée (phishing, vulnérabilité...)</li>
-                  <li>Établissez une chronologie des événements</li>
-                  <li>Identifiez tous les systèmes compromis</li>
-                  <li>Reconstituez les actions de l'attaquant étape par étape</li>
-                </ul>
-              </div>
-              
-              <div className="pt-2 text-xs text-gray-400">
-                <p>Note: Ce scénario est conçu pour être résolu en moins d'une heure. Concentrez-vous sur les éléments les plus pertinents.</p>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button className="w-full" variant="outline" onClick={() => setShowHelp(false)}>
-                Fermer
-              </Button>
-            </CardFooter>
-          </Card>
+              <DialogFooter>
+                <Button onClick={() => setShowHelp(false)}>Fermer</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       )}
     </div>
