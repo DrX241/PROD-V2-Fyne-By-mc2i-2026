@@ -32,14 +32,22 @@ export async function generateCyberPractices(req: Request, res: Response) {
     Évite les nuances ou les ambiguïtés.`;
 
     // Utiliser le service OpenAI avec la méthode correcte
-    const messages: ChatCompletionRequestMessage[] = [
+    const messages: MessageType[] = [
       { role: "system", content: systemPrompt },
       { role: "user", content: userPrompt }
     ];
     
     // Obtenir la réponse formatée en JSON
+    // Convertir nos messages au format attendu par le service
+    const formattedMessages = messages.map(m => {
+      return {
+        role: m.role,
+        content: m.content
+      };
+    });
+    
     const responseContent = await openAIService.getChatCompletion(
-      messages,
+      formattedMessages as any, // Convertir le type pour éviter les erreurs
       0.7,  // temperature
       1000  // maxTokens
     );

@@ -62,6 +62,8 @@ import AmoaInterviewSimulation from "@/pages/amoa/interview-simulation";
 import ProjetImposteur from "@/pages/amoa/projet-imposteur";
 // Module Apprendre en échangeant
 import ExpertLearningPage from "@/pages/cyber/expert-learning";
+// Nouveau jeu Cyber Snake
+import CyberSnake from "@/pages/cyber/cyber-snake";
 // Suppression des imports existants de CyberForge
 // Autres pages
 import ImmersiveSimulation from "@/pages/immersive-simulation";
@@ -197,6 +199,9 @@ function App() {
             
             {/* Module Escape the Breach */}
             <Route path="/cyber/escape-the-breach" component={EscapeTheBreach} />
+            
+            {/* Module Cyber Snake - Nouveau jeu éducatif */}
+            <Route path="/cyber/cyber-snake" component={CyberSnake} />
             <Route path="/cyber/test-technique" component={() => {
               const CyberTestTechnique = lazy(() => import('./pages/cyber/test-technique'));
               return (
