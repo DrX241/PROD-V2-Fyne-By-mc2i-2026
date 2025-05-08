@@ -40,9 +40,12 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const now = new Date();
-    // Assurez-vous d'avoir des valeurs null pour les propriétés optionnelles
+    // Générer un ID si non fourni (en mémoire seulement)
+    const userId = typeof insertUser.id === 'number' ? insertUser.id : Math.floor(Math.random() * 1000000) + 1;
+    
+    // Assurez-vous d'avoir des valeurs par défaut pour les propriétés optionnelles
     const user: User = { 
-      id: insertUser.id || Math.floor(Math.random() * 1000000) + 1, // Générer un ID si non fourni
+      id: userId,
       username: insertUser.username,
       password: insertUser.password,
       email: insertUser.email || null,
@@ -56,23 +59,26 @@ export class MemStorage implements IStorage {
       createdAt: now,
       updatedAt: now
     };
-    this.users.set(user.id, user);
+    this.users.set(userId, user);
     return user;
   }
 
   async upsertUser(userData: InsertUser): Promise<User> {
-    const existingUser = userData.id ? await this.getUser(userData.id) : undefined;
+    // Générer un ID si non fourni (en mémoire seulement)
+    const userId = typeof userData.id === 'number' ? userData.id : Math.floor(Math.random() * 1000000) + 1;
+    const existingUser = await this.getUser(userId);
     
     if (existingUser) {
       const updatedUser: User = {
         ...existingUser,
         ...userData,
+        id: userId, // Garantit que l'ID reste le même
         updatedAt: new Date(),
       };
-      this.users.set(updatedUser.id, updatedUser);
+      this.users.set(userId, updatedUser);
       return updatedUser;
     } else {
-      return this.createUser(userData);
+      return this.createUser({...userData, id: userId});
     }
   }
 }
@@ -104,26 +110,39 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
+    // Omettre l'ID pour que la base de données le génère
+    const { id, ...userData } = insertUser;
+    
     const [user] = await db
       .insert(users)
-      .values(insertUser)
+      .values(userData)
       .returning();
     return user;
   }
 
   async upsertUser(userData: InsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
-    return user;
+    // Si l'ID existe, faire une mise à jour
+    if (userData.id) {
+      const [existingUser] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userData.id));
+      
+      if (existingUser) {
+        const [updatedUser] = await db
+          .update(users)
+          .set({
+            ...userData,
+            updatedAt: new Date(),
+          })
+          .where(eq(users.id, userData.id))
+          .returning();
+        return updatedUser;
+      }
+    }
+    
+    // Sinon, créer un nouvel utilisateur
+    return this.createUser(userData);
   }
 }
 
