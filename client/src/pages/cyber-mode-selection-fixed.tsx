@@ -138,6 +138,16 @@ export default function CyberModeSelectionRedesign() {
       duration: '15-30 min'
     },
     {
+      id: 'cyber-snake',
+      title: 'CYBER SNAKE',
+      description: "Collectez les bonnes pratiques de cybersécurité et évitez les mauvaises dans ce jeu amusant",
+      icon: <Zap className="h-5 w-5" />,
+      destination: '/cyber/cyber-snake',
+      difficulty: 'débutant',
+      duration: '5-15 min',
+      isNew: true
+    },
+    {
       id: 'escape-the-breach',
       title: 'ESCAPE THE BREACH',
       description: "Menez l'enquête pour découvrir l'origine d'une cyberattaque dans un scénario réaliste",
@@ -240,7 +250,7 @@ export default function CyberModeSelectionRedesign() {
       title: "S'ENTRAÎNER",
       description: "Activités pratiques et simulations pour développer vos compétences",
       icon: <Monitor className="h-6 w-6 text-indigo-100" />,
-      modules: ['cyber-arcade', 'escape-the-breach', 'mise-en-situation', 'preparation-audition'],
+      modules: ['cyber-arcade', 'cyber-snake', 'escape-the-breach', 'mise-en-situation', 'preparation-audition'],
       gradient: 'from-indigo-700 to-indigo-900'
     },
     {
@@ -323,7 +333,7 @@ export default function CyberModeSelectionRedesign() {
       description: "Pour l'acculturation et la formation (Responsable sensibilisation, Formateur)",
       icon: <Users className="h-6 w-6 text-green-100" />,
       skills: ['Conception de formations', 'Communication', 'Gamification', 'Mesure d\'efficacité'],
-      modules: ['cyber-arcade', 'agent-ia', 'phishing-simulator', 'policy-converter'],
+      modules: ['cyber-arcade', 'cyber-snake', 'agent-ia', 'phishing-simulator', 'policy-converter'],
       gradient: 'from-green-700 to-green-900'
     },
     {
