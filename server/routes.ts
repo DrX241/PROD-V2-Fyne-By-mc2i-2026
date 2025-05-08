@@ -4332,9 +4332,6 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   // Les routes pour le chatbot mc2i AI Learning sont déjà définies plus haut
 
   // Routes d'administration pour le cache et le rate limiter
-  // Endpoint pour le jeu Cyber Snake - Génération de pratiques de cybersécurité
-  app.get("/api/cyber/snake/practices", generateCyberPractices);
-
   app.get("/api/admin/stats", (req: Request, res: Response) => {
     // Vérifier si l'utilisateur a les permissions d'administrateur
     const userRole = req.headers['x-user-role'] || 'utilisateur';
