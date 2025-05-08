@@ -1,31 +1,12 @@
-import { createContext, ReactNode } from "react";
+import { createContext, ReactNode, useEffect, useState } from "react";
 import { User } from "@shared/schema";
-import { QueryClient, UseMutationResult, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
-
-export type LoginCredentials = {
-  username: string;
-  password: string;
-};
-
-export type RegisterCredentials = {
-  username: string;
-  password: string;
-  email?: string;
-};
+import { useQuery } from "@tanstack/react-query";
 
 export type AuthContextType = {
   user: User | null;
   isLoading: boolean;
   error: Error | null;
   isAuthenticated: boolean;
-  login: (credentials: LoginCredentials) => Promise<void>;
-  register: (credentials: RegisterCredentials) => Promise<void>;
-  logout: () => Promise<void>;
-  loginMutation: UseMutationResult<User, Error, LoginCredentials>;
-  registerMutation: UseMutationResult<User, Error, RegisterCredentials>;
-  logoutMutation: UseMutationResult<void, Error, void>;
 };
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -35,9 +16,6 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-
   const {
     data: user,
     error,
@@ -49,109 +27,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes to keep the session alive
   });
 
-  const loginMutation = useMutation<User, Error, LoginCredentials>({
-    mutationFn: async (credentials: LoginCredentials) => {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(credentials),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Échec de la connexion");
-      }
-      return await response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      toast({
-        title: "Connexion réussie",
-        description: "Vous êtes maintenant connecté.",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Erreur de connexion",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const registerMutation = useMutation<User, Error, RegisterCredentials>({
-    mutationFn: async (credentials: RegisterCredentials) => {
-      const response = await fetch('/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(credentials),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Échec de l'inscription");
-      }
-      return await response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      toast({
-        title: "Inscription réussie",
-        description: "Votre compte a été créé avec succès.",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Erreur d'inscription",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const logoutMutation = useMutation<void, Error, void>({
-    mutationFn: async () => {
-      const response = await fetch('/api/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Échec de la déconnexion");
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      toast({
-        title: "Déconnexion réussie",
-        description: "Vous avez été déconnecté avec succès.",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Erreur de déconnexion",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const login = async (credentials: LoginCredentials) => {
-    await loginMutation.mutateAsync(credentials);
-  };
-
-  const register = async (credentials: RegisterCredentials) => {
-    await registerMutation.mutateAsync(credentials);
-  };
-
-  const logout = async () => {
-    await logoutMutation.mutateAsync();
-  };
-
   const isAuthenticated = !!user;
 
   return (
@@ -161,12 +36,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         isLoading,
         error: error as Error,
         isAuthenticated,
-        login,
-        register,
-        logout,
-        loginMutation,
-        registerMutation,
-        logoutMutation,
       }}
     >
       {children}
