@@ -1,6 +1,8 @@
 import express, { type Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { db } from "./db";
+import { users } from "@shared/schema";
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -8,22 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 import OpenAI from 'openai';
 import session from 'express-session';
 // Import pour Replit Auth
-import { setupAuth } from "./replitAuth";
-// Import pour notre système d'authentification personnalisé
-import { 
-  register, 
-  login, 
-  logout, 
-  getCurrentUser, 
-  isAuthenticated, 
-  isAdmin, 
-  getUsers, 
-  addUser,
-  updateUser,
-  deleteUser,
-  changeUserPassword,
-  ensureAdminExists
-} from './authController';
+import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import { openAIService } from "./services/openai";
 import attachmentRoutes from './routes/attachmentRoutes';
 import cyberForgeRoutes from './routes/cyberForgeRoutes';
@@ -456,35 +443,34 @@ function generateSynthesisHtml(
 // Les fonctions pour les pièces jointes sont déjà importées en haut du fichier
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Configuration des sessions pour l'authentification  
-  app.use(session({
-    secret: process.env.SESSION_SECRET || 'fyne-platform-secret-key',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { 
-      secure: process.env.NODE_ENV === 'production', 
-      maxAge: 24 * 60 * 60 * 1000 // 24 heures
+  // Configuration de Replit Auth
+  await setupAuth(app);
+  
+  // Route pour obtenir l'utilisateur actuel (compatible avec Replit Auth)
+  app.get("/api/auth/user", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Erreur lors de la récupération de l'utilisateur:", error);
+      res.status(401).json({ success: false, message: "Non authentifié" });
     }
-  }));
-  
-  // S'assurer que le compte admin existe
-  await ensureAdminExists();
-  
-  // Routes d'authentification personnalisée
-  app.post("/api/auth/register", register);
-  app.post("/api/auth/login", login);
-  app.post("/api/auth/logout", logout);
-  app.get("/api/auth/user", getCurrentUser);
+  });
   
   // Routes d'administration des utilisateurs (protégées)
-  app.get("/api/admin/users", isAuthenticated, isAdmin, getUsers);
-  app.post("/api/admin/users", isAuthenticated, isAdmin, addUser);
-  app.put("/api/admin/users/:id", isAuthenticated, isAdmin, updateUser);
-  app.delete("/api/admin/users/:id", isAuthenticated, isAdmin, deleteUser);
-  app.put("/api/admin/users/:id/password", isAuthenticated, isAdmin, changeUserPassword);
+  app.get("/api/admin/users", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      // Logique simplifiée pour obtenir la liste des utilisateurs
+      const usersResult = await db.select().from(users);
+      res.json({ success: true, users: usersResult });
+    } catch (error) {
+      console.error("Erreur lors de la récupération des utilisateurs:", error);
+      res.status(500).json({ success: false, message: "Erreur serveur" });
+    }
+  });
   
-  // Configuration de Replit Auth (désactivée, nous utilisons notre propre auth)
-  // await setupAuth(app);
+  // Autres routes d'administration simplifiées (à implémenter si nécessaire)
   
   // Routes pour le générateur de modules
   app.post("/api/module-generator/generate", (req: Request, res: Response) => {

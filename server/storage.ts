@@ -1,8 +1,9 @@
 import { users, type User, type UpsertUser } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
-import * as session from "express-session";
+import session from "express-session";
 import connectPg from "connect-pg-simple";
+import { pool } from "./db";
 
 // Interface pour les opérations de stockage CRUD
 export interface IStorage {
@@ -21,7 +22,7 @@ export class DatabaseStorage implements IStorage {
     // Configuration du stockage de session PostgreSQL
     const PostgresSessionStore = connectPg(session);
     this.sessionStore = new PostgresSessionStore({
-      conString: process.env.DATABASE_URL,
+      pool: pool,
       tableName: 'sessions',
       createTableIfMissing: true,
       ttl: 7 * 24 * 60 * 60 // 1 semaine en secondes
