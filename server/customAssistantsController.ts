@@ -122,8 +122,10 @@ export async function getUserAssistants(req: Request, res: Response) {
     let numUserId = Number(userId);
     
     if (!isNaN(numUserId)) {
-      userExists = await db.select({ id: users.id }).from(users).where(eq(users.id, numUserId)).limit(1);
-      console.log(`Recherche par ID numérique: ${numUserId}`);
+      // Convertir l'ID numérique en chaîne pour Replit Auth
+      const idAsString = String(numUserId);
+      userExists = await db.select({ id: users.id }).from(users).where(eq(users.id, idAsString)).limit(1);
+      console.log(`Recherche par ID numérique (converti en chaîne): ${idAsString}`);
     } else {
       userExists = await db.select({ id: users.id }).from(users).where(eq(users.username, userId)).limit(1);
       console.log(`Recherche par nom d'utilisateur: ${userId}`);
@@ -716,8 +718,9 @@ export async function initConversation(req: Request, res: Response) {
     let numUserId = Number(userId);
     
     if (!isNaN(numUserId)) {
-      console.log(`Recherche de l'utilisateur par ID: ${numUserId}`);
-      userExists = await db.select({ id: users.id }).from(users).where(eq(users.id, numUserId)).limit(1);
+      console.log(`Recherche de l'utilisateur par ID (converti en chaîne): ${numUserId}`);
+      const idAsString = String(numUserId);
+      userExists = await db.select({ id: users.id }).from(users).where(eq(users.id, idAsString)).limit(1);
     } else {
       console.log(`Recherche de l'utilisateur par nom d'utilisateur: ${userId}`);
       userExists = await db.select({ id: users.id }).from(users).where(eq(users.username, userId)).limit(1);
@@ -1207,7 +1210,7 @@ export async function deleteTemplate(req: Request, res: Response) {
       // En pratique, cela devrait être l'ID de l'administrateur connecté
       await logAssistantOperation({
         templateId: Number(templateId),
-        userId: 1, // ID administrateur par défaut, à remplacer par l'ID réel
+        userId: "1", // ID administrateur par défaut en format chaîne pour Replit Auth
         operation: AssistantOperation.DELETE_TEMPLATE,
         status: LogStatus.SUCCESS,
         details: {
