@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, varchar, jsonb, uuid, foreignKey, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, varchar, jsonb, uuid, foreignKey, pgEnum, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -106,17 +106,33 @@ export const insertInvestigationProgressSchema = createInsertSchema(investigatio
 export type InsertInvestigationProgress = z.infer<typeof insertInvestigationProgressSchema>;
 export type InvestigationProgress = typeof investigationProgress.$inferSelect;
 
+// Table pour les sessions d'authentification - nécessaire pour Replit Auth
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: jsonb("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  },
+  (table) => [index("IDX_session_expire").on(table.expire)],
+);
+
+// Table utilisateurs modifiée pour Replit Auth
 export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
+  id: varchar("id").primaryKey().notNull(), // ID généré par Replit Auth
+  username: varchar("username").unique().notNull(),
+  email: varchar("email").unique(),
+  firstName: varchar("first_name"),
+  lastName: varchar("last_name"),
+  bio: text("bio"),
+  profileImageUrl: varchar("profile_image_url"),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
+export const insertUserSchema = createInsertSchema(users).omit({
+  createdAt: true,
+  updatedAt: true,
 });
 
 // Chat types for Azure OpenAI API
@@ -130,7 +146,7 @@ export type ChatCompletionRequestMessage = {
 // Table des profils utilisateurs (étendue par rapport à la table users)
 export const userProfiles = pgTable('user_profiles', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
   displayName: varchar('display_name', { length: 255 }),
   email: varchar('email', { length: 255 }),
   avatarUrl: text('avatar_url'),
@@ -145,7 +161,7 @@ export const userProfiles = pgTable('user_profiles', {
 // Table des assistants IA personnalisés
 export const customAssistants = pgTable('custom_assistants', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
   systemPrompt: text('system_prompt').notNull(),
@@ -181,7 +197,7 @@ export const customAssistants = pgTable('custom_assistants', {
 export const assistantConversations = pgTable('assistant_conversations', {
   id: serial('id').primaryKey(),
   assistantId: integer('assistant_id').references(() => customAssistants.id).notNull(),
-  userId: integer('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
   title: varchar('title', { length: 255 }).default('Nouvelle conversation'),
   messages: jsonb('messages').default([]),
   settings: jsonb('settings').default({}),
