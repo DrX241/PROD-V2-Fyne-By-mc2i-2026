@@ -6,6 +6,16 @@ import { eq } from 'drizzle-orm';
 import { scrypt, randomBytes, timingSafeEqual } from 'crypto';
 import { promisify } from 'util';
 import { v4 as uuidv4 } from 'uuid';
+import session from 'express-session';
+
+// Étendre le type Session pour inclure nos propriétés personnalisées
+declare module 'express-session' {
+  interface SessionData {
+    userId: string;
+    isAuthenticated: boolean;
+    userRole: 'user' | 'admin';
+  }
+}
 
 const scryptAsync = promisify(scrypt);
 
@@ -107,7 +117,7 @@ export async function register(req: Request, res: Response) {
     // Créer la session utilisateur
     req.session.userId = user.id;
     req.session.isAuthenticated = true;
-    req.session.userRole = user.role;
+    req.session.userRole = user.role || 'user';
     
     return res.status(201).json({
       success: true,
