@@ -1,97 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'wouter';
-import { motion } from 'framer-motion';
-import { 
-  ArrowRight, 
-  Home, 
-  HelpCircle, 
-  Search, 
-  BookOpen, 
-  Monitor, 
-  Award, 
-  Wrench, 
-  Shield, 
-  LineChart, 
-  Eye, 
-  Cpu, 
-  Code, 
-  Cloud, 
-  Users, 
-  BookMarked,
-  ChevronRight,
-  Filter,
-  Zap,
-  AlertCircle,
-  Sun,
-  Moon,
-  ZoomIn,
-  ZoomOut,
-  Lock
-} from 'lucide-react';
+import React from 'react';
+import { Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
-import { useTutorial } from '@/contexts/TutorialContext';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-
-// Types pour l'organisation des modules
-interface Module {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  destination: string;
-  difficulty: 'débutant' | 'intermédiaire' | 'avancé';
-  duration: string;
-  isNew?: boolean;
-  comingSoon?: boolean;
-}
-
-interface CareerPath {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  skills: string[];
-  modules: string[]; // IDs des modules recommandés
-  gradient: string;
-}
-
-interface LearningObjective {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  modules: string[]; // IDs des modules recommandés
-  gradient: string;
-}
 
 export default function CyberModeSelectionRedesign() {
-  // États
-  const [searchTerm, setSearchTerm] = useState('');
-  const [activeView, setActiveView] = useState<'grid' | 'list'>('grid');
-  const [difficulty, setDifficulty] = useState<string[]>([]);
-  const [selectedCareerPath, setSelectedCareerPath] = useState<string | null>(null);
-  const [highContrastMode, setHighContrastMode] = useState(false);
-  const [textSize, setTextSize] = useState(1); // 1 = normal, >1 = larger, <1 = smaller
-  
-  // Tutorial integration
-  const { showTutorial, startTutorial, setCurrentTour, tutorialSeen } = useTutorial();
-
-  // Démarrage du didacticiel lors de la première visite
-  useEffect(() => {
-    if (!tutorialSeen['cyber-mode-selection-redesign']) {
-      setCurrentTour('cyber-mode-selection-redesign');
-      const timer = setTimeout(() => {
-        startTutorial();
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [tutorialSeen, setCurrentTour, startTutorial]);
 
   // Tous les modules disponibles
   const allModules: Module[] = [
