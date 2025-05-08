@@ -6,6 +6,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
 import OpenAI from 'openai';
+// Import pour Replit Auth
+import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import { openAIService } from "./services/openai";
 import attachmentRoutes from './routes/attachmentRoutes';
 import cyberForgeRoutes from './routes/cyberForgeRoutes';
@@ -438,6 +440,8 @@ function generateSynthesisHtml(
 // Les fonctions pour les pièces jointes sont déjà importées en haut du fichier
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Configuration de Replit Auth
+  await setupAuth(app);
   // Routes pour le générateur de modules
   app.post("/api/module-generator/generate", (req: Request, res: Response) => {
     generateModule(req, res);
