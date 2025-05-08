@@ -14,7 +14,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 // Types pour l'application
 interface Message {
   id: string;
-  sender: 'user' | 'rssi' | 'system';
+  sender: 'user' | 'rssi' | 'expert_forensique' | 'responsable_infrastructure' | 'system';
   content: string;
   timestamp: string;
 }
@@ -26,6 +26,18 @@ interface Evidence {
   content: string;
   discovered: boolean;
   highlighted?: boolean;
+  relevantFor?: ('rssi' | 'expert_forensique' | 'responsable_infrastructure')[];
+}
+
+interface NPC {
+  id: 'rssi' | 'expert_forensique' | 'responsable_infrastructure';
+  name: string;
+  role: string;
+  description: string;
+  avatar: string;
+  objectives: string[];
+  keyword?: string;
+  keywordRevealed: boolean;
 }
 
 interface ScenarioStage {
@@ -51,6 +63,12 @@ export default function EscapeTheBreach() {
   const [scenarioStarted, setScenarioStarted] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [showTutorialHighlight, setShowTutorialHighlight] = useState<string | null>("evidence-tab"); // Pour guider l'utilisateur
+  const [npcs, setNpcs] = useState<NPC[]>([]);
+  const [selectedNpc, setSelectedNpc] = useState<NPC | null>(null);
+  const [showFinalChallenge, setShowFinalChallenge] = useState(false);
+  const [finalKeywords, setFinalKeywords] = useState<{[key: string]: string}>({});
+  const [finalSolution, setFinalSolution] = useState("");
+  const [isSolving, setIsSolving] = useState(false);
   
   const chatContainerRef = useRef<HTMLDivElement>(null);
   
@@ -88,6 +106,57 @@ export default function EscapeTheBreach() {
   // Initialisation du scénario
   useEffect(() => {
     if (scenarioStarted) return; // N'initialise qu'une seule fois
+    
+    // Initialisation des PNJ
+    const initialNpcs: NPC[] = [
+      {
+        id: 'rssi',
+        name: 'Alexandre Moreau',
+        role: 'Responsable Sécurité des Systèmes d\'Information',
+        description: 'Expert en gouvernance de la sécurité et en gestion des incidents. Vise à minimiser l\'impact business et établir une stratégie de remédiation.',
+        avatar: '👨‍💼',
+        objectives: [
+          'Identifier la nature et l\'étendue de l\'attaque',
+          'Évaluer l\'impact sur les activités de l\'entreprise',
+          'Déterminer les vulnérabilités exploitées',
+          'Établir un plan de remédiation'
+        ],
+        keywordRevealed: false,
+        keyword: 'FIREWALL'
+      },
+      {
+        id: 'expert_forensique',
+        name: 'Sophie Laurent',
+        role: 'Analyste Forensique',
+        description: 'Spécialiste de l\'analyse post-incident, elle recherche des indices techniques et reconstruit la chronologie de l\'attaque.',
+        avatar: '👩‍💻',
+        objectives: [
+          'Reconstruire la chronologie complète de l\'incident',
+          'Identifier les techniques d\'attaque utilisées',
+          'Trouver des IOCs (Indicateurs de Compromission)',
+          'Analyser les artefacts malveillants'
+        ],
+        keywordRevealed: false,
+        keyword: 'DEFENDER'
+      },
+      {
+        id: 'responsable_infrastructure',
+        name: 'Thomas Garcia',
+        role: 'Responsable Infrastructure',
+        description: 'En charge de l\'infrastructure IT, il travaille sur la restauration des systèmes et la reprise d\'activité.',
+        avatar: '👨‍🔧',
+        objectives: [
+          'Identifier tous les systèmes compromis',
+          'Évaluer les dommages techniques',
+          'Isoler les systèmes infectés',
+          'Préparer un plan de restauration'
+        ],
+        keywordRevealed: false,
+        keyword: 'PERIMETER'
+      }
+    ];
+    
+    setNpcs(initialNpcs);
     
     // Données simplifiées pour le scénario ransomware
     const initialStages: ScenarioStage[] = [
