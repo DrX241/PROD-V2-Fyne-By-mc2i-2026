@@ -111,16 +111,23 @@ function App() {
             <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
             <Route path="/" component={Home} />
             <Route path="/modules" component={ModulesPage} />
-            <Route path="/cyber" component={CyberModeSelection} />
-            <Route path="/cyber-mode-selection" component={CyberModeSelection} />
-            <Route path="/cyber-mode-selection-redesign" component={() => {
-              const CyberModeSelectionRedesign = lazy(() => import('./pages/cyber-mode-selection-redesign'));
+            <Route path="/cyber" component={() => {
+              const CyberModeSelectionFixed = lazy(() => import('./pages/cyber-mode-selection-fixed'));
               return (
                 <Suspense fallback={<GlobalLoader />}>
-                  <CyberModeSelectionRedesign />
+                  <CyberModeSelectionFixed />
                 </Suspense>
               );
             }} />
+            <Route path="/cyber-mode-selection" component={() => {
+              const CyberModeSelectionFixed = lazy(() => import('./pages/cyber-mode-selection-fixed'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <CyberModeSelectionFixed />
+                </Suspense>
+              );
+            }} />
+            <Route path="/cyber-mode-selection-old" component={CyberModeSelection} /> {/* Ancienne interface accessible via -old */}
             <Route path="/cyber/agent" component={CyberAgentPage} />
             <Route path="/cyber/cyber-agent" component={CyberAgentRedirectPage} /> {/* Redirection vers la nouvelle version */}
             <Route path="/cyber/cyber-agent-old" component={CyberAgentRedirectPage} /> {/* Ancienne version (redirection) */}

@@ -325,20 +325,9 @@ export default function CyberModeSelectionRedesign() {
     return allModules.filter(module => career.modules.includes(module.id));
   };
 
-  // Rendu du badge de difficulté
+  // Rendu d'un badge de difficulté
   const renderDifficultyBadge = (difficulty: string) => {
     let colorClass = '';
-    switch(difficulty) {
-      case 'débutant':
-        colorClass = 'bg-green-100 text-green-800 border-green-200';
-        break;
-      case 'intermédiaire':
-        colorClass = 'bg-yellow-100 text-yellow-800 border-yellow-200';
-        break;
-      case 'avancé':
-        colorClass = 'bg-red-100 text-red-800 border-red-200';
-        break;
-    }
     
     if (highContrastMode) {
       switch(difficulty) {
@@ -346,267 +335,174 @@ export default function CyberModeSelectionRedesign() {
           colorClass = 'bg-green-900 text-white border-green-700';
           break;
         case 'intermédiaire':
-          colorClass = 'bg-yellow-900 text-white border-yellow-700';
+          colorClass = 'bg-blue-900 text-white border-blue-700';
           break;
         case 'avancé':
-          colorClass = 'bg-red-900 text-white border-red-700';
+          colorClass = 'bg-purple-900 text-white border-purple-700';
           break;
+        default:
+          colorClass = 'bg-gray-700 text-white border-gray-600';
+      }
+    } else {
+      switch(difficulty) {
+        case 'débutant':
+          colorClass = 'bg-green-100 text-green-800 border-green-200';
+          break;
+        case 'intermédiaire':
+          colorClass = 'bg-blue-100 text-blue-800 border-blue-200';
+          break;
+        case 'avancé':
+          colorClass = 'bg-purple-100 text-purple-800 border-purple-200';
+          break;
+        default:
+          colorClass = 'bg-gray-100 text-gray-800 border-gray-200';
       }
     }
     
     return (
-      <Badge variant="outline" className={colorClass + " text-xs capitalize font-medium"}>
+      <Badge variant="outline" className={`${colorClass} border`}>
         {difficulty}
       </Badge>
     );
   };
 
-  // Rendu d'une carte de module
-  const renderModuleCard = (module: Module) => {
-    const textSizeClass = textSize > 1 
-      ? 'text-lg' 
-      : textSize < 1 
-        ? 'text-xs' 
-        : 'text-base';
-        
-    return (
-      <Card 
-        key={module.id}
-        className={`h-full transition-all ${
-          highContrastMode ? 'bg-gray-900 border-gray-600 text-white' : 'bg-white'
-        }`}
-        data-id={`module-${module.id}`}
-      >
-        <CardHeader className="pb-2">
-          <div className="flex justify-between items-start">
-            <div className={`p-2 rounded-md ${
-              highContrastMode 
-                ? 'bg-blue-900 text-white' 
-                : 'bg-blue-100 text-blue-700'
-            }`}>
-              {module.icon}
-            </div>
-            <div className="flex gap-1 flex-wrap">
-              {renderDifficultyBadge(module.difficulty)}
-              {module.isNew && (
-                <Badge variant="secondary" className={`${
-                  highContrastMode ? 'bg-purple-900 text-white' : 'bg-purple-100 text-purple-800'
-                }`}>
-                  Nouveau
-                </Badge>
-              )}
-            </div>
-          </div>
-          <CardTitle className={`mt-2 ${textSizeClass}`}>{module.title}</CardTitle>
-          <CardDescription className={`${textSizeClass} ${
-            highContrastMode ? 'text-gray-300' : 'text-gray-600'
-          }`}>
-            {module.description}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className={`text-sm ${
-            highContrastMode ? 'text-gray-300' : 'text-gray-500'
-          }`}>
-            Durée estimée: {module.duration}
-          </p>
-        </CardContent>
-        <CardFooter>
-          <Link 
-            href={module.comingSoon ? '#' : module.destination} 
-            onClick={(e) => module.comingSoon && e.preventDefault()}
-            className="w-full"
-          >
-            <Button 
-              variant={highContrastMode ? "outline" : "default"} 
-              className={`w-full ${
-                highContrastMode 
-                  ? 'border-blue-500 text-white hover:bg-blue-900' 
-                  : ''
-              }`}
-              disabled={module.comingSoon}
-            >
-              {module.comingSoon ? 'Bientôt disponible' : 'Accéder'}
-              <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
-          </Link>
-        </CardFooter>
-      </Card>
-    );
+  // Toggle filter
+  const toggleDifficultyFilter = (level: string) => {
+    if (difficulty.includes(level)) {
+      setDifficulty(difficulty.filter(d => d !== level));
+    } else {
+      setDifficulty([...difficulty, level]);
+    }
   };
 
-  // Fonction de rendu principal
   return (
     <HomeLayout>
-      <PageTitle title="I AM CYBER - Nouvelle interface" />
-      <div className={`min-h-[calc(100vh-64px)] relative overflow-hidden ${
-        highContrastMode 
-          ? 'bg-gray-900 text-white' 
-          : 'bg-gradient-to-b from-gray-800 via-gray-900 to-blue-900 text-white'
+      <div className={`min-h-screen pb-20 ${
+        highContrastMode ? 'bg-black text-white' : 'bg-gradient-to-b from-blue-950 to-black text-white'
       }`}>
         {/* Navigation et contrôles */}
-        <div className="relative z-20 w-full p-4 flex flex-wrap justify-between items-center gap-2 border-b border-gray-700">
-          <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              className={`${
-                highContrastMode 
-                  ? 'bg-gray-800 border-gray-600 text-white hover:bg-gray-700' 
-                  : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
-              }`}
-              onClick={() => window.location.href = '/'}
-            >
-              <Home className="h-4 w-4 mr-2" />
-              Accueil
-            </Button>
-            <Button 
-              variant="outline" 
-              className={`${
-                highContrastMode 
-                  ? 'bg-blue-900 border-blue-700 text-white hover:bg-blue-800' 
-                  : 'bg-blue-600/80 border-blue-400 text-white hover:bg-blue-500'
-              }`}
-              onClick={() => {
-                setCurrentTour('cyber-mode-selection-redesign');
-                startTutorial();
-              }}
-              data-id="guide-button"
-            >
-              <HelpCircle className="h-4 w-4 mr-2" />
-              Guide
-            </Button>
-          </div>
-
-          {/* Barre de recherche */}
-          <div className="flex-grow max-w-md mx-4">
-            <div className="relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
-              <Input
-                type="text"
-                placeholder="Rechercher un module..."
-                className={`pl-8 ${
-                  highContrastMode 
-                    ? 'bg-gray-800 border-gray-600 text-white placeholder:text-gray-400' 
-                    : 'bg-white/10 border-white/20 text-white placeholder:text-white/60'
-                }`}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                data-id="search-input"
-              />
+        <div className="p-6 relative container mx-auto">
+          <div className="flex justify-between items-center mb-8">
+            <div className="flex items-center">
+              <Link href="/">
+                <Button variant="ghost" className="text-white">
+                  <Home className="mr-2 h-5 w-5" />
+                  Accueil
+                </Button>
+              </Link>
+              <PageTitle title="I AM CYBER" description="Explorez les ressources et modules de formation" className="ml-4" />
+            </div>
+            
+            <div className="flex items-center gap-3">
+              {/* Bouton d'aide */}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="outline"
+                      size="icon"
+                      className="w-10 h-10 rounded-full bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50"
+                      onClick={() => {
+                        setCurrentTour('cyber-mode-selection-redesign');
+                        startTutorial();
+                      }}
+                      data-id="help-button"
+                    >
+                      <HelpCircle className="h-5 w-5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Afficher le guide</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              {/* Contrôle mode haut contraste */}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="outline"
+                      size="icon"
+                      className={`w-10 h-10 rounded-full ${
+                        highContrastMode 
+                          ? 'bg-blue-700 border-blue-600 text-white hover:bg-blue-600' 
+                          : 'bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50'
+                      }`}
+                      onClick={() => setHighContrastMode(!highContrastMode)}
+                      data-id="contrast-button"
+                    >
+                      {highContrastMode ? (
+                        <Sun className="h-5 w-5" />
+                      ) : (
+                        <Moon className="h-5 w-5" />
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{highContrastMode ? 'Désactiver' : 'Activer'} le mode haut contraste</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              {/* Contrôle taille du texte */}
+              <div className="flex items-center gap-1">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant="outline"
+                        size="icon"
+                        className="w-9 h-9 rounded-full bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50"
+                        onClick={() => setTextSize(Math.max(0.8, textSize - 0.1))}
+                        data-id="text-smaller-button"
+                      >
+                        <ZoomOut className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Réduire la taille du texte</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant="outline"
+                        size="icon"
+                        className="w-9 h-9 rounded-full bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50"
+                        onClick={() => setTextSize(Math.min(1.2, textSize + 0.1))}
+                        data-id="text-larger-button"
+                      >
+                        <ZoomIn className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Augmenter la taille du texte</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
             </div>
           </div>
-
-          {/* Contrôles d'accessibilité */}
-          <div className="flex items-center gap-2">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    className={`${
-                      highContrastMode 
-                        ? 'bg-gray-800 border-gray-600 text-white' 
-                        : 'bg-white/10 border-white/20 text-white'
-                    }`}
-                    onClick={() => setHighContrastMode(!highContrastMode)}
-                    data-id="contrast-toggle"
-                  >
-                    {highContrastMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{highContrastMode ? 'Désactiver' : 'Activer'} le mode contraste élevé</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline"
-                    size="icon"
-                    className={`${
-                      highContrastMode 
-                        ? 'bg-gray-800 border-gray-600 text-white' 
-                        : 'bg-white/10 border-white/20 text-white'
-                    }`}
-                    onClick={() => setTextSize(Math.min(textSize + 0.1, 1.3))}
-                    data-id="text-increase"
-                  >
-                    <ZoomIn className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Augmenter la taille du texte</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline"
-                    size="icon"
-                    className={`${
-                      highContrastMode 
-                        ? 'bg-gray-800 border-gray-600 text-white' 
-                        : 'bg-white/10 border-white/20 text-white'
-                    }`}
-                    onClick={() => setTextSize(Math.max(textSize - 0.1, 0.8))}
-                    data-id="text-decrease"
-                  >
-                    <ZoomOut className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Diminuer la taille du texte</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline"
-                    size="icon"
-                    className={`${
-                      highContrastMode 
-                        ? 'bg-gray-800 border-gray-600 text-white' 
-                        : 'bg-white/10 border-white/20 text-white'
-                    }`}
-                    onClick={() => setDifficulty(difficulty.length ? [] : ['débutant', 'intermédiaire', 'avancé'])}
-                    data-id="filter-button"
-                  >
-                    <Filter className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Filtrer par niveau de difficulté</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-        </div>
-
-        {/* En-tête */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 pt-6 pb-4">
-          <motion.div
+          
+          {/* Titre et sous-titre */}
+          <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-6"
+            transition={{ duration: 0.5 }}
+            className="text-center mb-10"
+            data-id="main-title"
           >
-            <h1 className={`text-3xl sm:text-4xl md:text-5xl font-bold mb-3 ${
+            <h1 className={`text-4xl font-bold mb-3 ${
               textSize > 1 ? 'text-5xl' : textSize < 1 ? 'text-3xl' : 'text-4xl'
             }`}>
-              I AM CYBER
+              Bienvenue dans I AM CYBER
             </h1>
-            <p className={`sm:text-xl max-w-3xl mx-auto ${
-              highContrastMode ? 'text-gray-200' : 'text-blue-200'
+            <p className={`text-lg text-blue-200 max-w-3xl mx-auto ${
+              highContrastMode ? 'text-gray-300' : 'text-blue-200' 
             } ${
               textSize > 1 ? 'text-xl' : textSize < 1 ? 'text-sm' : 'text-base'
             }`}>
@@ -886,100 +782,257 @@ export default function CyberModeSelectionRedesign() {
               <div className={`mb-6 p-4 rounded-lg ${
                 highContrastMode ? 'bg-gray-800 border border-gray-700' : 'bg-white/10'
               }`}>
-                <h2 className="text-lg font-semibold mb-3">Filtrer par niveau</h2>
-                <div className="flex flex-wrap gap-2">
-                  <Badge 
-                    variant={difficulty.includes('débutant') ? "default" : "outline"}
-                    className={`cursor-pointer ${
-                      difficulty.includes('débutant')
-                        ? highContrastMode 
-                          ? 'bg-green-900 hover:bg-green-800' 
-                          : 'bg-green-500 hover:bg-green-600'
-                        : highContrastMode 
-                          ? 'border-green-700 text-white hover:bg-green-900' 
-                          : 'border-green-500 text-green-500 hover:bg-green-100'
-                    }`}
-                    onClick={() => {
-                      if (difficulty.includes('débutant')) {
-                        setDifficulty(difficulty.filter(d => d !== 'débutant'));
-                      } else {
-                        setDifficulty([...difficulty, 'débutant']);
-                      }
-                    }}
-                  >
-                    Débutant
-                  </Badge>
-                  <Badge 
-                    variant={difficulty.includes('intermédiaire') ? "default" : "outline"}
-                    className={`cursor-pointer ${
-                      difficulty.includes('intermédiaire')
-                        ? highContrastMode 
-                          ? 'bg-yellow-900 hover:bg-yellow-800' 
-                          : 'bg-yellow-500 hover:bg-yellow-600'
-                        : highContrastMode 
-                          ? 'border-yellow-700 text-white hover:bg-yellow-900' 
-                          : 'border-yellow-500 text-yellow-500 hover:bg-yellow-100'
-                    }`}
-                    onClick={() => {
-                      if (difficulty.includes('intermédiaire')) {
-                        setDifficulty(difficulty.filter(d => d !== 'intermédiaire'));
-                      } else {
-                        setDifficulty([...difficulty, 'intermédiaire']);
-                      }
-                    }}
-                  >
-                    Intermédiaire
-                  </Badge>
-                  <Badge 
-                    variant={difficulty.includes('avancé') ? "default" : "outline"}
-                    className={`cursor-pointer ${
-                      difficulty.includes('avancé')
-                        ? highContrastMode 
-                          ? 'bg-red-900 hover:bg-red-800' 
-                          : 'bg-red-500 hover:bg-red-600'
-                        : highContrastMode 
-                          ? 'border-red-700 text-white hover:bg-red-900' 
-                          : 'border-red-500 text-red-500 hover:bg-red-100'
-                    }`}
-                    onClick={() => {
-                      if (difficulty.includes('avancé')) {
-                        setDifficulty(difficulty.filter(d => d !== 'avancé'));
-                      } else {
-                        setDifficulty([...difficulty, 'avancé']);
-                      }
-                    }}
-                  >
-                    Avancé
-                  </Badge>
-                </div>
-              </div>
-              
-              {/* Liste de tous les modules */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredModules.length > 0 ? (
-                  filteredModules.map(module => renderModuleCard(module))
-                ) : (
-                  <div className="col-span-full text-center py-12">
-                    <div className="mx-auto w-16 h-16 rounded-full bg-blue-900/50 flex items-center justify-center mb-4">
-                      <Search className="h-8 w-8 text-blue-300" />
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="flex-1 relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Search className="h-4 w-4 text-gray-400" />
                     </div>
-                    <h3 className="text-xl font-bold mb-2">Aucun module ne correspond à votre recherche</h3>
-                    <p className={highContrastMode ? 'text-gray-300' : 'text-blue-200'}>
-                      Essayez de modifier vos critères de recherche ou de réinitialiser les filtres.
-                    </p>
+                    <Input
+                      placeholder="Rechercher un module..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className={`pl-10 ${
+                        highContrastMode 
+                          ? 'bg-gray-700 border-gray-600 text-white placeholder:text-gray-400' 
+                          : 'bg-white/10 border-white/20 text-white placeholder:text-gray-300'
+                      }`}
+                      data-id="search-input"
+                    />
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Filter className="h-4 w-4 text-gray-400" />
+                    <span className="text-sm font-medium">Difficulté:</span>
+                    <div className="flex gap-1">
+                      <Button
+                        size="sm"
+                        variant={difficulty.includes('débutant') ? 'default' : 'outline'}
+                        className={`h-7 text-xs ${
+                          difficulty.includes('débutant')
+                            ? highContrastMode 
+                              ? 'bg-green-900 hover:bg-green-800' 
+                              : 'bg-green-600 hover:bg-green-700'
+                            : highContrastMode 
+                              ? 'border-gray-600 text-white' 
+                              : 'border-white/20'
+                        }`}
+                        onClick={() => toggleDifficultyFilter('débutant')}
+                        data-id="beginner-filter"
+                      >
+                        Débutant
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={difficulty.includes('intermédiaire') ? 'default' : 'outline'}
+                        className={`h-7 text-xs ${
+                          difficulty.includes('intermédiaire')
+                            ? highContrastMode 
+                              ? 'bg-blue-900 hover:bg-blue-800' 
+                              : 'bg-blue-600 hover:bg-blue-700'
+                            : highContrastMode 
+                              ? 'border-gray-600 text-white' 
+                              : 'border-white/20'
+                        }`}
+                        onClick={() => toggleDifficultyFilter('intermédiaire')}
+                        data-id="intermediate-filter"
+                      >
+                        Intermédiaire
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={difficulty.includes('avancé') ? 'default' : 'outline'}
+                        className={`h-7 text-xs ${
+                          difficulty.includes('avancé')
+                            ? highContrastMode 
+                              ? 'bg-purple-900 hover:bg-purple-800' 
+                              : 'bg-purple-600 hover:bg-purple-700'
+                            : highContrastMode 
+                              ? 'border-gray-600 text-white' 
+                              : 'border-white/20'
+                        }`}
+                        onClick={() => toggleDifficultyFilter('avancé')}
+                        data-id="advanced-filter"
+                      >
+                        Avancé
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-1">
                     <Button 
-                      variant="outline" 
-                      className="mt-4"
-                      onClick={() => {
-                        setSearchTerm('');
-                        setDifficulty([]);
-                      }}
+                      size="sm" 
+                      variant="ghost"
+                      className={`p-1 ${activeView === 'grid' ? 'bg-blue-900/30' : ''}`}
+                      onClick={() => setActiveView('grid')}
+                      data-id="grid-view-button"
                     >
-                      Réinitialiser les filtres
+                      <LayoutGrid className="h-5 w-5" />
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      className={`p-1 ${activeView === 'list' ? 'bg-blue-900/30' : ''}`}
+                      onClick={() => setActiveView('list')}
+                      data-id="list-view-button"
+                    >
+                      <List className="h-5 w-5" />
                     </Button>
                   </div>
-                )}
+                </div>
               </div>
+
+              {/* Liste des modules en grille ou liste */}
+              {filteredModules.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-lg mb-2">Aucun module ne correspond à votre recherche</p>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setSearchTerm('');
+                      setDifficulty([]);
+                    }}
+                  >
+                    Réinitialiser les filtres
+                  </Button>
+                </div>
+              ) : activeView === 'grid' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredModules.map(module => (
+                    <motion.div
+                      key={module.id}
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <Card 
+                        className={`h-full border ${
+                          highContrastMode 
+                            ? 'bg-gray-800 border-gray-700 hover:border-gray-600' 
+                            : 'bg-white/5 border-white/20 hover:bg-white/10'
+                        } transition-colors`}
+                        data-id={`module-card-${module.id}`}
+                      >
+                        <CardHeader>
+                          <div className="flex justify-between items-start">
+                            <div className="flex items-center">
+                              <div className={`p-2 rounded-lg ${
+                                highContrastMode ? 'bg-blue-900' : 'bg-blue-900/40'
+                              } mr-3`}>
+                                {module.icon}
+                              </div>
+                              <div>
+                                <CardTitle className="flex items-center">
+                                  {module.title}
+                                  {module.isNew && (
+                                    <Badge variant="secondary" className="ml-2 bg-blue-600 text-white text-xs">
+                                      Nouveau
+                                    </Badge>
+                                  )}
+                                </CardTitle>
+                                <CardDescription className={
+                                  highContrastMode ? 'text-gray-400' : 'text-gray-300'
+                                }>
+                                  {module.duration}
+                                </CardDescription>
+                              </div>
+                            </div>
+                            {renderDifficultyBadge(module.difficulty)}
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <p className={highContrastMode ? 'text-gray-300' : 'text-blue-100'}>
+                            {module.description}
+                          </p>
+                        </CardContent>
+                        <CardFooter className="pt-0">
+                          {module.comingSoon ? (
+                            <Button disabled variant="outline" className="w-full">
+                              Bientôt disponible
+                            </Button>
+                          ) : (
+                            <Link href={module.destination} className="w-full">
+                              <Button 
+                                className="w-full" 
+                                variant={highContrastMode ? "outline" : "secondary"}
+                              >
+                                Accéder au module
+                                <ArrowRight className="ml-2 h-4 w-4" />
+                              </Button>
+                            </Link>
+                          )}
+                        </CardFooter>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {filteredModules.map(module => (
+                    <motion.div
+                      key={module.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <div 
+                        className={`flex items-center justify-between p-4 border rounded-lg ${
+                          highContrastMode 
+                            ? 'bg-gray-800 border-gray-700 hover:border-gray-600' 
+                            : 'bg-white/5 border-white/20 hover:bg-white/10'
+                        } transition-colors`}
+                        data-id={`module-list-${module.id}`}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className={`p-2 rounded-lg ${
+                            highContrastMode ? 'bg-blue-900' : 'bg-blue-900/40'
+                          }`}>
+                            {module.icon}
+                          </div>
+                          <div>
+                            <div className="flex items-center">
+                              <h3 className="font-bold">{module.title}</h3>
+                              {module.isNew && (
+                                <Badge variant="secondary" className="ml-2 bg-blue-600 text-white text-xs">
+                                  Nouveau
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex items-center mt-1 gap-3">
+                              <p className={`text-sm ${
+                                highContrastMode ? 'text-gray-300' : 'text-blue-100'
+                              }`}>
+                                {module.description}
+                              </p>
+                              <div className="text-sm">{renderDifficultyBadge(module.difficulty)}</div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-3">
+                          <span className={`text-sm ${highContrastMode ? 'text-gray-400' : 'text-gray-300'}`}>
+                            {module.duration}
+                          </span>
+                          {module.comingSoon ? (
+                            <Button disabled variant="outline" size="sm">
+                              Bientôt disponible
+                            </Button>
+                          ) : (
+                            <Link href={module.destination}>
+                              <Button 
+                                size="sm" 
+                                variant={highContrastMode ? "outline" : "secondary"}
+                              >
+                                Accéder
+                                <ArrowRight className="ml-1 h-4 w-4" />
+                              </Button>
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
             </TabsContent>
           </Tabs>
         </div>
