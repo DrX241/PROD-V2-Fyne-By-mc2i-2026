@@ -646,6 +646,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Routes pour le jeu Cyber Escape: Le Pare-feu est tombé
   // Routes pour le jeu "Cyber Escape: Le Pare-feu est tombé" supprimées
   
+  // Routes pour le jeu Cyber Snake
+  app.get('/api/cyber/snake/practices', async (req: Request, res: Response) => {
+    await generateCyberPractices(req, res);
+  });
+  
   // Routes pour CYBERASCENSION
   app.post('/api/cyber/ascension/analyze-response', async (req: Request, res: Response) => {
     await analyzeUserResponse(req, res);
