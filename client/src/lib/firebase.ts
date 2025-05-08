@@ -3,11 +3,12 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, signInWithEmailA
 
 // Configuration Firebase avec les variables d'environnement
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.appspot.com`,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: "AIzaSyC2kxgH5E09zv-SvQgkoMJaExrj-R4EA9Q",
+  authDomain: "fyne-76509.firebaseapp.com",
+  projectId: "fyne-76509",
+  storageBucket: "fyne-76509.firebasestorage.app",
+  messagingSenderId: "1035357559789",
+  appId: "1:1035357559789:web:20946651d1eeb06cc165e4"
 };
 
 // Initialisation de l'application Firebase
