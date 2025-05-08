@@ -30,8 +30,8 @@ export function getSession() {
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
     conString: process.env.DATABASE_URL,
-    createTableIfMissing: false, // La table est déjà créée dans notre schéma
-    ttl: sessionTtl,
+    createTableIfMissing: true,
+    ttl: sessionTtl / 1000, // En secondes pour PostgreSQL
     tableName: "sessions",
   });
   

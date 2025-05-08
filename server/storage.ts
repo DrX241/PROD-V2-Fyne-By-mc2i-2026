@@ -65,6 +65,19 @@ export class MemStorage implements IStorage {
 
 // Implémentation de base de données pour la production
 export class DatabaseStorage implements IStorage {
+  sessionStore: session.Store;
+
+  constructor() {
+    // Utiliser PostgreSQL pour stocker les sessions
+    const PostgresStore = connectPg(session);
+    this.sessionStore = new PostgresStore({
+      conString: process.env.DATABASE_URL,
+      tableName: 'sessions',
+      createTableIfMissing: true,
+      ttl: 7 * 24 * 60 * 60 // 7 jours en secondes
+    });
+  }
+  
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select()
       .from(users)
