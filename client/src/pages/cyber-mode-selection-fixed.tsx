@@ -438,71 +438,75 @@ export default function CyberModeSelectionRedesign() {
                         setCurrentTour('cyber-mode-selection-redesign');
                         startTutorial();
                       }}
-                      data-id="tutorial-button"
+                      data-id="help-button"
                     >
-                      <HelpCircle className="h-6 w-6" />
+                      <HelpCircle className="h-5 w-5" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Démarrer le tutoriel</p>
+                    <p>Afficher le guide</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-
-              {/* Contrôle du contraste */}
+              
+              {/* Contrôle mode haut contraste */}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button 
-                      variant="outline" 
+                      variant="outline"
                       size="icon"
-                      className="w-10 h-10 rounded-full bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50"
+                      className={`w-10 h-10 rounded-full ${
+                        highContrastMode 
+                          ? 'bg-blue-700 border-blue-600 text-white hover:bg-blue-600' 
+                          : 'bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50'
+                      }`}
                       onClick={() => setHighContrastMode(!highContrastMode)}
-                      data-id="contrast-toggle"
+                      data-id="contrast-button"
                     >
                       {highContrastMode ? (
-                        <Moon className="h-5 w-5" />
-                      ) : (
                         <Sun className="h-5 w-5" />
+                      ) : (
+                        <Moon className="h-5 w-5" />
                       )}
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>{highContrastMode ? 'Désactiver' : 'Activer'} le mode contraste élevé</p>
+                    <p>{highContrastMode ? 'Désactiver' : 'Activer'} le mode haut contraste</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-
-              {/* Contrôle de la taille du texte */}
-              <div className="flex items-center gap-2">
+              
+              {/* Contrôle taille du texte */}
+              <div className="flex items-center gap-1">
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button 
-                        variant="outline" 
+                        variant="outline"
                         size="icon"
-                        className="w-8 h-8 rounded-full bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50"
-                        onClick={() => setTextSize(prev => Math.max(0.9, prev - 0.1))}
-                        data-id="zoom-out-button"
+                        className="w-9 h-9 rounded-full bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50"
+                        onClick={() => setTextSize(Math.max(0.8, textSize - 0.1))}
+                        data-id="text-smaller-button"
                       >
                         <ZoomOut className="h-4 w-4" />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Diminuer la taille du texte</p>
+                      <p>Réduire la taille du texte</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
-
+                
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button 
-                        variant="outline" 
+                        variant="outline"
                         size="icon"
-                        className="w-8 h-8 rounded-full bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50"
-                        onClick={() => setTextSize(prev => Math.min(1.2, prev + 0.1))}
-                        data-id="zoom-in-button"
+                        className="w-9 h-9 rounded-full bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50"
+                        onClick={() => setTextSize(Math.min(1.2, textSize + 0.1))}
+                        data-id="text-larger-button"
                       >
                         <ZoomIn className="h-4 w-4" />
                       </Button>
@@ -515,273 +519,274 @@ export default function CyberModeSelectionRedesign() {
               </div>
             </div>
           </div>
+          
+          {/* Titre et sous-titre */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-10"
+            data-id="main-title"
+          >
+            <h1 className="text-4xl font-bold mb-3">
+              Bienvenue dans I AM CYBER
+            </h1>
+            <p className={`max-w-3xl mx-auto ${
+              highContrastMode ? 'text-gray-300' : 'text-blue-200' 
+            }`}>
+              Trouvez votre parcours d'apprentissage personnalisé en cybersécurité
+            </p>
+          </motion.div>
 
-          {/* Onglets de navigation principale */}
-          <Tabs defaultValue="objectives" className="space-y-6">
-            <div className="flex justify-center mb-4">
-              <TabsList className="bg-black/20 p-1" data-id="main-tabs">
-                <TabsTrigger 
-                  value="objectives" 
-                  className="data-[state=active]:bg-blue-900"
-                  data-id="objectives-tab"
-                >
-                  <div className="flex items-center space-x-2">
-                    <Award className="h-4 w-4" />
-                    <span>Par objectif</span>
-                  </div>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="careers" 
-                  className="data-[state=active]:bg-blue-900"
-                  data-id="careers-tab"
-                >
-                  <div className="flex items-center space-x-2">
-                    <Briefcase className="h-4 w-4" />
-                    <span>Par métier</span>
-                  </div>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="all" 
-                  className="data-[state=active]:bg-blue-900"
-                  data-id="all-modules-tab"
-                >
-                  <div className="flex items-center space-x-2">
-                    <BookOpen className="h-4 w-4" />
-                    <span>Tous les modules</span>
-                  </div>
-                </TabsTrigger>
-              </TabsList>
-            </div>
+          {/* Onglets principaux */}
+          <Tabs defaultValue="objectifs" className="w-full" data-id="main-tabs">
+            <TabsList className={`w-full mb-4 ${
+              highContrastMode ? 'bg-gray-800 border border-gray-700' : 'bg-white/10'
+            }`}>
+              <TabsTrigger 
+                value="objectifs" 
+                className={`flex-1 flex items-center justify-center ${
+                  highContrastMode ? 'data-[state=active]:bg-blue-900 text-white' : ''
+                }`}
+                data-id="objectives-tab"
+              >
+                <BookOpen className="h-5 w-5 mr-2" />
+                Par objectif d'apprentissage
+              </TabsTrigger>
+              <TabsTrigger 
+                value="metiers" 
+                className={`flex-1 flex items-center justify-center ${
+                  highContrastMode ? 'data-[state=active]:bg-blue-900 text-white' : ''
+                }`}
+                data-id="careers-tab"
+              >
+                <Briefcase className="h-5 w-5 mr-2" />
+                Par métier
+              </TabsTrigger>
+              <TabsTrigger 
+                value="tous" 
+                className={`flex-1 flex items-center justify-center ${
+                  highContrastMode ? 'data-[state=active]:bg-blue-900 text-white' : ''
+                }`}
+                data-id="all-modules-tab"
+              >
+                <Settings className="h-5 w-5 mr-2" />
+                Tous les modules
+              </TabsTrigger>
+            </TabsList>
 
-            {/* SECTION PAR OBJECTIF */}
-            <TabsContent value="objectives" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {learningObjectives.map(objective => (
-                  <div 
+            {/* Contenu des onglets */}
+            <TabsContent value="objectifs" className="mt-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {learningObjectives.map((objective) => (
+                  <motion.div
                     key={objective.id}
-                    className={`rounded-lg p-6 space-y-3 cursor-pointer transition-colors 
-                      bg-gradient-to-br ${objective.gradient} hover:shadow-lg`}
-                    onClick={() => setSelectedCareerPath(objective.id)}
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                    className={`rounded-xl p-6 ${
+                      highContrastMode 
+                        ? 'bg-gray-800 border border-gray-700' 
+                        : `bg-gradient-to-br ${objective.gradient}`
+                    }`}
                     data-id={`objective-${objective.id}`}
                   >
-                    <div className="flex justify-between items-start">
-                      <div className={`p-3 rounded-lg bg-white/10`}>
-                        {objective.icon}
+                    <div className="flex flex-col h-full">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className={`p-2 rounded-full ${
+                          highContrastMode ? 'bg-blue-900' : 'bg-white/10'
+                        }`}>
+                          {objective.icon}
+                        </div>
+                        <h2 className="text-xl font-bold text-white">
+                          {objective.title}
+                        </h2>
                       </div>
-                      {selectedCareerPath === objective.id && (
-                        <Badge variant="outline" className="bg-white/20 border-white/30 text-white">
-                          Sélectionné
-                        </Badge>
-                      )}
+                      
+                      <p className={`mb-4 ${
+                        highContrastMode ? 'text-gray-300' : 'text-blue-100'
+                      }`}>
+                        {objective.description}
+                      </p>
+                      
+                      <div className="mt-auto">
+                        <h3 className="text-white font-medium mb-2">Modules recommandés:</h3>
+                        <ul className="space-y-2">
+                          {getModulesForObjective(objective.id).map(module => (
+                            <li key={module.id}>
+                              <Link 
+                                href={module.destination}
+                                className={`block p-2 rounded-lg ${
+                                  highContrastMode 
+                                    ? 'bg-gray-700 hover:bg-gray-600' 
+                                    : 'bg-white/10 hover:bg-white/20'
+                                } transition-colors`}
+                              >
+                                <div className="flex justify-between items-center">
+                                  <span className="font-medium">{module.title}</span>
+                                  <ArrowRight className="h-4 w-4" />
+                                </div>
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
-                    <h3 className="text-xl font-bold">{objective.title}</h3>
-                    <p className="text-sm text-blue-100">{objective.description}</p>
-                    <div className="pt-2">
-                      <Button 
-                        variant={selectedCareerPath === objective.id ? "default" : "secondary"}
-                        className="w-full"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedCareerPath(selectedCareerPath === objective.id ? null : objective.id);
-                        }}
-                      >
-                        {selectedCareerPath === objective.id ? (
-                          <>
-                            <Check className="mr-2 h-4 w-4" />
-                            Sélectionné
-                          </>
-                        ) : (
-                          <>
-                            Voir les modules
-                            <ChevronRight className="ml-2 h-4 w-4" />
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
+            </TabsContent>
 
-              {selectedCareerPath && (
-                <div className={`rounded-lg p-6 ${
-                  highContrastMode ? 'bg-gray-800 border border-gray-700' : 'bg-white/5 border border-white/10'
+            <TabsContent value="metiers" className="mt-0">
+              <div className="flex flex-col gap-6">
+                {/* Sélection du parcours métier */}
+                <div className={`p-4 rounded-lg ${
+                  highContrastMode ? 'bg-gray-800 border border-gray-700' : 'bg-white/10'
                 }`}>
-                  <h3 className="text-xl font-bold mb-4">
-                    {learningObjectives.find(o => o.id === selectedCareerPath)?.title} - Modules recommandés
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {getModulesForObjective(selectedCareerPath).map(module => (
-                      <Card 
-                        key={module.id}
-                        className={`h-full border ${
-                          highContrastMode ? 'bg-gray-700 border-gray-600' : 'bg-white/10 border-white/20'
+                  <h2 className="text-xl font-bold mb-4">Parcours métiers en cybersécurité</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                    {careerPaths.map(career => (
+                      <Button
+                        key={career.id}
+                        variant={highContrastMode ? "outline" : "secondary"}
+                        className={`h-auto py-3 justify-start ${
+                          selectedCareerPath === career.id 
+                            ? highContrastMode 
+                              ? 'bg-blue-900 border-blue-700' 
+                              : 'bg-blue-600 text-white' 
+                            : highContrastMode 
+                              ? 'bg-gray-800 border-gray-700' 
+                              : ''
                         }`}
+                        onClick={() => setSelectedCareerPath(career.id)}
+                        data-id={`career-${career.id}`}
                       >
-                        <CardHeader className="pb-2">
-                          <div className="flex justify-between">
-                            <div className="flex gap-2 items-center">
-                              <div className={`p-1.5 rounded-md ${
-                                highContrastMode ? 'bg-blue-900' : 'bg-white/10'
-                              }`}>
-                                {module.icon}
-                              </div>
-                              <CardTitle className="text-lg">
-                                {module.title}
-                              </CardTitle>
-                            </div>
-                            {renderDifficultyBadge(module.difficulty)}
+                        <div className="flex items-center gap-2">
+                          <div className={`p-1.5 rounded-full ${
+                            highContrastMode 
+                              ? 'bg-gray-700' 
+                              : 'bg-white/20'
+                          }`}>
+                            {career.icon}
                           </div>
-                        </CardHeader>
-                        <CardContent>
-                          <p className={highContrastMode ? 'text-gray-300' : 'text-blue-100'}>
-                            {module.description}
-                          </p>
-                        </CardContent>
-                        <CardFooter className="mt-auto pt-2">
-                          <Link href={module.destination} className="w-full">
-                            <Button 
-                              variant={highContrastMode ? "outline" : "secondary"} 
-                              className="w-full"
-                            >
-                              Accéder au module
-                              <ArrowRight className="ml-2 h-4 w-4" />
-                            </Button>
-                          </Link>
-                        </CardFooter>
-                      </Card>
+                          <span className="text-sm font-medium">{career.title}</span>
+                        </div>
+                      </Button>
                     ))}
                   </div>
                 </div>
-              )}
-            </TabsContent>
 
-            {/* SECTION PAR MÉTIER */}
-            <TabsContent value="careers" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {careerPaths.map(career => (
-                  <div 
-                    key={career.id}
-                    className={`rounded-lg p-6 space-y-3 cursor-pointer transition-colors 
-                      bg-gradient-to-br ${career.gradient} hover:shadow-lg`}
-                    onClick={() => setSelectedCareerPath(career.id)}
-                    data-id={`career-${career.id}`}
+                {/* Détails du parcours métier sélectionné */}
+                {selectedCareerPath && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`p-6 rounded-lg ${
+                      highContrastMode ? 'bg-gray-800 border border-gray-700' : 'bg-white/10'
+                    }`}
                   >
-                    <div className="flex justify-between items-start">
-                      <div className={`p-3 rounded-lg bg-white/10`}>
-                        {career.icon}
-                      </div>
-                      {selectedCareerPath === career.id && (
-                        <Badge variant="outline" className="bg-white/20 border-white/30 text-white">
-                          Sélectionné
-                        </Badge>
-                      )}
-                    </div>
-                    <h3 className="text-xl font-bold">{career.title}</h3>
-                    <p className="text-sm text-blue-100">{career.description}</p>
-                    <div className="flex flex-wrap gap-2 pt-1">
-                      {career.skills.slice(0, 2).map(skill => (
-                        <Badge key={skill} variant="outline" className="bg-white/10 border-white/20 text-white">
-                          {skill}
-                        </Badge>
-                      ))}
-                      {career.skills.length > 2 && (
-                        <Badge variant="outline" className="bg-white/10 border-white/20 text-white">
-                          +{career.skills.length - 2}
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="pt-2">
-                      <Button 
-                        variant={selectedCareerPath === career.id ? "default" : "secondary"}
-                        className="w-full"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedCareerPath(selectedCareerPath === career.id ? null : career.id);
-                        }}
-                      >
-                        {selectedCareerPath === career.id ? (
-                          <>
-                            <Check className="mr-2 h-4 w-4" />
-                            Sélectionné
-                          </>
-                        ) : (
-                          <>
-                            Voir les modules
-                            <ChevronRight className="ml-2 h-4 w-4" />
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {selectedCareerPath && (
-                <div className={`rounded-lg p-6 ${
-                  highContrastMode ? 'bg-gray-800 border border-gray-700' : 'bg-white/5 border border-white/10'
-                }`}>
-                  <h3 className="text-xl font-bold mb-4">
-                    {careerPaths.find(c => c.id === selectedCareerPath)?.title} - Modules recommandés
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {getModulesForCareer(selectedCareerPath).map(module => (
-                      <Card 
-                        key={module.id}
-                        className={`h-full border ${
-                          highContrastMode ? 'bg-gray-700 border-gray-600' : 'bg-white/10 border-white/20'
-                        }`}
-                      >
-                        <CardHeader className="pb-2">
-                          <div className="flex justify-between">
-                            <div className="flex gap-2 items-center">
-                              <div className={`p-1.5 rounded-md ${
-                                highContrastMode ? 'bg-blue-900' : 'bg-white/10'
-                              }`}>
-                                {module.icon}
-                              </div>
-                              <CardTitle className="text-lg">
-                                {module.title}
-                              </CardTitle>
+                    {careerPaths
+                      .filter(career => career.id === selectedCareerPath)
+                      .map(career => (
+                        <div key={career.id}>
+                          <div className="flex items-start gap-4 mb-6">
+                            <div className={`p-3 rounded-full ${
+                              highContrastMode ? 'bg-blue-900' : `bg-gradient-to-br ${career.gradient}`
+                            }`}>
+                              {career.icon}
                             </div>
-                            {renderDifficultyBadge(module.difficulty)}
+                            <div>
+                              <h2 className="text-2xl font-bold">{career.title}</h2>
+                              <p className={highContrastMode ? 'text-gray-300' : 'text-blue-200'}>
+                                {career.description}
+                              </p>
+                            </div>
                           </div>
-                        </CardHeader>
-                        <CardContent>
-                          <p className={highContrastMode ? 'text-gray-300' : 'text-blue-100'}>
-                            {module.description}
-                          </p>
-                        </CardContent>
-                        <CardFooter className="mt-auto pt-2">
-                          <Link href={module.destination} className="w-full">
-                            <Button 
-                              variant={highContrastMode ? "outline" : "secondary"} 
-                              className="w-full"
-                            >
-                              Accéder au module
-                              <ArrowRight className="ml-2 h-4 w-4" />
-                            </Button>
-                          </Link>
-                        </CardFooter>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
-              )}
+                          
+                          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            {/* Compétences clés */}
+                            <div>
+                              <h3 className="text-lg font-semibold mb-3">Compétences clés</h3>
+                              <ul className="space-y-2">
+                                {career.skills.map((skill, index) => (
+                                  <li 
+                                    key={index}
+                                    className={`px-3 py-2 rounded-lg ${
+                                      highContrastMode ? 'bg-gray-700' : 'bg-white/10'
+                                    }`}
+                                  >
+                                    {skill}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                            
+                            {/* Modules recommandés */}
+                            <div className="lg:col-span-2">
+                              <h3 className="text-lg font-semibold mb-3">Parcours d'apprentissage recommandé</h3>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {getModulesForCareer(career.id).map((module, index) => (
+                                  <Card 
+                                    key={module.id}
+                                    className={`flex flex-col h-full border ${
+                                      highContrastMode ? 'bg-gray-700 border-gray-600' : 'bg-white/10 border-white/20'
+                                    }`}
+                                  >
+                                    <CardHeader className="pb-2">
+                                      <div className="flex justify-between">
+                                        <div className="flex gap-2 items-center">
+                                          <div className={`p-1.5 rounded-md ${
+                                            highContrastMode ? 'bg-blue-900' : 'bg-white/10'
+                                          }`}>
+                                            {module.icon}
+                                          </div>
+                                          <CardTitle className="text-lg">
+                                            {index + 1}. {module.title}
+                                          </CardTitle>
+                                        </div>
+                                        {renderDifficultyBadge(module.difficulty)}
+                                      </div>
+                                    </CardHeader>
+                                    <CardContent>
+                                      <p className={highContrastMode ? 'text-gray-300' : 'text-blue-100'}>
+                                        {module.description}
+                                      </p>
+                                    </CardContent>
+                                    <CardFooter className="mt-auto pt-2">
+                                      <Link href={module.destination} className="w-full">
+                                        <Button 
+                                          variant={highContrastMode ? "outline" : "secondary"} 
+                                          className="w-full"
+                                        >
+                                          Accéder au module
+                                          <ArrowRight className="ml-2 h-4 w-4" />
+                                        </Button>
+                                      </Link>
+                                    </CardFooter>
+                                  </Card>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                  </motion.div>
+                )}
+              </div>
             </TabsContent>
 
-            {/* SECTION TOUS LES MODULES */}
-            <TabsContent value="all" className="space-y-6">
-              {/* Filtres actifs */}
+            <TabsContent value="tous" className="mt-0">
+              {/* Filtres de difficulté */}
               {difficulty.length > 0 && (
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-sm">Filtres actifs:</span>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <div className="text-sm py-1">Filtres actifs:</div>
                   {difficulty.map(level => (
                     <Badge 
-                      key={level} 
-                      variant="outline" 
+                      key={level}
+                      variant="outline"
                       className={`${
                         highContrastMode 
-                          ? 'bg-gray-700 text-white border-gray-600' 
+                          ? 'bg-blue-900 text-white' 
                           : 'bg-blue-100 text-blue-800'
                       } cursor-pointer`}
                       onClick={() => setDifficulty(difficulty.filter(d => d !== level))}
@@ -905,23 +910,22 @@ export default function CyberModeSelectionRedesign() {
               </div>
 
               {/* Liste des modules en grille ou liste */}
-              <div data-id="all-modules-container">
-                {filteredModules.length === 0 ? (
-                  <div className="text-center py-12">
-                    <p className="text-lg mb-2">Aucun module ne correspond à votre recherche</p>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => {
-                        setSearchTerm('');
-                        setDifficulty([]);
-                      }}
-                    >
-                      Réinitialiser les filtres
-                    </Button>
-                  </div>
-                ) : activeView === 'grid' ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredModules.map(module => (
+              {filteredModules.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-lg mb-2">Aucun module ne correspond à votre recherche</p>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setSearchTerm('');
+                      setDifficulty([]);
+                    }}
+                  >
+                    Réinitialiser les filtres
+                  </Button>
+                </div>
+              ) : activeView === 'grid' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredModules.map(module => (
                     <motion.div
                       key={module.id}
                       initial={{ opacity: 0, y: 15 }}
@@ -1057,7 +1061,6 @@ export default function CyberModeSelectionRedesign() {
                   ))}
                 </div>
               )}
-              </div>
             </TabsContent>
           </Tabs>
         </div>

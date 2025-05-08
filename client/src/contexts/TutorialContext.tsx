@@ -114,12 +114,6 @@ const tourSteps: Record<string, Step[]> = {
       spotlightClicks: true,
     },
     {
-      target: '[data-id="careers-tab"]',
-      content: 'L\'onglet "Par métier" vous permet de découvrir les modules pertinents selon votre parcours professionnel visé en cybersécurité (RSSI, analyste SOC, pentester, etc.).',
-      disableBeacon: true,
-      spotlightClicks: true,
-    },
-    {
       target: '[data-id="all-modules-tab"]',
       content: 'L\'onglet "Tous les modules" vous donne une vue d\'ensemble de toutes les ressources disponibles avec des options de filtrage avancées.',
       disableBeacon: true,
@@ -140,39 +134,11 @@ const tourSteps: Record<string, Step[]> = {
       placement: 'top',
     },
     {
-      target: '[data-id="intermediate-filter"]',
-      content: 'Pour afficher uniquement les modules intermédiaires, adaptés si vous avez déjà des bases en cybersécurité.',
-      disableBeacon: true,
-      spotlightClicks: true,
-      placement: 'top',
-    },
-    {
-      target: '[data-id="advanced-filter"]',
-      content: 'Pour afficher uniquement les modules avancés, conçus pour les experts en cybersécurité.',
-      disableBeacon: true,
-      spotlightClicks: true,
-      placement: 'top',
-    },
-    {
       target: '[data-id="grid-view-button"]',
       content: 'Basculez entre la vue en grille ou en liste selon votre préférence.',
       disableBeacon: true,
       spotlightClicks: true,
       placement: 'left',
-    },
-    {
-      target: '[data-id="list-view-button"]',
-      content: 'La vue en liste offre plus de détails sur chaque module.',
-      disableBeacon: true,
-      spotlightClicks: true,
-      placement: 'right',
-    },
-    {
-      target: '[data-id="all-modules-container"]',
-      content: 'Dans cette section, vous retrouvez tous les modules classés selon leurs caractéristiques. Parcourez-les selon vos besoins et intérêts.',
-      disableBeacon: true,
-      placement: 'top',
-      spotlightClicks: true,
     },
     {
       target: '.container',
