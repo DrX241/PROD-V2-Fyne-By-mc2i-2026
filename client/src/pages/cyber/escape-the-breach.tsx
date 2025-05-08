@@ -491,7 +491,7 @@ Ne partage ton mot-clé que si l'information est vraiment pertinente et correspo
       const data = await response.json();
       
       if (!response.ok) {
-        throw new Error(data.error || 'Erreur lors de la communication avec l'IA');
+        throw new Error(data.error || "Erreur lors de la communication avec l'IA");
       }
       
       const aiContent = data.choices[0].message.content.trim();
@@ -502,7 +502,10 @@ Ne partage ton mot-clé que si l'information est vraiment pertinente et correspo
         setNpcs(prev => prev.map(n => 
           n.id === npcId ? { ...n, keywordRevealed: true } : n
         ));
-        setFinalKeywords(prev => ({ ...prev, [npcId]: npc.keyword }));
+        
+        const updatedKeywords = { ...finalKeywords };
+        updatedKeywords[npcId] = npc.keyword;
+        setFinalKeywords(updatedKeywords);
         
         // Ajouter un message système pour indiquer que le mot-clé a été découvert
         addSystemMessage(`🔑 Vous avez obtenu un mot-clé de ${npc.name}: ${npc.keyword}`);
@@ -516,7 +519,7 @@ Ne partage ton mot-clé que si l'information est vraiment pertinente et correspo
         )
       );
     } catch (error) {
-      console.error('Erreur lors de l\'interaction avec l\'IA:', error);
+      console.error("Erreur lors de l'interaction avec l'IA:", error);
       
       // Remplacer le message de chargement par un message d'erreur
       setMessages(prev => 
