@@ -179,24 +179,20 @@ const CyberSnake: React.FC = () => {
         // Informer l'utilisateur sur la pratique qu'il vient de manger
         setLastEaten(food.practice);
         
-        // Mettre à jour le score en fonction du type de pratique
+        // Mettre à jour le score en fonction du type de pratique, mais avec le même visuel
         if (food.practice.isGood) {
           setScore(s => s + 2); // Bonus pour les bonnes pratiques
-          toast({
-            title: 'Bonne pratique !',
-            description: food.practice.text,
-            variant: 'default',
-            action: <Check className="h-5 w-5 text-green-500" />
-          });
         } else {
           setScore(s => s - 1); // Pénalité pour les mauvaises pratiques
-          toast({
-            title: 'Mauvaise pratique !',
-            description: food.practice.text,
-            variant: 'destructive',
-            action: <X className="h-5 w-5 text-red-500" />
-          });
         }
+        
+        // Afficher la pratique sans distinction visuelle
+        toast({
+          title: 'Pratique de cybersécurité',
+          description: food.practice.text,
+          variant: 'default',
+          action: <HelpCircle className="h-5 w-5 text-blue-500" />
+        });
         
         // Placer une nouvelle nourriture
         placeFood();
@@ -451,7 +447,7 @@ const CyberSnake: React.FC = () => {
     <div className="flex flex-col items-center py-4 px-4 w-full max-w-5xl mx-auto">
       <h1 className="text-3xl font-bold mb-2 text-center text-blue-600">Cyber Snake</h1>
       <p className="text-gray-600 mb-6 text-center">
-        Collectez les bonnes pratiques et évitez les mauvaises pour maximiser votre score !
+        Collectez des pratiques de cybersécurité et testez votre jugement ! Saurez-vous distinguer les bonnes des mauvaises ?
       </p>
       
       <div className="flex flex-col md:flex-row gap-4 w-full">
@@ -473,6 +469,7 @@ const CyberSnake: React.FC = () => {
                   <ul className="list-disc pl-6 mb-4 space-y-2">
                     <li>Utilisez les <strong>flèches directionnelles</strong> pour déplacer le serpent</li>
                     <li>Collectez les éléments <strong>hexagonaux</strong> qui représentent des pratiques de cybersécurité</li>
+                    <li>Attention : vous ne savez pas si une pratique est bonne ou mauvaise avant de la collecter</li>
                     <li>Les <strong>bonnes pratiques</strong> augmentent votre score de 2 points</li>
                     <li>Les <strong>mauvaises pratiques</strong> diminuent votre score de 1 point</li>
                     <li>Évitez de vous mordre la queue !</li>
@@ -598,11 +595,9 @@ const CyberSnake: React.FC = () => {
                 className="mb-4"
               >
                 <div className="flex items-start gap-2 mb-2">
-                  {lastEaten.isGood ? (
-                    <Check className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
-                  ) : (
-                    <X className="h-5 w-5 text-red-500 mt-1 flex-shrink-0" />
-                  )}
+                  <div className="bg-blue-100 dark:bg-blue-900 p-1 rounded-full">
+                    <HelpCircle className="h-5 w-5 text-blue-500 mt-1 flex-shrink-0" />
+                  </div>
                   <div>
                     <p className="font-semibold">
                       {lastEaten.text}
@@ -612,8 +607,8 @@ const CyberSnake: React.FC = () => {
                     </p>
                   </div>
                 </div>
-                <div className={`text-sm ${lastEaten.isGood ? 'text-green-600' : 'text-red-600'} font-medium`}>
-                  {lastEaten.isGood ? '+2 points' : '-1 point'}
+                <div className="text-sm text-blue-600 font-medium">
+                  {lastEaten.isGood ? '+2 points (Bonne pratique)' : '-1 point (Mauvaise pratique)'}
                 </div>
               </motion.div>
             ) : (
@@ -638,8 +633,8 @@ const CyberSnake: React.FC = () => {
               <ul className="text-sm space-y-1 text-gray-600">
                 <li>▶ Utilisez les flèches du clavier</li>
                 <li>▶ Espace pour pause/reprise</li>
-                <li>▶ Collectez les bonnes pratiques</li>
-                <li>▶ Évitez les mauvaises (si possible)</li>
+                <li>▶ Essayez de deviner quelles pratiques sont bonnes</li>
+                <li>▶ Vous verrez les explications après les avoir collectées</li>
               </ul>
             </div>
           </Card>
