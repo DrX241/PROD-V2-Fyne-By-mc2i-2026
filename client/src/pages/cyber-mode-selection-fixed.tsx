@@ -695,9 +695,9 @@ export default function CyberModeSelectionRedesign() {
                             }`}>
                               {career.icon}
                             </div>
-                            <div>
-                              <h2 className="text-2xl font-bold">{career.title}</h2>
-                              <p className={highContrastMode ? 'text-gray-300' : 'text-blue-200'}>
+                            <div className="flex-1 min-w-0">
+                              <h2 className="text-2xl font-bold line-clamp-2">{career.title}</h2>
+                              <p className={`${highContrastMode ? 'text-gray-300' : 'text-blue-200'} line-clamp-2`}>
                                 {career.description}
                               </p>
                             </div>
@@ -748,7 +748,7 @@ export default function CyberModeSelectionRedesign() {
                                       </div>
                                     </CardHeader>
                                     <CardContent>
-                                      <p className={highContrastMode ? 'text-gray-300' : 'text-blue-100'}>
+                                      <p className={`${highContrastMode ? 'text-gray-300' : 'text-blue-100'} line-clamp-2`}>
                                         {module.description}
                                       </p>
                                     </CardContent>
@@ -968,7 +968,7 @@ export default function CyberModeSelectionRedesign() {
                           </div>
                         </CardHeader>
                         <CardContent>
-                          <p className={highContrastMode ? 'text-gray-300' : 'text-blue-100'}>
+                          <p className={`${highContrastMode ? 'text-gray-300' : 'text-blue-100'} line-clamp-3`}>
                             {module.description}
                           </p>
                         </CardContent>
