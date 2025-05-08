@@ -131,20 +131,38 @@ export async function setupAuth(app: Express) {
     );
     passport.use(strategy);
   }
+  
+  // Ajouter une stratégie pour localhost (développement local)
+  if (process.env.NODE_ENV !== 'production') {
+    const localStrategy = new Strategy(
+      {
+        name: `replitauth:localhost`,
+        config,
+        scope: "openid email profile offline_access",
+        callbackURL: `http://localhost:5000/api/callback`,
+      },
+      verify,
+    );
+    passport.use(localStrategy);
+  }
 
   passport.serializeUser((user: Express.User, cb) => cb(null, user));
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   // Routes d'authentification
   app.get("/api/login", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
+    // Déterminer la stratégie à utiliser en fonction de l'hôte
+    const strategy = `replitauth:${req.hostname}`;
+    passport.authenticate(strategy, {
       prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
     })(req, res, next);
   });
 
   app.get("/api/callback", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
+    // Utiliser la même stratégie que pour le login
+    const strategy = `replitauth:${req.hostname}`;
+    passport.authenticate(strategy, {
       successReturnToOrRedirect: "/",
       failureRedirect: "/api/login",
     })(req, res, next);
@@ -152,10 +170,15 @@ export async function setupAuth(app: Express) {
 
   app.get("/api/logout", (req, res) => {
     req.logout(() => {
+      // Déterminer l'URL de redirection en fonction de l'environnement
+      const isLocal = req.hostname === 'localhost';
+      const port = isLocal ? ':5000' : '';
+      const protocol = isLocal ? 'http' : 'https';
+      
       res.redirect(
         client.buildEndSessionUrl(config, {
           client_id: process.env.REPL_ID!,
-          post_logout_redirect_uri: `${req.protocol}://${req.hostname}`,
+          post_logout_redirect_uri: `${protocol}://${req.hostname}${port}`,
         }).href
       );
     });

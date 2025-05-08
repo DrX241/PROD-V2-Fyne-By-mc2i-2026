@@ -130,12 +130,12 @@ export async function getUserAssistants(req: Request, res: Response) {
     }
     
     // Si l'utilisateur n'existe pas, créons-en un temporaire pour la démo
-    let databaseUserId = 0;
+    let databaseUserId: string = '';
     if (!userExists.length) {
       console.log(`Utilisateur non trouvé, création d'un nouvel utilisateur avec le nom d'utilisateur: ${userId}`);
       const [newUser] = await db.insert(users).values({
-        username: userId,
-        password: 'password123' // Ne jamais faire ça en production!
+        id: userId, // ID doit être explicitement défini avec Replit Auth
+        username: userId
       }).returning({ id: users.id });
       
       databaseUserId = newUser.id;
@@ -230,8 +230,8 @@ export async function createAssistant(req: Request, res: Response) {
           try {
             console.log(`Création automatique de l'utilisateur: ${assistantData.userId}`);
             const [newUser] = await db.insert(users).values({
-              username: assistantData.userId,
-              password: 'password123' // À remplacer par un mot de passe sécurisé en production
+              id: assistantData.userId, // ID doit être explicitement défini avec Replit Auth
+              username: assistantData.userId
             }).returning({ id: users.id });
             
             databaseUserId = newUser.id;
@@ -726,10 +726,10 @@ export async function initConversation(req: Request, res: Response) {
     if (!userExists.length && typeof userId === 'string') {
       console.log(`Utilisateur non trouvé, création d'un nouvel utilisateur: ${userId}`);
       try {
-        const [newUser] = await db.insert(users).values([{
-          username: userId,
-          password: 'password123' // Ne jamais faire ça en production!
-        }]).returning({ id: users.id });
+        const [newUser] = await db.insert(users).values({
+          id: userId, // ID doit être explicitement défini avec Replit Auth
+          username: userId
+        }).returning({ id: users.id });
         
         userExists = [{ id: newUser.id }];
         console.log(`Nouvel utilisateur créé avec ID: ${newUser.id}`);
