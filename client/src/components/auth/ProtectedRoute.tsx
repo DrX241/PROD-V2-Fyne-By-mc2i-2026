@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ path, component: Component }: ProtectedRouteProps) {
-  const { user, isLoading, isAuthenticated } = useAuth();
+  const { isLoading, isAuthenticated, login } = useAuth();
 
   // Afficher un indicateur de chargement pendant la vérification de l'authentification
   if (isLoading) {
@@ -21,11 +21,17 @@ export function ProtectedRoute({ path, component: Component }: ProtectedRoutePro
     );
   }
 
-  // Rediriger vers la page d'authentification si l'utilisateur n'est pas connecté
+  // Rediriger vers l'authentification Replit si l'utilisateur n'est pas connecté
   if (!isAuthenticated) {
+    // Déclencher la redirection vers l'authentification Replit
+    login();
+    // Afficher un composant de chargement en attendant la redirection
     return (
       <Route path={path}>
-        <Redirect to="/auth" />
+        <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Redirection vers la page de connexion...</p>
+        </div>
       </Route>
     );
   }
@@ -40,7 +46,7 @@ export function ProtectedRoute({ path, component: Component }: ProtectedRoutePro
 
 // Composant pour les routes accessibles uniquement aux administrateurs
 export function AdminRoute({ path, component: Component }: ProtectedRouteProps) {
-  const { user, isLoading, isAuthenticated, isAdmin } = useAuth();
+  const { isLoading, isAuthenticated, isAdmin, login } = useAuth();
 
   // Afficher un indicateur de chargement pendant la vérification de l'authentification
   if (isLoading) {
@@ -53,11 +59,17 @@ export function AdminRoute({ path, component: Component }: ProtectedRouteProps) 
     );
   }
 
-  // Rediriger vers la page d'authentification si l'utilisateur n'est pas connecté
+  // Rediriger vers l'authentification Replit si l'utilisateur n'est pas connecté
   if (!isAuthenticated) {
+    // Déclencher la redirection vers l'authentification Replit
+    login();
+    // Afficher un composant de chargement en attendant la redirection
     return (
       <Route path={path}>
-        <Redirect to="/auth" />
+        <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Redirection vers la page de connexion...</p>
+        </div>
       </Route>
     );
   }

@@ -9,29 +9,28 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/use-auth";
 import { User, LogOut, Settings } from "lucide-react";
-import { useLocation } from "wouter";
 
 export function UserMenu() {
-  const { user, logoutMutation } = useAuth();
-  const [, setLocation] = useLocation();
-
-  const handleLogout = async () => {
-    try {
-      await logoutMutation.mutateAsync();
-      // Rediriger vers la page d'authentification après déconnexion
-      setLocation("/auth");
-    } catch (error) {
-      console.error("Erreur lors de la déconnexion:", error);
-    }
-  };
+  const { user, logout } = useAuth();
+  
+  // Récupérer l'avatar de l'utilisateur si disponible
+  const profileImage = user?.profileImageUrl;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="relative h-8 w-8 rounded-full">
-          <div className="flex h-full w-full items-center justify-center bg-primary text-primary-foreground rounded-full">
-            {user?.username ? user.username.charAt(0).toUpperCase() : <User className="h-4 w-4" />}
-          </div>
+          {profileImage ? (
+            <img 
+              src={profileImage} 
+              alt={user?.username || "Avatar"} 
+              className="h-full w-full object-cover rounded-full"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-primary text-primary-foreground rounded-full">
+              {user?.username ? user.username.charAt(0).toUpperCase() : <User className="h-4 w-4" />}
+            </div>
+          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
@@ -49,9 +48,9 @@ export function UserMenu() {
           <span>Préférences</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout} disabled={logoutMutation.isPending}>
+        <DropdownMenuItem onClick={logout}>
           <LogOut className="mr-2 h-4 w-4" />
-          <span>{logoutMutation.isPending ? "Déconnexion..." : "Se déconnecter"}</span>
+          <span>Se déconnecter</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

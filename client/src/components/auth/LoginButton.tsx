@@ -1,15 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { useLocation } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
 
 export function LoginButton() {
-  const [_, navigate] = useLocation();
+  const { login } = useAuth();
 
   return (
     <Button
-      onClick={() => {
-        // Redirection vers la page d'authentification
-        navigate("/auth");
-      }}
+      onClick={login}
       variant="default"
       size="sm"
       className="text-sm font-medium"
