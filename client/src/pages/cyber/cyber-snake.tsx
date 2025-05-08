@@ -321,16 +321,29 @@ const CyberSnake: React.FC = () => {
           radius: 5
         };
         
-        // Dessiner la bulle de texte
+        // Dessiner la bulle de texte avec une méthode compatible tous navigateurs
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.beginPath();
-        ctx.roundRect(
-          speechBubble.x - speechBubble.width / 2,
-          speechBubble.y - speechBubble.height / 2,
-          speechBubble.width,
-          speechBubble.height,
-          speechBubble.radius
-        );
+        
+        // Alternative compatible à roundRect
+        const x = speechBubble.x - speechBubble.width / 2;
+        const y = speechBubble.y - speechBubble.height / 2;
+        const width = speechBubble.width;
+        const height = speechBubble.height;
+        const radius = speechBubble.radius;
+        
+        // Dessin du rectangle arrondi manuellement
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+        
         ctx.fill();
         
         // Dessiner le texte dans la bulle
