@@ -390,7 +390,11 @@ export default function CyberModeSelectionRedesign() {
                   Accueil
                 </Button>
               </Link>
-              <PageTitle title="I AM CYBER" description="Explorez les ressources et modules de formation" className="ml-4" />
+              <PageTitle title="I AM CYBER" />
+              <div className="ml-4">
+                <h2 className="text-xl font-bold">I AM CYBER</h2>
+                <p className="text-sm text-gray-300">Explorez les ressources et modules de formation</p>
+              </div>
             </div>
             
             <div className="flex items-center gap-3">
