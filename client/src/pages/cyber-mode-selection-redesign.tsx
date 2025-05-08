@@ -26,7 +26,12 @@ import {
   Moon,
   ZoomIn,
   ZoomOut,
-  Lock
+  Lock,
+  LayoutGrid,
+  List,
+  Check,
+  Settings,
+  Briefcase
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
@@ -616,29 +621,32 @@ export default function CyberModeSelectionRedesign() {
             }`}>
               <TabsTrigger 
                 value="objectifs" 
-                className={`flex-1 ${
+                className={`flex-1 flex items-center justify-center ${
                   highContrastMode ? 'data-[state=active]:bg-blue-900 text-white' : ''
                 }`}
                 data-id="objectives-tab"
               >
+                <BookOpen className="h-5 w-5 mr-2" />
                 Par objectif d'apprentissage
               </TabsTrigger>
               <TabsTrigger 
                 value="metiers" 
-                className={`flex-1 ${
+                className={`flex-1 flex items-center justify-center ${
                   highContrastMode ? 'data-[state=active]:bg-blue-900 text-white' : ''
                 }`}
                 data-id="careers-tab"
               >
+                <Briefcase className="h-5 w-5 mr-2" />
                 Par métier
               </TabsTrigger>
               <TabsTrigger 
                 value="tous" 
-                className={`flex-1 ${
+                className={`flex-1 flex items-center justify-center ${
                   highContrastMode ? 'data-[state=active]:bg-blue-900 text-white' : ''
                 }`}
                 data-id="all-modules-tab"
               >
+                <Settings className="h-5 w-5 mr-2" />
                 Tous les modules
               </TabsTrigger>
             </TabsList>

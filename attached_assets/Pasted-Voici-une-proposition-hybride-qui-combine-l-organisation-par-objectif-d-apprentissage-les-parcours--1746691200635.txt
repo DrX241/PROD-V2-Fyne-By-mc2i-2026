@@ -1,0 +1,63 @@
+Voici une proposition hybride qui combine l'organisation par objectif d'apprentissage, les parcours guidés, et la catégorisation par métiers :
+
+Proposition mixte : Organisation par métiers avec parcours guidés
+Concept principal
+La page d'accueil I AM CYBER proposerait deux modes de navigation principaux :
+
+Par objectif d'apprentissage (Se former, S'entraîner, S'évaluer, Créer/Automatiser)
+Par parcours métier (selon les 8 catégories que vous avez partagées)
+Structure de l'interface
+En-tête
+Logo I AM CYBER
+Barre de recherche (pour trouver rapidement un module spécifique)
+Boutons d'accessibilité (contraste élevé, taille de texte, etc.)
+Section principale (deux onglets)
+Onglet "Objectifs" : Organisation par ce que l'utilisateur souhaite faire
+
+Se former (modules éducatifs)
+S'entraîner (simulations et jeux)
+S'évaluer (tests et évaluations)
+Créer/Automatiser (outils)
+Onglet "Métiers" : Organisation par profils professionnels
+
+Gouvernance, Risque et Conformité (RSSI, Consultant GRC, etc.)
+Sécurité Opérationnelle (Analyste SOC, Incident Responder, etc.)
+Architecture et Sécurisation
+Test d'intrusion et Red Team
+Sécurité des applications & DevSecOps
+Spécialistes Cloud, OT, et IoT
+Sensibilisation et formation
+R&D et veille
+Pour chaque catégorie de métier
+Description brève du domaine
+Compétences clés à développer
+Modules recommandés pour ce métier (avec indication de niveau débutant/intermédiaire/avancé)
+Parcours d'apprentissage suggéré (séquence recommandée de modules)
+Améliorations d'accessibilité spécifiques
+Système de filtres pour affiner la recherche :
+
+Niveau de difficulté
+Durée estimée
+Type d'activité (lecture, quiz, simulation, etc.)
+Compétences développées
+Indicateurs visuels et textuels :
+
+Codes couleur cohérents (avec légende explicite)
+Icônes distinctives pour chaque type de module
+Étiquettes de progression (non commencé, en cours, terminé)
+Navigation simplifiée :
+
+Fil d'Ariane pour toujours savoir où l'on se trouve
+Bouton "Reprendre où j'en étais" en évidence
+Option "Vue simplifiée" pour réduire les distractions
+Personnalisation :
+
+Possibilité d'épingler ses modules favoris
+Dashboard personnalisable avec statistiques de progression
+Option pour masquer les modules non pertinents pour son profil
+Avantages de cette approche mixte
+Flexibilité : Les utilisateurs peuvent naviguer selon leur préférence (par objectif ou par métier)
+Contextualisation : Les modules sont présentés dans le contexte des parcours professionnels
+Orientation : Guide les utilisateurs vers des parcours cohérents sans les submerger
+Progression claire : Permet de visualiser sa montée en compétence par rapport aux exigences des métiers
+Accessibilité : Offre plusieurs chemins pour accéder au même contenu, s'adaptant à différentes préférences de navigation
