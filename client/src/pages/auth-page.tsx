@@ -1,101 +1,32 @@
-import { useState } from "react";
 import { useEffect } from "react";
 import { Redirect } from "wouter";
-import { z } from "zod";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { Loader2 } from "lucide-react";
-
-// Schéma de validation pour le formulaire de connexion
-const loginSchema = z.object({
-  username: z.string().min(3, {
-    message: "Le nom d'utilisateur doit contenir au moins 3 caractères.",
-  }),
-  password: z.string().min(8, {
-    message: "Le mot de passe doit contenir au moins 8 caractères.",
-  }),
-});
-
-// Schéma de validation pour le formulaire d'inscription
-const registerSchema = z.object({
-  username: z.string().min(3, {
-    message: "Le nom d'utilisateur doit contenir au moins 3 caractères.",
-  }),
-  email: z.string().email({
-    message: "Veuillez entrer une adresse email valide.",
-  }).optional().or(z.literal("")),
-  password: z.string().min(8, {
-    message: "Le mot de passe doit contenir au moins 8 caractères.",
-  }),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Les mots de passe ne correspondent pas.",
-  path: ["confirmPassword"],
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
-type RegisterFormData = z.infer<typeof registerSchema>;
+import { LogIn } from "lucide-react";
 
 export default function AuthPage() {
-  const { user, isLoading, isAuthenticated, loginMutation, registerMutation } = useAuth();
-  const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<string>("login");
-
-  // Formulaire de connexion
-  const loginForm = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      username: "",
-      password: "",
-    },
-  });
-
-  // Formulaire d'inscription
-  const registerForm = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: {
-      username: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
-  });
+  const { isLoading, isAuthenticated, login } = useAuth();
   
   // Rediriger vers la page d'accueil si l'utilisateur est déjà connecté
-  // Important: Cette vérification doit être faite après l'initialisation de tous les hooks
   if (isAuthenticated) {
     return <Redirect to="/" />;
   }
 
-  // Gestion de la soumission du formulaire de connexion
-  const onLoginSubmit = async (data: LoginFormData) => {
-    try {
-      await loginMutation.mutateAsync(data);
-    } catch (error) {
-      console.error("Erreur de connexion:", error);
-    }
-  };
-
-  // Gestion de la soumission du formulaire d'inscription
-  const onRegisterSubmit = async (data: RegisterFormData) => {
-    try {
-      // Suppression du champ confirmPassword qui n'est pas nécessaire pour l'API
-      const { confirmPassword, ...registerData } = data;
-      await registerMutation.mutateAsync(registerData);
-    } catch (error) {
-      console.error("Erreur d'inscription:", error);
-    }
-  };
+  // Déclencher automatiquement la redirection vers Replit Auth
+  useEffect(() => {
+    // Petit délai pour permettre à l'utilisateur de voir la page avant la redirection
+    const timer = setTimeout(() => {
+      if (!isLoading && !isAuthenticated) {
+        login();
+      }
+    }, 1500);
+    
+    return () => clearTimeout(timer);
+  }, [isLoading, isAuthenticated, login]);
 
   return (
     <div className="flex min-h-screen">
-      {/* Formulaire */}
+      {/* Section de connexion */}
       <div className="flex flex-1 flex-col justify-center px-4 py-8 sm:px-6 lg:flex-none lg:px-20 xl:px-24 bg-gradient-to-b from-gray-50 to-gray-100">
         <div className="mx-auto w-full max-w-sm lg:w-96">
           <div className="mb-10 text-center">
@@ -104,68 +35,28 @@ export default function AuthPage() {
               Plateforme FYNE
             </h2>
             <p className="mt-2 text-base leading-6 text-gray-600">
-              Connectez-vous pour accéder à votre espace personnel
+              Vous allez être redirigé vers la page de connexion
             </p>
           </div>
 
-          <Form {...loginForm}>
-            <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-6">
-              <FormField
-                control={loginForm.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-800 font-semibold">Nom d'utilisateur</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="Entrez votre nom d'utilisateur" 
-                        className="border-gray-300 bg-white/80 backdrop-blur-sm text-black" 
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <div className="space-y-6">
+            <div className="bg-blue-50 rounded-lg p-4 text-blue-700 text-sm">
+              <p>Notre plateforme utilise désormais l'authentification sécurisée via Replit.</p>
+            </div>
 
-              <FormField
-                control={loginForm.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-800 font-semibold">Mot de passe</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="password" 
-                        placeholder="Entrez votre mot de passe" 
-                        className="border-gray-300 bg-white/80 backdrop-blur-sm text-black" 
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <Button
-                type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-6"
-                disabled={loginMutation.isPending}
-              >
-                {loginMutation.isPending ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Connexion en cours...
-                  </>
-                ) : "Accéder à la plateforme"}
-              </Button>
-              
-              <p className="text-xs text-center text-gray-600 mt-4">
-                L'accès à cette plateforme est réservé aux collaborateurs mc2i et ses partenaires.
-                <br />Pour tout problème de connexion, veuillez contacter votre administrateur.
-              </p>
-            </form>
-          </Form>
+            <Button
+              onClick={login}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-6"
+            >
+              <LogIn className="mr-2 h-5 w-5" />
+              Se connecter avec Replit
+            </Button>
+            
+            <p className="text-xs text-center text-gray-600 mt-4">
+              L'accès à cette plateforme est réservé aux collaborateurs mc2i et ses partenaires.
+              <br />Pour tout problème de connexion, veuillez contacter votre administrateur.
+            </p>
+          </div>
         </div>
       </div>
 
