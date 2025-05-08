@@ -1,5 +1,11 @@
 import { Request, Response } from 'express';
 import { openAIService } from './services/openai';
+// Définir nos propres types pour éviter les problèmes de compatibilité
+type Role = "system" | "user" | "assistant";
+interface MessageType {
+  role: Role;
+  content: string;
+}
 
 interface CyberPractice {
   text: string;
@@ -25,24 +31,26 @@ export async function generateCyberPractices(req: Request, res: Response) {
     et 50% de mauvaises pratiques. Assure-toi que chaque pratique est clairement identifiable comme bonne ou mauvaise. 
     Évite les nuances ou les ambiguïtés.`;
 
-    // Utiliser le service OpenAI
-    const response = await openAIService.createChatCompletion({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ],
-      response_format: { type: 'json_object' }
-    });
+    // Utiliser le service OpenAI avec la méthode correcte
+    const messages: ChatCompletionRequestMessage[] = [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt }
+    ];
+    
+    // Obtenir la réponse formatée en JSON
+    const responseContent = await openAIService.getChatCompletion(
+      messages,
+      0.7,  // temperature
+      1000  // maxTokens
+    );
 
     // Extraction et nettoyage des données
-    const content = response.choices[0].message.content;
-    if (!content) {
+    if (!responseContent) {
       throw new Error("Réponse d'Azure OpenAI vide");
     }
 
     // Parse le JSON 
-    const jsonData = JSON.parse(content);
+    const jsonData = JSON.parse(responseContent);
     
     if (!jsonData.practices || !Array.isArray(jsonData.practices)) {
       throw new Error("Format de réponse incorrect");
