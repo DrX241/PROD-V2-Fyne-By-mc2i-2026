@@ -911,13 +911,13 @@ export async function sendMessage(req: Request, res: Response) {
       }
       
       // Utiliser notre service amélioré avec cache et rate limiting
-      const assistantResponse = await enhancedOpenAIService.getChatCompletion(
+      const assistantResponse = await enhancedOpenAIService.getChatCompletionWithCache(
         openaiMessages,
         {
           userId: conversationId ? `conv_${conversationId}` : sessionId || 'anonymous',
           domain: domain,
-          useCache: true, // Activer le cache
-          useRateLimiter: true // Activer le rate limiting
+          disableCache: false, // Activer le cache
+          disableRateLimiting: false // Activer le rate limiting
         }
       );
       
