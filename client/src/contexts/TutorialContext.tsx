@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import Joyride, { STATUS, CallBackProps, Step, ACTIONS } from 'react-joyride';
 
 interface TutorialContextType {
@@ -8,6 +8,7 @@ interface TutorialContextType {
   setCurrentTour: (tourName: string) => void;
   currentTour: string | null;
   tutorialSeen: Record<string, boolean>;
+  isTutorialActive: boolean;
 }
 
 interface TutorialProviderProps {
@@ -22,6 +23,7 @@ const TutorialContext = createContext<TutorialContextType>({
   setCurrentTour: () => {},
   currentTour: null,
   tutorialSeen: {},
+  isTutorialActive: false,
 });
 
 // Étapes du tutoriel pour chaque page
@@ -152,7 +154,9 @@ export const TutorialProvider: React.FC<TutorialProviderProps> = ({ children }) 
   const [showTutorial, setShowTutorial] = useState(false);
   const [currentTour, setCurrentTour] = useState<string | null>(null);
   const [tutorialSeen, setTutorialSeen] = useState<Record<string, boolean>>({});
-
+  const [isTutorialActive, setIsTutorialActive] = useState(false);
+  const scrollPositionRef = useRef<number>(0);
+  
   // Charger les tutoriels déjà vus depuis le localStorage
   useEffect(() => {
     const seenTutorials = localStorage.getItem('tutorialSeen');
@@ -160,10 +164,39 @@ export const TutorialProvider: React.FC<TutorialProviderProps> = ({ children }) 
       setTutorialSeen(JSON.parse(seenTutorials));
     }
   }, []);
+  
+  // Effet pour bloquer le défilement quand le tutoriel est actif
+  useEffect(() => {
+    if (showTutorial) {
+      // Enregistrer la position de défilement actuelle
+      scrollPositionRef.current = window.scrollY;
+      // Remonter au début de la page
+      window.scrollTo(0, 0);
+      // Empêcher le défilement
+      document.body.style.overflow = 'hidden';
+      setIsTutorialActive(true);
+    } else {
+      // Réactiver le défilement
+      document.body.style.overflow = '';
+      setIsTutorialActive(false);
+      
+      // Restaurer la position de défilement (seulement si on quitte le tutoriel, pas quand on le démarre)
+      if (isTutorialActive) {
+        setTimeout(() => {
+          window.scrollTo(0, scrollPositionRef.current);
+        }, 100);
+      }
+    }
+    
+    return () => {
+      // Nettoyage au démontage du composant
+      document.body.style.overflow = '';
+    };
+  }, [showTutorial, isTutorialActive]);
 
   // Gestionnaire de callback pour le tutoriel
   const handleJoyrideCallback = (data: CallBackProps) => {
-    const { status, action, type } = data;
+    const { status, action, type, step } = data;
 
     // Quand le tutoriel est terminé ou fermé
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status as any) || 
@@ -176,6 +209,11 @@ export const TutorialProvider: React.FC<TutorialProviderProps> = ({ children }) 
         setTutorialSeen(updatedTutorialSeen);
         localStorage.setItem('tutorialSeen', JSON.stringify(updatedTutorialSeen));
       }
+    }
+    
+    // Forcer le scroll vers le haut à chaque étape du tutoriel
+    if (type === "step:after" && step?.target) {
+      window.scrollTo(0, 0);
     }
   };
 
@@ -200,7 +238,8 @@ export const TutorialProvider: React.FC<TutorialProviderProps> = ({ children }) 
         stopTutorial, 
         setCurrentTour,
         currentTour,
-        tutorialSeen
+        tutorialSeen,
+        isTutorialActive
       }}
     >
       <Joyride
@@ -210,6 +249,9 @@ export const TutorialProvider: React.FC<TutorialProviderProps> = ({ children }) 
         showProgress={true}
         showSkipButton={true}
         callback={handleJoyrideCallback}
+        scrollToFirstStep={true}
+        scrollOffset={0}
+        scrollDuration={0}
         styles={{
           options: {
             primaryColor: '#3B82F6', // blue-500
