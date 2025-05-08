@@ -1,5 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useFirebaseAuthContext } from "@/contexts/FirebaseAuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { User as FirebaseUser } from "firebase/auth";
 
 // Types pour l'authentification
 export interface User {
@@ -11,66 +12,121 @@ export interface User {
   bio?: string;
   profileImageUrl?: string;
   role: 'user' | 'admin';
-  createdAt: string;
-  updatedAt: string;
 }
+
+// Adapter pour transformer FirebaseUser en User
+const mapFirebaseUserToUser = (firebaseUser: FirebaseUser | null): User | null => {
+  if (!firebaseUser) return null;
+  
+  return {
+    id: firebaseUser.uid,
+    username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Utilisateur',
+    email: firebaseUser.email || undefined,
+    firstName: firebaseUser.displayName?.split(' ')[0] || undefined,
+    lastName: firebaseUser.displayName?.split(' ').slice(1).join(' ') || undefined,
+    profileImageUrl: firebaseUser.photoURL || undefined,
+    role: firebaseUser.email?.includes('admin') ? 'admin' : 'user',
+  };
+};
 
 export function useAuth() {
   const { toast } = useToast();
-  
-  // Récupérer l'utilisateur courant
-  const { 
-    data: user, 
-    error, 
+  const {
+    user: firebaseUser,
     isLoading,
-    refetch 
-  } = useQuery<User | null>({
-    queryKey: ['/api/auth/user'],
-    queryFn: async () => {
-      try {
-        const res = await fetch('/api/auth/user', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          credentials: 'include'
-        });
-        
-        if (!res.ok) {
-          if (res.status === 401) {
-            return null; // Utilisateur non authentifié
-          }
-          throw new Error('Erreur lors de la récupération de l\'utilisateur');
-        }
-        
-        const data = await res.json();
-        return data;
-      } catch (error) {
-        console.error('Erreur dans récupération utilisateur:', error);
-        return null; // En cas d'erreur, on considère que l'utilisateur n'est pas connecté
-      }
-    },
-    retry: 0, // Ne pas réessayer en cas d'erreur
-  });
-
-  // Redirection vers la page de connexion Replit
-  const login = () => {
-    window.location.href = '/api/login';
+    error,
+    isAuthenticated,
+    isAdmin,
+    loginWithGoogle,
+    loginWithEmail,
+    registerWithEmail,
+    logout
+  } = useFirebaseAuthContext();
+  
+  // Convertir l'utilisateur Firebase en utilisateur compatible avec notre application
+  const user = mapFirebaseUserToUser(firebaseUser);
+  
+  // Fonction de connexion - par défaut utilise Google
+  const login = async () => {
+    try {
+      await loginWithGoogle();
+      toast({
+        title: 'Connexion réussie',
+        description: 'Vous êtes maintenant connecté',
+      });
+    } catch (error) {
+      console.error('Erreur de connexion:', error);
+      toast({
+        title: 'Erreur de connexion',
+        description: (error as Error).message,
+        variant: 'destructive',
+      });
+    }
   };
-
-  // Redirection vers la page de déconnexion Replit
-  const logout = () => {
-    window.location.href = '/api/logout';
+  
+  // Connexion avec email et mot de passe
+  const loginWithEmailPassword = async (email: string, password: string) => {
+    try {
+      await loginWithEmail(email, password);
+      toast({
+        title: 'Connexion réussie',
+        description: 'Vous êtes maintenant connecté',
+      });
+    } catch (error) {
+      console.error('Erreur de connexion:', error);
+      toast({
+        title: 'Erreur de connexion',
+        description: (error as Error).message,
+        variant: 'destructive',
+      });
+    }
+  };
+  
+  // Inscription avec email et mot de passe
+  const register = async (email: string, password: string) => {
+    try {
+      await registerWithEmail(email, password);
+      toast({
+        title: 'Inscription réussie',
+        description: 'Votre compte a été créé avec succès',
+      });
+    } catch (error) {
+      console.error('Erreur d\'inscription:', error);
+      toast({
+        title: 'Erreur d\'inscription',
+        description: (error as Error).message,
+        variant: 'destructive',
+      });
+    }
+  };
+  
+  // Déconnexion
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast({
+        title: 'Déconnexion réussie',
+        description: 'Vous avez été déconnecté avec succès',
+      });
+    } catch (error) {
+      console.error('Erreur de déconnexion:', error);
+      toast({
+        title: 'Erreur de déconnexion',
+        description: (error as Error).message,
+        variant: 'destructive',
+      });
+    }
   };
 
   return {
     user,
     isLoading,
     error,
-    isAuthenticated: !!user,
-    isAdmin: user?.role === 'admin',
+    isAuthenticated,
+    isAdmin,
     login,
-    logout,
-    refetch
+    loginWithEmail: loginWithEmailPassword,
+    register,
+    logout: handleLogout,
   };
 }

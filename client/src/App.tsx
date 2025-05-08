@@ -7,6 +7,7 @@ import { ChatProvider } from "./contexts/ChatContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { TutorialProvider } from "./contexts/TutorialContext";
 import { AuthProvider } from "./contexts/AuthContext";
+import { FirebaseAuthProvider } from "./contexts/FirebaseAuthContext";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import AuthPage from "./pages/auth-page";
 
