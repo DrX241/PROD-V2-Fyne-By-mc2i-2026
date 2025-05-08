@@ -9,7 +9,7 @@ export const assistantOperationLogs = pgTable('assistant_operation_logs', {
   id: serial('id').primaryKey(),
   assistantId: integer('assistant_id'),
   templateId: integer('template_id'),
-  userId: integer('user_id').notNull(),
+  userId: text('user_id').notNull(),  // Changé de integer à text pour Replit Auth
   operation: text('operation').notNull(),
   status: text('status').notNull(),
   details: jsonb('details').default({}),
@@ -50,7 +50,7 @@ export enum LogStatus {
 export interface AssistantLog {
   assistantId?: number;
   templateId?: number;
-  userId: number;
+  userId: string; // Changé de number à string pour Replit Auth
   operation: AssistantOperation;
   status: LogStatus;
   details?: Record<string, any>;
@@ -92,7 +92,7 @@ export async function getAssistantLogs(assistantId: number): Promise<any[]> {
 /**
  * Récupère les logs d'opérations pour un utilisateur spécifique
  */
-export async function getUserAssistantLogs(userId: number): Promise<any[]> {
+export async function getUserAssistantLogs(userId: string): Promise<any[]> {
   return db.select()
     .from(assistantOperationLogs)
     .where(sql`user_id = ${userId}`)

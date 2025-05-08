@@ -208,7 +208,7 @@ export async function createAssistant(req: Request, res: Response) {
     });
     
     // 2. Vérifier/récupérer l'utilisateur
-    let databaseUserId: number;
+    let databaseUserId: string;
     try {
       // Si assistantData.userId est une chaîne de caractères (UUID), on cherche par username
       // Si c'est un nombre, on cherche par id
@@ -218,8 +218,9 @@ export async function createAssistant(req: Request, res: Response) {
         console.log(`Recherche utilisateur par username: ${assistantData.userId}`);
         userExists = await db.select({ id: users.id }).from(users).where(eq(users.username, assistantData.userId)).limit(1);
       } else {
-        console.log(`Recherche utilisateur par ID: ${assistantData.userId}`);
-        userExists = await db.select({ id: users.id }).from(users).where(eq(users.id, assistantData.userId)).limit(1);
+        console.log(`Recherche utilisateur par ID numérique (conversion nécessaire): ${assistantData.userId}`);
+        const idAsString = String(assistantData.userId);
+        userExists = await db.select({ id: users.id }).from(users).where(eq(users.id, idAsString)).limit(1);
       }
       
       if (!userExists.length) {
@@ -258,7 +259,7 @@ export async function createAssistant(req: Request, res: Response) {
         console.log(`Utilisateur existant trouvé avec ID: ${databaseUserId}`);
       }
       
-      // On s'assure que l'ID utilisateur est bien un nombre
+      // On assure que l'ID utilisateur est bien défini
       assistantData.userId = databaseUserId;
       
     } catch (userError) {
