@@ -1062,6 +1062,7 @@ export default function CyberModeSelectionRedesign() {
                   ))}
                 </div>
               )}
+              </div>
             </TabsContent>
           </Tabs>
         </div>
