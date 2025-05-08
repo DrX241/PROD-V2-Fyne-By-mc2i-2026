@@ -87,16 +87,14 @@ export default function CyberModeSelectionRedesign() {
   // Tutorial integration
   const { showTutorial, startTutorial, setCurrentTour, tutorialSeen } = useTutorial();
 
-  // Démarrage du didacticiel lors de la première visite
+  // Démarrage du didacticiel à chaque visite
   useEffect(() => {
-    if (!tutorialSeen['cyber-mode-selection-redesign']) {
-      setCurrentTour('cyber-mode-selection-redesign');
-      const timer = setTimeout(() => {
-        startTutorial();
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [tutorialSeen, setCurrentTour, startTutorial]);
+    setCurrentTour('cyber-mode-selection-redesign');
+    const timer = setTimeout(() => {
+      startTutorial();
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [setCurrentTour, startTutorial]);
 
   // Tous les modules disponibles
   const allModules: Module[] = [
@@ -377,16 +375,16 @@ export default function CyberModeSelectionRedesign() {
 
   return (
     <HomeLayout>
-      <div className={`min-h-screen pb-20 ${
+      <div id="cyber-mode-selection" className={`min-h-screen pb-20 ${
         highContrastMode ? 'bg-black text-white' : 'bg-gradient-to-b from-blue-950 to-black text-white'
-      }`}>
+      }`} style={{ fontSize: `${textSize}rem` }}>
         {/* Navigation et contrôles */}
         <div className="p-6 relative container mx-auto">
           <div className="flex justify-between items-center mb-8">
             <div className="flex items-center">
               <Link href="/">
-                <Button variant="ghost" className="text-white">
-                  <Home className="mr-2 h-5 w-5" />
+                <Button variant="ghost" className="text-white text-lg px-5 py-2 h-auto">
+                  <Home className="mr-2 h-6 w-6" />
                   Accueil
                 </Button>
               </Link>
@@ -500,15 +498,11 @@ export default function CyberModeSelectionRedesign() {
             className="text-center mb-10"
             data-id="main-title"
           >
-            <h1 className={`text-4xl font-bold mb-3 ${
-              textSize > 1 ? 'text-5xl' : textSize < 1 ? 'text-3xl' : 'text-4xl'
-            }`}>
+            <h1 className="text-4xl font-bold mb-3">
               Bienvenue dans I AM CYBER
             </h1>
-            <p className={`text-lg text-blue-200 max-w-3xl mx-auto ${
+            <p className={`max-w-3xl mx-auto ${
               highContrastMode ? 'text-gray-300' : 'text-blue-200' 
-            } ${
-              textSize > 1 ? 'text-xl' : textSize < 1 ? 'text-sm' : 'text-base'
             }`}>
               Trouvez votre parcours d'apprentissage personnalisé en cybersécurité
             </p>
