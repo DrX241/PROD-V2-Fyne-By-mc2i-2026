@@ -1,6 +1,6 @@
 import { createContext, ReactNode } from "react";
 import { User } from "@shared/schema";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { QueryClient, UseMutationResult, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -23,9 +23,9 @@ export type AuthContextType = {
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
   logout: () => Promise<void>;
-  loginMutation: ReturnType<typeof useMutation>;
-  registerMutation: ReturnType<typeof useMutation>;
-  logoutMutation: ReturnType<typeof useMutation>;
+  loginMutation: UseMutationResult<User, Error, LoginCredentials>;
+  registerMutation: UseMutationResult<User, Error, RegisterCredentials>;
+  logoutMutation: UseMutationResult<void, Error, void>;
 };
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -49,12 +49,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
     refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes to keep the session alive
   });
 
-  const loginMutation = useMutation({
+  const loginMutation = useMutation<User, Error, LoginCredentials>({
     mutationFn: async (credentials: LoginCredentials) => {
-      const response = await apiRequest("POST", "/api/login", credentials);
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      });
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Échec de la connexion");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Échec de la connexion");
       }
       return await response.json();
     },
@@ -74,12 +80,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
     },
   });
 
-  const registerMutation = useMutation({
+  const registerMutation = useMutation<User, Error, RegisterCredentials>({
     mutationFn: async (credentials: RegisterCredentials) => {
-      const response = await apiRequest("POST", "/api/register", credentials);
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      });
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Échec de l'inscription");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Échec de l'inscription");
       }
       return await response.json();
     },
@@ -99,12 +111,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
     },
   });
 
-  const logoutMutation = useMutation({
+  const logoutMutation = useMutation<void, Error, void>({
     mutationFn: async () => {
-      const response = await apiRequest("POST", "/api/logout");
+      const response = await fetch('/api/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Échec de la déconnexion");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Échec de la déconnexion");
       }
     },
     onSuccess: () => {
