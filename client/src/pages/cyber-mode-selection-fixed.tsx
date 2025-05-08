@@ -649,7 +649,7 @@ export default function CyberModeSelectionRedesign() {
                       <Button
                         key={career.id}
                         variant={highContrastMode ? "outline" : "secondary"}
-                        className={`h-auto py-3 justify-start ${
+                        className={`h-auto py-3 justify-start min-h-[52px] ${
                           selectedCareerPath === career.id 
                             ? highContrastMode 
                               ? 'bg-blue-900 border-blue-700' 
@@ -661,15 +661,15 @@ export default function CyberModeSelectionRedesign() {
                         onClick={() => setSelectedCareerPath(career.id)}
                         data-id={`career-${career.id}`}
                       >
-                        <div className="flex items-center gap-2">
-                          <div className={`p-1.5 rounded-full ${
+                        <div className="flex items-start gap-2 w-full">
+                          <div className={`p-1.5 rounded-full shrink-0 ${
                             highContrastMode 
                               ? 'bg-gray-700' 
                               : 'bg-white/20'
                           }`}>
                             {career.icon}
                           </div>
-                          <span className="text-sm font-medium">{career.title}</span>
+                          <span className="text-sm font-medium text-left line-clamp-2">{career.title}</span>
                         </div>
                       </Button>
                     ))}
@@ -734,13 +734,13 @@ export default function CyberModeSelectionRedesign() {
                                   >
                                     <CardHeader className="pb-2">
                                       <div className="flex justify-between">
-                                        <div className="flex gap-2 items-center">
-                                          <div className={`p-1.5 rounded-md ${
+                                        <div className="flex gap-2 items-start">
+                                          <div className={`p-1.5 rounded-md shrink-0 mt-0.5 ${
                                             highContrastMode ? 'bg-blue-900' : 'bg-white/10'
                                           }`}>
                                             {module.icon}
                                           </div>
-                                          <CardTitle className="text-lg">
+                                          <CardTitle className="text-lg line-clamp-2 text-left">
                                             {index + 1}. {module.title}
                                           </CardTitle>
                                         </div>
@@ -942,17 +942,17 @@ export default function CyberModeSelectionRedesign() {
                       >
                         <CardHeader>
                           <div className="flex justify-between items-start">
-                            <div className="flex items-center">
-                              <div className={`p-2 rounded-lg ${
+                            <div className="flex items-start">
+                              <div className={`p-2 rounded-lg shrink-0 mt-0.5 ${
                                 highContrastMode ? 'bg-blue-900' : 'bg-blue-900/40'
                               } mr-3`}>
                                 {module.icon}
                               </div>
                               <div>
-                                <CardTitle className="flex items-center">
-                                  {module.title}
+                                <CardTitle className="flex flex-wrap items-center gap-1">
+                                  <span className="line-clamp-2 text-left">{module.title}</span>
                                   {module.isNew && (
-                                    <Badge variant="secondary" className="ml-2 bg-blue-600 text-white text-xs">
+                                    <Badge variant="secondary" className="bg-blue-600 text-white text-xs">
                                       Nouveau
                                     </Badge>
                                   )}
@@ -1010,28 +1010,28 @@ export default function CyberModeSelectionRedesign() {
                         } transition-colors`}
                         data-id={`module-list-${module.id}`}
                       >
-                        <div className="flex items-center gap-4">
-                          <div className={`p-2 rounded-lg ${
+                        <div className="flex items-start gap-4">
+                          <div className={`p-2 rounded-lg shrink-0 mt-0.5 ${
                             highContrastMode ? 'bg-blue-900' : 'bg-blue-900/40'
                           }`}>
                             {module.icon}
                           </div>
-                          <div>
-                            <div className="flex items-center">
-                              <h3 className="font-bold">{module.title}</h3>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-1">
+                              <h3 className="font-bold text-left line-clamp-1">{module.title}</h3>
                               {module.isNew && (
-                                <Badge variant="secondary" className="ml-2 bg-blue-600 text-white text-xs">
+                                <Badge variant="secondary" className="bg-blue-600 text-white text-xs">
                                   Nouveau
                                 </Badge>
                               )}
                             </div>
-                            <div className="flex items-center mt-1 gap-3">
-                              <p className={`text-sm ${
+                            <div className="flex flex-wrap mt-1 gap-3">
+                              <p className={`text-sm line-clamp-1 max-w-[500px] ${
                                 highContrastMode ? 'text-gray-300' : 'text-blue-100'
                               }`}>
                                 {module.description}
                               </p>
-                              <div className="text-sm">{renderDifficultyBadge(module.difficulty)}</div>
+                              <div className="text-sm shrink-0">{renderDifficultyBadge(module.difficulty)}</div>
                             </div>
                           </div>
                         </div>
