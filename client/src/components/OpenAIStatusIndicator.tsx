@@ -16,12 +16,13 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
   showModelToggle = true, 
   position = 'fixed-bottom-right' 
 }) => {
-  const [status, setStatus] = useState<'connected' | 'disconnected' | 'checking'>('checking');
+  const [status, setStatus] = useState<'connected' | 'disconnected' | 'checking' | 'reconnecting'>('checking');
   const [currentModel, setCurrentModel] = useState<string>('gpt-4o');
   const [apiKeyType, setApiKeyType] = useState<'primary' | 'secondary'>('primary');
   const [lastCheck, setLastCheck] = useState<number>(0);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [isToggling, setIsToggling] = useState<boolean>(false);
+  const [isReconnecting, setIsReconnecting] = useState<boolean>(false);
   
   // Formate la date du dernier check
   const formattedLastCheck = lastCheck ? new Date(lastCheck).toLocaleTimeString() : 'Jamais';

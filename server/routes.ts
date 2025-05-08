@@ -2805,17 +2805,37 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
     try {
       const isConnected = await openAIService.checkConnection();
       res.json({
-        connectionStatus: isConnected ? 'connected' : 'disconnected',
+        connectionStatus: openAIService.getConnectionStatus(),
         currentModel: openAIService.getCurrentModelName(),
-        apiKeyType: openAIService.getCurrentConfig(),
-        lastCheck: Date.now()
+        apiKeyType: openAIService.getCurrentApiKeyType(),
+        lastCheck: openAIService.getLastConnectionCheck() || Date.now()
       });
     } catch (error) {
       console.error('Error checking API status:', error);
+    }
+  });
+  
+  // Endpoint pour forcer la reconnexion à Azure OpenAI
+  app.post('/api/openai/reconnect', async (req: Request, res: Response) => {
+    try {
+      console.log('Reconnexion forcée à Azure OpenAI demandée');
+      const reconnectResult = await openAIService.forceReconnect();
+      
+      res.json({
+        success: reconnectResult,
+        message: reconnectResult ? 'Reconnexion réussie' : 'Reconnexion en cours, réessayez dans quelques instants',
+        connectionStatus: openAIService.getConnectionStatus(),
+        currentModel: openAIService.getCurrentModelName(),
+        apiKeyType: openAIService.getCurrentApiKeyType(),
+        lastCheck: openAIService.getLastConnectionCheck() || Date.now()
+      });
+    } catch (error) {
+      console.error('Error during forced reconnection:', error);
       res.status(500).json({
-        connectionStatus: 'error',
-        message: 'Failed to check API connection',
-        time: new Date().toISOString()
+        success: false,
+        message: 'Erreur lors de la tentative de reconnexion',
+        connectionStatus: openAIService.getConnectionStatus(),
+        error: error.message
       });
     }
   });

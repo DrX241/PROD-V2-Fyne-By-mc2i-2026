@@ -24,7 +24,10 @@ class OpenAIService {
   private readonly CACHE_TTL = 1000 * 60 * 60;
   private connectionStatus: 'connected' | 'disconnected' | 'reconnecting' = 'disconnected';
   private lastConnectionCheck: number = 0;
-  private readonly CONNECTION_CHECK_INTERVAL = 1000 * 60 * 5;
+  private readonly CONNECTION_CHECK_INTERVAL = 1000 * 60 * 1; // Vérifie la connexion toutes les minutes
+  private reconnectInterval: NodeJS.Timeout | null = null;
+  private reconnectAttempts: number = 0;
+  private readonly MAX_RECONNECT_ATTEMPTS = 5;
 
   constructor() {
     console.log("Initializing Azure OpenAI Service with configuration from secrets");
@@ -101,6 +104,63 @@ class OpenAIService {
     console.log(`Checking connection to Azure OpenAI at: ${baseEndpoint}/openai/deployments/${this.secondaryConfig.deploymentName}/chat/completions?api-version=${this.secondaryConfig.apiVersion}`);
     
     this.checkConnection();
+    
+    // Démarrer la vérification périodique de connexion
+    this.startPeriodicConnectionCheck();
+  }
+  
+  // Démarre une vérification périodique de la connexion
+  private startPeriodicConnectionCheck(): void {
+    // Vérification toutes les minutes
+    setInterval(() => {
+      console.log('Performing periodic connection check to Azure OpenAI...');
+      this.checkConnection().then(isConnected => {
+        if (!isConnected && this.connectionStatus !== 'reconnecting') {
+          console.log('Connection lost, starting automatic reconnection...');
+          this.startReconnectionProcess();
+        }
+      });
+    }, this.CONNECTION_CHECK_INTERVAL);
+  }
+  
+  // Démarre le processus de reconnexion
+  private startReconnectionProcess(): void {
+    // Arrêter tout intervalle de reconnexion précédent
+    if (this.reconnectInterval) {
+      clearInterval(this.reconnectInterval);
+      this.reconnectInterval = null;
+    }
+    
+    this.connectionStatus = 'reconnecting';
+    this.reconnectAttempts = 0;
+    
+    // Tenter de se reconnecter toutes les 10 secondes
+    this.reconnectInterval = setInterval(() => {
+      this.reconnectAttempts++;
+      console.log(`Reconnection attempt ${this.reconnectAttempts} of ${this.MAX_RECONNECT_ATTEMPTS}...`);
+      
+      this.checkConnection().then(isConnected => {
+        if (isConnected) {
+          console.log('Reconnection successful!');
+          this.connectionStatus = 'connected';
+          
+          // Arrêter les tentatives de reconnexion
+          if (this.reconnectInterval) {
+            clearInterval(this.reconnectInterval);
+            this.reconnectInterval = null;
+          }
+        } else if (this.reconnectAttempts >= this.MAX_RECONNECT_ATTEMPTS) {
+          console.log('Max reconnection attempts reached. Giving up.');
+          this.connectionStatus = 'disconnected';
+          
+          // Arrêter les tentatives de reconnexion
+          if (this.reconnectInterval) {
+            clearInterval(this.reconnectInterval);
+            this.reconnectInterval = null;
+          }
+        }
+      });
+    }, 10000); // Tentative toutes les 10 secondes
   }
 
   // Valide que l'URL est correctement formatée
@@ -379,6 +439,34 @@ class OpenAIService {
 
   getCurrentModelName(): string {
     return this.getCurrentConfig().modelName;
+  }
+  
+  // Force une tentative de reconnexion immédiate
+  async forceReconnect(): Promise<boolean> {
+    console.log('Force reconnection requested');
+    
+    // Réinitialiser l'état de connexion
+    this.connectionStatus = 'reconnecting';
+    this.lastConnectionCheck = 0;
+    this.reconnectAttempts = 0;
+    
+    // Arrêter les intervalles de reconnexion existants
+    if (this.reconnectInterval) {
+      clearInterval(this.reconnectInterval);
+      this.reconnectInterval = null;
+    }
+    
+    // Tenter une reconnexion immédiate
+    const isConnected = await this.checkConnection();
+    
+    if (!isConnected) {
+      // Si la reconnexion immédiate échoue, démarrer le processus automatique
+      this.startReconnectionProcess();
+    } else {
+      console.log('Force reconnection successful!');
+    }
+    
+    return isConnected;
   }
 
   // Méthode principale pour obtenir une complétion avec gestion du cache
