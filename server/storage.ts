@@ -35,10 +35,13 @@ export class MemStorage implements IStorage {
       id: insertUser.id,
       username: insertUser.username,
       email: insertUser.email || null,
+      password: insertUser.password,
+      role: insertUser.role || 'user',
       firstName: insertUser.firstName || null,
       lastName: insertUser.lastName || null,
       bio: insertUser.bio || null,
       profileImageUrl: insertUser.profileImageUrl || null,
+      isActive: insertUser.isActive !== undefined ? insertUser.isActive : true,
       createdAt: now,
       updatedAt: now
     };
