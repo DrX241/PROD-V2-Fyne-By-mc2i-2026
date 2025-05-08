@@ -6,9 +6,6 @@ import { Suspense, lazy, startTransition } from "react";
 import { ChatProvider } from "./contexts/ChatContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { TutorialProvider } from "./contexts/TutorialContext";
-import { AuthProvider } from "./contexts/AuthContext";
-import { ProtectedRoute } from "./components/auth/ProtectedRoute";
-import AuthPage from "./pages/auth-page";
 
 // Importation des composants directement car le lazy loading provoque des problèmes
 // avec wouter dans cette implémentation
@@ -109,15 +106,12 @@ function App() {
       <ThemeProvider>
         <ChatProvider>
           <TutorialProvider>
-            <AuthProvider>
-              <div>
-                <Switch>
-            {/* Page d'authentification */}
-            <Route path="/auth" component={AuthPage} />
+            <div>
+              <Switch>
             
-            {/* Routes protégées nécessitant une authentification */}
-            <ProtectedRoute path="/cyber/interview-simulation" component={CyberInterviewSimulation} />
-            <ProtectedRoute path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
+            {/* Toutes les routes sont maintenant publiques */}
+            <Route path="/cyber/interview-simulation" component={CyberInterviewSimulation} />
+            <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
             
             {/* Routes publiques */}
             <Route path="/" component={Home} />
@@ -465,7 +459,6 @@ function App() {
           </Switch>
                 <Toaster />
               </div>
-            </AuthProvider>
           </TutorialProvider>
         </ChatProvider>
       </ThemeProvider>
