@@ -9,12 +9,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
 import { User, LogOut, Settings } from "lucide-react";
+import { useLocation } from "wouter";
 
 export function UserMenu() {
-  const { user } = useAuth();
+  const { user, logoutMutation } = useAuth();
+  const [, setLocation] = useLocation();
 
-  const handleLogout = () => {
-    window.location.href = "/api/logout";
+  const handleLogout = async () => {
+    try {
+      await logoutMutation.mutateAsync();
+      // Rediriger vers la page d'authentification après déconnexion
+      setLocation("/auth");
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion:", error);
+    }
   };
 
   return (
@@ -41,9 +49,9 @@ export function UserMenu() {
           <span>Préférences</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout}>
+        <DropdownMenuItem onClick={handleLogout} disabled={logoutMutation.isPending}>
           <LogOut className="mr-2 h-4 w-4" />
-          <span>Se déconnecter</span>
+          <span>{logoutMutation.isPending ? "Déconnexion..." : "Se déconnecter"}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
