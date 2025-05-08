@@ -4,22 +4,21 @@ import { eq } from "drizzle-orm";
 
 // Interface pour les opérations de stockage CRUD
 export interface IStorage {
-  getUser(id: number): Promise<User | undefined>;
+  getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  upsertUser(user: InsertUser): Promise<User>;
 }
 
 // Implémentation de la mémoire pour les tests et le développement
 export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  currentId: number;
+  private users: Map<string, User>;
 
   constructor() {
     this.users = new Map();
-    this.currentId = 1;
   }
 
-  async getUser(id: number): Promise<User | undefined> {
+  async getUser(id: string): Promise<User | undefined> {
     return this.users.get(id);
   }
 
@@ -30,22 +29,36 @@ export class MemStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentId++;
     const now = new Date();
     const user: User = { 
       ...insertUser, 
-      id,
       createdAt: now,
       updatedAt: now
     };
-    this.users.set(id, user);
+    this.users.set(user.id, user);
     return user;
+  }
+
+  async upsertUser(userData: InsertUser): Promise<User> {
+    const existingUser = await this.getUser(userData.id);
+    
+    if (existingUser) {
+      const updatedUser: User = {
+        ...existingUser,
+        ...userData,
+        updatedAt: new Date(),
+      };
+      this.users.set(userData.id, updatedUser);
+      return updatedUser;
+    } else {
+      return this.createUser(userData);
+    }
   }
 }
 
 // Implémentation de base de données pour la production
 export class DatabaseStorage implements IStorage {
-  async getUser(id: number): Promise<User | undefined> {
+  async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select()
       .from(users)
       .where(eq(users.id, id));
@@ -63,6 +76,21 @@ export class DatabaseStorage implements IStorage {
     const [user] = await db
       .insert(users)
       .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async upsertUser(userData: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
       .returning();
     return user;
   }

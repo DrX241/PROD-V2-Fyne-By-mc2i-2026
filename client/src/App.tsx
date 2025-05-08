@@ -6,7 +6,7 @@ import { Suspense, lazy, startTransition } from "react";
 import { ChatProvider } from "./contexts/ChatContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { TutorialProvider } from "./contexts/TutorialContext";
-import { AuthProvider } from "./hooks/useAuth";
+import { AuthProvider } from "./contexts/AuthContext";
 
 // Importation des composants directement car le lazy loading provoque des problèmes
 // avec wouter dans cette implémentation
@@ -107,7 +107,9 @@ function App() {
       <ThemeProvider>
         <ChatProvider>
           <TutorialProvider>
-            <Switch>
+            <AuthProvider>
+              <div>
+                <Switch>
             <Route path="/cyber/interview-simulation" component={CyberInterviewSimulation} />
             <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
             <Route path="/" component={Home} />
@@ -453,7 +455,9 @@ function App() {
             }} />
             <Route component={NotFound} />
           </Switch>
-          <Toaster />
+                <Toaster />
+              </div>
+            </AuthProvider>
           </TutorialProvider>
         </ChatProvider>
       </ThemeProvider>
