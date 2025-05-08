@@ -290,7 +290,6 @@ const CyberSnake: React.FC = () => {
       }
       ctx.closePath();
       
-      // Le texte sera affiché dans une bulle séparément, pas dans le canvas
       // Pas de distinction visuelle entre bonne et mauvaise pratique pour plus de challenge
       ctx.fillStyle = '#9b59b6';
       ctx.fill();
@@ -298,6 +297,53 @@ const CyberSnake: React.FC = () => {
       ctx.strokeStyle = '#8e44ad';
       ctx.lineWidth = 2;
       ctx.stroke();
+      
+      // Afficher le texte de la pratique au-dessus de l'hexagone
+      const fontSize = Math.max(10, Math.min(14, cellSize / 3));
+      ctx.font = `${fontSize}px Arial`;
+      ctx.fillStyle = 'white';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      // Limiter la longueur du texte pour qu'il tienne dans la cellule
+      const maxTextWidth = cellSize * 3;
+      const text = food.practice.text;
+      const textMetrics = ctx.measureText(text);
+      
+      // Si le texte est trop long, le couper
+      if (textMetrics.width > maxTextWidth) {
+        // Afficher le texte en plusieurs lignes dans une bulle
+        const speechBubble = {
+          x: centerX,
+          y: centerY - size - 15,
+          width: maxTextWidth + 10,
+          height: fontSize * 1.5,
+          radius: 5
+        };
+        
+        // Dessiner la bulle de texte
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.beginPath();
+        ctx.roundRect(
+          speechBubble.x - speechBubble.width / 2,
+          speechBubble.y - speechBubble.height / 2,
+          speechBubble.width,
+          speechBubble.height,
+          speechBubble.radius
+        );
+        ctx.fill();
+        
+        // Dessiner le texte dans la bulle
+        ctx.fillStyle = 'white';
+        ctx.fillText(
+          text,
+          speechBubble.x,
+          speechBubble.y
+        );
+      } else {
+        // Afficher le texte directement au-dessus
+        ctx.fillText(text, centerX, centerY - size - 10);
+      }
     }
     
     // Afficher le message de fin de jeu
@@ -468,8 +514,8 @@ const CyberSnake: React.FC = () => {
                   <h3 className="text-xl font-bold mb-2">Comment jouer à Cyber Snake</h3>
                   <ul className="list-disc pl-6 mb-4 space-y-2">
                     <li>Utilisez les <strong>flèches directionnelles</strong> pour déplacer le serpent</li>
-                    <li>Collectez les éléments <strong>hexagonaux</strong> qui représentent des pratiques de cybersécurité</li>
-                    <li>Attention : vous ne savez pas si une pratique est bonne ou mauvaise avant de la collecter</li>
+                    <li>Lisez la pratique de cybersécurité affichée au-dessus de chaque élément <strong>hexagonal</strong></li>
+                    <li>Décidez si c'est une bonne ou mauvaise pratique avant de la collecter</li>
                     <li>Les <strong>bonnes pratiques</strong> augmentent votre score de 2 points</li>
                     <li>Les <strong>mauvaises pratiques</strong> diminuent votre score de 1 point</li>
                     <li>Évitez de vous mordre la queue !</li>
@@ -633,8 +679,8 @@ const CyberSnake: React.FC = () => {
               <ul className="text-sm space-y-1 text-gray-600">
                 <li>▶ Utilisez les flèches du clavier</li>
                 <li>▶ Espace pour pause/reprise</li>
-                <li>▶ Essayez de deviner quelles pratiques sont bonnes</li>
-                <li>▶ Vous verrez les explications après les avoir collectées</li>
+                <li>▶ Lisez le texte de chaque pratique</li>
+                <li>▶ Choisissez celles qui semblent bonnes</li>
               </ul>
             </div>
           </Card>
