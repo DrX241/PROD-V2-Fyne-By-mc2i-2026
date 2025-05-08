@@ -67,28 +67,28 @@ const tourSteps: Record<string, Step[]> = {
       placement: 'center',
     },
     {
-      target: '[data-id="guide-button"]',
-      content: 'Ce bouton Guide vous permet de réafficher ce tutoriel à tout moment.',
+      target: '[data-id="help-button"]',
+      content: 'Ce bouton d\'aide vous permet de réafficher ce tutoriel à tout moment si vous avez besoin d\'assistance.',
       disableBeacon: true,
     },
     {
-      target: '[data-id="search-input"]',
-      content: 'Utilisez cette barre de recherche pour trouver rapidement un module spécifique.',
+      target: '[data-id="contrast-button"]',
+      content: 'Activez le mode haut contraste pour améliorer la lisibilité, particulièrement utile pour les personnes malvoyantes.',
       disableBeacon: true,
     },
     {
-      target: '[data-id="contrast-toggle"]',
-      content: 'Activez le mode contraste élevé pour améliorer la lisibilité, particulièrement utile pour les personnes malvoyantes.',
+      target: '[data-id="text-smaller-button"]',
+      content: 'Réduisez la taille du texte si celui-ci est trop grand.',
       disableBeacon: true,
     },
     {
-      target: '[data-id="text-increase"]',
+      target: '[data-id="text-larger-button"]',
       content: 'Augmentez la taille du texte pour un meilleur confort de lecture.',
       disableBeacon: true,
     },
     {
-      target: '[data-id="filter-button"]',
-      content: 'Filtrez les modules selon différents critères comme le niveau de difficulté.',
+      target: '[data-id="main-title"]',
+      content: 'Bienvenue dans I AM CYBER, votre plateforme d\'apprentissage personnalisée pour la cybersécurité.',
       disableBeacon: true,
     },
     {
@@ -112,8 +112,28 @@ const tourSteps: Record<string, Step[]> = {
       disableBeacon: true,
     },
     {
+      target: '[data-id="search-input"]',
+      content: 'Utilisez cette barre de recherche pour trouver rapidement un module spécifique.',
+      disableBeacon: true,
+    },
+    {
+      target: '[data-id="beginner-filter"]',
+      content: 'Filtrez les modules par niveau de difficulté pour trouver ceux qui correspondent le mieux à votre expérience.',
+      disableBeacon: true,
+    },
+    {
+      target: '[data-id="grid-view-button"]',
+      content: 'Basculez entre la vue en grille ou en liste selon votre préférence.',
+      disableBeacon: true,
+    },
+    {
+      target: '[data-id="objective-apprendre"]',
+      content: 'Explorez les modules par objectif d\'apprentissage, comme "Apprendre" pour les formations et tutoriels.',
+      disableBeacon: true,
+    },
+    {
       target: 'body',
-      content: 'Vous pouvez maintenant explorer I AM CYBER selon vos préférences. N\'hésitez pas à utiliser le bouton Guide si vous avez besoin d\'aide !',
+      content: 'Vous pouvez maintenant explorer I AM CYBER selon vos préférences. N\'hésitez pas à utiliser le bouton d\'aide si vous avez besoin d\'assistance !',
       disableBeacon: true,
       placement: 'center',
     },
