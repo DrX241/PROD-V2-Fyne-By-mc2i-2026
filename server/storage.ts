@@ -15,13 +15,19 @@ export interface IStorage {
 
 // Implémentation de la mémoire pour les tests et le développement
 export class MemStorage implements IStorage {
-  private users: Map<string, User>;
+  private users: Map<number, User>;
+  sessionStore: session.Store;
 
   constructor() {
     this.users = new Map();
+    // Utiliser MemoryStore pour le développement
+    const MemoryStore = require('memorystore')(session);
+    this.sessionStore = new MemoryStore({
+      checkPeriod: 86400000 // Nettoyer les sessions expirées chaque jour
+    });
   }
 
-  async getUser(id: string): Promise<User | undefined> {
+  async getUser(id: number): Promise<User | undefined> {
     return this.users.get(id);
   }
 
@@ -33,15 +39,22 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const now = new Date();
+    // Générer un ID si non fourni (simulation de l'autoincrement)
+    const newId = insertUser.id || Math.max(0, ...Array.from(this.users.keys())) + 1;
+    
     // Assurez-vous d'avoir des valeurs null pour les propriétés optionnelles
     const user: User = { 
-      id: insertUser.id,
+      id: newId,
       username: insertUser.username,
+      password: insertUser.password || null,
       email: insertUser.email || null,
       firstName: insertUser.firstName || null,
       lastName: insertUser.lastName || null,
+      role: insertUser.role || 'user',
       bio: insertUser.bio || null,
       profileImageUrl: insertUser.profileImageUrl || null,
+      isActive: insertUser.isActive !== undefined ? insertUser.isActive : true,
+      lastLogin: insertUser.lastLogin || null,
       createdAt: now,
       updatedAt: now
     };
@@ -50,19 +63,21 @@ export class MemStorage implements IStorage {
   }
 
   async upsertUser(userData: InsertUser): Promise<User> {
-    const existingUser = await this.getUser(userData.id);
-    
-    if (existingUser) {
-      const updatedUser: User = {
-        ...existingUser,
-        ...userData,
-        updatedAt: new Date(),
-      };
-      this.users.set(userData.id, updatedUser);
-      return updatedUser;
-    } else {
+    // Si pas d'ID ou ID non trouvé, créer un nouvel utilisateur
+    if (!userData.id || !this.users.has(userData.id)) {
       return this.createUser(userData);
     }
+    
+    // Sinon mettre à jour l'utilisateur existant
+    const existingUser = await this.getUser(userData.id);
+    const updatedUser: User = {
+      ...existingUser!,
+      ...userData,
+      updatedAt: new Date(),
+    };
+    
+    this.users.set(updatedUser.id, updatedUser);
+    return updatedUser;
   }
 }
 

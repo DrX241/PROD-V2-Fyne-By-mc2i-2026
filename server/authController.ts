@@ -143,6 +143,12 @@ export const getCurrentUser = async (req: Request, res: Response) => {
     const user = await storage.getUser(userId);
     
     if (!user) {
+      // Si l'utilisateur n'existe pas en base mais a une session, on nettoie la session
+      req.session.destroy((err) => {
+        if (err) {
+          console.error('Erreur lors de la destruction de la session:', err);
+        }
+      });
       return res.status(404).json({ message: 'Utilisateur non trouvé' });
     }
     
