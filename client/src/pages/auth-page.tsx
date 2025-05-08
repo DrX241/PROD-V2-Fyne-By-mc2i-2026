@@ -118,7 +118,7 @@ export default function AuthPage() {
                     <FormControl>
                       <Input 
                         placeholder="Entrez votre nom d'utilisateur" 
-                        className="border-gray-300 bg-white/80 backdrop-blur-sm" 
+                        className="border-gray-300 bg-white/80 backdrop-blur-sm text-black" 
                         {...field} 
                       />
                     </FormControl>
@@ -137,7 +137,7 @@ export default function AuthPage() {
                       <Input 
                         type="password" 
                         placeholder="Entrez votre mot de passe" 
-                        className="border-gray-300 bg-white/80 backdrop-blur-sm" 
+                        className="border-gray-300 bg-white/80 backdrop-blur-sm text-black" 
                         {...field} 
                       />
                     </FormControl>
@@ -159,8 +159,8 @@ export default function AuthPage() {
                 ) : "Accéder à la plateforme"}
               </Button>
               
-              <p className="text-xs text-center text-gray-500 mt-4">
-                L'accès à cette plateforme est réservé aux collaborateurs mc2i.
+              <p className="text-xs text-center text-gray-600 mt-4">
+                L'accès à cette plateforme est réservé aux collaborateurs mc2i et ses partenaires.
                 <br />Pour tout problème de connexion, veuillez contacter votre administrateur.
               </p>
             </form>
