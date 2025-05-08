@@ -1,85 +1,43 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
+import { createContext, ReactNode, useEffect, useState } from "react";
 import { User } from "@shared/schema";
-import { createContext, ReactNode, useContext, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 
-// Définir le type pour le contexte d'authentification
-type AuthContextType = {
-  user: User | undefined;
+export type AuthContextType = {
+  user: User | null;
   isLoading: boolean;
+  error: Error | null;
   isAuthenticated: boolean;
-  isAdmin: boolean | undefined;
-  login: () => void;
-  logout: () => void;
 };
 
-// Créer le contexte d'authentification avec une valeur par défaut
-const AuthContext = createContext<AuthContextType>({
-  user: undefined,
-  isLoading: false,
-  isAuthenticated: false,
-  isAdmin: false,
-  login: () => {},
-  logout: () => {},
-});
+export const AuthContext = createContext<AuthContextType | null>(null);
 
-// Hook pour utiliser le contexte d'authentification
-export function useAuth() {
-  return useContext(AuthContext);
+interface AuthProviderProps {
+  children: ReactNode;
 }
 
-// Composant Provider pour l'authentification
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  
-  // Récupération des informations de l'utilisateur connecté
-  const { 
-    data: user, 
+export function AuthProvider({ children }: AuthProviderProps) {
+  const {
+    data: user,
+    error,
     isLoading,
-    error, 
-    isError 
   } = useQuery<User>({
     queryKey: ["/api/auth/user"],
     retry: false,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchOnWindowFocus: false,
+    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes to keep the session alive
   });
 
-  // Fonction de connexion - redirection vers la page de connexion Replit
-  const login = () => {
-    window.location.href = "/api/login";
-  };
-
-  // Fonction de déconnexion - redirection vers la page de déconnexion Replit
-  const logout = () => {
-    window.location.href = "/api/logout";
-  };
-
-  // Vérifie si l'utilisateur est administrateur (à définir selon vos besoins)
-  const isAdmin = user ? (process.env.ADMIN_USER_IDS?.split(',')?.includes(user.id) || false) : false;
-
-  // Utiliser useEffect pour gérer les erreurs d'authentification
-  useEffect(() => {
-    if (isError && error instanceof Error) {
-      toast({
-        title: "Erreur d'authentification",
-        description: "Impossible de récupérer les informations de l'utilisateur.",
-        variant: "destructive",
-      });
-    }
-  }, [isError, error, toast]);
-
-  const value: AuthContextType = {
-    user,
-    isLoading,
-    isAuthenticated: !!user,
-    isAdmin,
-    login,
-    logout,
-  };
+  const isAuthenticated = !!user;
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider
+      value={{
+        user: user || null,
+        isLoading,
+        error: error as Error,
+        isAuthenticated,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

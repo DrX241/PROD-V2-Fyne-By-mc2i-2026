@@ -1,32 +1,20 @@
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth";
-import { Loader2, LogIn, LogOut } from "lucide-react";
+import { useLocation } from "wouter";
 
 export function LoginButton() {
-  const { user, isLoading, isAuthenticated, login, logout } = useAuth();
-
-  if (isLoading) {
-    return (
-      <Button variant="outline" size="sm" disabled>
-        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-        Chargement...
-      </Button>
-    );
-  }
-
-  if (isAuthenticated) {
-    return (
-      <Button variant="outline" size="sm" onClick={logout}>
-        <LogOut className="h-4 w-4 mr-2" />
-        Déconnexion
-      </Button>
-    );
-  }
+  const [_, navigate] = useLocation();
 
   return (
-    <Button variant="outline" size="sm" onClick={login}>
-      <LogIn className="h-4 w-4 mr-2" />
-      Connexion
+    <Button
+      onClick={() => {
+        // Redirection vers la page d'authentification
+        navigate("/auth");
+      }}
+      variant="default"
+      size="sm"
+      className="text-sm font-medium"
+    >
+      Se connecter
     </Button>
   );
 }
