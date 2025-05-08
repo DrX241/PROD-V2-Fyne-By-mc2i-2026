@@ -614,6 +614,63 @@ const CyberSnake: React.FC = () => {
     }
   }, [loadPractices]);
   
+  // Gérer les chronomètres et les timers
+  useEffect(() => {
+    if (!gameOver && !isPaused) {
+      // Timer pour le décompte principal
+      const timerInterval = setInterval(() => {
+        setTimeLeft(prev => {
+          // Si le compteur arrive à zéro, pénaliser le joueur
+          if (prev <= 0) {
+            setScore(s => Math.max(0, s - 1)); // Pénalité quand le temps est écoulé
+            toast({
+              title: 'Temps écoulé!',
+              description: 'Trop lent! -1 point',
+              variant: 'destructive',
+            });
+            return collectTimer; // Réinitialiser le compteur
+          }
+          return prev - 0.1; // Décrémenter le compteur par 0.1 seconde
+        });
+        
+        // Incrémenter le compteur de temps de jeu
+        setElapsedTime(prev => prev + 0.1);
+      }, 100); // Mise à jour toutes les 100ms
+      
+      // Vérifier les pratiques qui doivent disparaître (après practiceTimer secondes)
+      const practiceExpirationInterval = setInterval(() => {
+        const now = Date.now();
+        setFoodItems(prev => {
+          const updated = prev.filter(item => {
+            const ageInSeconds = (now - item.createdAt) / 1000;
+            return ageInSeconds < practiceTimer;
+          });
+          
+          // Si des éléments ont été supprimés, ajouter des nouveaux
+          if (updated.length < prev.length) {
+            // Informer l'utilisateur
+            toast({
+              title: 'Pratique disparue!',
+              description: 'Une pratique a expiré',
+              variant: 'default',
+              action: <Clock className="h-5 w-5 text-yellow-500" />
+            });
+            
+            // Déclencher l'ajout de nouveaux éléments
+            setTimeout(() => placeFood(), 100);
+          }
+          
+          return updated;
+        });
+      }, 1000); // Vérifier chaque seconde
+      
+      return () => {
+        clearInterval(timerInterval);
+        clearInterval(practiceExpirationInterval);
+      };
+    }
+  }, [gameOver, isPaused, collectTimer, practiceTimer, placeFood, toast]);
+  
   // Gérer la boucle de jeu
   useEffect(() => {
     if (!gameOver && !isPaused) {
@@ -671,6 +728,112 @@ const CyberSnake: React.FC = () => {
         Collectez des pratiques de cybersécurité et testez votre jugement ! Saurez-vous distinguer les bonnes des mauvaises ?
       </p>
       
+      {/* Récapitulatif de fin de partie */}
+      {showSummary && (
+        <Card className="w-full max-w-4xl mb-6">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-2xl text-blue-600">Récapitulatif de votre partie</CardTitle>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => {
+                  setShowSummary(false);
+                  setGameOver(false);
+                  initGame();
+                }}
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            <CardDescription>
+              Voici un aperçu de votre performance et les pratiques de cybersécurité que vous avez collectées.
+            </CardDescription>
+          </CardHeader>
+          
+          <CardContent>
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Statistiques */}
+              <div>
+                <h3 className="text-lg font-bold mb-4">Statistiques</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">Score final</span>
+                    <span className="text-xl font-bold">{score}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">Niveau atteint</span>
+                    <span>{level}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">Temps de jeu</span>
+                    <span>{Math.floor(elapsedTime)} secondes</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">Bonnes pratiques</span>
+                    <span className="text-green-500">
+                      {collectedPractices.filter(p => p.isGood).length}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">Mauvaises pratiques</span>
+                    <span className="text-red-500">
+                      {collectedPractices.filter(p => !p.isGood).length}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">Taux de réussite</span>
+                    <span>
+                      {collectedPractices.length > 0 
+                        ? `${Math.round((collectedPractices.filter(p => p.isGood).length / collectedPractices.length) * 100)}%` 
+                        : '0%'}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="mt-6">
+                  <Button 
+                    onClick={() => {
+                      setShowSummary(false);
+                      setGameOver(false);
+                      initGame();
+                    }} 
+                    className="w-full"
+                  >
+                    Rejouer
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Catalogue des bonnes pratiques */}
+              <div>
+                <h3 className="text-lg font-bold mb-4">Bonnes pratiques en cybersécurité</h3>
+                {collectedPractices.filter(p => p.isGood).length > 0 ? (
+                  <div className="space-y-3 pr-2 max-h-[300px] overflow-y-auto">
+                    {collectedPractices
+                      .filter(p => p.isGood)
+                      .map((practice, index) => (
+                        <Card key={index} className="p-3 bg-blue-50 dark:bg-blue-900/30 border-blue-200">
+                          <p className="font-semibold text-sm">{practice.text}</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{practice.explanation}</p>
+                        </Card>
+                      ))
+                    }
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-[200px] bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                    <FileWarning className="h-12 w-12 text-gray-400 mb-2" />
+                    <p className="text-gray-500 text-center">
+                      Vous n'avez collecté aucune bonne pratique de cybersécurité.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
       <div className="flex flex-col md:flex-row gap-4 w-full">
         <div className="flex-1">
           {/* Zone de jeu */}
@@ -694,7 +857,8 @@ const CyberSnake: React.FC = () => {
                     <li>Les <strong>bonnes pratiques</strong> augmentent votre score de 2 points</li>
                     <li>Les <strong>mauvaises pratiques</strong> diminuent votre score de 1 point</li>
                     <li>Évitez de vous mordre la queue !</li>
-                    <li>Le jeu accélère à chaque niveau</li>
+                    <li>Attention, les pratiques disparaissent après {practiceTimer} secondes !</li>
+                    <li>Un timer de {collectTimer} secondes vous impose un rythme, sinon -1 point !</li>
                   </ul>
                   <div className="flex justify-end">
                     <Button onClick={closeTutorial}>J'ai compris</Button>
@@ -769,7 +933,7 @@ const CyberSnake: React.FC = () => {
             <div className="flex gap-2">
               <Button 
                 onClick={initGame}
-                disabled={isLoading}
+                disabled={isLoading || showSummary}
                 className="w-24"
               >
                 {gameOver ? 'Jouer' : 'Recommencer'}
@@ -777,7 +941,7 @@ const CyberSnake: React.FC = () => {
               
               <Button 
                 onClick={togglePause}
-                disabled={gameOver || isLoading}
+                disabled={gameOver || isLoading || showSummary}
                 variant="outline"
                 className="w-24"
               >
@@ -817,7 +981,11 @@ const CyberSnake: React.FC = () => {
               >
                 <div className="flex items-start gap-2 mb-2">
                   <div className="bg-blue-100 dark:bg-blue-900 p-1 rounded-full">
-                    <HelpCircle className="h-5 w-5 text-blue-500 mt-1 flex-shrink-0" />
+                    {lastEaten.isGood ? (
+                      <Check className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
+                    ) : (
+                      <X className="h-5 w-5 text-red-500 mt-1 flex-shrink-0" />
+                    )}
                   </div>
                   <div>
                     <p className="font-semibold">
@@ -828,7 +996,7 @@ const CyberSnake: React.FC = () => {
                     </p>
                   </div>
                 </div>
-                <div className="text-sm text-blue-600 font-medium">
+                <div className={`text-sm font-medium ${lastEaten.isGood ? 'text-green-600' : 'text-red-600'}`}>
                   {lastEaten.isGood ? '+2 points (Bonne pratique)' : '-1 point (Mauvaise pratique)'}
                 </div>
               </motion.div>
@@ -849,13 +1017,33 @@ const CyberSnake: React.FC = () => {
               </p>
             </div>
             
+            <div className="space-y-2 mt-4">
+              <h4 className="font-medium">Chronomètre d'action</h4>
+              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full rounded-full transition-all duration-100 ${
+                    timeLeft > collectTimer * 0.5 
+                      ? 'bg-green-500' 
+                      : timeLeft > collectTimer * 0.25 
+                        ? 'bg-yellow-500' 
+                        : 'bg-red-500'
+                  }`}
+                  style={{ width: `${(timeLeft / collectTimer) * 100}%` }}
+                ></div>
+              </div>
+              <p className="text-xs text-gray-500">
+                {timeLeft.toFixed(1)} secondes avant pénalité
+              </p>
+            </div>
+            
             <div className="mt-4 pt-4 border-t border-gray-200">
               <h4 className="font-medium mb-2">Comment jouer</h4>
               <ul className="text-sm space-y-1 text-gray-600">
                 <li>▶ Utilisez les flèches du clavier</li>
                 <li>▶ Espace pour pause/reprise</li>
                 <li>▶ Lisez le texte de chaque pratique</li>
-                <li>▶ Choisissez celles qui semblent bonnes</li>
+                <li>▶ Agissez vite, les pratiques disparaissent !</li>
+                <li>▶ Attention au chronomètre d'action</li>
               </ul>
             </div>
           </Card>
