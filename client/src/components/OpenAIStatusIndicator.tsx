@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, XCircle, LoaderCircle, Zap } from 'lucide-react';
+import { CheckCircle, XCircle, LoaderCircle, Zap, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useToast } from '@/hooks/use-toast';
 
 interface OpenAIStatusProps {
   className?: string;
@@ -23,6 +24,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [isToggling, setIsToggling] = useState<boolean>(false);
   const [isReconnecting, setIsReconnecting] = useState<boolean>(false);
+  const { toast } = useToast();
   
   // Formate la date du dernier check
   const formattedLastCheck = lastCheck ? new Date(lastCheck).toLocaleTimeString() : 'Jamais';
@@ -61,6 +63,69 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
       setStatus('disconnected');
     } finally {
       setIsRefreshing(false);
+    }
+  };
+  
+  // Fonction pour forcer la reconnexion à Azure OpenAI
+  const forceReconnect = async () => {
+    setIsReconnecting(true);
+    setStatus('reconnecting');
+    try {
+      const response = await fetch('/api/openai/reconnect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.success) {
+          setStatus('connected');
+          toast({
+            title: 'Reconnexion réussie',
+            description: 'La connexion à FYNE a été rétablie avec succès.',
+            variant: 'default',
+          });
+        } else {
+          setStatus('reconnecting');
+          toast({
+            title: 'Reconnexion en cours',
+            description: 'Tentative de reconnexion à FYNE en cours. Veuillez patienter...',
+            variant: 'default',
+          });
+          
+          // Vérifier à nouveau après 5 secondes
+          setTimeout(checkStatus, 5000);
+        }
+        
+        // Mettre à jour les autres informations
+        setLastCheck(data.lastCheck || Date.now());
+        const modelName = data.currentModel || 'gpt-4o-mini';
+        setCurrentModel(modelName);
+        const keyType = (modelName === 'gpt-4o-mini') ? 'secondary' : 'primary';
+        setApiKeyType(keyType);
+        
+        console.log('Tentative de reconnexion:', data);
+      } else {
+        setStatus('disconnected');
+        toast({
+          title: 'Échec de la reconnexion',
+          description: 'Impossible de se reconnecter à FYNE. Veuillez réessayer plus tard.',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la tentative de reconnexion à Azure OpenAI:', error);
+      setStatus('disconnected');
+      toast({
+        title: 'Erreur de reconnexion',
+        description: 'Une erreur est survenue lors de la tentative de reconnexion à FYNE.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsReconnecting(false);
     }
   };
   
@@ -140,7 +205,8 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
                 variant="outline"
                 className={`px-2 py-1 flex items-center gap-1 
                   ${status === 'connected' ? 'bg-green-700' : 
-                    status === 'disconnected' ? 'bg-red-700' : 'bg-yellow-700'} 
+                    status === 'disconnected' ? 'bg-red-700' : 
+                    status === 'reconnecting' ? 'bg-orange-700' : 'bg-yellow-700'} 
                   text-white border-none`}
               >
                 {status === 'connected' ? (
@@ -151,24 +217,60 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
                   <LoaderCircle className="w-3 h-3 mr-1 animate-spin" />
                 )}
                 <span className="text-xs font-medium">
-                  FYNE
+                  FYNE {status === 'reconnecting' ? '(Reconnexion...)' : ''}
                 </span>
               </Badge>
               
-              <Button 
-                variant="outline"
-                size="icon"
-                className="h-6 w-6 ml-1 rounded-full bg-white"
-                onClick={checkStatus}
-                disabled={isRefreshing}
-              >
-                <LoaderCircle className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
-              </Button>
+              {/* Bouton de vérification ou de reconnexion selon l'état */}
+              {status === 'disconnected' ? (
+                <Button 
+                  variant="outline"
+                  size="icon"
+                  className="h-6 w-6 ml-1 rounded-full bg-white"
+                  onClick={forceReconnect}
+                  disabled={isReconnecting}
+                  title="Forcer la reconnexion"
+                >
+                  <RefreshCw className={`h-3 w-3 ${isReconnecting ? 'animate-spin' : ''} text-red-500`} />
+                </Button>
+              ) : (
+                <Button 
+                  variant="outline"
+                  size="icon"
+                  className="h-6 w-6 ml-1 rounded-full bg-white"
+                  onClick={checkStatus}
+                  disabled={isRefreshing}
+                  title="Vérifier la connexion"
+                >
+                  <LoaderCircle className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
+                </Button>
+              )}
             </div>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Statut de connexion FYNE</p>
-            <p className="text-xs">Dernière vérification: {formattedLastCheck}</p>
+            <p className="font-medium">Statut de connexion FYNE</p>
+            <p className="text-xs mt-1">
+              État: <span className={
+                status === 'connected' ? 'text-green-500 font-medium' : 
+                status === 'disconnected' ? 'text-red-500 font-medium' :
+                status === 'reconnecting' ? 'text-orange-500 font-medium' : 
+                'text-yellow-500 font-medium'
+              }>
+                {status === 'connected' ? 'Connecté' : 
+                 status === 'disconnected' ? 'Déconnecté' :
+                 status === 'reconnecting' ? 'Reconnexion en cours' : 
+                 'Vérification'
+                }
+              </span>
+            </p>
+            <p className="text-xs">Modèle actif: <span className="font-medium">{modelLabel}</span></p>
+            <p className="text-xs">Mode Éco: <span className="font-medium">{economyMode ? 'Activé' : 'Désactivé'}</span></p>
+            <p className="text-xs">Dernière vérification: <span className="font-medium">{formattedLastCheck}</span></p>
+            {status === 'disconnected' && (
+              <p className="text-xs mt-1 text-red-400">
+                Cliquez sur le bouton <RefreshCw className="inline h-3 w-3 text-red-400" /> pour forcer une reconnexion
+              </p>
+            )}
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
