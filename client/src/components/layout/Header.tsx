@@ -4,6 +4,9 @@ import { useLocation } from "wouter";
 import mclogo from "@/assets/mc2i.png";
 import OpenAIStatusIndicator from '@/components/OpenAIStatusIndicator';
 import ThemeSwitch from '@/components/ThemeSwitch';
+import { useAuth } from "@/hooks/useAuth";
+import { LoginButton } from "@/components/auth/LoginButton";
+import { UserMenu } from "@/components/auth/UserMenu";
 
 // Fonction utilitaire pour extraire le prénom (dupliquée ici pour éviter les dépendances circulaires)
 const extractFirstName = (input: string): string => {
@@ -43,6 +46,7 @@ const extractFirstName = (input: string): string => {
 export default function Header() {
   const { userName } = useChatContext();
   const { themeMode } = useTheme();
+  const { isAuthenticated } = useAuth();
   
   // Extraire le prénom propre et obtenir son initiale
   const displayName = userName ? extractFirstName(userName) : "";
@@ -82,18 +86,21 @@ export default function Header() {
           <div className="flex items-center">
             <OpenAIStatusIndicator position="in-header" showModelToggle={true} />
           </div>
-          <div className="flex items-center gap-1 sm:gap-2">
-            {userName && (
-              <>
-                <div className={`h-6 w-6 sm:h-8 sm:w-8 rounded-full ${userInitialBgClass} flex items-center justify-center font-medium text-xs sm:text-base`}>
-                  {userInitial}
-                </div>
-                <span className={`${userNameClass} text-xs sm:text-sm font-medium hidden sm:inline-block`}>
-                  Bonjour {displayName}
-                </span>
-              </>
-            )}
-          </div>
+          
+          {/* Affichage de l'utilisateur existant */}
+          {userName && (
+            <div className="flex items-center gap-1 sm:gap-2 mr-3">
+              <div className={`h-6 w-6 sm:h-8 sm:w-8 rounded-full ${userInitialBgClass} flex items-center justify-center font-medium text-xs sm:text-base`}>
+                {userInitial}
+              </div>
+              <span className={`${userNameClass} text-xs sm:text-sm font-medium hidden sm:inline-block`}>
+                Bonjour {displayName}
+              </span>
+            </div>
+          )}
+          
+          {/* Nouveau composant d'authentification */}
+          {isAuthenticated ? <UserMenu /> : <LoginButton />}
         </div>
       </div>
     </header>

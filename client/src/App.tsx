@@ -7,6 +7,8 @@ import { ChatProvider } from "./contexts/ChatContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { TutorialProvider } from "./contexts/TutorialContext";
 import { AuthProvider } from "./contexts/AuthContext";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import AuthPage from "./pages/auth-page";
 
 // Importation des composants directement car le lazy loading provoque des problèmes
 // avec wouter dans cette implémentation
@@ -110,8 +112,14 @@ function App() {
             <AuthProvider>
               <div>
                 <Switch>
-            <Route path="/cyber/interview-simulation" component={CyberInterviewSimulation} />
-            <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
+            {/* Page d'authentification */}
+            <Route path="/auth" component={AuthPage} />
+            
+            {/* Routes protégées nécessitant une authentification */}
+            <ProtectedRoute path="/cyber/interview-simulation" component={CyberInterviewSimulation} />
+            <ProtectedRoute path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
+            
+            {/* Routes publiques */}
             <Route path="/" component={Home} />
             <Route path="/modules" component={ModulesPage} />
             <Route path="/cyber" component={() => {
