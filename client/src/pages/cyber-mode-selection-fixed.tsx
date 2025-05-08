@@ -910,22 +910,23 @@ export default function CyberModeSelectionRedesign() {
               </div>
 
               {/* Liste des modules en grille ou liste */}
-              {filteredModules.length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="text-lg mb-2">Aucun module ne correspond à votre recherche</p>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => {
-                      setSearchTerm('');
-                      setDifficulty([]);
-                    }}
-                  >
-                    Réinitialiser les filtres
-                  </Button>
-                </div>
-              ) : activeView === 'grid' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredModules.map(module => (
+              <div data-id="all-modules-container">
+                {filteredModules.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-lg mb-2">Aucun module ne correspond à votre recherche</p>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setSearchTerm('');
+                        setDifficulty([]);
+                      }}
+                    >
+                      Réinitialiser les filtres
+                    </Button>
+                  </div>
+                ) : activeView === 'grid' ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredModules.map(module => (
                     <motion.div
                       key={module.id}
                       initial={{ opacity: 0, y: 15 }}
