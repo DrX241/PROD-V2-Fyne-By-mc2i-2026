@@ -1,19 +1,20 @@
-import { useAuth } from "@/hooks/useAuth";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Loader2, LogIn, LogOut, User, Settings, Shield } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { Loader2, LogOut, Settings, User as UserIcon } from "lucide-react";
+import { getInitials } from "@/lib/utils";
 
 export function UserMenu() {
-  const { user, isLoading, isAuthenticated, isAdmin, login, logout } = useAuth();
+  const { user, isLoading, logout } = useAuth();
 
-  // Si le statut d'authentification est en cours de chargement, afficher un indicateur de chargement
   if (isLoading) {
     return (
       <Button variant="ghost" size="icon" disabled>
@@ -22,58 +23,41 @@ export function UserMenu() {
     );
   }
 
-  // Si l'utilisateur n'est pas authentifié, afficher le bouton de connexion
-  if (!isAuthenticated) {
-    return (
-      <Button onClick={login} className="flex items-center gap-2">
-        <LogIn className="h-4 w-4" />
-        <span>Connexion</span>
-      </Button>
-    );
-  }
+  if (!user) return null;
 
-  // Si l'utilisateur est authentifié, afficher le menu utilisateur
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-          <Avatar className="h-10 w-10">
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+          <Avatar className="h-8 w-8">
             <AvatarImage 
-              src={user?.profileImageUrl || undefined} 
-              alt={user?.username || "Utilisateur"} 
-              className="object-cover"
+              src={user.profileImageUrl || ''} 
+              alt={user.username || 'Utilisateur'} 
             />
-            <AvatarFallback>{user?.username?.charAt(0)?.toUpperCase() || "U"}</AvatarFallback>
+            <AvatarFallback>{getInitials(user.username || '')}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
-        <div className="flex flex-col space-y-1 p-2">
-          <p className="text-sm font-medium leading-none">{user?.username}</p>
-          <p className="text-xs leading-none text-muted-foreground">
-            {user?.email || "Aucun email"}
-          </p>
-        </div>
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-medium leading-none">{user.username}</p>
+            <p className="text-xs leading-none text-muted-foreground">
+              {user.email || 'Aucun email'}
+            </p>
+          </div>
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="cursor-pointer">
-          <User className="mr-2 h-4 w-4" />
-          <span>Mon profil</span>
+        <DropdownMenuItem>
+          <UserIcon className="mr-2 h-4 w-4" />
+          <span>Profil</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer">
+        <DropdownMenuItem>
           <Settings className="mr-2 h-4 w-4" />
           <span>Paramètres</span>
         </DropdownMenuItem>
-        {isAdmin && (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer">
-              <Shield className="mr-2 h-4 w-4" />
-              <span>Administration</span>
-            </DropdownMenuItem>
-          </>
-        )}
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="cursor-pointer" onClick={logout}>
+        <DropdownMenuItem onClick={logout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Déconnexion</span>
         </DropdownMenuItem>

@@ -30,8 +30,15 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const now = new Date();
+    // Assurez-vous d'avoir des valeurs null pour les propriétés optionnelles
     const user: User = { 
-      ...insertUser, 
+      id: insertUser.id,
+      username: insertUser.username,
+      email: insertUser.email || null,
+      firstName: insertUser.firstName || null,
+      lastName: insertUser.lastName || null,
+      bio: insertUser.bio || null,
+      profileImageUrl: insertUser.profileImageUrl || null,
       createdAt: now,
       updatedAt: now
     };
