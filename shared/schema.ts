@@ -106,30 +106,15 @@ export const insertInvestigationProgressSchema = createInsertSchema(investigatio
 export type InsertInvestigationProgress = z.infer<typeof insertInvestigationProgressSchema>;
 export type InvestigationProgress = typeof investigationProgress.$inferSelect;
 
-// Table pour les sessions d'authentification - nécessaire pour Replit Auth
-export const sessions = pgTable(
-  "sessions",
-  {
-    sid: varchar("sid").primaryKey(),
-    sess: jsonb("sess").notNull(),
-    expire: timestamp("expire").notNull(),
-  },
-  (table) => [index("IDX_session_expire").on(table.expire)],
-);
-
-// Table utilisateurs pour l'authentification standard
+// Table utilisateurs pour les références des autres tables
 export const users = pgTable("users", {
-  id: serial("id").primaryKey().notNull(), // ID auto-incrémenté
+  id: varchar("id", { length: 255 }).primaryKey().notNull(), // ID sous forme de chaîne (pas d'authentification)
   username: varchar("username", { length: 255 }).unique().notNull(),
-  password: varchar("password", { length: 255 }), // Stocke le mot de passe hashé
   email: varchar("email", { length: 255 }).unique(),
   firstName: varchar("first_name", { length: 255 }),
   lastName: varchar("last_name", { length: 255 }),
-  role: varchar("role", { length: 50 }).default("user").notNull(), // admin, user, etc.
   bio: text("bio"),
   profileImageUrl: varchar("profile_image_url", { length: 255 }),
-  lastLogin: timestamp("last_login"),
-  isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });

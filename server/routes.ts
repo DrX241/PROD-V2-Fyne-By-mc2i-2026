@@ -6,9 +6,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
 import OpenAI from 'openai';
-// Import pour l'authentification
-import session from 'express-session';
-import { login, register, logout, getCurrentUser, isAuthenticated, isAdmin } from "./authController";
+// Pas d'authentification dans cette version
+import { isAuthenticated, isAdmin } from "./authController";
 import { openAIService } from "./services/openai";
 import attachmentRoutes from './routes/attachmentRoutes';
 import cyberForgeRoutes from './routes/cyberForgeRoutes';
@@ -441,26 +440,7 @@ function generateSynthesisHtml(
 // Les fonctions pour les pièces jointes sont déjà importées en haut du fichier
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Configuration de l'authentification
-  // Configuration de session Express
-  const sessionOptions = {
-    secret: process.env.SESSION_SECRET || 'default_secret_for_dev',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === 'production',
-      httpOnly: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 jours
-    }
-  };
-  
-  app.use(session(sessionOptions));
-  
-  // Routes d'authentification
-  app.post('/api/login', login);
-  app.post('/api/register', register);
-  app.post('/api/logout', logout);
-  app.get('/api/user', getCurrentUser);
+    // Aucune authentification dans cette version
   // Routes pour le générateur de modules
   app.post("/api/module-generator/generate", (req: Request, res: Response) => {
     generateModule(req, res);
