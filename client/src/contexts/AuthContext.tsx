@@ -1,41 +1,24 @@
-import { createContext, ReactNode, useEffect, useState } from "react";
-import { User } from "@shared/schema";
-import { useQuery } from "@tanstack/react-query";
+import { createContext, ReactNode } from "react";
 
 export type AuthContextType = {
-  user: User | null;
-  isLoading: boolean;
-  error: Error | null;
   isAuthenticated: boolean;
 };
 
-export const AuthContext = createContext<AuthContextType | null>(null);
+// Contexte simplifié pour maintenir la compatibilité avec le code existant
+export const AuthContext = createContext<AuthContextType>({
+  isAuthenticated: false
+});
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
+// Provider simplifié qui ne fait plus d'authentification
 export function AuthProvider({ children }: AuthProviderProps) {
-  const {
-    data: user,
-    error,
-    isLoading,
-  } = useQuery<User>({
-    queryKey: ["/api/auth/user"],
-    retry: false,
-    refetchOnWindowFocus: false,
-    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes to keep the session alive
-  });
-
-  const isAuthenticated = !!user;
-
   return (
     <AuthContext.Provider
       value={{
-        user: user || null,
-        isLoading,
-        error: error as Error,
-        isAuthenticated,
+        isAuthenticated: false
       }}
     >
       {children}

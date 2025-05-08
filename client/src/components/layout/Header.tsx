@@ -43,7 +43,6 @@ const extractFirstName = (input: string): string => {
 export default function Header() {
   const { userName } = useChatContext();
   const { themeMode } = useTheme();
-  const { isAuthenticated } = useAuth();
   
   // Extraire le prénom propre et obtenir son initiale
   const displayName = userName ? extractFirstName(userName) : "";
@@ -95,9 +94,6 @@ export default function Header() {
               </span>
             </div>
           )}
-          
-          {/* Nouveau composant d'authentification */}
-          {isAuthenticated ? <UserMenu /> : <LoginButton />}
         </div>
       </div>
     </header>
