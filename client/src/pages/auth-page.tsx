@@ -47,11 +47,6 @@ export default function AuthPage() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<string>("login");
 
-  // Rediriger vers la page d'accueil si l'utilisateur est déjà connecté
-  if (isAuthenticated) {
-    return <Redirect to="/" />;
-  }
-
   // Formulaire de connexion
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -71,6 +66,12 @@ export default function AuthPage() {
       confirmPassword: "",
     },
   });
+  
+  // Rediriger vers la page d'accueil si l'utilisateur est déjà connecté
+  // Important: Cette vérification doit être faite après l'initialisation de tous les hooks
+  if (isAuthenticated) {
+    return <Redirect to="/" />;
+  }
 
   // Gestion de la soumission du formulaire de connexion
   const onLoginSubmit = async (data: LoginFormData) => {
