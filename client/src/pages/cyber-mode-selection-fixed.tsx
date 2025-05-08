@@ -85,7 +85,7 @@ export default function CyberModeSelectionRedesign() {
   const [textSize, setTextSize] = useState(1); // 1 = normal, >1 = larger, <1 = smaller
   
   // Tutorial integration
-  const { showTutorial, startTutorial, setCurrentTour, tutorialSeen } = useTutorial();
+  const { showTutorial, startTutorial, setCurrentTour, tutorialSeen, isTutorialActive } = useTutorial();
 
   // Démarrage du didacticiel au chargement initial
   useEffect(() => {
@@ -103,6 +103,28 @@ export default function CyberModeSelectionRedesign() {
       return () => clearTimeout(timer);
     }
   }, [setCurrentTour, startTutorial]);
+  
+  // Effet pour bloquer le défilement pendant le tutoriel
+  useEffect(() => {
+    if (isTutorialActive) {
+      // Empêcher le défilement et forcer le haut de la page
+      window.scrollTo(0, 0);
+      document.body.style.overflow = 'hidden';
+      
+      // Ajouter une classe CSS au corps pour éviter le rebond sur mobile
+      document.body.classList.add('tutorial-active');
+    } else {
+      // Réactiver le défilement normal
+      document.body.style.overflow = '';
+      document.body.classList.remove('tutorial-active');
+    }
+    
+    return () => {
+      // Nettoyage au démontage du composant
+      document.body.style.overflow = '';
+      document.body.classList.remove('tutorial-active');
+    };
+  }, [isTutorialActive]);
 
   // Tous les modules disponibles
   const allModules: Module[] = [
