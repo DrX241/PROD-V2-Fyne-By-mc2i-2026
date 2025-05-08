@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/use-auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Loader2 } from "lucide-react";
@@ -99,7 +99,7 @@ export default function AuthPage() {
       <div className="flex flex-1 flex-col justify-center px-4 py-8 sm:px-6 lg:flex-none lg:px-20 xl:px-24 bg-gradient-to-b from-gray-50 to-gray-100">
         <div className="mx-auto w-full max-w-sm lg:w-96">
           <div className="mb-10 text-center">
-            <img src="/src/assets/logo-mc2i.png" alt="Logo mc2i" className="h-24 w-auto mx-auto mb-4" />
+            <img src="/assets/logo-mc2i.png" alt="Logo mc2i" className="h-24 w-auto mx-auto mb-4" />
             <h2 className="mt-4 text-3xl font-bold leading-9 tracking-tight text-gray-900">
               Plateforme FYNE
             </h2>

@@ -178,7 +178,7 @@ export async function login(req: Request, res: Response) {
     // Créer la session utilisateur
     req.session.userId = user.id;
     req.session.isAuthenticated = true;
-    req.session.userRole = user.role;
+    req.session.userRole = user.role || 'user';
     
     return res.status(200).json({
       success: true,
