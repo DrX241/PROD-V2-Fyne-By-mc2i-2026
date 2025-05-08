@@ -7,30 +7,23 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/hooks/useAuth";
 import { User, LogOut, Settings } from "lucide-react";
 
 export function UserMenu() {
-  const { user, logout } = useAuth();
-  
-  // Récupérer l'avatar de l'utilisateur si disponible
-  const profileImage = user?.profileImageUrl;
+  const { user } = useAuth();
+
+  const handleLogout = () => {
+    window.location.href = "/api/logout";
+  };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="relative h-8 w-8 rounded-full">
-          {profileImage ? (
-            <img 
-              src={profileImage} 
-              alt={user?.username || "Avatar"} 
-              className="h-full w-full object-cover rounded-full"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center bg-primary text-primary-foreground rounded-full">
-              {user?.username ? user.username.charAt(0).toUpperCase() : <User className="h-4 w-4" />}
-            </div>
-          )}
+          <div className="flex h-full w-full items-center justify-center bg-primary text-primary-foreground rounded-full">
+            {user?.username ? user.username.charAt(0).toUpperCase() : <User className="h-4 w-4" />}
+          </div>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
@@ -48,7 +41,7 @@ export function UserMenu() {
           <span>Préférences</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={logout}>
+        <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Se déconnecter</span>
         </DropdownMenuItem>

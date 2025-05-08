@@ -4,7 +4,7 @@ import { useLocation } from "wouter";
 import mclogo from "@/assets/mc2i.png";
 import OpenAIStatusIndicator from '@/components/OpenAIStatusIndicator';
 import ThemeSwitch from '@/components/ThemeSwitch';
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/hooks/useAuth";
 import { LoginButton } from "@/components/auth/LoginButton";
 import { UserMenu } from "@/components/auth/UserMenu";
 

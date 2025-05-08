@@ -117,22 +117,15 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// Enumération pour les rôles utilisateur
-export const userRoleEnum = pgEnum('user_role', [
-  'user', 'admin'
-]);
-
-// Table utilisateurs modifiée pour l'authentification Replit
+// Table utilisateurs modifiée pour Replit Auth
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().notNull(), // ID unique de Replit
+  id: varchar("id").primaryKey().notNull(), // ID généré par Replit Auth
   username: varchar("username").unique().notNull(),
   email: varchar("email").unique(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   bio: text("bio"),
   profileImageUrl: varchar("profile_image_url"),
-  role: userRoleEnum('role').default('user'),
-  isActive: boolean("is_active").default(true), // Compte actif ou désactivé
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });
@@ -141,8 +134,6 @@ export const insertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
   updatedAt: true,
 });
-
-export type UpsertUser = typeof users.$inferInsert;
 
 // Chat types for Azure OpenAI API
 export type ChatCompletionRequestMessage = {

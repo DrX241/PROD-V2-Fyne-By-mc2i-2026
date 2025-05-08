@@ -1,35 +1,44 @@
-import { createContext, ReactNode, useContext } from "react";
-import { useAuth } from "@/hooks/use-auth";
-import { User } from "@/hooks/use-auth";
+import { createContext, ReactNode, useEffect, useState } from "react";
+import { User } from "@shared/schema";
+import { useQuery } from "@tanstack/react-query";
 
-interface AuthContextProps {
+export type AuthContextType = {
   user: User | null;
   isLoading: boolean;
   error: Error | null;
   isAuthenticated: boolean;
-  isAdmin: boolean;
-  login: () => Promise<void>;
-  loginWithEmail: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
+};
+
+export const AuthContext = createContext<AuthContextType | null>(null);
+
+interface AuthProviderProps {
+  children: ReactNode;
 }
 
-// Création du contexte d'authentification
-export const AuthContext = createContext<AuthContextProps | null>(null);
+export function AuthProvider({ children }: AuthProviderProps) {
+  const {
+    data: user,
+    error,
+    isLoading,
+  } = useQuery<User>({
+    queryKey: ["/api/auth/user"],
+    retry: false,
+    refetchOnWindowFocus: false,
+    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes to keep the session alive
+  });
 
-// Hook pour utiliser le contexte d'authentification
-export function useAuthContext() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuthContext doit être utilisé à l'intérieur d'un AuthProvider");
-  }
-  return context;
-}
+  const isAuthenticated = !!user;
 
-// Provider pour le contexte d'authentification
-export function AuthProvider({ children }: { children: ReactNode }) {
-  // Utiliser notre hook d'authentification qui est maintenant un adaptateur pour Firebase
-  const auth = useAuth();
-
-  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider
+      value={{
+        user: user || null,
+        isLoading,
+        error: error as Error,
+        isAuthenticated,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 }

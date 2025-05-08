@@ -1,32 +1,72 @@
-import { users, type User, type UpsertUser } from "@shared/schema";
+import { users, type User, type InsertUser } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
-import session from "express-session";
-import connectPg from "connect-pg-simple";
-import { pool } from "./db";
 
 // Interface pour les opérations de stockage CRUD
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
-  upsertUser(user: UpsertUser): Promise<User>;
-  
-  // Session store for Replit Auth
-  sessionStore: session.Store;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  upsertUser(user: InsertUser): Promise<User>;
+}
+
+// Implémentation de la mémoire pour les tests et le développement
+export class MemStorage implements IStorage {
+  private users: Map<string, User>;
+
+  constructor() {
+    this.users = new Map();
+  }
+
+  async getUser(id: string): Promise<User | undefined> {
+    return this.users.get(id);
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(
+      (user) => user.username === username,
+    );
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const now = new Date();
+    // Assurez-vous d'avoir des valeurs null pour les propriétés optionnelles
+    const user: User = { 
+      id: insertUser.id,
+      username: insertUser.username,
+      email: insertUser.email || null,
+      firstName: insertUser.firstName || null,
+      lastName: insertUser.lastName || null,
+      bio: insertUser.bio || null,
+      profileImageUrl: insertUser.profileImageUrl || null,
+      createdAt: now,
+      updatedAt: now
+    };
+    this.users.set(user.id, user);
+    return user;
+  }
+
+  async upsertUser(userData: InsertUser): Promise<User> {
+    const existingUser = await this.getUser(userData.id);
+    
+    if (existingUser) {
+      const updatedUser: User = {
+        ...existingUser,
+        ...userData,
+        updatedAt: new Date(),
+      };
+      this.users.set(userData.id, updatedUser);
+      return updatedUser;
+    } else {
+      return this.createUser(userData);
+    }
+  }
 }
 
 // Implémentation de base de données pour la production
 export class DatabaseStorage implements IStorage {
-  sessionStore: session.Store;
-  
   constructor() {
-    // Configuration du stockage de session PostgreSQL
-    const PostgresSessionStore = connectPg(session);
-    this.sessionStore = new PostgresSessionStore({
-      pool: pool,
-      tableName: 'sessions',
-      createTableIfMissing: true,
-      ttl: 7 * 24 * 60 * 60 // 1 semaine en secondes
-    });
+    // Le constructeur est vide car nous n'avons plus besoin de sessionStore
   }
   
   async getUser(id: string): Promise<User | undefined> {
@@ -36,7 +76,22 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select()
+      .from(users)
+      .where(eq(users.username, username));
+    return user;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async upsertUser(userData: InsertUser): Promise<User> {
     const [user] = await db
       .insert(users)
       .values(userData)

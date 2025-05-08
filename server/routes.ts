@@ -1,14 +1,11 @@
 import express, { type Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { db } from "./db";
-import { users } from "@shared/schema";
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
 import OpenAI from 'openai';
-import session from 'express-session';
 // Import pour Replit Auth
 import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import { openAIService } from "./services/openai";
@@ -445,33 +442,6 @@ function generateSynthesisHtml(
 export async function registerRoutes(app: Express): Promise<Server> {
   // Configuration de Replit Auth
   await setupAuth(app);
-  
-  // Route pour obtenir l'utilisateur actuel (compatible avec Replit Auth)
-  app.get("/api/auth/user", isAuthenticated, async (req: any, res: Response) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Erreur lors de la récupération de l'utilisateur:", error);
-      res.status(401).json({ success: false, message: "Non authentifié" });
-    }
-  });
-  
-  // Routes d'administration des utilisateurs (protégées)
-  app.get("/api/admin/users", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
-    try {
-      // Logique simplifiée pour obtenir la liste des utilisateurs
-      const usersResult = await db.select().from(users);
-      res.json({ success: true, users: usersResult });
-    } catch (error) {
-      console.error("Erreur lors de la récupération des utilisateurs:", error);
-      res.status(500).json({ success: false, message: "Erreur serveur" });
-    }
-  });
-  
-  // Autres routes d'administration simplifiées (à implémenter si nécessaire)
-  
   // Routes pour le générateur de modules
   app.post("/api/module-generator/generate", (req: Request, res: Response) => {
     generateModule(req, res);
