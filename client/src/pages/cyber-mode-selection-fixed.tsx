@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
 import { 
@@ -87,13 +87,21 @@ export default function CyberModeSelectionRedesign() {
   // Tutorial integration
   const { showTutorial, startTutorial, setCurrentTour, tutorialSeen } = useTutorial();
 
-  // Démarrage du didacticiel à chaque visite
+  // Démarrage du didacticiel au chargement initial
   useEffect(() => {
-    setCurrentTour('cyber-mode-selection-redesign');
-    const timer = setTimeout(() => {
-      startTutorial();
-    }, 1000);
-    return () => clearTimeout(timer);
+    // Utilisons une variable dans le localStorage pour marquer que le tutoriel a été démarré
+    const hasTutorialStarted = sessionStorage.getItem('tutorialStarted');
+    
+    if (!hasTutorialStarted) {
+      // Marquer que le tutoriel a démarré pour cette session
+      sessionStorage.setItem('tutorialStarted', 'true');
+      
+      setCurrentTour('cyber-mode-selection-redesign');
+      const timer = setTimeout(() => {
+        startTutorial();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
   }, [setCurrentTour, startTutorial]);
 
   // Tous les modules disponibles
