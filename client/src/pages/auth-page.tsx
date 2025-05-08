@@ -98,11 +98,11 @@ export default function AuthPage() {
       <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24 bg-gray-50">
         <div className="mx-auto w-full max-w-sm lg:w-96">
           <div className="mb-10">
-            <img src="/assets/logo.png" alt="Logo mc2i" className="h-10 w-auto" />
+            <img src="/src/assets/logo-mc2i.png" alt="Logo mc2i" className="h-12 w-auto" />
             <h2 className="mt-6 text-2xl font-bold leading-9 tracking-tight text-gray-900">
-              I AM CYBER - Plateforme FYNE
+              Plateforme FYNE
             </h2>
-            <p className="mt-2 text-sm leading-6 text-gray-500">
+            <p className="mt-2 text-sm leading-6 text-gray-600">
               Connectez-vous pour accéder à votre espace personnel
             </p>
           </div>
@@ -240,28 +240,28 @@ export default function AuthPage() {
 
       {/* Section Hero */}
       <div className="relative hidden w-0 flex-1 lg:block">
-        <div className="absolute inset-0 h-full w-full bg-gradient-to-r from-blue-800 to-indigo-900 flex flex-col justify-center items-center p-12 text-white">
+        <div className="absolute inset-0 h-full w-full bg-gradient-to-r from-blue-600 to-indigo-700 flex flex-col justify-center items-center p-12 text-white">
           <div className="max-w-xl mx-auto">
-            <h1 className="text-4xl font-bold mb-6">Bienvenue sur I AM CYBER</h1>
+            <h1 className="text-4xl font-bold mb-6">Bienvenue sur la plateforme FYNE</h1>
             <p className="text-xl mb-8">
-              La plateforme d'apprentissage interactive de cybersécurité pour les consultants mc2i.
+              Une solution innovante de formation et d'accompagnement pour les consultants mc2i.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div className="bg-white/10 p-4 rounded-lg">
                 <h3 className="font-semibold text-lg mb-2">Modules interactifs</h3>
-                <p>Apprenez à travers des simulations réalistes et des jeux captivants.</p>
+                <p>Développez vos compétences avec des outils de formation adaptés à votre profil.</p>
               </div>
               <div className="bg-white/10 p-4 rounded-lg">
                 <h3 className="font-semibold text-lg mb-2">Assistants IA personnalisés</h3>
-                <p>Créez vos propres assistants spécialisés pour vous aider dans vos tâches quotidiennes.</p>
+                <p>Bénéficiez d'une aide personnalisée pour vos projets et tâches quotidiennes.</p>
               </div>
               <div className="bg-white/10 p-4 rounded-lg">
-                <h3 className="font-semibold text-lg mb-2">Simulations avancées</h3>
-                <p>Entraînez-vous à gérer des incidents de cybersécurité dans des environnements réalistes.</p>
+                <h3 className="font-semibold text-lg mb-2">Formation cybersécurité</h3>
+                <p>Découvrez le module I AM CYBER avec ses simulations et scénarios d'apprentissage.</p>
               </div>
               <div className="bg-white/10 p-4 rounded-lg">
-                <h3 className="font-semibold text-lg mb-2">Générateur de modules</h3>
-                <p>Concevez vos propres modules d'apprentissage adaptés à vos besoins spécifiques.</p>
+                <h3 className="font-semibold text-lg mb-2">Outils de productivité</h3>
+                <p>Accédez à des générateurs de code, convertisseurs et autres outils sur mesure.</p>
               </div>
             </div>
           </div>
