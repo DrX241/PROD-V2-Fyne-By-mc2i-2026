@@ -48,8 +48,9 @@ export default function EscapeTheBreach() {
   const [timeRemaining, setTimeRemaining] = useState(3600); // 60 minutes en secondes
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(null);
-  const [showHelp, setShowHelp] = useState(false);
   const [scenarioStarted, setScenarioStarted] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [showTutorialHighlight, setShowTutorialHighlight] = useState<string | null>("evidence-tab"); // Pour guider l'utilisateur
   
   const chatContainerRef = useRef<HTMLDivElement>(null);
   
@@ -88,46 +89,30 @@ export default function EscapeTheBreach() {
   useEffect(() => {
     if (scenarioStarted) return; // N'initialise qu'une seule fois
     
-    // Données de démo pour le scénario ransomware
+    // Données simplifiées pour le scénario ransomware
     const initialStages: ScenarioStage[] = [
       {
         id: 'stage1',
-        title: 'Évaluation initiale',
-        description: 'Analysez les premiers indicateurs de l\'incident',
-        objective: 'Découvrir quels systèmes ont été affectés par l\'attaque',
+        title: 'Première étape: Comprendre l\'attaque',
+        description: 'Examinez les journaux système et l\'email d\'alerte pour comprendre ce qui s\'est passé',
+        objective: 'OBJECTIF: Découvrir quels serveurs ont été touchés par l\'attaque et quand',
         evidenceRequired: ['systemlogs', 'alert_email'],
         completed: false
       },
       {
         id: 'stage2',
-        title: 'Analyse du vecteur d\'attaque',
-        description: 'Déterminez comment l\'attaquant a obtenu un accès initial',
-        objective: 'Identifiez la vulnérabilité ou le vecteur d\'entrée exploité',
+        title: 'Deuxième étape: Trouver comment l\'attaquant est entré',
+        description: 'Cherchez des indices dans les logs d\'authentification et les emails',
+        objective: 'OBJECTIF: Identifier comment l\'attaquant a obtenu un accès initial',
         evidenceRequired: ['auth_logs', 'phishing_email'],
         completed: false
       },
       {
         id: 'stage3',
-        title: 'Évaluation de l\'étendue',
-        description: 'Documentez tous les systèmes et données compromis',
-        objective: 'Cartographier l\'étendue complète de la compromission',
+        title: 'Troisième étape: Évaluer les dégâts',
+        description: 'Vérifiez quels systèmes et données ont été compromis',
+        objective: 'OBJECTIF: Faire la liste de tous les systèmes affectés',
         evidenceRequired: ['network_traffic', 'affected_servers'],
-        completed: false
-      },
-      {
-        id: 'stage4',
-        title: 'Identification de l\'acteur',
-        description: 'Collectez des informations sur l\'attaquant',
-        objective: 'Déterminer le type d\'acteur malveillant et ses motivations',
-        evidenceRequired: ['ransom_note', 'malware_sample'],
-        completed: false
-      },
-      {
-        id: 'stage5',
-        title: 'Conclusion de l\'investigation',
-        description: 'Synthétisez vos découvertes et préparez un rapport',
-        objective: 'Documenter la chronologie complète de l\'incident',
-        evidenceRequired: ['timeline', 'vulnerabilities'],
         completed: false
       }
     ];
@@ -358,26 +343,32 @@ Recommandations immédiates:
     const initialMessages: Message[] = [
       {
         id: '1',
-        sender: 'rssi',
-        content: 'Bonjour, je suis Marie Lemaire, RSSI de MC2i Group. Nous faisons face à un incident de sécurité majeur. Plusieurs de nos serveurs critiques semblent avoir été chiffrés par un ransomware cette nuit.',
+        sender: 'system',
+        content: '📋 BIENVENUE DANS "ESCAPE THE BREACH" - SIMULATION D\'INVESTIGATION CYBERSÉCURITÉ',
         timestamp: formatTime(new Date())
       },
       {
         id: '2',
-        sender: 'rssi',
-        content: 'J\'ai besoin de votre expertise pour analyser cet incident et déterminer exactement comment la compromission s\'est produite. Nous devons comprendre le vecteur d\'attaque, l\'étendue des dégâts et identifier les vulnérabilités qui ont été exploitées.',
+        sender: 'system',
+        content: '⚠️ COMMENT JOUER :\n1. Examinez les preuves dans l\'onglet "Preuves" à droite\n2. Cliquez sur chaque preuve pour la découvrir\n3. Posez des questions au RSSI par le chat\n4. Complétez l\'objectif actuel avant de passer à l\'étape suivante',
         timestamp: formatTime(new Date())
       },
       {
         id: '3',
         sender: 'rssi',
-        content: 'Vous avez accès à diverses preuves numériques collectées par notre équipe. Examinez les logs système, les communications réseau, et tout autre élément qui pourrait nous aider à comprendre ce qui s\'est passé.',
+        content: 'Bonjour, je suis Marie Lemaire, RSSI de MC2i Group. Nous avons été victimes d\'une cyberattaque cette nuit. Nos serveurs ont été chiffrés par un ransomware et nous ne pouvons plus accéder à nos données.',
         timestamp: formatTime(new Date())
       },
       {
         id: '4',
+        sender: 'rssi',
+        content: 'VOTRE MISSION : m\'aider à comprendre comment l\'attaque s\'est produite en analysant les preuves disponibles. Commencez par les journaux système et l\'email d\'alerte que vous trouverez dans l\'onglet "Preuves" à droite.',
+        timestamp: formatTime(new Date())
+      },
+      {
+        id: '5',
         sender: 'system',
-        content: 'L\'investigation est divisée en plusieurs étapes. Pour chaque étape, vous devrez découvrir et analyser des preuves spécifiques. Vous avez une heure pour compléter l\'ensemble de l\'investigation.',
+        content: '🔍 CONSEIL : Consultez l\'onglet "Étapes" pour voir votre progression et l\'objectif actuel. Bonne chance !',
         timestamp: formatTime(new Date())
       }
     ];
@@ -520,7 +511,7 @@ Recommandations immédiates:
     switch (message.sender) {
       case 'user':
         return (
-          <div className="flex justify-end mb-4">
+          <div key={message.id} className="flex justify-end mb-4">
             <div className="flex flex-col items-end">
               <div className="bg-blue-600 text-white rounded-lg py-2 px-4 max-w-[80%]">
                 {message.content}
@@ -531,7 +522,7 @@ Recommandations immédiates:
         );
       case 'rssi':
         return (
-          <div className="flex mb-4">
+          <div key={message.id} className="flex mb-4">
             <Avatar className="h-8 w-8 mr-2">
               <AvatarFallback className="bg-indigo-700 text-white">ML</AvatarFallback>
             </Avatar>
@@ -545,7 +536,7 @@ Recommandations immédiates:
         );
       case 'system':
         return (
-          <div className="flex justify-center mb-4">
+          <div key={message.id} className="flex justify-center mb-4">
             <div className="bg-gray-800 border border-gray-600 text-gray-300 rounded-lg py-2 px-4 max-w-[90%] text-sm">
               <Info className="inline-block h-4 w-4 mr-2 text-blue-400" />
               {message.content}
@@ -752,9 +743,7 @@ Recommandations immédiates:
               
               <ScrollArea className="flex-1 p-4" ref={chatContainerRef}>
                 <div className="space-y-2">
-                  {messages.map(message => (
-                    <div key={message.id}>{renderMessageBubble(message)}</div>
-                  ))}
+                  {messages.map(message => renderMessageBubble(message))}
                 </div>
               </ScrollArea>
               
