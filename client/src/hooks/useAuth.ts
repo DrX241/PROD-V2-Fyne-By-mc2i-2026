@@ -1,8 +1,35 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "./use-toast";
 import { User } from "@shared/schema";
+import { createContext, ReactNode, useContext } from "react";
 
+// Définir le type pour le contexte d'authentification
+type AuthContextType = {
+  user: User | undefined;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  isAdmin: boolean;
+  login: () => void;
+  logout: () => void;
+};
+
+// Créer le contexte d'authentification avec une valeur par défaut
+const AuthContext = createContext<AuthContextType>({
+  user: undefined,
+  isLoading: false,
+  isAuthenticated: false,
+  isAdmin: false,
+  login: () => {},
+  logout: () => {},
+});
+
+// Fournir un hook pour utiliser le contexte d'authentification
 export function useAuth() {
+  return useContext(AuthContext);
+}
+
+// Créer un composant pour fournir les valeurs d'authentification
+export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
@@ -40,7 +67,7 @@ export function useAuth() {
     });
   }
 
-  return {
+  const value: AuthContextType = {
     user,
     isLoading,
     isAuthenticated: !!user,
@@ -48,4 +75,10 @@ export function useAuth() {
     login,
     logout,
   };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 }

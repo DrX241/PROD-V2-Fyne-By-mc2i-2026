@@ -57,5 +57,9 @@ export function ProtectedRoute({
   }
 
   // Rendu du composant protégé si l'utilisateur est authentifié et a les rôles requis
-  return <Route path={path} component={Component} />;
+  return (
+    <Route path={path}>
+      <Component />
+    </Route>
+  );
 }
