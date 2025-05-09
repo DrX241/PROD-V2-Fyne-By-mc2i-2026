@@ -115,16 +115,18 @@ export default function LearningCenter() {
       destination: '/cyber/learning-center/modules/intro-cybersecurite'
     },
     {
-      id: 'modele-menaces',
-      title: 'Modélisation des menaces',
-      description: 'Comprendre et modéliser les menaces pour mieux protéger vos systèmes d\'information',
+      id: 'modelisation-risques',
+      title: 'L\'Art de la Modélisation des Risques',
+      description: 'Explorer l\'univers fascinant de l\'analyse et de la gestion des risques cyber',
       icon: <FileText />,
-      duration: '3-4h',
-      level: 'intermédiaire',
+      duration: '45 min',
+      level: 'avancé',
       category: 'fondamentaux',
-      tags: ['analyse', 'risques', 'menaces'],
+      tags: ['menaces', 'risques', 'normes', 'analyse', 'stratégie'],
       progress: 0,
-      destination: '/cyber/learning-center/modules/modele-menaces'
+      destination: '/cyber/learning-center/modules/modelisation-risques',
+      isNew: true,
+      isFeatured: true
     },
     {
       id: 'analyse-risques',
