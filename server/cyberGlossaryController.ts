@@ -223,30 +223,44 @@ export async function generateQuiz(req: Request, res: Response) {
     // Niveau de difficulté par défaut
     const level = difficulty || 'moyen';
     
+    // Ajout d'un paramètre de randomisation pour générer des quiz différents à chaque fois
+    const randomSeed = new Date().getTime();
+    
     // Construire le prompt
     let prompt = `Crée un quiz de 5 questions à choix multiples `;
     
     if (term) {
       prompt += `sur le concept de cybersécurité "${term}" `;
     } else {
-      prompt += `sur les concepts fondamentaux de cybersécurité `;
+      prompt += `sur différents concepts aléatoires de cybersécurité `;
     }
     
-    prompt += `avec un niveau de difficulté ${level}. Pour chaque question, fournis:
-1. La question
-2. 4 options possibles (de A à D)
-3. La réponse correcte
+    prompt += `avec un niveau de difficulté ${level}. 
+
+Pour rendre ce quiz unique et aléatoire (seed: ${randomSeed}), assure-toi de:
+1. Varier les types de questions (vrai/faux, questions ouvertes, scénarios pratiques)
+2. Couvrir différents aspects du sujet
+3. Inclure au moins une question de type vrai/faux
+4. Mélanger l'ordre des réponses pour que la bonne réponse ne soit pas toujours à la même position
+5. Varier le niveau de difficulté des questions
+
+Pour chaque question, fournis:
+1. La question (indique clairement si c'est une question "vrai ou faux")
+2. 4 options possibles (ou juste 2 options "Vrai" et "Faux" pour les questions vrai/faux)
+3. L'index de la réponse correcte (0 pour la première option, 1 pour la deuxième, etc.)
 4. Une brève explication de la réponse
 
 Le résultat doit être structuré en JSON comme suit:
 {
   "title": "titre du quiz",
+  "description": "brève description du quiz",
   "questions": [
     {
       "question": "texte de la question",
       "options": ["option A", "option B", "option C", "option D"],
-      "correctAnswer": "B", // index de la bonne réponse (A, B, C ou D)
-      "explanation": "explication de la réponse"
+      "correctAnswer": 1, // index numérique de la bonne réponse (0, 1, 2 ou 3)
+      "explanation": "explication de la réponse",
+      "isVraiOuFaux": false // mettre à true pour les questions vrai/faux
     },
     // autres questions...
   ]

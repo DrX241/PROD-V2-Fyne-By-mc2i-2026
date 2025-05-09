@@ -928,6 +928,7 @@ export default function GlossaireVisuel() {
     options: string[];
     correctAnswer: number;
     explanation: string;
+    isVraiOuFaux?: boolean; // Indique si c'est une question vrai/faux
   }
 
   return (
@@ -1086,36 +1087,113 @@ export default function GlossaireVisuel() {
                   <p className="text-slate-300">{quizData.description || "Testez vos connaissances"}</p>
                 </div>
                 
-                {quizData.questions && quizData.questions.map((question: QuizQuestion, index: number) => (
-                  <div key={index} className="p-4 bg-slate-800 rounded-lg">
-                    <h4 className="font-medium mb-3 text-purple-300">Question {index + 1}: {question.question}</h4>
-                    <RadioGroup className="space-y-2">
-                      {question.options.map((option: string, optIndex: number) => (
-                        <div key={optIndex} className="flex items-start space-x-2">
-                          <RadioGroupItem 
-                            value={optIndex.toString()} 
-                            id={`q${index}-opt${optIndex}`} 
-                            className="border-purple-500 text-purple-500"
-                          />
-                          <Label htmlFor={`q${index}-opt${optIndex}`} className="text-slate-200">{option}</Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
-                    <Accordion type="single" collapsible className="mt-4">
-                      <AccordionItem value="explanation" className="border-slate-700">
-                        <AccordionTrigger className="text-sm text-purple-400">
-                          Voir l'explication
-                        </AccordionTrigger>
-                        <AccordionContent className="text-slate-300 bg-slate-800/50 p-3 rounded-md">
-                          <p>{question.explanation}</p>
-                          <p className="mt-2 font-medium">
+                {quizData.questions && quizData.questions.map((question: QuizQuestion, index: number) => {
+                  // État local pour chaque question
+                  const [selectedOption, setSelectedOption] = useState<number | null>(null);
+                  const [showFeedback, setShowFeedback] = useState(false);
+
+                  // Déterminer si c'est une question vrai/faux
+                  const isVraiOuFaux = question.isVraiOuFaux || 
+                                       (question.options.length === 2 && 
+                                        (question.options[0].toLowerCase() === 'vrai' && 
+                                         question.options[1].toLowerCase() === 'faux') ||
+                                        (question.options[0].toLowerCase() === 'faux' && 
+                                         question.options[1].toLowerCase() === 'vrai'));
+
+                  return (
+                    <div key={index} className="p-4 bg-slate-800 rounded-lg">
+                      <h4 className="font-medium mb-3 text-purple-300">
+                        Question {index + 1}: {question.question}
+                        {isVraiOuFaux && <span className="ml-2 px-2 py-0.5 text-xs bg-purple-800 rounded-full">Vrai ou Faux</span>}
+                      </h4>
+                      
+                      <RadioGroup 
+                        className="space-y-2"
+                        value={selectedOption !== null ? selectedOption.toString() : undefined}
+                        onValueChange={(value) => {
+                          const optIndex = parseInt(value);
+                          setSelectedOption(optIndex);
+                          setShowFeedback(true);
+                        }}
+                      >
+                        {question.options.map((option: string, optIndex: number) => {
+                          let bgClass = "";
+                          if (showFeedback) {
+                            if (optIndex === question.correctAnswer) {
+                              bgClass = "bg-green-800/40";
+                            } else if (optIndex === selectedOption) {
+                              bgClass = "bg-red-800/40";
+                            }
+                          }
+
+                          return (
+                            <div 
+                              key={optIndex} 
+                              className={`flex items-start space-x-2 rounded-md p-2 ${bgClass}`}
+                            >
+                              <RadioGroupItem 
+                                value={optIndex.toString()} 
+                                id={`q${index}-opt${optIndex}`} 
+                                className="border-purple-500 text-purple-500"
+                              />
+                              <div className="flex-1">
+                                <Label 
+                                  htmlFor={`q${index}-opt${optIndex}`} 
+                                  className="text-slate-200"
+                                >
+                                  {option}
+                                </Label>
+                                
+                                {showFeedback && optIndex === question.correctAnswer && (
+                                  <div className="mt-1 text-xs text-green-400 flex items-center">
+                                    <CheckCircle2 className="mr-1 h-3 w-3" />
+                                    Réponse correcte
+                                  </div>
+                                )}
+                                
+                                {showFeedback && optIndex === selectedOption && optIndex !== question.correctAnswer && (
+                                  <div className="mt-1 text-xs text-red-400 flex items-center">
+                                    <XCircle className="mr-1 h-3 w-3" />
+                                    Réponse incorrecte
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </RadioGroup>
+                      
+                      {showFeedback && (
+                        <div className="mt-4 p-3 bg-slate-800/80 border border-purple-900/50 rounded-md">
+                          <p className="text-slate-300">{question.explanation}</p>
+                          <p className="mt-2 font-medium text-green-400">
                             Réponse correcte: {question.options[question.correctAnswer]}
                           </p>
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
-                  </div>
-                ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+                
+                <div className="p-4 bg-slate-800 rounded-lg">
+                  <Button 
+                    onClick={() => generateQuizOnTerm(undefined, 'moyen')}
+                    className="bg-purple-600 hover:bg-purple-700 w-full"
+                    disabled={isGeneratingQuiz}
+                  >
+                    {isGeneratingQuiz ? (
+                      <>
+                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                        Génération...
+                      </>
+                    ) : (
+                      <>
+                        <Shuffle className="mr-2 h-4 w-4" />
+                        Générer un nouveau quiz
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
             )}
           </ScrollArea>
