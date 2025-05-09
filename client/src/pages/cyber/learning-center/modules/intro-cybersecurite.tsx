@@ -42,7 +42,6 @@ import PageTitle from '@/components/utils/PageTitle';
 type ModuleSection = {
   id: string;
   title: string;
-  duration: string;
   progress: number;
   isCompleted: boolean;
 };
@@ -61,42 +60,36 @@ export default function IntroCybersecuriteModule() {
     {
       id: 'introduction',
       title: 'Introduction à la cybersécurité',
-      duration: '20 min',
       progress: 0,
       isCompleted: false
     },
     {
       id: 'concepts',
       title: 'Concepts fondamentaux et terminologie',
-      duration: '30 min',
       progress: 0,
       isCompleted: false
     },
     {
       id: 'menaces',
       title: 'Paysage des menaces cyber',
-      duration: '25 min',
       progress: 0,
       isCompleted: false
     },
     {
-      id: 'principes',
+      id: 'protection',
       title: 'Principes de base de la sécurité',
-      duration: '35 min',
       progress: 0,
       isCompleted: false
     },
     {
-      id: 'controles',
+      id: 'conformite',
       title: 'Contrôles de sécurité essentiels',
-      duration: '40 min',
       progress: 0,
       isCompleted: false
     },
     {
       id: 'evaluation',
       title: 'Évaluation des connaissances',
-      duration: '20 min',
       progress: 0,
       isCompleted: false
     }
@@ -194,10 +187,9 @@ export default function IntroCybersecuriteModule() {
                 <BrainCircuit className="h-5 w-5" />
                 Assistant IA
               </Button>
-              <div className="flex items-center">
-                <Clock className="h-4 w-4 mr-1 text-blue-300" />
-                <span className="text-sm text-blue-200">2-3h</span>
-              </div>
+              <Badge variant="outline" className="border-blue-600 text-blue-200">
+                Interactif
+              </Badge>
               <Badge variant="outline" className="border-blue-600 text-blue-200">
                 Débutant
               </Badge>
@@ -322,11 +314,7 @@ export default function IntroCybersecuriteModule() {
                         </div>
                         <div>
                           <p className="font-medium">{section.title}</p>
-                          <div className="flex justify-between items-center text-xs mt-1 text-blue-300">
-                            <div className="flex items-center">
-                              <Clock className="h-3 w-3 mr-1" />
-                              {section.duration}
-                            </div>
+                          <div className="flex justify-end items-center text-xs mt-1 text-blue-300">
                             <span>{section.progress}%</span>
                           </div>
                           <Progress 
