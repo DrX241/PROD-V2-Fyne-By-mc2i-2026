@@ -1266,6 +1266,55 @@ export default function GlossaireVisuel() {
       
       {/* Contenu principal */}
       <div className="container mx-auto px-6">
+        {/* Carte d'assistant IA */}
+        <div className="mb-6">
+          <Card className="bg-blue-900/20 border-blue-800/50">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center">
+                <BrainCircuit className="mr-2 h-5 w-5 text-blue-400" />
+                Assistant IA - Glossaire cybersécurité
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-sm text-blue-200 mb-3">
+                Posez vos questions sur la cybersécurité et obtenez des explications claires
+              </div>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                if (assistantQuestion.trim()) {
+                  askAssistantQuestion(assistantQuestion);
+                }
+              }}>
+                <div className="flex gap-2">
+                  <Input 
+                    placeholder="Posez une question sur la cybersécurité..." 
+                    className="bg-blue-950/40 border-blue-700/50 text-white placeholder:text-blue-300/70"
+                    value={assistantQuestion}
+                    onChange={(e) => setAssistantQuestion(e.target.value)}
+                    disabled={isAskingQuestion}
+                  />
+                  <Button 
+                    type="submit"
+                    variant="ghost" 
+                    size="icon"
+                    className="shrink-0"
+                    disabled={isAskingQuestion || !assistantQuestion.trim()}
+                  >
+                    {isAskingQuestion ? (
+                      <Loader2 className="h-4 w-4 animate-spin text-blue-400" />
+                    ) : (
+                      <Send className="h-4 w-4 text-blue-400" />
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+            <CardFooter className="text-xs text-blue-300">
+              Exemples : "Quelle est la différence entre DDoS et DoS ?" ou "Expliquez-moi le Zero Trust en termes simples"
+            </CardFooter>
+          </Card>
+        </div>
+        
         {/* Onglets */}
         <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="bg-green-900/20 border border-green-800">
