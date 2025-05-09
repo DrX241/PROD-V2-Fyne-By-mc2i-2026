@@ -321,6 +321,62 @@ export default function LearningCenter() {
     }
   ];
 
+  // Modules du parcours rapide
+  const quickLearningModules: Module[] = [
+    {
+      id: 'fiches-cyber-express',
+      title: 'Fiches Cyber Express',
+      description: 'Synthèses rapides sur les concepts clés de cybersécurité',
+      icon: <FileText />,
+      duration: '5-10min',
+      level: 'tous niveaux',
+      category: 'parcours-rapide',
+      tags: ['fiches', 'synthèse', 'express', 'concepts'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/fiches-cyber-express',
+      isNew: true
+    },
+    {
+      id: 'quiz-adaptatif-ia',
+      title: 'Quiz adaptatif IA',
+      description: 'Évaluez vos connaissances avec des quiz personnalisés par l\'IA',
+      icon: <BrainCircuit />,
+      duration: '10-15min',
+      level: 'tous niveaux',
+      category: 'parcours-rapide',
+      tags: ['quiz', 'évaluation', 'adaptatif', 'IA'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/quiz-adaptatif-ia',
+      isNew: true
+    },
+    {
+      id: 'glossaire-visuel',
+      title: 'Glossaire visuel',
+      description: 'Lexique illustré des termes techniques de cybersécurité',
+      icon: <BookOpen />,
+      duration: '5-15min',
+      level: 'débutant',
+      category: 'parcours-rapide',
+      tags: ['glossaire', 'terminologie', 'visuel', 'lexique'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/glossaire-visuel',
+      isNew: true
+    },
+    {
+      id: 'memo-ia-personnalise',
+      title: 'Mémo IA personnalisé',
+      description: 'Créez des aide-mémoires sur mesure grâce à l\'intelligence artificielle',
+      icon: <Bot />,
+      duration: '5-10min',
+      level: 'tous niveaux',
+      category: 'parcours-rapide',
+      tags: ['mémo', 'personnalisé', 'IA', 'aide-mémoire'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/memo-ia-personnalise',
+      isNew: true
+    }
+  ];
+
   // Parcours thématiques
   const learningPaths: LearningPath[] = [
     {
@@ -469,11 +525,19 @@ export default function LearningCenter() {
       icon: <Clock className="h-6 w-6 text-green-100" />,
       modules: microModules,
       gradient: 'from-green-700 to-green-900'
+    },
+    {
+      id: 'parcours-rapide',
+      title: 'Parcours rapide',
+      description: 'Apprentissage accéléré et outils d\'auto-formation',
+      icon: <Zap className="h-6 w-6 text-yellow-100" />,
+      modules: quickLearningModules,
+      gradient: 'from-amber-600 to-orange-800'
     }
   ];
 
   // Tous les modules combinés pour la recherche
-  const allModules = [...basicModules, ...specializedModules, ...microModules];
+  const allModules = [...basicModules, ...specializedModules, ...microModules, ...quickLearningModules];
 
   // Fonction de filtrage des modules
   const getFilteredModules = () => {
@@ -680,6 +744,7 @@ export default function LearningCenter() {
                 <SelectItem value="technique">Technique</SelectItem>
                 <SelectItem value="gouvernance">Gouvernance</SelectItem>
                 <SelectItem value="micro-learning">Micro-learning</SelectItem>
+                <SelectItem value="parcours-rapide">Parcours rapide</SelectItem>
               </SelectContent>
             </Select>
             
