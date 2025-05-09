@@ -21,7 +21,8 @@ import {
   FileText,
   Laptop,
   Brain,
-  BrainCircuit
+  BrainCircuit,
+  Search
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';

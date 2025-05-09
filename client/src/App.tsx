@@ -319,6 +319,43 @@ function App() {
               );
             }} />
             
+            {/* Routes pour les modules du parcours rapide */}
+            <Route path="/cyber/learning-center/modules/fiches-cyber-express" component={() => {
+              const FichesCyberExpress = lazy(() => import('./pages/cyber/learning-center/modules/fiches-cyber-express'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <FichesCyberExpress />
+                </Suspense>
+              );
+            }} />
+            
+            <Route path="/cyber/learning-center/modules/quiz-adaptatif-ia" component={() => {
+              const QuizAdaptatifIA = lazy(() => import('./pages/cyber/learning-center/modules/quiz-adaptatif-ia'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <QuizAdaptatifIA />
+                </Suspense>
+              );
+            }} />
+            
+            <Route path="/cyber/learning-center/modules/glossaire-visuel" component={() => {
+              const GlossaireVisuel = lazy(() => import('./pages/cyber/learning-center/modules/glossaire-visuel'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <GlossaireVisuel />
+                </Suspense>
+              );
+            }} />
+            
+            <Route path="/cyber/learning-center/modules/memo-ia-personnalise" component={() => {
+              const MemoIAPersonnalise = lazy(() => import('./pages/cyber/learning-center/modules/memo-ia-personnalise'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <MemoIAPersonnalise />
+                </Suspense>
+              );
+            }} />
+            
             {/* Route générique pour les modules non implémentés */}
             <Route path="/cyber/learning-center/modules/:moduleId" component={() => {
               return (
