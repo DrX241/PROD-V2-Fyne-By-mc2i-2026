@@ -1573,7 +1573,7 @@ export default function RansomwareModule() {
                         // Pour l'instant, on simule juste un retour à l'accueil
                       }}
                     >
-                      <Link href="/cyber/learning-center/modules/micro-learning">
+                      <Link href="/cyber/learning-center">
                         <div className="flex items-center">
                           <CheckCircle2 className="mr-2 h-5 w-5" />
                           Terminer et retourner à l'accueil
@@ -1594,10 +1594,10 @@ export default function RansomwareModule() {
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="mb-6">
-        <Link href="/cyber/learning-center/modules/micro-learning">
+        <Link href="/cyber/learning-center">
           <Button variant="ghost" className="mb-4">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Retour au Micro-Learning
+            Retour au Centre d'Apprentissage
           </Button>
         </Link>
         <PageTitle
