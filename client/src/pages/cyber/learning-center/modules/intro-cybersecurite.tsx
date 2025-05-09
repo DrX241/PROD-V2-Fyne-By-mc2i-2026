@@ -176,6 +176,14 @@ export default function IntroCybersecuriteModule() {
               <p className="text-blue-200 mt-1">Module fondamental : concepts et principes de base</p>
             </div>
             <div className="flex gap-3 mt-4 md:mt-0">
+              <Button
+                variant="default"
+                className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
+                onClick={handleAssistantInteraction}
+              >
+                <BrainCircuit className="h-5 w-5" />
+                Assistant IA
+              </Button>
               <div className="flex items-center">
                 <Clock className="h-4 w-4 mr-1 text-blue-300" />
                 <span className="text-sm text-blue-200">2-3h</span>
@@ -183,14 +191,6 @@ export default function IntroCybersecuriteModule() {
               <Badge variant="outline" className="border-blue-600 text-blue-200">
                 Débutant
               </Badge>
-              <Button
-                variant="outline"
-                size="icon"
-                className="bg-blue-900/50 border-blue-700 text-white hover:bg-blue-800"
-                onClick={handleAssistantInteraction}
-              >
-                <BrainCircuit className="h-5 w-5" />
-              </Button>
             </div>
           </div>
           
@@ -575,7 +575,7 @@ export default function IntroCybersecuriteModule() {
                   <CardHeader>
                     <CardTitle>Objectifs d'apprentissage</CardTitle>
                     <CardDescription className="text-blue-200">
-                      Ce que vous allez apprendre dans ce module
+                      Ce que vous allez apprendre dans cette section
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -583,20 +583,89 @@ export default function IntroCybersecuriteModule() {
                       <div>
                         <h3 className="font-semibold text-lg mb-3 flex items-center">
                           <Star className="text-yellow-500 mr-2 h-5 w-5" />
-                          Objectifs
+                          Objectifs {currentSection ? `pour "${moduleSections.find(s => s.id === currentSection)?.title}"` : 'du module'}
                         </h3>
                         <div className="space-y-2">
-                          {learningObjectives.map((objective, index) => (
-                            <div key={index} className="flex items-start gap-2">
-                              <Checkbox id={`objective-${index}`} />
-                              <label
-                                htmlFor={`objective-${index}`}
-                                className="text-sm leading-tight cursor-pointer"
-                              >
-                                {objective}
-                              </label>
-                            </div>
-                          ))}
+                          {currentSection === 'introduction' ? (
+                            // Objectifs spécifiques à l'introduction
+                            <>
+                              <div className="flex items-start gap-2">
+                                <Checkbox id="objective-intro-1" />
+                                <label htmlFor="objective-intro-1" className="text-sm leading-tight cursor-pointer">
+                                  Comprendre les enjeux de la cybersécurité dans le monde actuel
+                                </label>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <Checkbox id="objective-intro-2" />
+                                <label htmlFor="objective-intro-2" className="text-sm leading-tight cursor-pointer">
+                                  Identifier les principales conséquences des cyberattaques pour les organisations
+                                </label>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <Checkbox id="objective-intro-3" />
+                                <label htmlFor="objective-intro-3" className="text-sm leading-tight cursor-pointer">
+                                  Reconnaître l'importance stratégique de la cybersécurité au-delà des aspects techniques
+                                </label>
+                              </div>
+                            </>
+                          ) : currentSection === 'concepts' ? (
+                            // Objectifs spécifiques aux concepts fondamentaux
+                            <>
+                              <div className="flex items-start gap-2">
+                                <Checkbox id="objective-concepts-1" />
+                                <label htmlFor="objective-concepts-1" className="text-sm leading-tight cursor-pointer">
+                                  Maîtriser la triade CIA (Confidentialité, Intégrité, Disponibilité)
+                                </label>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <Checkbox id="objective-concepts-2" />
+                                <label htmlFor="objective-concepts-2" className="text-sm leading-tight cursor-pointer">
+                                  Différencier les concepts de vulnérabilité, menace et risque
+                                </label>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <Checkbox id="objective-concepts-3" />
+                                <label htmlFor="objective-concepts-3" className="text-sm leading-tight cursor-pointer">
+                                  Comprendre les notions d'authentification et d'autorisation en cybersécurité
+                                </label>
+                              </div>
+                            </>
+                          ) : currentSection === 'menaces' ? (
+                            // Objectifs spécifiques aux types de menaces
+                            <>
+                              <div className="flex items-start gap-2">
+                                <Checkbox id="objective-menaces-1" />
+                                <label htmlFor="objective-menaces-1" className="text-sm leading-tight cursor-pointer">
+                                  Identifier les différentes catégories de cybermenaces
+                                </label>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <Checkbox id="objective-menaces-2" />
+                                <label htmlFor="objective-menaces-2" className="text-sm leading-tight cursor-pointer">
+                                  Comprendre les motivations et modes opératoires des attaquants
+                                </label>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <Checkbox id="objective-menaces-3" />
+                                <label htmlFor="objective-menaces-3" className="text-sm leading-tight cursor-pointer">
+                                  Reconnaître les signes d'une attaque potentielle
+                                </label>
+                              </div>
+                            </>
+                          ) : (
+                            // Objectifs généraux pour les autres sections
+                            learningObjectives.map((objective, index) => (
+                              <div key={index} className="flex items-start gap-2">
+                                <Checkbox id={`objective-${index}`} />
+                                <label
+                                  htmlFor={`objective-${index}`}
+                                  className="text-sm leading-tight cursor-pointer"
+                                >
+                                  {objective}
+                                </label>
+                              </div>
+                            ))
+                          )}
                         </div>
                       </div>
                       
@@ -604,11 +673,29 @@ export default function IntroCybersecuriteModule() {
                       
                       <div>
                         <h3 className="font-semibold text-lg mb-3">Prérequis</h3>
-                        <p className="text-blue-200">
-                          Ce module ne nécessite aucun prérequis technique particulier. 
-                          Il s'adresse aux débutants et constitue une introduction générale 
-                          à la cybersécurité.
-                        </p>
+                        {currentSection === 'introduction' ? (
+                          <p className="text-blue-200">
+                            Cette introduction ne nécessite aucun prérequis technique particulier. 
+                            Elle s'adresse aux débutants et pose les bases pour comprendre l'importance 
+                            de la cybersécurité.
+                          </p>
+                        ) : currentSection === 'concepts' ? (
+                          <p className="text-blue-200">
+                            Une compréhension générale de l'informatique est recommandée, mais pas 
+                            obligatoire. Avoir suivi la section "Introduction" de ce module est conseillé.
+                          </p>
+                        ) : currentSection === 'menaces' ? (
+                          <p className="text-blue-200">
+                            Pour bien comprendre cette section, il est recommandé d'avoir assimilé 
+                            les concepts fondamentaux de la cybersécurité abordés dans la section précédente.
+                          </p>
+                        ) : (
+                          <p className="text-blue-200">
+                            Ce module ne nécessite aucun prérequis technique particulier. 
+                            Il s'adresse aux débutants et constitue une introduction générale 
+                            à la cybersécurité.
+                          </p>
+                        )}
                       </div>
                       
                       <Separator className="bg-blue-800/50" />
@@ -666,46 +753,123 @@ export default function IntroCybersecuriteModule() {
                   <CardHeader>
                     <CardTitle>Ressources complémentaires</CardTitle>
                     <CardDescription className="text-blue-200">
-                      Documents et supports additionnels
+                      {currentSection 
+                        ? `Ressources pour "${moduleSections.find(s => s.id === currentSection)?.title}"`
+                        : "Documents et supports additionnels"}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
                       <div>
                         <h3 className="font-semibold text-lg mb-3">Documents de référence</h3>
-                        <div className="space-y-2">
-                          {additionalResources.map((resource, index) => (
-                            <div key={index} className="flex justify-between items-center p-3 bg-blue-900/30 rounded-lg border border-blue-800">
+                        {currentSection === 'introduction' ? (
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-center p-3 bg-blue-900/30 rounded-lg border border-blue-800">
                               <div className="flex items-center gap-3">
                                 <div className="p-2 bg-blue-800 rounded-md">
-                                  {resource.icon}
+                                  <FileText className="h-4 w-4 text-blue-200" />
                                 </div>
                                 <div>
-                                  <h4 className="font-medium">{resource.title}</h4>
-                                  <p className="text-xs text-blue-300">{resource.type}</p>
+                                  <h4 className="font-medium">Introduction à la cybersécurité en entreprise</h4>
+                                  <p className="text-xs text-blue-300">PDF (1.2 MB)</p>
                                 </div>
                               </div>
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                className="border-blue-700"
-                                disabled={!resource.downloadable}
-                              >
-                                {resource.downloadable ? (
-                                  <>
-                                    <Download className="mr-1 h-4 w-4" />
-                                    Télécharger
-                                  </>
-                                ) : (
-                                  <>
-                                    <Play className="mr-1 h-4 w-4" />
-                                    Voir
-                                  </>
-                                )}
+                              <Button variant="outline" className="h-8 border-blue-700">
+                                <Download className="h-4 w-4 mr-2" />
+                                Télécharger
                               </Button>
                             </div>
-                          ))}
-                        </div>
+                            <div className="flex justify-between items-center p-3 bg-blue-900/30 rounded-lg border border-blue-800">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2 bg-blue-800 rounded-md">
+                                  <Presentation className="h-4 w-4 text-blue-200" />
+                                </div>
+                                <div>
+                                  <h4 className="font-medium">Panorama des menaces cyber 2025</h4>
+                                  <p className="text-xs text-blue-300">Présentation (5.4 MB)</p>
+                                </div>
+                              </div>
+                              <Button variant="outline" className="h-8 border-blue-700">
+                                <Download className="h-4 w-4 mr-2" />
+                                Télécharger
+                              </Button>
+                            </div>
+                          </div>
+                        ) : currentSection === 'concepts' ? (
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-center p-3 bg-blue-900/30 rounded-lg border border-blue-800">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2 bg-blue-800 rounded-md">
+                                  <BookOpen className="h-4 w-4 text-blue-200" />
+                                </div>
+                                <div>
+                                  <h4 className="font-medium">Glossaire des concepts clés en cybersécurité</h4>
+                                  <p className="text-xs text-blue-300">PDF (850 KB)</p>
+                                </div>
+                              </div>
+                              <Button variant="outline" className="h-8 border-blue-700">
+                                <Download className="h-4 w-4 mr-2" />
+                                Télécharger
+                              </Button>
+                            </div>
+                            <div className="flex justify-between items-center p-3 bg-blue-900/30 rounded-lg border border-blue-800">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2 bg-blue-800 rounded-md">
+                                  <FileCheck className="h-4 w-4 text-blue-200" />
+                                </div>
+                                <div>
+                                  <h4 className="font-medium">Guide de la triade CIA en pratique</h4>
+                                  <p className="text-xs text-blue-300">Document technique (1.7 MB)</p>
+                                </div>
+                              </div>
+                              <Button variant="outline" className="h-8 border-blue-700">
+                                <Download className="h-4 w-4 mr-2" />
+                                Télécharger
+                              </Button>
+                            </div>
+                          </div>
+                        ) : currentSection === 'menaces' ? (
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-center p-3 bg-blue-900/30 rounded-lg border border-blue-800">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2 bg-blue-800 rounded-md">
+                                  <FileWarning className="h-4 w-4 text-blue-200" />
+                                </div>
+                                <div>
+                                  <h4 className="font-medium">Taxonomie des cybermenaces modernes</h4>
+                                  <p className="text-xs text-blue-300">PDF (2.3 MB)</p>
+                                </div>
+                              </div>
+                              <Button variant="outline" className="h-8 border-blue-700">
+                                <Download className="h-4 w-4 mr-2" />
+                                Télécharger
+                              </Button>
+                            </div>
+                            <div className="flex justify-between items-center p-3 bg-blue-900/30 rounded-lg border border-blue-800">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2 bg-blue-800 rounded-md">
+                                  <FileType className="h-4 w-4 text-blue-200" />
+                                </div>
+                                <div>
+                                  <h4 className="font-medium">Études de cas d'attaques récentes</h4>
+                                  <p className="text-xs text-blue-300">PDF (3.1 MB)</p>
+                                </div>
+                              </div>
+                              <Button variant="outline" className="h-8 border-blue-700">
+                                <Download className="h-4 w-4 mr-2" />
+                                Télécharger
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-center py-6 bg-blue-900/10 rounded-lg border border-blue-900/50">
+                            <FileText className="h-10 w-10 mx-auto text-blue-400 mb-3" />
+                            <h3 className="text-xl font-semibold">Bientôt disponible</h3>
+                            <p className="text-blue-300 mt-1">
+                              Les ressources pour cette section sont en cours de préparation
+                            </p>
+                          </div>
+                        )}
                       </div>
                       
                       <Separator className="bg-blue-800/50" />
@@ -729,24 +893,17 @@ export default function IntroCybersecuriteModule() {
                       
                       <div>
                         <h3 className="font-semibold text-lg mb-3">Modules complémentaires recommandés</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <div className="bg-blue-900/30 border border-blue-800 rounded-lg p-3">
-                            <h4 className="font-medium flex items-center">
-                              <FileText className="h-4 w-4 mr-2 text-blue-300" />
-                              Modélisation des menaces
-                            </h4>
-                            <p className="text-xs text-blue-300 mt-1">
-                              Apprendre à identifier et modéliser les menaces potentielles
-                            </p>
-                          </div>
-                          <div className="bg-blue-900/30 border border-blue-800 rounded-lg p-3">
-                            <h4 className="font-medium flex items-center">
-                              <Shield className="h-4 w-4 mr-2 text-blue-300" />
-                              Principes de défense en profondeur
-                            </h4>
-                            <p className="text-xs text-blue-300 mt-1">
-                              Stratégies pour créer plusieurs couches de défense
-                            </p>
+                        <div className="text-center py-6 bg-blue-900/10 rounded-lg border border-blue-900/50">
+                          <Book className="h-10 w-10 mx-auto text-blue-400 mb-3" />
+                          <h3 className="text-xl font-semibold">Bientôt disponible</h3>
+                          <p className="text-blue-300 mt-1">
+                            Des modules complémentaires seront ajoutés prochainement
+                          </p>
+                          <div className="mt-4">
+                            <Button variant="outline" className="border-blue-700">
+                              <Bell className="mr-2 h-4 w-4" />
+                              M'alerter quand disponible
+                            </Button>
                           </div>
                         </div>
                       </div>
