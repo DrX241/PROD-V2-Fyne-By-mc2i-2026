@@ -231,23 +231,49 @@ export default function CyberModeSelectionRedesign() {
     {
       id: 'se-former',
       title: 'SE FORMER',
-      description: "Parcours structurés et contenus interactifs pour maîtriser les fondamentaux de la cybersécurité",
+      description: "Parcours structurés et contenus interactifs pour acquérir les fondamentaux",
       icon: <BookOpen className="h-6 w-6 text-blue-100" />,
       modules: [
-        'agent-ia',
-        'ascension-progression',
-        'cyber-arcade',
-        'mode-entretien',
-        'test-technique'
+        'agent-ia',             // Apprentissage personnalisé via IA
+        'ascension-progression', // Parcours certifiant structuré
+        'cyber-arcade'          // Apprentissage ludique des bases
       ],
-      gradient: 'from-blue-700 to-blue-900',
-      categories: [
-        'Fondamentaux',
-        'Sécurité technique',
-        'Gouvernance',
-        'Conformité'
-      ]
+      gradient: 'from-blue-700 to-blue-900'
     },
+    {
+      id: 'sentrainer',
+      title: "S'ENTRAÎNER",
+      description: "Mettez en pratique vos connaissances dans des scénarios réalistes",
+      icon: <Monitor className="h-6 w-6 text-indigo-100" />,
+      modules: [
+        'mise-en-situation',     // Scénarios d'incidents
+        'escape-the-breach',     // Investigation immersive
+        'preparation-audition'   // Simulation d'entretiens clients
+      ],
+      gradient: 'from-indigo-700 to-indigo-900'
+    },
+    {
+      id: 'sevaluer',
+      title: "S'ÉVALUER",
+      description: "Testez votre niveau technique et vos compétences",
+      icon: <Award className="h-6 w-6 text-purple-100" />,
+      modules: [
+        'mode-entretien',    // Simulation d'entretien d'embauche
+        'test-technique'     // Évaluation technique
+      ],
+      gradient: 'from-purple-700 to-purple-900'
+    },
+    {
+      id: 'creer',
+      title: "CRÉER/AUTOMATISER",
+      description: "Outils pour automatiser et optimiser la sécurité",
+      icon: <Wrench className="h-6 w-6 text-teal-100" />,
+      modules: [
+        'policy-converter',      // Conversion de politiques
+        'phishing-simulator'     // Simulation de phishing
+      ],
+      gradient: 'from-teal-700 to-teal-900'
+    }
     {
       id: 'sentrainer',
       title: "S'ENTRAÎNER",
