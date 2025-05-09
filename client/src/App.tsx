@@ -62,8 +62,7 @@ import AmoaInterviewSimulation from "@/pages/amoa/interview-simulation";
 import ProjetImposteur from "@/pages/amoa/projet-imposteur";
 // Module Apprendre en échangeant
 import ExpertLearningPage from "@/pages/cyber/expert-learning";
-// Nouveau jeu Cyber Snake
-import CyberSnake from "@/pages/cyber/cyber-snake";
+// Ancien jeu Cyber Snake (supprimé)
 // Suppression des imports existants de CyberForge
 // Autres pages
 import ImmersiveSimulation from "@/pages/immersive-simulation";
