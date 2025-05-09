@@ -32,6 +32,15 @@ export default function CyberArcade() {
       route: '/cyber/arcade/cyber-escape-v2'
     },
     {
+      id: 'bug-hunter',
+      title: 'BUG HUNTER',
+      description: 'Incarnez un chercheur en sécurité et trouvez des vulnérabilités dans des applications web. Soumettez des rapports détaillés comme dans un vrai programme de bug bounty.',
+      icon: <FileSearch className="w-6 h-6" />,
+      gradient: 'from-red-600 to-amber-700',
+      available: true,
+      route: '/cyber/arcade/bug-hunter'
+    },
+    {
       id: 'brain-hacker',
       title: 'BRAIN HACKER',
       description: 'Ingénierie sociale inversée : incarnez le hacker et trouvez le moyen le plus subtil de piéger la victime',

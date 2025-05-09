@@ -196,6 +196,25 @@ function App() {
               );
             }} />
             
+            {/* Module Bug Hunter */}
+            <Route path="/cyber/arcade/bug-hunter" component={() => {
+              const BugHunterComponent = lazy(() => import('./pages/cyber/arcade/bug-hunter'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <BugHunterComponent />
+                </Suspense>
+              );
+            }} />
+            
+            <Route path="/cyber/arcade/bug-hunter/challenge/:id" component={() => {
+              const BugHunterChallengeComponent = lazy(() => import('./pages/cyber/arcade/bug-hunter/challenge/[id]'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <BugHunterChallengeComponent />
+                </Suspense>
+              );
+            }} />
+            
             {/* Module Escape the Breach */}
             <Route path="/cyber/escape-the-breach" component={EscapeTheBreach} />
             

@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { storage } from './storage';
-import { AzureKeyCredential, OpenAIClient } from "@azure/openai";
 
 // Types pour Bug Hunter
 type VulnerabilityCategory = 
@@ -147,7 +146,7 @@ const challenges: Challenge[] = [
       'Documenter la vulnérabilité et proposer une solution de sécurisation'
     ],
     timeLimit: 45,
-    tutorial: "L'injection SQL est une technique d'attaque permettant d'injecter du code SQL malveillant dans les requêtes exécutées par une application. Dans ce défi, vous allez explorer comment exploiter une vulnérabilité d'injection SQL pour contourner un mécanisme d'authentification.\n\nLes applications vulnérables construisent souvent des requêtes SQL en concaténant directement les entrées utilisateur. Par exemple :\n\n```sql\nSELECT * FROM users WHERE username = '" + username + "' AND password = '" + password + "';\n```\n\nSi le système n'échappe pas correctement les entrées, vous pouvez injecter du code comme `' OR '1'='1' --` qui transformera la requête en :\n\n```sql\nSELECT * FROM users WHERE username = '' OR '1'='1' -- ' AND password = '...';\n```\n\nLa clause `OR '1'='1'` est toujours vraie, et `--` commente le reste de la requête, ce qui permet de contourner la vérification du mot de passe."
+    tutorial: "L'injection SQL est une technique d'attaque permettant d'injecter du code SQL malveillant dans les requêtes exécutées par une application. Dans ce défi, vous allez explorer comment exploiter une vulnérabilité d'injection SQL pour contourner un mécanisme d'authentification.\n\nLes applications vulnérables construisent souvent des requêtes SQL en concaténant directement les entrées utilisateur. Par exemple, une requête vulnérable pourrait ressembler à ceci :\n\n```sql\nSELECT * FROM users WHERE username = 'SAISIE_UTILISATEUR' AND password = 'SAISIE_UTILISATEUR';\n```\n\nSi le système n'échappe pas correctement les entrées, vous pouvez injecter du code comme `' OR '1'='1' --` qui transformera la requête en :\n\n```sql\nSELECT * FROM users WHERE username = '' OR '1'='1' -- ' AND password = '...';\n```\n\nLa clause `OR '1'='1'` est toujours vraie, et `--` commente le reste de la requête, ce qui permet de contourner la vérification du mot de passe."
   }
 ];
 
@@ -163,43 +162,42 @@ export async function getChallenges(req: Request, res: Response) {
     // Dans une vraie implémentation, les défis seraient filtrés par niveau ou par progression utilisateur
     let filteredChallenges = challenges;
     
-    // Si l'utilisateur est connecté, on peut personnaliser les défis (par exemple, déverrouiller certains)
-    if (req.session.user) {
-      const userId = req.session.user.id;
+    // Pour la démonstration, on utilise un ID utilisateur fixe
+    // Dans une vraie implémentation, cet ID viendrait de l'authentification
+    const userId = "user123";
       
-      // Initialiser les statistiques utilisateur si elles n'existent pas
-      if (!userStats[userId]) {
-        userStats[userId] = {
-          userId,
-          totalPoints: 0,
-          rank: 'Débutant',
-          completedChallenges: 0,
-          validatedReports: 0,
-          rejectedReports: 0,
-          averageScore: 0,
-          badgesEarned: []
-        };
-      }
-      
-      // Compléter les défis avec des informations personnalisées
-      filteredChallenges = challenges.map(challenge => {
-        // Vérifier si l'utilisateur a déjà complété ce défi
-        const userReports = bugReports.filter(
-          report => report.userId === userId && report.challengeId === challenge.id && report.status === 'validé'
-        );
-        
-        const completed = userReports.length > 0;
-        
-        // Logique simple pour déterminer si un défi est verrouillé
-        const locked = challenge.difficulty === 'avancé' && userStats[userId].completedChallenges < 2;
-        
-        return {
-          ...challenge,
-          completed,
-          locked
-        };
-      });
+    // Initialiser les statistiques utilisateur si elles n'existent pas
+    if (!userStats[userId]) {
+      userStats[userId] = {
+        userId,
+        totalPoints: 0,
+        rank: 'Débutant',
+        completedChallenges: 0,
+        validatedReports: 0,
+        rejectedReports: 0,
+        averageScore: 0,
+        badgesEarned: []
+      };
     }
+      
+    // Compléter les défis avec des informations personnalisées
+    filteredChallenges = challenges.map(challenge => {
+      // Vérifier si l'utilisateur a déjà complété ce défi
+      const userReports = bugReports.filter(
+        report => report.userId === userId && report.challengeId === challenge.id && report.status === 'validé'
+      );
+      
+      const completed = userReports.length > 0;
+      
+      // Logique simple pour déterminer si un défi est verrouillé
+      const locked = challenge.difficulty === 'avancé' && userStats[userId].completedChallenges < 2;
+      
+      return {
+        ...challenge,
+        completed,
+        locked
+      };
+    });
     
     res.json({ success: true, challenges: filteredChallenges });
   } catch (error) {
@@ -221,31 +219,28 @@ export async function getChallengeById(req: Request, res: Response) {
       return res.status(404).json({ success: false, error: 'Défi non trouvé' });
     }
     
-    // Ajouter des informations complémentaires si l'utilisateur est connecté
-    if (req.session.user) {
-      const userId = req.session.user.id;
+    // Pour la démonstration, on utilise un ID utilisateur fixe
+    // Dans une vraie implémentation, cet ID viendrait de l'authentification
+    const userId = "user123";
       
-      // Vérifier si l'utilisateur a déjà complété ce défi
-      const userReports = bugReports.filter(
-        report => report.userId === userId && report.challengeId === challenge.id && report.status === 'validé'
-      );
-      
-      const completed = userReports.length > 0;
-      
-      // Logique simple pour déterminer si un défi est verrouillé
-      const locked = challenge.difficulty === 'avancé' && userStats[userId]?.completedChallenges < 2;
-      
-      return res.json({ 
-        success: true, 
-        challenge: {
-          ...challenge,
-          completed,
-          locked
-        } 
-      });
-    }
+    // Vérifier si l'utilisateur a déjà complété ce défi
+    const userReports = bugReports.filter(
+      report => report.userId === userId && report.challengeId === challenge.id && report.status === 'validé'
+    );
     
-    res.json({ success: true, challenge });
+    const completed = userReports.length > 0;
+    
+    // Logique simple pour déterminer si un défi est verrouillé
+    const locked = challenge.difficulty === 'avancé' && userStats[userId]?.completedChallenges < 2;
+    
+    return res.json({ 
+      success: true, 
+      challenge: {
+        ...challenge,
+        completed,
+        locked
+      } 
+    });
   } catch (error) {
     console.error('Erreur lors de la récupération du défi:', error);
     res.status(500).json({ success: false, error: 'Erreur serveur' });
@@ -257,11 +252,9 @@ export async function getChallengeById(req: Request, res: Response) {
  */
 export async function getUserStats(req: Request, res: Response) {
   try {
-    if (!req.session.user) {
-      return res.status(401).json({ success: false, error: 'Utilisateur non connecté' });
-    }
-    
-    const userId = req.session.user.id;
+    // Pour la démonstration, on utilise un ID utilisateur fixe
+    // Dans une vraie implémentation, cet ID viendrait de l'authentification
+    const userId = "user123";
     
     // Initialiser les statistiques utilisateur si elles n'existent pas
     if (!userStats[userId]) {
@@ -289,11 +282,9 @@ export async function getUserStats(req: Request, res: Response) {
  */
 export async function getUserReports(req: Request, res: Response) {
   try {
-    if (!req.session.user) {
-      return res.status(401).json({ success: false, error: 'Utilisateur non connecté' });
-    }
-    
-    const userId = req.session.user.id;
+    // Pour la démonstration, on utilise un ID utilisateur fixe
+    // Dans une vraie implémentation, cet ID viendrait de l'authentification
+    const userId = "user123";
     
     // Filtrer les rapports de l'utilisateur et les trier par date
     const userReports = bugReports
@@ -312,11 +303,9 @@ export async function getUserReports(req: Request, res: Response) {
  */
 export async function submitBugReport(req: Request, res: Response) {
   try {
-    if (!req.session.user) {
-      return res.status(401).json({ success: false, error: 'Utilisateur non connecté' });
-    }
-    
-    const userId = req.session.user.id;
+    // Pour la démonstration, on utilise un ID utilisateur fixe
+    // Dans une vraie implémentation, cet ID viendrait de l'authentification
+    const userId = "user123";
     const {
       challengeId,
       title,
@@ -379,11 +368,9 @@ export async function submitBugReport(req: Request, res: Response) {
  */
 export async function getReportById(req: Request, res: Response) {
   try {
-    if (!req.session.user) {
-      return res.status(401).json({ success: false, error: 'Utilisateur non connecté' });
-    }
-    
-    const userId = req.session.user.id;
+    // Pour la démonstration, on utilise un ID utilisateur fixe
+    // Dans une vraie implémentation, cet ID viendrait de l'authentification
+    const userId = "user123";
     const { id } = req.params;
     
     const report = bugReports.find(r => r.id === id);

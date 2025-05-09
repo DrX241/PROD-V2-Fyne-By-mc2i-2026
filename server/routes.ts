@@ -55,6 +55,7 @@ import { generateModule, saveCustomModule, getCustomModules, getCustomModuleById
 import { analyzeEvidence, getInvestigationHints, evaluateInvestigationResult, generateInvestigationScenario, generateInvestigationNotes } from "./cyberInvestigatorController";
 import { getInvestigationProgress, saveInvestigationProgress, evaluateUserNotes } from "./investigationProgressController";
 // importation du controller CyberEscape supprimée
+import { getChallenges, getChallengeById, getUserStats, getUserReports, submitBugReport, getReportById } from "./bugHunterController";
 import { 
   getAssistantTemplates, 
   getAssistantTemplate, 
@@ -467,6 +468,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Routes pour le générateur de code
   app.post("/api/code-generator/generate", (req: Request, res: Response) => {
     generateCode(req, res);
+  });
+  
+  // Routes pour le module Bug Hunter
+  app.get("/api/bug-hunter/challenges", (req: Request, res: Response) => {
+    getChallenges(req, res);
+  });
+  
+  app.get("/api/bug-hunter/challenge/:id", (req: Request, res: Response) => {
+    getChallengeById(req, res);
+  });
+  
+  app.get("/api/bug-hunter/user-stats", (req: Request, res: Response) => {
+    getUserStats(req, res);
+  });
+  
+  app.get("/api/bug-hunter/reports", (req: Request, res: Response) => {
+    getUserReports(req, res);
+  });
+  
+  app.get("/api/bug-hunter/report/:id", (req: Request, res: Response) => {
+    getReportById(req, res);
+  });
+  
+  app.post("/api/bug-hunter/reports", (req: Request, res: Response) => {
+    submitBugReport(req, res);
   });
   
   app.get("/api/code-generator/history", (req: Request, res: Response) => {
