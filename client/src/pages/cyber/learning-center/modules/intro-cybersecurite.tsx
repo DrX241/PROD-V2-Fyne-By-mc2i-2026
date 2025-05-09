@@ -498,7 +498,209 @@ export default function IntroCybersecuriteModule() {
                             </div>
                           )}
                           
-                          {(currentSection !== 'introduction' && currentSection !== 'concepts') && (
+                          {currentSection === 'menaces' && (
+                            <div>
+                              <p>
+                                Le paysage des cybermenaces évolue rapidement, avec des attaquants qui développent 
+                                constamment de nouvelles techniques et méthodes pour compromettre les systèmes d'information.
+                              </p>
+                              
+                              <h3>Principales catégories de cybermenaces</h3>
+                              <ul>
+                                <li>
+                                  <strong>Malwares</strong> : logiciels malveillants conçus pour s'infiltrer dans les systèmes
+                                  (virus, vers, chevaux de Troie, ransomwares, spywares)
+                                </li>
+                                <li>
+                                  <strong>Phishing</strong> : tentatives de vol d'informations sensibles (identifiants, données bancaires)
+                                  en se faisant passer pour une entité légitime
+                                </li>
+                                <li>
+                                  <strong>Attaques par déni de service (DoS/DDoS)</strong> : saturation des ressources d'un système
+                                  pour le rendre indisponible
+                                </li>
+                                <li>
+                                  <strong>Attaques par force brute</strong> : tentatives répétées pour deviner des mots de passe
+                                  ou des clés de chiffrement
+                                </li>
+                                <li>
+                                  <strong>Ingénierie sociale</strong> : manipulation psychologique pour amener les utilisateurs
+                                  à divulguer des informations confidentielles
+                                </li>
+                                <li>
+                                  <strong>Menaces internes</strong> : risques posés par les employés, contractuels ou partenaires
+                                  ayant un accès légitime aux systèmes
+                                </li>
+                              </ul>
+                              
+                              <h3>Acteurs malveillants</h3>
+                              <p>
+                                Les cyberattaques peuvent être menées par différents types d'acteurs, avec des motivations variées :
+                              </p>
+                              <ul>
+                                <li>
+                                  <strong>Cybercriminels</strong> : individus ou groupes motivés par le gain financier
+                                </li>
+                                <li>
+                                  <strong>Hacktivistes</strong> : attaquants motivés par des causes politiques ou idéologiques
+                                </li>
+                                <li>
+                                  <strong>États-nations</strong> : entités gouvernementales engagées dans l'espionnage
+                                  ou les opérations d'influence
+                                </li>
+                                <li>
+                                  <strong>Initiés malveillants</strong> : employés mécontents ou corrompus cherchant à nuire
+                                  à leur organisation
+                                </li>
+                                <li>
+                                  <strong>Script kiddies</strong> : amateurs utilisant des outils préfabriqués sans comprendre
+                                  leur fonctionnement
+                                </li>
+                              </ul>
+                              
+                              <div className="bg-blue-800/30 border-l-4 border-blue-500 p-4 my-4">
+                                <h4 className="font-bold text-blue-300">À retenir</h4>
+                                <p className="mt-1">
+                                  La compréhension des différentes menaces et de leurs vecteurs d'attaque est essentielle
+                                  pour mettre en place des mesures de protection adaptées.
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {currentSection === 'protection' && (
+                            <div>
+                              <p>
+                                Protéger efficacement les systèmes d'information requiert une approche globale
+                                combinant mesures techniques, organisationnelles et humaines.
+                              </p>
+                              
+                              <h3>Mesures techniques de protection</h3>
+                              <ul>
+                                <li>
+                                  <strong>Authentification forte</strong> : mise en place de mécanismes d'authentification 
+                                  multifacteur (MFA) pour sécuriser les accès
+                                </li>
+                                <li>
+                                  <strong>Chiffrement des données</strong> : protection des données sensibles
+                                  au repos et en transit
+                                </li>
+                                <li>
+                                  <strong>Solutions de sécurité</strong> : déploiement de pare-feu, antivirus, 
+                                  systèmes de détection et de prévention d'intrusion (IDS/IPS)
+                                </li>
+                                <li>
+                                  <strong>Gestion des correctifs</strong> : application régulière des mises à jour
+                                  de sécurité pour corriger les vulnérabilités
+                                </li>
+                                <li>
+                                  <strong>Segmentation réseau</strong> : séparation du réseau en zones distinctes
+                                  pour limiter la propagation des attaques
+                                </li>
+                                <li>
+                                  <strong>Sauvegardes régulières</strong> : création et test de sauvegardes pour
+                                  assurer la récupération des données en cas d'incident
+                                </li>
+                              </ul>
+                              
+                              <h3>Mesures organisationnelles</h3>
+                              <ul>
+                                <li>
+                                  <strong>Politique de sécurité</strong> : définition d'un cadre formel pour la gestion
+                                  de la sécurité de l'information
+                                </li>
+                                <li>
+                                  <strong>Gestion des risques</strong> : identification, évaluation et traitement
+                                  des risques de sécurité
+                                </li>
+                                <li>
+                                  <strong>Gestion des incidents</strong> : mise en place de procédures pour détecter,
+                                  signaler et traiter les incidents de sécurité
+                                </li>
+                                <li>
+                                  <strong>Plan de continuité d'activité</strong> : préparation pour maintenir
+                                  les activités critiques en cas d'incident majeur
+                                </li>
+                                <li>
+                                  <strong>Sensibilisation et formation</strong> : programmes pour développer
+                                  la culture de sécurité et les compétences des utilisateurs
+                                </li>
+                              </ul>
+                              
+                              <div className="bg-blue-800/30 border-l-4 border-blue-500 p-4 my-4">
+                                <h4 className="font-bold text-blue-300">À retenir</h4>
+                                <p className="mt-1">
+                                  La défense en profondeur, consistant à superposer plusieurs couches de protection,
+                                  est l'approche recommandée pour une sécurité efficace.
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {currentSection === 'conformite' && (
+                            <div>
+                              <p>
+                                La conformité aux exigences légales et réglementaires en matière de cybersécurité
+                                est devenue incontournable pour les organisations de toutes tailles.
+                              </p>
+                              
+                              <h3>Cadres réglementaires majeurs</h3>
+                              <ul>
+                                <li>
+                                  <strong>Règlement Général sur la Protection des Données (RGPD)</strong> : 
+                                  réglementation européenne sur la protection des données personnelles
+                                </li>
+                                <li>
+                                  <strong>Directive NIS (Network and Information Security)</strong> : 
+                                  directive européenne sur la sécurité des réseaux et des systèmes d'information
+                                </li>
+                                <li>
+                                  <strong>NIS 2</strong> : 
+                                  nouvelle directive européenne renforçant les obligations de cybersécurité
+                                </li>
+                                <li>
+                                  <strong>PCI DSS</strong> : 
+                                  norme de sécurité pour les organisations traitant des données de cartes de paiement
+                                </li>
+                                <li>
+                                  <strong>ISO 27001</strong> : 
+                                  norme internationale pour les systèmes de management de la sécurité de l'information
+                                </li>
+                              </ul>
+                              
+                              <h3>Enjeux de la conformité</h3>
+                              <ul>
+                                <li>
+                                  <strong>Obligations légales</strong> : 
+                                  respect des exigences applicables selon le secteur d'activité et la localisation
+                                </li>
+                                <li>
+                                  <strong>Sanctions et amendes</strong> : 
+                                  risques financiers en cas de non-conformité (ex: jusqu'à 4% du CA mondial pour le RGPD)
+                                </li>
+                                <li>
+                                  <strong>Notification des violations</strong> : 
+                                  obligation de signaler les incidents de sécurité aux autorités compétentes
+                                </li>
+                                <li>
+                                  <strong>Démonstration de conformité</strong> : 
+                                  nécessité de documenter les mesures mises en place (principe d'accountability)
+                                </li>
+                              </ul>
+                              
+                              <div className="bg-blue-800/30 border-l-4 border-blue-500 p-4 my-4">
+                                <h4 className="font-bold text-blue-300">À retenir</h4>
+                                <p className="mt-1">
+                                  La conformité réglementaire n'est pas une fin en soi, mais un socle minimal
+                                  à partir duquel construire une stratégie de cybersécurité efficace.
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {(currentSection !== 'introduction' && currentSection !== 'concepts' && 
+                            currentSection !== 'menaces' && currentSection !== 'protection' && 
+                            currentSection !== 'conformite') && (
                             <div className="flex items-center justify-center h-64">
                               <div className="text-center">
                                 <BookOpen className="h-16 w-16 mx-auto text-blue-400 mb-4" />
@@ -662,6 +864,50 @@ export default function IntroCybersecuriteModule() {
                                 </label>
                               </div>
                             </>
+                          ) : currentSection === 'protection' ? (
+                            // Objectifs spécifiques à la protection
+                            <>
+                              <div className="flex items-start gap-2">
+                                <Checkbox id="objective-protection-1" />
+                                <label htmlFor="objective-protection-1" className="text-sm leading-tight cursor-pointer">
+                                  Comprendre l'approche de défense en profondeur en cybersécurité
+                                </label>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <Checkbox id="objective-protection-2" />
+                                <label htmlFor="objective-protection-2" className="text-sm leading-tight cursor-pointer">
+                                  Identifier les principales mesures techniques de protection
+                                </label>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <Checkbox id="objective-protection-3" />
+                                <label htmlFor="objective-protection-3" className="text-sm leading-tight cursor-pointer">
+                                  Comprendre l'importance des mesures organisationnelles
+                                </label>
+                              </div>
+                            </>
+                          ) : currentSection === 'conformite' ? (
+                            // Objectifs spécifiques à la conformité
+                            <>
+                              <div className="flex items-start gap-2">
+                                <Checkbox id="objective-conformite-1" />
+                                <label htmlFor="objective-conformite-1" className="text-sm leading-tight cursor-pointer">
+                                  Identifier les principales réglementations en matière de cybersécurité
+                                </label>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <Checkbox id="objective-conformite-2" />
+                                <label htmlFor="objective-conformite-2" className="text-sm leading-tight cursor-pointer">
+                                  Comprendre les enjeux de la conformité pour les organisations
+                                </label>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <Checkbox id="objective-conformite-3" />
+                                <label htmlFor="objective-conformite-3" className="text-sm leading-tight cursor-pointer">
+                                  Savoir intégrer les exigences réglementaires dans la stratégie de cybersécurité
+                                </label>
+                              </div>
+                            </>
                           ) : (
                             // Objectifs généraux pour les autres sections
                             learningObjectives.map((objective, index) => (
@@ -698,6 +944,18 @@ export default function IntroCybersecuriteModule() {
                           <p className="text-blue-200">
                             Pour bien comprendre cette section, il est recommandé d'avoir assimilé 
                             les concepts fondamentaux de la cybersécurité abordés dans la section précédente.
+                          </p>
+                        ) : currentSection === 'protection' ? (
+                          <p className="text-blue-200">
+                            Une connaissance préalable des principaux types de menaces cybernétiques est 
+                            conseillée. Il est recommandé d'avoir suivi les sections "Introduction", 
+                            "Concepts fondamentaux" et "Types de menaces" de ce module.
+                          </p>
+                        ) : currentSection === 'conformite' ? (
+                          <p className="text-blue-200">
+                            Pour tirer le meilleur parti de cette section, une compréhension de base des concepts de 
+                            cybersécurité et des mesures de protection est recommandée. Idéalement, vous 
+                            devriez avoir suivi les quatre premières sections du module.
                           </p>
                         ) : (
                           <p className="text-blue-200">
