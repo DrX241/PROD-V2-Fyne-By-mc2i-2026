@@ -489,68 +489,89 @@ export default function IntroCybersecuriteModule() {
                           {currentSection === 'menaces' && (
                             <div>
                               <p>
-                                Le paysage des cybermenaces évolue rapidement, avec des attaquants qui développent 
-                                constamment de nouvelles techniques et méthodes pour compromettre les systèmes d'information.
+                                Le paysage des cybermenaces est comme un jeu d'échecs en constante évolution, 
+                                où les attaquants inventent sans cesse de nouveaux mouvements pour mettre en échec 
+                                vos défenses. Embarquons dans un safari des menaces cybernétiques !
                               </p>
                               
-                              <h3>Principales catégories de cybermenaces</h3>
-                              <ul>
-                                <li>
-                                  <strong>Malwares</strong> : logiciels malveillants conçus pour s'infiltrer dans les systèmes
-                                  (virus, vers, chevaux de Troie, ransomwares, spywares)
-                                </li>
-                                <li>
-                                  <strong>Phishing</strong> : tentatives de vol d'informations sensibles (identifiants, données bancaires)
-                                  en se faisant passer pour une entité légitime
-                                </li>
-                                <li>
-                                  <strong>Attaques par déni de service (DoS/DDoS)</strong> : saturation des ressources d'un système
-                                  pour le rendre indisponible
-                                </li>
-                                <li>
-                                  <strong>Attaques par force brute</strong> : tentatives répétées pour deviner des mots de passe
-                                  ou des clés de chiffrement
-                                </li>
-                                <li>
-                                  <strong>Ingénierie sociale</strong> : manipulation psychologique pour amener les utilisateurs
-                                  à divulguer des informations confidentielles
-                                </li>
-                                <li>
-                                  <strong>Menaces internes</strong> : risques posés par les employés, contractuels ou partenaires
-                                  ayant un accès légitime aux systèmes
-                                </li>
-                              </ul>
+                              <h3>🦠 Le Zoo des Malwares</h3>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
+                                <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-800">
+                                  <h4 className="font-bold text-yellow-300 mb-2">Ransomware</h4>
+                                  <p>Le bandit qui prend vos données en otage et demande une rançon pour les libérer.</p>
+                                  <div className="mt-2 text-xs text-blue-300">Exemple célèbre: WannaCry</div>
+                                </div>
+                                <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-800">
+                                  <h4 className="font-bold text-yellow-300 mb-2">Cheval de Troie</h4>
+                                  <p>Se déguise en cadeau mais cache une armée d'infiltrés prêts à prendre le contrôle.</p>
+                                  <div className="mt-2 text-xs text-blue-300">Exemple célèbre: Zeus</div>
+                                </div>
+                                <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-800">
+                                  <h4 className="font-bold text-yellow-300 mb-2">Spyware</h4>
+                                  <p>L'espion indiscret qui observe chacun de vos mouvements et rapporte tout.</p>
+                                  <div className="mt-2 text-xs text-blue-300">Exemple célèbre: Pegasus</div>
+                                </div>
+                                <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-800">
+                                  <h4 className="font-bold text-yellow-300 mb-2">Ver informatique</h4>
+                                  <p>Voyageur autonome qui se propage de système en système sans invitation.</p>
+                                  <div className="mt-2 text-xs text-blue-300">Exemple célèbre: Stuxnet</div>
+                                </div>
+                              </div>
                               
-                              <h3>Acteurs malveillants</h3>
-                              <p>
-                                Les cyberattaques peuvent être menées par différents types d'acteurs, avec des motivations variées :
-                              </p>
-                              <ul>
-                                <li>
-                                  <strong>Cybercriminels</strong> : individus ou groupes motivés par le gain financier
-                                </li>
-                                <li>
-                                  <strong>Hacktivistes</strong> : attaquants motivés par des causes politiques ou idéologiques
-                                </li>
-                                <li>
-                                  <strong>États-nations</strong> : entités gouvernementales engagées dans l'espionnage
-                                  ou les opérations d'influence
-                                </li>
-                                <li>
-                                  <strong>Initiés malveillants</strong> : employés mécontents ou corrompus cherchant à nuire
-                                  à leur organisation
-                                </li>
-                                <li>
-                                  <strong>Script kiddies</strong> : amateurs utilisant des outils préfabriqués sans comprendre
-                                  leur fonctionnement
-                                </li>
-                              </ul>
+                              <h3>🎭 Les Masques de l'Ingénierie Sociale</h3>
+                              <div className="my-4 p-4 bg-gradient-to-r from-blue-900/50 to-indigo-900/50 rounded-lg border border-blue-700">
+                                <div className="flex flex-col md:flex-row gap-4">
+                                  <div className="flex-1">
+                                    <h4 className="font-bold text-green-300 mb-2">Phishing</h4>
+                                    <p>L'art du pêcheur numérique qui lance des appâts irrésistibles (emails, messages) en espérant que vous mordiez à l'hameçon.</p>
+                                  </div>
+                                  <div className="flex-1">
+                                    <h4 className="font-bold text-green-300 mb-2">Usurpation d'identité</h4>
+                                    <p>Le caméléon digital qui prend l'apparence d'une personne de confiance pour vous manipuler.</p>
+                                  </div>
+                                </div>
+                              </div>
                               
-                              <div className="bg-blue-800/30 border-l-4 border-blue-500 p-4 my-4">
-                                <h4 className="font-bold text-blue-300">À retenir</h4>
+                              <h3>👥 La Galerie des Cybercriminels</h3>
+                              <div className="my-4 overflow-x-auto">
+                                <table className="w-full border-collapse">
+                                  <thead>
+                                    <tr className="bg-blue-800">
+                                      <th className="p-2 text-left">Type d'acteur</th>
+                                      <th className="p-2 text-left">Motivation</th>
+                                      <th className="p-2 text-left">Complexité</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr className="border-t border-blue-700 bg-blue-900/20">
+                                      <td className="p-2 font-medium">Script Kiddies</td>
+                                      <td className="p-2">Curiosité, vanité</td>
+                                      <td className="p-2">⭐</td>
+                                    </tr>
+                                    <tr className="border-t border-blue-700 bg-blue-900/30">
+                                      <td className="p-2 font-medium">Hacktivistes</td>
+                                      <td className="p-2">Idéologie, activisme</td>
+                                      <td className="p-2">⭐⭐</td>
+                                    </tr>
+                                    <tr className="border-t border-blue-700 bg-blue-900/20">
+                                      <td className="p-2 font-medium">Cybercriminels</td>
+                                      <td className="p-2">Profit financier</td>
+                                      <td className="p-2">⭐⭐⭐</td>
+                                    </tr>
+                                    <tr className="border-t border-blue-700 bg-blue-900/30">
+                                      <td className="p-2 font-medium">États-nations</td>
+                                      <td className="p-2">Espionnage, sabotage</td>
+                                      <td className="p-2">⭐⭐⭐⭐⭐</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </div>
+                              
+                              <div className="bg-gradient-to-r from-indigo-900/50 to-purple-900/50 border-l-4 border-yellow-500 p-4 my-4 rounded-r-lg">
+                                <h4 className="font-bold text-yellow-300">🛡️ À retenir</h4>
                                 <p className="mt-1">
-                                  La compréhension des différentes menaces et de leurs vecteurs d'attaque est essentielle
-                                  pour mettre en place des mesures de protection adaptées.
+                                  Dans le monde cyber, la meilleure défense est la connaissance ! Comme dans un jeu vidéo, 
+                                  connaître vos ennemis et leurs tactiques vous donne l'avantage stratégique.
                                 </p>
                               </div>
                             </div>
@@ -559,67 +580,85 @@ export default function IntroCybersecuriteModule() {
                           {currentSection === 'protection' && (
                             <div>
                               <p>
-                                Protéger efficacement les systèmes d'information requiert une approche globale
-                                combinant mesures techniques, organisationnelles et humaines.
+                                Imaginez votre système informatique comme un château médiéval face à une horde d'envahisseurs. 
+                                Pour le protéger efficacement, vous aurez besoin de bien plus qu'un simple mur ! 
+                                Découvrons ensemble comment bâtir votre forteresse numérique imprenable.
                               </p>
                               
-                              <h3>Mesures techniques de protection</h3>
-                              <ul>
-                                <li>
-                                  <strong>Authentification forte</strong> : mise en place de mécanismes d'authentification 
-                                  multifacteur (MFA) pour sécuriser les accès
-                                </li>
-                                <li>
-                                  <strong>Chiffrement des données</strong> : protection des données sensibles
-                                  au repos et en transit
-                                </li>
-                                <li>
-                                  <strong>Solutions de sécurité</strong> : déploiement de pare-feu, antivirus, 
-                                  systèmes de détection et de prévention d'intrusion (IDS/IPS)
-                                </li>
-                                <li>
-                                  <strong>Gestion des correctifs</strong> : application régulière des mises à jour
-                                  de sécurité pour corriger les vulnérabilités
-                                </li>
-                                <li>
-                                  <strong>Segmentation réseau</strong> : séparation du réseau en zones distinctes
-                                  pour limiter la propagation des attaques
-                                </li>
-                                <li>
-                                  <strong>Sauvegardes régulières</strong> : création et test de sauvegardes pour
-                                  assurer la récupération des données en cas d'incident
-                                </li>
-                              </ul>
+                              <h3>🏰 L'Arsenal du Cyber-Chevalier</h3>
+                              <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 p-5 rounded-xl border border-blue-700 my-4">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                  <div className="bg-blue-900/40 p-4 rounded-lg text-center">
+                                    <div className="text-3xl mb-2">🔒</div>
+                                    <h4 className="font-bold text-cyan-300 mb-1">Authentification Magique</h4>
+                                    <p>Comme les sorts à plusieurs composantes dans les jeux de rôle, l'authentification multi-facteurs exige plusieurs "ingrédients" pour accéder au trésor.</p>
+                                  </div>
+                                  <div className="bg-blue-900/40 p-4 rounded-lg text-center">
+                                    <div className="text-3xl mb-2">🛡️</div>
+                                    <h4 className="font-bold text-cyan-300 mb-1">Bouclier-Pare-feu</h4>
+                                    <p>Votre gardien vigilant qui analyse chaque visiteur à l'entrée de votre royaume numérique et repousse les intrus.</p>
+                                  </div>
+                                  <div className="bg-blue-900/40 p-4 rounded-lg text-center">
+                                    <div className="text-3xl mb-2">🧪</div>
+                                    <h4 className="font-bold text-cyan-300 mb-1">Potions Anti-Malware</h4>
+                                    <p>Détectent et neutralisent les créatures maléfiques qui tentent de corrompre votre système.</p>
+                                  </div>
+                                </div>
+                              </div>
                               
-                              <h3>Mesures organisationnelles</h3>
-                              <ul>
-                                <li>
-                                  <strong>Politique de sécurité</strong> : définition d'un cadre formel pour la gestion
-                                  de la sécurité de l'information
-                                </li>
-                                <li>
-                                  <strong>Gestion des risques</strong> : identification, évaluation et traitement
-                                  des risques de sécurité
-                                </li>
-                                <li>
-                                  <strong>Gestion des incidents</strong> : mise en place de procédures pour détecter,
-                                  signaler et traiter les incidents de sécurité
-                                </li>
-                                <li>
-                                  <strong>Plan de continuité d'activité</strong> : préparation pour maintenir
-                                  les activités critiques en cas d'incident majeur
-                                </li>
-                                <li>
-                                  <strong>Sensibilisation et formation</strong> : programmes pour développer
-                                  la culture de sécurité et les compétences des utilisateurs
-                                </li>
-                              </ul>
+                              <h3>🧩 La Défense en Profondeur : Comme un Jeu de Stratégie</h3>
+                              <div className="my-5 relative">
+                                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5 rounded-lg"></div>
+                                <div className="relative z-10">
+                                  <div className="border-b border-blue-700 pb-3 mb-3">
+                                    <h4 className="text-orange-300 font-bold">Niveau 1 : Périmètre Extérieur</h4>
+                                    <p>Pare-feu, détection d'intrusion, filtrage réseau - Votre première ligne de défense contre les hordes d'attaquants.</p>
+                                  </div>
+                                  <div className="border-b border-blue-700 pb-3 mb-3">
+                                    <h4 className="text-orange-300 font-bold">Niveau 2 : Protection Intérieure</h4>
+                                    <p>Segmentation réseau, contrôles d'accès, chiffrement - Comme les différentes salles d'un donjon, chacune avec sa propre serrure.</p>
+                                  </div>
+                                  <div>
+                                    <h4 className="text-orange-300 font-bold">Niveau 3 : Sécurisation des Données</h4>
+                                    <p>Chiffrement, sauvegardes, authentification forte - Le coffre-fort au centre du château pour protéger vos trésors les plus précieux.</p>
+                                  </div>
+                                </div>
+                              </div>
                               
-                              <div className="bg-blue-800/30 border-l-4 border-blue-500 p-4 my-4">
-                                <h4 className="font-bold text-blue-300">À retenir</h4>
+                              <h3>🧠 La Guilde des Cyber-Gardiens</h3>
+                              <div className="my-4 bg-blue-900/20 p-4 rounded-lg border border-blue-800">
+                                <p className="mb-3">La meilleure technologie du monde reste inefficace sans une équipe bien formée. Votre personnel représente à la fois votre plus grande force et votre maillon le plus vulnérable !</p>
+                                
+                                <div className="flex flex-col md:flex-row gap-3 mt-4">
+                                  <div className="flex-1 bg-gradient-to-b from-blue-900/40 to-blue-900/10 p-3 rounded-lg">
+                                    <h4 className="font-bold text-green-300 mb-1 flex items-center">
+                                      <span className="bg-green-900/50 p-1 rounded-full mr-2 text-xs">01</span>
+                                      Formation
+                                    </h4>
+                                    <p className="text-sm">Entraînez vos cyber-guerriers aux techniques de défense modernes !</p>
+                                  </div>
+                                  <div className="flex-1 bg-gradient-to-b from-blue-900/40 to-blue-900/10 p-3 rounded-lg">
+                                    <h4 className="font-bold text-green-300 mb-1 flex items-center">
+                                      <span className="bg-green-900/50 p-1 rounded-full mr-2 text-xs">02</span>
+                                      Procédures
+                                    </h4>
+                                    <p className="text-sm">Équipez-les de manuels tactiques pour réagir efficacement aux attaques.</p>
+                                  </div>
+                                  <div className="flex-1 bg-gradient-to-b from-blue-900/40 to-blue-900/10 p-3 rounded-lg">
+                                    <h4 className="font-bold text-green-300 mb-1 flex items-center">
+                                      <span className="bg-green-900/50 p-1 rounded-full mr-2 text-xs">03</span>
+                                      Culture
+                                    </h4>
+                                    <p className="text-sm">Développez un esprit de vigilance partagé par tous les membres de votre royaume.</p>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              <div className="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border-l-4 border-pink-500 p-4 my-4 rounded-r-lg">
+                                <h4 className="font-bold text-pink-300">✨ À retenir</h4>
                                 <p className="mt-1">
-                                  La défense en profondeur, consistant à superposer plusieurs couches de protection,
-                                  est l'approche recommandée pour une sécurité efficace.
+                                  La cybersécurité est comme un jeu de rôle coopératif : vous avez besoin d'une équipe aux compétences diverses,
+                                  d'un bon équipement, et d'une stratégie adaptée à chaque type d'adversaire !
                                 </p>
                               </div>
                             </div>
@@ -628,59 +667,108 @@ export default function IntroCybersecuriteModule() {
                           {currentSection === 'conformite' && (
                             <div>
                               <p>
-                                La conformité aux exigences légales et réglementaires en matière de cybersécurité
-                                est devenue incontournable pour les organisations de toutes tailles.
+                                Entrez dans le monde fascinant des règles de cybersécurité, où même les super-héros
+                                numériques doivent respecter les lois ! Découvrez comment transformer cette jungle réglementaire
+                                en un atout pour votre organisation.
                               </p>
                               
-                              <h3>Cadres réglementaires majeurs</h3>
-                              <ul>
-                                <li>
-                                  <strong>Règlement Général sur la Protection des Données (RGPD)</strong> : 
-                                  réglementation européenne sur la protection des données personnelles
-                                </li>
-                                <li>
-                                  <strong>Directive NIS (Network and Information Security)</strong> : 
-                                  directive européenne sur la sécurité des réseaux et des systèmes d'information
-                                </li>
-                                <li>
-                                  <strong>NIS 2</strong> : 
-                                  nouvelle directive européenne renforçant les obligations de cybersécurité
-                                </li>
-                                <li>
-                                  <strong>PCI DSS</strong> : 
-                                  norme de sécurité pour les organisations traitant des données de cartes de paiement
-                                </li>
-                                <li>
-                                  <strong>ISO 27001</strong> : 
-                                  norme internationale pour les systèmes de management de la sécurité de l'information
-                                </li>
-                              </ul>
+                              <h3>🏆 Le Tournoi des Champions de la Conformité</h3>
+                              <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-900/30 to-indigo-900/30 p-1 my-4">
+                                <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-blue-600/20 blur-xl"></div>
+                                <div className="relative rounded-lg p-5">
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="bg-gradient-to-br from-blue-900/40 to-purple-900/30 p-4 rounded-lg border border-blue-700/50 backdrop-blur-sm">
+                                      <div className="flex items-center mb-3">
+                                        <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg flex items-center justify-center mr-3 shadow-lg">
+                                          <span className="text-xl">🏅</span>
+                                        </div>
+                                        <h4 className="font-bold text-yellow-300">RGPD</h4>
+                                      </div>
+                                      <p>Le champion européen de la protection des données personnelles. Son super-pouvoir : faire pleuvoir des amendes allant jusqu'à 4% du chiffre d'affaires mondial !</p>
+                                      <div className="mt-2 text-xs bg-yellow-900/30 p-2 rounded">
+                                        <span className="text-yellow-200 font-medium">Conseil de héros :</span> Documenter tout ce que vous faites avec les données personnelles, comme si vous écriviez le journal de bord d'un super-héros !
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="bg-gradient-to-br from-blue-900/40 to-purple-900/30 p-4 rounded-lg border border-blue-700/50 backdrop-blur-sm">
+                                      <div className="flex items-center mb-3">
+                                        <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-lg">
+                                          <span className="text-xl">🥈</span>
+                                        </div>
+                                        <h4 className="font-bold text-blue-300">NIS & NIS 2</h4>
+                                      </div>
+                                      <p>Les jumeaux défenseurs des infrastructures critiques. Leur mission : s'assurer que les services essentiels restent opérationnels face aux cyber-menaces.</p>
+                                      <div className="mt-2 text-xs bg-blue-900/30 p-2 rounded">
+                                        <span className="text-blue-200 font-medium">Conseil de héros :</span> Identifiez vos dépendances critiques et testez régulièrement votre résistance aux attaques !
+                                      </div>
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="mt-4 p-4 bg-gradient-to-br from-purple-900/40 to-indigo-900/30 rounded-lg border border-purple-700/50">
+                                    <h4 className="font-bold text-purple-300 mb-2 flex items-center">
+                                      <span className="text-lg mr-2">🌟</span>
+                                      Autres combattants de l'arène réglementaire
+                                    </h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                      <div className="bg-purple-900/20 p-2 rounded">
+                                        <p className="font-medium text-center text-purple-200">ISO 27001</p>
+                                        <p className="text-xs text-center">Le sage qui enseigne l'art du management de la sécurité</p>
+                                      </div>
+                                      <div className="bg-purple-900/20 p-2 rounded">
+                                        <p className="font-medium text-center text-purple-200">PCI DSS</p>
+                                        <p className="text-xs text-center">Le gardien du trésor des cartes de paiement</p>
+                                      </div>
+                                      <div className="bg-purple-900/20 p-2 rounded">
+                                        <p className="font-medium text-center text-purple-200">LPM</p>
+                                        <p className="text-xs text-center">Le bouclier militaire français contre les cyberattaques</p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
                               
-                              <h3>Enjeux de la conformité</h3>
-                              <ul>
-                                <li>
-                                  <strong>Obligations légales</strong> : 
-                                  respect des exigences applicables selon le secteur d'activité et la localisation
-                                </li>
-                                <li>
-                                  <strong>Sanctions et amendes</strong> : 
-                                  risques financiers en cas de non-conformité (ex: jusqu'à 4% du CA mondial pour le RGPD)
-                                </li>
-                                <li>
-                                  <strong>Notification des violations</strong> : 
-                                  obligation de signaler les incidents de sécurité aux autorités compétentes
-                                </li>
-                                <li>
-                                  <strong>Démonstration de conformité</strong> : 
-                                  nécessité de documenter les mesures mises en place (principe d'accountability)
-                                </li>
-                              </ul>
+                              <h3>🎮 Jouer le jeu de la conformité</h3>
+                              <div className="my-4 bg-gradient-to-r from-indigo-900/20 to-blue-900/20 rounded-lg p-5 border border-indigo-800/50">
+                                <p className="mb-4">La conformité n'est pas un ennemi à combattre, mais un allié à apprivoiser ! Voici comment transformer cette "contrainte" en avantage stratégique :</p>
+                                
+                                <div className="space-y-3">
+                                  <div className="flex items-start gap-3">
+                                    <div className="bg-indigo-900/40 rounded-full p-2 flex-shrink-0">
+                                      <span className="text-xs">1</span>
+                                    </div>
+                                    <div>
+                                      <h4 className="font-bold text-indigo-300">Cartographiez votre territoire</h4>
+                                      <p className="text-sm">Identifiez les réglementations qui s'appliquent à votre organisation, comme un explorateur établissant une carte du monde.</p>
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="flex items-start gap-3">
+                                    <div className="bg-indigo-900/40 rounded-full p-2 flex-shrink-0">
+                                      <span className="text-xs">2</span>
+                                    </div>
+                                    <div>
+                                      <h4 className="font-bold text-indigo-300">Collectez les badges d'honneur</h4>
+                                      <p className="text-sm">Obtenez les certifications qui rassureront vos clients et partenaires sur votre niveau de protection.</p>
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="flex items-start gap-3">
+                                    <div className="bg-indigo-900/40 rounded-full p-2 flex-shrink-0">
+                                      <span className="text-xs">3</span>
+                                    </div>
+                                    <div>
+                                      <h4 className="font-bold text-indigo-300">Transformez les obligations en super-pouvoirs</h4>
+                                      <p className="text-sm">Utilisez les exigences réglementaires pour renforcer votre sécurité globale et créer un avantage concurrentiel.</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
                               
-                              <div className="bg-blue-800/30 border-l-4 border-blue-500 p-4 my-4">
-                                <h4 className="font-bold text-blue-300">À retenir</h4>
+                              <div className="bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border-l-4 border-green-500 p-4 my-4 rounded-r-lg">
+                                <h4 className="font-bold text-green-300">🎯 À retenir</h4>
                                 <p className="mt-1">
-                                  La conformité réglementaire n'est pas une fin en soi, mais un socle minimal
-                                  à partir duquel construire une stratégie de cybersécurité efficace.
+                                  La conformité n'est pas un labyrinthe bureaucratique, mais votre boussole dans le monde cyber !
+                                  Elle vous aide à naviguer dans les eaux troubles des menaces numériques avec une carte et un cap clairs.
                                 </p>
                               </div>
                             </div>
