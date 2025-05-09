@@ -340,37 +340,85 @@ export default function QuizAdaptatifIA() {
     }
   ];
   
-  // Fonction pour obtenir une question aléatoire
-  const getRandomQuestion = () => {
-    // Filtrer les questions par catégorie et difficulté
-    const filteredQuestions = quizQuestions.filter(q => 
-      (selectedCategory === 'all' || q.category === selectedCategory) &&
-      q.difficulty === difficulty
-    );
-    
-    if (filteredQuestions.length === 0) {
+  // Fonction pour obtenir une question via l'API
+  const getRandomQuestion = async () => {
+    try {
+      // Afficher un loader
       toast({
-        title: "Aucune question disponible",
-        description: "Aucune question ne correspond aux critères sélectionnés. Essayez de changer de catégorie ou de niveau.",
+        title: "Génération en cours...",
+        description: "Création d'une question adaptée à votre niveau",
+      });
+      
+      // Appeler l'API
+      const response = await fetch('/api/cyber/adaptive-quiz/question', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          category: selectedCategory,
+          difficulty: difficulty
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de la génération de la question');
+      }
+      
+      const data = await response.json();
+      
+      if (!data.success || !data.question) {
+        throw new Error('Données de question invalides');
+      }
+      
+      return data.question;
+    } catch (error) {
+      console.error('Erreur lors de la récupération de la question:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de générer une question. Veuillez réessayer.",
         variant: "destructive"
       });
-      return null;
+      
+      // Fallback: utiliser une question statique si disponible
+      const filteredQuestions = quizQuestions.filter(q => 
+        (selectedCategory === 'all' || q.category === selectedCategory) &&
+        q.difficulty === difficulty
+      );
+      
+      if (filteredQuestions.length === 0) {
+        return null;
+      }
+      
+      const randomIndex = Math.floor(Math.random() * filteredQuestions.length);
+      return filteredQuestions[randomIndex];
     }
-    
-    // Sélectionner une question aléatoire
-    const randomIndex = Math.floor(Math.random() * filteredQuestions.length);
-    return filteredQuestions[randomIndex];
   };
   
   // Charger une nouvelle question
-  const loadNextQuestion = () => {
+  const loadNextQuestion = async () => {
     setSelectedOption(null);
     setIsAnswered(false);
     setShowExplanation(false);
     setAiHint(null);
     
-    const nextQuestion = getRandomQuestion();
-    setCurrentQuestion(nextQuestion);
+    // Afficher un indicateur de chargement
+    toast({
+      title: "Chargement en cours...",
+      description: "Préparation de la prochaine question",
+    });
+    
+    try {
+      const nextQuestion = await getRandomQuestion();
+      setCurrentQuestion(nextQuestion);
+    } catch (error) {
+      console.error("Erreur lors du chargement de la question:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger la prochaine question. Veuillez réessayer.",
+        variant: "destructive"
+      });
+    }
   };
   
   // Initialisation du quiz
@@ -389,11 +437,11 @@ export default function QuizAdaptatifIA() {
   }, []);
   
   // Démarrer ou redémarrer le quiz
-  const startQuiz = () => {
+  const startQuiz = async () => {
     setScore(0);
     setQuestionsAnswered(0);
     setIsQuizActive(true);
-    loadNextQuestion();
+    await loadNextQuestion();
   };
   
   // Vérifier la réponse
@@ -467,14 +515,41 @@ export default function QuizAdaptatifIA() {
     });
   };
   
-  // Générer un indice IA
-  const generateAIHint = () => {
+  // Générer un indice IA en appelant l'API
+  const generateAIHint = async () => {
     if (!currentQuestion) return;
     
     setIsGeneratingHint(true);
     
-    // Simuler une génération d'indice par IA
-    setTimeout(() => {
+    try {
+      // Appeler l'API pour générer un indice
+      const response = await fetch('/api/cyber/adaptive-quiz/hint', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          question: currentQuestion.question,
+          options: currentQuestion.options,
+          difficulty: currentQuestion.difficulty,
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de la génération de l\'indice');
+      }
+      
+      const data = await response.json();
+      
+      if (!data.success || !data.hint) {
+        throw new Error('Données d\'indice invalides');
+      }
+      
+      setAiHint(data.hint);
+    } catch (error) {
+      console.error('Erreur lors de la génération de l\'indice:', error);
+      
+      // Fallback : utiliser un indice statique en cas d'erreur
       const hints = [
         "Pensez aux principes fondamentaux de la cybersécurité : confidentialité, intégrité et disponibilité.",
         "Cette question concerne une technique d'attaque courante. Réfléchissez au vecteur d'attaque principal.",
@@ -485,8 +560,9 @@ export default function QuizAdaptatifIA() {
       
       const randomHint = hints[Math.floor(Math.random() * hints.length)];
       setAiHint(`Indice IA : ${randomHint}`);
+    } finally {
       setIsGeneratingHint(false);
-    }, 1500);
+    }
   };
   
   // Calculer le niveau de compétence recommandé

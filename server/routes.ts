@@ -31,6 +31,7 @@ import { startAgentSession, completeAgentSession } from "./cyberAgentController"
 import { generateCyberFiche, getUserFavorites } from './cyberFicheController';
 import { searchGlossaryTerm, explainConcept, compareTerms, generateQuiz, askGlossaryAssistant } from './cyberGlossaryController';
 import { generateDebriefing, getContextualDocumentation } from "./cyberLearningController";
+import { generateQuizQuestion, generateQuizHint, generateFullQuiz } from "./adaptiveQuizController";
 import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearningController";
 import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
 import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
@@ -4543,6 +4544,11 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   app.post('/api/cyber/glossary/compare', compareTerms);
   app.post('/api/cyber/glossary/quiz', generateQuiz);
   app.post('/api/cyber/glossary/ask', askGlossaryAssistant);
+
+  // Routes pour le quiz adaptatif IA
+  app.post('/api/cyber/adaptive-quiz/question', generateQuizQuestion);
+  app.post('/api/cyber/adaptive-quiz/hint', generateQuizHint);
+  app.post('/api/cyber/adaptive-quiz/full', generateFullQuiz);
 
   // Fin des routes API
 
