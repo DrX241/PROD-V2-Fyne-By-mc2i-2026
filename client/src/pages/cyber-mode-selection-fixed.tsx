@@ -231,14 +231,11 @@ export default function CyberModeSelectionRedesign() {
     {
       id: 'se-former',
       title: 'SE FORMER',
-      description: "Parcours structurés et contenus interactifs pour maîtriser les fondamentaux de la cybersécurité",
+      description: "Acquérir des connaissances théoriques et comprendre les concepts fondamentaux de la cybersécurité",
       icon: <BookOpen className="h-6 w-6 text-blue-100" />,
       modules: [
-        'agent-ia',
-        'ascension-progression',
-        'cyber-arcade',
-        'mode-entretien',
-        'test-technique'
+        'agent-ia',                // Assistant IA pour répondre aux questions
+        'ascension-progression'    // Parcours structuré de formation
       ],
       gradient: 'from-blue-700 to-blue-900',
       categories: [
@@ -251,25 +248,36 @@ export default function CyberModeSelectionRedesign() {
     {
       id: 'sentrainer',
       title: "S'ENTRAÎNER",
-      description: "Activités pratiques et simulations pour développer vos compétences",
+      description: "Mettre en pratique vos connaissances avec des exercices interactifs et des simulations",
       icon: <Monitor className="h-6 w-6 text-indigo-100" />,
-      modules: ['cyber-arcade', 'escape-the-breach', 'mise-en-situation', 'preparation-audition'],
+      modules: [
+        'cyber-arcade',            // Jeux interactifs d'apprentissage
+        'escape-the-breach',       // Simulation d'investigation
+        'mise-en-situation',       // Gestion d'incidents simulés
+        'preparation-audition'     // Simulation d'entretien client
+      ],
       gradient: 'from-indigo-700 to-indigo-900'
     },
     {
       id: 'sevaluer',
       title: "S'ÉVALUER",
-      description: "Tests et évaluations pour mesurer votre niveau",
+      description: "Tester vos compétences dans des conditions réelles d'examen ou d'entretien",
       icon: <Award className="h-6 w-6 text-purple-100" />,
-      modules: ['mode-entretien', 'test-technique'],
+      modules: [
+        'mode-entretien',          // Simulation d'entretien d'embauche
+        'test-technique'           // Évaluation technique approfondie
+      ],
       gradient: 'from-purple-700 to-purple-900'
     },
     {
       id: 'creer',
       title: "CRÉER/AUTOMATISER",
-      description: "Outils pour automatiser et simplifier les tâches de cybersécurité",
+      description: "Utiliser des outils pour générer du contenu et automatiser des tâches de cybersécurité",
       icon: <Wrench className="h-6 w-6 text-teal-100" />,
-      modules: ['policy-converter', 'phishing-simulator'],
+      modules: [
+        'policy-converter',        // Conversion de politiques pour différents publics
+        'phishing-simulator'       // Création de simulations de phishing
+      ],
       gradient: 'from-teal-700 to-teal-900'
     }
   ];
