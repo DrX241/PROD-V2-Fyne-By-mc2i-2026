@@ -3,6 +3,7 @@ import { Link } from 'wouter';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft,
+  Book,
   BookOpen,
   Shield,
   ChevronRight,
@@ -12,12 +13,21 @@ import {
   CheckCircle,
   Play,
   FileText,
+  FileCheck,
+  FileWarning,
+  FileType,
   MessageSquare,
   User,
   Star,
   Download,
   BrainCircuit,
-  Sparkles
+  Sparkles,
+  ExternalLink,
+  Globe,
+  LinkIcon,
+  Presentation,
+  Video,
+  Bell
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -782,7 +792,7 @@ export default function IntroCybersecuriteModule() {
                             <div className="flex justify-between items-center p-3 bg-blue-900/30 rounded-lg border border-blue-800">
                               <div className="flex items-center gap-3">
                                 <div className="p-2 bg-blue-800 rounded-md">
-                                  <Presentation className="h-4 w-4 text-blue-200" />
+                                  <FileText className="h-4 w-4 text-blue-200" />
                                 </div>
                                 <div>
                                   <h4 className="font-medium">Panorama des menaces cyber 2025</h4>
@@ -815,7 +825,7 @@ export default function IntroCybersecuriteModule() {
                             <div className="flex justify-between items-center p-3 bg-blue-900/30 rounded-lg border border-blue-800">
                               <div className="flex items-center gap-3">
                                 <div className="p-2 bg-blue-800 rounded-md">
-                                  <FileCheck className="h-4 w-4 text-blue-200" />
+                                  <FileText className="h-4 w-4 text-blue-200" />
                                 </div>
                                 <div>
                                   <h4 className="font-medium">Guide de la triade CIA en pratique</h4>
@@ -833,7 +843,7 @@ export default function IntroCybersecuriteModule() {
                             <div className="flex justify-between items-center p-3 bg-blue-900/30 rounded-lg border border-blue-800">
                               <div className="flex items-center gap-3">
                                 <div className="p-2 bg-blue-800 rounded-md">
-                                  <FileWarning className="h-4 w-4 text-blue-200" />
+                                  <FileText className="h-4 w-4 text-blue-200" />
                                 </div>
                                 <div>
                                   <h4 className="font-medium">Taxonomie des cybermenaces modernes</h4>
@@ -848,7 +858,7 @@ export default function IntroCybersecuriteModule() {
                             <div className="flex justify-between items-center p-3 bg-blue-900/30 rounded-lg border border-blue-800">
                               <div className="flex items-center gap-3">
                                 <div className="p-2 bg-blue-800 rounded-md">
-                                  <FileType className="h-4 w-4 text-blue-200" />
+                                  <FileText className="h-4 w-4 text-blue-200" />
                                 </div>
                                 <div>
                                   <h4 className="font-medium">Études de cas d'attaques récentes</h4>
@@ -894,14 +904,14 @@ export default function IntroCybersecuriteModule() {
                       <div>
                         <h3 className="font-semibold text-lg mb-3">Modules complémentaires recommandés</h3>
                         <div className="text-center py-6 bg-blue-900/10 rounded-lg border border-blue-900/50">
-                          <Book className="h-10 w-10 mx-auto text-blue-400 mb-3" />
+                          <BookOpen className="h-10 w-10 mx-auto text-blue-400 mb-3" />
                           <h3 className="text-xl font-semibold">Bientôt disponible</h3>
                           <p className="text-blue-300 mt-1">
                             Des modules complémentaires seront ajoutés prochainement
                           </p>
                           <div className="mt-4">
                             <Button variant="outline" className="border-blue-700">
-                              <Bell className="mr-2 h-4 w-4" />
+                              <Clock className="mr-2 h-4 w-4" />
                               M'alerter quand disponible
                             </Button>
                           </div>
