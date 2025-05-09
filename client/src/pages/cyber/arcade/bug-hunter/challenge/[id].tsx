@@ -33,7 +33,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { useToast } from '@/hooks/use-toast';
 import HomeLayout from '@/components/layout/HomeLayout';
-import PageTitle from '@/components/layout/PageTitle';
+import PageTitle from '@/components/utils/PageTitle';
 
 // Types
 type VulnerabilityCategory = 
@@ -821,7 +821,7 @@ export default function ChallengePage() {
                       <div className="space-y-2">
                         <label className="text-sm text-blue-200">Type de vulnérabilité</label>
                         <select 
-                          className= className="w-full px-3 py-2 rounded bg-blue-950/50 border border-blue-800 text-white"
+                          className="w-full px-3 py-2 rounded bg-blue-950/50 border border-blue-800 text-white"
                           value={bugReport.vulnerability}
                           onChange={(e) => updateBugReport('vulnerability', e.target.value as VulnerabilityCategory)}
                         >
