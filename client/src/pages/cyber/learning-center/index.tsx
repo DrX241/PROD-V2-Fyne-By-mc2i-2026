@@ -794,23 +794,32 @@ export default function LearningCenter() {
                           animate="visible"
                           variants={cardVariants}
                         >
-                          <Link href={module.destination || '#'}>
-                            <Card className="bg-blue-900/20 border-blue-800 hover:bg-blue-800/30 transition-all cursor-pointer overflow-hidden">
-                              <CardHeader className="pb-2">
-                                <div className="flex justify-between items-start">
-                                  <div className="p-2 bg-blue-800 rounded-md">
-                                    {module.icon}
-                                  </div>
-                                  <div className="flex gap-1">
-                                    {module.isNew && (
-                                      <Badge className="bg-blue-600">Nouveau</Badge>
-                                    )}
-                                    {module.isFeatured && (
-                                      <Badge className="bg-amber-600">Recommandé</Badge>
-                                    )}
-                                  </div>
+                          {module.comingSoon ? (
+                            <div onClick={() => toast({
+                              title: "Module en développement",
+                              description: "Ce module sera disponible prochainement",
+                              variant: "default"
+                            })}>
+                              <Card className="bg-blue-900/20 border-blue-800 hover:bg-blue-800/30 transition-all cursor-pointer overflow-hidden relative">
+                                <div className="absolute right-0 top-0 bg-yellow-600 text-white px-2 py-1 text-xs rounded-bl-md z-10">
+                                  En développement
                                 </div>
-                                <CardTitle className="text-lg mt-2">{module.title}</CardTitle>
+                                <CardHeader className="pb-2">
+                                  <div className="flex justify-between items-start">
+                                    <div className="p-2 bg-blue-800 rounded-md">
+                                      {module.icon}
+                                    </div>
+                                    <div className="flex gap-1">
+                                      {module.isNew && (
+                                        <Badge className="bg-blue-600">Nouveau</Badge>
+                                      )}
+                                      {module.isFeatured && (
+                                        <Badge className="bg-amber-600">Recommandé</Badge>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <CardTitle className="text-lg mt-2">{module.title}</CardTitle>
+                            
                                 <div className="flex gap-2 mt-1">
                                   <Badge variant="outline" className="bg-blue-950/50 border-blue-700 text-blue-200">
                                     {module.level}
