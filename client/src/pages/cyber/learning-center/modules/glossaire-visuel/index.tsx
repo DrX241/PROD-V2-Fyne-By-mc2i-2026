@@ -1603,18 +1603,35 @@ export default function GlossaireVisuel() {
                 </div>
               </div>
               
-              <Input 
-                placeholder="Posez une question sur un terme ou un concept..." 
-                className="bg-blue-950/50 border-blue-700 text-white mt-2"
-                readOnly
-                onClick={() => {
-                  toast({
-                    title: "Fonctionnalité en développement",
-                    description: "L'assistant IA pour le glossaire sera bientôt disponible",
-                    variant: "default",
-                  });
-                }}
-              />
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                if (assistantQuestion.trim()) {
+                  askAssistantQuestion(assistantQuestion);
+                }
+              }}>
+                <div className="flex items-center">
+                  <Input 
+                    placeholder="Posez une question sur un terme ou un concept..." 
+                    className="bg-blue-950/50 border-blue-700 text-white mt-2"
+                    value={assistantQuestion}
+                    onChange={(e) => setAssistantQuestion(e.target.value)}
+                    disabled={isAskingQuestion}
+                  />
+                  <Button 
+                    type="submit"
+                    variant="ghost"
+                    size="icon"
+                    className="ml-1 mt-2"
+                    disabled={isAskingQuestion || !assistantQuestion.trim()}
+                  >
+                    {isAskingQuestion ? (
+                      <Loader2 className="h-4 w-4 animate-spin text-blue-400" />
+                    ) : (
+                      <SendHorizontal className="h-4 w-4 text-blue-400" />
+                    )}
+                  </Button>
+                </div>
+              </form>
             </div>
           </CardContent>
           <CardFooter className="text-xs text-blue-300">

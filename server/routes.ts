@@ -29,7 +29,7 @@ import { startInterviewSimulation, processInterviewMessage, completeInterviewSim
 import { getRandomScenarios, getScenarioById, getScenariosByDifficulty } from "./impostorService";
 import { startAgentSession, completeAgentSession } from "./cyberAgentController";
 import { generateCyberFiche, getUserFavorites } from './cyberFicheController';
-import { searchGlossaryTerm, explainConcept, compareTerms, generateQuiz } from './cyberGlossaryController';
+import { searchGlossaryTerm, explainConcept, compareTerms, generateQuiz, askGlossaryAssistant } from './cyberGlossaryController';
 import { generateDebriefing, getContextualDocumentation } from "./cyberLearningController";
 import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearningController";
 import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
@@ -4542,6 +4542,7 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   app.post('/api/cyber/glossary/explain', explainConcept);
   app.post('/api/cyber/glossary/compare', compareTerms);
   app.post('/api/cyber/glossary/quiz', generateQuiz);
+  app.post('/api/cyber/glossary/ask', askGlossaryAssistant);
 
   // Fin des routes API
 

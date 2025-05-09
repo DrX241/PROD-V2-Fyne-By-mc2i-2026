@@ -293,3 +293,50 @@ Important: Retourne UNIQUEMENT le JSON valide sans texte supplémentaire.`;
     });
   }
 }
+
+/**
+ * Assistant IA pour répondre à des questions sur la cybersécurité
+ */
+export async function askGlossaryAssistant(req: Request, res: Response) {
+  try {
+    const { question } = req.body;
+    
+    if (!question) {
+      return res.status(400).json({ success: false, message: 'Une question est requise' });
+    }
+    
+    // Construire le prompt
+    const prompt = `En tant qu'assistant spécialisé en cybersécurité, réponds à cette question: "${question}".
+    
+Assure-toi que ta réponse soit:
+1. Précise et factuelle
+2. Expliquée de manière pédagogique
+3. Adaptée aux débutants comme aux professionnels
+4. Structurée avec des exemples concrets si pertinent
+5. Accompagnée de termes associés à explorer
+
+Formate ta réponse en Markdown pour plus de clarté.`;
+    
+    // Faire l'appel à l'API
+    const systemMessage: ChatCompletionRequestMessage = {
+      role: "system",
+      content: "Tu es un assistant expert en cybersécurité, spécialisé dans l'explication de concepts complexes de manière claire et précise. Tu as une connaissance approfondie des menaces, des outils de défense, des bonnes pratiques et des normes de l'industrie."
+    };
+    
+    const userMessage: ChatCompletionRequestMessage = {
+      role: "user",
+      content: prompt
+    };
+    
+    const answer = await openAIService.getChatCompletion([systemMessage, userMessage], 0.7, 2000);
+    
+    return res.status(200).json({ success: true, answer });
+  } catch (error: any) {
+    console.error('Erreur lors de la réponse à la question:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Erreur lors de la réponse à la question',
+      error: error.message || String(error)
+    });
+  }
+}
