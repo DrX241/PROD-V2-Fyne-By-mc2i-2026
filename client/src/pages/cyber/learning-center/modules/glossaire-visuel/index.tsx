@@ -27,7 +27,8 @@ import {
   Server,
   Cpu,
   Code,
-  Sparkles
+  Sparkles,
+  Wrench
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -77,6 +78,19 @@ export default function GlossaireVisuel() {
   const [activeTab, setActiveTab] = useState('all');
   const [alphabetFilter, setAlphabetFilter] = useState<string | null>(null);
   const [glossaryTerms, setGlossaryTerms] = useState<GlossaryTerm[]>([]);
+  
+  // États supplémentaires pour les fonctionnalités de l'IA
+  const [isLoading, setIsLoading] = useState(false);
+  const [isExplaining, setIsExplaining] = useState(false);
+  const [isComparing, setIsComparing] = useState(false);
+  const [isGeneratingQuiz, setIsGeneratingQuiz] = useState(false);
+  const [explanation, setExplanation] = useState<string>('');
+  const [comparison, setComparison] = useState<string>('');
+  const [quizData, setQuizData] = useState<any>(null);
+  const [showExplanationDialog, setShowExplanationDialog] = useState(false);
+  const [showComparisonDialog, setShowComparisonDialog] = useState(false);
+  const [showQuizDialog, setShowQuizDialog] = useState(false);
+  const [searchInputValue, setSearchInputValue] = useState('');
   
   // Catégories du glossaire
   const glossaryCategories: GlossaryCategory[] = [
