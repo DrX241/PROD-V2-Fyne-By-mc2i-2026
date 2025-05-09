@@ -20,7 +20,8 @@ import {
   AlertCircle,
   BrainCircuit,
   Clock,
-  Sparkles
+  Sparkles,
+  Trash
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -474,6 +475,44 @@ Le Threat Hunting (chasse aux menaces) est une démarche proactive de recherche 
     // Mettre à jour le compteur de fiches lues
     const updatedReadCount = fiches.filter(f => f.id === id ? !f.hasBeenRead : f.hasBeenRead).length;
     setReadCount(updatedReadCount);
+  };
+  
+  // Supprimer une fiche générée par IA
+  const handleDeleteFiche = (id: string) => {
+    // Vérifier si la fiche est générée par IA (commence par "gen-")
+    const ficheToDelete = fiches.find(fiche => fiche.id === id);
+    
+    if (!ficheToDelete || !id.startsWith('gen-')) {
+      toast({
+        title: "Erreur",
+        description: "Seules les fiches générées par IA peuvent être supprimées",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Supprimer la fiche
+    const updatedFiches = fiches.filter(fiche => fiche.id !== id);
+    setFiches(updatedFiches);
+    
+    // Si la fiche supprimée était sélectionnée, désélectionner
+    if (selectedFiche && selectedFiche.id === id) {
+      setSelectedFiche(null);
+    }
+    
+    // Mettre à jour les compteurs si nécessaire
+    if (ficheToDelete.isFavorite) {
+      setFavoriteCount(favoriteCount - 1);
+    }
+    
+    if (ficheToDelete.hasBeenRead) {
+      setReadCount(readCount - 1);
+    }
+    
+    toast({
+      title: "Fiche supprimée",
+      description: `La fiche "${ficheToDelete.title}" a été supprimée`
+    });
   };
 
   // Télécharger la fiche en PDF
@@ -997,6 +1036,17 @@ Le Threat Hunting (chasse aux menaces) est une démarche proactive de recherche 
                       <Download className="h-4 w-4 mr-1" />
                       Télécharger
                     </Button>
+                    {/* Bouton Supprimer uniquement pour les fiches générées par IA */}
+                    {selectedFiche.id.startsWith('gen-') && (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDeleteFiche(selectedFiche.id)}
+                      >
+                        <Trash className="h-4 w-4 mr-1" />
+                        Supprimer
+                      </Button>
+                    )}
                     <Button
                       variant={selectedFiche.isFavorite ? "default" : "outline"}
                       size="icon"
