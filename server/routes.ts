@@ -28,7 +28,7 @@ import { extractJsonFromOpenAiResponse, createFallbackJson } from "./openAiRespo
 import { startInterviewSimulation, processInterviewMessage, completeInterviewSimulation, analyzeInterviewNotes } from "./interviewSimulationController";
 import { getRandomScenarios, getScenarioById, getScenariosByDifficulty } from "./impostorService";
 import { startAgentSession, completeAgentSession } from "./cyberAgentController";
-import { generateCyberFiche, getUserFavorites } from "./cyberFicheController";
+import { generateCyberFiche, getUserFavorites } from './cyberFicheController';
 import { generateDebriefing, getContextualDocumentation } from "./cyberLearningController";
 import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearningController";
 import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
@@ -4531,6 +4531,10 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
 
   // Routes pour les outils cyber
   app.use('/api/cyber/tools', cyberToolsRoutes);
+  
+  // Routes pour les fiches cyber express
+  app.post('/api/cyber/fiches/generate', generateCyberFiche);
+  app.get('/api/cyber/fiches/favorites', getUserFavorites);
 
   // Fin des routes API
 
