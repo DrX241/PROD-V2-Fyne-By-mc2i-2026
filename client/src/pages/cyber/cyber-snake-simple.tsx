@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import axios from 'axios';
-import { AlertCircle, Check, X, HelpCircle, Clock, Shield, Award, BarChart2, Timer } from 'lucide-react';
+import { Check, X, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -21,7 +21,6 @@ interface Food {
   y: number;
   practice: Practice;
   id: number; // Identifiant unique
-  createdAt: number; // Horodatage de création
 }
 
 interface SnakePart {
@@ -31,7 +30,7 @@ interface SnakePart {
 
 type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
 
-const CyberSnake: React.FC = () => {
+const CyberSnakeSimple: React.FC = () => {
   const { toast } = useToast();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [score, setScore] = useState<number>(0);
@@ -142,7 +141,6 @@ const CyberSnake: React.FC = () => {
           y: newY,
           practice: randomPractice,
           id: generateFoodId(), // Identifiant unique
-          createdAt: Date.now(), // Pour gérer la disparition après X secondes
         };
         
         newFoodItems.push(newFood);
@@ -174,7 +172,7 @@ const CyberSnake: React.FC = () => {
     
     // Placer les premières nourritures
     placeFood();
-  }, [loadPractices, placeFood, practices.length, collectTimer]);
+  }, [loadPractices, placeFood, practices.length]);
   
   // Gérer le mouvement du serpent
   const moveSnake = useCallback(() => {
@@ -250,9 +248,6 @@ const CyberSnake: React.FC = () => {
         // Supprimer la nourriture mangée et en placer de nouvelles
         setFoodItems(prev => prev.filter((_, index) => index !== eatenFoodIndex));
         
-        // Réinitialiser le timer
-        setTimeLeft(collectTimer);
-        
         // Ajouter de nouvelles nourritures pour maintenir le nombre souhaité
         setTimeout(() => placeFood(), 100);
         
@@ -277,7 +272,7 @@ const CyberSnake: React.FC = () => {
       const newSnake = [head, ...prevSnake.slice(0, -1)];
       return newSnake;
     });
-  }, [direction, foodItems, gameOver, isPaused, level, placeFood, score, highScore, toast, levelThreshold, gridHeight, gridWidth, collectTimer]);
+  }, [direction, foodItems, gameOver, isPaused, level, placeFood, score, highScore, toast, levelThreshold, gridHeight, gridWidth]);
   
   // Fonction pour dessiner un hexagone
   const drawHexagon = useCallback((ctx: CanvasRenderingContext2D, centerX: number, centerY: number, size: number, color: string, strokeColor: string) => {
@@ -370,53 +365,15 @@ const CyberSnake: React.FC = () => {
       ctx.stroke();
     }
     
-    // Dessiner le chronomètre en haut de l'écran
-    const timerWidth = canvas.width * 0.8;
-    const timerHeight = 10;
-    const timerX = (canvas.width - timerWidth) / 2;
-    const timerY = 20;
-    
-    // Background timer
-    ctx.fillStyle = '#2c3e50';
-    ctx.fillRect(timerX, timerY, timerWidth, timerHeight);
-    
-    // Timer fill - ajuster la largeur en fonction du temps restant
-    const fillPercentage = timeLeft / collectTimer;
-    ctx.fillStyle = fillPercentage > 0.5 ? '#2ecc71' : fillPercentage > 0.25 ? '#f39c12' : '#e74c3c';
-    ctx.fillRect(timerX, timerY, timerWidth * fillPercentage, timerHeight);
-    
-    // Texte du timer
-    ctx.font = 'bold 14px Arial';
-    ctx.fillStyle = 'white';
-    ctx.textAlign = 'center';
-    ctx.fillText(`${timeLeft.toFixed(1)}s`, canvas.width / 2, timerY + 25);
-    
     // Dessiner toutes les nourritures (pratiques)
     foodItems.forEach(food => {
-      const now = Date.now();
-      const foodAge = (now - food.createdAt) / 1000; // En secondes
-      const timeRemaining = practiceTimer - foodAge;
-      
-      if (timeRemaining <= 0) {
-        // La nourriture va disparaître - ne pas la dessiner
-        // Cette logique sera gérée dans un useEffect séparé
-        return;
-      }
-      
-      // Calculer la couleur et l'opacité en fonction du temps restant
-      let opacity = 1;
-      if (timeRemaining < 3) {
-        // Faire clignoter dans les 3 dernières secondes
-        opacity = 0.3 + (Math.sin(now / 100) + 1) * 0.35;
-      }
-      
       const centerX = food.x * cellSize + cellSize / 2;
       const centerY = food.y * cellSize + cellSize / 2;
       const size = cellSize / 2 * 0.9;
       
-      // Dessiner l'hexagone avec l'opacité appropriée
-      const hexColor = `rgba(155, 89, 182, ${opacity})`;
-      const strokeColor = `rgba(142, 68, 173, ${opacity})`;
+      // Dessiner l'hexagone 
+      const hexColor = 'rgba(155, 89, 182, 1)';
+      const strokeColor = 'rgba(142, 68, 173, 1)';
       drawHexagon(ctx, centerX, centerY, size, hexColor, strokeColor);
       
       // Afficher le texte de la pratique
@@ -425,12 +382,6 @@ const CyberSnake: React.FC = () => {
       ctx.fillStyle = 'white';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      
-      // Afficher le temps restant à côté de la pratique
-      const timeLeftIndicator = Math.ceil(timeRemaining);
-      ctx.font = '10px Arial';
-      ctx.fillStyle = timeRemaining < 3 ? '#e74c3c' : '#2ecc71';
-      ctx.fillText(`${timeLeftIndicator}s`, centerX, centerY + size + 10);
       
       // Afficher le texte de la pratique
       const maxTextWidth = cellSize * 3;
@@ -494,25 +445,6 @@ const CyberSnake: React.FC = () => {
       ctx.closePath();
       
       ctx.fill();
-      
-      // Ajouter un contour plus clair
-      ctx.strokeStyle = '#5dade2';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-      
-      // Ajouter un effet de brillance pour la tête
-      if (index === 0) {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-        ctx.beginPath();
-        ctx.arc(
-          part.x * cellSize + cellSize / 4,
-          part.y * cellSize + cellSize / 4,
-          cellSize / 8,
-          0,
-          Math.PI * 2
-        );
-        ctx.fill();
-      }
     });
     
     // Afficher le message de fin de jeu (mais pas s'il y a un résumé)
@@ -540,7 +472,7 @@ const CyberSnake: React.FC = () => {
       ctx.textAlign = 'center';
       ctx.fillText('PAUSE', canvas.width / 2, canvas.height / 2);
     }
-  }, [snake, foodItems, gameOver, isPaused, score, cellSize, timeLeft, collectTimer, practiceTimer, showSummary, drawHexagon, drawSpeechBubble]);
+  }, [snake, foodItems, gameOver, isPaused, score, cellSize, showSummary, drawHexagon, drawSpeechBubble]);
   
   // Gérer l'appui sur les touches
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -562,136 +494,81 @@ const CyberSnake: React.FC = () => {
         if (direction !== 'LEFT') setDirection('RIGHT');
         break;
       case ' ':
-        // Espace pour pause/reprise
-        setIsPaused(p => !p);
-        break;
-      case 'Enter':
-        // Entrée pour redémarrer le jeu
         if (gameOver) {
           initGame();
+        } else {
+          togglePause();
         }
         break;
     }
   }, [direction, gameOver, initGame, isLoading]);
   
-  // Gérer les touches directionnelles sur mobile (boutons virtuels)
+  // Mettre en pause ou reprendre le jeu
+  const togglePause = () => {
+    setIsPaused(prev => !prev);
+  };
+  
+  // Gérer le clic sur les boutons de direction (pour mobile)
   const handleDirectionButton = (newDirection: Direction) => {
     // Éviter les retours en arrière
-    if (
-      (newDirection === 'UP' && direction !== 'DOWN') ||
-      (newDirection === 'DOWN' && direction !== 'UP') ||
-      (newDirection === 'LEFT' && direction !== 'RIGHT') ||
-      (newDirection === 'RIGHT' && direction !== 'LEFT')
-    ) {
-      setDirection(newDirection);
-    }
-  };
-  
-  // Gérer la pause
-  const togglePause = () => {
-    setIsPaused(p => !p);
-  };
-  
-  // Initialiser le jeu au premier rendu
-  useEffect(() => {
-    loadPractices();
+    if (newDirection === 'UP' && direction === 'DOWN') return;
+    if (newDirection === 'DOWN' && direction === 'UP') return;
+    if (newDirection === 'LEFT' && direction === 'RIGHT') return;
+    if (newDirection === 'RIGHT' && direction === 'LEFT') return;
     
+    setDirection(newDirection);
+  };
+  
+  // Charger les pratiques et le meilleur score au chargement initial
+  useEffect(() => {
     const savedHighScore = localStorage.getItem('cyberSnakeHighScore');
     if (savedHighScore) {
-      setHighScore(parseInt(savedHighScore, 10));
+      setHighScore(parseInt(savedHighScore));
     }
     
-    // Afficher le tutoriel seulement à la première visite
+    loadPractices();
+    
+    // Vérifier si le tutoriel a été vu
     const tutorialShown = localStorage.getItem('cyberSnakeTutorialShown');
     if (tutorialShown) {
       setShowTutorial(false);
     }
   }, [loadPractices]);
   
-  // Gérer les chronomètres et les timers
+  // Boucle de jeu principale
   useEffect(() => {
-    if (!gameOver && !isPaused) {
-      // Timer pour le décompte principal
-      const timerInterval = setInterval(() => {
-        setTimeLeft(prev => {
-          // Si le compteur arrive à zéro, pénaliser le joueur
-          if (prev <= 0) {
-            setScore(s => Math.max(0, s - 1)); // Pénalité quand le temps est écoulé
-            toast({
-              title: 'Temps écoulé!',
-              description: 'Trop lent! -1 point',
-              variant: 'destructive',
-            });
-            return collectTimer; // Réinitialiser le compteur
-          }
-          return prev - 0.1; // Décrémenter le compteur par 0.1 seconde
-        });
-        
-        // Incrémenter le compteur de temps de jeu
-        setElapsedTime(prev => prev + 0.1);
-      }, 100); // Mise à jour toutes les 100ms
-      
-      // Vérifier les pratiques qui doivent disparaître (après practiceTimer secondes)
-      const practiceExpirationInterval = setInterval(() => {
-        const now = Date.now();
-        setFoodItems(prev => {
-          const updated = prev.filter(item => {
-            const ageInSeconds = (now - item.createdAt) / 1000;
-            return ageInSeconds < practiceTimer;
-          });
-          
-          // Si des éléments ont été supprimés, ajouter des nouveaux
-          if (updated.length < prev.length) {
-            // Informer l'utilisateur
-            toast({
-              title: 'Pratique disparue!',
-              description: 'Une pratique a expiré',
-              variant: 'default',
-              action: <Clock className="h-5 w-5 text-yellow-500" />
-            });
-            
-            // Déclencher l'ajout de nouveaux éléments
-            setTimeout(() => placeFood(), 100);
-          }
-          
-          return updated;
-        });
-      }, 1000); // Vérifier chaque seconde
-      
-      return () => {
-        clearInterval(timerInterval);
-        clearInterval(practiceExpirationInterval);
-      };
+    if (gameOver || isPaused) {
+      if (gameLoopRef.current) {
+        cancelAnimationFrame(gameLoopRef.current);
+        gameLoopRef.current = null;
+      }
+      return;
     }
-  }, [gameOver, isPaused, collectTimer, practiceTimer, placeFood, toast]);
-  
-  // Gérer la boucle de jeu
-  useEffect(() => {
-    if (!gameOver && !isPaused) {
-      // Créer une boucle de jeu avec setInterval
-      gameLoopRef.current = window.setInterval(() => {
+    
+    // Dessiner le jeu
+    drawGame();
+    
+    let lastTime = 0;
+    const gameLoop = (timestamp: number) => {
+      const deltaTime = timestamp - lastTime;
+      
+      if (deltaTime >= gameSpeed) {
         moveSnake();
-      }, gameSpeed);
+        lastTime = timestamp;
+      }
       
-      // Dessiner continuellement
-      const animationId = requestAnimationFrame(function animate() {
-        drawGame();
-        if (!gameOver && !isPaused) {
-          requestAnimationFrame(animate);
-        }
-      });
-      
-      // Nettoyage
-      return () => {
-        if (gameLoopRef.current) {
-          clearInterval(gameLoopRef.current);
-        }
-        cancelAnimationFrame(animationId);
-      };
-    } else {
-      // Pour être sûr que le jeu est dessiné même quand il est arrêté
-      drawGame();
-    }
+      gameLoopRef.current = requestAnimationFrame(gameLoop);
+    };
+    
+    // Démarrer la boucle de jeu
+    gameLoopRef.current = requestAnimationFrame(gameLoop);
+    
+    // Nettoyer la boucle de jeu à la fin
+    return () => {
+      if (gameLoopRef.current) {
+        cancelAnimationFrame(gameLoopRef.current);
+      }
+    };
   }, [drawGame, gameOver, isPaused, moveSnake, gameSpeed]);
   
   // Écouteur d'événements pour les touches
@@ -744,7 +621,6 @@ const CyberSnake: React.FC = () => {
               Voici un aperçu de votre performance et les pratiques de cybersécurité que vous avez collectées.
             </CardDescription>
           </CardHeader>
-          
           <CardContent>
             <div className="grid md:grid-cols-2 gap-6">
               {/* Statistiques */}
@@ -757,72 +633,66 @@ const CyberSnake: React.FC = () => {
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="font-medium">Niveau atteint</span>
-                    <span>{level}</span>
+                    <span className="text-xl font-bold">{level}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="font-medium">Temps de jeu</span>
-                    <span>{Math.floor(elapsedTime)} secondes</span>
+                    <span className="font-medium">Pratiques collectées</span>
+                    <span className="text-xl font-bold">{collectedPractices.length}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="font-medium">Bonnes pratiques</span>
-                    <span className="text-green-500">
+                    <span className="text-green-600 font-bold">
                       {collectedPractices.filter(p => p.isGood).length}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="font-medium">Mauvaises pratiques</span>
-                    <span className="text-red-500">
+                    <span className="text-red-600 font-bold">
                       {collectedPractices.filter(p => !p.isGood).length}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Taux de réussite</span>
-                    <span>
-                      {collectedPractices.length > 0 
-                        ? `${Math.round((collectedPractices.filter(p => p.isGood).length / collectedPractices.length) * 100)}%` 
-                        : '0%'}
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="mt-6">
-                  <Button 
-                    onClick={() => {
-                      setShowSummary(false);
-                      setGameOver(false);
-                      initGame();
-                    }} 
-                    className="w-full"
-                  >
-                    Rejouer
-                  </Button>
                 </div>
               </div>
               
-              {/* Catalogue des bonnes pratiques */}
+              {/* Liste des pratiques collectées */}
               <div>
-                <h3 className="text-lg font-bold mb-4">Bonnes pratiques en cybersécurité</h3>
-                {collectedPractices.filter(p => p.isGood).length > 0 ? (
-                  <div className="space-y-3 pr-2 max-h-[300px] overflow-y-auto">
-                    {collectedPractices
-                      .filter(p => p.isGood)
-                      .map((practice, index) => (
-                        <Card key={index} className="p-3 bg-blue-50 dark:bg-blue-900/30 border-blue-200">
-                          <p className="font-semibold text-sm">{practice.text}</p>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{practice.explanation}</p>
-                        </Card>
-                      ))
-                    }
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-[200px] bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                    <FileWarning className="h-12 w-12 text-gray-400 mb-2" />
-                    <p className="text-gray-500 text-center">
-                      Vous n'avez collecté aucune bonne pratique de cybersécurité.
-                    </p>
-                  </div>
-                )}
+                <h3 className="text-lg font-bold mb-4">Pratiques collectées</h3>
+                <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
+                  {collectedPractices.length > 0 ? (
+                    collectedPractices.map((practice, index) => (
+                      <div 
+                        key={index} 
+                        className={`p-3 rounded-lg flex items-start gap-3 
+                          ${practice.isGood ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
+                      >
+                        {practice.isGood ? (
+                          <Check className="h-5 w-5 mt-1 flex-shrink-0" />
+                        ) : (
+                          <X className="h-5 w-5 mt-1 flex-shrink-0" />
+                        )}
+                        <div>
+                          <p className="font-medium">{practice.text}</p>
+                          <p className="text-sm opacity-75">{practice.explanation}</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-500">Aucune pratique collectée</p>
+                  )}
+                </div>
               </div>
+            </div>
+            
+            <div className="mt-6 pt-3 border-t border-gray-200 flex justify-end">
+              <Button 
+                onClick={() => {
+                  setShowSummary(false);
+                  setGameOver(false);
+                  initGame();
+                }}
+              >
+                Rejouer
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -836,33 +706,11 @@ const CyberSnake: React.FC = () => {
               ref={canvasRef}
               width={gridWidth * cellSize}
               height={gridHeight * cellSize}
-              className="border border-gray-700 rounded-lg bg-gray-900"
+              className="block w-full object-contain"
             />
             
-            {/* Tutoriel */}
-            {showTutorial && (
-              <div className="absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center">
-                <div className="bg-white p-6 rounded-lg max-w-md">
-                  <h3 className="text-xl font-bold mb-2">Comment jouer à Cyber Snake</h3>
-                  <ul className="list-disc pl-6 mb-4 space-y-2">
-                    <li>Utilisez les <strong>flèches directionnelles</strong> pour déplacer le serpent</li>
-                    <li>Lisez la pratique de cybersécurité affichée au-dessus de chaque élément <strong>hexagonal</strong></li>
-                    <li>Décidez si c'est une bonne ou mauvaise pratique avant de la collecter</li>
-                    <li>Les <strong>bonnes pratiques</strong> augmentent votre score de 2 points</li>
-                    <li>Les <strong>mauvaises pratiques</strong> diminuent votre score de 1 point</li>
-                    <li>Évitez de vous mordre la queue !</li>
-                    <li>Attention, les pratiques disparaissent après {practiceTimer} secondes !</li>
-                    <li>Un timer de {collectTimer} secondes vous impose un rythme, sinon -1 point !</li>
-                  </ul>
-                  <div className="flex justify-end">
-                    <Button onClick={closeTutorial}>J'ai compris</Button>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {/* Contrôles tactiles pour mobiles */}
-            <div className="mt-4 grid grid-cols-3 gap-2 md:hidden">
+            {/* Contrôles tactiles (pour mobile) */}
+            <div className="md:hidden grid grid-cols-3 gap-2 p-2 mt-2">
               <div></div>
               <Button 
                 variant="outline" 
@@ -1011,40 +859,66 @@ const CyberSnake: React.FC = () => {
               </p>
             </div>
             
-            <div className="space-y-2 mt-4">
-              <h4 className="font-medium">Chronomètre d'action</h4>
-              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div 
-                  className={`h-full rounded-full transition-all duration-100 ${
-                    timeLeft > collectTimer * 0.5 
-                      ? 'bg-green-500' 
-                      : timeLeft > collectTimer * 0.25 
-                        ? 'bg-yellow-500' 
-                        : 'bg-red-500'
-                  }`}
-                  style={{ width: `${(timeLeft / collectTimer) * 100}%` }}
-                ></div>
-              </div>
-              <p className="text-xs text-gray-500">
-                {timeLeft.toFixed(1)} secondes avant pénalité
-              </p>
-            </div>
-            
             <div className="mt-4 pt-4 border-t border-gray-200">
               <h4 className="font-medium mb-2">Comment jouer</h4>
               <ul className="text-sm space-y-1 text-gray-600">
                 <li>▶ Utilisez les flèches du clavier</li>
                 <li>▶ Espace pour pause/reprise</li>
                 <li>▶ Lisez le texte de chaque pratique</li>
-                <li>▶ Agissez vite, les pratiques disparaissent !</li>
-                <li>▶ Attention au chronomètre d'action</li>
+                <li>▶ Collectez les bonnes pratiques</li>
+                <li>▶ Évitez les mauvaises pratiques</li>
               </ul>
             </div>
           </Card>
         </div>
       </div>
+      
+      {/* Tutoriel */}
+      <Dialog open={showTutorial} onOpenChange={setShowTutorial}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Comment jouer à Cyber Snake</DialogTitle>
+            <DialogDescription>
+              Découvrez comment jouer et les règles du jeu
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <h4 className="font-medium">Objectif du jeu</h4>
+              <p className="text-sm text-gray-500">
+                Déplacez le serpent pour collecter des pratiques de cybersécurité. Distinguez les bonnes des mauvaises pratiques pour maximiser votre score.
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <h4 className="font-medium">Contrôles</h4>
+              <ul className="text-sm text-gray-500 space-y-1">
+                <li>• Flèches directionnelles : déplacer le serpent</li>
+                <li>• Espace : Pause / Reprendre le jeu</li>
+                <li>• Sur mobile : utilisez les boutons tactiles</li>
+              </ul>
+            </div>
+            
+            <div className="space-y-2">
+              <h4 className="font-medium">Règles du jeu</h4>
+              <ul className="text-sm text-gray-500 space-y-1">
+                <li>• Bonnes pratiques : <span className="text-green-600">+2 points</span></li>
+                <li>• Mauvaises pratiques : <span className="text-red-600">-1 point</span></li>
+                <li>• Le serpent grandit à chaque pratique collectée</li>
+                <li>• Évitez que le serpent ne se morde la queue</li>
+                <li>• Le jeu accélère à chaque niveau</li>
+              </ul>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button type="button" onClick={closeTutorial}>Commencer à jouer</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
-export default CyberSnake;
+export default CyberSnakeSimple;
