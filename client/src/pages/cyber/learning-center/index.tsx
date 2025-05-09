@@ -503,6 +503,14 @@ export default function LearningCenter() {
   // Catégories de ressources
   const resourceCategories: ResourceCategory[] = [
     {
+      id: 'parcours-rapide',
+      title: 'Parcours rapide',
+      description: 'Apprentissage accéléré et outils d\'auto-formation',
+      icon: <Zap className="h-6 w-6 text-yellow-100" />,
+      modules: quickLearningModules,
+      gradient: 'from-amber-600 to-orange-800'
+    },
+    {
       id: 'fondamentaux',
       title: 'Modules fondamentaux',
       description: 'Principes et concepts essentiels de la cybersécurité',
@@ -525,14 +533,6 @@ export default function LearningCenter() {
       icon: <Clock className="h-6 w-6 text-green-100" />,
       modules: microModules,
       gradient: 'from-green-700 to-green-900'
-    },
-    {
-      id: 'parcours-rapide',
-      title: 'Parcours rapide',
-      description: 'Apprentissage accéléré et outils d\'auto-formation',
-      icon: <Zap className="h-6 w-6 text-yellow-100" />,
-      modules: quickLearningModules,
-      gradient: 'from-amber-600 to-orange-800'
     }
   ];
 

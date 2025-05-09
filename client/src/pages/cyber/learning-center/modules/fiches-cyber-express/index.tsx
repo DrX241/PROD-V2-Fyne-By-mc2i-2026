@@ -606,7 +606,11 @@ Le Threat Hunting (chasse aux menaces) est une démarche proactive de recherche 
             <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>
-        <PageTitle title="Fiches Cyber Express" subtitle="Consultez et apprenez rapidement avec nos fiches synthétiques" />
+        <PageTitle title="Fiches Cyber Express" />
+        <div>
+          <h1 className="text-2xl font-bold">Fiches Cyber Express</h1>
+          <p className="text-muted-foreground">Consultez et apprenez rapidement avec nos fiches synthétiques</p>
+        </div>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
