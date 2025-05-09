@@ -28,6 +28,7 @@ import { extractJsonFromOpenAiResponse, createFallbackJson } from "./openAiRespo
 import { startInterviewSimulation, processInterviewMessage, completeInterviewSimulation, analyzeInterviewNotes } from "./interviewSimulationController";
 import { getRandomScenarios, getScenarioById, getScenariosByDifficulty } from "./impostorService";
 import { startAgentSession, completeAgentSession } from "./cyberAgentController";
+import { generateCyberFiche, getUserFavorites } from "./cyberFicheController";
 import { generateDebriefing, getContextualDocumentation } from "./cyberLearningController";
 import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearningController";
 import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
