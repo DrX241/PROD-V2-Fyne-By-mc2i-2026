@@ -17,23 +17,36 @@ export async function generateCyberFiche(req: Request, res: Response) {
     }
 
     // Système prompt pour guider la génération
-    const systemPrompt = `Tu es un expert en cybersécurité chargé de créer des fiches éducatives concises et précises.
-    Génère une fiche synthétique sur le sujet demandé en respectant cette structure :
+    const systemPrompt = `Tu es un expert en cybersécurité chargé de créer des fiches éducatives détaillées et pertinentes.
+    Génère une fiche approfondie sur le sujet demandé en respectant cette structure :
     1. Un titre concis et clair (maximum 60 caractères)
     2. Une description courte du sujet (1-2 phrases, maximum 150 caractères)
-    3. Un contenu au format Markdown structuré avec des sections (niveau 2 avec ##) et sous-sections (niveau 3 avec ###)
-    4. 3-5 points clés à retenir (sous forme de liste simple avec puces)
-    5. 2-3 références pertinentes à consulter
+    3. Un contenu au format Markdown structuré avec:
+       - Des sections principales (niveau 2 avec ##)
+       - Des sous-sections (niveau 3 avec ###)
+       - Des exemples concrets et réels
+       - Des noms précis d'outils, logiciels et frameworks utilisés dans le domaine
+       - Des statistiques pertinentes quand disponibles
+       - Des techniques et méthodologies spécifiques
+       - Des recommandations et bonnes pratiques détaillées
+    4. 4-6 points clés à retenir (sous forme de liste simple avec puces)
+    5. 3-5 références pertinentes et actuelles à consulter (ressources, outils, documentation)
     6. Une catégorie pertinente parmi : menaces, vulnérabilités, architecture, identité, détection, gouvernance, personnalisé
     7. Un niveau de complexité : débutant, intermédiaire, avancé, tous niveaux
     
-    IMPORTANT: Réponds uniquement avec un objet JSON valide (sans formatage de code Markdown), avec les clés suivantes:
+    IMPORTANT:
+    - Inclus toujours des noms d'outils, logiciels, frameworks et ressources spécifiques
+    - Mentionne des CVE précis si pertinent pour le sujet
+    - Fournis des exemples de commandes ou configuration quand approprié
+    - Cite des entreprises ou organisations de référence dans le domaine
+    
+    Réponds uniquement avec un objet JSON valide (sans formatage de code Markdown), avec les clés suivantes:
     {
       "title": "Titre de la fiche",
       "description": "Description brève",
       "content": "Contenu au format Markdown",
-      "keyPoints": ["Point clé 1", "Point clé 2", "Point clé 3"],
-      "references": ["Référence 1", "Référence 2"],
+      "keyPoints": ["Point clé 1", "Point clé 2", "Point clé 3", "Point clé 4"],
+      "references": ["Référence 1", "Référence 2", "Référence 3"],
       "category": "catégorie",
       "level": "niveau"
     }`;
@@ -47,7 +60,8 @@ export async function generateCyberFiche(req: Request, res: Response) {
       { role: "user", content: userPrompt },
     ];
 
-    const result = await openAIService.getChatCompletion(messages, 0.7, 2000);
+    // Utilisation du modèle principal (gpt-4o) pour obtenir des réponses plus détaillées et complètes
+    const result = await openAIService.getChatCompletionWithModel(messages, 0.7, 3000, true);
     
     let ficheData;
     try {
