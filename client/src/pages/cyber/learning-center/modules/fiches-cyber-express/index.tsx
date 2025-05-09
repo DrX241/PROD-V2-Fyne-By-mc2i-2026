@@ -591,23 +591,32 @@ Le Threat Hunting (chasse aux menaces) est une démarche proactive de recherche 
     }
   };
 
-  // Fonction pour utiliser l'horloge avec un compte à rebours
+  // Fonction pour formater le temps en minutes:secondes
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Démarrer le compte à rebours pour une fiche
   const startFicheTimer = (timeInMinutes: number) => {
     const seconds = timeInMinutes * 60;
     setTimeRemaining(seconds);
     
-    if (timerRef.current) clearInterval(timerRef.current);
+    // Arrêter tout timer existant
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
     
+    // Créer un nouveau timer
     timerRef.current = setInterval(() => {
-      setTimeRemaining(prev => {
+      setTimeRemaining((prev) => {
         if (prev <= 1) {
-          clearInterval(timerRef.current!);
+          // Nettoyer l'intervalle
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+          }
+          
           // Marquer automatiquement comme lu à l'expiration du timer
           if (selectedFiche) {
             handleToggleRead(selectedFiche.id);
