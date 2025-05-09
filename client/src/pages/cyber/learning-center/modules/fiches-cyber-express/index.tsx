@@ -506,52 +506,81 @@ Le Threat Hunting (chasse aux menaces) est une démarche proactive de recherche 
     }
     
     setIsGenerating(true);
+    setProgress(10); // Démarrer avec un progrès initial
+    
+    // Démarrer la simulation de progression pendant que l'API traite la demande
+    let progressValue = 10;
+    const interval = setInterval(() => {
+      // Augmenter progressivement jusqu'à 90% (on garde 10% pour la finalisation)
+      if (progressValue < 90) {
+        progressValue += Math.floor(Math.random() * 8) + 2; // Augmentation aléatoire pour effet naturel
+        setProgress(Math.min(progressValue, 90));
+      }
+    }, 500);
     
     try {
-      // Simuler la génération par l'IA avec un timer
-      let progressValue = 0;
-      const interval = setInterval(() => {
-        progressValue += 5;
-        setProgress(progressValue);
+      // Appel à l'API pour générer la fiche
+      const response = await fetch('/api/cyber/fiches/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ topic: aiPrompt }),
+      });
+      
+      // Arrêter la simulation de progression
+      clearInterval(interval);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erreur lors de la génération de la fiche');
+      }
+      
+      const data = await response.json();
+      
+      if (data.success && data.fiche) {
+        setProgress(100);
         
-        if (progressValue >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            const newFiche: FicheCyber = {
-              id: `gen-${Date.now()}`,
-              title: `${aiPrompt.charAt(0).toUpperCase() + aiPrompt.slice(1)}`,
-              category: 'personnalisé',
-              level: 'tous niveaux',
-              description: `Fiche générée sur le thème : ${aiPrompt}`,
-              content: `# ${aiPrompt}\n\nCette fiche a été générée par IA sur la base de votre demande.\n\nDans une implémentation réelle, le contenu serait généré par une IA via l'API OpenAI ou Azure OpenAI.`,
-              keyPoints: [
-                "Point clé généré par IA 1",
-                "Point clé généré par IA 2",
-                "Point clé généré par IA 3"
-              ],
-              references: [
-                "Référence générée 1",
-                "Référence générée 2"
-              ],
-              icon: <BrainCircuit />,
-              isFavorite: false,
-              hasBeenRead: false
-            };
-            
-            setFiches([newFiche, ...fiches]);
-            setSelectedFiche(newFiche);
-            setAiPrompt('');
-            setIsGenerating(false);
-            setProgress(0);
-            
-            toast({
-              title: "Génération réussie",
-              description: "Votre fiche personnalisée a été créée avec succès"
-            });
-          }, 1000);
-        }
-      }, 100);
+        // Créer la fiche à partir des données reçues
+        const iconMap: Record<string, JSX.Element> = {
+          'Shield': <Shield />,
+          'Database': <Database />,
+          'Globe': <Globe />,
+          'Server': <Server />,
+          'Lock': <Lock />,
+          'Network': <Network />,
+          'Zap': <Zap />,
+          'AlertCircle': <AlertCircle />,
+          'BrainCircuit': <BrainCircuit />,
+          'FileText': <FileText />
+        };
+        
+        const newFiche: FicheCyber = {
+          id: data.fiche.id,
+          title: data.fiche.title,
+          category: data.fiche.category,
+          level: data.fiche.level as 'débutant' | 'intermédiaire' | 'avancé' | 'tous niveaux',
+          description: data.fiche.description,
+          content: data.fiche.content,
+          keyPoints: data.fiche.keyPoints,
+          references: data.fiche.references,
+          icon: iconMap[data.fiche.icon] || <BrainCircuit />,
+          isFavorite: false,
+          hasBeenRead: false
+        };
+        
+        setFiches([newFiche, ...fiches]);
+        setSelectedFiche(newFiche);
+        setAiPrompt('');
+        setIsGenerating(false);
+        
+        toast({
+          title: "Génération réussie",
+          description: "Votre fiche personnalisée a été créée avec succès"
+        });
+      }
     } catch (error) {
+      console.error("Erreur lors de la génération de la fiche:", error);
       setIsGenerating(false);
       setProgress(0);
       toast({
