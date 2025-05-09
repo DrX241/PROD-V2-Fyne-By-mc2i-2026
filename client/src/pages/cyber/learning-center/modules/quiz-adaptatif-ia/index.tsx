@@ -814,9 +814,9 @@ export default function QuizAdaptatifIA() {
                   </Button>
                   <Button 
                     className="bg-indigo-700 hover:bg-indigo-800"
-                    onClick={() => {
+                    onClick={async () => {
                       setShowRecommendations(false);
-                      startQuiz();
+                      await startQuiz();
                     }}
                   >
                     Nouveau quiz
@@ -966,11 +966,11 @@ export default function QuizAdaptatifIA() {
                       <div className="flex-grow"></div>
                       <Button 
                         className="bg-indigo-700 hover:bg-indigo-800"
-                        onClick={() => {
+                        onClick={async () => {
                           if (questionsAnswered >= 10) {
                             finishQuiz();
                           } else {
-                            loadNextQuestion();
+                            await loadNextQuestion();
                           }
                         }}
                       >
