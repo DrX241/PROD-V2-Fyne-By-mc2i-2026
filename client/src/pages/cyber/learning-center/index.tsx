@@ -780,86 +780,8 @@ export default function LearningCenter() {
           
           {/* Onglet Modules */}
           <TabsContent value="modules" className="space-y-8">
-            {searchTerm || selectedLevel || selectedCategory || selectedDuration ? (
-              // Résultats de recherche
-              <div>
-                <h2 className="text-2xl font-bold mb-6">Résultats de recherche</h2>
-                {getFilteredModules().length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {getFilteredModules().map((module, index) => (
-                      <motion.div
-                        key={module.id}
-                        custom={index}
-                        initial="hidden"
-                        animate="visible"
-                        variants={cardVariants}
-                      >
-                        <Link href={module.destination || '#'}>
-                          <Card className="bg-blue-900/20 border-blue-800 hover:bg-blue-800/30 transition-all cursor-pointer overflow-hidden">
-                            <CardHeader className="pb-2">
-                              <div className="flex justify-between items-start">
-                                <div className="p-2 bg-blue-800 rounded-md">
-                                  {module.icon}
-                                </div>
-                                <div className="flex gap-1">
-                                  {module.isNew && (
-                                    <Badge className="bg-blue-600">Nouveau</Badge>
-                                  )}
-                                  {module.isFeatured && (
-                                    <Badge className="bg-amber-600">Recommandé</Badge>
-                                  )}
-                                </div>
-                              </div>
-                              <CardTitle className="text-lg mt-2">{module.title}</CardTitle>
-                              <div className="flex gap-2 mt-1">
-                                <Badge variant="outline" className="bg-blue-950/50 border-blue-700 text-blue-200">
-                                  {module.level}
-                                </Badge>
-                                <Badge variant="outline" className="bg-blue-950/50 border-blue-700 text-blue-200">
-                                  {module.duration}
-                                </Badge>
-                              </div>
-                            </CardHeader>
-                            <CardContent>
-                              <p className="text-sm text-gray-300">{module.description}</p>
-                              
-                              <div className="flex flex-wrap gap-1 mt-3">
-                                {module.tags.slice(0, 3).map((tag) => (
-                                  <Badge key={tag} variant="secondary" className="bg-blue-950/70 text-blue-200 border-blue-800">
-                                    {tag}
-                                  </Badge>
-                                ))}
-                                {module.tags.length > 3 && (
-                                  <Badge variant="secondary" className="bg-blue-950/70 text-blue-200 border-blue-800">
-                                    +{module.tags.length - 3}
-                                  </Badge>
-                                )}
-                              </div>
-                              
-                              {module.progress !== undefined && module.progress > 0 && (
-                                <div className="mt-3">
-                                  <div className="flex justify-between text-xs mb-1">
-                                    <span>Progression</span>
-                                    <span>{module.progress}%</span>
-                                  </div>
-                                  <Progress value={module.progress} className="h-1.5" />
-                                </div>
-                              )}
-                            </CardContent>
-                          </Card>
-                        </Link>
-                      </motion.div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-10 bg-blue-900/10 rounded-lg border border-blue-900/50">
-                    <Search className="h-10 w-10 mx-auto text-blue-400 mb-3" />
-                    <h3 className="text-xl font-semibold">Aucun résultat trouvé</h3>
-                    <p className="text-blue-300 mt-1">Essayez de modifier vos critères de recherche</p>
-                  </div>
-                )}
-              </div>
-            ) : (
+            {/* Si 'all' est sélectionné pour toutes les sélections, ou pas de recherche active, on affiche par catégorie */}
+            {((!searchTerm && (selectedLevel === '' || selectedLevel === 'all') && (selectedCategory === '' || selectedCategory === 'all') && (selectedDuration === '' || selectedDuration === 'all'))) ? (
               // Affichage par catégories
               <>
                 {resourceCategories.map((category) => (
@@ -943,6 +865,85 @@ export default function LearningCenter() {
                   </div>
                 ))}
               </>
+            ) : (
+              // Résultats de recherche
+              <div>
+                <h2 className="text-2xl font-bold mb-6">Résultats de recherche</h2>
+                {getFilteredModules().length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {getFilteredModules().map((module, index) => (
+                      <motion.div
+                        key={module.id}
+                        custom={index}
+                        initial="hidden"
+                        animate="visible"
+                        variants={cardVariants}
+                      >
+                        <Link href={module.destination || '#'}>
+                          <Card className="bg-blue-900/20 border-blue-800 hover:bg-blue-800/30 transition-all cursor-pointer overflow-hidden">
+                            <CardHeader className="pb-2">
+                              <div className="flex justify-between items-start">
+                                <div className="p-2 bg-blue-800 rounded-md">
+                                  {module.icon}
+                                </div>
+                                <div className="flex gap-1">
+                                  {module.isNew && (
+                                    <Badge className="bg-blue-600">Nouveau</Badge>
+                                  )}
+                                  {module.isFeatured && (
+                                    <Badge className="bg-amber-600">Recommandé</Badge>
+                                  )}
+                                </div>
+                              </div>
+                              <CardTitle className="text-lg mt-2">{module.title}</CardTitle>
+                              <div className="flex gap-2 mt-1">
+                                <Badge variant="outline" className="bg-blue-950/50 border-blue-700 text-blue-200">
+                                  {module.level}
+                                </Badge>
+                                <Badge variant="outline" className="bg-blue-950/50 border-blue-700 text-blue-200">
+                                  {module.duration}
+                                </Badge>
+                              </div>
+                            </CardHeader>
+                            <CardContent>
+                              <p className="text-sm text-gray-300">{module.description}</p>
+                              
+                              <div className="flex flex-wrap gap-1 mt-3">
+                                {module.tags.slice(0, 3).map((tag) => (
+                                  <Badge key={tag} variant="secondary" className="bg-blue-950/70 text-blue-200 border-blue-800">
+                                    {tag}
+                                  </Badge>
+                                ))}
+                                {module.tags.length > 3 && (
+                                  <Badge variant="secondary" className="bg-blue-950/70 text-blue-200 border-blue-800">
+                                    +{module.tags.length - 3}
+                                  </Badge>
+                                )}
+                              </div>
+                              
+                              {module.progress !== undefined && module.progress > 0 && (
+                                <div className="mt-3">
+                                  <div className="flex justify-between text-xs mb-1">
+                                    <span>Progression</span>
+                                    <span>{module.progress}%</span>
+                                  </div>
+                                  <Progress value={module.progress} className="h-1.5" />
+                                </div>
+                              )}
+                            </CardContent>
+                          </Card>
+                        </Link>
+                      </motion.div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-10 bg-blue-900/10 rounded-lg border border-blue-900/50">
+                    <Search className="h-10 w-10 mx-auto text-blue-400 mb-3" />
+                    <h3 className="text-xl font-semibold">Aucun résultat trouvé</h3>
+                    <p className="text-blue-300 mt-1">Essayez de modifier vos critères de recherche</p>
+                  </div>
+                )}
+              </div>
             )}
           </TabsContent>
           
