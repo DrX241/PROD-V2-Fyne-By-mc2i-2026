@@ -37,6 +37,17 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription,
+  DialogFooter
+} from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import PageTitle from '@/components/utils/PageTitle';
 
@@ -537,6 +548,209 @@ export default function GlossaireVisuel() {
     filterTerms(selectedCategory, showFavoritesOnly, showBookmarksOnly, searchTerm);
   }, [selectedCategory, showFavoritesOnly, showBookmarksOnly, searchTerm, alphabetFilter]);
   
+  // Fonction pour rechercher un terme dans le glossaire via l'API
+  const searchGlossaryTerm = async (term: string) => {
+    try {
+      setIsLoading(true);
+
+      const response = await fetch('/api/cyber/glossary/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ term }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la recherche du terme');
+      }
+
+      const data = await response.json();
+      
+      if (data.success && data.term) {
+        // Ajouter l'icône appropriée selon la catégorie
+        const termWithIcon = {
+          ...data.term,
+          icon: getCategoryIcon(data.term.category)
+        };
+        
+        // Ajouter le nouveau terme au glossaire s'il n'existe pas déjà
+        setGlossaryTerms(prevTerms => {
+          const exists = prevTerms.some(t => t.id === termWithIcon.id);
+          if (!exists) {
+            return [...prevTerms, termWithIcon];
+          }
+          return prevTerms;
+        });
+        
+        // Sélectionner le terme pour l'afficher
+        setSelectedTerm(termWithIcon);
+        
+        // Mettre à jour les termes filtrés
+        filterTerms(selectedCategory, showFavoritesOnly, showBookmarksOnly, searchTerm);
+        
+        toast({
+          title: "Terme trouvé",
+          description: `Le terme "${term}" a été trouvé et ajouté au glossaire.`,
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "Terme non trouvé",
+          description: "Impossible de trouver des informations sur ce terme.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la recherche:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la recherche du terme.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fonction pour obtenir une explication personnalisée d'un concept
+  const explainConceptDetail = async (concept: string, context?: string) => {
+    try {
+      setIsExplaining(true);
+
+      const response = await fetch('/api/cyber/glossary/explain', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ concept, context }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de l\'explication du concept');
+      }
+
+      const data = await response.json();
+      
+      if (data.success && data.explanation) {
+        setExplanation(data.explanation);
+        setShowExplanationDialog(true);
+      } else {
+        toast({
+          title: "Explication non disponible",
+          description: "Impossible d'obtenir une explication pour ce concept.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'explication:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'explication du concept.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExplaining(false);
+    }
+  };
+
+  // Fonction pour comparer deux termes
+  const compareTermsDetail = async (term1: string, term2: string) => {
+    try {
+      setIsComparing(true);
+
+      const response = await fetch('/api/cyber/glossary/compare', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ term1, term2 }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la comparaison des termes');
+      }
+
+      const data = await response.json();
+      
+      if (data.success && data.comparison) {
+        setComparison(data.comparison);
+        setShowComparisonDialog(true);
+      } else {
+        toast({
+          title: "Comparaison non disponible",
+          description: "Impossible d'obtenir une comparaison pour ces termes.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la comparaison:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la comparaison des termes.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsComparing(false);
+    }
+  };
+
+  // Fonction pour générer un quiz sur un terme ou concept
+  const generateQuizOnTerm = async (term?: string, difficulty: string = 'moyen') => {
+    try {
+      setIsGeneratingQuiz(true);
+
+      const response = await fetch('/api/cyber/glossary/quiz', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ term, difficulty }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la génération du quiz');
+      }
+
+      const data = await response.json();
+      
+      if (data.success && data.quiz) {
+        setQuizData(data.quiz);
+        setShowQuizDialog(true);
+      } else {
+        toast({
+          title: "Quiz non disponible",
+          description: "Impossible de générer un quiz pour ce terme.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la génération du quiz:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la génération du quiz.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingQuiz(false);
+    }
+  };
+
+  // Fonction pour obtenir l'icône correspondant à une catégorie
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'threats': return <AlertTriangle />;
+      case 'defense': return <Shield />;
+      case 'tools': return <Wrench />;
+      case 'data': return <Database />;
+      case 'network': return <Network />;
+      case 'compliance': return <File />;
+      case 'fundamental': return <BookOpen />;
+      case 'tech': return <Lock />;
+      default: return <Shield />;
+    }
+  };
+
   // Fonction pour filtrer les termes
   const filterTerms = (category: string, favoritesOnly: boolean, bookmarksOnly: boolean, search: string) => {
     let filtered = glossaryTerms;
@@ -657,8 +871,129 @@ export default function GlossaireVisuel() {
   // Liste des lettres de l'alphabet pour le filtre
   const alphabet = Array.from({ length: 26 }, (_, i) => String.fromCharCode(97 + i));
   
+  // Interface pour les questions du quiz
+  interface QuizQuestion {
+    question: string;
+    options: string[];
+    correctAnswer: number;
+    explanation: string;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-950 to-slate-950 text-white pb-20">
+      {/* Dialogue d'explication détaillée */}
+      <Dialog open={showExplanationDialog} onOpenChange={setShowExplanationDialog}>
+        <DialogContent className="bg-slate-900 text-white border-green-700 max-w-3xl max-h-[80vh] overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="text-green-400 text-xl flex items-center">
+              <BrainCircuit className="mr-2 h-5 w-5" />
+              Explication détaillée du concept
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[60vh] pr-4">
+            <div className="p-2 whitespace-pre-wrap">
+              {explanation}
+            </div>
+          </ScrollArea>
+          <DialogFooter>
+            <Button 
+              onClick={() => setShowExplanationDialog(false)}
+              className="bg-green-700 hover:bg-green-800"
+            >
+              Fermer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialogue de comparaison de termes */}
+      <Dialog open={showComparisonDialog} onOpenChange={setShowComparisonDialog}>
+        <DialogContent className="bg-slate-900 text-white border-blue-700 max-w-3xl max-h-[80vh] overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="text-blue-400 text-xl flex items-center">
+              <Code className="mr-2 h-5 w-5" />
+              Comparaison de concepts
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[60vh] pr-4">
+            <div className="p-2 whitespace-pre-wrap">
+              {comparison}
+            </div>
+          </ScrollArea>
+          <DialogFooter>
+            <Button 
+              onClick={() => setShowComparisonDialog(false)}
+              className="bg-blue-700 hover:bg-blue-800"
+            >
+              Fermer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialogue de quiz */}
+      <Dialog open={showQuizDialog} onOpenChange={setShowQuizDialog}>
+        <DialogContent className="bg-slate-900 text-white border-purple-700 max-w-3xl max-h-[80vh] overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="text-purple-400 text-xl flex items-center">
+              <Sparkles className="mr-2 h-5 w-5" />
+              Quiz de cybersécurité
+            </DialogTitle>
+            <DialogDescription className="text-slate-300">
+              Testez vos connaissances sur les concepts de cybersécurité
+            </DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="max-h-[60vh] pr-4">
+            {quizData && (
+              <div className="space-y-6 p-2">
+                <div className="p-4 bg-slate-800 rounded-lg">
+                  <h3 className="font-semibold text-lg mb-2">{quizData.title || "Quiz de cybersécurité"}</h3>
+                  <p className="text-slate-300">{quizData.description || "Testez vos connaissances"}</p>
+                </div>
+                
+                {quizData.questions && quizData.questions.map((question: QuizQuestion, index: number) => (
+                  <div key={index} className="p-4 bg-slate-800 rounded-lg">
+                    <h4 className="font-medium mb-3 text-purple-300">Question {index + 1}: {question.question}</h4>
+                    <RadioGroup className="space-y-2">
+                      {question.options.map((option: string, optIndex: number) => (
+                        <div key={optIndex} className="flex items-start space-x-2">
+                          <RadioGroupItem 
+                            value={optIndex.toString()} 
+                            id={`q${index}-opt${optIndex}`} 
+                            className="border-purple-500 text-purple-500"
+                          />
+                          <Label htmlFor={`q${index}-opt${optIndex}`} className="text-slate-200">{option}</Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                    <Accordion type="single" collapsible className="mt-4">
+                      <AccordionItem value="explanation" className="border-slate-700">
+                        <AccordionTrigger className="text-sm text-purple-400">
+                          Voir l'explication
+                        </AccordionTrigger>
+                        <AccordionContent className="text-slate-300 bg-slate-800/50 p-3 rounded-md">
+                          <p>{question.explanation}</p>
+                          <p className="mt-2 font-medium">
+                            Réponse correcte: {question.options[question.correctAnswer]}
+                          </p>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </div>
+                ))}
+              </div>
+            )}
+          </ScrollArea>
+          <DialogFooter>
+            <Button 
+              onClick={() => setShowQuizDialog(false)}
+              className="bg-purple-700 hover:bg-purple-800"
+            >
+              Fermer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       {/* En-tête */}
       <div className="p-6 container mx-auto">
         <div className="flex items-center mb-2">
@@ -700,11 +1035,40 @@ export default function GlossaireVisuel() {
               <Search className="absolute left-3 top-3 h-4 w-4 text-green-300" />
               <Input 
                 placeholder="Rechercher par terme, acronyme ou mot-clé..." 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                value={searchInputValue}
+                onChange={(e) => setSearchInputValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && searchInputValue.trim() !== '') {
+                    e.preventDefault();
+                    searchGlossaryTerm(searchInputValue.trim());
+                  }
+                }}
                 className="pl-10 bg-green-950/40 border-green-700/50 text-white placeholder:text-green-300/70"
               />
             </div>
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="border-green-500 text-green-200 hover:bg-green-800/30"
+              onClick={() => {
+                if (searchInputValue.trim() !== '') {
+                  searchGlossaryTerm(searchInputValue.trim());
+                }
+              }}
+              disabled={isLoading || searchInputValue.trim() === ''}
+            >
+              {isLoading ? (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                  Recherche en cours...
+                </>
+              ) : (
+                <>
+                  <Search className="mr-2 h-4 w-4" />
+                  Rechercher avec l'IA
+                </>
+              )}
+            </Button>
           </div>
           
           {/* Filtres avancés */}
