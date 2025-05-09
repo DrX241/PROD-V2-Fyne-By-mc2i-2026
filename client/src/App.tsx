@@ -1,7 +1,8 @@
-import { Switch, Route, useLocation } from "wouter";
+import { Switch, Route, useLocation, Link } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
+import { Button } from "@/components/ui/button";
 import { Suspense, lazy, startTransition } from "react";
 import { ChatProvider } from "./contexts/ChatContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -326,11 +327,12 @@ function App() {
                   <p className="text-xl text-blue-300 mb-8 text-center max-w-md">
                     Ce module est en cours de développement et sera disponible prochainement.
                   </p>
-                  <Link href="/cyber/learning-center">
-                    <Button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 transition-colors mb-4 text-white">
-                      Retour au centre d'apprentissage
-                    </Button>
-                  </Link>
+                  <a 
+                    href="/cyber/learning-center" 
+                    className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors mb-4"
+                  >
+                    Retour au centre d'apprentissage
+                  </a>
                 </div>
               );
             }} />

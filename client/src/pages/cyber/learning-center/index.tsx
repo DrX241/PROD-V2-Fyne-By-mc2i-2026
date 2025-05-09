@@ -662,7 +662,7 @@ export default function LearningCenter() {
                 <SelectValue placeholder="Niveau" />
               </SelectTrigger>
               <SelectContent className="bg-blue-900 border-blue-800 text-white">
-                <SelectItem value="">Tous les niveaux</SelectItem>
+                <SelectItem value="all">Tous les niveaux</SelectItem>
                 <SelectItem value="débutant">Débutant</SelectItem>
                 <SelectItem value="intermédiaire">Intermédiaire</SelectItem>
                 <SelectItem value="avancé">Avancé</SelectItem>
@@ -675,7 +675,7 @@ export default function LearningCenter() {
                 <SelectValue placeholder="Catégorie" />
               </SelectTrigger>
               <SelectContent className="bg-blue-900 border-blue-800 text-white">
-                <SelectItem value="">Toutes les catégories</SelectItem>
+                <SelectItem value="all">Toutes les catégories</SelectItem>
                 <SelectItem value="fondamentaux">Fondamentaux</SelectItem>
                 <SelectItem value="technique">Technique</SelectItem>
                 <SelectItem value="gouvernance">Gouvernance</SelectItem>
@@ -688,7 +688,7 @@ export default function LearningCenter() {
                 <SelectValue placeholder="Durée" />
               </SelectTrigger>
               <SelectContent className="bg-blue-900 border-blue-800 text-white">
-                <SelectItem value="">Toutes les durées</SelectItem>
+                <SelectItem value="all">Toutes les durées</SelectItem>
                 <SelectItem value="court">Court (moins de 1h)</SelectItem>
                 <SelectItem value="moyen">Moyen (1-4h)</SelectItem>
                 <SelectItem value="long">Long (plus de 4h)</SelectItem>
