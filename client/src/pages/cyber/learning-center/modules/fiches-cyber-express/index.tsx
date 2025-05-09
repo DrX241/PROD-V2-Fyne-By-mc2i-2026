@@ -931,20 +931,20 @@ Le Threat Hunting (chasse aux menaces) est une démarche proactive de recherche 
         {/* Panneau de droite : Contenu de la fiche */}
         <div className="lg:col-span-2">
           {selectedFiche ? (
-            <div className="border rounded-lg h-full">
-              <div className="p-6 border-b sticky top-0 bg-card z-10">
+            <div className="border rounded-lg h-full bg-slate-900 text-white">
+              <div className="p-6 border-b sticky top-0 bg-slate-900 z-10">
                 <div className="flex justify-between items-start">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-md bg-muted">
+                    <div className="p-2 rounded-md bg-slate-800">
                       {selectedFiche.icon}
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold">{selectedFiche.title}</h2>
+                      <h2 className="text-xl font-bold text-white">{selectedFiche.title}</h2>
                       <div className="flex items-center mt-1 space-x-2">
-                        <Badge variant="outline" className="capitalize">
+                        <Badge variant="outline" className="capitalize text-blue-200 border-blue-500">
                           {selectedFiche.category}
                         </Badge>
-                        <Badge variant="outline" className="capitalize">
+                        <Badge variant="outline" className="capitalize text-blue-200 border-blue-500">
                           {selectedFiche.level}
                         </Badge>
                       </div>
@@ -1012,37 +1012,37 @@ Le Threat Hunting (chasse aux menaces) est une démarche proactive de recherche 
                 )}
               </div>
               
-              <div className="p-6 overflow-auto prose prose-blue max-w-none h-[calc(100vh-350px)] pb-20">
-                <p className="text-lg font-medium mb-4">{selectedFiche.description}</p>
+              <div className="p-6 overflow-auto prose prose-invert max-w-none h-[calc(100vh-350px)] pb-20">
+                <p className="text-lg font-medium mb-4 text-white">{selectedFiche.description}</p>
                 
                 {/* Contenu en Markdown */}
-                <div dangerouslySetInnerHTML={{ 
+                <div className="text-white" dangerouslySetInnerHTML={{ 
                   __html: selectedFiche.content
-                    .replace(/^## (.*$)/gm, '<h2 class="text-xl font-semibold mt-6 mb-3">$1</h2>')
-                    .replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold mt-5 mb-2">$1</h3>')
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/^\- (.*$)/gm, '<li class="ml-4 mb-1">$1</li>')
-                    .replace(/^\d\. (.*$)/gm, '<li class="ml-4 mb-1">$1</li>')
-                    .split('\n\n').join('<p></p>')
+                    .replace(/^## (.*$)/gm, '<h2 class="text-xl font-semibold mt-6 mb-3 text-blue-200">$1</h2>')
+                    .replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold mt-5 mb-2 text-blue-200">$1</h3>')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong class="text-blue-100">$1</strong>')
+                    .replace(/^\- (.*$)/gm, '<li class="ml-4 mb-1 text-white">$1</li>')
+                    .replace(/^\d\. (.*$)/gm, '<li class="ml-4 mb-1 text-white">$1</li>')
+                    .split('\n\n').join('<p class="text-gray-100"></p>')
                 }} />
                 
-                <div className="mt-8 bg-muted p-4 rounded-md">
-                  <h3 className="font-semibold mb-2">Points clés à retenir</h3>
+                <div className="mt-8 bg-slate-800 p-4 rounded-md border border-blue-900">
+                  <h3 className="font-semibold mb-2 text-blue-200">Points clés à retenir</h3>
                   <ul className="space-y-2">
                     {selectedFiche.keyPoints.map((point, index) => (
                       <li key={index} className="flex items-start">
-                        <span className="inline-block h-2 w-2 rounded-full bg-primary mt-2 mr-2"></span>
-                        <span>{point}</span>
+                        <span className="inline-block h-2 w-2 rounded-full bg-blue-500 mt-2 mr-2"></span>
+                        <span className="text-gray-100">{point}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
                 
                 <div className="mt-6">
-                  <h3 className="font-semibold mb-2">Références</h3>
+                  <h3 className="font-semibold mb-2 text-blue-200">Références</h3>
                   <ul className="space-y-1 text-sm">
                     {selectedFiche.references.map((ref, index) => (
-                      <li key={index} className="text-blue-600 dark:text-blue-400">
+                      <li key={index} className="text-blue-300">
                         <a href="#" className="hover:underline">{ref}</a>
                       </li>
                     ))}
@@ -1051,10 +1051,10 @@ Le Threat Hunting (chasse aux menaces) est une démarche proactive de recherche 
               </div>
             </div>
           ) : (
-            <div className="border rounded-lg h-full flex flex-col items-center justify-center p-8 text-center">
-              <FileText className="h-16 w-16 text-muted-foreground mb-4" />
-              <h3 className="text-xl font-medium">Sélectionnez une fiche</h3>
-              <p className="text-muted-foreground mt-2 max-w-md">
+            <div className="border rounded-lg h-full flex flex-col items-center justify-center p-8 text-center bg-slate-900 text-white">
+              <FileText className="h-16 w-16 text-blue-400 mb-4" />
+              <h3 className="text-xl font-medium text-white">Sélectionnez une fiche</h3>
+              <p className="text-blue-200 mt-2 max-w-md">
                 Choisissez une fiche dans la liste à gauche pour afficher son contenu ou générez une nouvelle fiche personnalisée.
               </p>
             </div>
