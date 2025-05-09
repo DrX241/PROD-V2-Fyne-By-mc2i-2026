@@ -200,15 +200,8 @@ function App() {
             {/* Module Escape the Breach */}
             <Route path="/cyber/escape-the-breach" component={EscapeTheBreach} />
             
-            {/* Module Cyber Snake - Nouveau jeu éducatif */}
-            <Route path="/cyber/cyber-snake" component={() => {
-              const CyberSnakeSimple = lazy(() => import('./pages/cyber/cyber-snake-simple'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <CyberSnakeSimple />
-                </Suspense>
-              );
-            }} />
+            {/* Module Cyber Snake - Supprimé */}
+            <Route path="/cyber/cyber-snake" component={NotYetImplemented} />
             <Route path="/cyber/test-technique" component={() => {
               const CyberTestTechnique = lazy(() => import('./pages/cyber/test-technique'));
               return (

@@ -137,16 +137,7 @@ export default function CyberModeSelectionRedesign() {
       difficulty: 'débutant',
       duration: '15-30 min'
     },
-    {
-      id: 'cyber-snake',
-      title: 'CYBER SNAKE',
-      description: "Collectez les bonnes pratiques de cybersécurité et évitez les mauvaises dans ce jeu amusant",
-      icon: <Zap className="h-5 w-5" />,
-      destination: '/cyber/cyber-snake',
-      difficulty: 'débutant',
-      duration: '5-15 min',
-      isNew: true
-    },
+
     {
       id: 'escape-the-breach',
       title: 'ESCAPE THE BREACH',
