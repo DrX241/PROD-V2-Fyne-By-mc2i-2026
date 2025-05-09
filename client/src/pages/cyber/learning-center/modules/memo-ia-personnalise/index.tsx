@@ -921,38 +921,102 @@ enable_feature=true
     });
   };
 
-  // Formater le contenu Markdown (simulation basique)
+  // Formater le contenu Markdown avec un formatage professionnel
   const formatMarkdown = (content: string) => {
-    // Cette fonction est une simulation simplifiée - dans une vraie application, utilisez une bibliothèque comme react-markdown
-    return content
-      .replace(/^# (.*?)$/gm, '<h1 class="text-xl font-bold my-3">$1</h1>')
-      .replace(/^## (.*?)$/gm, '<h2 class="text-lg font-semibold my-2 text-blue-300">$1</h2>')
-      .replace(/^### (.*?)$/gm, '<h3 class="text-md font-medium my-1 text-blue-200">$1</h3>')
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/`{3}([\s\S]*?)`{3}/gm, '<pre class="bg-slate-900 p-2 rounded-md my-2 overflow-x-auto"><code>$1</code></pre>')
-      .replace(/`([^`]+)`/g, '<code class="bg-slate-900 px-1 py-0.5 rounded">$1</code>')
+    if (!content) return '';
+    
+    // Prétraitement pour les tableaux
+    let formattedContent = content;
+    
+    // Traitement des tableaux markdown standard
+    const tableRegex = /\|(.+)\|\n\|[-:|.]+\|\n((?:\|.+\|\n)+)/g;
+    const tableMatches = formattedContent.match(tableRegex);
+    
+    if (tableMatches) {
+      for (const tableMatch of tableMatches) {
+        const tableLines = tableMatch.trim().split('\n');
+        let tableHtml = '<div class="overflow-x-auto my-4"><table class="w-full border-collapse border border-blue-700 rounded">';
+        
+        // En-tête du tableau
+        const headerCells = tableLines[0].split('|').filter(cell => cell.trim() !== '');
+        tableHtml += '<thead class="bg-blue-900/50"><tr>';
+        headerCells.forEach(cell => {
+          tableHtml += `<th class="border border-blue-700 px-4 py-2 text-blue-200 font-semibold">${cell.trim()}</th>`;
+        });
+        tableHtml += '</tr></thead><tbody>';
+        
+        // Corps du tableau (on ignore la ligne de séparation)
+        for (let i = 2; i < tableLines.length; i++) {
+          const rowCells = tableLines[i].split('|').filter(cell => cell.trim() !== '');
+          tableHtml += '<tr class="border-t border-blue-700">';
+          rowCells.forEach(cell => {
+            tableHtml += `<td class="border border-blue-700 px-4 py-2 text-blue-300">${cell.trim()}</td>`;
+          });
+          tableHtml += '</tr>';
+        }
+        
+        tableHtml += '</tbody></table></div>';
+        formattedContent = formattedContent.replace(tableMatch, tableHtml);
+      }
+    }
+    
+    // Conversion des titres avec un style professionnel et hiérarchisé
+    formattedContent = formattedContent
+      // Titres avec une hiérarchie visuelle claire
+      .replace(/^# (.*?)$/gm, '<h1 class="text-2xl font-bold mt-4 mb-3 text-white border-b border-blue-700 pb-1">$1</h1>')
+      .replace(/^## (.*?)$/gm, '<h2 class="text-xl font-semibold mt-3 mb-2 text-blue-200">$1</h2>')
+      .replace(/^### (.*?)$/gm, '<h3 class="text-lg font-medium mt-2 mb-1.5 text-blue-300">$1</h3>')
+      .replace(/^#### (.*?)$/gm, '<h4 class="text-base font-medium mt-2 mb-1 text-blue-300">$1</h4>')
+      
+      // Formatage du texte (gras, italique, etc.)
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="text-blue-100">$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em class="text-blue-200">$1</em>')
+      
+      // Blocs de code avec coloration syntaxique améliorée
+      .replace(/```([\s\S]*?)```/g, '<pre class="bg-slate-900 p-3 rounded-md my-3 overflow-x-auto border border-blue-800 text-sm font-mono">$1</pre>')
+      .replace(/`([^`]+)`/g, '<code class="bg-slate-900 px-1.5 py-0.5 rounded text-blue-200 font-mono text-sm">$1</code>')
+      
+      // Cases à cocher avec design amélioré
       .replace(/\n- \[([ x])\] (.*?)$/gm, (match, checked, text) => 
-        `<div class="flex items-start gap-2 my-1">
-          <div class="w-5 h-5 border rounded flex-shrink-0 ${checked === 'x' ? 'bg-blue-900 border-blue-700' : 'border-blue-800'} flex items-center justify-center">
-            ${checked === 'x' ? '<span class="text-blue-300">✓</span>' : ''}
+        `<div class="flex items-start gap-2 my-1.5">
+          <div class="w-5 h-5 border rounded flex-shrink-0 ${checked === 'x' ? 'bg-blue-800 border-blue-700' : 'border-blue-700'} flex items-center justify-center transition-colors">
+            ${checked === 'x' ? '<span class="text-blue-200">✓</span>' : ''}
           </div>
-          <span>${text}</span>
+          <span class="text-blue-200">${text}</span>
         </div>`
       )
-      .replace(/\n- (.*?)$/gm, '<div class="flex items-center gap-2 my-1"><div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div><span>$1</span></div>')
-      .replace(/\n\d+\. (.*?)$/gm, '<div class="flex items-start gap-2 my-1"><span class="text-blue-400">•</span><span>$1</span></div>')
-      .replace(/\n\n/g, '<p class="my-2"></p>')
+      
+      // Listes à puces avec design cohérent
+      .replace(/\n- (.*?)$/gm, '<div class="flex items-start gap-2 my-1.5"><span class="text-blue-400 mt-1">•</span><span class="text-blue-200">$1</span></div>')
+      
+      // Listes numérotées avec formatage amélioré
+      .replace(/\n(\d+)\. (.*?)$/gm, '<div class="flex items-start gap-2 my-1.5"><span class="text-blue-400 min-w-[20px] text-right">$1.</span><span class="text-blue-200">$2</span></div>')
+      
+      // Paragraphes avec espacement optimal
+      .replace(/\n\n/g, '<p class="my-3"></p>')
+      
+      // Format questions/réponses avec style distinctif
       .replace(/\*\*Q\*\*: (.*?)  \n\*\*R\*\*: (.*?)$/gm, 
-        '<div class="bg-blue-900/30 rounded-md p-3 my-3 border-l-4 border-blue-600">' +
-        '<div class="font-semibold text-blue-200">Q: $1</div>' +
-        '<div class="mt-2">R: $2</div>' +
+        '<div class="bg-blue-900/30 rounded-md p-4 my-4 border-l-4 border-blue-600 shadow-sm">' +
+        '<div class="font-semibold text-blue-100">Q: $1</div>' +
+        '<div class="mt-2 text-blue-200">R: $2</div>' +
         '</div>'
       )
-      .replace(/\| (.*?) \|/g, '<td class="border border-blue-800 px-3 py-2">$1</td>')
-      .replace(/<td(.*?)<\/td>\n/g, '<tr>$&</tr>')
-      .replace(/<tr><td(.*?)<\/td><\/tr>/g, '<table class="w-full my-3 border-collapse"><thead>$&</thead><tbody>')
-      .replace(/<\/tbody>(?![\s\S]*<\/tbody>)/g, '</tbody></table>');
+      
+      // Citations avec style distinctif
+      .replace(/^> (.*?)$/gm, '<blockquote class="border-l-4 border-blue-500 pl-4 py-1 my-3 text-blue-300 italic">$1</blockquote>')
+      
+      // Liens cliquables
+      .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-indigo-400 hover:text-indigo-300 underline" target="_blank" rel="noopener noreferrer">$1</a>')
+      
+      // Séparateurs horizontaux
+      .replace(/^\s*---\s*$/gm, '<hr class="my-4 border-t border-blue-700" />');
+      
+    // Conversion des sauts de ligne restants
+    formattedContent = formattedContent.replace(/\n/g, '<br />');
+    
+    return formattedContent;
+  };
   };
 
   return (
