@@ -1370,7 +1370,18 @@ enable_feature=true
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-900/20"
-                          onClick={() => deleteMemo(selectedMemo.id)}
+                          onClick={() => {
+                            const password = prompt("Entrez le mot de passe pour supprimer le mémo (\"supprimer\"):");
+                            if (password === "supprimer") {
+                              deleteMemo(selectedMemo.id);
+                            } else if (password !== null) {
+                              toast({
+                                title: "Mot de passe incorrect",
+                                description: "La suppression n'a pas été effectuée.",
+                                variant: "destructive"
+                              });
+                            }
+                          }}
                         >
                           <Trash className="h-4 w-4" />
                         </Button>
