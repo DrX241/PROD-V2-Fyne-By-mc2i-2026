@@ -28,15 +28,6 @@ import { Progress } from "@/components/ui/progress";
 import PageTitle from '@/components/utils/PageTitle';
 
 // Types
-interface MicroLearningSection {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  color: string;
-  topics: MicroLearningTopic[];
-}
-
 interface MicroLearningTopic {
   id: string;
   title: string;
@@ -45,6 +36,15 @@ interface MicroLearningTopic {
   difficulty: 'débutant' | 'intermédiaire' | 'avancé';
   progress?: number;
   path: string;
+}
+
+interface MicroLearningSection {
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  color: string;
+  topics: MicroLearningTopic[];
 }
 
 export default function MicroLearningHub() {
@@ -202,7 +202,7 @@ export default function MicroLearningHub() {
         {
           id: 'phishing',
           title: 'Phishing avancé',
-          description: 'Techniques sophistiquées d'hameçonnage et contre-mesures',
+          description: "Techniques sophistiquées d'hameçonnage et contre-mesures",
           duration: '15 min',
           difficulty: 'débutant',
           progress: 0,
@@ -213,14 +213,14 @@ export default function MicroLearningHub() {
     {
       id: 'identite',
       title: 'Identité & Accès',
-      description: 'Gestion des identités et des contrôles d'accès',
+      description: "Gestion des identités et des contrôles d'accès",
       icon: <Fingerprint className="h-6 w-6" />,
       color: 'from-red-600 to-red-800',
       topics: [
         {
           id: 'authentification-mfa',
           title: 'Authentification MFA',
-          description: 'Implémentation et bonnes pratiques de l'authentification multifacteur',
+          description: "Implémentation et bonnes pratiques de l'authentification multifacteur",
           duration: '15 min',
           difficulty: 'débutant',
           progress: 0,
