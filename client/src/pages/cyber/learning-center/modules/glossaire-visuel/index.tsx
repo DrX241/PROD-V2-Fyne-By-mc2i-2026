@@ -543,10 +543,12 @@ export default function GlossaireVisuel() {
     filterTerms('all', false, false, '');
   }, []);
   
-  // Effet pour filtrer les termes lorsque les critères changent
+  // On a déjà un effet d'initialisation au-dessus, pas besoin d'un second
+  
+  // Effet pour mettre à jour les filtres quand les critères changent
   useEffect(() => {
     filterTerms(selectedCategory, showFavoritesOnly, showBookmarksOnly, searchTerm);
-  }, [selectedCategory, showFavoritesOnly, showBookmarksOnly, searchTerm, alphabetFilter]);
+  }, [selectedCategory, showFavoritesOnly, showBookmarksOnly, searchTerm, alphabetFilter, glossaryTerms]);
   
   // Fonction pour rechercher un terme dans le glossaire via l'API
   const searchGlossaryTerm = async (term: string) => {
