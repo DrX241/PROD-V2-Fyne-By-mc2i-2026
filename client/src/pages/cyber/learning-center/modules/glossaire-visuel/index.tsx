@@ -28,7 +28,9 @@ import {
   Cpu,
   Code,
   Sparkles,
-  Wrench
+  Wrench,
+  Loader2,
+  Send
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -95,9 +97,13 @@ export default function GlossaireVisuel() {
   const [isExplaining, setIsExplaining] = useState(false);
   const [isComparing, setIsComparing] = useState(false);
   const [isGeneratingQuiz, setIsGeneratingQuiz] = useState(false);
+  const [isAskingQuestion, setIsAskingQuestion] = useState(false);
   const [explanation, setExplanation] = useState<string>('');
   const [comparison, setComparison] = useState<string>('');
   const [quizData, setQuizData] = useState<any>(null);
+  const [assistantQuestion, setAssistantQuestion] = useState('');
+  const [assistantAnswer, setAssistantAnswer] = useState<string | null>(null);
+  const [showAssistantDialog, setShowAssistantDialog] = useState(false);
   const [showExplanationDialog, setShowExplanationDialog] = useState(false);
   const [showComparisonDialog, setShowComparisonDialog] = useState(false);
   const [showQuizDialog, setShowQuizDialog] = useState(false);
@@ -794,6 +800,49 @@ export default function GlossaireVisuel() {
     setFilteredTerms(filtered);
   };
   
+  // Fonction pour demander à l'assistant IA
+  const askAssistantQuestion = async (question: string) => {
+    try {
+      setIsAskingQuestion(true);
+      
+      const response = await fetch('/api/cyber/glossary/ask', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ question }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de la communication avec l\'assistant');
+      }
+      
+      const data = await response.json();
+      
+      if (data.success && data.answer) {
+        setAssistantAnswer(data.answer);
+        setShowAssistantDialog(true);
+        // Effacer la question après envoi
+        setAssistantQuestion('');
+      } else {
+        toast({
+          title: "Réponse non disponible",
+          description: "L'assistant n'a pas pu répondre à votre question.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Erreur avec l\'assistant IA:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la communication avec l'assistant.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAskingQuestion(false);
+    }
+  };
+  
   // Fonction pour copier la définition
   const copyDefinition = (id: string, definition: string) => {
     navigator.clipboard.writeText(definition);
@@ -925,6 +974,31 @@ export default function GlossaireVisuel() {
           <DialogFooter>
             <Button 
               onClick={() => setShowComparisonDialog(false)}
+              className="bg-blue-700 hover:bg-blue-800"
+            >
+              Fermer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialogue de l'assistant IA */}
+      <Dialog open={showAssistantDialog} onOpenChange={setShowAssistantDialog}>
+        <DialogContent className="bg-slate-900 text-white border-blue-700 max-w-3xl max-h-[80vh] overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="text-blue-400 text-xl flex items-center">
+              <BrainCircuit className="mr-2 h-5 w-5" />
+              Réponse de l'Assistant IA
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[60vh] pr-4">
+            <div className="p-2 whitespace-pre-wrap">
+              {assistantAnswer}
+            </div>
+          </ScrollArea>
+          <DialogFooter>
+            <Button 
+              onClick={() => setShowAssistantDialog(false)}
               className="bg-blue-700 hover:bg-blue-800"
             >
               Fermer
@@ -1627,7 +1701,7 @@ export default function GlossaireVisuel() {
                     {isAskingQuestion ? (
                       <Loader2 className="h-4 w-4 animate-spin text-blue-400" />
                     ) : (
-                      <SendHorizontal className="h-4 w-4 text-blue-400" />
+                      <Send className="h-4 w-4 text-blue-400" />
                     )}
                   </Button>
                 </div>
