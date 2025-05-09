@@ -24,7 +24,10 @@ import {
   Fingerprint,
   ShieldAlert,
   Webhook,
-  Router
+  Router,
+  FileText,
+  GraduationCap,
+  RefreshCw
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';

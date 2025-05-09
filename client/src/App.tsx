@@ -401,6 +401,16 @@ function App() {
                 </Suspense>
               );
             }} />
+            
+            {/* Route pour le module sécurité des réseaux */}
+            <Route path="/cyber/learning-center/modules/securite-reseaux" component={() => {
+              const SecuriteReseaux = lazy(() => import('./pages/cyber/learning-center/modules/securite-reseaux'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <SecuriteReseaux />
+                </Suspense>
+              );
+            }} />
 
             {/* Route générique pour les modules non implémentés */}
             <Route path="/cyber/learning-center/modules/:moduleId" component={() => {
