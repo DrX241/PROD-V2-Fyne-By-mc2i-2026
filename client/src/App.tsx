@@ -299,6 +299,42 @@ function App() {
               );
             }} />
             
+            {/* Nouveau module CYBER ACADÉMIE */}
+            <Route path="/cyber/learning-center" component={() => {
+              const CyberLearningCenter = lazy(() => import('./pages/cyber/learning-center'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <CyberLearningCenter />
+                </Suspense>
+              );
+            }} />
+            
+            <Route path="/cyber/learning-center/modules/intro-cybersecurite" component={() => {
+              const IntroCybersecurite = lazy(() => import('./pages/cyber/learning-center/modules/intro-cybersecurite'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <IntroCybersecurite />
+                </Suspense>
+              );
+            }} />
+            
+            {/* Route générique pour les modules non implémentés */}
+            <Route path="/cyber/learning-center/modules/:moduleId" component={() => {
+              return (
+                <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-blue-950 to-slate-950 px-4 text-white">
+                  <h1 className="text-3xl font-bold mb-4">Module en développement</h1>
+                  <p className="text-xl text-blue-300 mb-8 text-center max-w-md">
+                    Ce module est en cours de développement et sera disponible prochainement.
+                  </p>
+                  <Link href="/cyber/learning-center">
+                    <Button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 transition-colors mb-4 text-white">
+                      Retour au centre d'apprentissage
+                    </Button>
+                  </Link>
+                </div>
+              );
+            }} />
+            
             {/* Générateur de Modules et affichage des modules personnalisés */}
             <Route path="/playground/module-generator" component={ModuleGeneratorPage} />
             <Route path="/custom-module/:id" component={() => {

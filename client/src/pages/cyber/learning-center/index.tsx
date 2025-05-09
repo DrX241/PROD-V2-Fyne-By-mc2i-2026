@@ -689,9 +689,9 @@ export default function LearningCenter() {
               </SelectTrigger>
               <SelectContent className="bg-blue-900 border-blue-800 text-white">
                 <SelectItem value="">Toutes les durées</SelectItem>
-                <SelectItem value="court">Court (< 1h)</SelectItem>
+                <SelectItem value="court">Court (moins de 1h)</SelectItem>
                 <SelectItem value="moyen">Moyen (1-4h)</SelectItem>
-                <SelectItem value="long">Long (> 4h)</SelectItem>
+                <SelectItem value="long">Long (plus de 4h)</SelectItem>
               </SelectContent>
             </Select>
           </div>
