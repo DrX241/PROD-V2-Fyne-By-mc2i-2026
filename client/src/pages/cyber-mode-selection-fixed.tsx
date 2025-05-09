@@ -231,10 +231,22 @@ export default function CyberModeSelectionRedesign() {
     {
       id: 'se-former',
       title: 'SE FORMER',
-      description: "Contenus éducatifs et formations pour acquérir de nouvelles connaissances",
+      description: "Parcours structurés et contenus interactifs pour maîtriser les fondamentaux de la cybersécurité",
       icon: <BookOpen className="h-6 w-6 text-blue-100" />,
-      modules: ['agent-ia', 'ascension-progression'],
-      gradient: 'from-blue-700 to-blue-900'
+      modules: [
+        'agent-ia',
+        'ascension-progression',
+        'cyber-arcade',
+        'mode-entretien',
+        'test-technique'
+      ],
+      gradient: 'from-blue-700 to-blue-900',
+      categories: [
+        'Fondamentaux',
+        'Sécurité technique',
+        'Gouvernance',
+        'Conformité'
+      ]
     },
     {
       id: 'sentrainer',
