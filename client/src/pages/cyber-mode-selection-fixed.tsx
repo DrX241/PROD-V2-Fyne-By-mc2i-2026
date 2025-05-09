@@ -31,7 +31,9 @@ import {
   Lock,
   LayoutGrid,
   List,
-  Check
+  Check,
+  GraduationCap,
+  Circle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
@@ -50,7 +52,7 @@ interface Module {
   description: string;
   icon: React.ReactNode;
   destination: string;
-  difficulty: 'débutant' | 'intermédiaire' | 'avancé';
+  difficulty: 'débutant' | 'intermédiaire' | 'avancé' | 'tous niveaux';
   duration: string;
   isNew?: boolean;
   comingSoon?: boolean;
@@ -73,6 +75,7 @@ interface LearningObjective {
   icon: React.ReactNode;
   modules: string[]; // IDs des modules recommandés
   gradient: string;
+  categories?: string[]; // Optionnel: Catégories pour l'objectif
 }
 
 export default function CyberModeSelectionRedesign() {
@@ -223,6 +226,16 @@ export default function CyberModeSelectionRedesign() {
       difficulty: 'avancé',
       duration: '10-15h',
       isNew: true
+    },
+    {
+      id: 'centre-apprentissage',
+      title: 'CYBER ACADÉMIE',
+      description: "Centre d'apprentissage complet avec parcours thématiques, modules interactifs et suivi IA personnalisé",
+      icon: <GraduationCap className="h-5 w-5" />,
+      destination: '/cyber/learning-center',
+      difficulty: 'tous niveaux',
+      duration: 'adaptatif',
+      isNew: true
     }
   ];
 
@@ -235,7 +248,8 @@ export default function CyberModeSelectionRedesign() {
       icon: <BookOpen className="h-6 w-6 text-blue-100" />,
       modules: [
         'agent-ia',                // Assistant IA pour répondre aux questions
-        'ascension-progression'    // Parcours structuré de formation
+        'ascension-progression',   // Parcours structuré de formation
+        'centre-apprentissage'     // Nouveau module centralisant les ressources de formation
       ],
       gradient: 'from-blue-700 to-blue-900',
       categories: [
