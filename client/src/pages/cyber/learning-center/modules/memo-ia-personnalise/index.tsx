@@ -1017,7 +1017,6 @@ enable_feature=true
     
     return formattedContent;
   };
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-950 to-slate-950 text-white pb-20">
