@@ -124,9 +124,7 @@ export default function LearningCenter() {
       category: 'fondamentaux',
       tags: ['menaces', 'risques', 'normes', 'analyse', 'stratégie'],
       progress: 0,
-      destination: '/cyber/learning-center/modules/modelisation-risques',
-      isNew: true,
-      isFeatured: true
+      destination: '/cyber/learning-center/modules/modelisation-risques'
     },
     {
       id: 'analyse-risques',
@@ -178,8 +176,7 @@ export default function LearningCenter() {
       category: 'technique',
       tags: ['cloud', 'AWS', 'Azure', 'GCP'],
       progress: 0,
-      destination: '/cyber/learning-center/modules/securite-cloud',
-      isNew: true
+      destination: '/cyber/learning-center/modules/securite-cloud'
     },
     {
       id: 'devsecops',
@@ -239,8 +236,7 @@ export default function LearningCenter() {
       category: 'technique',
       tags: ['OT', 'SCADA', 'industriel'],
       progress: 0,
-      destination: '/cyber/learning-center/modules/securite-ot',
-      isNew: true
+      destination: '/cyber/learning-center/modules/securite-ot'
     },
     {
       id: 'intelligence-artificielle-securite',
@@ -252,9 +248,7 @@ export default function LearningCenter() {
       category: 'technique',
       tags: ['IA', 'machine learning', 'automatisation'],
       progress: 0,
-      destination: '/cyber/learning-center/modules/ia-securite',
-      isNew: true,
-      isFeatured: true
+      destination: '/cyber/learning-center/modules/ia-securite'
     }
   ];
 
@@ -318,8 +312,7 @@ export default function LearningCenter() {
       category: 'micro-learning',
       tags: ['zero trust', 'architecture', 'confiance'],
       progress: 0,
-      destination: '/cyber/learning-center/modules/zero-trust',
-      isNew: true
+      destination: '/cyber/learning-center/modules/zero-trust'
     }
   ];
 
@@ -335,8 +328,7 @@ export default function LearningCenter() {
       category: 'parcours-rapide',
       tags: ['fiches', 'synthèse', 'express', 'concepts'],
       progress: 0,
-      destination: '/cyber/learning-center/modules/fiches-cyber-express',
-      isNew: true
+      destination: '/cyber/learning-center/modules/fiches-cyber-express'
     },
     {
       id: 'quiz-adaptatif-ia',
@@ -348,8 +340,7 @@ export default function LearningCenter() {
       category: 'parcours-rapide',
       tags: ['quiz', 'évaluation', 'adaptatif', 'IA'],
       progress: 0,
-      destination: '/cyber/learning-center/modules/quiz-adaptatif-ia',
-      isNew: true
+      destination: '/cyber/learning-center/modules/quiz-adaptatif-ia'
     },
     {
       id: 'glossaire-visuel',
@@ -361,8 +352,7 @@ export default function LearningCenter() {
       category: 'parcours-rapide',
       tags: ['glossaire', 'terminologie', 'visuel', 'lexique'],
       progress: 0,
-      destination: '/cyber/learning-center/modules/glossaire-visuel',
-      isNew: true
+      destination: '/cyber/learning-center/modules/glossaire-visuel'
     },
     {
       id: 'memo-ia-personnalise',
@@ -374,8 +364,7 @@ export default function LearningCenter() {
       category: 'parcours-rapide',
       tags: ['mémo', 'personnalisé', 'IA', 'aide-mémoire'],
       progress: 0,
-      destination: '/cyber/learning-center/modules/memo-ia-personnalise',
-      isNew: true
+      destination: '/cyber/learning-center/modules/memo-ia-personnalise'
     }
   ];
 
@@ -419,8 +408,7 @@ export default function LearningCenter() {
       tags: ['développement', 'AppSec', 'SAST/DAST', 'vulnérabilités'],
       progress: 0,
       certification: 'Certification interne',
-      gradient: 'from-amber-700 to-red-900',
-      isNew: true
+      gradient: 'from-amber-700 to-red-900'
     },
     {
       id: 'securite-cloud-native',
@@ -440,8 +428,7 @@ export default function LearningCenter() {
       tags: ['cloud', 'conteneurs', 'Kubernetes', 'infrastructure as code'],
       progress: 0,
       certification: 'Badge de compétences cloud',
-      gradient: 'from-cyan-800 to-blue-900',
-      isNew: true
+      gradient: 'from-cyan-800 to-blue-900'
     },
     {
       id: 'reponse-incidents',
