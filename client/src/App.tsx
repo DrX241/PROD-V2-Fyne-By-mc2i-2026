@@ -394,7 +394,7 @@ function App() {
             }} />
             
             <Route path="/cyber/learning-center/modules/zero-trust" component={() => {
-              const ZeroTrust = lazy(() => import('./pages/cyber/learning-center/modules/zero-trust'));
+              const ZeroTrust = lazy(() => import('./pages/cyber/learning-center/modules/ZeroTrust'));
               return (
                 <Suspense fallback={<GlobalLoader />}>
                   <ZeroTrust />
