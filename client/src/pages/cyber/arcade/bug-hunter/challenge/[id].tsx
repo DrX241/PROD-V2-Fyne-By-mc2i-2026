@@ -506,7 +506,8 @@ export default function ChallengePage() {
                 <ArrowLeft className="mr-2 h-4 w-4" /> Retour
               </Button>
             </Link>
-            <PageTitle title="BUG HUNTER" />
+            <PageTitle title={challenge?.title || "Défi Bug Hunter"} />
+            <h1 className="text-3xl font-extrabold text-white">{challenge?.title || "Défi Bug Hunter"}</h1>
           </div>
 
           <motion.div
@@ -520,8 +521,10 @@ export default function ChallengePage() {
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   {renderVulnerabilityIcon(challenge.category)}
-                  <h1 className="text-3xl font-bold">{challenge.title}</h1>
-                  {renderDifficultyBadge(challenge.difficulty)}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-2xl font-bold">Vulnérabilité:</span>
+                    {renderDifficultyBadge(challenge.difficulty)}
+                  </div>
                 </div>
                 <p className="text-blue-200 max-w-3xl mb-2">
                   {challenge.description}
