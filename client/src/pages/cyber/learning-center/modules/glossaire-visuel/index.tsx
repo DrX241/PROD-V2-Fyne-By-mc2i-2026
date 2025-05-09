@@ -26,7 +26,8 @@ import {
   AlertTriangle,
   Server,
   Cpu,
-  Code
+  Code,
+  Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
