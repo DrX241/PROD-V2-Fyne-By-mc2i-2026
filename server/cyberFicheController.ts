@@ -17,36 +17,38 @@ export async function generateCyberFiche(req: Request, res: Response) {
     }
 
     // Système prompt pour guider la génération
-    const systemPrompt = `Tu es un expert en cybersécurité chargé de créer des fiches éducatives détaillées et pertinentes.
-    Génère une fiche approfondie sur le sujet demandé en respectant cette structure :
-    1. Un titre concis et clair (maximum 60 caractères)
-    2. Une description courte du sujet (1-2 phrases, maximum 150 caractères)
-    3. Un contenu au format Markdown structuré avec:
-       - Des sections principales (niveau 2 avec ##)
-       - Des sous-sections (niveau 3 avec ###)
-       - Des exemples concrets et réels
-       - Des noms précis d'outils, logiciels et frameworks utilisés dans le domaine
-       - Des statistiques pertinentes quand disponibles
-       - Des techniques et méthodologies spécifiques
-       - Des recommandations et bonnes pratiques détaillées
-    4. 4-6 points clés à retenir (sous forme de liste simple avec puces)
-    5. 3-5 références pertinentes et actuelles à consulter (ressources, outils, documentation)
-    6. Une catégorie pertinente parmi : menaces, vulnérabilités, architecture, identité, détection, gouvernance, personnalisé
-    7. Un niveau de complexité : débutant, intermédiaire, avancé, tous niveaux
+    const systemPrompt = `Tu es un expert en cybersécurité chargé de créer des fiches éducatives concises et structurées.
+    Génère une fiche synthétique sur le sujet demandé en respectant STRICTEMENT cette structure :
+    1. Un titre concis et clair (maximum 50 caractères)
+    2. Une description courte du sujet (1-2 phrases, maximum 120 caractères)
+    3. Un contenu au format Markdown avec EXACTEMENT ce format:
+       - 2-3 sections principales maximum (niveau 2 avec ##)
+       - Maximum 2 sous-sections par section (niveau 3 avec ###)
+       - Paragraphes courts (3-4 lignes maximum)
+       - Inclure uniquement des informations essentielles et pratiques
+       - Mentionner 2-3 outils ou logiciels spécifiques pertinents
+       - Éviter toute statistique sauf si vraiment critique
+       - Structure simple: définition, explications, applications pratiques
+    4. 3-5 points clés à retenir (courts, une ligne par point)
+    5. 2-3 références pertinentes à consulter (noms précis)
+    6. Une catégorie parmi: menaces, vulnérabilités, architecture, identité, détection, gouvernance, personnalisé
+    7. Un niveau de complexité: débutant, intermédiaire, avancé, tous niveaux
     
-    IMPORTANT:
-    - Inclus toujours des noms d'outils, logiciels, frameworks et ressources spécifiques
-    - Mentionne des CVE précis si pertinent pour le sujet
-    - Fournis des exemples de commandes ou configuration quand approprié
-    - Cite des entreprises ou organisations de référence dans le domaine
+    RÈGLES IMPORTANTES:
+    - Respecte EXACTEMENT ce format, sans variations
+    - Sois concis et clair, évite tout contenu superflu
+    - Présente uniquement les informations les plus essentielles
+    - Inclus seulement des outils/solutions largement utilisés
+    - Limite le contenu à ce qui est strictement nécessaire
+    - Organise clairement l'information en sections et sous-sections
     
     Réponds uniquement avec un objet JSON valide (sans formatage de code Markdown), avec les clés suivantes:
     {
       "title": "Titre de la fiche",
       "description": "Description brève",
       "content": "Contenu au format Markdown",
-      "keyPoints": ["Point clé 1", "Point clé 2", "Point clé 3", "Point clé 4"],
-      "references": ["Référence 1", "Référence 2", "Référence 3"],
+      "keyPoints": ["Point clé 1", "Point clé 2", "Point clé 3"],
+      "references": ["Référence 1", "Référence 2"],
       "category": "catégorie",
       "level": "niveau"
     }`;
@@ -63,38 +65,35 @@ export async function generateCyberFiche(req: Request, res: Response) {
     // Utilisation du modèle principal (gpt-4o) pour obtenir des réponses plus détaillées et complètes
     const result = await openAIService.getChatCompletionWithModel(messages, 0.7, 3000, true);
     
+    // Étape 1: Nettoyer la réponse en cas de backticks
+    let cleanedResult = result;
+    const backtickRegex = /```(?:json)?\s*([\s\S]*?)```/;
+    const backtickMatch = result.match(backtickRegex);
+    
+    if (backtickMatch && backtickMatch[1]) {
+      cleanedResult = backtickMatch[1].trim();
+      console.log("Nettoyage des backticks effectué");
+    }
+    
+    // Étape 2: Tenter le parsing JSON
     let ficheData;
     try {
-      // Nettoyage de la réponse pour éliminer les backticks et identifiants "json" que l'IA pourrait ajouter
-      let cleanedResult = result;
-      
-      // Vérifier si le résultat commence par des backticks (```json) et se termine par des backticks (```)
-      const jsonRegex = /```(?:json)?\s*([\s\S]*?)```/;
-      const match = result.match(jsonRegex);
-      
-      if (match && match[1]) {
-        cleanedResult = match[1].trim();
-      }
-      
       console.log("Tentative de parsing JSON:", cleanedResult);
-      ficheData = JSON.parse(cleanedResult);
       
-      // Vérification supplémentaire des champs obligatoires
-      if (!ficheData.title || !ficheData.content) {
-        throw new Error("Format de JSON incomplet");
-      }
-    } catch (err) {
-      const error = err as Error;
+      ficheData = JSON.parse(cleanedResult);
+      console.log("Parsing JSON réussi");
+    } 
+    catch (error) {
       console.error("Impossible de parser la réponse JSON de l'IA:", error);
       console.error("Réponse brute:", result);
       
-      // Si le format JSON n'est pas respecté, tenter d'extraire manuellement
+      // Si le parsing échoue, créer un objet par défaut avec le contenu brut
       ficheData = {
         title: topic,
-        description: "Fiche générée sur le sujet demandé",
+        description: "Fiche synthétique sur " + topic,
         content: result.includes("##") ? result : `## ${topic}\n\n${result}`,
-        keyPoints: ["Concept important lié au sujet", "Implémentations recommandées", "Bonnes pratiques à suivre"],
-        references: ["Documentation officielle", "Publications de recherche récentes"],
+        keyPoints: ["Points importants sur ce sujet", "Outils et pratiques recommandés", "Considérations de sécurité"],
+        references: ["Documentation technique", "Guides pratiques"],
         category: "personnalisé",
         level: "intermédiaire"
       };
