@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { openai } from './services/openai';
+import { openAIService } from './services/openai';
+import { ChatCompletionRequestMessage } from "@shared/schema";
 
 /**
  * Génère une fiche de cybersécurité en utilisant Azure OpenAI
@@ -33,17 +34,18 @@ export async function generateCyberFiche(req: Request, res: Response) {
     const userPrompt = `Créer une fiche de cybersécurité sur le sujet : ${topic}`;
 
     // Appel à l'API Azure OpenAI
-    const messages = [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt },
+    const messages: ChatCompletionRequestMessage[] = [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
     ];
 
-    const result = await openai.getChatCompletion(messages, 0.7, 2000);
+    const result = await openAIService.getChatCompletion(messages, 0.7, 2000);
     
     let ficheData;
     try {
       ficheData = JSON.parse(result);
-    } catch (error) {
+    } catch (err) {
+      const error = err as Error;
       console.error("Impossible de parser la réponse JSON de l'IA:", error);
       // Si le format JSON n'est pas respecté, tenter d'extraire manuellement
       ficheData = {
@@ -76,7 +78,8 @@ export async function generateCyberFiche(req: Request, res: Response) {
         hasBeenRead: false
       }
     });
-  } catch (error) {
+  } catch (err) {
+    const error = err as Error;
     console.error('Erreur lors de la génération de la fiche:', error);
     return res.status(500).json({
       success: false,
@@ -97,7 +100,8 @@ export async function getUserFavorites(req: Request, res: Response) {
       success: true,
       favorites: []
     });
-  } catch (error) {
+  } catch (err) {
+    const error = err as Error;
     console.error('Erreur lors de la récupération des favoris:', error);
     return res.status(500).json({
       success: false,
