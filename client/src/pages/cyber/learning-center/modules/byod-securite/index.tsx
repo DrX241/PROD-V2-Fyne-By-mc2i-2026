@@ -113,7 +113,7 @@ export default function BYODSecurite() {
   ];
 
   // Contenu des leçons
-  const lessonContent = {
+  const lessonContent: Record<string, React.ReactNode> = {
     introduction: (
       <div className="space-y-6">
         <motion.div 

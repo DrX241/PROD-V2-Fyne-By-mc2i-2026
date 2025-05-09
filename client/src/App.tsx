@@ -356,6 +356,52 @@ function App() {
               );
             }} />
             
+            {/* Routes spécifiques pour les modules Micro-Learning */}
+            <Route path="/cyber/learning-center/modules/phishing-detection" component={() => {
+              const PhishingDetection = lazy(() => import('./pages/cyber/learning-center/modules/phishing-detection'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <PhishingDetection />
+                </Suspense>
+              );
+            }} />
+            
+            <Route path="/cyber/learning-center/modules/mot-de-passe" component={() => {
+              const MotDePasse = lazy(() => import('./pages/cyber/learning-center/modules/mot-de-passe'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <MotDePasse />
+                </Suspense>
+              );
+            }} />
+            
+            <Route path="/cyber/learning-center/modules/ransomware" component={() => {
+              const Ransomware = lazy(() => import('./pages/cyber/learning-center/modules/ransomware'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <Ransomware />
+                </Suspense>
+              );
+            }} />
+            
+            <Route path="/cyber/learning-center/modules/byod-securite" component={() => {
+              const BYODSecurite = lazy(() => import('./pages/cyber/learning-center/modules/byod-securite'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <BYODSecurite />
+                </Suspense>
+              );
+            }} />
+            
+            <Route path="/cyber/learning-center/modules/zero-trust" component={() => {
+              const ZeroTrust = lazy(() => import('./pages/cyber/learning-center/modules/zero-trust'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <ZeroTrust />
+                </Suspense>
+              );
+            }} />
+
             {/* Route générique pour les modules non implémentés */}
             <Route path="/cyber/learning-center/modules/:moduleId" component={() => {
               return (

@@ -17,7 +17,8 @@ import {
   RefreshCw,
   User,
   Building,
-  BarChart3
+  BarChart3,
+  Mail
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -115,7 +116,7 @@ export default function RansomwareModule() {
   ];
 
   // Contenu des leçons
-  const lessonContent = {
+  const lessonContent: Record<string, React.ReactNode> = {
     introduction: (
       <div className="space-y-6">
         <motion.div 
