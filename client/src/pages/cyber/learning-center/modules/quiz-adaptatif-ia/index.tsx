@@ -17,7 +17,8 @@ import {
   Activity,
   BarChart,
   Layers,
-  User
+  User,
+  Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';

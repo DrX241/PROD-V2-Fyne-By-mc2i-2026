@@ -19,7 +19,8 @@ import {
   Zap,
   AlertCircle,
   BrainCircuit,
-  Clock
+  Clock,
+  Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
