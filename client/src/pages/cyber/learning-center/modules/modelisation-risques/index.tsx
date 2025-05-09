@@ -1,19 +1,21 @@
-import React, { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { useQuery } from "@tanstack/react-query";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'wouter';
+import { useToast } from '@/hooks/use-toast';
+import { useQuery } from '@tanstack/react-query';
 import { 
   AlertCircle, BookOpen, CheckCircle, ChevronLeft, ChevronRight, 
   Shield, Target, Zap, FileText, Sparkles, Brain, Scale, FlaskConical,
   BarChart3, Lightbulb, PieChart, Lock, CheckCheck, Command, MapPin, Compass
-} from "lucide-react";
+} from 'lucide-react';
 
-import { 
-  Button, Card, CardContent, CardDescription, CardFooter, 
-  CardHeader, CardTitle, Progress, Tabs, TabsContent, 
-  TabsList, TabsTrigger, Badge, Alert, AlertTitle, 
-  AlertDescription, Separator, Tooltip, TooltipContent,
-  TooltipProvider, TooltipTrigger
-} from "@/components/ui/index";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { Separator } from '@/components/ui/separator';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 // Types pour le module
 interface RiskComponent {
