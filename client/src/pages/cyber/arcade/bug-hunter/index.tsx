@@ -328,6 +328,7 @@ export default function BugHunterPage() {
               </Button>
             </Link>
             <PageTitle title="BUG HUNTER" />
+            <h1 className="text-3xl font-extrabold text-white">BUG HUNTER</h1>
           </div>
 
           <motion.div
