@@ -5,7 +5,8 @@ import { useQuery } from '@tanstack/react-query';
 import { 
   AlertCircle, BookOpen, CheckCircle, ChevronLeft, ChevronRight, 
   Shield, Target, Zap, FileText, Sparkles, Brain, Scale, FlaskConical,
-  BarChart3, Lightbulb, PieChart, Lock, CheckCheck, Command, MapPin, Compass
+  BarChart3, Lightbulb, PieChart, Lock, CheckCheck, Command, MapPin, Compass,
+  Clock, BrainCircuit
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -58,6 +59,15 @@ export default function ModelisationRisques() {
   const [draggedThreat, setDraggedThreat] = useState<string | null>(null);
   const [riskMatrix, setRiskMatrix] = useState<{[key: string]: number}>({});
   const [completedSections, setCompletedSections] = useState<string[]>([]);
+  const [showChallengeModal, setShowChallengeModal] = useState<boolean>(false);
+  const [showAiAssistant, setShowAiAssistant] = useState<boolean>(false);
+  const [activeStandard, setActiveStandard] = useState<string | null>(null);
+  const [userScore, setUserScore] = useState<number>(0);
+  const [userRank, setUserRank] = useState<string>("Novice Analyste");
+  const [expandedRiskArea, setExpandedRiskArea] = useState<string | null>(null);
+  const [selectedCharacter, setSelectedCharacter] = useState<string | null>(null);
+  const [missionCompleted, setMissionCompleted] = useState<boolean>(false);
+  const [showConfetti, setShowConfetti] = useState<boolean>(false);
 
   // On va simuler un petit délai de chargement
   const { data: moduleData, isLoading } = useQuery({
@@ -389,6 +399,39 @@ export default function ModelisationRisques() {
               <ChevronLeft className="h-4 w-4 mr-1" />
               Retour
             </Button>
+            
+            <div className="ml-2 flex items-center text-sm text-blue-300">
+              <Target className="h-4 w-4 mr-1 text-blue-400" />
+              <span>Module avancé</span>
+              <span className="mx-2">•</span>
+              <Clock className="h-4 w-4 mr-1 text-blue-400" />
+              <span>45 min</span>
+            </div>
+            
+            <div className="ml-auto flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="border-blue-700"
+                onClick={() => setShowAiAssistant(true)}
+              >
+                <BrainCircuit className="h-4 w-4 mr-1 text-blue-400" />
+                Assistant IA
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="border-blue-700"
+                onClick={() => toast({
+                  title: "Module ajouté à vos favoris",
+                  description: "Vous retrouverez ce module dans votre espace personnel",
+                })}
+              >
+                <BookOpen className="h-4 w-4 mr-1 text-blue-400" />
+                Favoris
+              </Button>
+            </div>
             <div className="h-2 w-2 rounded-full bg-blue-500"></div>
             <h1 className="text-2xl font-bold">L'Art de la Modélisation des Risques</h1>
           </div>
@@ -573,6 +616,280 @@ export default function ModelisationRisques() {
             {/* Section Modélisation des menaces */}
             {currentSection === "modelisation" && (
               <div className="space-y-6">
+                <div className="bg-gradient-to-r from-purple-900/30 to-indigo-900/30 p-6 rounded-xl border border-purple-700/50">
+                  <h2 className="text-2xl font-bold mb-3">La Cartographie des Menaces : Une Aventure Stratégique</h2>
+                  <p className="mb-4">
+                    La modélisation des menaces ressemble à une partie de stratégie où vous visualisez tous les mouvements possibles 
+                    de vos adversaires avant même qu'ils ne commencent à jouer. C'est l'art de penser comme un attaquant 
+                    pour mieux se défendre.
+                  </p>
+                  
+                  <div className="p-4 bg-blue-950/40 rounded-lg mb-4">
+                    <div className="flex items-start gap-3">
+                      <div className="bg-amber-700/30 p-2 rounded-full mt-1">
+                        <Lightbulb className="h-5 w-5 text-amber-400" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-amber-300">Concept fondamental</h4>
+                        <p className="text-blue-200">
+                          La modélisation des menaces est un exercice <strong>proactif</strong> qui intervient idéalement 
+                          lors des phases de conception, mais qui peut être appliqué à tout moment sur un système existant. 
+                          Elle transforme l'abstrait en concret, l'invisible en visible.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="my-8">
+                  <h3 className="text-xl font-bold mb-6 flex items-center">
+                    <Target className="h-5 w-5 mr-2 text-purple-400" />
+                    Les Quatre Dimensions de la Modélisation des Menaces
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Card className="bg-blue-900/20 border-blue-800/50">
+                      <CardHeader className="pb-2">
+                        <div className="bg-blue-800/30 w-10 h-10 rounded-full flex items-center justify-center mb-3">
+                          <span className="text-xl font-bold text-blue-300">1</span>
+                        </div>
+                        <CardTitle>Décomposer le Système</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm mb-4">
+                          Comme un cartographe, commencez par dresser une carte complète du territoire : 
+                          composants, flux de données, frontières de confiance, interactions avec l'extérieur.
+                        </p>
+                        <div className="bg-blue-950/50 p-3 rounded-md">
+                          <h5 className="text-sm font-medium mb-1 text-blue-300">Techniques clés</h5>
+                          <ul className="list-disc list-inside text-xs space-y-1">
+                            <li>Diagrammes de flux de données (DFD)</li>
+                            <li>Architecture de sécurité</li>
+                            <li>Modélisation des actifs</li>
+                          </ul>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="bg-purple-900/20 border-purple-800/50">
+                      <CardHeader className="pb-2">
+                        <div className="bg-purple-800/30 w-10 h-10 rounded-full flex items-center justify-center mb-3">
+                          <span className="text-xl font-bold text-purple-300">2</span>
+                        </div>
+                        <CardTitle>Identifier les Menaces</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm mb-4">
+                          Tel un stratège militaire, analysez les différentes façons dont un adversaire 
+                          pourrait attaquer votre système, en utilisant des modèles comme STRIDE.
+                        </p>
+                        <div className="bg-purple-950/50 p-3 rounded-md">
+                          <h5 className="text-sm font-medium mb-1 text-purple-300">Application pratique</h5>
+                          <ul className="list-disc list-inside text-xs space-y-1">
+                            <li>Pour chaque composant, posez-vous: "Comment pourrait-il être compromis?"</li>
+                            <li>Utilisez les catégories STRIDE sur chaque flux de données</li>
+                            <li>Pensez aux motivations des attaquants potentiels</li>
+                          </ul>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="bg-indigo-900/20 border-indigo-800/50">
+                      <CardHeader className="pb-2">
+                        <div className="bg-indigo-800/30 w-10 h-10 rounded-full flex items-center justify-center mb-3">
+                          <span className="text-xl font-bold text-indigo-300">3</span>
+                        </div>
+                        <CardTitle>Évaluer les Contrôles</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm mb-4">
+                          Comme un ingénieur inspectant les défenses d'une forteresse, identifiez 
+                          les contrôles existants et évaluez leur efficacité contre les menaces identifiées.
+                        </p>
+                        <div className="bg-indigo-950/50 p-3 rounded-md">
+                          <h5 className="text-sm font-medium mb-1 text-indigo-300">Points d'attention</h5>
+                          <ul className="list-disc list-inside text-xs space-y-1">
+                            <li>Contrôles préventifs vs détectifs vs correctifs</li>
+                            <li>Défense en profondeur et principe du moindre privilège</li>
+                            <li>Identification des lacunes dans la protection</li>
+                          </ul>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="bg-green-900/20 border-green-800/50">
+                      <CardHeader className="pb-2">
+                        <div className="bg-green-800/30 w-10 h-10 rounded-full flex items-center justify-center mb-3">
+                          <span className="text-xl font-bold text-green-300">4</span>
+                        </div>
+                        <CardTitle>Prioriser et Documenter</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm mb-4">
+                          À la manière d'un chef de projet, organisez les menaces par ordre de priorité 
+                          et documentez clairement vos découvertes pour guider l'implémentation des contrôles.
+                        </p>
+                        <div className="bg-green-950/50 p-3 rounded-md">
+                          <h5 className="text-sm font-medium mb-1 text-green-300">Meilleures pratiques</h5>
+                          <ul className="list-disc list-inside text-xs space-y-1">
+                            <li>Créez une matrice de menaces avec scores DREAD ou CVSS</li>
+                            <li>Documentez les hypothèses et les limitations</li>
+                            <li>Maintenez un backlog de sécurité pour le suivi</li>
+                          </ul>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+                
+                <Separator className="my-8 bg-blue-800/50" />
+                
+                <div>
+                  <h3 className="text-xl font-bold mb-4">Les Modèles de Menaces : Votre Arsenal Stratégique</h3>
+                  <p className="mb-6">
+                    Explorez les différentes approches de modélisation des menaces, chacune offrant un angle unique pour identifier et comprendre les menaces potentielles.
+                  </p>
+                  
+                  <div className="grid grid-cols-1 gap-6">
+                    {threatModels.map((model) => (
+                      <Card key={model.id} className={`border border-${model.color}-800 bg-${model.color}-900/10`}>
+                        <CardHeader className="pb-3">
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-3">
+                              <div className={`p-2 rounded-md bg-${model.color}-900/50`}>
+                                {model.icon}
+                              </div>
+                              <div>
+                                <CardTitle>{model.name}</CardTitle>
+                                <CardDescription>{model.description}</CardDescription>
+                              </div>
+                            </div>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => setExpandedModel(expandedModel === model.id ? null : model.id)}
+                            >
+                              {expandedModel === model.id ? (
+                                <ChevronLeft className="h-4 w-4" />
+                              ) : (
+                                <ChevronRight className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </CardHeader>
+                        
+                        {expandedModel === model.id && (
+                          <CardContent>
+                            <div className="space-y-4">
+                              <div>
+                                <h4 className="font-medium mb-2 text-sm">Composantes du modèle</h4>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                  {model.elements.map((element) => (
+                                    <div 
+                                      key={element.id} 
+                                      className={`p-3 rounded-md bg-${model.color}-900/20 border border-${model.color}-800/30`}
+                                    >
+                                      <div className="font-medium text-sm">{element.name}</div>
+                                      <div className="text-xs mt-1 text-blue-300">{element.description}</div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                              
+                              <div className="bg-blue-950/50 p-3 rounded-md">
+                                <h4 className="font-medium mb-1 text-sm">Exemple concret</h4>
+                                <p className="text-xs italic">{model.example}</p>
+                              </div>
+                              
+                              <div className="mt-4 p-3 bg-blue-950/40 rounded-lg">
+                                <h4 className="font-medium mb-1 text-sm flex items-center">
+                                  <Lightbulb className="h-4 w-4 mr-1 text-amber-400" />
+                                  Quand utiliser ce modèle ?
+                                </h4>
+                                {model.id === "stride" && (
+                                  <p className="text-xs">
+                                    Idéal pour les systèmes complexes où vous devez identifier méthodiquement 
+                                    tous les types de menaces. Particulièrement efficace pour les développeurs 
+                                    qui cherchent à intégrer la sécurité dans leur code.
+                                  </p>
+                                )}
+                                {model.id === "pasta" && (
+                                  <p className="text-xs">
+                                    Parfait pour une approche centrée sur les risques métier, où l'impact 
+                                    business des attaques est primordial. Convient aux projets de grande 
+                                    envergure nécessitant une analyse approfondie.
+                                  </p>
+                                )}
+                                {model.id === "linddun" && (
+                                  <p className="text-xs">
+                                    Essentiel pour les systèmes manipulant des données personnelles 
+                                    ou sensibles. Utilisez LINDDUN lorsque la confidentialité et la 
+                                    conformité réglementaire sont des enjeux critiques.
+                                  </p>
+                                )}
+                                {model.id === "octave" && (
+                                  <p className="text-xs">
+                                    Adapté aux organisations qui souhaitent une approche holistique 
+                                    intégrant les perspectives business et techniques. Excellent pour 
+                                    créer une vision partagée des risques entre équipes.
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </CardContent>
+                        )}
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="mt-8 p-5 bg-blue-900/30 rounded-lg border border-blue-800">
+                  <h3 className="text-lg font-bold mb-3 flex items-center">
+                    <Brain className="h-5 w-5 mr-2 text-blue-400" />
+                    Au-delà des Modèles : L'Art de Penser comme un Adversaire
+                  </h3>
+                  <p className="mb-3">
+                    Les modèles ne sont que des outils. La véritable compétence réside dans votre capacité à 
+                    adopter l'état d'esprit d'un attaquant tout en conservant la rigueur d'un défenseur.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div className="bg-blue-950/50 p-3 rounded-md">
+                      <h4 className="font-medium text-blue-300 mb-2">Exercice "Red Team" Mental</h4>
+                      <p className="text-sm">
+                        Pour chaque composant, posez-vous: "Si j'étais un attaquant motivé avec des 
+                        connaissances approfondies, comment exploiterais-je ce système?" Cette pratique 
+                        vous aidera à développer une intuition pour les vulnérabilités qui échappent aux approches formelles.
+                      </p>
+                    </div>
+                    <div className="bg-blue-950/50 p-3 rounded-md">
+                      <h4 className="font-medium text-blue-300 mb-2">Approche Systémique</h4>
+                      <p className="text-sm">
+                        N'oubliez jamais que les menaces les plus dangereuses exploitent souvent les 
+                        interactions entre différents composants. La sécurité de chaque élément 
+                        individuellement ne garantit pas la sécurité du système dans son ensemble.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-10 text-center">
+                  <Button 
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                    onClick={() => {
+                      handleMarkCompleted("modelisation");
+                      setCurrentSection("analyse");
+                      setUserScore(userScore + 10);
+                      toast({
+                        title: "Niveau débloqué !",
+                        description: "Vous avez gagné 10 points et débloqué la section Analyse des risques",
+                      });
+                    }}
+                  >
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                    Maîtriser la modélisation des menaces
+                  </Button>
+                </div>
+              </div>
                 <h2 className="text-2xl font-bold mb-4">🎯 Modélisation des Menaces : L'Art de Penser comme l'Adversaire</h2>
                 
                 <div className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 p-5 rounded-lg border border-blue-800">
