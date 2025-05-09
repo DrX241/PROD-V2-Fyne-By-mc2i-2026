@@ -1056,12 +1056,24 @@ Le Threat Hunting (chasse aux menaces) est une démarche proactive de recherche 
                 {/* Contenu en Markdown */}
                 <div className="text-white" dangerouslySetInnerHTML={{ 
                   __html: selectedFiche.content
+                    // Sections principales
                     .replace(/^## (.*$)/gm, '<h2 class="text-xl font-semibold mt-6 mb-3 text-blue-200">$1</h2>')
+                    // Sous-sections
                     .replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold mt-5 mb-2 text-blue-200">$1</h3>')
+                    // Texte en gras
                     .replace(/\*\*(.*?)\*\*/g, '<strong class="text-blue-100">$1</strong>')
+                    // Listes à puces
                     .replace(/^\- (.*$)/gm, '<li class="ml-4 mb-1 text-white">$1</li>')
+                    // Listes numérotées
                     .replace(/^\d\. (.*$)/gm, '<li class="ml-4 mb-1 text-white">$1</li>')
-                    .split('\n\n').join('<p class="text-gray-100"></p>')
+                    // Paragraphes (important pour l'espacement)
+                    .replace(/\n\n/g, '</p><p class="text-gray-100 mb-4">')
+                    // Remplacer les listes manuelles par des vraies listes HTML
+                    .replace(/<li class="ml-4 mb-1 text-white">/g, '<ul class="list-disc list-inside mb-4"><li class="ml-4 mb-1 text-white">')
+                    .replace(/<\/li>\n<li class/g, '</li><li class')
+                    .replace(/<\/li>\n(?!<li)/g, '</li></ul>\n')
+                    // S'assurer que tout commence par un paragraphe et se termine correctement
+                    .replace(/^(.+?)(?=<h2|<ul|$)/, '<p class="text-gray-100 mb-4">$1</p>')
                 }} />
                 
                 <div className="mt-8 bg-slate-800 p-4 rounded-md border border-blue-900">
