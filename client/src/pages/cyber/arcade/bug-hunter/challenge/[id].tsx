@@ -33,7 +33,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { useToast } from '@/hooks/use-toast';
 import HomeLayout from '@/components/layout/HomeLayout';
-import PageTitle from '@/components/PageTitle';
+import PageTitle from '@/components/layout/PageTitle';
 
 // Types
 type VulnerabilityCategory = 
@@ -187,7 +187,7 @@ document.getElementById('submit-review').addEventListener('click', function() {
   const name = document.getElementById('review-name').value;
   const rating = document.getElementById('review-rating').value;
   const content = document.getElementById('review-content').value;
-  
+
   // Aucune validation ou assainissement des entrées utilisateur
   const reviewHTML = \`
     <div class="review">
@@ -195,7 +195,7 @@ document.getElementById('submit-review').addEventListener('click', function() {
       <div class="review-content">\${content}</div>
     </div>
   \`;
-  
+
   // Injection directe de HTML non assaini dans le DOM
   document.getElementById('reviews-container').innerHTML += reviewHTML;
 });
@@ -260,14 +260,14 @@ document.getElementById('submit-review').addEventListener('click', function() {
 // a accès au compte demandé
 app.get('/api/accounts/:accountId', authenticate, (req, res) => {
   const { accountId } = req.params;
-  
+
   // Pas de vérification que l'utilisateur authentifié est propriétaire de ce compte
   db.getAccount(accountId)
     .then(account => {
       if (!account) {
         return res.status(404).json({ error: 'Account not found' });
       }
-      
+
       // Retourne les détails du compte même si l'utilisateur n'y a pas droit
       res.json(account);
     })
@@ -289,7 +289,7 @@ export default function ChallengePage() {
   const [simulation, setSimulation] = useState<any>(null);
   const [showSimulation, setShowSimulation] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
-  
+
   // État pour le rapport de bogue
   const [bugReport, setBugReport] = useState<BugReport>({
     challengeId: id || '',
@@ -330,7 +330,7 @@ export default function ChallengePage() {
       setShowHint(true);
       return;
     }
-    
+
     if (challenge && currentHintIndex < challenge.hints.length - 1) {
       setCurrentHintIndex(prevIndex => prevIndex + 1);
     } else {
@@ -380,9 +380,9 @@ export default function ChallengePage() {
         },
         body: JSON.stringify(bugReport)
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         toast({
           title: "Rapport soumis avec succès",
@@ -577,7 +577,7 @@ export default function ChallengePage() {
                         </ul>
                       )}
                     </div>
-                    
+
                     <div className="pt-4">
                       <p className="text-sm text-blue-200 mb-2">
                         <span className="font-medium">Type d'environnement:</span> {challenge.environment.type.toUpperCase()}
@@ -586,7 +586,7 @@ export default function ChallengePage() {
                         <span className="font-medium">Détails:</span> {challenge.environment.details}
                       </p>
                     </div>
-                    
+
                     {challenge.timeLimit && (
                       <div className="pt-2">
                         <p className="text-sm text-blue-200">
@@ -682,18 +682,18 @@ export default function ChallengePage() {
                                 </Button>
                               ))}
                             </div>
-                            
+
                             {/* URL de la page */}
                             <div className="bg-slate-950 rounded p-2 flex items-center mb-4 text-sm">
                               <div className="text-green-500 mr-2">https://</div>
                               <div>vulnerable-store-xss-1.bugbountysandbox.com{currentSimulationPage?.url}</div>
                             </div>
-                            
+
                             {/* Contenu de la page web simulée */}
                             <div className="bg-white text-black p-4 rounded-md mb-4">
                               <div dangerouslySetInnerHTML={{ __html: currentSimulationPage?.content || '' }} />
                             </div>
-                            
+
                             {/* Code source vulnérable */}
                             <Accordion type="single" collapsible className="w-full">
                               <AccordionItem value="vulnerable-code" className="border-blue-800">
@@ -714,7 +714,7 @@ export default function ChallengePage() {
                             </Accordion>
                           </div>
                         )}
-                        
+
                         {challenge.environment.type === 'api' && simulation?.endpoints && (
                           <div>
                             <div className="mb-4">
@@ -739,7 +739,7 @@ export default function ChallengePage() {
                                       <AccordionContent>
                                         <div className="p-3 bg-blue-950/30 rounded-md">
                                           <p className="mb-2 text-sm">{endpoint.description}</p>
-                                          
+
                                           {endpoint.request && (
                                             <div className="mb-2">
                                               <p className="text-xs font-medium text-blue-300 mb-1">Requête:</p>
@@ -750,7 +750,7 @@ export default function ChallengePage() {
                                               </pre>
                                             </div>
                                           )}
-                                          
+
                                           <div>
                                             <p className="text-xs font-medium text-blue-300 mb-1">Réponse:</p>
                                             <pre className="bg-slate-950 p-2 rounded text-xs overflow-auto">
@@ -766,7 +766,7 @@ export default function ChallengePage() {
                                 ))}
                               </div>
                             </div>
-                            
+
                             {/* Code source vulnérable */}
                             <Accordion type="single" collapsible className="w-full">
                               <AccordionItem value="vulnerable-code" className="border-blue-800">
@@ -817,11 +817,11 @@ export default function ChallengePage() {
                           onChange={(e) => updateBugReport('title', e.target.value)}
                         />
                       </div>
-                      
+
                       <div className="space-y-2">
                         <label className="text-sm text-blue-200">Type de vulnérabilité</label>
                         <select 
-                          className="w-full px-3 py-2 rounded bg-blue-950/50 border border-blue-800 text-white"
+                          className= className="w-full px-3 py-2 rounded bg-blue-950/50 border border-blue-800 text-white"
                           value={bugReport.vulnerability}
                           onChange={(e) => updateBugReport('vulnerability', e.target.value as VulnerabilityCategory)}
                         >
@@ -836,7 +836,7 @@ export default function ChallengePage() {
                           <option value="IDOR">Insecure Direct Object Reference</option>
                         </select>
                       </div>
-                      
+
                       <div className="space-y-2">
                         <label className="text-sm text-blue-200">Sévérité</label>
                         <select 
@@ -851,7 +851,7 @@ export default function ChallengePage() {
                         </select>
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <label className="text-sm text-blue-200">Description détaillée</label>
                       <Textarea 
@@ -861,7 +861,7 @@ export default function ChallengePage() {
                         onChange={(e) => updateBugReport('description', e.target.value)}
                       />
                     </div>
-                    
+
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <label className="text-sm text-blue-200">Étapes pour reproduire</label>
@@ -874,7 +874,7 @@ export default function ChallengePage() {
                           Ajouter une étape
                         </Button>
                       </div>
-                      
+
                       <div className="space-y-3">
                         {bugReport.stepsToReproduce.map((step, index) => (
                           <div key={index} className="flex items-start gap-2">
@@ -891,7 +891,7 @@ export default function ChallengePage() {
                         ))}
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <label className="text-sm text-blue-200">Description de l'impact</label>
                       <Textarea 
@@ -901,7 +901,7 @@ export default function ChallengePage() {
                         onChange={(e) => updateBugReport('impactDescription', e.target.value)}
                       />
                     </div>
-                    
+
                     <div className="space-y-2">
                       <label className="text-sm text-blue-200">Preuve de concept (PoC)</label>
                       <Textarea 
