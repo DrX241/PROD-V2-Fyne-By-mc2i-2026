@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { openAIService } from './services/openai';
-import { extractJsonFromOpenAiResponse, createFallbackJson } from "./openAiResponseHelper";
+import { extractJsonFromOpenAiResponse } from "./openAiResponseHelper";
 import { ChatCompletionRequestMessage } from "@shared/schema";
 
 // Interface pour les termes du glossaire
@@ -77,7 +77,7 @@ Important : La réponse doit être EXCLUSIVEMENT le JSON valide, sans intro, com
     const parsedResponse = extractJsonFromOpenAiResponse(response);
     
     // Si le parsing a échoué, créer un JSON par défaut
-    const termData = parsedResponse || createFallbackJson({
+    const defaultTermData = {
       term: term,
       acronym: null,
       definition: "Définition non disponible",
@@ -86,7 +86,9 @@ Important : La réponse doit être EXCLUSIVEMENT le JSON valide, sans intro, com
       category: "tools",
       tags: [term],
       relatedTerms: []
-    });
+    };
+    
+    const termData = parsedResponse || defaultTermData;
     
     // Ajouter les champs manquants
     const glossaryTerm: GlossaryTerm = {
@@ -105,12 +107,12 @@ Important : La réponse doit être EXCLUSIVEMENT le JSON valide, sans intro, com
     }, CACHE_EXPIRY);
     
     return res.status(200).json({ success: true, term: glossaryTerm });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erreur lors de la génération du terme de glossaire:', error);
     return res.status(500).json({ 
       success: false, 
       message: 'Erreur lors de la génération du terme de glossaire',
-      error: error.message 
+      error: error.message || String(error) 
     });
   }
 }
@@ -155,12 +157,12 @@ Formate ta réponse en Markdown en utilisant des titres, des listes et des empha
     const explanation = await openAIService.getChatCompletion([systemMessage, userMessage], 0.7, 2000);
     
     return res.status(200).json({ success: true, explanation });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erreur lors de l\'explication du concept:', error);
     return res.status(500).json({ 
       success: false, 
       message: 'Erreur lors de l\'explication du concept',
-      error: error.message 
+      error: error.message || String(error) 
     });
   }
 }
@@ -188,15 +190,25 @@ export async function compareTerms(req: Request, res: Response) {
 Présente ta réponse en Markdown, bien structurée avec des titres, des listes et des tableaux si pertinent.`;
     
     // Faire l'appel à l'API
-    const comparison = await openAIService.getCompletion(prompt, "glossary_assistant");
+    const systemMessage: ChatCompletionRequestMessage = {
+      role: "system",
+      content: "Tu es un expert en cybersécurité spécialisé dans l'analyse comparative de concepts de sécurité. Présente tes comparaisons de manière structurée et pédagogique."
+    };
+    
+    const userMessage: ChatCompletionRequestMessage = {
+      role: "user",
+      content: prompt
+    };
+    
+    const comparison = await openAIService.getChatCompletion([systemMessage, userMessage], 0.7, 2000);
     
     return res.status(200).json({ success: true, comparison });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erreur lors de la comparaison des termes:', error);
     return res.status(500).json({ 
       success: false, 
       message: 'Erreur lors de la comparaison des termes',
-      error: error.message 
+      error: error.message || String(error)
     });
   }
 }
@@ -243,7 +255,17 @@ Le résultat doit être structuré en JSON comme suit:
 Important: Retourne UNIQUEMENT le JSON valide sans texte supplémentaire.`;
     
     // Faire l'appel à l'API
-    const response = await openAIService.getCompletion(prompt, "glossary_assistant");
+    const systemMessage: ChatCompletionRequestMessage = {
+      role: "system",
+      content: "Tu es un expert en cybersécurité chargé de créer des quiz éducatifs. Génère uniquement du JSON valide qui respecte exactement la structure demandée, sans aucun texte supplémentaire."
+    };
+    
+    const userMessage: ChatCompletionRequestMessage = {
+      role: "user",
+      content: prompt
+    };
+    
+    const response = await openAIService.getChatCompletion([systemMessage, userMessage], 0.7, 2000);
     
     // Extraire et parser le JSON de la réponse
     const quizData = extractJsonFromOpenAiResponse(response);
@@ -262,12 +284,12 @@ Important: Retourne UNIQUEMENT le JSON valide sans texte supplémentaire.`;
     };
     
     return res.status(200).json({ success: true, quiz });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erreur lors de la génération du quiz:', error);
     return res.status(500).json({ 
       success: false, 
       message: 'Erreur lors de la génération du quiz',
-      error: error.message 
+      error: error.message || String(error)
     });
   }
 }
