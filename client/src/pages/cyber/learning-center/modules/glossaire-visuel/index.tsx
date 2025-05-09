@@ -30,7 +30,7 @@ import {
   Sparkles,
   Wrench,
   Loader2,
-  Send
+  MessageSquare
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -1030,7 +1030,7 @@ export default function GlossaireVisuel() {
                   {isAskingQuestion ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
-                    <Send className="h-4 w-4" />
+                    <MessageSquare className="h-4 w-4" />
                   )}
                 </Button>
               </div>
@@ -1146,14 +1146,14 @@ export default function GlossaireVisuel() {
                                 
                                 {showFeedback && optIndex === question.correctAnswer && (
                                   <div className="mt-1 text-xs text-green-400 flex items-center">
-                                    <CheckCircle2 className="mr-1 h-3 w-3" />
+                                    <Check className="mr-1 h-3 w-3" />
                                     Réponse correcte
                                   </div>
                                 )}
                                 
                                 {showFeedback && optIndex === selectedOption && optIndex !== question.correctAnswer && (
                                   <div className="mt-1 text-xs text-red-400 flex items-center">
-                                    <XCircle className="mr-1 h-3 w-3" />
+                                    <X className="mr-1 h-3 w-3" />
                                     Réponse incorrecte
                                   </div>
                                 )}
@@ -1188,7 +1188,7 @@ export default function GlossaireVisuel() {
                       </>
                     ) : (
                       <>
-                        <Shuffle className="mr-2 h-4 w-4" />
+                        <RefreshCw className="mr-2 h-4 w-4" />
                         Générer un nouveau quiz
                       </>
                     )}
