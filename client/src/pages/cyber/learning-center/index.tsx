@@ -375,19 +375,7 @@ export default function LearningCenter() {
       destination: '/cyber/learning-center/modules/memo-ia-personnalise',
       isNew: true
     },
-    {
-      id: 'micro-learning',
-      title: 'Micro-Learning',
-      description: 'Sessions d\'apprentissage courtes et ciblées pour maîtriser des concepts clés',
-      icon: <BookOpen />,
-      duration: '15-25min',
-      level: 'tous niveaux',
-      category: 'parcours-rapide',
-      tags: ['micro-learning', 'court', 'focus', 'pratique'],
-      progress: 0,
-      destination: '/cyber/learning-center/modules/micro-learning',
-      isFeatured: true
-    }
+
   ];
 
   // Parcours thématiques
