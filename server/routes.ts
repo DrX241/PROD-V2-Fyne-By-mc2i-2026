@@ -29,6 +29,7 @@ import { startInterviewSimulation, processInterviewMessage, completeInterviewSim
 import { getRandomScenarios, getScenarioById, getScenariosByDifficulty } from "./impostorService";
 import { startAgentSession, completeAgentSession } from "./cyberAgentController";
 import { generateCyberFiche, getUserFavorites } from './cyberFicheController';
+import { searchGlossaryTerm, explainConcept, compareTerms, generateQuiz } from './cyberGlossaryController';
 import { generateDebriefing, getContextualDocumentation } from "./cyberLearningController";
 import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearningController";
 import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
@@ -4535,6 +4536,12 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   // Routes pour les fiches cyber express
   app.post('/api/cyber/fiches/generate', generateCyberFiche);
   app.get('/api/cyber/fiches/favorites', getUserFavorites);
+
+  // Routes pour le glossaire visuel de cybersécurité
+  app.post('/api/cyber/glossary/search', searchGlossaryTerm);
+  app.post('/api/cyber/glossary/explain', explainConcept);
+  app.post('/api/cyber/glossary/compare', compareTerms);
+  app.post('/api/cyber/glossary/quiz', generateQuiz);
 
   // Fin des routes API
 
