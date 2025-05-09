@@ -988,15 +988,74 @@ export default function GlossaireVisuel() {
           <DialogHeader>
             <DialogTitle className="text-blue-400 text-xl flex items-center">
               <BrainCircuit className="mr-2 h-5 w-5" />
-              Réponse de l'Assistant IA
+              Assistant IA Cybersécurité
             </DialogTitle>
+            <DialogDescription className="text-slate-300">
+              Posez des questions sur les concepts de cybersécurité
+            </DialogDescription>
           </DialogHeader>
-          <ScrollArea className="max-h-[60vh] pr-4">
-            <div className="p-2 whitespace-pre-wrap">
-              {assistantAnswer}
+          
+          <div className="flex flex-col gap-6">
+            {assistantAnswer && (
+              <ScrollArea className="max-h-[40vh] pr-4 border border-blue-900/30 rounded-md">
+                <div className="p-4 whitespace-pre-wrap">
+                  {assistantAnswer}
+                </div>
+              </ScrollArea>
+            )}
+            
+            <form onSubmit={(e) => {
+                e.preventDefault();
+                if (assistantQuestion.trim()) {
+                  askAssistantQuestion(assistantQuestion);
+                }
+              }}
+              className="flex flex-col gap-3"
+            >
+              <div className="flex items-center gap-3">
+                <Input 
+                  placeholder="Posez une question sur la cybersécurité..." 
+                  className="bg-slate-800 border-blue-700/50 text-white placeholder:text-blue-300/70"
+                  value={assistantQuestion}
+                  onChange={(e) => setAssistantQuestion(e.target.value)}
+                  disabled={isAskingQuestion}
+                />
+                <Button 
+                  type="submit"
+                  size="icon"
+                  className="shrink-0 bg-blue-700 hover:bg-blue-800"
+                  disabled={isAskingQuestion || !assistantQuestion.trim()}
+                >
+                  {isAskingQuestion ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+              
+              <div className="text-xs text-slate-400">
+                <p>Exemples de questions :</p>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {['Quelle est la différence entre DDoS et DoS ?', 'Expliquez le Zero Trust', 'Comment fonctionne la cryptographie asymétrique ?', 'Qu\'est-ce qu\'un pare-feu de nouvelle génération ?'].map((example, index) => (
+                    <Badge 
+                      key={index}
+                      variant="outline"
+                      className="cursor-pointer border-blue-700/50 text-blue-300 hover:bg-blue-900/30"
+                      onClick={() => setAssistantQuestion(example)}
+                    >
+                      {example}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </form>
+          </div>
+          
+          <DialogFooter className="flex justify-between items-center">
+            <div className="text-xs text-slate-400">
+              Propulsé par Azure OpenAI
             </div>
-          </ScrollArea>
-          <DialogFooter>
             <Button 
               onClick={() => setShowAssistantDialog(false)}
               className="bg-blue-700 hover:bg-blue-800"
@@ -1092,6 +1151,18 @@ export default function GlossaireVisuel() {
           </div>
           
           <div className="flex gap-2 mt-4 md:mt-0">
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="border-blue-500 text-blue-200 hover:bg-blue-800/30"
+              onClick={() => {
+                setAssistantQuestion('');
+                setShowAssistantDialog(true);
+              }}
+            >
+              <BrainCircuit className="mr-2 h-4 w-4" />
+              Assistant IA
+            </Button>
             <Button 
               variant="outline" 
               size="sm"
@@ -1266,54 +1337,6 @@ export default function GlossaireVisuel() {
       
       {/* Contenu principal */}
       <div className="container mx-auto px-6">
-        {/* Carte d'assistant IA */}
-        <div className="mb-6">
-          <Card className="bg-blue-900/20 border-blue-800/50">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <BrainCircuit className="mr-2 h-5 w-5 text-blue-400" />
-                Assistant IA - Glossaire cybersécurité
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm text-blue-200 mb-3">
-                Posez vos questions sur la cybersécurité et obtenez des explications claires
-              </div>
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                if (assistantQuestion.trim()) {
-                  askAssistantQuestion(assistantQuestion);
-                }
-              }}>
-                <div className="flex gap-2">
-                  <Input 
-                    placeholder="Posez une question sur la cybersécurité..." 
-                    className="bg-blue-950/40 border-blue-700/50 text-white placeholder:text-blue-300/70"
-                    value={assistantQuestion}
-                    onChange={(e) => setAssistantQuestion(e.target.value)}
-                    disabled={isAskingQuestion}
-                  />
-                  <Button 
-                    type="submit"
-                    variant="ghost" 
-                    size="icon"
-                    className="shrink-0"
-                    disabled={isAskingQuestion || !assistantQuestion.trim()}
-                  >
-                    {isAskingQuestion ? (
-                      <Loader2 className="h-4 w-4 animate-spin text-blue-400" />
-                    ) : (
-                      <Send className="h-4 w-4 text-blue-400" />
-                    )}
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-            <CardFooter className="text-xs text-blue-300">
-              Exemples : "Quelle est la différence entre DDoS et DoS ?" ou "Expliquez-moi le Zero Trust en termes simples"
-            </CardFooter>
-          </Card>
-        </div>
         
         {/* Onglets */}
         <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
