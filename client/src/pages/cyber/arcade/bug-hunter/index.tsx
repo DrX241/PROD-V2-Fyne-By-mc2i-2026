@@ -122,30 +122,30 @@ export default function BugHunterPage() {
   
   // Requête pour récupérer les défis
   const { 
-    data: challenges, 
+    data: challengesResponse, 
     isLoading: challengesLoading, 
     error: challengesError 
-  } = useQuery({
+  } = useQuery<{ success: boolean, challenges: Challenge[] }>({
     queryKey: ['/api/bug-hunter/challenges'],
     retry: false,
   });
   
   // Requête pour récupérer les statistiques utilisateur
   const { 
-    data: userStats, 
+    data: userStatsResponse, 
     isLoading: statsLoading, 
     error: statsError 
-  } = useQuery({
+  } = useQuery<{ success: boolean, stats: UserStats }>({
     queryKey: ['/api/bug-hunter/user-stats'],
     retry: false,
   });
   
   // Requête pour récupérer les rapports de bugs
   const { 
-    data: bugReports, 
+    data: bugReportsResponse, 
     isLoading: reportsLoading, 
     error: reportsError 
-  } = useQuery({
+  } = useQuery<{ success: boolean, reports: BugReport[] }>({
     queryKey: ['/api/bug-hunter/reports'],
     retry: false,
   });
@@ -232,10 +232,15 @@ export default function BugHunterPage() {
 
   const mockBugReports: BugReport[] = [];
 
+  // Extraire les données des réponses API ou utiliser les mocks
+  const apiChallenges = challengesResponse?.challenges || [];
+  const apiUserStats = userStatsResponse?.stats || mockUserStats;
+  const apiBugReports = bugReportsResponse?.reports || [];
+  
   // Utiliser les données réelles ou les mocks
-  const displayedChallenges = challenges || mockChallenges;
-  const displayedUserStats = userStats || mockUserStats;
-  const displayedBugReports = bugReports || mockBugReports;
+  const displayedChallenges = apiChallenges.length > 0 ? apiChallenges : mockChallenges;
+  const displayedUserStats = apiUserStats;
+  const displayedBugReports = apiBugReports.length > 0 ? apiBugReports : mockBugReports;
 
   // Fonction pour démarrer un défi
   const startChallenge = (challengeId: string) => {
