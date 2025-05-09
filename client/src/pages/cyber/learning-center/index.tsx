@@ -547,9 +547,9 @@ export default function LearningCenter() {
         module.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         module.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
       
-      const matchesLevel = selectedLevel === '' || module.level === selectedLevel;
-      const matchesCategory = selectedCategory === '' || module.category === selectedCategory;
-      const matchesDuration = selectedDuration === '' || 
+      const matchesLevel = selectedLevel === '' || selectedLevel === 'all' || module.level === selectedLevel;
+      const matchesCategory = selectedCategory === '' || selectedCategory === 'all' || module.category === selectedCategory;
+      const matchesDuration = selectedDuration === '' || selectedDuration === 'all' ||
         (selectedDuration === 'court' && getDurationMinutes(module.duration) < 60) ||
         (selectedDuration === 'moyen' && getDurationMinutes(module.duration) >= 60 && getDurationMinutes(module.duration) < 240) ||
         (selectedDuration === 'long' && getDurationMinutes(module.duration) >= 240);
