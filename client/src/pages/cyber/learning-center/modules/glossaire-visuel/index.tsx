@@ -1019,6 +1019,25 @@ export default function GlossaireVisuel() {
             <Button 
               variant="outline" 
               size="sm"
+              className="border-purple-500 text-purple-200 hover:bg-purple-800/30"
+              onClick={() => generateQuizOnTerm(undefined, 'moyen')}
+              disabled={isGeneratingQuiz}
+            >
+              {isGeneratingQuiz ? (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                  Génération...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Quiz Général
+                </>
+              )}
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
               className="border-green-500 text-green-200 hover:bg-green-800/30"
               onClick={() => setShowFilters(!showFilters)}
             >
@@ -1195,7 +1214,7 @@ export default function GlossaireVisuel() {
                     Retour au glossaire
                   </Button>
                   
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Button 
                       variant="outline" 
                       size="sm"
@@ -1215,6 +1234,82 @@ export default function GlossaireVisuel() {
                       <BookOpen className="mr-2 h-4 w-4" />
                       {selectedTerm.isBookmarked ? 'Retirer des signets' : 'Ajouter aux signets'}
                     </Button>
+                  </div>
+
+                  {/* Boutons d'interaction IA */}
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => explainConceptDetail(selectedTerm.term, selectedTerm.definition)}
+                      className="border-green-500 hover:bg-green-900/30"
+                      disabled={isExplaining}
+                    >
+                      {isExplaining ? (
+                        <>
+                          <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                          Génération en cours...
+                        </>
+                      ) : (
+                        <>
+                          <BrainCircuit className="mr-2 h-4 w-4 text-green-400" />
+                          Explication détaillée
+                        </>
+                      )}
+                    </Button>
+                    
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => generateQuizOnTerm(selectedTerm.term)}
+                      className="border-purple-500 hover:bg-purple-900/30"
+                      disabled={isGeneratingQuiz}
+                    >
+                      {isGeneratingQuiz ? (
+                        <>
+                          <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                          Création du quiz...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="mr-2 h-4 w-4 text-purple-400" />
+                          Générer un quiz
+                        </>
+                      )}
+                    </Button>
+                    
+                    <div className="relative">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="border-blue-500 hover:bg-blue-900/30"
+                        disabled={isComparing}
+                        onClick={() => {
+                          if (selectedTerm.relatedTerms && selectedTerm.relatedTerms.length > 0) {
+                            const relatedTerm = selectedTerm.relatedTerms[0];
+                            compareTermsDetail(selectedTerm.term, relatedTerm);
+                          } else {
+                            toast({
+                              title: "Aucun terme lié",
+                              description: "Ce terme n'a pas de termes connexes à comparer.",
+                              variant: "destructive",
+                            });
+                          }
+                        }}
+                      >
+                        {isComparing ? (
+                          <>
+                            <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                            Comparaison en cours...
+                          </>
+                        ) : (
+                          <>
+                            <Code className="mr-2 h-4 w-4 text-blue-400" />
+                            Comparer avec un terme lié
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </div>
                 
