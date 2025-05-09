@@ -479,6 +479,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     getChallengeById(req, res);
   });
   
+  // Cette route est utilisée par la page de défi individuel
+  app.get("/api/bug-hunter/challenge", (req: Request, res: Response) => {
+    const { id } = req.query;
+    if (!id) {
+      return res.status(400).json({ success: false, message: "ID de défi requis" });
+    }
+    const req2 = { ...req, params: { id: id as string } };
+    getChallengeById(req2, res);
+  });
+  
   app.get("/api/bug-hunter/user-stats", (req: Request, res: Response) => {
     getUserStats(req, res);
   });
