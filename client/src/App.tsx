@@ -402,12 +402,21 @@ function App() {
               );
             }} />
             
-            {/* Route pour le module sécurité des réseaux */}
+            {/* Routes pour les modules spécialisés */}
             <Route path="/cyber/learning-center/modules/securite-reseaux" component={() => {
               const SecuriteReseaux = lazy(() => import('./pages/cyber/learning-center/modules/securite-reseaux'));
               return (
                 <Suspense fallback={<GlobalLoader />}>
                   <SecuriteReseaux />
+                </Suspense>
+              );
+            }} />
+            
+            <Route path="/cyber/learning-center/modules/securite-cloud" component={() => {
+              const SecuriteCloud = lazy(() => import('./pages/cyber/learning-center/modules/securite-cloud'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <SecuriteCloud />
                 </Suspense>
               );
             }} />
