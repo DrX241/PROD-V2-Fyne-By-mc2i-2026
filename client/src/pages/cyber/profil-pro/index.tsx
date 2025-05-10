@@ -40,6 +40,7 @@ import {
   Map,
   MessageCircle,
   Network,
+  Search,
   Send,
   Share2,
   ShieldCheck,
@@ -499,7 +500,7 @@ export default function ProfilPro() {
                     
                     <div>
                       <h4 className="text-lg font-semibold text-blue-100 mb-3 flex items-center">
-                        <Scale className="h-5 w-5 mr-2 text-blue-400" />
+                        <ShieldCheck className="h-5 w-5 mr-2 text-blue-400" />
                         Contraintes et obligations
                       </h4>
                       <ul className="space-y-2">
