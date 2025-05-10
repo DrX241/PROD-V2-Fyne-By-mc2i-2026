@@ -581,33 +581,33 @@ export default function ProfilPro() {
                       </CardContent>
                     </Card>
                     
-                    <Card className="bg-white border-amber-100">
+                    <Card className="bg-blue-900/20 backdrop-blur-sm border-blue-700 shadow-lg">
                       <CardHeader className="pb-2">
                         <CardTitle className="text-xl flex items-center gap-2">
-                          <MessageCircle className="h-5 w-5 text-amber-600" />
+                          <MessageCircle className="h-5 w-5 text-amber-400" />
                           Perception sociale
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-gray-700">{professionProfile.socialPerception}</p>
+                        <p className="text-blue-100">{professionProfile.socialPerception}</p>
                       </CardContent>
                     </Card>
                     
-                    <Card className="bg-white border-green-100 md:col-span-2">
+                    <Card className="bg-blue-900/20 backdrop-blur-sm border-blue-700 shadow-lg md:col-span-2">
                       <CardHeader className="pb-2">
                         <CardTitle className="text-xl flex items-center gap-2">
-                          <History className="h-5 w-5 text-green-600" />
+                          <History className="h-5 w-5 text-green-400" />
                           Évolution du métier
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-gray-700 mb-4">{professionProfile.evolution}</p>
-                        <h4 className="font-semibold mb-2 text-gray-700">Comment garder une longueur d'avance</h4>
+                        <p className="text-blue-100 mb-4">{professionProfile.evolution}</p>
+                        <h4 className="font-semibold mb-2 text-blue-300">Comment garder une longueur d'avance</h4>
                         <ul className="space-y-2">
                           {professionProfile.advice.map((advice, index) => (
                             <li key={index} className="flex items-start gap-2">
-                              <ArrowRight className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
-                              <span>{advice}</span>
+                              <ArrowRight className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
+                              <span className="text-blue-100">{advice}</span>
                             </li>
                           ))}
                         </ul>
@@ -616,7 +616,7 @@ export default function ProfilPro() {
                     
                     <div className="md:col-span-2 mt-4">
                       <Button
-                        className="w-full bg-purple-600 hover:bg-purple-700"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium"
                         onClick={() => {
                           setCurrentTab("quiz");
                           setTimeout(() => startQuiz(), 300);
@@ -632,45 +632,45 @@ export default function ProfilPro() {
               
               <TabsContent value="quiz" className="mt-6">
                 {!showQuiz ? (
-                  <Card className="bg-white border-purple-100">
+                  <Card className="bg-blue-900/20 backdrop-blur-sm border-blue-700 shadow-lg">
                     <CardHeader>
                       <CardTitle className="text-xl flex items-center gap-2">
-                        <Award className="h-5 w-5 text-purple-600" />
+                        <Award className="h-5 w-5 text-purple-400" />
                         Quiz: Testez vos connaissances sur {professionProfile.title}
                       </CardTitle>
-                      <CardDescription>
+                      <CardDescription className="text-blue-200">
                         Ce quiz personnalisé évalue votre compréhension des défis, compétences et évolutions de ce métier
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="bg-purple-50 rounded-lg p-6 mb-6">
-                        <h3 className="font-semibold text-lg mb-2">Ce qui vous attend</h3>
-                        <ul className="space-y-3">
+                      <div className="bg-blue-950/30 backdrop-blur-sm rounded-lg p-6 mb-6 border border-blue-700">
+                        <h3 className="font-semibold text-lg mb-2 text-white">Ce qui vous attend</h3>
+                        <ul className="space-y-3 text-blue-100">
                           <li className="flex items-start gap-3">
-                            <div className="bg-purple-100 rounded-full p-1 mt-0.5">
-                              <Clock className="h-4 w-4 text-purple-700" />
+                            <div className="bg-blue-800 rounded-full p-1 mt-0.5">
+                              <Clock className="h-4 w-4 text-blue-200" />
                             </div>
                             <div>
-                              <span className="font-medium">5 questions</span>
-                              <p className="text-sm text-gray-600">Durée estimée: 5-7 minutes</p>
+                              <span className="font-medium text-blue-200">5 questions</span>
+                              <p className="text-sm text-blue-300">Durée estimée: 5-7 minutes</p>
                             </div>
                           </li>
                           <li className="flex items-start gap-3">
-                            <div className="bg-blue-100 rounded-full p-1 mt-0.5">
-                              <Gauge className="h-4 w-4 text-blue-700" />
+                            <div className="bg-blue-800 rounded-full p-1 mt-0.5">
+                              <Gauge className="h-4 w-4 text-blue-200" />
                             </div>
                             <div>
-                              <span className="font-medium">Difficulté adaptative</span>
-                              <p className="text-sm text-gray-600">Questions conçues pour révéler les angles morts du métier</p>
+                              <span className="font-medium text-blue-200">Difficulté adaptative</span>
+                              <p className="text-sm text-blue-300">Questions conçues pour révéler les angles morts du métier</p>
                             </div>
                           </li>
                           <li className="flex items-start gap-3">
-                            <div className="bg-green-100 rounded-full p-1 mt-0.5">
-                              <Lightbulb className="h-4 w-4 text-green-700" />
+                            <div className="bg-blue-800 rounded-full p-1 mt-0.5">
+                              <Lightbulb className="h-4 w-4 text-blue-200" />
                             </div>
                             <div>
-                              <span className="font-medium">Explications détaillées</span>
-                              <p className="text-sm text-gray-600">Apprenez de vos erreurs avec des clarifications pour chaque question</p>
+                              <span className="font-medium text-blue-200">Explications détaillées</span>
+                              <p className="text-sm text-blue-300">Apprenez de vos erreurs avec des clarifications pour chaque question</p>
                             </div>
                           </li>
                         </ul>
