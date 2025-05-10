@@ -353,22 +353,31 @@ export default function CyberInterviewTest() {
   // Affichage de l'introduction du test
   if (testState === 'intro') {
     return (
-      <HomeLayout>
+      <div className="min-h-screen bg-gradient-to-b from-blue-950 to-slate-950 text-white pb-20">
         <div className="container mx-auto py-8 px-4 cyber-interview-test">
-          <Card className="max-w-3xl mx-auto">
+          <div className="flex items-center mb-8">
+            <Link href="/cyber">
+              <Button variant="ghost" className="text-white mr-4">
+                <ArrowLeft className="mr-2 h-5 w-5" />
+                Retour
+              </Button>
+            </Link>
+            <h1 className="text-3xl font-bold font-[Rajdhani] tracking-wide text-white">TEST D'ENTRETIEN CYBERSÉCURITÉ</h1>
+          </div>
+          <Card className="max-w-3xl mx-auto bg-blue-900/30 border-blue-800">
             <CardHeader>
-              <CardTitle className="text-2xl font-bold text-center text-blue-800 dark:text-white">Test d'entretien cybersécurité</CardTitle>
-              <CardDescription className="text-center text-gray-800 dark:text-white">
+              <CardTitle className="text-2xl font-bold text-center text-white font-[Rajdhani]">Test d'entretien cybersécurité</CardTitle>
+              <CardDescription className="text-center text-blue-100">
                 Évaluez vos compétences en cybersécurité avec ce test de 10 minutes
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4 text-gray-800 dark:text-white">
-              <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-md dark:text-white">
-                <h3 className="font-semibold mb-2 flex items-center text-blue-800 dark:text-white">
-                  <Clock className="h-5 w-5 mr-2 text-blue-600" />
+            <CardContent className="space-y-4 text-white">
+              <div className="bg-blue-900/50 backdrop-blur-sm border border-blue-800 p-4 rounded-md">
+                <h3 className="font-semibold mb-2 flex items-center text-white">
+                  <Clock className="h-5 w-5 mr-2 text-blue-300" />
                   Comment ça fonctionne
                 </h3>
-                <ul className="list-disc list-inside space-y-2 text-sm text-gray-800 dark:text-gray-200">
+                <ul className="list-disc list-inside space-y-2 text-sm text-blue-100">
                   <li>Test chronométré de 10 minutes</li>
                   <li>10 questions ouvertes mêlant aspects techniques et fonctionnels</li>
                   <li>Répondez à chaque question de façon concise mais complète</li>
