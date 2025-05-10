@@ -321,7 +321,7 @@ export default function ProfilPro() {
   
   return (
     <HomeLayout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 bg-gray-900 text-white">
         <div className="flex flex-col md:flex-row items-center justify-between mb-8">
           <div>
             <div className="flex items-center gap-2 mb-2">
@@ -334,11 +334,11 @@ export default function ProfilPro() {
                 <Home className="h-4 w-4" />
                 Accueil
               </Button>
-              <ChevronRight className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-500">Dans la peau de ton métier</span>
+              <ChevronRight className="h-4 w-4 text-gray-300" />
+              <span className="text-sm text-gray-300">Dans la peau de ton métier</span>
             </div>
             <PageTitle title="Dans la peau de ton métier" />
-            <p className="text-gray-500 mt-2 max-w-2xl">
+            <p className="text-gray-300 mt-2 max-w-2xl">
               Découvrez votre métier en profondeur grâce à l'IA : rôles, compétences, évolution, défis et auto-évaluation personnalisée.
             </p>
           </div>
