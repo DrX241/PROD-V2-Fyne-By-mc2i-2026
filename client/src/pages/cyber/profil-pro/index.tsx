@@ -491,14 +491,14 @@ export default function ProfilPro() {
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-gray-700">{professionProfile.description}</p>
+                        <p className="text-blue-100">{professionProfile.description}</p>
                       </CardContent>
                     </Card>
                     
-                    <Card className="bg-white border-indigo-100">
+                    <Card className="bg-blue-900/20 backdrop-blur-sm border-blue-700 shadow-lg">
                       <CardHeader className="pb-2">
                         <CardTitle className="text-xl flex items-center gap-2">
-                          <List className="h-5 w-5 text-indigo-600" />
+                          <List className="h-5 w-5 text-blue-400" />
                           Tâches principales
                         </CardTitle>
                       </CardHeader>
@@ -506,18 +506,18 @@ export default function ProfilPro() {
                         <ul className="space-y-2">
                           {professionProfile.tasks.map((task, index) => (
                             <li key={index} className="flex items-start gap-2">
-                              <CheckCircle className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
-                              <span>{task}</span>
+                              <CheckCircle className="h-5 w-5 text-green-400 shrink-0 mt-0.5" />
+                              <span className="text-blue-100">{task}</span>
                             </li>
                           ))}
                         </ul>
                       </CardContent>
                     </Card>
                     
-                    <Card className="bg-white border-red-100">
+                    <Card className="bg-blue-900/20 backdrop-blur-sm border-blue-700 shadow-lg">
                       <CardHeader className="pb-2">
                         <CardTitle className="text-xl flex items-center gap-2">
-                          <ShieldCheck className="h-5 w-5 text-red-600" />
+                          <ShieldCheck className="h-5 w-5 text-red-400" />
                           Obligations et responsabilités
                         </CardTitle>
                       </CardHeader>
@@ -525,47 +525,47 @@ export default function ProfilPro() {
                         <ul className="space-y-2">
                           {professionProfile.obligations.map((obligation, index) => (
                             <li key={index} className="flex items-start gap-2">
-                              <FileText className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
-                              <span>{obligation}</span>
+                              <FileText className="h-5 w-5 text-red-400 shrink-0 mt-0.5" />
+                              <span className="text-blue-100">{obligation}</span>
                             </li>
                           ))}
                         </ul>
                       </CardContent>
                     </Card>
                     
-                    <Card className="bg-white border-purple-100">
+                    <Card className="bg-blue-900/20 backdrop-blur-sm border-blue-700 shadow-lg">
                       <CardHeader className="pb-2">
                         <CardTitle className="text-xl flex items-center gap-2">
-                          <Code className="h-5 w-5 text-purple-600" />
+                          <Code className="h-5 w-5 text-purple-400" />
                           Compétences requises
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <h4 className="font-semibold mb-2 text-gray-700">Compétences techniques</h4>
+                        <h4 className="font-semibold mb-2 text-blue-300">Compétences techniques</h4>
                         <ul className="space-y-1 mb-4">
                           {professionProfile.skills.technical.map((skill, index) => (
                             <li key={index} className="flex items-start gap-2">
-                              <span className="text-purple-600 font-medium">•</span>
-                              <span>{skill}</span>
+                              <span className="text-purple-400 font-medium">•</span>
+                              <span className="text-blue-100">{skill}</span>
                             </li>
                           ))}
                         </ul>
-                        <h4 className="font-semibold mb-2 text-gray-700">Compétences interpersonnelles</h4>
+                        <h4 className="font-semibold mb-2 text-blue-300">Compétences interpersonnelles</h4>
                         <ul className="space-y-1">
                           {professionProfile.skills.soft.map((skill, index) => (
                             <li key={index} className="flex items-start gap-2">
-                              <span className="text-green-600 font-medium">•</span>
-                              <span>{skill}</span>
+                              <span className="text-green-400 font-medium">•</span>
+                              <span className="text-blue-100">{skill}</span>
                             </li>
                           ))}
                         </ul>
                       </CardContent>
                     </Card>
                     
-                    <Card className="bg-white border-teal-100">
+                    <Card className="bg-blue-900/20 backdrop-blur-sm border-blue-700 shadow-lg">
                       <CardHeader className="pb-2">
                         <CardTitle className="text-xl flex items-center gap-2">
-                          <Wrench className="h-5 w-5 text-teal-600" />
+                          <Wrench className="h-5 w-5 text-teal-400" />
                           Outils et technologies
                         </CardTitle>
                       </CardHeader>
@@ -573,8 +573,8 @@ export default function ProfilPro() {
                         <ul className="space-y-2">
                           {professionProfile.tools.map((tool, index) => (
                             <li key={index} className="flex items-start gap-2">
-                              <span className="text-teal-600 font-medium">⚙️</span>
-                              <span>{tool}</span>
+                              <span className="text-teal-400 font-medium">⚙️</span>
+                              <span className="text-blue-100">{tool}</span>
                             </li>
                           ))}
                         </ul>
