@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { openAIService } from './services/openai';
+import { ChatCompletionRequestMessage } from "@shared/schema";
 
 /**
  * Interface pour les messages échangés avec l'assistant
@@ -31,23 +32,36 @@ export async function chatWithCustomAssistant(req: Request, res: Response) {
     }
 
     // Construire le contexte de la conversation
-    const conversationContext: ChatMessage[] = [
-      { role: 'system', content: systemPrompt },
-      ...history
+    const conversationContext: ChatCompletionRequestMessage[] = [
+      { role: 'system', content: systemPrompt } as ChatCompletionRequestMessage
     ];
+    
+    // Ajouter l'historique des messages
+    if (history && history.length > 0) {
+      // Convertir l'historique au format ChatCompletionRequestMessage
+      history.forEach((msg: ChatMessage) => {
+        conversationContext.push({
+          role: msg.role as 'user' | 'assistant' | 'system',
+          content: msg.content
+        } as ChatCompletionRequestMessage);
+      });
+    }
 
     // Ajouter le nouveau message de l'utilisateur
-    conversationContext.push({ role: 'user', content: message });
+    conversationContext.push({ 
+      role: 'user', 
+      content: message 
+    } as ChatCompletionRequestMessage);
 
     // Obtenir la réponse d'OpenAI
-    const response = await openAIService.getChatCompletion({
-      messages: conversationContext,
-      temperature: 0.7,
-      max_tokens: 1500
-    });
+    const response = await openAIService.getChatCompletion(
+      conversationContext,
+      0.7,
+      1500
+    );
 
-    // Extraire le contenu de la réponse
-    const assistantResponse = response.choices[0]?.message?.content || 
+    // Extraire le contenu de la réponse (getChatCompletion retourne directement le contenu)
+    const assistantResponse = response || 
       "Je suis désolé, mais je n'ai pas pu générer une réponse. Veuillez réessayer.";
 
     return res.status(200).json({
