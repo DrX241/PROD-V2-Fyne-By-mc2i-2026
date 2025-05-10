@@ -547,7 +547,7 @@ const CyberInterviewSimulation: React.FC = () => {
         </AlertDialogContent>
       </AlertDialog>
       
-      <div className="min-h-screen bg-gradient-to-b from-blue-950 to-slate-950 text-white p-4">
+      <div className="min-h-screen bg-gradient-to-b from-blue-950 to-black text-white p-4">
         {/* En-tête style CYBER ACADÉMIE */}
         <div className="container mx-auto">
           <div className="flex items-center mb-2">
@@ -559,20 +559,20 @@ const CyberInterviewSimulation: React.FC = () => {
               <ArrowLeft className="mr-2 h-5 w-5" />
               Retour
             </Button>
-            <h1 className="text-xl md:text-2xl font-bold font-['Exo_2']">CYBER ENTRETIEN</h1>
+            <h1 className="text-xl md:text-2xl font-bold font-[Exo_2]">CYBER ENTRETIEN</h1>
           </div>
           
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
             <div>
-              <h1 className="text-3xl font-bold font-['Rajdhani']">Simulation d'entretien technique</h1>
+              <h1 className="text-3xl font-bold font-[Rajdhani]">Simulation d'entretien technique</h1>
               <p className="text-blue-200 mt-1">Entraînez-vous à un entretien d'embauche réaliste en cybersécurité</p>
             </div>
           </div>
         </div>
         
         {/* Description du module */}
-        <div className="container mx-auto max-w-6xl bg-blue-900/20 rounded-lg p-6 mb-8 border border-blue-800/40">
-          <h2 className="text-2xl font-bold mb-4 font-['Rajdhani']">Préparation d'entretien technique</h2>
+        <div className="container mx-auto max-w-6xl bg-blue-900/20 backdrop-blur-sm rounded-lg p-6 mb-8 border border-blue-800/40">
+          <h2 className="text-2xl font-bold mb-4 font-[Rajdhani]">Préparation d'entretien technique</h2>
           <p className="text-blue-100 max-w-4xl">
             Cette simulation vous permet de vous entraîner à un entretien d'embauche technique en cybersécurité avec un recruteur spécialisé, simulé par une IA rigoureuse qui évaluera vos compétences techniques et votre cohérence. L'entretien dure 10 minutes et est suivi d'une évaluation détaillée.
           </p>
@@ -581,7 +581,7 @@ const CyberInterviewSimulation: React.FC = () => {
         {/* L'indicateur de statut OpenAI est maintenant affiché dans le Header */}
         
         {isSimulationActive && !simulationComplete && (
-          <div className="fixed top-4 right-4 z-50 flex items-center p-2 rounded-md shadow-lg bg-gray-800 border border-gray-700">
+          <div className="fixed top-4 right-4 z-50 flex items-center p-2 rounded-md shadow-lg bg-blue-900/80 border border-blue-700">
             <Clock className="w-5 h-5 mr-2 text-white" />
             <span className="font-mono text-white">{formatTime(timeRemaining)}</span>
           </div>
@@ -593,32 +593,35 @@ const CyberInterviewSimulation: React.FC = () => {
           onValueChange={setActiveTab}
           className="w-full max-w-4xl mx-auto"
         >
-          <TabsList className="grid grid-cols-3 mb-8">
+          <TabsList className="grid grid-cols-3 mb-8 bg-blue-950/60">
             <TabsTrigger 
               value="configuration"
               disabled={isSimulationActive && !simulationComplete}
+              className="text-white data-[state=active]:bg-blue-700"
             >
               Configuration
             </TabsTrigger>
             <TabsTrigger 
               value="simulation"
               disabled={!isSimulationActive}
+              className="text-white data-[state=active]:bg-blue-700"
             >
               Simulation
             </TabsTrigger>
             <TabsTrigger 
               value="evaluation"
               disabled={!simulationComplete}
+              className="text-white data-[state=active]:bg-blue-700"
             >
               Évaluation
             </TabsTrigger>
           </TabsList>
           
           <TabsContent value="configuration">
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-blue-900/20 border-blue-800">
               <CardHeader>
-                <CardTitle>Configuration de l'entretien technique</CardTitle>
-                <CardDescription className="text-gray-400">
+                <CardTitle className="font-[Rajdhani]">Configuration de l'entretien technique</CardTitle>
+                <CardDescription className="text-blue-300">
                   Configurez les paramètres de la simulation d'entretien d'embauche
                 </CardDescription>
               </CardHeader>
