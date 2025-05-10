@@ -26,6 +26,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -129,6 +131,19 @@ const CyberChaos: React.FC = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState("");
   const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
+  
+  // États pour la communication avec les PNJ
+  const [showCommunicationPanel, setShowCommunicationPanel] = useState(false);
+  const [selectedContact, setSelectedContact] = useState<string | null>(null);
+  const [newMessage, setNewMessage] = useState('');
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
+  const [communicationHistory, setCommunicationHistory] = useState<Record<string, Array<{sender: 'player' | 'npc', message: string}>>>({
+    'Presse': [],
+    'Autorités': [],
+    'Communication': [],
+    'Équipe technique': [],
+    'Direction': []
+  });
   
   // Configurer les événements de crise pour le scénario
   useEffect(() => {
