@@ -44,7 +44,8 @@ import {
   ShieldCheck,
   Target,
   Wrench,
-  XCircle
+  XCircle,
+  ShieldAlert
 } from 'lucide-react';
 import { Link } from 'wouter';
 
@@ -965,7 +966,7 @@ export default function ProfilPro() {
                           
                           <div className="p-4 rounded-lg border border-blue-700/50 bg-blue-900/20">
                             <div className="flex items-center gap-2 mb-2">
-                              <Shield className="h-5 w-5 text-blue-400" />
+                              <ShieldAlert className="h-5 w-5 text-blue-400" />
                               <h4 className="font-semibold">Contexte professionnel</h4>
                             </div>
                             <div className="flex items-center mb-1">
@@ -979,7 +980,7 @@ export default function ProfilPro() {
                           
                           <div className="p-4 rounded-lg border border-blue-700/50 bg-blue-900/20">
                             <div className="flex items-center gap-2 mb-2">
-                              <BriefcaseBusiness className="h-5 w-5 text-blue-400" />
+                              <Briefcase className="h-5 w-5 text-blue-400" />
                               <h4 className="font-semibold">Domaine d'expertise</h4>
                             </div>
                             <div className="flex items-center mb-1">
