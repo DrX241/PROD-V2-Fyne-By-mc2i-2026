@@ -959,115 +959,199 @@ export default function ProfilPro() {
                     </CardContent>
                   </Card>
                 ) : (
-                  <Card className="bg-blue-900/30 backdrop-blur-sm border-blue-700 shadow-lg">
+                  <Card className="bg-blue-900/30 backdrop-blur-sm border-blue-700 shadow-lg max-w-3xl mx-auto">
                     <CardHeader>
                       <div className="flex justify-between">
                         <div>
                           <CardTitle className="flex items-center gap-2">
                             <Target className="h-5 w-5 text-blue-400" />
-                            Niveau {gameLevel}: Mission {professionProfile.title}
+                            Quiz: Connaissances du {professionProfile.title}
                           </CardTitle>
                           <CardDescription className="text-blue-300">
-                            Relevez les défis du métier en temps réel
+                            Question {gameLevel} sur 5
                           </CardDescription>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Clock className="h-5 w-5 text-blue-300" />
-                          <span className="text-xl font-bold text-blue-300">{gameTime}s</span>
+                          <span className="font-semibold text-blue-300">Score:</span>
+                          <Badge variant="outline" className="bg-blue-800/50 text-blue-200 border-blue-600 text-md px-3 py-1">
+                            {gameScore} pts
+                          </Badge>
                         </div>
                       </div>
                     </CardHeader>
-                    <CardContent>
-                      <div className="bg-blue-950/60 p-6 rounded-lg border border-blue-700 mb-6 relative overflow-hidden">
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="text-6xl font-bold text-blue-200/10">NIVEAU {gameLevel}</div>
-                        </div>
+                    
+                    <CardContent className="space-y-6">
+                      {/* Question actuelle */}
+                      <div className="bg-blue-950/60 p-6 rounded-lg border border-blue-700">
+                        {/* Quiz question */}
+                        <h3 className="text-xl font-semibold mb-4 text-blue-100">
+                          {gameLevel === 1 ? "Quelle est la principale responsabilité d'un " + professionProfile.title + " ?" :
+                           gameLevel === 2 ? "Quelle compétence est essentielle pour un " + professionProfile.title + " ?" :
+                           gameLevel === 3 ? "Quel outil est le plus pertinent pour un " + professionProfile.title + " ?" :
+                           gameLevel === 4 ? "Quelle certification est la plus reconnue pour un " + professionProfile.title + " ?" :
+                           "Quel est le défi majeur auquel est confronté un " + professionProfile.title + " aujourd'hui ?"}
+                        </h3>
                         
-                        <div className="relative z-10">
-                          {gameLevel > 1 && (
-                              <div className="absolute top-0 right-0">
-                                <Badge variant="outline" className="bg-blue-600/50 border-blue-400 text-blue-100">
-                                  Niveau {gameLevel}
-                                </Badge>
-                              </div>
-                            )}
-                            
-                            <div className="flex items-center mb-2">
-                              <div className="p-2 bg-blue-800 rounded-full mr-2">
-                                <Target className="h-5 w-5 text-blue-200" />
-                              </div>
-                              <h3 className="text-xl font-semibold">Défi du {professionProfile.title}</h3>
+                        {/* Feedback sur réponse */}
+                        {showFeedback ? (
+                          <div className={actionFeedback?.isCorrect ? 
+                            "bg-green-900/60 border border-green-700 rounded-lg p-4 text-green-100" : 
+                            "bg-red-900/60 border border-red-700 rounded-lg p-4 text-red-100"}>
+                            <div className="flex items-center mb-2 font-semibold">
+                              {actionFeedback?.isCorrect ? 
+                                <><CheckCircle className="h-5 w-5 text-green-400 mr-2" /> Bonne réponse!</> : 
+                                <><XCircle className="h-5 w-5 text-red-400 mr-2" /> Réponse incorrecte</>}
                             </div>
-                            
-                            {/* Générer un défi basé sur le métier */}
-                            <div className="bg-blue-900/50 p-4 rounded-lg border border-blue-700 mb-6">
-                              <p className="text-blue-200 text-lg">
-                                {generateChallenge(professionProfile.title).challenge}
-                              </p>
-                            </div>
-                            
-                            <h4 className="font-semibold text-blue-200 mb-3 flex items-center">
-                              <Wrench className="h-4 w-4 mr-2 text-blue-400" />
-                              Choisissez une action:
-                            </h4>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                              {/* Feedback sur l'action sélectionnée */}
-                              {showFeedback && actionFeedback && (
-                                <div className={`mb-6 p-4 rounded-lg border ${actionFeedback.isCorrect ? 'bg-green-900/50 border-green-700 text-green-100' : 'bg-red-900/50 border-red-700 text-red-100'}`}>
-                                  <div className="flex items-center mb-2">
-                                    {actionFeedback.isCorrect ? (
-                                      <CheckCircle className="h-5 w-5 mr-2 text-green-400" />
-                                    ) : (
-                                      <XCircle className="h-5 w-5 mr-2 text-red-400" />
-                                    )}
-                                    <span className="font-semibold">
-                                      {actionFeedback.isCorrect ? 'Bonne réponse!' : 'Réponse incorrecte'}
-                                    </span>
-                                  </div>
-                                  <p>{actionFeedback.message}</p>
-                                </div>
-                              )}
-                              
-                              {!showFeedback && (
-                                <>
-                                  {/* Les actions sont adaptées en fonction du métier */}
-                                  {currentChallenge && (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                      {/* Ajouter la bonne réponse parmi les options */}
-                                      <Button 
-                                        className="bg-green-700 hover:bg-green-800 p-6 h-auto text-left flex flex-col items-start"
-                                        onClick={() => handleGameAction(currentChallenge.correctAction)}
-                                      >
-                                        <span className="font-semibold mb-1">{currentChallenge.correctAction}</span>
-                                        <span className="text-sm text-green-100">Action recommandée pour ce type de situation</span>
-                                      </Button>
-                                      
-                                      {/* Ajouter les mauvaises réponses */}
-                                      {currentChallenge.incorrectActions.map((action, index) => (
-                                        <Button 
-                                          key={index}
-                                          className={`bg-${index % 3 === 0 ? 'blue' : index % 3 === 1 ? 'purple' : 'yellow'}-700 hover:bg-${index % 3 === 0 ? 'blue' : index % 3 === 1 ? 'purple' : 'yellow'}-800 p-6 h-auto text-left flex flex-col items-start`}
-                                          onClick={() => handleGameAction(action)}
-                                        >
-                                          <span className="font-semibold mb-1">{action}</span>
-                                          <span className={`text-sm text-${index % 3 === 0 ? 'blue' : index % 3 === 1 ? 'purple' : 'yellow'}-100`}>
-                                            Action alternative dans cette situation
-                                          </span>
-                                        </Button>
-                                      ))}
-                                    </div>
-                                  )}
-                                </>
-                              )}
+                            <p>{actionFeedback?.message}</p>
                           </div>
-                        </div>
+                        ) : (
+                          <div className="grid grid-cols-1 gap-3 mt-4">
+                            {/* Options de réponse selon le niveau */}
+                            {gameLevel === 1 ? (
+                              <>
+                                <Button 
+                                  className="bg-blue-800 hover:bg-blue-700 p-4 h-auto text-left"
+                                  onClick={() => handleGameAction("Concevoir des architectures de sécurité", true)}
+                                >
+                                  Concevoir des architectures de sécurité
+                                </Button>
+                                <Button 
+                                  className="bg-blue-800 hover:bg-blue-700 p-4 h-auto text-left"
+                                  onClick={() => handleGameAction("Gérer les risques et mettre en place des politiques de sécurité", (professionProfile.title === "RSSI"))}
+                                >
+                                  Gérer les risques et mettre en place des politiques de sécurité
+                                </Button>
+                                <Button 
+                                  className="bg-blue-800 hover:bg-blue-700 p-4 h-auto text-left"
+                                  onClick={() => handleGameAction("Développer des applications sécurisées", (professionProfile.title === "Développeur sécurité"))}
+                                >
+                                  Développer des applications sécurisées
+                                </Button>
+                                <Button 
+                                  className="bg-blue-800 hover:bg-blue-700 p-4 h-auto text-left"
+                                  onClick={() => handleGameAction("Tester les vulnérabilités des systèmes", (professionProfile.title === "Pentester"))}
+                                >
+                                  Tester les vulnérabilités des systèmes
+                                </Button>
+                              </>
+                            ) : gameLevel === 2 ? (
+                              <>
+                                <Button 
+                                  className="bg-blue-800 hover:bg-blue-700 p-4 h-auto text-left"
+                                  onClick={() => handleGameAction("Communication et pédagogie", (professionProfile.title === "RSSI"))}
+                                >
+                                  Communication et pédagogie
+                                </Button>
+                                <Button 
+                                  className="bg-blue-800 hover:bg-blue-700 p-4 h-auto text-left"
+                                  onClick={() => handleGameAction("Programmation avancée", (professionProfile.title === "Développeur sécurité"))}
+                                >
+                                  Programmation avancée
+                                </Button>
+                                <Button 
+                                  className="bg-blue-800 hover:bg-blue-700 p-4 h-auto text-left"
+                                  onClick={() => handleGameAction("Analyse forensique", (professionProfile.title === "Analyste SOC"))}
+                                >
+                                  Analyse forensique
+                                </Button>
+                                <Button 
+                                  className="bg-blue-800 hover:bg-blue-700 p-4 h-auto text-left"
+                                  onClick={() => handleGameAction("Analyse de code source", (professionProfile.title === "Auditeur de sécurité"))}
+                                >
+                                  Analyse de code source
+                                </Button>
+                              </>
+                            ) : gameLevel === 3 ? (
+                              <>
+                                <Button 
+                                  className="bg-blue-800 hover:bg-blue-700 p-4 h-auto text-left"
+                                  onClick={() => handleGameAction("SIEM (Security Information and Event Management)", (professionProfile.title === "Analyste SOC"))}
+                                >
+                                  SIEM (Security Information and Event Management)
+                                </Button>
+                                <Button 
+                                  className="bg-blue-800 hover:bg-blue-700 p-4 h-auto text-left"
+                                  onClick={() => handleGameAction("Analyseur de code statique", (professionProfile.title === "Développeur sécurité"))}
+                                >
+                                  Analyseur de code statique
+                                </Button>
+                                <Button 
+                                  className="bg-blue-800 hover:bg-blue-700 p-4 h-auto text-left"
+                                  onClick={() => handleGameAction("Metasploit", (professionProfile.title === "Pentester"))}
+                                >
+                                  Metasploit
+                                </Button>
+                                <Button 
+                                  className="bg-blue-800 hover:bg-blue-700 p-4 h-auto text-left"
+                                  onClick={() => handleGameAction("Tableau de bord de risques", (professionProfile.title === "RSSI"))}
+                                >
+                                  Tableau de bord de risques
+                                </Button>
+                              </>
+                            ) : gameLevel === 4 ? (
+                              <>
+                                <Button 
+                                  className="bg-blue-800 hover:bg-blue-700 p-4 h-auto text-left"
+                                  onClick={() => handleGameAction("CISSP (Certified Information Systems Security Professional)", (professionProfile.title === "RSSI"))}
+                                >
+                                  CISSP (Certified Information Systems Security Professional)
+                                </Button>
+                                <Button 
+                                  className="bg-blue-800 hover:bg-blue-700 p-4 h-auto text-left"
+                                  onClick={() => handleGameAction("OSCP (Offensive Security Certified Professional)", (professionProfile.title === "Pentester"))}
+                                >
+                                  OSCP (Offensive Security Certified Professional)
+                                </Button>
+                                <Button 
+                                  className="bg-blue-800 hover:bg-blue-700 p-4 h-auto text-left"
+                                  onClick={() => handleGameAction("CEH (Certified Ethical Hacker)", false)}
+                                >
+                                  CEH (Certified Ethical Hacker)
+                                </Button>
+                                <Button 
+                                  className="bg-blue-800 hover:bg-blue-700 p-4 h-auto text-left"
+                                  onClick={() => handleGameAction("CISA (Certified Information Systems Auditor)", (professionProfile.title === "Auditeur de sécurité"))}
+                                >
+                                  CISA (Certified Information Systems Auditor)
+                                </Button>
+                              </>
+                            ) : (
+                              <>
+                                <Button 
+                                  className="bg-blue-800 hover:bg-blue-700 p-4 h-auto text-left"
+                                  onClick={() => handleGameAction("Manque de budget", false)}
+                                >
+                                  Manque de budget
+                                </Button>
+                                <Button 
+                                  className="bg-blue-800 hover:bg-blue-700 p-4 h-auto text-left"
+                                  onClick={() => handleGameAction("Équilibre entre sécurité et expérience utilisateur", (professionProfile.title === "RSSI" || professionProfile.title === "Architecte sécurité"))}
+                                >
+                                  Équilibre entre sécurité et expérience utilisateur
+                                </Button>
+                                <Button 
+                                  className="bg-blue-800 hover:bg-blue-700 p-4 h-auto text-left"
+                                  onClick={() => handleGameAction("Évolution rapide des menaces", true)}
+                                >
+                                  Évolution rapide des menaces
+                                </Button>
+                                <Button 
+                                  className="bg-blue-800 hover:bg-blue-700 p-4 h-auto text-left"
+                                  onClick={() => handleGameAction("Conformité avec les réglementations", (professionProfile.title === "Consultant GRC"))}
+                                >
+                                  Conformité avec les réglementations
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        )}
                       </div>
                       
+                      {/* Boutons d'action */}
                       <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                          <span className="text-blue-300">Score actuel:</span>
-                          <span className="font-bold text-xl">{gameScore}</span>
+                        <div className="flex items-center">
+                          <Progress value={(gameLevel / 5) * 100} className="w-32 h-2 bg-blue-950 mr-2" indicatorClassName="bg-blue-500" />
+                          <span className="text-sm text-blue-400">{gameLevel}/5</span>
                         </div>
                         
                         <Button
@@ -1075,7 +1159,7 @@ export default function ProfilPro() {
                           onClick={endArcadeGame}
                           className="border-blue-700 text-blue-300 hover:bg-blue-800 hover:text-white"
                         >
-                          Terminer le jeu
+                          Terminer le quiz
                         </Button>
                       </div>
                     </CardContent>
