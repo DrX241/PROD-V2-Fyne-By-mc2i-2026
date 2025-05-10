@@ -264,6 +264,15 @@ function App() {
                 </Suspense>
               );
             }} />
+            
+            <Route path="/cyber/profil-pro" component={() => {
+              const ProfilProComponent = lazy(() => import('./pages/cyber/profil-pro'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <ProfilProComponent />
+                </Suspense>
+              );
+            }} />
 <Route path="/cyber/arcade/code-shield" component={() => {
               const CodeShieldComponent = lazy(() => import('./pages/cyber/arcade/code-shield'));
               return (

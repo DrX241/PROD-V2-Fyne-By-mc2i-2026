@@ -865,7 +865,10 @@ export default function ProfilPro() {
                       <CardContent>
                         <div className="space-y-6">
                           {quizQuestions.map((question, i) => {
-                            const userAnswer = selectedAnswers.get(question.id);
+                            // Récupération sécurisée de la réponse utilisateur
+                            const userAnswer = typeof selectedAnswers === 'object' && selectedAnswers !== null 
+                              ? (selectedAnswers as Record<string, number>)[question.id] || undefined
+                              : undefined;
                             const isCorrect = userAnswer === question.correctAnswer;
                             
                             return (
