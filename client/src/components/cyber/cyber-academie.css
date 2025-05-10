@@ -1,0 +1,64 @@
+/* Styles pour le module CyberChaos et autres modules dans le style Cyber Académie */
+
+/* Polices spéciales */
+.font-rajdhani {
+  font-family: 'Rajdhani', sans-serif;
+}
+
+.font-exo {
+  font-family: 'Exo 2', sans-serif;
+}
+
+/* Animation spéciale pour les éléments */
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Styles des éléments d'interface du module CYBERCHAOS */
+.crisis-event {
+  border-left: 3px solid #3b82f6;
+  transition: all 0.3s ease;
+}
+
+.crisis-event:hover {
+  border-left-width: 6px;
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.decision-card {
+  transition: all 0.2s ease;
+}
+
+.decision-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Statut des événements */
+.event-status-critical {
+  border-color: #ef4444;
+}
+
+.event-status-high {
+  border-color: #f97316;
+}
+
+.event-status-medium {
+  border-color: #f59e0b;
+}
+
+.event-status-low {
+  border-color: #10b981;
+}

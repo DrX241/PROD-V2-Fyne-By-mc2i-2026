@@ -33,6 +33,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/hooks/use-toast";
 import { useChatContext } from "@/contexts/ChatContext";
+import "@/components/cyber/cyber-academie.css";
 
 // Types pour le module CYBERCHAOS
 interface Decision {
@@ -86,9 +87,14 @@ const pageStyle = "min-h-screen bg-gradient-to-b from-blue-900 via-blue-800 to-b
 
 // Composant principal
 const CyberChaos: React.FC = () => {
-  const [, navigate] = useLocation();
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const chatContext = useChatContext();
+  
+  // Fonction pour naviguer
+  const navigate = (path: string) => {
+    setLocation(path);
+  };
   
   // État initial du jeu
   const [gameState, setGameState] = useState<GameState>({
@@ -294,41 +300,67 @@ const CyberChaos: React.FC = () => {
   
   // Fonction pour demander une analyse IA de votre gestion de crise
   const requestAIAnalysis = () => {
-    // Préparer le message système pour l'IA
-    const systemMessage = `Tu es un expert en gestion de crise cybersécurité qui va analyser les choix fait par un joueur dans une simulation de crise cyber.
+    // Préparer le message pour l'analyse
+    const analysisRequest = {
+      prompt: `Tu es un expert en gestion de crise cybersécurité qui va analyser les choix fait par un joueur dans une simulation de crise cyber.
+      
+      Voici l'état final de la simulation:
+      - Durée totale de la crise: ${gameState.currentTime} minutes
+      - Score opérationnel final: ${gameState.operationalScore}/100
+      - Impact financier total: ${gameState.financialImpact}k€
+      - Score de réputation: ${gameState.reputationScore}/100
+      - Niveau de risque légal: ${gameState.legalRisk}/100
+      - Niveau de stress interne: ${gameState.stressLevel}/100
+      
+      Historique des événements et décisions:
+      ${gameState.eventLog.map(entry => `[T+${entry.time}min] ${entry.event}${entry.decision ? ` - ${entry.decision}` : ''}`).join('\n')}
+      
+      Analyse les choix du joueur et donne une évaluation détaillée de sa gestion de crise sous ces aspects:
+      1. Réactivité et rapidité de décision
+      2. Priorisation des actions (protection des actifs critiques)
+      3. Communication et gestion des parties prenantes
+      4. Équilibre entre continuité d'activité et sécurité
+      5. Conformité légale et réglementaire
+      
+      Termine par une note globale sur 10 et des recommandations concrètes pour améliorer la gestion de crise cyber.`,
+      model: "gpt-4o-mini"
+    };
     
-    Voici l'état final de la simulation:
-    - Durée totale de la crise: ${gameState.currentTime} minutes
-    - Score opérationnel final: ${gameState.operationalScore}/100
-    - Impact financier total: ${gameState.financialImpact}k€
-    - Score de réputation: ${gameState.reputationScore}/100
-    - Niveau de risque légal: ${gameState.legalRisk}/100
-    - Niveau de stress interne: ${gameState.stressLevel}/100
-    
-    Historique des événements et décisions:
-    ${gameState.eventLog.map(entry => `[T+${entry.time}min] ${entry.event}${entry.decision ? ` - ${entry.decision}` : ''}`).join('\n')}
-    
-    Analyse les choix du joueur et donne une évaluation détaillée de sa gestion de crise sous ces aspects:
-    1. Réactivité et rapidité de décision
-    2. Priorisation des actions (protection des actifs critiques)
-    3. Communication et gestion des parties prenantes
-    4. Équilibre entre continuité d'activité et sécurité
-    5. Conformité légale et réglementaire
-    
-    Termine par une note globale sur 10 et des recommandations concrètes pour améliorer la gestion de crise cyber.`;
-    
-    // Vérifier si les méthodes sont disponibles dans le contexte
-    if (chatContext && typeof chatContext.setPrompt === 'function') {
-      // Utiliser les méthodes disponibles dans le contexte
-      chatContext.setPrompt(systemMessage);
-      chatContext.setOpen(true);
-    } else {
-      // Afficher un toast si les méthodes ne sont pas disponibles
+    // Appel direct à l'API
+    fetch("/api/cyber-defense/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(analysisRequest),
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error("Erreur réseau lors de la demande");
+      }
+      return response.json();
+    })
+    .then(data => {
+      // Afficher le résultat dans un toast
       toast({
-        title: "Fonctionnalité non disponible",
-        description: "L'analyse IA n'est pas disponible pour le moment."
+        title: "Analyse de crise complétée",
+        description: "Votre rapport d'analyse est prêt.",
+        action: (
+          <ToastAction altText="Voir" onClick={() => {
+            // Afficher une alerte avec le résultat
+            alert("Analyse de crise cybersécurité\n\n" + data.response);
+          }}>Voir l'analyse</ToastAction>
+        ),
       });
-    }
+    })
+    .catch(error => {
+      console.error('Erreur:', error);
+      toast({
+        title: "Erreur d'analyse",
+        description: "Impossible d'obtenir l'analyse pour le moment.",
+        variant: "destructive"
+      });
+    });
   };
   
   // Format du temps (minutes en format h:mm)
