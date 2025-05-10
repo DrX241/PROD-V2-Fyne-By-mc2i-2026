@@ -832,16 +832,16 @@ export default function ProfilPro() {
                         
                         <ul className="text-sm text-left mb-8 bg-blue-900/50 p-4 rounded-lg border border-blue-700/50 max-w-lg mx-auto">
                           <li className="flex items-center gap-2 mb-2">
-                            <Clock className="h-4 w-4 text-blue-400" />
-                            <span className="text-blue-200">Durée : 60 secondes chrono</span>
+                            <Target className="h-4 w-4 text-blue-400" />
+                            <span className="text-blue-200">5 questions sur le métier de {professionProfile.title}</span>
                           </li>
                           <li className="flex items-center gap-2 mb-2">
-                            <Target className="h-4 w-4 text-blue-400" />
-                            <span className="text-blue-200">Défis générés par IA spécifiques au métier</span>
+                            <MessageCircle className="h-4 w-4 text-blue-400" />
+                            <span className="text-blue-200">Feedback détaillé et explications pour chaque réponse</span>
                           </li>
                           <li className="flex items-center gap-2">
-                            <Gauge className="h-4 w-4 text-blue-400" />
-                            <span className="text-blue-200">Difficulté croissante basée sur vos performances</span>
+                            <Award className="h-4 w-4 text-blue-400" />
+                            <span className="text-blue-200">Score final avec analyse de vos connaissances</span>
                           </li>
                         </ul>
                         
@@ -849,7 +849,8 @@ export default function ProfilPro() {
                           onClick={startArcadeGame}
                           className="bg-blue-600 hover:bg-blue-700"
                         >
-                          Lancer le jeu
+                          <Lightbulb className="mr-2 h-4 w-4" />
+                          Commencer le quiz
                         </Button>
                       </div>
                     </CardContent>
@@ -859,7 +860,7 @@ export default function ProfilPro() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Award className="h-5 w-5 text-blue-400" />
-                        Résultats - Mission {professionProfile.title}
+                        Résultats - Quiz {professionProfile.title}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -892,19 +893,19 @@ export default function ProfilPro() {
                         </div>
                         
                         <h3 className="text-xl font-semibold mb-2">
-                          {gameScore >= 150 ? "Expert en action !" : 
-                           gameScore >= 80 ? "Bonnes compétences" : 
-                           gameScore >= 40 ? "Compétences en développement" : 
-                           "Apprenti en formation"}
+                          {gameScore >= 150 ? "Expert du métier !" : 
+                           gameScore >= 80 ? "Bonnes connaissances" : 
+                           gameScore >= 40 ? "Connaissances à approfondir" : 
+                           "Découverte du métier"}
                         </h3>
                         
                         <div className="bg-blue-900/40 p-4 rounded-lg border border-blue-700 max-w-md mx-auto mb-6">
-                          <p className="text-blue-200 mb-2">Analyse IA de votre performance :</p>
+                          <p className="text-blue-200 mb-2">Analyse IA de votre quiz :</p>
                           <p className="text-blue-300">
-                            {gameScore >= 150 ? `Vous avez démontré une excellente maîtrise des compétences clés d'un ${professionProfile.title}. Vous savez gérer efficacement les situations critiques sous pression.` : 
-                             gameScore >= 80 ? `Vous montrez une bonne compréhension des défis quotidiens d'un ${professionProfile.title}. Continuez à développer vos réflexes pour les situations complexes.` : 
-                             gameScore >= 40 ? `Vous avez saisi les bases du métier de ${professionProfile.title}, mais certaines compétences clés nécessitent encore de la pratique.` : 
-                             `Cette simulation montre qu'il serait bénéfique de vous familiariser davantage avec les compétences fondamentales du métier de ${professionProfile.title}.`}
+                            {gameScore >= 150 ? `Vous avez démontré une excellente maîtrise des connaissances essentielles d'un ${professionProfile.title}. Vous comprenez parfaitement les enjeux et responsabilités de ce métier.` : 
+                             gameScore >= 80 ? `Vous montrez une bonne compréhension des aspects clés du métier de ${professionProfile.title}. Quelques notions mériteraient d'être approfondies.` : 
+                             gameScore >= 40 ? `Vous avez saisi les bases du métier de ${professionProfile.title}, mais certaines connaissances fondamentales nécessitent encore de l'apprentissage.` : 
+                             `Ce quiz montre qu'il serait bénéfique d'explorer davantage les fondamentaux du métier de ${professionProfile.title} pour mieux en comprendre les spécificités.`}
                           </p>
                         </div>
                         
