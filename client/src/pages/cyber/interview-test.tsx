@@ -358,11 +358,11 @@ export default function CyberInterviewTest() {
           <Card className="max-w-3xl mx-auto">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-center text-blue-800 dark:text-white">Test d'entretien cybersécurité</CardTitle>
-              <CardDescription className="text-center dark:text-white">
+              <CardDescription className="text-center text-gray-800 dark:text-white">
                 Évaluez vos compétences en cybersécurité avec ce test de 10 minutes
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 text-gray-800 dark:text-white">
               <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-md dark:text-white">
                 <h3 className="font-semibold mb-2 flex items-center text-blue-800 dark:text-white">
                   <Clock className="h-5 w-5 mr-2 text-blue-600" />
@@ -422,11 +422,11 @@ export default function CyberInterviewTest() {
           <Card className="max-w-3xl mx-auto">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-bold text-blue-800 dark:text-white">Évaluation terminée</CardTitle>
-              <CardDescription className="dark:text-white">
+              <CardDescription className="text-gray-800 dark:text-white">
                 Analyse de votre profil en cybersécurité
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 text-gray-800 dark:text-white">
               <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-md dark:text-white">
                 <h3 className="font-semibold mb-2 text-blue-800 dark:text-white">🧑‍💼 Profil évalué</h3>
                 <p className="text-sm text-gray-800 dark:text-white">{evaluationResult.profile}</p>
@@ -484,7 +484,7 @@ export default function CyberInterviewTest() {
         <div className="container mx-auto py-8 px-4 flex flex-col items-center justify-center min-h-[50vh] cyber-interview-test">
           <div className="w-16 h-16 border-4 border-t-transparent border-blue-600 rounded-full animate-spin mb-4"></div>
           <h2 className="text-xl font-semibold mb-2 text-blue-800 dark:text-white">Analyse en cours...</h2>
-          <p className="dark:text-white text-center max-w-md">
+          <p className="text-gray-800 dark:text-white text-center max-w-md">
             Notre IA analyse vos réponses pour générer votre profil de compétences en cybersécurité.
             Cela peut prendre quelques instants.
           </p>
@@ -521,7 +521,7 @@ export default function CyberInterviewTest() {
             </div>
             <Progress value={progress} className="mt-4" />
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 text-gray-800 dark:text-white">
             <div className="space-y-2 text-gray-800 dark:text-white bg-white dark:bg-gray-800 p-4 rounded-lg">
               <h3 className="text-lg font-medium">{questions[currentQuestionIndex]?.question}</h3>
               {questions[currentQuestionIndex]?.hint && (
