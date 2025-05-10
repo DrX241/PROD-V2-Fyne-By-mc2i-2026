@@ -2858,6 +2858,47 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
   });
   
   // Endpoint pour forcer la reconnexion à Azure OpenAI
+  // Route pour chat direct avec l'API OpenAI (utilisée par Escape the Breach)
+  app.post('/api/openai/chat', async (req: Request, res: Response) => {
+    try {
+      const { messages, model = 'gpt-4o-mini', temperature = 0.7, max_tokens = 500 } = req.body;
+      
+      console.log("Making API request to Azure OpenAI for Escape the Breach...");
+      
+      // Vérifier si OpenAIService est disponible
+      if (!openAIService) {
+        return res.status(500).json({ 
+          error: "Le service OpenAI n'est pas disponible actuellement." 
+        });
+      }
+      
+      // Faire la requête à l'API
+      const response = await openAIService.getChatCompletion(messages, {
+        useSecondaryKey: model !== 'gpt-4o',
+        temperature,
+        max_tokens
+      });
+      
+      // Extraire la réponse
+      const completion = response;
+      
+      // Renvoyer la réponse
+      return res.json({
+        choices: [
+          {
+            message: {
+              role: 'assistant',
+              content: completion
+            }
+          }
+        ]
+      });
+    } catch (error: any) {
+      console.error("Erreur lors de l'appel à l'API OpenAI:", error);
+      return res.status(500).json({ error: error.message || "Une erreur est survenue lors de la communication avec l'API" });
+    }
+  });
+
   app.post('/api/openai/reconnect', async (req: Request, res: Response) => {
     try {
       console.log('Reconnexion forcée à Azure OpenAI demandée');

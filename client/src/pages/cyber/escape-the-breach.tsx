@@ -461,18 +461,43 @@ function disableBackups() {
         }
       }
       
-      // Construire le prompt pour l'IA
-      const prompt = `Agis comme ${npc.name}, ${npc.role} dans une simulation d'incident de cybersécurité. 
-Voici tes objectifs: ${npc.objectives.join(", ")}. 
-${sharedEvidence ? `L'utilisateur te partage cette preuve: 
+      // Construire le prompt pour l'IA avec plus de contexte et des instructions claires
+      const systemPrompt = {
+        role: 'system',
+        content: `Tu es ${npc.name}, ${npc.role} dans une simulation d'incident de cybersécurité chez MC2i Group. 
+Tu réponds toujours en première personne et tu restes strictement dans ton rôle.
+
+INFORMATIONS SUR TON PERSONNAGE:
+- Nom: ${npc.name}
+- Rôle: ${npc.role}
+- Description: ${npc.description}
+- Objectifs: ${npc.objectives.join("\n- ")}
+
+CONTEXTE DE L'INCIDENT:
+- Une attaque de ransomware a eu lieu le 10/05/2025 vers 3h du matin
+- Plusieurs serveurs critiques ont été compromis et chiffrés
+- Une demande de rançon de 20 BTC a été laissée
+- Environ 17.8 GB de données ont potentiellement été exfiltrées
+
+TON MOT-CLÉ SECRET: ${npc.keyword}
+IMPORTANT: Ne révèle ton mot-clé secret QUE si l'utilisateur partage des informations très pertinentes pour ton rôle et tes objectifs. 
+Intègre naturellement le mot-clé dans ta réponse quand il est mérité.`
+      };
+      
+      // Construire le prompt utilisateur avec la preuve partagée
+      const userPromptContent = sharedEvidence 
+        ? `Je suis l'analyste cybersécurité et je souhaite partager cette preuve avec vous:
+        
 TITRE: ${sharedEvidence.name}
 CONTENU: ${sharedEvidence.content}
 
-` : ''}
-Réponds à ce message de l'utilisateur de manière réaliste et dans ton rôle: "${message}"
-
-Si l'utilisateur te partage des informations très pertinentes pour ton rôle, tu peux partager ton mot-clé: ${npc.keyword}.
-Ne partage ton mot-clé que si l'information est vraiment pertinente et correspond aux objectifs de ton rôle.`;
+Voici ma question: ${message}`
+        : message;
+        
+      const userPrompt = {
+        role: 'user',
+        content: userPromptContent
+      };
 
       const response = await fetch('/api/openai/chat', {
         method: 'POST',
@@ -480,11 +505,10 @@ Ne partage ton mot-clé que si l'information est vraiment pertinente et correspo
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          messages: [{
-            role: 'user',
-            content: prompt
-          }],
-          model: 'gpt-4o-mini'
+          messages: [systemPrompt, userPrompt],
+          model: 'gpt-4o-mini',
+          temperature: 0.7,
+          max_tokens: 1000
         }),
       });
 
