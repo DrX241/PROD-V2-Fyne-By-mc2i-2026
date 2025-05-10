@@ -321,7 +321,7 @@ export const TutorialProvider: React.FC<TutorialProviderProps> = ({ children }) 
         steps={currentSteps}
         run={showTutorial}
         continuous={true}
-        showProgress={true}
+        showProgress={false}
         showSkipButton={true}
         callback={handleJoyrideCallback}
         scrollToFirstStep={true}
@@ -354,6 +354,7 @@ export const TutorialProvider: React.FC<TutorialProviderProps> = ({ children }) 
           close: 'Fermer',
           last: 'Terminer',
           next: 'Suivant',
+          nextLabelWithProgress: 'Suivant',
           skip: 'Ignorer'
         }}
       />
