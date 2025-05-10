@@ -311,6 +311,9 @@ const CyberChaos: React.FC = () => {
   
   // Fonction pour demander une analyse IA de votre gestion de crise
   const requestAIAnalysis = () => {
+    setIsAnalyzing(true);
+    setAnalysisResult("Analyse en cours...");
+    setIsAnalysisModalOpen(true);
     // Préparer le message pour l'analyse
     const analysisRequest = {
       userMessage: `Tu es un expert en gestion de crise cybersécurité qui va analyser les choix fait par un joueur dans une simulation de crise cyber.
@@ -974,6 +977,51 @@ const CyberChaos: React.FC = () => {
           </div>
         )}
       </main>
+      
+      {/* Modal d'analyse de performance */}
+      <Dialog open={isAnalysisModalOpen} onOpenChange={setIsAnalysisModalOpen}>
+        <DialogContent className="bg-gray-900 border border-blue-700 text-white max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-rajdhani text-blue-200">Analyse de votre gestion de crise</DialogTitle>
+            <DialogDescription className="text-gray-300">
+              Évaluation de vos décisions et de l'impact sur l'organisation.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="mt-4 space-y-4">
+            <Card className="bg-gray-800 border-blue-800">
+              <CardContent className="pt-6">
+                <div className="prose prose-invert">
+                  {analysisResult.split('\n').map((line, i) => {
+                    // Styliser les titres et sous-titres
+                    if (line.match(/^#+\s/)) {
+                      return <h3 key={i} className="text-blue-300 font-rajdhani">{line.replace(/^#+\s/, '')}</h3>;
+                    }
+                    
+                    // Mettre en évidence les points numérotés
+                    if (line.match(/^\d+\.\s/)) {
+                      return <p key={i} className="text-amber-200 font-semibold">{line}</p>;
+                    }
+                    
+                    // Format normal pour les autres lignes
+                    return <p key={i}>{line || ' '}</p>;
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsAnalysisModalOpen(false)}
+              className="border-blue-500 hover:bg-blue-900/50"
+            >
+              Fermer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
