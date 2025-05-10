@@ -165,11 +165,15 @@ const CyberChaos: React.FC = () => {
           );
           
           if (triggerEvent) {
-            toast({
-              title: `${getEventIcon(triggerEvent.severity)} Nouvel événement: ${triggerEvent.title}`,
-              description: triggerEvent.description,
-              variant: getEventToastVariant(triggerEvent.severity),
-            });
+            // Utiliser setTimeout pour éviter les mises à jour pendant le rendu
+            const eventToShow = triggerEvent; // Capture la valeur actuelle
+            setTimeout(() => {
+              toast({
+                title: `${getEventIcon(eventToShow.severity)} Nouvel événement: ${eventToShow.title}`,
+                description: eventToShow.description,
+                variant: getEventToastVariant(eventToShow.severity),
+              });
+            }, 0);
             
             return {
               ...prevState,
@@ -239,11 +243,15 @@ const CyberChaos: React.FC = () => {
         decision: decision.description
       }];
       
-      // Message de feedback
-      toast({
-        title: `Décision appliquée: ${decision.title}`,
-        description: `Impact principal: ${getMainImpactDescription(decision.impacts)}`,
-      });
+      // Message de feedback - utiliser setTimeout pour éviter les mises à jour pendant le rendu
+      const decisionTitle = decision.title;
+      const decisionImpacts = decision.impacts;
+      setTimeout(() => {
+        toast({
+          title: `Décision appliquée: ${decisionTitle}`,
+          description: `Impact principal: ${getMainImpactDescription(decisionImpacts)}`,
+        });
+      }, 0);
       
       return {
         ...prevState,
