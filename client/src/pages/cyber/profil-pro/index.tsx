@@ -194,6 +194,9 @@ export default function ProfilPro() {
     }
   };
   
+  // Types de jeux disponibles
+  type GameType = 'decision' | 'impostor' | 'intruder';
+  
   // État pour le mini-jeu arcade
   const [gameStarted, setGameStarted] = useState<boolean>(false);
   const [gameScore, setGameScore] = useState<number>(0);
@@ -201,6 +204,7 @@ export default function ProfilPro() {
   const [gameLevel, setGameLevel] = useState<number>(1);
   const [gameTime, setGameTime] = useState<number>(60); // 60 secondes par défaut
   const [gameTimerId, setGameTimerId] = useState<NodeJS.Timeout | null>(null);
+  const [selectedGameType, setSelectedGameType] = useState<GameType>('decision');
   
   // Démarrer le jeu arcade
   const startArcadeGame = () => {
@@ -240,6 +244,7 @@ export default function ProfilPro() {
     setGameCompleted(true);
   };
   
+  // Interfaces pour les différents types de jeux
   interface GameChallenge {
     challenge: string;
     difficulty: number;
@@ -248,8 +253,25 @@ export default function ProfilPro() {
     explanation: string;
   }
   
-  // État pour le défi actuel
+  interface ImpostorGame {
+    scenario: string;
+    professionals: string[];
+    impostor: number; // Index de l'imposteur dans le tableau professionals
+    clues: string[];
+    explanation: string;
+  }
+  
+  interface IntruderGame {
+    category: string;
+    items: string[];
+    intruder: number; // Index de l'intrus dans le tableau items
+    explanation: string;
+  }
+  
+  // États pour les défis actuels des différents jeux
   const [currentChallenge, setCurrentChallenge] = useState<GameChallenge | null>(null);
+  const [currentImpostorGame, setCurrentImpostorGame] = useState<ImpostorGame | null>(null);
+  const [currentIntruderGame, setCurrentIntruderGame] = useState<IntruderGame | null>(null);
   
   // Générer un défi aléatoire basé sur le métier
   const generateChallenge = (profession: string): GameChallenge => {
@@ -389,8 +411,10 @@ export default function ProfilPro() {
         setGameLevel((prevLevel) => Math.min(prevLevel + 1, 5));
         
         // Générer un nouveau défi
-        const newChallenge = generateChallenge(professionProfile.title);
-        setCurrentChallenge(newChallenge);
+        if (professionProfile && professionProfile.title) {
+          const newChallenge = generateChallenge(professionProfile.title);
+          setCurrentChallenge(newChallenge);
+        }
       }, 3000);
     } else {
       // Mauvaise réponse: -5 points * niveau
