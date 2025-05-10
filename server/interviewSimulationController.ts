@@ -920,110 +920,222 @@ Commence par exposer brièvement la situation problématique et demande au consu
  * Génère le prompt pour une étape spécifique de l'audition cybersécurité
  */
 function generateCyberStepPrompt(step: number, profileType: string, experienceLevel: string): string {
-  // Adapter la difficulté en fonction de l'étape et du niveau d'expérience
+  // Niveau de complexité des questions basé sur l'expérience
   let baseComplexity = 'intermédiaire';
   switch (experienceLevel.toLowerCase()) {
     case 'junior':
-      baseComplexity = 'basique';
+      baseComplexity = 'fondamental';
       break;
     case 'confirmé':
     case 'confirme':
       baseComplexity = 'intermédiaire';
       break;
     case 'senior':
+      baseComplexity = 'avancé';
+      break;
     case 'expert':
-      baseComplexity = 'avancée';
+      baseComplexity = 'expert';
       break;
   }
   
-  // Augmenter progressivement la difficulté en fonction de l'étape
+  // Progression de difficulté technique en fonction de l'étape d'entretien
+  // Les questions deviennent de plus en plus pointues et spécifiques
   const complexityByStep = {
-    junior: ['basique', 'intermédiaire', 'intermédiaire'],
-    confirmé: ['intermédiaire', 'intermédiaire', 'avancée'],
-    confirme: ['intermédiaire', 'intermédiaire', 'avancée'],
-    senior: ['intermédiaire', 'avancée', 'avancée'],
-    expert: ['avancée', 'avancée', 'très avancée']
+    junior: ['fondamental', 'fondamental-plus', 'intermédiaire', 'intermédiaire-plus'],
+    confirmé: ['intermédiaire', 'intermédiaire-plus', 'avancé', 'avancé-plus'],
+    confirme: ['intermédiaire', 'intermédiaire-plus', 'avancé', 'avancé-plus'],
+    senior: ['avancé', 'avancé-plus', 'expert', 'expert-plus'],
+    expert: ['expert', 'expert-plus', 'spécialiste', 'spécialiste-défi']
   };
   
-  // Déterminer la complexité finale
+  // Déterminer la complexité finale en fonction de l'étape et du niveau
   let complexity = baseComplexity;
   const expLevel = experienceLevel.toLowerCase();
   
-  // Pour les étapes > 3, on maintient le niveau de difficulté maximal
-  if (step > 3) {
+  // Limiter l'étape à 4 maximum pour l'indexation dans le tableau
+  const cappedStep = Math.min(step, 4);
+  
+  // Appliquer la progression de difficulté adaptée au niveau d'expérience
+  if (cappedStep > 0) {
     if (expLevel === 'junior') {
-      complexity = 'intermédiaire';
+      complexity = complexityByStep.junior[cappedStep - 1];
     } else if (expLevel === 'confirmé' || expLevel === 'confirme') {
-      complexity = 'avancée';
+      complexity = complexityByStep.confirme[cappedStep - 1];
     } else if (expLevel === 'senior') {
-      complexity = 'avancée';
+      complexity = complexityByStep.senior[cappedStep - 1];
     } else if (expLevel === 'expert') {
-      complexity = 'très avancée';
-    }
-  } 
-  // Pour les 3 premières étapes, on utilise la progression définie
-  else if (step > 0) {
-    if (expLevel === 'junior') {
-      complexity = complexityByStep.junior[step - 1];
-    } else if (expLevel === 'confirmé' || expLevel === 'confirme') {
-      complexity = complexityByStep.confirme[step - 1];
-    } else if (expLevel === 'senior') {
-      complexity = complexityByStep.senior[step - 1];
-    } else if (expLevel === 'expert') {
-      complexity = complexityByStep.expert[step - 1];
+      complexity = complexityByStep.expert[cappedStep - 1];
     }
   }
   
-  // Phase temporelle basée sur l'étape (nouvelle version sans limite d'étapes)
+  // Phases d'entretien technique plus rigoureuses et adaptées à un recrutement
   let phase = '';
   let phaseObjective = '';
   
-  // Définir les phases de base
+  // Définir les phases d'entretien technique en cybersécurité
   const phases = [
     {
-      title: "Phase de compréhension du contexte (début)",
-      objective: `Cette phase vise à évaluer la capacité du consultant à :
-      - Reformuler clairement la problématique de sécurité
-      - Identifier les risques et vulnérabilités principales
-      - Poser des questions pertinentes pour clarifier le contexte
-      - Démontrer sa compréhension des enjeux de sécurité spécifiques`
+      title: "Phase d'évaluation des connaissances fondamentales",
+      objective: `Évaluer les connaissances fondamentales du candidat en cybersécurité:
+      - Principaux concepts et terminologie de sécurité
+      - Compréhension des vulnérabilités et menaces courantes
+      - Connaissances des frameworks et normes de base (ISO 27001, NIST, etc.)
+      - Bases cryptographiques et de sécurité réseau`
     },
     {
-      title: "Phase d'analyse technique (milieu)",
-      objective: `Cette phase vise à évaluer la capacité du consultant à :
-      - Proposer une approche méthodologique de sécurité adaptée
-      - Exploiter ses connaissances techniques dans un contexte client
-      - Identifier les priorités et les mesures immédiates à prendre
-      - Démontrer sa maîtrise des frameworks et standards de sécurité`
+      title: "Phase d'analyse technique approfondie",
+      objective: `Évaluer l'expertise technique et pratique du candidat:
+      - Capacité à analyser des scénarios d'attaque concrets
+      - Maîtrise des outils et techniques spécifiques à son domaine
+      - Connaissance approfondie des mécanismes de sécurité
+      - Expérience pratique dans la résolution d'incidents`
     },
     {
-      title: "Phase de recommandation stratégique (fin de simulation)",
-      objective: `Cette phase vise à évaluer la capacité du consultant à :
-      - Synthétiser la situation de sécurité et les enjeux
-      - Formuler un plan d'action clair avec priorisation des mesures
-      - Proposer des métriques de suivi pertinentes
-      - Présenter une vision stratégique à court et long terme`
+      title: "Phase de mise en situation complexe",
+      objective: `Évaluer la capacité d'adaptation et de résolution de problèmes:
+      - Réaction face à des scénarios complexes ou inhabituels
+      - Capacité à prioriser les actions dans un contexte de crise
+      - Application des connaissances théoriques à des cas réels
+      - Raisonnement méthodique sous pression`
+    },
+    {
+      title: "Phase d'évaluation de la vision stratégique",
+      objective: `Évaluer la vision globale et la maturité professionnelle:
+      - Compréhension des enjeux business liés à la sécurité
+      - Vision à long terme et approche stratégique 
+      - Capacité à communiquer des concepts techniques à différents niveaux
+      - Réflexion sur l'évolution des menaces et des technologies`
     }
   ];
   
-  if (step <= 3) {
-    // Pour les 3 premières étapes, utiliser les phases prédéfinies
-    phase = phases[step - 1].title;
-    phaseObjective = phases[step - 1].objective;
+  // Déterminer la phase d'entretien en fonction de l'étape
+  if (step <= 4) {
+    // Pour les 4 premières étapes, suivre la progression définie
+    phase = phases[Math.min(step - 1, phases.length - 1)].title;
+    phaseObjective = phases[Math.min(step - 1, phases.length - 1)].objective;
   } else {
-    // Pour les étapes > 3, alterner entre les phases 2 et 3
-    // On ne revient pas à la phase 1 car la compréhension du contexte est supposée acquise
-    const phaseIndex = (step % 2) === 0 ? 1 : 2; // Alterne entre phase 2 et 3
-    phase = `Phase d'approfondissement ${step - 3}`;
+    // Pour les étapes supplémentaires, varier entre les phases avancées
+    const phaseIndex = ((step - 1) % 3) + 1; // Alterne entre phases 2, 3 et 4
+    phase = `Phase d'approfondissement technique (niveau ${complexity})`;
     phaseObjective = phases[phaseIndex].objective;
   }
   
-  return `CONTEXTE: Tu simules un CLIENT qui évalue un consultant en CYBERSÉCURITÉ lors d'une audition - ÉTAPE ${step}.
+  // Thèmes techniques spécifiques adaptés au profil
+  
+  // Thèmes communs à tous les profils de cybersécurité
+  const commonThemes = [
+    "Concepts de base en cybersécurité",
+    "Gestion des vulnérabilités",
+    "Sécurisation des réseaux",
+    "Gestion des incidents",
+    "Normes et frameworks de sécurité"
+  ];
+  
+  // Thèmes spécifiques par profil
+  const specificThemes: Record<string, string[]> = {
+    "pentest": [
+      "Méthodologies de tests d'intrusion",
+      "Exploitation de vulnérabilités web",
+      "Techniques d'élévation de privilèges",
+      "Outils de pentest (Metasploit, Burp Suite, etc.)",
+      "Post-exploitation et pivoting",
+      "Fuzzing et découverte de bugs"
+    ],
+    "soc": [
+      "Détection et réponse aux incidents",
+      "Analyse de logs et SIEM",
+      "Threat hunting",
+      "Forensics et investigation",
+      "Indicateurs de compromission (IOC)",
+      "Blue Team et défense active"
+    ],
+    "gouvernance": [
+      "Gestion des risques cyber",
+      "Conformité réglementaire (RGPD, NIS2, etc.)",
+      "Politiques de sécurité",
+      "Audits et certifications",
+      "Business continuity et disaster recovery",
+      "Sensibilisation et formation"
+    ],
+    "cloud": [
+      "Sécurité dans les environnements cloud (AWS, Azure, GCP)",
+      "Containerisation et sécurité Docker/Kubernetes",
+      "Identity and Access Management (IAM)",
+      "DevSecOps et CI/CD sécurisé",
+      "Sécurité Zero Trust",
+      "Data protection en environnement cloud"
+    ],
+    "application": [
+      "Secure coding et SSDLC",
+      "OWASP Top 10 et vulnérabilités applicatives",
+      "Sécurité API",
+      "Analyse statique et dynamique de code",
+      "Authentification et autorisation",
+      "Cryptographie appliquée"
+    ],
+    "systèmes": [
+      "Durcissement des systèmes",
+      "Gestion des correctifs",
+      "Sécurité des OS (Windows, Linux)",
+      "Sécurité des endpoints",
+      "Détection d'intrusion (HIDS/NIDS)",
+      "Virtualisation et sécurité des hyperviseurs"
+    ]
+  };
+  
+  // Extraire le type de profil de base (en minuscules et sans accents)
+  const normalizedProfile = profileType.toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  
+  // Identifier le profil le plus pertinent parmi ceux disponibles
+  let matchedProfile = "généraliste"; // Par défaut
+  
+  Object.keys(specificThemes).forEach(key => {
+    if (normalizedProfile.includes(key)) {
+      matchedProfile = key;
+    }
+  });
+  
+  // Sélectionner les thèmes appropriés
+  let selectedThemes: string[] = [];
+  
+  if (matchedProfile !== "généraliste" && specificThemes[matchedProfile]) {
+    // Pour un profil spécifique identifié
+    selectedThemes = specificThemes[matchedProfile].slice(0, 3);
+  } else {
+    // Pour un profil généraliste ou non identifié
+    // Sélectionner quelques thèmes aléatoires parmi les différentes catégories
+    const allSpecificThemes = Object.values(specificThemes).flat();
+    
+    // Mélanger et prendre 3 thèmes spécifiques aléatoires
+    for (let i = 0; i < 3; i++) {
+      const randomIndex = Math.floor(Math.random() * allSpecificThemes.length);
+      const theme = allSpecificThemes.splice(randomIndex, 1)[0];
+      selectedThemes.push(theme);
+    }
+  }
+  
+  // Ajouter 1-2 thèmes communs en fonction de la complexité
+  if (complexity.includes('fondamental')) {
+    selectedThemes.unshift(commonThemes[0], commonThemes[1]);
+  } else if (complexity.includes('intermédiaire')) {
+    selectedThemes.unshift(commonThemes[2], commonThemes[4]);
+  } else {
+    selectedThemes.push(commonThemes[3]);
+  }
+  
+  const technicalThemes = selectedThemes.join(", ");
+  
+  return `CONTEXTE: Tu es un RECRUTEUR TECHNIQUE spécialisé en cybersécurité qui conduit un ENTRETIEN D'EMBAUCHE - ÉTAPE ${step}.
 
-RÔLE: Responsable d'entreprise (DSI, RSSI, DG) confronté à un problème de sécurité qui évalue un consultant.
-Tu n'es PAS un consultant. Tu n'es PAS un système d'IA. Tu es un client RÉEL.
+RÔLE: Expert technique qui évalue rigoureusement un candidat pour un poste de ${profileType} (niveau: ${experienceLevel}).
+Tu n'es PAS là pour aider ou former le candidat, mais pour évaluer objectivement ses compétences techniques et sa cohérence.
 
-MISSION: Challenger le consultant pour évaluer ses compétences et sa capacité à résoudre ton problème de sécurité.
+PHASE ACTUELLE: ${phase}
+NIVEAU DE COMPLEXITÉ TECHNIQUE: ${complexity}
+THÈMES TECHNIQUES À ABORDER: ${technicalThemes}
+
+MISSION: Évaluer avec rigueur les compétences techniques du candidat, détecter les incohérences ou imprécisions, et adapter la difficulté de tes questions en fonction de ses réponses.
 
 PARAMÈTRES:
 - Profil du consultant: ${profileType}
@@ -1296,46 +1408,46 @@ Pour cette étape, pose une question sur: ${challenge}`;
  * Génère le prompt pour l'évaluation finale d'une audition client cybersécurité
  */
 function generateCyberEvaluationPrompt(candidateName: string, profileType: string, experienceLevel: string): string {
-  return `Tu es un expert en évaluation des performances de consultants en cybersécurité lors d'auditions client.
+  return `Tu es un expert en recrutement technique spécialisé en cybersécurité, chargé d'analyser des entretiens d'embauche techniques.
 
-Tu dois évaluer une audition client professionnelle qui vient de se terminer:
-- Nom du consultant: ${candidateName}
-- Type de profil: ${profileType}
+Tu dois évaluer un entretien technique qui vient de se terminer:
+- Nom du candidat: ${candidateName}
+- Poste visé: ${profileType}
 - Niveau d'expérience déclaré: ${experienceLevel}
 
 IMPORTANT - TON ÉVALUATION DOIT ÊTRE STRUCTURÉE EXACTEMENT AVEC LES SECTIONS SUIVANTES:
 
-## 1. Présentation et attitude professionnelle
-[Analyser comment le consultant s'est présenté, sa posture, son professionnalisme et sa capacité à établir une relation de confiance. Donner des exemples concrets tirés de ses réponses.]
+## 1. Compétences techniques démontrées
+[Analyse détaillée des connaissances techniques du candidat, niveau de maîtrise des concepts, précision du vocabulaire technique, et pertinence des réponses aux questions techniques. Cite des exemples précis de connaissances démontrées ou de lacunes identifiées.]
 
-## 2. Compréhension et reformulation du contexte
-[Évaluer si le consultant a bien compris et reformulé le problème de cybersécurité présenté de façon personnalisée, ou s'il s'est contenté de répéter textuellement les informations données. Donner des exemples concrets.]
+## 2. Rigueur et précision
+[Évalue la rigueur scientifique des réponses, la capacité à donner des informations précises plutôt que vagues, et l'honnêteté intellectuelle (reconnaissance des limites de ses connaissances). Donne des exemples concrets.]
 
-## 3. Expertise technique et méthodologie
-[Évaluer la pertinence des solutions techniques proposées et l'approche méthodologique pour le problème présenté. Être spécifique sur les éléments techniques mentionnés ou manquants.]
+## 3. Résolution de problèmes
+[Analyse la méthodologie de résolution de problèmes, la structuration de la réflexion, la capacité d'analyse et la pertinence des solutions proposées face aux situations techniques posées.]
 
-## 4. Forces identifiées
-- [Point fort 1 - Spécifique et illustré par un exemple]
-- [Point fort 2 - Spécifique et illustré par un exemple]
-- [Point fort 3 - Spécifique et illustré par un exemple]
+## 4. Forces techniques identifiées
+- [Force technique 1 - Spécifique et illustrée par un exemple]
+- [Force technique 2 - Spécifique et illustrée par un exemple]
+- [Force technique 3 - Spécifique et illustrée par un exemple]
 
-## 5. Axes d'amélioration
-- [Axe d'amélioration 1 - Concret avec suggestion]
-- [Axe d'amélioration 2 - Concret avec suggestion]
-- [Axe d'amélioration 3 - Concret avec suggestion]
+## 5. Lacunes techniques identifiées
+- [Lacune 1 - Domaine précis avec exemple concret]
+- [Lacune 2 - Domaine précis avec exemple concret]
+- [Lacune 3 - Domaine précis avec exemple concret]
 
-## 6. Adéquation au niveau déclaré
-[Évaluer de façon détaillée si le niveau réel démontré correspond au niveau ${experienceLevel}. Justifier pourquoi il correspond ou non en comparant avec les standards attendus pour ce niveau d'expérience en cybersécurité.]
+## 6. Adéquation au poste et au niveau
+[Évaluation objective de l'adéquation entre les compétences démontrées et les exigences du poste de ${profileType} niveau ${experienceLevel}. Compare avec les standards attendus dans l'industrie pour ce type de poste.]
 
-## 7. Évaluation globale
-[Donner une note sur 5 et une évaluation synthétique de la prestation avec une recommandation finale (À recruter / À considérer / À renforcer).]
+## 7. Évaluation technique globale
+[Note technique sur 5 et recommandation finale (Recommandé / À considérer avec réserves / Non recommandé). Fournis une justification synthétique et technique de ta décision.]
 
 CONSIGNES ESSENTIELLES:
 - Utilise exclusivement les titres de section avec ce format exact (incluant la numérotation et les ##)
-- Ta réponse sera affichée directement dans l'interface de l'application, pas envoyée par email
-- Ton analyse doit être factuelle et basée uniquement sur le contenu des échanges
-- Ne reprends pas de longs extraits des réponses du consultant
-- Concentre-toi sur l'analyse des compétences démontrées et non sur le contenu des questions
+- Ton analyse doit être rigoureuse, factuelle et basée uniquement sur les compétences techniques démontrées
+- Sois particulièrement attentif aux incohérences techniques, aux confusions conceptuelles et aux imprécisions
+- Reste neutre et objectif, en te concentrant exclusivement sur les compétences et non sur le style de communication
+- Ne reprends pas de longs extraits des réponses, mais cite des exemples précis d'erreurs ou de bonnes réponses
 - Sois précis et constructif, même en cas de performance limitée`;
 }
 
