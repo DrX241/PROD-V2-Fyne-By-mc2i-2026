@@ -247,21 +247,22 @@ function App() {
                 </Suspense>
               );
             }} />
-            {/* Nouvelle section Automatiser/Créer */}
-            <Route path="/cyber/automatiser-creer" component={() => {
-              const AutomatiserCreerComponent = lazy(() => import('./pages/cyber/automatiser-creer'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <AutomatiserCreerComponent />
-                </Suspense>
-              );
-            }} />
+
             
             <Route path="/cyber/tools/phishing-simulator" component={() => {
               const PhishingSimulatorComponent = lazy(() => import('./pages/cyber/tools/phishing-simulator'));
               return (
                 <Suspense fallback={<GlobalLoader />}>
                   <PhishingSimulatorComponent />
+                </Suspense>
+              );
+            }} />
+            
+            <Route path="/cyber/tools/assistant-cyber" component={() => {
+              const AssistantCyberComponent = lazy(() => import('./pages/cyber/tools/assistant-cyber'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <AssistantCyberComponent />
                 </Suspense>
               );
             }} />
