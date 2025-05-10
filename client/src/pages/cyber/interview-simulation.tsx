@@ -374,9 +374,9 @@ const CyberInterviewSimulation: React.FC = () => {
                   name="trainerEmail"
                   render={({ field }) => (
                     <FormItem className="mb-4">
-                      <FormLabel className="text-white">Email du recruteur</FormLabel>
+                      <FormLabel className="text-gray-800 dark:text-white">Email du recruteur</FormLabel>
                       <FormControl>
-                        <Input {...field} className="bg-gray-700 border-gray-600 text-white" />
+                        <Input {...field} className="bg-white dark:bg-gray-700 border-blue-200 dark:border-gray-600 text-gray-800 dark:text-white" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -388,9 +388,9 @@ const CyberInterviewSimulation: React.FC = () => {
                   name="candidateName"
                   render={({ field }) => (
                     <FormItem className="mb-4">
-                      <FormLabel className="text-white">Nom du candidat</FormLabel>
+                      <FormLabel className="text-gray-800 dark:text-white">Nom du candidat</FormLabel>
                       <FormControl>
-                        <Input {...field} className="bg-gray-700 border-gray-600 text-white" />
+                        <Input {...field} className="bg-white dark:bg-gray-700 border-blue-200 dark:border-gray-600 text-gray-800 dark:text-white" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -402,9 +402,9 @@ const CyberInterviewSimulation: React.FC = () => {
                   name="candidateEmail"
                   render={({ field }) => (
                     <FormItem className="mb-4">
-                      <FormLabel className="text-white">Email du candidat</FormLabel>
+                      <FormLabel className="text-gray-800 dark:text-white">Email du candidat</FormLabel>
                       <FormControl>
-                        <Input {...field} className="bg-gray-700 border-gray-600 text-white" />
+                        <Input {...field} className="bg-white dark:bg-gray-700 border-blue-200 dark:border-gray-600 text-gray-800 dark:text-white" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -414,7 +414,7 @@ const CyberInterviewSimulation: React.FC = () => {
                 <AlertDialogFooter className="gap-2 mt-6">
                   <Button
                     type="submit" 
-                    className="bg-[#006a9e] hover:bg-blue-700"
+                    className="bg-[#006a9e] hover:bg-blue-700 text-white"
                     disabled={isLoading}
                   >
                     {isLoading ? "Chargement..." : "Soumettre et finaliser"}
