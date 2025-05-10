@@ -302,7 +302,7 @@ const CyberChaos: React.FC = () => {
   const requestAIAnalysis = () => {
     // Préparer le message pour l'analyse
     const analysisRequest = {
-      prompt: `Tu es un expert en gestion de crise cybersécurité qui va analyser les choix fait par un joueur dans une simulation de crise cyber.
+      userMessage: `Tu es un expert en gestion de crise cybersécurité qui va analyser les choix fait par un joueur dans une simulation de crise cyber.
       
       Voici l'état final de la simulation:
       - Durée totale de la crise: ${gameState.currentTime} minutes
@@ -323,7 +323,15 @@ const CyberChaos: React.FC = () => {
       5. Conformité légale et réglementaire
       
       Termine par une note globale sur 10 et des recommandations concrètes pour améliorer la gestion de crise cyber.`,
-      model: "gpt-4o-mini"
+      model: "gpt-4o-mini",
+      missionContext: {
+        title: "CYBERCHAOS - Gestion de crise",
+        companyName: "ACIA Technologies",
+        secteurActivite: "Technologies de l'information",
+        userRole: "RSSI",
+        difficulty: "Intermédiaire"
+      },
+      previousMessages: []
     };
     
     // Appel direct à l'API
@@ -341,15 +349,19 @@ const CyberChaos: React.FC = () => {
       return response.json();
     })
     .then(data => {
-      // Afficher le résultat dans un toast
+      setIsAnalyzing(false);
+      // Afficher le résultat dans un dialog plus élaboré avec le contenu formaté
+      setAnalysisResult(data.response || data.message || "Analyse non disponible");
+      setIsAnalysisModalOpen(true);
+      
+      // Notification toast
       toast({
         title: "Analyse de crise complétée",
         description: "Votre rapport d'analyse est prêt.",
         action: (
-          <ToastAction altText="Voir" onClick={() => {
-            // Afficher une alerte avec le résultat
-            alert("Analyse de crise cybersécurité\n\n" + data.response);
-          }}>Voir l'analyse</ToastAction>
+          <ToastAction altText="Voir" onClick={() => setIsAnalysisModalOpen(true)}>
+            Voir l'analyse
+          </ToastAction>
         ),
       });
     })
