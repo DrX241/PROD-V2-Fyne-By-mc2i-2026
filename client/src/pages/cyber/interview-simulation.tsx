@@ -438,18 +438,18 @@ const CyberInterviewSimulation: React.FC = () => {
           <div className="container mx-auto py-8 px-4">
             <Card className="max-w-3xl mx-auto">
               <CardHeader>
-                <CardTitle className="text-2xl font-bold text-center font-[Rajdhani]">Simulation d'entretien technique</CardTitle>
-                <CardDescription className="text-center">
+                <CardTitle className="text-2xl font-bold text-center text-blue-800 dark:text-white font-[Rajdhani]">Simulation d'entretien technique</CardTitle>
+                <CardDescription className="text-center dark:text-white">
                   Préparez-vous aux entretiens d'embauche en cybersécurité avec une IA
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="bg-blue-950/30 p-4 rounded-md">
-                  <h3 className="font-semibold mb-2 flex items-center">
-                    <Clock className="h-5 w-5 mr-2 text-blue-300" />
+                <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-md">
+                  <h3 className="font-semibold mb-2 flex items-center text-blue-800 dark:text-white">
+                    <Clock className="h-5 w-5 mr-2 text-blue-600" />
                     Comment ça fonctionne
                   </h3>
-                  <ul className="list-disc list-inside space-y-2 text-sm text-blue-100">
+                  <ul className="list-disc list-inside space-y-2 text-sm text-gray-800 dark:text-blue-100">
                     <li>Simulation chronométrée de 10 minutes</li>
                     <li>Conversation réaliste avec un recruteur spécialisé en cybersécurité</li>
                     <li>Questions techniques adaptées au profil spécifié</li>
@@ -458,12 +458,12 @@ const CyberInterviewSimulation: React.FC = () => {
                   </ul>
                 </div>
 
-                <div className="bg-amber-950/30 p-4 rounded-md">
-                  <h3 className="font-semibold mb-2 flex items-center">
-                    <AlertCircle className="h-5 w-5 mr-2 text-amber-300" />
+                <div className="bg-amber-50 dark:bg-amber-950/30 p-4 rounded-md">
+                  <h3 className="font-semibold mb-2 flex items-center text-blue-800 dark:text-white">
+                    <AlertCircle className="h-5 w-5 mr-2 text-amber-600" />
                     À savoir avant de commencer
                   </h3>
-                  <ul className="list-disc list-inside space-y-2 text-sm text-blue-100">
+                  <ul className="list-disc list-inside space-y-2 text-sm text-gray-800 dark:text-blue-100">
                     <li>L'entretien sera chronométré dès que vous cliquerez sur "Commencer"</li>
                     <li>Répondez comme vous le feriez dans un véritable entretien</li>
                     <li>Soyez précis et concis dans vos réponses</li>
@@ -500,25 +500,25 @@ const CyberInterviewSimulation: React.FC = () => {
             onValueChange={setActiveTab}
             className="w-full max-w-4xl mx-auto"
           >
-            <TabsList className="grid grid-cols-3 mb-8 bg-blue-950/60">
+            <TabsList className="grid grid-cols-3 mb-8 bg-blue-100 dark:bg-blue-950/60">
               <TabsTrigger 
                 value="configuration"
                 disabled={isSimulationActive && !simulationComplete}
-                className="text-white data-[state=active]:bg-blue-700"
+                className="text-gray-800 dark:text-white data-[state=active]:bg-blue-700 data-[state=active]:text-white"
               >
                 Configuration
               </TabsTrigger>
               <TabsTrigger 
                 value="simulation" 
                 disabled={!isSimulationActive || simulationComplete}
-                className="text-white data-[state=active]:bg-blue-700"
+                className="text-gray-800 dark:text-white data-[state=active]:bg-blue-700 data-[state=active]:text-white"
               >
                 Simulation
               </TabsTrigger>
               <TabsTrigger 
                 value="evaluation" 
                 disabled={!simulationComplete}
-                className="text-white data-[state=active]:bg-blue-700"
+                className="text-gray-800 dark:text-white data-[state=active]:bg-blue-700 data-[state=active]:text-white"
               >
                 Évaluation
               </TabsTrigger>
@@ -526,10 +526,10 @@ const CyberInterviewSimulation: React.FC = () => {
             
             {/* Onglet Configuration */}
             <TabsContent value="configuration">
-              <Card className="bg-blue-900/20 border-blue-800">
+              <Card className="bg-white dark:bg-blue-900/20 border-blue-300 dark:border-blue-800 shadow-md">
                 <CardHeader>
-                  <CardTitle className="font-[Rajdhani]">Configuration de l'entretien technique</CardTitle>
-                  <CardDescription className="text-blue-300">
+                  <CardTitle className="font-[Rajdhani] text-blue-800 dark:text-white">Configuration de l'entretien technique</CardTitle>
+                  <CardDescription className="text-blue-700 dark:text-blue-300">
                     Personnalisez votre entretien en fonction de votre profil et de vos intérêts
                   </CardDescription>
                 </CardHeader>
@@ -541,17 +541,17 @@ const CyberInterviewSimulation: React.FC = () => {
                         name="experience"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-white">Niveau d'expérience</FormLabel>
+                            <FormLabel className="text-gray-800 dark:text-white">Niveau d'expérience</FormLabel>
                             <Select 
                               onValueChange={field.onChange} 
                               defaultValue={field.value}
                             >
                               <FormControl>
-                                <SelectTrigger className="bg-blue-950/60 border-blue-700 text-white">
+                                <SelectTrigger className="bg-white dark:bg-blue-950/60 border-blue-300 dark:border-blue-700 text-gray-800 dark:text-white">
                                   <SelectValue placeholder="Sélectionnez votre niveau" />
                                 </SelectTrigger>
                               </FormControl>
-                              <SelectContent className="bg-blue-950 border-blue-700 text-white">
+                              <SelectContent className="bg-white dark:bg-blue-950 border-blue-300 dark:border-blue-700 text-gray-800 dark:text-white">
                                 <SelectItem value="junior">Junior (0-2 ans)</SelectItem>
                                 <SelectItem value="intermediaire">Intermédiaire (3-5 ans)</SelectItem>
                                 <SelectItem value="senior">Senior (6+ ans)</SelectItem>
@@ -568,17 +568,17 @@ const CyberInterviewSimulation: React.FC = () => {
                         name="techDomain"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-white">Domaine technique principal</FormLabel>
+                            <FormLabel className="text-gray-800 dark:text-white">Domaine technique principal</FormLabel>
                             <Select 
                               onValueChange={field.onChange} 
                               defaultValue={field.value}
                             >
                               <FormControl>
-                                <SelectTrigger className="bg-blue-950/60 border-blue-700 text-white">
+                                <SelectTrigger className="bg-white dark:bg-blue-950/60 border-blue-300 dark:border-blue-700 text-gray-800 dark:text-white">
                                   <SelectValue placeholder="Sélectionnez un domaine technique" />
                                 </SelectTrigger>
                               </FormControl>
-                              <SelectContent className="bg-blue-950 border-blue-700 text-white">
+                              <SelectContent className="bg-white dark:bg-blue-950 border-blue-300 dark:border-blue-700 text-gray-800 dark:text-white">
                                 <SelectItem value="securityArchitecture">Architecture de sécurité</SelectItem>
                                 <SelectItem value="penetrationTesting">Tests d'intrusion</SelectItem>
                                 <SelectItem value="securityOperations">Opérations de sécurité (SOC)</SelectItem>
@@ -601,17 +601,17 @@ const CyberInterviewSimulation: React.FC = () => {
                         name="softDomain"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-white">Domaine fonctionnel</FormLabel>
+                            <FormLabel className="text-gray-800 dark:text-white">Domaine fonctionnel</FormLabel>
                             <Select 
                               onValueChange={field.onChange} 
                               defaultValue={field.value}
                             >
                               <FormControl>
-                                <SelectTrigger className="bg-blue-950/60 border-blue-700 text-white">
+                                <SelectTrigger className="bg-white dark:bg-blue-950/60 border-blue-300 dark:border-blue-700 text-gray-800 dark:text-white">
                                   <SelectValue placeholder="Sélectionnez un domaine fonctionnel" />
                                 </SelectTrigger>
                               </FormControl>
-                              <SelectContent className="bg-blue-950 border-blue-700 text-white">
+                              <SelectContent className="bg-white dark:bg-blue-950 border-blue-300 dark:border-blue-700 text-gray-800 dark:text-white">
                                 <SelectItem value="finance">Finance / Banque</SelectItem>
                                 <SelectItem value="healthcare">Santé / Pharmaceutique</SelectItem>
                                 <SelectItem value="retail">Commerce / Distribution</SelectItem>
