@@ -95,13 +95,10 @@ export default function ProfilPro() {
   const [showResults, setShowResults] = useState<boolean>(false);
   const [currentTab, setCurrentTab] = useState<string>("exploration");
   const [professionProfile, setProfessionProfile] = useState<ProfessionProfile | null>(null);
-  const [showQuiz, setShowQuiz] = useState<boolean>(false);
-  const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number>>({});
-  const [score, setScore] = useState<number>(0);
-  const [quizCompleted, setQuizCompleted] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
+  
+  // États pour la compatibilité avec l'ancien système de quiz (maintenant remplacé par le jeu arcade)
+  const [showQuiz, setShowQuiz] = useState<boolean>(false);
   
   const resultRef = useRef<HTMLDivElement>(null);
   
@@ -258,7 +255,71 @@ export default function ProfilPro() {
     }
   };
   
-  // Démarrer le quiz
+  // État pour le mini-jeu arcade
+  const [gameStarted, setGameStarted] = useState<boolean>(false);
+  const [gameScore, setGameScore] = useState<number>(0);
+  const [gameCompleted, setGameCompleted] = useState<boolean>(false);
+  const [gameLevel, setGameLevel] = useState<number>(1);
+  const [gameTime, setGameTime] = useState<number>(60); // 60 secondes par défaut
+  const [gameTimerId, setGameTimerId] = useState<NodeJS.Timeout | null>(null);
+  
+  // Démarrer le jeu arcade
+  const startArcadeGame = () => {
+    setGameStarted(true);
+    setGameScore(0);
+    setGameCompleted(false);
+    setGameLevel(1);
+    setGameTime(60);
+    
+    // Démarrer le timer
+    const timerId = setInterval(() => {
+      setGameTime((prevTime) => {
+        if (prevTime <= 1) {
+          clearInterval(timerId);
+          setGameCompleted(true);
+          return 0;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
+    
+    setGameTimerId(timerId);
+  };
+  
+  // Terminer le jeu arcade
+  const endArcadeGame = () => {
+    if (gameTimerId) {
+      clearInterval(gameTimerId);
+    }
+    setGameCompleted(true);
+  };
+  
+  // Générer un défi aléatoire basé sur le métier
+  const generateChallenge = (profession: string): { challenge: string, difficulty: number } => {
+    // Dans une version réelle, ceci serait généré dynamiquement par l'IA
+    // Mais pour cette démo, nous utilisons des défis prédéfinis
+    
+    const challenges = [
+      { challenge: `Détecter rapidement une tentative d'intrusion dans le système`, difficulty: 3 },
+      { challenge: `Analyser les logs pour identifier la source d'une attaque`, difficulty: 4 },
+      { challenge: `Configurer un pare-feu pour bloquer le trafic malveillant`, difficulty: 2 },
+      { challenge: `Répondre à un incident de sécurité en temps réel`, difficulty: 5 },
+      { challenge: `Effectuer une analyse de vulnérabilités sur un serveur`, difficulty: 3 }
+    ];
+    
+    return challenges[Math.floor(Math.random() * challenges.length)];
+  };
+  
+  // Gérer une action réussie dans le jeu
+  const handleGameSuccess = () => {
+    // Augmenter le score en fonction du niveau
+    setGameScore((prevScore) => prevScore + (gameLevel * 10));
+    
+    // Augmenter le niveau
+    setGameLevel((prevLevel) => Math.min(prevLevel + 1, 5));
+  };
+  
+  // Démarrer le quiz (maintenu pour compatibilité)
   const startQuiz = () => {
     setShowQuiz(true);
     setCurrentQuestionIndex(0);
@@ -267,51 +328,16 @@ export default function ProfilPro() {
     setScore(0);
   };
   
-  // Sélectionner une réponse au quiz
-  const selectAnswer = (questionId: string, answerIndex: number) => {
-    setSelectedAnswers({
-      ...selectedAnswers,
-      [questionId]: answerIndex
-    });
-  };
-  
-  // Passer à la question suivante
-  const goToNextQuestion = () => {
-    if (currentQuestionIndex < quizQuestions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    } else {
-      // Calculer le score
-      let correctCount = 0;
-      Object.entries(selectedAnswers).forEach(([questionId, answer]) => {
-        const question = quizQuestions.find(q => q.id === questionId);
-        if (question && answer === question.correctAnswer) {
-          correctCount++;
-        }
-      });
-      
-      setScore(Math.round((correctCount / quizQuestions.length) * 100));
-      setQuizCompleted(true);
-    }
-  };
-  
-  // Revenir à la question précédente
-  const goToPreviousQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-    }
-  };
-  
-  // Retourner aux résultats
+  // Retourner aux résultats (maintenu pour compatibilité)
   const backToResults = () => {
     setShowQuiz(false);
+    setGameStarted(false);
+    
     // Faire défiler vers le haut
     if (resultRef.current) {
       resultRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
-  
-  // Afficher la question actuelle
-  const currentQuestion = quizQuestions[currentQuestionIndex];
   
   // Effet pour faire défiler vers le résultat une fois chargé
   useEffect(() => {
@@ -475,7 +501,7 @@ export default function ProfilPro() {
                   className="py-3 data-[state=active]:bg-blue-700 data-[state=active]:text-white"
                 >
                   <Target className="mr-2 h-4 w-4" />
-                  S'auto-évaluer
+                  Jeu arcade
                 </TabsTrigger>
               </TabsList>
               
@@ -625,64 +651,71 @@ export default function ProfilPro() {
               </TabsContent>
               
               <TabsContent value="evaluation" className="mt-6">
-                {!quizCompleted ? (
+                {!gameStarted ? (
                   <Card className="bg-blue-900/30 backdrop-blur-sm border-blue-700 shadow-lg">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Target className="h-5 w-5 text-blue-400" />
-                        Testez vos connaissances sur le métier de {professionProfile.title}
+                        Testez vos compétences de {professionProfile.title}
                       </CardTitle>
                       <CardDescription className="text-blue-300">
-                        Ce quiz vous permet d'identifier vos points forts et vos points d'amélioration
+                        Ce jeu d'arcade vous permet de mettre en pratique les compétences essentielles du métier
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="p-6 text-center">
                         <div className="mb-6">
-                          <Gauge className="h-16 w-16 mx-auto mb-4 text-blue-400" />
-                          <h3 className="text-xl font-semibold mb-2">Quiz d'auto-évaluation</h3>
+                          <svg className="w-20 h-20 mx-auto mb-4" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="10" y="30" width="80" height="50" rx="4" fill="#1e40af" stroke="#3b82f6" strokeWidth="2"/>
+                            <rect x="20" y="40" width="60" height="30" rx="2" fill="#1d4ed8"/>
+                            <circle cx="30" cy="70" r="5" fill="#60a5fa"/>
+                            <circle cx="50" cy="70" r="5" fill="#60a5fa"/>
+                            <circle cx="70" cy="70" r="5" fill="#60a5fa"/>
+                            <path d="M30 50L40 45L50 50L60 45L70 50" stroke="#bfdbfe" strokeWidth="2"/>
+                          </svg>
+                          <h3 className="text-xl font-semibold mb-2">Jeu d'arcade : La mission du {professionProfile.title}</h3>
                           <p className="text-blue-300 max-w-md mx-auto">
-                            Répondez à 5 questions pour évaluer votre compréhension des défis et réalités du métier de {professionProfile.title}
+                            Plongez dans l'univers du métier avec ce mini-jeu d'arcade alimenté par l'IA qui simule ses défis quotidiens
                           </p>
                         </div>
                         
                         <ul className="text-sm text-left mb-8 bg-blue-900/50 p-4 rounded-lg border border-blue-700/50 max-w-lg mx-auto">
                           <li className="flex items-center gap-2 mb-2">
                             <Clock className="h-4 w-4 text-blue-400" />
-                            <span className="text-blue-200">Durée : 5-10 minutes</span>
+                            <span className="text-blue-200">Durée : 60 secondes chrono</span>
                           </li>
                           <li className="flex items-center gap-2 mb-2">
-                            <List className="h-4 w-4 text-blue-400" />
-                            <span className="text-blue-200">5 questions à choix multiples</span>
+                            <Target className="h-4 w-4 text-blue-400" />
+                            <span className="text-blue-200">Défis générés par IA spécifiques au métier</span>
                           </li>
                           <li className="flex items-center gap-2">
-                            <Lightbulb className="h-4 w-4 text-blue-400" />
-                            <span className="text-blue-200">Explications détaillées pour chaque réponse</span>
+                            <Gauge className="h-4 w-4 text-blue-400" />
+                            <span className="text-blue-200">Difficulté croissante basée sur vos performances</span>
                           </li>
                         </ul>
                         
                         <Button 
-                          onClick={startQuiz}
+                          onClick={startArcadeGame}
                           className="bg-blue-600 hover:bg-blue-700"
                         >
-                          Commencer le quiz
+                          Lancer le jeu
                         </Button>
                       </div>
                     </CardContent>
                   </Card>
-                ) : (
+                ) : gameCompleted ? (
                   <Card className="bg-blue-900/30 backdrop-blur-sm border-blue-700 shadow-lg">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Award className="h-5 w-5 text-blue-400" />
-                        Résultats - {professionProfile.title}
+                        Résultats - Mission {professionProfile.title}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="text-center mb-6">
                         <div className="relative w-32 h-32 mx-auto mb-4">
                           <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-3xl font-bold">{score}%</span>
+                            <span className="text-3xl font-bold">{gameScore}</span>
                           </div>
                           <svg className="w-full h-full" viewBox="0 0 100 100">
                             <circle 
@@ -698,9 +731,9 @@ export default function ProfilPro() {
                               cy="50"
                               r="40"
                               fill="none"
-                              stroke={score >= 70 ? "#22c55e" : score >= 40 ? "#eab308" : "#ef4444"}
+                              stroke={gameScore >= 150 ? "#22c55e" : gameScore >= 80 ? "#eab308" : "#ef4444"}
                               strokeWidth="8"
-                              strokeDasharray={`${2 * Math.PI * 40 * score / 100} ${2 * Math.PI * 40 * (1 - score / 100)}`}
+                              strokeDasharray={`${2 * Math.PI * 40 * Math.min(gameScore/200, 1)} ${2 * Math.PI * 40 * Math.max(1 - gameScore/200, 0)}`}
                               strokeDashoffset="0"
                               transform="rotate(-90 50 50)"
                             />
@@ -708,18 +741,21 @@ export default function ProfilPro() {
                         </div>
                         
                         <h3 className="text-xl font-semibold mb-2">
-                          {score >= 80 ? "Excellente compréhension !" : 
-                           score >= 60 ? "Bonne compréhension" : 
-                           score >= 40 ? "Compréhension moyenne" : 
-                           "Des points à améliorer"}
+                          {gameScore >= 150 ? "Expert en action !" : 
+                           gameScore >= 80 ? "Bonnes compétences" : 
+                           gameScore >= 40 ? "Compétences en développement" : 
+                           "Apprenti en formation"}
                         </h3>
                         
-                        <p className="text-blue-300 max-w-md mx-auto mb-6">
-                          {score >= 80 ? `Vous avez une vision claire des défis et réalités du métier de ${professionProfile.title}.` : 
-                           score >= 60 ? `Vous comprenez bien le métier de ${professionProfile.title}, mais certains aspects méritent une attention particulière.` : 
-                           score >= 40 ? `Vous avez une compréhension partielle du métier de ${professionProfile.title}. Certains aspects clés nécessitent davantage d'approfondissement.` : 
-                           `Il serait bénéfique d'approfondir vos connaissances sur le métier de ${professionProfile.title} pour en saisir toutes les nuances.`}
-                        </p>
+                        <div className="bg-blue-900/40 p-4 rounded-lg border border-blue-700 max-w-md mx-auto mb-6">
+                          <p className="text-blue-200 mb-2">Analyse IA de votre performance :</p>
+                          <p className="text-blue-300">
+                            {gameScore >= 150 ? `Vous avez démontré une excellente maîtrise des compétences clés d'un ${professionProfile.title}. Vous savez gérer efficacement les situations critiques sous pression.` : 
+                             gameScore >= 80 ? `Vous montrez une bonne compréhension des défis quotidiens d'un ${professionProfile.title}. Continuez à développer vos réflexes pour les situations complexes.` : 
+                             gameScore >= 40 ? `Vous avez saisi les bases du métier de ${professionProfile.title}, mais certaines compétences clés nécessitent encore de la pratique.` : 
+                             `Cette simulation montre qu'il serait bénéfique de vous familiariser davantage avec les compétences fondamentales du métier de ${professionProfile.title}.`}
+                          </p>
+                        </div>
                         
                         <div className="flex justify-center gap-4">
                           <Button 
@@ -728,15 +764,15 @@ export default function ProfilPro() {
                             className="border-blue-700 text-blue-300 hover:bg-blue-800 hover:text-white"
                           >
                             <BookOpen className="mr-2 h-4 w-4" />
-                            Revoir le profil
+                            Revoir le profil métier
                           </Button>
                           
                           <Button 
-                            onClick={startQuiz}
+                            onClick={startArcadeGame}
                             className="bg-blue-600 hover:bg-blue-700"
                           >
                             <ArrowRight className="mr-2 h-4 w-4" />
-                            Refaire le quiz
+                            Rejouer
                           </Button>
                         </div>
                       </div>
@@ -744,54 +780,148 @@ export default function ProfilPro() {
                       <Separator className="my-6 bg-blue-700" />
                       
                       <div>
-                        <h3 className="text-lg font-semibold mb-4">Revue des questions</h3>
+                        <h3 className="text-lg font-semibold mb-4">Compétences mises en pratique</h3>
                         
-                        <div className="space-y-6">
-                          {quizQuestions.map((question, index) => {
-                            const userAnswer = selectedAnswers[question.id] !== undefined ? selectedAnswers[question.id] : -1;
-                            const isCorrect = userAnswer === question.correctAnswer;
-                            
-                            return (
-                              <div key={question.id} className="p-4 rounded-lg border border-blue-700/50 bg-blue-900/20">
-                                <div className="flex justify-between items-start mb-3">
-                                  <h4 className="font-semibold">Question {index + 1}</h4>
-                                  {userAnswer !== -1 && (
-                                    <Badge className={isCorrect ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}>
-                                      {isCorrect ? "Correct" : "Incorrect"}
-                                    </Badge>
-                                  )}
-                                </div>
-                                
-                                <p className="mb-4 text-blue-200">{question.question}</p>
-                                
-                                <div className="space-y-2 mb-4">
-                                  {question.options.map((option, optionIndex) => (
-                                    <div 
-                                      key={optionIndex} 
-                                      className={`p-2 rounded-md border ${
-                                        optionIndex === question.correctAnswer
-                                          ? "border-green-500 bg-green-500/10"
-                                          : optionIndex === userAnswer
-                                          ? "border-red-500 bg-red-500/10"
-                                          : "border-blue-700 bg-blue-900/30"
-                                      }`}
-                                    >
-                                      {option}
-                                    </div>
-                                  ))}
-                                </div>
-                                
-                                <div className="bg-blue-800/30 p-3 rounded-md border border-blue-700">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <Lightbulb className="h-4 w-4 text-blue-400" />
-                                    <span className="font-semibold text-blue-200">Explication</span>
-                                  </div>
-                                  <p className="text-sm text-blue-300">{question.explanation}</p>
-                                </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="p-4 rounded-lg border border-blue-700/50 bg-blue-900/20">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Target className="h-5 w-5 text-blue-400" />
+                              <h4 className="font-semibold">Réactivité</h4>
+                            </div>
+                            <div className="flex items-center mb-1">
+                              <div className="w-full bg-blue-900 rounded-full h-2">
+                                <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${Math.min(gameScore / 2, 100)}%` }}></div>
                               </div>
-                            );
-                          })}
+                              <span className="ml-2 text-sm text-blue-300">{Math.min(Math.round(gameScore / 2), 100)}%</span>
+                            </div>
+                            <p className="text-sm text-blue-300">Capacité à réagir rapidement aux défis</p>
+                          </div>
+                          
+                          <div className="p-4 rounded-lg border border-blue-700/50 bg-blue-900/20">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Wrench className="h-5 w-5 text-blue-400" />
+                              <h4 className="font-semibold">Technicité</h4>
+                            </div>
+                            <div className="flex items-center mb-1">
+                              <div className="w-full bg-blue-900 rounded-full h-2">
+                                <div className="bg-purple-500 h-2 rounded-full" style={{ width: `${Math.min((gameScore * 0.8) / 1.6, 100)}%` }}></div>
+                              </div>
+                              <span className="ml-2 text-sm text-blue-300">{Math.min(Math.round((gameScore * 0.8) / 1.6), 100)}%</span>
+                            </div>
+                            <p className="text-sm text-blue-300">Maîtrise des outils et technologies</p>
+                          </div>
+                          
+                          <div className="p-4 rounded-lg border border-blue-700/50 bg-blue-900/20">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Code className="h-5 w-5 text-blue-400" />
+                              <h4 className="font-semibold">Analyse</h4>
+                            </div>
+                            <div className="flex items-center mb-1">
+                              <div className="w-full bg-blue-900 rounded-full h-2">
+                                <div className="bg-green-500 h-2 rounded-full" style={{ width: `${Math.min((gameScore * 1.2) / 2.4, 100)}%` }}></div>
+                              </div>
+                              <span className="ml-2 text-sm text-blue-300">{Math.min(Math.round((gameScore * 1.2) / 2.4), 100)}%</span>
+                            </div>
+                            <p className="text-sm text-blue-300">Capacité à analyser les situations complexes</p>
+                          </div>
+                          
+                          <div className="p-4 rounded-lg border border-blue-700/50 bg-blue-900/20">
+                            <div className="flex items-center gap-2 mb-2">
+                              <MessageCircle className="h-5 w-5 text-blue-400" />
+                              <h4 className="font-semibold">Communication</h4>
+                            </div>
+                            <div className="flex items-center mb-1">
+                              <div className="w-full bg-blue-900 rounded-full h-2">
+                                <div className="bg-yellow-500 h-2 rounded-full" style={{ width: `${Math.min((gameScore * 0.9) / 1.8, 100)}%` }}></div>
+                              </div>
+                              <span className="ml-2 text-sm text-blue-300">{Math.min(Math.round((gameScore * 0.9) / 1.8), 100)}%</span>
+                            </div>
+                            <p className="text-sm text-blue-300">Capacité à communiquer efficacement</p>
+                          </div>
                         </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <Card className="bg-blue-900/30 backdrop-blur-sm border-blue-700 shadow-lg">
+                    <CardHeader>
+                      <div className="flex justify-between">
+                        <div>
+                          <CardTitle className="flex items-center gap-2">
+                            <Target className="h-5 w-5 text-blue-400" />
+                            Niveau {gameLevel}: Mission {professionProfile.title}
+                          </CardTitle>
+                          <CardDescription className="text-blue-300">
+                            Relevez les défis du métier en temps réel
+                          </CardDescription>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-5 w-5 text-blue-300" />
+                          <span className="text-xl font-bold text-blue-300">{gameTime}s</span>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="bg-blue-950/60 p-6 rounded-lg border border-blue-700 mb-6 relative overflow-hidden">
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="text-6xl font-bold text-blue-200/10">NIVEAU {gameLevel}</div>
+                        </div>
+                        
+                        <div className="relative z-10">
+                          <h3 className="text-xl font-semibold mb-4">Défi actuel:</h3>
+                          <p className="text-blue-200 text-lg mb-8">
+                            {generateChallenge(professionProfile.title).challenge}
+                          </p>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <Button 
+                              className="bg-green-700 hover:bg-green-800 p-6 h-auto text-left flex flex-col items-start"
+                              onClick={handleGameSuccess}
+                            >
+                              <span className="font-semibold mb-1">Analyser les journaux système</span>
+                              <span className="text-sm text-green-100">Identifier les anomalies dans les logs et repérer les patterns suspects</span>
+                            </Button>
+                            
+                            <Button 
+                              className="bg-blue-700 hover:bg-blue-800 p-6 h-auto text-left flex flex-col items-start"
+                              onClick={handleGameSuccess}
+                            >
+                              <span className="font-semibold mb-1">Déployer une solution de sécurité</span>
+                              <span className="text-sm text-blue-100">Mettre en place un correctif pour colmater la faille détectée</span>
+                            </Button>
+                            
+                            <Button 
+                              className="bg-purple-700 hover:bg-purple-800 p-6 h-auto text-left flex flex-col items-start"
+                              onClick={handleGameSuccess}
+                            >
+                              <span className="font-semibold mb-1">Activer le mode forensique</span>
+                              <span className="text-sm text-purple-100">Collecter les preuves numériques pour l'analyse approfondie</span>
+                            </Button>
+                            
+                            <Button 
+                              className="bg-yellow-700 hover:bg-yellow-800 p-6 h-auto text-left flex flex-col items-start"
+                              onClick={handleGameSuccess}
+                            >
+                              <span className="font-semibold mb-1">Isoler la zone compromise</span>
+                              <span className="text-sm text-yellow-100">Établir un périmètre de sécurité pour contenir l'incident</span>
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          <span className="text-blue-300">Score actuel:</span>
+                          <span className="font-bold text-xl">{gameScore}</span>
+                        </div>
+                        
+                        <Button
+                          variant="outline"
+                          onClick={endArcadeGame}
+                          className="border-blue-700 text-blue-300 hover:bg-blue-800 hover:text-white"
+                        >
+                          Terminer le jeu
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -801,83 +931,7 @@ export default function ProfilPro() {
           </div>
         )}
         
-        {showQuiz && !quizCompleted && currentQuestion && (
-          <div className="mt-8">
-            <Card className="bg-blue-900/30 backdrop-blur-sm border-blue-700 shadow-lg">
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle className="flex items-center gap-2">
-                    <Target className="h-5 w-5 text-blue-400" />
-                    Question {currentQuestionIndex + 1} sur {quizQuestions.length}
-                  </CardTitle>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={backToResults}
-                    className="border-blue-700 text-blue-300 hover:bg-blue-800 hover:text-white"
-                  >
-                    Quitter le quiz
-                  </Button>
-                </div>
-                <Progress 
-                  value={((currentQuestionIndex + 1) / quizQuestions.length) * 100} 
-                  className="h-2 mt-2 bg-blue-900" 
-                />
-              </CardHeader>
-              <CardContent>
-                <div className="mb-6">
-                  <h3 className="text-xl font-semibold mb-4">{currentQuestion.question}</h3>
-                  
-                  <div className="space-y-3">
-                    {currentQuestion.options.map((option, index) => (
-                      <div
-                        key={index}
-                        className={`p-4 rounded-lg border cursor-pointer transition-all ${
-                          selectedAnswers[currentQuestion.id] === index
-                            ? "border-blue-500 bg-blue-900/50"
-                            : "border-blue-700/50 bg-blue-900/20 hover:bg-blue-900/30"
-                        }`}
-                        onClick={() => selectAnswer(currentQuestion.id, index)}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className={`w-6 h-6 rounded-full flex items-center justify-center border ${
-                            selectedAnswers[currentQuestion.id] === index
-                              ? "border-blue-500 bg-blue-500"
-                              : "border-blue-700"
-                          }`}>
-                            {selectedAnswers[currentQuestion.id] === index && (
-                              <CheckCircle className="h-4 w-4 text-white" />
-                            )}
-                          </div>
-                          <span className="text-blue-200">{option}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                <div className="flex justify-between">
-                  <Button
-                    variant="outline"
-                    onClick={goToPreviousQuestion}
-                    disabled={currentQuestionIndex === 0}
-                    className="border-blue-700 text-blue-300 hover:bg-blue-800 hover:text-white"
-                  >
-                    Question précédente
-                  </Button>
-                  
-                  <Button
-                    onClick={goToNextQuestion}
-                    disabled={selectedAnswers[currentQuestion.id] === undefined}
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    {currentQuestionIndex < quizQuestions.length - 1 ? "Question suivante" : "Voir les résultats"}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+        {/* L'interface du quiz a été remplacée par le jeu d'arcade */}
         
         {!showResults && !isLoading && (
           <div className="py-8 text-center text-blue-300">
