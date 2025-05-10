@@ -17,8 +17,11 @@ import {
   User,
   Code,
   BookMarked,
-  Cloud
+  Cloud,
+  FileText,
+  MessageCircle
 } from 'lucide-react';
+import AssistantChat from './AssistantChat';
 
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
@@ -67,6 +70,7 @@ export default function AssistantCyber() {
   const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
   const [customInstructions, setCustomInstructions] = useState<string>("");
   const [generatedPrompt, setGeneratedPrompt] = useState<string>("");
+  const [showChat, setShowChat] = useState<boolean>(false);
   
   // Personnalités disponibles
   const personalities: AssistantPersonality[] = [
@@ -131,6 +135,9 @@ export default function AssistantCyber() {
   ];
   
   // Générer l'assistant
+  // État pour l'option de démarrage automatique du chat
+  const [autoStartChat, setAutoStartChat] = useState<boolean>(true);
+  
   const generateAssistant = () => {
     // Validation des champs requis
     if (!assistantName.trim()) {
@@ -351,6 +358,18 @@ ${customInstructions}` : ''}
                           className="bg-blue-950/30 border-blue-700"
                         />
                       </div>
+                      
+                      <div className="flex items-center space-x-2 mt-4">
+                        <Switch 
+                          id="auto-start-chat" 
+                          checked={autoStartChat}
+                          onCheckedChange={setAutoStartChat}
+                          className="data-[state=checked]:bg-blue-600"
+                        />
+                        <Label htmlFor="auto-start-chat" className="text-sm text-blue-300">
+                          Démarrer automatiquement le chat après la génération
+                        </Label>
+                      </div>
                     </div>
                     
                     {/* Personnalité */}
@@ -458,41 +477,84 @@ ${customInstructions}` : ''}
                     </div>
                   ) : generationComplete ? (
                     <div className="space-y-6">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-xl font-semibold font-rajdhani">Instructions système générées</h3>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className="text-blue-400 hover:text-blue-300 border-blue-800 hover:bg-blue-900"
-                          onClick={copyToClipboard}
-                        >
-                          Copier
-                        </Button>
-                      </div>
-                      
-                      <div className="bg-blue-950/50 p-4 rounded-md border border-blue-800 overflow-auto">
-                        <pre className="text-sm text-blue-100 whitespace-pre-wrap font-mono">
-                          {generatedPrompt}
-                        </pre>
-                      </div>
-                      
-                      <div className="bg-blue-900/20 p-4 rounded-md border border-blue-800">
-                        <h4 className="flex items-center gap-2 font-semibold text-lg mb-2 font-rajdhani">
-                          <CheckCircle className="h-5 w-5 text-green-400" />
-                          Assistant prêt à l'emploi
-                        </h4>
-                        <p className="text-blue-200 mb-4">
-                          Votre assistant IA spécialisé en cybersécurité a été configuré avec succès selon vos spécifications.
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-2">
-                          <Button 
-                            className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
-                            onClick={() => setLocation('/cyber')}
-                          >
-                            Retourner à I AM CYBER
-                          </Button>
+                      {showChat ? (
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-xl font-semibold font-rajdhani flex items-center gap-2">
+                              <MessageCircle className="h-5 w-5 text-blue-400" />
+                              Conversation avec {assistantName}
+                            </h3>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className="text-blue-400 hover:text-blue-300 border-blue-800 hover:bg-blue-900"
+                              onClick={() => setShowChat(false)}
+                            >
+                              <FileText className="h-4 w-4 mr-2" />
+                              Voir les instructions
+                            </Button>
+                          </div>
+                          
+                          <AssistantChat 
+                            assistantName={assistantName}
+                            assistantDomain={domains.find(d => d.id === selectedDomain)?.name || ""}
+                            assistantPersonality={personalities.find(p => p.id === selectedPersonality)?.name || ""}
+                            systemPrompt={generatedPrompt}
+                          />
                         </div>
-                      </div>
+                      ) : (
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-xl font-semibold font-rajdhani flex items-center gap-2">
+                              <FileText className="h-5 w-5 text-blue-400" />
+                              Instructions système générées
+                            </h3>
+                            <div className="flex gap-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                className="text-blue-400 hover:text-blue-300 border-blue-800 hover:bg-blue-900"
+                                onClick={copyToClipboard}
+                              >
+                                Copier
+                              </Button>
+                              <Button 
+                                variant="default" 
+                                size="sm"
+                                className="bg-blue-600 hover:bg-blue-700"
+                                onClick={() => setShowChat(true)}
+                              >
+                                <MessageCircle className="h-4 w-4 mr-2" />
+                                Discuter avec l'assistant
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          <div className="bg-blue-950/50 p-4 rounded-md border border-blue-800 overflow-auto max-h-[400px]">
+                            <pre className="text-sm text-blue-100 whitespace-pre-wrap font-mono">
+                              {generatedPrompt}
+                            </pre>
+                          </div>
+                          
+                          <div className="bg-blue-900/20 p-4 rounded-md border border-blue-800">
+                            <h4 className="flex items-center gap-2 font-semibold text-lg mb-2 font-rajdhani">
+                              <CheckCircle className="h-5 w-5 text-green-400" />
+                              Assistant prêt à l'emploi
+                            </h4>
+                            <p className="text-blue-200 mb-4">
+                              Votre assistant IA spécialisé en cybersécurité a été configuré avec succès selon vos spécifications.
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-2">
+                              <Button 
+                                className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
+                                onClick={() => setLocation('/cyber')}
+                              >
+                                Retourner à I AM CYBER
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="text-center py-12">
