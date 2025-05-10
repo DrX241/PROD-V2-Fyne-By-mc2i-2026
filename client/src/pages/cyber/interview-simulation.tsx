@@ -862,9 +862,9 @@ const CyberInterviewSimulation: React.FC = () => {
                         </ul>
                       </div>
                       
-                      <div className="bg-gray-700 p-4 rounded-md">
-                        <h3 className="text-lg font-semibold mb-2">Axes d'amélioration</h3>
-                        <ul className="list-disc ml-5 space-y-1 text-gray-300">
+                      <div className="bg-blue-950/60 border border-red-800/30 p-4 rounded-md">
+                        <h3 className="text-lg font-semibold mb-2 font-[Rajdhani]">Axes d'amélioration</h3>
+                        <ul className="list-disc ml-5 space-y-1 text-blue-100">
                           {evaluationResult.weaknesses && evaluationResult.weaknesses.map((weakness: string, index: number) => (
                             <li key={`weakness-${index}`}>{weakness}</li>
                           ))}
@@ -872,31 +872,31 @@ const CyberInterviewSimulation: React.FC = () => {
                       </div>
                     </div>
                     
-                    <div className="bg-gray-700 p-4 rounded-md">
-                      <h3 className="text-lg font-semibold mb-2">Compétences techniques</h3>
-                      <p className="text-gray-300">{evaluationResult.technicalSkills}</p>
+                    <div className="bg-blue-950/60 border border-blue-800/50 p-4 rounded-md">
+                      <h3 className="text-lg font-semibold mb-2 font-[Rajdhani]">Compétences techniques</h3>
+                      <p className="text-blue-100">{evaluationResult.technicalSkills}</p>
                     </div>
                     
-                    <div className="bg-gray-700 p-4 rounded-md">
-                      <h3 className="text-lg font-semibold mb-2">Compétences de communication</h3>
-                      <p className="text-gray-300">{evaluationResult.communicationSkills}</p>
+                    <div className="bg-blue-950/60 border border-blue-800/50 p-4 rounded-md">
+                      <h3 className="text-lg font-semibold mb-2 font-[Rajdhani]">Compétences de communication</h3>
+                      <p className="text-blue-100">{evaluationResult.communicationSkills}</p>
                     </div>
                     
                     {evaluationResult.recommendation && (
-                      <div className="bg-gray-700 p-4 rounded-md">
-                        <h3 className="text-lg font-semibold mb-1">Recommandation</h3>
-                        <p className="font-medium">{evaluationResult.recommendation}</p>
+                      <div className="bg-blue-950/60 border border-emerald-800/40 p-4 rounded-md">
+                        <h3 className="text-lg font-semibold mb-1 font-[Rajdhani]">Recommandation</h3>
+                        <p className="font-medium text-emerald-200">{evaluationResult.recommendation}</p>
                       </div>
                     )}
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center p-8">
-                    <AlertCircle className="w-16 h-16 text-gray-400 mb-4" />
-                    <h3 className="text-xl font-bold mb-2">Aucune évaluation disponible</h3>
-                    <p className="text-gray-400 text-center mb-4">
+                    <AlertCircle className="w-16 h-16 text-blue-400 mb-4" />
+                    <h3 className="text-xl font-bold mb-2 font-[Rajdhani]">Aucune évaluation disponible</h3>
+                    <p className="text-blue-300 text-center mb-4">
                       Vous n'avez pas encore terminé la simulation ou une erreur s'est produite lors de l'évaluation.
                     </p>
-                    <Button onClick={resetSimulation} className="bg-[#006a9e] hover:bg-blue-700">
+                    <Button onClick={resetSimulation} className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900">
                       Démarrer une nouvelle simulation
                     </Button>
                   </div>
