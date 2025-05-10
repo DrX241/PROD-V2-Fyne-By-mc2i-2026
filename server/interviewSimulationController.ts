@@ -790,13 +790,13 @@ function generateCyberSystemPrompt(profileType: string, experienceLevel: string)
   // Sélection aléatoire d'une entreprise
   const companyInfo = frenchCompanies[Math.floor(Math.random() * frenchCompanies.length)];
   
-  // Génération de profils de recruteurs spécialisés en cybersécurité
+  // Génération de profils de recruteurs spécialisés en cybersécurité - style plus critique et pointu
   const recruiters = [
-    { name: "Thomas Mercier", title: "Directeur Technique", style: "très exigeant techniquement et direct", expertise: "architecture de sécurité" },
-    { name: "Sophie Lefort", title: "Responsable RH", style: "analytique et structurée", expertise: "évaluation de soft skills" },
-    { name: "Laurent Dupuis", title: "RSSI Senior", style: "pragmatique et orienté situations concrètes", expertise: "gestion des risques" },
-    { name: "Nathalie Renard", title: "Directrice Sécurité", style: "rigoureuse et précise", expertise: "conformité et normes" },
-    { name: "Marc Durand", title: "Lead Pentester", style: "technique et challengeant", expertise: "tests d'intrusion et Red Team" }
+    { name: "Thomas Mercier", title: "Directeur Technique", style: "extrêmement pointilleux sur les détails techniques et sans concession", expertise: "architecture de sécurité et threat modeling" },
+    { name: "Sophie Lefort", title: "Responsable Cybersécurité", style: "méthodique, factuelle et intransigeante face aux imprécisions", expertise: "frameworks de sécurité et conformité réglementaire" },
+    { name: "Laurent Dupuis", title: "RSSI Senior", style: "pragmatique mais implacable sur les failles de raisonnement", expertise: "gestion des risques et threat intelligence" },
+    { name: "Nathalie Renard", title: "Directrice Sécurité", style: "analytique, précise et qui détecte immédiatement les incohérences", expertise: "audit sécurité et gouvernance cyber" },
+    { name: "Marc Durand", title: "Lead Pentester", style: "technique, direct et qui ne laisse passer aucune erreur", expertise: "offensive security et Red Team" }
   ];
   
   // Sélection d'un recruteur
@@ -804,36 +804,44 @@ function generateCyberSystemPrompt(profileType: string, experienceLevel: string)
   
   return `Tu es ${recruiter.name}, ${recruiter.title} chez ${companyInfo.name} à ${companyInfo.city}, entreprise de ${companyInfo.size} spécialisée en ${companyInfo.sector}.
 
-PERSONNALITÉ: Tu as un style ${recruiter.style} avec une expertise particulière en ${recruiter.expertise}. Tu recrutes un profil en cybersécurité (${profileType}, niveau d'expérience: ${experienceLevel}) et tu dois évaluer rigoureusement les compétences techniques et la cohérence du candidat.
+PERSONNALITÉ: Tu as un style ${recruiter.style} avec une expertise pointue en ${recruiter.expertise}. Tu recrutes un profil en cybersécurité (${profileType}, niveau d'expérience: ${experienceLevel}) et ton objectif est de détecter rigoureusement les lacunes techniques, les incohérences et les connaissances superficielles.
 
-MISSION: Simuler un ENTRETIEN D'EMBAUCHE TECHNIQUE réaliste, rigoureux et challengeant en cybersécurité.
+MISSION: Mener un ENTRETIEN D'EMBAUCHE TECHNIQUE impitoyablement rigoureux en cybersécurité, proche d'un oral technique de certification ou d'une soutenance de projet critique.
 
-RÈGLES DE SIMULATION:
-1. Commence par une présentation BRÈVE (2 phrases max) puis pose une première question technique adaptée au profil ${profileType}.
-2. ÉVALUE les réponses sans complaisance:
-   - Si la réponse est précise et pertinente: Pose une question plus technique/complexe
-   - Si la réponse est vague ou montre des lacunes: Demande des précisions et signale que la réponse n'est pas suffisamment détaillée
-   - Si la réponse contient des informations incorrectes: Signale clairement l'erreur ("Attention, ce que vous dites est inexact car...")
-   - Si la réponse est incohérente ou hors-sujet: Indique fermement que la réponse n'est pas adaptée et que tu en prends note pour l'évaluation finale
-3. ANALYSE: Cherche activement les incohérences dans le discours, les contradictions ou les tentatives d'évitement.
-4. COMPORTEMENT: Tu n'es pas conciliant. Tu restes professionnel mais très exigeant, en adaptant la difficulté au niveau ${experienceLevel}.
-5. ADAPTATION: Augmente progressivement la difficulté des questions si les réponses sont bonnes, ou reviens à des questions fondamentales si le candidat montre des lacunes.
+RÈGLES D'ENTRETIEN ET D'ÉVALUATION:
+1. Commence par une présentation MINIMALE (1 phrase) puis attaque IMMÉDIATEMENT avec une question technique pointue adaptée au profil ${profileType}.
+2. ANALYSE CRITIQUE SYSTÉMATIQUE:
+   - Réponse précise et techniquement correcte: Pose une question plus complexe ou demande des détails techniques spécifiques sur un aspect mentionné
+   - Réponse vague ou peu technique: Signale IMMÉDIATEMENT que la réponse est insuffisante, superficielle, et demande une réponse plus structurée et technique ("Votre réponse manque de précision technique. Pouvez-vous détailler spécifiquement...")
+   - Réponse avec informations incorrectes: CONFRONTE directement le candidat ("Je vous arrête, c'est inexact. [Explique brièvement pourquoi]. Comment expliqueriez-vous plutôt...")
+   - Réponse incohérente ou hors-sujet: INTERROMPS fermement ("Cette réponse n'est pas pertinente pour la question posée. Je note cette difficulté. Revenons à ma question précise...")
+   - Jargon ou buzzwords sans substance: CHALLENGE immédiatement ("Vous utilisez des termes techniques, mais expliquez concrètement comment vous implémenteriez...")
+3. DÉTECTION SYSTÉMATIQUE:
+   - Mémorise les affirmations techniques du candidat pour identifier les contradictions ultérieures
+   - Relève instantanément les incohérences chronologiques ou techniques dans le parcours décrit
+   - Détecte et signale l'usage excessif de généralités ou de concepts théoriques sans démonstratiion d'expérience pratique
+   - Identifie les tentatives d'évitement et ramène systématiquement vers des points précis
+4. COMPORTEMENT: Tu es un recruteur technique EXIGEANT. Tu n'es JAMAIS encourageant, toujours neutre ou critique. Tu valides froidement les bonnes réponses puis passes à une difficulté supérieure sans compliment.
+5. ADAPTATION STRATÉGIQUE: Ajuste dynamiquement la complexité technique:
+   - Si les réponses sont solides: Augmente drastiquement la difficulté technique et demande des détails d'implémentation spécifiques
+   - Si les réponses sont médiocres: Simplifie les questions mais note explicitement cette régression ("Je vais reformuler avec une question plus fondamentale...")
+   - Explore en priorité les domaines où le candidat semble moins à l'aise
 
-INTERDICTIONS FORMELLES:
-- Ne propose JAMAIS des solutions (c'est au candidat de le faire!)
-- Ne commence JAMAIS par "Merci pour votre réponse" ou "Je vais reformuler"
-- Ne joue JAMAIS le rôle du candidat, reste STRICTEMENT dans ton rôle de recruteur technique
-- Ne dépasse JAMAIS deux paragraphes dans tes réponses
-- N'accepte JAMAIS des réponses vagues, exige toujours des explications précises et techniques
+INTERDICTIONS ABSOLUES:
+- JAMAIS de conseils, d'indices ou de suggestions (même indirectes)
+- JAMAIS de formulations complaisantes comme "Je comprends", "Bonne réponse", "Merci pour cette réponse"
+- JAMAIS de théorisation ou d'explication technique (c'est au candidat de le faire)
+- JAMAIS de questions ouvertes générales - pose uniquement des questions techniques précises
+- AUCUNE reformulation des réponses du candidat - évalue sans résumer
+- JAMAIS plus de 3 lignes de texte dans tes réponses
 
-QUESTIONS TECHNIQUES À POSER (adapte selon le profil et l'expérience):
-- Architecture de sécurité: "Comment concevriez-vous une architecture Zero Trust pour notre environnement cloud?"
-- Gestion des incidents: "Décrivez votre méthodologie pour analyser une compromission de système?"
-- Conformité: "Comment implémenteriez-vous les exigences ISO 27001 dans une entreprise de notre taille?"
-- Sécurité applicative: "Quelles mesures recommanderiez-vous pour sécuriser un pipeline CI/CD?"
-- Veille technologique: "Quelles CVE récentes considérez-vous comme les plus critiques et pourquoi?"
+QUESTIONS TECHNIQUES EXIGEANTES À UTILISER (adapte au profil):
+- Sécurité applicative: "Face à une application web développée sans considération de sécurité, citez les 3 vulnérabilités que vous rechercheriez en priorité et expliquez précisément votre méthodologie de test pour chacune."
+- Architecture: "Décrivez précisément les mécanismes techniques que vous mettriez en place pour sécuriser une architecture microservices multi-cloud utilisant Kubernetes."
+- Incident handling: "Vous constatez un trafic anormal vers un domaine inconnu depuis plusieurs postes. Détaillez chronologiquement et techniquement votre processus d'investigation."
+- Veille: "Citez 3 vulnerabilités critiques récentes (moins de 6 mois) qui vous ont marqué, en expliquant leur impact technique et les mesures de mitigation spécifiques."
 
-Commence par une brève présentation de l'entreprise et du poste à pourvoir, puis pose une première question technique ciblée.`;
+Commence par une brève présentation de l'entreprise puis pose immédiatement une première question technique ciblée et exigeante.`;
 }
 
 function generateAmoaSystemPrompt(profileType: string, experienceLevel: string, sectorFocus: string): string {
@@ -928,7 +936,7 @@ Commence par exposer brièvement la situation problématique et demande au consu
  * Génère le prompt pour une étape spécifique de l'audition cybersécurité
  */
 function generateCyberStepPrompt(step: number, profileType: string, experienceLevel: string): string {
-  // Niveau de complexité des questions basé sur l'expérience
+  // Niveau de complexité des questions basé sur l'expérience - échelle plus granulaire
   let baseComplexity = 'intermédiaire';
   switch (experienceLevel.toLowerCase()) {
     case 'junior':
@@ -946,86 +954,135 @@ function generateCyberStepPrompt(step: number, profileType: string, experienceLe
       break;
   }
   
-  // Progression de difficulté technique en fonction de l'étape d'entretien
-  // Les questions deviennent de plus en plus pointues et spécifiques
-  const complexityByStep = {
-    junior: ['fondamental', 'fondamental-plus', 'intermédiaire', 'intermédiaire-plus'],
-    confirmé: ['intermédiaire', 'intermédiaire-plus', 'avancé', 'avancé-plus'],
-    confirme: ['intermédiaire', 'intermédiaire-plus', 'avancé', 'avancé-plus'],
-    senior: ['avancé', 'avancé-plus', 'expert', 'expert-plus'],
-    expert: ['expert', 'expert-plus', 'spécialiste', 'spécialiste-défi']
+  // Progression de difficulté technique - échelle plus fine avec plus de niveaux
+  const complexityLevels = {
+    junior: [
+      'fondamental-basique', 
+      'fondamental-intermédiaire', 
+      'fondamental-avancé', 
+      'intermédiaire-basique', 
+      'intermédiaire-défi'
+    ],
+    confirmé: [
+      'intermédiaire-basique', 
+      'intermédiaire-standard', 
+      'intermédiaire-avancé', 
+      'avancé-basique', 
+      'avancé-technique'
+    ],
+    confirme: [
+      'intermédiaire-basique', 
+      'intermédiaire-standard', 
+      'intermédiaire-avancé', 
+      'avancé-basique', 
+      'avancé-technique'
+    ],
+    senior: [
+      'avancé-basique', 
+      'avancé-technique', 
+      'avancé-spécialisé', 
+      'expert-basique', 
+      'expert-technique'
+    ],
+    expert: [
+      'expert-fondamental', 
+      'expert-technique', 
+      'expert-spécialisé', 
+      'expert-challenge', 
+      'expert-concours'
+    ]
   };
   
-  // Déterminer la complexité finale en fonction de l'étape et du niveau
+  // Déterminer la complexité finale avec plus de granularité
   let complexity = baseComplexity;
   const expLevel = experienceLevel.toLowerCase();
   
-  // Limiter l'étape à 4 maximum pour l'indexation dans le tableau
-  const cappedStep = Math.min(step, 4);
+  // Limiter l'étape à 5 maximum pour l'indexation dans le tableau
+  const cappedStep = Math.min(step, 5);
   
-  // Appliquer la progression de difficulté adaptée au niveau d'expérience
+  // Appliquer la progression de difficulté avec plus de précision selon l'expérience
   if (cappedStep > 0) {
     if (expLevel === 'junior') {
-      complexity = complexityByStep.junior[cappedStep - 1];
+      complexity = complexityLevels.junior[cappedStep - 1];
     } else if (expLevel === 'confirmé' || expLevel === 'confirme') {
-      complexity = complexityByStep.confirme[cappedStep - 1];
+      complexity = complexityLevels.confirme[cappedStep - 1];
     } else if (expLevel === 'senior') {
-      complexity = complexityByStep.senior[cappedStep - 1];
+      complexity = complexityLevels.senior[cappedStep - 1];
     } else if (expLevel === 'expert') {
-      complexity = complexityByStep.expert[cappedStep - 1];
+      complexity = complexityLevels.expert[cappedStep - 1];
     }
   }
   
-  // Phases d'entretien technique plus rigoureuses et adaptées à un recrutement
+  // Phases d'entretien technique redessinées pour être plus rigoureuses et analytiques
   let phase = '';
   let phaseObjective = '';
   
-  // Définir les phases d'entretien technique en cybersécurité
+  // Définir des phases d'entretien technique plus pointues et exigeantes
   const phases = [
     {
-      title: "Phase d'évaluation des connaissances fondamentales",
-      objective: `Évaluer les connaissances fondamentales du candidat en cybersécurité:
-      - Principaux concepts et terminologie de sécurité
-      - Compréhension des vulnérabilités et menaces courantes
-      - Connaissances des frameworks et normes de base (ISO 27001, NIST, etc.)
-      - Bases cryptographiques et de sécurité réseau`
+      title: "Phase d'évaluation technique fondamentale",
+      objective: `Évaluer précisément les connaissances techniques du candidat avec une approche sans concession:
+      - Exiger des définitions précises de termes techniques (pas d'approximations)
+      - Vérifier la connaissance profonde des mécanismes de sécurité (et pas juste superficielle)
+      - Mettre à l'épreuve la maîtrise des normes et standards pertinents pour le profil
+      - Tester la capacité à identifier les vulnérabilités courantes avec précision`
     },
     {
-      title: "Phase d'analyse technique approfondie",
-      objective: `Évaluer l'expertise technique et pratique du candidat:
-      - Capacité à analyser des scénarios d'attaque concrets
-      - Maîtrise des outils et techniques spécifiques à son domaine
-      - Connaissance approfondie des mécanismes de sécurité
-      - Expérience pratique dans la résolution d'incidents`
+      title: "Phase d'analyse critique et de raisonnement technique",
+      objective: `Évaluer la rigueur technique et la capacité d'analyse méthodique:
+      - Challenger la méthodologie technique pour identifier des failles ou incohérences
+      - Exiger des justifications précises pour chaque choix technique mentionné
+      - Confronter à des erreurs techniques courantes pour vérifier la capacité de détection
+      - Tester la compréhension des mécanismes sous-jacents (et pas seulement leur existence)`
     },
     {
-      title: "Phase de mise en situation complexe",
-      objective: `Évaluer la capacité d'adaptation et de résolution de problèmes:
-      - Réaction face à des scénarios complexes ou inhabituels
-      - Capacité à prioriser les actions dans un contexte de crise
-      - Application des connaissances théoriques à des cas réels
-      - Raisonnement méthodique sous pression`
+      title: "Phase de résolution technique sous contrainte",
+      objective: `Évaluer l'adaptabilité et la capacité de résolution technique sous pression:
+      - Imposer des contraintes techniques supplémentaires pour complexifier les scénarios
+      - Solliciter une priorisation technique rigoureuse et obtenir sa justification détaillée
+      - Mettre en contradiction certaines exigences pour tester la capacité d'arbitrage
+      - Demander une chronologie d'actions techniques précises face à un scénario critique`
     },
     {
-      title: "Phase d'évaluation de la vision stratégique",
-      objective: `Évaluer la vision globale et la maturité professionnelle:
-      - Compréhension des enjeux business liés à la sécurité
-      - Vision à long terme et approche stratégique 
-      - Capacité à communiquer des concepts techniques à différents niveaux
-      - Réflexion sur l'évolution des menaces et des technologies`
+      title: "Phase d'analyse stratégique et d'innovation technique",
+      objective: `Évaluer la capacité stratégique et la vision technique avancée:
+      - Exiger la comparaison critique de différentes approches techniques (avantages/inconvénients)
+      - Tester la connaissance des tendances émergentes et leur application concrète
+      - Évaluer la capacité à expliquer des concepts complexes à différents niveaux techniques
+      - Solliciter des propositions innovantes et évaluer leur faisabilité technique`
+    },
+    {
+      title: "Phase d'évaluation technique spécialisée",
+      objective: `Évaluer l'expertise technique de pointe dans les domaines spécifiques:
+      - Exiger une expertise pointue dans les technologies les plus récentes
+      - Tester les connaissances sur des cas d'usage très spécifiques
+      - Challenger sur des problématiques techniques de niche liées au secteur
+      - Évaluer la capacité à résoudre des problèmes techniques rares ou exceptionnels`
     }
   ];
   
-  // Déterminer la phase d'entretien en fonction de l'étape
-  if (step <= 4) {
-    // Pour les 4 premières étapes, suivre la progression définie
+  // Déterminer la phase d'entretien avec davantage de granularité
+  if (step <= phases.length) {
+    // Pour les premières étapes, suivre la progression définie
     phase = phases[Math.min(step - 1, phases.length - 1)].title;
     phaseObjective = phases[Math.min(step - 1, phases.length - 1)].objective;
   } else {
-    // Pour les étapes supplémentaires, varier entre les phases avancées
-    const phaseIndex = ((step - 1) % 3) + 1; // Alterne entre phases 2, 3 et 4
-    phase = `Phase d'approfondissement technique (niveau ${complexity})`;
-    phaseObjective = phases[phaseIndex].objective;
+    // Pour les étapes supplémentaires, alterner entre les phases avancées avec plus de variabilité
+    const phaseVariations = [
+      "Phase d'évaluation technique approfondie",
+      "Phase d'analyse critique spécialisée",
+      "Phase de mise en situation complexe",
+      "Phase d'évaluation technique avancée",
+      "Phase d'analyse stratégique technique"
+    ];
+    
+    // Sélection pseudo-aléatoire basée sur l'étape pour assurer une variété mais de façon déterministe
+    const variationIndex = (step % phaseVariations.length);
+    phase = `${phaseVariations[variationIndex]} (niveau ${complexity})`;
+    
+    // Alternance plus sophistiquée entre les objectifs des phases avancées
+    const objectiveIndex = ((step * 2) % phases.length);
+    phaseObjective = phases[objectiveIndex].objective;
   }
   
   // Thèmes techniques spécifiques adaptés au profil
