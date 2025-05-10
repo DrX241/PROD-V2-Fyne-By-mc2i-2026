@@ -336,7 +336,7 @@ export default function ProfilPro() {
           
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold">Profil Pro</h1>
+            <h1 className="text-3xl font-bold">DANS LA PEAU DE TON MÉTIER</h1>
             <p className="text-blue-200 mt-1">Découvrez votre métier en profondeur grâce à l'IA</p>
           </div>
           
