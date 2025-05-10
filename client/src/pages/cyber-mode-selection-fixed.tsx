@@ -132,6 +132,16 @@ export default function CyberModeSelectionRedesign() {
   // Tous les modules disponibles
   const allModules: Module[] = [
     {
+      id: 'profil-pro',
+      title: 'DANS LA PEAU DE TON MÉTIER',
+      description: "Explorez votre métier avec l'IA : rôles, compétences, évolution et défis. Testez vos connaissances avec un quiz personnalisé.",
+      icon: <Briefcase className="h-5 w-5" />,
+      destination: '/cyber/profil-pro',
+      difficulty: 'tous niveaux',
+      duration: '20-30 min',
+      isNew: true
+    },
+    {
       id: 'agent-ia',
       title: 'AGENT IA',
       description: "Discutez avec un expert en cybersécurité IA qui répond à toutes vos questions",
@@ -278,6 +288,7 @@ export default function CyberModeSelectionRedesign() {
       description: "Tester vos compétences dans des conditions réelles d'examen ou d'entretien",
       icon: <Award className="h-6 w-6 text-purple-100" />,
       modules: [
+        'profil-pro',              // Exploration et auto-évaluation des métiers avec IA
         'mode-entretien',          // Simulation d'entretien d'embauche
         'test-technique'           // Évaluation technique approfondie
       ],
