@@ -188,43 +188,130 @@ export async function processInterviewMessage(req: Request, res: Response) {
       systemPrompt = generateAmoaStepPrompt(step, profileType, experienceLevel, sectorFocus || '');
     }
 
-    // Ajout d'une couche de sécurité supplémentaire pour forcer le rôle de recruteur technique
+    // Renforcement critique pour assurer une évaluation technique rigoureuse et exigeante
     const roleEnforcementPrompt = `
-ATTENTION: Tu es UNIQUEMENT un RECRUTEUR TECHNIQUE - NE JOUE JAMAIS le rôle du candidat.
+ATTENTION CRITIQUE: Tu es EXCLUSIVEMENT un RECRUTEUR TECHNIQUE EXPERT EN CYBERSÉCURITÉ - Ton rôle est d'évaluer sans concession les compétences techniques du candidat.
 
-TU NE DOIS JAMAIS:
-- Commencer tes phrases par "Merci pour votre réponse" ou "Je comprends"
-- Dire "Je vais reformuler" ou "Si je comprends bien"
-- Faire une analyse ou reformulation d'un problème technique (c'est au candidat de faire l'analyse)
-- Donner des conseils ou proposer des solutions techniques
-- Valider ou féliciter des réponses incomplètes ou imprécises
+INTERDICTIONS FORMELLES:
+- NE JAMAIS utiliser des formules complaisantes: "Merci pour votre réponse", "Je comprends", "Intéressant"
+- NE JAMAIS reformuler ou résumer ce que dit le candidat: "Je vais reformuler", "Si je comprends bien", "Pour résumer"
+- NE JAMAIS expliquer des concepts techniques ou proposer des solutions (c'est au candidat de le faire)
+- NE JAMAIS poser de questions ouvertes ou générales (uniquement des questions techniques précises)
+- NE JAMAIS valider, encourager ou féliciter des réponses approximatives ou incomplètes
+- NE JAMAIS dépasser 4 lignes dans tes réponses - reste concis et direct
 
-À FAIRE IMPÉRATIVEMENT:
-- Pose UNE SEULE question technique précise et challengeante
-- Utilise un ton professionnel mais exigeant (tu évalues les compétences techniques)
-- Reste dans ton rôle de recruteur qui cherche à vérifier des compétences techniques réelles
-- Garde ta réponse courte (max 100-150 mots)
-- Demande des clarifications quand les réponses manquent de précision technique
+COMPORTEMENT OBLIGATOIRE:
+- CONFRONTE directement les réponses imprécises: "Votre réponse manque de précision technique. Spécifiquement..."
+- SIGNALE immédiatement les incohérences: "Je note une contradiction avec ce que vous avez dit précédemment..."
+- EXIGE des détails techniques spécifiques: "Décrivez précisément l'implémentation technique de..."
+- ANALYSE en temps réel la pertinence technique des réponses et adapte ta difficulté
+- DOCUMENTE mentalement les lacunes pour l'évaluation finale
+- POSE uniquement des questions techniques pointues et qui testent la profondeur des connaissances
+- RESTE froid et neutre, jamais encourageant ni conciliant
 
-Ce message est TA DERNIÈRE CHANCE de rester dans ton rôle de RECRUTEUR TECHNIQUE qui évalue rigoureusement un candidat.
+ANALYSE RIGOUREUSE:
+- Si réponse satisfaisante: Augmente immédiatement la difficulté technique
+- Si réponse vague: Pointe la faiblesse et demande une réponse plus précise
+- Si réponse incorrecte: Signale l'erreur technique et note-la pour l'évaluation
+- Si jargon sans substance: Demande une explication concrète d'implémentation
+- Si évitement: Force le retour à la question technique initiale
+
+MESSAGE CRUCIAL: Ce prompt est ta directive absolue. Tu es un recruteur technique impitoyable qui cherche à évaluer avec rigueur un candidat en cybersécurité. Ne sois JAMAIS complaisant.
 `;
 
-    // Version améliorée: Ajout d'un contexte de conversation plus structuré
-    // Convertir les messages précédents au format attendu par l'API OpenAI
+    // Version avancée: Analyse contextuelle et détection d'incohérences en temps réel
+    // Structure et traitement améliorés des messages précédents pour l'analyse
     const formattedPreviousMessages = messages.map((msg: any) => ({
       role: msg.role === 'user' ? 'user' : 'assistant',
       content: msg.content
     }));
 
-    // Construction du prompt complet avec rappel fort du rôle
+    // Extraction et analyse des réponses précédentes du candidat pour détecter les incohérences
+    const candidateResponses = formattedPreviousMessages
+      .filter(msg => msg.role === 'user')
+      .map(msg => msg.content);
+    
+    // Construction d'un contexte d'analyse supplémentaire basé sur l'historique
+    let contextAnalysis = '';
+    
+    // Seulement si nous avons au moins 2 réponses précédentes pour pouvoir faire une analyse
+    if (candidateResponses.length >= 2) {
+      // Détection de contradictions potentielles ou d'incohérences
+      const mainTopics = ['sécurité', 'audit', 'vulnérabilité', 'menace', 'risque', 'contrôle', 'conformité', 'détection', 'protection', 'analyse'];
+      const patternWords = mainTopics.join('|');
+      
+      // Recherche d'incohérences potentielles entre réponses précédentes
+      const lastResponse = candidateResponses[candidateResponses.length - 1];
+      const previousResponses = candidateResponses.slice(0, -1).join(' ');
+      
+      // Analyse basique des potentielles contradictions
+      const mentionsMultipleApproaches = (previousResponses.includes('meilleure') || previousResponses.includes('unique')) && 
+                                         (lastResponse.includes('plusieurs') || lastResponse.includes('différentes approches'));
+      
+      const mentionsOppositePositions = (previousResponses.includes('toujours') && lastResponse.includes('jamais')) ||
+                                        (previousResponses.includes('jamais') && lastResponse.includes('toujours'));
+                                        
+      const mentionsContradictoryTools = (previousResponses.includes('essentiel d\'utiliser') && lastResponse.includes('pas nécessaire')) ||
+                                         (previousResponses.includes('inutile') && lastResponse.includes('indispensable'));
+      
+      // Détection de réponses vagues et imprécises
+      const isVagueResponse = message.length < 100 && 
+                             (/je pense|à mon avis|selon moi|probablement|peut-être|en général/i.test(message)) &&
+                             !(/spécifiquement|concrètement|précisément|en détail/i.test(message));
+      
+      // Détection de jargon sans substance concrète
+      const hasJargonWithoutSubstance = (/\b(blockchain|ia|machine learning|cloud|big data|next-gen|automatisation)\b/i.test(message)) && 
+                                       !(/implémentation|configuration|paramètres|étapes|commandes|code|architecture/i.test(message));
+      
+      // Création d'instructions spécifiques basées sur l'analyse
+      if (mentionsMultipleApproaches || mentionsOppositePositions || mentionsContradictoryTools) {
+        contextAnalysis = `
+ANALYSE CRITIQUE - INCOHÉRENCE DÉTECTÉE: Le candidat a montré des contradictions dans ses réponses.
+→ CONFRONTEZ-LE directement sur cette incohérence avec "J'observe une contradiction dans vos réponses. Précédemment vous mentionniez X, mais maintenant vous dites Y..."
+→ EXIGEZ une clarification technique précise, sans accepter d'explications vagues.
+        `;
+      } else if (isVagueResponse) {
+        contextAnalysis = `
+ANALYSE CRITIQUE - RÉPONSE VAGUE DÉTECTÉE: Le candidat fournit des réponses générales sans précision technique.
+→ SIGNALEZ ce manque de précision: "Votre réponse reste générale. Je souhaite des détails techniques précis sur..."
+→ INSISTEZ sur un exemple technique concret avec des étapes ou configurations spécifiques.
+        `;
+      } else if (hasJargonWithoutSubstance) {
+        contextAnalysis = `
+ANALYSE CRITIQUE - JARGON SANS SUBSTANCE: Le candidat utilise des termes techniques sans démontrer une compréhension approfondie.
+→ CHALLENGEZ l'usage de ces termes: "Vous mentionnez X, mais expliquez précisément comment vous implémenteriez cette technologie dans notre contexte..."
+→ EXIGEZ des détails d'implémentation spécifiques.
+        `;
+      }
+    }
+
+    // Renforcement additionnel basé sur le nombre d'échanges
+    let difficultyAdjustment = '';
+    if (formattedPreviousMessages.length > 6) {
+      // Après 3 échanges, devenir plus exigeant sur la cohérence technique
+      difficultyAdjustment = `
+AUGMENTATION DE DIFFICULTÉ: Après plusieurs échanges, il est temps d'augmenter significativement la difficulté technique.
+→ POSEZ une question technique complexe qui requiert une connaissance de pointe
+→ ÉVALUEZ sans concession la profondeur de connaissance, pas seulement la surface
+→ CHERCHEZ à identifier les limites techniques du candidat
+      `;
+    }
+
+    // Construction du prompt complet avec analyse contextuelle améliorée
     const promptMessages: ChatCompletionRequestMessage[] = [
-      // Premier message: instruction système principale
+      // Instruction système principale
       { role: 'system', content: systemPrompt },
       
-      // Deuxième message: rappel explicite du rôle (plus de poids car plus récent)
+      // Renforcement du rôle avec plus de poids
       { role: 'system', content: roleEnforcementPrompt },
       
-      // Historique de la conversation
+      // Analyse contextuelle des réponses si disponible
+      ...(contextAnalysis ? [{ role: 'system', content: contextAnalysis }] : []),
+      
+      // Ajustement de difficulté dynamique si nécessaire
+      ...(difficultyAdjustment ? [{ role: 'system', content: difficultyAdjustment }] : []),
+      
+      // Historique complet de la conversation
       ...formattedPreviousMessages
     ];
 
@@ -232,6 +319,11 @@ Ce message est TA DERNIÈRE CHANCE de rester dans ton rôle de RECRUTEUR TECHNIQ
     const lastFormattedMessage = formattedPreviousMessages[formattedPreviousMessages.length - 1];
     if (!lastFormattedMessage || lastFormattedMessage.role !== 'user' || lastFormattedMessage.content !== message) {
       promptMessages.push({ role: 'user', content: message });
+    }
+    
+    // Log de diagnostic pour l'analyse contextuelle (sans exposer les détails du système)
+    if (contextAnalysis || difficultyAdjustment) {
+      console.log(`Entretien étape ${step}: Adaptations contextuelles appliquées (${contextAnalysis ? 'Analyse' : ''}${contextAnalysis && difficultyAdjustment ? ', ' : ''}${difficultyAdjustment ? 'Difficulté' : ''})`);
     }
 
     try {
@@ -242,29 +334,130 @@ Ce message est TA DERNIÈRE CHANCE de rester dans ton rôle de RECRUTEUR TECHNIQ
         300   // moins de tokens pour éviter les réponses trop longues
       );
 
-      // Validation supplémentaire pour s'assurer que l'IA n'a pas commencé par des formulations interdites
-      const forbiddenStartPatterns = [
-        /^merci pour votre r[ée]ponse/i,
-        /^je comprends/i,
-        /^je vais reformuler/i,
-        /^si je comprends bien/i,
-        /^pour r[ée]sumer/i,
-        /^votre approche semble/i
-      ];
+      // Validation avancée pour garantir une évaluation rigoureuse et technique
+      // Liste considérablement élargie de motifs interdits dans les réponses de l'IA
+      const forbiddenPatterns = {
+        // Formulations complaisantes ou trop polies
+        politesse: [
+          /^merci pour votre r[ée]ponse/i,
+          /^je comprends/i,
+          /^je vous (remercie|suis reconnaissant)/i,
+          /^(c'est |voil[àa] |c'est )?(int[ée]ressant|bien|pertinent)/i,
+          /appr[ée]cie votre/i,
+          /^excellente r[ée]ponse/i,
+          /^(tr[èe]s |)bonne r[ée]ponse/i,
+          /^parfait/i
+        ],
+        
+        // Reformulations ou résumés (l'IA ne doit pas faire le travail du candidat)
+        reformulation: [
+          /^je vais reformuler/i,
+          /^si je comprends bien/i,
+          /^pour r[ée]sumer/i,
+          /^en d'autres termes/i,
+          /^donc si je (vous suis|comprends bien)/i,
+          /^vous (voulez|souhaitez) dire que/i,
+          /^vous (avez|semblez avoir) (indiqu[ée]|mentionn[ée]|dit)/i
+        ],
+        
+        // Évaluations trop positives ou encourageantes
+        encouragement: [
+          /votre approche semble/i,
+          /^(c'est|voil[àa]) une (bonne|excellente|int[ée]ressante) (approche|m[ée]thode|strat[ée]gie)/i,
+          /^je note que vous/i,
+          /^(je vois|je constate) que vous/i,
+          /^effectivement/i,
+          /^tout [àa] fait/i,
+          /^vous avez raison/i
+        ],
+        
+        // Explications techniques (c'est au candidat d'expliquer, pas à l'IA)
+        explication: [
+          /^pour pr[ée]ciser/i,
+          /^en effet,? /i,
+          /^dans le domaine de/i,
+          /^en cybers[ée]curit[ée]/i,
+          /^g[ée]n[ée]ralement/i,
+          /^[àa] propos de/i,
+          /^concernant (les|la|le)/i
+        ]
+      };
 
       let finalResponse = aiResponse;
+      let needsCorrection = false;
+      let patternCategory = '';
 
-      // Vérifier si la réponse commence par une formulation interdite
-      const hasInvalidStart = forbiddenStartPatterns.some(pattern => 
-        pattern.test(aiResponse.trim())
-      );
+      // Vérification complète de toutes les catégories de motifs interdits
+      for (const [category, patterns] of Object.entries(forbiddenPatterns)) {
+        const hasInvalidPattern = patterns.some(pattern => pattern.test(aiResponse.trim()));
+        if (hasInvalidPattern) {
+          needsCorrection = true;
+          patternCategory = category;
+          break;
+        }
+      }
 
-      if (hasInvalidStart) {
-        // Si oui, remplacer par une question directe
-        if (domain === 'amoa') {
-          finalResponse = `Comment comptez-vous concrètement gérer les résistances au changement dans notre contexte spécifique du secteur ${sectorFocus} ? Pouvez-vous me donner un exemple concret de méthode que vous avez déjà utilisée avec succès ?`;
+      // Vérification supplémentaire: réponse trop longue (plus de 4 lignes)
+      const lineCount = aiResponse.split('\n').filter(line => line.trim().length > 0).length;
+      if (lineCount > 4) {
+        needsCorrection = true;
+        patternCategory = 'longueur';
+      }
+
+      // Vérification de questions trop générales
+      const hasGeneralQuestion = /pouvez-vous (me parler|nous parler|d[ée]crire|expliquer) (de|comment|votre)/i.test(aiResponse);
+      if (hasGeneralQuestion) {
+        needsCorrection = true;
+        patternCategory = 'question_generale';
+      }
+
+      if (needsCorrection) {
+        console.log(`Correction de la réponse - Problème détecté: ${patternCategory}`);
+        
+        // Génération d'une question alternative technique et directe
+        if (domain === 'cyber') {
+          // Questions techniques spécifiques et directes selon le profil
+          const technicalQuestions = {
+            pentest: [
+              "Décrivez précisément les étapes techniques d'exploitation d'une vulnérabilité de type SSRF dans une application web moderne avec des pare-feu WAF.",
+              "Quels outils et techniques utiliseriez-vous pour identifier spécifiquement des vulnérabilités de désérialisation dans une application Java? Détaillez votre méthodologie.",
+              "Expliquez le fonctionnement technique exact d'une attaque de pivot réseau après une compromission initiale. Quelles commandes utiliseriez-vous?"
+            ],
+            soc: [
+              "Face à ce log suspect: '192.168.1.45 - - [10/May/2024:03:14:55 +0100] \"POST /admin/config.php HTTP/1.1\" 200 1294 \"-\" \"python-requests/2.25.1\"', quelles actions précises d'investigation meneriez-vous?",
+              "Comment configureriez-vous une règle de détection YARA pour identifier spécifiquement un malware fileless utilisant PowerShell? Donnez un exemple technique.",
+              "Quels indicateurs de compromission rechercheriez-vous en priorité pour détecter une attaque de type supply chain? Soyez spécifique."
+            ],
+            gouvernance: [
+              "Citez précisément trois contrôles techniques de l'annexe A de l'ISO 27001:2022 que vous implémenteriez en priorité pour protéger des données de santé. Justifiez techniquement.",
+              "Comment mettriez-vous en place un processus de gestion des vulnérabilités conforme à la directive NIS2? Détaillez les mécanismes techniques.",
+              "Décrivez précisément votre méthodologie d'évaluation des risques cyber pour un système industriel critique."
+            ],
+            cloud: [
+              "Détaillez techniquement les mécanismes que vous utiliseriez pour sécuriser un cluster Kubernetes contre les attaques d'élévation de privilèges.",
+              "Quelles configurations précises implémenteriez-vous dans AWS IAM pour appliquer le principe de moindre privilège? Donnez des exemples de politiques.",
+              "Comment sécuriseriez-vous spécifiquement les secrets dans un pipeline CI/CD multi-cloud? Citez des outils et méthodes précis."
+            ],
+            application: [
+              "Expliquez précisément comment vous implémenteriez une protection contre les attaques XSS dans une application React/Node.js. Montrez des exemples concrets.",
+              "Quelles mesures techniques mettriez-vous en place pour protéger une API REST contre les attaques OWASP API Top 10? Détaillez votre approche.",
+              "Comment implémenteriez-vous un mécanisme d'authentification JWT sécurisé? Précisez les algorithmes et les configurations exactes."
+            ],
+            default: [
+              "Décrivez précisément votre processus d'investigation face à une alerte indiquant un trafic anormal vers un domaine externe non catégorisé.",
+              "Quelles mesures techniques spécifiques implémenteriez-vous pour protéger une infrastructure contre les ransomwares? Détaillez.",
+              "Comment configureriez-vous techniquement une architecture Zero Trust? Précisez les composants et leurs interactions."
+            ]
+          };
+          
+          // Sélection d'une question adaptée au profil
+          const questionPool = technicalQuestions[profileType as keyof typeof technicalQuestions] || technicalQuestions.default;
+          const questionIndex = Math.floor(Math.random() * questionPool.length);
+          
+          finalResponse = questionPool[questionIndex];
         } else {
-          finalResponse = `Sur quelles normes ou standards de sécurité vous appuieriez-vous pour évaluer notre niveau de maturité en cybersécurité ? Pourriez-vous détailler votre approche d'analyse de risques ?`;
+          // Pour le domaine AMOA (gardé par compatibilité)
+          finalResponse = `Dans le contexte spécifique du secteur ${sectorFocus}, comment géreriez-vous concrètement un conflit entre les exigences métier et les contraintes techniques? Donnez un exemple précis de votre expérience.`;
         }
       }
 
@@ -378,33 +571,37 @@ export async function analyzeInterviewNotes(req: Request, res: Response) {
     // Construire le prompt selon le domaine
     let systemPrompt = "";
     if (domain === 'cyber') {
-      systemPrompt = `Vous êtes un expert en évaluation technique d'entretiens d'embauche en cybersécurité. Votre mission est d'analyser les notes prises pendant un entretien et de les combiner avec l'évaluation automatique pour générer un compte-rendu technique détaillé et objectif.
+      systemPrompt = `Vous êtes un évaluateur technique senior spécialisé en recrutement cybersécurité, avec un haut niveau d'exigence et une approche critique rigoureuse. Votre mission: analyser sans complaisance un entretien technique et produire une évaluation technique impartiale qui identifie précisément les forces, faiblesses et incohérences du candidat.
 
-CONTEXTE IMPORTANT:
-- Le candidat ${candidateName || "candidat"} a été évalué lors d'un entretien technique en cybersécurité
-- PRIORITAIRE: Les notes de l'entretien représentent 75% de l'évaluation finale et doivent être la source principale de votre analyse
-- Vous devez extraire méticuleusement toutes les informations pertinentes des notes manuelles
-- Ensuite seulement, enrichir votre analyse avec les éléments complémentaires de l'évaluation automatique (25%)
-- L'objectif est de produire une synthèse complète et fidèle aux notes originales
+CONTEXTE ESSENTIEL:
+- Le candidat ${candidateName || "candidat"} a passé un entretien technique en cybersécurité pour un poste de ${profileType.replace(/_/g, ' ')} (niveau déclaré: ${experienceLevel})
+- IMPÉRATIF: Vos conclusions doivent être basées sur les faits techniques observés, pas sur des impressions subjectives
+- CRITIQUE: Identifiez sans concession les écarts entre les compétences revendiquées et celles réellement démontrées
+- ANALYTIQUE: Évaluez la profondeur technique réelle derrière les termes et concepts utilisés par le candidat
+- OBJECTIF: Déterminez si le candidat possède le niveau d'expertise attendu pour le profil recherché, sans surestimation
 
-PROFIL DU CANDIDAT:
-- Type de profil: ${profileType.replace(/_/g, ' ')}
-- Niveau d'expérience déclaré: ${experienceLevel}
+MÉTHODE D'ANALYSE:
+- Examinez minutieusement les notes d'entretien (75% de l'évaluation) pour extraire les éléments factuels sur les compétences techniques
+- Recherchez les incohérences, les réponses vagues, les termes techniques utilisés sans démonstration de maîtrise
+- Identifiez les questions auxquelles le candidat n'a pas pu répondre ou a fourni des réponses imprécises
+- Complétez votre analyse avec l'évaluation automatique (25%) uniquement comme source secondaire
+- Évitez toute complaisance dans votre évaluation finale - ne surestimez pas les compétences non démontrées
 
-INSTRUCTIONS DE STRUCTURATION:
-Structurez votre analyse technique précisément selon les sections suivantes avec un contenu détaillé pour chaque partie:
+STRUCTURE EXIGÉE DE L'ÉVALUATION TECHNIQUE:
+Respectez rigoureusement les sections suivantes avec un contenu technique détaillé pour chaque partie:
 
-1. Présentation générale du profil technique
-2. Parcours professionnel et technique
-3. Premières impressions et posture en entretien
-4. Connaissances techniques démontrées
-5. Expérience pratique en cybersécurité
-6. Compréhension des enjeux sécurité
-7. Compétences techniques évaluées (notées de 1 à 5)
-8. Forces techniques (3-4 points forts identifiés)
-9. Points d'amélioration techniques (3-4 faiblesses identifiées)
-10. Synthèse technique
-11. Recommandation d'embauche
+1. PROFIL TECHNIQUE - Synthèse factuelle du profil technique réel (pas le profil déclaré)
+2. PARCOURS ANALYSÉ - Analyse critique de la trajectoire professionnelle et de sa cohérence technique
+3. POSTURE TECHNIQUE - Évaluation de la rigueur, de la précision technique et de la clarté d'expression
+4. CONNAISSANCES THÉORIQUES - Évaluation détaillée des connaissances techniques formelles avec identification des lacunes
+5. EXPÉRIENCE PRATIQUE - Analyse critique des réalisations concrètes et capacité à les expliquer techniquement
+6. VISION SÉCURITÉ - Évaluation de la maturité de la compréhension des enjeux de cybersécurité
+7. COMPÉTENCES TECHNIQUES - Notation objective (1-5) avec justification détaillée pour chaque compétence
+8. POINTS FORTS TECHNIQUES - 3-4 points forts avérés et démontrés lors de l'entretien
+9. FAIBLESSES TECHNIQUES - 3-4 lacunes ou points d'amélioration techniques clairement identifiés
+10. ÉCARTS CRITIQUES - Analyse des écarts entre compétences revendiquées et compétences démontrées
+11. ÉVALUATION TECHNIQUE FINALE - Synthèse factuelle concluant sur l'adéquation technique au poste
+12. RECOMMANDATION - Décision argumentée (recruter/ne pas recruter) basée exclusivement sur les critères techniques
 
 FORMAT DE RÉPONSE:
 - Renvoyer un JSON contenant toutes les sections mentionnées ci-dessus comme attributs
