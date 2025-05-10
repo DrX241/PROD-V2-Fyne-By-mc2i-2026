@@ -200,6 +200,15 @@ export default function CyberTestTechnique() {
       if (data.success) {
         setEvaluationResults(data);
         setStep('results');
+        
+        // Après avoir reçu les résultats d'évaluation, lancer l'analyse critique approfondie
+        setTimeout(() => {
+          toast({
+            title: "Analyse en cours",
+            description: "Notre évaluateur technique senior analyse vos résultats de manière critique...",
+          });
+          analyzeResultsMutation.mutate();
+        }, 1000);
       } else {
         toast({
           title: "Erreur",
@@ -212,6 +221,51 @@ export default function CyberTestTechnique() {
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de l'évaluation des réponses.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Analyze results mutation
+  const analyzeResultsMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest('/api/cyber/test-technique/analyze-results', {
+        method: 'POST',
+        body: JSON.stringify({
+          results: evaluationResults,
+          category: selectedCategory,
+          difficulty: selectedDifficulty
+        })
+      });
+      return response;
+    },
+    onSuccess: (data) => {
+      if (data.success) {
+        // Mise à jour des résultats d'évaluation avec l'analyse critique
+        setEvaluationResults((prevResults) => {
+          if (!prevResults) return null;
+          return {
+            ...prevResults,
+            analysis: data.analysis
+          };
+        });
+        
+        toast({
+          title: "Analyse complétée",
+          description: "Analyse critique de vos résultats générée avec succès.",
+        });
+      } else {
+        toast({
+          title: "Erreur d'analyse",
+          description: "Impossible d'analyser les résultats en détail. Veuillez réessayer.",
+          variant: "destructive",
+        });
+      }
+    },
+    onError: () => {
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'analyse des résultats.",
         variant: "destructive",
       });
     }
@@ -300,10 +354,15 @@ export default function CyberTestTechnique() {
     }
   };
 
+  // La fonction goToPreviousQuestion est désactivée pour rendre le test plus rigoureux
   const goToPreviousQuestion = () => {
-    if (currentQuestion > 0) {
-      setCurrentQuestion(currentQuestion - 1);
-    }
+    // Désactivé pour empêcher le retour en arrière pendant le test, rendant l'évaluation plus stricte
+    toast({
+      title: "Action non autorisée",
+      description: "Dans un contexte d'évaluation professionnelle, le retour en arrière n'est pas permis.",
+      variant: "destructive",
+    });
+    return;
   };
 
   const startQuiz = () => {

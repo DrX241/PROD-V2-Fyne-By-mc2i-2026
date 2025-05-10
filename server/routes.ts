@@ -661,6 +661,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/cyber/test-technique/generate', generateQuestions);
   app.post('/api/cyber/test-technique/evaluate', evaluateResponses);
   app.post('/api/cyber/test-technique/certificate', generateCertificate);
+  app.post('/api/cyber/test-technique/analyze-results', analyzeTestResults);
   
   // Routes pour le test d'entretien cybersécurité
   app.post('/api/cyber/interview-test/evaluate', evaluateInterviewTest);
