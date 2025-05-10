@@ -384,16 +384,60 @@ export default function ProfilPro() {
     action: string;
   } | null>(null);
   
-  // Gérer une action de l'utilisateur
-  const handleGameAction = (actionName: string) => {
-    if (!currentChallenge) return;
+  // Gérer une action de l'utilisateur dans le quiz
+  // Cette fonction a été adaptée pour accepter soit (actionName) soit (actionName, isCorrect)
+  const handleGameAction = (actionName: string, providedIsCorrect?: boolean) => {
+    // Protection contre les erreurs null
+    if (!professionProfile) return;
     
-    const isCorrect = isCorrectAction(actionName);
+    // Pour compatibilité avec l'ancien mode
+    let isCorrect: boolean;
+    
+    if (providedIsCorrect !== undefined) {
+      // Nouveau mode (quiz): utiliser la valeur fournie directement
+      isCorrect = providedIsCorrect;
+    } else if (currentChallenge) {
+      // Ancien mode (jeu d'arcade): vérifier avec la fonction isCorrectAction
+      isCorrect = isCorrectAction(actionName);
+    } else {
+      // Fallback - considérer correct par défaut
+      isCorrect = true;
+    }
+    
+    // Métier actuel (éviter les erreurs null)
+    const profName = professionProfile.title || "professionnel cybersécurité";
+    
+    // Messages prédéfinis basés sur le niveau et le résultat
+    let feedbackMessage = "";
+    
+    if (isCorrect) {
+      switch (gameLevel) {
+        case 1:
+          feedbackMessage = `Excellent choix ! "${actionName}" est en effet la principale responsabilité d'un ${profName}. Cette compréhension démontre une bonne connaissance du rôle stratégique de ce métier dans l'organisation de la sécurité.`;
+          break;
+        case 2:
+          feedbackMessage = `Parfait ! "${actionName}" est une compétence cruciale pour un ${profName}. Cette aptitude permet de s'adapter aux défis complexes de la cybersécurité moderne.`;
+          break;
+        case 3:
+          feedbackMessage = `Tout à fait ! "${actionName}" est un outil essentiel dans l'arsenal d'un ${profName}. Savoir utiliser les bons outils fait partie des compétences techniques indispensables pour ce poste.`;
+          break;
+        case 4:
+          feedbackMessage = `Bonne réponse ! "${actionName}" est effectivement une certification très reconnue dans le domaine. Elle valide un niveau d'expertise apprécié par les recruteurs et organisations.`;
+          break;
+        case 5:
+          feedbackMessage = `Parfaitement identifié ! "${actionName}" représente un défi majeur pour les ${profName} aujourd'hui. Savoir y faire face est déterminant pour réussir dans ce métier.`;
+          break;
+        default:
+          feedbackMessage = `Bonne réponse ! "${actionName}" est effectivement la réponse correcte.`;
+      }
+    } else {
+      feedbackMessage = `Cette réponse n'est pas la plus adaptée pour un ${profName}. En cybersécurité, chaque rôle a ses spécificités et il est important de bien comprendre les responsabilités de chaque fonction pour une collaboration efficace.`;
+    }
     
     // Générer le message de feedback
     setActionFeedback({
       isCorrect,
-      message: isCorrect ? currentChallenge.explanation : `Action incorrecte! La bonne réponse était: ${currentChallenge.correctAction}. ${currentChallenge.explanation}`,
+      message: feedbackMessage,
       action: actionName
     });
     
@@ -408,12 +452,15 @@ export default function ProfilPro() {
       // Augmenter le niveau après une pause
       setTimeout(() => {
         setShowFeedback(false);
-        setGameLevel((prevLevel) => Math.min(prevLevel + 1, 5));
         
-        // Générer un nouveau défi
-        if (professionProfile && professionProfile.title) {
-          const newChallenge = generateChallenge(professionProfile.title);
-          setCurrentChallenge(newChallenge);
+        if (gameLevel < 5) {
+          setGameLevel((prevLevel) => prevLevel + 1);
+        } else {
+          // Quiz terminé
+          setGameCompleted(true);
+          if (gameTimerId) {
+            clearInterval(gameTimerId);
+          }
         }
       }, 3000);
     } else {
@@ -422,17 +469,10 @@ export default function ProfilPro() {
       setGameScore((prevScore) => {
         const newScore = prevScore - pointsLost;
         
-        // Vérifier si le jeu est terminé (score négatif)
-        if (newScore < 0) {
-          setTimeout(() => {
-            endArcadeGame();
-          }, 3000);
-        } else {
-          // Continuer après une pause
-          setTimeout(() => {
-            setShowFeedback(false);
-          }, 3000);
-        }
+        // Continuer après une pause
+        setTimeout(() => {
+          setShowFeedback(false);
+        }, 3000);
         
         return Math.max(newScore, 0); // Ne pas afficher de score négatif
       });
