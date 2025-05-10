@@ -7,7 +7,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Clock, CheckCircle2, AlertCircle, ArrowRight, ArrowLeft, TimerReset } from 'lucide-react';
-import HomeLayout from '@/components/layout/HomeLayout';
 
 // Types de questions possibles
 type QuestionType = 'presentation' | 'reflex' | 'incident' | 'analysis' | 'ethical' | 'client' | 'projection';
@@ -386,12 +385,12 @@ export default function CyberInterviewTest() {
                 </ul>
               </div>
 
-              <div className="bg-amber-50 dark:bg-amber-950 p-4 rounded-md dark:text-white">
-                <h3 className="font-semibold mb-2 flex items-center text-blue-800 dark:text-white">
-                  <AlertCircle className="h-5 w-5 mr-2 text-amber-600" />
+              <div className="bg-blue-900/50 backdrop-blur-sm border border-amber-800/50 p-4 rounded-md">
+                <h3 className="font-semibold mb-2 flex items-center text-white">
+                  <AlertCircle className="h-5 w-5 mr-2 text-amber-400" />
                   À savoir avant de commencer
                 </h3>
-                <ul className="list-disc list-inside space-y-2 text-sm text-gray-800 dark:text-gray-200">
+                <ul className="list-disc list-inside space-y-2 text-sm text-blue-100">
                   <li>Le test sera chronométré dès que vous cliquerez sur "Commencer"</li>
                   <li>Vous ne pourrez pas revenir à une question précédente</li>
                   <li>Si le temps s'écoule, vos réponses seront automatiquement soumises</li>
@@ -403,7 +402,7 @@ export default function CyberInterviewTest() {
               <Button 
                 onClick={handleBackToHome} 
                 variant="outline"
-                className="gap-2"
+                className="gap-2 border-blue-700 text-white hover:bg-blue-800"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Retour à I AM CYBER
@@ -411,7 +410,7 @@ export default function CyberInterviewTest() {
               <Button 
                 size="lg" 
                 onClick={handleStartTest}
-                className="md:w-auto"
+                className="md:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
               >
                 Commencer le test
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -419,62 +418,71 @@ export default function CyberInterviewTest() {
             </CardFooter>
           </Card>
         </div>
-      </HomeLayout>
+      </div>
     );
   }
 
   // Affichage des résultats
   if (testState === 'results' && evaluationResult) {
     return (
-      <HomeLayout>
+      <div className="min-h-screen bg-gradient-to-b from-blue-950 to-slate-950 text-white pb-20">
         <div className="container mx-auto py-8 px-4 cyber-interview-test">
-          <Card className="max-w-3xl mx-auto">
+          <div className="flex items-center mb-8">
+            <Link href="/cyber">
+              <Button variant="ghost" className="text-white mr-4">
+                <ArrowLeft className="mr-2 h-5 w-5" />
+                Retour
+              </Button>
+            </Link>
+            <h1 className="text-3xl font-bold font-[Rajdhani] tracking-wide text-white">RÉSULTATS DU TEST</h1>
+          </div>
+          <Card className="max-w-3xl mx-auto bg-blue-900/30 border-blue-800">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-bold text-blue-800 dark:text-white">Évaluation terminée</CardTitle>
-              <CardDescription className="text-gray-800 dark:text-white">
+              <CardTitle className="text-2xl font-bold text-white font-[Rajdhani]">Évaluation terminée</CardTitle>
+              <CardDescription className="text-blue-100">
                 Analyse de votre profil en cybersécurité
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6 text-gray-800 dark:text-white">
-              <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-md dark:text-white">
-                <h3 className="font-semibold mb-2 text-blue-800 dark:text-white">🧑‍💼 Profil évalué</h3>
-                <p className="text-sm text-gray-800 dark:text-white">{evaluationResult.profile}</p>
+            <CardContent className="space-y-6 text-white">
+              <div className="bg-blue-900/50 backdrop-blur-sm border border-blue-800 p-4 rounded-md">
+                <h3 className="font-semibold mb-2 text-white">🧑‍💼 Profil évalué</h3>
+                <p className="text-sm text-blue-100">{evaluationResult.profile}</p>
               </div>
 
-              <div className="bg-green-50 dark:bg-green-950 p-4 rounded-md dark:text-white">
-                <h3 className="font-semibold mb-2 flex items-center text-blue-800 dark:text-white">
-                  <CheckCircle2 className="h-5 w-5 mr-2 text-green-600" />
+              <div className="bg-blue-900/50 backdrop-blur-sm border border-green-800/50 p-4 rounded-md">
+                <h3 className="font-semibold mb-2 flex items-center text-white">
+                  <CheckCircle2 className="h-5 w-5 mr-2 text-green-400" />
                   Forces
                 </h3>
-                <ul className="list-disc list-inside space-y-1 text-sm text-gray-800 dark:text-white">
+                <ul className="list-disc list-inside space-y-1 text-sm text-blue-100">
                   {evaluationResult.strengths.map((strength, index) => (
                     <li key={index}>{strength}</li>
                   ))}
                 </ul>
               </div>
 
-              <div className="bg-amber-50 dark:bg-amber-950 p-4 rounded-md dark:text-white">
-                <h3 className="font-semibold mb-2 flex items-center text-blue-800 dark:text-white">
-                  <AlertCircle className="h-5 w-5 mr-2 text-amber-600" />
+              <div className="bg-blue-900/50 backdrop-blur-sm border border-amber-800/50 p-4 rounded-md">
+                <h3 className="font-semibold mb-2 flex items-center text-white">
+                  <AlertCircle className="h-5 w-5 mr-2 text-amber-400" />
                   Axes de progression
                 </h3>
-                <ul className="list-disc list-inside space-y-1 text-sm text-gray-800 dark:text-white">
+                <ul className="list-disc list-inside space-y-1 text-sm text-blue-100">
                   {evaluationResult.improvements.map((improvement, index) => (
                     <li key={index}>{improvement}</li>
                   ))}
                 </ul>
               </div>
 
-              <div className="bg-purple-50 dark:bg-purple-950 p-4 rounded-md dark:text-white">
-                <h3 className="font-semibold mb-2 text-blue-800 dark:text-white">🎖️ Badge attribué</h3>
-                <Badge className="mb-2 bg-purple-600">{evaluationResult.badge.name}</Badge>
-                <p className="text-sm text-gray-800 dark:text-white">{evaluationResult.badge.justification}</p>
+              <div className="bg-blue-900/50 backdrop-blur-sm border border-purple-800/50 p-4 rounded-md">
+                <h3 className="font-semibold mb-2 text-white">🎖️ Badge attribué</h3>
+                <Badge className="mb-2 bg-indigo-600 hover:bg-indigo-700">{evaluationResult.badge.name}</Badge>
+                <p className="text-sm text-blue-100">{evaluationResult.badge.justification}</p>
               </div>
             </CardContent>
             <CardFooter className="flex justify-center">
               <Button 
                 onClick={handleBackToHome} 
-                className="w-full md:w-auto gap-2"
+                className="w-full md:w-auto gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Retour à I AM CYBER
@@ -482,38 +490,47 @@ export default function CyberInterviewTest() {
             </CardFooter>
           </Card>
         </div>
-      </HomeLayout>
+      </div>
     );
   }
 
   // Affichage de la soumission en cours
   if (testState === 'submitting') {
     return (
-      <HomeLayout>
+      <div className="min-h-screen bg-gradient-to-b from-blue-950 to-slate-950 text-white pb-20">
         <div className="container mx-auto py-8 px-4 flex flex-col items-center justify-center min-h-[50vh] cyber-interview-test">
-          <div className="w-16 h-16 border-4 border-t-transparent border-blue-600 rounded-full animate-spin mb-4"></div>
-          <h2 className="text-xl font-semibold mb-2 text-blue-800 dark:text-white">Analyse en cours...</h2>
-          <p className="text-gray-800 dark:text-white text-center max-w-md">
+          <div className="w-16 h-16 border-4 border-t-transparent border-blue-400 rounded-full animate-spin mb-4"></div>
+          <h2 className="text-xl font-semibold mb-2 text-white font-[Rajdhani]">Analyse en cours...</h2>
+          <p className="text-blue-100 text-center max-w-md">
             Notre IA analyse vos réponses pour générer votre profil de compétences en cybersécurité.
             Cela peut prendre quelques instants.
           </p>
         </div>
-      </HomeLayout>
+      </div>
     );
   }
 
   // Affichage du test en cours
   return (
-    <HomeLayout>
+    <div className="min-h-screen bg-gradient-to-b from-blue-950 to-slate-950 text-white pb-20">
       <div className="container mx-auto py-8 px-4 cyber-interview-test">
-        <Card className="max-w-3xl mx-auto">
+        <div className="flex items-center mb-8">
+          <Link href="/cyber">
+            <Button variant="ghost" className="text-white mr-4">
+              <ArrowLeft className="mr-2 h-5 w-5" />
+              Retour
+            </Button>
+          </Link>
+          <h1 className="text-3xl font-bold font-[Rajdhani] tracking-wide text-white">TEST TECHNIQUE</h1>
+        </div>
+        <Card className="max-w-3xl mx-auto bg-blue-900/30 border-blue-800">
           <CardHeader>
             <div className="flex justify-between items-center">
               <div>
-                <CardTitle className="text-xl font-bold text-blue-800 dark:text-white">
+                <CardTitle className="text-xl font-bold text-white font-[Rajdhani]">
                   Question {currentQuestionIndex + 1}/{totalQuestions}
                 </CardTitle>
-                <CardDescription className="dark:text-white">
+                <CardDescription className="text-blue-100">
                   {questions[currentQuestionIndex]?.type === 'presentation' ? 'Présentation' : 
                    questions[currentQuestionIndex]?.type === 'reflex' ? 'Réflexes de sécurité' : 
                    questions[currentQuestionIndex]?.type === 'incident' ? 'Gestion d\'incident' : 
@@ -523,32 +540,32 @@ export default function CyberInterviewTest() {
                    'Prospective'}
                 </CardDescription>
               </div>
-              <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-2 rounded-md text-gray-900 dark:text-white">
-                <Clock className="h-5 w-5 mr-2 text-amber-600" />
+              <div className="flex items-center bg-blue-900/80 p-2 rounded-md text-white border border-blue-700">
+                <Clock className="h-5 w-5 mr-2 text-amber-400" />
                 <span className="font-mono font-medium">{formatTime(timeLeft)}</span>
               </div>
             </div>
             <Progress value={progress} className="mt-4" />
           </CardHeader>
-          <CardContent className="space-y-4 text-gray-800 dark:text-white">
-            <div className="space-y-2 text-gray-800 dark:text-white bg-white dark:bg-gray-800 p-4 rounded-lg">
+          <CardContent className="space-y-4 text-white">
+            <div className="space-y-2 bg-blue-900/50 backdrop-blur-sm border border-blue-800 p-4 rounded-md">
               <h3 className="text-lg font-medium">{questions[currentQuestionIndex]?.question}</h3>
               {questions[currentQuestionIndex]?.hint && (
-                <p className="text-sm">{questions[currentQuestionIndex]?.hint}</p>
+                <p className="text-sm text-blue-100">{questions[currentQuestionIndex]?.hint}</p>
               )}
             </div>
             <Textarea
               placeholder={questions[currentQuestionIndex]?.placeholder}
               value={currentAnswer}
               onChange={(e) => setCurrentAnswer(e.target.value)}
-              className="min-h-[150px] bg-white dark:bg-gray-800 text-gray-800 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+              className="min-h-[150px] bg-blue-950/50 border-blue-700 text-white placeholder:text-blue-400"
             />
           </CardContent>
           <CardFooter className="flex justify-between">
             <Button 
               onClick={handleBackToHome} 
               variant="outline"
-              className="gap-2"
+              className="gap-2 border-blue-700 text-white hover:bg-blue-800"
             >
               <ArrowLeft className="h-4 w-4" />
               Retour à I AM CYBER
@@ -556,6 +573,7 @@ export default function CyberInterviewTest() {
             <Button 
               onClick={handleNextQuestion}
               disabled={currentAnswer.trim().length < 3}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
             >
               {currentQuestionIndex < totalQuestions - 1 ? 'Question suivante' : 'Terminer le test'}
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -563,6 +581,6 @@ export default function CyberInterviewTest() {
           </CardFooter>
         </Card>
       </div>
-    </HomeLayout>
+    </div>
   );
 }
