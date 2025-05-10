@@ -61,7 +61,6 @@ import { getInvestigationProgress, saveInvestigationProgress, evaluateUserNotes 
 // importation du controller CyberEscape supprimée
 import { getChallenges, getChallengeById, getUserStats, getUserReports, submitBugReport, getReportById } from "./bugHunterController";
 import { generateCustomTool } from "./toolGeneratorController";
-import { chatWithCustomAssistant } from "./customAssistantsController";
 import { getOrCreateUser, getUserById } from "./userController";
 
 

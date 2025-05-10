@@ -218,10 +218,15 @@ ${customInstructions}` : ''}
         
         setGeneratedPrompt(generatedSystemPrompt);
         
+        // Définir si on affiche le chat directement après la génération
+        setShowChat(autoStartChat);
+        
         // Notification de réussite
         toast({
           title: "Assistant généré avec succès",
-          description: "Votre assistant personnalisé est prêt à être utilisé.",
+          description: autoStartChat 
+            ? "Votre assistant est prêt. Vous pouvez commencer à discuter." 
+            : "Votre assistant est prêt. Cliquez sur 'Discuter avec l'assistant' pour commencer.",
           variant: "default"
         });
       }
