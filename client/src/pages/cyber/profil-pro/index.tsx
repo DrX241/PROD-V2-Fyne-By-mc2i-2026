@@ -812,26 +812,21 @@ export default function ProfilPro() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Target className="h-5 w-5 text-blue-400" />
-                        Testez vos compétences de {professionProfile.title}
+                        Testez vos connaissances sur le métier de {professionProfile.title}
                       </CardTitle>
                       <CardDescription className="text-blue-300">
-                        Ce jeu d'arcade vous permet de mettre en pratique les compétences essentielles du métier
+                        Évaluez votre compréhension des compétences et responsabilités du métier avec notre quiz interactif
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="p-6 text-center">
                         <div className="mb-6">
-                          <svg className="w-20 h-20 mx-auto mb-4" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="10" y="30" width="80" height="50" rx="4" fill="#1e40af" stroke="#3b82f6" strokeWidth="2"/>
-                            <rect x="20" y="40" width="60" height="30" rx="2" fill="#1d4ed8"/>
-                            <circle cx="30" cy="70" r="5" fill="#60a5fa"/>
-                            <circle cx="50" cy="70" r="5" fill="#60a5fa"/>
-                            <circle cx="70" cy="70" r="5" fill="#60a5fa"/>
-                            <path d="M30 50L40 45L50 50L60 45L70 50" stroke="#bfdbfe" strokeWidth="2"/>
-                          </svg>
-                          <h3 className="text-xl font-semibold mb-2">Jeu d'arcade : La mission du {professionProfile.title}</h3>
+                          <div className="w-20 h-20 mx-auto mb-4 bg-blue-800/50 rounded-full flex items-center justify-center">
+                            <Lightbulb className="w-10 h-10 text-blue-200" />
+                          </div>
+                          <h3 className="text-xl font-semibold mb-2">Quiz interactif : Les savoirs du {professionProfile.title}</h3>
                           <p className="text-blue-300 max-w-md mx-auto">
-                            Plongez dans l'univers du métier avec ce mini-jeu d'arcade alimenté par l'IA qui simule ses défis quotidiens
+                            Testez vos connaissances et recevez un feedback personnalisé grâce à notre intelligence artificielle
                           </p>
                         </div>
                         
