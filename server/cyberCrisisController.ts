@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import { openAIService } from './services/openai';
+// Import service amélioré pour le service OpenAI
+import { enhancedOpenAIService } from './services/enhancedOpenAIService';
 
 // Interfaces pour le Centre de Crise
 interface Incident {
@@ -423,7 +425,7 @@ Historique de la conversation:
 ${session.messages.map(msg => `${msg.role === 'user' ? 'Utilisateur' : msg.role === 'expert' ? `${expert.name}` : 'Système'}: ${msg.content}`).join('\n')}`;
 
     // Générer une réponse avec Azure OpenAI
-    const openAIResponse = await enhancedOpenAIService.getChatCompletion([
+    const openAIResponse = await enhancedOpenAIService.getChatCompletionWithCache([
       { role: 'system', content: context },
       { role: 'user', content: message }
     ], {

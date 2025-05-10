@@ -591,6 +591,8 @@ function App() {
             <Route path="/cyber-defense/session/:levelId" component={CyberDefenseSessionPage} />
             <Route path="/cyber-defense" component={CentreDeCriseEvolutifPage} />
             <Route path="/cyber-defense/mission/:id" component={CyberDefenseMissionPage} />
+            {/* Nouvelle implémentation du Centre de Crise (CyberOps Command Center) */}
+            <Route path="/cyber-crisis-center" component={CyberCrisisCenter} />
             
             {/* Module Simulation Immersive */}
             <Route path="/immersive-simulation" component={ImmersiveSimulation} />
