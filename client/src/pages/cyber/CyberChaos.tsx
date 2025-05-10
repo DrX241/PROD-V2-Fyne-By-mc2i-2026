@@ -904,7 +904,7 @@ const CyberChaos: React.FC = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm mb-4">{gameState.currentEvent.description}</p>
+                    <p className="text-sm mb-4 break-words whitespace-pre-wrap">{gameState.currentEvent.description}</p>
                     <div className="space-y-3">
                       <h4 className="text-md font-medium">Options disponibles:</h4>
                       {gameState.currentEvent.decisions.map(decision => (
@@ -919,8 +919,8 @@ const CyberChaos: React.FC = () => {
                               {decision.icon}
                             </div>
                             <div>
-                              <p className="font-medium">{decision.title}</p>
-                              <p className="text-sm text-gray-300">{decision.description}</p>
+                              <p className="font-medium break-words">{decision.title}</p>
+                              <p className="text-sm text-gray-300 break-words line-clamp-3 hover:line-clamp-none">{decision.description}</p>
                               <div className="flex flex-wrap gap-2 mt-2">
                                 <Badge variant="outline" className={
                                   decision.risk === 'high' ? 'border-red-500 text-red-300' :
@@ -974,9 +974,9 @@ const CyberChaos: React.FC = () => {
                   <div className="space-y-3 max-h-56 overflow-y-auto">
                     {gameState.eventLog.slice().reverse().map((entry, index) => (
                       <div key={index} className="border-l-2 border-blue-500 pl-3 py-1">
-                        <div className="flex">
+                        <div className="flex flex-col">
                           <p className="text-xs text-blue-300 font-mono">T+{formatGameTime(entry.time)}</p>
-                          <p className="text-sm ml-2">{entry.event}</p>
+                          <p className="text-sm mt-1 break-words line-clamp-2 hover:line-clamp-none">{entry.event}</p>
                         </div>
                       </div>
                     ))}
