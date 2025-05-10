@@ -207,33 +207,90 @@ export default function ProfilPro() {
   const [selectedGameType, setSelectedGameType] = useState<GameType>('decision');
   
   // Démarrer le jeu arcade
-  const startArcadeGame = () => {
+  // Générer des questions de quiz pour un métier spécifique
+  const generateQuizQuestions = async () => {
+    if (!professionProfile?.title) return;
+    
+    // Dans une vraie implémentation, cette fonction devrait appeler l'API Azure OpenAI
+    // Voici un exemple de simulation des questions générées
+    
+    const questions: QuizQuestion[] = [
+      {
+        question: `En tant que ${professionProfile.title}, quelle est la première action à entreprendre face à une faille de sécurité critique détectée dans un système en production ?`,
+        options: [
+          "Corriger immédiatement sans consultation",
+          "Évaluer l'impact et établir un plan de correction",
+          "Informer uniquement la direction",
+          "Ignorer si aucun impact n'est immédiatement visible"
+        ],
+        correctAnswerIndex: 1,
+        explanation: "L'évaluation de l'impact est primordiale pour comprendre l'étendue du problème et mettre en place une solution proportionnée qui prend en compte tous les aspects (techniques, opérationnels, légaux)."
+      },
+      {
+        question: `Quelle compétence est généralement la plus valorisée pour un ${professionProfile.title} ?`,
+        options: [
+          "Expertise technique spécifique",
+          "Communication et pédagogie", 
+          "Gestion de projet et méthodologie",
+          "Connaissance des normes et standards"
+        ],
+        correctAnswerIndex: 1,
+        explanation: "La communication et la pédagogie sont essentielles pour ce rôle qui nécessite de traduire des concepts techniques complexes en termes compréhensibles pour les différentes parties prenantes et d'obtenir l'adhésion aux bonnes pratiques."
+      },
+      {
+        question: `Quel est le principal défi auquel fait face un ${professionProfile.title} aujourd'hui ?`,
+        options: [
+          "L'évolution rapide des technologies",
+          "La pénurie de talents qualifiés",
+          "L'équilibre entre sécurité et expérience utilisateur",
+          "La conformité aux réglementations"
+        ],
+        correctAnswerIndex: 2,
+        explanation: "L'équilibre entre sécurité et expérience utilisateur représente un défi constant, car il faut assurer la protection des systèmes sans entraver la productivité ou dégrader l'expérience des utilisateurs."
+      },
+      {
+        question: `Dans le contexte du ${professionProfile.title}, quelle approche est généralement recommandée face à un risque de sécurité ?`,
+        options: [
+          "Éliminer complètement tous les risques quoi qu'il en coûte",
+          "Accepter certains risques après évaluation coût-bénéfice",
+          "Transférer systématiquement les risques via l'assurance",
+          "Ignorer les risques à faible probabilité"
+        ],
+        correctAnswerIndex: 1,
+        explanation: "Une approche équilibrée basée sur l'analyse coût-bénéfice est essentielle. Certains risques peuvent être acceptés si leur impact potentiel est faible et que le coût de mitigation est disproportionné."
+      },
+      {
+        question: `Quelle méthode est la plus efficace pour un ${professionProfile.title} souhaitant rester à jour dans son domaine ?`,
+        options: [
+          "Se concentrer uniquement sur les certifications",
+          "Participer à des CTF et challenges pratiques",
+          "Combiner veille technologique, formation continue et échanges avec ses pairs",
+          "Se spécialiser dans une seule technologie"
+        ],
+        correctAnswerIndex: 2,
+        explanation: "Une approche holistique combinant veille technologique, formation continue et participation à des communautés professionnelles permet de développer une vision large et actualisée du domaine, essentielle pour anticiper les évolutions."
+      }
+    ];
+    
+    setQuizQuestions(questions);
+    return questions;
+  };
+  
+  // Démarrer le quiz
+  const startArcadeGame = async () => {
     setGameStarted(true);
     setGameScore(0);
     setGameCompleted(false);
-    setGameLevel(1);
-    setGameTime(60);
-    setShowFeedback(false);
+    setCurrentQuestionIndex(0);
+    setSelectedAnswerIndex(null);
+    setShowExplanation(false);
+    setIsAnswerCorrect(null);
+    setTotalCorrect(0);
     
-    // Générer le premier défi
-    if (professionProfile) {
-      const firstChallenge = generateChallenge(professionProfile.title);
-      setCurrentChallenge(firstChallenge);
+    const questions = await generateQuizQuestions();
+    if (questions) {
+      setQuizQuestions(questions);
     }
-    
-    // Démarrer le timer
-    const timerId = setInterval(() => {
-      setGameTime((prevTime) => {
-        if (prevTime <= 1) {
-          clearInterval(timerId);
-          setGameCompleted(true);
-          return 0;
-        }
-        return prevTime - 1;
-      });
-    }, 1000);
-    
-    setGameTimerId(timerId);
   };
   
   // Terminer le jeu arcade
@@ -245,33 +302,20 @@ export default function ProfilPro() {
   };
   
   // Interfaces pour les différents types de jeux
-  interface GameChallenge {
-    challenge: string;
-    difficulty: number;
-    correctAction: string;
-    incorrectActions: string[];
+  interface QuizQuestion {
+    question: string;
+    options: string[];
+    correctAnswerIndex: number;
     explanation: string;
   }
   
-  interface ImpostorGame {
-    scenario: string;
-    professionals: string[];
-    impostor: number; // Index de l'imposteur dans le tableau professionals
-    clues: string[];
-    explanation: string;
-  }
-  
-  interface IntruderGame {
-    category: string;
-    items: string[];
-    intruder: number; // Index de l'intrus dans le tableau items
-    explanation: string;
-  }
-  
-  // États pour les défis actuels des différents jeux
-  const [currentChallenge, setCurrentChallenge] = useState<GameChallenge | null>(null);
-  const [currentImpostorGame, setCurrentImpostorGame] = useState<ImpostorGame | null>(null);
-  const [currentIntruderGame, setCurrentIntruderGame] = useState<IntruderGame | null>(null);
+  // États pour le quiz
+  const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
+  const [selectedAnswerIndex, setSelectedAnswerIndex] = useState<number | null>(null);
+  const [showExplanation, setShowExplanation] = useState<boolean>(false);
+  const [isAnswerCorrect, setIsAnswerCorrect] = useState<boolean | null>(null);
+  const [totalCorrect, setTotalCorrect] = useState<number>(0);
   
   // Générer un défi aléatoire basé sur le métier
   const generateChallenge = (profession: string): GameChallenge => {
