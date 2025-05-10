@@ -974,8 +974,9 @@ export default function LearningCenter() {
                     initial="hidden"
                     animate="visible"
                     variants={cardVariants}
+                    className="h-full"
                   >
-                    <Card className={`border-0 overflow-hidden bg-gradient-to-br ${path.gradient}`}>
+                    <Card className={`border-0 overflow-hidden bg-gradient-to-br ${path.gradient} h-full flex flex-col`}>
                       <CardHeader className="pb-2">
                         <div className="flex justify-between items-start">
                           <div className="p-2 bg-white/20 backdrop-blur-sm rounded-md">
@@ -1003,7 +1004,7 @@ export default function LearningCenter() {
                           </Badge>
                         </div>
                       </CardHeader>
-                      <CardContent>
+                      <CardContent className="flex-grow overflow-y-auto" style={{ maxHeight: '400px' }}>
                         <p className="text-white/90 mb-4">{path.description}</p>
                         
                         <h4 className="font-semibold text-white mb-2">Objectifs :</h4>
@@ -1036,7 +1037,7 @@ export default function LearningCenter() {
                           </div>
                         )}
                       </CardContent>
-                      <CardFooter className="pt-0">
+                      <CardFooter className="pt-0 mt-auto">
                         <Button className="w-full bg-white/20 hover:bg-white/30 text-white" disabled>
                           <Clock className="mr-2 h-4 w-4" />
                           Bientôt disponible
