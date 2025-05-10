@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'wouter';
+import axios from 'axios';
 import { 
   ArrowLeft, 
   ArrowRight, 
@@ -13,7 +14,8 @@ import {
   Shield, 
   Bot, 
   PanelRight,
-  Webhook
+  Webhook,
+  AlertCircle
 } from 'lucide-react';
 
 import HomeLayout from '@/components/layout/HomeLayout';

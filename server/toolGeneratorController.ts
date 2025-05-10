@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
-
-// Importer le service Azure OpenAI
 import { openAIService } from './services/openai';
+import { ChatCompletionRequestMessage } from "@shared/schema";
 
 /**
  * Interface pour la requête de génération d'outil
@@ -78,34 +77,40 @@ ${description}`;
     console.log("Génération d'outil en cours...");
     console.log(`Type: ${toolTypeName}, Format: ${formatName}`);
 
-    // Appel à Azure OpenAI
-    const result = await azureOpenAI.chat.completions.create({
-      model: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'Eddy-deploy-20-02-2025-gpt-4o',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ],
-      temperature: 0.7,
-      max_tokens: 4000,
-    });
+    // Appel à Azure OpenAI avec le service principal
+    const messages: ChatCompletionRequestMessage[] = [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt }
+    ];
+    
+    // Génération de l'outil avec le modèle principal (gpt-4o)
+    const result = await openAIService.getChatCompletionWithModel(
+      messages, 
+      0.7,
+      4000,
+      true // Utiliser le modèle principal
+    );
 
-    // Analyse préliminaire pour donner un contexte supplémentaire
-    const analysisResult = await azureOpenAIMini.chat.completions.create({
-      model: process.env.AZURE_OPENAI_MINI_DEPLOYMENT_NAME || 'Eddy-02-2025-gpt-4o-mini',
-      messages: [
-        { 
-          role: 'system', 
-          content: `Crée une analyse concise (2-3 phrases) expliquant ce que tu comprends de la demande suivante pour un outil de cybersécurité. Explique brièvement le type d'outil demandé, son format et son utilité. Ne génère PAS l'outil lui-même, fais seulement l'analyse.`
-        },
-        { role: 'user', content: userPrompt }
-      ],
-      temperature: 0.3,
-      max_tokens: 200,
-    });
+    // Préparation des messages pour l'analyse
+    const analysisMessages: ChatCompletionRequestMessage[] = [
+      { 
+        role: 'system', 
+        content: `Crée une analyse concise (2-3 phrases) expliquant ce que tu comprends de la demande suivante pour un outil de cybersécurité. Explique brièvement le type d'outil demandé, son format et son utilité. Ne génère PAS l'outil lui-même, fais seulement l'analyse.`
+      },
+      { role: 'user', content: userPrompt }
+    ];
+    
+    // Analyse préliminaire pour donner un contexte supplémentaire avec le modèle secondaire (gpt-4o-mini)
+    const analysisResult = await openAIService.getChatCompletionWithModel(
+      analysisMessages,
+      0.3,
+      200,
+      false // Utiliser le modèle secondaire
+    );
 
     // Récupération des résultats
-    const generatedTool = result.choices[0].message.content || "Erreur de génération du contenu";
-    const toolAnalysis = analysisResult.choices[0].message.content || "Analyse non disponible";
+    const generatedTool = result || "Erreur de génération du contenu";
+    const toolAnalysis = analysisResult || "Analyse non disponible";
 
     // Envoyer la réponse
     return res.status(200).json({
