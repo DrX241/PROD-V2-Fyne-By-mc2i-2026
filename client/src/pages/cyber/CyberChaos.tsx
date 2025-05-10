@@ -139,12 +139,14 @@ const CyberChaos: React.FC = () => {
         events: crisisEvents,
       }));
       
-      // Message d'accueil
-      toast({
-        title: "Crise cyber détectée!",
-        description: "Une activité suspecte a été signalée sur votre réseau. En tant que RSSI, vous devez gérer cette crise.",
-        action: <ToastAction altText="Ok">Compris</ToastAction>,
-      });
+      // Message d'accueil - utiliser setTimeout pour éviter les mises à jour pendant le rendu
+      setTimeout(() => {
+        toast({
+          title: "Crise cyber détectée!",
+          description: "Une activité suspecte a été signalée sur votre réseau. En tant que RSSI, vous devez gérer cette crise.",
+          action: <ToastAction altText="Ok">Compris</ToastAction>,
+        });
+      }, 0);
     }
   }, [isGameStarted, toast, gameState.events.length]);
   

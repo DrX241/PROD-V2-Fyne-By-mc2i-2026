@@ -1,0 +1,23 @@
+Warning: Cannot update a component (&#x60;Toaster&#x60;) while rendering a different component (&#x60;CyberChaos&#x60;). To locate the bad setState() call inside &#x60;CyberChaos&#x60;, follow the stack trace as described in https://reactjs.org/link/setstate-in-render
+    at CyberChaos (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/pages/cyber/CyberChaos.tsx:65:27)
+    at Route (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=f01cca39:323:16)
+    at Switch (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=f01cca39:379:17)
+    at div
+    at TutorialProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/TutorialContext.tsx:235:36)
+    at ChatProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/ChatContext.tsx:346:32)
+    at ThemeProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/ThemeContext.tsx:33:33)
+    at QueryClientProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=f01cca39:2805:3)
+    at App
+at CyberChaos (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/pages/cyber/CyberChaos.tsx:65:27)
+at Route (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=f01cca39:323:16)
+at Switch (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=f01cca39:379:17)
+at div
+at TutorialProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/TutorialContext.tsx:235:36)
+at ChatProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/ChatContext.tsx:346:32)
+at ThemeProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/ThemeContext.tsx:33:33)
+at QueryClientProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=f01cca39:2805:3)
+at App
+at t.value (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
