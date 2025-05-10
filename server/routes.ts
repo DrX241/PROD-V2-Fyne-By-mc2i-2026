@@ -3636,6 +3636,26 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
   app.get('/api/learning/progress/:userId/:moduleId', getUserProgress);
   app.post('/api/learning/progress', saveUserProgress);
   app.get('/api/cyber/documentation', getContextualDocumentation);
+  
+  // ======= CENTRE DE CRISE CYBER =======
+  
+  // Récupérer tous les incidents actifs
+  app.get('/api/cyber/crisis/incidents', getActiveIncidents);
+  
+  // Récupérer les détails d'un incident spécifique
+  app.get('/api/cyber/crisis/incidents/:incidentId', getIncidentDetails);
+  
+  // Récupérer les experts disponibles pour un incident
+  app.get('/api/cyber/crisis/experts/:incidentId', getExpertsForIncident);
+  
+  // Envoyer un message à un expert et obtenir sa réponse
+  app.post('/api/cyber/crisis/message', handleExpertMessage);
+  
+  // Exécuter une action dans la gestion d'incident
+  app.post('/api/cyber/crisis/action', executeAction);
+  
+  // Récupérer la session de crise d'un utilisateur
+  app.get('/api/cyber/crisis/session/:userId/:incidentId', getCrisisSession);
 
   // Routes pour le nouveau module Cyber Agent (version 2)
   app.get('/api/cyber/cyber-agent/roles', (req, res) => {

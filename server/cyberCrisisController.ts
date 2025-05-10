@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { enhancedOpenAIService } from './openai';
+import { openAIService } from './services/openai';
 
 // Interfaces pour le Centre de Crise
 interface Incident {
@@ -65,21 +65,21 @@ const sampleIncidents: Incident[] = [
         id: 'evt-001-1',
         timestamp: '2025-05-10T08:43:21',
         title: 'Détection initiale',
-        description: 'Alerte du système EDR sur un comportement suspect après ouverture d'un document Office.'
+        description: 'Alerte du système EDR sur un comportement suspect après ouverture d\'un document Office.'
       },
       {
         id: 'evt-001-2',
         timestamp: '2025-05-10T08:55:12',
-        title: 'Validation de l'alerte',
-        description: 'L'équipe SOC confirme la présence d'un script PowerShell malveillant tentant d'établir une connexion C2.',
+        title: 'Validation de l\'alerte',
+        description: 'L\'équipe SOC confirme la présence d\'un script PowerShell malveillant tentant d\'établir une connexion C2.',
         actionTaken: 'Blocage immédiat de la connexion sortante.'
       },
       {
         id: 'evt-001-3',
         timestamp: '2025-05-10T09:12:45',
         title: 'Identification des cibles',
-        description: '5 autres emails similaires identifiés dans les boîtes de réception de l'équipe de direction.',
-        impact: 'Risque élevé de compromission d'identifiants VPN et d'accès aux données financières.'
+        description: '5 autres emails similaires identifiés dans les boîtes de réception de l\'équipe de direction.',
+        impact: 'Risque élevé de compromission d\'identifiants VPN et d\'accès aux données financières.'
       }
     ],
     metrics: {
@@ -91,7 +91,7 @@ const sampleIncidents: Incident[] = [
   },
   {
     id: 'inc-002',
-    title: 'Tentative d'exfiltration de données',
+    title: 'Tentative d\'exfiltration de données',
     description: 'Trafic réseau suspect détecté vers un serveur externe non reconnu. Volume important de données en transit depuis le serveur de R&D.',
     urgency: 'critical',
     status: 'active',
@@ -105,15 +105,15 @@ const sampleIncidents: Incident[] = [
       {
         id: 'evt-002-1',
         timestamp: '2025-05-10T10:17:05',
-        title: 'Détection d'anomalie réseau',
+        title: 'Détection d\'anomalie réseau',
         description: 'Le SIEM a signalé un volume anormal de données sortantes vers une adresse IP non catégorisée.'
       },
       {
         id: 'evt-002-2',
         timestamp: '2025-05-10T10:23:18',
         title: 'Analyse préliminaire',
-        description: 'Confirmation d'un transfert non autorisé de fichiers propriétaires depuis le serveur principal de R&D.',
-        actionTaken: 'Blocage d'urgence de l'adresse IP de destination.'
+        description: 'Confirmation d\'un transfert non autorisé de fichiers propriétaires depuis le serveur principal de R&D.',
+        actionTaken: 'Blocage d\'urgence de l\'adresse IP de destination.'
       }
     ],
     metrics: {
@@ -166,7 +166,7 @@ const sampleIncidents: Incident[] = [
       {
         id: 'evt-004-1',
         timestamp: '2025-05-10T02:14:37',
-        title: 'Alerte d'authentification',
+        title: 'Alerte d\'authentification',
         description: 'Connexion à un compte admin depuis une adresse IP non reconnue à 2h14 du matin.'
       },
       {
@@ -197,7 +197,7 @@ const sampleExperts: Expert[] = [
     avatarColor: 'bg-red-700',
     expertise: 95,
     availableForUrgency: ['low', 'medium', 'high', 'critical'],
-    description: 'Responsable de la sécurité des systèmes d'information avec 15 ans d'expérience. Spécialiste en gestion de crise.'
+    description: 'Responsable de la sécurité des systèmes d\'information avec 15 ans d\'expérience. Spécialiste en gestion de crise.'
   },
   {
     id: 'exp-002',
@@ -208,7 +208,7 @@ const sampleExperts: Expert[] = [
     avatarColor: 'bg-blue-700',
     expertise: 85,
     availableForUrgency: ['low', 'medium', 'high', 'critical'],
-    description: 'Expert en détection d'intrusion et analyse de malware. Certifié GIAC.'
+    description: 'Expert en détection d\'intrusion et analyse de malware. Certifié GIAC.'
   },
   {
     id: 'exp-003',
@@ -219,7 +219,7 @@ const sampleExperts: Expert[] = [
     avatarColor: 'bg-purple-700',
     expertise: 90,
     availableForUrgency: ['medium', 'high', 'critical'],
-    description: 'Spécialiste en analyse post-incident et reconstruction d'événements. Expérience judiciaire.'
+    description: 'Spécialiste en analyse post-incident et reconstruction d\'événements. Expérience judiciaire.'
   },
   {
     id: 'exp-004',
@@ -230,7 +230,7 @@ const sampleExperts: Expert[] = [
     avatarColor: 'bg-green-700',
     expertise: 80,
     availableForUrgency: ['high', 'critical'],
-    description: 'Gère la communication externe lors d'incidents majeurs. Expert en relations publiques.'
+    description: 'Gère la communication externe lors d\'incidents majeurs. Expert en relations publiques.'
   },
   {
     id: 'exp-005',

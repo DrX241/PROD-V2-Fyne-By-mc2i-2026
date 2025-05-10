@@ -1,0 +1,62 @@
+🧠 Nom : CYBERCHAOS
+“Tiens ton SI debout. Jusqu’au bout.”
+
+🎮 Concept général
+Tu incarnes le RSSI (ou DSI) d'une organisation qui subit une crise cyber majeure : ransomware, perte de service, vol de données.
+Ton objectif :
+✅ Maintenir l’activité essentielle.
+🛠️ Activer les bons plans de secours.
+🧊 Gérer les pressions internes et externes.
+📉 Limiter les impacts métier, réputationnels et juridiques.
+
+🗂️ Mécanique de jeu (type arcade/stratégie temps réel)
+Timeline de crise en bas de l’écran : 15 minutes, 1h, 4h, 24h, 3j, 1 semaine.
+
+Chaque tour, le jeu déclenche un événement (attaque, panne, pression du Comex, fuite presse, etc.).
+
+Tu dois choisir une action dans un temps limité :
+
+Activer un PRA (Plan de Reprise d’Activité).
+
+Mettre en œuvre un PCA (bascule locale, cloud, télétravail…).
+
+Informer ou taire (RH, clients, presse, CNIL).
+
+Isoler des machines, chiffrer des disques, etc.
+
+Chaque décision modifie :
+
+💡 Niveau d’activité opérationnelle
+
+🔥 Niveau de stress interne
+
+📉 Coût économique
+
+⚠️ Niveau de risque juridique
+
+🧩 Composants clefs (React ou V0.dev)
+CrisisTimeline.tsx – Barre d’évolution du temps avec étapes critiques.
+
+ImpactDashboard.tsx – Score en direct sur : opérationnel / finance / image / juridique.
+
+DecisionCards.tsx – Choix possibles à chaque événement (style cartes).
+
+EventLog.tsx – Journal des événements avec leur origine et leur gravité.
+
+OutcomeScreen.tsx – Fin de partie avec évaluation + rapport IA.
+
+🧠 Ce que ça enseigne
+Domaine couvert	Apprentissage concret
+PCA / PRA	Savoir quoi activer, quand, et pourquoi
+Communication de crise	Choisir qui informer, dans quel ordre
+Analyse d’impact	Prioriser les activités critiques
+Prise de décision sous pression	Arbitrer entre sécurité et continuité
+Réglementaire	Respect RGPD, CNIL, notification faille
+
+🔮 Extensions IA possibles
+🎯 Générateur de scénarios réalistes via GPT.
+
+💬 IA qui simule le DG, la CNIL ou les journalistes (tu dois leur répondre).
+
+📊 Bilan IA à la fin : ce que tu aurais pu faire mieux.
+

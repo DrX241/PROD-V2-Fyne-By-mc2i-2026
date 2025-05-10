@@ -42,6 +42,8 @@ import CyberDefensePage from "@/pages/cyber-defense"; // Ancienne implémentatio
 import CentreDeCriseEvolutifPage from "@/pages/cyber-defense-new"; // Nouvelle implémentation
 import CyberDefenseSessionPage from "@/pages/cyber-defense-session"; // Nouvelle implémentation de session
 import CyberDefenseMissionPage from "@/pages/cyber-defense-mission"; // Ancienne implémentation
+// Import de la nouvelle expérience Centre de Crise (refonte complète)
+import CyberCrisisCenter from "@/pages/cyber-crisis-center"; // Nouvelle refonte immersive
 
 // Arcade et mini-jeux
 import CyberArcade from "@/pages/cyber/arcade";
