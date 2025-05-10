@@ -923,8 +923,8 @@ export default function ProfilPro() {
                             onClick={startArcadeGame}
                             className="bg-blue-600 hover:bg-blue-700"
                           >
-                            <ArrowRight className="mr-2 h-4 w-4" />
-                            Rejouer
+                            <Lightbulb className="mr-2 h-4 w-4" />
+                            Refaire le quiz
                           </Button>
                         </div>
                       </div>
@@ -932,13 +932,13 @@ export default function ProfilPro() {
                       <Separator className="my-6 bg-blue-700" />
                       
                       <div>
-                        <h3 className="text-lg font-semibold mb-4">Compétences mises en pratique</h3>
+                        <h3 className="text-lg font-semibold mb-4">Domaines de connaissances évalués</h3>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="p-4 rounded-lg border border-blue-700/50 bg-blue-900/20">
                             <div className="flex items-center gap-2 mb-2">
-                              <Target className="h-5 w-5 text-blue-400" />
-                              <h4 className="font-semibold">Réactivité</h4>
+                              <BookOpen className="h-5 w-5 text-blue-400" />
+                              <h4 className="font-semibold">Connaissances techniques</h4>
                             </div>
                             <div className="flex items-center mb-1">
                               <div className="w-full bg-blue-900 rounded-full h-2">
@@ -946,27 +946,27 @@ export default function ProfilPro() {
                               </div>
                               <span className="ml-2 text-sm text-blue-300">{Math.min(Math.round(gameScore / 2), 100)}%</span>
                             </div>
-                            <p className="text-sm text-blue-300">Capacité à réagir rapidement aux défis</p>
+                            <p className="text-sm text-blue-300">Maîtrise des outils et technologies du métier</p>
                           </div>
                           
                           <div className="p-4 rounded-lg border border-blue-700/50 bg-blue-900/20">
                             <div className="flex items-center gap-2 mb-2">
-                              <Wrench className="h-5 w-5 text-blue-400" />
-                              <h4 className="font-semibold">Technicité</h4>
+                              <Target className="h-5 w-5 text-blue-400" />
+                              <h4 className="font-semibold">Compréhension du rôle</h4>
                             </div>
                             <div className="flex items-center mb-1">
                               <div className="w-full bg-blue-900 rounded-full h-2">
-                                <div className="bg-purple-500 h-2 rounded-full" style={{ width: `${Math.min((gameScore * 0.8) / 1.6, 100)}%` }}></div>
+                                <div className="bg-yellow-500 h-2 rounded-full" style={{ width: `${Math.min((gameScore * 0.8) / 1.6, 100)}%` }}></div>
                               </div>
                               <span className="ml-2 text-sm text-blue-300">{Math.min(Math.round((gameScore * 0.8) / 1.6), 100)}%</span>
                             </div>
-                            <p className="text-sm text-blue-300">Maîtrise des outils et technologies</p>
+                            <p className="text-sm text-blue-300">Connaissance des responsabilités et missions clés</p>
                           </div>
                           
                           <div className="p-4 rounded-lg border border-blue-700/50 bg-blue-900/20">
                             <div className="flex items-center gap-2 mb-2">
-                              <Code className="h-5 w-5 text-blue-400" />
-                              <h4 className="font-semibold">Analyse</h4>
+                              <Shield className="h-5 w-5 text-blue-400" />
+                              <h4 className="font-semibold">Contexte professionnel</h4>
                             </div>
                             <div className="flex items-center mb-1">
                               <div className="w-full bg-blue-900 rounded-full h-2">
@@ -974,13 +974,13 @@ export default function ProfilPro() {
                               </div>
                               <span className="ml-2 text-sm text-blue-300">{Math.min(Math.round((gameScore * 1.2) / 2.4), 100)}%</span>
                             </div>
-                            <p className="text-sm text-blue-300">Capacité à analyser les situations complexes</p>
+                            <p className="text-sm text-blue-300">Compréhension de l'environnement et des enjeux</p>
                           </div>
                           
                           <div className="p-4 rounded-lg border border-blue-700/50 bg-blue-900/20">
                             <div className="flex items-center gap-2 mb-2">
-                              <MessageCircle className="h-5 w-5 text-blue-400" />
-                              <h4 className="font-semibold">Communication</h4>
+                              <BriefcaseBusiness className="h-5 w-5 text-blue-400" />
+                              <h4 className="font-semibold">Domaine d'expertise</h4>
                             </div>
                             <div className="flex items-center mb-1">
                               <div className="w-full bg-blue-900 rounded-full h-2">
