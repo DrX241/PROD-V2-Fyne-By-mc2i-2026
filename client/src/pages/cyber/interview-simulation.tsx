@@ -634,9 +634,9 @@ const CyberInterviewSimulation: React.FC = () => {
                         name="trainerEmail"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Votre email (pour recevoir l'évaluation)</FormLabel>
+                            <FormLabel className="text-blue-100">Votre email (pour recevoir l'évaluation)</FormLabel>
                             <FormControl>
-                              <Input placeholder="email@exemple.com" {...field} className="bg-gray-700 border-gray-600 text-white" />
+                              <Input placeholder="email@exemple.com" {...field} className="bg-blue-950/40 border-blue-800 text-white placeholder:text-blue-400" />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -648,9 +648,9 @@ const CyberInterviewSimulation: React.FC = () => {
                         name="candidateName"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Votre nom</FormLabel>
+                            <FormLabel className="text-blue-100">Votre nom</FormLabel>
                             <FormControl>
-                              <Input placeholder="Nom complet" {...field} className="bg-gray-700 border-gray-600 text-white" />
+                              <Input placeholder="Nom complet" {...field} className="bg-blue-950/40 border-blue-800 text-white placeholder:text-blue-400" />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -664,14 +664,14 @@ const CyberInterviewSimulation: React.FC = () => {
                         name="profileType"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Poste visé *</FormLabel>
+                            <FormLabel className="text-blue-100">Poste visé *</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
-                                <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                                <SelectTrigger className="bg-blue-950/40 border-blue-800 text-white">
                                   <SelectValue placeholder="Sélectionnez un poste" />
                                 </SelectTrigger>
                               </FormControl>
-                              <SelectContent className="bg-gray-700 border-gray-600 text-white">
+                              <SelectContent className="bg-blue-950 border-blue-800 text-white">
                                 <SelectItem value="analyste_soc">Analyste SOC</SelectItem>
                                 <SelectItem value="pentester">Pentester</SelectItem>
                                 <SelectItem value="responsable_securite">Responsable Sécurité</SelectItem>
@@ -689,14 +689,14 @@ const CyberInterviewSimulation: React.FC = () => {
                         name="experienceLevel"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Niveau d'expérience *</FormLabel>
+                            <FormLabel className="text-blue-100">Niveau d'expérience *</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
-                                <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                                <SelectTrigger className="bg-blue-950/40 border-blue-800 text-white">
                                   <SelectValue placeholder="Sélectionnez un niveau" />
                                 </SelectTrigger>
                               </FormControl>
-                              <SelectContent className="bg-gray-700 border-gray-600 text-white">
+                              <SelectContent className="bg-blue-950 border-blue-800 text-white">
                                 <SelectItem value="junior">Junior (0-2 ans)</SelectItem>
                                 <SelectItem value="intermediaire">Intermédiaire (3-5 ans)</SelectItem>
                                 <SelectItem value="senior">Senior (6-9 ans)</SelectItem>
@@ -712,7 +712,7 @@ const CyberInterviewSimulation: React.FC = () => {
                     <div className="flex gap-4">
                       <Button 
                         type="submit" 
-                        className="flex-1 bg-[#006a9e] hover:bg-blue-700"
+                        className="flex-1 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
                         disabled={isLoading}
                       >
                         {isLoading ? "Chargement..." : "Démarrer la simulation"}
@@ -721,7 +721,7 @@ const CyberInterviewSimulation: React.FC = () => {
                       <Button 
                         type="button" 
                         variant="outline"
-                        className="flex-1 border-gray-600 bg-gray-700 hover:bg-gray-600"
+                        className="flex-1 border-blue-800 bg-blue-950/40 hover:bg-blue-900/50 text-blue-200"
                         disabled={isLoading}
                         onClick={skipInfoAndStart}
                       >
@@ -735,18 +735,18 @@ const CyberInterviewSimulation: React.FC = () => {
           </TabsContent>
           
           <TabsContent value="simulation">
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-blue-900/20 border-blue-800">
               <CardHeader>
                 <div className="flex justify-between items-center">
-                  <CardTitle>Entretien technique en cours</CardTitle>
+                  <CardTitle className="font-[Rajdhani]">Entretien technique en cours</CardTitle>
                   <div className={`flex items-center p-2 rounded-md ${
-                    timeRemaining > 60 ? "bg-blue-900" : "bg-red-900"
-                  }`}>
+                    timeRemaining > 60 ? "bg-blue-800/60" : "bg-red-800/60"
+                  } border border-blue-700`}>
                     <Clock className="w-5 h-5 mr-2" />
                     <span className="font-mono">{formatTime(timeRemaining)}</span>
                   </div>
                 </div>
-                <CardDescription className="text-gray-400">
+                <CardDescription className="text-blue-300">
                   Vous êtes en entretien d'embauche avec un recruteur technique spécialisé en cybersécurité
                 </CardDescription>
               </CardHeader>
