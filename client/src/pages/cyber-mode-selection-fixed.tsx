@@ -152,16 +152,7 @@ export default function CyberModeSelectionRedesign() {
       duration: '15-30 min'
     },
 
-    {
-      id: 'escape-the-breach',
-      title: 'ESCAPE THE BREACH',
-      description: "Menez l'enquête pour découvrir l'origine d'une cyberattaque dans un scénario réaliste",
-      icon: <AlertCircle className="h-5 w-5" />,
-      destination: '/cyber/escape-the-breach',
-      difficulty: 'intermédiaire',
-      duration: '45-60 min',
-      isNew: true
-    },
+
     {
       id: 'cyber-arcade',
       title: 'CYBERARCADE',
@@ -287,7 +278,6 @@ export default function CyberModeSelectionRedesign() {
       icon: <Monitor className="h-6 w-6 text-indigo-100" />,
       modules: [
         'cyber-arcade',            // Jeux interactifs d'apprentissage
-        'escape-the-breach',       // Simulation d'investigation
         'mise-en-situation',       // Gestion d'incidents simulés
         'preparation-audition'     // Simulation d'entretien client
       ],
@@ -336,7 +326,7 @@ export default function CyberModeSelectionRedesign() {
       description: "Pour les métiers techniques de surveillance et défense (Analyste SOC, Incident Responder)",
       icon: <Shield className="h-6 w-6 text-red-100" />,
       skills: ['Détection d\'incidents', 'Analyse de logs', 'Gestion de crise', 'Forensique'],
-      modules: ['mise-en-situation', 'escape-the-breach', 'test-technique', 'agent-ia', 'ascension-progression'],
+      modules: ['mise-en-situation', 'test-technique', 'agent-ia', 'ascension-progression'],
       gradient: 'from-red-700 to-red-900'
     },
     {
@@ -354,7 +344,7 @@ export default function CyberModeSelectionRedesign() {
       description: "Pour les métiers offensifs (Pentester, Red Team, Ethical Hacker)",
       icon: <Zap className="h-6 w-6 text-purple-100" />,
       skills: ['Exploitation de vulnérabilités', 'Techniques d\'attaque', 'Social engineering', 'Post-exploitation'],
-      modules: ['mise-en-situation', 'escape-the-breach', 'test-technique', 'phishing-simulator', 'ascension-progression'],
+      modules: ['mise-en-situation', 'test-technique', 'phishing-simulator', 'ascension-progression'],
       gradient: 'from-purple-700 to-purple-900'
     },
     {

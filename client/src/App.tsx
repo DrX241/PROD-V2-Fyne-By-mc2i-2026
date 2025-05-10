@@ -18,8 +18,7 @@ import CyberAgentPage from "@/pages/cyber-agent";
 // Utiliser les chemins relatifs pour les nouveaux composants
 import CyberAgentRedirectPage from "./pages/cyber/cyber-agent-redirect";
 import CyberAgentNewPage from "./pages/cyber/cyber-agent-new";
-// Import du composant Escape the Breach
-import EscapeTheBreach from "./pages/cyber/escape-the-breach";
+// Le module Escape the Breach a été supprimé
 // EmergencyResponsePage a été supprimé
 
 // Import de la nouvelle page Playground
@@ -216,8 +215,7 @@ function App() {
               );
             }} />
             
-            {/* Module Escape the Breach */}
-            <Route path="/cyber/escape-the-breach" component={EscapeTheBreach} />
+            {/* Module Escape the Breach - Supprimé */}
             
             {/* Module Cyber Snake - Supprimé */}
             <Route path="/cyber/cyber-snake" component={NotYetImplemented} />
