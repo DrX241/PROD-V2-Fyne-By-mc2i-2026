@@ -136,7 +136,7 @@ export default function CyberModeSelectionRedesign() {
       title: 'DANS LA PEAU DE TON MÉTIER',
       description: "Explorez votre métier avec l'IA : rôles, compétences, évolution et défis. Testez vos connaissances avec un quiz personnalisé.",
       icon: <Briefcase className="h-5 w-5" />,
-      destination: '/cyber/profil-pro',
+      destination: 'cyber/profil-pro',
       difficulty: 'tous niveaux',
       duration: '20-30 min',
       isNew: true

@@ -97,7 +97,7 @@ export default function ProfilPro() {
   const [showQuiz, setShowQuiz] = useState<boolean>(false);
   const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<Map<string, number>>(new Map());
+  const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number>>({});
   const [score, setScore] = useState<number>(0);
   const [quizCompleted, setQuizCompleted] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
@@ -261,16 +261,17 @@ export default function ProfilPro() {
   const startQuiz = () => {
     setShowQuiz(true);
     setCurrentQuestionIndex(0);
-    setSelectedAnswers(new Map());
+    setSelectedAnswers({});
     setQuizCompleted(false);
     setScore(0);
   };
   
   // Sélectionner une réponse au quiz
   const selectAnswer = (questionId: string, answerIndex: number) => {
-    const newAnswers = new Map(selectedAnswers);
-    newAnswers.set(questionId, answerIndex);
-    setSelectedAnswers(newAnswers);
+    setSelectedAnswers({
+      ...selectedAnswers,
+      [questionId]: answerIndex
+    });
   };
   
   // Passer à la question suivante
@@ -280,7 +281,7 @@ export default function ProfilPro() {
     } else {
       // Calculer le score
       let correctCount = 0;
-      selectedAnswers.forEach((answer, questionId) => {
+      Object.entries(selectedAnswers).forEach(([questionId, answer]) => {
         const question = quizQuestions.find(q => q.id === questionId);
         if (question && answer === question.correctAnswer) {
           correctCount++;
@@ -708,7 +709,7 @@ export default function ProfilPro() {
                           <div 
                             key={index}
                             className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                              selectedAnswers.get(currentQuestion?.id) === index
+                              selectedAnswers[currentQuestion?.id] === index
                                 ? 'bg-purple-100 border-purple-300'
                                 : 'bg-white hover:bg-gray-50 border-gray-200'
                             }`}
@@ -716,7 +717,7 @@ export default function ProfilPro() {
                           >
                             <div className="flex items-start gap-3">
                               <div className={`rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5 ${
-                                selectedAnswers.get(currentQuestion?.id) === index
+                                selectedAnswers[currentQuestion?.id] === index
                                   ? 'bg-purple-600 text-white'
                                   : 'bg-gray-100 text-gray-600'
                               }`}>
@@ -740,7 +741,7 @@ export default function ProfilPro() {
                       
                       <Button
                         onClick={goToNextQuestion}
-                        disabled={!selectedAnswers.has(currentQuestion?.id)}
+                        disabled={!(currentQuestion?.id in selectedAnswers)}
                       >
                         {currentQuestionIndex === quizQuestions.length - 1 ? (
                           <>Terminer le quiz</>
