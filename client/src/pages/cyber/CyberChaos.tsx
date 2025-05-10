@@ -139,14 +139,7 @@ const CyberChaos: React.FC = () => {
         events: crisisEvents,
       }));
       
-      // Message d'accueil - utiliser setTimeout pour éviter les mises à jour pendant le rendu
-      setTimeout(() => {
-        toast({
-          title: "Crise cyber détectée!",
-          description: "Une activité suspecte a été signalée sur votre réseau. En tant que RSSI, vous devez gérer cette crise.",
-          action: <ToastAction altText="Ok">Compris</ToastAction>,
-        });
-      }, 0);
+      // Pas de toast pour le message d'accueil
     }
   }, [isGameStarted, toast, gameState.events.length]);
   
@@ -165,15 +158,7 @@ const CyberChaos: React.FC = () => {
           );
           
           if (triggerEvent) {
-            // Utiliser setTimeout pour éviter les mises à jour pendant le rendu
-            const eventToShow = triggerEvent; // Capture la valeur actuelle
-            setTimeout(() => {
-              toast({
-                title: `${getEventIcon(eventToShow.severity)} Nouvel événement: ${eventToShow.title}`,
-                description: eventToShow.description,
-                variant: getEventToastVariant(eventToShow.severity),
-              });
-            }, 0);
+            // Plus de notification toast pour les nouveaux événements
             
             return {
               ...prevState,
@@ -243,15 +228,7 @@ const CyberChaos: React.FC = () => {
         decision: decision.description
       }];
       
-      // Message de feedback - utiliser setTimeout pour éviter les mises à jour pendant le rendu
-      const decisionTitle = decision.title;
-      const decisionImpacts = decision.impacts;
-      setTimeout(() => {
-        toast({
-          title: `Décision appliquée: ${decisionTitle}`,
-          description: `Impact principal: ${getMainImpactDescription(decisionImpacts)}`,
-        });
-      }, 0);
+      // Pas de notification toast, on laisse les événements s'accumuler
       
       return {
         ...prevState,
