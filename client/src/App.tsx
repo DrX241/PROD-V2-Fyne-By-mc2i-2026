@@ -420,6 +420,15 @@ function App() {
                 </Suspense>
               );
             }} />
+            
+            <Route path="/cyber/learning-center/modules/devsecops" component={() => {
+              const DevSecOps = lazy(() => import('./pages/cyber/learning-center/modules/devsecops'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <DevSecOps />
+                </Suspense>
+              );
+            }} />
 
             {/* Route générique pour les modules non implémentés */}
             <Route path="/cyber/learning-center/modules/:moduleId" component={() => {
