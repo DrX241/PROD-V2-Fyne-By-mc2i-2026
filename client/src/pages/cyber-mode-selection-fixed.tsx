@@ -164,12 +164,13 @@ export default function CyberModeSelectionRedesign() {
     },
     {
       id: 'mise-en-situation',
-      title: 'MISE EN SITUATION',
-      description: "Entraînez-vous à gérer des incidents de sécurité dans des scénarios réalistes",
+      title: 'CYBERCHAOS',
+      description: "Tiens ton SI debout. Jusqu'au bout. Gérez une crise cyber majeure en temps réel.",
       icon: <AlertCircle className="h-5 w-5" />,
-      destination: '/cyber-defense-new',
+      destination: '/cyber-chaos',
       difficulty: 'intermédiaire',
-      duration: '20-40 min'
+      duration: '15-20 min',
+      isNew: true
     },
     {
       id: 'preparation-audition',

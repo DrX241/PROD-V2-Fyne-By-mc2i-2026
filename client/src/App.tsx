@@ -42,8 +42,8 @@ import CyberDefensePage from "@/pages/cyber-defense"; // Ancienne implémentatio
 import CentreDeCriseEvolutifPage from "@/pages/cyber-defense-new"; // Nouvelle implémentation
 import CyberDefenseSessionPage from "@/pages/cyber-defense-session"; // Nouvelle implémentation de session
 import CyberDefenseMissionPage from "@/pages/cyber-defense-mission"; // Ancienne implémentation
-// Import de la nouvelle expérience Centre de Crise (refonte complète)
-import CyberCrisisCenter from "@/pages/cyber-crisis-center"; // Nouvelle refonte immersive
+// Import du nouveau module CYBERCHAOS
+import CyberChaos from "@/pages/cyber/CyberChaos"; // Nouveau module de simulation de crise
 
 // Arcade et mini-jeux
 import CyberArcade from "@/pages/cyber/arcade";
@@ -591,8 +591,8 @@ function App() {
             <Route path="/cyber-defense/session/:levelId" component={CyberDefenseSessionPage} />
             <Route path="/cyber-defense" component={CentreDeCriseEvolutifPage} />
             <Route path="/cyber-defense/mission/:id" component={CyberDefenseMissionPage} />
-            {/* Nouvelle implémentation du Centre de Crise (CyberOps Command Center) */}
-            <Route path="/cyber-crisis-center" component={CyberCrisisCenter} />
+            {/* Module CyberChaos - Simulation de crise */}
+            <Route path="/cyber-chaos" component={CyberChaos} />
             
             {/* Module Simulation Immersive */}
             <Route path="/immersive-simulation" component={ImmersiveSimulation} />
