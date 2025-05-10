@@ -44,7 +44,6 @@ import {
   ShieldCheck,
   Target,
   Wrench,
-  CheckCircle,
   XCircle
 } from 'lucide-react';
 import { Link } from 'wouter';
