@@ -83,6 +83,15 @@ const CyberInterviewSimulation: React.FC = () => {
   // États pour la simulation
   const [isSimulationActive, setIsSimulationActive] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutes en secondes
+  
+  // Ajout d'une classe CSS pour le style global
+  useEffect(() => {
+    document.body.classList.add('cyber-interview-test');
+    
+    return () => {
+      document.body.classList.remove('cyber-interview-test');
+    };
+  }, []);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [userInput, setUserInput] = useState('');
