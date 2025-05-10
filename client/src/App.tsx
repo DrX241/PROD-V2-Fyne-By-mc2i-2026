@@ -429,6 +429,51 @@ function App() {
                 </Suspense>
               );
             }} />
+            
+            <Route path="/cyber/learning-center/modules/securite-donnees" component={() => {
+              const SecuriteDonnees = lazy(() => import('./pages/cyber/learning-center/modules/securite-donnees'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <SecuriteDonnees />
+                </Suspense>
+              );
+            }} />
+            
+            <Route path="/cyber/learning-center/modules/gestion-identites" component={() => {
+              const GestionIdentites = lazy(() => import('./pages/cyber/learning-center/modules/gestion-identites'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <GestionIdentites />
+                </Suspense>
+              );
+            }} />
+            
+            <Route path="/cyber/learning-center/modules/gouvernance-cyber" component={() => {
+              const GouvernanceCyber = lazy(() => import('./pages/cyber/learning-center/modules/gouvernance-cyber'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <GouvernanceCyber />
+                </Suspense>
+              );
+            }} />
+            
+            <Route path="/cyber/learning-center/modules/securite-ot" component={() => {
+              const SecuriteOT = lazy(() => import('./pages/cyber/learning-center/modules/securite-ot'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <SecuriteOT />
+                </Suspense>
+              );
+            }} />
+            
+            <Route path="/cyber/learning-center/modules/ia-securite" component={() => {
+              const IASecurite = lazy(() => import('./pages/cyber/learning-center/modules/ia-securite'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <IASecurite />
+                </Suspense>
+              );
+            }} />
 
             {/* Route générique pour les modules non implémentés */}
             <Route path="/cyber/learning-center/modules/:moduleId" component={() => {
