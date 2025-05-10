@@ -437,63 +437,51 @@ const CyberChaos: React.FC = () => {
       ]
     }));
     
-    try {
-      // Préparer le contexte pour la réponse IA
-      const context = {
-        contact: selectedContact,
-        gameState: {
-          currentTime: gameState.currentTime,
-          phase: gameState.activePhase,
-          operationalScore: gameState.operationalScore,
-          reputationScore: gameState.reputationScore,
-          legalRisk: gameState.legalRisk,
-          stressLevel: gameState.stressLevel,
-          eventLog: gameState.eventLog.slice(-3)
-        }
-      };
-      
-      // Requête vers le backend (simule pour l'instant)
-      setTimeout(() => {
-        // Simuler une réponse du PNJ
-        let response = "";
+    // Créer une copie du message à envoyer avant de le réinitialiser
+    const messageCopy = newMessage;
+    setNewMessage('');
+    
+    // Simuler réception d'une réponse (en attendant l'intégration complète avec l'IA)
+    setTimeout(() => {
+      try {
+        // Générer la réponse du PNJ basée sur le contact
+        let npcResponse = "";
         
         if (selectedContact === 'Presse') {
-          response = "Bonjour, je suis de Cybernews. Pouvez-vous confirmer qu'un incident est en cours ? Quelles mesures prenez-vous pour protéger les données de vos clients ?";
+          npcResponse = "Je dois pouvoir informer nos lecteurs. Quelles mesures concrètes prenez-vous pour protéger les données des clients ? Pouvez-vous confirmer si des informations sensibles ont été compromises ?";
         } else if (selectedContact === 'Autorités') {
-          response = "Merci pour votre signalement. Pouvez-vous nous fournir plus de détails techniques sur l'incident ? Nous avons besoin d'une analyse complète pour qualifier l'attaque.";
+          npcResponse = "Nous avons besoin d'un rapport technique détaillé incluant les indicateurs de compromission. Avez-vous identifié le vecteur d'entrée initial et les systèmes affectés ?";
         } else if (selectedContact === 'Communication') {
-          response = "Il nous faut rapidement préparer un communiqué. Quelles informations pouvons-nous partager sans risque ? Devons-nous contacter les clients impactés ?";
+          npcResponse = "Le service juridique recommande la prudence dans nos communications externes. Devons-nous alerter les clients potentiellement impactés maintenant ou attendre une vision plus claire ?";
         } else if (selectedContact === 'Équipe technique') {
-          response = "Nous avons isolé les systèmes affectés. Nous avons besoin de ressources supplémentaires pour accélérer la remédiation. Quelle est votre priorité ?";
+          npcResponse = "Les serveurs critiques ont été isolés. Nous avons besoin d'une décision sur la priorisation des systèmes à restaurer. Les sauvegardes sont prêtes, mais la restauration complète prendra environ 6 heures.";
         } else {
-          response = "Les actionnaires s'inquiètent de l'impact financier potentiel. Pouvez-vous estimer le coût de cet incident et sa durée probable ? La situation est-elle sous contrôle ?";
+          npcResponse = "Le conseil d'administration exige un point de situation. Pouvez-vous quantifier l'impact financier potentiel et la durée estimée avant un retour à la normale ?";
         }
         
-        // Ajouter la réponse du PNJ à l'historique
+        // Ajouter la réponse du PNJ à l'historique de communication
         setCommunicationHistory(prev => ({
           ...prev,
           [selectedContact]: [
             ...prev[selectedContact],
-            { sender: 'npc', message: response }
+            { sender: 'npc', message: npcResponse }
           ]
         }));
+      } catch (error) {
+        console.error("Erreur lors de la génération de la réponse:", error);
         
+        // En cas d'erreur, fournir une réponse générique
+        setCommunicationHistory(prev => ({
+          ...prev,
+          [selectedContact]: [
+            ...prev[selectedContact],
+            { sender: 'npc', message: "Je n'ai pas bien compris votre message. Pourriez-vous préciser votre demande ?" }
+          ]
+        }));
+      } finally {
         setIsSendingMessage(false);
-        setNewMessage('');
-      }, 1000);
-      
-    } catch (error) {
-      console.error("Erreur lors de la communication avec le PNJ:", error);
-      // Ajouter un message d'erreur à l'historique
-      setCommunicationHistory(prev => ({
-        ...prev,
-        [selectedContact]: [
-          ...prev[selectedContact],
-          { sender: 'npc', message: "Désolé, nous avons un problème de communication. Veuillez réessayer." }
-        ]
-      }));
-      setIsSendingMessage(false);
-    }
+      }
+    }, 1000);
   };
   
   // Rendu de la page
