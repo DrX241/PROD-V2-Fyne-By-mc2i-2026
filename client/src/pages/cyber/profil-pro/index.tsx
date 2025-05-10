@@ -321,7 +321,8 @@ export default function ProfilPro() {
   
   return (
     <HomeLayout>
-      <div className="container mx-auto px-4 py-8 bg-gradient-to-br from-blue-950 to-indigo-900 text-white font-['Exo 2', 'Rajdhani', 'sans-serif']">
+      <div className="min-h-screen bg-gradient-to-b from-blue-950 to-slate-950 text-white pb-20">
+        <div className="p-6 container mx-auto">
         <div className="flex flex-col md:flex-row items-center justify-between mb-8">
           <div>
             <div className="flex items-center gap-2 mb-2">
