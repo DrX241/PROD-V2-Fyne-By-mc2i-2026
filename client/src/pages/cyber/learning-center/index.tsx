@@ -950,84 +950,102 @@ export default function LearningCenter() {
           
           {/* Onglet Parcours thématiques */}
           <TabsContent value="paths" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {learningPaths.map((path, index) => (
-                <motion.div
-                  key={path.id}
-                  custom={index}
-                  initial="hidden"
-                  animate="visible"
-                  variants={cardVariants}
-                >
-                  <Card className={`border-0 overflow-hidden bg-gradient-to-br ${path.gradient}`}>
-                    <CardHeader className="pb-2">
-                      <div className="flex justify-between items-start">
-                        <div className="p-2 bg-white/20 backdrop-blur-sm rounded-md">
-                          {path.icon}
-                        </div>
-                        <div className="flex gap-1">
-                          {path.isNew && (
-                            <Badge className="bg-white/30 text-white">Nouveau</Badge>
-                          )}
-                          {path.certification && (
-                            <Badge className="bg-amber-500/70">Certification</Badge>
-                          )}
-                        </div>
-                      </div>
-                      <CardTitle className="text-xl mt-3">{path.title}</CardTitle>
-                      <div className="flex gap-2 mt-1">
-                        <Badge variant="outline" className="border-white/40 text-white bg-white/10">
-                          {path.level}
-                        </Badge>
-                        <Badge variant="outline" className="border-white/40 text-white bg-white/10">
-                          {path.duration}
-                        </Badge>
-                        <Badge variant="outline" className="border-white/40 text-white bg-white/10">
-                          {path.category}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-white/90 mb-4">{path.description}</p>
-                      
-                      <h4 className="font-semibold text-white mb-2">Objectifs :</h4>
-                      <ul className="list-disc list-inside text-sm text-white/90 space-y-1 mb-4">
-                        {path.objectives.map((objective, i) => (
-                          <li key={i}>{objective}</li>
-                        ))}
-                      </ul>
-                      
-                      <h4 className="font-semibold text-white mb-2">Modules inclus :</h4>
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {path.modules.map((moduleId) => {
-                          const module = allModules.find(m => m.id === moduleId);
-                          return module ? (
-                            <Badge key={moduleId} className="bg-white/20 hover:bg-white/30 text-white">
-                              {module.title}
-                            </Badge>
-                          ) : null;
-                        })}
-                      </div>
-                      
-                      {path.progress !== undefined && (
-                        <div className="mt-4">
-                          <div className="flex justify-between text-xs mb-1 text-white/90">
-                            <span>Progression</span>
-                            <span>{path.progress}%</span>
+            <div className="relative">
+              {/* Notification "Bientôt disponible" */}
+              <div className="mb-6 p-4 rounded-lg bg-gradient-to-r from-amber-600/50 to-orange-700/50 border border-amber-500/60">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-amber-600/70 rounded-full">
+                    <Clock className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white">Fonctionnalité bientôt disponible</h3>
+                    <p className="text-amber-100">
+                      Les parcours thématiques sont en cours de développement. Vous pouvez consulter les parcours à venir ci-dessous, mais l'inscription n'est pas encore active.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {learningPaths.map((path, index) => (
+                  <motion.div
+                    key={path.id}
+                    custom={index}
+                    initial="hidden"
+                    animate="visible"
+                    variants={cardVariants}
+                  >
+                    <Card className={`border-0 overflow-hidden bg-gradient-to-br ${path.gradient}`}>
+                      <CardHeader className="pb-2">
+                        <div className="flex justify-between items-start">
+                          <div className="p-2 bg-white/20 backdrop-blur-sm rounded-md">
+                            {path.icon}
                           </div>
-                          <Progress value={path.progress} className="h-2 bg-white/20" 
-                            indicatorClassName="bg-white" />
+                          <div className="flex gap-1">
+                            {path.isNew && (
+                              <Badge className="bg-white/30 text-white">Nouveau</Badge>
+                            )}
+                            {path.certification && (
+                              <Badge className="bg-amber-500/70">Certification</Badge>
+                            )}
+                          </div>
                         </div>
-                      )}
-                    </CardContent>
-                    <CardFooter className="pt-0">
-                      <Button className="w-full bg-white/20 hover:bg-white/30 text-white">
-                        Commencer le parcours
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                </motion.div>
-              ))}
+                        <CardTitle className="text-xl mt-3">{path.title}</CardTitle>
+                        <div className="flex gap-2 mt-1">
+                          <Badge variant="outline" className="border-white/40 text-white bg-white/10">
+                            {path.level}
+                          </Badge>
+                          <Badge variant="outline" className="border-white/40 text-white bg-white/10">
+                            {path.duration}
+                          </Badge>
+                          <Badge variant="outline" className="border-white/40 text-white bg-white/10">
+                            {path.category}
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-white/90 mb-4">{path.description}</p>
+                        
+                        <h4 className="font-semibold text-white mb-2">Objectifs :</h4>
+                        <ul className="list-disc list-inside text-sm text-white/90 space-y-1 mb-4">
+                          {path.objectives.map((objective, i) => (
+                            <li key={i}>{objective}</li>
+                          ))}
+                        </ul>
+                        
+                        <h4 className="font-semibold text-white mb-2">Modules inclus :</h4>
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {path.modules.map((moduleId) => {
+                            const module = allModules.find(m => m.id === moduleId);
+                            return module ? (
+                              <Badge key={moduleId} className="bg-white/20 hover:bg-white/30 text-white">
+                                {module.title}
+                              </Badge>
+                            ) : null;
+                          })}
+                        </div>
+                        
+                        {path.progress !== undefined && (
+                          <div className="mt-4">
+                            <div className="flex justify-between text-xs mb-1 text-white/90">
+                              <span>Progression</span>
+                              <span>{path.progress}%</span>
+                            </div>
+                            <Progress value={path.progress} className="h-2 bg-white/20" 
+                              indicatorClassName="bg-white" />
+                          </div>
+                        )}
+                      </CardContent>
+                      <CardFooter className="pt-0">
+                        <Button className="w-full bg-white/20 hover:bg-white/30 text-white" disabled>
+                          <Clock className="mr-2 h-4 w-4" />
+                          Bientôt disponible
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
             </div>
           </TabsContent>
           
