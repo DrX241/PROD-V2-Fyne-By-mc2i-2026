@@ -188,7 +188,7 @@ const CyberInterviewSimulation: React.FC = () => {
         {
           id: '1',
           role: 'assistant',
-          content: data.initialMessage || "Bonjour, je représente une entreprise qui cherche à renforcer sa sécurité informatique. Pouvez-vous vous présenter et m'expliquer votre expertise en cybersécurité?",
+          content: data.initialMessage || "Bonjour, je suis le recruteur technique pour le poste que vous visez. Pour commencer cet entretien, pourriez-vous me présenter votre parcours et vos compétences en cybersécurité?",
           timestamp: new Date(),
         },
       ]);
@@ -201,7 +201,7 @@ const CyberInterviewSimulation: React.FC = () => {
       
       toast({
         title: "Simulation démarrée",
-        description: "La simulation d'audition a commencé. Vous avez 10 minutes.",
+        description: "L'entretien technique a commencé. Vous avez 10 minutes.",
       });
     } catch (error) {
       console.error('Erreur:', error);
@@ -261,7 +261,7 @@ const CyberInterviewSimulation: React.FC = () => {
         {
           id: '1',
           role: 'assistant',
-          content: data.initialMessage || "Bonjour, je représente une entreprise qui cherche à renforcer sa sécurité informatique. Pouvez-vous vous présenter et m'expliquer votre expertise en cybersécurité?",
+          content: data.initialMessage || "Bonjour, je suis le recruteur technique pour le poste que vous visez. Pour commencer cet entretien, pourriez-vous me présenter votre parcours et vos compétences en cybersécurité?",
           timestamp: new Date(),
         },
       ]);
