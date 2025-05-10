@@ -48,6 +48,7 @@ import {
 } from "./codeGeneratorController";
 import { generateCyberPractices } from "./cyberSnakeController";
 import { chatWithCustomAssistant } from "./customAssistantsController";
+import { getActiveIncidents, getIncidentDetails, getExpertsForIncident, handleExpertMessage, executeAction, getCrisisSession } from "./cyberCrisisController";
 import {
   analyzeUserResponse,
   getLevelInfo,
