@@ -122,7 +122,6 @@ export default function ProfilPro() {
     
     setIsLoading(true);
     setShowResults(false);
-    setQuizCompleted(false);
     
     try {
       // Simulation de l'appel API - À remplacer par un vrai appel API
@@ -319,13 +318,9 @@ export default function ProfilPro() {
     setGameLevel((prevLevel) => Math.min(prevLevel + 1, 5));
   };
   
-  // Démarrer le quiz (maintenu pour compatibilité)
+  // Fonction remplacée par startArcadeGame
   const startQuiz = () => {
-    setShowQuiz(true);
-    setCurrentQuestionIndex(0);
-    setSelectedAnswers({});
-    setQuizCompleted(false);
-    setScore(0);
+    startArcadeGame();
   };
   
   // Retourner aux résultats (maintenu pour compatibilité)
