@@ -410,6 +410,85 @@ const CyberChaos: React.FC = () => {
     }
   };
   
+  // Fonctions pour la communication avec les PNJ
+  const handleContactSelect = (contact: string) => {
+    setSelectedContact(contact);
+    setShowCommunicationPanel(true);
+  };
+  
+  const sendMessageToPNJ = async () => {
+    if (!selectedContact || !newMessage.trim()) return;
+    
+    setIsSendingMessage(true);
+    
+    // Ajouter le message du joueur à l'historique
+    setCommunicationHistory(prev => ({
+      ...prev,
+      [selectedContact]: [
+        ...prev[selectedContact],
+        { sender: 'player', message: newMessage }
+      ]
+    }));
+    
+    try {
+      // Préparer le contexte pour la réponse IA
+      const context = {
+        contact: selectedContact,
+        gameState: {
+          currentTime: gameState.currentTime,
+          phase: gameState.activePhase,
+          operationalScore: gameState.operationalScore,
+          reputationScore: gameState.reputationScore,
+          legalRisk: gameState.legalRisk,
+          stressLevel: gameState.stressLevel,
+          eventLog: gameState.eventLog.slice(-3)
+        }
+      };
+      
+      // Requête vers le backend (simule pour l'instant)
+      setTimeout(() => {
+        // Simuler une réponse du PNJ
+        let response = "";
+        
+        if (selectedContact === 'Presse') {
+          response = "Bonjour, je suis de Cybernews. Pouvez-vous confirmer qu'un incident est en cours ? Quelles mesures prenez-vous pour protéger les données de vos clients ?";
+        } else if (selectedContact === 'Autorités') {
+          response = "Merci pour votre signalement. Pouvez-vous nous fournir plus de détails techniques sur l'incident ? Nous avons besoin d'une analyse complète pour qualifier l'attaque.";
+        } else if (selectedContact === 'Communication') {
+          response = "Il nous faut rapidement préparer un communiqué. Quelles informations pouvons-nous partager sans risque ? Devons-nous contacter les clients impactés ?";
+        } else if (selectedContact === 'Équipe technique') {
+          response = "Nous avons isolé les systèmes affectés. Nous avons besoin de ressources supplémentaires pour accélérer la remédiation. Quelle est votre priorité ?";
+        } else {
+          response = "Les actionnaires s'inquiètent de l'impact financier potentiel. Pouvez-vous estimer le coût de cet incident et sa durée probable ? La situation est-elle sous contrôle ?";
+        }
+        
+        // Ajouter la réponse du PNJ à l'historique
+        setCommunicationHistory(prev => ({
+          ...prev,
+          [selectedContact]: [
+            ...prev[selectedContact],
+            { sender: 'npc', message: response }
+          ]
+        }));
+        
+        setIsSendingMessage(false);
+        setNewMessage('');
+      }, 1000);
+      
+    } catch (error) {
+      console.error("Erreur lors de la communication avec le PNJ:", error);
+      // Ajouter un message d'erreur à l'historique
+      setCommunicationHistory(prev => ({
+        ...prev,
+        [selectedContact]: [
+          ...prev[selectedContact],
+          { sender: 'npc', message: "Désolé, nous avons un problème de communication. Veuillez réessayer." }
+        ]
+      }));
+      setIsSendingMessage(false);
+    }
+  };
+  
   // Rendu de la page
   return (
     <div className={pageStyle}>
@@ -461,6 +540,15 @@ const CyberChaos: React.FC = () => {
                       className="hover:bg-blue-800/50 text-amber-300 border-amber-300/50"
                     >
                       Terminer
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setShowCommunicationPanel(!showCommunicationPanel)}
+                      className="hover:bg-blue-800/50 text-cyan-300 border-cyan-300/50"
+                    >
+                      <MessageSquare className="mr-2 h-4 w-4" />
+                      Communications
                     </Button>
                   </div>
                 </>
