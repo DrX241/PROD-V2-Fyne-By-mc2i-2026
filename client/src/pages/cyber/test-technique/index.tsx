@@ -447,14 +447,14 @@ export default function CyberTestTechnique() {
 
   // Render functions
   const renderSelectionStep = () => (
-    <Card className="w-full max-w-4xl">
-      <CardHeader>
-        <CardTitle className="text-2xl">Test Technique de Cybersécurité</CardTitle>
-        <CardDescription>
+    <div className="w-full max-w-5xl bg-gradient-to-b from-blue-950 to-slate-950 rounded-lg overflow-hidden shadow-xl">
+      <div className="p-6 border-b border-blue-800">
+        <h2 className="text-2xl md:text-3xl font-semibold text-white font-exo">Test Technique de Cybersécurité</h2>
+        <p className="text-blue-200 mt-2 font-rajdhani">
           Sélectionnez une catégorie et un niveau de difficulté pour commencer le test.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
+        </p>
+      </div>
+      <div className="p-6 space-y-6">
         {isLoadingOptions ? (
           <div className="flex justify-center items-center py-10">
             <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
