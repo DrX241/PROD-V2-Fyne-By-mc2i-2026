@@ -439,7 +439,7 @@ const CyberInterviewSimulation: React.FC = () => {
             <Card className="max-w-3xl mx-auto">
               <CardHeader>
                 <CardTitle className="text-2xl font-bold text-center text-blue-800 dark:text-white font-[Rajdhani]">Simulation d'entretien technique</CardTitle>
-                <CardDescription className="text-center dark:text-white">
+                <CardDescription className="text-center text-gray-800 dark:text-white">
                   Préparez-vous aux entretiens d'embauche en cybersécurité avec une IA
                 </CardDescription>
               </CardHeader>
@@ -449,7 +449,7 @@ const CyberInterviewSimulation: React.FC = () => {
                     <Clock className="h-5 w-5 mr-2 text-blue-600" />
                     Comment ça fonctionne
                   </h3>
-                  <ul className="list-disc list-inside space-y-2 text-sm text-gray-800 dark:text-blue-100">
+                  <ul className="list-disc list-inside space-y-2 text-sm text-gray-800 dark:text-gray-200">
                     <li>Simulation chronométrée de 10 minutes</li>
                     <li>Conversation réaliste avec un recruteur spécialisé en cybersécurité</li>
                     <li>Questions techniques adaptées au profil spécifié</li>
@@ -529,7 +529,7 @@ const CyberInterviewSimulation: React.FC = () => {
               <Card className="bg-white dark:bg-blue-900/20 border-blue-300 dark:border-blue-800 shadow-md">
                 <CardHeader>
                   <CardTitle className="font-[Rajdhani] text-blue-800 dark:text-white">Configuration de l'entretien technique</CardTitle>
-                  <CardDescription className="text-blue-700 dark:text-blue-300">
+                  <CardDescription className="text-gray-800 dark:text-blue-300">
                     Personnalisez votre entretien en fonction de votre profil et de vos intérêts
                   </CardDescription>
                 </CardHeader>
@@ -673,7 +673,7 @@ const CyberInterviewSimulation: React.FC = () => {
                         </Badge>
                       </div>
                     </div>
-                    <CardDescription className="text-blue-700 dark:text-blue-300">
+                    <CardDescription className="text-gray-800 dark:text-blue-300">
                       Temps restant: <span className="font-mono text-blue-800 dark:text-blue-100">{formatTime(timeRemaining)}</span>
                     </CardDescription>
                   </div>
@@ -773,7 +773,7 @@ const CyberInterviewSimulation: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <CardTitle className="font-[Rajdhani] text-blue-800 dark:text-white">Évaluation technique</CardTitle>
                   </div>
-                  <CardDescription className="text-blue-700 dark:text-blue-300">
+                  <CardDescription className="text-gray-800 dark:text-blue-300">
                     Analyse de votre performance lors de l'entretien technique
                   </CardDescription>
                 </CardHeader>
