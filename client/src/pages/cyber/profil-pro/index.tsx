@@ -321,7 +321,7 @@ export default function ProfilPro() {
   
   return (
     <HomeLayout>
-      <div className="container mx-auto px-4 py-8 bg-gray-900 text-white">
+      <div className="container mx-auto px-4 py-8 bg-gradient-to-br from-blue-950 to-indigo-900 text-white font-['Exo 2', 'Rajdhani', 'sans-serif']">
         <div className="flex flex-col md:flex-row items-center justify-between mb-8">
           <div>
             <div className="flex items-center gap-2 mb-2">
@@ -349,7 +349,7 @@ export default function ProfilPro() {
           </div>
         </div>
         
-        <Card className="mb-8 bg-gradient-to-br from-purple-50 to-blue-50 border-purple-100">
+        <Card className="mb-8 bg-blue-900/30 backdrop-blur-sm border-blue-700 shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Briefcase className="h-6 w-6 text-purple-600" />
@@ -365,12 +365,12 @@ export default function ProfilPro() {
                 <div className="mb-4">
                   <label className="text-sm font-medium mb-1 block">Sélectionnez un métier</label>
                   <Select onValueChange={handleProfessionSelect} value={selectedProfession}>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-blue-950/40 border-blue-700 text-white">
                       <SelectValue placeholder="Choisir dans la liste" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-blue-900 border-blue-700 text-white">
                       {popularProfessions.map((profession) => (
-                        <SelectItem key={profession} value={profession}>
+                        <SelectItem key={profession} value={profession} className="hover:bg-blue-800">
                           {profession}
                         </SelectItem>
                       ))}
@@ -385,6 +385,7 @@ export default function ProfilPro() {
                     value={customProfession}
                     onChange={(e) => setCustomProfession(e.target.value)}
                     disabled={!!selectedProfession}
+                    className="bg-blue-950/40 border-blue-700 text-white placeholder:text-blue-300"
                   />
                   {selectedProfession && (
                     <Button 
@@ -399,7 +400,7 @@ export default function ProfilPro() {
                 </div>
                 
                 <Button 
-                  className="w-full bg-purple-600 hover:bg-purple-700"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium"
                   onClick={handleSubmit}
                   disabled={isLoading || (!selectedProfession && !customProfession)}
                 >
@@ -417,12 +418,12 @@ export default function ProfilPro() {
                 </Button>
               </div>
               
-              <div className="bg-white rounded-lg p-4 border border-purple-100 md:col-span-1">
+              <div className="bg-blue-950/30 backdrop-blur-sm rounded-lg p-4 border border-blue-700 md:col-span-1 text-white">
                 <h4 className="font-medium text-sm mb-2 flex items-center gap-2">
                   <Lightbulb className="h-4 w-4 text-amber-500" />
                   Ce que vous découvrirez
                 </h4>
-                <ul className="space-y-2 text-sm text-gray-600">
+                <ul className="space-y-2 text-sm text-blue-100">
                   <li className="flex items-start gap-2">
                     <Map className="h-4 w-4 text-blue-500 mt-0.5 shrink-0" />
                     <span>Un portrait complet et objectif de votre métier</span>
@@ -482,7 +483,7 @@ export default function ProfilPro() {
               <TabsContent value="exploration" className="mt-6">
                 {!showQuiz && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card className="bg-white border-blue-100">
+                    <Card className="bg-blue-900/20 backdrop-blur-sm border-blue-700 shadow-lg">
                       <CardHeader className="pb-2">
                         <CardTitle className="text-xl flex items-center gap-2">
                           <Map className="h-5 w-5 text-blue-600" />
