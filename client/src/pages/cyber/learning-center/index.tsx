@@ -1052,6 +1052,21 @@ export default function LearningCenter() {
           
           {/* Onglet Mon apprentissage */}
           <TabsContent value="dashboard" className="space-y-6">
+            {/* Notification "Bientôt disponible" */}
+            <div className="mb-6 p-4 rounded-lg bg-gradient-to-r from-amber-600/50 to-orange-700/50 border border-amber-500/60">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-amber-600/70 rounded-full">
+                  <Clock className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">Fonctionnalité bientôt disponible</h3>
+                  <p className="text-amber-100">
+                    Le suivi personnalisé de votre apprentissage est en cours de développement. Cette fonctionnalité vous permettra de suivre votre progression et d'organiser votre parcours d'apprentissage.
+                  </p>
+                </div>
+              </div>
+            </div>
+            
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Colonne 1: Statistiques et Progression */}
               <Card className="bg-blue-900/20 border-blue-800">
@@ -1113,9 +1128,9 @@ export default function LearningCenter() {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button variant="outline" className="w-full border-blue-700">
-                    <Calendar className="mr-2 h-4 w-4" />
-                    Voir mon planning
+                  <Button variant="outline" className="w-full border-blue-700" disabled>
+                    <Clock className="mr-2 h-4 w-4" />
+                    Bientôt disponible
                   </Button>
                 </CardFooter>
               </Card>
@@ -1131,7 +1146,7 @@ export default function LearningCenter() {
                     <div className="text-center px-4">
                       <Folder className="h-8 w-8 mx-auto text-blue-400 mb-2" />
                       <p className="text-sm text-blue-300">Aucun module en cours</p>
-                      <p className="text-xs text-blue-400 mt-1">Commencez un module pour le voir apparaître ici</p>
+                      <p className="text-xs text-blue-400 mt-1">Cette fonctionnalité sera bientôt disponible</p>
                     </div>
                   </div>
                   
@@ -1158,8 +1173,9 @@ export default function LearningCenter() {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button className="w-full bg-blue-700 hover:bg-blue-800">
-                    Découvrir tous les modules
+                  <Button className="w-full bg-white/20 hover:bg-white/30 text-white" disabled>
+                    <Clock className="mr-2 h-4 w-4" />
+                    Bientôt disponible
                   </Button>
                 </CardFooter>
               </Card>
@@ -1175,7 +1191,7 @@ export default function LearningCenter() {
                     <div className="text-center px-4">
                       <GraduationCap className="h-8 w-8 mx-auto text-blue-400 mb-2" />
                       <p className="text-sm text-blue-300">Aucun parcours sélectionné</p>
-                      <p className="text-xs text-blue-400 mt-1">Choisissez un parcours pour commencer</p>
+                      <p className="text-xs text-blue-400 mt-1">Cette fonctionnalité sera bientôt disponible</p>
                     </div>
                   </div>
                   
@@ -1201,9 +1217,9 @@ export default function LearningCenter() {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button variant="outline" className="w-full border-blue-700">
-                    <Star className="mr-2 h-4 w-4" />
-                    Voir mes certifications
+                  <Button variant="outline" className="w-full border-blue-700" disabled>
+                    <Clock className="mr-2 h-4 w-4" />
+                    Bientôt disponible
                   </Button>
                 </CardFooter>
               </Card>
@@ -1219,7 +1235,7 @@ export default function LearningCenter() {
                   <div className="text-center px-4">
                     <Monitor className="h-10 w-10 mx-auto text-blue-400 mb-3" />
                     <p className="text-blue-300">Aucune activité récente</p>
-                    <p className="text-xs text-blue-400 mt-2">Votre historique d'apprentissage apparaîtra ici</p>
+                    <p className="text-xs text-blue-400 mt-2">Cette fonctionnalité sera bientôt disponible</p>
                   </div>
                 </div>
               </CardContent>
