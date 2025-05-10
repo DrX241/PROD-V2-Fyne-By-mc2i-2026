@@ -350,10 +350,10 @@ const CyberInterviewSimulation: React.FC = () => {
       <div className="cyber-interview-test">
         {/* Dialogue pour saisir les informations de contact à la fin de la simulation */}
         <AlertDialog open={showContactForm} onOpenChange={setShowContactForm}>
-          <AlertDialogContent className="bg-gray-800 text-white border-gray-700">
+          <AlertDialogContent className="bg-white dark:bg-gray-800 text-gray-800 dark:text-white border-blue-200 dark:border-gray-700">
             <AlertDialogHeader>
-              <AlertDialogTitle className="text-xl">Informations pour finaliser la simulation</AlertDialogTitle>
-              <AlertDialogDescription className="text-gray-400">
+              <AlertDialogTitle className="text-xl text-blue-800 dark:text-white">Informations pour finaliser la simulation</AlertDialogTitle>
+              <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
                 Veuillez remplir tous les champs ci-dessous pour finaliser la simulation et recevoir l'évaluation par email.
               </AlertDialogDescription>
             </AlertDialogHeader>
@@ -647,11 +647,11 @@ const CyberInterviewSimulation: React.FC = () => {
             
             {/* Onglet Simulation */}
             <TabsContent value="simulation">
-              <Card className="bg-blue-900/20 border-blue-800">
+              <Card className="bg-white dark:bg-blue-900/20 border-blue-300 dark:border-blue-800 shadow-md">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle className="font-[Rajdhani]">Entretien technique en cours</CardTitle>
+                      <CardTitle className="font-[Rajdhani] text-blue-800 dark:text-white">Entretien technique en cours</CardTitle>
                       <div className="flex items-center mt-1">
                         <Badge className="bg-blue-600">
                           {form.getValues('experience') === 'junior' && 'Junior'}
@@ -673,13 +673,13 @@ const CyberInterviewSimulation: React.FC = () => {
                         </Badge>
                       </div>
                     </div>
-                    <CardDescription className="text-blue-300">
-                      Temps restant: <span className="font-mono text-blue-100">{formatTime(timeRemaining)}</span>
+                    <CardDescription className="text-blue-700 dark:text-blue-300">
+                      Temps restant: <span className="font-mono text-blue-800 dark:text-blue-100">{formatTime(timeRemaining)}</span>
                     </CardDescription>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex flex-col space-y-4 mb-4 max-h-[400px] overflow-y-auto bg-blue-950/40 p-4 rounded-md">
+                  <div className="flex flex-col space-y-4 mb-4 max-h-[400px] overflow-y-auto bg-blue-50 dark:bg-blue-950/40 p-4 rounded-md border border-blue-100 dark:border-blue-800/50">
                     {messages.map((message) => (
                       <div
                         key={message.id}
@@ -690,20 +690,20 @@ const CyberInterviewSimulation: React.FC = () => {
                         <div
                           className={`p-3 rounded-lg max-w-[80%] ${
                             message.role === 'assistant'
-                              ? 'bg-blue-900/50 text-white border border-blue-800/50'
-                              : 'bg-blue-700/50 text-white border border-blue-600/50'
+                              ? 'bg-blue-100 dark:bg-blue-900/50 text-gray-800 dark:text-white border border-blue-200 dark:border-blue-800/50'
+                              : 'bg-blue-200 dark:bg-blue-700/50 text-gray-800 dark:text-white border border-blue-300 dark:border-blue-600/50'
                           }`}
                         >
                           <div className="flex items-center mb-1">
                             {message.role === 'assistant' ? (
                               <>
-                                <UserCircle className="h-4 w-4 text-blue-300 mr-2" />
-                                <span className="text-xs text-blue-300 font-semibold">Recruteur</span>
+                                <UserCircle className="h-4 w-4 text-blue-600 dark:text-blue-300 mr-2" />
+                                <span className="text-xs text-blue-700 dark:text-blue-300 font-semibold">Recruteur</span>
                               </>
                             ) : (
                               <>
-                                <User className="h-4 w-4 text-blue-300 mr-2" />
-                                <span className="text-xs text-blue-300 font-semibold">Candidat</span>
+                                <User className="h-4 w-4 text-blue-600 dark:text-blue-300 mr-2" />
+                                <span className="text-xs text-blue-700 dark:text-blue-300 font-semibold">Candidat</span>
                               </>
                             )}
                           </div>
@@ -713,10 +713,10 @@ const CyberInterviewSimulation: React.FC = () => {
                     ))}
                     {isLoading && (
                       <div className="flex justify-start">
-                        <div className="p-3 rounded-lg bg-blue-900/20 text-white border border-blue-800/50">
+                        <div className="p-3 rounded-lg bg-blue-100 dark:bg-blue-900/20 text-gray-800 dark:text-white border border-blue-200 dark:border-blue-800/50">
                           <div className="flex items-center mb-1">
-                            <UserCircle className="h-4 w-4 text-blue-300 mr-2" />
-                            <span className="text-xs text-blue-300">Recruteur</span>
+                            <UserCircle className="h-4 w-4 text-blue-600 dark:text-blue-300 mr-2" />
+                            <span className="text-xs text-blue-700 dark:text-blue-300">Recruteur</span>
                           </div>
                           <div className="flex space-x-1 items-center">
                             <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse delay-0"></div>
@@ -734,7 +734,7 @@ const CyberInterviewSimulation: React.FC = () => {
                       value={userInput}
                       onChange={(e) => setUserInput(e.target.value)}
                       placeholder="Tapez votre réponse..."
-                      className="flex-1 bg-blue-950/40 border-blue-800/50 text-white placeholder:text-blue-300/50"
+                      className="flex-1 bg-white dark:bg-blue-950/40 border-blue-200 dark:border-blue-800/50 text-gray-800 dark:text-white placeholder:text-blue-400/70 dark:placeholder:text-blue-300/50"
                       disabled={isLoading || simulationComplete}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
@@ -744,7 +744,7 @@ const CyberInterviewSimulation: React.FC = () => {
                       }}
                     />
                     <Button
-                      className="bg-[#006a9e] hover:bg-blue-700"
+                      className="bg-[#006a9e] hover:bg-blue-700 text-white"
                       onClick={handleSendMessage}
                       disabled={isLoading || !userInput.trim() || simulationComplete}
                     >
@@ -768,72 +768,72 @@ const CyberInterviewSimulation: React.FC = () => {
             
             {/* Onglet Évaluation */}
             <TabsContent value="evaluation">
-              <Card className="bg-blue-900/20 border-blue-800">
+              <Card className="bg-white dark:bg-blue-900/20 border-blue-300 dark:border-blue-800 shadow-md">
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <CardTitle className="font-[Rajdhani]">Évaluation technique</CardTitle>
+                    <CardTitle className="font-[Rajdhani] text-blue-800 dark:text-white">Évaluation technique</CardTitle>
                   </div>
-                  <CardDescription className="text-blue-300">
+                  <CardDescription className="text-blue-700 dark:text-blue-300">
                     Analyse de votre performance lors de l'entretien technique
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   {evaluationResult ? (
                     <div className="space-y-6">
-                      <div className="bg-blue-950/60 border border-blue-800/50 p-4 rounded-md">
-                        <h3 className="text-lg font-semibold mb-2 font-[Rajdhani]">Profil du candidat</h3>
-                        <p className="text-blue-100">{evaluationResult.profile}</p>
+                      <div className="bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800/50 p-4 rounded-md">
+                        <h3 className="text-lg font-semibold mb-2 font-[Rajdhani] text-blue-800 dark:text-white">Profil du candidat</h3>
+                        <p className="text-gray-800 dark:text-blue-100">{evaluationResult.profile}</p>
                       </div>
                       
-                      <div className="bg-blue-950/60 border border-blue-800/50 p-4 rounded-md">
-                        <h3 className="text-lg font-semibold mb-2 font-[Rajdhani]">Points forts</h3>
-                        <ul className="list-disc list-inside space-y-1 text-emerald-300">
+                      <div className="bg-green-50 dark:bg-blue-950/60 border border-green-200 dark:border-blue-800/50 p-4 rounded-md">
+                        <h3 className="text-lg font-semibold mb-2 font-[Rajdhani] text-blue-800 dark:text-white">Points forts</h3>
+                        <ul className="list-disc list-inside space-y-1 text-green-700 dark:text-emerald-300">
                           {evaluationResult.strengths.map((strength: string, index: number) => (
                             <li key={index}>{strength}</li>
                           ))}
                         </ul>
                       </div>
                       
-                      <div className="bg-blue-950/60 border border-blue-800/50 p-4 rounded-md">
-                        <h3 className="text-lg font-semibold mb-2 font-[Rajdhani]">Axes d'amélioration</h3>
-                        <ul className="list-disc list-inside space-y-1 text-amber-300">
+                      <div className="bg-amber-50 dark:bg-blue-950/60 border border-amber-200 dark:border-blue-800/50 p-4 rounded-md">
+                        <h3 className="text-lg font-semibold mb-2 font-[Rajdhani] text-blue-800 dark:text-white">Axes d'amélioration</h3>
+                        <ul className="list-disc list-inside space-y-1 text-amber-700 dark:text-amber-300">
                           {evaluationResult.improvements.map((improvement: string, index: number) => (
                             <li key={index}>{improvement}</li>
                           ))}
                         </ul>
                       </div>
                       
-                      <div className="bg-blue-950/60 border border-blue-800/50 p-4 rounded-md">
-                        <h3 className="text-lg font-semibold mb-2 font-[Rajdhani]">Compétences techniques</h3>
-                        <p className="text-blue-100">{evaluationResult.technicalSkillsAssessment}</p>
+                      <div className="bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800/50 p-4 rounded-md">
+                        <h3 className="text-lg font-semibold mb-2 font-[Rajdhani] text-blue-800 dark:text-white">Compétences techniques</h3>
+                        <p className="text-gray-800 dark:text-blue-100">{evaluationResult.technicalSkillsAssessment}</p>
                       </div>
                       
-                      <div className="bg-blue-950/60 border border-blue-800/50 p-4 rounded-md">
-                        <h3 className="text-lg font-semibold mb-2 font-[Rajdhani]">Compétences de communication</h3>
-                        <p className="text-blue-100">{evaluationResult.communicationSkillsAssessment}</p>
+                      <div className="bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800/50 p-4 rounded-md">
+                        <h3 className="text-lg font-semibold mb-2 font-[Rajdhani] text-blue-800 dark:text-white">Compétences de communication</h3>
+                        <p className="text-gray-800 dark:text-blue-100">{evaluationResult.communicationSkillsAssessment}</p>
                       </div>
                       
                       {evaluationResult.recommendation && (
-                        <div className="bg-blue-950/60 border border-emerald-800/40 p-4 rounded-md">
-                          <h3 className="text-lg font-semibold mb-1 font-[Rajdhani]">Recommandation</h3>
-                          <p className="font-medium text-emerald-200">{evaluationResult.recommendation}</p>
+                        <div className="bg-emerald-50 dark:bg-blue-950/60 border border-emerald-200 dark:border-emerald-800/40 p-4 rounded-md">
+                          <h3 className="text-lg font-semibold mb-1 font-[Rajdhani] text-blue-800 dark:text-white">Recommandation</h3>
+                          <p className="font-medium text-emerald-700 dark:text-emerald-200">{evaluationResult.recommendation}</p>
                         </div>
                       )}
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center p-8">
-                      <AlertCircle className="w-16 h-16 text-blue-400 mb-4" />
-                      <h3 className="text-xl font-semibold mb-2">Aucune évaluation disponible</h3>
-                      <p className="text-center text-blue-300">
+                      <AlertCircle className="w-16 h-16 text-blue-600 dark:text-blue-400 mb-4" />
+                      <h3 className="text-xl font-semibold mb-2 text-blue-800 dark:text-white">Aucune évaluation disponible</h3>
+                      <p className="text-center text-blue-700 dark:text-blue-300">
                         Terminez d'abord une simulation d'entretien pour recevoir une évaluation détaillée.
                       </p>
                     </div>
                   )}
                   
                   {evaluationResult && !isSkippedInfo && (
-                    <div className="mt-8 p-4 bg-blue-900/40 rounded-lg border border-blue-700/50">
-                      <h3 className="text-lg font-medium mb-4 font-[Rajdhani] flex items-center">
-                        <Mail className="mr-2 h-5 w-5 text-blue-300" />
+                    <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/40 rounded-lg border border-blue-300 dark:border-blue-700/50 shadow-sm">
+                      <h3 className="text-lg font-medium mb-4 font-[Rajdhani] flex items-center text-blue-800 dark:text-white">
+                        <Mail className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-300" />
                         Recevoir l'évaluation par email
                       </h3>
                       <Form {...form}>
@@ -843,12 +843,12 @@ const CyberInterviewSimulation: React.FC = () => {
                             name="trainerEmail"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-white">Email du recruteur (optionnel)</FormLabel>
+                                <FormLabel className="text-gray-800 dark:text-white">Email du recruteur (optionnel)</FormLabel>
                                 <FormControl>
                                   <Input
                                     {...field}
                                     placeholder="recruteur@entreprise.fr"
-                                    className="bg-blue-950/60 border-blue-700 text-white"
+                                    className="bg-white dark:bg-blue-950/60 border-blue-200 dark:border-blue-700 text-gray-800 dark:text-white"
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -861,12 +861,12 @@ const CyberInterviewSimulation: React.FC = () => {
                             name="candidateName"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-white">Votre nom (optionnel)</FormLabel>
+                                <FormLabel className="text-gray-800 dark:text-white">Votre nom (optionnel)</FormLabel>
                                 <FormControl>
                                   <Input
                                     {...field}
                                     placeholder="Prénom Nom"
-                                    className="bg-blue-950/60 border-blue-700 text-white"
+                                    className="bg-white dark:bg-blue-950/60 border-blue-200 dark:border-blue-700 text-gray-800 dark:text-white"
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -879,12 +879,12 @@ const CyberInterviewSimulation: React.FC = () => {
                             name="candidateEmail"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-white">Votre email (optionnel)</FormLabel>
+                                <FormLabel className="text-gray-800 dark:text-white">Votre email (optionnel)</FormLabel>
                                 <FormControl>
                                   <Input
                                     {...field}
                                     placeholder="candidat@email.fr"
-                                    className="bg-blue-950/60 border-blue-700 text-white"
+                                    className="bg-white dark:bg-blue-950/60 border-blue-200 dark:border-blue-700 text-gray-800 dark:text-white"
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -896,14 +896,14 @@ const CyberInterviewSimulation: React.FC = () => {
                             <Button 
                               type="button" 
                               variant="ghost" 
-                              className="text-blue-300 hover:text-white hover:bg-blue-900/50"
+                              className="text-blue-600 hover:text-blue-800 dark:text-blue-300 dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/50"
                               onClick={() => setIsSkippedInfo(true)}
                             >
                               Ignorer
                             </Button>
                             <Button 
                               type="submit" 
-                              className="bg-[#006a9e] hover:bg-blue-700"
+                              className="bg-[#006a9e] hover:bg-blue-700 text-white"
                               disabled={isLoading}
                             >
                               Envoyer l'évaluation
@@ -917,7 +917,7 @@ const CyberInterviewSimulation: React.FC = () => {
                 <CardFooter>
                   <Button 
                     onClick={resetSimulation}
-                    className="w-full bg-[#006a9e] hover:bg-blue-700"
+                    className="w-full bg-[#006a9e] hover:bg-blue-700 text-white"
                   >
                     Nouvelle simulation
                   </Button>
