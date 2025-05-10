@@ -228,6 +228,16 @@ function App() {
               );
             }} />
             
+            {/* Page de démonstration du style CYBER ACADÉMIE */}
+            <Route path="/cyber/test-cyber-academie" component={() => {
+              const TestCyberAcademie = lazy(() => import('./pages/cyber/test-cyber-academie'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <TestCyberAcademie />
+                </Suspense>
+              );
+            }} />
+            
             {/* Section Outils Cyber */}
             <Route path="/cyber/tools" component={() => {
               const ToolsPageComponent = lazy(() => import('./pages/cyber/tools'));
