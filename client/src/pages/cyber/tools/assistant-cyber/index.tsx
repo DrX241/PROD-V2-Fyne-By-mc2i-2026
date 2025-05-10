@@ -274,32 +274,33 @@ ${customInstructions}` : ''}
     <HomeLayout>
       <PageTitle title="CRÉER VOTRE ASSISTANT CYBER" />
       
-      <div className="container mx-auto py-6">
-        <Card className="bg-gray-900 border-gray-800 text-gray-100">
-          <CardHeader>
-            <div className="flex justify-between items-start">
-              <div>
-                <CardTitle className="text-2xl">Créer Votre Assistant Cyber</CardTitle>
-                <CardDescription className="text-gray-400">
-                  Configurez un assistant IA personnalisé pour répondre à vos besoins spécifiques en cybersécurité
-                </CardDescription>
+      <div className="min-h-screen pb-20 bg-gradient-to-b from-blue-950 to-black text-white">
+        <div className="container mx-auto py-6">
+          <Card className="bg-blue-900/20 border-blue-800 text-blue-100">
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="text-2xl font-rajdhani">Créer Votre Assistant Cyber</CardTitle>
+                  <CardDescription className="text-blue-300">
+                    Configurez un assistant IA personnalisé pour répondre à vos besoins spécifiques en cybersécurité
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-blue-400 hover:text-blue-300 hover:bg-blue-950 border-blue-800"
+                  onClick={() => setLocation('/cyber')}
+                >
+                  <ChevronLeft className="mr-2 h-4 w-4" />
+                  Retour à I AM CYBER
+                </Button>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-blue-400 hover:text-blue-300 hover:bg-blue-950 border-blue-800"
-                onClick={() => setLocation('/cyber')}
-              >
-                <ChevronLeft className="mr-2 h-4 w-4" />
-                Retour à I AM CYBER
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
+            </CardHeader>
+            <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
-              <TabsList className="grid grid-cols-2 mb-6 bg-gray-800">
-                <TabsTrigger value="configuration" disabled={isGenerating}>Configuration</TabsTrigger>
-                <TabsTrigger value="preview">Aperçu</TabsTrigger>
+              <TabsList className="grid grid-cols-2 mb-6 bg-blue-950/80">
+                <TabsTrigger value="configuration" disabled={isGenerating} className="data-[state=active]:bg-blue-700 data-[state=active]:text-white">Configuration</TabsTrigger>
+                <TabsTrigger value="preview" className="data-[state=active]:bg-blue-700 data-[state=active]:text-white">Aperçu</TabsTrigger>
               </TabsList>
               
               <TabsContent value="configuration">
