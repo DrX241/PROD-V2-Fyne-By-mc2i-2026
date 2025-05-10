@@ -751,9 +751,9 @@ const CyberInterviewSimulation: React.FC = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="h-96 overflow-y-auto mb-4 bg-gray-900 rounded-md p-4">
+                <div className="h-96 overflow-y-auto mb-4 bg-blue-950/60 backdrop-blur-sm rounded-md p-4 border border-blue-800/50">
                   {messages.length === 0 ? (
-                    <div className="flex items-center justify-center h-full text-gray-500">
+                    <div className="flex items-center justify-center h-full text-blue-400">
                       <p>La conversation va commencer...</p>
                     </div>
                   ) : (
@@ -766,23 +766,23 @@ const CyberInterviewSimulation: React.FC = () => {
                           <div 
                             className={`max-w-[80%] p-3 rounded-lg ${
                               message.role === 'user'
-                                ? 'bg-[#006a9e] text-white'
-                                : 'bg-gray-700 text-white'
+                                ? 'bg-gradient-to-r from-blue-600 to-blue-800 text-white'
+                                : 'bg-blue-900/50 border border-blue-800/50 text-white'
                             }`}
                           >
                             <div className="flex items-center mb-1">
                               {message.role === 'user' ? (
                                 <>
-                                  <span className="font-semibold">{form.getValues('candidateName') || 'Consultant'}</span>
-                                  <span className="text-xs ml-2 text-gray-300">
+                                  <span className="font-semibold">{form.getValues('candidateName') || 'Candidat'}</span>
+                                  <span className="text-xs ml-2 text-blue-200">
                                     {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                   </span>
                                 </>
                               ) : (
                                 <>
                                   <UserCircle className="w-5 h-5 mr-1" />
-                                  <span className="font-semibold">Client</span>
-                                  <span className="text-xs ml-2 text-gray-300">
+                                  <span className="font-semibold">Recruteur</span>
+                                  <span className="text-xs ml-2 text-blue-200">
                                     {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                   </span>
                                 </>
@@ -802,7 +802,7 @@ const CyberInterviewSimulation: React.FC = () => {
                     value={userInput}
                     onChange={(e) => setUserInput(e.target.value)}
                     placeholder="Écrivez votre message..."
-                    className="resize-none bg-gray-700 border-gray-600 text-white"
+                    className="resize-none bg-blue-950/40 border-blue-800 text-white placeholder:text-blue-400"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey && !isLoading) {
                         e.preventDefault();
@@ -814,7 +814,7 @@ const CyberInterviewSimulation: React.FC = () => {
                   <Button
                     onClick={sendMessage}
                     disabled={isLoading || !userInput.trim() || simulationComplete || timeRemaining === 0}
-                    className="bg-[#006a9e] hover:bg-blue-700"
+                    className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
                   >
                     <Send className="w-5 h-5" />
                   </Button>
@@ -824,7 +824,7 @@ const CyberInterviewSimulation: React.FC = () => {
                 <Button
                   onClick={completeSimulation}
                   disabled={isLoading || simulationComplete || messages.length < 3}
-                  className="w-full bg-green-700 hover:bg-green-800"
+                  className="w-full bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900"
                 >
                   <CheckCircle className="w-5 h-5 mr-2" />
                   {isLoading ? "Chargement..." : "Terminer l'entretien"}
@@ -834,28 +834,28 @@ const CyberInterviewSimulation: React.FC = () => {
           </TabsContent>
           
           <TabsContent value="evaluation">
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-blue-900/20 border-blue-800">
               <CardHeader>
                 <div className="flex items-center">
-                  <CheckCircle className="w-6 h-6 mr-2 text-green-500" />
-                  <CardTitle>Évaluation technique</CardTitle>
+                  <CheckCircle className="w-6 h-6 mr-2 text-emerald-500" />
+                  <CardTitle className="font-[Rajdhani]">Évaluation technique</CardTitle>
                 </div>
-                <CardDescription className="text-gray-400">
+                <CardDescription className="text-blue-300">
                   Analyse de vos compétences techniques démontrées pendant l'entretien
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {evaluationResult ? (
                   <div className="space-y-6">
-                    <div className="bg-gray-700 p-4 rounded-md">
-                      <h3 className="text-lg font-semibold mb-2">Résumé de l'évaluation technique</h3>
-                      <p className="text-gray-300">{evaluationResult.summary}</p>
+                    <div className="bg-blue-950/60 border border-blue-800/50 p-4 rounded-md">
+                      <h3 className="text-lg font-semibold mb-2 font-[Rajdhani]">Résumé de l'évaluation technique</h3>
+                      <p className="text-blue-100">{evaluationResult.summary}</p>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="bg-gray-700 p-4 rounded-md">
-                        <h3 className="text-lg font-semibold mb-2">Points forts</h3>
-                        <ul className="list-disc ml-5 space-y-1 text-gray-300">
+                      <div className="bg-blue-950/60 border border-emerald-800/30 p-4 rounded-md">
+                        <h3 className="text-lg font-semibold mb-2 font-[Rajdhani]">Points forts</h3>
+                        <ul className="list-disc ml-5 space-y-1 text-blue-100">
                           {evaluationResult.strengths && evaluationResult.strengths.map((strength: string, index: number) => (
                             <li key={`strength-${index}`}>{strength}</li>
                           ))}
