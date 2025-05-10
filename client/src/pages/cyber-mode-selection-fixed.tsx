@@ -786,7 +786,7 @@ export default function CyberModeSelectionRedesign() {
                                             {module.icon}
                                           </div>
                                           <CardTitle className="text-lg line-clamp-2 text-left">
-                                            {index + 1}. {module.title}
+                                            {module.title}
                                           </CardTitle>
                                         </div>
                                         {renderDifficultyBadge(module.difficulty)}
