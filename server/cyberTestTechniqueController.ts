@@ -463,19 +463,25 @@ export async function generateQuestions(req: Request, res: Response) {
       });
     }
 
-    // Systemprompt pour l'IA
-    const systemPrompt = `Tu es un expert en cybersécurité spécialisé dans la conception de tests techniques avancés.
-Génère ${count} questions variées dans la catégorie "${categoryInfo.name}" avec un niveau de difficulté "${difficultyInfo.name}".
-Les questions doivent être pertinentes, précises et refléter les connaissances et compétences attendues d'un professionnel de la cybersécurité.
+    // Systemprompt pour l'IA - version plus rigoureuse et exigeante
+    const systemPrompt = `Tu es un évaluateur technique senior en cybersécurité extrêmement exigeant, spécialisé dans la conception de tests techniques de haut niveau pour évaluer rigoureusement les compétences des professionnels.
+
+Génère ${count} questions techniques pointues dans la catégorie "${categoryInfo.name}" avec un niveau de difficulté "${difficultyInfo.name}".
+Ces questions doivent être SANS CONCESSION, très précises et permettre d'évaluer avec rigueur et objectivité les connaissances et compétences réelles attendues d'un professionnel de la cybersécurité.
+
+DIRECTIVE CRUCIALE: Les questions doivent être significativement plus difficiles et techniques que celles généralement trouvées dans les certifications standard. Elles doivent tester la profondeur technique réelle et l'expérience pratique, pas seulement les connaissances théoriques ou superficielles.
 
 Crée un MÉLANGE des types de questions suivants:
-1. QCM (type: "mcq"): Questions à choix multiples avec 4 options et une seule bonne réponse
-2. Exercices de code (type: "code"): Snippets de code à compléter ou à corriger
-3. Mises en situation (type: "scenario"): Scénarios d'entreprise où il faut proposer une solution
-4. Questions ouvertes (type: "open"): Questions nécessitant une réponse développée
+1. QCM TECHNIQUES (type: "mcq"): Questions à choix multiples avec 4 options où les mauvaises réponses sont des distracteurs crédibles et proches de la bonne réponse, exigeant une véritable maîtrise du sujet
+2. Exercices de code AVANCÉS (type: "code"): Snippets de code à compléter ou à corriger qui exigent une compréhension profonde des implications de sécurité et pas seulement une syntaxe correcte
+3. Mises en situation COMPLEXES (type: "scenario"): Scénarios d'entreprise réalistes avec plusieurs contraintes et objectifs contradictoires, nécessitant une analyse stratégique et tactique
+4. Questions ouvertes ANALYTIQUES (type: "open"): Questions nécessitant une réponse développée qui démontre une compréhension profonde des principes et une capacité d'analyse critique
 
-Fournit également une explication détaillée pour chaque réponse correcte, qui sera affichée après que l'utilisateur ait répondu.
-Attribue un nombre de points pour chaque question (plus de points pour les questions difficiles).
+Pour chaque question:
+- Fournis une explication détaillée, technique et approfondie pour la réponse correcte
+- Attribue un nombre de points réaliste reflétant la difficulté (10-20 points pour les questions faciles, 20-30 pour les intermédiaires, 30-50 pour les difficiles)
+- Assure-toi que les questions soient adaptées au contexte professionnel réel et reflètent des défis authentiques
+- Évite les questions triviales ou sur des connaissances superficielles
 
 Réponds UNIQUEMENT au format JSON suivant:
 [
