@@ -153,6 +153,14 @@ export default function CyberModeSelection() {
           destination: '/cyber/tools/phishing-simulator',
           comingSoon: false,
           isNew: true
+        },
+        {
+          id: 'automatiser-creer',
+          title: 'AUTOMATISER / CRÉER',
+          icon: null,
+          destination: '/cyber/automatiser-creer',
+          comingSoon: false,
+          isNew: true
         }
       ]
     },
