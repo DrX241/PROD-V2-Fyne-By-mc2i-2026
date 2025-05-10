@@ -47,6 +47,7 @@ import {
   suggestLanguageAndFramework
 } from "./codeGeneratorController";
 import { generateCyberPractices } from "./cyberSnakeController";
+import { chatWithCustomAssistant } from "./customAssistantsController";
 import {
   analyzeUserResponse,
   getLevelInfo,
@@ -60,22 +61,7 @@ import { getInvestigationProgress, saveInvestigationProgress, evaluateUserNotes 
 // importation du controller CyberEscape supprimée
 import { getChallenges, getChallengeById, getUserStats, getUserReports, submitBugReport, getReportById } from "./bugHunterController";
 import { generateCustomTool } from "./toolGeneratorController";
-import { 
-  getAssistantTemplates, 
-  getAssistantTemplate, 
-  getUserAssistants, 
-  createAssistant, 
-  updateAssistant, 
-  deleteAssistant, 
-  initConversation, 
-  sendMessage, 
-  getConversationHistory, 
-  getPopularAssistants,
-  detectDuplicates,
-  mergeTemplates,
-  searchSimilarAssistants,
-  deleteTemplate
-} from "./customAssistantsController";
+import { chatWithCustomAssistant } from "./customAssistantsController";
 import { getOrCreateUser, getUserById } from "./userController";
 
 
@@ -727,7 +713,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/user/get-or-create', getOrCreateUser);
   app.get('/api/user/:userId', getUserById);
   
-  // Routes assistants
+  // Route d'assistant cyber - seule route active pour le moment
+  app.post('/api/custom-assistants/chat', chatWithCustomAssistant);
+  
+  /* 
+  // Routes pour les assistants personnalisés - À IMPLÉMENTER PLUS TARD
   app.get('/api/assistants/templates', getAssistantTemplates);
   app.get('/api/assistants/templates/:templateId', getAssistantTemplate);
   app.get('/api/assistants/popular', getPopularAssistants);
@@ -740,11 +730,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/assistants/conversation/history/:conversationId', getConversationHistory);
   app.get('/api/assistants/conversation/history/session/:sessionId', getConversationHistory);
   
-  // Routes pour la gestion des modèles et la détection des doublons
+  // Routes pour la gestion des modèles et la détection des doublons - À IMPLÉMENTER PLUS TARD
   app.get('/api/assistants/duplicates/detect', detectDuplicates);
   app.post('/api/assistants/duplicates/merge', mergeTemplates);
   app.get('/api/assistants/search', searchSimilarAssistants);
   app.delete('/api/assistants/templates/:templateId', deleteTemplate);
+  */
   
   // Routes pour le chatbot expert en cybersécurité (carte "Apprendre en échangeant")
   app.post('/api/cyber-expert/init', initCyberExpertSession);
