@@ -272,9 +272,9 @@ ${customInstructions}` : ''}
   
   return (
     <HomeLayout>
-      <PageTitle title="CRÉER VOTRE ASSISTANT CYBER" />
-      
       <div className="min-h-screen pb-20 bg-gradient-to-b from-blue-950 to-black text-white">
+        <PageTitle title="CRÉER VOTRE ASSISTANT CYBER" />
+        
         <div className="container mx-auto py-6">
           <Card className="bg-blue-900/20 border-blue-800 text-blue-100">
             <CardHeader>
