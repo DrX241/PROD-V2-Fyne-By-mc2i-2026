@@ -59,6 +59,7 @@ import { analyzeEvidence, getInvestigationHints, evaluateInvestigationResult, ge
 import { getInvestigationProgress, saveInvestigationProgress, evaluateUserNotes } from "./investigationProgressController";
 // importation du controller CyberEscape supprimée
 import { getChallenges, getChallengeById, getUserStats, getUserReports, submitBugReport, getReportById } from "./bugHunterController";
+import { generateCustomTool } from "./toolGeneratorController";
 import { 
   getAssistantTemplates, 
   getAssistantTemplate, 
@@ -446,6 +447,12 @@ function generateSynthesisHtml(
 
 export async function registerRoutes(app: Express): Promise<Server> {
     // Aucune authentification dans cette version
+  
+  // Routes pour le générateur d'outils de cybersécurité
+  app.post("/api/tool-generator/generate", (req: Request, res: Response) => {
+    generateCustomTool(req, res);
+  });
+  
   // Routes pour le générateur de modules
   app.post("/api/module-generator/generate", (req: Request, res: Response) => {
     generateModule(req, res);
