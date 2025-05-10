@@ -200,7 +200,7 @@ const CyberInterviewSimulation: React.FC = () => {
       setTimeRemaining(600); // 10 minutes en secondes
       
       toast({
-        title: "Simulation démarrée",
+        title: "Entretien démarré",
         description: "L'entretien technique a commencé. Vous avez 10 minutes.",
       });
     } catch (error) {
@@ -274,7 +274,7 @@ const CyberInterviewSimulation: React.FC = () => {
       
       toast({
         title: "Simulation démarrée",
-        description: "La simulation d'audition a commencé. Vous avez 10 minutes.",
+        description: "L'entretien technique a commencé. Vous avez 10 minutes.",
       });
     } catch (error) {
       console.error('Erreur:', error);
@@ -396,7 +396,7 @@ const CyberInterviewSimulation: React.FC = () => {
       
       toast({
         title: "Simulation terminée",
-        description: "L'évaluation de l'audition est disponible.",
+        description: "L'évaluation de l'entretien est disponible.",
       });
     } catch (error) {
       console.error('Erreur:', error);
