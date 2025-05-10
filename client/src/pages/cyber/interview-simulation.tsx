@@ -26,7 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import HomeLayout from '@/components/layout/HomeLayout';
 
-// Schéma de formulaire pour la configuration de l'entretien technique
+// Schéma de formulaire pour la configuration de l'entretien technique de cybersécurité
 const formSchema = z.object({
   // Champs optionnels (peuvent être ignorés au début)
   trainerEmail: z.string().email({
@@ -735,7 +735,7 @@ const CyberInterviewSimulation: React.FC = () => {
             <Card className="bg-gray-800 border-gray-700">
               <CardHeader>
                 <div className="flex justify-between items-center">
-                  <CardTitle>Audition en cours</CardTitle>
+                  <CardTitle>Entretien technique en cours</CardTitle>
                   <div className={`flex items-center p-2 rounded-md ${
                     timeRemaining > 60 ? "bg-blue-900" : "bg-red-900"
                   }`}>
@@ -744,7 +744,7 @@ const CyberInterviewSimulation: React.FC = () => {
                   </div>
                 </div>
                 <CardDescription className="text-gray-400">
-                  Vous êtes en conversation avec un client potentiel cherchant des services en cybersécurité
+                  Vous êtes en entretien d'embauche avec un recruteur technique spécialisé en cybersécurité
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -824,7 +824,7 @@ const CyberInterviewSimulation: React.FC = () => {
                   className="w-full bg-green-700 hover:bg-green-800"
                 >
                   <CheckCircle className="w-5 h-5 mr-2" />
-                  {isLoading ? "Chargement..." : "Terminer la simulation"}
+                  {isLoading ? "Chargement..." : "Terminer l'entretien"}
                 </Button>
               </CardFooter>
             </Card>
@@ -835,17 +835,17 @@ const CyberInterviewSimulation: React.FC = () => {
               <CardHeader>
                 <div className="flex items-center">
                   <CheckCircle className="w-6 h-6 mr-2 text-green-500" />
-                  <CardTitle>Évaluation de l'audition</CardTitle>
+                  <CardTitle>Évaluation technique</CardTitle>
                 </div>
                 <CardDescription className="text-gray-400">
-                  Analyse de la performance du consultant pendant l'audition client
+                  Analyse de vos compétences techniques démontrées pendant l'entretien
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {evaluationResult ? (
                   <div className="space-y-6">
                     <div className="bg-gray-700 p-4 rounded-md">
-                      <h3 className="text-lg font-semibold mb-2">Résumé de l'audition</h3>
+                      <h3 className="text-lg font-semibold mb-2">Résumé de l'évaluation technique</h3>
                       <p className="text-gray-300">{evaluationResult.summary}</p>
                     </div>
                     
