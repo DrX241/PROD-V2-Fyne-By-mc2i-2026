@@ -16,14 +16,27 @@
   left: 0 !important;
 }
 
-/* Style global pour forcer le texte blanc en mode sombre pour le module "cyber/interview-test" */
-.dark .cyber-interview-test * {
+/* Style global pour les modules d'entretien technique */
+.cyber-interview-test {
+  background: linear-gradient(to bottom, #172554, #000000) !important;
+  min-height: 100vh;
   color: white !important;
 }
 
+.cyber-interview-test * {
+  color: white !important;
+}
+
+/* Fond personnalisé pour les cartes dans l'entretien technique */
+.cyber-interview-test .card {
+  background: rgba(30, 58, 138, 0.2) !important;
+  backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+
 /* Exceptions pour les éléments qui doivent conserver leur couleur */
-.dark .cyber-interview-test svg,
-.dark .cyber-interview-test .preserve-color {
+.cyber-interview-test svg,
+.cyber-interview-test .preserve-color {
   color: initial !important;
 }
 

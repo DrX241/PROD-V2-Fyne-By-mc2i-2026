@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect, Suspense } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { UserCircle, Send, Clock, CheckCircle, AlertCircle, FileCheck, ArrowLeft, Mail, User } from 'lucide-react';
+import { UserCircle, Send, Clock, CheckCircle, AlertCircle, FileCheck, ArrowLeft, ArrowRight, Mail, User } from 'lucide-react';
 import OpenAIStatusIndicator from '@/components/OpenAIStatusIndicator';
 import { 
   Form, 
@@ -20,54 +20,30 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import HomeLayout from '@/components/layout/HomeLayout';
 
-// Schéma de formulaire pour la configuration de l'entretien technique de cybersécurité
+// Formulaire de configuration
 const formSchema = z.object({
-  // Champs optionnels (peuvent être ignorés au début)
-  trainerEmail: z.string().email({
-    message: "Veuillez entrer une adresse email valide.",
-  }).optional().or(z.literal('')),
-  candidateName: z.string().min(2, {
-    message: "Le nom du candidat doit contenir au moins 2 caractères.",
-  }).optional().or(z.literal('')),
-  
-  // Champs obligatoires pour la simulation
-  profileType: z.string().min(1, {
-    message: "Veuillez sélectionner un poste cible.",
-  }),
-  experienceLevel: z.string().min(1, {
-    message: "Veuillez sélectionner un niveau d'expérience.",
-  }),
+  experience: z.string().min(1, { message: "Veuillez sélectionner votre niveau d'expérience" }),
+  techDomain: z.string().min(1, { message: "Veuillez sélectionner un domaine technique" }),
+  softDomain: z.string().min(1, { message: "Veuillez sélectionner un domaine fonctionnel" }),
+  trainerEmail: z.string().email({ message: "Veuillez saisir une adresse email valide" }).optional().or(z.literal('')),
+  candidateName: z.string().min(2, { message: "Veuillez saisir votre nom" }).optional().or(z.literal('')),
+  candidateEmail: z.string().email({ message: "Veuillez saisir une adresse email valide" }).optional().or(z.literal('')),
 });
 
-// Schéma pour le formulaire de contact à la fin de la simulation (tous les champs sont obligatoires)
+// Formulaire de contact
 const contactFormSchema = z.object({
-  // Champs de contact qui étaient optionnels au début, maintenant obligatoires
-  trainerEmail: z.string().email({
-    message: "Veuillez entrer une adresse email valide.",
-  }),
-  candidateName: z.string().min(2, {
-    message: "Le nom du candidat doit contenir au moins 2 caractères.",
-  }),
-  
-  // On inclut également les champs importants pour l'évaluation
-  profileType: z.string().min(1, {
-    message: "Veuillez sélectionner un poste cible.",
-  }),
-  experienceLevel: z.string().min(1, {
-    message: "Veuillez sélectionner un niveau d'expérience.",
-  }),
+  trainerEmail: z.string().email({ message: "Veuillez saisir une adresse email valide" }),
+  candidateName: z.string().min(2, { message: "Veuillez saisir votre nom" }),
+  candidateEmail: z.string().email({ message: "Veuillez saisir une adresse email valide" }),
 });
 
-// Types d'inférence pour les schémas de formulaire
-type FormValues = z.infer<typeof formSchema>;
-type ContactFormValues = z.infer<typeof contactFormSchema>;
-
+// Type pour le message
 interface Message {
   id: string;
   role: 'user' | 'assistant';
@@ -83,15 +59,6 @@ const CyberInterviewSimulation: React.FC = () => {
   // États pour la simulation
   const [isSimulationActive, setIsSimulationActive] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutes en secondes
-  
-  // Ajout d'une classe CSS pour le style global
-  useEffect(() => {
-    document.body.classList.add('cyber-interview-test');
-    
-    return () => {
-      document.body.classList.remove('cyber-interview-test');
-    };
-  }, []);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [userInput, setUserInput] = useState('');
@@ -110,21 +77,19 @@ const CyberInterviewSimulation: React.FC = () => {
     }
   }, [messages]);
   
-  // Effet pour le compte à rebours
+  // Effet pour le décompte du temps
   useEffect(() => {
     let timer: NodeJS.Timeout;
     
-    if (isSimulationActive && timeRemaining > 0) {
+    if (isSimulationActive && !simulationComplete && timeRemaining > 0) {
       timer = setInterval(() => {
-        setTimeRemaining(prev => {
-          if (prev <= 1) {
+        setTimeRemaining(prevTime => {
+          if (prevTime <= 1) {
             clearInterval(timer);
-            if (!simulationComplete) {
-              completeSimulation();
-            }
+            handleSimulationComplete();
             return 0;
           }
-          return prev - 1;
+          return prevTime - 1;
         });
       }, 1000);
     }
@@ -132,58 +97,53 @@ const CyberInterviewSimulation: React.FC = () => {
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [isSimulationActive, timeRemaining, simulationComplete]);
+  }, [isSimulationActive, simulationComplete, timeRemaining]);
   
-  // Formatage du temps restant
+  // Formatage du temps pour l'affichage
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
   
-  // Configuration du formulaire
-  const form = useForm<FormValues>({
+  // Configuration du formulaire principal
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      trainerEmail: '',
-      candidateName: '',
-      profileType: '',
-      experienceLevel: '',
-    },
+      experience: "",
+      techDomain: "",
+      softDomain: "",
+      trainerEmail: "",
+      candidateName: "",
+      candidateEmail: ""
+    }
   });
   
   // Configuration du formulaire de contact
-  const contactForm = useForm<ContactFormValues>({
+  const contactForm = useForm<z.infer<typeof contactFormSchema>>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: {
-      trainerEmail: '',
-      candidateName: '',
-      profileType: form.getValues('profileType') || '',
-      experienceLevel: form.getValues('experienceLevel') || '',
-    },
+      trainerEmail: "",
+      candidateName: "",
+      candidateEmail: ""
+    }
   });
   
-  // Démarrage de la simulation
-  const startSimulation = async (values: FormValues) => {
+  // Gestion du démarrage de la simulation
+  const handleStartSimulation = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     
-    // Vérifier si les informations ont été ignorées
-    if (!values.trainerEmail || !values.candidateName) {
-      setIsSkippedInfo(true);
-    } else {
-      setIsSkippedInfo(false);
-    }
-    
     try {
-      const response = await fetch('/api/cyber/interview-simulation/start', {
+      const response = await fetch('/api/cyber-interview-test/start', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          domain: 'cyber',
-          ...values,
-        })
+          experience: values.experience,
+          techDomain: values.techDomain,
+          softDomain: values.softDomain,
+        }),
       });
       
       if (!response.ok) {
@@ -192,94 +152,18 @@ const CyberInterviewSimulation: React.FC = () => {
       
       const data = await response.json();
       
-      // Ajouter le message initial de l'assistant
       setMessages([
         {
-          id: '1',
+          id: Date.now().toString(),
           role: 'assistant',
-          content: data.initialMessage || "Bonjour, je suis le recruteur technique pour le poste que vous visez. Pour commencer cet entretien, pourriez-vous me présenter votre parcours et vos compétences en cybersécurité?",
+          content: data.initialMessage,
           timestamp: new Date(),
         },
       ]);
       
       setIsSimulationActive(true);
+      setTimeRemaining(600); // Réinitialisation à 10 minutes
       setActiveTab('simulation');
-      
-      // Démarrer le timer
-      setTimeRemaining(600); // 10 minutes en secondes
-      
-      toast({
-        title: "Entretien démarré",
-        description: "L'entretien technique a commencé. Vous avez 10 minutes.",
-      });
-    } catch (error) {
-      console.error('Erreur:', error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Impossible de démarrer la simulation. Veuillez réessayer.",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  // Fonction pour ignorer la saisie des informations de contact (uniquement email et nom)
-  const skipInfoAndStart = async () => {
-    console.log("Bouton Ignorer cliqué");
-    setIsSkippedInfo(true);
-    
-    // Récupérer les valeurs obligatoires
-    const profileType = form.getValues('profileType');
-    const experienceLevel = form.getValues('experienceLevel');
-    
-    // Vérifier que tous les champs obligatoires sont remplis
-    if (!profileType || !experienceLevel) {
-      toast({
-        variant: "destructive",
-        title: "Champs obligatoires manquants",
-        description: "Les champs Type de profil et Niveau d'expérience sont obligatoires."
-      });
-      return;
-    }
-    
-    // Appel direct à l'API sans passer par la validation complète du formulaire
-    setIsLoading(true);
-    
-    try {
-      const response = await fetch('/api/cyber/interview-simulation/start', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          domain: 'cyber',
-          profileType,
-          experienceLevel
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error('Erreur lors du démarrage de la simulation');
-      }
-      
-      const data = await response.json();
-      
-      // Ajouter le message initial de l'assistant
-      setMessages([
-        {
-          id: '1',
-          role: 'assistant',
-          content: data.initialMessage || "Bonjour, je suis le recruteur technique pour le poste que vous visez. Pour commencer cet entretien, pourriez-vous me présenter votre parcours et vos compétences en cybersécurité?",
-          timestamp: new Date(),
-        },
-      ]);
-      
-      setIsSimulationActive(true);
-      setActiveTab('simulation');
-      
-      // Démarrer le timer
-      setTimeRemaining(600); // 10 minutes en secondes
       
       toast({
         title: "Simulation démarrée",
@@ -297,35 +181,35 @@ const CyberInterviewSimulation: React.FC = () => {
     }
   };
   
-  // Envoi d'un message
-  const sendMessage = async () => {
-    if (!userInput.trim()) return;
+  // Envoi d'un message utilisateur
+  const handleSendMessage = async () => {
+    if (!userInput.trim() || isLoading) return;
     
-    const userMessage = {
+    const newUserMessage = {
       id: Date.now().toString(),
       role: 'user' as const,
       content: userInput,
       timestamp: new Date(),
     };
     
-    // Ajouter immédiatement le message de l'utilisateur
-    setMessages(prev => [...prev, userMessage]);
+    setMessages(prev => [...prev, newUserMessage]);
     setUserInput('');
     setIsLoading(true);
     
     try {
-      const response = await fetch('/api/cyber/interview-simulation/message', {
+      const response = await fetch('/api/cyber-interview-test/message', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          domain: 'cyber',
-          message: userMessage.content,
-          profileType: form.getValues('profileType'),
-          experienceLevel: form.getValues('experienceLevel'),
-          messages: messages.map(m => ({ role: m.role, content: m.content })),
-        })
+          message: userInput,
+          history: messages.map(msg => ({
+            role: msg.role,
+            content: msg.content,
+          })),
+          timeRemaining,
+        }),
       });
       
       if (!response.ok) {
@@ -334,85 +218,115 @@ const CyberInterviewSimulation: React.FC = () => {
       
       const data = await response.json();
       
-      const assistantMessage = {
-        id: Date.now().toString(),
-        role: 'assistant' as const,
-        content: data.response,
-        timestamp: new Date(),
-      };
+      setMessages(prev => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: data.message,
+          timestamp: new Date(),
+        },
+      ]);
       
-      setMessages(prev => [...prev, assistantMessage]);
+      // Vérifier si l'entretien est terminé
+      if (data.shouldEndInterview) {
+        handleSimulationComplete();
+      }
     } catch (error) {
       console.error('Erreur:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Impossible d'envoyer le message. Veuillez réessayer.",
+        description: "Erreur lors de l'envoi du message. Veuillez réessayer.",
       });
     } finally {
       setIsLoading(false);
     }
   };
   
-  // Finalisation de la simulation
-  const completeSimulation = async () => {
+  // Gestion du temps écoulé ou de la fin de simulation
+  const handleSimulationComplete = async () => {
     if (simulationComplete) return;
     
-    // Vérifier si toutes les informations nécessaires sont disponibles
-    if (isSkippedInfo) {
-      setShowContactForm(true);
-      return;
-    }
-    
-    await finalizeSimulation();
-  };
-  
-  // Finalisation effective de la simulation
-  const finalizeSimulation = async () => {
     setIsLoading(true);
-    
-    const trainerEmail = form.getValues('trainerEmail');
-    const candidateName = form.getValues('candidateName');
-    const profileType = form.getValues('profileType');
-    const experienceLevel = form.getValues('experienceLevel');
+    setSimulationComplete(true);
     
     try {
-      const response = await fetch('/api/cyber/interview-simulation/complete', {
+      const response = await fetch('/api/cyber-interview-test/evaluate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          domain: 'cyber',
-          trainerEmail,
-          candidateName,
-          profileType,
-          experienceLevel,
-          messages: messages.map(m => ({ role: m.role, content: m.content })),
-          duration: 600 - timeRemaining,
-        })
+          conversation: messages.map(msg => ({
+            role: msg.role,
+            content: msg.content,
+          })),
+          experience: form.getValues('experience'),
+          techDomain: form.getValues('techDomain'),
+          softDomain: form.getValues('softDomain'),
+        }),
       });
       
       if (!response.ok) {
-        throw new Error('Erreur lors de la finalisation de la simulation');
+        throw new Error('Erreur lors de l\'évaluation');
       }
       
       const data = await response.json();
-      
       setEvaluationResult(data.evaluation);
-      setSimulationComplete(true);
       setActiveTab('evaluation');
       
       toast({
         title: "Simulation terminée",
-        description: "L'évaluation de l'entretien est disponible.",
+        description: "Votre évaluation a été générée avec succès.",
       });
     } catch (error) {
       console.error('Erreur:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Impossible de finaliser la simulation. Veuillez réessayer.",
+        description: "Erreur lors de l'évaluation. Veuillez réessayer.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Gestion du formulaire d'évaluation
+  const handleSubmitEvaluation = async (values: z.infer<typeof formSchema>) => {
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch('/api/cyber-interview-test/send-report', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          trainerEmail: values.trainerEmail,
+          candidateName: values.candidateName,
+          candidateEmail: values.candidateEmail,
+          evaluation: evaluationResult,
+          conversation: messages,
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de l\'envoi du rapport');
+      }
+      
+      toast({
+        title: "Rapport envoyé",
+        description: "Le rapport d'évaluation a été envoyé par email.",
+      });
+      
+      setIsSkippedInfo(false);
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Erreur lors de l'envoi du rapport. Veuillez réessayer.",
       });
     } finally {
       setIsLoading(false);
@@ -421,52 +335,48 @@ const CyberInterviewSimulation: React.FC = () => {
   
   // Réinitialisation de la simulation
   const resetSimulation = () => {
+    setMessages([]);
     setIsSimulationActive(false);
     setSimulationComplete(false);
-    setMessages([]);
     setTimeRemaining(600);
-    setActiveTab('configuration');
     setEvaluationResult(null);
+    setActiveTab('configuration');
     setIsSkippedInfo(false);
     form.reset();
   };
   
   return (
     <HomeLayout>
-      {/* Dialogue pour saisir les informations de contact à la fin de la simulation */}
-      <AlertDialog open={showContactForm} onOpenChange={setShowContactForm}>
-        <AlertDialogContent className="bg-gray-800 text-white border-gray-700">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl">Informations pour finaliser la simulation</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-400">
-              Veuillez remplir tous les champs ci-dessous pour finaliser la simulation et recevoir l'évaluation par email.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          
-          <Form {...contactForm}>
-            <form onSubmit={contactForm.handleSubmit((data) => {
-              // Transférer toutes les données du contactForm vers le form principal
-              form.setValue('trainerEmail', data.trainerEmail);
-              form.setValue('candidateName', data.candidateName);
-              form.setValue('profileType', data.profileType);
-              form.setValue('experienceLevel', data.experienceLevel);
-              
-              // Fermer et finaliser
-              setShowContactForm(false);
-              finalizeSimulation();
-            })} className="space-y-4 my-4">
-              {/* Informations de contact */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-300">Informations de contact</h3>
+      <div className="cyber-interview-test">
+        {/* Dialogue pour saisir les informations de contact à la fin de la simulation */}
+        <AlertDialog open={showContactForm} onOpenChange={setShowContactForm}>
+          <AlertDialogContent className="bg-gray-800 text-white border-gray-700">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-xl">Informations pour finaliser la simulation</AlertDialogTitle>
+              <AlertDialogDescription className="text-gray-400">
+                Veuillez remplir tous les champs ci-dessous pour finaliser la simulation et recevoir l'évaluation par email.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            
+            <Form {...contactForm}>
+              <form onSubmit={contactForm.handleSubmit((data) => {
+                // Transférer toutes les données du contactForm vers le form principal
+                form.setValue('trainerEmail', data.trainerEmail);
+                form.setValue('candidateName', data.candidateName);
+                form.setValue('candidateEmail', data.candidateEmail);
                 
+                // Soumettre le formulaire principal
+                handleSubmitEvaluation(form.getValues());
+                setShowContactForm(false);
+              })}>
                 <FormField
                   control={contactForm.control}
                   name="trainerEmail"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Email du formateur</FormLabel>
+                    <FormItem className="mb-4">
+                      <FormLabel className="text-white">Email du recruteur</FormLabel>
                       <FormControl>
-                        <Input placeholder="email@exemple.com" {...field} className="bg-gray-700 border-gray-600 text-white" />
+                        <Input {...field} className="bg-gray-700 border-gray-600 text-white" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -477,118 +387,45 @@ const CyberInterviewSimulation: React.FC = () => {
                   control={contactForm.control}
                   name="candidateName"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Nom du consultant</FormLabel>
+                    <FormItem className="mb-4">
+                      <FormLabel className="text-white">Nom du candidat</FormLabel>
                       <FormControl>
-                        <Input placeholder="Prénom Nom" {...field} className="bg-gray-700 border-gray-600 text-white" />
+                        <Input {...field} className="bg-gray-700 border-gray-600 text-white" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </div>
-              
-              {/* Paramètres de profil */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-300">Paramètres de profil</h3>
                 
                 <FormField
                   control={contactForm.control}
-                  name="profileType"
+                  name="candidateEmail"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Type de profil</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
-                            <SelectValue placeholder="Sélectionnez un profil" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="bg-gray-700 border-gray-600 text-white">
-                          <SelectItem value="analyste_soc">Analyste SOC</SelectItem>
-                          <SelectItem value="pentester">Pentester</SelectItem>
-                          <SelectItem value="responsable_securite">Responsable Sécurité</SelectItem>
-                          <SelectItem value="consultant_cybersecurite">Consultant Cybersécurité</SelectItem>
-                          <SelectItem value="ingenieur_securite">Ingénieur Sécurité</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <FormItem className="mb-4">
+                      <FormLabel className="text-white">Email du candidat</FormLabel>
+                      <FormControl>
+                        <Input {...field} className="bg-gray-700 border-gray-600 text-white" />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 
-                <FormField
-                  control={contactForm.control}
-                  name="experienceLevel"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Niveau d'expérience</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
-                            <SelectValue placeholder="Sélectionnez un niveau" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="bg-gray-700 border-gray-600 text-white">
-                          <SelectItem value="junior">Junior (0-2 ans)</SelectItem>
-                          <SelectItem value="intermediaire">Intermédiaire (3-5 ans)</SelectItem>
-                          <SelectItem value="senior">Senior (6-9 ans)</SelectItem>
-                          <SelectItem value="expert">Expert (10+ ans)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <AlertDialogFooter className="gap-2 mt-6">
-                <Button
-                  type="submit" 
-                  className="bg-[#006a9e] hover:bg-blue-700"
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Chargement..." : "Soumettre et finaliser"}
-                </Button>
-              </AlertDialogFooter>
-            </form>
-          </Form>
-        </AlertDialogContent>
-      </AlertDialog>
-      
-      <div className="min-h-screen bg-gradient-to-b from-blue-950 to-black text-white p-4">
-        {/* En-tête style CYBER ACADÉMIE */}
-        <div className="container mx-auto">
-          <div className="flex items-center mb-2">
-            <Button 
-              variant="ghost" 
-              className="text-white hover:text-white hover:bg-blue-900/30 mr-4"
-              onClick={() => navigate('/cyber')}
-            >
-              <ArrowLeft className="mr-2 h-5 w-5" />
-              Retour
-            </Button>
-            <h1 className="text-xl md:text-2xl font-bold font-[Exo_2]">CYBER ENTRETIEN</h1>
-          </div>
-          
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-            <div>
-              <h1 className="text-3xl font-bold font-[Rajdhani]">Simulation d'entretien technique</h1>
-              <p className="text-blue-200 mt-1">Entraînez-vous à un entretien d'embauche réaliste en cybersécurité</p>
-            </div>
-          </div>
-        </div>
+                <AlertDialogFooter className="gap-2 mt-6">
+                  <Button
+                    type="submit" 
+                    className="bg-[#006a9e] hover:bg-blue-700"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Chargement..." : "Soumettre et finaliser"}
+                  </Button>
+                </AlertDialogFooter>
+              </form>
+            </Form>
+          </AlertDialogContent>
+        </AlertDialog>
         
-        {/* Description du module */}
-        <div className="container mx-auto max-w-6xl bg-blue-900/20 backdrop-blur-sm rounded-lg p-6 mb-8 border border-blue-800/40">
-          <h2 className="text-2xl font-bold mb-4 font-[Rajdhani]">Préparation d'entretien technique</h2>
-          <p className="text-blue-100 max-w-4xl">
-            Cette simulation vous permet de vous entraîner à un entretien d'embauche technique en cybersécurité avec un recruteur spécialisé, simulé par une IA rigoureuse qui évaluera vos compétences techniques et votre cohérence. L'entretien dure 10 minutes et est suivi d'une évaluation détaillée.
-          </p>
-        </div>
-          
-        {/* L'indicateur de statut OpenAI est maintenant affiché dans le Header */}
-        
+        {/* Chronomètre flottant */}
         {isSimulationActive && !simulationComplete && (
           <div className="fixed top-4 right-4 z-50 flex items-center p-2 rounded-md shadow-lg bg-blue-900/80 border border-blue-700">
             <Clock className="w-5 h-5 mr-2 text-white" />
@@ -596,332 +433,499 @@ const CyberInterviewSimulation: React.FC = () => {
           </div>
         )}
         
-        <Tabs 
-          defaultValue="configuration" 
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="w-full max-w-4xl mx-auto"
-        >
-          <TabsList className="grid grid-cols-3 mb-8 bg-blue-950/60">
-            <TabsTrigger 
-              value="configuration"
-              disabled={isSimulationActive && !simulationComplete}
-              className="text-white data-[state=active]:bg-blue-700"
-            >
-              Configuration
-            </TabsTrigger>
-            <TabsTrigger 
-              value="simulation"
-              disabled={!isSimulationActive}
-              className="text-white data-[state=active]:bg-blue-700"
-            >
-              Simulation
-            </TabsTrigger>
-            <TabsTrigger 
-              value="evaluation"
-              disabled={!simulationComplete}
-              className="text-white data-[state=active]:bg-blue-700"
-            >
-              Évaluation
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="configuration">
-            <Card className="bg-blue-900/20 border-blue-800">
+        {/* Écran d'introduction */}
+        {!isSimulationActive && !simulationComplete && activeTab === 'configuration' && (
+          <div className="container mx-auto py-8 px-4">
+            <Card className="max-w-3xl mx-auto">
               <CardHeader>
-                <CardTitle className="font-[Rajdhani]">Configuration de l'entretien technique</CardTitle>
-                <CardDescription className="text-blue-300">
-                  Configurez les paramètres de la simulation d'entretien d'embauche
+                <CardTitle className="text-2xl font-bold text-center font-[Rajdhani]">Simulation d'entretien technique</CardTitle>
+                <CardDescription className="text-center">
+                  Préparez-vous aux entretiens d'embauche en cybersécurité avec une IA
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(startSimulation)} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CardContent className="space-y-4">
+                <div className="bg-blue-950/30 p-4 rounded-md">
+                  <h3 className="font-semibold mb-2 flex items-center">
+                    <Clock className="h-5 w-5 mr-2 text-blue-300" />
+                    Comment ça fonctionne
+                  </h3>
+                  <ul className="list-disc list-inside space-y-2 text-sm text-blue-100">
+                    <li>Simulation chronométrée de 10 minutes</li>
+                    <li>Conversation réaliste avec un recruteur spécialisé en cybersécurité</li>
+                    <li>Questions techniques adaptées au profil spécifié</li>
+                    <li>À la fin, une IA analysera vos réponses et générera un profil d'évaluation</li>
+                    <li>Vous recevrez une analyse de vos forces et axes d'amélioration</li>
+                  </ul>
+                </div>
+
+                <div className="bg-amber-950/30 p-4 rounded-md">
+                  <h3 className="font-semibold mb-2 flex items-center">
+                    <AlertCircle className="h-5 w-5 mr-2 text-amber-300" />
+                    À savoir avant de commencer
+                  </h3>
+                  <ul className="list-disc list-inside space-y-2 text-sm text-blue-100">
+                    <li>L'entretien sera chronométré dès que vous cliquerez sur "Commencer"</li>
+                    <li>Répondez comme vous le feriez dans un véritable entretien</li>
+                    <li>Soyez précis et concis dans vos réponses</li>
+                    <li>Assurez-vous d'être dans un environnement calme et sans distractions</li>
+                  </ul>
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-between">
+                <Button 
+                  onClick={() => navigate('/cyber')} 
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Retour à I AM CYBER
+                </Button>
+                <Button 
+                  onClick={() => setActiveTab('configuration')}
+                  className="md:w-auto"
+                >
+                  Configurer l'entretien
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
+        )}
+        
+        {/* Interface principale avec onglets */}
+        <div className="container mx-auto py-4 px-4">
+          <Tabs 
+            defaultValue="configuration" 
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full max-w-4xl mx-auto"
+          >
+            <TabsList className="grid grid-cols-3 mb-8 bg-blue-950/60">
+              <TabsTrigger 
+                value="configuration"
+                disabled={isSimulationActive && !simulationComplete}
+                className="text-white data-[state=active]:bg-blue-700"
+              >
+                Configuration
+              </TabsTrigger>
+              <TabsTrigger 
+                value="simulation" 
+                disabled={!isSimulationActive || simulationComplete}
+                className="text-white data-[state=active]:bg-blue-700"
+              >
+                Simulation
+              </TabsTrigger>
+              <TabsTrigger 
+                value="evaluation" 
+                disabled={!simulationComplete}
+                className="text-white data-[state=active]:bg-blue-700"
+              >
+                Évaluation
+              </TabsTrigger>
+            </TabsList>
+            
+            {/* Onglet Configuration */}
+            <TabsContent value="configuration">
+              <Card className="bg-blue-900/20 border-blue-800">
+                <CardHeader>
+                  <CardTitle className="font-[Rajdhani]">Configuration de l'entretien technique</CardTitle>
+                  <CardDescription className="text-blue-300">
+                    Personnalisez votre entretien en fonction de votre profil et de vos intérêts
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(handleStartSimulation)} className="space-y-6">
                       <FormField
                         control={form.control}
-                        name="trainerEmail"
+                        name="experience"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-blue-100">Votre email (pour recevoir l'évaluation)</FormLabel>
-                            <FormControl>
-                              <Input placeholder="email@exemple.com" {...field} className="bg-blue-950/40 border-blue-800 text-white placeholder:text-blue-400" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="candidateName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-blue-100">Votre nom</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Nom complet" {...field} className="bg-blue-950/40 border-blue-800 text-white placeholder:text-blue-400" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="profileType"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-blue-100">Poste visé *</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormLabel className="text-white">Niveau d'expérience</FormLabel>
+                            <Select 
+                              onValueChange={field.onChange} 
+                              defaultValue={field.value}
+                            >
                               <FormControl>
-                                <SelectTrigger className="bg-blue-950/40 border-blue-800 text-white">
-                                  <SelectValue placeholder="Sélectionnez un poste" />
+                                <SelectTrigger className="bg-blue-950/60 border-blue-700 text-white">
+                                  <SelectValue placeholder="Sélectionnez votre niveau" />
                                 </SelectTrigger>
                               </FormControl>
-                              <SelectContent className="bg-blue-950 border-blue-800 text-white">
-                                <SelectItem value="analyste_soc">Analyste SOC</SelectItem>
-                                <SelectItem value="pentester">Pentester</SelectItem>
-                                <SelectItem value="responsable_securite">Responsable Sécurité</SelectItem>
-                                <SelectItem value="consultant_cybersecurite">Consultant Cybersécurité</SelectItem>
-                                <SelectItem value="ingenieur_securite">Ingénieur Sécurité</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="experienceLevel"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-blue-100">Niveau d'expérience *</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger className="bg-blue-950/40 border-blue-800 text-white">
-                                  <SelectValue placeholder="Sélectionnez un niveau" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent className="bg-blue-950 border-blue-800 text-white">
+                              <SelectContent className="bg-blue-950 border-blue-700 text-white">
                                 <SelectItem value="junior">Junior (0-2 ans)</SelectItem>
                                 <SelectItem value="intermediaire">Intermédiaire (3-5 ans)</SelectItem>
-                                <SelectItem value="senior">Senior (6-9 ans)</SelectItem>
-                                <SelectItem value="expert">Expert (10+ ans)</SelectItem>
+                                <SelectItem value="senior">Senior (6+ ans)</SelectItem>
+                                <SelectItem value="expert">Expert / Lead (10+ ans)</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-                    </div>
-                    
-                    <div className="flex gap-4">
-                      <Button 
-                        type="submit" 
-                        className="flex-1 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
-                        disabled={isLoading}
-                      >
-                        {isLoading ? "Chargement..." : "Démarrer la simulation"}
-                      </Button>
                       
-                      <Button 
-                        type="button" 
-                        variant="outline"
-                        className="flex-1 border-blue-800 bg-blue-950/40 hover:bg-blue-900/50 text-blue-200"
-                        disabled={isLoading}
-                        onClick={skipInfoAndStart}
-                      >
-                        Ignorer les informations de contact
-                      </Button>
-                    </div>
-                  </form>
-                </Form>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="simulation">
-            <Card className="bg-blue-900/20 border-blue-800">
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle className="font-[Rajdhani]">Entretien technique en cours</CardTitle>
-                  <div className={`flex items-center p-2 rounded-md ${
-                    timeRemaining > 60 ? "bg-blue-800/60" : "bg-red-800/60"
-                  } border border-blue-700`}>
-                    <Clock className="w-5 h-5 mr-2" />
-                    <span className="font-mono">{formatTime(timeRemaining)}</span>
-                  </div>
-                </div>
-                <CardDescription className="text-blue-300">
-                  Vous êtes en entretien d'embauche avec un recruteur technique spécialisé en cybersécurité
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-96 overflow-y-auto mb-4 bg-blue-950/60 backdrop-blur-sm rounded-md p-4 border border-blue-800/50">
-                  {messages.length === 0 ? (
-                    <div className="flex items-center justify-center h-full text-blue-400">
-                      <p>La conversation va commencer...</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {messages.map((message) => (
-                        <div 
-                          key={message.id}
-                          className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                      <FormField
+                        control={form.control}
+                        name="techDomain"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-white">Domaine technique principal</FormLabel>
+                            <Select 
+                              onValueChange={field.onChange} 
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="bg-blue-950/60 border-blue-700 text-white">
+                                  <SelectValue placeholder="Sélectionnez un domaine technique" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent className="bg-blue-950 border-blue-700 text-white">
+                                <SelectItem value="securityArchitecture">Architecture de sécurité</SelectItem>
+                                <SelectItem value="penetrationTesting">Tests d'intrusion</SelectItem>
+                                <SelectItem value="securityOperations">Opérations de sécurité (SOC)</SelectItem>
+                                <SelectItem value="cloudSecurity">Sécurité Cloud</SelectItem>
+                                <SelectItem value="networkSecurity">Sécurité réseau</SelectItem>
+                                <SelectItem value="applicationSecurity">Sécurité applicative</SelectItem>
+                                <SelectItem value="identityAccess">Gestion des identités et des accès</SelectItem>
+                                <SelectItem value="securityAudit">Audit de sécurité / Conformité</SelectItem>
+                                <SelectItem value="incidentResponse">Réponse aux incidents</SelectItem>
+                                <SelectItem value="threatIntelligence">Renseignement sur les menaces</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="softDomain"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-white">Domaine fonctionnel</FormLabel>
+                            <Select 
+                              onValueChange={field.onChange} 
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="bg-blue-950/60 border-blue-700 text-white">
+                                  <SelectValue placeholder="Sélectionnez un domaine fonctionnel" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent className="bg-blue-950 border-blue-700 text-white">
+                                <SelectItem value="finance">Finance / Banque</SelectItem>
+                                <SelectItem value="healthcare">Santé / Pharmaceutique</SelectItem>
+                                <SelectItem value="retail">Commerce / Distribution</SelectItem>
+                                <SelectItem value="manufacturing">Industrie / Production</SelectItem>
+                                <SelectItem value="government">Gouvernement / Secteur public</SelectItem>
+                                <SelectItem value="telecom">Télécommunications</SelectItem>
+                                <SelectItem value="energy">Énergie / Utilities</SelectItem>
+                                <SelectItem value="defense">Défense / Sécurité nationale</SelectItem>
+                                <SelectItem value="tech">Technologie / Software</SelectItem>
+                                <SelectItem value="consulting">Conseil / Services</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <div className="pt-4 flex justify-end">
+                        <Button 
+                          type="submit" 
+                          className="bg-[#006a9e] hover:bg-blue-700"
+                          disabled={isLoading}
                         >
-                          <div 
-                            className={`max-w-[80%] p-3 rounded-lg ${
-                              message.role === 'user'
-                                ? 'bg-gradient-to-r from-blue-600 to-blue-800 text-white'
-                                : 'bg-blue-900/50 border border-blue-800/50 text-white'
-                            }`}
-                          >
-                            <div className="flex items-center mb-1">
-                              {message.role === 'user' ? (
-                                <>
-                                  <span className="font-semibold">{form.getValues('candidateName') || 'Candidat'}</span>
-                                  <span className="text-xs ml-2 text-blue-200">
-                                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                  </span>
-                                </>
-                              ) : (
-                                <>
-                                  <UserCircle className="w-5 h-5 mr-1" />
-                                  <span className="font-semibold">Recruteur</span>
-                                  <span className="text-xs ml-2 text-blue-200">
-                                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                  </span>
-                                </>
-                              )}
-                            </div>
-                            <p className="whitespace-pre-wrap">{message.content}</p>
+                          {isLoading ? "Chargement..." : "Démarrer la simulation"}
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </div>
+                    </form>
+                  </Form>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            {/* Onglet Simulation */}
+            <TabsContent value="simulation">
+              <Card className="bg-blue-900/20 border-blue-800">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="font-[Rajdhani]">Entretien technique en cours</CardTitle>
+                      <div className="flex items-center mt-1">
+                        <Badge className="bg-blue-600">
+                          {form.getValues('experience') === 'junior' && 'Junior'}
+                          {form.getValues('experience') === 'intermediaire' && 'Intermédiaire'}
+                          {form.getValues('experience') === 'senior' && 'Senior'}
+                          {form.getValues('experience') === 'expert' && 'Expert'}
+                        </Badge>
+                        <Badge className="ml-2 bg-indigo-600">
+                          {form.getValues('techDomain') === 'securityArchitecture' && 'Architecture de sécurité'}
+                          {form.getValues('techDomain') === 'penetrationTesting' && 'Tests d\'intrusion'}
+                          {form.getValues('techDomain') === 'securityOperations' && 'SOC'}
+                          {form.getValues('techDomain') === 'cloudSecurity' && 'Sécurité Cloud'}
+                          {form.getValues('techDomain') === 'networkSecurity' && 'Sécurité réseau'}
+                          {form.getValues('techDomain') === 'applicationSecurity' && 'Sécurité applicative'}
+                          {form.getValues('techDomain') === 'identityAccess' && 'IAM'}
+                          {form.getValues('techDomain') === 'securityAudit' && 'Audit / Conformité'}
+                          {form.getValues('techDomain') === 'incidentResponse' && 'Réponse aux incidents'}
+                          {form.getValues('techDomain') === 'threatIntelligence' && 'Threat Intelligence'}
+                        </Badge>
+                      </div>
+                    </div>
+                    <CardDescription className="text-blue-300">
+                      Temps restant: <span className="font-mono text-blue-100">{formatTime(timeRemaining)}</span>
+                    </CardDescription>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col space-y-4 mb-4 max-h-[400px] overflow-y-auto bg-blue-950/40 p-4 rounded-md">
+                    {messages.map((message) => (
+                      <div
+                        key={message.id}
+                        className={`flex ${
+                          message.role === 'assistant' ? 'justify-start' : 'justify-end'
+                        }`}
+                      >
+                        <div
+                          className={`p-3 rounded-lg max-w-[80%] ${
+                            message.role === 'assistant'
+                              ? 'bg-blue-900/50 text-white border border-blue-800/50'
+                              : 'bg-blue-700/50 text-white border border-blue-600/50'
+                          }`}
+                        >
+                          <div className="flex items-center mb-1">
+                            {message.role === 'assistant' ? (
+                              <>
+                                <UserCircle className="h-4 w-4 text-blue-300 mr-2" />
+                                <span className="text-xs text-blue-300 font-semibold">Recruteur</span>
+                              </>
+                            ) : (
+                              <>
+                                <User className="h-4 w-4 text-blue-300 mr-2" />
+                                <span className="text-xs text-blue-300 font-semibold">Candidat</span>
+                              </>
+                            )}
+                          </div>
+                          <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                        </div>
+                      </div>
+                    ))}
+                    {isLoading && (
+                      <div className="flex justify-start">
+                        <div className="p-3 rounded-lg bg-blue-900/20 text-white border border-blue-800/50">
+                          <div className="flex items-center mb-1">
+                            <UserCircle className="h-4 w-4 text-blue-300 mr-2" />
+                            <span className="text-xs text-blue-300">Recruteur</span>
+                          </div>
+                          <div className="flex space-x-1 items-center">
+                            <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse delay-0"></div>
+                            <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse delay-300"></div>
+                            <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse delay-600"></div>
                           </div>
                         </div>
-                      ))}
-                      <div ref={messagesEndRef} />
-                    </div>
-                  )}
-                </div>
-                
-                <div className="flex gap-2">
-                  <Textarea
-                    value={userInput}
-                    onChange={(e) => setUserInput(e.target.value)}
-                    placeholder="Écrivez votre message..."
-                    className="resize-none bg-blue-950/40 border-blue-800 text-white placeholder:text-blue-400"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey && !isLoading) {
-                        e.preventDefault();
-                        sendMessage();
-                      }
-                    }}
-                    disabled={isLoading || simulationComplete || timeRemaining === 0}
-                  />
-                  <Button
-                    onClick={sendMessage}
-                    disabled={isLoading || !userInput.trim() || simulationComplete || timeRemaining === 0}
-                    className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
-                  >
-                    <Send className="w-5 h-5" />
-                  </Button>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button
-                  onClick={completeSimulation}
-                  disabled={isLoading || simulationComplete || messages.length < 3}
-                  className="w-full bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900"
-                >
-                  <CheckCircle className="w-5 h-5 mr-2" />
-                  {isLoading ? "Chargement..." : "Terminer l'entretien"}
-                </Button>
-              </CardFooter>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="evaluation">
-            <Card className="bg-blue-900/20 border-blue-800">
-              <CardHeader>
-                <div className="flex items-center">
-                  <CheckCircle className="w-6 h-6 mr-2 text-emerald-500" />
-                  <CardTitle className="font-[Rajdhani]">Évaluation technique</CardTitle>
-                </div>
-                <CardDescription className="text-blue-300">
-                  Analyse de vos compétences techniques démontrées pendant l'entretien
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {evaluationResult ? (
-                  <div className="space-y-6">
-                    <div className="bg-blue-950/60 border border-blue-800/50 p-4 rounded-md">
-                      <h3 className="text-lg font-semibold mb-2 font-[Rajdhani]">Résumé de l'évaluation technique</h3>
-                      <p className="text-blue-100">{evaluationResult.summary}</p>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="bg-blue-950/60 border border-emerald-800/30 p-4 rounded-md">
+                      </div>
+                    )}
+                    <div ref={messagesEndRef} />
+                  </div>
+                  
+                  <div className="mt-4 flex space-x-2">
+                    <Textarea
+                      value={userInput}
+                      onChange={(e) => setUserInput(e.target.value)}
+                      placeholder="Tapez votre réponse..."
+                      className="flex-1 bg-blue-950/40 border-blue-800/50 text-white placeholder:text-blue-300/50"
+                      disabled={isLoading || simulationComplete}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSendMessage();
+                        }
+                      }}
+                    />
+                    <Button
+                      className="bg-[#006a9e] hover:bg-blue-700"
+                      onClick={handleSendMessage}
+                      disabled={isLoading || !userInput.trim() || simulationComplete}
+                    >
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <div className="w-full flex justify-end">
+                    <Button
+                      onClick={handleSimulationComplete}
+                      className="bg-amber-600 hover:bg-amber-700"
+                      disabled={isLoading || simulationComplete}
+                    >
+                      Terminer l'entretien
+                    </Button>
+                  </div>
+                </CardFooter>
+              </Card>
+            </TabsContent>
+            
+            {/* Onglet Évaluation */}
+            <TabsContent value="evaluation">
+              <Card className="bg-blue-900/20 border-blue-800">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="font-[Rajdhani]">Évaluation technique</CardTitle>
+                  </div>
+                  <CardDescription className="text-blue-300">
+                    Analyse de votre performance lors de l'entretien technique
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {evaluationResult ? (
+                    <div className="space-y-6">
+                      <div className="bg-blue-950/60 border border-blue-800/50 p-4 rounded-md">
+                        <h3 className="text-lg font-semibold mb-2 font-[Rajdhani]">Profil du candidat</h3>
+                        <p className="text-blue-100">{evaluationResult.profile}</p>
+                      </div>
+                      
+                      <div className="bg-blue-950/60 border border-blue-800/50 p-4 rounded-md">
                         <h3 className="text-lg font-semibold mb-2 font-[Rajdhani]">Points forts</h3>
-                        <ul className="list-disc ml-5 space-y-1 text-blue-100">
-                          {evaluationResult.strengths && evaluationResult.strengths.map((strength: string, index: number) => (
-                            <li key={`strength-${index}`}>{strength}</li>
+                        <ul className="list-disc list-inside space-y-1 text-emerald-300">
+                          {evaluationResult.strengths.map((strength: string, index: number) => (
+                            <li key={index}>{strength}</li>
                           ))}
                         </ul>
                       </div>
                       
-                      <div className="bg-blue-950/60 border border-red-800/30 p-4 rounded-md">
+                      <div className="bg-blue-950/60 border border-blue-800/50 p-4 rounded-md">
                         <h3 className="text-lg font-semibold mb-2 font-[Rajdhani]">Axes d'amélioration</h3>
-                        <ul className="list-disc ml-5 space-y-1 text-blue-100">
-                          {evaluationResult.weaknesses && evaluationResult.weaknesses.map((weakness: string, index: number) => (
-                            <li key={`weakness-${index}`}>{weakness}</li>
+                        <ul className="list-disc list-inside space-y-1 text-amber-300">
+                          {evaluationResult.improvements.map((improvement: string, index: number) => (
+                            <li key={index}>{improvement}</li>
                           ))}
                         </ul>
                       </div>
-                    </div>
-                    
-                    <div className="bg-blue-950/60 border border-blue-800/50 p-4 rounded-md">
-                      <h3 className="text-lg font-semibold mb-2 font-[Rajdhani]">Compétences techniques</h3>
-                      <p className="text-blue-100">{evaluationResult.technicalSkills}</p>
-                    </div>
-                    
-                    <div className="bg-blue-950/60 border border-blue-800/50 p-4 rounded-md">
-                      <h3 className="text-lg font-semibold mb-2 font-[Rajdhani]">Compétences de communication</h3>
-                      <p className="text-blue-100">{evaluationResult.communicationSkills}</p>
-                    </div>
-                    
-                    {evaluationResult.recommendation && (
-                      <div className="bg-blue-950/60 border border-emerald-800/40 p-4 rounded-md">
-                        <h3 className="text-lg font-semibold mb-1 font-[Rajdhani]">Recommandation</h3>
-                        <p className="font-medium text-emerald-200">{evaluationResult.recommendation}</p>
+                      
+                      <div className="bg-blue-950/60 border border-blue-800/50 p-4 rounded-md">
+                        <h3 className="text-lg font-semibold mb-2 font-[Rajdhani]">Compétences techniques</h3>
+                        <p className="text-blue-100">{evaluationResult.technicalSkillsAssessment}</p>
                       </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center p-8">
-                    <AlertCircle className="w-16 h-16 text-blue-400 mb-4" />
-                    <h3 className="text-xl font-bold mb-2 font-[Rajdhani]">Aucune évaluation disponible</h3>
-                    <p className="text-blue-300 text-center mb-4">
-                      Vous n'avez pas encore terminé la simulation ou une erreur s'est produite lors de l'évaluation.
-                    </p>
-                    <Button onClick={resetSimulation} className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900">
-                      Démarrer une nouvelle simulation
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-              <CardFooter>
-                <Button
-                  onClick={resetSimulation}
-                  className="w-full bg-[#006a9e] hover:bg-blue-700"
-                >
-                  Nouvelle simulation
-                </Button>
-              </CardFooter>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                      
+                      <div className="bg-blue-950/60 border border-blue-800/50 p-4 rounded-md">
+                        <h3 className="text-lg font-semibold mb-2 font-[Rajdhani]">Compétences de communication</h3>
+                        <p className="text-blue-100">{evaluationResult.communicationSkillsAssessment}</p>
+                      </div>
+                      
+                      {evaluationResult.recommendation && (
+                        <div className="bg-blue-950/60 border border-emerald-800/40 p-4 rounded-md">
+                          <h3 className="text-lg font-semibold mb-1 font-[Rajdhani]">Recommandation</h3>
+                          <p className="font-medium text-emerald-200">{evaluationResult.recommendation}</p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center p-8">
+                      <AlertCircle className="w-16 h-16 text-blue-400 mb-4" />
+                      <h3 className="text-xl font-semibold mb-2">Aucune évaluation disponible</h3>
+                      <p className="text-center text-blue-300">
+                        Terminez d'abord une simulation d'entretien pour recevoir une évaluation détaillée.
+                      </p>
+                    </div>
+                  )}
+                  
+                  {evaluationResult && !isSkippedInfo && (
+                    <div className="mt-8 p-4 bg-blue-900/40 rounded-lg border border-blue-700/50">
+                      <h3 className="text-lg font-medium mb-4 font-[Rajdhani] flex items-center">
+                        <Mail className="mr-2 h-5 w-5 text-blue-300" />
+                        Recevoir l'évaluation par email
+                      </h3>
+                      <Form {...form}>
+                        <form onSubmit={form.handleSubmit(handleSubmitEvaluation)} className="space-y-4">
+                          <FormField
+                            control={form.control}
+                            name="trainerEmail"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-white">Email du recruteur (optionnel)</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    placeholder="recruteur@entreprise.fr"
+                                    className="bg-blue-950/60 border-blue-700 text-white"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="candidateName"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-white">Votre nom (optionnel)</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    placeholder="Prénom Nom"
+                                    className="bg-blue-950/60 border-blue-700 text-white"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="candidateEmail"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-white">Votre email (optionnel)</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    placeholder="candidat@email.fr"
+                                    className="bg-blue-950/60 border-blue-700 text-white"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <div className="flex justify-between pt-2">
+                            <Button 
+                              type="button" 
+                              variant="ghost" 
+                              className="text-blue-300 hover:text-white hover:bg-blue-900/50"
+                              onClick={() => setIsSkippedInfo(true)}
+                            >
+                              Ignorer
+                            </Button>
+                            <Button 
+                              type="submit" 
+                              className="bg-[#006a9e] hover:bg-blue-700"
+                              disabled={isLoading}
+                            >
+                              Envoyer l'évaluation
+                            </Button>
+                          </div>
+                        </form>
+                      </Form>
+                    </div>
+                  )}
+                </CardContent>
+                <CardFooter>
+                  <Button 
+                    onClick={resetSimulation}
+                    className="w-full bg-[#006a9e] hover:bg-blue-700"
+                  >
+                    Nouvelle simulation
+                  </Button>
+                </CardFooter>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </HomeLayout>
   );
