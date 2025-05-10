@@ -175,69 +175,8 @@ export default function ProfilPro() {
           ]
         });
         
-        // Génération des questions de quiz
-        setQuizQuestions([
-          {
-            id: "q1",
-            question: `Quelle compétence est la moins critique pour un ${profession} débutant ?`,
-            options: [
-              "Connaissance des bases de la sécurité réseau",
-              "Maîtrise des solutions de sécurité cloud avancées",
-              "Compréhension des vulnérabilités courantes",
-              "Communication des risques aux équipes non techniques"
-            ],
-            correctAnswer: 1,
-            explanation: "Les solutions de sécurité cloud avancées sont généralement maîtrisées avec l'expérience. Pour un débutant, les fondamentaux de la sécurité réseau, la connaissance des vulnérabilités courantes et la communication sont plus essentiels."
-          },
-          {
-            id: "q2",
-            question: `Quel est l'angle mort le plus courant dans la carrière d'un ${profession} ?`,
-            options: [
-              "Sous-estimer l'importance du facteur humain",
-              "Trop se concentrer sur les outils au détriment de la stratégie",
-              "Négliger les contraintes budgétaires",
-              "Toutes les réponses ci-dessus"
-            ],
-            correctAnswer: 3,
-            explanation: "La plupart des professionnels de la cybersécurité font face à ces trois angles morts à un moment de leur carrière. Le facteur humain est souvent le maillon le plus faible, tandis qu'une dépendance excessive aux outils sans vision stratégique et l'ignorance des réalités budgétaires créent des failles dans la posture de sécurité."
-          },
-          {
-            id: "q3",
-            question: `Dans l'évolution du métier de ${profession}, quelle tendance n'est PAS d'actualité ?`,
-            options: [
-              "Intégration de l'intelligence artificielle dans les outils de détection",
-              "Retour aux infrastructures physiquement isolées (air-gapped)",
-              "Adoption d'approches Zero Trust",
-              "Développement de la sécurité adaptative basée sur le comportement"
-            ],
-            correctAnswer: 1,
-            explanation: "Contrairement aux autres options qui représentent des tendances actuelles, le retour massif aux infrastructures totalement isolées n'est pas une tendance dominante. La connectivité reste essentielle, mais avec des contrôles de sécurité renforcés comme le Zero Trust."
-          },
-          {
-            id: "q4",
-            question: `Quelle obligation réglementaire n'est généralement PAS directement liée au rôle de ${profession} ?`,
-            options: [
-              "Maintenir un registre des traitements de données",
-              "Réaliser des analyses d'impact sur la vie privée",
-              "Établir les déclarations fiscales de l'entreprise",
-              "Assurer la notification des violations de données"
-            ],
-            correctAnswer: 2,
-            explanation: "L'établissement des déclarations fiscales relève de la responsabilité des services comptables et financiers, pas directement du professionnel de la cybersécurité, contrairement aux autres options qui touchent à la protection des données et la conformité."
-          },
-          {
-            id: "q5",
-            question: `Quel outil est le moins susceptible d'être utilisé quotidiennement par un ${profession} ?`,
-            options: [
-              "Tableau de bord de surveillance des événements de sécurité",
-              "Outils d'analyse de code pour la sécurité applicative",
-              "Logiciels de modélisation financière avancée",
-              "Solutions d'authentification multi-facteurs"
-            ],
-            correctAnswer: 2,
-            explanation: "Les logiciels de modélisation financière avancée sont rarement utilisés au quotidien par les professionnels de la cybersécurité, qui se concentrent davantage sur les outils de surveillance, d'analyse de sécurité et de gestion des accès."
-          }
-        ]);
+        // Dans une version réelle, on appellerait ici Azure OpenAI pour générer
+        // dynamiquement des défis de jeu adaptés au métier sélectionné
         
         setIsLoading(false);
         setShowResults(true);
@@ -295,10 +234,43 @@ export default function ProfilPro() {
   
   // Générer un défi aléatoire basé sur le métier
   const generateChallenge = (profession: string): { challenge: string, difficulty: number } => {
-    // Dans une version réelle, ceci serait généré dynamiquement par l'IA
-    // Mais pour cette démo, nous utilisons des défis prédéfinis
+    // Cette fonction simule un appel à Azure OpenAI
+    // Dans une implémentation finale, elle ferait un vrai appel API
     
-    const challenges = [
+    // Créer des défis personnalisés en fonction du métier choisi
+    const defisParProfession: Record<string, Array<{ challenge: string, difficulty: number }>> = {
+      "RSSI": [
+        { challenge: `Élaborer une stratégie de réponse à un incident de ransomware`, difficulty: 4 },
+        { challenge: `Présenter un plan de sécurité au comité exécutif`, difficulty: 3 },
+        { challenge: `Analyser l'impact d'une nouvelle réglementation`, difficulty: 3 },
+        { challenge: `Répondre à une violation de données sensibles`, difficulty: 5 },
+        { challenge: `Prioriser les investissements en sécurité avec un budget limité`, difficulty: 4 }
+      ],
+      "Pentester": [
+        { challenge: `Identifier une vulnérabilité d'injection SQL`, difficulty: 3 },
+        { challenge: `Contourner l'authentification à deux facteurs`, difficulty: 5 },
+        { challenge: `Exploiter une faille XSS pour voler des cookies`, difficulty: 3 },
+        { challenge: `Réaliser un test d'intrusion physique`, difficulty: 4 },
+        { challenge: `Rédiger un rapport d'audit compréhensible`, difficulty: 2 }
+      ],
+      "Analyste SOC": [
+        { challenge: `Détecter une attaque APT dans les logs réseau`, difficulty: 4 },
+        { challenge: `Configurer des règles SIEM pour minimiser les faux positifs`, difficulty: 3 },
+        { challenge: `Analyser un malware en environnement sandbox`, difficulty: 4 },
+        { challenge: `Triager rapidement plusieurs alertes simultanées`, difficulty: 5 },
+        { challenge: `Identifier une exfiltration de données inhabituelle`, difficulty: 3 }
+      ],
+      "Développeur sécurité": [
+        { challenge: `Corriger une vulnérabilité CSRF dans une application web`, difficulty: 3 },
+        { challenge: `Implémenter une API d'authentification sécurisée`, difficulty: 4 },
+        { challenge: `Réaliser un code review axé sécurité`, difficulty: 3 },
+        { challenge: `Concevoir un système de gestion des secrets`, difficulty: 5 },
+        { challenge: `Optimiser les performances d'une bibliothèque cryptographique`, difficulty: 4 }
+      ]
+    };
+    
+    // Défis génériques pour les professions non spécifiées
+    const defisGeneriques = [
       { challenge: `Détecter rapidement une tentative d'intrusion dans le système`, difficulty: 3 },
       { challenge: `Analyser les logs pour identifier la source d'une attaque`, difficulty: 4 },
       { challenge: `Configurer un pare-feu pour bloquer le trafic malveillant`, difficulty: 2 },
@@ -306,7 +278,11 @@ export default function ProfilPro() {
       { challenge: `Effectuer une analyse de vulnérabilités sur un serveur`, difficulty: 3 }
     ];
     
-    return challenges[Math.floor(Math.random() * challenges.length)];
+    // Trouver des défis spécifiques ou utiliser les génériques
+    const defis = defisParProfession[profession] || defisGeneriques;
+    
+    // Sélectionner un défi aléatoire
+    return defis[Math.floor(Math.random() * defis.length)];
   };
   
   // Gérer une action réussie dans le jeu
@@ -863,43 +839,106 @@ export default function ProfilPro() {
                         </div>
                         
                         <div className="relative z-10">
-                          <h3 className="text-xl font-semibold mb-4">Défi actuel:</h3>
-                          <p className="text-blue-200 text-lg mb-8">
-                            {generateChallenge(professionProfile.title).challenge}
-                          </p>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <Button 
-                              className="bg-green-700 hover:bg-green-800 p-6 h-auto text-left flex flex-col items-start"
-                              onClick={handleGameSuccess}
-                            >
-                              <span className="font-semibold mb-1">Analyser les journaux système</span>
-                              <span className="text-sm text-green-100">Identifier les anomalies dans les logs et repérer les patterns suspects</span>
-                            </Button>
+                          {gameLevel > 1 && (
+                              <div className="absolute top-0 right-0">
+                                <Badge variant="outline" className="bg-blue-600/50 border-blue-400 text-blue-100">
+                                  Niveau {gameLevel}
+                                </Badge>
+                              </div>
+                            )}
                             
-                            <Button 
-                              className="bg-blue-700 hover:bg-blue-800 p-6 h-auto text-left flex flex-col items-start"
-                              onClick={handleGameSuccess}
-                            >
-                              <span className="font-semibold mb-1">Déployer une solution de sécurité</span>
-                              <span className="text-sm text-blue-100">Mettre en place un correctif pour colmater la faille détectée</span>
-                            </Button>
+                            <div className="flex items-center mb-2">
+                              <div className="p-2 bg-blue-800 rounded-full mr-2">
+                                <Target className="h-5 w-5 text-blue-200" />
+                              </div>
+                              <h3 className="text-xl font-semibold">Défi du {professionProfile.title}</h3>
+                            </div>
                             
-                            <Button 
-                              className="bg-purple-700 hover:bg-purple-800 p-6 h-auto text-left flex flex-col items-start"
-                              onClick={handleGameSuccess}
-                            >
-                              <span className="font-semibold mb-1">Activer le mode forensique</span>
-                              <span className="text-sm text-purple-100">Collecter les preuves numériques pour l'analyse approfondie</span>
-                            </Button>
+                            {/* Générer un défi basé sur le métier */}
+                            <div className="bg-blue-900/50 p-4 rounded-lg border border-blue-700 mb-6">
+                              <p className="text-blue-200 text-lg">
+                                {generateChallenge(professionProfile.title).challenge}
+                              </p>
+                            </div>
                             
-                            <Button 
-                              className="bg-yellow-700 hover:bg-yellow-800 p-6 h-auto text-left flex flex-col items-start"
-                              onClick={handleGameSuccess}
-                            >
-                              <span className="font-semibold mb-1">Isoler la zone compromise</span>
-                              <span className="text-sm text-yellow-100">Établir un périmètre de sécurité pour contenir l'incident</span>
-                            </Button>
+                            <h4 className="font-semibold text-blue-200 mb-3 flex items-center">
+                              <Wrench className="h-4 w-4 mr-2 text-blue-400" />
+                              Choisissez une action:
+                            </h4>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                              {/* Les actions sont adaptées en fonction du métier */}
+                              {professionProfile.title === "RSSI" ? (
+                                <>
+                                  <Button 
+                                    className="bg-green-700 hover:bg-green-800 p-6 h-auto text-left flex flex-col items-start"
+                                    onClick={handleGameSuccess}
+                                  >
+                                    <span className="font-semibold mb-1">Convoquer une cellule de crise</span>
+                                    <span className="text-sm text-green-100">Réunir les parties prenantes pour coordonner la réponse</span>
+                                  </Button>
+                                  
+                                  <Button 
+                                    className="bg-blue-700 hover:bg-blue-800 p-6 h-auto text-left flex flex-col items-start"
+                                    onClick={handleGameSuccess}
+                                  >
+                                    <span className="font-semibold mb-1">Solliciter le support juridique</span>
+                                    <span className="text-sm text-blue-100">Évaluer les implications légales et réglementaires</span>
+                                  </Button>
+                                </>
+                              ) : professionProfile.title === "Pentester" ? (
+                                <>
+                                  <Button 
+                                    className="bg-purple-700 hover:bg-purple-800 p-6 h-auto text-left flex flex-col items-start"
+                                    onClick={handleGameSuccess}
+                                  >
+                                    <span className="font-semibold mb-1">Exploiter la vulnérabilité</span>
+                                    <span className="text-sm text-purple-100">Développer un PoC (Proof of Concept) pour démontrer l'impact</span>
+                                  </Button>
+                                  
+                                  <Button 
+                                    className="bg-yellow-700 hover:bg-yellow-800 p-6 h-auto text-left flex flex-col items-start"
+                                    onClick={handleGameSuccess}
+                                  >
+                                    <span className="font-semibold mb-1">Escaler les privilèges</span>
+                                    <span className="text-sm text-yellow-100">Tenter d'obtenir des droits administrateur sur le système</span>
+                                  </Button>
+                                </>
+                              ) : (
+                                <>
+                                  <Button 
+                                    className="bg-green-700 hover:bg-green-800 p-6 h-auto text-left flex flex-col items-start"
+                                    onClick={handleGameSuccess}
+                                  >
+                                    <span className="font-semibold mb-1">Analyser les journaux système</span>
+                                    <span className="text-sm text-green-100">Identifier les anomalies dans les logs et repérer les patterns suspects</span>
+                                  </Button>
+                                  
+                                  <Button 
+                                    className="bg-blue-700 hover:bg-blue-800 p-6 h-auto text-left flex flex-col items-start"
+                                    onClick={handleGameSuccess}
+                                  >
+                                    <span className="font-semibold mb-1">Déployer une solution de sécurité</span>
+                                    <span className="text-sm text-blue-100">Mettre en place un correctif pour colmater la faille détectée</span>
+                                  </Button>
+                                </>
+                              )}
+                              
+                              <Button 
+                                className="bg-purple-700 hover:bg-purple-800 p-6 h-auto text-left flex flex-col items-start"
+                                onClick={handleGameSuccess}
+                              >
+                                <span className="font-semibold mb-1">Activer le mode forensique</span>
+                                <span className="text-sm text-purple-100">Collecter les preuves numériques pour l'analyse approfondie</span>
+                              </Button>
+                              
+                              <Button 
+                                className="bg-yellow-700 hover:bg-yellow-800 p-6 h-auto text-left flex flex-col items-start"
+                                onClick={handleGameSuccess}
+                              >
+                                <span className="font-semibold mb-1">Isoler la zone compromise</span>
+                                <span className="text-sm text-yellow-100">Établir un périmètre de sécurité pour contenir l'incident</span>
+                              </Button>
                           </div>
                         </div>
                       </div>
