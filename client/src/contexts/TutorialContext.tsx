@@ -148,6 +148,81 @@ const tourSteps: Record<string, Step[]> = {
       spotlightClicks: true,
     },
   ],
+  'cyber-academie': [
+    {
+      target: 'body',
+      content: 'Bienvenue à Cyber Académie ! Découvrez notre centre de formation complet en cybersécurité avec une approche interactive et personnalisée.',
+      disableBeacon: true,
+      placement: 'center',
+      spotlightClicks: true,
+    },
+    {
+      target: '.TabsList',
+      content: 'Les différents onglets vous permettent d\'accéder à différentes façons d\'explorer le contenu : par modules individuels, par parcours thématiques, ou via votre tableau de bord personnalisé.',
+      disableBeacon: true,
+      placement: 'bottom',
+      spotlightClicks: true,
+    },
+    {
+      target: '[data-id="ai-assistant-button"]',
+      content: 'L\'assistant pédagogique IA est votre guide personnel. Il vous propose des plans d\'apprentissage sur mesure en fonction de vos besoins et objectifs professionnels.',
+      disableBeacon: true,
+      spotlightClicks: true,
+    },
+    {
+      target: '.bg-blue-900\\/20.backdrop-blur-sm.rounded-lg',
+      content: 'La barre de recherche et les filtres vous permettent de trouver rapidement des modules selon votre niveau, la catégorie ou la durée souhaitée.',
+      disableBeacon: true,
+      placement: 'top',
+      spotlightClicks: true,
+    },
+    {
+      target: '[value="modules"]',
+      content: 'L\'onglet "Modules" contient tous les cours individuels, classés par catégorie : fondamentaux, technique, gouvernance, micro-learning et parcours rapides.',
+      disableBeacon: true,
+      spotlightClicks: true,
+    },
+    {
+      target: '[value="paths"]',
+      content: 'L\'onglet "Parcours thématiques" propose des programmes complets combinant plusieurs modules pour maîtriser un domaine spécifique de la cybersécurité.',
+      disableBeacon: true,
+      spotlightClicks: true,
+    },
+    {
+      target: '[value="dashboard"]',
+      content: 'Dans "Mon apprentissage", vous pourrez suivre votre progression, visualiser vos statistiques et reprendre vos modules en cours.',
+      disableBeacon: true,
+      spotlightClicks: true,
+    },
+    {
+      target: '[data-category="fondamentaux"]',
+      content: 'Les fondamentaux de la cybersécurité vous donnent les bases essentielles pour comprendre les concepts clés de la sécurité informatique.',
+      disableBeacon: true,
+      spotlightClicks: true,
+      placement: 'bottom',
+    },
+    {
+      target: '[data-category="technique"]',
+      content: 'La section technique approfondit les aspects pratiques de la cybersécurité : sécurité réseau, cloud, applications, etc.',
+      disableBeacon: true,
+      spotlightClicks: true,
+      placement: 'bottom',
+    },
+    {
+      target: '[data-category="micro-learning"]',
+      content: 'Le micro-learning propose des modules courts et ciblés pour acquérir rapidement des compétences spécifiques.',
+      disableBeacon: true,
+      spotlightClicks: true,
+      placement: 'bottom',
+    },
+    {
+      target: 'body',
+      content: 'Explorez Cyber Académie selon votre propre rythme. De nombreux modules vous attendent pour développer vos compétences en cybersécurité !',
+      disableBeacon: true,
+      placement: 'center',
+      spotlightClicks: true,
+    },
+  ],
 };
 
 export const TutorialProvider: React.FC<TutorialProviderProps> = ({ children }) => {

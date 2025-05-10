@@ -653,6 +653,7 @@ export default function LearningCenter() {
               size="sm"
               className="bg-blue-600 hover:bg-blue-700"
               onClick={() => setAiPanelOpen(!aiPanelOpen)}
+              data-id="ai-assistant-button"
             >
               <BrainCircuit className="mr-2 h-4 w-4" />
               Assistant pédagogique IA
@@ -786,7 +787,7 @@ export default function LearningCenter() {
               // Affichage par catégories
               <>
                 {resourceCategories.map((category) => (
-                  <div key={category.id}>
+                  <div key={category.id} data-category={category.id}>
                     <div className="flex items-center mb-4">
                       <div className={`p-2 rounded-md bg-gradient-to-r ${category.gradient} mr-3`}>
                         {category.icon}
