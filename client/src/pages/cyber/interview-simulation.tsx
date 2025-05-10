@@ -570,10 +570,11 @@ const CyberInterviewSimulation: React.FC = () => {
           </div>
         </div>
         
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-4">Préparation d'audition auprès d'un client</h1>
-          <p className="text-gray-300 max-w-3xl mx-auto">
-            Cette simulation vous permet de préparer vos consultants à des auditions auprès de clients ou partenaires commerciaux à travers une conversation de 10 minutes avec un client potentiel simulé par l'IA.
+        {/* Description du module */}
+        <div className="container mx-auto max-w-6xl bg-blue-900/20 rounded-lg p-6 mb-8 border border-blue-800/40">
+          <h2 className="text-2xl font-bold mb-4 font-['Rajdhani']">Préparation d'entretien technique</h2>
+          <p className="text-blue-100 max-w-4xl">
+            Cette simulation vous permet de vous entraîner à un entretien d'embauche technique en cybersécurité avec un recruteur spécialisé, simulé par une IA rigoureuse qui évaluera vos compétences techniques et votre cohérence. L'entretien dure 10 minutes et est suivi d'une évaluation détaillée.
           </p>
         </div>
           

@@ -777,45 +777,47 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
 function generateCyberSystemPrompt(profileType: string, experienceLevel: string): string {
   // Liste des contextes d'entreprise français et européens pour varier les scénarios
   const frenchCompanies = [
-    { name: "Groupe AXIAL", sector: "Santé", size: "10 000+ employés", city: "Lyon", issue: "RGPD et sécurisation des données patients" },
-    { name: "SECURE-IT", sector: "Finance", size: "2 500 employés", city: "Paris", issue: "Protection contre les attaques par ransomware" },
-    { name: "Néo-Énergie", sector: "Énergie", size: "8 000 employés", city: "Lille", issue: "Sécurisation d'infrastructures critiques" },
-    { name: "EURANOVA", sector: "Industrie manufacturière", size: "6 000 employés", city: "Strasbourg", issue: "Sécurité des systèmes industriels (OT/IT)" },
-    { name: "Sky Connect", sector: "Télécommunications", size: "3 200 employés", city: "Bordeaux", issue: "Détection d'intrusion sur réseau 5G" },
-    { name: "Retail Premium", sector: "Commerce de luxe", size: "5 500 employés", city: "Nice", issue: "Protection contre la fraude et sécurité des paiements" },
-    { name: "GestioPublica", sector: "Services publics", size: "4 700 employés", city: "Nantes", issue: "Homologation RGS et conformité NIS2" },
-    { name: "Logistique Express", sector: "Transport et logistique", size: "7 300 employés", city: "Toulouse", issue: "Protection des systèmes de traçage et de gestion de flotte" }
+    { name: "CyberDefense", sector: "Cybersécurité", size: "800+ employés", city: "Paris", focus: "Services de sécurité managés et conseil" },
+    { name: "Secure-Solutions", sector: "SSII spécialisée", size: "2 500 employés", city: "Lyon", focus: "Audit et conformité réglementaire" },
+    { name: "CERT-FR", sector: "Public", size: "150 employés", city: "Paris", focus: "Réponse aux incidents cyber nationaux" },
+    { name: "InfoProtect", sector: "Cybersécurité", size: "450 employés", city: "Lille", focus: "Protection des infrastructures critiques" },
+    { name: "NetGuard", sector: "Sécurité IT", size: "620 employés", city: "Toulouse", focus: "Détection et réponse aux incidents" },
+    { name: "Cyber-Expert", sector: "Conseil IT", size: "1200 employés", city: "Nantes", focus: "Sécurité cloud et DevSecOps" },
+    { name: "AeryTech", sector: "Éditeur de logiciels", size: "350 employés", city: "Sophia-Antipolis", focus: "Solutions de surveillance et détection" },
+    { name: "SecuriData", sector: "Cybersécurité", size: "580 employés", city: "Bordeaux", focus: "Analyse forensique et threat intelligence" }
   ];
   
   // Sélection aléatoire d'une entreprise
   const companyInfo = frenchCompanies[Math.floor(Math.random() * frenchCompanies.length)];
   
-  // Génération d'un personnage DSI/RSSI avec un nom français crédible
-  const executives = [
-    { name: "Thomas Mercier", title: "DSI", style: "exigeant et très direct" },
-    { name: "Sophie Lefort", title: "RSSI", style: "analytique et méthodique" },
-    { name: "Laurent Dupuis", title: "Directeur Cybersécurité", style: "pragmatique et orienté résultats" },
-    { name: "Nathalie Renard", title: "Directrice des Risques IT", style: "précise et soucieuse du détail" },
-    { name: "Marc Durand", title: "Responsable Sécurité Groupe", style: "sceptique mais ouvert" }
+  // Génération de profils de recruteurs spécialisés en cybersécurité
+  const recruiters = [
+    { name: "Thomas Mercier", title: "Directeur Technique", style: "très exigeant techniquement et direct", expertise: "architecture de sécurité" },
+    { name: "Sophie Lefort", title: "Responsable RH", style: "analytique et structurée", expertise: "évaluation de soft skills" },
+    { name: "Laurent Dupuis", title: "RSSI Senior", style: "pragmatique et orienté situations concrètes", expertise: "gestion des risques" },
+    { name: "Nathalie Renard", title: "Directrice Sécurité", style: "rigoureuse et précise", expertise: "conformité et normes" },
+    { name: "Marc Durand", title: "Lead Pentester", style: "technique et challengeant", expertise: "tests d'intrusion et Red Team" }
   ];
   
-  // Sélection d'un personnage
-  const executive = executives[Math.floor(Math.random() * executives.length)];
+  // Sélection d'un recruteur
+  const recruiter = recruiters[Math.floor(Math.random() * recruiters.length)];
   
-  return `Tu es ${executive.name}, ${executive.title} chez ${companyInfo.name} à ${companyInfo.city}, une entreprise du secteur ${companyInfo.sector} de ${companyInfo.size}.
+  return `Tu es ${recruiter.name}, ${recruiter.title} chez ${companyInfo.name} à ${companyInfo.city}, entreprise de ${companyInfo.size} spécialisée en ${companyInfo.sector}.
 
-PERSONNALITÉ: Tu as un style ${executive.style}. Tu es un(e) professionnel(le) occupé(e) confronté(e) à des défis de cybersécurité urgents liés à ${companyInfo.issue}. Tu as une vraie personnalité avec des préoccupations concrètes.
+PERSONNALITÉ: Tu as un style ${recruiter.style} avec une expertise particulière en ${recruiter.expertise}. Tu recrutes un profil en cybersécurité (${profileType}, niveau d'expérience: ${experienceLevel}) et tu dois évaluer rigoureusement les compétences techniques et la cohérence du candidat.
 
-MISSION: Simuler une audition client RÉALISTE pour évaluer un consultant en cybersécurité (profil: ${profileType}, niveau: ${experienceLevel}).
+MISSION: Simuler un ENTRETIEN D'EMBAUCHE TECHNIQUE réaliste, rigoureux et challengeant en cybersécurité.
 
 RÈGLES DE SIMULATION:
-1. Commence par une présentation BRÈVE (2 phrases max) puis expose ton besoin cybersécurité (contexte et problème).
-2. RÉAGIS intelligemment aux propos du consultant:
-   - Si sa réponse est pertinente: Continue l'entretien de façon naturelle
-   - Si sa réponse est incomplète: Demande des précisions ("Pourriez-vous développer sur...")
-   - Si sa réponse est hors-sujet: Recentre la discussion ("Je ne suis pas sûr que cela réponde à...")
-3. COMPORTEMENT: Sois un vrai professionnel qui évalue avec un regard critique mais constructif.
-4. ÉVALUATION: Adapte tes questions à la complexité appropriée pour le niveau ${experienceLevel}.
+1. Commence par une présentation BRÈVE (2 phrases max) puis pose une première question technique adaptée au profil ${profileType}.
+2. ÉVALUE les réponses sans complaisance:
+   - Si la réponse est précise et pertinente: Pose une question plus technique/complexe
+   - Si la réponse est vague ou montre des lacunes: Demande des précisions et signale que la réponse n'est pas suffisamment détaillée
+   - Si la réponse contient des informations incorrectes: Signale clairement l'erreur ("Attention, ce que vous dites est inexact car...")
+   - Si la réponse est incohérente ou hors-sujet: Indique fermement que la réponse n'est pas adaptée et que tu en prends note pour l'évaluation finale
+3. ANALYSE: Cherche activement les incohérences dans le discours, les contradictions ou les tentatives d'évitement.
+4. COMPORTEMENT: Tu n'es pas conciliant. Tu restes professionnel mais très exigeant, en adaptant la difficulté au niveau ${experienceLevel}.
+5. ADAPTATION: Augmente progressivement la difficulté des questions si les réponses sont bonnes, ou reviens à des questions fondamentales si le candidat montre des lacunes.
 
 INTERDICTIONS FORMELLES:
 - Ne propose JAMAIS toi-même des solutions (c'est le rôle du consultant!)
