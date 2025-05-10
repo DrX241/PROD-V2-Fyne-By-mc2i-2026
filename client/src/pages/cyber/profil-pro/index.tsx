@@ -43,7 +43,9 @@ import {
   Share2,
   ShieldCheck,
   Target,
-  Wrench
+  Wrench,
+  CheckCircle,
+  XCircle
 } from 'lucide-react';
 import { Link } from 'wouter';
 
@@ -208,6 +210,13 @@ export default function ProfilPro() {
     setGameCompleted(false);
     setGameLevel(1);
     setGameTime(60);
+    setShowFeedback(false);
+    
+    // Générer le premier défi
+    if (professionProfile) {
+      const firstChallenge = generateChallenge(professionProfile.title);
+      setCurrentChallenge(firstChallenge);
+    }
     
     // Démarrer le timer
     const timerId = setInterval(() => {
@@ -232,50 +241,106 @@ export default function ProfilPro() {
     setGameCompleted(true);
   };
   
+  interface GameChallenge {
+    challenge: string;
+    difficulty: number;
+    correctAction: string;
+    incorrectActions: string[];
+    explanation: string;
+  }
+  
+  // État pour le défi actuel
+  const [currentChallenge, setCurrentChallenge] = useState<GameChallenge | null>(null);
+  
   // Générer un défi aléatoire basé sur le métier
-  const generateChallenge = (profession: string): { challenge: string, difficulty: number } => {
+  const generateChallenge = (profession: string): GameChallenge => {
     // Cette fonction simule un appel à Azure OpenAI
     // Dans une implémentation finale, elle ferait un vrai appel API
     
     // Créer des défis personnalisés en fonction du métier choisi
-    const defisParProfession: Record<string, Array<{ challenge: string, difficulty: number }>> = {
+    const defisParProfession: Record<string, GameChallenge[]> = {
       "RSSI": [
-        { challenge: `Élaborer une stratégie de réponse à un incident de ransomware`, difficulty: 4 },
-        { challenge: `Présenter un plan de sécurité au comité exécutif`, difficulty: 3 },
-        { challenge: `Analyser l'impact d'une nouvelle réglementation`, difficulty: 3 },
-        { challenge: `Répondre à une violation de données sensibles`, difficulty: 5 },
-        { challenge: `Prioriser les investissements en sécurité avec un budget limité`, difficulty: 4 }
+        { 
+          challenge: `Votre entreprise vient d'être victime d'une attaque par ransomware. Plusieurs systèmes critiques sont chiffrés.`,
+          difficulty: 4,
+          correctAction: "Convoquer une cellule de crise", 
+          incorrectActions: ["Payer immédiatement la rançon", "Ignorer le problème en espérant une solution rapide", "Redémarrer tous les serveurs"],
+          explanation: "Face à un ransomware, la première étape est de réunir les experts (équipe IT, juridique, communication) pour coordonner la réponse et limiter la propagation."
+        },
+        { 
+          challenge: `Une nouvelle réglementation sur la protection des données va entrer en vigueur dans 3 mois.`,
+          difficulty: 3,
+          correctAction: "Analyser l'impact sur les processus existants", 
+          incorrectActions: ["Ignorer la réglementation", "Déléguer entièrement au service juridique", "Mettre à jour uniquement la politique de confidentialité"],
+          explanation: "Le RSSI doit analyser l'impact concret des nouvelles réglementations sur les processus et systèmes existants pour planifier les adaptations nécessaires."
+        }
       ],
       "Pentester": [
-        { challenge: `Identifier une vulnérabilité d'injection SQL`, difficulty: 3 },
-        { challenge: `Contourner l'authentification à deux facteurs`, difficulty: 5 },
-        { challenge: `Exploiter une faille XSS pour voler des cookies`, difficulty: 3 },
-        { challenge: `Réaliser un test d'intrusion physique`, difficulty: 4 },
-        { challenge: `Rédiger un rapport d'audit compréhensible`, difficulty: 2 }
+        { 
+          challenge: `Lors d'un test d'intrusion, vous découvrez une vulnérabilité d'injection SQL dans l'application web principale.`,
+          difficulty: 3,
+          correctAction: "Exploiter la vulnérabilité pour démontrer l'impact", 
+          incorrectActions: ["Corriger immédiatement le code", "Ignorer car c'est une fausse alerte", "Divulguer publiquement la faille"],
+          explanation: "En tant que pentester, prouver l'impact réel de la vulnérabilité par un PoC (Proof of Concept) est essentiel pour illustrer les risques concrets."
+        },
+        { 
+          challenge: `Vous avez terminé un test d'intrusion qui a révélé plusieurs vulnérabilités critiques.`,
+          difficulty: 4,
+          correctAction: "Rédiger un rapport détaillé avec recommandations", 
+          incorrectActions: ["Corriger les vulnérabilités vous-même", "Ne mentionner que les failles exploitées", "Partager les résultats sur les réseaux sociaux"],
+          explanation: "La documentation complète des vulnérabilités avec des recommandations concrètes est l'étape finale essentielle d'un test d'intrusion professionnel."
+        }
       ],
       "Analyste SOC": [
-        { challenge: `Détecter une attaque APT dans les logs réseau`, difficulty: 4 },
-        { challenge: `Configurer des règles SIEM pour minimiser les faux positifs`, difficulty: 3 },
-        { challenge: `Analyser un malware en environnement sandbox`, difficulty: 4 },
-        { challenge: `Triager rapidement plusieurs alertes simultanées`, difficulty: 5 },
-        { challenge: `Identifier une exfiltration de données inhabituelle`, difficulty: 3 }
+        { 
+          challenge: `Plusieurs alertes de sécurité de priorité élevée se déclenchent simultanément sur différents systèmes.`,
+          difficulty: 5,
+          correctAction: "Trier les alertes selon leur criticité", 
+          incorrectActions: ["Traiter les alertes dans l'ordre d'arrivée", "Ignorer les alertes les plus complexes", "Redémarrer le SIEM"],
+          explanation: "Face à de multiples alertes, la priorisation basée sur la criticité et le potentiel impact business est essentielle pour répondre efficacement."
+        },
+        { 
+          challenge: `Les logs réseau montrent des connexions récurrentes vers une IP inconnue à l'étranger.`,
+          difficulty: 4,
+          correctAction: "Analyser le trafic pour identifier la nature des communications", 
+          incorrectActions: ["Bloquer immédiatement l'IP sans analyse", "Ignorer car il s'agit probablement d'une mise à jour", "Éteindre le système concerné"],
+          explanation: "Une analyse approfondie est nécessaire pour comprendre la nature des communications avant de prendre des mesures qui pourraient perturber l'activité légitime."
+        }
       ],
       "Développeur sécurité": [
-        { challenge: `Corriger une vulnérabilité CSRF dans une application web`, difficulty: 3 },
-        { challenge: `Implémenter une API d'authentification sécurisée`, difficulty: 4 },
-        { challenge: `Réaliser un code review axé sécurité`, difficulty: 3 },
-        { challenge: `Concevoir un système de gestion des secrets`, difficulty: 5 },
-        { challenge: `Optimiser les performances d'une bibliothèque cryptographique`, difficulty: 4 }
+        { 
+          challenge: `Votre analyse de code a identifié une vulnérabilité CSRF dans l'application web principale.`,
+          difficulty: 3,
+          correctAction: "Implémenter des tokens anti-CSRF", 
+          incorrectActions: ["Désactiver les formulaires concernés", "Ignorer car l'impact est faible", "Ajouter simplement une validation côté client"],
+          explanation: "Les tokens anti-CSRF sont la solution standard pour protéger contre les attaques CSRF en vérifiant que la requête provient bien d'un formulaire légitime."
+        },
+        { 
+          challenge: `Vous devez concevoir un système d'authentification pour une nouvelle API.`,
+          difficulty: 4,
+          correctAction: "Utiliser OAuth2 avec des JWT", 
+          incorrectActions: ["Stocker les mots de passe en clair", "Implémenter un système propriétaire", "Ne pas mettre en place d'authentification"],
+          explanation: "Utiliser des standards éprouvés comme OAuth2 avec JWT est plus sûr que de développer une solution personnalisée qui risquerait de contenir des failles."
+        }
       ]
     };
     
     // Défis génériques pour les professions non spécifiées
     const defisGeneriques = [
-      { challenge: `Détecter rapidement une tentative d'intrusion dans le système`, difficulty: 3 },
-      { challenge: `Analyser les logs pour identifier la source d'une attaque`, difficulty: 4 },
-      { challenge: `Configurer un pare-feu pour bloquer le trafic malveillant`, difficulty: 2 },
-      { challenge: `Répondre à un incident de sécurité en temps réel`, difficulty: 5 },
-      { challenge: `Effectuer une analyse de vulnérabilités sur un serveur`, difficulty: 3 }
+      { 
+        challenge: `Une alerte indique une tentative d'intrusion potentielle dans le système.`,
+        difficulty: 3,
+        correctAction: "Analyser les journaux système", 
+        incorrectActions: ["Ignorer l'alerte", "Éteindre tous les systèmes", "Formater les disques concernés"],
+        explanation: "L'analyse des journaux est l'étape initiale pour comprendre la nature et l'étendue d'une tentative d'intrusion avant toute action corrective."
+      },
+      { 
+        challenge: `Une vulnérabilité critique a été découverte dans un logiciel utilisé par l'entreprise.`,
+        difficulty: 4,
+        correctAction: "Déployer une solution de sécurité", 
+        incorrectActions: ["Ignorer la vulnérabilité", "Désinstaller le logiciel sans remplacement", "Partager l'information publiquement"],
+        explanation: "Le déploiement rapide d'un correctif ou d'une solution de contournement est crucial pour protéger les systèmes contre une vulnérabilité connue."
+      }
     ];
     
     // Trouver des défis spécifiques ou utiliser les génériques
@@ -285,13 +350,70 @@ export default function ProfilPro() {
     return defis[Math.floor(Math.random() * defis.length)];
   };
   
-  // Gérer une action réussie dans le jeu
-  const handleGameSuccess = () => {
-    // Augmenter le score en fonction du niveau
-    setGameScore((prevScore) => prevScore + (gameLevel * 10));
+  // Vérifier si une action est correcte
+  const isCorrectAction = (actionName: string): boolean => {
+    return currentChallenge ? currentChallenge.correctAction === actionName : false;
+  };
+  
+  // États pour les retours utilisateur
+  const [showFeedback, setShowFeedback] = useState<boolean>(false);
+  const [actionFeedback, setActionFeedback] = useState<{
+    isCorrect: boolean;
+    message: string;
+    action: string;
+  } | null>(null);
+  
+  // Gérer une action de l'utilisateur
+  const handleGameAction = (actionName: string) => {
+    if (!currentChallenge) return;
     
-    // Augmenter le niveau
-    setGameLevel((prevLevel) => Math.min(prevLevel + 1, 5));
+    const isCorrect = isCorrectAction(actionName);
+    
+    // Générer le message de feedback
+    setActionFeedback({
+      isCorrect,
+      message: isCorrect ? currentChallenge.explanation : `Action incorrecte! La bonne réponse était: ${currentChallenge.correctAction}. ${currentChallenge.explanation}`,
+      action: actionName
+    });
+    
+    // Afficher le feedback
+    setShowFeedback(true);
+    
+    // Mettre à jour le score
+    if (isCorrect) {
+      // Bonne réponse: +10 points * niveau
+      setGameScore((prevScore) => prevScore + (gameLevel * 10));
+      
+      // Augmenter le niveau après une pause
+      setTimeout(() => {
+        setShowFeedback(false);
+        setGameLevel((prevLevel) => Math.min(prevLevel + 1, 5));
+        
+        // Générer un nouveau défi
+        const newChallenge = generateChallenge(professionProfile.title);
+        setCurrentChallenge(newChallenge);
+      }, 3000);
+    } else {
+      // Mauvaise réponse: -5 points * niveau
+      const pointsLost = gameLevel * 5;
+      setGameScore((prevScore) => {
+        const newScore = prevScore - pointsLost;
+        
+        // Vérifier si le jeu est terminé (score négatif)
+        if (newScore < 0) {
+          setTimeout(() => {
+            endArcadeGame();
+          }, 3000);
+        } else {
+          // Continuer après une pause
+          setTimeout(() => {
+            setShowFeedback(false);
+          }, 3000);
+        }
+        
+        return Math.max(newScore, 0); // Ne pas afficher de score négatif
+      });
+    }
   };
   
   // Fonction remplacée par startArcadeGame
@@ -867,78 +989,54 @@ export default function ProfilPro() {
                             </h4>
                             
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                              {/* Les actions sont adaptées en fonction du métier */}
-                              {professionProfile.title === "RSSI" ? (
-                                <>
-                                  <Button 
-                                    className="bg-green-700 hover:bg-green-800 p-6 h-auto text-left flex flex-col items-start"
-                                    onClick={handleGameSuccess}
-                                  >
-                                    <span className="font-semibold mb-1">Convoquer une cellule de crise</span>
-                                    <span className="text-sm text-green-100">Réunir les parties prenantes pour coordonner la réponse</span>
-                                  </Button>
-                                  
-                                  <Button 
-                                    className="bg-blue-700 hover:bg-blue-800 p-6 h-auto text-left flex flex-col items-start"
-                                    onClick={handleGameSuccess}
-                                  >
-                                    <span className="font-semibold mb-1">Solliciter le support juridique</span>
-                                    <span className="text-sm text-blue-100">Évaluer les implications légales et réglementaires</span>
-                                  </Button>
-                                </>
-                              ) : professionProfile.title === "Pentester" ? (
-                                <>
-                                  <Button 
-                                    className="bg-purple-700 hover:bg-purple-800 p-6 h-auto text-left flex flex-col items-start"
-                                    onClick={handleGameSuccess}
-                                  >
-                                    <span className="font-semibold mb-1">Exploiter la vulnérabilité</span>
-                                    <span className="text-sm text-purple-100">Développer un PoC (Proof of Concept) pour démontrer l'impact</span>
-                                  </Button>
-                                  
-                                  <Button 
-                                    className="bg-yellow-700 hover:bg-yellow-800 p-6 h-auto text-left flex flex-col items-start"
-                                    onClick={handleGameSuccess}
-                                  >
-                                    <span className="font-semibold mb-1">Escaler les privilèges</span>
-                                    <span className="text-sm text-yellow-100">Tenter d'obtenir des droits administrateur sur le système</span>
-                                  </Button>
-                                </>
-                              ) : (
-                                <>
-                                  <Button 
-                                    className="bg-green-700 hover:bg-green-800 p-6 h-auto text-left flex flex-col items-start"
-                                    onClick={handleGameSuccess}
-                                  >
-                                    <span className="font-semibold mb-1">Analyser les journaux système</span>
-                                    <span className="text-sm text-green-100">Identifier les anomalies dans les logs et repérer les patterns suspects</span>
-                                  </Button>
-                                  
-                                  <Button 
-                                    className="bg-blue-700 hover:bg-blue-800 p-6 h-auto text-left flex flex-col items-start"
-                                    onClick={handleGameSuccess}
-                                  >
-                                    <span className="font-semibold mb-1">Déployer une solution de sécurité</span>
-                                    <span className="text-sm text-blue-100">Mettre en place un correctif pour colmater la faille détectée</span>
-                                  </Button>
-                                </>
+                              {/* Feedback sur l'action sélectionnée */}
+                              {showFeedback && actionFeedback && (
+                                <div className={`mb-6 p-4 rounded-lg border ${actionFeedback.isCorrect ? 'bg-green-900/50 border-green-700 text-green-100' : 'bg-red-900/50 border-red-700 text-red-100'}`}>
+                                  <div className="flex items-center mb-2">
+                                    {actionFeedback.isCorrect ? (
+                                      <CheckCircle className="h-5 w-5 mr-2 text-green-400" />
+                                    ) : (
+                                      <XCircle className="h-5 w-5 mr-2 text-red-400" />
+                                    )}
+                                    <span className="font-semibold">
+                                      {actionFeedback.isCorrect ? 'Bonne réponse!' : 'Réponse incorrecte'}
+                                    </span>
+                                  </div>
+                                  <p>{actionFeedback.message}</p>
+                                </div>
                               )}
                               
-                              <Button 
-                                className="bg-purple-700 hover:bg-purple-800 p-6 h-auto text-left flex flex-col items-start"
-                                onClick={handleGameSuccess}
-                              >
-                                <span className="font-semibold mb-1">Activer le mode forensique</span>
-                                <span className="text-sm text-purple-100">Collecter les preuves numériques pour l'analyse approfondie</span>
-                              </Button>
-                              
-                              <Button 
-                                className="bg-yellow-700 hover:bg-yellow-800 p-6 h-auto text-left flex flex-col items-start"
-                                onClick={handleGameSuccess}
-                              >
-                                <span className="font-semibold mb-1">Isoler la zone compromise</span>
-                                <span className="text-sm text-yellow-100">Établir un périmètre de sécurité pour contenir l'incident</span>
-                              </Button>
+                              {!showFeedback && (
+                                <>
+                                  {/* Les actions sont adaptées en fonction du métier */}
+                                  {currentChallenge && (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                      {/* Ajouter la bonne réponse parmi les options */}
+                                      <Button 
+                                        className="bg-green-700 hover:bg-green-800 p-6 h-auto text-left flex flex-col items-start"
+                                        onClick={() => handleGameAction(currentChallenge.correctAction)}
+                                      >
+                                        <span className="font-semibold mb-1">{currentChallenge.correctAction}</span>
+                                        <span className="text-sm text-green-100">Action recommandée pour ce type de situation</span>
+                                      </Button>
+                                      
+                                      {/* Ajouter les mauvaises réponses */}
+                                      {currentChallenge.incorrectActions.map((action, index) => (
+                                        <Button 
+                                          key={index}
+                                          className={`bg-${index % 3 === 0 ? 'blue' : index % 3 === 1 ? 'purple' : 'yellow'}-700 hover:bg-${index % 3 === 0 ? 'blue' : index % 3 === 1 ? 'purple' : 'yellow'}-800 p-6 h-auto text-left flex flex-col items-start`}
+                                          onClick={() => handleGameAction(action)}
+                                        >
+                                          <span className="font-semibold mb-1">{action}</span>
+                                          <span className={`text-sm text-${index % 3 === 0 ? 'blue' : index % 3 === 1 ? 'purple' : 'yellow'}-100`}>
+                                            Action alternative dans cette situation
+                                          </span>
+                                        </Button>
+                                      ))}
+                                    </div>
+                                  )}
+                                </>
+                              )}
                           </div>
                         </div>
                       </div>
