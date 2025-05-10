@@ -188,25 +188,25 @@ export async function processInterviewMessage(req: Request, res: Response) {
       systemPrompt = generateAmoaStepPrompt(step, profileType, experienceLevel, sectorFocus || '');
     }
 
-    // Ajout d'une couche de sécurité supplémentaire pour forcer le rôle de client
+    // Ajout d'une couche de sécurité supplémentaire pour forcer le rôle de recruteur technique
     const roleEnforcementPrompt = `
-ATTENTION: Tu es UNIQUEMENT un CLIENT - NE JOUE JAMAIS le rôle du consultant.
+ATTENTION: Tu es UNIQUEMENT un RECRUTEUR TECHNIQUE - NE JOUE JAMAIS le rôle du candidat.
 
 TU NE DOIS JAMAIS:
 - Commencer tes phrases par "Merci pour votre réponse" ou "Je comprends"
 - Dire "Je vais reformuler" ou "Si je comprends bien"
-- Faire une analyse ou reformulation du besoin (c'est le rôle du consultant)
-- Utiliser des termes techniques spécifiques au métier de consultant
-- Donner des conseils ou proposer des solutions méthodologiques
+- Faire une analyse ou reformulation d'un problème technique (c'est au candidat de faire l'analyse)
+- Donner des conseils ou proposer des solutions techniques
+- Valider ou féliciter des réponses incomplètes ou imprécises
 
 À FAIRE IMPÉRATIVEMENT:
-- Pose UNE SEULE question précise pour challenger le consultant
-- Utilise un ton direct et légèrement exigeant (tu es un client qui évalue)
-- Reste dans ton rôle de client avec un problème à résoudre
+- Pose UNE SEULE question technique précise et challengeante
+- Utilise un ton professionnel mais exigeant (tu évalues les compétences techniques)
+- Reste dans ton rôle de recruteur qui cherche à vérifier des compétences techniques réelles
 - Garde ta réponse courte (max 100-150 mots)
-- Réagis à ce que le consultant vient de dire sans le féliciter
+- Demande des clarifications quand les réponses manquent de précision technique
 
-Ce message est TA DERNIÈRE CHANCE de rester dans ton rôle de CLIENT qui évalue un consultant.
+Ce message est TA DERNIÈRE CHANCE de rester dans ton rôle de RECRUTEUR TECHNIQUE qui évalue rigoureusement un candidat.
 `;
 
     // Version améliorée: Ajout d'un contexte de conversation plus structuré
@@ -378,33 +378,33 @@ export async function analyzeInterviewNotes(req: Request, res: Response) {
     // Construire le prompt selon le domaine
     let systemPrompt = "";
     if (domain === 'cyber') {
-      systemPrompt = `Vous êtes un expert en analyse d'audition client dans le domaine de la cybersécurité. Votre mission est d'analyser les notes prises pendant une audition réelle (hors plateforme) et de les combiner avec l'évaluation de la simulation en ligne pour générer une synthèse structurée complète.
+      systemPrompt = `Vous êtes un expert en évaluation technique d'entretiens d'embauche en cybersécurité. Votre mission est d'analyser les notes prises pendant un entretien et de les combiner avec l'évaluation automatique pour générer un compte-rendu technique détaillé et objectif.
 
 CONTEXTE IMPORTANT:
-- Le consultant ${candidateName || "candidat"} a été évalué lors d'une audition réelle (notes prises manuellement) puis dans une simulation en ligne
-- PRIORITAIRE: Les notes manuelles représentent 75% de l'évaluation finale et doivent être la source principale de votre analyse
+- Le candidat ${candidateName || "candidat"} a été évalué lors d'un entretien technique en cybersécurité
+- PRIORITAIRE: Les notes de l'entretien représentent 75% de l'évaluation finale et doivent être la source principale de votre analyse
 - Vous devez extraire méticuleusement toutes les informations pertinentes des notes manuelles
 - Ensuite seulement, enrichir votre analyse avec les éléments complémentaires de l'évaluation automatique (25%)
 - L'objectif est de produire une synthèse complète et fidèle aux notes originales
 
-PROFIL DU CONSULTANT:
+PROFIL DU CANDIDAT:
 - Type de profil: ${profileType.replace(/_/g, ' ')}
 - Niveau d'expérience déclaré: ${experienceLevel}
 
 INSTRUCTIONS DE STRUCTURATION:
-Structurez votre synthèse précisément selon les sections suivantes avec un contenu détaillé pour chaque partie:
+Structurez votre analyse technique précisément selon les sections suivantes avec un contenu détaillé pour chaque partie:
 
-1. Présentation générale du profil
-2. Description du parcours
-3. Premières impressions, posture
-4. Motivations conseil, SI, mc2i
-5. Projet professionnel et perspectives
-6. Potentiel du candidat vs Ambition
-7. Critères d'évaluation
-8. Forces (3-4 points forts identifiés)
-9. Faiblesses (3-4 points d'amélioration identifiés)
-10. Synthèse écrite
-11. Raison principale de décision
+1. Présentation générale du profil technique
+2. Parcours professionnel et technique
+3. Premières impressions et posture en entretien
+4. Connaissances techniques démontrées
+5. Expérience pratique en cybersécurité
+6. Compréhension des enjeux sécurité
+7. Compétences techniques évaluées (notées de 1 à 5)
+8. Forces techniques (3-4 points forts identifiés)
+9. Points d'amélioration techniques (3-4 faiblesses identifiées)
+10. Synthèse technique
+11. Recommandation d'embauche
 
 FORMAT DE RÉPONSE:
 - Renvoyer un JSON contenant toutes les sections mentionnées ci-dessus comme attributs
@@ -726,7 +726,7 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
                   name: 'FYNE - Audition',
                   email: 'eddy.missoni@mc2i.fr' // Adresse vérifiée dans SendGrid
                 },
-                subject: domain === 'amoa' ? `Évaluation de préparation d'audition - ${candidateName}` : `Évaluation d'audition client - ${candidateName}`,
+                subject: domain === 'amoa' ? `Évaluation de préparation d'audition - ${candidateName}` : `Évaluation d'entretien technique - ${candidateName}`,
                 html: emailHtml,
               };
               
@@ -820,12 +820,20 @@ RÈGLES DE SIMULATION:
 5. ADAPTATION: Augmente progressivement la difficulté des questions si les réponses sont bonnes, ou reviens à des questions fondamentales si le candidat montre des lacunes.
 
 INTERDICTIONS FORMELLES:
-- Ne propose JAMAIS toi-même des solutions (c'est le rôle du consultant!)
+- Ne propose JAMAIS des solutions (c'est au candidat de le faire!)
 - Ne commence JAMAIS par "Merci pour votre réponse" ou "Je vais reformuler"
-- Ne joue JAMAIS le rôle du consultant, reste STRICTEMENT dans ton rôle de client
+- Ne joue JAMAIS le rôle du candidat, reste STRICTEMENT dans ton rôle de recruteur technique
 - Ne dépasse JAMAIS deux paragraphes dans tes réponses
+- N'accepte JAMAIS des réponses vagues, exige toujours des explications précises et techniques
 
-Commence par exposer brièvement la situation problématique et demande au consultant comment il pourrait t'aider.`;
+QUESTIONS TECHNIQUES À POSER (adapte selon le profil et l'expérience):
+- Architecture de sécurité: "Comment concevriez-vous une architecture Zero Trust pour notre environnement cloud?"
+- Gestion des incidents: "Décrivez votre méthodologie pour analyser une compromission de système?"
+- Conformité: "Comment implémenteriez-vous les exigences ISO 27001 dans une entreprise de notre taille?"
+- Sécurité applicative: "Quelles mesures recommanderiez-vous pour sécuriser un pipeline CI/CD?"
+- Veille technologique: "Quelles CVE récentes considérez-vous comme les plus critiques et pourquoi?"
+
+Commence par une brève présentation de l'entreprise et du poste à pourvoir, puis pose une première question technique ciblée.`;
 }
 
 function generateAmoaSystemPrompt(profileType: string, experienceLevel: string, sectorFocus: string): string {
