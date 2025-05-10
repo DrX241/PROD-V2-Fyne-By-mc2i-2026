@@ -26,19 +26,19 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import HomeLayout from '@/components/layout/HomeLayout';
 
-// Schéma de formulaire pour la configuration de l'audition
+// Schéma de formulaire pour la configuration de l'entretien technique
 const formSchema = z.object({
   // Champs optionnels (peuvent être ignorés au début)
   trainerEmail: z.string().email({
     message: "Veuillez entrer une adresse email valide.",
   }).optional().or(z.literal('')),
   candidateName: z.string().min(2, {
-    message: "Le nom du consultant doit contenir au moins 2 caractères.",
+    message: "Le nom du candidat doit contenir au moins 2 caractères.",
   }).optional().or(z.literal('')),
   
   // Champs obligatoires pour la simulation
   profileType: z.string().min(1, {
-    message: "Veuillez sélectionner un type de profil.",
+    message: "Veuillez sélectionner un poste cible.",
   }),
   experienceLevel: z.string().min(1, {
     message: "Veuillez sélectionner un niveau d'expérience.",
@@ -52,12 +52,12 @@ const contactFormSchema = z.object({
     message: "Veuillez entrer une adresse email valide.",
   }),
   candidateName: z.string().min(2, {
-    message: "Le nom du consultant doit contenir au moins 2 caractères.",
+    message: "Le nom du candidat doit contenir au moins 2 caractères.",
   }),
   
   // On inclut également les champs importants pour l'évaluation
   profileType: z.string().min(1, {
-    message: "Veuillez sélectionner un type de profil.",
+    message: "Veuillez sélectionner un poste cible.",
   }),
   experienceLevel: z.string().min(1, {
     message: "Veuillez sélectionner un niveau d'expérience.",
@@ -617,9 +617,9 @@ const CyberInterviewSimulation: React.FC = () => {
           <TabsContent value="configuration">
             <Card className="bg-gray-800 border-gray-700">
               <CardHeader>
-                <CardTitle>Configuration de l'audition</CardTitle>
+                <CardTitle>Configuration de l'entretien technique</CardTitle>
                 <CardDescription className="text-gray-400">
-                  Configurez les paramètres de la simulation d'audition
+                  Configurez les paramètres de la simulation d'entretien d'embauche
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -631,7 +631,7 @@ const CyberInterviewSimulation: React.FC = () => {
                         name="trainerEmail"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Email du formateur (pour recevoir l'évaluation)</FormLabel>
+                            <FormLabel>Votre email (pour recevoir l'évaluation)</FormLabel>
                             <FormControl>
                               <Input placeholder="email@exemple.com" {...field} className="bg-gray-700 border-gray-600 text-white" />
                             </FormControl>
@@ -645,7 +645,7 @@ const CyberInterviewSimulation: React.FC = () => {
                         name="candidateName"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Nom du consultant</FormLabel>
+                            <FormLabel>Votre nom</FormLabel>
                             <FormControl>
                               <Input placeholder="Nom complet" {...field} className="bg-gray-700 border-gray-600 text-white" />
                             </FormControl>
@@ -661,11 +661,11 @@ const CyberInterviewSimulation: React.FC = () => {
                         name="profileType"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Type de profil *</FormLabel>
+                            <FormLabel>Poste visé *</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
-                                  <SelectValue placeholder="Sélectionnez un profil" />
+                                  <SelectValue placeholder="Sélectionnez un poste" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent className="bg-gray-700 border-gray-600 text-white">
