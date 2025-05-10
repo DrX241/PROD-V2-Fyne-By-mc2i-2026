@@ -11,11 +11,18 @@ import {
   ExternalLink,
   FileText,
   HelpCircle,
+  Laptop,
   Lock,
+  Loader2,
+  MessageCircle,
+  MessageSquare,
+  Newspaper,
+  Send,
+  Shield,
+  ShieldAlert,
   Users,
   Wallet,
-  MessageSquare,
-  Shield,
+  X,
   Zap
 } from 'lucide-react';
 import {
@@ -1117,6 +1124,151 @@ const CyberChaos: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      {/* Panneau de communication */}
+      {showCommunicationPanel && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-gradient-to-b from-blue-900 to-gray-900 rounded-lg shadow-xl border border-blue-700 w-full max-w-4xl overflow-hidden"
+          >
+            <div className="p-4 border-b border-blue-800 flex items-center justify-between">
+              <h3 className="text-xl font-semibold text-white">
+                Communications de crise
+              </h3>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowCommunicationPanel(false)}
+                className="text-blue-300 hover:text-white hover:bg-blue-800"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            
+            <div className="grid grid-cols-4 h-[600px]">
+              {/* Liste des contacts */}
+              <div className="border-r border-blue-800 p-4 space-y-2">
+                <h4 className="text-sm font-medium text-blue-300 mb-4">Contacts</h4>
+                
+                {Object.keys(communicationHistory).map((contact) => (
+                  <Button 
+                    key={contact}
+                    variant={selectedContact === contact ? "default" : "outline"}
+                    onClick={() => handleContactSelect(contact)}
+                    className={`w-full justify-start ${
+                      selectedContact === contact 
+                        ? "bg-blue-800 hover:bg-blue-700" 
+                        : "border-blue-700 text-blue-200 hover:bg-blue-900/50"
+                    }`}
+                  >
+                    {contact === 'Presse' ? <Newspaper className="mr-2 h-4 w-4" /> :
+                     contact === 'Autorités' ? <ShieldAlert className="mr-2 h-4 w-4" /> :
+                     contact === 'Communication' ? <MessageCircle className="mr-2 h-4 w-4" /> :
+                     contact === 'Équipe technique' ? <Laptop className="mr-2 h-4 w-4" /> :
+                     <Users className="mr-2 h-4 w-4" />
+                    }
+                    {contact}
+                    {communicationHistory[contact].length > 0 && (
+                      <Badge 
+                        variant="outline" 
+                        className="ml-auto border-blue-500 text-blue-200"
+                      >
+                        {communicationHistory[contact].length}
+                      </Badge>
+                    )}
+                  </Button>
+                ))}
+              </div>
+              
+              {/* Zone de conversation */}
+              <div className="col-span-3 flex flex-col h-full">
+                {selectedContact ? (
+                  <>
+                    {/* En-tête du contact */}
+                    <div className="p-3 border-b border-blue-800 bg-blue-900/50">
+                      <div className="flex items-center gap-2">
+                        {selectedContact === 'Presse' ? <Newspaper className="h-5 w-5 text-blue-300" /> :
+                         selectedContact === 'Autorités' ? <ShieldAlert className="h-5 w-5 text-amber-300" /> :
+                         selectedContact === 'Communication' ? <MessageCircle className="h-5 w-5 text-green-300" /> :
+                         selectedContact === 'Équipe technique' ? <Laptop className="h-5 w-5 text-cyan-300" /> :
+                         <Users className="h-5 w-5 text-purple-300" />
+                        }
+                        <h3 className="font-medium">{selectedContact}</h3>
+                      </div>
+                    </div>
+                    
+                    {/* Messages */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                      {communicationHistory[selectedContact].length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-full text-blue-300/70">
+                          <MessageSquare className="h-12 w-12 mb-2" />
+                          <p>Aucun message. Commencez la conversation.</p>
+                        </div>
+                      ) : (
+                        communicationHistory[selectedContact].map((msg, idx) => (
+                          <div 
+                            key={idx} 
+                            className={`flex ${msg.sender === 'player' ? 'justify-end' : 'justify-start'}`}
+                          >
+                            <div 
+                              className={`max-w-[80%] p-3 rounded-lg ${
+                                msg.sender === 'player' 
+                                  ? 'bg-blue-800 text-white' 
+                                  : 'bg-gray-800 text-blue-100'
+                              }`}
+                            >
+                              <p className="whitespace-pre-wrap break-words">{msg.message}</p>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    
+                    {/* Zone de saisie */}
+                    <div className="p-3 border-t border-blue-800 bg-gray-900/80">
+                      <div className="flex gap-2">
+                        <Input 
+                          placeholder="Entrez votre message..."
+                          value={newMessage}
+                          onChange={(e) => setNewMessage(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault();
+                              sendMessageToPNJ();
+                            }
+                          }}
+                          className="bg-gray-800 border-blue-700 focus-visible:ring-blue-500"
+                        />
+                        <Button 
+                          onClick={sendMessageToPNJ}
+                          disabled={isSendingMessage || !newMessage.trim()}
+                          className="bg-blue-700 hover:bg-blue-600"
+                        >
+                          {isSendingMessage ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Send className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full text-blue-300/70">
+                    <MessageSquare className="h-16 w-16 mb-4" />
+                    <p className="text-lg">Sélectionnez un contact pour communiquer</p>
+                    <p className="text-sm mt-2 max-w-md text-center">
+                      Échangez avec les différentes parties prenantes pour gérer la crise plus efficacement.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };
