@@ -191,34 +191,70 @@ export default function AutomatiserCreer() {
     }
   };
   
-  // Simuler la génération de l'outil avec délai et progression
-  const generateTool = () => {
+  // Génération de l'outil via l'API backend
+  const generateTool = async () => {
     setIsGenerating(true);
     setGenerationProgress(0);
     
-    // Simuler une analyse IA qui comprend la demande
-    setTimeout(() => {
-      const selectedToolObj = toolTypes.find(tool => tool.id === selectedTool);
-      const selectedFormatObj = formatOptions.find(format => format.id === selectedFormat);
+    // Préparer les données pour l'API
+    const selectedToolObj = toolTypes.find(tool => tool.id === selectedTool);
+    const selectedFormatObj = formatOptions.find(format => format.id === selectedFormat);
+    
+    // Afficher l'analyse préliminaire
+    setAiAnalysis(`Je vais créer un${selectedToolObj?.title.startsWith('A') || selectedToolObj?.title.startsWith('E') || selectedToolObj?.title.startsWith('I') || selectedToolObj?.title.startsWith('O') || selectedToolObj?.title.startsWith('U') ? 'e' : ''} ${selectedToolObj?.title} au format ${selectedFormatObj?.title}.\n\nVotre demande concerne: ${toolDescription.substring(0, 100)}...\n\nVeuillez patienter pendant que je génère un contenu adapté à vos besoins spécifiques.`);
+    
+    // Simuler une progression pendant l'appel à l'API
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+      progress = Math.min(progress + 2, 95); // Max 95% pendant l'attente
+      setGenerationProgress(progress);
+    }, 150);
+    
+    try {
+      // Appel à l'API
+      const response = await axios.post('/api/tool-generator/generate', {
+        toolType: selectedTool,
+        format: selectedFormat,
+        description: toolDescription
+      });
       
-      setAiAnalysis(`Je vais créer un${selectedToolObj?.title.startsWith('A') || selectedToolObj?.title.startsWith('E') || selectedToolObj?.title.startsWith('I') || selectedToolObj?.title.startsWith('O') || selectedToolObj?.title.startsWith('U') ? 'e' : ''} ${selectedToolObj?.title} au format ${selectedFormatObj?.title}.\n\nVotre demande concerne: ${toolDescription.substring(0, 100)}...\n\nJe vais générer un contenu adapté à vos besoins spécifiques. Souhaitez-vous que je procède?`);
+      // Arrêter la progression simulée
+      clearInterval(progressInterval);
       
-      // Simuler la progression
-      let progress = 0;
-      const interval = setInterval(() => {
-        progress += 5;
-        setGenerationProgress(progress);
+      // Récupérer les résultats
+      if (response.data && response.data.success) {
+        const { tool, analysis } = response.data.data;
         
-        if (progress >= 100) {
-          clearInterval(interval);
-          const mockGeneratedTool = `# ${selectedToolObj?.title}\n\n## Introduction\nCe document a été généré pour répondre à vos besoins spécifiques en matière de cybersécurité.\n\n## Contenu principal\nVoici le contenu principal adapté à votre demande: "${toolDescription}"\n\n## Conclusion\nCe contenu est généré à titre d'exemple. Dans une implémentation réelle, ce serait du contenu généré par Azure OpenAI basé sur vos spécifications précises.`;
-          
-          setGeneratedTool(mockGeneratedTool);
-          setGenerationComplete(true);
-          setIsGenerating(false);
-        }
-      }, 150);
-    }, 1500);
+        // Mise à jour de l'interface
+        setGeneratedTool(tool);
+        setAiAnalysis(analysis);
+        setGenerationProgress(100);
+        setGenerationComplete(true);
+      } else {
+        // En cas d'erreur dans la réponse
+        toast({
+          title: "Erreur de génération",
+          description: "Une erreur s'est produite lors de la génération de l'outil. Veuillez réessayer.",
+          variant: "destructive"
+        });
+        setGeneratedTool("Erreur lors de la génération de l'outil. Veuillez réessayer.");
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'appel à l'API:", error);
+      
+      // Afficher un message d'erreur
+      toast({
+        title: "Erreur de communication",
+        description: "Impossible de communiquer avec le serveur. Veuillez réessayer ultérieurement.",
+        variant: "destructive"
+      });
+      
+      setGeneratedTool("Erreur de communication avec le serveur. Veuillez réessayer ultérieurement.");
+    } finally {
+      // Dans tous les cas, mettre fin à l'état de chargement
+      clearInterval(progressInterval);
+      setIsGenerating(false);
+    }
   };
   
   // Obtenir le titre de l'étape actuelle
