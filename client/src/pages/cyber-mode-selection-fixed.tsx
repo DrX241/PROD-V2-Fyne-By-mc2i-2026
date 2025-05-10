@@ -33,7 +33,8 @@ import {
   List,
   Check,
   GraduationCap,
-  Circle
+  Circle,
+  Bot
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
@@ -228,6 +229,16 @@ export default function CyberModeSelectionRedesign() {
       isNew: true
     },
     {
+      id: 'assistant-cyber',
+      title: 'CRÉER VOTRE ASSISTANT CYBER',
+      description: "Configurez un assistant IA personnalisé pour répondre à vos besoins en cybersécurité",
+      icon: <Bot className="h-5 w-5" />,
+      destination: '/cyber/tools/assistant-cyber',
+      difficulty: 'tous niveaux',
+      duration: '15-20 min',
+      isNew: true
+    },
+    {
       id: 'ascension-progression',
       title: 'CYBERASCENSION',
       description: "Suivez un parcours complet pour préparer des certifications professionnelles",
@@ -301,7 +312,8 @@ export default function CyberModeSelectionRedesign() {
       icon: <Wrench className="h-6 w-6 text-teal-100" />,
       modules: [
         'policy-converter',        // Conversion de politiques pour différents publics
-        'phishing-simulator'       // Création de simulations de phishing
+        'phishing-simulator',      // Création de simulations de phishing
+        'assistant-cyber'          // Création d'assistants IA personnalisés
       ],
       gradient: 'from-teal-700 to-teal-900'
     }
