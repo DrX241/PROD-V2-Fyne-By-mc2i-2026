@@ -547,16 +547,27 @@ const CyberInterviewSimulation: React.FC = () => {
         </AlertDialogContent>
       </AlertDialog>
       
-      <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white p-4">
-        <div className="flex justify-between items-center mb-4">
-          <Button 
-            variant="ghost" 
-            className="text-white hover:text-white hover:bg-gray-700"
-            onClick={() => navigate("/cyber")}
-          >
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Retour
-          </Button>
+      <div className="min-h-screen bg-gradient-to-b from-blue-950 to-slate-950 text-white p-4">
+        {/* En-tête style CYBER ACADÉMIE */}
+        <div className="container mx-auto">
+          <div className="flex items-center mb-2">
+            <Button 
+              variant="ghost" 
+              className="text-white hover:text-white hover:bg-blue-900/30 mr-4"
+              onClick={() => navigate('/cyber')}
+            >
+              <ArrowLeft className="mr-2 h-5 w-5" />
+              Retour
+            </Button>
+            <h1 className="text-xl md:text-2xl font-bold font-['Exo_2']">CYBER ENTRETIEN</h1>
+          </div>
+          
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+            <div>
+              <h1 className="text-3xl font-bold font-['Rajdhani']">Simulation d'entretien technique</h1>
+              <p className="text-blue-200 mt-1">Entraînez-vous à un entretien d'embauche réaliste en cybersécurité</p>
+            </div>
+          </div>
         </div>
         
         <div className="text-center mb-8">
