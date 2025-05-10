@@ -33,6 +33,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/hooks/use-toast";
 import { useChatContext } from "@/contexts/ChatContext";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
 import "@/components/cyber/cyber-academie.css";
 
 // Types pour le module CYBERCHAOS
@@ -118,6 +126,9 @@ const CyberChaos: React.FC = () => {
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [feedbackMode, setFeedbackMode] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState("");
+  const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
   
   // Configurer les événements de crise pour le scénario
   useEffect(() => {
