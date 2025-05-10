@@ -894,17 +894,19 @@ const CyberChaos: React.FC = () => {
                     <Badge variant="outline" className="w-fit mb-2 border-amber-400 text-amber-300">
                       Événement en cours
                     </Badge>
-                    <CardTitle className="text-lg font-medium flex items-center gap-2">
-                      {gameState.currentEvent.source === 'technical' ? <Shield className="h-5 w-5" /> :
-                       gameState.currentEvent.source === 'internal' ? <Users className="h-5 w-5" /> :
-                       gameState.currentEvent.source === 'external' ? <Building className="h-5 w-5" /> :
-                       <AlertCircle className="h-5 w-5" />
-                      }
-                      {gameState.currentEvent.title}
+                    <CardTitle className="text-lg font-medium flex items-center gap-2 overflow-hidden">
+                      <span className="flex-shrink-0">
+                        {gameState.currentEvent.source === 'technical' ? <Shield className="h-5 w-5" /> :
+                         gameState.currentEvent.source === 'internal' ? <Users className="h-5 w-5" /> :
+                         gameState.currentEvent.source === 'external' ? <Building className="h-5 w-5" /> :
+                         <AlertCircle className="h-5 w-5" />
+                        }
+                      </span>
+                      <span className="truncate">{gameState.currentEvent.title}</span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm mb-4 break-words whitespace-pre-wrap">{gameState.currentEvent.description}</p>
+                    <p className="text-sm mb-4 break-words whitespace-pre-wrap overflow-auto max-h-24 hover:max-h-full transition-all duration-200">{gameState.currentEvent.description}</p>
                     <div className="space-y-3">
                       <h4 className="text-md font-medium">Options disponibles:</h4>
                       {gameState.currentEvent.decisions.map(decision => (
@@ -912,15 +914,15 @@ const CyberChaos: React.FC = () => {
                           key={decision.id}
                           onClick={() => handleDecisionSelect(decision)}
                           variant="outline" 
-                          className="w-full justify-start text-left h-auto py-3 border-blue-800"
+                          className="w-full justify-start text-left h-auto py-3 border-blue-800 overflow-hidden"
                         >
-                          <div className="flex items-start">
-                            <div className="mr-3 mt-0.5">
+                          <div className="flex items-start w-full max-w-full">
+                            <div className="flex-shrink-0 mr-3 mt-0.5">
                               {decision.icon}
                             </div>
-                            <div>
-                              <p className="font-medium break-words">{decision.title}</p>
-                              <p className="text-sm text-gray-300 break-words line-clamp-3 hover:line-clamp-none">{decision.description}</p>
+                            <div className="min-w-0 flex-1 overflow-hidden">
+                              <p className="font-medium break-words truncate">{decision.title}</p>
+                              <p className="text-sm text-gray-300 break-words line-clamp-2 hover:line-clamp-none whitespace-normal overflow-hidden">{decision.description}</p>
                               <div className="flex flex-wrap gap-2 mt-2">
                                 <Badge variant="outline" className={
                                   decision.risk === 'high' ? 'border-red-500 text-red-300' :
@@ -976,7 +978,10 @@ const CyberChaos: React.FC = () => {
                       <div key={index} className="border-l-2 border-blue-500 pl-3 py-1">
                         <div className="flex flex-col">
                           <p className="text-xs text-blue-300 font-mono">T+{formatGameTime(entry.time)}</p>
-                          <p className="text-sm mt-1 break-words line-clamp-2 hover:line-clamp-none">{entry.event}</p>
+                          <p className="text-sm mt-1 break-words overflow-hidden text-ellipsis whitespace-normal line-clamp-2 hover:line-clamp-none">{entry.event}</p>
+                          {entry.decision && (
+                            <p className="text-xs text-gray-400 mt-1 italic overflow-hidden text-ellipsis whitespace-normal line-clamp-1 hover:line-clamp-none">{entry.decision}</p>
+                          )}
                         </div>
                       </div>
                     ))}
