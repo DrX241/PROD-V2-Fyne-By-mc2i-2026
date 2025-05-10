@@ -114,6 +114,12 @@ const tourSteps: Record<string, Step[]> = {
       spotlightClicks: true,
     },
     {
+      target: '[data-id="careers-tab"]',
+      content: 'L\'onglet "Par métier" vous propose des parcours de formation adaptés aux différents métiers de la cybersécurité comme analyste SOC, RSSI, pentester, etc.',
+      disableBeacon: true,
+      spotlightClicks: true,
+    },
+    {
       target: '[data-id="all-modules-tab"]',
       content: 'L\'onglet "Tous les modules" vous donne une vue d\'ensemble de toutes les ressources disponibles avec des options de filtrage avancées.',
       disableBeacon: true,
