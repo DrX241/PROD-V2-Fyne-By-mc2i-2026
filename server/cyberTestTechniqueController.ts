@@ -1153,3 +1153,158 @@ export function getTestOptions(req: Request, res: Response) {
     });
   }
 }
+
+/**
+ * Analyse de manière critique et rigoureuse les résultats d'un test technique
+ * Fournit une évaluation détaillée des compétences du candidat et des recommandations
+ */
+export async function analyzeTestResults(req: Request, res: Response) {
+  try {
+    const { 
+      results, 
+      category, 
+      difficulty
+    } = req.body;
+
+    if (!results || !category || !difficulty) {
+      return res.status(400).json({
+        success: false,
+        message: 'Results, category, and difficulty are required'
+      });
+    }
+
+    // Récupérer des informations sur la catégorie et la difficulté
+    const categoryInfo = TEST_CATEGORIES.find(c => c.id === category);
+    const difficultyInfo = DIFFICULTY_LEVELS.find(d => d.id === difficulty);
+
+    if (!categoryInfo || !difficultyInfo) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid category or difficulty'
+      });
+    }
+
+    // Calculer le score et d'autres métriques
+    const totalQuestions = results.totalQuestions;
+    const correctCount = results.correctCount;
+    const score = results.score;
+    const percentageScore = (score / totalQuestions) * 100;
+    
+    // Extraire des informations sur les catégories de questions réussies/ratées
+    const detailedResults = results.detailedResults || [];
+    
+    // Système prompt pour l'analyse critique
+    const systemPrompt = `Tu es un évaluateur technique senior en cybersécurité avec une expérience de plus de 15 ans dans l'évaluation rigoureuse et sans concession des compétences techniques de professionnels.
+
+Ta mission est d'analyser de manière CRITIQUE et OBJECTIVE les résultats du test technique d'un candidat pour fournir une évaluation approfondie et sans complaisance de ses compétences réelles en cybersécurité.
+
+INFORMATIONS SUR LE TEST:
+- Catégorie du test: ${categoryInfo.name}
+- Niveau de difficulté: ${difficultyInfo.name}
+- Nombre total de questions: ${totalQuestions}
+- Nombre de réponses correctes: ${correctCount}
+- Score en pourcentage: ${percentageScore.toFixed(2)}%
+
+DIRECTIVE D'ANALYSE CRITIQUE: 
+Ne sois pas complaisant. Évalue les résultats avec une rigueur extrême, en identifiant précisément les forces et faiblesses techniques du candidat. Cherche des patterns dans les erreurs qui révèlent des lacunes fondamentales.
+
+MÉTHODOLOGIE D'ÉVALUATION:
+1. Analyse SANS CONCESSION des réponses incorrectes pour identifier les lacunes conceptuelles ou techniques
+2. Identification des domaines où le candidat semble avoir des connaissances SUPERFICIELLES vs. APPROFONDIES
+3. Évaluation de l'adéquation réelle du niveau technique par rapport au niveau attendu (${difficultyInfo.name})
+4. Comparaison avec les standards industriels et les meilleures pratiques en cybersécurité
+
+STRUCTURE D'ANALYSE REQUISE:
+Ta réponse doit suivre STRICTEMENT le format JSON suivant:
+{
+  "summary": "Analyse factuelle et critique des résultats, sans complaisance ni exagération",
+  "skillLevel": "Niveau technique réel évalué (Débutant, Intermédiaire, Avancé, Expert) avec justification",
+  "strengths": ["Force technique spécifique 1", "Force technique spécifique 2", "Force technique spécifique 3"],
+  "weaknesses": ["Faiblesse technique spécifique 1", "Faiblesse technique spécifique 2", "Faiblesse technique spécifique 3", "Faiblesse technique spécifique 4"],
+  "gaps": "Analyse critique des écarts entre le niveau attendu et le niveau démontré",
+  "recommendations": ["Recommandation précise et actionnable 1", "Recommandation précise et actionnable 2", "Recommandation précise et actionnable 3"],
+  "resources": [
+    {
+      "title": "Titre de la ressource spécifique",
+      "description": "Description concise de la ressource et de sa pertinence pour combler les lacunes identifiées",
+      "url": "Lien vers la ressource (si disponible)"
+    }
+  ],
+  "nextSteps": "Prochaines étapes recommandées pour améliorer les compétences dans cette catégorie spécifique"
+}
+
+EXIGENCES CRITIQUES:
+- Sois impitoyablement factuel et objectif - base tes conclusions UNIQUEMENT sur les données du test
+- Ne surestime PAS le niveau du candidat - applique un standard élevé pour chaque niveau
+- Donne des recommandations SPÉCIFIQUES et ACTIONNABLES, pas des généralités
+- Sois direct mais professionnel dans ton évaluation
+- N'inclus PAS de préambule, d'introduction ou de formulation de politesse - uniquement le JSON requis`;
+    
+    try {
+      // Appel à l'API OpenAI pour l'analyse
+      const analysisResponse = await callAzureOpenAI(systemPrompt);
+      
+      if (!analysisResponse) {
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to analyze test results'
+        });
+      }
+      
+      // Traiter la réponse
+      let analysisResult;
+      try {
+        // Extraire le JSON des réponses qui pourraient contenir des délimiteurs markdown
+        let jsonStr = analysisResponse;
+        
+        // Si la réponse contient des délimiteurs de code markdown, extraire uniquement le JSON
+        if (jsonStr.includes('```json')) {
+          jsonStr = jsonStr.split('```json')[1].split('```')[0].trim();
+        } else if (jsonStr.includes('```')) {
+          jsonStr = jsonStr.split('```')[1].split('```')[0].trim();
+        }
+        
+        // Parser le JSON
+        analysisResult = JSON.parse(jsonStr);
+      } catch (error) {
+        console.error('Error parsing analysis result:', error);
+        
+        // Résultat de secours en cas d'erreur
+        analysisResult = {
+          summary: "L'analyse n'a pas pu être générée correctement. Veuillez réessayer.",
+          skillLevel: difficulty,
+          strengths: ["Capacité à compléter le test"],
+          weaknesses: ["Des lacunes spécifiques n'ont pas pu être identifiées en raison d'une erreur technique"],
+          gaps: "Analyse non disponible",
+          recommendations: ["Revoir les fondamentaux de la catégorie", "Pratiquer régulièrement", "Consulter des ressources spécialisées"],
+          resources: [
+            {
+              title: "Documentation officielle",
+              description: "Ressources fondamentales pour la catégorie sélectionnée",
+              url: ""
+            }
+          ],
+          nextSteps: "Revoir les questions échouées en détail et approfondir les connaissances dans ces domaines spécifiques"
+        };
+      }
+      
+      return res.status(200).json({
+        success: true,
+        analysis: analysisResult
+      });
+      
+    } catch (error) {
+      console.error('Error during test result analysis:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'An error occurred during analysis'
+      });
+    }
+  } catch (error) {
+    console.error('Error in analyzeTestResults:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+}
