@@ -640,6 +640,14 @@ function App() {
             <Route path="/cyber/arcade/firewall-defense" component={NotYetImplemented} />
             {/* Section Data & IA */}
             <Route path="/data-ia" component={() => {
+              const DataIaModeSelectionFixed = lazy(() => import('./pages/data-ia-mode-selection-fixed'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <DataIaModeSelectionFixed />
+                </Suspense>
+              );
+            }} />
+            <Route path="/data-ia-old" component={() => {
               const DataIaModeSelection = lazy(() => import('./pages/data-ia-mode-selection'));
               return (
                 <Suspense fallback={<GlobalLoader />}>
