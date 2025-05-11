@@ -106,19 +106,15 @@ export async function evaluateUserPerformance(req: Request, res: Response) {
     `;
 
     // Appel à l'API OpenAI
-    const aiResponse = await openAIService.getChatCompletion({
-      messages: [
+    const aiResponse = await openAIService.getChatCompletion(
+      [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ],
-      temperature: 0.5,
-      max_tokens: 1000,
-      top_p: 0.95,
-      frequency_penalty: 0,
-      presence_penalty: 0,
-      useSecondaryModel: true, // Utiliser le modèle secondaire (gpt-4o-mini) pour réduire les coûts
-      forceJsonResponse: true // Force le modèle à répondre en JSON
-    });
+      true, // useSecondaryKey: true - utiliser le modèle gpt-4o-mini
+      0.5,  // temperature
+      1000  // maxTokens
+    );
 
     // Analyse de la réponse
     let analysisResult: AIAnalysisResult;
@@ -219,17 +215,16 @@ export async function generateFeedbackMessage(req: Request, res: Response) {
       userPrompt = `L'utilisateur progresse dans le test avec un score de ${scorePercent}%. Donne-lui un message général d'encouragement pour la suite.`;
     }
 
-    // Appel à l'API Azure OpenAI avec le modèle gpt-4o-mini pour réduire la latence
-    const aiResponse = await azureOpenAIService.getChatCompletion({
-      messages: [
+    // Appel à l'API OpenAI avec le modèle gpt-4o-mini pour réduire la latence
+    const aiResponse = await openAIService.getChatCompletion(
+      [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ],
-      temperature: 0.7,
-      max_tokens: 100,
-      top_p: 0.95,
-      useSecondaryModel: true // Utiliser le modèle secondaire (gpt-4o-mini) pour réduire les coûts et la latence
-    });
+      true, // useSecondaryKey: true - utiliser le modèle gpt-4o-mini
+      0.7,  // temperature
+      100   // maxTokens
+    );
 
     return res.status(200).json({
       success: true,
