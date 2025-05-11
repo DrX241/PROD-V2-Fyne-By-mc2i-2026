@@ -1411,107 +1411,29 @@ const TestDeReflexes: React.FC = () => {
                             </div>
                           </div>
                         )}
-                        
-                        {/* Analyse IA et Badge */}
-                        {results.aiEvaluation && (
-                          <>
-                            {/* Badge obtenu */}
-                            <div className="bg-blue-800/20 border border-blue-500/30 rounded-lg p-4 text-center mt-6">
-                              <div className="flex items-center justify-center mb-2">
-                                <Award className="w-8 h-8 mr-2 text-blue-400" />
-                                <h3 className="text-xl font-bold text-blue-300">Badge obtenu</h3>
+
+                        {/* Classement si disponible */}
+                        {results.aiEvaluation && results.aiEvaluation.ranking && (
+                          <div className="bg-purple-800/20 border border-purple-500/30 rounded-lg p-4 mt-6">
+                            <div className="flex items-center mb-2">
+                              <Users className="w-5 h-5 mr-2 text-purple-400" />
+                              <h3 className="text-lg font-bold text-purple-300">Classement</h3>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 text-center">
+                              <div className="bg-white/10 rounded p-2">
+                                <p className="text-sm text-gray-300">Position</p>
+                                <p className="text-xl font-bold text-white">{results.aiEvaluation.ranking.position}</p>
                               </div>
-                              <div className="flex flex-col items-center bg-white/10 rounded-lg p-4 my-2">
-                                <div className="text-3xl mb-2">
-                                  <Award className="w-12 h-12 text-amber-400" />
-                                </div>
-                                <h4 className="text-xl font-bold text-white mb-1">{results.aiEvaluation.badge.name}</h4>
-                                <p className="text-gray-300 text-sm">{results.aiEvaluation.badge.description}</p>
+                              <div className="bg-white/10 rounded p-2">
+                                <p className="text-sm text-gray-300">Total</p>
+                                <p className="text-xl font-bold text-white">{results.aiEvaluation.ranking.totalParticipants}</p>
+                              </div>
+                              <div className="bg-white/10 rounded p-2">
+                                <p className="text-sm text-gray-300">Percentile</p>
+                                <p className="text-xl font-bold text-white">{results.aiEvaluation.ranking.percentile}%</p>
                               </div>
                             </div>
-
-                            {/* Classement si disponible */}
-                            {results.aiEvaluation.ranking && (
-                              <div className="bg-purple-800/20 border border-purple-500/30 rounded-lg p-4 mt-6">
-                                <div className="flex items-center mb-2">
-                                  <Users className="w-5 h-5 mr-2 text-purple-400" />
-                                  <h3 className="text-lg font-bold text-purple-300">Classement</h3>
-                                </div>
-                                <div className="grid grid-cols-3 gap-4 text-center">
-                                  <div className="bg-white/10 rounded p-2">
-                                    <p className="text-sm text-gray-300">Position</p>
-                                    <p className="text-xl font-bold text-white">{results.aiEvaluation.ranking.position}</p>
-                                  </div>
-                                  <div className="bg-white/10 rounded p-2">
-                                    <p className="text-sm text-gray-300">Total</p>
-                                    <p className="text-xl font-bold text-white">{results.aiEvaluation.ranking.totalParticipants}</p>
-                                  </div>
-                                  <div className="bg-white/10 rounded p-2">
-                                    <p className="text-sm text-gray-300">Percentile</p>
-                                    <p className="text-xl font-bold text-white">{results.aiEvaluation.ranking.percentile}%</p>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Feedback professionnel */}
-                            <div className="bg-white/10 rounded-lg p-4 mt-6">
-                              <div className="flex items-center mb-3">
-                                <FileText className="w-5 h-5 mr-2 text-blue-400" />
-                                <h3 className="text-xl font-bold">Analyse professionnelle</h3>
-                              </div>
-                              <p className="text-gray-200 mb-4">{results.aiEvaluation.feedback}</p>
-                            </div>
-
-                            {/* Points forts et points faibles */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                              <div className="bg-green-800/20 border border-green-500/30 rounded-lg p-4">
-                                <div className="flex items-center mb-2">
-                                  <Zap className="w-5 h-5 mr-2 text-green-400" />
-                                  <h3 className="text-lg font-bold text-green-300">Points forts</h3>
-                                </div>
-                                <ul className="space-y-2 list-disc pl-5">
-                                  {results.aiEvaluation.strengths.map((strength, index) => (
-                                    <li key={index} className="text-gray-200">{strength}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                              
-                              <div className="bg-red-800/20 border border-red-500/30 rounded-lg p-4">
-                                <div className="flex items-center mb-2">
-                                  <AlertCircle className="w-5 h-5 mr-2 text-red-400" />
-                                  <h3 className="text-lg font-bold text-red-300">Points à améliorer</h3>
-                                </div>
-                                <ul className="space-y-2 list-disc pl-5">
-                                  {results.aiEvaluation.weaknesses.map((weakness, index) => (
-                                    <li key={index} className="text-gray-200">{weakness}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            </div>
-
-                            {/* Recommandations */}
-                            <div className="bg-amber-800/20 border border-amber-500/30 rounded-lg p-4 mt-6">
-                              <div className="flex items-center mb-3">
-                                <Lightbulb className="w-5 h-5 mr-2 text-amber-400" />
-                                <h3 className="text-lg font-bold text-amber-300">Recommandations pour progresser</h3>
-                              </div>
-                              <ul className="space-y-2 list-disc pl-5">
-                                {results.aiEvaluation.improvementSuggestions.map((suggestion, index) => (
-                                  <li key={index} className="text-gray-200">{suggestion}</li>
-                                ))}
-                              </ul>
-                            </div>
-
-                            {/* Perspective professionnelle */}
-                            <div className="bg-indigo-800/20 border border-indigo-500/30 rounded-lg p-4 mt-6">
-                              <div className="flex items-center mb-3">
-                                <Briefcase className="w-5 h-5 mr-2 text-indigo-400" />
-                                <h3 className="text-lg font-bold text-indigo-300">Perspective professionnelle</h3>
-                              </div>
-                              <p className="text-gray-200">{results.aiEvaluation.professionalInsight}</p>
-                            </div>
-                          </>
+                          </div>
                         )}
 
                         {/* Points forts et faibles basés sur les catégories (affiché seulement si pas d'analyse IA) */}
