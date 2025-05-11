@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'wouter';
+import { Link } from 'wouter';
 import { motion } from 'framer-motion';
 import { HelpCircle, Search, Circle } from 'lucide-react';
 // Remplacer les icônes Lucide par des icônes modernes
@@ -653,19 +653,19 @@ export default function CyberModeSelectionRedesign() {
                         <ul className="space-y-2">
                           {getModulesForObjective(objective.id).map(module => (
                             <li key={module.id}>
-                              <div 
+                              <Link 
+                                href={module.destination}
                                 className={`block p-2 rounded-lg ${
                                   highContrastMode 
                                     ? 'bg-gray-700 hover:bg-gray-600' 
                                     : 'bg-white/10 hover:bg-white/20'
-                                } transition-colors cursor-pointer`}
-                                onClick={() => navigate(module.destination)}
+                                } transition-colors`}
                               >
                                 <div className="flex justify-between items-center">
                                   <span className="font-medium">{module.title}</span>
                                   <IoMdArrowForward className="h-4 w-4" />
                                 </div>
-                              </div>
+                              </Link>
                             </li>
                           ))}
                         </ul>
@@ -811,14 +811,15 @@ export default function CyberModeSelectionRedesign() {
                                       </p>
                                     </CardContent>
                                     <CardFooter className="mt-auto pt-2">
-                                      <Button 
-                                        variant={highContrastMode ? "outline" : "secondary"} 
-                                        className="w-full"
-                                        onClick={() => navigate(module.destination)}
-                                      >
-                                        Accéder au module
-                                        <IoMdArrowForward className="ml-2 h-4 w-4" />
-                                      </Button>
+                                      <Link href={module.destination} className="w-full">
+                                        <Button 
+                                          variant={highContrastMode ? "outline" : "secondary"} 
+                                          className="w-full"
+                                        >
+                                          Accéder au module
+                                          <IoMdArrowForward className="ml-2 h-4 w-4" />
+                                        </Button>
+                                      </Link>
                                     </CardFooter>
                                   </Card>
                                 ))}

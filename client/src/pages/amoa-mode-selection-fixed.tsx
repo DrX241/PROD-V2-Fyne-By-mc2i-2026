@@ -139,6 +139,16 @@ export default function AmoaModeSelectionFixed() {
       duration: '30-45 min'
     },
     {
+      id: 'mc2i-interview-preparation',
+      title: 'PRÉPARATION AUDITION mc2i',
+      description: "Guide complet pour consultants mc2i sur l'attitude professionnelle avant, pendant et après les auditions",
+      icon: <BsClipboardCheck className="h-5 w-5" />,
+      destination: '/amoa/mc2i-interview-preparation',
+      difficulty: 'tous niveaux',
+      duration: '15-20 min',
+      isNew: true
+    },
+    {
       id: 'test-reflexes',
       title: 'TEST DE RÉFLEXES',
       description: "Évaluez votre capacité à réagir aux situations critiques en gestion de projet",
@@ -220,9 +230,10 @@ export default function AmoaModeSelectionFixed() {
       description: "Tester vos compétences dans des conditions réelles d'examen ou d'entretien",
       icon: <IoTrophyOutline className="h-6 w-6 text-purple-100" />,
       modules: [
-        'interview-simulation',  // Préparation d'audition client
-        'test-reflexes',         // Test de réflexes AMOA
-        'certification-interne'  // Parcours de certification
+        'interview-simulation',     // Préparation d'audition client
+        'mc2i-interview-preparation', // Préparation audition mc2i
+        'test-reflexes',            // Test de réflexes AMOA
+        'certification-interne'     // Parcours de certification
       ],
       gradient: 'from-purple-700 to-purple-900'
     },
@@ -247,7 +258,7 @@ export default function AmoaModeSelectionFixed() {
       description: "Accompagner les projets informatiques depuis l'expression de besoin jusqu'au déploiement",
       icon: <BsClipboardData className="h-6 w-6 text-blue-100" />,
       skills: ['Analyse de besoins', 'Rédaction spécifications', 'Test', 'Conduite du changement'],
-      modules: ['mc2i-ai-learning', 'modules-express', 'interview-simulation', 'projet-imposteur'],
+      modules: ['mc2i-ai-learning', 'modules-express', 'interview-simulation', 'mc2i-interview-preparation', 'projet-imposteur'],
       gradient: 'from-blue-600 to-blue-800'
     },
     {
