@@ -90,10 +90,10 @@ export default function CrisisManagement() {
       <div className="container mx-auto py-8 px-4">
         {/* Header avec bouton retour */}
         <div className="flex items-center mb-8">
-          <Link href="/">
+          <Link href="/cyber">
             <Button variant="ghost" className="text-white hover:bg-blue-800/30">
               <IoMdArrowBack className="mr-2 h-5 w-5" />
-              Retour à l'accueil
+              Retour à I AM CYBER
             </Button>
           </Link>
         </div>
@@ -295,11 +295,6 @@ export default function CrisisManagement() {
               >
                 {isSubscribed ? "Vous êtes inscrit(e) !" : "Être notifié(e) au lancement"}
               </Button>
-              <Link href="/">
-                <Button variant="outline" size="lg" className="border-blue-400 text-blue-100 hover:bg-blue-800/50">
-                  Retourner à la Cyber Académie
-                </Button>
-              </Link>
             </div>
           </div>
         </motion.div>
