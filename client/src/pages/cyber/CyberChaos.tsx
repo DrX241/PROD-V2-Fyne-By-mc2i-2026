@@ -1424,6 +1424,12 @@ const CyberChaos: React.FC = () => {
                       <MessageSquare className="h-5 w-5 text-blue-300" />
                       Centre de Communication
                     </span>
+                    {/* Indicateur de demandes urgentes */}
+                    {Object.values(pendingRequests).some(pending => pending) && (
+                      <Badge variant="destructive" className="animate-pulse">
+                        Demandes urgentes! <AlarmClock className="h-3 w-3 ml-1" />
+                      </Badge>
+                    )}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
@@ -1451,7 +1457,16 @@ const CyberChaos: React.FC = () => {
                             </div>
                             {pendingRequests[contact] && (
                               <div className="flex items-center gap-2">
-                                <Badge variant="outline" className="bg-red-900/40 text-red-200 border-red-500 animate-pulse">
+                                <Badge 
+                                  variant="outline" 
+                                  className={`${
+                                    requestTimers[contact] < 60 
+                                      ? "bg-red-900/70 text-red-100 border-red-500 animate-pulse"
+                                      : requestTimers[contact] < 120
+                                        ? "bg-amber-900/50 text-amber-100 border-amber-500 animate-pulse"
+                                        : "bg-red-900/40 text-red-200 border-red-500"
+                                  }`}
+                                >
                                   <AlarmClock className="h-3 w-3 mr-1" /> 
                                   {Math.floor(requestTimers[contact] / 60)}:{(requestTimers[contact] % 60).toString().padStart(2, '0')}
                                 </Badge>
@@ -1459,7 +1474,19 @@ const CyberChaos: React.FC = () => {
                             )}
                           </div>
                           {pendingRequests[contact] && (
-                            <p className="text-sm text-red-300 mt-1">Demande une décision urgente!</p>
+                            <p className={`text-sm mt-1 ${
+                              requestTimers[contact] < 60 
+                                ? "text-red-300 font-semibold" 
+                                : requestTimers[contact] < 120 
+                                  ? "text-amber-300"
+                                  : "text-red-300"
+                            }`}>
+                              {requestTimers[contact] < 60 
+                                ? "URGENT: Décision requise immédiatement!" 
+                                : requestTimers[contact] < 120 
+                                  ? "Décision à prendre rapidement."
+                                  : "Demande une décision urgente."}
+                            </p>
                           )}
                           {!pendingRequests[contact] && communicationHistory[contact].length > 0 && (
                             <p className="text-xs text-gray-400 mt-1 line-clamp-1">
@@ -1509,9 +1536,18 @@ const CyberChaos: React.FC = () => {
                             className={`max-w-[80%] rounded-lg p-3 ${
                               msg.sender === 'player' 
                               ? 'bg-blue-700 text-white' 
-                              : 'bg-gray-800 text-white'
+                              : msg.needsResponse 
+                                ? 'bg-amber-900/80 text-white border border-amber-500/50' 
+                                : 'bg-gray-800 text-white'
                             }`}
                           >
+                            {msg.sender === 'npc' && msg.needsResponse && (
+                              <div className="flex items-center mb-2 gap-2">
+                                <Badge variant="outline" className="bg-amber-950 text-amber-100 border-amber-500">
+                                  <AlarmClock className="h-3 w-3 mr-1" /> Réponse requise
+                                </Badge>
+                              </div>
+                            )}
                             <p className="break-words whitespace-pre-wrap">{msg.message}</p>
                             
                             {/* Boutons de choix pour les messages qui nécessitent une réponse */}
