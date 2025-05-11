@@ -24,8 +24,7 @@ import {
   AlertTriangle,
   ArrowRight,
   BookOpen,
-  Trophy,
-  Loader2
+  Trophy
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
