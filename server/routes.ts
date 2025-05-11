@@ -65,6 +65,7 @@ import { generateCustomTool } from "./toolGeneratorController";
 import { getOrCreateUser, getUserById } from "./userController";
 import { evaluateUserPerformance, generateFeedbackMessage } from "./amoaReflexTestController";
 import { generateAmoaQuestions } from "./amoaQuestionGenerator";
+import { generateMissionScenario, simulateInterview, evaluatePerformance as evaluateInterviewPerformance } from "./amoaInterviewSimulationController";
 
 
 import {
