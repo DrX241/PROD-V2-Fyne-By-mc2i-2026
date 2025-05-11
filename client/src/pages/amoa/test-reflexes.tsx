@@ -100,24 +100,7 @@ interface TestResults {
   aiEvaluation?: AIEvaluation;  // Nouvelle propriété pour l'évaluation IA
 }
 
-// Questions de test sur le métier d'AMOA
-const testQuestions: Question[] = [
-  {
-    id: "q1",
-    text: "Quelle est la principale mission d'un AMOA dans un projet de transformation digitale ?",
-    options: [
-      { 
-        id: "a1", 
-        text: "Coder les nouvelles fonctionnalités", 
-        isCorrect: false, 
-        explanation: "Le développement est généralement confié à l'équipe technique ou à la MOE."
-      },
-      { 
-        id: "a2", 
-        text: "Faire l'interface entre les utilisateurs métier et l'équipe technique", 
-        isCorrect: true, 
-        explanation: "L'AMOA joue un rôle d'interface crucial pour traduire les besoins métiers en spécifications techniques."
-      },
+// Note: Nous utilisons maintenant les questions importées depuis le fichier test-reflexes-questions.ts
       { 
         id: "a3", 
         text: "Définir la stratégie marketing du projet", 
