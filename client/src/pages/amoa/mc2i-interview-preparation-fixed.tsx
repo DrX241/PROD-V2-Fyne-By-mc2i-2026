@@ -617,19 +617,7 @@ const BestPracticesContent: React.FC = () => {
         </div>
       </div>
       
-      {/* Next steps button at the bottom */}
-      <div className="mt-8 text-center">
-        <Button
-          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-2 px-6 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105"
-          onClick={() => setActiveTab?.('configuration')}
-        >
-          <Sparkles className="w-5 h-5 mr-2" />
-          Démarrer une simulation d'audition
-        </Button>
-        <p className="text-blue-200 text-sm mt-2">
-          Mettez en pratique ces conseils dans notre environnement de simulation
-        </p>
-      </div>
+
     </div>
   );
 };

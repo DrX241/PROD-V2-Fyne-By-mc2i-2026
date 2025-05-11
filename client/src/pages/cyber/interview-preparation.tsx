@@ -1,54 +1,73 @@
-import React, { useState } from 'react';
-import { useLocation } from 'wouter';
+import React from 'react';
+import { Link, useLocation } from 'wouter';
+import { ArrowLeft, ArrowRight, Clock, User, Building, CheckSquare, XCircle, Shield, Sparkles } from 'lucide-react';
 import { 
-  ArrowLeft, 
-  CheckCircle, 
-  User,
-  Copy,
-  Star,
-  TimerReset,
-  Lightbulb,
-  Users,
-  FileCheck,
-  Sparkles,
-  BriefcaseBusiness,
-} from 'lucide-react';
+  Card, 
+  CardHeader, 
+  CardTitle, 
+  CardDescription, 
+  CardContent, 
+  CardFooter 
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import HomeLayout from '@/components/layout/HomeLayout';
 
-import HomeLayout from "@/components/layout/HomeLayout";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+// Composant pour les sections de bonnes pratiques
+const BestPracticesSection: React.FC<{
+  title: string;
+  icon: React.ReactNode;
+  items: Array<{ dos: string[]; donts: string[] }>;
+}> = ({ title, icon, items }) => {
+  return (
+    <div className="mb-8">
+      <div className="flex items-center gap-3 mb-4">
+        {icon}
+        <h3 className="text-xl font-semibold">{title}</h3>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {items.map((item, index) => (
+          <div key={index} className="space-y-4">
+            <div className="bg-blue-900/20 p-4 rounded-lg border border-blue-800/30">
+              <h4 className="flex items-center gap-2 text-green-400 font-medium mb-2">
+                <CheckSquare className="h-5 w-5" /> À faire
+              </h4>
+              <ul className="space-y-2 pl-5 list-disc">
+                {item.dos.map((doItem, i) => (
+                  <li key={i} className="text-white">{doItem}</li>
+                ))}
+              </ul>
+            </div>
+            
+            <div className="bg-red-900/20 p-4 rounded-lg border border-red-800/30">
+              <h4 className="flex items-center gap-2 text-red-400 font-medium mb-2">
+                <XCircle className="h-5 w-5" /> À éviter
+              </h4>
+              <ul className="space-y-2 pl-5 list-disc">
+                {item.donts.map((dontItem, i) => (
+                  <li key={i} className="text-white">{dontItem}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
-// Types pour le suivi de progression
-type ProgressSection = 'preparation' | 'during' | 'after';
-
-const InterviewPreparationGuide: React.FC = () => {
+const CyberInterviewPreparation: React.FC = () => {
   const [, navigate] = useLocation();
-  const [progressTracker, setProgressTracker] = useState({
-    preparation: { completed: 0, total: 2 },
-    during: { completed: 0, total: 5 },
-    after: { completed: 0, total: 3 }
-  });
-  
-  const incrementProgress = (section: ProgressSection, amount: number = 1) => {
-    setProgressTracker(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        completed: Math.min(prev[section].completed + amount, prev[section].total)
-      }
-    }));
-  };
-  
+
   return (
     <HomeLayout>
-      <div className="flex flex-col w-full min-h-screen p-4 md:p-8 bg-gradient-to-b from-gray-800 to-gray-950 text-white">
+      <div className="flex flex-col w-full min-h-screen p-4 md:p-8 bg-gradient-to-b from-blue-900 to-gray-950 text-white">
         <div className="flex justify-between items-center mb-4">
           <Button 
             variant="ghost" 
-            className="text-white hover:text-white hover:bg-gray-700/80"
-            onClick={() => navigate("/cyber-mode-selection-fixed")}
+            className="text-white hover:text-white hover:bg-blue-700/50"
+            onClick={() => navigate("/cyber")}
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
             Retour
@@ -56,563 +75,197 @@ const InterviewPreparationGuide: React.FC = () => {
         </div>
         
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-indigo-500">
-            Guide de préparation d'audition client
+          <h1 className="text-3xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-400">
+            Préparation à l'audition client en cybersécurité
           </h1>
           <p className="text-gray-300 max-w-3xl mx-auto">
-            Ce guide vous aide à préparer vos auditions auprès de clients, avec des conseils sur la tenue, l'attitude professionnelle et les bonnes pratiques avant, pendant et après l'entretien.
+            Guide complet pour préparer et réussir une audition client dans le domaine de la cybersécurité. 
+            Maîtrisez les bonnes pratiques avant, pendant et après l'entretien pour maximiser vos chances de succès.
           </p>
         </div>
         
-        <Card className="bg-gray-800/30 border-gray-700/50 shadow-lg max-w-6xl mx-auto">
-          <CardHeader className="border-b border-gray-700/50">
-            <CardTitle className="text-xl text-center">Guide complet de préparation d'audition</CardTitle>
+        <Card className="bg-blue-900/20 border-blue-700/50 shadow-xl w-full max-w-6xl mx-auto">
+          <CardHeader className="border-b border-blue-700/50">
+            <CardTitle className="text-xl text-center">Guide de préparation d'audition en cybersécurité</CardTitle>
             <CardDescription className="text-gray-300 text-center">
               Conseils pour optimiser votre présentation et votre comportement lors des auditions client
             </CardDescription>
           </CardHeader>
+          
           <CardContent className="pt-6">
-            <div className="px-8 py-6 bg-gradient-to-b from-gray-900 to-gray-950 rounded-lg">
-              {/* Section title with progress bar */}
-              <div className="mb-8 text-center">
-                <h2 className="text-2xl font-bold text-white mb-2">Parcours de préparation à l'audition</h2>
-                <div className="w-full bg-gray-700 h-2 rounded-full overflow-hidden mb-2">
-                  <div 
-                    className="bg-gradient-to-r from-green-400 to-blue-500 h-full transition-all duration-500 ease-out"
-                    style={{ 
-                      width: `${Math.round(((progressTracker.preparation.completed + progressTracker.during.completed + progressTracker.after.completed) / 
-                      (progressTracker.preparation.total + progressTracker.during.total + progressTracker.after.total)) * 100)}%` 
-                    }}
-                  ></div>
-                </div>
-                <p className="text-blue-100 text-sm">
-                  Accomplissez les étapes pour maîtriser le processus d'audition
-                </p>
-              </div>
-            
-              {/* Main content using grid with different colored sections */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* SECTION 1: AVANT L'AUDITION */}
-                <div className="flex flex-col space-y-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-xl font-bold flex items-center">
-                      <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center mr-3 text-white">1</div>
-                      <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
-                        Avant l'audition
-                      </span>
-                    </h3>
-                    <Badge variant="outline" className="bg-purple-900/40 text-purple-200 border-purple-500">
-                      {progressTracker.preparation.completed}/{progressTracker.preparation.total} étapes
-                    </Badge>
-                  </div>
-                  
-                  <Card className="bg-gradient-to-br from-purple-900/50 to-indigo-900/30 border-purple-500/50 shadow-lg overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-blue-400"></div>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="flex items-center text-lg">
-                        <User className="w-5 h-5 mr-2 text-purple-300" />
-                        Préparation personnelle
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <Accordion type="multiple" className="w-full">
-                        <AccordionItem value="appearance" className="border-purple-700/50">
-                          <AccordionTrigger 
-                            className="hover:bg-purple-800/30 px-2 rounded text-white hover:text-purple-200"
-                            onClick={() => incrementProgress('preparation')}
-                          >
-                            <div className="flex items-center">
-                              <div className="w-6 h-6 rounded-full border-2 border-purple-400 flex items-center justify-center mr-2 bg-purple-900/50">
-                                <span className="text-xs text-purple-200">1</span>
-                              </div>
-                              Apparence professionnelle
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="text-blue-100 bg-purple-950/30 rounded-md p-2 mt-1">
-                            <ul className="list-disc ml-5 space-y-1">
-                              <li>Tenue professionnelle adaptée au client (costume pour environnements formels)</li>
-                              <li>Évitez les tenues trop décontractées même en cas d'environnement startup</li>
-                              <li>Assurez-vous que vos vêtements sont propres, repassés et en bon état</li>
-                              <li>Pour les auditions à distance, portez une tenue professionnelle complète</li>
-                            </ul>
-                          </AccordionContent>
-                        </AccordionItem>
-                        
-                        <AccordionItem value="research" className="border-purple-700/50">
-                          <AccordionTrigger 
-                            className="hover:bg-purple-800/30 px-2 rounded text-white hover:text-purple-200"
-                            onClick={() => incrementProgress('preparation')}
-                          >
-                            <div className="flex items-center">
-                              <div className="w-6 h-6 rounded-full border-2 border-purple-400 flex items-center justify-center mr-2 bg-purple-900/50">
-                                <span className="text-xs text-purple-200">2</span>
-                              </div>
-                              Recherches préalables
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="text-blue-100 bg-purple-950/30 rounded-md p-2 mt-1">
-                            <ul className="list-disc ml-5 space-y-1">
-                              <li>Renseignez-vous sur l'entreprise cliente (secteur, activités récentes)</li>
-                              <li>Comprenez les enjeux business spécifiques au secteur</li>
-                              <li>Identifiez les concurrents principaux et les tendances du marché</li>
-                              <li>Consultez le site web et les réseaux sociaux de l'entreprise</li>
-                            </ul>
-                          </AccordionContent>
-                        </AccordionItem>
-                      </Accordion>
-                    </CardContent>
-                    
-                    {/* Pitch section */}
-                    <div className="p-5 border-t border-purple-700/30 bg-gradient-to-br from-indigo-900/40 to-purple-900/20">
-                      <div className="flex items-center mb-3">
-                        <Lightbulb className="w-5 h-5 mr-2 text-yellow-300" />
-                        <h4 className="text-lg font-semibold text-white">Votre pitch personnel</h4>
-                      </div>
-                      
-                      <div className="space-y-2 text-blue-100">
-                        <p className="font-semibold text-yellow-100 flex items-center">
-                          <Sparkles className="w-4 h-4 mr-1 text-yellow-300" /> Formule gagnante
-                        </p>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="bg-indigo-900/40 p-2 rounded-md border border-indigo-600/30">
-                            <span className="text-xs font-medium text-indigo-300">Éléments essentiels</span>
-                            <ul className="list-disc ml-4 text-sm mt-1 space-y-0.5">
-                              <li>Votre nom</li>
-                              <li>Votre fonction actuelle</li>
-                              <li>Formation académique</li>
-                              <li>Compétences clés</li>
-                            </ul>
-                          </div>
-                          <div className="bg-purple-900/40 p-2 rounded-md border border-purple-600/30">
-                            <span className="text-xs font-medium text-purple-300">À éviter</span>
-                            <ul className="list-disc ml-4 text-sm mt-1 space-y-0.5">
-                              <li>Détails non pertinents</li>
-                              <li>Historique complet</li>
-                              <li>Informations personnelles</li>
-                              <li>Expériences négatives</li>
-                            </ul>
-                          </div>
-                        </div>
-
-                        <div className="mt-3 bg-gradient-to-br from-indigo-900/60 to-purple-900/60 p-3 rounded-md border border-indigo-500/40">
-                          <p className="text-white font-medium text-sm">Exemple de pitch :</p>
-                          <p className="italic text-sm text-blue-100 mt-1">« Je suis Jean Dupont, consultant senior en cybersécurité spécialisé dans l'audit de sécurité des systèmes d'information, diplômé de [ÉCOLE] avec 5 ans d'expérience dans la protection des infrastructures critiques pour des clients des secteurs [SECTEURS]. »</p>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="mt-2 text-xs border-blue-400 text-blue-300 hover:bg-indigo-700 hover:text-white"
-                            onClick={() => {
-                              try {
-                                navigator.clipboard?.writeText("Je suis [PRÉNOM NOM], [FONCTION] spécialisé en [SPÉCIALITÉ], diplômé de [FORMATION] avec [X] ans d'expérience dans [DOMAINES D'EXPERTISE] pour des clients des secteurs [SECTEURS].");
-                                alert("Modèle de pitch copié dans le presse-papier");
-                              } catch (error) {
-                                console.error("Erreur lors de la copie:", error);
-                              }
-                            }}
-                          >
-                            <Copy className="w-3 h-3 mr-1" /> Copier le modèle
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                </div>
-                
-                {/* SECTION 2: PENDANT L'AUDITION */}
-                <div className="flex flex-col space-y-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-xl font-bold flex items-center">
-                      <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center mr-3 text-white">2</div>
-                      <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-400">
-                        Pendant l'audition
-                      </span>
-                    </h3>
-                    <Badge variant="outline" className="bg-blue-900/40 text-blue-200 border-blue-500">
-                      {progressTracker.during.completed}/{progressTracker.during.total} étapes
-                    </Badge>
-                  </div>
-                  
-                  <Card className="bg-gradient-to-br from-blue-900/50 to-cyan-900/30 border-blue-500/50 shadow-lg overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-cyan-400"></div>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="flex items-center text-lg">
-                        <Users className="w-5 h-5 mr-2 text-blue-300" />
-                        Conduite de l'entretien
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <Accordion type="multiple" className="w-full">
-                        <AccordionItem value="first-contact" className="border-blue-700/50">
-                          <AccordionTrigger 
-                            className="hover:bg-blue-800/30 px-2 rounded text-white hover:text-blue-200"
-                            onClick={() => incrementProgress('during')}
-                          >
-                            <div className="flex items-center">
-                              <div className="w-6 h-6 rounded-full border-2 border-blue-400 flex items-center justify-center mr-2 bg-blue-900/50">
-                                <span className="text-xs text-blue-200">1</span>
-                              </div>
-                              Premier contact
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="text-blue-100 bg-blue-950/30 rounded-md p-2 mt-1">
-                            <ul className="list-disc ml-5 space-y-1 text-sm">
-                              <li>Soyez ponctuel (arrivez 10-15 minutes en avance)</li>
-                              <li>En présentiel : poignée de main franche, contact visuel</li>
-                              <li>À distance : vérifiez votre équipement technique avant</li>
-                              <li>Laissez à l'interviewer le soin de "briser la glace"</li>
-                              <li>Remerciez pour l'opportunité de cette audition</li>
-                            </ul>
-                          </AccordionContent>
-                        </AccordionItem>
-                        
-                        <AccordionItem value="context" className="border-blue-700/50">
-                          <AccordionTrigger 
-                            className="hover:bg-blue-800/30 px-2 rounded text-white hover:text-blue-200"
-                            onClick={() => incrementProgress('during')}
-                          >
-                            <div className="flex items-center">
-                              <div className="w-6 h-6 rounded-full border-2 border-blue-400 flex items-center justify-center mr-2 bg-blue-900/50">
-                                <span className="text-xs text-blue-200">2</span>
-                              </div>
-                              L'entonnoir d'information
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="text-blue-100 bg-blue-950/30 rounded-md p-2 mt-1">
-                            <p className="mb-2 text-sm">Démontrez votre compréhension en partant du <span className="text-white font-semibold">général</span> vers le <span className="text-white font-semibold">spécifique</span>.</p>
-                            
-                            <div className="space-y-1">
-                              <div className="flex items-center bg-blue-800/30 p-2 rounded-t-md border-l-4 border-blue-500">
-                                <span className="text-sm font-medium text-white flex-1">L'ENTREPRISE</span>
-                                <span className="text-xs px-2 py-0.5 bg-blue-700/50 rounded-full">Général</span>
-                              </div>
-                              <div className="flex items-center bg-blue-800/40 p-2 border-l-4 border-blue-500">
-                                <span className="text-sm font-medium text-white flex-1">LA PROBLÉMATIQUE</span>
-                                <span className="text-xs px-2 py-0.5 bg-blue-700/60 rounded-full">Intermédiaire</span>
-                              </div>
-                              <div className="flex items-center bg-blue-800/50 p-2 rounded-b-md border-l-4 border-blue-500">
-                                <span className="text-sm font-medium text-white flex-1">VOTRE SOLUTION</span>
-                                <span className="text-xs px-2 py-0.5 bg-blue-700/70 rounded-full">Spécifique</span>
-                              </div>
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                        
-                        <AccordionItem value="questions" className="border-blue-700/50">
-                          <AccordionTrigger 
-                            className="hover:bg-blue-800/30 px-2 rounded text-white hover:text-blue-200"
-                            onClick={() => incrementProgress('during')}
-                          >
-                            <div className="flex items-center">
-                              <div className="w-6 h-6 rounded-full border-2 border-blue-400 flex items-center justify-center mr-2 bg-blue-900/50">
-                                <span className="text-xs text-blue-200">3</span>
-                              </div>
-                              Questions stratégiques
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="text-blue-100 bg-blue-950/30 rounded-md p-2 mt-1">
-                            <div className="space-y-2 text-sm">
-                              <p>Quand on vous demande si vous avez des questions, répondez toujours <span className="font-bold text-white">OUI</span>.</p>
-                              
-                              <div className="bg-gradient-to-br from-blue-800/60 to-blue-900/60 p-2 rounded-md border border-blue-500/40">
-                                <div className="flex items-center mb-1">
-                                  <Star className="w-4 h-4 mr-1 text-yellow-300" />
-                                  <p className="text-white font-medium text-sm">Questions pertinentes :</p>
-                                </div>
-                                <ul className="list-disc ml-5 space-y-0.5 text-xs">
-                                  <li>Quels sont les enjeux de sécurité prioritaires pour votre organisation ?</li>
-                                  <li>Quels sont les principaux défis rencontrés par vos équipes actuellement ?</li>
-                                  <li>Comment cette mission s'inscrit-elle dans votre stratégie de sécurité globale ?</li>
-                                  <li>Quelles sont vos attentes concernant la collaboration et la communication ?</li>
-                                </ul>
-                              </div>
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      </Accordion>
-                    </CardContent>
-                    
-                    {/* Savoir-être section */}
-                    <div className="p-5 border-t border-blue-700/30 bg-gradient-to-br from-cyan-900/40 to-blue-900/20">
-                      <div className="flex justify-between items-center mb-3">
-                        <div className="flex items-center">
-                          <BriefcaseBusiness className="w-5 h-5 mr-2 text-cyan-300" />
-                          <h4 className="text-lg font-semibold text-white">Savoir-être professionnel</h4>
-                        </div>
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          className="text-xs text-cyan-300 hover:bg-blue-800/50 hover:text-white"
-                          onClick={() => incrementProgress('during', 2)}
-                        >
-                          Marquer comme lu
-                        </Button>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-3 mb-3">
-                        <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/20 rounded-md p-3 border border-cyan-700/30">
-                          <h5 className="font-medium text-cyan-200 text-sm mb-1 flex items-center">
-                            <div className="w-5 h-5 rounded-full bg-cyan-800 flex items-center justify-center mr-1.5 text-white text-xs">P</div>
-                            Posture
-                          </h5>
-                          <ul className="list-disc ml-4 text-xs space-y-1 text-blue-100">
-                            <li>Dos droit, mains visibles</li>
-                            <li>Contact visuel avec l'interlocuteur</li>
-                            <li>Gestuelle maîtrisée et assurée</li>
-                          </ul>
-                        </div>
-                        
-                        <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/20 rounded-md p-3 border border-cyan-700/30">
-                          <h5 className="font-medium text-cyan-200 text-sm mb-1 flex items-center">
-                            <div className="w-5 h-5 rounded-full bg-cyan-800 flex items-center justify-center mr-1.5 text-white text-xs">A</div>
-                            Attitude
-                          </h5>
-                          <ul className="list-disc ml-4 text-xs space-y-1 text-blue-100">
-                            <li>Professionnel et respectueux</li>
-                            <li>Confiant sans arrogance</li>
-                            <li>À l'écoute et réactif</li>
-                          </ul>
-                        </div>
-                      </div>
-                      
-                      <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/20 rounded-md p-3 border border-cyan-700/30">
-                        <h5 className="font-medium text-cyan-200 text-sm mb-1 flex items-center">
-                          <div className="w-5 h-5 rounded-full bg-cyan-800 flex items-center justify-center mr-1.5 text-white text-xs">C</div>
-                          Communication
-                        </h5>
-                        <ul className="list-disc ml-4 text-xs space-y-1 text-blue-100">
-                          <li>Évitez les tics de langage ('euh', 'en fait', 'voilà')</li>
-                          <li>Réponses concises et structurées</li>
-                          <li>Adaptez votre vocabulaire technique à votre interlocuteur</li>
-                          <li>Ne coupez jamais la parole</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </Card>
-                </div>
-                
-                {/* SECTION 3: APRÈS L'AUDITION */}
-                <div className="flex flex-col space-y-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-xl font-bold flex items-center">
-                      <div className="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center mr-3 text-white">3</div>
-                      <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-teal-400">
-                        Après l'audition
-                      </span>
-                    </h3>
-                    <Badge variant="outline" className="bg-green-900/40 text-green-200 border-green-500">
-                      {progressTracker.after.completed}/{progressTracker.after.total} étapes
-                    </Badge>
-                  </div>
-                  
-                  <Card className="bg-gradient-to-br from-green-900/50 to-teal-900/30 border-green-500/50 shadow-lg overflow-hidden h-full">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 to-teal-400"></div>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="flex items-center text-lg">
-                        <FileCheck className="w-5 h-5 mr-2 text-green-300" />
-                        Suivi post-entretien
-                      </CardTitle>
-                      <CardDescription className="text-green-100">
-                        Les actions post-entretien sont souvent négligées mais peuvent faire la différence.
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <Accordion type="multiple" className="w-full">
-                        <AccordionItem value="immediate-actions" className="border-green-700/50">
-                          <AccordionTrigger 
-                            className="hover:bg-green-800/30 px-2 rounded text-white hover:text-green-200"
-                            onClick={() => incrementProgress('after')}
-                          >
-                            <div className="flex items-center">
-                              <div className="w-6 h-6 rounded-full border-2 border-green-400 flex items-center justify-center mr-2 bg-green-900/50">
-                                <span className="text-xs text-green-200">1</span>
-                              </div>
-                              Actions immédiates
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="text-blue-100 bg-green-950/30 rounded-md p-2 mt-1">
-                            <div className="flex flex-col space-y-1">
-                              <div className="flex items-center">
-                                <div className="w-5 h-5 rounded-full bg-green-800/70 flex items-center justify-center mr-2">
-                                  <CheckCircle className="w-3 h-3 text-green-200" />
-                                </div>
-                                <span className="text-sm">Remerciez sincèrement les interlocuteurs</span>
-                              </div>
-                              <div className="flex items-center">
-                                <div className="w-5 h-5 rounded-full bg-green-800/70 flex items-center justify-center mr-2">
-                                  <CheckCircle className="w-3 h-3 text-green-200" />
-                                </div>
-                                <span className="text-sm">Exprimez clairement votre intérêt</span>
-                              </div>
-                              <div className="flex items-center">
-                                <div className="w-5 h-5 rounded-full bg-green-800/70 flex items-center justify-center mr-2">
-                                  <CheckCircle className="w-3 h-3 text-green-200" />
-                                </div>
-                                <span className="text-sm">Échangez des cartes de visite ou coordonnées</span>
-                              </div>
-                              <div className="flex items-center">
-                                <div className="w-5 h-5 rounded-full bg-green-800/70 flex items-center justify-center mr-2">
-                                  <CheckCircle className="w-3 h-3 text-green-200" />
-                                </div>
-                                <span className="text-sm">Demandez les prochaines étapes du processus</span>
-                              </div>
-                              <div className="flex items-center">
-                                <div className="w-5 h-5 rounded-full bg-green-800/70 flex items-center justify-center mr-2">
-                                  <CheckCircle className="w-3 h-3 text-green-200" />
-                                </div>
-                                <span className="text-sm">Précisez votre disponibilité pour démarrer</span>
-                              </div>
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                        
-                        <AccordionItem value="follow-up" className="border-green-700/50">
-                          <AccordionTrigger 
-                            className="hover:bg-green-800/30 px-2 rounded text-white hover:text-green-200"
-                            onClick={() => incrementProgress('after')}
-                          >
-                            <div className="flex items-center">
-                              <div className="w-6 h-6 rounded-full border-2 border-green-400 flex items-center justify-center mr-2 bg-green-900/50">
-                                <span className="text-xs text-green-200">2</span>
-                              </div>
-                              Email de remerciement
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="text-blue-100 bg-green-950/30 rounded-md p-2 mt-1">
-                            <div className="space-y-2">
-                              <div className="flex items-center bg-green-800/30 rounded p-1.5 text-xs text-green-200">
-                                <CheckCircle className="w-3 h-3 mr-1" />
-                                Envoyez un email dans les 24h suivant l'entretien
-                              </div>
-                              
-                              <div className="bg-gradient-to-br from-green-800/60 to-teal-900/60 p-3 rounded-md border border-green-500/40">
-                                <div className="flex justify-between items-center mb-1">
-                                  <p className="text-white font-medium text-sm">Modèle d'email :</p>
-                                  <Button 
-                                    variant="outline" 
-                                    size="sm" 
-                                    className="h-6 text-xs border-green-500 text-green-300 hover:bg-green-700 hover:text-white"
-                                    onClick={() => {
-                                      try {
-                                        navigator.clipboard?.writeText("Objet : Remerciement suite à notre entretien du [DATE]\n\nBonjour [PRÉNOM],\n\nJe tenais à vous remercier pour notre échange d'aujourd'hui concernant la mission [DESCRIPTION].\n\nCet entretien a renforcé mon intérêt pour cette opportunité et je suis convaincu(e) que mon expertise en [COMPÉTENCE CLÉ] sera un atout pour relever les défis que vous avez évoqués, notamment [MENTIONNER UN POINT SPÉCIFIQUE].\n\nJe reste à votre disposition pour toute information complémentaire.\n\nBien cordialement,\n[VOTRE NOM]\n[VOTRE TITRE/FONCTION]");
-                                        alert("Modèle d'email copié dans le presse-papier");
-                                      } catch (error) {
-                                        console.error("Erreur lors de la copie:", error);
-                                      }
-                                    }}
-                                  >
-                                    <Copy className="w-3 h-3 mr-1" /> Copier
-                                  </Button>
-                                </div>
-                                <div className="border-l-2 border-green-500 pl-2 mt-1 text-xs space-y-1 italic">
-                                  <p>Objet : Remerciement suite à notre entretien du [DATE]</p>
-                                  <p>Bonjour [PRÉNOM],</p>
-                                  <p>Je tenais à vous remercier pour notre échange concernant la mission [DESCRIPTION].</p>
-                                  <p>Cet entretien a renforcé mon intérêt pour cette opportunité et je suis convaincu(e) que mon expertise en [COMPÉTENCE] sera un atout pour relever les défis évoqués.</p>
-                                  <p>Je reste à votre disposition pour toute information complémentaire.</p>
-                                  <p>Bien cordialement,</p>
-                                  <p>[VOTRE NOM]</p>
-                                  <p>[TITRE/FONCTION]</p>
-                                </div>
-                              </div>
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                        
-                        <AccordionItem value="self-assessment" className="border-green-700/50">
-                          <AccordionTrigger 
-                            className="hover:bg-green-800/30 px-2 rounded text-white hover:text-green-200"
-                            onClick={() => incrementProgress('after')}
-                          >
-                            <div className="flex items-center">
-                              <div className="w-6 h-6 rounded-full border-2 border-green-400 flex items-center justify-center mr-2 bg-green-900/50">
-                                <span className="text-xs text-green-200">3</span>
-                              </div>
-                              Auto-évaluation
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="text-blue-100 bg-green-950/30 rounded-md p-2 mt-1">
-                            <div className="space-y-2">
-                              <p className="text-sm">Après chaque audition, prenez le temps d'analyser votre performance :</p>
-                              
-                              <div className="grid grid-cols-2 gap-2">
-                                <div className="bg-green-900/40 p-2 rounded-md border border-green-600/30">
-                                  <span className="text-xs font-medium text-green-300">Points forts</span>
-                                  <ul className="list-disc ml-4 text-xs mt-1 space-y-0.5">
-                                    <li>Quelles questions avez-vous bien traitées ?</li>
-                                    <li>Où avez-vous senti une bonne connexion ?</li>
-                                    <li>Quels arguments ont semblé convaincre ?</li>
-                                  </ul>
-                                </div>
-                                <div className="bg-teal-900/40 p-2 rounded-md border border-teal-600/30">
-                                  <span className="text-xs font-medium text-teal-300">À améliorer</span>
-                                  <ul className="list-disc ml-4 text-xs mt-1 space-y-0.5">
-                                    <li>Quelles difficultés avez-vous rencontrées ?</li>
-                                    <li>Quelles questions vous ont surpris ?</li>
-                                    <li>Quels sujets nécessitent plus de préparation ?</li>
-                                  </ul>
-                                </div>
-                              </div>
-                              
-                              <div className="bg-gradient-to-br from-green-900/40 to-teal-900/40 rounded-md p-3 border border-green-600/30 mt-1 flex items-center">
-                                <TimerReset className="w-4 h-4 text-green-400 mr-2 flex-shrink-0" />
-                                <p className="text-xs">Créez un journal d'audition pour documenter vos expériences et suivre votre progression</p>
-                              </div>
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      </Accordion>
-                    </CardContent>
-                    
-                    {/* Final advice */}
-                    <div className="p-5 border-t border-green-700/30 bg-gradient-to-b from-teal-900/40 to-green-900/20 mt-auto">
-                      <div className="bg-gradient-to-br from-teal-800/30 to-green-900/30 rounded-md p-3 border border-teal-500/50">
-                        <div className="flex items-center justify-between mb-2">
-                          <h5 className="text-teal-300 font-medium flex items-center">
-                            <FileCheck className="w-4 h-4 mr-1.5" />
-                            Conseil final
-                          </h5>
-                          <Badge className="bg-teal-700/50 text-teal-100">
-                            Impact élevé
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-teal-100">
-                          La préparation fait toute la différence. Pour chaque audition, consacrez au moins deux heures à rechercher l'entreprise, préparer des exemples concrets de vos compétences pertinentes et anticiper les questions difficiles.
-                        </p>
-                      </div>
-                    </div>
-                  </Card>
-                </div>
-              </div>
-              
-              {/* Next steps button at the bottom */}
-              <div className="mt-8 text-center">
-                <Button
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-2 px-6 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105"
-                  onClick={() => navigate("/cyber/interview-simulation")}
+            <Tabs defaultValue="before" className="w-full">
+              <TabsList className="grid grid-cols-3 mb-8 bg-blue-950/60">
+                <TabsTrigger 
+                  value="before"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-700/80 data-[state=active]:to-cyan-700/80"
                 >
-                  <Sparkles className="w-5 h-5 mr-2" />
-                  Démarrer une simulation d'audition
-                </Button>
-                <p className="text-blue-200 text-sm mt-2">
-                  Mettez en pratique ces conseils dans notre environnement de simulation
-                </p>
-              </div>
-            </div>
+                  Avant l'audition
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="during"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-700/80 data-[state=active]:to-cyan-700/80"
+                >
+                  Pendant l'audition
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="after"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-700/80 data-[state=active]:to-cyan-700/80"
+                >
+                  Après l'audition
+                </TabsTrigger>
+              </TabsList>
+              
+              {/* Onglet : Avant l'audition */}
+              <TabsContent value="before" className="space-y-6">
+                <BestPracticesSection
+                  title="Préparation professionnelle"
+                  icon={<User className="h-6 w-6 text-blue-400" />}
+                  items={[
+                    {
+                      dos: [
+                        "Portez une tenue professionnelle adaptée au contexte (costume/tailleur pour les environnements formels, smart casual pour les contextes plus souples)",
+                        "Préparez une copie physique de votre CV et de vos certifications en cybersécurité",
+                        "Arrivez 10-15 minutes en avance pour vous installer et vous détendre",
+                        "Préparez quelques questions pertinentes sur la mission et les enjeux de sécurité spécifiques"
+                      ],
+                      donts: [
+                        "Évitez les tenues trop décontractées, même pour les entreprises avec dress code souple",
+                        "Ne surchargez pas de parfum ou de bijoux trop voyants",
+                        "Évitez d'arriver au dernier moment ou en retard",
+                        "Ne négligez pas votre communication non verbale (posture, poignée de main assurée, contact visuel)"
+                      ]
+                    }
+                  ]}
+                />
+                
+                <BestPracticesSection
+                  title="Recherche et préparation technique"
+                  icon={<Building className="h-6 w-6 text-blue-400" />}
+                  items={[
+                    {
+                      dos: [
+                        "Recherchez en profondeur l'entreprise cliente, son secteur d'activité et ses enjeux de cybersécurité spécifiques",
+                        "Renseignez-vous sur les derniers incidents de sécurité dans le secteur du client",
+                        "Préparez des exemples concrets de missions similaires en cybersécurité (anonymisés si nécessaire)",
+                        "Revoyez les principales réglementations et normes applicables au secteur du client (RGPD, NIS2, ISO 27001, etc.)"
+                      ],
+                      donts: [
+                        "Ne vous contentez pas d'informations génériques sur l'entreprise",
+                        "Évitez de mémoriser un discours trop formaté qui manquera d'authenticité",
+                        "Ne négligez pas la veille des dernières menaces et vulnérabilités pertinentes pour le client",
+                        "Évitez de vous présenter sans connaître les concurrents principaux et leur positionnement"
+                      ]
+                    }
+                  ]}
+                />
+              </TabsContent>
+              
+              {/* Onglet : Pendant l'audition */}
+              <TabsContent value="during" className="space-y-6">
+                <BestPracticesSection
+                  title="Communication et posture"
+                  icon={<User className="h-6 w-6 text-blue-400" />}
+                  items={[
+                    {
+                      dos: [
+                        "Adoptez une écoute active et posez des questions pertinentes sur les besoins spécifiques en cybersécurité",
+                        "Utilisez un vocabulaire précis mais accessible, en adaptant le niveau technique à votre interlocuteur",
+                        "Illustrez vos propos avec des exemples concrets de problématiques de sécurité résolues",
+                        "Restez honnête sur vos compétences et expériences en cybersécurité"
+                      ],
+                      donts: [
+                        "Évitez de couper la parole ou de monopoliser la conversation",
+                        "Ne survendez pas vos compétences ou vos certifications en sécurité",
+                        "Évitez le jargon technique excessif face à des interlocuteurs non techniques",
+                        "Ne critiquez pas les choix techniques ou de sécurité actuels du client"
+                      ]
+                    }
+                  ]}
+                />
+                
+                <BestPracticesSection
+                  title="Réponses aux questions techniques"
+                  icon={<Shield className="h-6 w-6 text-blue-400" />}
+                  items={[
+                    {
+                      dos: [
+                        "Structurez vos réponses sur les sujets de cybersécurité (contexte, méthode, résultat)",
+                        "Démontrez votre compréhension des risques et menaces spécifiques au secteur d'activité",
+                        "Expliquez comment vous avez résolu des problèmes de sécurité complexes dans le passé",
+                        "Présentez une approche méthodologique claire pour aborder les défis de sécurité"
+                      ],
+                      donts: [
+                        "Évitez les réponses trop longues ou digressives sur les aspects techniques",
+                        "Ne restez pas vague sur votre rôle précis dans les projets de cybersécurité passés",
+                        "Évitez d'utiliser des exemples non pertinents pour le secteur du client",
+                        "Ne sous-estimez pas l'importance de l'aspect humain et organisationnel de la cybersécurité"
+                      ]
+                    }
+                  ]}
+                />
+                
+                <BestPracticesSection
+                  title="Gestion du temps"
+                  icon={<Clock className="h-6 w-6 text-blue-400" />}
+                  items={[
+                    {
+                      dos: [
+                        "Respectez le temps imparti pour chaque partie de l'entretien",
+                        "Priorisez les informations essentielles concernant votre expertise en cybersécurité",
+                        "Gardez du temps pour poser vos questions sur les enjeux de sécurité spécifiques",
+                        "Concluez par un résumé de l'adéquation entre votre profil et les besoins en sécurité"
+                      ],
+                      donts: [
+                        "Évitez les digressions qui consomment du temps précieux",
+                        "Ne négligez pas de réserver du temps pour les questions-réponses",
+                        "Évitez de consulter votre montre ou téléphone trop fréquemment",
+                        "Ne précipitez pas vos réponses aux questions techniques complexes"
+                      ]
+                    }
+                  ]}
+                />
+              </TabsContent>
+              
+              {/* Onglet : Après l'audition */}
+              <TabsContent value="after" className="space-y-6">
+                <BestPracticesSection
+                  title="Suivi professionnel"
+                  icon={<CheckSquare className="h-6 w-6 text-blue-400" />}
+                  items={[
+                    {
+                      dos: [
+                        "Envoyez un email de remerciement dans les 24h, en rappelant les points clés évoqués sur la sécurité",
+                        "Fournissez les informations complémentaires promises lors de l'entretien (articles, livre blanc, références)",
+                        "Faites un débriefing avec votre manager sur les points forts et axes d'amélioration",
+                        "Notez les questions techniques qui vous ont posé difficulté pour vous améliorer"
+                      ],
+                      donts: [
+                        "Ne relancez pas de façon trop insistante ou prématurée",
+                        "Évitez de négliger l'analyse post-entretien qui vous permettra de progresser",
+                        "Ne communiquez pas d'informations confidentielles sur d'autres clients par email",
+                        "Évitez de surinterpréter les signaux positifs ou négatifs reçus pendant l'entretien"
+                      ]
+                    }
+                  ]}
+                />
+              </TabsContent>
+            </Tabs>
           </CardContent>
-          <CardFooter className="flex justify-between border-t border-gray-700/50 pt-4">
-            <Button
-              variant="outline"
-              className="border-gray-600 text-gray-300 hover:bg-gray-700"
-              onClick={() => navigate("/cyber-mode-selection-fixed")}
-            >
-              Retour au menu
-            </Button>
-            <Button
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-              onClick={() => navigate("/cyber/interview-simulation")}
-            >
-              Accéder à la simulation
-            </Button>
+          
+          {/* Bouton pour accéder à la simulation */}
+          <CardFooter className="border-t border-blue-700/50 pt-6 flex justify-center">
+            <div className="text-center">
+              <Button
+                className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold py-2 px-6 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105"
+                onClick={() => navigate('/cyber/interview-simulation')}
+              >
+                <Sparkles className="w-5 h-5 mr-2" />
+                Démarrer une simulation d'audition
+              </Button>
+              <p className="text-blue-200 text-sm mt-2">
+                Mettez en pratique ces conseils dans notre environnement de simulation
+              </p>
+            </div>
           </CardFooter>
         </Card>
       </div>
@@ -620,4 +273,4 @@ const InterviewPreparationGuide: React.FC = () => {
   );
 };
 
-export default InterviewPreparationGuide;
+export default CyberInterviewPreparation;
