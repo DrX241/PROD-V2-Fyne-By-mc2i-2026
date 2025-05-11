@@ -229,7 +229,14 @@ const CyberChaos: React.FC = () => {
     'Équipe technique': 300, // 5 minutes pour répondre
     'Direction': 0
   });
-  const [communicationHistory, setCommunicationHistory] = useState<Record<string, Array<{sender: 'player' | 'npc', message: string, needsResponse?: boolean, choices?: string[]}>>>({
+  const [communicationHistory, setCommunicationHistory] = useState<Record<string, Array<{
+    sender: 'player' | 'npc', 
+    message: string, 
+    needsResponse?: boolean, 
+    choices?: string[],
+    tone?: 'urgent' | 'normal',
+    focus?: 'technique' | 'légal' | 'réputation' | 'général'
+  }>>>({
     'Presse': [],
     'Autorités': [],
     'Communication': [
@@ -1248,12 +1255,57 @@ const CyberChaos: React.FC = () => {
       
       const data = await response.json();
       
+      // Analyser la réponse du PNJ et l'ajouter à l'historique de communication avec des impacts visuels
+      
+      // Définir des mots-clés pour l'analyse sémantique des réponses
+      const urgentKeywords = ['urgent', 'immédiat', 'critique', 'rapidement', 'alerte'];
+      const technicalKeywords = ['serveur', 'ransomware', 'chiffrement', 'firewall', 'backdoor', 'malware', 'sécurité', 'réseau'];
+      const legalKeywords = ['rgpd', 'juridique', 'sanction', 'amende', 'autorité', 'notification', 'obligation'];
+      const reputationKeywords = ['communiqué', 'presse', 'média', 'image', 'réputation', 'confiance', 'client'];
+      
+      // Analyser la réponse pour déterminer le ton et les mots-clés
+      const npcResponse = data.response;
+      const responseLower = npcResponse.toLowerCase();
+      
+      // Déterminer si la réponse contient des termes spécifiques qui méritent une attention visuelle
+      const hasUrgentTone = urgentKeywords.some(word => responseLower.includes(word));
+      const hasTechnicalFocus = technicalKeywords.some(word => responseLower.includes(word));
+      const hasLegalFocus = legalKeywords.some(word => responseLower.includes(word));
+      const hasReputationFocus = reputationKeywords.some(word => responseLower.includes(word));
+      
+      // Déclencher des animations subtiles sur les métriques correspondantes
+      setTimeout(() => {
+        if (hasUrgentTone) {
+          // Une petite animation sur le niveau de stress pour montrer l'urgence
+          animateImpact('stress', 0); // 0 pour simplement animer sans changer la valeur
+        }
+        
+        if (hasTechnicalFocus) {
+          animateImpact('operational', 0);
+        }
+        
+        if (hasLegalFocus) {
+          animateImpact('legal', 0);
+        }
+        
+        if (hasReputationFocus) {
+          animateImpact('reputation', 0);
+        }
+      }, 500);
+      
       // Ajouter la réponse du PNJ à l'historique de communication
       setCommunicationHistory(prev => ({
         ...prev,
         [selectedContact]: [
           ...prev[selectedContact],
-          { sender: 'npc', message: data.response }
+          { 
+            sender: 'npc', 
+            message: data.response,
+            tone: hasUrgentTone ? 'urgent' : 'normal',
+            focus: hasTechnicalFocus ? 'technique' : 
+                   hasLegalFocus ? 'légal' : 
+                   hasReputationFocus ? 'réputation' : 'général'
+          }
         ]
       }));
     } catch (error) {
