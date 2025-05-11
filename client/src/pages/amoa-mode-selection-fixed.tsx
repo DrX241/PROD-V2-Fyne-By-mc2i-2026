@@ -378,52 +378,48 @@ export default function AmoaModeSelectionFixed() {
                     onMouseEnter={() => setHoveredModule(module.id)}
                     onMouseLeave={() => setHoveredModule(null)}
                   >
-                    <Card className={`h-full shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden ${module.comingSoon ? 'opacity-70' : ''}`}>
-                      <CardHeader className="p-4 pb-2 bg-gradient-to-br from-blue-900 to-slate-900">
-                        <div className="flex justify-between">
+                    <div className={`rounded-xl p-6 h-full bg-gradient-to-br from-blue-900 to-slate-900 ${module.comingSoon ? 'opacity-70' : ''}`} data-id={`module-${module.id}`}>
+                      <div className="flex flex-col h-full">
+                        <div className="flex items-start gap-3 mb-4">
+                          <div className="p-2 rounded-full bg-blue-700/50">
+                            {module.icon}
+                          </div>
                           <div className="flex-1">
-                            <div className="flex items-start space-x-4 mb-2">
-                              <div className="bg-blue-700/50 p-2 rounded-lg">
-                                {module.icon}
-                              </div>
-                              <CardTitle className="text-lg line-clamp-2 text-left">
-                                {module.title}
-                              </CardTitle>
-                              {module.isNew && (
-                                <Badge className="ml-auto bg-blue-600 text-white shrink-0">NOUVEAU</Badge>
-                              )}
-                            </div>
-                            <div className="flex flex-wrap gap-2 mt-2">
+                            <h2 className="text-xl font-bold text-white mb-1 line-clamp-2">{module.title}</h2>
+                            <div className="flex flex-wrap gap-2">
                               <Badge variant="outline" className="text-xs text-white border-white/30">
                                 {module.difficulty}
                               </Badge>
                               <Badge variant="outline" className="text-xs text-white border-white/30">
                                 {module.duration}
                               </Badge>
+                              {module.isNew && (
+                                <Badge className="bg-blue-600 text-white">NOUVEAU</Badge>
+                              )}
                             </div>
                           </div>
                         </div>
-                      </CardHeader>
-                      <CardContent className="p-4 pt-2 bg-gradient-to-br from-blue-900 to-slate-900">
-                        <p className="text-blue-100 line-clamp-2 min-h-[48px]">
+                        
+                        <p className="text-blue-100 line-clamp-2">
                           {module.description}
                         </p>
-                      </CardContent>
-                      <CardFooter className="p-4 pt-2 mt-auto bg-gradient-to-br from-blue-900 to-slate-900">
-                        {module.comingSoon ? (
-                          <Badge variant="outline" className="bg-gray-700 text-gray-100 w-full flex justify-center py-2">
-                            Bientôt disponible
-                          </Badge>
-                        ) : (
-                          <Link href={module.destination} className="w-full">
-                            <Button variant="secondary" className="w-full">
-                              Accéder au module
-                              <IoMdArrowForward className="ml-2 h-4 w-4" />
-                            </Button>
-                          </Link>
-                        )}
-                      </CardFooter>
-                    </Card>
+                        
+                        <div className="mt-auto pt-4">
+                          {module.comingSoon ? (
+                            <Badge variant="outline" className="bg-gray-700 text-gray-100 w-full flex justify-center py-2">
+                              Bientôt disponible
+                            </Badge>
+                          ) : (
+                            <Link href={module.destination} className="w-full">
+                              <Button variant="secondary" className="w-full">
+                                Accéder au module
+                                <IoMdArrowForward className="ml-2 h-4 w-4" />
+                              </Button>
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </motion.div>
                 ))}
               </div>
