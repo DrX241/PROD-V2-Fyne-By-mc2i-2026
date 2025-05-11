@@ -437,6 +437,15 @@ const TestDeReflexes: React.FC = () => {
   const [showExplanation, setShowExplanation] = useState<boolean>(false);
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
+  
+  // États pour le système de gamification
+  const [collectedAnswers, setCollectedAnswers] = useState<CollectedAnswer[]>([]);
+  const [consecutiveCorrect, setConsecutiveCorrect] = useState<number>(0);
+  const [consecutiveWrong, setConsecutiveWrong] = useState<number>(0);
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+  const [bonusTimeEarned, setBonusTimeEarned] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [difficulty, setDifficulty] = useState<"facile" | "moyen" | "difficile">("facile");
 
   const currentQuestion = isStarted && !isFinished ? testQuestions[currentQuestionIndex] : null;
 
@@ -451,6 +460,15 @@ const TestDeReflexes: React.FC = () => {
     setTimeLeft(testQuestions[0].timeLimit);
     setShowExplanation(false);
     setSelectedOptionId(null);
+    
+    // Réinitialiser les états de gamification
+    setCollectedAnswers([]);
+    setConsecutiveCorrect(0);
+    setConsecutiveWrong(0);
+    setFeedbackMessage(null);
+    setBonusTimeEarned(0);
+    setDifficulty("facile");
+    setLoading(false);
 
     // Démarrer le timer
     const newTimer = setInterval(() => {
