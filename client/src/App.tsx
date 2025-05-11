@@ -120,7 +120,7 @@ function App() {
             
             {/* Toutes les routes sont maintenant publiques */}
             <Route path="/cyber/interview-preparation" component={CyberInterviewPreparation} />
-            <Route path="/cyber/interview-simulation" component={CyberInterviewSimulation} />
+            <Route path="/cyber/interview-simulation" component={NotYetImplemented} />
             <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
             
             {/* Routes publiques */}
