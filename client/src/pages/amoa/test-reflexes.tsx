@@ -36,7 +36,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
 import HomeLayout from "@/components/layout/HomeLayout";
 import { motion } from "framer-motion";
-import testQuestions from "../../data/amoa/test-reflexes-questions";
+// Nous n'importons plus de questions prédéfinies
 
 // Types pour le test de réflexes
 interface Question {
@@ -100,7 +100,8 @@ interface TestResults {
   aiEvaluation?: AIEvaluation;  // Nouvelle propriété pour l'évaluation IA
 }
 
-// Note: Nous utilisons maintenant les questions importées depuis le fichier test-reflexes-questions.ts
+// Nous ne chargeons plus les questions depuis un fichier statique,
+// mais nous les générons dynamiquement via Azure OpenAI GPT-4o
 
 const TestDeReflexes: React.FC = () => {
   const { toast } = useToast();
