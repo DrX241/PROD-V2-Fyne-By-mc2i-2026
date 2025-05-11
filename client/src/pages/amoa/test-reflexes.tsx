@@ -10,7 +10,13 @@ import {
   BarChart3, 
   TimerReset, 
   Info,
-  AlertCircle 
+  AlertCircle,
+  Award,
+  Users,
+  FileText,
+  Zap,
+  Lightbulb,
+  Briefcase
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -765,7 +771,7 @@ const TestDeReflexes: React.FC = () => {
     
     try {
       // Envoyer les données collectées pour l'analyse IA
-      const response = await fetch('/api/amoa/evaluate-performance', {
+      const response = await fetch('/api/amoa/reflex-test/evaluate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

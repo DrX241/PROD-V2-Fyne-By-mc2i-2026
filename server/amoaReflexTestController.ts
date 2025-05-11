@@ -30,25 +30,20 @@ export async function evaluateUserPerformance(req: Request, res: Response) {
   try {
     const { 
       answers, 
-      timings, 
+      baseResults
+    } = req.body;
+    
+    const {
       score, 
       correctAnswers, 
       totalQuestions, 
       categoryScores, 
       averageResponseTime, 
       difficulty 
-    } = req.body;
+    } = baseResults;
 
-    // Formatage des données pour l'analyse IA
-    const answersFormatted = answers.map((answer: any, index: number) => ({
-      question: answer.question,
-      userAnswer: answer.userAnswer,
-      correctAnswer: answer.correctAnswer,
-      isCorrect: answer.isCorrect,
-      category: answer.category,
-      difficulty: answer.difficulty,
-      timeToAnswer: timings[index]
-    }));
+    // Les données sont déjà formatées grâce à la collecte pendant le test
+    const answersFormatted = answers;
 
     // Système prompt pour l'IA
     const systemPrompt = `
