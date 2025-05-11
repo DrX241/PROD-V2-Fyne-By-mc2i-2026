@@ -60,41 +60,48 @@ const impactStyles = `
     top: 50%;
     transform: translateY(-50%);
     font-weight: bold;
-    border-radius: 4px;
-    padding: 2px 6px;
+    border-radius: 6px;
+    padding: 4px 8px;
     opacity: 0;
-    font-size: 14px;
+    font-size: 16px;
     z-index: 10;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
   }
   
   .impact-positive {
     color: #10b981;
-    background-color: rgba(16, 185, 129, 0.1);
-    border: 1px solid rgba(16, 185, 129, 0.3);
+    background-color: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    text-shadow: 0 0 5px rgba(16, 185, 129, 0.3);
   }
   
   .impact-negative {
     color: #ef4444;
-    background-color: rgba(239, 68, 68, 0.1);
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    background-color: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    text-shadow: 0 0 5px rgba(239, 68, 68, 0.3);
   }
   
   .animate-impact {
-    animation: impact-animation 1.5s ease-out forwards;
+    animation: impact-animation 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
   
   @keyframes impact-animation {
     0% {
       opacity: 0;
-      transform: translateY(-50%) translateX(0);
+      transform: translateY(-50%) translateX(10px) scale(0.8);
     }
-    20% {
+    15% {
       opacity: 1;
-      transform: translateY(-50%) translateX(0);
+      transform: translateY(-50%) translateX(0) scale(1.1);
     }
-    80% {
+    25% {
+      transform: translateY(-50%) translateX(0) scale(1);
+    }
+    75% {
       opacity: 1;
-      transform: translateY(-50%) translateX(-10px);
+      transform: translateY(-50%) translateX(-5px);
     }
     100% {
       opacity: 0;
@@ -283,9 +290,11 @@ const CyberChaos: React.FC = () => {
       setTimeout(() => {
         impactDiv.classList.add('animate-impact');
         setTimeout(() => {
-          targetElement.removeChild(impactDiv);
-        }, 1000);
-      }, 100);
+          if (targetElement.contains(impactDiv)) {
+            targetElement.removeChild(impactDiv);
+          }
+        }, 1800); // Augmenter pour correspondre à la durée de l'animation (1.8s)
+      }, 50);
     }
   };
 
