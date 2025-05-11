@@ -441,47 +441,73 @@ const CyberChaos: React.FC = () => {
     const messageCopy = newMessage;
     setNewMessage('');
     
-    // Simuler réception d'une réponse (en attendant l'intégration complète avec l'IA)
-    setTimeout(() => {
-      try {
-        // Générer la réponse du PNJ basée sur le contact
-        let npcResponse = "";
-        
-        if (selectedContact === 'Presse') {
-          npcResponse = "Je dois pouvoir informer nos lecteurs. Quelles mesures concrètes prenez-vous pour protéger les données des clients ? Pouvez-vous confirmer si des informations sensibles ont été compromises ?";
-        } else if (selectedContact === 'Autorités') {
-          npcResponse = "Nous avons besoin d'un rapport technique détaillé incluant les indicateurs de compromission. Avez-vous identifié le vecteur d'entrée initial et les systèmes affectés ?";
-        } else if (selectedContact === 'Communication') {
-          npcResponse = "Le service juridique recommande la prudence dans nos communications externes. Devons-nous alerter les clients potentiellement impactés maintenant ou attendre une vision plus claire ?";
-        } else if (selectedContact === 'Équipe technique') {
-          npcResponse = "Les serveurs critiques ont été isolés. Nous avons besoin d'une décision sur la priorisation des systèmes à restaurer. Les sauvegardes sont prêtes, mais la restauration complète prendra environ 6 heures.";
-        } else {
-          npcResponse = "Le conseil d'administration exige un point de situation. Pouvez-vous quantifier l'impact financier potentiel et la durée estimée avant un retour à la normale ?";
-        }
-        
-        // Ajouter la réponse du PNJ à l'historique de communication
-        setCommunicationHistory(prev => ({
-          ...prev,
-          [selectedContact]: [
-            ...prev[selectedContact],
-            { sender: 'npc', message: npcResponse }
-          ]
-        }));
-      } catch (error) {
-        console.error("Erreur lors de la génération de la réponse:", error);
-        
-        // En cas d'erreur, fournir une réponse générique
-        setCommunicationHistory(prev => ({
-          ...prev,
-          [selectedContact]: [
-            ...prev[selectedContact],
-            { sender: 'npc', message: "Je n'ai pas bien compris votre message. Pourriez-vous préciser votre demande ?" }
-          ]
-        }));
-      } finally {
-        setIsSendingMessage(false);
+    try {
+      // Préparer les données du jeu pour l'API
+      const gameStateData = {
+        phase: gameState.activePhase,
+        currentTime: gameState.currentTime,
+        operationalScore: gameState.operationalScore,
+        reputationScore: gameState.reputationScore,
+        legalRisk: gameState.legalRisk,
+        stressLevel: gameState.stressLevel,
+        eventLog: gameState.eventLog.slice(-3)
+      };
+      
+      // Envoyer la requête à l'API
+      const response = await fetch('/api/cyberchaos/npc-interaction', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contactType: selectedContact,
+          message: messageCopy,
+          gameState: gameStateData
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Erreur API: ${response.status}`);
       }
-    }, 1000);
+      
+      const data = await response.json();
+      
+      // Ajouter la réponse du PNJ à l'historique de communication
+      setCommunicationHistory(prev => ({
+        ...prev,
+        [selectedContact]: [
+          ...prev[selectedContact],
+          { sender: 'npc', message: data.response }
+        ]
+      }));
+    } catch (error) {
+      console.error("Erreur lors de l'interaction avec le PNJ:", error);
+      
+      // En cas d'erreur, fournir une réponse contextuelle de secours
+      let fallbackResponse = "";
+      
+      if (selectedContact === 'Presse') {
+        fallbackResponse = "Je dois pouvoir informer nos lecteurs. Quelles mesures concrètes prenez-vous pour protéger les données des clients ? Pouvez-vous confirmer si des informations sensibles ont été compromises ?";
+      } else if (selectedContact === 'Autorités') {
+        fallbackResponse = "Nous avons besoin d'un rapport technique détaillé incluant les indicateurs de compromission. Avez-vous identifié le vecteur d'entrée initial et les systèmes affectés ?";
+      } else if (selectedContact === 'Communication') {
+        fallbackResponse = "Le service juridique recommande la prudence dans nos communications externes. Devons-nous alerter les clients potentiellement impactés maintenant ou attendre une vision plus claire ?";
+      } else if (selectedContact === 'Équipe technique') {
+        fallbackResponse = "Les serveurs critiques ont été isolés. Nous avons besoin d'une décision sur la priorisation des systèmes à restaurer. Les sauvegardes sont prêtes, mais la restauration complète prendra environ 6 heures.";
+      } else {
+        fallbackResponse = "Le conseil d'administration exige un point de situation. Pouvez-vous quantifier l'impact financier potentiel et la durée estimée avant un retour à la normale ?";
+      }
+      
+      setCommunicationHistory(prev => ({
+        ...prev,
+        [selectedContact]: [
+          ...prev[selectedContact],
+          { sender: 'npc', message: fallbackResponse }
+        ]
+      }));
+    } finally {
+      setIsSendingMessage(false);
+    }
   };
   
   // Rendu de la page

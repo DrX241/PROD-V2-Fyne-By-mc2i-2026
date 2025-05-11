@@ -2861,6 +2861,99 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
   });
   
   // Endpoint pour forcer la reconnexion à Azure OpenAI
+  
+  // Route pour les interactions avec les PNJ dans CYBERCHAOS
+  app.post('/api/cyberchaos/npc-interaction', async (req: Request, res: Response) => {
+    try {
+      const { 
+        contactType, 
+        message, 
+        gameState 
+      } = req.body;
+      
+      if (!contactType || !message || !gameState) {
+        return res.status(400).json({ 
+          error: "Paramètres manquants dans la requête. Nécessite contactType, message et gameState." 
+        });
+      }
+      
+      console.log(`Interaction PNJ CYBERCHAOS: ${contactType}`);
+      
+      // Vérifier si OpenAIService est disponible
+      if (!openAIService) {
+        return res.status(500).json({ 
+          error: "Le service OpenAI n'est pas disponible actuellement." 
+        });
+      }
+      
+      // Créer un prompt contextualisé selon le type de contact et l'état du jeu
+      let systemPrompt = `Tu es un PNJ de type "${contactType}" dans une simulation de crise cyber appelée CYBERCHAOS. 
+      Le joueur joue le rôle du RSSI (Responsable Sécurité des Systèmes d'Information) de l'entreprise.
+      
+      Voici l'état actuel du jeu:
+      - Phase: ${gameState.phase}
+      - Temps écoulé: ${Math.floor(gameState.currentTime / 60)}h ${gameState.currentTime % 60}min
+      - Score opérationnel: ${gameState.operationalScore}%
+      - Score de réputation: ${gameState.reputationScore}%
+      - Risque légal: ${gameState.legalRisk}%
+      - Niveau de stress: ${gameState.stressLevel}%
+      
+      Les derniers événements:
+      ${gameState.eventLog?.map((e: any) => `- ${e.time} min: ${e.event}`).join('\n') || 'Aucun événement récent'}
+      
+      Réponds comme si tu étais ${
+        contactType === 'Presse' ? 'un journaliste cherchant des informations sur l\'incident' : 
+        contactType === 'Autorités' ? 'un représentant de l\'ANSSI ou d\'une autorité de régulation' :
+        contactType === 'Communication' ? 'le responsable communication de l\'entreprise demandant des informations pour préparer des communiqués' :
+        contactType === 'Équipe technique' ? 'un membre de l\'équipe technique en charge de la remédiation' :
+        'un dirigeant de l\'entreprise préoccupé par l\'impact business de la crise'
+      }.
+      
+      Ton style d'écriture est concis, direct et professionnel. Tu poses des questions précises, demandes des clarifications et exprimes tes préoccupations selon ton rôle.
+      
+      Tu t'adaptes à la phase actuelle:
+      - Phase de détection: tu demandes des informations sur l'incident
+      - Phase de confinement: tu es préoccupé par la limitation des dégâts
+      - Phase d'éradication: tu t'intéresses à l'élimination de la menace
+      - Phase de reprise: tu cherches des informations sur le retour à la normale
+      - Phase de bilan: tu veux des précisions sur les leçons apprises
+      
+      Réponds en 1 à 3 phrases maximum. Vas droit au but, évite les formules d'introduction comme "En tant que..." ou "Je comprends que...".`;
+      
+      // Créer les messages pour l'API
+      const messages = [
+        {
+          role: "system",
+          content: systemPrompt
+        },
+        {
+          role: "user",
+          content: message
+        }
+      ];
+      
+      // Faire la requête à l'API avec GPT-4o-mini (plus réactif)
+      const response = await openAIService.getChatCompletion(
+        messages as any, 
+        true, // useSecondaryKey: true -> Utilise GPT-4o-mini
+        0.7, // temperature
+        150 // maxTokens
+      );
+      
+      // Renvoyer la réponse
+      return res.json({
+        response: response,
+        contactType: contactType
+      });
+      
+    } catch (error: any) {
+      console.error("Erreur lors de l'interaction avec le PNJ CYBERCHAOS:", error);
+      return res.status(500).json({ 
+        error: error.message || "Une erreur est survenue lors de l'interaction avec le PNJ." 
+      });
+    }
+  });
+  
   // Route pour chat direct avec l'API OpenAI (utilisée par Escape the Breach)
   app.post('/api/openai/chat', async (req: Request, res: Response) => {
     try {
@@ -2876,11 +2969,12 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
       }
       
       // Faire la requête à l'API
-      const response = await openAIService.getChatCompletion(messages, {
-        useSecondaryKey: model !== 'gpt-4o',
-        temperature,
+      const response = await openAIService.getChatCompletion(
+        messages as any, 
+        model !== 'gpt-4o', // useSecondaryKey
+        temperature, 
         max_tokens
-      });
+      );
       
       // Extraire la réponse
       const completion = response;
