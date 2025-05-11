@@ -565,7 +565,7 @@ export default function CyberModeSelectionRedesign() {
             data-id="main-title"
           >
             <h1 className="text-4xl font-bold mb-3">
-              Centre de Formation Cybersécurité
+              Centre de Formation Cybersécurité - I AM CYBER
             </h1>
             <p className={`max-w-3xl mx-auto ${
               highContrastMode ? 'text-gray-300' : 'text-blue-200' 
