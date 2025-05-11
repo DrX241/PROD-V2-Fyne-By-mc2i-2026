@@ -58,8 +58,14 @@ export async function generateMissionScenario(req: Request, res: Response) {
     };
 
     // Utilisation de l'API avec gestion de cache et modèle secondaire (plus économique)
+    // Ajoutons un format JSON explicite pour s'assurer de la validité de la réponse
+    const systemMessageWithFormat = {
+      ...systemMessage,
+      content: systemMessage.content + "\n\nRÈGLE IMPORTANTE: Ta réponse DOIT absolument être au format JSON valide, sans texte additionnel avant ou après le JSON."
+    };
+    
     const response = await openAIService.getChatCompletionWithCache(
-      [systemMessage, userMessage], 
+      [systemMessageWithFormat, userMessage], 
       0.7, // temperature
       1000, // maxTokens
       true // useSecondaryKey: true pour utiliser GPT-4o-mini qui est plus économique
@@ -156,6 +162,22 @@ Important: Ne révèle jamais que tu es une IA. Comporte-toi comme un véritable
     }
 
     // Utilisation du modèle principal (GPT-4o) pour une meilleure qualité de réponse
+    // Pas besoin de force JSON ici car nous voulons un texte normal pour le dialogue
+    
+    // Ajoutons un système de contexte pour améliorer la simulation
+    if (conversationHistory.length > 0 && conversationHistory[0].role === 'system') {
+      // Si nous avons déjà un message système, améliorons-le
+      conversationHistory[0].content += "\n\nRappel du contexte: Tu joues le rôle d'un client réaliste lors d'une audition. Reste naturel et pose des questions pertinentes.";
+    } else {
+      // Sinon, ajoutons un message système
+      conversationHistory.unshift({
+        role: 'system',
+        content: `Tu joues le rôle d'un client lors d'une audition avec un consultant mc2i. 
+        Agis de manière réaliste, pose des questions pertinentes sur le projet et les compétences du consultant.
+        Sois cordial mais exigeant, comme un vrai client lors d'un entretien d'audition.`
+      });
+    }
+    
     const response = await openAIService.getChatCompletionWithCache(
       conversationHistory,
       0.8, // temperature
@@ -232,8 +254,14 @@ export async function evaluatePerformance(req: Request, res: Response) {
     };
 
     // Utilisation du modèle principal (GPT-4o) pour une évaluation précise
+    // Ajoutons un force_json: true pour s'assurer que la réponse est formatée en JSON
+    const systemMessageWithFormat = {
+      ...systemMessage,
+      content: systemMessage.content + "\n\nRÈGLE IMPORTANTE: Ta réponse DOIT absolument être au format JSON valide, sans texte additionnel avant ou après le JSON."
+    };
+    
     const response = await openAIService.getChatCompletionWithCache(
-      [systemMessage, userMessage],
+      [systemMessageWithFormat, userMessage],
       0.7, // temperature
       1200, // maxTokens
       false // useSecondaryKey: false pour utiliser GPT-4o pour une évaluation de qualité
