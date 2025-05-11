@@ -109,6 +109,8 @@ const TestDeReflexes: React.FC = () => {
   const [isStarted, setIsStarted] = useState<boolean>(false);
   const [isFinished, setIsFinished] = useState<boolean>(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
+  const [generatedQuestions, setGeneratedQuestions] = useState<Question[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [answers, setAnswers] = useState<{
     [questionId: string]: {
@@ -128,21 +130,57 @@ const TestDeReflexes: React.FC = () => {
   const [consecutiveWrong, setConsecutiveWrong] = useState<number>(0);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const maxQuestions = 15; // Limitation du test à 15 questions
+  const maxQuestions = 5; // Limitation du test à exactement 5 questions
   const [difficulty, setDifficulty] = useState<"facile" | "moyen" | "difficile">("facile");
   const [usedQuestionIds, setUsedQuestionIds] = useState<Set<string>>(new Set());
   const [questionCount, setQuestionCount] = useState<number>(0);
 
-  // Filtrer les questions qui n'ont pas encore été utilisées
-  const availableQuestions = testQuestions.filter(q => !usedQuestionIds.has(q.id));
-  const currentQuestion = isStarted && !isFinished ? 
-    (availableQuestions.length > 0 ? 
-      availableQuestions.find(q => q.difficulty === difficulty) || availableQuestions[0] 
-      : testQuestions[Math.floor(Math.random() * testQuestions.length)]) 
+  // Filtrer les questions générées qui n'ont pas encore été utilisées
+  const availableQuestions = generatedQuestions.filter(q => !usedQuestionIds.has(q.id));
+  const currentQuestion = isStarted && !isFinished && availableQuestions.length > 0 
+    ? availableQuestions[0] 
     : null;
 
+  // Fonction pour charger les questions depuis l'API
+  const loadQuestionsFromApi = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/amoa/reflex-test/generate-questions?count=5');
+      const data = await response.json();
+      
+      if (data.success && Array.isArray(data.questions)) {
+        setGeneratedQuestions(data.questions);
+        return data.questions;
+      } else {
+        toast({
+          title: "Erreur de chargement",
+          description: "Impossible de générer les questions. Veuillez réessayer.",
+          variant: "destructive",
+        });
+        return [];
+      }
+    } catch (error) {
+      console.error("Erreur lors du chargement des questions:", error);
+      toast({
+        title: "Erreur de connexion",
+        description: "Impossible de contacter le serveur. Veuillez réessayer.",
+        variant: "destructive",
+      });
+      return [];
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Démarrer le test
-  const handleStartTest = () => {
+  const handleStartTest = async () => {
+    // Charger les questions avant de démarrer le test
+    const questionsLoaded = await loadQuestionsFromApi();
+    
+    if (questionsLoaded.length === 0) {
+      return; // Ne pas démarrer le test si nous n'avons pas pu charger les questions
+    }
+    
     // Réinitialiser tous les états
     setIsStarted(true);
     setIsFinished(false);
@@ -391,31 +429,12 @@ const TestDeReflexes: React.FC = () => {
     setCurrentQuestionIndex((prev) => prev + 1);
     setQuestionCount((prev) => prev + 1);
     
-    // Filtrer les questions non utilisées 
-    const unusedQuestions = testQuestions.filter(q => !usedQuestionIds.has(q.id));
+    // Filtrer les questions non utilisées parmi nos 5 questions générées
+    const unusedQuestions = generatedQuestions.filter(q => !usedQuestionIds.has(q.id));
     
-    // Si nous manquons de questions non utilisées, tout réinitialiser sauf la question courante
-    if (unusedQuestions.length <= 3) {
-      const currentQuestionId = currentQuestion?.id || "";
-      setUsedQuestionIds(new Set([currentQuestionId]));
-    }
-    
-    // Filtrer d'abord par difficulté parmi les questions non utilisées
-    const filteredByDifficulty = testQuestions.filter(
-      q => !usedQuestionIds.has(q.id) && q.difficulty === difficulty
-    );
-    
-    // S'il n'y a plus de questions de cette difficulté, prendre n'importe quelle question non utilisée
-    let nextQuestions = filteredByDifficulty.length > 0 
-      ? filteredByDifficulty 
-      : testQuestions.filter(q => !usedQuestionIds.has(q.id));
-    
-    // Vérifier qu'il y a des questions disponibles
-    if (nextQuestions.length === 0) {
-      // Si on est à court de questions, réinitialiser completement les questions utilisées
-      setUsedQuestionIds(new Set());
-      nextQuestions = testQuestions;
-    }
+    // Nous avons exactement 5 questions, donc nous allons les utiliser dans l'ordre
+    // sans réinitialiser ou filtrer par difficulté
+    let nextQuestions = unusedQuestions;
     
     // Mélanger les questions pour plus d'aléatoire
     const shuffledQuestions = [...nextQuestions].sort(() => Math.random() - 0.5);
@@ -469,7 +488,7 @@ const TestDeReflexes: React.FC = () => {
     
     // Ne prendre en compte que les questions qui ont été posées
     Object.keys(answers).forEach((questionId) => {
-      const question = testQuestions.find(q => q.id === questionId);
+      const question = generatedQuestions.find(q => q.id === questionId);
       if (question) {
         if (!categoryScores[question.category]) {
           categoryScores[question.category] = { score: 0, total: 0 };
