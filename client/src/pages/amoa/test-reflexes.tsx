@@ -1254,6 +1254,91 @@ const TestDeReflexes: React.FC = () => {
                           </div>
                         </div>
                         
+                        {/* Évaluation IA */}
+                        {results.aiEvaluation && (
+                          <div className="bg-blue-900/20 rounded-lg p-4 border border-blue-600/20 mt-6">
+                            <h3 className="text-xl font-semibold text-blue-300 mb-4 flex items-center">
+                              <Sparkles className="w-5 h-5 mr-2" />
+                              Analyse IA de votre performance
+                            </h3>
+                            
+                            {/* Badge et feedback général */}
+                            <div className="flex flex-col md:flex-row gap-4 mb-4">
+                              <div className="bg-white/10 rounded-lg p-4 flex-1">
+                                <div className="flex items-center mb-2">
+                                  <Award className="w-6 h-6 mr-2 text-yellow-400" />
+                                  <h4 className="text-lg font-semibold text-yellow-300">{results.aiEvaluation.badge.name}</h4>
+                                </div>
+                                <p className="text-gray-200 text-sm">{results.aiEvaluation.badge.description}</p>
+                              </div>
+                              <div className="bg-white/10 rounded-lg p-4 flex-1">
+                                <div className="flex items-center mb-2">
+                                  <MessageSquare className="w-5 h-5 mr-2 text-blue-400" />
+                                  <h4 className="text-lg font-semibold text-blue-300">Feedback</h4>
+                                </div>
+                                <p className="text-gray-200 text-sm">{results.aiEvaluation.feedback}</p>
+                              </div>
+                            </div>
+                            
+                            {/* Points forts et points faibles */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                              <div className="bg-green-900/20 rounded-lg p-4 border border-green-600/20">
+                                <h4 className="text-green-300 font-semibold mb-2 flex items-center">
+                                  <Check className="w-4 h-4 mr-1" />
+                                  Points forts
+                                </h4>
+                                <ul className="space-y-2">
+                                  {results.aiEvaluation.strengths.map((strength, idx) => (
+                                    <li key={idx} className="text-gray-200 text-sm flex items-start">
+                                      <CheckCircle className="w-4 h-4 mr-2 text-green-400 shrink-0 mt-0.5" />
+                                      <span>{strength}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                              <div className="bg-red-900/20 rounded-lg p-4 border border-red-600/20">
+                                <h4 className="text-red-300 font-semibold mb-2 flex items-center">
+                                  <AlertCircle className="w-4 h-4 mr-1" />
+                                  Points à améliorer
+                                </h4>
+                                <ul className="space-y-2">
+                                  {results.aiEvaluation.weaknesses.map((weakness, idx) => (
+                                    <li key={idx} className="text-gray-200 text-sm flex items-start">
+                                      <AlertTriangle className="w-4 h-4 mr-2 text-red-400 shrink-0 mt-0.5" />
+                                      <span>{weakness}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </div>
+                            
+                            {/* Suggestions d'amélioration */}
+                            <div className="bg-white/10 rounded-lg p-4 mb-4">
+                              <h4 className="text-white font-semibold mb-2 flex items-center">
+                                <Lightbulb className="w-4 h-4 mr-1 text-yellow-400" />
+                                Suggestions d'amélioration
+                              </h4>
+                              <ul className="space-y-2">
+                                {results.aiEvaluation.improvementSuggestions.map((suggestion, idx) => (
+                                  <li key={idx} className="text-gray-200 text-sm flex items-start">
+                                    <ArrowRight className="w-4 h-4 mr-2 text-blue-400 shrink-0 mt-0.5" />
+                                    <span>{suggestion}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                            
+                            {/* Conclusion professionnelle */}
+                            <div className="bg-white/5 rounded-lg p-4">
+                              <h4 className="text-white font-semibold mb-2 flex items-center">
+                                <BookOpen className="w-4 h-4 mr-1 text-purple-400" />
+                                Conclusion professionnelle
+                              </h4>
+                              <p className="text-gray-200 text-sm italic">{results.aiEvaluation.professionalInsight}</p>
+                            </div>
+                          </div>
+                        )}
+                        
                         {/* Analyse IA et Badge */}
                         {results.aiEvaluation && (
                           <>
