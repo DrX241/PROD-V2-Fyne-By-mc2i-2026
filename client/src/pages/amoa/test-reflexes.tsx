@@ -467,15 +467,16 @@ const TestDeReflexes: React.FC = () => {
 
   // Démarrer le test
   const handleStartTest = () => {
+    // Réinitialiser tous les états
     setIsStarted(true);
     setIsFinished(false);
     setCurrentQuestionIndex(0);
     setAnswers({});
     setResults(null);
     setActiveTab("test");
-    setTimeLeft(testQuestions[0].timeLimit);
     setShowExplanation(false);
     setSelectedOptionId(null);
+    setUsedQuestionIds(new Set());
     
     // Réinitialiser les états de gamification
     setCollectedAnswers([]);
@@ -485,8 +486,42 @@ const TestDeReflexes: React.FC = () => {
     setBonusTimeEarned(0);
     setDifficulty("facile");
     setLoading(false);
-
-    // Démarrer le timer
+    
+    // Initialiser le timer global (2 minutes = 120 secondes)
+    const totalTime = 120;
+    setTotalTestTime(totalTime);
+    setRemainingTestTime(totalTime);
+    
+    // Démarrer le timer global du test
+    if (globalTimer) {
+      clearInterval(globalTimer);
+    }
+    
+    const newGlobalTimer = setInterval(() => {
+      setRemainingTestTime((prevTime) => {
+        if (prevTime <= 1) {
+          // Le temps total du test est écoulé
+          clearInterval(newGlobalTimer);
+          finishTest();
+          return 0;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
+    
+    setGlobalTimer(newGlobalTimer);
+    
+    // Sélectionner la première question aléatoirement parmi les questions de difficulté "facile"
+    const easyQuestions = testQuestions.filter(q => q.difficulty === "facile");
+    const firstQuestion = easyQuestions[Math.floor(Math.random() * easyQuestions.length)];
+    
+    // Marquer cette question comme utilisée
+    setUsedQuestionIds(new Set([firstQuestion.id]));
+    
+    // Initialiser le timer pour la première question
+    setTimeLeft(firstQuestion.timeLimit);
+    
+    // Démarrer le timer de la question
     const newTimer = setInterval(() => {
       setTimeLeft((prevTime) => {
         if (prevTime <= 1) {
@@ -674,37 +709,75 @@ const TestDeReflexes: React.FC = () => {
 
   // Passer à la question suivante
   const goToNextQuestion = () => {
+    // Arrêter le timer de la question précédente
+    if (timer) {
+      clearInterval(timer);
+      setTimer(null);
+    }
+    
     setShowExplanation(false);
     setSelectedOptionId(null);
     setFeedbackMessage(null);
-    
-    if (currentQuestionIndex < testQuestions.length - 1) {
-      setCurrentQuestionIndex((prev) => prev + 1);
-      
-      // Appliquer le bonus de temps à la prochaine question si disponible
-      const nextQuestionBaseTime = testQuestions[currentQuestionIndex + 1].timeLimit;
-      const finalTimeWithBonus = nextQuestionBaseTime + bonusTimeEarned;
-      setTimeLeft(finalTimeWithBonus);
-      
-      // Réinitialiser le bonus pour qu'il ne s'applique qu'une fois
-      setBonusTimeEarned(0);
-      
-      // Redémarrer le timer
-      const newTimer = setInterval(() => {
-        setTimeLeft((prevTime) => {
-          if (prevTime <= 1) {
-            handleTimeout();
-            return 0;
-          }
-          return prevTime - 1;
-        });
-      }, 1000);
-      
-      setTimer(newTimer);
-    } else {
-      // Fin du test
+
+    // Si le temps global est écoulé, terminer le test
+    if (remainingTestTime <= 1) {
       finishTest();
+      return;
     }
+    
+    // Si toutes les questions ont été utilisées, réinitialiser l'ensemble des questions utilisées
+    if (usedQuestionIds.size >= testQuestions.length - 3) {
+      setUsedQuestionIds(new Set());
+    }
+    
+    // Incrémenter l'index de question
+    setCurrentQuestionIndex((prev) => prev + 1);
+    
+    // Filtrer les questions non utilisées et correspondant à la difficulté actuelle
+    const filteredByDifficulty = testQuestions.filter(
+      q => !usedQuestionIds.has(q.id) && q.difficulty === difficulty
+    );
+    
+    // S'il n'y a plus de questions de cette difficulté, prendre n'importe quelle question non utilisée
+    let nextQuestions = filteredByDifficulty.length > 0 
+      ? filteredByDifficulty 
+      : testQuestions.filter(q => !usedQuestionIds.has(q.id));
+    
+    // S'il n'y a plus de questions non utilisées, prendre n'importe quelle question
+    if (nextQuestions.length === 0) {
+      nextQuestions = testQuestions;
+    }
+    
+    // Sélectionner une question aléatoire parmi les questions disponibles
+    const nextQuestionIndex = Math.floor(Math.random() * nextQuestions.length);
+    const nextQuestion = nextQuestions[nextQuestionIndex];
+    
+    // Marquer cette question comme utilisée
+    setUsedQuestionIds(prev => {
+      const newSet = new Set(prev);
+      newSet.add(nextQuestion.id);
+      return newSet;
+    });
+    
+    // Appliquer le bonus de temps cumulé à la prochaine question
+    const nextQuestionBaseTime = nextQuestion.timeLimit;
+    const finalTimeWithBonus = nextQuestionBaseTime + bonusTimeEarned;
+    setTimeLeft(finalTimeWithBonus);
+    
+    // Maintenir le bonus de temps pour les questions suivantes (ne pas le réinitialiser)
+    
+    // Redémarrer le timer pour la nouvelle question
+    const newTimer = setInterval(() => {
+      setTimeLeft((prevTime) => {
+        if (prevTime <= 1) {
+          handleTimeout();
+          return 0;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
+    
+    setTimer(newTimer);
   };
 
   // Calculer les résultats
@@ -768,10 +841,18 @@ const TestDeReflexes: React.FC = () => {
 
   // Terminer le test
   const finishTest = async () => {
+    // Arrêter tous les timers
     if (timer) {
       clearInterval(timer);
       setTimer(null);
     }
+    
+    if (globalTimer) {
+      clearInterval(globalTimer);
+      setGlobalTimer(null);
+    }
+    
+    setIsFinished(true);
     
     // Calculer les résultats de base
     const calculatedResults = calculateResults();
@@ -824,14 +905,17 @@ const TestDeReflexes: React.FC = () => {
     });
   };
 
-  // Nettoyer le timer à la fermeture
+  // Nettoyer tous les timers à la fermeture du composant
   useEffect(() => {
     return () => {
       if (timer) {
         clearInterval(timer);
       }
+      if (globalTimer) {
+        clearInterval(globalTimer);
+      }
     };
-  }, [timer]);
+  }, [timer, globalTimer]);
 
   return (
     <HomeLayout>
@@ -953,49 +1037,68 @@ const TestDeReflexes: React.FC = () => {
                 >
                   <Card className="border-green-700/30 bg-white/5 text-white shadow-lg">
                     <CardHeader className="border-b border-white/10 bg-white/5">
-                      <div className="flex justify-between items-center">
-                        <Badge 
-                          variant="outline" 
-                          className="bg-white/10 text-white border-green-500/30"
-                        >
-                          Question {currentQuestionIndex + 1}
-                        </Badge>
-                        <Badge 
-                          variant="outline" 
-                          className={cn(
-                            "bg-white/10 text-white border-green-500/30",
-                            timeLeft < 5 && "animate-pulse bg-red-900/30 border-red-500/30"
-                          )}
-                        >
-                          <Clock className="mr-1 h-3 w-3" />
-                          {timeLeft} secondes
-                          {bonusTimeEarned > 0 && (
-                            <span className="ml-1 text-green-300">(+{bonusTimeEarned}s bonus)</span>
-                          )}
-                        </Badge>
-                        <Badge 
-                          variant="outline" 
-                          className={cn(
-                            "bg-white/10 text-white",
-                            currentQuestion.difficulty === "facile" ? "border-green-500/30" :
-                            currentQuestion.difficulty === "moyen" ? "border-yellow-500/30" :
-                            "border-red-500/30"
-                          )}
-                        >
-                          {currentQuestion.category}
-                        </Badge>
+                      <div className="flex flex-col gap-2">
+                        <div className="flex justify-between items-center">
+                          <Badge 
+                            variant="outline" 
+                            className="bg-white/10 text-white border-green-500/30"
+                          >
+                            Question {currentQuestionIndex + 1}
+                          </Badge>
+                          <Badge 
+                            variant="outline" 
+                            className={cn(
+                              "bg-white/10 text-white border-green-500/30",
+                              timeLeft < 5 && "animate-pulse bg-red-900/30 border-red-500/30"
+                            )}
+                          >
+                            <Clock className="mr-1 h-3 w-3" />
+                            {timeLeft} secondes
+                            {bonusTimeEarned > 0 && (
+                              <span className="ml-1 text-green-300">(+{bonusTimeEarned}s bonus)</span>
+                            )}
+                          </Badge>
+                        </div>
                         
-                        <Badge 
-                          variant="outline" 
-                          className={cn(
-                            "bg-white/10 text-white",
-                            difficulty === "facile" ? "border-green-500/30" :
-                            difficulty === "moyen" ? "border-amber-500/30" :
-                            "border-red-500/30"
-                          )}
-                        >
-                          <span className="capitalize">Difficulté: {difficulty}</span>
-                        </Badge>
+                        <div className="flex justify-between items-center">
+                          <div className="text-xs text-gray-300">Temps total restant</div>
+                          <Badge 
+                            variant="outline" 
+                            className={cn(
+                              "bg-white/10 text-white border-blue-500/30",
+                              remainingTestTime < 30 && "animate-pulse bg-red-900/30 border-red-500/30"
+                            )}
+                          >
+                            <TimerReset className="mr-1 h-3 w-3" />
+                            {Math.floor(remainingTestTime / 60)}:{remainingTestTime % 60 < 10 ? `0${remainingTestTime % 60}` : remainingTestTime % 60}
+                          </Badge>
+                        </div>
+                        
+                        <div className="flex justify-between items-center">
+                          <Badge 
+                            variant="outline" 
+                            className={cn(
+                              "bg-white/10 text-white",
+                              currentQuestion.difficulty === "facile" ? "border-green-500/30" :
+                              currentQuestion.difficulty === "moyen" ? "border-yellow-500/30" :
+                              "border-red-500/30"
+                            )}
+                          >
+                            {currentQuestion.category}
+                          </Badge>
+                          
+                          <Badge 
+                            variant="outline" 
+                            className={cn(
+                              "bg-white/10 text-white",
+                              difficulty === "facile" ? "border-green-500/30" :
+                              difficulty === "moyen" ? "border-amber-500/30" :
+                              "border-red-500/30"
+                            )}
+                          >
+                            <span className="capitalize">Difficulté: {difficulty}</span>
+                          </Badge>
+                        </div>
                       </div>
                       <CardTitle className="text-xl mt-2">{currentQuestion.text}</CardTitle>
                       <Progress 
