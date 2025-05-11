@@ -162,16 +162,7 @@ export default function CyberModeSelectionRedesign() {
       difficulty: 'débutant',
       duration: '10-20 min'
     },
-    {
-      id: 'mise-en-situation',
-      title: 'CYBERCHAOS',
-      description: "Tiens ton SI debout. Jusqu'au bout. Gérez une crise cyber majeure en temps réel.",
-      icon: <AlertCircle className="h-5 w-5" />,
-      destination: '/cyber-chaos',
-      difficulty: 'intermédiaire',
-      duration: '15-20 min',
-      isNew: true
-    },
+
     {
       id: 'preparation-audition',
       title: 'PRÉPARATION AUDITION CLIENT',
@@ -279,7 +270,6 @@ export default function CyberModeSelectionRedesign() {
       icon: <Monitor className="h-6 w-6 text-indigo-100" />,
       modules: [
         'cyber-arcade',            // Jeux interactifs d'apprentissage
-        'mise-en-situation',       // Gestion d'incidents simulés
         'preparation-audition'     // Simulation d'entretien client
       ],
       gradient: 'from-indigo-700 to-indigo-900'
