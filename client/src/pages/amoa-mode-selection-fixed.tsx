@@ -352,7 +352,7 @@ export default function AmoaModeSelectionFixed() {
             
             {/* Vue par modules */}
             <TabsContent value="modules" className="mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {filteredModules.map((module) => (
                   <motion.div
                     key={module.id}
@@ -417,7 +417,7 @@ export default function AmoaModeSelectionFixed() {
             
             {/* Vue par objectifs d'apprentissage */}
             <TabsContent value="objectives" className="mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {learningObjectives.map((objective) => (
                   <motion.div
                     key={objective.id}
@@ -472,7 +472,7 @@ export default function AmoaModeSelectionFixed() {
             
             {/* Vue par parcours métiers */}
             <TabsContent value="careers" className="mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {careerPaths.map((career) => (
                   <motion.div
                     key={career.id}
