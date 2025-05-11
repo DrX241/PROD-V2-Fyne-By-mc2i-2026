@@ -57,11 +57,11 @@ export async function generateMissionScenario(req: Request, res: Response) {
       content: `Génère un scénario d'audition client réaliste pour le secteur ${sector} qui pourrait être utilisé lors d'une préparation d'audition pour un consultant mc2i.`
     };
 
-    const response = await openAIService.getChatCompletion([systemMessage, userMessage], {
-      model: process.env.GPT4O_MINI_DEPLOYMENT_NAME || 'Eddy-02-2025-gpt-4o-mini',
+    const response = await openAIService.getChatCompletionWithCache({
+      messages: [systemMessage, userMessage],
       temperature: 0.7,
-      max_tokens: 1000,
-      response_format: { type: 'json_object' }
+      maxTokens: 1000,
+      useSecondaryKey: true // Utiliser GPT-4o-mini qui est plus économique
     });
 
     try {
@@ -154,10 +154,11 @@ Important: Ne révèle jamais que tu es une IA. Comporte-toi comme un véritable
       });
     }
 
-    const response = await openAIService.getChatCompletion(conversationHistory, {
-      model: process.env.GPT4O_DEPLOYMENT_NAME || 'Eddy-deploy-20-02-2025-gpt-4o',
+    const response = await openAIService.getChatCompletionWithCache({
+      messages: conversationHistory,
       temperature: 0.8,
-      max_tokens: 800
+      maxTokens: 800,
+      useSecondaryKey: false // Utiliser GPT-4o pour une meilleure qualité des réponses
     });
 
     return res.status(200).json({
@@ -228,11 +229,11 @@ export async function evaluatePerformance(req: Request, res: Response) {
       content: `Voici la transcription de l'entretien d'audition à évaluer:\n\n${messagesText}\n\nProfil du consultant: ${candidateInfo?.profileType || 'Non spécifié'}, Expérience: ${candidateInfo?.experienceLevel || 'Non spécifiée'}`
     };
 
-    const response = await openAIService.getChatCompletion([systemMessage, userMessage], {
-      model: process.env.GPT4O_DEPLOYMENT_NAME || 'Eddy-deploy-20-02-2025-gpt-4o',
+    const response = await openAIService.getChatCompletionWithCache({
+      messages: [systemMessage, userMessage],
       temperature: 0.7,
-      max_tokens: 1200,
-      response_format: { type: 'json_object' }
+      maxTokens: 1200,
+      useSecondaryKey: false // Utiliser GPT-4o pour une évaluation précise
     });
 
     try {
