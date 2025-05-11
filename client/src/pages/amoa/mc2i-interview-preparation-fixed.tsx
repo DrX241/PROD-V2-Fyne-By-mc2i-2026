@@ -62,7 +62,11 @@ const contactFormSchema = z.object({
 // Types pour le suivi de progression
 type ProgressSection = 'preparation' | 'during' | 'after';
 
-const BestPracticesContent: React.FC = () => {
+interface BestPracticesContentProps {
+  setActiveTab?: (tab: string) => void;
+}
+
+const BestPracticesContent: React.FC<BestPracticesContentProps> = ({ setActiveTab }) => {
   const [progressTracker, setProgressTracker] = useState({
     preparation: { completed: 0, total: 2 },
     during: { completed: 0, total: 5 },
@@ -621,7 +625,7 @@ const BestPracticesContent: React.FC = () => {
       <div className="mt-8 text-center">
         <Button
           className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-2 px-6 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105"
-          onClick={() => setActiveTab?.('configuration')}
+          onClick={() => setActiveTab && setActiveTab('configuration')}
         >
           <Sparkles className="w-5 h-5 mr-2" />
           Démarrer une simulation d'audition
@@ -906,7 +910,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
           <Button 
             variant="ghost" 
             className="text-white hover:text-white hover:bg-gray-700/80"
-            onClick={() => navigate("/mc2i-home")}
+            onClick={() => navigate("/amoa-mode-selection-fixed")}
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
             Retour
@@ -960,7 +964,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
-                <BestPracticesContent />
+                <BestPracticesContent setActiveTab={setActiveTab} />
               </CardContent>
               <CardFooter className="flex justify-between border-t border-gray-700/50 pt-4">
                 <Button
