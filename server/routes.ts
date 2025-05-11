@@ -63,6 +63,7 @@ import { getInvestigationProgress, saveInvestigationProgress, evaluateUserNotes 
 import { getChallenges, getChallengeById, getUserStats, getUserReports, submitBugReport, getReportById } from "./bugHunterController";
 import { generateCustomTool } from "./toolGeneratorController";
 import { getOrCreateUser, getUserById } from "./userController";
+import { evaluateUserPerformance, generateFeedbackMessage } from "./amoaReflexTestController";
 
 
 import {
