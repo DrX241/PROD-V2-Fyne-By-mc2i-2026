@@ -270,11 +270,42 @@ class OpenAIService {
     }
   }
 
+  // Surcharge de la méthode pour accepter un paramètre useSecondaryKey
   async getChatCompletion(
     messages: ChatCompletionRequestMessage[],
-    temperature: number = 0.7,
-    maxTokens: number = 2000
+    useSecondaryKey: boolean,
+    temperature: number,
+    maxTokens: number
+  ): Promise<string>;
+  
+  // Surcharge de la méthode pour compatibilité avec l'interface d'origine
+  async getChatCompletion(
+    messages: ChatCompletionRequestMessage[],
+    temperatureOrUseSecondary?: number | boolean,
+    maxTokensOrTemperature?: number,
+    maxTokens?: number
   ): Promise<string> {
+    // Déterminer les paramètres en fonction de la signature utilisée
+    let useSecondaryKey: boolean = false;
+    let temperature: number = 0.7;
+    let actualMaxTokens: number = 2000;
+    
+    if (typeof temperatureOrUseSecondary === 'boolean') {
+      // Si le second paramètre est un booléen, c'est useSecondaryKey
+      useSecondaryKey = temperatureOrUseSecondary;
+      temperature = typeof maxTokensOrTemperature === 'number' ? maxTokensOrTemperature : 0.7;
+      actualMaxTokens = typeof maxTokens === 'number' ? maxTokens : 2000;
+    } else {
+      // Sinon c'est la température
+      temperature = typeof temperatureOrUseSecondary === 'number' ? temperatureOrUseSecondary : 0.7;
+      actualMaxTokens = typeof maxTokensOrTemperature === 'number' ? maxTokensOrTemperature : 2000;
+    }
+    
+    // Si useSecondaryKey est vrai, on force l'utilisation du modèle secondaire
+    if (useSecondaryKey) {
+      this.currentConfig = 'secondary';
+    }
+    
     try {
       const config = this.getCurrentConfig();
       
