@@ -959,38 +959,36 @@ const Mc2iInterviewPreparation: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Simuler un appel API d'évaluation (à remplacer par l'appel réel)
-      setTimeout(() => {
-        const mockEvaluation = {
-          summary: "Votre performance pendant cette audition a démontré une bonne préparation technique mais pourrait être améliorée au niveau des compétences de communication et de la concision des réponses.",
-          strengths: [
-            "Bonnes connaissances techniques dans le domaine demandé",
-            "Structure claire dans la présentation de vos expériences",
-            "Posture professionnelle tout au long de l'entretien",
-            "Questions pertinentes posées au client"
-          ],
-          improvements: [
-            "Réponses parfois trop longues et détaillées",
-            "Tendance à utiliser un vocabulaire trop technique",
-            "Communication non verbale à améliorer (contact visuel, gestuelle)",
-            "Manque d'exemples concrets pour illustrer certaines compétences"
-          ],
-          detailedNotes: "Vous avez bien réussi à présenter vos compétences techniques et expériences pertinentes. Le discours était structuré mais parfois trop détaillé, ce qui peut perdre l'attention de l'interlocuteur. Travaillez sur la concision de vos réponses tout en conservant les éléments essentiels. Votre posture était professionnelle, mais la communication non verbale mérite d'être améliorée pour projeter plus de confiance.",
-          recommendations: [
-            "Pratiquez des présentations de 30 secondes à 2 minutes pour vos expériences",
-            "Enregistrez-vous pour analyser votre communication non verbale",
-            "Adaptez votre vocabulaire à votre interlocuteur",
-            "Préparez des exemples concrets pour chaque compétence clé"
-          ],
-          sectorFitEvaluation: "Votre compréhension des enjeux spécifiques du secteur est bonne, mais pourrait être approfondie en ce qui concerne les tendances actuelles et les défis réglementaires.",
-          conclusion: "Votre profil correspond globalement aux attentes pour ce type de mission. Avec quelques ajustements dans votre communication et une préparation plus ciblée sur le secteur, vous augmenterez significativement vos chances de succès lors des prochaines auditions."
-        };
-        
-        setEvaluationResult(mockEvaluation);
-        setActiveTab('evaluation');
-        setSimulationComplete(true);
-        setIsLoading(false);
-      }, 2000);
+      // Appel à l'API d'évaluation
+      const response = await fetch('/api/amoa/interview-simulation/evaluate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          context: missionScenario,
+          conversation: messages.map(msg => ({
+            role: msg.role,
+            content: msg.content
+          })),
+          candidateName: form.getValues().candidateName,
+          recruiterEmail: form.getValues().recruiterEmail
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || "Erreur lors de l'évaluation de l'entretien");
+      }
+      
+      setEvaluationResult(data.evaluation);
+      setActiveTab('evaluation');
+      setSimulationComplete(true);
     } catch (error) {
       console.error('Erreur lors de l\'évaluation:', error);
       toast({
@@ -998,6 +996,18 @@ const Mc2iInterviewPreparation: React.FC = () => {
         description: "Impossible d'obtenir l'évaluation. Veuillez réessayer.",
         variant: "destructive",
       });
+      
+      // Fallback avec une évaluation basique en cas d'erreur
+      setEvaluationResult({
+        summary: "Une évaluation complète n'a pas pu être générée en raison d'une erreur technique.",
+        strengths: ["Veuillez réessayer ultérieurement"],
+        improvements: ["Veuillez réessayer ultérieurement"],
+        detailedNotes: "Service temporairement indisponible.",
+        recommendations: ["Réessayer l'évaluation"],
+        sectorFitEvaluation: "Évaluation indisponible",
+        conclusion: "Veuillez réessayer plus tard ou contacter le support."
+      });
+    } finally {
       setIsLoading(false);
     }
   };
