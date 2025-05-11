@@ -58,6 +58,8 @@ import ThreatIntelligence from "@/pages/cyber/arcade/threat-intelligence";
 // Pages AMOA
 import AmoaPage from "@/pages/amoa";
 import AmoaModeSelection from "@/pages/amoa-mode-selection";
+// Import la nouvelle version optimisée du mode de sélection AMOA (comme pour Cyber)
+import AmoaModeSelectionFixed from "@/pages/amoa-mode-selection-fixed";
 // Modules Simulation d'Entretien
 import CyberInterviewSimulation from "@/pages/cyber/interview-simulation";
 import AmoaInterviewSimulation from "@/pages/amoa/interview-simulation";
@@ -693,8 +695,22 @@ function App() {
                 </Suspense>
               );
             }} />
-            <Route path="/amoa" component={AmoaPage} />
-            <Route path="/amoa-mode-selection" component={AmoaModeSelection} />
+            <Route path="/amoa" component={() => {
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <AmoaModeSelectionFixed />
+                </Suspense>
+              );
+            }} />
+            <Route path="/amoa-mode-selection" component={() => {
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <AmoaModeSelectionFixed />
+                </Suspense>
+              );
+            }} />
+            <Route path="/amoa-old" component={AmoaPage} />
+            <Route path="/amoa-mode-selection-old" component={AmoaModeSelection} />
             {/* Route AMOA Quest supprimée */}
             <Route path="/amoa/projet-imposteur" component={ProjetImposteur} />
             <Route path="/amoa/test-reflexes" component={() => {
