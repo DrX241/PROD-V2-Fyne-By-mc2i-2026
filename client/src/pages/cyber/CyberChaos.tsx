@@ -1249,11 +1249,11 @@ const CyberChaos: React.FC = () => {
         }),
       });
       
-      if (!apiResponse.ok) {
-        throw new Error(`Erreur API: ${apiResponse.status}`);
+      if (!response.ok) {
+        throw new Error(`Erreur API: ${response.status}`);
       }
       
-      const data = await apiResponse.json();
+      const data = await response.json();
       
       // Analyser la réponse du PNJ et l'ajouter à l'historique de communication avec des impacts visuels
       
@@ -1929,7 +1929,7 @@ const CyberChaos: React.FC = () => {
                       <X className="h-4 w-4" />
                     </Button>
                   </CardHeader>
-                  <CardContent className="flex-grow overflow-y-auto p-3">
+                  <CardContent className="flex-grow overflow-y-auto p-3 scrollbar-thin scrollbar-thumb-blue-700 scrollbar-track-gray-900">
                     <div className="space-y-4">
                       {/* Messages */}
                       {communicationHistory[selectedContact].map((msg, index) => (
@@ -1943,8 +1943,10 @@ const CyberChaos: React.FC = () => {
                               ? 'bg-blue-700 text-white' 
                               : msg.needsResponse 
                                 ? 'bg-amber-900/80 text-white border border-amber-500/50' 
-                                : 'bg-gray-800 text-white'
-                            }`}
+                                : msg.tone === 'urgent'
+                                  ? 'bg-amber-900/80 text-white border border-amber-500/50'
+                                  : 'bg-gray-800 text-white'
+                            } overflow-hidden`}
                           >
                             {msg.sender === 'npc' && msg.needsResponse && (
                               <div className="flex items-center mb-2 gap-2">
@@ -1953,7 +1955,7 @@ const CyberChaos: React.FC = () => {
                                 </Badge>
                               </div>
                             )}
-                            <p className="break-words whitespace-pre-wrap">{msg.message}</p>
+                            <p className="break-all overflow-wrap-anywhere whitespace-pre-wrap text-sm">{msg.message}</p>
                             
                             {/* Boutons de choix pour les messages qui nécessitent une réponse */}
                             {msg.sender === 'npc' && msg.needsResponse && msg.choices && (
@@ -2186,8 +2188,8 @@ const CyberChaos: React.FC = () => {
                       </div>
                     </div>
                     
-                    {/* Messages */}
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                    {/* Messages - avec ascenseur amélioré et styles pour éviter le débordement */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-blue-700 scrollbar-track-gray-900">
                       {communicationHistory[selectedContact].length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-full text-blue-300/70">
                           <MessageSquare className="h-12 w-12 mb-2" />
@@ -2203,10 +2205,19 @@ const CyberChaos: React.FC = () => {
                               className={`max-w-[80%] p-3 rounded-lg ${
                                 msg.sender === 'player' 
                                   ? 'bg-blue-800 text-white' 
-                                  : 'bg-gray-800 text-blue-100'
-                              }`}
+                                  : msg.tone === 'urgent' 
+                                    ? 'bg-amber-900/80 text-white border border-amber-500/50' 
+                                    : 'bg-gray-800 text-blue-100'
+                              } overflow-hidden`}
                             >
-                              <p className="whitespace-pre-wrap break-words">{msg.message}</p>
+                              <p className="whitespace-pre-wrap break-all overflow-wrap-anywhere text-sm">{msg.message}</p>
+                              {msg.focus && msg.sender === 'npc' && (
+                                <div className="mt-1 pt-1 border-t border-blue-700/30 text-xs opacity-70">
+                                  {msg.focus === 'technique' && <span className="text-cyan-300">Focus: Technique</span>}
+                                  {msg.focus === 'légal' && <span className="text-amber-300">Focus: Réglementaire</span>}
+                                  {msg.focus === 'réputation' && <span className="text-purple-300">Focus: Image</span>}
+                                </div>
+                              )}
                             </div>
                           </div>
                         ))
