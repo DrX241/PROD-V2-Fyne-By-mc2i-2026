@@ -450,10 +450,10 @@ const TestDeReflexes: React.FC = () => {
   const [consecutiveWrong, setConsecutiveWrong] = useState<number>(0);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const maxQuestions = 15; // Limitation du test à 15 questions
   const [difficulty, setDifficulty] = useState<"facile" | "moyen" | "difficile">("facile");
   const [usedQuestionIds, setUsedQuestionIds] = useState<Set<string>>(new Set());
   const [questionCount, setQuestionCount] = useState<number>(0);
-  const [maxQuestions] = useState<number>(15); // Maximum de 15 questions
 
   // Filtrer les questions qui n'ont pas encore été utilisées
   const availableQuestions = testQuestions.filter(q => !usedQuestionIds.has(q.id));
@@ -558,25 +558,19 @@ const TestDeReflexes: React.FC = () => {
         ]);
       }
       
-      // Bonus de temps pour les prochaines questions basé sur la rapidité
+      // Messages d'encouragement basés sur la rapidité
       const speedPercentage = responseTime / (currentQuestion?.timeLimit || 1);
-      let bonusTime = 0;
       
       if (speedPercentage < 0.3) {
-        // Très rapide - gros bonus
-        bonusTime = 5;
-        setFeedbackMessage("Excellent! +5s de bonus pour votre rapidité! 🚀");
+        // Très rapide
+        setFeedbackMessage("Excellent! Réponse très rapide! 🚀");
       } else if (speedPercentage < 0.6) {
-        // Rapide - bonus moyen
-        bonusTime = 3;
-        setFeedbackMessage("Bien joué! +3s de bonus! ⏱️");
+        // Rapide
+        setFeedbackMessage("Bien joué! Bonne vitesse de réponse! ⏱️");
       } else {
         // Correct mais plus lent
-        bonusTime = 1;
-        setFeedbackMessage("Correct! +1s de bonus");
+        setFeedbackMessage("Correct! Continuez comme ça!");
       }
-      
-      setBonusTimeEarned(prev => prev + bonusTime);
       
       // Encouragements supplémentaires basés sur les séquences
       if (consecutiveCorrect + 1 >= 3) {
