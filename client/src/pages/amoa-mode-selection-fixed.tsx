@@ -56,7 +56,7 @@ export default function AmoaModeSelectionFixed() {
   const [hoveredModule, setHoveredModule] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [activeTab, setActiveTab] = useState('modules');
+  const [activeTab, setActiveTab] = useState('objectives');
 
   // Liste complète des modules AMOA
   const modules: Module[] = [
@@ -304,7 +304,7 @@ export default function AmoaModeSelectionFixed() {
               transition={{ duration: 0.5 }}
               className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4"
             >
-              I AM <span className="text-blue-300">mc2i</span>
+              I AM <span className="text-[#0076be]">mc2i</span>
             </motion.h1>
             <motion.p 
               initial={{ opacity: 0, y: 20 }}
