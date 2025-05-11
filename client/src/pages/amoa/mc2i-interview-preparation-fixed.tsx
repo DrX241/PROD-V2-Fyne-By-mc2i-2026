@@ -98,9 +98,17 @@ const BestPracticesContent: React.FC<BestPracticesContentProps> = ({ setActiveTa
             }}
           ></div>
         </div>
-        <p className="text-blue-100 text-sm">
+        <p className="text-blue-100 text-sm mb-4">
           Accomplissez les étapes pour maîtriser le processus d'audition
         </p>
+        <div className="flex justify-center">
+          <Button 
+            onClick={() => window.location.href = "/amoa/interview-simulation"}
+            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-2 rounded-md font-medium mb-2"
+          >
+            Passer directement à la simulation d'audition
+          </Button>
+        </div>
       </div>
     
       {/* Main content using grid with different colored sections */}

@@ -134,7 +134,7 @@ export default function AmoaModeSelectionFixed() {
       title: 'SIMULATION D\'AUDITION (IA)',
       description: "Passez une audition client en conditions réelles avec un évaluateur IA",
       icon: <BsClipboardCheck className="h-5 w-5" />,
-      destination: '/amoa/interview-simulation',
+      destination: '/amoa/mc2i-interview-preparation',
       difficulty: 'avancé',
       duration: '30-45 min'
     },

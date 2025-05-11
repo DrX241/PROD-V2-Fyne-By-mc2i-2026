@@ -119,7 +119,11 @@ function App() {
             
             {/* Toutes les routes sont maintenant publiques */}
             <Route path="/cyber/interview-simulation" component={CyberInterviewSimulation} />
-            <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
+            {/* Redirection vers la page de préparation d'audition (fusion des modules) */}
+            <Route path="/amoa/interview-simulation" component={() => {
+              window.location.href = '/amoa/mc2i-interview-preparation';
+              return null;
+            }} />
             
             {/* Routes publiques */}
             <Route path="/" component={Home} />
