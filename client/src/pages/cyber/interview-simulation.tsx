@@ -480,10 +480,11 @@ const CyberInterviewSimulation: React.FC = () => {
                   Retour à I AM CYBER
                 </Button>
                 <Button 
-                  onClick={() => setActiveTab('configuration')}
-                  className="md:w-auto"
+                  onClick={() => handleStartSimulation(form.getValues())}
+                  className="md:w-auto bg-[#006a9e] hover:bg-blue-700 text-white"
+                  disabled={isLoading}
                 >
-                  Configurer l'entretien
+                  {isLoading ? "Chargement..." : "Démarrer l'entretien"}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </CardFooter>
