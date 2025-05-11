@@ -727,76 +727,30 @@ const Mc2iInterviewPreparation: React.FC = () => {
     setIsGeneratingScenario(true);
     
     try {
-      // Dans une version réelle, ceci serait un appel API vers Azure OpenAI pour générer un scénario
-      // C'est simulé ici pour démonstration
-      setTimeout(() => {
-        const sectors = {
-          "Banque & Assurance": {
-            companyName: "Crédit Mutuel",
-            context: "transformation des services digitaux bancaires",
-            objectives: ["Moderniser l'application mobile", "Unifier l'expérience client", "Renforcer la sécurité des transactions"],
-            skills: ["Connaissance du secteur bancaire", "Expérience en UX/UI", "Maîtrise des standards de sécurité bancaire", "Compétences en gestion de projet Agile"],
-            challenges: ["Intégration avec les systèmes legacy", "Contraintes réglementaires strictes", "Migration des utilisateurs sans impact"]
-          },
-          "Secteur Public": {
-            companyName: "Ministère de la Transformation Numérique",
-            context: "dématérialisation des procédures administratives",
-            objectives: ["Réduire le temps de traitement des demandes", "Faciliter l'accès aux services publics", "Garantir l'inclusion numérique"],
-            skills: ["Connaissance des processus administratifs", "Expérience en conduite du changement", "Maîtrise des normes d'accessibilité", "Sensibilité à la protection des données"],
-            challenges: ["Résistance au changement", "Disparité des systèmes existants", "Contraintes budgétaires importantes"]
-          },
-          "Énergie": {
-            companyName: "EDF",
-            context: "optimisation de la consommation énergétique",
-            objectives: ["Déployer une solution de monitoring en temps réel", "Réduire l'empreinte carbone des installations", "Optimiser les coûts opérationnels"],
-            skills: ["Expérience dans le secteur de l'énergie", "Connaissance des IoT et des systèmes de monitoring", "Expertise en analyse de données", "Compétences en gestion de projet"],
-            challenges: ["Intégration de multiples sources de données", "Conformité aux normes environnementales", "Déploiement sur des sites géographiquement dispersés"]
-          },
-          "Retail": {
-            companyName: "Carrefour",
-            context: "transformation omnicanale des parcours d'achat",
-            objectives: ["Unifier l'expérience en ligne et en magasin", "Personnaliser les offres en temps réel", "Optimiser la chaîne logistique"],
-            skills: ["Connaissance du secteur retail", "Expertise en expérience client", "Maîtrise des technologies de personalisation", "Compétences en intégration de systèmes"],
-            challenges: ["Forte concurrence", "Complexité des systèmes existants", "Attentes élevées des consommateurs"]
-          },
-          "Santé": {
-            companyName: "Groupe Hospitalier Paris Saint-Joseph",
-            context: "modernisation du système d'information médicale",
-            objectives: ["Digitaliser le dossier patient", "Améliorer la coordination des soins", "Optimiser les parcours patients"],
-            skills: ["Connaissance du secteur médical", "Expertise en sécurité des données sensibles", "Maîtrise des standards d'interopérabilité", "Capacité à travailler avec les équipes médicales"],
-            challenges: ["Contraintes réglementaires fortes", "Sensibilité des données manipulées", "Besoin de disponibilité 24/7"]
-          }
-        };
-        
-        // Sélection du secteur ou valeur par défaut
-        const sectorKey = sector in sectors ? sector : "Banque & Assurance";
-        const sectorData = sectors[sectorKey as keyof typeof sectors];
-        
-        // Construction d'un scénario réaliste
-        const scenario = {
-          title: `Projet de ${sectorData.context} pour ${sectorData.companyName}`,
-          clientName: generateRandomName(),
-          clientCompany: sectorData.companyName,
-          clientPosition: `Directeur de la ${sectorKey === "Banque & Assurance" ? "Transformation Digitale" : 
-                         sectorKey === "Secteur Public" ? "Modernisation des Services" : 
-                         sectorKey === "Énergie" ? "Transition Énergétique" : 
-                         sectorKey === "Retail" ? "Stratégie Omnicanale" : 
-                         "Transformation Numérique"}`,
-          sector: sectorKey,
-          projectContext: `${sectorData.companyName} souhaite initier un projet ambitieux de ${sectorData.context} pour répondre aux défis actuels du marché et aux attentes croissantes de leurs clients. Ce projet s'inscrit dans une stratégie à long terme visant à moderniser leurs infrastructures tout en améliorant l'expérience utilisateur. Le projet a obtenu un budget conséquent et dispose d'un fort sponsoring de la direction générale.`,
-          projectObjectives: sectorData.objectives,
-          expectedSkills: sectorData.skills,
-          challengesAndConstraints: sectorData.challenges,
-          teamSize: Math.floor(Math.random() * 5) + 3, // Équipe de 3 à 7 personnes
-          duration: `${Math.floor(Math.random() * 6) + 6} mois` // Durée de 6 à 12 mois
-        };
-        
-        setMissionScenario(scenario);
-        setIsGeneratingScenario(false);
-        // Passer à la phase de briefing
-        setSimulationPhase('briefing');
-        setActiveTab('configuration');
-      }, 2000);
+      // Utilisation de l'API pour générer le scénario
+      const response = await fetch('/api/amoa/interview-simulation/start', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sector }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Erreur lors de la génération du scénario');
+      }
+      
+      setMissionScenario(data.scenario);
+      setIsGeneratingScenario(false);
+      // Passer à la phase de briefing
+      setSimulationPhase('briefing');
+      setActiveTab('configuration');
     } catch (error) {
       console.error('Erreur lors de la génération du scénario:', error);
       toast({
@@ -914,33 +868,47 @@ const Mc2iInterviewPreparation: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Simuler une réponse de l'IA (à remplacer par l'appel API réel)
-      setTimeout(() => {
-        const aiResponses = [
-          "Pourriez-vous me parler d'une expérience où vous avez dû gérer des parties prenantes ayant des intérêts divergents ?",
-          "Quelles méthodologies de gestion de projet avez-vous l'habitude d'utiliser ? Quelle est votre approche préférée et pourquoi ?",
-          "Comment abordez-vous la gestion des risques dans vos projets ?",
-          "Quelles sont vos compétences techniques qui seraient pertinentes pour ce projet ?",
-          "Comment vous adaptez-vous aux changements de priorités en cours de projet ?",
-          "Merci pour votre candidature, nous allons examiner votre profil et vous recontacterons très prochainement. Avez-vous des questions avant que nous ne terminions cet entretien ?"
-        ];
-        
-        const aiMessage: Message = {
-          id: `assistant-${messages.length + 2}`,
-          role: 'assistant',
-          content: messages.length >= 10 ? aiResponses[5] : aiResponses[Math.floor((messages.length - 1) / 2) % 5],
-          timestamp: new Date(),
-        };
-        
-        setMessages(prev => [...prev, aiMessage]);
-        setIsLoading(false);
-        
-        if (messages.length >= 10) {
-          setTimeout(() => {
-            setSimulationComplete(true);
-          }, 3000);
-        }
-      }, 1500);
+      // Envoi du message à l'API
+      const response = await fetch('/api/amoa/interview-simulation/message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userInput,
+          context: missionScenario, // Contexte du scénario pour l'IA
+          messageHistory: messages.map(msg => ({
+            role: msg.role,
+            content: msg.content
+          }))
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Erreur lors de la génération de la réponse');
+      }
+      
+      const aiMessage: Message = {
+        id: `assistant-${messages.length + 2}`,
+        role: 'assistant',
+        content: data.message,
+        timestamp: new Date(),
+      };
+      
+      setMessages(prev => [...prev, aiMessage]);
+      
+      // Si l'IA indique que l'entretien est terminé
+      if (data.complete) {
+        setTimeout(() => {
+          setSimulationComplete(true);
+        }, 3000);
+      }
     } catch (error) {
       console.error('Erreur lors de l\'envoi du message:', error);
       toast({
@@ -948,6 +916,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
         description: "Impossible d'envoyer le message. Veuillez réessayer.",
         variant: "destructive",
       });
+    } finally {
       setIsLoading(false);
     }
   };
