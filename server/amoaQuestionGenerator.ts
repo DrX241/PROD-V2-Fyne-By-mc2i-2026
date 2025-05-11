@@ -85,15 +85,15 @@ Assure-toi que chaque question couvre une problématique différente en AMOA.`;
     const userPrompt = `Génère ${count} questions distinctes pour évaluer les compétences d'un AMOA.`;
 
     // Appel à Azure OpenAI pour générer les questions via le service OpenAI de l'application
-    const response = await openAIService.getChatCompletion({
-      messages: [
+    const response = await openAIService.getChatCompletion(
+      [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt }
       ],
-      temperature: 0.7,
-      maxTokens: 3000,
-      model: 'gpt-4o' // Utiliser GPT-4o pour obtenir les meilleures questions possibles
-    });
+      false, // useSecondaryKey (false pour utiliser le model principal GPT-4o)
+      0.7,   // temperature
+      3000   // maxTokens
+    );
 
     const content = response;
     if (!content) {
