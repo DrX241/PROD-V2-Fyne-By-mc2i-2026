@@ -1197,7 +1197,7 @@ const TestDeReflexes: React.FC = () => {
                               </div>
                               <div className="flex flex-col items-center bg-white/10 rounded-lg p-4 my-2">
                                 <div className="text-3xl mb-2">
-                                  {results.aiEvaluation.badge.icon}
+                                  <Award className="w-12 h-12 text-amber-400" />
                                 </div>
                                 <h4 className="text-xl font-bold text-white mb-1">{results.aiEvaluation.badge.name}</h4>
                                 <p className="text-gray-300 text-sm">{results.aiEvaluation.badge.description}</p>
