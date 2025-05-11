@@ -64,6 +64,7 @@ import AmoaModeSelectionFixed from "@/pages/amoa-mode-selection-fixed";
 import CyberInterviewSimulation from "@/pages/cyber/interview-simulation";
 import AmoaInterviewSimulation from "@/pages/amoa/interview-simulation";
 import ProjetImposteur from "@/pages/amoa/projet-imposteur";
+import Mc2iInterviewPreparation from "@/pages/amoa/mc2i-interview-preparation";
 // Module Apprendre en échangeant
 import ExpertLearningPage from "@/pages/cyber/expert-learning";
 // Ancien jeu Cyber Snake (supprimé)
@@ -721,6 +722,7 @@ function App() {
             <Route path="/amoa-mode-selection-old" component={AmoaModeSelection} />
             {/* Route AMOA Quest supprimée */}
             <Route path="/amoa/projet-imposteur" component={ProjetImposteur} />
+            <Route path="/amoa/mc2i-interview-preparation" component={Mc2iInterviewPreparation} />
             <Route path="/amoa/test-reflexes" component={() => {
               const TestReflexesComponent = lazy(() => import('./pages/amoa/test-reflexes'));
               return (
