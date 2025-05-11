@@ -347,7 +347,6 @@ const CyberInterviewSimulation: React.FC = () => {
   
   return (
     <HomeLayout>
-      <div className="cyber-interview-test">
         {/* Dialogue pour saisir les informations de contact à la fin de la simulation */}
         <AlertDialog open={showContactForm} onOpenChange={setShowContactForm}>
           <AlertDialogContent className="bg-white dark:bg-gray-800 text-gray-800 dark:text-white border-blue-200 dark:border-gray-700">
@@ -926,8 +925,7 @@ const CyberInterviewSimulation: React.FC = () => {
             </TabsContent>
           </Tabs>
         </div>
-      </div>
-    </HomeLayout>
+      </HomeLayout>
   );
 };
 
