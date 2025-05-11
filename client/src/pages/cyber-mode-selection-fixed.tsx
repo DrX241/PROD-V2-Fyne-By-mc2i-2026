@@ -1,41 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
-import { 
-  ArrowRight, 
-  Home, 
-  HelpCircle, 
-  Search, 
-  BookOpen, 
-  Monitor, 
-  Award, 
-  Wrench, 
-  Shield, 
-  LineChart, 
-  Eye, 
-  Cpu, 
-  Code, 
-  Cloud, 
-  Users, 
-  BookMarked,
-  Briefcase,
-  Settings,
-  ChevronRight,
-  Filter,
-  Zap,
-  AlertCircle,
-  Sun,
-  Moon,
-  ZoomIn,
-  ZoomOut,
-  Lock,
-  LayoutGrid,
-  List,
-  Check,
-  GraduationCap,
-  Circle,
-  Bot
-} from 'lucide-react';
+import { HelpCircle, Search, Circle } from 'lucide-react';
+// Remplacer les icônes Lucide par des icônes modernes
+import { IoHome, IoSearchOutline, IoBookOutline, IoDesktopOutline, IoTrophyOutline, IoConstructOutline } from 'react-icons/io5';
+import { IoMdArrowForward } from 'react-icons/io';
+import { BsShieldCheck, BsBarChartFill, BsEye, BsCpu, BsCodeSlash, BsCloud, BsPeopleFill, 
+         BsBookmarkCheck, BsBriefcase, BsGearFill, BsChevronRight, BsFilterLeft, 
+         BsLightningCharge, BsExclamationCircleFill } from 'react-icons/bs';
+import { FiSun, FiMoon } from 'react-icons/fi';
+import { AiOutlineZoomIn, AiOutlineZoomOut } from 'react-icons/ai';
+import { RiLockFill } from 'react-icons/ri';
+import { TbLayoutGrid, TbList, TbCheckbox } from 'react-icons/tb';
+import { FaGraduationCap, FaRobot } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
@@ -249,7 +226,7 @@ export default function CyberModeSelectionRedesign() {
       id: 'se-former',
       title: 'SE FORMER',
       description: "Acquérir des connaissances théoriques et comprendre les concepts fondamentaux de la cybersécurité",
-      icon: <BookOpen className="h-6 w-6 text-blue-100" />,
+      icon: <IoBookOutline className="h-6 w-6 text-blue-100" />,
       modules: [
         'agent-ia',                // Assistant IA pour répondre aux questions
         'ascension-progression',   // Parcours structuré de formation
@@ -267,7 +244,7 @@ export default function CyberModeSelectionRedesign() {
       id: 'sentrainer',
       title: "S'ENTRAÎNER",
       description: "Mettre en pratique vos connaissances avec des exercices interactifs et des simulations",
-      icon: <Monitor className="h-6 w-6 text-indigo-100" />,
+      icon: <IoDesktopOutline className="h-6 w-6 text-indigo-100" />,
       modules: [
         'cyber-arcade',            // Jeux interactifs d'apprentissage
         'preparation-audition'     // Simulation d'entretien client
@@ -278,7 +255,7 @@ export default function CyberModeSelectionRedesign() {
       id: 'sevaluer',
       title: "S'ÉVALUER",
       description: "Tester vos compétences dans des conditions réelles d'examen ou d'entretien",
-      icon: <Award className="h-6 w-6 text-purple-100" />,
+      icon: <IoTrophyOutline className="h-6 w-6 text-purple-100" />,
       modules: [
         'profil-pro',              // Exploration et auto-évaluation des métiers avec IA
         'mode-entretien',          // Simulation d'entretien d'embauche
@@ -290,7 +267,7 @@ export default function CyberModeSelectionRedesign() {
       id: 'creer',
       title: "CRÉER/AUTOMATISER",
       description: "Utiliser des outils pour générer du contenu et automatiser des tâches de cybersécurité",
-      icon: <Wrench className="h-6 w-6 text-teal-100" />,
+      icon: <IoConstructOutline className="h-6 w-6 text-teal-100" />,
       modules: [
         'policy-converter',        // Conversion de politiques pour différents publics
         'phishing-simulator',      // Création de simulations de phishing
@@ -306,7 +283,7 @@ export default function CyberModeSelectionRedesign() {
       id: 'grc',
       title: 'Gouvernance, Risque et Conformité',
       description: "Pour les métiers orientés pilotage et stratégie (RSSI, Consultant GRC, Auditeur SSI)",
-      icon: <Lock className="h-6 w-6 text-blue-100" />,
+      icon: <RiLockFill className="h-6 w-6 text-blue-100" />,
       skills: ['Gestion des risques', 'Conformité réglementaire', 'Politique de sécurité', 'Audit'],
       modules: ['agent-ia', 'preparation-audition', 'policy-converter', 'ascension-progression'],
       gradient: 'from-blue-700 to-blue-900'
@@ -315,7 +292,7 @@ export default function CyberModeSelectionRedesign() {
       id: 'secops',
       title: 'Sécurité Opérationnelle',
       description: "Pour les métiers techniques de surveillance et défense (Analyste SOC, Incident Responder)",
-      icon: <Shield className="h-6 w-6 text-red-100" />,
+      icon: <BsShieldCheck className="h-6 w-6 text-red-100" />,
       skills: ['Détection d\'incidents', 'Analyse de logs', 'Gestion de crise', 'Forensique'],
       modules: ['mise-en-situation', 'test-technique', 'agent-ia', 'ascension-progression'],
       gradient: 'from-red-700 to-red-900'
@@ -324,7 +301,7 @@ export default function CyberModeSelectionRedesign() {
       id: 'architecture',
       title: 'Architecture et Sécurisation',
       description: "Pour les concepteurs de systèmes sécurisés (Architecte sécurité, Ingénieur sécurité)",
-      icon: <Cpu className="h-6 w-6 text-teal-100" />,
+      icon: <BsCpu className="h-6 w-6 text-teal-100" />,
       skills: ['Conception de systèmes', 'Infrastructure sécurisée', 'Authentification', 'Chiffrement'],
       modules: ['agent-ia', 'test-technique', 'ascension-progression'],
       gradient: 'from-teal-700 to-teal-900'
@@ -333,7 +310,7 @@ export default function CyberModeSelectionRedesign() {
       id: 'pentest',
       title: 'Test d\'intrusion et Red Team',
       description: "Pour les métiers offensifs (Pentester, Red Team, Ethical Hacker)",
-      icon: <Zap className="h-6 w-6 text-purple-100" />,
+      icon: <BsLightningCharge className="h-6 w-6 text-purple-100" />,
       skills: ['Exploitation de vulnérabilités', 'Techniques d\'attaque', 'Social engineering', 'Post-exploitation'],
       modules: ['mise-en-situation', 'test-technique', 'phishing-simulator', 'ascension-progression'],
       gradient: 'from-purple-700 to-purple-900'
@@ -342,7 +319,7 @@ export default function CyberModeSelectionRedesign() {
       id: 'devsecops',
       title: 'Sécurité des applications & DevSecOps',
       description: "Pour intégrer la sécurité dans le développement (DevSecOps, Security Champion)",
-      icon: <Code className="h-6 w-6 text-yellow-100" />,
+      icon: <BsCodeSlash className="h-6 w-6 text-yellow-100" />,
       skills: ['Analyse de code', 'Sécurité applicative', 'CI/CD sécurisé', 'Tests automatisés'],
       modules: ['agent-ia', 'test-technique', 'ascension-progression'],
       gradient: 'from-yellow-700 to-yellow-900'
@@ -351,7 +328,7 @@ export default function CyberModeSelectionRedesign() {
       id: 'emerging',
       title: 'Cloud, OT, et IoT',
       description: "Pour les domaines techniques émergents (Cloud Security Engineer, OT Security)",
-      icon: <Cloud className="h-6 w-6 text-indigo-100" />,
+      icon: <BsCloud className="h-6 w-6 text-indigo-100" />,
       skills: ['Sécurité cloud', 'Systèmes industriels', 'Objets connectés', 'Sécurité du hardware'],
       modules: ['agent-ia', 'mise-en-situation', 'ascension-progression'],
       gradient: 'from-indigo-700 to-indigo-900'
@@ -360,7 +337,7 @@ export default function CyberModeSelectionRedesign() {
       id: 'awareness',
       title: 'Sensibilisation et formation',
       description: "Pour l'acculturation et la formation (Responsable sensibilisation, Formateur)",
-      icon: <Users className="h-6 w-6 text-green-100" />,
+      icon: <BsPeopleFill className="h-6 w-6 text-green-100" />,
       skills: ['Conception de formations', 'Communication', 'Gamification', 'Mesure d\'efficacité'],
       modules: ['cyber-arcade', 'agent-ia', 'phishing-simulator', 'policy-converter'],
       gradient: 'from-green-700 to-green-900'
@@ -369,7 +346,7 @@ export default function CyberModeSelectionRedesign() {
       id: 'research',
       title: 'R&D et veille',
       description: "Pour l'innovation et le suivi de la menace (Chercheur, Veilleur en cybersécurité)",
-      icon: <BookMarked className="h-6 w-6 text-amber-100" />,
+      icon: <BsBookmarkCheck className="h-6 w-6 text-amber-100" />,
       skills: ['Recherche avancée', 'Threat intelligence', 'Analyse de malware', 'Reverse engineering'],
       modules: ['agent-ia', 'test-technique', 'ascension-progression'],
       gradient: 'from-amber-700 to-amber-900'
@@ -597,7 +574,7 @@ export default function CyberModeSelectionRedesign() {
                 }`}
                 data-id="objectives-tab"
               >
-                <BookOpen className="h-5 w-5 mr-2" />
+                <IoBookOutline className="h-5 w-5 mr-2" />
                 Par objectif d'apprentissage
               </TabsTrigger>
               <TabsTrigger 
