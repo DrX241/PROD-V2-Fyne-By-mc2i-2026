@@ -12,12 +12,15 @@ import { RiTeamLine, RiUserSettingsLine } from 'react-icons/ri';
 import { MdOutlineEmojiEvents } from 'react-icons/md';
 import { FaProjectDiagram, FaRegChartBar } from 'react-icons/fa';
 import { TbChartDots, TbReportAnalytics } from 'react-icons/tb';
+import { AiOutlineZoomIn, AiOutlineZoomOut } from 'react-icons/ai';
+import { FiHelpCircle, FiMoon, FiSun } from 'react-icons/fi';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Card, CardHeader, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 
 // Types pour l'organisation des modules
@@ -285,17 +288,110 @@ export default function AmoaModeSelectionFixed() {
   return (
     <HomeLayout>
       <PageTitle title="I AM mc2i" />
-      <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-[#006a9e] to-blue-900">
+      <div 
+        className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-[#006a9e] to-blue-900"
+        style={{ fontSize: `${textSize}rem` }}
+      >
         {/* Bouton retour à l'accueil */}
         <div className="absolute top-4 left-4 z-20">
           <Button 
             variant="outline" 
-            className="bg-gradient-to-r from-blue-600 to-blue-800 border-white/20 text-white hover:bg-blue-700 hover:text-white"
+            className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full shadow-md border-0 hover:from-blue-700 hover:to-blue-800"
             onClick={() => window.location.href = '/'}
           >
-            <IoHomeIcon className="h-4 w-4 mr-2" />
+            <IoBookOutline className="h-4 w-4 mr-2" />
             Accueil
           </Button>
+        </div>
+
+        {/* Outils d'accessibilité */}
+        <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+          {/* Bouton du guide */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="outline"
+                  size="icon"
+                  className="w-10 h-10 rounded-full bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50"
+                  data-id="help-button"
+                >
+                  <FiHelpCircle className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Guide d'utilisation</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          
+          {/* Contrôle mode haut contraste */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="outline"
+                  size="icon"
+                  className={`w-10 h-10 rounded-full ${
+                    highContrastMode 
+                      ? 'bg-blue-700 border-blue-600 text-white hover:bg-blue-600' 
+                      : 'bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50'
+                  }`}
+                  onClick={() => setHighContrastMode(!highContrastMode)}
+                  data-id="contrast-button"
+                >
+                  {highContrastMode ? (
+                    <FiSun className="h-5 w-5" />
+                  ) : (
+                    <FiMoon className="h-5 w-5" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{highContrastMode ? 'Désactiver' : 'Activer'} le mode haut contraste</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          
+          <div className="flex items-center gap-1">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="outline"
+                    size="icon"
+                    className="w-9 h-9 rounded-full bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50"
+                    onClick={() => setTextSize(Math.max(0.8, textSize - 0.1))}
+                    data-id="text-smaller-button"
+                  >
+                    <AiOutlineZoomOut className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Réduire la taille du texte</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="outline"
+                    size="icon"
+                    className="w-9 h-9 rounded-full bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50"
+                    onClick={() => setTextSize(Math.min(1.2, textSize + 0.1))}
+                    data-id="text-larger-button"
+                  >
+                    <AiOutlineZoomIn className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Augmenter la taille du texte</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         </div>
         
         {/* Contenu principal */}
