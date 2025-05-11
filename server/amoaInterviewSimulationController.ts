@@ -57,12 +57,13 @@ export async function generateMissionScenario(req: Request, res: Response) {
       content: `Génère un scénario d'audition client réaliste pour le secteur ${sector} qui pourrait être utilisé lors d'une préparation d'audition pour un consultant mc2i.`
     };
 
-    const response = await openAIService.getChatCompletionWithCache({
-      messages: [systemMessage, userMessage],
-      temperature: 0.7,
-      maxTokens: 1000,
-      useSecondaryKey: true // Utiliser GPT-4o-mini qui est plus économique
-    });
+    // Utilisation de l'API avec gestion de cache et modèle secondaire (plus économique)
+    const response = await openAIService.getChatCompletionWithCache(
+      [systemMessage, userMessage], 
+      0.7, // temperature
+      1000, // maxTokens
+      true // useSecondaryKey: true pour utiliser GPT-4o-mini qui est plus économique
+    );
 
     try {
       const scenario: MissionScenario = JSON.parse(response);
@@ -154,12 +155,13 @@ Important: Ne révèle jamais que tu es une IA. Comporte-toi comme un véritable
       });
     }
 
-    const response = await openAIService.getChatCompletionWithCache({
-      messages: conversationHistory,
-      temperature: 0.8,
-      maxTokens: 800,
-      useSecondaryKey: false // Utiliser GPT-4o pour une meilleure qualité des réponses
-    });
+    // Utilisation du modèle principal (GPT-4o) pour une meilleure qualité de réponse
+    const response = await openAIService.getChatCompletionWithCache(
+      conversationHistory,
+      0.8, // temperature
+      800, // maxTokens
+      false // useSecondaryKey: false pour utiliser GPT-4o qui est plus performant
+    );
 
     return res.status(200).json({
       success: true,
@@ -229,12 +231,13 @@ export async function evaluatePerformance(req: Request, res: Response) {
       content: `Voici la transcription de l'entretien d'audition à évaluer:\n\n${messagesText}\n\nProfil du consultant: ${candidateInfo?.profileType || 'Non spécifié'}, Expérience: ${candidateInfo?.experienceLevel || 'Non spécifiée'}`
     };
 
-    const response = await openAIService.getChatCompletionWithCache({
-      messages: [systemMessage, userMessage],
-      temperature: 0.7,
-      maxTokens: 1200,
-      useSecondaryKey: false // Utiliser GPT-4o pour une évaluation précise
-    });
+    // Utilisation du modèle principal (GPT-4o) pour une évaluation précise
+    const response = await openAIService.getChatCompletionWithCache(
+      [systemMessage, userMessage],
+      0.7, // temperature
+      1200, // maxTokens
+      false // useSecondaryKey: false pour utiliser GPT-4o pour une évaluation de qualité
+    );
 
     try {
       const evaluation = JSON.parse(response);
