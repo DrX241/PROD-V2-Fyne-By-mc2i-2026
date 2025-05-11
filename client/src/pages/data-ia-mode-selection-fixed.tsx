@@ -5,12 +5,15 @@ import { IoSearchOutline, IoBookOutline, IoDesktopOutline, IoTrophyOutline, IoCo
 import { IoMdArrowForward } from 'react-icons/io';
 import { RiTeamLine, RiFilterLine } from 'react-icons/ri';
 import { TbLayoutGrid, TbList, TbChartDots } from 'react-icons/tb';
-import { BsBarChartFill, BsLightbulb, BsDatabaseFill, BsCpu, BsGraphUp, BsBarChartLine } from 'react-icons/bs';
+import { BsBarChartFill, BsLightbulb, BsDatabaseFill, BsCpu, BsGraphUp, BsBarChartLine, BsBriefcase, BsGearFill } from 'react-icons/bs';
+import { AiOutlineZoomIn, AiOutlineZoomOut } from 'react-icons/ai';
+import { FiHelpCircle, FiMoon, FiSun } from 'react-icons/fi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardHeader, CardContent, CardFooter, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
 
@@ -242,7 +245,10 @@ export default function DataIAModeSelectionFixed() {
   return (
     <HomeLayout>
       <PageTitle title="I AM Data & IA" />
-      <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-[#006a9e] to-blue-900">
+      <div 
+        className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-[#006a9e] to-blue-900"
+        style={{ fontSize: `${textSize}rem` }}
+      >
         {/* Bouton retour à l'accueil */}
         <div className="absolute top-4 left-4 z-20">
           <Button 
@@ -253,6 +259,96 @@ export default function DataIAModeSelectionFixed() {
             <IoBookOutline className="h-4 w-4 mr-2" />
             Accueil
           </Button>
+        </div>
+
+        {/* Outils d'accessibilité */}
+        <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+          {/* Bouton du guide */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="outline"
+                  size="icon"
+                  className="w-10 h-10 rounded-full bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50"
+                  data-id="help-button"
+                >
+                  <FiHelpCircle className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Guide d'utilisation</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          
+          {/* Contrôle mode haut contraste */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="outline"
+                  size="icon"
+                  className={`w-10 h-10 rounded-full ${
+                    highContrastMode 
+                      ? 'bg-blue-700 border-blue-600 text-white hover:bg-blue-600' 
+                      : 'bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50'
+                  }`}
+                  onClick={() => setHighContrastMode(!highContrastMode)}
+                  data-id="contrast-button"
+                >
+                  {highContrastMode ? (
+                    <FiSun className="h-5 w-5" />
+                  ) : (
+                    <FiMoon className="h-5 w-5" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{highContrastMode ? 'Désactiver' : 'Activer'} le mode haut contraste</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          
+          <div className="flex items-center gap-1">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="outline"
+                    size="icon"
+                    className="w-9 h-9 rounded-full bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50"
+                    onClick={() => setTextSize(Math.max(0.8, textSize - 0.1))}
+                    data-id="text-smaller-button"
+                  >
+                    <AiOutlineZoomOut className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Réduire la taille du texte</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="outline"
+                    size="icon"
+                    className="w-9 h-9 rounded-full bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50"
+                    onClick={() => setTextSize(Math.min(1.2, textSize + 0.1))}
+                    data-id="text-larger-button"
+                  >
+                    <AiOutlineZoomIn className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Augmenter la taille du texte</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         </div>
         
         {/* Contenu principal */}
@@ -296,36 +392,44 @@ export default function DataIAModeSelectionFixed() {
           </div>
 
           {/* Onglets principaux */}
-          <Tabs defaultValue="objectives" className="w-full" data-id="main-tabs">
-            <TabsList className="w-full mb-4 bg-white/10">
+          <Tabs defaultValue="objectifs" className="w-full" data-id="main-tabs">
+            <TabsList className={`w-full mb-4 ${
+              highContrastMode ? 'bg-gray-800 border border-gray-700' : 'bg-white/10'
+            }`}>
               <TabsTrigger 
-                value="modules" 
-                className="flex-1 flex items-center justify-center"
-                data-id="modules-tab"
-              >
-                <IoDesktopOutline className="h-5 w-5 mr-2" />
-                Par modules
-              </TabsTrigger>
-              <TabsTrigger 
-                value="objectives" 
-                className="flex-1 flex items-center justify-center"
+                value="objectifs" 
+                className={`flex-1 flex items-center justify-center ${
+                  highContrastMode ? 'data-[state=active]:bg-blue-900 text-white' : ''
+                }`}
                 data-id="objectives-tab"
               >
                 <IoBookOutline className="h-5 w-5 mr-2" />
                 Par objectif d'apprentissage
               </TabsTrigger>
               <TabsTrigger 
-                value="careers" 
-                className="flex-1 flex items-center justify-center"
+                value="metiers" 
+                className={`flex-1 flex items-center justify-center ${
+                  highContrastMode ? 'data-[state=active]:bg-blue-900 text-white' : ''
+                }`}
                 data-id="careers-tab"
               >
-                <BsBarChartFill className="h-5 w-5 mr-2" />
+                <BsBriefcase className="h-5 w-5 mr-2" />
                 Par métier
+              </TabsTrigger>
+              <TabsTrigger 
+                value="tous" 
+                className={`flex-1 flex items-center justify-center ${
+                  highContrastMode ? 'data-[state=active]:bg-blue-900 text-white' : ''
+                }`}
+                data-id="all-modules-tab"
+              >
+                <BsGearFill className="h-5 w-5 mr-2" />
+                Tous les modules
               </TabsTrigger>
             </TabsList>
             
-            {/* Vue par modules */}
-            <TabsContent value="modules" className="mt-6">
+            {/* Vue Tous les modules */}
+            <TabsContent value="tous" className="mt-0">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {filteredModules.map((module) => (
                   <motion.div
@@ -386,7 +490,41 @@ export default function DataIAModeSelectionFixed() {
             </TabsContent>
             
             {/* Vue par objectifs d'apprentissage */}
-            <TabsContent value="objectives" className="mt-6">
+            <TabsContent value="objectifs" className="mt-0">
+              {/* Catégories de modules */}
+              <div className="mb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  <Button 
+                    variant="outline" 
+                    className={`p-3 h-auto flex flex-col items-center justify-center gap-2 text-center rounded-xl bg-blue-900/30 hover:bg-blue-800/50 border-blue-800 text-white`}
+                  >
+                    <IoBookOutline className="h-6 w-6" />
+                    <span className="text-sm font-medium">SE FORMER</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className={`p-3 h-auto flex flex-col items-center justify-center gap-2 text-center rounded-xl bg-blue-900/30 hover:bg-blue-800/50 border-blue-800 text-white`}
+                  >
+                    <IoTrophyOutline className="h-6 w-6" />
+                    <span className="text-sm font-medium">S'ENTRAÎNER</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className={`p-3 h-auto flex flex-col items-center justify-center gap-2 text-center rounded-xl bg-blue-900/30 hover:bg-blue-800/50 border-blue-800 text-white`}
+                  >
+                    <TbChartDots className="h-6 w-6" />
+                    <span className="text-sm font-medium">S'ÉVALUER</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className={`p-3 h-auto flex flex-col items-center justify-center gap-2 text-center rounded-xl bg-blue-900/30 hover:bg-blue-800/50 border-blue-800 text-white`}
+                  >
+                    <IoConstructOutline className="h-6 w-6" />
+                    <span className="text-sm font-medium">CRÉER / AUTOMATISER</span>
+                  </Button>
+                </div>
+              </div>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {learningObjectives.map((objective) => (
                   <motion.div
@@ -444,8 +582,8 @@ export default function DataIAModeSelectionFixed() {
               </div>
             </TabsContent>
             
-            {/* Vue par parcours métiers */}
-            <TabsContent value="careers" className="mt-6">
+            {/* Vue par métiers */}
+            <TabsContent value="metiers" className="mt-0">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {careerPaths.map((career) => (
                   <motion.div
