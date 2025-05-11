@@ -339,36 +339,44 @@ export default function AmoaModeSelectionFixed() {
           </div>
 
           {/* Onglets principaux */}
-          <Tabs defaultValue="objectives" className="w-full" data-id="main-tabs">
-            <TabsList className="w-full mb-4 bg-white/10">
+          <Tabs defaultValue="objectifs" className="w-full" data-id="main-tabs">
+            <TabsList className={`w-full mb-4 ${
+              highContrastMode ? 'bg-gray-800 border border-gray-700' : 'bg-white/10'
+            }`}>
               <TabsTrigger 
-                value="modules" 
-                className="flex-1 flex items-center justify-center"
-                data-id="modules-tab"
-              >
-                <IoDesktopOutline className="h-5 w-5 mr-2" />
-                Par modules
-              </TabsTrigger>
-              <TabsTrigger 
-                value="objectives" 
-                className="flex-1 flex items-center justify-center"
+                value="objectifs" 
+                className={`flex-1 flex items-center justify-center ${
+                  highContrastMode ? 'data-[state=active]:bg-blue-900 text-white' : ''
+                }`}
                 data-id="objectives-tab"
               >
                 <IoBookOutline className="h-5 w-5 mr-2" />
                 Par objectif d'apprentissage
               </TabsTrigger>
               <TabsTrigger 
-                value="careers" 
-                className="flex-1 flex items-center justify-center"
+                value="metiers" 
+                className={`flex-1 flex items-center justify-center ${
+                  highContrastMode ? 'data-[state=active]:bg-blue-900 text-white' : ''
+                }`}
                 data-id="careers-tab"
               >
-                <BsBarChartFill className="h-5 w-5 mr-2" />
+                <BsPeopleFill className="h-5 w-5 mr-2" />
                 Par métier
+              </TabsTrigger>
+              <TabsTrigger 
+                value="tous" 
+                className={`flex-1 flex items-center justify-center ${
+                  highContrastMode ? 'data-[state=active]:bg-blue-900 text-white' : ''
+                }`}
+                data-id="all-modules-tab"
+              >
+                <BsGearFill className="h-5 w-5 mr-2" />
+                Tous les modules
               </TabsTrigger>
             </TabsList>
             
-            {/* Vue par modules */}
-            <TabsContent value="modules" className="mt-6">
+            {/* Vue Tous les modules */}
+            <TabsContent value="tous" className="mt-0">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {filteredModules.map((module) => (
                   <motion.div
@@ -429,7 +437,41 @@ export default function AmoaModeSelectionFixed() {
             </TabsContent>
             
             {/* Vue par objectifs d'apprentissage */}
-            <TabsContent value="objectives" className="mt-6">
+            <TabsContent value="objectifs" className="mt-0">
+              {/* Catégories de modules */}
+              <div className="mb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  <Button 
+                    variant="outline" 
+                    className={`p-3 h-auto flex flex-col items-center justify-center gap-2 text-center rounded-xl bg-blue-900/30 hover:bg-blue-800/50 border-blue-800 text-white`}
+                  >
+                    <IoBookOutline className="h-6 w-6" />
+                    <span className="text-sm font-medium">SE FORMER</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className={`p-3 h-auto flex flex-col items-center justify-center gap-2 text-center rounded-xl bg-blue-900/30 hover:bg-blue-800/50 border-blue-800 text-white`}
+                  >
+                    <IoTrophyOutline className="h-6 w-6" />
+                    <span className="text-sm font-medium">S'ENTRAÎNER</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className={`p-3 h-auto flex flex-col items-center justify-center gap-2 text-center rounded-xl bg-blue-900/30 hover:bg-blue-800/50 border-blue-800 text-white`}
+                  >
+                    <TbChartDots className="h-6 w-6" />
+                    <span className="text-sm font-medium">S'ÉVALUER</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className={`p-3 h-auto flex flex-col items-center justify-center gap-2 text-center rounded-xl bg-blue-900/30 hover:bg-blue-800/50 border-blue-800 text-white`}
+                  >
+                    <IoConstructOutline className="h-6 w-6" />
+                    <span className="text-sm font-medium">CRÉER / AUTOMATISER</span>
+                  </Button>
+                </div>
+              </div>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {learningObjectives.map((objective) => (
                   <motion.div
@@ -487,8 +529,8 @@ export default function AmoaModeSelectionFixed() {
               </div>
             </TabsContent>
             
-            {/* Vue par parcours métiers */}
-            <TabsContent value="careers" className="mt-6">
+            {/* Vue par métiers */}
+            <TabsContent value="metiers" className="mt-0">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {careerPaths.map((career) => (
                   <motion.div
