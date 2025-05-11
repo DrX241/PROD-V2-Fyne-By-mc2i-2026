@@ -737,12 +737,9 @@ const TestDeReflexes: React.FC = () => {
       return newSet;
     });
     
-    // Appliquer le bonus de temps cumulé à la prochaine question
+    // Initialiser le temps pour la prochaine question
     const nextQuestionBaseTime = nextQuestion.timeLimit;
-    const finalTimeWithBonus = nextQuestionBaseTime + bonusTimeEarned;
-    setTimeLeft(finalTimeWithBonus);
-    
-    // Maintenir le bonus de temps pour les questions suivantes (ne pas le réinitialiser)
+    setTimeLeft(nextQuestionBaseTime);
     
     // Redémarrer le timer pour la nouvelle question
     const newTimer = setInterval(() => {
@@ -825,11 +822,6 @@ const TestDeReflexes: React.FC = () => {
       setTimer(null);
     }
     
-    if (globalTimer) {
-      clearInterval(globalTimer);
-      setGlobalTimer(null);
-    }
-    
     setIsFinished(true);
     
     // Calculer les résultats de base
@@ -889,11 +881,8 @@ const TestDeReflexes: React.FC = () => {
       if (timer) {
         clearInterval(timer);
       }
-      if (globalTimer) {
-        clearInterval(globalTimer);
-      }
     };
-  }, [timer, globalTimer]);
+  }, [timer]);
 
   return (
     <HomeLayout>
@@ -1039,16 +1028,13 @@ const TestDeReflexes: React.FC = () => {
                         </div>
                         
                         <div className="flex justify-between items-center">
-                          <div className="text-xs text-gray-300">Temps total restant</div>
+                          <div className="text-xs text-gray-300">Question</div>
                           <Badge 
                             variant="outline" 
-                            className={cn(
-                              "bg-white/10 text-white border-blue-500/30",
-                              remainingTestTime < 30 && "animate-pulse bg-red-900/30 border-red-500/30"
-                            )}
+                            className="bg-white/10 text-white border-blue-500/30"
                           >
                             <TimerReset className="mr-1 h-3 w-3" />
-                            {Math.floor(remainingTestTime / 60)}:{remainingTestTime % 60 < 10 ? `0${remainingTestTime % 60}` : remainingTestTime % 60}
+                            {questionCount} sur {maxQuestions}
                           </Badge>
                         </div>
                         
