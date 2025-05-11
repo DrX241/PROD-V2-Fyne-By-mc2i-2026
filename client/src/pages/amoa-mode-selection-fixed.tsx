@@ -57,7 +57,6 @@ export default function AmoaModeSelectionFixed() {
   const [hoveredModule, setHoveredModule] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [activeTab, setActiveTab] = useState('objectives');
 
   // Liste complète des modules AMOA
   const modules: Module[] = [
@@ -336,17 +335,32 @@ export default function AmoaModeSelectionFixed() {
             </motion.div>
           </div>
 
-          {/* Tabs pour sélectionner la vue */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-            <TabsList className="mx-auto bg-blue-950/50 border border-blue-800">
-              <TabsTrigger value="modules" className="data-[state=active]:bg-blue-700">
+          {/* Onglets principaux */}
+          <Tabs defaultValue="objectives" className="w-full" data-id="main-tabs">
+            <TabsList className="w-full mb-4 bg-white/10">
+              <TabsTrigger 
+                value="modules" 
+                className="flex-1 flex items-center justify-center"
+                data-id="modules-tab"
+              >
+                <IoDesktopOutline className="h-5 w-5 mr-2" />
                 Par modules
               </TabsTrigger>
-              <TabsTrigger value="objectives" className="data-[state=active]:bg-blue-700">
-                Par objectifs
+              <TabsTrigger 
+                value="objectives" 
+                className="flex-1 flex items-center justify-center"
+                data-id="objectives-tab"
+              >
+                <IoBookOutline className="h-5 w-5 mr-2" />
+                Par objectif d'apprentissage
               </TabsTrigger>
-              <TabsTrigger value="careers" className="data-[state=active]:bg-blue-700">
-                Par métiers
+              <TabsTrigger 
+                value="careers" 
+                className="flex-1 flex items-center justify-center"
+                data-id="careers-tab"
+              >
+                <BsBarChartFill className="h-5 w-5 mr-2" />
+                Par métier
               </TabsTrigger>
             </TabsList>
             
