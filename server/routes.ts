@@ -64,6 +64,7 @@ import { getChallenges, getChallengeById, getUserStats, getUserReports, submitBu
 import { generateCustomTool } from "./toolGeneratorController";
 import { getOrCreateUser, getUserById } from "./userController";
 import { evaluateUserPerformance, generateFeedbackMessage } from "./amoaReflexTestController";
+import { generateAmoaQuestions } from "./amoaQuestionGenerator";
 
 
 import {
@@ -3726,6 +3727,7 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
 
   // Routes pour le Test de Réflexes AMOA gamifié avec IA
   app.post('/api/amoa/reflex-test/evaluate', evaluateUserPerformance);
+  app.get('/api/amoa/reflex-test/generate-questions', generateAmoaQuestions);
   app.post('/api/amoa/reflex-test/feedback', generateFeedbackMessage);
 
   // Routes pour les fonctionnalités d'apprentissage
