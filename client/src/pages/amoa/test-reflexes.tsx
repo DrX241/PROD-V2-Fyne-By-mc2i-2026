@@ -36,6 +36,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
 import HomeLayout from "@/components/layout/HomeLayout";
 import { motion } from "framer-motion";
+import testQuestions from "../../data/amoa/test-reflexes-questions";
 
 // Types pour le test de réflexes
 interface Question {
