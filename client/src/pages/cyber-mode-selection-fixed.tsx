@@ -145,7 +145,7 @@ export default function CyberModeSelectionRedesign() {
       title: 'PRÉPARATION AUDITION CLIENT',
       description: "Simulez des entretiens avec des clients pour des missions de cybersécurité",
       icon: <BsPeopleFill className="h-5 w-5" />,
-      destination: '/cyber/interview-preparation',
+      destination: '/cyber/interview-simulation',
       difficulty: 'intermédiaire',
       duration: '30-45 min'
     },
