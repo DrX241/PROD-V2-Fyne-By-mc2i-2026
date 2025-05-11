@@ -62,12 +62,7 @@ const contactFormSchema = z.object({
 // Types pour le suivi de progression
 type ProgressSection = 'preparation' | 'during' | 'after';
 
-interface BestPracticesContentProps {
-  setActiveTab: (tab: string) => void;
-  setSimulationPhase: React.Dispatch<React.SetStateAction<'preparation' | 'briefing' | 'interview' | 'evaluation' | null>>;
-}
-
-const BestPracticesContent: React.FC<BestPracticesContentProps> = ({ setActiveTab, setSimulationPhase }) => {
+const BestPracticesContent: React.FC = () => {
   const [progressTracker, setProgressTracker] = useState({
     preparation: { completed: 0, total: 2 },
     during: { completed: 0, total: 5 },
@@ -626,10 +621,7 @@ const BestPracticesContent: React.FC<BestPracticesContentProps> = ({ setActiveTa
       <div className="mt-8 text-center">
         <Button
           className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-2 px-6 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105"
-          onClick={() => {
-            setSimulationPhase('preparation');
-            setActiveTab('simulation');
-          }}
+          onClick={() => setActiveTab?.('configuration')}
         >
           <Sparkles className="w-5 h-5 mr-2" />
           Démarrer une simulation d'audition
@@ -647,33 +639,15 @@ const Mc2iInterviewPreparation: React.FC = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('best-practices');
   
-  // États des phases de simulation
-  const [simulationPhase, setSimulationPhase] = useState<'preparation' | 'briefing' | 'interview' | 'evaluation' | null>(null);
+  // État des simulations et configurations
+  const [isSimulationActive, setIsSimulationActive] = useState(false);
   const [simulationComplete, setSimulationComplete] = useState(false);
   const [showContactForm, setShowContactForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
-  // État du scénario de mission
-  const [missionScenario, setMissionScenario] = useState<{
-    title: string;
-    clientName: string;
-    clientCompany: string;
-    clientPosition: string;
-    sector: string;
-    projectContext: string;
-    projectObjectives: string[];
-    expectedSkills: string[];
-    challengesAndConstraints: string[];
-    teamSize: number;
-    duration: string;
-  } | null>(null);
-  
   // Chat
   const [messages, setMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState('');
-  
-  // Nouvelle état pour indiquer si le scénario est en cours de génération
-  const [isGeneratingScenario, setIsGeneratingScenario] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   // Formulaires
@@ -722,129 +696,34 @@ const Mc2iInterviewPreparation: React.FC = () => {
     return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
   };
   
-  // Génération d'un scénario de mission
-  const generateMissionScenario = async (sector: string) => {
-    setIsGeneratingScenario(true);
-    
-    try {
-      // Dans une version réelle, ceci serait un appel API vers Azure OpenAI pour générer un scénario
-      // C'est simulé ici pour démonstration
-      setTimeout(() => {
-        const sectors = {
-          "Banque & Assurance": {
-            companyName: "Crédit Mutuel",
-            context: "transformation des services digitaux bancaires",
-            objectives: ["Moderniser l'application mobile", "Unifier l'expérience client", "Renforcer la sécurité des transactions"],
-            skills: ["Connaissance du secteur bancaire", "Expérience en UX/UI", "Maîtrise des standards de sécurité bancaire", "Compétences en gestion de projet Agile"],
-            challenges: ["Intégration avec les systèmes legacy", "Contraintes réglementaires strictes", "Migration des utilisateurs sans impact"]
-          },
-          "Secteur Public": {
-            companyName: "Ministère de la Transformation Numérique",
-            context: "dématérialisation des procédures administratives",
-            objectives: ["Réduire le temps de traitement des demandes", "Faciliter l'accès aux services publics", "Garantir l'inclusion numérique"],
-            skills: ["Connaissance des processus administratifs", "Expérience en conduite du changement", "Maîtrise des normes d'accessibilité", "Sensibilité à la protection des données"],
-            challenges: ["Résistance au changement", "Disparité des systèmes existants", "Contraintes budgétaires importantes"]
-          },
-          "Énergie": {
-            companyName: "EDF",
-            context: "optimisation de la consommation énergétique",
-            objectives: ["Déployer une solution de monitoring en temps réel", "Réduire l'empreinte carbone des installations", "Optimiser les coûts opérationnels"],
-            skills: ["Expérience dans le secteur de l'énergie", "Connaissance des IoT et des systèmes de monitoring", "Expertise en analyse de données", "Compétences en gestion de projet"],
-            challenges: ["Intégration de multiples sources de données", "Conformité aux normes environnementales", "Déploiement sur des sites géographiquement dispersés"]
-          },
-          "Retail": {
-            companyName: "Carrefour",
-            context: "transformation omnicanale des parcours d'achat",
-            objectives: ["Unifier l'expérience en ligne et en magasin", "Personnaliser les offres en temps réel", "Optimiser la chaîne logistique"],
-            skills: ["Connaissance du secteur retail", "Expertise en expérience client", "Maîtrise des technologies de personalisation", "Compétences en intégration de systèmes"],
-            challenges: ["Forte concurrence", "Complexité des systèmes existants", "Attentes élevées des consommateurs"]
-          },
-          "Santé": {
-            companyName: "Groupe Hospitalier Paris Saint-Joseph",
-            context: "modernisation du système d'information médicale",
-            objectives: ["Digitaliser le dossier patient", "Améliorer la coordination des soins", "Optimiser les parcours patients"],
-            skills: ["Connaissance du secteur médical", "Expertise en sécurité des données sensibles", "Maîtrise des standards d'interopérabilité", "Capacité à travailler avec les équipes médicales"],
-            challenges: ["Contraintes réglementaires fortes", "Sensibilité des données manipulées", "Besoin de disponibilité 24/7"]
-          }
-        };
-        
-        // Sélection du secteur ou valeur par défaut
-        const sectorKey = sector in sectors ? sector : "Banque & Assurance";
-        const sectorData = sectors[sectorKey as keyof typeof sectors];
-        
-        // Construction d'un scénario réaliste
-        const scenario = {
-          title: `Projet de ${sectorData.context} pour ${sectorData.companyName}`,
-          clientName: generateRandomName(),
-          clientCompany: sectorData.companyName,
-          clientPosition: `Directeur de la ${sectorKey === "Banque & Assurance" ? "Transformation Digitale" : 
-                         sectorKey === "Secteur Public" ? "Modernisation des Services" : 
-                         sectorKey === "Énergie" ? "Transition Énergétique" : 
-                         sectorKey === "Retail" ? "Stratégie Omnicanale" : 
-                         "Transformation Numérique"}`,
-          sector: sectorKey,
-          projectContext: `${sectorData.companyName} souhaite initier un projet ambitieux de ${sectorData.context} pour répondre aux défis actuels du marché et aux attentes croissantes de leurs clients. Ce projet s'inscrit dans une stratégie à long terme visant à moderniser leurs infrastructures tout en améliorant l'expérience utilisateur. Le projet a obtenu un budget conséquent et dispose d'un fort sponsoring de la direction générale.`,
-          projectObjectives: sectorData.objectives,
-          expectedSkills: sectorData.skills,
-          challengesAndConstraints: sectorData.challenges,
-          teamSize: Math.floor(Math.random() * 5) + 3, // Équipe de 3 à 7 personnes
-          duration: `${Math.floor(Math.random() * 6) + 6} mois` // Durée de 6 à 12 mois
-        };
-        
-        setMissionScenario(scenario);
-        setIsGeneratingScenario(false);
-        // Passer à la phase de briefing
-        setSimulationPhase('briefing');
-        setActiveTab('configuration');
-      }, 2000);
-    } catch (error) {
-      console.error('Erreur lors de la génération du scénario:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de générer le scénario de mission. Veuillez réessayer.",
-        variant: "destructive",
-      });
-      setIsGeneratingScenario(false);
-    }
-  };
-  
-  // Fonction helper pour générer des noms réalistes
-  const generateRandomName = () => {
-    const firstNames = ["Thomas", "Sophie", "Laurent", "Marie", "Philippe", "Isabelle", "Nicolas", "Céline", "Patrick", "Caroline"];
-    const lastNames = ["Martin", "Bernard", "Dubois", "Petit", "Richard", "Moreau", "Simon", "Laurent", "Leroy", "Roux"];
-    
-    return `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`;
-  };
-  
-  // Démarrage de la simulation d'audition après le briefing
-  const startInterview = async () => {
+  // Démarrage de la simulation
+  const startSimulation = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     
     try {
-      if (!missionScenario) {
-        throw new Error("Aucun scénario de mission n'a été généré");
-      }
-      
       setTimeout(() => {
-        // Réinitialiser le timer pour 15 minutes (900 secondes)
-        setTimeRemaining(900);
-        
         const systemMessage: Message = {
           id: 'system-1',
           role: 'system',
-          content: `Cette simulation vous permet de pratiquer un entretien avec un client potentiel. Le contexte de la mission est : ${missionScenario.title}. Soyez authentique et apportez des réponses précises et concises.`,
+          content: 'Cette simulation vous permet de pratiquer un entretien avec un client potentiel. Soyez authentique et apportez des réponses précises et concises.',
           timestamp: new Date(),
         };
         
         const welcomeMessage: Message = {
           id: 'assistant-1',
           role: 'assistant',
-          content: `Bonjour, je suis ${missionScenario.clientName}, ${missionScenario.clientPosition} chez ${missionScenario.clientCompany}. Merci de vous être rendu disponible pour cet entretien concernant notre projet de ${missionScenario.title.toLowerCase()}. Avant tout, pourriez-vous vous présenter brièvement et me parler de votre parcours chez mc2i ?`,
+          content: `Bonjour, je suis Thierry Dubois, responsable des projets digitaux chez ${values.sectorFocus === 'Banque & Assurance' ? 'Crédit Mutuel' : 
+                   values.sectorFocus === 'Secteur Public' ? 'le Ministère de la Transformation Numérique' :
+                   values.sectorFocus === 'Énergie' ? 'EDF' : 'notre entreprise'}. Nous recherchons un consultant ${values.profileType.toLowerCase()} pour nous accompagner sur un projet de ${
+                   values.sectorFocus === 'Banque & Assurance' ? 'refonte de notre application mobile bancaire' : 
+                   values.sectorFocus === 'Secteur Public' ? 'dématérialisation des procédures administratives' :
+                   values.sectorFocus === 'Énergie' ? 'pilotage de la consommation énergétique' : 'transformation digitale'
+                   }. Pouvez-vous vous présenter et me parler de votre expérience pertinente pour ce poste ?`,
           timestamp: new Date(),
         };
         
         setMessages([systemMessage, welcomeMessage]);
-        setSimulationPhase('interview');
+        setIsSimulationActive(true);
         setActiveTab('simulation');
         
         const timer = setInterval(() => {
@@ -872,19 +751,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
     }
   };
   
-  // Initialisation de la création du scénario (depuis le formulaire)
-  const startScenarioCreation = async (values: z.infer<typeof formSchema>) => {
-    // Sauvegarder les informations du formulaire
-    if (values.recruiterEmail || values.candidateName) {
-      form.setValue('recruiterEmail', values.recruiterEmail);
-      form.setValue('candidateName', values.candidateName);
-    }
-    
-    // Démarrer la génération du scénario
-    generateMissionScenario(values.sectorFocus);
-  };
-  
-  // Fonction pour contourner l'étape d'information et générer un scénario rapidement
+  // Fonction pour contourner l'étape d'information
   const skipInfoAndStart = () => {
     const values = {
       recruiterEmail: "",
@@ -895,7 +762,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
     };
     
     form.reset(values);
-    startScenarioCreation(values);
+    startSimulation(values);
   };
   
   // Fonction pour envoyer un message
@@ -966,12 +833,11 @@ const Mc2iInterviewPreparation: React.FC = () => {
   // Réinitialiser la simulation
   const resetSimulation = () => {
     setMessages([]);
-    setTimeRemaining(900); // 15 minutes
+    setTimeRemaining(600);
     if (timerId) clearInterval(timerId);
-    setSimulationPhase(null);
+    setIsSimulationActive(false);
     setSimulationComplete(false);
     setEvaluationResult(null);
-    setMissionScenario(null);
     setActiveTab('best-practices');
   };
   
@@ -1040,10 +906,10 @@ const Mc2iInterviewPreparation: React.FC = () => {
           <Button 
             variant="ghost" 
             className="text-white hover:text-white hover:bg-gray-700/80"
-            onClick={() => navigate("/i-am-mc2i")}
+            onClick={() => navigate("/amoa-mode-selection-fixed")}
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
-            Retour vers I AM mc2i
+            Retour
           </Button>
         </div>
         
@@ -1071,7 +937,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
             </TabsTrigger>
             <TabsTrigger 
               value="simulation"
-              disabled={simulationPhase !== 'interview'}
+              disabled={!isSimulationActive}
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-700/80 data-[state=active]:to-cyan-700/80"
             >
               Simulation
@@ -1094,7 +960,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
-                <BestPracticesContent setActiveTab={setActiveTab} setSimulationPhase={setSimulationPhase} />
+                <BestPracticesContent />
               </CardContent>
               <CardFooter className="flex justify-between border-t border-gray-700/50 pt-4">
                 <Button
@@ -1105,10 +971,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
                   Imprimer ce guide
                 </Button>
                 <Button
-                  onClick={() => {
-                    setSimulationPhase('preparation');
-                    setActiveTab('simulation');
-                  }}
+                  onClick={() => setActiveTab('configuration')}
                   className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                 >
                   Démarrer une simulation
@@ -1127,7 +990,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
               </CardHeader>
               <CardContent className="pt-6">
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(startScenarioCreation)} className="space-y-6">
+                  <form onSubmit={form.handleSubmit(startSimulation)} className="space-y-6">
                     <div className="bg-gray-800/60 p-5 rounded-md mb-6 border border-gray-700/50">
                       <h3 className="text-lg font-semibold mb-4">Informations optionnelles pour recevoir l'évaluation par email</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
