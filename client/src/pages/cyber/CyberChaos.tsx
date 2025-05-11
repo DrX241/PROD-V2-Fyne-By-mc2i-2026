@@ -157,6 +157,19 @@ const pageStyle = "min-h-screen bg-gradient-to-b from-blue-900 via-blue-800 to-b
 const CyberChaos: React.FC = () => {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  
+  // Insérer les styles CSS des animations au montage du composant
+  useEffect(() => {
+    // Créer un élément style
+    const styleElement = document.createElement('style');
+    styleElement.innerHTML = impactStyles;
+    document.head.appendChild(styleElement);
+    
+    // Nettoyer au démontage
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
   const chatContext = useChatContext();
   
   // Fonction pour naviguer
@@ -1472,7 +1485,7 @@ const CyberChaos: React.FC = () => {
                       <div className="bg-blue-950/50 p-4 rounded-lg">
                         <h3 className="text-xl font-semibold mb-3">Résultats finaux</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                          <div>
+                          <div className="relative" data-score="operational">
                             <p className="text-sm mb-1 text-blue-200">Activité opérationnelle</p>
                             <div className="flex items-center">
                               <Progress value={gameState.operationalScore} className="flex-1 mr-2" />
@@ -1480,7 +1493,7 @@ const CyberChaos: React.FC = () => {
                             </div>
                           </div>
                           
-                          <div>
+                          <div className="relative" data-score="reputation">
                             <p className="text-sm mb-1 text-blue-200">Réputation</p>
                             <div className="flex items-center">
                               <Progress value={gameState.reputationScore} className="flex-1 mr-2" />
@@ -1488,7 +1501,7 @@ const CyberChaos: React.FC = () => {
                             </div>
                           </div>
                           
-                          <div>
+                          <div className="relative" data-score="legal">
                             <p className="text-sm mb-1 text-blue-200">Risque légal</p>
                             <div className="flex items-center">
                               <Progress value={gameState.legalRisk} className="flex-1 mr-2" />
@@ -1498,7 +1511,7 @@ const CyberChaos: React.FC = () => {
                         </div>
                         
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                          <div className="flex items-center gap-3 bg-blue-900/30 p-3 rounded-lg">
+                          <div className="flex items-center gap-3 bg-blue-900/30 p-3 rounded-lg relative" data-score="financial">
                             <Wallet className="h-8 w-8 text-amber-300" />
                             <div>
                               <p className="text-sm text-blue-200">Impact financier</p>
@@ -1506,7 +1519,7 @@ const CyberChaos: React.FC = () => {
                             </div>
                           </div>
                           
-                          <div className="flex items-center gap-3 bg-blue-900/30 p-3 rounded-lg">
+                          <div className="flex items-center gap-3 bg-blue-900/30 p-3 rounded-lg relative" data-score="stress">
                             <Building className="h-8 w-8 text-amber-300" />
                             <div>
                               <p className="text-sm text-blue-200">Stress interne</p>
