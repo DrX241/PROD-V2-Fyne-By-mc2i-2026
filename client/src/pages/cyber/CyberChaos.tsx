@@ -1713,7 +1713,7 @@ const CyberChaos: React.FC = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center">
+                  <div className="flex items-center relative" data-score="legal">
                     <Progress value={gameState.legalRisk} className="flex-1 mr-2" />
                     <span className="text-xl font-bold">{gameState.legalRisk}%</span>
                   </div>
@@ -1736,7 +1736,7 @@ const CyberChaos: React.FC = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center">
+                  <div className="flex items-center relative" data-score="stress">
                     <Progress 
                       value={gameState.stressLevel} 
                       className={`flex-1 mr-2 ${
