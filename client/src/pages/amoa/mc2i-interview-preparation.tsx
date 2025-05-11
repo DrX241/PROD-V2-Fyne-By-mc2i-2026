@@ -110,13 +110,11 @@ const BestPracticesContent = () => (
                   <p className="text-white font-medium">Exemple :</p>
                   <p className="italic">« Je suis Jean-Louis DUPONT, consultant confirmé AMOA SI chez mc2i Groupe, je suis ingénieur diplômé de l'INSA et j'évolue depuis 3 ans dans les problématiques métier RH et Décisionnelles dans le secteur Privé »</p>
                   <Button variant="outline" size="sm" className="mt-2 text-xs border-blue-400 text-blue-300 hover:bg-blue-700 hover:text-white" onClick={() => {
-                    if (navigator.clipboard) {
-                      navigator.clipboard.writeText("Je suis [PRÉNOM NOM], consultant [NIVEAU] [SPÉCIALITÉ] chez mc2i Groupe, je suis [FORMATION] et j'évolue depuis [X] ans dans les problématiques [DOMAINES D'EXPERTISE] dans le secteur [SECTEUR]");
-                      toast({
-                        title: "Copié !",
-                        description: "Le modèle de pitch a été copié dans le presse-papier.",
-                        duration: 3000,
-                      });
+                    try {
+                      navigator.clipboard?.writeText("Je suis [PRÉNOM NOM], consultant [NIVEAU] [SPÉCIALITÉ] chez mc2i Groupe, je suis [FORMATION] et j'évolue depuis [X] ans dans les problématiques [DOMAINES D'EXPERTISE] dans le secteur [SECTEUR]");
+                      alert("Modèle de pitch copié dans le presse-papier");
+                    } catch (error) {
+                      console.error("Erreur lors de la copie:", error);
                     }
                   }}>
                     <Copy className="w-3 h-3 mr-1" /> Copier le modèle
@@ -626,11 +624,11 @@ const Mc2iInterviewPreparation: React.FC<{}> = () => {
     
     // Finaliser avec les informations disponibles
     await finalizeSimulation(
-      recruiterEmail,
-      candidateName,
-      form.getValues('profileType'),
-      form.getValues('experienceLevel'),
-      form.getValues('sectorFocus')
+      recruiterEmail || "",
+      candidateName || "",
+      form.getValues('profileType') || "",
+      form.getValues('experienceLevel') || "",
+      form.getValues('sectorFocus') || ""
     );
   };
   
@@ -734,7 +732,7 @@ const Mc2iInterviewPreparation: React.FC<{}> = () => {
           <Button 
             variant="ghost" 
             className="text-white hover:text-white hover:bg-blue-800"
-            onClick={() => navigate("/amoa-mode-selection-fixed")}
+            onClick={() => navigate("/amoa-mode-selection-fixed" as string)}
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
             Retour
@@ -1140,7 +1138,7 @@ const Mc2iInterviewPreparation: React.FC<{}> = () => {
                     </div>
                     
                     <div className="bg-blue-700 p-4 rounded-md">
-                      <h3 className="text-lg font-semibold mb-2">Adéquation avec le secteur {form.getValues('sectorFocus')}</h3>
+                      <h3 className="text-lg font-semibold mb-2">Adéquation avec le secteur {form.getValues('sectorFocus') || ""}</h3>
                       <p className="text-blue-100 mb-2">
                         {evaluationResult.sectorFitEvaluation || "Aucune évaluation d'adéquation sectorielle disponible."}
                       </p>
