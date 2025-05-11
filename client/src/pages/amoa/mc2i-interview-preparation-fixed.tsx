@@ -910,7 +910,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
           <Button 
             variant="ghost" 
             className="text-white hover:text-white hover:bg-gray-700/80"
-            onClick={() => navigate("/amoa-mode-selection-fixed")}
+            onClick={() => window.history.back()}
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
             Retour
