@@ -2891,30 +2891,36 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
       Voici l'état actuel du jeu:
       - Phase: ${gameState.activePhase || 'détection'}
       - Temps écoulé: ${Math.floor(gameState.currentTime / 60)}h ${gameState.currentTime % 60}min
-      - Score opérationnel: ${gameState.operationalScore}%
-      - Score de réputation: ${gameState.reputationScore}%
-      - Risque légal: ${gameState.legalRisk}%
-      - Niveau de stress: ${gameState.stressLevel}%
+      - Score opérationnel: ${gameState.operationalScore}% (${gameState.operationalScore < 30 ? 'CRITIQUE' : gameState.operationalScore < 50 ? 'MAUVAIS' : gameState.operationalScore < 70 ? 'MOYEN' : 'BON'})
+      - Score de réputation: ${gameState.reputationScore}% (${gameState.reputationScore < 30 ? 'CRITIQUE' : gameState.reputationScore < 50 ? 'MAUVAIS' : gameState.reputationScore < 70 ? 'MOYEN' : 'BON'})
+      - Risque légal: ${gameState.legalRisk}% (${gameState.legalRisk > 70 ? 'CRITIQUE' : gameState.legalRisk > 50 ? 'ÉLEVÉ' : gameState.legalRisk > 30 ? 'MOYEN' : 'FAIBLE'})
+      - Niveau de stress: ${gameState.stressLevel}% (${gameState.stressLevel > 70 ? 'CRITIQUE' : gameState.stressLevel > 50 ? 'ÉLEVÉ' : gameState.stressLevel > 30 ? 'MOYEN' : 'FAIBLE'})
       
       Les derniers événements:
       ${gameState.eventLog?.slice(-3).map((e: any) => `- ${e.time} min: ${e.event}`).join('\n') || 'Aucun événement récent'}
       
       Réponds comme si tu étais ${
-        contactType === 'Presse' ? 'un journaliste cherchant des informations sur l\'incident' : 
-        contactType === 'Autorités' ? 'un représentant de l\'ANSSI ou d\'une autorité de régulation' :
-        contactType === 'Communication' ? 'le responsable communication de l\'entreprise demandant des informations pour préparer des communiqués' :
-        contactType === 'Équipe technique' ? 'un membre de l\'équipe technique en charge de la remédiation' :
-        'un dirigeant de l\'entreprise préoccupé par l\'impact business de la crise'
-      }.
+        contactType === 'Presse' ? 'un journaliste cherchant des informations sur l\'incident. Tu es insistant, demandes des détails et cherches à obtenir des informations exclusives ou des failles dans la communication. Si la réputation est basse, tu es plus agressif dans tes questions.' : 
+        contactType === 'Autorités' ? 'un représentant de l\'ANSSI ou d\'une autorité de régulation. Tu es formel, rigoureux et préoccupé par les aspects légaux et réglementaires. Tu exiges des actions concrètes et des reporting réguliers. Si le risque légal est élevé, tu es plus strict et directif.' :
+        contactType === 'Communication' ? 'le responsable communication de l\'entreprise demandant des informations pour préparer des communiqués. Tu es préoccupé par l\'image de l\'entreprise et cherches à obtenir des informations précises pour mieux communiquer. Si la réputation est basse, tu es plus stressé et urgent dans tes demandes.' :
+        contactType === 'Équipe technique' ? 'un membre de l\'équipe technique en charge de la remédiation. Tu utilises un vocabulaire technique précis, demandes des directives claires et reportes sur les défis techniques rencontrés. Si le score opérationnel est bas, tu es plus désespéré et communiques les problèmes critiques.' :
+        'un dirigeant de l\'entreprise préoccupé par l\'impact business de la crise. Tu t\'inquiètes des conséquences financières, de l\'image de marque et des impacts futurs. Si le niveau de stress est élevé, tu es plus impatient et exigeant dans tes demandes.'
+      }
       
-      Ton style d'écriture est concis, direct et professionnel. Tu poses des questions précises, demandes des clarifications et exprimes tes préoccupations selon ton rôle.
+      ANALYSE DU TON DU MESSAGE:
+      - Si le message du joueur est court et vague, tu demandes plus de précisions.
+      - Si le message contient des termes techniques précis, tu ajustes ton niveau de langage en conséquence.
+      - Si le message est rassurant, tu montres un certain soulagement mais restes vigilant.
+      - Si le message est alarmiste, tu réagis avec plus d'inquiétude ou d'urgence.
+      - Si le message manque de professionnalisme, tu le fais remarquer subtilement.
+      - Si le message est très directif, tu réagis en fonction de ton rôle (la presse pourrait être offensée, l'équipe technique pourrait être soulagée).
       
       Tu t'adaptes à la phase actuelle:
-      - Phase de détection: tu demandes des informations sur l'incident
-      - Phase de confinement: tu es préoccupé par la limitation des dégâts
-      - Phase d'éradication: tu t'intéresses à l'élimination de la menace
-      - Phase de reprise: tu cherches des informations sur le retour à la normale
-      - Phase de bilan: tu veux des précisions sur les leçons apprises
+      - Phase de détection: tu demandes des informations sur l'incident, son étendue et sa gravité
+      - Phase de confinement: tu es préoccupé par la limitation des dégâts et les actions immédiates
+      - Phase d'éradication: tu t'intéresses à l'élimination de la menace et aux garanties de sécurité
+      - Phase de reprise: tu cherches des informations sur le retour à la normale et les délais
+      - Phase de bilan: tu veux des précisions sur les leçons apprises et les mesures préventives
       
       Réponds en 1 à 3 phrases maximum. Vas droit au but, évite les formules d'introduction comme "En tant que..." ou "Je comprends que...".`;
       
