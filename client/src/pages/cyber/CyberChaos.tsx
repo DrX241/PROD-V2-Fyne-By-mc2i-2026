@@ -1237,7 +1237,7 @@ const CyberChaos: React.FC = () => {
       };
       
       // Envoyer la requête à l'API
-      const response = await fetch('/api/cyberchaos/npc-interaction', {
+      const apiResponse = await fetch('/api/cyberchaos/npc-interaction', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1249,11 +1249,11 @@ const CyberChaos: React.FC = () => {
         }),
       });
       
-      if (!response.ok) {
-        throw new Error(`Erreur API: ${response.status}`);
+      if (!apiResponse.ok) {
+        throw new Error(`Erreur API: ${apiResponse.status}`);
       }
       
-      const data = await response.json();
+      const data = await apiResponse.json();
       
       // Analyser la réponse du PNJ et l'ajouter à l'historique de communication avec des impacts visuels
       
